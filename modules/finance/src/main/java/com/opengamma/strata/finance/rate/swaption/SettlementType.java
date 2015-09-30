@@ -13,7 +13,7 @@ public enum SettlementType {
    * cash settlement
    * <p>
    * Cash amount is paid (by the short party to the long party) at the exercise date (or more exactly 
-   * at the spot lag after the exercise and the actual swap is not entered into.
+   * at the spot lag after the exercise) and the actual swap is not entered into.
    */
   CASH,
   /**

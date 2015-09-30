@@ -31,9 +31,10 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLegType;
 import com.opengamma.strata.finance.rate.swap.type.IborIborSwapConvention;
-import com.opengamma.strata.finance.rate.swaption.SettlementType;
+import com.opengamma.strata.finance.rate.swaption.CashSettlement;
+import com.opengamma.strata.finance.rate.swaption.PhysicalSettlement;
 import com.opengamma.strata.finance.rate.swaption.Swaption;
-import com.opengamma.strata.finance.rate.swaption.SwaptionSettlementMethod;
+import com.opengamma.strata.finance.rate.swaption.SwaptionSettlement;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -74,35 +75,25 @@ public class BlackSwaptionPhysicalProductPricerTest {
   private static final Swap SWAP_PAST = USD_FIXED_6M_LIBOR_3M // Only for checks; no actual computation on that swap
       .toTrade(SWAPTION_PAST_EXERCISE_DATE, SWAPTION_PAST_EXERCISE_DATE, SWAPTION_PAST_EXERCISE_DATE.plusYears(10),
           BUY, NOTIONAL, STRIKE).getProduct();
-  private static final SwaptionSettlementMethod PHYSICAL_SETTLE = new SwaptionSettlementMethod() {
-    @Override
-    public SettlementType getSettlementType() {
-      return SettlementType.PHYSICAL;
-    }
-  };
-  private static final SwaptionSettlementMethod CASH_SETTLE = new SwaptionSettlementMethod() {
-    @Override
-    public SettlementType getSettlementType() {
-      return SettlementType.CASH;
-    }
-  };
+  private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
+  private static final SwaptionSettlement CASH_SETTLE = CashSettlement.DEFAULT;
 
-  private static final Swaption SWAPTION_LONG_REC = Swaption.builder().settlementMethod(PHYSICAL_SETTLE)
+  private static final Swaption SWAPTION_LONG_REC = Swaption.builder().swaptionSettlement(PHYSICAL_SETTLE)
       .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG).underlying(SWAP_REC).build();
-  private static final Swaption SWAPTION_SHORT_REC = Swaption.builder().settlementMethod(PHYSICAL_SETTLE)
+  private static final Swaption SWAPTION_SHORT_REC = Swaption.builder().swaptionSettlement(PHYSICAL_SETTLE)
       .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.SHORT).underlying(SWAP_REC).build();
-  private static final Swaption SWAPTION_LONG_PAY = Swaption.builder().settlementMethod(PHYSICAL_SETTLE)
+  private static final Swaption SWAPTION_LONG_PAY = Swaption.builder().swaptionSettlement(PHYSICAL_SETTLE)
       .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG).underlying(SWAP_PAY).build();
-  private static final Swaption SWAPTION_LONG_REC_CASH = Swaption.builder().settlementMethod(CASH_SETTLE)
+  private static final Swaption SWAPTION_LONG_REC_CASH = Swaption.builder().swaptionSettlement(CASH_SETTLE)
       .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG).underlying(SWAP_REC).build();
-  private static final Swaption SWAPTION_BASIS = Swaption.builder().settlementMethod(PHYSICAL_SETTLE)
+  private static final Swaption SWAPTION_BASIS = Swaption.builder().swaptionSettlement(PHYSICAL_SETTLE)
       .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG).underlying(SWAP_BASIS).build();
-  private static final Swaption SWAPTION_PAST = Swaption.builder().settlementMethod(PHYSICAL_SETTLE)
+  private static final Swaption SWAPTION_PAST = Swaption.builder().swaptionSettlement(PHYSICAL_SETTLE)
       .expiryDate(SWAPTION_PAST_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG).underlying(SWAP_PAST).build();
 

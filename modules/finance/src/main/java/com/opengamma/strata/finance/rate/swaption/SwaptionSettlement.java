@@ -5,11 +5,10 @@
  */
 package com.opengamma.strata.finance.rate.swaption;
 
-
 /**
  * An interface that can return the settlement type and settlement method of swaptions.
  */
-public interface SwaptionSettlementMethod {
+public interface SwaptionSettlement {
 
   /**
    * Gets the settlement type of swaption. 

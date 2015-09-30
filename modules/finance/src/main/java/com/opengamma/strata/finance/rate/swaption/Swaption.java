@@ -12,7 +12,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -29,7 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.LongShort;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.swap.Swap;
 
@@ -54,20 +53,20 @@ public final class Swaption
   /**
    * Settlement method.  
    * <p>
-   * The settlement of the option is specified by {@link SwaptionSettlementMethod}.
+   * The settlement of the option is specified by {@link SwaptionSettlement}.
    */
   @PropertyDefinition(validate = "notNull")
-  private final SwaptionSettlementMethod settlementMethod;
+  private final SwaptionSettlement swaptionSettlement;
   /**
    * The expiry date of the option.  
    * <p>
    * The option is European, and can only be exercised on the expiration date. 
    * <p>
    * This date is typically set to be a valid business day.
-   * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
+   * However, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
    */
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate expiryDate;
+  private final AdjustableDate expiryDate;
   /**
    * The expiry time of the option.  
    * <p>
@@ -90,19 +89,11 @@ public final class Swaption
    */
   @PropertyDefinition(validate = "notNull")
   private final Swap underlying;
-  /**
-   * The business day adjustment to apply to the expiry date, optional.
-   * <p>
-   * The expiry date is typically defined as a valid business day and thus does not need to be adjusted. 
-   * If this optional property is present, then the expiry date will be adjusted as defined here.
-   */
-  @PropertyDefinition(get = "optional")
-  private final BusinessDayAdjustment businessDayAdjustment;
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    ArgChecker.inOrderOrEqual(expiryDate, underlying.getStartDate(), "expiryDate", "startDate");
+    ArgChecker.inOrderOrEqual(expiryDate.getUnadjusted(), underlying.getStartDate(), "expiryDate", "startDate");
   }
 
   //-------------------------------------------------------------------------
@@ -116,7 +107,7 @@ public final class Swaption
    * @return the expiration date and time
    */
   public ZonedDateTime getExpiryDateTime() {
-    return expiryDate.atTime(expiryTime).atZone(expiryZone);
+    return expiryDate.getUnadjusted().atTime(expiryTime).atZone(expiryZone);
   }
 
   //-------------------------------------------------------------------------
@@ -129,13 +120,13 @@ public final class Swaption
    */
   @Override
   public ExpandedSwaption expand() {
-    LocalDate expiry = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(expiryDate);
+    LocalDate expiry = expiryDate.adjusted();
     return ExpandedSwaption.builder()
         .expiryDate(expiry)
         .expiryTime(expiryTime)
         .expiryZone(expiryZone)
         .longShort(longShort)
-        .settlementMethod(settlementMethod)
+        .swaptionSettlement(swaptionSettlement)
         .underlying(underlying.expand())
         .build();
   }
@@ -169,25 +160,23 @@ public final class Swaption
 
   private Swaption(
       LongShort longShort,
-      SwaptionSettlementMethod settlementMethod,
-      LocalDate expiryDate,
+      SwaptionSettlement swaptionSettlement,
+      AdjustableDate expiryDate,
       LocalTime expiryTime,
       ZoneId expiryZone,
-      Swap underlying,
-      BusinessDayAdjustment businessDayAdjustment) {
+      Swap underlying) {
     JodaBeanUtils.notNull(longShort, "longShort");
-    JodaBeanUtils.notNull(settlementMethod, "settlementMethod");
+    JodaBeanUtils.notNull(swaptionSettlement, "swaptionSettlement");
     JodaBeanUtils.notNull(expiryDate, "expiryDate");
     JodaBeanUtils.notNull(expiryTime, "expiryTime");
     JodaBeanUtils.notNull(expiryZone, "expiryZone");
     JodaBeanUtils.notNull(underlying, "underlying");
     this.longShort = longShort;
-    this.settlementMethod = settlementMethod;
+    this.swaptionSettlement = swaptionSettlement;
     this.expiryDate = expiryDate;
     this.expiryTime = expiryTime;
     this.expiryZone = expiryZone;
     this.underlying = underlying;
-    this.businessDayAdjustment = businessDayAdjustment;
     validate();
   }
 
@@ -222,11 +211,11 @@ public final class Swaption
   /**
    * Gets settlement method.
    * <p>
-   * The settlement of the option is specified by {@link SwaptionSettlementMethod}.
+   * The settlement of the option is specified by {@link SwaptionSettlement}.
    * @return the value of the property, not null
    */
-  public SwaptionSettlementMethod getSettlementMethod() {
-    return settlementMethod;
+  public SwaptionSettlement getSwaptionSettlement() {
+    return swaptionSettlement;
   }
 
   //-----------------------------------------------------------------------
@@ -236,10 +225,10 @@ public final class Swaption
    * The option is European, and can only be exercised on the expiration date.
    * <p>
    * This date is typically set to be a valid business day.
-   * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
+   * However, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
    * @return the value of the property, not null
    */
-  public LocalDate getExpiryDate() {
+  public AdjustableDate getExpiryDate() {
     return expiryDate;
   }
 
@@ -279,18 +268,6 @@ public final class Swaption
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the business day adjustment to apply to the expiry date, optional.
-   * <p>
-   * The expiry date is typically defined as a valid business day and thus does not need to be adjusted.
-   * If this optional property is present, then the expiry date will be adjusted as defined here.
-   * @return the optional value of the property, not null
-   */
-  public Optional<BusinessDayAdjustment> getBusinessDayAdjustment() {
-    return Optional.ofNullable(businessDayAdjustment);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -306,12 +283,11 @@ public final class Swaption
     if (obj != null && obj.getClass() == this.getClass()) {
       Swaption other = (Swaption) obj;
       return JodaBeanUtils.equal(getLongShort(), other.getLongShort()) &&
-          JodaBeanUtils.equal(getSettlementMethod(), other.getSettlementMethod()) &&
+          JodaBeanUtils.equal(getSwaptionSettlement(), other.getSwaptionSettlement()) &&
           JodaBeanUtils.equal(getExpiryDate(), other.getExpiryDate()) &&
           JodaBeanUtils.equal(getExpiryTime(), other.getExpiryTime()) &&
           JodaBeanUtils.equal(getExpiryZone(), other.getExpiryZone()) &&
-          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
-          JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment);
+          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying());
     }
     return false;
   }
@@ -320,26 +296,24 @@ public final class Swaption
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getLongShort());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementMethod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSwaptionSettlement());
     hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryTime());
     hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryZone());
     hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
-    hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("Swaption{");
     buf.append("longShort").append('=').append(getLongShort()).append(',').append(' ');
-    buf.append("settlementMethod").append('=').append(getSettlementMethod()).append(',').append(' ');
+    buf.append("swaptionSettlement").append('=').append(getSwaptionSettlement()).append(',').append(' ');
     buf.append("expiryDate").append('=').append(getExpiryDate()).append(',').append(' ');
     buf.append("expiryTime").append('=').append(getExpiryTime()).append(',').append(' ');
     buf.append("expiryZone").append('=').append(getExpiryZone()).append(',').append(' ');
-    buf.append("underlying").append('=').append(getUnderlying()).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment));
+    buf.append("underlying").append('=').append(JodaBeanUtils.toString(getUnderlying()));
     buf.append('}');
     return buf.toString();
   }
@@ -360,15 +334,15 @@ public final class Swaption
     private final MetaProperty<LongShort> longShort = DirectMetaProperty.ofImmutable(
         this, "longShort", Swaption.class, LongShort.class);
     /**
-     * The meta-property for the {@code settlementMethod} property.
+     * The meta-property for the {@code swaptionSettlement} property.
      */
-    private final MetaProperty<SwaptionSettlementMethod> settlementMethod = DirectMetaProperty.ofImmutable(
-        this, "settlementMethod", Swaption.class, SwaptionSettlementMethod.class);
+    private final MetaProperty<SwaptionSettlement> swaptionSettlement = DirectMetaProperty.ofImmutable(
+        this, "swaptionSettlement", Swaption.class, SwaptionSettlement.class);
     /**
      * The meta-property for the {@code expiryDate} property.
      */
-    private final MetaProperty<LocalDate> expiryDate = DirectMetaProperty.ofImmutable(
-        this, "expiryDate", Swaption.class, LocalDate.class);
+    private final MetaProperty<AdjustableDate> expiryDate = DirectMetaProperty.ofImmutable(
+        this, "expiryDate", Swaption.class, AdjustableDate.class);
     /**
      * The meta-property for the {@code expiryTime} property.
      */
@@ -385,22 +359,16 @@ public final class Swaption
     private final MetaProperty<Swap> underlying = DirectMetaProperty.ofImmutable(
         this, "underlying", Swaption.class, Swap.class);
     /**
-     * The meta-property for the {@code businessDayAdjustment} property.
-     */
-    private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
-        this, "businessDayAdjustment", Swaption.class, BusinessDayAdjustment.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "longShort",
-        "settlementMethod",
+        "swaptionSettlement",
         "expiryDate",
         "expiryTime",
         "expiryZone",
-        "underlying",
-        "businessDayAdjustment");
+        "underlying");
 
     /**
      * Restricted constructor.
@@ -413,8 +381,8 @@ public final class Swaption
       switch (propertyName.hashCode()) {
         case 116685664:  // longShort
           return longShort;
-        case -676986006:  // settlementMethod
-          return settlementMethod;
+        case -1937554512:  // swaptionSettlement
+          return swaptionSettlement;
         case -816738431:  // expiryDate
           return expiryDate;
         case -816254304:  // expiryTime
@@ -423,8 +391,6 @@ public final class Swaption
           return expiryZone;
         case -1770633379:  // underlying
           return underlying;
-        case -1065319863:  // businessDayAdjustment
-          return businessDayAdjustment;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -454,18 +420,18 @@ public final class Swaption
     }
 
     /**
-     * The meta-property for the {@code settlementMethod} property.
+     * The meta-property for the {@code swaptionSettlement} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SwaptionSettlementMethod> settlementMethod() {
-      return settlementMethod;
+    public MetaProperty<SwaptionSettlement> swaptionSettlement() {
+      return swaptionSettlement;
     }
 
     /**
      * The meta-property for the {@code expiryDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> expiryDate() {
+    public MetaProperty<AdjustableDate> expiryDate() {
       return expiryDate;
     }
 
@@ -493,22 +459,14 @@ public final class Swaption
       return underlying;
     }
 
-    /**
-     * The meta-property for the {@code businessDayAdjustment} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<BusinessDayAdjustment> businessDayAdjustment() {
-      return businessDayAdjustment;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 116685664:  // longShort
           return ((Swaption) bean).getLongShort();
-        case -676986006:  // settlementMethod
-          return ((Swaption) bean).getSettlementMethod();
+        case -1937554512:  // swaptionSettlement
+          return ((Swaption) bean).getSwaptionSettlement();
         case -816738431:  // expiryDate
           return ((Swaption) bean).getExpiryDate();
         case -816254304:  // expiryTime
@@ -517,8 +475,6 @@ public final class Swaption
           return ((Swaption) bean).getExpiryZone();
         case -1770633379:  // underlying
           return ((Swaption) bean).getUnderlying();
-        case -1065319863:  // businessDayAdjustment
-          return ((Swaption) bean).businessDayAdjustment;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -541,12 +497,11 @@ public final class Swaption
   public static final class Builder extends DirectFieldsBeanBuilder<Swaption> {
 
     private LongShort longShort;
-    private SwaptionSettlementMethod settlementMethod;
-    private LocalDate expiryDate;
+    private SwaptionSettlement swaptionSettlement;
+    private AdjustableDate expiryDate;
     private LocalTime expiryTime;
     private ZoneId expiryZone;
     private Swap underlying;
-    private BusinessDayAdjustment businessDayAdjustment;
 
     /**
      * Restricted constructor.
@@ -560,12 +515,11 @@ public final class Swaption
      */
     private Builder(Swaption beanToCopy) {
       this.longShort = beanToCopy.getLongShort();
-      this.settlementMethod = beanToCopy.getSettlementMethod();
+      this.swaptionSettlement = beanToCopy.getSwaptionSettlement();
       this.expiryDate = beanToCopy.getExpiryDate();
       this.expiryTime = beanToCopy.getExpiryTime();
       this.expiryZone = beanToCopy.getExpiryZone();
       this.underlying = beanToCopy.getUnderlying();
-      this.businessDayAdjustment = beanToCopy.businessDayAdjustment;
     }
 
     //-----------------------------------------------------------------------
@@ -574,8 +528,8 @@ public final class Swaption
       switch (propertyName.hashCode()) {
         case 116685664:  // longShort
           return longShort;
-        case -676986006:  // settlementMethod
-          return settlementMethod;
+        case -1937554512:  // swaptionSettlement
+          return swaptionSettlement;
         case -816738431:  // expiryDate
           return expiryDate;
         case -816254304:  // expiryTime
@@ -584,8 +538,6 @@ public final class Swaption
           return expiryZone;
         case -1770633379:  // underlying
           return underlying;
-        case -1065319863:  // businessDayAdjustment
-          return businessDayAdjustment;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -597,11 +549,11 @@ public final class Swaption
         case 116685664:  // longShort
           this.longShort = (LongShort) newValue;
           break;
-        case -676986006:  // settlementMethod
-          this.settlementMethod = (SwaptionSettlementMethod) newValue;
+        case -1937554512:  // swaptionSettlement
+          this.swaptionSettlement = (SwaptionSettlement) newValue;
           break;
         case -816738431:  // expiryDate
-          this.expiryDate = (LocalDate) newValue;
+          this.expiryDate = (AdjustableDate) newValue;
           break;
         case -816254304:  // expiryTime
           this.expiryTime = (LocalTime) newValue;
@@ -611,9 +563,6 @@ public final class Swaption
           break;
         case -1770633379:  // underlying
           this.underlying = (Swap) newValue;
-          break;
-        case -1065319863:  // businessDayAdjustment
-          this.businessDayAdjustment = (BusinessDayAdjustment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -649,12 +598,11 @@ public final class Swaption
     public Swaption build() {
       return new Swaption(
           longShort,
-          settlementMethod,
+          swaptionSettlement,
           expiryDate,
           expiryTime,
           expiryZone,
-          underlying,
-          businessDayAdjustment);
+          underlying);
     }
 
     //-----------------------------------------------------------------------
@@ -675,13 +623,13 @@ public final class Swaption
     /**
      * Sets settlement method.
      * <p>
-     * The settlement of the option is specified by {@link SwaptionSettlementMethod}.
-     * @param settlementMethod  the new value, not null
+     * The settlement of the option is specified by {@link SwaptionSettlement}.
+     * @param swaptionSettlement  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder settlementMethod(SwaptionSettlementMethod settlementMethod) {
-      JodaBeanUtils.notNull(settlementMethod, "settlementMethod");
-      this.settlementMethod = settlementMethod;
+    public Builder swaptionSettlement(SwaptionSettlement swaptionSettlement) {
+      JodaBeanUtils.notNull(swaptionSettlement, "swaptionSettlement");
+      this.swaptionSettlement = swaptionSettlement;
       return this;
     }
 
@@ -691,11 +639,11 @@ public final class Swaption
      * The option is European, and can only be exercised on the expiration date.
      * <p>
      * This date is typically set to be a valid business day.
-     * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
+     * However, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
      * @param expiryDate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder expiryDate(LocalDate expiryDate) {
+    public Builder expiryDate(AdjustableDate expiryDate) {
       JodaBeanUtils.notNull(expiryDate, "expiryDate");
       this.expiryDate = expiryDate;
       return this;
@@ -741,31 +689,17 @@ public final class Swaption
       return this;
     }
 
-    /**
-     * Sets the business day adjustment to apply to the expiry date, optional.
-     * <p>
-     * The expiry date is typically defined as a valid business day and thus does not need to be adjusted.
-     * If this optional property is present, then the expiry date will be adjusted as defined here.
-     * @param businessDayAdjustment  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder businessDayAdjustment(BusinessDayAdjustment businessDayAdjustment) {
-      this.businessDayAdjustment = businessDayAdjustment;
-      return this;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(256);
+      StringBuilder buf = new StringBuilder(224);
       buf.append("Swaption.Builder{");
       buf.append("longShort").append('=').append(JodaBeanUtils.toString(longShort)).append(',').append(' ');
-      buf.append("settlementMethod").append('=').append(JodaBeanUtils.toString(settlementMethod)).append(',').append(' ');
+      buf.append("swaptionSettlement").append('=').append(JodaBeanUtils.toString(swaptionSettlement)).append(',').append(' ');
       buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
       buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(expiryTime)).append(',').append(' ');
       buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(expiryZone)).append(',').append(' ');
-      buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying)).append(',').append(' ');
-      buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment));
+      buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying));
       buf.append('}');
       return buf.toString();
     }

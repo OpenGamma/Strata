@@ -50,10 +50,10 @@ public final class ExpandedSwaption
   /**
    * Settlement method.  
    * <p>
-   * The settlement of the option is specified by {@link SwaptionSettlementMethod}.
+   * The settlement of the option is specified by {@link SwaptionSettlement}.
    */
   @PropertyDefinition(validate = "notNull")
-  private final SwaptionSettlementMethod settlementMethod;
+  private final SwaptionSettlement swaptionSettlement;
   /**
    * The expiry date of the option.  
    * <p>
@@ -140,19 +140,19 @@ public final class ExpandedSwaption
 
   private ExpandedSwaption(
       LongShort longShort,
-      SwaptionSettlementMethod settlementMethod,
+      SwaptionSettlement swaptionSettlement,
       LocalDate expiryDate,
       LocalTime expiryTime,
       ZoneId expiryZone,
       ExpandedSwap underlying) {
     JodaBeanUtils.notNull(longShort, "longShort");
-    JodaBeanUtils.notNull(settlementMethod, "settlementMethod");
+    JodaBeanUtils.notNull(swaptionSettlement, "swaptionSettlement");
     JodaBeanUtils.notNull(expiryDate, "expiryDate");
     JodaBeanUtils.notNull(expiryTime, "expiryTime");
     JodaBeanUtils.notNull(expiryZone, "expiryZone");
     JodaBeanUtils.notNull(underlying, "underlying");
     this.longShort = longShort;
-    this.settlementMethod = settlementMethod;
+    this.swaptionSettlement = swaptionSettlement;
     this.expiryDate = expiryDate;
     this.expiryTime = expiryTime;
     this.expiryZone = expiryZone;
@@ -190,11 +190,11 @@ public final class ExpandedSwaption
   /**
    * Gets settlement method.
    * <p>
-   * The settlement of the option is specified by {@link SwaptionSettlementMethod}.
+   * The settlement of the option is specified by {@link SwaptionSettlement}.
    * @return the value of the property, not null
    */
-  public SwaptionSettlementMethod getSettlementMethod() {
-    return settlementMethod;
+  public SwaptionSettlement getSwaptionSettlement() {
+    return swaptionSettlement;
   }
 
   //-----------------------------------------------------------------------
@@ -261,7 +261,7 @@ public final class ExpandedSwaption
     if (obj != null && obj.getClass() == this.getClass()) {
       ExpandedSwaption other = (ExpandedSwaption) obj;
       return JodaBeanUtils.equal(getLongShort(), other.getLongShort()) &&
-          JodaBeanUtils.equal(getSettlementMethod(), other.getSettlementMethod()) &&
+          JodaBeanUtils.equal(getSwaptionSettlement(), other.getSwaptionSettlement()) &&
           JodaBeanUtils.equal(getExpiryDate(), other.getExpiryDate()) &&
           JodaBeanUtils.equal(getExpiryTime(), other.getExpiryTime()) &&
           JodaBeanUtils.equal(getExpiryZone(), other.getExpiryZone()) &&
@@ -274,7 +274,7 @@ public final class ExpandedSwaption
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getLongShort());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementMethod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSwaptionSettlement());
     hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryTime());
     hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryZone());
@@ -287,7 +287,7 @@ public final class ExpandedSwaption
     StringBuilder buf = new StringBuilder(224);
     buf.append("ExpandedSwaption{");
     buf.append("longShort").append('=').append(getLongShort()).append(',').append(' ');
-    buf.append("settlementMethod").append('=').append(getSettlementMethod()).append(',').append(' ');
+    buf.append("swaptionSettlement").append('=').append(getSwaptionSettlement()).append(',').append(' ');
     buf.append("expiryDate").append('=').append(getExpiryDate()).append(',').append(' ');
     buf.append("expiryTime").append('=').append(getExpiryTime()).append(',').append(' ');
     buf.append("expiryZone").append('=').append(getExpiryZone()).append(',').append(' ');
@@ -312,10 +312,10 @@ public final class ExpandedSwaption
     private final MetaProperty<LongShort> longShort = DirectMetaProperty.ofImmutable(
         this, "longShort", ExpandedSwaption.class, LongShort.class);
     /**
-     * The meta-property for the {@code settlementMethod} property.
+     * The meta-property for the {@code swaptionSettlement} property.
      */
-    private final MetaProperty<SwaptionSettlementMethod> settlementMethod = DirectMetaProperty.ofImmutable(
-        this, "settlementMethod", ExpandedSwaption.class, SwaptionSettlementMethod.class);
+    private final MetaProperty<SwaptionSettlement> swaptionSettlement = DirectMetaProperty.ofImmutable(
+        this, "swaptionSettlement", ExpandedSwaption.class, SwaptionSettlement.class);
     /**
      * The meta-property for the {@code expiryDate} property.
      */
@@ -342,7 +342,7 @@ public final class ExpandedSwaption
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "longShort",
-        "settlementMethod",
+        "swaptionSettlement",
         "expiryDate",
         "expiryTime",
         "expiryZone",
@@ -359,8 +359,8 @@ public final class ExpandedSwaption
       switch (propertyName.hashCode()) {
         case 116685664:  // longShort
           return longShort;
-        case -676986006:  // settlementMethod
-          return settlementMethod;
+        case -1937554512:  // swaptionSettlement
+          return swaptionSettlement;
         case -816738431:  // expiryDate
           return expiryDate;
         case -816254304:  // expiryTime
@@ -398,11 +398,11 @@ public final class ExpandedSwaption
     }
 
     /**
-     * The meta-property for the {@code settlementMethod} property.
+     * The meta-property for the {@code swaptionSettlement} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SwaptionSettlementMethod> settlementMethod() {
-      return settlementMethod;
+    public MetaProperty<SwaptionSettlement> swaptionSettlement() {
+      return swaptionSettlement;
     }
 
     /**
@@ -443,8 +443,8 @@ public final class ExpandedSwaption
       switch (propertyName.hashCode()) {
         case 116685664:  // longShort
           return ((ExpandedSwaption) bean).getLongShort();
-        case -676986006:  // settlementMethod
-          return ((ExpandedSwaption) bean).getSettlementMethod();
+        case -1937554512:  // swaptionSettlement
+          return ((ExpandedSwaption) bean).getSwaptionSettlement();
         case -816738431:  // expiryDate
           return ((ExpandedSwaption) bean).getExpiryDate();
         case -816254304:  // expiryTime
@@ -475,7 +475,7 @@ public final class ExpandedSwaption
   public static final class Builder extends DirectFieldsBeanBuilder<ExpandedSwaption> {
 
     private LongShort longShort;
-    private SwaptionSettlementMethod settlementMethod;
+    private SwaptionSettlement swaptionSettlement;
     private LocalDate expiryDate;
     private LocalTime expiryTime;
     private ZoneId expiryZone;
@@ -493,7 +493,7 @@ public final class ExpandedSwaption
      */
     private Builder(ExpandedSwaption beanToCopy) {
       this.longShort = beanToCopy.getLongShort();
-      this.settlementMethod = beanToCopy.getSettlementMethod();
+      this.swaptionSettlement = beanToCopy.getSwaptionSettlement();
       this.expiryDate = beanToCopy.getExpiryDate();
       this.expiryTime = beanToCopy.getExpiryTime();
       this.expiryZone = beanToCopy.getExpiryZone();
@@ -506,8 +506,8 @@ public final class ExpandedSwaption
       switch (propertyName.hashCode()) {
         case 116685664:  // longShort
           return longShort;
-        case -676986006:  // settlementMethod
-          return settlementMethod;
+        case -1937554512:  // swaptionSettlement
+          return swaptionSettlement;
         case -816738431:  // expiryDate
           return expiryDate;
         case -816254304:  // expiryTime
@@ -527,8 +527,8 @@ public final class ExpandedSwaption
         case 116685664:  // longShort
           this.longShort = (LongShort) newValue;
           break;
-        case -676986006:  // settlementMethod
-          this.settlementMethod = (SwaptionSettlementMethod) newValue;
+        case -1937554512:  // swaptionSettlement
+          this.swaptionSettlement = (SwaptionSettlement) newValue;
           break;
         case -816738431:  // expiryDate
           this.expiryDate = (LocalDate) newValue;
@@ -576,7 +576,7 @@ public final class ExpandedSwaption
     public ExpandedSwaption build() {
       return new ExpandedSwaption(
           longShort,
-          settlementMethod,
+          swaptionSettlement,
           expiryDate,
           expiryTime,
           expiryZone,
@@ -601,13 +601,13 @@ public final class ExpandedSwaption
     /**
      * Sets settlement method.
      * <p>
-     * The settlement of the option is specified by {@link SwaptionSettlementMethod}.
-     * @param settlementMethod  the new value, not null
+     * The settlement of the option is specified by {@link SwaptionSettlement}.
+     * @param swaptionSettlement  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder settlementMethod(SwaptionSettlementMethod settlementMethod) {
-      JodaBeanUtils.notNull(settlementMethod, "settlementMethod");
-      this.settlementMethod = settlementMethod;
+    public Builder swaptionSettlement(SwaptionSettlement swaptionSettlement) {
+      JodaBeanUtils.notNull(swaptionSettlement, "swaptionSettlement");
+      this.swaptionSettlement = swaptionSettlement;
       return this;
     }
 
@@ -672,7 +672,7 @@ public final class ExpandedSwaption
       StringBuilder buf = new StringBuilder(224);
       buf.append("ExpandedSwaption.Builder{");
       buf.append("longShort").append('=').append(JodaBeanUtils.toString(longShort)).append(',').append(' ');
-      buf.append("settlementMethod").append('=').append(JodaBeanUtils.toString(settlementMethod)).append(',').append(' ');
+      buf.append("swaptionSettlement").append('=').append(JodaBeanUtils.toString(swaptionSettlement)).append(',').append(' ');
       buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
       buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(expiryTime)).append(',').append(' ');
       buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(expiryZone)).append(',').append(' ');

@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.LongShort.LONG;
 import static com.opengamma.strata.basics.LongShort.SHORT;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -21,6 +22,7 @@ import java.time.ZoneId;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.Tenor;
@@ -42,53 +44,46 @@ public class SwaptionTest {
   private static final LocalDate EXPIRY_DATE = LocalDate.of(2014, 6, 14);
   private static final LocalTime EXPIRY_TIME = LocalTime.of(11, 0);
   private static final ZoneId ZONE = ZoneId.of("Z");
-  private static final SwaptionSettlementMethod PHYSICAL_SETTLE = new SwaptionSettlementMethod() {
-    @Override
-    public SettlementType getSettlementType() {
-      return SettlementType.PHYSICAL;
-    }
-  };
+  private static final AdjustableDate ADJUSTABLE_EXPIRY_DATE = AdjustableDate.of(EXPIRY_DATE, ADJUSTMENT);
+  private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
+  private static final SwaptionSettlement CASH_SETTLE = CashSettlement.DEFAULT;
 
   public void test_builder() {
     Swaption test = Swaption.builder()
-        .businessDayAdjustment(ADJUSTMENT)
-        .expiryDate(EXPIRY_DATE)
+        .expiryDate(ADJUSTABLE_EXPIRY_DATE)
         .expiryTime(EXPIRY_TIME)
         .expiryZone(ZONE)
         .longShort(LONG)
-        .settlementMethod(PHYSICAL_SETTLE)
+        .swaptionSettlement(PHYSICAL_SETTLE)
         .underlying(SWAP)
         .build();
-    assertEquals(test.getBusinessDayAdjustment().get(), ADJUSTMENT);
-    assertEquals(test.getExpiryDate(), EXPIRY_DATE);
+    assertEquals(test.getExpiryDate(), ADJUSTABLE_EXPIRY_DATE);
     assertEquals(test.getExpiryTime(), EXPIRY_TIME);
     assertEquals(test.getExpiryZone(), ZONE);
     assertEquals(test.getExpiryDateTime(), EXPIRY_DATE.atTime(EXPIRY_TIME).atZone(ZONE));
     assertEquals(test.getLongShort(), LONG);
-    assertEquals(test.getSettlementMethod(), PHYSICAL_SETTLE);
+    assertEquals(test.getSwaptionSettlement(), PHYSICAL_SETTLE);
     assertEquals(test.getUnderlying(), SWAP);
   }
 
   public void test_builder_expiryAfterStart() {
     assertThrowsIllegalArg(() -> Swaption.builder()
-        .businessDayAdjustment(ADJUSTMENT)
-        .expiryDate(LocalDate.of(2014, 6, 17))
+        .expiryDate(AdjustableDate.of(LocalDate.of(2014, 6, 17), ADJUSTMENT))
         .expiryTime(EXPIRY_TIME)
         .expiryZone(ZONE)
         .longShort(LONG)
-        .settlementMethod(PHYSICAL_SETTLE)
+        .swaptionSettlement(PHYSICAL_SETTLE)
         .underlying(SWAP)
         .build());
   }
 
   public void test_expand() {
     Swaption base = Swaption.builder()
-        .businessDayAdjustment(ADJUSTMENT)
-        .expiryDate(EXPIRY_DATE)
+        .expiryDate(ADJUSTABLE_EXPIRY_DATE)
         .expiryTime(EXPIRY_TIME)
         .expiryZone(ZONE)
         .longShort(LONG)
-        .settlementMethod(PHYSICAL_SETTLE)
+        .swaptionSettlement(PHYSICAL_SETTLE)
         .underlying(SWAP)
         .build();
     ExpandedSwaption test = base.expand();
@@ -97,39 +92,43 @@ public class SwaptionTest {
     assertEquals(test.getExpiryZone(), ZONE);
     assertEquals(test.getExpiryDateTime(), ADJUSTMENT.adjust(EXPIRY_DATE).atTime(EXPIRY_TIME).atZone(ZONE));
     assertEquals(test.getLongShort(), LONG);
-    assertEquals(test.getSettlementMethod(), PHYSICAL_SETTLE);
+    assertEquals(test.getSwaptionSettlement(), PHYSICAL_SETTLE);
     assertEquals(test.getUnderlying(), SWAP.expand());
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     Swaption test1 = Swaption.builder()
-        .businessDayAdjustment(ADJUSTMENT)
-        .expiryDate(EXPIRY_DATE)
+        .expiryDate(ADJUSTABLE_EXPIRY_DATE)
         .expiryTime(EXPIRY_TIME)
         .expiryZone(ZONE)
         .longShort(LONG)
-        .settlementMethod(PHYSICAL_SETTLE)
+        .swaptionSettlement(PHYSICAL_SETTLE)
         .underlying(SWAP)
         .build();
     coverImmutableBean(test1);
-    SwaptionSettlementMethod cash = new SwaptionSettlementMethod() {
-      @Override
-      public SettlementType getSettlementType() {
-        return SettlementType.CASH;
-      }
-    };
     Swaption test2 = Swaption.builder()
-        .businessDayAdjustment(ADJUSTMENT)
-        .expiryDate(LocalDate.of(2014, 6, 10))
+        .expiryDate(AdjustableDate.of(LocalDate.of(2014, 6, 10), ADJUSTMENT))
         .expiryTime(LocalTime.of(14, 0))
         .expiryZone(ZoneId.of("GMT"))
         .longShort(SHORT)
-        .settlementMethod(cash)
+        .swaptionSettlement(CASH_SETTLE)
         .underlying(FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
             .toTrade(LocalDate.of(2014, 6, 10), Tenor.TENOR_10Y, BuySell.BUY, 1d, FIXED_RATE).getProduct())
         .build();
     coverBeanEquals(test1, test2);
+  }
+
+  public void test_serialization() {
+    Swaption test = Swaption.builder()
+        .expiryDate(ADJUSTABLE_EXPIRY_DATE)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .longShort(LONG)
+        .swaptionSettlement(PHYSICAL_SETTLE)
+        .underlying(SWAP)
+        .build();
+    assertSerialization(test);
   }
 
 }
