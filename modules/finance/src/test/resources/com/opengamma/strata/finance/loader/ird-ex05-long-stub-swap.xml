@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is confirmation-->
+<!--Version is 5-8-->
+<!--NS is http://www.fpml.org/FpML-5/confirmation-->
+<!--
+  == Copyright (c) 2014-2015 All rights reserved.
+  == Financial Products Markup Language is subject to the FpML public license.
+  == A copy of this license is available at http://www.fpml.org/license/license.html
+  -->
+<dataDocument xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-8" xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation ../../fpml-main-5-8.xsd http://www.w3.org/2000/09/xmldsig# ../../xmldsig-core-schema.xsd">
+  <trade>
+    <tradeHeader>
+      <partyTradeIdentifier>
+        <partyReference href="party1" />
+        <tradeId tradeIdScheme="http://www.partyA.com/swaps/trade-id">921934</tradeId>
+      </partyTradeIdentifier>
+      <partyTradeIdentifier>
+        <partyReference href="party2" />
+        <tradeId tradeIdScheme="http://www.ubsw.com/swaps/trade-id">204334</tradeId>
+      </partyTradeIdentifier>
+      <tradeDate>2000-04-03</tradeDate>
+    </tradeHeader>
+    <swap>
+<!-- Party A pays the floating rate every 6 months, based on 6M EUR-EURIBOR-Telerate
+       + 10 basis points, on ACT/360 basis -->
+      <swapStream>
+        <payerPartyReference href="party1" />
+        <receiverPartyReference href="party2" />
+        <calculationPeriodDates id="floatingCalcPeriodDates">
+          <effectiveDate>
+            <unadjustedDate>2000-04-05</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>NONE</businessDayConvention>
+            </dateAdjustments>
+          </effectiveDate>
+          <terminationDate>
+            <unadjustedDate>2005-01-05</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>FOLLOWING</businessDayConvention>
+              <businessCenters id="primaryBusinessCenters">
+                <businessCenter>EUTA</businessCenter>
+              </businessCenters>
+            </dateAdjustments>
+          </terminationDate>
+          <calculationPeriodDatesAdjustments>
+            <businessDayConvention>FOLLOWING</businessDayConvention>
+            <businessCentersReference href="primaryBusinessCenters" />
+          </calculationPeriodDatesAdjustments>
+          <firstPeriodStartDate>
+            <unadjustedDate>2000-03-05</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>NONE</businessDayConvention>
+            </dateAdjustments>
+          </firstPeriodStartDate>
+          <firstRegularPeriodStartDate>2000-10-05</firstRegularPeriodStartDate>
+          <lastRegularPeriodEndDate>2004-10-05</lastRegularPeriodEndDate>
+          <calculationPeriodFrequency>
+            <periodMultiplier>6</periodMultiplier>
+            <period>M</period>
+            <rollConvention>5</rollConvention>
+          </calculationPeriodFrequency>
+        </calculationPeriodDates>
+        <paymentDates>
+          <calculationPeriodDatesReference href="floatingCalcPeriodDates" />
+          <paymentFrequency>
+            <periodMultiplier>6</periodMultiplier>
+            <period>M</period>
+          </paymentFrequency>
+          <firstPaymentDate>2000-10-05</firstPaymentDate>
+          <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+          <paymentDatesAdjustments>
+            <businessDayConvention>FOLLOWING</businessDayConvention>
+            <businessCentersReference href="primaryBusinessCenters" />
+          </paymentDatesAdjustments>
+        </paymentDates>
+        <resetDates id="resetDates">
+          <calculationPeriodDatesReference href="floatingCalcPeriodDates" />
+          <resetRelativeTo>CalculationPeriodStartDate</resetRelativeTo>
+          <fixingDates>
+            <periodMultiplier>-2</periodMultiplier>
+            <period>D</period>
+            <dayType>Business</dayType>
+            <businessDayConvention>NONE</businessDayConvention>
+            <businessCenters>
+              <businessCenter>EUTA</businessCenter>
+            </businessCenters>
+            <dateRelativeTo href="resetDates" />
+          </fixingDates>
+          <resetFrequency>
+            <periodMultiplier>6</periodMultiplier>
+            <period>M</period>
+          </resetFrequency>
+          <resetDatesAdjustments>
+            <businessDayConvention>FOLLOWING</businessDayConvention>
+            <businessCentersReference href="primaryBusinessCenters" />
+          </resetDatesAdjustments>
+        </resetDates>
+        <calculationPeriodAmount>
+          <calculation>
+            <notionalSchedule>
+              <notionalStepSchedule>
+                <initialValue>75000000.00</initialValue>
+                <currency>EUR</currency>
+              </notionalStepSchedule>
+            </notionalSchedule>
+            <floatingRateCalculation>
+              <floatingRateIndex>EUR-EURIBOR-Telerate</floatingRateIndex>
+              <indexTenor>
+                <periodMultiplier>6</periodMultiplier>
+                <period>M</period>
+              </indexTenor>
+              <spreadSchedule>
+                <initialValue>0.001</initialValue>
+              </spreadSchedule>
+            </floatingRateCalculation>
+            <dayCountFraction>ACT/360</dayCountFraction>
+          </calculation>
+        </calculationPeriodAmount>
+        <stubCalculationPeriodAmount>
+          <calculationPeriodDatesReference href="floatingCalcPeriodDates" />
+          <initialStub>
+            <stubRate>0.05125</stubRate>
+          </initialStub>
+          <finalStub>
+            <floatingRate>
+              <floatingRateIndex>EUR-EURIBOR-Telerate</floatingRateIndex>
+              <indexTenor>
+                <periodMultiplier>3</periodMultiplier>
+                <period>M</period>
+              </indexTenor>
+            </floatingRate>
+          </finalStub>
+        </stubCalculationPeriodAmount>
+      </swapStream>
+<!-- UBSW pays the 5.25% fixed rate every year on a 30/360 basis -->
+      <swapStream>
+        <payerPartyReference href="party2" />
+        <receiverPartyReference href="party1" />
+        <calculationPeriodDates id="fixedCalcPeriodDates">
+          <effectiveDate>
+            <unadjustedDate>2000-04-05</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>NONE</businessDayConvention>
+            </dateAdjustments>
+          </effectiveDate>
+          <terminationDate>
+            <unadjustedDate>2005-01-05</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>FOLLOWING</businessDayConvention>
+              <businessCentersReference href="primaryBusinessCenters" />
+            </dateAdjustments>
+          </terminationDate>
+          <calculationPeriodDatesAdjustments>
+            <businessDayConvention>FOLLOWING</businessDayConvention>
+            <businessCentersReference href="primaryBusinessCenters" />
+          </calculationPeriodDatesAdjustments>
+          <firstPeriodStartDate>
+            <unadjustedDate>2000-03-05</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>NONE</businessDayConvention>
+            </dateAdjustments>
+          </firstPeriodStartDate>
+          <firstRegularPeriodStartDate>2000-10-05</firstRegularPeriodStartDate>
+          <lastRegularPeriodEndDate>2004-10-05</lastRegularPeriodEndDate>
+          <calculationPeriodFrequency>
+            <periodMultiplier>1</periodMultiplier>
+            <period>Y</period>
+            <rollConvention>5</rollConvention>
+          </calculationPeriodFrequency>
+        </calculationPeriodDates>
+        <paymentDates>
+          <calculationPeriodDatesReference href="fixedCalcPeriodDates" />
+          <paymentFrequency>
+            <periodMultiplier>1</periodMultiplier>
+            <period>Y</period>
+          </paymentFrequency>
+          <firstPaymentDate>2000-10-05</firstPaymentDate>
+          <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+          <paymentDatesAdjustments>
+            <businessDayConvention>FOLLOWING</businessDayConvention>
+            <businessCentersReference href="primaryBusinessCenters" />
+          </paymentDatesAdjustments>
+        </paymentDates>
+        <calculationPeriodAmount>
+          <calculation>
+            <notionalSchedule>
+              <notionalStepSchedule>
+                <initialValue>75000000.00</initialValue>
+                <currency>EUR</currency>
+              </notionalStepSchedule>
+            </notionalSchedule>
+            <fixedRateSchedule>
+              <initialValue>0.0525</initialValue>
+            </fixedRateSchedule>
+            <dayCountFraction>30/360</dayCountFraction>
+          </calculation>
+        </calculationPeriodAmount>
+      </swapStream>
+    </swap>
+  </trade>
+  <party id="party1">
+    <partyId>Party1</partyId>
+  </party>
+  <party id="party2">
+    <partyId>Party2</partyId>
+  </party>
+</dataDocument>
+

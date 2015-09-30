@@ -22,6 +22,7 @@
 <listEntry value="com.opengamma.strata.finance.future"/>
 <listEntry value="com.opengamma.strata.finance.fx"/>
 <listEntry value="com.opengamma.strata.finance.payment"/>
+<listEntry value="com.opengamma.strata.finance.loader"/>
 <listEntry value="com.opengamma.strata.finance.rate"/>
 <listEntry value="com.opengamma.strata.finance.rate.bond"/>
 <listEntry value="com.opengamma.strata.finance.rate.deposit"/>
