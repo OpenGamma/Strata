@@ -7,14 +7,13 @@ package com.opengamma.strata.basics;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.CollectProjectAssertions;
-import com.opengamma.strata.collect.result.Result;
 
 /**
  * Helper class to allow custom AssertJ assertions to be
  * accessible via the same static import as the standard
  * assertions.
  * <p>
- * Prefer to statically import {@link #assertThat(Result)}
+ * Prefer to statically import {@link #assertThat(CurrencyAmount)}
  * from this class rather than {@link CurrencyAmountAssert#assertThat(CurrencyAmount)}.
  */
 public class BasicProjectAssertions extends CollectProjectAssertions {
