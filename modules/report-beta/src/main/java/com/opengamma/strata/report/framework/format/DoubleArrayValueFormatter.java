@@ -14,12 +14,16 @@ import java.util.Arrays;
  */
 public class DoubleArrayValueFormatter implements ValueFormatter<double[]> {
 
-  /** The single shared instance of this class. */
+  /**
+   * The single shared instance of this formatter.
+   */
   public static final DoubleArrayValueFormatter INSTANCE = new DoubleArrayValueFormatter();
 
+  // restricted constructor
   private DoubleArrayValueFormatter() {
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns the array delimited by spaces and surrounded with square brackets.
    * <pre>

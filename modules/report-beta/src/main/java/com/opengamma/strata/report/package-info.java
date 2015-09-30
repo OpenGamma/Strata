@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -11,6 +11,7 @@
  * Reports are generated using a report template and a set of calculation results. A report contains a table of
  * data where the rows are the inputs to the calculations, for example trades, and the columns contain
  * data from the calculation results or the trades.
+ * 
  * <h2>Report templates</h2>
  * Report templates specify the type of the report and the columns included in the report. A report template is
  * defined using an .ini file.

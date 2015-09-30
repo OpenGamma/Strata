@@ -50,6 +50,7 @@ public class TradeReportFormatter extends ReportFormatter<TradeReport> {
    * @param columnIndex  the index of a column in the report
    * @return the data type of the values in the column or {@code Object.class} if all results are failures
    */
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private static Class<?> columnType(TradeReport report, int columnIndex) {
     return report.getData().rowKeySet().stream()
         .map(rowIndex -> report.getData().get(rowIndex, columnIndex))
@@ -57,7 +58,7 @@ public class TradeReportFormatter extends ReportFormatter<TradeReport> {
         .map(Result::getValue)
         .map(Object::getClass)
         .findFirst()
-        .orElse(Object.class);
+        .orElse((Class) Object.class);  // raw type needed for Eclipse
   }
 
   @Override

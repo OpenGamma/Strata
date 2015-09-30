@@ -20,17 +20,21 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity
 public class CurveCurrencyParameterSensitivityValueFormatter
     implements ValueFormatter<CurveCurrencyParameterSensitivity> {
 
-  private static final int PADDED_FIELD_WIDTH = 15;
-
-  /** The single shared instance of this class. */
+  /**
+   * The single shared instance of this formatter.
+   */
   public static final CurveCurrencyParameterSensitivityValueFormatter INSTANCE =
       new CurveCurrencyParameterSensitivityValueFormatter();
 
+  private static final int PADDED_FIELD_WIDTH = 15;
+
   private final DoubleValueFormatter doubleFormatter = new DoubleValueFormatter();
 
+  // restricted constructor
   private CurveCurrencyParameterSensitivityValueFormatter() {
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public String formatForCsv(CurveCurrencyParameterSensitivity sensitivity) {
     return getSensitivityString(sensitivity, doubleFormatter::formatForCsv, false);

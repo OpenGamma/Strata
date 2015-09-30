@@ -107,7 +107,7 @@ public class IterableTokenEvaluator extends TokenEvaluator<Iterable<?>> {
     }
     Bean bean = (Bean) object;
     return bean.propertyNames().stream()
-        .map(bean::property)
+        .map(name -> bean.property(name))
         .filter(p -> SUPPORTED_FIELD_TYPES.contains(p.metaProperty().propertyType()))
         .map(Property::get)
         .filter(v -> v != null)

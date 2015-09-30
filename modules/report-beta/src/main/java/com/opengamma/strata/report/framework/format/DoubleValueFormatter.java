@@ -18,6 +18,7 @@ public class DoubleValueFormatter implements ValueFormatter<Double> {
 
   private final Map<Integer, DecimalFormat> displayFormatCache = new HashMap<Integer, DecimalFormat>();
 
+  //-------------------------------------------------------------------------
   @Override
   public String formatForCsv(Double amount) {
     return FULL_AMOUNT_FORMAT.format(amount.doubleValue());

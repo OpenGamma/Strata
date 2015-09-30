@@ -17,7 +17,7 @@ import com.opengamma.strata.report.trade.TradeReportTemplateIniLoader;
 /**
  * Loads report templates from .ini files by delegating to specific loaders for the different report types.
  */
-public class MasterReportTemplateIniLoader {
+class MasterReportTemplateIniLoader {
 
   private static final Set<ReportTemplateIniLoader<? extends ReportTemplate>> LOADERS = ImmutableSet.of(
       new TradeReportTemplateIniLoader(),
@@ -31,6 +31,7 @@ public class MasterReportTemplateIniLoader {
    *
    * @param iniFile  the .ini file containing the definition of a report template
    * @return the template defined in the .ini file
+   * @throws RuntimeException if the ini file cannot be parsed
    */
   public static ReportTemplate load(IniFile iniFile) {
     String settingsSectionKey = iniFile.sections().stream()

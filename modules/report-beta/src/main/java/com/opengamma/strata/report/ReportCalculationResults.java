@@ -34,22 +34,28 @@ import com.opengamma.strata.finance.Trade;
 @BeanDefinition
 public final class ReportCalculationResults implements ImmutableBean {
 
-  /** The valuation date. */
+  /**
+   * The valuation date.
+   */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate valuationDate;
-
-  /** The trades on which the results are calculated. */
+  /**
+   * The trades on which the results are calculated.
+   */
   @PropertyDefinition(validate = "notNull")
   private final List<Trade> trades;
-  
-  /** The columns contained in the results. */
+  /**
+   * The columns contained in the results.
+   */
   @PropertyDefinition(validate = "notNull")
   private final List<Column> columns;
-
-  /** The calculation results. */
+  /**
+   * The calculation results.
+   */
   @PropertyDefinition(validate = "notNull")
   private final Results calculationResults;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a new set of calculations results.
    *

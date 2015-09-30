@@ -4,9 +4,7 @@
  * Please see distribution for license.
  */
 
-// TODO Change the package name. navigate?
-
 /**
- *
+ * Provide the ability to extract data using textual expressions.
  */
 package com.opengamma.strata.report.framework.expression;

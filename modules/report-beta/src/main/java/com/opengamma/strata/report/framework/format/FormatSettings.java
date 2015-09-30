@@ -29,11 +29,15 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 @BeanDefinition
 public final class FormatSettings<T> implements ImmutableBean {
 
-  /** The category of this type. */
+  /**
+   * The category of this type.
+   */
   @PropertyDefinition(validate = "notNull")
   private final FormatCategory category;
 
-  /** The formatter to use to convert this type into a string. */
+  /**
+   * The formatter to use to convert this type into a string.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ValueFormatter<T> formatter;
 

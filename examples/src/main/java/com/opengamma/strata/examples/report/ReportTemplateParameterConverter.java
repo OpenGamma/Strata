@@ -14,7 +14,6 @@ import com.google.common.io.CharSource;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.IniFile;
 import com.opengamma.strata.collect.io.ResourceLocator;
-import com.opengamma.strata.report.MasterReportTemplateIniLoader;
 import com.opengamma.strata.report.ReportTemplate;
 
 /**
@@ -30,7 +29,7 @@ public class ReportTemplateParameterConverter
       CharSource charSource = ResourceLocator.ofFile(file).getCharSource();
       IniFile ini = IniFile.of(charSource);
 
-      return MasterReportTemplateIniLoader.load(ini);
+      return ReportTemplate.load(ini);
 
     } catch (RuntimeException ex) {
       if (ex.getCause() instanceof FileNotFoundException) {

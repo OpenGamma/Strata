@@ -21,8 +21,8 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity
 public class FormatSettingsProvider {
 
   // TODO extensibility - perhaps drive from properties file
-  private static final Map<Class<?>, FormatSettings> TYPE_SETTINGS =
-      ImmutableMap.<Class<?>, FormatSettings>builder()
+  private static final Map<Class<?>, FormatSettings<?>> TYPE_SETTINGS =
+      ImmutableMap.<Class<?>, FormatSettings<?>>builder()
           .put(String.class, FormatSettings.of(FormatCategory.TEXT, ValueFormatter.defaultToString()))
           .put(Currency.class, FormatSettings.of(FormatCategory.TEXT, ValueFormatter.defaultToString()))
           .put(StandardId.class, FormatSettings.of(FormatCategory.TEXT, ValueFormatter.defaultToString()))
@@ -50,8 +50,7 @@ public class FormatSettingsProvider {
     FormatSettings<T> settings = (FormatSettings<T>) settingsCache.get(clazz);
 
     if (settings == null) {
-      settings = TYPE_SETTINGS.get(clazz);
-
+      settings = (FormatSettings<T>) TYPE_SETTINGS.get(clazz);
       if (settings == null) {
         settings = (FormatSettings<T>) defaultSettings;
       }

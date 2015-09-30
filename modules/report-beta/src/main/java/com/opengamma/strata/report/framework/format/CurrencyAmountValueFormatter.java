@@ -12,14 +12,21 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
  */
 public class CurrencyAmountValueFormatter implements ValueFormatter<CurrencyAmount> {
 
-  private final DoubleValueFormatter doubleFormatter = new DoubleValueFormatter();
-
-  /** The single shared instance of this class. */
+  /**
+   * The single shared instance of this formatter.
+   */
   public static final CurrencyAmountValueFormatter INSTANCE = new CurrencyAmountValueFormatter();
 
+  /**
+   * The underlying formatter.
+   */
+  private final DoubleValueFormatter doubleFormatter = new DoubleValueFormatter();
+
+  // restricted constructor
   private CurrencyAmountValueFormatter() {
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public String formatForCsv(CurrencyAmount amount) {
     return doubleFormatter.formatForCsv(amount.getAmount());

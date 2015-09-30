@@ -16,11 +16,19 @@ import com.opengamma.strata.report.framework.expression.ValuePathEvaluator;
  * Catch-all formatter that outputs the type of the value in angular brackets,
  * e.g. {@literal <MyCustomType>}, along with details of the valid tokens that could be used.
  */
-public class UnsupportedValueFormatter implements ValueFormatter<Object> {
+public class UnsupportedValueFormatter
+    implements ValueFormatter<Object> {
 
-  /** Singleton instance. */
+  /**
+   * The single shared instance of this formatter.
+   */
   public static final UnsupportedValueFormatter INSTANCE = new UnsupportedValueFormatter();
 
+  // restricted constructor
+  private UnsupportedValueFormatter() {
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public String formatForCsv(Object object) {
     return Messages.format("<{}>", object.getClass().getSimpleName());
@@ -39,4 +47,5 @@ public class UnsupportedValueFormatter implements ValueFormatter<Object> {
           object.getClass().getSimpleName(), orderedTokens);
     }
   }
+
 }
