@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.format;
+package com.opengamma.strata.report.framework.format;
 
 /**
  * Default formatter which returns the value of {@code toString()} on the object.

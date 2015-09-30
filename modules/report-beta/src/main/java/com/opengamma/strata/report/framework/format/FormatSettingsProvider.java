@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.format;
+package com.opengamma.strata.report.framework.format;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -27,30 +27,33 @@ public class FormatSettingsProvider {
           .put(Currency.class, FormatSettings.of(FormatCategory.TEXT, ValueFormatter.defaultToString()))
           .put(StandardId.class, FormatSettings.of(FormatCategory.TEXT, ValueFormatter.defaultToString()))
           .put(LocalDate.class, FormatSettings.of(FormatCategory.DATE, ValueFormatter.defaultToString()))
-          .put(CurrencyAmount.class, FormatSettings.of(FormatCategory.NUMERIC, new CurrencyAmountValueFormatter()))
-          .put(CurveCurrencyParameterSensitivity.class,
-              FormatSettings.of(FormatCategory.TEXT, new CurveCurrencyParameterSensitivityValueFormatter()))
+          .put(CurrencyAmount.class, FormatSettings.of(FormatCategory.NUMERIC, CurrencyAmountValueFormatter.INSTANCE))
+          .put(CurveCurrencyParameterSensitivity.class, FormatSettings.of(FormatCategory.TEXT, CurveCurrencyParameterSensitivityValueFormatter.INSTANCE))
           .put(Double.class, FormatSettings.of(FormatCategory.NUMERIC, new DoubleValueFormatter()))
           .put(Short.class, FormatSettings.of(FormatCategory.NUMERIC, ValueFormatter.defaultToString()))
           .put(Integer.class, FormatSettings.of(FormatCategory.NUMERIC, ValueFormatter.defaultToString()))
           .put(Long.class, FormatSettings.of(FormatCategory.NUMERIC, ValueFormatter.defaultToString()))
+          .put(double[].class, FormatSettings.of(FormatCategory.NUMERIC, DoubleArrayValueFormatter.INSTANCE))
           .build();
 
-  private final Map<Class<?>, FormatSettings> settingsCache = new HashMap<Class<?>, FormatSettings>();
+  private final Map<Class<?>, FormatSettings<?>> settingsCache = new HashMap<>();
 
   /**
    * Obtains the format settings for a given type.
    * 
    * @param clazz  the type to format
-   * @param fallbackSettings  the fallback settings
+   * @param defaultSettings  the default settings, used if no settings are found for the type
    * @return the format settings
    */
-  public FormatSettings getSettings(Class<?> clazz, FormatSettings fallbackSettings) {
-    FormatSettings settings = settingsCache.get(clazz);
+  @SuppressWarnings("unchecked")
+  public <T> FormatSettings<T> getSettings(Class<? extends T> clazz, FormatSettings<Object> defaultSettings) {
+    FormatSettings<T> settings = (FormatSettings<T>) settingsCache.get(clazz);
+
     if (settings == null) {
       settings = TYPE_SETTINGS.get(clazz);
+
       if (settings == null) {
-        settings = fallbackSettings;
+        settings = (FormatSettings<T>) defaultSettings;
       }
       settingsCache.put(clazz, settings);
     }

@@ -3,20 +3,17 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.format;
+package com.opengamma.strata.report.framework.format;
 
 /**
  * Enumerates the report output formats.
  */
 public enum ReportOutputFormat {
 
-  /**
-   * ASCII table
-   */
+  /** ASCII table format. */
   ASCII_TABLE,
-  /**
-   * CSV
-   */
+
+  /** CSV format. */
   CSV
 
 }

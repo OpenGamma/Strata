@@ -7,8 +7,13 @@ package com.opengamma.strata.report;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
+
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Represents a business report.
@@ -25,42 +30,42 @@ public interface Report {
    * 
    * @return the valuation date
    */
-  LocalDate getValuationDate();
+  public abstract LocalDate getValuationDate();
 
   /**
-   * Gets the instant at which the report was run, which may be independent of the valuation date.
+   * Gets the instant at which the report was run, which is independent of the valuation date.
    * 
    * @return the run instant
    */
-  Instant getRunInstant();
+  public abstract Instant getRunInstant();
 
   /**
    * Gets the number of rows in the report table.
    * 
    * @return the number of rows in the report table
    */
-  int getRowCount();
+  public abstract int getRowCount();
 
   /**
    * Gets the report column headers.
    * 
    * @return the column headers
    */
-  String[] getColumnHeaders();
+  public abstract ImmutableList<String> getColumnHeaders();
 
   /**
    * Writes this report out in a CSV format.
    * 
    * @param out  the output stream to write to
    */
-  void writeCsv(OutputStream out);
+  public abstract void writeCsv(OutputStream out);
 
   /**
    * Writes this report out as an ASCII table.
    * 
    * @param out  the output stream to write to
    */
-  void writeAsciiTable(OutputStream out);
+  public abstract void writeAsciiTable(OutputStream out);
 
   //-------------------------------------------------------------------------
   /**
@@ -69,7 +74,7 @@ public interface Report {
    * @return the number of columns in the report table
    */
   public default int getColumnCount() {
-    return getColumnHeaders().length;
+    return getColumnHeaders().size();
   }
 
   /**
@@ -80,7 +85,12 @@ public interface Report {
   public default String toAsciiTableString() {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     writeAsciiTable(os);
-    return os.toString();
+
+    try {
+      return os.toString(StandardCharsets.UTF_8.name());
+    } catch (UnsupportedEncodingException e) {
+      throw Throwables.propagate(e);
+    }
   }
 
 }

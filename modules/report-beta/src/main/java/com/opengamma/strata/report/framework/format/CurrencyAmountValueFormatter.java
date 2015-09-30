@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.format;
+package com.opengamma.strata.report.framework.format;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 
@@ -13,6 +13,12 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 public class CurrencyAmountValueFormatter implements ValueFormatter<CurrencyAmount> {
 
   private final DoubleValueFormatter doubleFormatter = new DoubleValueFormatter();
+
+  /** The single shared instance of this class. */
+  public static final CurrencyAmountValueFormatter INSTANCE = new CurrencyAmountValueFormatter();
+
+  private CurrencyAmountValueFormatter() {
+  }
 
   @Override
   public String formatForCsv(CurrencyAmount amount) {

@@ -3,12 +3,15 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.result;
+package com.opengamma.strata.report.framework.expression;
+
+import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.joda.beans.Bean;
+import org.joda.beans.Property;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableSet;
@@ -18,10 +21,33 @@ import com.google.common.primitives.Ints;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapLegType;
 
 /**
- * 
+ * Evaluates a token against an iterable object and returns a value.
+ * <p>
+ * The token can be the index of the item in the iterable (zero based). For example, this expression selects
+ * the start date of the first leg of a swap:
+ * <pre>
+ *   Product.legs.0.startDate
+ * </pre>
+ * It is also possible to select items based on the value of their properties. For example, {@link SwapLeg} has
+ * a property {@code payReceive} whose value can be {@code PAY} or {@code RECEIVE}. It is possible to select
+ * a leg based on the value of this property:
+ * <pre>
+ *   Product.legs.pay.startDate     // Pay leg start date
+ *   Product.legs.receive.startDate // Receive leg start date
+ * </pre>
+ * The comparison between property values and expression values is case-insensitive.
+ * <p>
+ * This works for any property where each item has a unique value. For example, consider a cross-currency swap where
+ * one leg has the currency USD and the other has the currency GBP:
+ * <pre>
+ *   Product.legs.USD.startDate // USD leg start date
+ *   Product.legs.GBP.startDate // GBP leg start date
+ * </pre>
+ * If both legs have the same currency it would obviously not be possible to use the currency to select a leg.
  */
 public class IterableTokenEvaluator extends TokenEvaluator<Iterable<?>> {
 
@@ -39,6 +65,7 @@ public class IterableTokenEvaluator extends TokenEvaluator<Iterable<?>> {
   public Set<String> tokens(Iterable<?> iterable) {
     Multiset<String> tokens = HashMultiset.create();
     int index = 0;
+
     for (Object item : iterable) {
       tokens.add(String.valueOf(index++));
       tokens.addAll(fieldValues(item));
@@ -51,6 +78,7 @@ public class IterableTokenEvaluator extends TokenEvaluator<Iterable<?>> {
   @Override
   public Result<?> evaluate(Iterable<?> iterable, String token) {
     Integer index = Ints.tryParse(token);
+
     if (index != null) {
       try {
         return Result.success(Iterables.get(iterable, index));
@@ -58,11 +86,13 @@ public class IterableTokenEvaluator extends TokenEvaluator<Iterable<?>> {
         return invalidTokenFailure(iterable, token);
       }
     }
+    Set<String> tokens = tokens(iterable);
+
     for (Object item : iterable) {
       if (!fieldValues(item).contains(token)) {
         continue;
       }
-      if (!tokens(iterable).contains(token)) {
+      if (!tokens.contains(token)) {
         return ambiguousTokenFailure(iterable, token);
       }
       return Result.success(item);
@@ -77,12 +107,13 @@ public class IterableTokenEvaluator extends TokenEvaluator<Iterable<?>> {
     }
     Bean bean = (Bean) object;
     return bean.propertyNames().stream()
-        .map(name -> bean.property(name))
+        .map(bean::property)
         .filter(p -> SUPPORTED_FIELD_TYPES.contains(p.metaProperty().propertyType()))
-        .map(p -> p.get())
+        .map(Property::get)
         .filter(v -> v != null)
-        .map(v -> v.toString().toLowerCase())
-        .collect(Collectors.toSet());
+        .map(Object::toString)
+        .map(String::toLowerCase)
+        .collect(toImmutableSet());
   }
 
 }

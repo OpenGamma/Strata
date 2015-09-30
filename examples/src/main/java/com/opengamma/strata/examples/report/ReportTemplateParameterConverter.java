@@ -30,8 +30,7 @@ public class ReportTemplateParameterConverter
       CharSource charSource = ResourceLocator.ofFile(file).getCharSource();
       IniFile ini = IniFile.of(charSource);
 
-      MasterReportTemplateIniLoader loader = new MasterReportTemplateIniLoader();
-      return loader.load(ini);
+      return MasterReportTemplateIniLoader.load(ini);
 
     } catch (RuntimeException ex) {
       if (ex.getCause() instanceof FileNotFoundException) {

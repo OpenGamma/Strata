@@ -16,6 +16,7 @@ public interface ReportTemplateIniLoader<T extends ReportTemplate> {
 
   /** The settings section name. */
   public static final String SETTINGS_SECTION = "settings";
+
   /** The report type property name, in the settings section. */
   public static final String SETTINGS_REPORT_TYPE = "reportType";
 
@@ -24,7 +25,7 @@ public interface ReportTemplateIniLoader<T extends ReportTemplate> {
    * 
    * @return the type of report handled by this loader
    */
-  String getReportType();
+  public abstract String getReportType();
 
   /**
    * Loads the report template.
@@ -32,6 +33,6 @@ public interface ReportTemplateIniLoader<T extends ReportTemplate> {
    * @param iniFile  the ini file to load
    * @return the loaded report template object
    */
-  T load(IniFile iniFile);
+  public abstract T load(IniFile iniFile);
 
 }

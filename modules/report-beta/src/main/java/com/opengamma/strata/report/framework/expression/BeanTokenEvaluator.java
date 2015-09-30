@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.result;
+package com.opengamma.strata.report.framework.expression;
 
 import java.util.Optional;
 import java.util.Set;
@@ -34,10 +34,12 @@ public class BeanTokenEvaluator extends TokenEvaluator<Bean> {
     Optional<String> propertyName = bean.propertyNames().stream()
         .filter(p -> p.toLowerCase().equals(token))
         .findFirst();
+
     if (propertyName.isPresent()) {
       Object propertyValue = bean.property(propertyName.get()).get();
-      return propertyValue != null ? Result.success(propertyValue) : Result.failure(FailureReason.INVALID_INPUT,
-          Messages.format("Property '{}' not set", token));
+      return propertyValue != null ?
+          Result.success(propertyValue) :
+          Result.failure(FailureReason.INVALID_INPUT, Messages.format("No value available for property '{}'", token));
     }
     return invalidTokenFailure(bean, token);
   }

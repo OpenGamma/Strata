@@ -3,11 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.result;
+package com.opengamma.strata.report.framework.expression;
+
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.opengamma.strata.collect.Messages;
 
@@ -28,11 +29,15 @@ public enum ValueRootType {
    * Refers to the trade.
    */
   TRADE("Trade");
-  
+
   //-------------------------------------------------------------------------
   private final String token;
-  
-  private ValueRootType(String token) {
+
+  private static final List<String> VALID_ROOTS = Arrays.stream(values())
+      .map(r -> r.token)
+      .collect(toImmutableList());
+
+  ValueRootType(String token) {
     this.token = token;
   }
   
@@ -53,16 +58,10 @@ public enum ValueRootType {
    * @return the root type corresponding to the given string
    */
   public static ValueRootType parseToken(String rootString) {
-    for (ValueRootType rootType : ValueRootType.values()) {
-      if (rootType.token.toLowerCase().equals(rootString.toLowerCase())) {
-        return rootType;
-      }
-    }
-    List<String> validRoots = Arrays.stream(values())
-        .map(r -> r.token)
-        .collect(Collectors.toList());
-    throw new IllegalArgumentException(
-        Messages.format("Invalid root: {}. Value path must start with one of: {}", rootString, validRoots));
+    return Arrays.stream(values())
+        .filter(val -> val.token.toLowerCase().equals(rootString.toLowerCase()))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException(
+            Messages.format("Invalid root: {}. Value path must start with one of: {}", rootString, VALID_ROOTS)));
   }
-  
 }

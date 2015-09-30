@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.format;
+package com.opengamma.strata.report.framework.format;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -23,17 +23,19 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Contains formatting settings for a specific type.
+ *
+ * @param <T> the type of value to which the settings apply
  */
 @BeanDefinition
-public class FormatSettings implements ImmutableBean {
+public final class FormatSettings<T> implements ImmutableBean {
 
   /** The category of this type. */
   @PropertyDefinition(validate = "notNull")
   private final FormatCategory category;
 
   /** The formatter to use to convert this type into a string. */
-  @PropertyDefinition
-  private final ValueFormatter<?> formatter;
+  @PropertyDefinition(validate = "notNull")
+  private final ValueFormatter<T> formatter;
 
   /**
    * Constructs an instance.
@@ -42,8 +44,8 @@ public class FormatSettings implements ImmutableBean {
    * @param formatter  the formatter the use for the type
    * @return the format settings
    */
-  public static FormatSettings of(FormatCategory category, ValueFormatter<?> formatter) {
-    return FormatSettings.builder()
+  public static <T> FormatSettings<T> of(FormatCategory category, ValueFormatter<T> formatter) {
+    return FormatSettings.<T>builder()
         .category(category)
         .formatter(formatter)
         .build();
@@ -55,7 +57,19 @@ public class FormatSettings implements ImmutableBean {
    * The meta-bean for {@code FormatSettings}.
    * @return the meta-bean, not null
    */
+  @SuppressWarnings("rawtypes")
   public static FormatSettings.Meta meta() {
+    return FormatSettings.Meta.INSTANCE;
+  }
+
+  /**
+   * The meta-bean for {@code FormatSettings}.
+   * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("unchecked")
+  public static <R> FormatSettings.Meta<R> metaFormatSettings(Class<R> cls) {
     return FormatSettings.Meta.INSTANCE;
   }
 
@@ -65,24 +79,25 @@ public class FormatSettings implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
+   * @param <T>  the type
    * @return the builder, not null
    */
-  public static FormatSettings.Builder builder() {
-    return new FormatSettings.Builder();
+  public static <T> FormatSettings.Builder<T> builder() {
+    return new FormatSettings.Builder<T>();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected FormatSettings(FormatSettings.Builder builder) {
-    JodaBeanUtils.notNull(builder.category, "category");
-    this.category = builder.category;
-    this.formatter = builder.formatter;
+  private FormatSettings(
+      FormatCategory category,
+      ValueFormatter<T> formatter) {
+    JodaBeanUtils.notNull(category, "category");
+    JodaBeanUtils.notNull(formatter, "formatter");
+    this.category = category;
+    this.formatter = formatter;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public FormatSettings.Meta metaBean() {
+  public FormatSettings.Meta<T> metaBean() {
     return FormatSettings.Meta.INSTANCE;
   }
 
@@ -108,9 +123,9 @@ public class FormatSettings implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the formatter to use to convert this type into a string.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
-  public ValueFormatter<?> getFormatter() {
+  public ValueFormatter<T> getFormatter() {
     return formatter;
   }
 
@@ -119,8 +134,8 @@ public class FormatSettings implements ImmutableBean {
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
-  public Builder toBuilder() {
-    return new Builder(this);
+  public Builder<T> toBuilder() {
+    return new Builder<T>(this);
   }
 
   @Override
@@ -129,7 +144,7 @@ public class FormatSettings implements ImmutableBean {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      FormatSettings other = (FormatSettings) obj;
+      FormatSettings<?> other = (FormatSettings<?>) obj;
       return JodaBeanUtils.equal(getCategory(), other.getCategory()) &&
           JodaBeanUtils.equal(getFormatter(), other.getFormatter());
     }
@@ -148,28 +163,22 @@ public class FormatSettings implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("FormatSettings{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("category").append('=').append(getCategory()).append(',').append(' ');
+    buf.append("formatter").append('=').append(JodaBeanUtils.toString(getFormatter()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("category").append('=').append(JodaBeanUtils.toString(getCategory())).append(',').append(' ');
-    buf.append("formatter").append('=').append(JodaBeanUtils.toString(getFormatter())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FormatSettings}.
+   * @param <T>  the type
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta<T> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -181,7 +190,7 @@ public class FormatSettings implements ImmutableBean {
      * The meta-property for the {@code formatter} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ValueFormatter<?>> formatter = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ValueFormatter<T>> formatter = DirectMetaProperty.ofImmutable(
         this, "formatter", FormatSettings.class, (Class) ValueFormatter.class);
     /**
      * The meta-properties.
@@ -194,7 +203,7 @@ public class FormatSettings implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -209,13 +218,14 @@ public class FormatSettings implements ImmutableBean {
     }
 
     @Override
-    public FormatSettings.Builder builder() {
-      return new FormatSettings.Builder();
+    public FormatSettings.Builder<T> builder() {
+      return new FormatSettings.Builder<T>();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends FormatSettings> beanType() {
-      return FormatSettings.class;
+    public Class<? extends FormatSettings<T>> beanType() {
+      return (Class) FormatSettings.class;
     }
 
     @Override
@@ -228,7 +238,7 @@ public class FormatSettings implements ImmutableBean {
      * The meta-property for the {@code category} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<FormatCategory> category() {
+    public MetaProperty<FormatCategory> category() {
       return category;
     }
 
@@ -236,7 +246,7 @@ public class FormatSettings implements ImmutableBean {
      * The meta-property for the {@code formatter} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ValueFormatter<?>> formatter() {
+    public MetaProperty<ValueFormatter<T>> formatter() {
       return formatter;
     }
 
@@ -245,9 +255,9 @@ public class FormatSettings implements ImmutableBean {
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 50511102:  // category
-          return ((FormatSettings) bean).getCategory();
+          return ((FormatSettings<?>) bean).getCategory();
         case 1811591370:  // formatter
-          return ((FormatSettings) bean).getFormatter();
+          return ((FormatSettings<?>) bean).getFormatter();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -266,23 +276,24 @@ public class FormatSettings implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * The bean-builder for {@code FormatSettings}.
+   * @param <T>  the type
    */
-  public static class Builder extends DirectFieldsBeanBuilder<FormatSettings> {
+  public static final class Builder<T> extends DirectFieldsBeanBuilder<FormatSettings<T>> {
 
     private FormatCategory category;
-    private ValueFormatter<?> formatter;
+    private ValueFormatter<T> formatter;
 
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(FormatSettings beanToCopy) {
+    private Builder(FormatSettings<T> beanToCopy) {
       this.category = beanToCopy.getCategory();
       this.formatter = beanToCopy.getFormatter();
     }
@@ -300,14 +311,15 @@ public class FormatSettings implements ImmutableBean {
       }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Builder set(String propertyName, Object newValue) {
+    public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 50511102:  // category
           this.category = (FormatCategory) newValue;
           break;
         case 1811591370:  // formatter
-          this.formatter = (ValueFormatter<?>) newValue;
+          this.formatter = (ValueFormatter<T>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -316,32 +328,34 @@ public class FormatSettings implements ImmutableBean {
     }
 
     @Override
-    public Builder set(MetaProperty<?> property, Object value) {
+    public Builder<T> set(MetaProperty<?> property, Object value) {
       super.set(property, value);
       return this;
     }
 
     @Override
-    public Builder setString(String propertyName, String value) {
+    public Builder<T> setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
     @Override
-    public Builder setString(MetaProperty<?> property, String value) {
+    public Builder<T> setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
     @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+    public Builder<T> setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;
     }
 
     @Override
-    public FormatSettings build() {
-      return new FormatSettings(this);
+    public FormatSettings<T> build() {
+      return new FormatSettings<T>(
+          category,
+          formatter);
     }
 
     //-----------------------------------------------------------------------
@@ -350,7 +364,7 @@ public class FormatSettings implements ImmutableBean {
      * @param category  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder category(FormatCategory category) {
+    public Builder<T> category(FormatCategory category) {
       JodaBeanUtils.notNull(category, "category");
       this.category = category;
       return this;
@@ -358,10 +372,11 @@ public class FormatSettings implements ImmutableBean {
 
     /**
      * Sets the formatter to use to convert this type into a string.
-     * @param formatter  the new value
+     * @param formatter  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder formatter(ValueFormatter<?> formatter) {
+    public Builder<T> formatter(ValueFormatter<T> formatter) {
+      JodaBeanUtils.notNull(formatter, "formatter");
       this.formatter = formatter;
       return this;
     }
@@ -371,18 +386,10 @@ public class FormatSettings implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("FormatSettings.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
+      buf.append("category").append('=').append(JodaBeanUtils.toString(category)).append(',').append(' ');
+      buf.append("formatter").append('=').append(JodaBeanUtils.toString(formatter));
       buf.append('}');
       return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
-      buf.append("category").append('=').append(JodaBeanUtils.toString(category)).append(',').append(' ');
-      buf.append("formatter").append('=').append(JodaBeanUtils.toString(formatter)).append(',').append(' ');
     }
 
   }

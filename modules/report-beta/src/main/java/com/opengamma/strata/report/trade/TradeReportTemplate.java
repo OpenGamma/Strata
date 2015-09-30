@@ -30,12 +30,18 @@ import com.opengamma.strata.report.ReportTemplate;
  * Describes the contents and layout of a trade report.
  */
 @BeanDefinition
-public class TradeReportTemplate implements ReportTemplate, ImmutableBean {
+public final class TradeReportTemplate implements ReportTemplate, ImmutableBean {
 
-  /** The columns in the report */
+  /** The columns in the report. */
   @PropertyDefinition(validate = "notNull")
   private final List<TradeReportColumn> columns;
 
+  /**
+   * Creates a trade report template by reading a template definition in an .ini file.
+   *
+   * @param ini  the .ini file containing the definition of the template
+   * @return a trade report template built from the definition in the .ini file
+   */
   public static TradeReportTemplate ofIni(IniFile ini) {
     TradeReportTemplateIniLoader loader = new TradeReportTemplateIniLoader();
     return loader.load(ini);
@@ -63,13 +69,10 @@ public class TradeReportTemplate implements ReportTemplate, ImmutableBean {
     return new TradeReportTemplate.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected TradeReportTemplate(TradeReportTemplate.Builder builder) {
-    JodaBeanUtils.notNull(builder.columns, "columns");
-    this.columns = ImmutableList.copyOf(builder.columns);
+  private TradeReportTemplate(
+      List<TradeReportColumn> columns) {
+    JodaBeanUtils.notNull(columns, "columns");
+    this.columns = ImmutableList.copyOf(columns);
   }
 
   @Override
@@ -89,7 +92,7 @@ public class TradeReportTemplate implements ReportTemplate, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the columns in the report
+   * Gets the columns in the report.
    * @return the value of the property, not null
    */
   public List<TradeReportColumn> getColumns() {
@@ -128,24 +131,16 @@ public class TradeReportTemplate implements ReportTemplate, ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("TradeReportTemplate{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("columns").append('=').append(JodaBeanUtils.toString(getColumns()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("columns").append('=').append(JodaBeanUtils.toString(getColumns())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code TradeReportTemplate}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -167,7 +162,7 @@ public class TradeReportTemplate implements ReportTemplate, ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -199,7 +194,7 @@ public class TradeReportTemplate implements ReportTemplate, ImmutableBean {
      * The meta-property for the {@code columns} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<TradeReportColumn>> columns() {
+    public MetaProperty<List<TradeReportColumn>> columns() {
       return columns;
     }
 
@@ -228,21 +223,21 @@ public class TradeReportTemplate implements ReportTemplate, ImmutableBean {
   /**
    * The bean-builder for {@code TradeReportTemplate}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<TradeReportTemplate> {
+  public static final class Builder extends DirectFieldsBeanBuilder<TradeReportTemplate> {
 
     private List<TradeReportColumn> columns = ImmutableList.of();
 
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(TradeReportTemplate beanToCopy) {
+    private Builder(TradeReportTemplate beanToCopy) {
       this.columns = ImmutableList.copyOf(beanToCopy.getColumns());
     }
 
@@ -296,12 +291,13 @@ public class TradeReportTemplate implements ReportTemplate, ImmutableBean {
 
     @Override
     public TradeReportTemplate build() {
-      return new TradeReportTemplate(this);
+      return new TradeReportTemplate(
+          columns);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the columns in the report
+     * Sets the columns in the report.
      * @param columns  the new value, not null
      * @return this, for chaining, not null
      */
@@ -326,17 +322,9 @@ public class TradeReportTemplate implements ReportTemplate, ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("TradeReportTemplate.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
+      buf.append("columns").append('=').append(JodaBeanUtils.toString(columns));
       buf.append('}');
       return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
-      buf.append("columns").append('=').append(JodaBeanUtils.toString(columns)).append(',').append(' ');
     }
 
   }

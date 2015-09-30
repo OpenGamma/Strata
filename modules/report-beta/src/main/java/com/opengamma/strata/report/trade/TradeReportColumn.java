@@ -34,7 +34,8 @@ public class TradeReportColumn implements ImmutableBean {
   /** The column header. */
   @PropertyDefinition(validate = "notNull")
   private final String header;
-  
+
+  // TODO What's this?
   /** The reference to a value to display in this column. */
   @PropertyDefinition(get = "optional")
   private final String value;

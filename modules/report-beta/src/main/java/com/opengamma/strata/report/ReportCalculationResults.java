@@ -32,7 +32,7 @@ import com.opengamma.strata.finance.Trade;
  * Stores a set of engine calculation results along with the context required to run reports.
  */
 @BeanDefinition
-public class ReportCalculationResults implements ImmutableBean {
+public final class ReportCalculationResults implements ImmutableBean {
 
   /** The valuation date. */
   @PropertyDefinition(validate = "notNull")
@@ -50,6 +50,15 @@ public class ReportCalculationResults implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final Results calculationResults;
 
+  /**
+   * Returns a new set of calculations results.
+   *
+   * @param valuationDate  the valuation date used in the calculations
+   * @param trades  the trades for which the results were calculated
+   * @param columns  the columns in the results
+   * @param calculationResults  the results of the calculations
+   * @return a new set of calculations results
+   */
   public static ReportCalculationResults of(
       LocalDate valuationDate,
       List<Trade> trades,
@@ -86,19 +95,19 @@ public class ReportCalculationResults implements ImmutableBean {
     return new ReportCalculationResults.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected ReportCalculationResults(ReportCalculationResults.Builder builder) {
-    JodaBeanUtils.notNull(builder.valuationDate, "valuationDate");
-    JodaBeanUtils.notNull(builder.trades, "trades");
-    JodaBeanUtils.notNull(builder.columns, "columns");
-    JodaBeanUtils.notNull(builder.calculationResults, "calculationResults");
-    this.valuationDate = builder.valuationDate;
-    this.trades = ImmutableList.copyOf(builder.trades);
-    this.columns = ImmutableList.copyOf(builder.columns);
-    this.calculationResults = builder.calculationResults;
+  private ReportCalculationResults(
+      LocalDate valuationDate,
+      List<Trade> trades,
+      List<Column> columns,
+      Results calculationResults) {
+    JodaBeanUtils.notNull(valuationDate, "valuationDate");
+    JodaBeanUtils.notNull(trades, "trades");
+    JodaBeanUtils.notNull(columns, "columns");
+    JodaBeanUtils.notNull(calculationResults, "calculationResults");
+    this.valuationDate = valuationDate;
+    this.trades = ImmutableList.copyOf(trades);
+    this.columns = ImmutableList.copyOf(columns);
+    this.calculationResults = calculationResults;
   }
 
   @Override
@@ -190,27 +199,19 @@ public class ReportCalculationResults implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("ReportCalculationResults{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("valuationDate").append('=').append(getValuationDate()).append(',').append(' ');
+    buf.append("trades").append('=').append(getTrades()).append(',').append(' ');
+    buf.append("columns").append('=').append(getColumns()).append(',').append(' ');
+    buf.append("calculationResults").append('=').append(JodaBeanUtils.toString(getCalculationResults()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(getValuationDate())).append(',').append(' ');
-    buf.append("trades").append('=').append(JodaBeanUtils.toString(getTrades())).append(',').append(' ');
-    buf.append("columns").append('=').append(JodaBeanUtils.toString(getColumns())).append(',').append(' ');
-    buf.append("calculationResults").append('=').append(JodaBeanUtils.toString(getCalculationResults())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ReportCalculationResults}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -251,7 +252,7 @@ public class ReportCalculationResults implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -289,7 +290,7 @@ public class ReportCalculationResults implements ImmutableBean {
      * The meta-property for the {@code valuationDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> valuationDate() {
+    public MetaProperty<LocalDate> valuationDate() {
       return valuationDate;
     }
 
@@ -297,7 +298,7 @@ public class ReportCalculationResults implements ImmutableBean {
      * The meta-property for the {@code trades} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<Trade>> trades() {
+    public MetaProperty<List<Trade>> trades() {
       return trades;
     }
 
@@ -305,7 +306,7 @@ public class ReportCalculationResults implements ImmutableBean {
      * The meta-property for the {@code columns} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<Column>> columns() {
+    public MetaProperty<List<Column>> columns() {
       return columns;
     }
 
@@ -313,7 +314,7 @@ public class ReportCalculationResults implements ImmutableBean {
      * The meta-property for the {@code calculationResults} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Results> calculationResults() {
+    public MetaProperty<Results> calculationResults() {
       return calculationResults;
     }
 
@@ -348,7 +349,7 @@ public class ReportCalculationResults implements ImmutableBean {
   /**
    * The bean-builder for {@code ReportCalculationResults}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<ReportCalculationResults> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ReportCalculationResults> {
 
     private LocalDate valuationDate;
     private List<Trade> trades = ImmutableList.of();
@@ -358,14 +359,14 @@ public class ReportCalculationResults implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(ReportCalculationResults beanToCopy) {
+    private Builder(ReportCalculationResults beanToCopy) {
       this.valuationDate = beanToCopy.getValuationDate();
       this.trades = ImmutableList.copyOf(beanToCopy.getTrades());
       this.columns = ImmutableList.copyOf(beanToCopy.getColumns());
@@ -437,7 +438,11 @@ public class ReportCalculationResults implements ImmutableBean {
 
     @Override
     public ReportCalculationResults build() {
-      return new ReportCalculationResults(this);
+      return new ReportCalculationResults(
+          valuationDate,
+          trades,
+          columns,
+          calculationResults);
     }
 
     //-----------------------------------------------------------------------
@@ -510,20 +515,12 @@ public class ReportCalculationResults implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("ReportCalculationResults.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
       buf.append("trades").append('=').append(JodaBeanUtils.toString(trades)).append(',').append(' ');
       buf.append("columns").append('=').append(JodaBeanUtils.toString(columns)).append(',').append(' ');
-      buf.append("calculationResults").append('=').append(JodaBeanUtils.toString(calculationResults)).append(',').append(' ');
+      buf.append("calculationResults").append('=').append(JodaBeanUtils.toString(calculationResults));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

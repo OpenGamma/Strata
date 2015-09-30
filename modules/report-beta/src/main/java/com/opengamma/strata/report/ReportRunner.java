@@ -24,7 +24,7 @@ public interface ReportRunner<T extends ReportTemplate> {
    * @param reportTemplate  the report template
    * @return the requirements to run the report
    */
-  ReportRequirements requirements(T reportTemplate);
+  public abstract ReportRequirements requirements(T reportTemplate);
 
   /**
    * Runs a report from a set of calculation results.
@@ -35,6 +35,6 @@ public interface ReportRunner<T extends ReportTemplate> {
    * @param reportTemplate  the report template
    * @return  the report
    */
-  Report runReport(ReportCalculationResults calculationResults, T reportTemplate);
+  public abstract Report runReport(ReportCalculationResults calculationResults, T reportTemplate);
 
 }

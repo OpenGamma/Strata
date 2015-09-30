@@ -1,9 +1,9 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.result;
+package com.opengamma.strata.report.framework.expression;
 
 import java.util.Optional;
 import java.util.Set;
@@ -40,26 +40,32 @@ public class TradeTokenEvaluator extends TokenEvaluator<Trade> {
   @Override
   public Result<?> evaluate(Trade trade, String token) {
     MetaBean metaBean = JodaBeanUtils.metaBean(trade.getClass());
+
     // trade
     Optional<String> propertyName1 = metaBean.metaPropertyMap().keySet().stream()
         .filter(p -> p.equalsIgnoreCase(token))
         .findFirst();
+
     if (propertyName1.isPresent()) {
       Object propertyValue = metaBean.metaProperty(propertyName1.get()).get((Bean) trade);
-      return propertyValue != null ? Result.success(propertyValue) : Result.failure(FailureReason.INVALID_INPUT,
-          Messages.format("Property '{}' not set", token));
+
+      return propertyValue != null ?
+          Result.success(propertyValue) :
+          Result.failure(FailureReason.INVALID_INPUT, Messages.format("Property '{}' not set", token));
     }
 
     // trade info
     Optional<String> propertyName2 = trade.getTradeInfo().propertyNames().stream()
         .filter(p -> p.equalsIgnoreCase(token))
         .findFirst();
+
     if (propertyName2.isPresent()) {
       Object propertyValue = trade.getTradeInfo().property(propertyName2.get()).get();
-      return propertyValue != null ? Result.success(propertyValue) : Result.failure(FailureReason.INVALID_INPUT,
-          Messages.format("Property '{}' not set", token));
-    }
 
+      return propertyValue != null ?
+          Result.success(propertyValue) :
+          Result.failure(FailureReason.INVALID_INPUT, Messages.format("Property '{}' not set", token));
+    }
     // no match
     return invalidTokenFailure(trade, token);
   }

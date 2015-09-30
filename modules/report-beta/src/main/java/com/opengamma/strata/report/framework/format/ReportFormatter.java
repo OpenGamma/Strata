@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.format;
+package com.opengamma.strata.report.framework.format;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -27,11 +27,18 @@ import com.opengamma.strata.report.Report;
  */
 public abstract class ReportFormatter<R extends Report> {
 
-  private final FormatSettings fallbackSettings;
+  /** Default format settings, used if there are no settings for a data type. */
+  private final FormatSettings<Object> defaultSettings;
+
   private final FormatSettingsProvider formatSettingsProvider = new FormatSettingsProvider();
 
-  public ReportFormatter(FormatSettings fallbackSettings) {
-    this.fallbackSettings = fallbackSettings;
+  /**
+   * Creates a new formatter with a set of default format settings.
+   *
+   * @param defaultSettings  default format settings, used if there are no settings for a data type.
+   */
+  protected ReportFormatter(FormatSettings<Object> defaultSettings) {
+    this.defaultSettings = defaultSettings;
   }
 
   /**
@@ -44,11 +51,11 @@ public abstract class ReportFormatter<R extends Report> {
   public void writeCsv(R report, OutputStream out) {
     OutputStreamWriter outputWriter = new OutputStreamWriter(out);
     CsvOutput csvOut = new CsvOutput(outputWriter);
-    csvOut.writeLine(Arrays.asList(report.getColumnHeaders()));
+    csvOut.writeLine(report.getColumnHeaders());
     IntStream.range(0, report.getRowCount())
         .mapToObj(rowIdx -> Arrays.asList(formatRow(report, rowIdx, ReportOutputFormat.CSV)))
-        .forEachOrdered(csvOut::writeLine);
-    Unchecked.wrap(() -> outputWriter.flush());
+        .forEach(csvOut::writeLine);
+    Unchecked.wrap(outputWriter::flush);
   }
 
   /**
@@ -60,8 +67,8 @@ public abstract class ReportFormatter<R extends Report> {
   public void writeAsciiTable(R report, OutputStream out) {
     List<Class<?>> columnTypes = getColumnTypes(report);
     ASCIITableHeader[] headers = IntStream.range(0, columnTypes.size())
-        .mapToObj(i -> toAsciiTableHeader(report.getColumnHeaders()[i], columnTypes.get(i)))
-        .toArray(i -> new ASCIITableHeader[i]);
+        .mapToObj(i -> toAsciiTableHeader(report.getColumnHeaders().get(i), columnTypes.get(i)))
+        .toArray(ASCIITableHeader[]::new);
     String[][] table = formatTable(report, ReportOutputFormat.ASCII_TABLE);
     String asciiTable = AsciiTableInstance.get().getTable(headers, table);
     PrintWriter pw = new PrintWriter(out);
@@ -72,6 +79,8 @@ public abstract class ReportFormatter<R extends Report> {
   //-------------------------------------------------------------------------
   /**
    * Gets the type of the data in each report column.
+   * <p>
+   * If every value in a column is a failure the type will be {@code Object.class}.
    * 
    * @param report  the report
    * @return a list of column types
@@ -90,25 +99,34 @@ public abstract class ReportFormatter<R extends Report> {
   protected abstract String formatData(R report, int rowIdx, int colIdx, ReportOutputFormat format);
 
   //-------------------------------------------------------------------------
+
+  /**
+   * Formats a value into a string.
+   *
+   * @param value  the value
+   * @param format  the format that controls how the value is formatted
+   * @return the formatted value
+   */
   @SuppressWarnings("unchecked")
   protected String formatValue(Object value, ReportOutputFormat format) {
     Object formatValue = value instanceof Optional ? ((Optional<?>) value).orElse(null) : value;
+
     if (formatValue == null) {
       return "";
     }
-    FormatSettings formatSettings = formatSettingsProvider.getSettings(formatValue.getClass(), fallbackSettings);
-    ValueFormatter<Object> formatter = (ValueFormatter<Object>) formatSettings.getFormatter();
-    if (format == ReportOutputFormat.CSV) {
-      return formatter.formatForCsv(formatValue);
-    } else {
-      return formatter.formatForDisplay(formatValue);
-    }
+    FormatSettings<Object> formatSettings = formatSettingsProvider.getSettings(formatValue.getClass(), defaultSettings);
+    ValueFormatter<Object> formatter = formatSettings.getFormatter();
+
+    return format == ReportOutputFormat.CSV ?
+        formatter.formatForCsv(formatValue) :
+        formatter.formatForDisplay(formatValue);
   }
 
   //-------------------------------------------------------------------------
   private ASCIITableHeader toAsciiTableHeader(String header, Class<?> columnType) {
-    FormatSettings formatSettings = formatSettingsProvider.getSettings(columnType, fallbackSettings);
-    boolean isNumeric = formatSettings.getCategory() == FormatCategory.NUMERIC ||
+    FormatSettings<Object> formatSettings = formatSettingsProvider.getSettings(columnType, defaultSettings);
+    boolean isNumeric =
+        formatSettings.getCategory() == FormatCategory.NUMERIC ||
         formatSettings.getCategory() == FormatCategory.DATE;
     int align = isNumeric ? AsciiTable.ALIGN_RIGHT : AsciiTable.ALIGN_LEFT;
     return ASCIITableHeader.h(header, align, align);
@@ -116,6 +134,7 @@ public abstract class ReportFormatter<R extends Report> {
 
   private String[][] formatTable(R report, ReportOutputFormat format) {
     String[][] table = new String[report.getRowCount()][];
+
     for (int r = 0; r < table.length; r++) {
       table[r] = formatRow(report, r, format);
     }

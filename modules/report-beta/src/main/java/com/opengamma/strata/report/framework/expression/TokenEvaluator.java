@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.result;
+package com.opengamma.strata.report.framework.expression;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +13,18 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 
 /**
+ * TODO Move or copy this to the top level package info?
+ *
  * Evaluates a token against an object to produce another object.
  * <p>
- * The token may be part of an expression which traverses a graph of objects.
- * 
+ * Tokens are taken from expressions in a report template. These expressions tell the reporting framework
+ * how to navigate a tree of data to find values to include in the report.
+ * <p>
+ * For example, the expression {@code Measures.PresentValue.Amount} is made up of the tokens
+ * {@code Measures}, {@code PresentValue} and {@code Amount}.
+ *
+ * TODO more info here
+ *
  * @param <T>  the type of the target
  */
 public abstract class TokenEvaluator<T> {
@@ -71,8 +79,7 @@ public abstract class TokenEvaluator<T> {
   private Result<?> tokenFailure(String reason, T object, String token) {
     List<String> orderedValidTokens = new ArrayList<String>(tokens(object));
     orderedValidTokens.sort(null);
-    return Result.failure(FailureReason.INVALID_INPUT, "{} field: {}. Use one of: {}",
-        reason, token, tokens(object));
+    return Result.failure(FailureReason.INVALID_INPUT, "{} field: {}. Use one of: {}", reason, token, tokens(object));
   }
 
 }

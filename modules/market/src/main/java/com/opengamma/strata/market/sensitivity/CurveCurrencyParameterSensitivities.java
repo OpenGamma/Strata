@@ -89,13 +89,13 @@ public final class CurveCurrencyParameterSensitivities
   }
 
   /**
-   * Obtains an instance from a single sensitivity entry.
-   * 
-   * @param sensitivity  the sensitivity entry
+   * Obtains an instance from a multiple sensitivity entries.
+   *
+   * @param sensitivities  the sensitivities
    * @return the sensitivities instance
    */
-  public static CurveCurrencyParameterSensitivities of(CurveCurrencyParameterSensitivity sensitivity) {
-    return new CurveCurrencyParameterSensitivities(ImmutableList.of(sensitivity));
+  public static CurveCurrencyParameterSensitivities of(CurveCurrencyParameterSensitivity... sensitivities) {
+    return new CurveCurrencyParameterSensitivities(ImmutableList.copyOf(sensitivities));
   }
 
   /**

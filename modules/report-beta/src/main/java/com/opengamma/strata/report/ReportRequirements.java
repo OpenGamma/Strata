@@ -32,7 +32,7 @@ import com.opengamma.strata.engine.Column;
 @BeanDefinition
 public class ReportRequirements implements ImmutableBean {
 
-  /** The trade-level measure requirements */
+  /** The trade-level measure requirements. */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<Column> tradeMeasureRequirements;
 
@@ -84,7 +84,7 @@ public class ReportRequirements implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the trade-level measure requirements
+   * Gets the trade-level measure requirements.
    * @return the value of the property, not null
    */
   public ImmutableList<Column> getTradeMeasureRequirements() {
@@ -296,7 +296,7 @@ public class ReportRequirements implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the trade-level measure requirements
+     * Sets the trade-level measure requirements.
      * @param tradeMeasureRequirements  the new value, not null
      * @return this, for chaining, not null
      */

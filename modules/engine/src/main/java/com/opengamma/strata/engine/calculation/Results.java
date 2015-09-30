@@ -64,7 +64,7 @@ public final class Results implements ImmutableBean {
    * @param values  the calculated values
    * @return a set of results for the calculations
    */
-  static Results of(int rowCount, int columnCount, List<? extends Result<?>> values) {
+  public static Results of(int rowCount, int columnCount, List<? extends Result<?>> values) {
     return new Results(rowCount, columnCount, values);
   }
 
