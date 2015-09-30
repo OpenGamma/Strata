@@ -38,7 +38,7 @@ import com.opengamma.strata.report.ReportCalculationResults;
 /**
  * Evaluates a path describing a value to be shown in a trade report.
  * <p>
- * For example, if the expression is '{@code product.index.name}' and the results contain {@link FraTrade} instances
+ * For example, if the expression is '{@code Product.index.name}' and the results contain {@link FraTrade} instances
  * the following calls will be made for each trade in the results:
  * <ul>
  *   <li>{@code FraTrade.getProduct()} returning a {@link Fra}</li>

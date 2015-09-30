@@ -9,21 +9,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.finance.rate.fra.Fra;
 
 /**
- * TODO Move or copy this to the top level package info?
- *
  * Evaluates a token against an object to produce another object.
  * <p>
  * Tokens are taken from expressions in a report template. These expressions tell the reporting framework
  * how to navigate a tree of data to find values to include in the report.
  * <p>
- * For example, the expression {@code Measures.PresentValue.Amount} is made up of the tokens
- * {@code Measures}, {@code PresentValue} and {@code Amount}.
- *
- * TODO more info here
+ * For example, if the token is '{@code index}' and the object is a {@link Fra}the method {@code Fra.getIndex()}
+ * will be invoked and the result will contain an {@link IborIndex}.
  *
  * @param <T>  the type of the target
  */
