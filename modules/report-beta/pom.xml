@@ -86,6 +86,14 @@
         </exclusion>
       </exclusions>
     </dependency>
+
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-collect</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <!-- ==================================================================== -->

@@ -11,7 +11,8 @@ import com.opengamma.strata.report.ReportTemplateIniLoader;
 /**
  * Loads a cash flow report template from the standard INI file format.
  */
-public class CashFlowReportTemplateIniLoader implements ReportTemplateIniLoader<CashFlowReportTemplate> {
+public class CashFlowReportTemplateIniLoader
+    implements ReportTemplateIniLoader<CashFlowReportTemplate> {
 
   private static final String REPORT_TYPE = "cashflow";
 

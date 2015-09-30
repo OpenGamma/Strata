@@ -26,6 +26,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.Table;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.report.Report;
 
@@ -37,7 +39,7 @@ import com.opengamma.strata.report.Report;
  * containing multiple resets.
  */
 @BeanDefinition
-public class CashFlowReport implements Report, ImmutableBean {
+public final class CashFlowReport implements Report, ImmutableBean {
 
   /** The valuation date. */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
@@ -49,19 +51,19 @@ public class CashFlowReport implements Report, ImmutableBean {
 
   /** The keys corresponding to the columns. */
   @PropertyDefinition(validate = "notNull")
-  private final List<ExplainKey<?>> columnKeys;
+  private final ImmutableList<ExplainKey<?>> columnKeys;
 
   /** The column headers.  */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final String[] columnHeaders;
+  private final ImmutableList<String> columnHeaders;
 
   /** The cashflow data table. */
   @PropertyDefinition(validate = "notNull")
-  private final Object[][] data;
+  private final ImmutableTable<Integer, Integer, Object> data;
 
   @Override
   public int getRowCount() {
-    return data.length;
+    return data.rowKeySet().size();
   }
 
   @Override
@@ -96,21 +98,22 @@ public class CashFlowReport implements Report, ImmutableBean {
     return new CashFlowReport.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected CashFlowReport(CashFlowReport.Builder builder) {
-    JodaBeanUtils.notNull(builder.valuationDate, "valuationDate");
-    JodaBeanUtils.notNull(builder.runInstant, "runInstant");
-    JodaBeanUtils.notNull(builder.columnKeys, "columnKeys");
-    JodaBeanUtils.notNull(builder.columnHeaders, "columnHeaders");
-    JodaBeanUtils.notNull(builder.data, "data");
-    this.valuationDate = builder.valuationDate;
-    this.runInstant = builder.runInstant;
-    this.columnKeys = ImmutableList.copyOf(builder.columnKeys);
-    this.columnHeaders = builder.columnHeaders.clone();
-    this.data = builder.data;
+  private CashFlowReport(
+      LocalDate valuationDate,
+      Instant runInstant,
+      List<ExplainKey<?>> columnKeys,
+      List<String> columnHeaders,
+      Table<Integer, Integer, Object> data) {
+    JodaBeanUtils.notNull(valuationDate, "valuationDate");
+    JodaBeanUtils.notNull(runInstant, "runInstant");
+    JodaBeanUtils.notNull(columnKeys, "columnKeys");
+    JodaBeanUtils.notNull(columnHeaders, "columnHeaders");
+    JodaBeanUtils.notNull(data, "data");
+    this.valuationDate = valuationDate;
+    this.runInstant = runInstant;
+    this.columnKeys = ImmutableList.copyOf(columnKeys);
+    this.columnHeaders = ImmutableList.copyOf(columnHeaders);
+    this.data = ImmutableTable.copyOf(data);
   }
 
   @Override
@@ -153,7 +156,7 @@ public class CashFlowReport implements Report, ImmutableBean {
    * Gets the keys corresponding to the columns.
    * @return the value of the property, not null
    */
-  public List<ExplainKey<?>> getColumnKeys() {
+  public ImmutableList<ExplainKey<?>> getColumnKeys() {
     return columnKeys;
   }
 
@@ -163,8 +166,8 @@ public class CashFlowReport implements Report, ImmutableBean {
    * @return the value of the property, not null
    */
   @Override
-  public String[] getColumnHeaders() {
-    return (columnHeaders != null ? columnHeaders.clone() : null);
+  public ImmutableList<String> getColumnHeaders() {
+    return columnHeaders;
   }
 
   //-----------------------------------------------------------------------
@@ -172,7 +175,7 @@ public class CashFlowReport implements Report, ImmutableBean {
    * Gets the cashflow data table.
    * @return the value of the property, not null
    */
-  public Object[][] getData() {
+  public ImmutableTable<Integer, Integer, Object> getData() {
     return data;
   }
 
@@ -216,28 +219,20 @@ public class CashFlowReport implements Report, ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("CashFlowReport{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("valuationDate").append('=').append(getValuationDate()).append(',').append(' ');
+    buf.append("runInstant").append('=').append(getRunInstant()).append(',').append(' ');
+    buf.append("columnKeys").append('=').append(getColumnKeys()).append(',').append(' ');
+    buf.append("columnHeaders").append('=').append(getColumnHeaders()).append(',').append(' ');
+    buf.append("data").append('=').append(JodaBeanUtils.toString(getData()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(getValuationDate())).append(',').append(' ');
-    buf.append("runInstant").append('=').append(JodaBeanUtils.toString(getRunInstant())).append(',').append(' ');
-    buf.append("columnKeys").append('=').append(JodaBeanUtils.toString(getColumnKeys())).append(',').append(' ');
-    buf.append("columnHeaders").append('=').append(JodaBeanUtils.toString(getColumnHeaders())).append(',').append(' ');
-    buf.append("data").append('=').append(JodaBeanUtils.toString(getData())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CashFlowReport}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -257,18 +252,20 @@ public class CashFlowReport implements Report, ImmutableBean {
      * The meta-property for the {@code columnKeys} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ExplainKey<?>>> columnKeys = DirectMetaProperty.ofImmutable(
-        this, "columnKeys", CashFlowReport.class, (Class) List.class);
+    private final MetaProperty<ImmutableList<ExplainKey<?>>> columnKeys = DirectMetaProperty.ofImmutable(
+        this, "columnKeys", CashFlowReport.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code columnHeaders} property.
      */
-    private final MetaProperty<String[]> columnHeaders = DirectMetaProperty.ofImmutable(
-        this, "columnHeaders", CashFlowReport.class, String[].class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableList<String>> columnHeaders = DirectMetaProperty.ofImmutable(
+        this, "columnHeaders", CashFlowReport.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code data} property.
      */
-    private final MetaProperty<Object[][]> data = DirectMetaProperty.ofImmutable(
-        this, "data", CashFlowReport.class, Object[][].class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableTable<Integer, Integer, Object>> data = DirectMetaProperty.ofImmutable(
+        this, "data", CashFlowReport.class, (Class) ImmutableTable.class);
     /**
      * The meta-properties.
      */
@@ -283,7 +280,7 @@ public class CashFlowReport implements Report, ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -323,7 +320,7 @@ public class CashFlowReport implements Report, ImmutableBean {
      * The meta-property for the {@code valuationDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> valuationDate() {
+    public MetaProperty<LocalDate> valuationDate() {
       return valuationDate;
     }
 
@@ -331,7 +328,7 @@ public class CashFlowReport implements Report, ImmutableBean {
      * The meta-property for the {@code runInstant} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Instant> runInstant() {
+    public MetaProperty<Instant> runInstant() {
       return runInstant;
     }
 
@@ -339,7 +336,7 @@ public class CashFlowReport implements Report, ImmutableBean {
      * The meta-property for the {@code columnKeys} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ExplainKey<?>>> columnKeys() {
+    public MetaProperty<ImmutableList<ExplainKey<?>>> columnKeys() {
       return columnKeys;
     }
 
@@ -347,7 +344,7 @@ public class CashFlowReport implements Report, ImmutableBean {
      * The meta-property for the {@code columnHeaders} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String[]> columnHeaders() {
+    public MetaProperty<ImmutableList<String>> columnHeaders() {
       return columnHeaders;
     }
 
@@ -355,7 +352,7 @@ public class CashFlowReport implements Report, ImmutableBean {
      * The meta-property for the {@code data} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Object[][]> data() {
+    public MetaProperty<ImmutableTable<Integer, Integer, Object>> data() {
       return data;
     }
 
@@ -392,29 +389,29 @@ public class CashFlowReport implements Report, ImmutableBean {
   /**
    * The bean-builder for {@code CashFlowReport}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<CashFlowReport> {
+  public static final class Builder extends DirectFieldsBeanBuilder<CashFlowReport> {
 
     private LocalDate valuationDate;
     private Instant runInstant;
     private List<ExplainKey<?>> columnKeys = ImmutableList.of();
-    private String[] columnHeaders;
-    private Object[][] data;
+    private List<String> columnHeaders = ImmutableList.of();
+    private Table<Integer, Integer, Object> data = ImmutableTable.of();
 
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(CashFlowReport beanToCopy) {
+    private Builder(CashFlowReport beanToCopy) {
       this.valuationDate = beanToCopy.getValuationDate();
       this.runInstant = beanToCopy.getRunInstant();
-      this.columnKeys = ImmutableList.copyOf(beanToCopy.getColumnKeys());
-      this.columnHeaders = beanToCopy.getColumnHeaders().clone();
+      this.columnKeys = beanToCopy.getColumnKeys();
+      this.columnHeaders = beanToCopy.getColumnHeaders();
       this.data = beanToCopy.getData();
     }
 
@@ -451,10 +448,10 @@ public class CashFlowReport implements Report, ImmutableBean {
           this.columnKeys = (List<ExplainKey<?>>) newValue;
           break;
         case 1598220112:  // columnHeaders
-          this.columnHeaders = (String[]) newValue;
+          this.columnHeaders = (List<String>) newValue;
           break;
         case 3076010:  // data
-          this.data = (Object[][]) newValue;
+          this.data = (Table<Integer, Integer, Object>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -488,7 +485,12 @@ public class CashFlowReport implements Report, ImmutableBean {
 
     @Override
     public CashFlowReport build() {
-      return new CashFlowReport(this);
+      return new CashFlowReport(
+          valuationDate,
+          runInstant,
+          columnKeys,
+          columnHeaders,
+          data);
     }
 
     //-----------------------------------------------------------------------
@@ -540,10 +542,20 @@ public class CashFlowReport implements Report, ImmutableBean {
      * @param columnHeaders  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder columnHeaders(String... columnHeaders) {
+    public Builder columnHeaders(List<String> columnHeaders) {
       JodaBeanUtils.notNull(columnHeaders, "columnHeaders");
       this.columnHeaders = columnHeaders;
       return this;
+    }
+
+    /**
+     * Sets the {@code columnHeaders} property in the builder
+     * from an array of objects.
+     * @param columnHeaders  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder columnHeaders(String... columnHeaders) {
+      return columnHeaders(ImmutableList.copyOf(columnHeaders));
     }
 
     /**
@@ -551,7 +563,7 @@ public class CashFlowReport implements Report, ImmutableBean {
      * @param data  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder data(Object[][] data) {
+    public Builder data(Table<Integer, Integer, Object> data) {
       JodaBeanUtils.notNull(data, "data");
       this.data = data;
       return this;
@@ -562,21 +574,13 @@ public class CashFlowReport implements Report, ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
       buf.append("CashFlowReport.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
       buf.append("runInstant").append('=').append(JodaBeanUtils.toString(runInstant)).append(',').append(' ');
       buf.append("columnKeys").append('=').append(JodaBeanUtils.toString(columnKeys)).append(',').append(' ');
       buf.append("columnHeaders").append('=').append(JodaBeanUtils.toString(columnHeaders)).append(',').append(' ');
-      buf.append("data").append('=').append(JodaBeanUtils.toString(data)).append(',').append(' ');
+      buf.append("data").append('=').append(JodaBeanUtils.toString(data));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

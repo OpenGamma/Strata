@@ -53,7 +53,16 @@ public final class TradeReportRegressionTestUtils {
                   "Expected:\n" +
                   "{}\n" +
                   "Got:\n" +
-                  "{}", i, expectedLine, actualLine));
+                  "{}\n" +
+                  "Expected table:\n" +
+                  "{}\n" +
+                  "Actual table:\n" +
+                  "{}",
+              i,
+              expectedLine,
+              actualLine,
+              expected,
+              actual));
         }
       }
     }

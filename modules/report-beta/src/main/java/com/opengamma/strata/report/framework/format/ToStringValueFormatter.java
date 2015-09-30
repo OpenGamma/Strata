@@ -3,16 +3,24 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.format;
+package com.opengamma.strata.report.framework.format;
 
 /**
  * Default formatter which returns the value of {@code toString()} on the object.
  */
-public class ToStringValueFormatter implements ValueFormatter<Object> {
+public class ToStringValueFormatter
+    implements ValueFormatter<Object> {
 
-  /** Singleton instance. */
+  /**
+   * The single shared instance of this formatter.
+   */
   public static final ToStringValueFormatter INSTANCE = new ToStringValueFormatter();
 
+  // restricted constructor
+  private ToStringValueFormatter() {
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public String formatForCsv(Object object) {
     return object.toString();

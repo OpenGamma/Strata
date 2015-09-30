@@ -6,7 +6,7 @@
 package com.opengamma.strata.examples.report;
 
 import com.beust.jcommander.IStringConverter;
-import com.opengamma.strata.report.format.ReportOutputFormat;
+import com.opengamma.strata.report.framework.format.ReportOutputFormat;
 
 /**
  * Parameter converter for {@link ReportOutputFormat}.

@@ -22,7 +22,8 @@ import com.opengamma.strata.report.ReportTemplateIniLoader;
  * <li>value - identifies the value to display in the column's cells
  * <li>ignoreFailures - optional boolean flag to disable failure messages in this column
  */
-public class TradeReportTemplateIniLoader implements ReportTemplateIniLoader<TradeReportTemplate> {
+public class TradeReportTemplateIniLoader
+    implements ReportTemplateIniLoader<TradeReportTemplate> {
 
   private static final String REPORT_TYPE = "trade";
 

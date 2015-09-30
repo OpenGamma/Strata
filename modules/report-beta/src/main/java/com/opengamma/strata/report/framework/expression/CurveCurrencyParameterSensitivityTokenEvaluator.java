@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.result;
+package com.opengamma.strata.report.framework.expression;
 
 import java.util.Set;
 

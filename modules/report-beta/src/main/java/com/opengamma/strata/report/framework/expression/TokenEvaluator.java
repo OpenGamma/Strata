@@ -3,20 +3,26 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.result;
+package com.opengamma.strata.report.framework.expression;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.finance.rate.fra.Fra;
 
 /**
  * Evaluates a token against an object to produce another object.
  * <p>
- * The token may be part of an expression which traverses a graph of objects.
- * 
+ * Tokens are taken from expressions in a report template. These expressions tell the reporting framework
+ * how to navigate a tree of data to find values to include in the report.
+ * <p>
+ * For example, if the token is '{@code index}' and the object is a {@link Fra}the method {@code Fra.getIndex()}
+ * will be invoked and the result will contain an {@link IborIndex}.
+ *
  * @param <T>  the type of the target
  */
 public abstract class TokenEvaluator<T> {
@@ -71,8 +77,7 @@ public abstract class TokenEvaluator<T> {
   private Result<?> tokenFailure(String reason, T object, String token) {
     List<String> orderedValidTokens = new ArrayList<String>(tokens(object));
     orderedValidTokens.sort(null);
-    return Result.failure(FailureReason.INVALID_INPUT, "{} field: {}. Use one of: {}",
-        reason, token, tokens(object));
+    return Result.failure(FailureReason.INVALID_INPUT, "{} field: {}. Use one of: {}", reason, token, tokens(object));
   }
 
 }

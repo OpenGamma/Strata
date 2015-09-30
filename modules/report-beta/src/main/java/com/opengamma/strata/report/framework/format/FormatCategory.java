@@ -3,20 +3,20 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.format;
+package com.opengamma.strata.report.framework.format;
 
 /**
- * Defines categories of types.
+ * Defines categories of data types.
  */
 public enum FormatCategory {
 
-  /** Date */
+  /** Date types. */
   DATE,
 
-  /** Numeric */
+  /** Numeric types. */
   NUMERIC,
 
-  /** General text */
+  /** General text types. */
   TEXT
 
 }

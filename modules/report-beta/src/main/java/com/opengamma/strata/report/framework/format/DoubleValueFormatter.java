@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.format;
+package com.opengamma.strata.report.framework.format;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -18,9 +18,10 @@ public class DoubleValueFormatter implements ValueFormatter<Double> {
 
   private final Map<Integer, DecimalFormat> displayFormatCache = new HashMap<Integer, DecimalFormat>();
 
+  //-------------------------------------------------------------------------
   @Override
   public String formatForCsv(Double amount) {
-    return formatForCsv(amount.doubleValue());
+    return FULL_AMOUNT_FORMAT.format(amount.doubleValue());
   }
 
   @Override
@@ -28,11 +29,13 @@ public class DoubleValueFormatter implements ValueFormatter<Double> {
     return formatForDisplay(object, 2);
   }
 
-  //-------------------------------------------------------------------------
-  public String formatForCsv(double amount) {
-    return FULL_AMOUNT_FORMAT.format(amount);
-  }
-
+  /**
+   * Formats a double value for display, using the specified number of decimal places.
+   *
+   * @param amount  the amount
+   * @param decimalPlaces  the number of decimal places to display
+   * @return the formatted amount
+   */
   public String formatForDisplay(double amount, int decimalPlaces) {
     DecimalFormat format = getDecimalPlacesFormat(decimalPlaces);
     return format.format(amount);

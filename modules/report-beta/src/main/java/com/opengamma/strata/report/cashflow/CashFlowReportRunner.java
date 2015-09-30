@@ -5,6 +5,9 @@
  */
 package com.opengamma.strata.report.cashflow;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.Guavate.toImmutableSet;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,6 +19,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Maps;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Result;
@@ -35,6 +39,9 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
 
   // TODO - when the cashflow report INI file supports specific columns, the following maps should
   // be represented by a built-in report template INI file.
+
+  /** The single shared instance of this class. */
+  public static final CashFlowReportRunner INSTANCE = new CashFlowReportRunner();
   
   private static final ExplainKey<?> INTERIM_AMOUNT_KEY = ExplainKey.of("InterimAmount");
   
@@ -82,7 +89,10 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
       .add(ExplainKey.LEG_TYPE)
       .add(ExplainKey.PAY_RECEIVE)
       .build();
-  
+
+  private CashFlowReportRunner() {
+  }
+
   @Override
   public ReportRequirements requirements(CashFlowReportTemplate reportTemplate) {
     return ReportRequirements.builder()
@@ -125,11 +135,8 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
     List<ExplainMap> flatMap = flatten(explainMap);
     
     List<ExplainKey<?>> keys = getKeys(flatMap);
-    String[] headers = keys.stream()
-        .map(k -> mapHeader(k))
-        .toArray(size -> new String[size]);
-
-    Object[][] data = getData(flatMap, keys);
+    List<String> headers = keys.stream().map(this::mapHeader).collect(toImmutableList());
+    ImmutableTable<Integer, Integer, Object> data = getData(flatMap, keys);
 
     return CashFlowReport.builder()
         .runInstant(Instant.now())
@@ -141,7 +148,7 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
   }
 
   private List<ExplainMap> flatten(ExplainMap explainMap) {
-    List<ExplainMap> flattenedMap = new ArrayList<ExplainMap>();
+    List<ExplainMap> flattenedMap = new ArrayList<>();
     flatten(explainMap, false, ImmutableMap.of(), Maps.newHashMap(), 0, flattenedMap);
     return flattenedMap;
   }
@@ -156,11 +163,12 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
     Set<ExplainKey<List<ExplainMap>>> nestedListKeys = explainMap.getMap().keySet().stream()
         .filter(k -> List.class.isAssignableFrom(explainMap.get(k).get().getClass()))
         .map(k -> (ExplainKey<List<ExplainMap>>) k)
-        .collect(Collectors.toSet());
+        .collect(toImmutableSet());
     
     // Populate the base data
     for (Map.Entry<ExplainKey<?>, Object> entry : explainMap.getMap().entrySet()) {
       ExplainKey<?> key = entry.getKey();
+
       if (nestedListKeys.contains(key)) {
         continue;
       }
@@ -183,11 +191,9 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
     }
     
     // Repeat the inherited entries from the parent row if this row hasn't overridden them
-    for (ExplainKey<?> inheritedKey : INHERITED_KEYS) {
-      if (parentRow.containsKey(inheritedKey)) {
-        currentRow.putIfAbsent(inheritedKey, parentRow.get(inheritedKey));
-      }
-    }
+    INHERITED_KEYS.stream()
+        .filter(parentRow::containsKey)
+        .forEach(inheritedKey -> currentRow.putIfAbsent(inheritedKey, parentRow.get(inheritedKey)));
     
     if (nestedListKeys.size() > 0) {
       List<ExplainMap> nestedListEntries = nestedListKeys.stream()
@@ -200,8 +206,8 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
         flatten(nestedListEntries.get(0), visible, currentRow, currentRow, level, accumulator);
       } else {
         // Add child rows
-        for (int i = 0; i < nestedListEntries.size(); i++) {
-          flatten(nestedListEntries.get(i), visible, currentRow, Maps.newHashMap(), level + 1, accumulator);
+        for (ExplainMap nestedListEntry : nestedListEntries) {
+          flatten(nestedListEntry, visible, currentRow, Maps.newHashMap(), level + 1, accumulator);
         }
         // Add parent row after child rows (parent flows are a result of the children)
         if (visible) {
@@ -272,15 +278,17 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
         .collect(Collectors.toList());
   }
 
-  private Object[][] getData(List<ExplainMap> flatMap, List<ExplainKey<?>> keys) {
-    Object[][] data = new Object[flatMap.size()][keys.size()];
-    for (int rowIdx = 0; rowIdx < data.length; rowIdx++) {
+  private ImmutableTable<Integer, Integer, Object> getData(List<ExplainMap> flatMap, List<ExplainKey<?>> keys) {
+    ImmutableTable.Builder<Integer, Integer, Object> builder = ImmutableTable.builder();
+
+    for (int rowIdx = 0; rowIdx < flatMap.size(); rowIdx++) {
       ExplainMap rowMap = flatMap.get(rowIdx);
+
       for (int colIdx = 0; colIdx < keys.size(); colIdx++) {
-        data[rowIdx][colIdx] = rowMap.get(keys.get(colIdx));
+        builder.put(rowIdx, colIdx, rowMap.get(keys.get(colIdx)));
       }
     }
-    return data;
+    return builder.build();
   }
 
 }

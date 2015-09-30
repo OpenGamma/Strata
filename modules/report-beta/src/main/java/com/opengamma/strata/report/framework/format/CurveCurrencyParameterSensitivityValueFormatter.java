@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.format;
+package com.opengamma.strata.report.framework.format;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,25 +20,42 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity
 public class CurveCurrencyParameterSensitivityValueFormatter
     implements ValueFormatter<CurveCurrencyParameterSensitivity> {
 
+  /**
+   * The single shared instance of this formatter.
+   */
+  public static final CurveCurrencyParameterSensitivityValueFormatter INSTANCE =
+      new CurveCurrencyParameterSensitivityValueFormatter();
+
   private static final int PADDED_FIELD_WIDTH = 15;
-  
+
   private final DoubleValueFormatter doubleFormatter = new DoubleValueFormatter();
 
+  // restricted constructor
+  private CurveCurrencyParameterSensitivityValueFormatter() {
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public String formatForCsv(CurveCurrencyParameterSensitivity sensitivity) {
-    return getSensitivityString(sensitivity, d -> doubleFormatter.formatForCsv(d), false);
+    return getSensitivityString(sensitivity, doubleFormatter::formatForCsv, false);
   }
 
   @Override
   public String formatForDisplay(CurveCurrencyParameterSensitivity sensitivity) {
-    return getSensitivityString(sensitivity, d -> doubleFormatter.formatForDisplay(d), true);
+    return getSensitivityString(sensitivity, doubleFormatter::formatForDisplay, true);
   }
 
-  private String getSensitivityString(CurveCurrencyParameterSensitivity sensitivity, DoubleFunction<String> formatFn, boolean pad) {
+  private String getSensitivityString(
+      CurveCurrencyParameterSensitivity sensitivity,
+      DoubleFunction<String> formatFn,
+      boolean pad) {
+
     StringBuilder sb = new StringBuilder();
     Optional<List<CurveParameterMetadata>> parameterMetadata = sensitivity.getMetadata().getParameterMetadata();
     IntFunction<String> labelProvider = parameterMetadata.isPresent() ?
-        i -> parameterMetadata.get().get(i).getLabel() : i -> String.valueOf(i + 1);
+        i -> parameterMetadata.get().get(i).getLabel() :
+        i -> String.valueOf(i + 1);
+
     for (int i = 0; i < sensitivity.getSensitivity().length; i++) {
       String formattedSensitivity = formatFn.apply(sensitivity.getSensitivity()[i]);
       String field = labelProvider.apply(i) + " = " + formattedSensitivity;
