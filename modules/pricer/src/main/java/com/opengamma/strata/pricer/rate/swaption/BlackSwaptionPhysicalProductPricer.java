@@ -90,7 +90,6 @@ public class BlackSwaptionPhysicalProductPricer {
     double volatility = volatilityProvider.getVolatility(expiryDateTime, tenor, strike, forward);
     boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
     // Payer at strike is exercise when rate > strike, i.e. call on rate
-    // option required to pass the strike (in case the swap has non-constant coupon).
     double price = Math.abs(pvbp) * BlackFormulaRepository.price(forward, strike, expiry, volatility, isCall);
     double pv = price * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d);
     return CurrencyAmount.of(fixedLeg.getCurrency(), pv);
@@ -147,16 +146,16 @@ public class BlackSwaptionPhysicalProductPricer {
    * the underlying curves.
    * 
    * @param swaption  the swaption product
-   * @param rates  the rates provider
+   * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the present value curve sensitivity of the swap product
    */
   public PointSensitivityBuilder presentValueSensitivityStickyStrike(
       SwaptionProduct swaption,
-      RatesProvider rates, 
+      RatesProvider ratesProvider,
       BlackVolatilitySwaptionProvider volatilityProvider) {
     ExpandedSwaption expanded = swaption.expand();
-    validate(rates, expanded, volatilityProvider);
+    validate(ratesProvider, expanded, volatilityProvider);
     ZonedDateTime expiryDateTime = expanded.getExpiryDateTime();
     double expiry = volatilityProvider.relativeTime(expiryDateTime);
     ExpandedSwap underlying = expanded.getUnderlying();
@@ -164,17 +163,16 @@ public class BlackSwaptionPhysicalProductPricer {
     if(expiry < 0.0d) { // Option has expired already
       return PointSensitivityBuilder.none();
     }
-    double forward = swapPricer.parRate(underlying, rates);
-    double pvbp = swapPricer.getLegPricer().pvbp(fixedLeg, rates);
-    double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, rates, pvbp);
+    double forward = swapPricer.parRate(underlying, ratesProvider);
+    double pvbp = swapPricer.getLegPricer().pvbp(fixedLeg, ratesProvider);
+    double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
     double tenor = volatilityProvider.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = volatilityProvider.getVolatility(expiryDateTime, tenor, strike, forward);
     boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
     // Payer at strike is exercise when rate > strike, i.e. call on rate
-    // option required to pass the strike (in case the swap has non-constant coupon).
     // Backward sweep
-    PointSensitivityBuilder pvbpDr = swapPricer.getLegPricer().pvbpSensitivity(fixedLeg, rates);
-    PointSensitivityBuilder forwardDr = swapPricer.parRateSensitivity(underlying, rates);
+    PointSensitivityBuilder pvbpDr = swapPricer.getLegPricer().pvbpSensitivity(fixedLeg, ratesProvider);
+    PointSensitivityBuilder forwardDr = swapPricer.parRateSensitivity(underlying, ratesProvider);
     double price = BlackFormulaRepository.price(forward, strike, expiry, volatility, isCall);
     double delta = BlackFormulaRepository.delta(forward, strike, expiry, volatility, isCall);
     double sign = (expanded.getLongShort() == LongShort.LONG) ? 1.0 : -1.0;
@@ -212,7 +210,6 @@ public class BlackSwaptionPhysicalProductPricer {
     }
     double forward = swapPricer.parRate(underlying, ratesProvider);
     double volatility = volatilityProvider.getVolatility(expiryDateTime, tenor, strike, forward);
-    // option required to pass the strike (in case the swap has non-constant coupon).
     // Backward sweep
     double vega = Math.abs(pvbp) * BlackFormulaRepository.vega(forward, strike, expiry, volatility) 
         * ((expanded.getLongShort() == LongShort.LONG) ? 1.0 : -1.0);

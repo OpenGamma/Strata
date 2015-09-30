@@ -23,6 +23,7 @@ import com.opengamma.strata.basics.LongShort;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swaption.PhysicalSettlement;
 import com.opengamma.strata.finance.rate.swaption.Swaption;
@@ -55,19 +56,30 @@ public class NormalSwaptionPhysicalTradePricerTest {
   private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
 
   private static final double PREMIUM_AMOUNT = 100_000;
-  private static final Swaption SWAPTION_LONG_REC = Swaption.builder().swaptionSettlement(PHYSICAL_SETTLE)
-      .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
-      .longShort(LongShort.LONG).underlying(SWAP_REC).build();
+  private static final Swaption SWAPTION_LONG_REC = Swaption.builder()
+      .swaptionSettlement(PHYSICAL_SETTLE)
+      .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
+      .expiryTime(SWAPTION_EXPIRY_TIME)
+      .expiryZone(SWAPTION_EXPIRY_ZONE)
+      .longShort(LongShort.LONG)
+      .underlying(SWAP_REC)
+      .build();
   private static final Payment PREMIUM_FWD_PAY = Payment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), SWAP_EFFECTIVE_DATE);
-  private static final SwaptionTrade SWAPTION_PREFWD_LONG_REC = SwaptionTrade.builder().product(SWAPTION_LONG_REC)
-      .premium(PREMIUM_FWD_PAY).build();
+  private static final SwaptionTrade SWAPTION_PREFWD_LONG_REC = SwaptionTrade.builder()
+      .product(SWAPTION_LONG_REC)
+      .premium(PREMIUM_FWD_PAY)
+      .build();
   private static final Payment PREMIUM_TRA_PAY = Payment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VALUATION_DATE);
-  private static final SwaptionTrade SWAPTION_PRETOD_LONG_REC = SwaptionTrade.builder().product(SWAPTION_LONG_REC)
-      .premium(PREMIUM_TRA_PAY).build();
+  private static final SwaptionTrade SWAPTION_PRETOD_LONG_REC = SwaptionTrade.builder()
+      .product(SWAPTION_LONG_REC)
+      .premium(PREMIUM_TRA_PAY)
+      .build();
   private static final Payment PREMIUM_PAST_PAY = 
       Payment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VALUATION_DATE.minusDays(1));
-  private static final SwaptionTrade SWAPTION_PREPAST_LONG_REC = SwaptionTrade.builder().product(SWAPTION_LONG_REC)
-      .premium(PREMIUM_PAST_PAY).build();
+  private static final SwaptionTrade SWAPTION_PREPAST_LONG_REC = SwaptionTrade.builder()
+      .product(SWAPTION_LONG_REC)
+      .premium(PREMIUM_PAST_PAY)
+      .build();
 
   private static final NormalSwaptionPhysicalProductPricer PRICER_SWAPTION_NORMAL_PRODUCT = 
       NormalSwaptionPhysicalProductPricer.DEFAULT;
@@ -75,8 +87,9 @@ public class NormalSwaptionPhysicalTradePricerTest {
       NormalSwaptionPhysicalTradePricer.DEFAULT;
   private static final DiscountingPaymentPricer PRICER_PAYMENT = DiscountingPaymentPricer.DEFAULT;
   
-  private static final ImmutableRatesProvider MULTI_USD = 
-      RatesProviderDataSets.MULTI_USD.toBuilder().valuationDate(VALUATION_DATE).build();
+  private static final ImmutableRatesProvider MULTI_USD = RatesProviderDataSets.MULTI_USD.toBuilder()
+      .valuationDate(VALUATION_DATE)
+      .build();
   private static final NormalVolatilityExpiryTenorSwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD =
       SwaptionVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_STD;
   

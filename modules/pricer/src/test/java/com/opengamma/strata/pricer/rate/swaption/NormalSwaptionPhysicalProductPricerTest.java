@@ -27,6 +27,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.N
 import com.opengamma.strata.basics.LongShort;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLegType;
 import com.opengamma.strata.finance.rate.swap.type.IborIborSwapConvention;
@@ -73,24 +74,54 @@ public class NormalSwaptionPhysicalProductPricerTest {
   private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
   private static final SwaptionSettlement CASH_SETTLE = CashSettlement.DEFAULT;
   
-  private static final Swaption SWAPTION_LONG_REC = Swaption.builder().swaptionSettlement(PHYSICAL_SETTLE)
-      .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
-      .longShort(LongShort.LONG).underlying(SWAP_REC).build();
-  private static final Swaption SWAPTION_SHORT_REC = Swaption.builder().swaptionSettlement(PHYSICAL_SETTLE)
-      .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
-      .longShort(LongShort.SHORT).underlying(SWAP_REC).build();
-  private static final Swaption SWAPTION_LONG_PAY = Swaption.builder().swaptionSettlement(PHYSICAL_SETTLE)
-      .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
-      .longShort(LongShort.LONG).underlying(SWAP_PAY).build();
-  private static final Swaption SWAPTION_LONG_REC_CASH = Swaption.builder().swaptionSettlement(CASH_SETTLE)
-      .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
-      .longShort(LongShort.LONG).underlying(SWAP_REC).build();
-  private static final Swaption SWAPTION_BASIS = Swaption.builder().swaptionSettlement(PHYSICAL_SETTLE)
-      .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
-      .longShort(LongShort.LONG).underlying(SWAP_BASIS).build();
-  private static final Swaption SWAPTION_PAST = Swaption.builder().swaptionSettlement(PHYSICAL_SETTLE)
-      .expiryDate(SWAPTION_PAST_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
-      .longShort(LongShort.LONG).underlying(SWAP_PAST).build();
+  private static final Swaption SWAPTION_LONG_REC = Swaption.builder()
+      .swaptionSettlement(PHYSICAL_SETTLE)
+      .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
+      .expiryTime(SWAPTION_EXPIRY_TIME)
+      .expiryZone(SWAPTION_EXPIRY_ZONE)
+      .longShort(LongShort.LONG)
+      .underlying(SWAP_REC)
+      .build();
+  private static final Swaption SWAPTION_SHORT_REC = Swaption.builder()
+      .swaptionSettlement(PHYSICAL_SETTLE)
+      .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
+      .expiryTime(SWAPTION_EXPIRY_TIME)
+      .expiryZone(SWAPTION_EXPIRY_ZONE)
+      .longShort(LongShort.SHORT)
+      .underlying(SWAP_REC)
+      .build();
+  private static final Swaption SWAPTION_LONG_PAY = Swaption.builder()
+      .swaptionSettlement(PHYSICAL_SETTLE)
+      .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
+      .expiryTime(SWAPTION_EXPIRY_TIME)
+      .expiryZone(SWAPTION_EXPIRY_ZONE)
+      .longShort(LongShort.LONG)
+      .underlying(SWAP_PAY)
+      .build();
+  private static final Swaption SWAPTION_LONG_REC_CASH = Swaption.builder()
+      .swaptionSettlement(CASH_SETTLE)
+      .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
+      .expiryTime(SWAPTION_EXPIRY_TIME)
+      .expiryZone(SWAPTION_EXPIRY_ZONE)
+      .longShort(LongShort.LONG)
+      .underlying(SWAP_REC)
+      .build();
+  private static final Swaption SWAPTION_BASIS = Swaption.builder()
+      .swaptionSettlement(PHYSICAL_SETTLE)
+      .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
+      .expiryTime(SWAPTION_EXPIRY_TIME)
+      .expiryZone(SWAPTION_EXPIRY_ZONE)
+      .longShort(LongShort.LONG)
+      .underlying(SWAP_BASIS)
+      .build();
+  private static final Swaption SWAPTION_PAST = Swaption.builder()
+      .swaptionSettlement(PHYSICAL_SETTLE)
+      .expiryDate(AdjustableDate.of(SWAPTION_PAST_EXERCISE_DATE))
+      .expiryTime(SWAPTION_EXPIRY_TIME)
+      .expiryZone(SWAPTION_EXPIRY_ZONE)
+      .longShort(LongShort.LONG)
+      .underlying(SWAP_PAST)
+      .build();
 
   private static final NormalPriceFunction NORMAL = new NormalPriceFunction();
   private static final NormalSwaptionPhysicalProductPricer PRICER_SWAPTION_NORMAL =
@@ -100,8 +131,9 @@ public class NormalSwaptionPhysicalProductPricerTest {
   private static final RatesFiniteDifferenceSensitivityCalculator FINITE_DIFFERENCE_CALCULATOR = 
       new RatesFiniteDifferenceSensitivityCalculator(FD_SHIFT);
   
-  private static final ImmutableRatesProvider MULTI_USD = 
-      RatesProviderDataSets.MULTI_USD.toBuilder().valuationDate(VALUATION_DATE).build();
+  private static final ImmutableRatesProvider MULTI_USD = RatesProviderDataSets.MULTI_USD.toBuilder()
+      .valuationDate(VALUATION_DATE)
+      .build();
   private static final NormalVolatilityExpiryTenorSwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD =
       SwaptionVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_STD;
   private static final NormalVolatilitySwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD_FLAT =
