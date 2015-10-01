@@ -16,7 +16,9 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 /**
  * Provides the calibration derivative.
  * <p>
- * This function is used during curve calibration.
+ * This provides the value sensitivity from the specified {@link CalibrationMeasures}
+ * instance in matrix form suitable for use in curve calibration root finding.
+ * The value will typically be par spread or converted present value.
  */
 class CalibrationDerivative
     extends Function1D<DoubleMatrix1D, DoubleMatrix2D> {

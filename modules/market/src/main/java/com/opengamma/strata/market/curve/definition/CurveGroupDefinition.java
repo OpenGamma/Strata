@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.curve.definition;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
 import java.io.Serializable;
@@ -110,7 +111,7 @@ public final class CurveGroupDefinition
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the total number of parameters in the curve.
+   * Gets the total number of parameters in the group.
    * <p>
    * This returns the total number of parameters in the group, which equals the number of nodes.
    * The result of {@link #trades(LocalDate, ObservableValues)} and
@@ -135,14 +136,11 @@ public final class CurveGroupDefinition
    * @return the list of all trades
    */
   public ImmutableList<Trade> trades(LocalDate valuationDate, ObservableValues marketData) {
-    ImmutableList.Builder<Trade> result = ImmutableList.builder();
-    for (CurveGroupEntry entry : entries) {
-      NodalCurveDefinition defn = entry.getCurveDefinition();
-      for (CurveNode node : defn.getNodes()) {
-        result.add(node.trade(valuationDate, marketData));
-      }
-    }
-    return result.build();
+    return entries.stream()
+        .map(CurveGroupEntry::getCurveDefinition)
+        .flatMap(curveDef -> curveDef.getNodes().stream())
+        .map(node -> node.trade(valuationDate, marketData))
+        .collect(toImmutableList());
   }
 
   /**

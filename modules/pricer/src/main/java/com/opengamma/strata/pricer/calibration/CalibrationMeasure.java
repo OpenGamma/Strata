@@ -30,7 +30,7 @@ public interface CalibrationMeasure<T extends Trade> {
   /**
    * Calculates the value, such as par spread.
    * <p>
-   * The value must be calculated using the specified curve provider.
+   * The value must be calculated using the specified rates provider.
    * 
    * @param trade  the trade
    * @param provider  the rates provider
@@ -42,7 +42,7 @@ public interface CalibrationMeasure<T extends Trade> {
   /**
    * Calculates the parameter sensitivities that relate to the value.
    * <p>
-   * The sensitivities must be calculated using the specified curve provider.
+   * The sensitivities must be calculated using the specified rates provider.
    * 
    * @param trade  the trade
    * @param provider  the rates provider

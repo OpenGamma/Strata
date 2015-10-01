@@ -15,7 +15,9 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 /**
  * Provides the calibration value.
  * <p>
- * This function is used during curve calibration.
+ * This provides the value from the specified {@link CalibrationMeasures} instance
+ * in matrix form suitable for use in curve calibration root finding.
+ * The value will typically be par spread or converted present value.
  */
 class CalibrationValue
     extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {

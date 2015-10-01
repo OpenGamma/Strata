@@ -90,11 +90,9 @@ public final class CurveBuildingBlock
    * @return the number of curves
    */
   public int getTotalParameterCount() {
-    int total = 0;
-    for (CurveParameterSize entry : data) {
-      total += entry.getParameterCount();
-    }
-    return total;
+    return data.stream()
+        .mapToInt(CurveParameterSize::getParameterCount)
+        .sum();
   }
 
   /**
@@ -125,12 +123,11 @@ public final class CurveBuildingBlock
    * @throws IllegalArgumentException if the curve cannot be found
    */
   public int getParameterCount(CurveName name) {
-    for (CurveParameterSize entry : data) {
-      if (entry.getName().equals(name)) {
-        return entry.getParameterCount();
-      }
-    }
-    throw new IllegalArgumentException("Unable to find data for curve: " + name);
+    return data.stream()
+        .filter(entry -> entry.getName().equals(name))
+        .findFirst()
+        .map(CurveParameterSize::getParameterCount)
+        .orElseThrow(() -> new IllegalArgumentException("Unable to find data for curve: " + name));
   }
 
   //-------------------------------------------------------------------------

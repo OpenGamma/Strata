@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.calibration;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static java.util.stream.Collectors.joining;
 
 import java.util.List;
@@ -74,11 +75,8 @@ public final class CalibrationMeasures {
   //-------------------------------------------------------------------------
   // restricted constructor
   private CalibrationMeasures(List<? extends CalibrationMeasure<? extends Trade>> measures) {
-    ImmutableMap.Builder<Class<?>, CalibrationMeasure<? extends Trade>> builder = ImmutableMap.builder();
-    for (CalibrationMeasure<? extends Trade> measure : measures) {
-      builder.put(measure.getTradeType(), measure);
-    }
-    measuresByTrade = builder.build();
+    measuresByTrade = measures.stream()
+        .collect(toImmutableMap(CalibrationMeasure::getTradeType, m -> m));
   }
 
   //-------------------------------------------------------------------------
@@ -95,7 +93,7 @@ public final class CalibrationMeasures {
   /**
    * Calculates the value, such as par spread.
    * <p>
-   * The value must be calculated using the specified curve provider.
+   * The value must be calculated using the specified rates provider.
    * 
    * @param trade  the trade
    * @param provider  the rates provider
@@ -108,9 +106,10 @@ public final class CalibrationMeasures {
   }
 
   /**
-   * Calculates the sensitivity with respect to the curve provider as a long vector.
+   * Calculates the sensitivity with respect to the rates provider.
    * <p>
-   * The vector is composed of the concatenated curve sensitivities.
+   * The result array is composed of the concatenated curve sensitivities from
+   * all curves currently being processed.
    * 
    * @param trade  the trade
    * @param provider  the rates provider
@@ -118,15 +117,7 @@ public final class CalibrationMeasures {
    * @return the sensitivity derivative
    */
   public double[] derivative(Trade trade, RatesProvider provider, List<CurveParameterSize> curveOrder) {
-    // determine the curve parameter sensitivities
-    CalibrationMeasure<Trade> measure = getMeasure(trade.getClass());
-    CurveCurrencyParameterSensitivities paramSens = measure.sensitivities(trade, provider);
-
-    // ignore the currency
-    CurveUnitParameterSensitivities unitSens = CurveUnitParameterSensitivities.empty();
-    for (CurveCurrencyParameterSensitivity ccySens : paramSens.getSensitivities()) {
-      unitSens = unitSens.combinedWith(CurveUnitParameterSensitivity.of(ccySens.getMetadata(), ccySens.getSensitivity()));
-    }
+    CurveUnitParameterSensitivities unitSens = extractSensitivities(trade, provider);
 
     // expand to a concatenated array
     double[] result = DoubleArrayMath.EMPTY_DOUBLE_ARRAY;
@@ -137,6 +128,17 @@ public final class CalibrationMeasures {
       result = Doubles.concat(result, sens);
     }
     return result;
+  }
+
+  // determine the curve parameter sensitivities, removing the curency
+  private CurveUnitParameterSensitivities extractSensitivities(Trade trade, RatesProvider provider) {
+    CalibrationMeasure<Trade> measure = getMeasure(trade.getClass());
+    CurveCurrencyParameterSensitivities paramSens = measure.sensitivities(trade, provider);
+    CurveUnitParameterSensitivities unitSens = CurveUnitParameterSensitivities.empty();
+    for (CurveCurrencyParameterSensitivity ccySens : paramSens.getSensitivities()) {
+      unitSens = unitSens.combinedWith(CurveUnitParameterSensitivity.of(ccySens.getMetadata(), ccySens.getSensitivity()));
+    }
+    return unitSens;
   }
 
   //-------------------------------------------------------------------------
