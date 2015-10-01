@@ -29,6 +29,7 @@ import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions;
  */
 @Test
 public class ExpandedSwaptionTest {
+
   private static final LocalDate TRADE_DATE = LocalDate.of(2014, 6, 12); // starts on 2014/6/19
   private static final double FIXED_RATE = 0.015;
   private static final double NOTIONAL = 100000000d;
@@ -104,4 +105,5 @@ public class ExpandedSwaptionTest {
         .build();
     assertSerialization(test);
   }
+
 }

@@ -36,6 +36,7 @@ import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions;
  */
 @Test
 public class SwaptionTradeTest {
+
   private static final double FIXED_RATE = 0.015;
   private static final double NOTIONAL = 100000000d;
   private static final Swap SWAP = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
@@ -47,7 +48,6 @@ public class SwaptionTradeTest {
   private static final LocalTime EXPIRY_TIME = LocalTime.of(11, 0);
   private static final ZoneId ZONE = ZoneId.of("Z");
   private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
-  private static final SwaptionSettlement CASH_SETTLE = CashSettlement.DEFAULT;
   private static final Swaption SWAPTION = Swaption.builder()
       .expiryDate(ADJUSTABLE_EXPIRY_DATE)
       .expiryTime(EXPIRY_TIME)

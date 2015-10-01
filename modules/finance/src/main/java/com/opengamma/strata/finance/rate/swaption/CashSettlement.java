@@ -22,12 +22,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 /**
  * Defines the settlement type and settlement method of swaptions.
  * <p>
- * The settlement type is {@link SettlementType#CASH}, i.e., Cash amount is paid by the short party to the long party 
- * at the exercise date.
-
+ * The settlement type is {@link SettlementType#CASH}. This means that a cash amount is paid
+ * by the short party to the long party at the exercise date.
  */
 @BeanDefinition
-public final class CashSettlement implements SwaptionSettlement, ImmutableBean, Serializable {
+public final class CashSettlement
+    implements SwaptionSettlement, ImmutableBean, Serializable {
 
   /**
    * Default instance.

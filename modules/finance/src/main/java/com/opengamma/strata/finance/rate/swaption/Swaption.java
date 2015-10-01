@@ -6,7 +6,6 @@
 package com.opengamma.strata.finance.rate.swaption;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -120,9 +119,8 @@ public final class Swaption
    */
   @Override
   public ExpandedSwaption expand() {
-    LocalDate expiry = expiryDate.adjusted();
     return ExpandedSwaption.builder()
-        .expiryDate(expiry)
+        .expiryDate(expiryDate.adjusted())
         .expiryTime(expiryTime)
         .expiryZone(expiryZone)
         .longShort(longShort)

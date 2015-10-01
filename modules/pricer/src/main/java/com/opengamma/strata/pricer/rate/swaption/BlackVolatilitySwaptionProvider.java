@@ -15,8 +15,8 @@ import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 /**
  * Volatility environment for swaption in the log-normal or Black model.
  */
-public interface BlackVolatilitySwaptionProvider{
-  
+public interface BlackVolatilitySwaptionProvider {
+
   /**
    * Returns the log-normal volatility.
    * 
@@ -27,7 +27,7 @@ public interface BlackVolatilitySwaptionProvider{
    * @return the volatility
    */
   public double getVolatility(ZonedDateTime expiryDate, double tenor, double strike, double forwardRate);
-  
+
   /**
    * Returns the convention of the swap for which the data is valid.
    * 
@@ -55,7 +55,7 @@ public interface BlackVolatilitySwaptionProvider{
    * @return the relative year fraction
    */
   public abstract double relativeTime(ZonedDateTime date);
-  
+
   /**
    * Returns the tenor of the swap based on its start date and end date.
    * 

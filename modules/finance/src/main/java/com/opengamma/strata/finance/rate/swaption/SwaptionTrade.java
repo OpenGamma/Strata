@@ -56,8 +56,8 @@ public final class SwaptionTrade
   /**
    * The premium of the swaption.
    * <p>
-   * The premium sign should be compatible with the product Long/Short flag, i.e. premium is negative for long and
-   * positive for short swaption.
+   * The premium sign should be compatible with the product Long/Short flag.
+   * This means that the premium is negative for long and positive for short.
    */
   @PropertyDefinition(validate = "notNull")
   private final Payment premium;
@@ -150,8 +150,8 @@ public final class SwaptionTrade
   /**
    * Gets the premium of the swaption.
    * <p>
-   * The premium sign should be compatible with the product Long/Short flag, i.e. premium is negative for long and
-   * positive for short swaption.
+   * The premium sign should be compatible with the product Long/Short flag.
+   * This means that the premium is negative for long and positive for short.
    * @return the value of the property, not null
    */
   public Payment getPremium() {
@@ -440,8 +440,8 @@ public final class SwaptionTrade
     /**
      * Sets the premium of the swaption.
      * <p>
-     * The premium sign should be compatible with the product Long/Short flag, i.e. premium is negative for long and
-     * positive for short swaption.
+     * The premium sign should be compatible with the product Long/Short flag.
+     * This means that the premium is negative for long and positive for short.
      * @param premium  the new value, not null
      * @return this, for chaining, not null
      */

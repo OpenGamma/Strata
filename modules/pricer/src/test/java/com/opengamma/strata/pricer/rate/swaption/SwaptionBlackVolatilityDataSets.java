@@ -39,6 +39,7 @@ import com.opengamma.strata.market.value.ValueType;
  * Black volatility data sets for testing.
  */
 public class SwaptionBlackVolatilityDataSets {
+
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
       Interpolator1DFactory.LINEAR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR,
@@ -48,13 +49,13 @@ public class SwaptionBlackVolatilityDataSets {
   //     =====     Standard figures for testing     =====
   private static final double[] TIMES =
       new double[] {0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0,
-        0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0 };
+          0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0};
   private static final double[] TENOR =
       new double[] {1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0,
-        5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0, 30.0, 30.0, 30.0, 30.0 };
+          5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0, 30.0, 30.0, 30.0, 30.0};
   private static final double[] BLACK_VOL =
       new double[] {0.45, 0.425, 0.4, 0.375, 0.425, 0.4, 0.375, 0.35, 0.4, 0.375, 0.35, 0.325, 0.375, 0.35, 0.325, 0.3,
-        0.35, 0.325, 0.3, 0.275 };
+          0.35, 0.325, 0.3, 0.275};
   private static final SurfaceMetadata METADATA = DefaultSurfaceMetadata.builder()
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.YEAR_FRACTION)

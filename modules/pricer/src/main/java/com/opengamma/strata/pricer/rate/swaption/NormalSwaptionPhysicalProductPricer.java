@@ -44,6 +44,7 @@ import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
  * the method, {@link NormalVolatilitySwaptionProvider#relativeTime(ZonedDateTime)}.
  */
 public class NormalSwaptionPhysicalProductPricer {
+
   /**
    * Default implementation.
    */
@@ -57,7 +58,7 @@ public class NormalSwaptionPhysicalProductPricer {
    * Normal model pricing function. 
    */
   public static final NormalPriceFunction NORMAL = new NormalPriceFunction();
-  
+
   /**
    * Creates an instance.
    * 
@@ -66,7 +67,8 @@ public class NormalSwaptionPhysicalProductPricer {
   public NormalSwaptionPhysicalProductPricer(DiscountingSwapProductPricer swapPricer) {
     this.swapPricer = ArgChecker.notNull(swapPricer, "swap pricer");
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Calculates the present value of the swaption product.
    * <p>
@@ -81,13 +83,14 @@ public class NormalSwaptionPhysicalProductPricer {
       SwaptionProduct swaption,
       RatesProvider ratesProvider,
       NormalVolatilitySwaptionProvider volatilityProvider) {
+
     ExpandedSwaption expanded = swaption.expand();
     validate(ratesProvider, expanded, volatilityProvider);
     ZonedDateTime expiryDateTime = expanded.getExpiryDateTime();
     double expiry = volatilityProvider.relativeTime(expiryDateTime);
     ExpandedSwap underlying = expanded.getUnderlying();
     ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
-    if(expiry < 0.0d) { // Option has expired already
+    if (expiry < 0.0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0.0d);
     }
     double forward = swapPricer.parRate(underlying, ratesProvider);
@@ -103,7 +106,7 @@ public class NormalSwaptionPhysicalProductPricer {
     Function1D<NormalFunctionData, Double> func = NORMAL.getPriceFunction(option);
     double pv = func.evaluate(normalData) * ((expanded.getLongShort() == LongShort.LONG) ? 1.0 : -1.0);
     return CurrencyAmount.of(fixedLeg.getCurrency(), pv);
-  }  
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -118,6 +121,7 @@ public class NormalSwaptionPhysicalProductPricer {
       Swaption swaption,
       RatesProvider ratesProvider,
       NormalVolatilitySwaptionProvider volatilityProvider) {
+
     return MultiCurrencyAmount.of(presentValue(swaption, ratesProvider, volatilityProvider));
   }
 
@@ -134,6 +138,7 @@ public class NormalSwaptionPhysicalProductPricer {
       SwaptionProduct swaption,
       RatesProvider ratesProvider,
       NormalVolatilitySwaptionProvider volatilityProvider) {
+
     ExpandedSwaption expanded = swaption.expand();
     validate(ratesProvider, expanded, volatilityProvider);
     ZonedDateTime expiryDateTime = expanded.getExpiryDateTime();
@@ -164,13 +169,14 @@ public class NormalSwaptionPhysicalProductPricer {
       SwaptionProduct swaption,
       RatesProvider ratesProvider,
       NormalVolatilitySwaptionProvider volatilityProvider) {
+
     ExpandedSwaption expanded = swaption.expand();
     validate(ratesProvider, expanded, volatilityProvider);
     ZonedDateTime expiryDateTime = expanded.getExpiryDateTime();
     double expiry = volatilityProvider.relativeTime(expiryDateTime);
     ExpandedSwap underlying = expanded.getUnderlying();
     ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
-    if(expiry < 0.0d) { // Option has expired already
+    if (expiry < 0.0d) { // Option has expired already
       return PointSensitivityBuilder.none();
     }
     double forward = swapPricer.parRate(underlying, ratesProvider);
@@ -208,6 +214,7 @@ public class NormalSwaptionPhysicalProductPricer {
       SwaptionProduct swaption,
       RatesProvider ratesProvider,
       NormalVolatilitySwaptionProvider volatilityProvider) {
+
     ExpandedSwaption expanded = swaption.expand();
     validate(ratesProvider, expanded, volatilityProvider);
     ZonedDateTime expiryDateTime = expanded.getExpiryDateTime();
@@ -217,9 +224,9 @@ public class NormalSwaptionPhysicalProductPricer {
     double tenor = volatilityProvider.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double pvbp = swapPricer.getLegPricer().pvbp(fixedLeg, ratesProvider);
     double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
-    if(expiry < 0.0d) { // Option has expired already
+    if (expiry < 0.0d) { // Option has expired already
       return SwaptionSensitivity.of(volatilityProvider.getConvention(), expiryDateTime, tenor, strike, 0.0d,
-        fixedLeg.getCurrency(), 0.0d);
+          fixedLeg.getCurrency(), 0.0d);
     }
     double forward = swapPricer.parRate(underlying, ratesProvider);
     double volatility = volatilityProvider.getVolatility(expiryDateTime, tenor, strike, forward);
@@ -236,15 +243,15 @@ public class NormalSwaptionPhysicalProductPricer {
 
   // check that one leg is fixed and return it
   private ExpandedSwapLeg fixedLeg(ExpandedSwap swap) {
-  ArgChecker.isFalse(swap.isCrossCurrency(), "swap should be single currency");
-  // find fixed leg
-  List<ExpandedSwapLeg> fixedLegs = swap.getLegs(SwapLegType.FIXED);
-  if (fixedLegs.isEmpty()) {
-    throw new IllegalArgumentException("Swap must contain a fixed leg");
+    ArgChecker.isFalse(swap.isCrossCurrency(), "swap should be single currency");
+    // find fixed leg
+    List<ExpandedSwapLeg> fixedLegs = swap.getLegs(SwapLegType.FIXED);
+    if (fixedLegs.isEmpty()) {
+      throw new IllegalArgumentException("Swap must contain a fixed leg");
+    }
+    return fixedLegs.get(0);
   }
-  return fixedLegs.get(0);
-  }
-  
+
   // validate that the rates and volatilities providers are coherent
   private void validate(RatesProvider ratesProvider, ExpandedSwaption swaption,
       NormalVolatilitySwaptionProvider volatilityProvider) {

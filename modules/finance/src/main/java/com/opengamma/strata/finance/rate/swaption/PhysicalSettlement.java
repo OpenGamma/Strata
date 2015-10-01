@@ -22,11 +22,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 /**
  * Defines the settlement type and settlement method of swaptions.
  * <p>
- * The settlement type is {@link SettlementType#PHYSICAL}, i.e., the two parties enter into actual interest rate swap 
- * at the expiry date of the option. 
+ * The settlement type is {@link SettlementType#PHYSICAL}. This means that the two
+ * parties enter into the actual interest rate swap at the expiry date of the option. 
  */
 @BeanDefinition
-public final class PhysicalSettlement implements SwaptionSettlement, ImmutableBean, Serializable {
+public final class PhysicalSettlement
+    implements SwaptionSettlement, ImmutableBean, Serializable {
 
   /**
    * Default instance.

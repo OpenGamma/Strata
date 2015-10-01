@@ -43,7 +43,7 @@ public class NormalSwaptionPhysicalTradePricer {
    * Pricer for {@link Payment} which is used to described the premium. 
    */
   private static final DiscountingPaymentPricer PRICER_PREMIUM = DiscountingPaymentPricer.DEFAULT;
-  
+
   /**
    * Calculates the present value of the swaption trade.
    * <p>
@@ -58,6 +58,7 @@ public class NormalSwaptionPhysicalTradePricer {
       SwaptionTrade trade,
       RatesProvider ratesProvider,
       NormalVolatilitySwaptionProvider volatilityProvider) {
+
     Swaption product = trade.getProduct();
     CurrencyAmount pvProduct = PRICER_PRODUCT.presentValue(product, ratesProvider, volatilityProvider);
     Payment premium = trade.getPremium();
@@ -78,9 +79,10 @@ public class NormalSwaptionPhysicalTradePricer {
       SwaptionTrade trade,
       RatesProvider ratesProvider,
       NormalVolatilitySwaptionProvider volatilityProvider) {
+
     return MultiCurrencyAmount.of(presentValue(trade, ratesProvider, volatilityProvider));
   }
-  
+
   /**
    * Calculates the current of the swaption trade.
    * <p>
@@ -114,6 +116,7 @@ public class NormalSwaptionPhysicalTradePricer {
       SwaptionTrade trade,
       RatesProvider ratesProvider,
       NormalVolatilitySwaptionProvider volatilityProvider) {
+
     Swaption product = trade.getProduct();
     PointSensitivityBuilder pvcsProduct =
         PRICER_PRODUCT.presentValueSensitivityStickyStrike(product, ratesProvider, volatilityProvider);
@@ -137,6 +140,7 @@ public class NormalSwaptionPhysicalTradePricer {
       SwaptionTrade trade,
       RatesProvider ratesProvider,
       NormalVolatilitySwaptionProvider volatilityProvider) {
+
     Swaption product = trade.getProduct();
     return PRICER_PRODUCT.presentValueSensitivityNormalVolatility(product, ratesProvider, volatilityProvider);
   }

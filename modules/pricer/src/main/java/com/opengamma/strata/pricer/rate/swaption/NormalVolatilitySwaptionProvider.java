@@ -15,8 +15,8 @@ import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 /**
  * Volatility environment for swaption in the normal or Bachelier model.
  */
-public interface NormalVolatilitySwaptionProvider{
-  
+public interface NormalVolatilitySwaptionProvider {
+
   /**
    * Returns the normal volatility.
    * 
@@ -27,7 +27,7 @@ public interface NormalVolatilitySwaptionProvider{
    * @return the volatility
    */
   public double getVolatility(ZonedDateTime expiryDate, double tenor, double strike, double forwardRate);
-  
+
   /**
    * Returns the convention of the swap for which the data is valid.
    * @return the convention
@@ -54,7 +54,7 @@ public interface NormalVolatilitySwaptionProvider{
    * @return the relative year fraction
    */
   public abstract double relativeTime(ZonedDateTime date);
-  
+
   /**
    * Returns the tenor of the swap based on its start date and end date.
    * 
