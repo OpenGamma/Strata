@@ -91,7 +91,7 @@ public class NormalSwaptionPhysicalTradePricerTest {
       .valuationDate(VALUATION_DATE)
       .build();
   private static final NormalVolatilityExpiryTenorSwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD =
-      SwaptionVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_STD;
+      SwaptionNormalVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_STD;
   
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;

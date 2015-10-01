@@ -41,7 +41,7 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
  */
 @Test
 public class BlackSwaptionPhysicalTradePricerTest {
-  private static final LocalDate VALUATION_DATE = RatesProviderDataSets.VAL_DATE_2014_01_22;
+  private static final LocalDate VALUATION_DATE = LocalDate.of(2015, 8, 7);
   private static final LocalDate SWAPTION_EXERCISE_DATE = VALUATION_DATE.plusYears(5);
   private static final LocalTime SWAPTION_EXPIRY_TIME = LocalTime.of(11, 0);
   private static final ZoneId SWAPTION_EXPIRY_ZONE = ZoneId.of("America/New_York");
@@ -93,7 +93,7 @@ public class BlackSwaptionPhysicalTradePricerTest {
       .valuationDate(VALUATION_DATE)
       .build();
   private static final BlackVolatilityExpiryTenorSwaptionProvider BLACK_VOL_SWAPTION_PROVIDER_USD =
-      SwaptionVolatilityDataSets.BLACK_VOL_SWAPTION_PROVIDER_USD_STD;
+      SwaptionBlackVolatilityDataSets.BLACK_VOL_SWAPTION_PROVIDER_USD_STD;
 
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;

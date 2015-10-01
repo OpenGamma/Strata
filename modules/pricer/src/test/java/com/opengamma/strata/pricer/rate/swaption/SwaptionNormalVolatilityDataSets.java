@@ -34,9 +34,9 @@ import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 
 /**
- * Swaption volatility data sets for testing.
+ * Black volatility data sets for testing.
  */
-public class SwaptionVolatilityDataSets {
+public class SwaptionNormalVolatilityDataSets {
   
   private static final double BP1 = 1.0E-4;
 
@@ -76,9 +76,6 @@ public class SwaptionVolatilityDataSets {
       FixedIborSwapConvention.of(USD_FIXED_1Y_30U360, USD_IBOR_LIBOR3M);
   public static final NormalVolatilityExpiryTenorSwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD_STD = 
       NormalVolatilityExpiryTenorSwaptionProvider.of(SURFACE_STD, USD_1Y_LIBOR3M, DayCounts.ACT_365F, 
-          VALUATION_DATE_STD, VALUATION_TIME_STD, VALUATION_ZONE_STD);
-  public static final BlackVolatilityExpiryTenorSwaptionProvider BLACK_VOL_SWAPTION_PROVIDER_USD_STD =
-      BlackVolatilityExpiryTenorSwaptionProvider.of(SURFACE_STD, USD_1Y_LIBOR3M, DayCounts.ACT_365F,
           VALUATION_DATE_STD, VALUATION_TIME_STD, VALUATION_ZONE_STD);
   
   /**
