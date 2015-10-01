@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.impl.credit.isda;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -16,24 +17,40 @@ import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.DoubleArrayMath;
+import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.DefaultCurveMetadata;
+import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 
 /**
  * A yield or hazard curve values between nodes are linearly interpolated from t*r points,
  * where t is time and r is the zero rate.
  */
 @BeanDefinition
-public class IsdaCompliantCurve extends DoublesCurve {
+public class IsdaCompliantCurve
+    implements NodalCurve, Bean {
 
-  // the knot positions and values
+  /**
+   * The curve metadata.
+   * <p>
+   * The metadata includes an optional list of parameter metadata.
+   * If present, the size of the parameter metadata list will match the number of parameters of this curve.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private CurveMetadata metadata;
+  /**
+   * The knot positions.
+   */
   @PropertyDefinition(get = "manual", set = "private")
   private double[] t;
-
+  /**
+   * The knot values.
+   */
   @PropertyDefinition(get = "manual", set = "private")
   private double[] rt;
 
@@ -61,6 +78,7 @@ public class IsdaCompliantCurve extends DoublesCurve {
    * Constructor for Joda-Beans.
    */
   protected IsdaCompliantCurve() {
+    this.metadata = DefaultCurveMetadata.of("IsdaCompliantCurve");
   }
 
   /**
@@ -80,9 +98,9 @@ public class IsdaCompliantCurve extends DoublesCurve {
    * @param r  the set of zero rates, not null
    */
   public IsdaCompliantCurve(double[] t, double[] r) {
-    super("");
     ArgChecker.notEmpty(t, "t");
     ArgChecker.notEmpty(r, "r");
+    this.metadata = DefaultCurveMetadata.of("IsdaCompliantCurve");
     int n = t.length;
     ArgChecker.isTrue(n == r.length, "times and rates different lengths");
     ArgChecker.isTrue(t[0] >= 0, "first t must be >= 0.0");
@@ -91,18 +109,18 @@ public class IsdaCompliantCurve extends DoublesCurve {
     }
 
     this.t = new double[n];
-    rt = new double[n];
+    this.rt = new double[n];
     System.arraycopy(t, 0, this.t, 0, n);
     for (int i = 0; i < n; i++) {
-      rt[i] = r[i] * t[i]; // We make no check that rt is ascending (i.e. we allow negative forward rates)
+      this.rt[i] = r[i] * t[i]; // We make no check that rt is ascending (i.e. we allow negative forward rates)
     }
   }
 
   protected IsdaCompliantCurve(double[][] tAndRt) {
-    super("");
     ArgChecker.notNull(tAndRt, "tAndRt");
-    t = tAndRt[0].clone();
-    rt = tAndRt[1].clone();
+    this.metadata = DefaultCurveMetadata.of("IsdaCompliantCurve");
+    this.t = tAndRt[0].clone();
+    this.rt = tAndRt[1].clone();
   }
 
   /**
@@ -111,11 +129,11 @@ public class IsdaCompliantCurve extends DoublesCurve {
    * @param from  the curve to clone from, not null
    */
   protected IsdaCompliantCurve(IsdaCompliantCurve from) {
-    super(from.getName());
-    ArgChecker.notNull(from, "null from");
+    ArgChecker.notNull(from, "from");
+    this.metadata = from.getMetadata();
     // Shallow copy
-    t = from.t;
-    rt = from.rt;
+    this.t = from.t;
+    this.rt = from.rt;
   }
 
   /**
@@ -135,32 +153,32 @@ public class IsdaCompliantCurve extends DoublesCurve {
     int n = timesFromBaseDate.length;
     ArgChecker.isTrue(n == r.length, "times and rates different lengths");
     ArgChecker.isTrue(timesFromBaseDate[0] >= 0.0, "timesFromBaseDate must be >= 0");
-
     for (int i = 1; i < n; i++) {
       ArgChecker.isTrue(timesFromBaseDate[i] > timesFromBaseDate[i - 1], "Times must be ascending");
     }
 
+    this.metadata = DefaultCurveMetadata.of("IsdaCompliantCurve");
     if (newBaseFromOriginalBase == 0) { //no offset 
-      t = new double[n];
-      rt = new double[n];
+      this.t = new double[n];
+      this.rt = new double[n];
       System.arraycopy(timesFromBaseDate, 0, t, 0, n);
       for (int i = 0; i < n; i++) {
-        rt[i] = r[i] * t[i]; // We make no check that rt is ascending (i.e. we allow negative forward rates)
+        this.rt[i] = r[i] * t[i]; // We make no check that rt is ascending (i.e. we allow negative forward rates)
       }
     } else if (newBaseFromOriginalBase < timesFromBaseDate[0]) {
       //offset less than t value of 1st knot, so no knots are not removed 
-      t = new double[n];
-      rt = new double[n];
+      this.t = new double[n];
+      this.rt = new double[n];
       double eta = r[0] * newBaseFromOriginalBase;
       for (int i = 0; i < n; i++) {
-        t[i] = timesFromBaseDate[i] - newBaseFromOriginalBase;
-        rt[i] = r[i] * timesFromBaseDate[i] - eta;
+        this.t[i] = timesFromBaseDate[i] - newBaseFromOriginalBase;
+        this.rt[i] = r[i] * timesFromBaseDate[i] - eta;
       }
     } else if (newBaseFromOriginalBase >= timesFromBaseDate[n - 1]) {
-      t = new double[1];
+      this.t = new double[1];
       rt = new double[1];
-      t[0] = 1.0;
-      rt[0] = (r[n - 1] * timesFromBaseDate[n - 1] - r[n - 2] * timesFromBaseDate[n - 2]) /
+      this.t[0] = 1.0;
+      this.rt[0] = (r[n - 1] * timesFromBaseDate[n - 1] - r[n - 2] * timesFromBaseDate[n - 2]) /
           (timesFromBaseDate[n - 1] - timesFromBaseDate[n - 2]);
     } else {
       //offset greater than (or equal to) t value of 1st knot, so at least one knot must be removed  
@@ -175,11 +193,11 @@ public class IsdaCompliantCurve extends DoublesCurve {
           (newBaseFromOriginalBase - timesFromBaseDate[index - 1])) /
           (timesFromBaseDate[index] - timesFromBaseDate[index - 1]);
       int m = n - index;
-      t = new double[m];
-      rt = new double[m];
+      this.t = new double[m];
+      this.rt = new double[m];
       for (int i = 0; i < m; i++) {
         t[i] = timesFromBaseDate[i + index] - newBaseFromOriginalBase;
-        rt[i] = r[i + index] * timesFromBaseDate[i + index] - eta;
+        this.rt[i] = r[i + index] * timesFromBaseDate[i + index] - eta;
       }
     }
   }
@@ -594,43 +612,25 @@ public class IsdaCompliantCurve extends DoublesCurve {
     return rt;
   }
 
+  //-------------------------------------------------------------------------
+  // NodalCurve implemented to expose zero-rates as the y-values
   @Override
-  public int hashCode() {
-    int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + Arrays.hashCode(rt);
-    result = prime * result + Arrays.hashCode(t);
-    return result;
+  public int getParameterCount() {
+    return getNumberOfKnots();
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!super.equals(obj)) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    IsdaCompliantCurve other = (IsdaCompliantCurve) obj;
-    if (!Arrays.equals(rt, other.rt)) {
-      return false;
-    }
-    if (!Arrays.equals(t, other.t)) {
-      return false;
-    }
-    return true;
+  public double yValue(double x) {
+    return getZeroRate(x);
   }
 
   @Override
-  public Double[] getYValueParameterSensitivity(Double x) {
-    return DoubleArrayMath.toObject(getNodeSensitivity(x));
+  public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
+    return CurveUnitParameterSensitivity.of(metadata, getNodeSensitivity(x));
   }
 
   @Override
-  public double getDyDx(double x) {
+  public double firstDerivative(double x) {
     if (x <= t[0]) {
       return 0.0;
     }
@@ -638,23 +638,18 @@ public class IsdaCompliantCurve extends DoublesCurve {
   }
 
   @Override
-  public Double[] getXData() {
-    return DoubleArrayMath.toObject(t);
+  public double[] getXValues() {
+    return t.clone();
   }
 
   @Override
-  public Double[] getYData() {
-    return DoubleArrayMath.toObject(getKnotZeroRates());
+  public double[] getYValues() {
+    return getKnotZeroRates();
   }
 
   @Override
-  public int size() {
-    return getNumberOfKnots();
-  }
-
-  @Override
-  public Double getYValue(Double x) {
-    return getZeroRate(x);
+  public NodalCurve withYValues(double[] values) {
+    return IsdaCompliantCurve.makeFromRT(getXValues().clone(), values.clone());
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -676,9 +671,55 @@ public class IsdaCompliantCurve extends DoublesCurve {
     return IsdaCompliantCurve.Meta.INSTANCE;
   }
 
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
   //-----------------------------------------------------------------------
   /**
-   * Sets the t.
+   * Gets the curve metadata.
+   * <p>
+   * The metadata includes an optional list of parameter metadata.
+   * If present, the size of the parameter metadata list will match the number of parameters of this curve.
+   * @return the value of the property, not null
+   */
+  @Override
+  public CurveMetadata getMetadata() {
+    return metadata;
+  }
+
+  /**
+   * Sets the curve metadata.
+   * <p>
+   * The metadata includes an optional list of parameter metadata.
+   * If present, the size of the parameter metadata list will match the number of parameters of this curve.
+   * @param metadata  the new value of the property, not null
+   */
+  public void setMetadata(CurveMetadata metadata) {
+    JodaBeanUtils.notNull(metadata, "metadata");
+    this.metadata = metadata;
+  }
+
+  /**
+   * Gets the the {@code metadata} property.
+   * <p>
+   * The metadata includes an optional list of parameter metadata.
+   * If present, the size of the parameter metadata list will match the number of parameters of this curve.
+   * @return the property, not null
+   */
+  public final Property<CurveMetadata> metadata() {
+    return metaBean().metadata().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Sets the knot positions.
    * @param t  the new value of the property
    */
   private void setT(double[] t) {
@@ -695,7 +736,7 @@ public class IsdaCompliantCurve extends DoublesCurve {
 
   //-----------------------------------------------------------------------
   /**
-   * Sets the rt.
+   * Sets the knot values.
    * @param rt  the new value of the property
    */
   private void setRt(double[] rt) {
@@ -717,8 +758,31 @@ public class IsdaCompliantCurve extends DoublesCurve {
   }
 
   @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      IsdaCompliantCurve other = (IsdaCompliantCurve) obj;
+      return JodaBeanUtils.equal(getMetadata(), other.getMetadata()) &&
+          JodaBeanUtils.equal(getT(), other.getT()) &&
+          JodaBeanUtils.equal(getRt(), other.getRt());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMetadata());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getT());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRt());
+    return hash;
+  }
+
+  @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("IsdaCompliantCurve{");
     int len = buf.length();
     toString(buf);
@@ -729,9 +793,8 @@ public class IsdaCompliantCurve extends DoublesCurve {
     return buf.toString();
   }
 
-  @Override
   protected void toString(StringBuilder buf) {
-    super.toString(buf);
+    buf.append("metadata").append('=').append(JodaBeanUtils.toString(getMetadata())).append(',').append(' ');
     buf.append("t").append('=').append(JodaBeanUtils.toString(getT())).append(',').append(' ');
     buf.append("rt").append('=').append(JodaBeanUtils.toString(getRt())).append(',').append(' ');
   }
@@ -740,12 +803,17 @@ public class IsdaCompliantCurve extends DoublesCurve {
   /**
    * The meta-bean for {@code IsdaCompliantCurve}.
    */
-  public static class Meta extends DoublesCurve.Meta {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code metadata} property.
+     */
+    private final MetaProperty<CurveMetadata> metadata = DirectMetaProperty.ofReadWrite(
+        this, "metadata", IsdaCompliantCurve.class, CurveMetadata.class);
     /**
      * The meta-property for the {@code t} property.
      */
@@ -760,7 +828,8 @@ public class IsdaCompliantCurve extends DoublesCurve {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, null,
+        "metadata",
         "t",
         "rt");
 
@@ -773,6 +842,8 @@ public class IsdaCompliantCurve extends DoublesCurve {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -450004177:  // metadata
+          return metadata;
         case 116:  // t
           return t;
         case 3650:  // rt
@@ -798,6 +869,14 @@ public class IsdaCompliantCurve extends DoublesCurve {
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code metadata} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CurveMetadata> metadata() {
+      return metadata;
+    }
+
+    /**
      * The meta-property for the {@code t} property.
      * @return the meta-property, not null
      */
@@ -817,6 +896,8 @@ public class IsdaCompliantCurve extends DoublesCurve {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -450004177:  // metadata
+          return ((IsdaCompliantCurve) bean).getMetadata();
         case 116:  // t
           return ((IsdaCompliantCurve) bean).getT();
         case 3650:  // rt
@@ -828,6 +909,9 @@ public class IsdaCompliantCurve extends DoublesCurve {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -450004177:  // metadata
+          ((IsdaCompliantCurve) bean).setMetadata((CurveMetadata) newValue);
+          return;
         case 116:  // t
           ((IsdaCompliantCurve) bean).setT((double[]) newValue);
           return;
@@ -836,6 +920,11 @@ public class IsdaCompliantCurve extends DoublesCurve {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((IsdaCompliantCurve) bean).metadata, "metadata");
     }
 
   }
