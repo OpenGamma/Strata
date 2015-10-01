@@ -75,7 +75,7 @@ public final class InterpolatedNodalCurveDefinition
    * <p>
    * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ValueType yValueType;
   /**
    * The day count, optional.
@@ -250,6 +250,7 @@ public final class InterpolatedNodalCurveDefinition
    * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
    * @return the value of the property, not null
    */
+  @Override
   public ValueType getYValueType() {
     return yValueType;
   }

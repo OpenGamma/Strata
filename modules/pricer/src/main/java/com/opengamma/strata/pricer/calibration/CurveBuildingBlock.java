@@ -1,0 +1,409 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.strata.pricer.calibration;
+
+import static com.opengamma.strata.collect.Guavate.toImmutableSet;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.market.curve.CurveName;
+
+/**
+ * Information about a block of curves that was built together.
+ * <p>
+ * This provides details of the names of the curves and the number of parameters they have.
+ * This is used in curve calibration to create and split a single array of all parameters from all curves.
+ */
+@BeanDefinition(builderScope = "private")
+public final class CurveBuildingBlock
+    implements ImmutableBean, Serializable {
+
+  /**
+   * The empty block.
+   */
+  private static final CurveBuildingBlock EMPTY = new CurveBuildingBlock(ImmutableList.of());
+
+  /**
+   * The curve parameter sizes.
+   * <p>
+   * The entries are used to define the curve order and the number of parameters.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableList<CurveParameterSize> data;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an empty block.
+   * 
+   * @return the empty block
+   */
+  public static CurveBuildingBlock empty() {
+    return EMPTY;
+  }
+
+  /**
+   * Obtains a block from a map of curve name to curve parameter size.
+   * 
+   * @param data  the block data
+   * @return the block
+   */
+  public static CurveBuildingBlock of(List<CurveParameterSize> data) {
+    return new CurveBuildingBlock(data);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the total number of curves.
+   * 
+   * @return the number of curves
+   */
+  public int getCurveCount() {
+    return data.size();
+  }
+
+  /**
+   * Gets the total number of parameters.
+   * 
+   * @return the number of curves
+   */
+  public int getTotalParameterCount() {
+    return data.stream()
+        .mapToInt(CurveParameterSize::getParameterCount)
+        .sum();
+  }
+
+  /**
+   * Finds the start index of the specified curve.
+   * <p>
+   * The result represents the start in index in the combined array of all parameters.
+   * 
+   * @param name  the curve name
+   * @return the start index
+   * @throws IllegalArgumentException if the curve cannot be found
+   */
+  public int getStart(CurveName name) {
+    int start = 0;
+    for (CurveParameterSize entry : data) {
+      if (entry.getName().equals(name)) {
+        return start;
+      }
+      start += entry.getParameterCount();
+    }
+    throw new IllegalArgumentException("Unable to find data for curve: " + name);
+  }
+
+  /**
+   * Finds the number of parameters of the specified curve.
+   * 
+   * @param name  the curve name
+   * @return the number of parameters
+   * @throws IllegalArgumentException if the curve cannot be found
+   */
+  public int getParameterCount(CurveName name) {
+    return data.stream()
+        .filter(entry -> entry.getName().equals(name))
+        .findFirst()
+        .map(CurveParameterSize::getParameterCount)
+        .orElseThrow(() -> new IllegalArgumentException("Unable to find data for curve: " + name));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the set of curve names.
+   * 
+   * @return the set of names
+   */
+  public Set<CurveName> getAllNames() {
+    return data.stream()
+        .map(e -> e.getName())
+        .collect(toImmutableSet());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Splits the combined array according to the curve order and sizes of this block.
+   * 
+   * @param array  the array to split
+   * @return the section of the array identified by this block
+   */
+  public Map<CurveName, double[]> splitValues(double[] array) {
+    LinkedHashMap<CurveName, double[]> result = new LinkedHashMap<>();
+    int start = 0;
+    for (CurveParameterSize paramSizes : data) {
+      int size = paramSizes.getParameterCount();
+      double[] extracted = Arrays.copyOfRange(array, start, start + size);
+      result.put(paramSizes.getName(), extracted);
+      start += size;
+    }
+    return result;
+  }
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code CurveBuildingBlock}.
+   * @return the meta-bean, not null
+   */
+  public static CurveBuildingBlock.Meta meta() {
+    return CurveBuildingBlock.Meta.INSTANCE;
+  }
+
+  static {
+    JodaBeanUtils.registerMetaBean(CurveBuildingBlock.Meta.INSTANCE);
+  }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  private CurveBuildingBlock(
+      List<CurveParameterSize> data) {
+    JodaBeanUtils.notNull(data, "data");
+    this.data = ImmutableList.copyOf(data);
+  }
+
+  @Override
+  public CurveBuildingBlock.Meta metaBean() {
+    return CurveBuildingBlock.Meta.INSTANCE;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the curve parameter sizes.
+   * <p>
+   * The entries are used to define the curve order and the number of parameters.
+   * @return the value of the property, not null
+   */
+  public ImmutableList<CurveParameterSize> getData() {
+    return data;
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CurveBuildingBlock other = (CurveBuildingBlock) obj;
+      return JodaBeanUtils.equal(getData(), other.getData());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getData());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("CurveBuildingBlock{");
+    buf.append("data").append('=').append(JodaBeanUtils.toString(getData()));
+    buf.append('}');
+    return buf.toString();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code CurveBuildingBlock}.
+   */
+  public static final class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code data} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableList<CurveParameterSize>> data = DirectMetaProperty.ofImmutable(
+        this, "data", CurveBuildingBlock.class, (Class) ImmutableList.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "data");
+
+    /**
+     * Restricted constructor.
+     */
+    private Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 3076010:  // data
+          return data;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends CurveBuildingBlock> builder() {
+      return new CurveBuildingBlock.Builder();
+    }
+
+    @Override
+    public Class<? extends CurveBuildingBlock> beanType() {
+      return CurveBuildingBlock.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code data} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableList<CurveParameterSize>> data() {
+      return data;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3076010:  // data
+          return ((CurveBuildingBlock) bean).getData();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      metaProperty(propertyName);
+      if (quiet) {
+        return;
+      }
+      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
+    }
+
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The bean-builder for {@code CurveBuildingBlock}.
+   */
+  private static final class Builder extends DirectFieldsBeanBuilder<CurveBuildingBlock> {
+
+    private List<CurveParameterSize> data = ImmutableList.of();
+
+    /**
+     * Restricted constructor.
+     */
+    private Builder() {
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 3076010:  // data
+          return data;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Builder set(String propertyName, Object newValue) {
+      switch (propertyName.hashCode()) {
+        case 3076010:  // data
+          this.data = (List<CurveParameterSize>) newValue;
+          break;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.setString(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
+    public CurveBuildingBlock build() {
+      return new CurveBuildingBlock(
+          data);
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public String toString() {
+      StringBuilder buf = new StringBuilder(64);
+      buf.append("CurveBuildingBlock.Builder{");
+      buf.append("data").append('=').append(JodaBeanUtils.toString(data));
+      buf.append('}');
+      return buf.toString();
+    }
+
+  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
+}

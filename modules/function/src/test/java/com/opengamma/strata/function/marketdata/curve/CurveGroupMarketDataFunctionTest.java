@@ -61,6 +61,7 @@ import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.DiscountIborIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
@@ -104,7 +105,8 @@ public class CurveGroupMarketDataFunctionTest {
         .addCurve(curveDefn, Currency.USD, IborIndices.USD_LIBOR_3M)
         .build();
 
-    CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction(RootFinderConfig.defaults());
+    CurveGroupMarketDataFunction function =
+        new CurveGroupMarketDataFunction(RootFinderConfig.defaults(), CalibrationMeasures.DEFAULT);
     LocalDate valuationDate = date(2011, 3, 8);
     MarketEnvironment marketData = MarketEnvironment.builder(valuationDate)
         .addValue(ParRatesId.of(groupName, curveName, MarketDataFeed.NONE), parRates)
@@ -145,7 +147,8 @@ public class CurveGroupMarketDataFunctionTest {
         .addCurve(curveDefn, Currency.USD, IborIndices.USD_LIBOR_3M)
         .build();
 
-    CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction(RootFinderConfig.defaults());
+    CurveGroupMarketDataFunction function =
+        new CurveGroupMarketDataFunction(RootFinderConfig.defaults(), CalibrationMeasures.DEFAULT);
     LocalDate valuationDate = date(2011, 3, 8);
 
     Map<ObservableId, Double> parRateData = ImmutableMap.<ObservableId, Double>builder()
@@ -192,7 +195,7 @@ public class CurveGroupMarketDataFunctionTest {
    * Tests that par rates are required for curves.
    */
   public void requirements() {
-    FraCurveNode node1x4   = CurveTestUtils.fraNode(1, "foo");
+    FraCurveNode node1x4 = CurveTestUtils.fraNode(1, "foo");
     List<CurveNode> nodes = ImmutableList.of(node1x4);
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
     CurveName curveName = CurveName.of("FRA Curve");
@@ -215,7 +218,8 @@ public class CurveGroupMarketDataFunctionTest {
         .add(groupName, groupDefn)
         .build();
 
-    CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction(RootFinderConfig.defaults());
+    CurveGroupMarketDataFunction function =
+        new CurveGroupMarketDataFunction(RootFinderConfig.defaults(), CalibrationMeasures.DEFAULT);
     CurveGroupId curveGroupId = CurveGroupId.of(groupName, feed);
     MarketDataRequirements requirements = function.requirements(curveGroupId, marketDataConfig);
 
@@ -254,7 +258,8 @@ public class CurveGroupMarketDataFunctionTest {
         .addValue(ParRatesId.of(groupName, fraCurveDefn.getName(), MarketDataFeed.NONE), fraParRates)
         .build();
 
-    CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction(RootFinderConfig.defaults());
+    CurveGroupMarketDataFunction function =
+        new CurveGroupMarketDataFunction(RootFinderConfig.defaults(), CalibrationMeasures.DEFAULT);
     Result<CurveGroup> result = function.build(curveGroupId, marketData, marketDataConfig);
 
     assertThat(result).isSuccess();
@@ -312,4 +317,5 @@ public class CurveGroupMarketDataFunctionTest {
     double pv = amount.getAmount(Currency.USD).getAmount();
     assertThat(pv).isCloseTo(0, offset(PV_TOLERANCE));
   }
+
 }

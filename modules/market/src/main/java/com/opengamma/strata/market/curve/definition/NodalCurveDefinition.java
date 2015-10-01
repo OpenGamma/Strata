@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.value.ValueType;
 
 /**
  * Provides the definition of how to calibrate a nodal curve.
@@ -39,6 +40,16 @@ public interface NodalCurveDefinition {
   public default int getParameterCount() {
     return getNodes().size();
   }
+
+  /**
+   * Gets the y-value type, providing meaning to the y-values of the curve.
+   * <p>
+   * This type provides meaning to the y-values. For example, the y-value might
+   * represent a zero rate, as represented using {@link ValueType#ZERO_RATE}.
+   * 
+   * @return the y-value type
+   */
+  public ValueType getYValueType();
 
   /**
    * Gets the nodes that define the curve.

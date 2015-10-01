@@ -172,7 +172,7 @@ public class DiscountingFraProductPricer {
    * @param provider  the rates provider
    * @return the par spread sensitivity
    */
-  public PointSensitivities parSpreadCurveSensitivity(FraProduct product, RatesProvider provider) {
+  public PointSensitivities parSpreadSensitivity(FraProduct product, RatesProvider provider) {
     return forwardRateSensitivity(product.expand(), provider).build();
   }
 

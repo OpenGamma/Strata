@@ -34,6 +34,7 @@ import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.market.value.ValueType;
 
 /**
  * Test {@link IborFixingDepositCurveNode}.
@@ -107,6 +108,14 @@ public class IborFixingDepositCurveNodeTest {
     double rate = 0.035;
     assertThrowsIllegalArg(() -> node.trade(
         valuationDate, ObservableValues.of(QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")), rate)));
+  }
+
+  public void test_initialGuess() {
+    IborFixingDepositCurveNode node = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
+    double rate = 0.035;
+    assertEquals(node.initialGuess(valuationDate, ObservableValues.of(QUOTE_KEY, rate), ValueType.ZERO_RATE), rate);
+    assertEquals(node.initialGuess(valuationDate, ObservableValues.of(QUOTE_KEY, rate), ValueType.DISCOUNT_FACTOR), 0d);
   }
 
   public void test_metadata() {
