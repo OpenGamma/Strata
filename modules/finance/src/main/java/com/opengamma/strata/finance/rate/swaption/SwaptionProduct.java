@@ -17,6 +17,6 @@ import com.opengamma.strata.finance.Product;
  * Implementations must be immutable and thread-safe beans.
  */
 public interface SwaptionProduct
-    extends Product, Expandable<Swaption> {
+    extends Product, Expandable<ExpandedSwaption> {
 
 }

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.sensitivity;
+package com.opengamma.strata.market.sensitivity;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -29,9 +29,6 @@ import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
-import com.opengamma.strata.market.sensitivity.PointSensitivity;
-import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
  * Point sensitivity to a swaption implied parameter point.
