@@ -9,6 +9,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
+/**
+ * Test {@link DoubleArrayValueFormatter}.
+ */
 @Test
 public class DoubleArrayValueFormatterTest {
 

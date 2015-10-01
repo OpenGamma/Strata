@@ -12,11 +12,26 @@ import java.util.Map;
 /**
  * Formatter for double amounts.
  */
-public class DoubleValueFormatter implements ValueFormatter<Double> {
+class DoubleValueFormatter
+    implements ValueFormatter<Double> {
 
+  /**
+   * The single shared instance of this formatter.
+   */
+  static final DoubleValueFormatter INSTANCE = new DoubleValueFormatter();
+
+  /**
+   * The decimal format.
+   */
   private static final DecimalFormat FULL_AMOUNT_FORMAT = new DecimalFormat("#.##########");
-
+  /**
+   * The format cache.
+   */
   private final Map<Integer, DecimalFormat> displayFormatCache = new HashMap<Integer, DecimalFormat>();
+
+  // restricted constructor
+  private DoubleValueFormatter() {
+  }
 
   //-------------------------------------------------------------------------
   @Override

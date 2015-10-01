@@ -10,10 +10,13 @@ package com.opengamma.strata.report.framework.format;
  */
 public enum ReportOutputFormat {
 
-  /** ASCII table format. */
+  /**
+   * The ASCII table format.
+   */
   ASCII_TABLE,
-
-  /** CSV format. */
+  /**
+   * The CSV format.
+   */
   CSV
 
 }

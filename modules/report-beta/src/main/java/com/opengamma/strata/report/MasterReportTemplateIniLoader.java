@@ -15,17 +15,22 @@ import com.opengamma.strata.report.cashflow.CashFlowReportTemplateIniLoader;
 import com.opengamma.strata.report.trade.TradeReportTemplateIniLoader;
 
 /**
- * Loads report templates from .ini files by delegating to specific loaders for the different report types.
+ * Loads report templates from ini files by delegating to specific loaders for the different report types.
  */
 class MasterReportTemplateIniLoader {
 
+  /**
+   * The known report template loaders.
+   */
   private static final Set<ReportTemplateIniLoader<? extends ReportTemplate>> LOADERS = ImmutableSet.of(
       new TradeReportTemplateIniLoader(),
       new CashFlowReportTemplateIniLoader());
 
+  // restricted constructor
   private MasterReportTemplateIniLoader() {
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Loads a report template from an .ini file.
    *
@@ -37,8 +42,8 @@ class MasterReportTemplateIniLoader {
     String settingsSectionKey = iniFile.sections().stream()
         .filter(k -> k.toLowerCase().equals(ReportTemplateIniLoader.SETTINGS_SECTION))
         .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException(
-            Messages.format("Report template INI file must contain a {} section", ReportTemplateIniLoader.SETTINGS_SECTION)));
+        .orElseThrow(() -> new IllegalArgumentException(Messages.format(
+            "Report template INI file must contain a {} section", ReportTemplateIniLoader.SETTINGS_SECTION)));
     PropertySet settingsSection = iniFile.section(settingsSectionKey);
     String reportType = settingsSection.value(ReportTemplateIniLoader.SETTINGS_REPORT_TYPE);
     ReportTemplateIniLoader<? extends ReportTemplate> iniLoader = LOADERS.stream()

@@ -7,30 +7,13 @@ package com.opengamma.strata.report.framework.format;
 
 /**
  * Formats a value into a string.
+ * <p>
+ * See {@link ValueFormatters} for common implementations.
  * 
  * @param <T>  the type of the value
  */
 public interface ValueFormatter<T> {
 
-  /**
-   * Gets a formatter which returns the value of the object's {@code toString()} method.
-   * 
-   * @return the formatter
-   */
-  public static ValueFormatter<Object> defaultToString() {
-    return ToStringValueFormatter.INSTANCE;
-  }
-
-  /**
-   * Gets a formatter to be used when no specific formatter exists for the object.
-   * 
-   * @return the formatter
-   */
-  public static ValueFormatter<Object> unsupported() {
-    return UnsupportedValueFormatter.INSTANCE;
-  }
-
-  //-------------------------------------------------------------------------
   /**
    * Formats a value for use in a CSV file.
    * <p>

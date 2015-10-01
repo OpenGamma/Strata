@@ -28,14 +28,19 @@ import com.opengamma.strata.report.framework.expression.ValuePathEvaluator;
  * The resulting report is a table containing one row per trade, and the requested columns each
  * showing a value for that trade.
  */
-public class TradeReportRunner implements ReportRunner<TradeReportTemplate> {
+public class TradeReportRunner
+    implements ReportRunner<TradeReportTemplate> {
 
-  /** The single shared instance of this class. */
+  /**
+   * The single shared instance of this report runner.
+   */
   public static final TradeReportRunner INSTANCE = new TradeReportRunner();
 
+  // restricted constructor
   private TradeReportRunner() {
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ReportRequirements requirements(TradeReportTemplate reportTemplate) {
     List<Column> measureRequirements = reportTemplate.getColumns().stream()

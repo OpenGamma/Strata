@@ -10,17 +10,18 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 /**
  * Formatter for currency amounts.
  */
-public class CurrencyAmountValueFormatter implements ValueFormatter<CurrencyAmount> {
+class CurrencyAmountValueFormatter
+    implements ValueFormatter<CurrencyAmount> {
 
   /**
    * The single shared instance of this formatter.
    */
-  public static final CurrencyAmountValueFormatter INSTANCE = new CurrencyAmountValueFormatter();
+  static final CurrencyAmountValueFormatter INSTANCE = new CurrencyAmountValueFormatter();
 
   /**
    * The underlying formatter.
    */
-  private final DoubleValueFormatter doubleFormatter = new DoubleValueFormatter();
+  private final DoubleValueFormatter doubleFormatter = DoubleValueFormatter.INSTANCE;
 
   // restricted constructor
   private CurrencyAmountValueFormatter() {

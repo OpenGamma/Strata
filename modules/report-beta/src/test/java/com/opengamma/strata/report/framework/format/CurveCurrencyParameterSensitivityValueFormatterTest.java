@@ -14,6 +14,9 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 
+/**
+ * Test {@link CurveCurrencyParameterSensitivityValueFormatter}.
+ */
 @Test
 public class CurveCurrencyParameterSensitivityValueFormatterTest {
 

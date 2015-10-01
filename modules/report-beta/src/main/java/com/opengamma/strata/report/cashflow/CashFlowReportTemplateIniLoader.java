@@ -14,6 +14,9 @@ import com.opengamma.strata.report.ReportTemplateIniLoader;
 public class CashFlowReportTemplateIniLoader
     implements ReportTemplateIniLoader<CashFlowReportTemplate> {
 
+  /**
+   * The report type.
+   */
   private static final String REPORT_TYPE = "cashflow";
 
   @Override

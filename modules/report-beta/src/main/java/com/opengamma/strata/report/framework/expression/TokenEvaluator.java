@@ -50,7 +50,7 @@ public abstract class TokenEvaluator<T> {
    * @return the result of the evaluation
    */
   public abstract Result<?> evaluate(T object, String token);
-  
+
   //-------------------------------------------------------------------------
   /**
    * Generates a failure result for an invalid token.
@@ -62,7 +62,7 @@ public abstract class TokenEvaluator<T> {
   protected Result<?> invalidTokenFailure(T object, String token) {
     return tokenFailure("Invalid", object, token);
   }
-  
+
   /**
    * Generates a failure result for an ambiguous token.
    * 
@@ -73,7 +73,8 @@ public abstract class TokenEvaluator<T> {
   protected Result<?> ambiguousTokenFailure(T object, String token) {
     return tokenFailure("Ambiguous", object, token);
   }
-  
+
+  // produces a failure result
   private Result<?> tokenFailure(String reason, T object, String token) {
     List<String> orderedValidTokens = new ArrayList<String>(tokens(object));
     orderedValidTokens.sort(null);

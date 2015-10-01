@@ -8,3 +8,4 @@
  * Types for reporting and formatting trades.
  */
 package com.opengamma.strata.report.trade;
+

@@ -12,22 +12,25 @@ import com.opengamma.strata.report.framework.format.FormatCategory;
 import com.opengamma.strata.report.framework.format.FormatSettings;
 import com.opengamma.strata.report.framework.format.ReportFormatter;
 import com.opengamma.strata.report.framework.format.ReportOutputFormat;
-import com.opengamma.strata.report.framework.format.ValueFormatter;
+import com.opengamma.strata.report.framework.format.ValueFormatters;
 
 /**
  * Formatter for cash flow reports.
  */
-public class CashFlowReportFormatter extends ReportFormatter<CashFlowReport> {
+public class CashFlowReportFormatter
+    extends ReportFormatter<CashFlowReport> {
 
   /**
-   * The single shared instance of this class.
+   * The single shared instance of this report formatter.
    */
   public static final CashFlowReportFormatter INSTANCE = new CashFlowReportFormatter();
 
+  // restricted constructor
   private CashFlowReportFormatter() {
-    super(FormatSettings.of(FormatCategory.TEXT, ValueFormatter.defaultToString()));
+    super(FormatSettings.of(FormatCategory.TEXT, ValueFormatters.TO_STRING));
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected List<Class<?>> getColumnTypes(CashFlowReport report) {
     return Collections.nCopies(report.getColumnCount(), Object.class);

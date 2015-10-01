@@ -17,7 +17,8 @@ import com.opengamma.strata.collect.result.Result;
 /**
  * Evaluates a token against a bean to produce another object.
  */
-public class BeanTokenEvaluator extends TokenEvaluator<Bean> {
+public class BeanTokenEvaluator
+    extends TokenEvaluator<Bean> {
 
   @Override
   public Class<Bean> getTargetType() {

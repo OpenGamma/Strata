@@ -61,9 +61,7 @@ public class ValuePathEvaluator {
       new BeanTokenEvaluator(),
       new IterableTokenEvaluator());
 
-  private ValuePathEvaluator() {
-  }
-
+  //-------------------------------------------------------------------------
   /**
    * Gets the measure encoded in a value path, if present. 
    * 
@@ -86,8 +84,7 @@ public class ValuePathEvaluator {
   }
 
   /**
-   * Evaluates a value path against a set of results, returning the resolved result for
-   * each trade.
+   * Evaluates a value path against a set of results, returning the resolved result for each trade.
    * 
    * @param valuePath  the value path
    * @param results  the calculation results
@@ -299,6 +296,11 @@ public class ValuePathEvaluator {
 
   private static boolean isTypeSpecificEvaluator(Optional<TokenEvaluator<Object>> evaluator) {
     return evaluator.isPresent() && !Bean.class.equals(evaluator.get().getTargetType());
+  }
+
+  //-------------------------------------------------------------------------
+  // restricted constrctor
+  private ValuePathEvaluator() {
   }
 
 }

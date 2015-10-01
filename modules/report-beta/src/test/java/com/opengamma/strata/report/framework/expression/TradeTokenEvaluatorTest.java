@@ -7,6 +7,7 @@ package com.opengamma.strata.report.framework.expression;
 
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 
@@ -21,6 +22,9 @@ import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.equity.EquityFuture;
 import com.opengamma.strata.finance.equity.EquityFutureTrade;
 
+/**
+ * Test {@link TradeTokenEvaluator}.
+ */
 @Test
 public class TradeTokenEvaluatorTest {
 

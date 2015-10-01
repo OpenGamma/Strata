@@ -17,18 +17,18 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity
 /**
  * Formatter for curve currency parameter sensitivity.
  */
-public class CurveCurrencyParameterSensitivityValueFormatter
+class CurveCurrencyParameterSensitivityValueFormatter
     implements ValueFormatter<CurveCurrencyParameterSensitivity> {
 
   /**
    * The single shared instance of this formatter.
    */
-  public static final CurveCurrencyParameterSensitivityValueFormatter INSTANCE =
+  static final CurveCurrencyParameterSensitivityValueFormatter INSTANCE =
       new CurveCurrencyParameterSensitivityValueFormatter();
 
   private static final int PADDED_FIELD_WIDTH = 15;
 
-  private final DoubleValueFormatter doubleFormatter = new DoubleValueFormatter();
+  private final DoubleValueFormatter doubleFormatter = DoubleValueFormatter.INSTANCE;
 
   // restricted constructor
   private CurveCurrencyParameterSensitivityValueFormatter() {

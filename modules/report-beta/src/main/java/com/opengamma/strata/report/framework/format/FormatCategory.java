@@ -10,13 +10,17 @@ package com.opengamma.strata.report.framework.format;
  */
 public enum FormatCategory {
 
-  /** Date types. */
+  /**
+   * Date types.
+   */
   DATE,
-
-  /** Numeric types. */
+  /**
+   * Numeric types.
+   */
   NUMERIC,
-
-  /** General text types. */
+  /**
+   * General text types.
+   */
   TEXT
 
 }

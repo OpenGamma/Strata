@@ -9,18 +9,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
+/**
+ * Test {@link FormatSettingsProvider}.
+ */
 @Test
 public class FormatSettingsProviderTest {
 
-  @SuppressWarnings("unchecked")
   public void doubleArray() {
-    FormatSettingsProvider settingsProvider = new FormatSettingsProvider();
-    FormatSettings<Object> defaultSettings = FormatSettings.of(FormatCategory.TEXT, ValueFormatter.unsupported());
-    FormatSettings<double[]> settings = settingsProvider.getSettings(double[].class, defaultSettings);
+    FormatSettingsProvider settingsProvider = FormatSettingsProvider.INSTANCE;
+    FormatSettings<Object> defaultSettings = FormatSettings.of(FormatCategory.TEXT, ValueFormatters.UNSUPPORTED);
+    FormatSettings<double[]> settings = settingsProvider.settings(double[].class, defaultSettings);
     ValueFormatter<double[]> formatter = settings.getFormatter();
     double[] array = {1, 2, 3};
 
     assertThat(formatter.formatForDisplay(array)).isEqualTo("[1.0, 2.0, 3.0]");
     assertThat(formatter.formatForCsv(array)).isEqualTo("[1.0 2.0 3.0]");
   }
+
 }

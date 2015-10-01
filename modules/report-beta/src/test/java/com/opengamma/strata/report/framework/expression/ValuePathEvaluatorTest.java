@@ -33,6 +33,9 @@ import com.opengamma.strata.finance.rate.fra.Fra;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.report.ReportCalculationResults;
 
+/**
+ * Test {@link ValuePathEvaluator}.
+ */
 @Test
 public class ValuePathEvaluatorTest {
 

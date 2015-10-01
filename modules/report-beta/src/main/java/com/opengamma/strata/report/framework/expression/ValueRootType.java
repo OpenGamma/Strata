@@ -16,7 +16,7 @@ import com.opengamma.strata.collect.Messages;
  * Enumerates the possible value path roots.
  */
 public enum ValueRootType {
-  
+
   /**
    * Refers to the set of possible calculated measures.
    */
@@ -31,16 +31,28 @@ public enum ValueRootType {
   TRADE("Trade");
 
   //-------------------------------------------------------------------------
+  /**
+   * The name of the token.
+   */
   private final String token;
 
+  /**
+   * The complete set of valid roots.
+   */
   private static final List<String> VALID_ROOTS = Arrays.stream(values())
       .map(r -> r.token)
       .collect(toImmutableList());
 
+  /**
+   * Creates an instance.
+   * 
+   * @param token  the root token name
+   */
   ValueRootType(String token) {
     this.token = token;
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the token that the root type corresponds to.
    * 
@@ -49,7 +61,7 @@ public enum ValueRootType {
   public String token() {
     return token;
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Parses a string into the corresponding root type.

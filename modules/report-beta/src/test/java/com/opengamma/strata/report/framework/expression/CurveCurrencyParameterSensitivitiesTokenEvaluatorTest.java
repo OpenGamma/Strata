@@ -6,6 +6,7 @@
 package com.opengamma.strata.report.framework.expression;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 
@@ -18,6 +19,9 @@ import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 
+/**
+ * Test {@link CurveCurrencyParameterSensitivitiesTokenEvaluator}.
+ */
 @Test
 public class CurveCurrencyParameterSensitivitiesTokenEvaluatorTest {
 

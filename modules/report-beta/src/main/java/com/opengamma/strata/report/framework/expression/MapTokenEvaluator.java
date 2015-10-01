@@ -12,9 +12,10 @@ import java.util.stream.Collectors;
 import com.opengamma.strata.collect.result.Result;
 
 /**
- * 
+ * Evaluates a token against a map.
  */
-public class MapTokenEvaluator extends TokenEvaluator<Map<?, ?>> {
+public class MapTokenEvaluator
+    extends TokenEvaluator<Map<?, ?>> {
 
   @Override
   public Class<?> getTargetType() {

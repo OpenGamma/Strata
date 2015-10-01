@@ -16,22 +16,25 @@ import com.opengamma.strata.report.framework.format.FormatCategory;
 import com.opengamma.strata.report.framework.format.FormatSettings;
 import com.opengamma.strata.report.framework.format.ReportFormatter;
 import com.opengamma.strata.report.framework.format.ReportOutputFormat;
-import com.opengamma.strata.report.framework.format.ValueFormatter;
+import com.opengamma.strata.report.framework.format.ValueFormatters;
 
 /**
  * Formatter for trade reports.
  */
-public class TradeReportFormatter extends ReportFormatter<TradeReport> {
+public class TradeReportFormatter
+    extends ReportFormatter<TradeReport> {
 
   /**
-   * The single shared instance of this class.
+   * The single shared instance of this report formatter.
    */
   public static final TradeReportFormatter INSTANCE = new TradeReportFormatter();
 
+  // restricted constructor
   private TradeReportFormatter() {
-    super(FormatSettings.of(FormatCategory.TEXT, ValueFormatter.unsupported()));
+    super(FormatSettings.of(FormatCategory.TEXT, ValueFormatters.UNSUPPORTED));
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected List<Class<?>> getColumnTypes(TradeReport report) {
     return IntStream.range(0, report.getColumnCount())

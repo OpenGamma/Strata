@@ -27,10 +27,14 @@ import com.opengamma.strata.report.Report;
  */
 public abstract class ReportFormatter<R extends Report> {
 
-  /** Default format settings, used if there are no settings for a data type. */
+  /**
+   * The default format settings, used if there are no settings for a data type.
+   */
   private final FormatSettings<Object> defaultSettings;
-
-  private final FormatSettingsProvider formatSettingsProvider = new FormatSettingsProvider();
+  /**
+   * The format settings provider.
+   */
+  private final FormatSettingsProvider formatSettingsProvider = FormatSettingsProvider.INSTANCE;
 
   /**
    * Creates a new formatter with a set of default format settings.
@@ -41,6 +45,7 @@ public abstract class ReportFormatter<R extends Report> {
     this.defaultSettings = defaultSettings;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Outputs the report table in CSV format.
    * 
@@ -99,7 +104,6 @@ public abstract class ReportFormatter<R extends Report> {
   protected abstract String formatData(R report, int rowIdx, int colIdx, ReportOutputFormat format);
 
   //-------------------------------------------------------------------------
-
   /**
    * Formats a value into a string.
    *
@@ -114,7 +118,7 @@ public abstract class ReportFormatter<R extends Report> {
     if (formatValue == null) {
       return "";
     }
-    FormatSettings<Object> formatSettings = formatSettingsProvider.getSettings(formatValue.getClass(), defaultSettings);
+    FormatSettings<Object> formatSettings = formatSettingsProvider.settings(formatValue.getClass(), defaultSettings);
     ValueFormatter<Object> formatter = formatSettings.getFormatter();
 
     return format == ReportOutputFormat.CSV ?
@@ -124,10 +128,10 @@ public abstract class ReportFormatter<R extends Report> {
 
   //-------------------------------------------------------------------------
   private ASCIITableHeader toAsciiTableHeader(String header, Class<?> columnType) {
-    FormatSettings<Object> formatSettings = formatSettingsProvider.getSettings(columnType, defaultSettings);
+    FormatSettings<Object> formatSettings = formatSettingsProvider.settings(columnType, defaultSettings);
     boolean isNumeric =
         formatSettings.getCategory() == FormatCategory.NUMERIC ||
-        formatSettings.getCategory() == FormatCategory.DATE;
+            formatSettings.getCategory() == FormatCategory.DATE;
     int align = isNumeric ? AsciiTable.ALIGN_RIGHT : AsciiTable.ALIGN_LEFT;
     return ASCIITableHeader.h(header, align, align);
   }

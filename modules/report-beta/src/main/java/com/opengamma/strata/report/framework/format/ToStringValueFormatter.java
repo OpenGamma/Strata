@@ -8,13 +8,13 @@ package com.opengamma.strata.report.framework.format;
 /**
  * Default formatter which returns the value of {@code toString()} on the object.
  */
-public class ToStringValueFormatter
+class ToStringValueFormatter
     implements ValueFormatter<Object> {
 
   /**
    * The single shared instance of this formatter.
    */
-  public static final ToStringValueFormatter INSTANCE = new ToStringValueFormatter();
+  static final ToStringValueFormatter INSTANCE = new ToStringValueFormatter();
 
   // restricted constructor
   private ToStringValueFormatter() {

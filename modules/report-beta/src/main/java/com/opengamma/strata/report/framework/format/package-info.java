@@ -8,3 +8,4 @@
  * Classes that deal with the formatting of calculated values.
  */
 package com.opengamma.strata.report.framework.format;
+

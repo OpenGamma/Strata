@@ -19,17 +19,28 @@ import com.opengamma.strata.report.ReportTemplateIniLoader;
  * section) correspond to the columns in the report, in the order they are declared.
  * <p>
  * Each section can specify the following properties:
+ * <ul>
  * <li>value - identifies the value to display in the column's cells
  * <li>ignoreFailures - optional boolean flag to disable failure messages in this column
+ * </ul>
  */
 public class TradeReportTemplateIniLoader
     implements ReportTemplateIniLoader<TradeReportTemplate> {
 
+  /**
+   * The report type.
+   */
   private static final String REPORT_TYPE = "trade";
-
+  /**
+   * The value property name.
+   */
   private static final String VALUE_PROPERTY = "value";
+  /**
+   * The ignore-failures property name.
+   */
   private static final String IGNORE_FAILURES_PROPERTY = "ignoreFailures";
 
+  //-------------------------------------------------------------------------
   @Override
   public String getReportType() {
     return REPORT_TYPE;

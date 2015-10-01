@@ -18,6 +18,9 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 
+/**
+ * Test {@link TradeReportFormatter}.
+ */
 @Test
 public class TradeReportFormatterTest {
 

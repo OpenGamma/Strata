@@ -49,7 +49,7 @@ public final class ExampleData {
     String resourceName = String.format("classpath:example-reports/%s.ini", templateName);
     ResourceLocator resourceLocator = ResourceLocator.of(resourceName);
     IniFile ini = IniFile.of(resourceLocator.getCharSource());
-    return TradeReportTemplate.ofIni(ini);
+    return TradeReportTemplate.load(ini);
   }
 
 }

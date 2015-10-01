@@ -24,7 +24,8 @@ import com.opengamma.strata.finance.TradeInfo;
  * <p>
  * This merges the {@link Trade} and {@link TradeInfo} objects, giving priority to {@code Trade}.
  */
-public class TradeTokenEvaluator extends TokenEvaluator<Trade> {
+public class TradeTokenEvaluator
+    extends TokenEvaluator<Trade> {
 
   @Override
   public Class<Trade> getTargetType() {

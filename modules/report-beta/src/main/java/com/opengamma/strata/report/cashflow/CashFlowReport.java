@@ -39,28 +39,36 @@ import com.opengamma.strata.report.Report;
  * containing multiple resets.
  */
 @BeanDefinition
-public final class CashFlowReport implements Report, ImmutableBean {
+public final class CashFlowReport
+    implements Report, ImmutableBean {
 
-  /** The valuation date. */
+  /**
+   * The valuation date.
+   */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate valuationDate;
-
-  /** The instant at which the report was run. */
+  /**
+   * The instant at which the report was run.
+   */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Instant runInstant;
-
-  /** The keys corresponding to the columns. */
+  /**
+   * The keys corresponding to the columns.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<ExplainKey<?>> columnKeys;
-
-  /** The column headers.  */
+  /**
+   * The column headers.
+   */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ImmutableList<String> columnHeaders;
-
-  /** The cashflow data table. */
+  /**
+   * The cashflow data table.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableTable<Integer, Integer, Object> data;
 
+  //-------------------------------------------------------------------------
   @Override
   public int getRowCount() {
     return data.rowKeySet().size();

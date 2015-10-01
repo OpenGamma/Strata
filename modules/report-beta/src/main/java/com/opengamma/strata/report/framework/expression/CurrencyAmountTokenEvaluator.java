@@ -12,7 +12,8 @@ import com.opengamma.strata.collect.result.Result;
 /**
  * Evaluates a token against a currency amount.
  */
-public class CurrencyAmountTokenEvaluator extends TokenEvaluator<CurrencyAmount> {
+public class CurrencyAmountTokenEvaluator
+    extends TokenEvaluator<CurrencyAmount> {
 
   private final String CURRENCY_FIELD = "currency";
   private final String AMOUNT_FIELD = "amount";

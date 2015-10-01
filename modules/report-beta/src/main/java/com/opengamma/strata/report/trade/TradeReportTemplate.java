@@ -30,19 +30,22 @@ import com.opengamma.strata.report.ReportTemplate;
  * Describes the contents and layout of a trade report.
  */
 @BeanDefinition
-public final class TradeReportTemplate implements ReportTemplate, ImmutableBean {
+public final class TradeReportTemplate
+    implements ReportTemplate, ImmutableBean {
 
-  /** The columns in the report. */
+  /**
+   * The columns in the report.
+   */
   @PropertyDefinition(validate = "notNull")
   private final List<TradeReportColumn> columns;
 
   /**
-   * Creates a trade report template by reading a template definition in an .ini file.
+   * Creates a trade report template by reading a template definition in an ini file.
    *
-   * @param ini  the .ini file containing the definition of the template
-   * @return a trade report template built from the definition in the .ini file
+   * @param ini  the ini file containing the definition of the template
+   * @return a trade report template built from the definition in the ini file
    */
-  public static TradeReportTemplate ofIni(IniFile ini) {
+  public static TradeReportTemplate load(IniFile ini) {
     TradeReportTemplateIniLoader loader = new TradeReportTemplateIniLoader();
     return loader.load(ini);
   }

@@ -35,21 +35,24 @@ import com.opengamma.strata.report.ReportRunner;
 /**
  * Report runner for cash flow reports.
  */
-public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate> {
+public class CashFlowReportRunner
+    implements ReportRunner<CashFlowReportTemplate> {
 
   // TODO - when the cashflow report INI file supports specific columns, the following maps should
   // be represented by a built-in report template INI file.
 
-  /** The single shared instance of this class. */
+  /**
+   * The single shared instance of this report runner.
+   */
   public static final CashFlowReportRunner INSTANCE = new CashFlowReportRunner();
-  
+
   private static final ExplainKey<?> INTERIM_AMOUNT_KEY = ExplainKey.of("InterimAmount");
-  
+
   private static final Map<ExplainKey<?>, String> HEADER_MAP = ImmutableMap.of(
       ExplainKey.ENTRY_TYPE, "Flow Type",
       ExplainKey.ENTRY_INDEX, "Leg Number",
       ExplainKey.FUTURE_VALUE, "Flow Amount");
-  
+
   private static final List<ExplainKey<?>> COLUMN_ORDER = ImmutableList.<ExplainKey<?>>builder()
       .add(ExplainKey.ENTRY_TYPE)
       .add(ExplainKey.ENTRY_INDEX)
@@ -83,16 +86,18 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
       .add(ExplainKey.DISCOUNT_FACTOR)
       .add(ExplainKey.PRESENT_VALUE)
       .build();
-  
+
   private static final List<ExplainKey<?>> INHERITED_KEYS = ImmutableList.<ExplainKey<?>>builder()
       .add(ExplainKey.ENTRY_INDEX)
       .add(ExplainKey.LEG_TYPE)
       .add(ExplainKey.PAY_RECEIVE)
       .build();
 
+  // restricted constructor
   private CashFlowReportRunner() {
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ReportRequirements requirements(CashFlowReportTemplate reportTemplate) {
     return ReportRequirements.builder()
@@ -102,7 +107,7 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
 
   @Override
   public Report runReport(ReportCalculationResults calculationResults, CashFlowReportTemplate reportTemplate) {
-    
+
     int tradeCount = calculationResults.getCalculationResults().getRowCount();
     if (tradeCount == 0) {
       throw new IllegalArgumentException("Calculation results is empty");
@@ -112,14 +117,14 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
           Messages.format("Unable to show cashflow report for {} trades at once. " +
               "Please filter the portfolio to a single trade.", tradeCount));
     }
-    
+
     int columnIdx = calculationResults.getColumns().indexOf(Column.of(Measure.EXPLAIN_PRESENT_VALUE));
     if (columnIdx == -1) {
       throw new IllegalArgumentException(
           Messages.format("Unable to find column for required measure '{}' in calculation results",
               Measure.EXPLAIN_PRESENT_VALUE));
     }
-    
+
     Result<?> result = calculationResults.getCalculationResults().get(0, columnIdx);
     if (result.isFailure()) {
       throw new IllegalArgumentException(
@@ -127,13 +132,13 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
               Measure.EXPLAIN_PRESENT_VALUE, result.getFailure().getMessage()));
     }
     ExplainMap explainMap = (ExplainMap) result.getValue();
-    
+
     return runReport(explainMap, calculationResults.getValuationDate());
   }
 
   private Report runReport(ExplainMap explainMap, LocalDate valuationDate) {
     List<ExplainMap> flatMap = flatten(explainMap);
-    
+
     List<ExplainKey<?>> keys = getKeys(flatMap);
     List<String> headers = keys.stream().map(this::mapHeader).collect(toImmutableList());
     ImmutableTable<Integer, Integer, Object> data = getData(flatMap, keys);
@@ -154,17 +159,23 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
   }
 
   @SuppressWarnings("unchecked")
-  private void flatten(ExplainMap explainMap, boolean parentVisible, Map<ExplainKey<?>, Object> parentRow, Map<ExplainKey<?>, Object> currentRow, int level, List<ExplainMap> accumulator) {
-    
+  private void flatten(
+      ExplainMap explainMap,
+      boolean parentVisible,
+      Map<ExplainKey<?>, Object> parentRow,
+      Map<ExplainKey<?>, Object> currentRow,
+      int level,
+      List<ExplainMap> accumulator) {
+
     boolean hasParentFlow = currentRow.containsKey(ExplainKey.FUTURE_VALUE);
     boolean isFlow = explainMap.get(ExplainKey.PAYMENT_DATE).isPresent();
     boolean visible = parentVisible || isFlow;
-    
+
     Set<ExplainKey<List<ExplainMap>>> nestedListKeys = explainMap.getMap().keySet().stream()
         .filter(k -> List.class.isAssignableFrom(explainMap.get(k).get().getClass()))
         .map(k -> (ExplainKey<List<ExplainMap>>) k)
         .collect(toImmutableSet());
-    
+
     // Populate the base data
     for (Map.Entry<ExplainKey<?>, Object> entry : explainMap.getMap().entrySet()) {
       ExplainKey<?> key = entry.getKey();
@@ -189,12 +200,12 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
         currentRow.putIfAbsent(mappedKey, mappedValue);
       }
     }
-    
+
     // Repeat the inherited entries from the parent row if this row hasn't overridden them
     INHERITED_KEYS.stream()
         .filter(parentRow::containsKey)
         .forEach(inheritedKey -> currentRow.putIfAbsent(inheritedKey, parentRow.get(inheritedKey)));
-    
+
     if (nestedListKeys.size() > 0) {
       List<ExplainMap> nestedListEntries = nestedListKeys.stream()
           .flatMap(k -> explainMap.get(k).get().stream())
@@ -232,21 +243,21 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
     }
     return -1;
   }
-  
+
   private ExplainKey<?> mapKey(ExplainKey<?> key, boolean isFlow) {
     if (!isFlow && key.equals(ExplainKey.FUTURE_VALUE)) {
       return INTERIM_AMOUNT_KEY;
     }
     return key;
   }
-  
+
   private Object mapValue(ExplainKey<?> key, Object value, int level) {
     if (ExplainKey.ENTRY_TYPE.equals(key) && level > 0) {
       return humanizeUpperCamelCase((String) value);
     }
     return value;
   }
-  
+
   private String mapHeader(ExplainKey<?> key) {
     String header = HEADER_MAP.get(key);
     if (header != null) {

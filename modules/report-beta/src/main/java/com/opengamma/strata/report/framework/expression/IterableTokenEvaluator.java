@@ -49,7 +49,8 @@ import com.opengamma.strata.finance.rate.swap.SwapLegType;
  * </pre>
  * If both legs have the same currency it would obviously not be possible to use the currency to select a leg.
  */
-public class IterableTokenEvaluator extends TokenEvaluator<Iterable<?>> {
+public class IterableTokenEvaluator
+    extends TokenEvaluator<Iterable<?>> {
 
   private static final Set<Class<?>> SUPPORTED_FIELD_TYPES = ImmutableSet.of(
       Currency.class,

@@ -29,18 +29,22 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * in the context of the calculation results, and errors are delayed until the report is run.
  */
 @BeanDefinition
-public class TradeReportColumn implements ImmutableBean {
+public class TradeReportColumn
+    implements ImmutableBean {
 
-  /** The column header. */
+  /**
+   * The column header.
+   */
   @PropertyDefinition(validate = "notNull")
   private final String header;
-
-  // TODO What's this?
-  /** The reference to a value to display in this column. */
+  /**
+   * The reference to a value to display in this column.
+   */
   @PropertyDefinition(get = "optional")
   private final String value;
-  
-  /** Whether to ignore failures, or report the errors. */
+  /**
+   * Whether to ignore failures, or report the errors.
+   */
   @PropertyDefinition
   private final boolean ignoreFailures;
 

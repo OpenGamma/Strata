@@ -12,12 +12,13 @@ import java.util.Arrays;
 /**
  * Formats primitive double arrays.
  */
-public class DoubleArrayValueFormatter implements ValueFormatter<double[]> {
+class DoubleArrayValueFormatter
+    implements ValueFormatter<double[]> {
 
   /**
    * The single shared instance of this formatter.
    */
-  public static final DoubleArrayValueFormatter INSTANCE = new DoubleArrayValueFormatter();
+  static final DoubleArrayValueFormatter INSTANCE = new DoubleArrayValueFormatter();
 
   // restricted constructor
   private DoubleArrayValueFormatter() {
