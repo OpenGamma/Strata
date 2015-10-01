@@ -162,7 +162,7 @@ public class IsdaCdsPricer {
 
     @Override
     public double yValue(double x) {
-      return underlyingCurve.getYValue(x);
+      return underlyingCurve.yValue(x);
     }
 
     @Override

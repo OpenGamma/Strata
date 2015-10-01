@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantDateCreditCurve.Meta;
 
 /**
@@ -82,7 +83,7 @@ public class IsdaCompliantCreditCurveTest {
      */
     final IsdaCompliantCreditCurve.Meta meta = cv1.metaBean();
     final BeanBuilder<?> builder = meta.builder();
-    builder.set(meta.metaPropertyGet("name"), "");
+    builder.set(meta.metaPropertyGet("metadata"), DefaultCurveMetadata.of("IsdaCompliantCurve"));
     builder.set(meta.metaPropertyGet("t"), time);
     builder.set(meta.metaPropertyGet("rt"), rt);
     IsdaCompliantCreditCurve builtCurve = (IsdaCompliantCreditCurve) builder.build();
@@ -172,7 +173,7 @@ public class IsdaCompliantCreditCurveTest {
     builder.set(propBaseDate.name(), baseDate);
     builder.set(propDates.name(), dates);
     builder.set(propDcc.name(), dcc);
-    builder.set(meta.metaPropertyGet("name"), "");
+    builder.set(meta.metaPropertyGet("metadata"), DefaultCurveMetadata.of("IsdaCompliantCurve"));
     builder.set(meta.metaPropertyGet("t"), t);
     builder.set(meta.metaPropertyGet("rt"), rt);
     IsdaCompliantDateCreditCurve builtCurve = (IsdaCompliantDateCreditCurve) builder.build();
