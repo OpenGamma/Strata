@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.testng.eclipse.launchconfig">
 <listAttribute key="com.mountainminds.eclemma.core.SCOPE_IDS">
-<listEntry value="=strata-report-beta/src\/main\/java"/>
+<listEntry value="=strata-report/src\/main\/java"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.testng.remote.RemoteTestNG"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="strata-report-beta"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="strata-report"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
 <mapAttribute key="org.testng.eclipse.ALL_CLASS_METHODS"/>
 <listAttribute key="org.testng.eclipse.CLASS_TEST_LIST"/>

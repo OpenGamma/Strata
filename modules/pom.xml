@@ -66,7 +66,7 @@
     <module>market</module>
     <module>math</module>
     <module>pricer</module>
-    <module>report-beta</module>
+    <module>report</module>
   </modules>
 
   <!-- ==================================================================== -->
@@ -217,7 +217,7 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-report-beta</artifactId>
+        <artifactId>strata-report</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
