@@ -7,10 +7,10 @@ package com.opengamma.strata.pricer.impl.credit.isda.e2e;
 
 import java.util.Arrays;
 
-import com.opengamma.analytics.math.MathException;
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.impl.function.Function1D;
+import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalytic;
 import com.opengamma.strata.pricer.impl.credit.isda.DoublesScheduleGenerator;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurve;

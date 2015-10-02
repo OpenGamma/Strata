@@ -16,9 +16,6 @@ import com.opengamma.strata.collect.named.Named;
  * <p>
  * This is a marker interface implemented by legacy extrapolator implementations. At some point it will
  * be expanded to include extrapolation operations.
- * <p>
- * All extrapolators are implementations of {@code Interpolator1D} for compatibility with legacy code.
- * This should be regarded as an implementation detail and will change.
  */
 public interface CurveExtrapolator extends Named {
 

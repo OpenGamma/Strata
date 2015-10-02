@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
-import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
-import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
+import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 
 /**
  * The primary repository for Black-Scholes formulas, including the price and greeks.

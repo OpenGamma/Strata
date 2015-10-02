@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.function.interpolator;
 
-import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 
 /**
  * The standard set of curve interpolators.

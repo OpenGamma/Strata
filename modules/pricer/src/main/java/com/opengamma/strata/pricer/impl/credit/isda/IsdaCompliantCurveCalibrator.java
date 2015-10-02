@@ -8,13 +8,13 @@ package com.opengamma.strata.pricer.impl.credit.isda;
 import java.time.LocalDate;
 import java.time.Period;
 
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.rootfinding.BracketRoot;
-import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
-import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.function.Function1D;
+import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
+import com.opengamma.strata.math.impl.rootfinding.BrentSingleRootFinder;
+import com.opengamma.strata.math.impl.rootfinding.RealSingleRootFinder;
 
 /**
  * This should be viewed as "proof of concept" code, since it used the code that has date logic mixed with the analytics (this was to

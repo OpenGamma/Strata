@@ -14,10 +14,10 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.market.curve.perturb.ShiftType;
+import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 
 /**
  * Test.

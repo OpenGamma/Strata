@@ -11,17 +11,17 @@ import java.time.Period;
 import cern.jet.random.engine.MersenneTwister;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.FunctionUtils;
-import com.opengamma.analytics.math.MathException;
-import com.opengamma.analytics.math.linearalgebra.CholeskyDecompositionCommons;
-import com.opengamma.analytics.math.linearalgebra.CholeskyDecompositionResult;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.analytics.math.matrix.MatrixAlgebra;
-import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
-import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
-import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.FunctionUtils;
+import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.impl.linearalgebra.CholeskyDecompositionCommons;
+import com.opengamma.strata.math.impl.linearalgebra.CholeskyDecompositionResult;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
+import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
+import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
+import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 
 /**
  * This tests the time to calibrate the yield and credit curves. By default the tests are disabled.  

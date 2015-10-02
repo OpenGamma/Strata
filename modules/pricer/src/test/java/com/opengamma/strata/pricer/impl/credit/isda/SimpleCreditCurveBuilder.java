@@ -8,11 +8,11 @@ package com.opengamma.strata.pricer.impl.credit.isda;
 import java.time.LocalDate;
 import java.time.Period;
 
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.rootfinding.BracketRoot;
-import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
-import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.function.Function1D;
+import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
+import com.opengamma.strata.math.impl.rootfinding.BrentSingleRootFinder;
+import com.opengamma.strata.math.impl.rootfinding.RealSingleRootFinder;
 
 /**
  * This is a bootstrapper for the credit curve that is consistent with ISDA in that it will produce the same curve from

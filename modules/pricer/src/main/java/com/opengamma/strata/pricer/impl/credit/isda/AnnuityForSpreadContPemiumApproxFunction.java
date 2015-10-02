@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import com.opengamma.analytics.math.utilities.Epsilon;
+import com.opengamma.strata.math.impl.util.Epsilon;
 
 /**
  * 

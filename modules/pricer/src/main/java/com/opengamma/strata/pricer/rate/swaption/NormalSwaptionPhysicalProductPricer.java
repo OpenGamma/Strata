@@ -8,12 +8,9 @@ package com.opengamma.strata.pricer.rate.swaption;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalFunctionData;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
-import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.strata.basics.LongShort;
 import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
@@ -28,6 +25,10 @@ import com.opengamma.strata.finance.rate.swaption.Swaption;
 import com.opengamma.strata.finance.rate.swaption.SwaptionProduct;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
+import com.opengamma.strata.math.impl.function.Function1D;
+import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
+import com.opengamma.strata.pricer.impl.option.NormalFunctionData;
+import com.opengamma.strata.pricer.impl.option.NormalPriceFunction;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 
@@ -98,10 +99,10 @@ public class NormalSwaptionPhysicalProductPricer {
     double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
     double tenor = volatilityProvider.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = volatilityProvider.getVolatility(expiryDateTime, tenor, strike, forward);
-    NormalFunctionData normalData = new NormalFunctionData(forward, Math.abs(pvbp), volatility);
+    NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(pvbp), volatility);
     boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
     // Payer at strike is exercise when rate > strike, i.e. call on rate
-    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, isCall);
+    EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiry, isCall ? PutCall.CALL : PutCall.PUT);
     // option required to pass the strike (in case the swap has non-constant coupon).
     Function1D<NormalFunctionData, Double> func = NORMAL.getPriceFunction(option);
     double pv = func.evaluate(normalData) * ((expanded.getLongShort() == LongShort.LONG) ? 1.0 : -1.0);
@@ -184,10 +185,10 @@ public class NormalSwaptionPhysicalProductPricer {
     double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
     double tenor = volatilityProvider.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = volatilityProvider.getVolatility(expiryDateTime, tenor, strike, forward);
-    NormalFunctionData normalData = new NormalFunctionData(forward, 1.0d, volatility);
+    NormalFunctionData normalData = NormalFunctionData.of(forward, 1.0d, volatility);
     boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
     // Payer at strike is exercise when rate > strike, i.e. call on rate
-    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, isCall);
+    EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiry, isCall ? PutCall.CALL : PutCall.PUT);
     // option required to pass the strike (in case the swap has non-constant coupon).
     // Backward sweep
     PointSensitivityBuilder pvbpDr = swapPricer.getLegPricer().pvbpSensitivity(fixedLeg, ratesProvider);
@@ -230,10 +231,10 @@ public class NormalSwaptionPhysicalProductPricer {
     }
     double forward = swapPricer.parRate(underlying, ratesProvider);
     double volatility = volatilityProvider.getVolatility(expiryDateTime, tenor, strike, forward);
-    NormalFunctionData normalData = new NormalFunctionData(forward, Math.abs(pvbp), volatility);
+    NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(pvbp), volatility);
     boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
     // Payer at strike is exercise when rate > strike, i.e. call on rate
-    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, isCall);
+    EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiry, isCall ? PutCall.CALL : PutCall.PUT);
     // option required to pass the strike (in case the swap has non-constant coupon).
     // Backward sweep
     double vega = NORMAL.getVega(option, normalData) * ((expanded.getLongShort() == LongShort.LONG) ? 1.0 : -1.0);

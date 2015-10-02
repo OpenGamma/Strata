@@ -8,8 +8,8 @@ package com.opengamma.strata.function.calculation.rate.swap;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
+import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
@@ -22,10 +22,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -83,13 +79,15 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.CurveGroupId;
-import com.opengamma.strata.pricer.impl.Legacy;
+import com.opengamma.strata.pricer.datasets.StandardDataSets;
 import com.opengamma.strata.pricer.rate.e2e.CalendarUSD;
 
 @Test
 public class SwapPricingTest {
 
   private static final IborIndex USD_LIBOR_1M = lockIndexCalendar(IborIndices.USD_LIBOR_1M);
+  private static final IborIndex USD_LIBOR_3M = lockIndexCalendar(IborIndices.USD_LIBOR_3M);
+  private static final IborIndex USD_LIBOR_6M = lockIndexCalendar(IborIndices.USD_LIBOR_6M);
   private static final NotionalSchedule NOTIONAL = NotionalSchedule.of(USD, 100_000_000);
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(
       BusinessDayConventions.MODIFIED_FOLLOWING,
@@ -98,8 +96,8 @@ public class SwapPricingTest {
       BusinessDayConventions.PRECEDING,
       CalendarUSD.NYC);
 
-  private static final LocalDate VAL_DATE = LocalDate.of(2014, 1, 22);
-  private static final CurveGroupName CURVE_GROUP_NAME = CurveGroupName.of("The Curve Group");
+  private static final LocalDate VAL_DATE = StandardDataSets.VAL_DATE_2014_01_22;
+  private static final CurveGroupName CURVE_GROUP_NAME = CurveGroupName.of("CurveGroup");
   private static final CurveGroup CURVE_GROUP = curveGroup();
 
   // tolerance
@@ -210,25 +208,13 @@ public class SwapPricingTest {
   }
 
   private static CurveGroup curveGroup() {
-    MulticurveProviderDiscount multicurve = StandardDataSetsMulticurveUSD.getCurvesUSDOisL1L3L6().getFirst();
-    Map<Currency, YieldAndDiscountCurve> legacyDiscountCurves = multicurve.getDiscountingCurves();
-    Map<com.opengamma.analytics.financial.instrument.index.IborIndex, YieldAndDiscountCurve> legacyIborCurves =
-        multicurve.getForwardIborCurves();
-    Map<IndexON, YieldAndDiscountCurve> legacyOvernightCurves = multicurve.getForwardONCurves();
-
-    Map<Currency, Curve> discountCurves = legacyDiscountCurves.entrySet().stream()
-        .collect(toImmutableMap(tp -> tp.getKey(), tp -> Legacy.curve(tp.getValue())));
-
-    Map<Index, Curve> iborCurves = legacyIborCurves.entrySet().stream()
-        .collect(toImmutableMap(tp -> Legacy.iborIndex(tp.getKey()), tp -> Legacy.curve(tp.getValue())));
-
-    Map<Index, Curve> overnightCurves = legacyOvernightCurves.entrySet().stream()
-        .collect(toImmutableMap(tp -> Legacy.overnightIndex(tp.getKey()), tp -> Legacy.curve(tp.getValue())));
-
-    Map<Index, Curve> forwardCurves = ImmutableMap.<Index, Curve>builder()
-        .putAll(iborCurves)
-        .putAll(overnightCurves)
-        .build();
+    Map<Currency, Curve> discountCurves = ImmutableMap.of(
+        USD, StandardDataSets.GROUP1_USD_DSC);
+    Map<Index, Curve> forwardCurves = ImmutableMap.of(
+        USD_FED_FUND, StandardDataSets.GROUP1_USD_ON,
+        USD_LIBOR_1M, StandardDataSets.GROUP1_USD_L1M,
+        USD_LIBOR_3M, StandardDataSets.GROUP1_USD_L3M,
+        USD_LIBOR_6M, StandardDataSets.GROUP1_USD_L6M);
 
     return CurveGroup.of(CURVE_GROUP_NAME, discountCurves, forwardCurves);
   }

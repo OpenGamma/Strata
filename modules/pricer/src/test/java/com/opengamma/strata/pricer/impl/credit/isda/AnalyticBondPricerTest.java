@@ -13,10 +13,10 @@ import java.time.Period;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * 

@@ -6,11 +6,11 @@
 package com.opengamma.strata.pricer.impl.option;
 
 import com.google.common.primitives.Doubles;
-import com.opengamma.analytics.math.MathException;
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
-import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.impl.function.Function1D;
+import com.opengamma.strata.math.impl.rootfinding.BisectionSingleRootFinder;
+import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 
 /**
  * Finds an implied volatility (a parameter that put into a model gives the market pirce of an option)

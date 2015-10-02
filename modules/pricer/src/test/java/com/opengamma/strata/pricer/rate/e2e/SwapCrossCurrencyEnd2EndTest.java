@@ -18,12 +18,6 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveEUR;
-import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -33,7 +27,6 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;
-import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.swap.FxResetCalculation;
 import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
@@ -43,8 +36,7 @@ import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.pricer.impl.Legacy;
-import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.datasets.StandardDataSets;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
 
@@ -61,26 +53,6 @@ public class SwapCrossCurrencyEnd2EndTest {
   private static final double NOTIONAL_EUR = 100_000_000;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CalendarUSD.NYC);
   private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, CalendarUSD.NYC);
-
-  // curve providers
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_USD_PAIR =
-      StandardDataSetsMulticurveUSD.getCurvesUSDOisL3();
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_EUR_PAIR =
-      StandardDataSetsMulticurveEUR.getCurvesEurOisE3();
-  private static final FxMatrix FX_MATRIX = FxMatrix.of(Currency.EUR, Currency.USD, 1.20);
-  private static final com.opengamma.analytics.financial.instrument.index.IborIndex EUREURIBOR3M =
-      MULTICURVE_EUR_PAIR.getFirst().getIndexesIbor().iterator().next();
-  private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_USD_PAIR.getFirst();
-  static {
-    MULTICURVE.setCurve(Currency.EUR,
-        MULTICURVE_EUR_PAIR.getFirst().getCurve(Currency.EUR));
-    MULTICURVE.setCurve(EUREURIBOR3M, MULTICURVE_EUR_PAIR.getFirst().getCurve(EUREURIBOR3M));
-    MULTICURVE.setForexMatrix(FX_MATRIX);
-  }
-  private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_USD_PAIR.getSecond();
-  static {
-    BLOCK.addAll(MULTICURVE_EUR_PAIR.getSecond());
-  }
 
   // tolerance
   private static final double TOLERANCE_PV = 1.0E-4;
@@ -229,12 +201,7 @@ public class SwapCrossCurrencyEnd2EndTest {
 
   // rates provider
   private static RatesProvider provider() {
-    return ImmutableRatesProvider.builder()
-        .valuationDate(LocalDate.of(2014, 1, 22))
-        .fxMatrix(FX_MATRIX)
-        .discountCurves(Legacy.discountCurves(MULTICURVE))
-        .indexCurves(Legacy.indexCurves(MULTICURVE))
-        .build();
+    return StandardDataSets.providerUsdEurDscL3();
   }
 
 }

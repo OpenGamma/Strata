@@ -12,14 +12,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.integration.GaussHermiteQuadratureIntegrator1D;
-import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
-import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
-import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.strata.basics.PutCall;
+import com.opengamma.strata.math.impl.function.Function1D;
+import com.opengamma.strata.math.impl.integration.GaussHermiteQuadratureIntegrator1D;
+import com.opengamma.strata.math.impl.integration.RungeKuttaIntegrator1D;
+import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
+import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 
 /**
  * Test {@link BlackFormulaRepository}.
@@ -156,13 +154,13 @@ public class BlackFormulaRepositoryTest {
       callput = !callput;
       for (int loopstrike = 0; loopstrike < nbStrike; loopstrike++) {
         for (int loopVols = 0; loopVols < nbVols; loopVols++) {
-          EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKES_INPUT[loopstrike], TIME_TO_EXPIRY,
-              callput);
-          BlackFunctionData data = new BlackFunctionData(FORWARD, 1.0, VOLS[loopVols]);
+          EuropeanVanillaOption option =
+              EuropeanVanillaOption.of(STRIKES_INPUT[loopstrike], TIME_TO_EXPIRY, PutCall.ofPut(!callput));
+          BlackFunctionData data = BlackFunctionData.of(FORWARD, 1.0, VOLS[loopVols]);
           double[] d = function.getPriceAdjoint(option, data);
           double delta = d[1];
-          double strikeOutput = BlackFormulaRepository.impliedStrike(delta, callput, FORWARD, TIME_TO_EXPIRY,
-              VOLS[loopVols]);
+          double strikeOutput =
+              BlackFormulaRepository.impliedStrike(delta, callput, FORWARD, TIME_TO_EXPIRY, VOLS[loopVols]);
           assertEquals("Implied strike: (data " + loopstrike + " / " + callput + ")", STRIKES_INPUT[loopstrike],
               strikeOutput, 1.0E-8);
         }

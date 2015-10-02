@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * For a given quoted spread (aka 'flat' spread), this function returns the risky annuity

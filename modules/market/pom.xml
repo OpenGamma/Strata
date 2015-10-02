@@ -31,10 +31,9 @@
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-finance</artifactId>
     </dependency>
-    <!-- TODO Temporary dependency on analytics -->
     <dependency>
-      <groupId>com.opengamma.analytics</groupId>
-      <artifactId>og-analytics</artifactId>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-math</artifactId>
     </dependency>
 
     <!-- Testing -->

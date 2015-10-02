@@ -13,13 +13,6 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Doubles;
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
-import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.analytics.math.matrix.MatrixAlgebra;
-import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ObservableValues;
@@ -31,6 +24,13 @@ import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
 import com.opengamma.strata.market.curve.definition.CurveNode;
 import com.opengamma.strata.market.curve.definition.NodalCurveDefinition;
+import com.opengamma.strata.math.impl.function.Function1D;
+import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
+import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
+import com.opengamma.strata.math.impl.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**

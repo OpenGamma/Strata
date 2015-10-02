@@ -7,14 +7,14 @@ package com.opengamma.strata.pricer.sensitivity;
 
 import java.util.function.Function;
 
-import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
-import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
+import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
+import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
+import com.opengamma.strata.math.impl.function.Function1D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
  * Computes the cross-gamma and related figures to the rate curves parameters for rates provider.

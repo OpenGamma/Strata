@@ -43,10 +43,6 @@
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-pricer</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.opengamma.analytics</groupId>
-      <artifactId>og-analytics</artifactId>
-    </dependency>
 
     <!-- Testing -->
     <dependency>
@@ -69,12 +65,6 @@
     <dependency>
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-engine</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.opengamma.analytics</groupId>
-      <artifactId>og-analytics</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

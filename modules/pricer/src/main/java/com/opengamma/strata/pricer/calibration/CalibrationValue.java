@@ -7,9 +7,9 @@ package com.opengamma.strata.pricer.calibration;
 
 import java.util.List;
 
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.strata.finance.Trade;
+import com.opengamma.strata.math.impl.function.Function1D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
