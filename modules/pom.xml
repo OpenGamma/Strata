@@ -237,17 +237,6 @@
         <artifactId>strata-function</artifactId>
         <version>${project.version}</version>
       </dependency>
-      <dependency>
-        <groupId>com.opengamma.analytics</groupId>
-        <artifactId>og-analytics</artifactId>
-        <version>${og-analytics.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
       <!-- Third party -->
       <dependency>
         <groupId>com.google.guava</groupId>
@@ -315,19 +304,6 @@
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.opengamma.analytics</groupId>
-        <artifactId>og-analytics</artifactId>
-        <version>${og-analytics.version}</version>
-        <type>test-jar</type>
-        <scope>test</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.assertj</groupId>
@@ -510,7 +486,6 @@
     <joda-convert.version>1.7</joda-convert.version>
     <joda-beans.version>1.6</joda-beans.version>
     <jool.version>0.9.6</jool.version>
-    <og-analytics.version>3.0.0-SNAPSHOT</og-analytics.version>
     <slf4j.version>1.7.12</slf4j.version>
     <testng.version>6.9.4</testng.version>
     <!-- Properties for maven-javadoc-plugin -->

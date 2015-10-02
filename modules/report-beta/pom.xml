@@ -65,10 +65,6 @@
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-pricer</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.opengamma.analytics</groupId>
-      <artifactId>og-analytics</artifactId>
-    </dependency>
     
     <!-- External -->
     <dependency>
