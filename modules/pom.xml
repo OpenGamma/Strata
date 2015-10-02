@@ -65,6 +65,7 @@
     <module>finance-beta</module>
     <module>function</module>
     <module>market</module>
+    <module>math</module>
     <module>pricer</module>
     <module>pricer-beta</module>
     <module>report-beta</module>
@@ -193,6 +194,11 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-math</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-finance</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -267,6 +273,11 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-nop</artifactId>
         <version>${slf4j.version}</version>
       </dependency>
       <!-- Testing -->

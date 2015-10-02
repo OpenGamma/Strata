@@ -24,8 +24,6 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
-import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxMatrix;
@@ -61,6 +59,8 @@ import com.opengamma.strata.market.curve.definition.IborFixingDepositCurveNode;
 import com.opengamma.strata.market.curve.definition.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.math.impl.interpolation.FlatExtrapolator1D;
+import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraTradePricer;

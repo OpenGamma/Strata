@@ -5,14 +5,14 @@
  */
 package com.opengamma.strata.function.interpolator;
 
-import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
-import com.opengamma.analytics.math.interpolation.ExponentialInterpolator1D;
-import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
-import com.opengamma.analytics.math.interpolation.LogLinearInterpolator1D;
-import com.opengamma.analytics.math.interpolation.LogNaturalCubicMonotonicityPreservingInterpolator1D;
-import com.opengamma.analytics.math.interpolation.TimeSquareInterpolator1D;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.math.impl.interpolation.DoubleQuadraticInterpolator1D;
+import com.opengamma.strata.math.impl.interpolation.ExponentialInterpolator1D;
+import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
+import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
+import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
+import com.opengamma.strata.math.impl.interpolation.LogNaturalCubicMonotonicityPreservingInterpolator1D;
+import com.opengamma.strata.math.impl.interpolation.TimeSquareInterpolator1D;
 
 /**
  * The standard set of curve interpolators.

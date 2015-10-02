@@ -19,6 +19,7 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.analytics.math.interpolation.Extrapolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
@@ -34,6 +35,7 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 
 /**
  * Static utilities to convert types to legacy types.
@@ -195,13 +197,16 @@ public final class Legacy {
         Interpolator1D interpolator = idc.getInterpolator();
         if (interpolator instanceof CombinedInterpolatorExtrapolator) {
           CombinedInterpolatorExtrapolator cie = (CombinedInterpolatorExtrapolator) interpolator;
+          Extrapolator1D left = cie.getLeftExtrapolator();
+          Interpolator1D main = cie.getInterpolator();
+          Extrapolator1D right = cie.getRightExtrapolator();
           return InterpolatedNodalCurve.builder()
               .metadata(curveMetadata)
               .xValues(idc.getXDataAsPrimitive())
               .yValues(idc.getYDataAsPrimitive())
-              .extrapolatorLeft((CurveExtrapolator) cie.getLeftExtrapolator())
-              .interpolator((CurveInterpolator) cie.getInterpolator())
-              .extrapolatorRight((CurveExtrapolator) cie.getRightExtrapolator())
+              .extrapolatorLeft(convert(left))
+              .interpolator(convert(main))
+              .extrapolatorRight(convert(right))
               .build();
         } else {
           return InterpolatedNodalCurve.builder()
@@ -223,4 +228,14 @@ public final class Legacy {
       throw new IllegalArgumentException("Unknown curve type: " + legacyCurve.getClass());
     }
   }
+
+  private static CurveInterpolator convert(Interpolator1D interpolator) {
+    CurveInterpolator old = (CurveInterpolator) interpolator;
+    return Interpolator1DFactory.findCurveInterpolator(old.getName());
+  }
+
+  private static CurveExtrapolator convert(Extrapolator1D extrapolator) {
+    return Interpolator1DFactory.findCurveExtrapolator(extrapolator.getName());
+  }
+
 }

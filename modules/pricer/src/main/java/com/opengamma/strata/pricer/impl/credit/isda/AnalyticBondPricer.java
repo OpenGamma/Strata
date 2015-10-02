@@ -5,13 +5,13 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.math.utilities.Epsilon.epsilon;
+import static com.opengamma.strata.math.impl.util.Epsilon.epsilon;
 
 import java.util.Arrays;
 
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.function.Function1D;
+import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
 
 /**
  * The bond pricer.

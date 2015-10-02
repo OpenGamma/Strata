@@ -7,9 +7,9 @@ package com.opengamma.strata.pricer.impl.credit.isda;
 
 import java.util.Arrays;
 
-import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.perturb.ShiftType;
+import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 
 /**
  * This calculates the sensitivity of the present value of a CDS to various (finite) shifts of the market spreads -

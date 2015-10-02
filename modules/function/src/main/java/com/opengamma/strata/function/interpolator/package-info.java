@@ -13,7 +13,7 @@
  * instances added.
  * <p>
  * Currently the curve interpolators are all implementations of
- * {@link com.opengamma.analytics.math.interpolation.Interpolator1D} for compatibility with legacy code.
+ * {@link com.opengamma.strata.math.impl.interpolation.Interpolator1D} for compatibility with legacy code.
  * This should be regarded as an implementation detail and is likely to change.
  */
 package com.opengamma.strata.function.interpolator;

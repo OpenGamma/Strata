@@ -11,7 +11,6 @@ import static com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantSchedule
 import java.time.LocalDate;
 import java.time.Period;
 
-import com.opengamma.analytics.math.MathException;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
@@ -19,6 +18,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.MathException;
 
 /**
  *This prices a CDS using the ISDA methodology. The API of the public functions mimic as far a possible the ISDA high level ISDA c

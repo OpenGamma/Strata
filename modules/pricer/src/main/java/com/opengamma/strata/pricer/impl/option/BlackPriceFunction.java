@@ -5,11 +5,10 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
-import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
-import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.function.Function1D;
+import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
+import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 
 /**
  * Computes the price of an option in the Black model.

@@ -5,15 +5,15 @@
  */
 package com.opengamma.strata.function.interpolator;
 
-import com.opengamma.analytics.math.interpolation.Extrapolator1D;
-import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
-import com.opengamma.analytics.math.interpolation.InterpolatorExtrapolator;
-import com.opengamma.analytics.math.interpolation.LinearExtrapolator1D;
-import com.opengamma.analytics.math.interpolation.LogLinearExtrapolator1D;
-import com.opengamma.analytics.math.interpolation.ProductPolynomialExtrapolator1D;
-import com.opengamma.analytics.math.interpolation.QuadraticPolynomialLeftExtrapolator;
-import com.opengamma.analytics.math.interpolation.ReciprocalExtrapolator1D;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
+import com.opengamma.strata.math.impl.interpolation.Extrapolator1D;
+import com.opengamma.strata.math.impl.interpolation.FlatExtrapolator1D;
+import com.opengamma.strata.math.impl.interpolation.InterpolatorExtrapolator;
+import com.opengamma.strata.math.impl.interpolation.LinearExtrapolator1D;
+import com.opengamma.strata.math.impl.interpolation.LogLinearExtrapolator1D;
+import com.opengamma.strata.math.impl.interpolation.ProductPolynomialExtrapolator1D;
+import com.opengamma.strata.math.impl.interpolation.QuadraticPolynomialLeftExtrapolator;
+import com.opengamma.strata.math.impl.interpolation.ReciprocalExtrapolator1D;
 
 /**
  * The standard set of curve extrapolators.

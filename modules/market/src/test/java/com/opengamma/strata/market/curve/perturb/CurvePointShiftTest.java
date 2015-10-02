@@ -17,7 +17,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.math.interpolation.LogLinearInterpolator1D;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
@@ -29,6 +28,7 @@ import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.curve.TestingCurve;
+import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
 
 /**
  * Test {@link CurvePointShift}.
