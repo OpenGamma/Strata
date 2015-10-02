@@ -11,10 +11,10 @@
     <version>0.8.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>  
-  <artifactId>strata-finance-beta</artifactId>
+  <artifactId>strata-report</artifactId>
   <packaging>jar</packaging>
-  <name>Strata-Finance-Beta</name>
-  <description>Entities in financial markets - Beta code, subject to change</description>
+  <name>Strata-Report</name>
+  <description>Reporting APIs and tools</description>
 
   <!-- ==================================================================== -->
   <build>
@@ -43,10 +43,43 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-engine</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-finance</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-function</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-market</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-pricer</artifactId>
+    </dependency>
+    
+    <!-- External -->
+    <dependency>
+      <groupId>com.chaschev</groupId>
+      <artifactId>chutils</artifactId>
+      <version>1.4</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.mockito</groupId>
+          <artifactId>mockito-all</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.mockito</groupId>
+          <artifactId>mockito-core</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 
-    <!-- Testing -->
+    <!-- Test dependencies -->
     <dependency>
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-collect</artifactId>
@@ -54,12 +87,12 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  
+
   <!-- ==================================================================== -->
   <properties>
     <!-- Properties for maven-javadoc-plugin -->
-    <windowtitle>OpenGamma Strata Finance, Beta code</windowtitle>
-    <doctitle><![CDATA[<h1>OpenGamma Strata Finance, Beta code</h1>]]></doctitle>
+    <windowtitle>OpenGamma Strata Pricer</windowtitle>
+    <doctitle><![CDATA[<h1>OpenGamma Strata Pricer</h1>]]></doctitle>
   </properties>
 
 </project>

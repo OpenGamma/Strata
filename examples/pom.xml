@@ -61,19 +61,11 @@
     <!-- OpenGamma, relying on transitive dependencies -->
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-finance-beta</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-engine</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-function</artifactId>
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-report-beta</artifactId>
+      <artifactId>strata-report</artifactId>
     </dependency>
     
     <!-- External dependencies -->

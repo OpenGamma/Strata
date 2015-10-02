@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.report.framework.expression;
 
-
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,8 +18,8 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.finance.SecurityLink;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.equity.EquityFuture;
-import com.opengamma.strata.finance.equity.EquityFutureTrade;
+import com.opengamma.strata.finance.future.GenericFuture;
+import com.opengamma.strata.finance.future.GenericFutureTrade;
 
 /**
  * Test {@link TradeTokenEvaluator}.
@@ -73,15 +72,16 @@ public class TradeTokenEvaluatorTest {
   }
 
   private static Trade trade() {
-    SecurityLink<EquityFuture> securityLink = SecurityLink.resolvable(StandardId.of("foo", "1"), EquityFuture.class);
+    SecurityLink<GenericFuture> securityLink = SecurityLink.resolvable(StandardId.of("foo", "1"), GenericFuture.class);
     TradeInfo tradeInfo = TradeInfo.builder()
         .counterparty(StandardId.of("cpty", "a"))
         .build();
-    return EquityFutureTrade.builder()
+    return GenericFutureTrade.builder()
         .securityLink(securityLink)
         .quantity(123)
         .initialPrice(456)
         .tradeInfo(tradeInfo)
         .build();
   }
+
 }
