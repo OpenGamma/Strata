@@ -27,8 +27,6 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -56,7 +54,7 @@ import com.opengamma.strata.finance.rate.swap.StubCalculation;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.pricer.impl.Legacy;
+import com.opengamma.strata.pricer.datasets.StandardDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
@@ -68,6 +66,7 @@ import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
 @Test
 public class SwapEnd2EndTest {
 
+  private static final LocalDate VAL_DATE = StandardDataSets.VAL_DATE_2014_01_22;
   static final IborIndex USD_LIBOR_1M = lockIndexCalendar(IborIndices.USD_LIBOR_1M);
   static final IborIndex USD_LIBOR_3M = lockIndexCalendar(IborIndices.USD_LIBOR_3M);
   static final IborIndex USD_LIBOR_6M = lockIndexCalendar(IborIndices.USD_LIBOR_6M);
@@ -93,12 +92,8 @@ public class SwapEnd2EndTest {
       LocalDateDoubleTimeSeries.builder()
           .put(LocalDate.of(2014, 1, 17), 0.0007)
           .put(LocalDate.of(2014, 1, 21), 0.0007)
-          .put(LocalDate.of(2014, 1, 22), 0.0007)
+          .put(VAL_DATE, 0.0007)
           .build();
-
-  // curve providers
-  private static final MulticurveProviderDiscount MULTICURVE_OIS =
-      StandardDataSetsMulticurveUSD.getCurvesUSDOisL1L3L6().getFirst();
 
   private static final DiscountingSwapProductPricer PRICER_PRODUCT =
       DiscountingSwapProductPricer.DEFAULT;
@@ -780,11 +775,16 @@ public class SwapEnd2EndTest {
 
   // rates provider
   static RatesProvider provider() {
+    // StandardDataSets.providerUsdDscOnL1L3L6() with locked holidays and time-series
     return ImmutableRatesProvider.builder()
-        .valuationDate(LocalDate.of(2014, 1, 22))
-        .fxMatrix(MULTICURVE_OIS.getFxRates())
-        .discountCurves(Legacy.discountCurves(MULTICURVE_OIS))
-        .indexCurves(Legacy.indexCurves(MULTICURVE_OIS))
+        .valuationDate(VAL_DATE)
+        .fxMatrix(StandardDataSets.FX_MATRIX)
+        .discountCurves(ImmutableMap.of(USD, StandardDataSets.GROUP1_USD_DSC))
+        .indexCurves(ImmutableMap.of(
+            USD_FED_FUND, StandardDataSets.GROUP1_USD_ON,
+            USD_LIBOR_1M, StandardDataSets.GROUP1_USD_L1M,
+            USD_LIBOR_3M, StandardDataSets.GROUP1_USD_L3M,
+            USD_LIBOR_6M, StandardDataSets.GROUP1_USD_L6M))
         .timeSeries(ImmutableMap.of(
             USD_LIBOR_1M, TS_USDLIBOR1M,
             USD_LIBOR_3M, TS_USDLIBOR3M,
