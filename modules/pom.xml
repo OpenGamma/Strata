@@ -62,12 +62,10 @@
     <module>engine</module>
     <module>source</module>
     <module>finance</module>
-    <module>finance-beta</module>
     <module>function</module>
     <module>market</module>
     <module>math</module>
     <module>pricer</module>
-    <module>pricer-beta</module>
     <module>report-beta</module>
   </modules>
 
@@ -204,11 +202,6 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-finance-beta</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-engine</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -220,11 +213,6 @@
       <dependency>
         <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-pricer</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-pricer-beta</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

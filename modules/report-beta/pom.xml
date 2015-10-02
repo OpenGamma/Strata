@@ -51,10 +51,6 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-finance-beta</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-function</artifactId>
     </dependency>
     <dependency>
