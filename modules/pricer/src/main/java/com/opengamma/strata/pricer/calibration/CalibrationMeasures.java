@@ -20,7 +20,7 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitiviti
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
-import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
  * Provides access to the measures needed to perform curve calibration.
@@ -100,7 +100,7 @@ public final class CalibrationMeasures {
    * @return the sensitivity
    * @throws IllegalArgumentException if the trade cannot be valued
    */
-  public double value(Trade trade, RatesProvider provider) {
+  public double value(Trade trade, ImmutableRatesProvider provider) {
     CalibrationMeasure<Trade> measure = getMeasure(trade.getClass());
     return measure.value(trade, provider);
   }
@@ -116,7 +116,7 @@ public final class CalibrationMeasures {
    * @param curveOrder  the order of the curves
    * @return the sensitivity derivative
    */
-  public double[] derivative(Trade trade, RatesProvider provider, List<CurveParameterSize> curveOrder) {
+  public double[] derivative(Trade trade, ImmutableRatesProvider provider, List<CurveParameterSize> curveOrder) {
     CurveUnitParameterSensitivities unitSens = extractSensitivities(trade, provider);
 
     // expand to a concatenated array
@@ -131,7 +131,7 @@ public final class CalibrationMeasures {
   }
 
   // determine the curve parameter sensitivities, removing the curency
-  private CurveUnitParameterSensitivities extractSensitivities(Trade trade, RatesProvider provider) {
+  private CurveUnitParameterSensitivities extractSensitivities(Trade trade, ImmutableRatesProvider provider) {
     CalibrationMeasure<Trade> measure = getMeasure(trade.getClass());
     CurveCurrencyParameterSensitivities paramSens = measure.sensitivities(trade, provider);
     CurveUnitParameterSensitivities unitSens = CurveUnitParameterSensitivities.empty();

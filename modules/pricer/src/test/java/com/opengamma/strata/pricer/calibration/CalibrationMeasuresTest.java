@@ -15,7 +15,7 @@ import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
+import com.opengamma.strata.pricer.rate.datasets.ImmutableRatesProviderSimpleData;
 import com.opengamma.strata.pricer.rate.swap.SwapDummyData;
 
 /**
@@ -53,7 +53,7 @@ public class CalibrationMeasuresTest {
 
   public void test_measureNotKnown() {
     CalibrationMeasures test = CalibrationMeasures.of(TradeCalibrationMeasure.FRA_PAR_SPREAD);
-    assertThrowsIllegalArg(() -> test.value(SwapDummyData.SWAP_TRADE, new SimpleRatesProvider()));
+    assertThrowsIllegalArg(() -> test.value(SwapDummyData.SWAP_TRADE, ImmutableRatesProviderSimpleData.IMM_PROV_EUR_FIX));
   }
 
 }
