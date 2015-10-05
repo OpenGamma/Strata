@@ -11,7 +11,7 @@ import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
-import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
  * Provides the calibration derivative.
@@ -66,7 +66,7 @@ class CalibrationDerivative
   public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
     // create child provider from matrix
     double[] data = x.getData();
-    RatesProvider provider = providerGenerator.generate(data);
+    ImmutableRatesProvider provider = providerGenerator.generate(data);
     // calculate derivative for each trade using the child provider
     int size = trades.size();
     double[][] measure = new double[size][size];
