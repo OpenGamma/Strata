@@ -6,15 +6,14 @@
 package com.opengamma.strata.report.framework.expression;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.finance.SecurityLink;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
@@ -49,26 +48,26 @@ public class TradeTokenEvaluatorTest {
     TradeTokenEvaluator evaluator = new TradeTokenEvaluator();
     Trade trade = trade();
 
-    Result<?> quantity = evaluator.evaluate(trade, "quantity");
-    assertThat(quantity).hasValue(123L);
+    EvaluationResult quantity = evaluator.evaluate(trade, "quantity", ImmutableList.of());
+    assertThat(quantity.getResult()).hasValue(123L);
 
-    Result<?> initialPrice = evaluator.evaluate(trade, "initialPrice");
-    assertThat(initialPrice).hasValue(456d);
+    EvaluationResult initialPrice = evaluator.evaluate(trade, "initialPrice", ImmutableList.of());
+    assertThat(initialPrice.getResult()).hasValue(456d);
 
     // Check that property name isn't case sensitive
-    Result<?> initialPrice2 = evaluator.evaluate(trade, "initialprice");
-    assertThat(initialPrice2).hasValue(456d);
+    EvaluationResult initialPrice2 = evaluator.evaluate(trade, "initialprice", ImmutableList.of());
+    assertThat(initialPrice2.getResult()).hasValue(456d);
 
-    Result<?> counterparty = evaluator.evaluate(trade, "counterparty");
-    assertThat(counterparty).hasValue(StandardId.of("cpty", "a"));
+    EvaluationResult counterparty = evaluator.evaluate(trade, "counterparty", ImmutableList.of());
+    assertThat(counterparty.getResult()).hasValue(StandardId.of("cpty", "a"));
 
     // Optional property with no value
-    Result<?> tradeTime = evaluator.evaluate(trade, "tradeTime");
-    assertThat(tradeTime).isFailure();
+    EvaluationResult tradeTime = evaluator.evaluate(trade, "tradeTime", ImmutableList.of());
+    assertThat(tradeTime.getResult()).isFailure();
 
     // Unknown property
-    Result<?> foo = evaluator.evaluate(trade, "foo");
-    assertThat(foo).isFailure();
+    EvaluationResult foo = evaluator.evaluate(trade, "foo", ImmutableList.of());
+    assertThat(foo.getResult()).isFailure();
   }
 
   private static Trade trade() {

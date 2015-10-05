@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.report.framework.expression;
 
+import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 
 /**
@@ -19,8 +19,7 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity
  * evaluator is to continue returning the same sensitivity object as long as the tokens are
  * consistent with the fields on this object.
  */
-public class CurveCurrencyParameterSensitivityTokenEvaluator
-    extends TokenEvaluator<CurveCurrencyParameterSensitivity> {
+public class CurveCurrencyParameterSensitivityTokenEvaluator extends TokenEvaluator<CurveCurrencyParameterSensitivity> {
 
   @Override
   public Class<?> getTargetType() {
@@ -35,12 +34,16 @@ public class CurveCurrencyParameterSensitivityTokenEvaluator
   }
 
   @Override
-  public Result<?> evaluate(CurveCurrencyParameterSensitivity sensitivity, String token) {
-    if (token.equals(sensitivity.getCurrency().getCode().toLowerCase()) ||
-        token.equals(sensitivity.getCurveName().toString().toLowerCase())) {
-      return Result.success(sensitivity);
+  public EvaluationResult evaluate(
+      CurveCurrencyParameterSensitivity sensitivity,
+      String firstToken,
+      List<String> remainingTokens) {
+
+    if (firstToken.equalsIgnoreCase(sensitivity.getCurrency().getCode()) ||
+        firstToken.equalsIgnoreCase(sensitivity.getCurveName().toString())) {
+      return EvaluationResult.success(sensitivity, remainingTokens);
     } else {
-      return invalidTokenFailure(sensitivity, token);
+      return invalidTokenFailure(sensitivity, firstToken);
     }
   }
 
