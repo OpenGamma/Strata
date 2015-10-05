@@ -27,7 +27,7 @@ import com.opengamma.strata.market.amount.LegAmounts;
  * <p>
  * For example, the bean {@link LegAmounts} has a single property named {@code amounts} containing a list of
  * {@link LegAmount} instances. The following expressions are equivalent and both return the first amount in the
- * list:
+ * list. {@code LegInitialNotional} is a measure that produces {@code LegAmounts}.
  * <pre>
  *   Measures.LegInitialNotional.0
  *   Measures.LegInitialNotional.amounts.0
