@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.rate.deposit;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.deposit.ExpandedIborFixingDeposit;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDeposit;
@@ -20,7 +19,6 @@ import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.DiscountIborIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
-import com.opengamma.strata.pricer.impl.rate.ForwardIborRateObservationFn;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -35,19 +33,12 @@ public class DiscountingIborFixingDepositProductPricer {
    * Default implementation.
    */
   public static final DiscountingIborFixingDepositProductPricer DEFAULT =
-      new DiscountingIborFixingDepositProductPricer(ForwardIborRateObservationFn.DEFAULT);
-
-  /**
-   * Rate observation function.
-   */
-  private final ForwardIborRateObservationFn rateObservationFn;
+      new DiscountingIborFixingDepositProductPricer();
 
   /**
    * Creates an instance.
-   * @param rateObservationFn the rate observation function
    */
-  public DiscountingIborFixingDepositProductPricer(ForwardIborRateObservationFn rateObservationFn) {
-    this.rateObservationFn = ArgChecker.notNull(rateObservationFn, "rateObservationFn");
+  public DiscountingIborFixingDepositProductPricer() {
   }
 
   //-------------------------------------------------------------------------
