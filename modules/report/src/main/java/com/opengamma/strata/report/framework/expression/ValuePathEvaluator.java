@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -79,7 +78,6 @@ public class ValuePathEvaluator {
    * @param results  the calculation results
    * @return the list of resolved results for each trade
    */
-  @SuppressWarnings("unchecked")
   public static List<Result<?>> evaluate(String valuePath, ReportCalculationResults results) {
     List<String> tokens = tokenize(valuePath);
 
@@ -88,18 +86,14 @@ public class ValuePathEvaluator {
           results.getTrades().size(),
           Result.failure(FailureReason.INVALID_INPUT, "Column expressions must not be empty"));
     }
-    TokenEvaluator rootEvaluator = RootEvaluator.INSTANCE;
-
     int rowCount = results.getCalculationResults().getRowCount();
-    // javac 8u40 won't compile this if the call to collect() is chained after the call to mapToObj()
-    // but it works fine if the intermediate stream is assigned to a local variable. Compiler bug?
-    Stream<Result<?>> resultStream = IntStream.range(0, rowCount)
-        .mapToObj(rowIndex -> evaluate(tokens, rootEvaluator, new ResultsRow(results, rowIndex)));
-    return resultStream.collect(toImmutableList());
+    return IntStream.range(0, rowCount)
+        .mapToObj(rowIndex -> evaluate(tokens, RootEvaluator.INSTANCE, new ResultsRow(results, rowIndex)))
+        .collect(toImmutableList());
   }
 
   // Tokens always has at least one token
-  private static Result<?> evaluate(List<String> tokens, TokenEvaluator<Object> evaluator, Object target) {
+  private static <T> Result<?> evaluate(List<String> tokens, TokenEvaluator<T> evaluator, T target) {
     EvaluationResult evaluationResult = evaluator.evaluate(target, tokens.get(0), tokens.subList(1, tokens.size()));
 
     if (evaluationResult.isComplete()) {
