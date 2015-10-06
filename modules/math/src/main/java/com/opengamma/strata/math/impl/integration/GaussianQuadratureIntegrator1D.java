@@ -24,11 +24,13 @@ import com.opengamma.strata.math.impl.function.special.OrthogonalPolynomialFunct
  * &\approx \sum_{\i=1}^{n} w_i f(x_i)
  * \end{align*}
  * $$
- * The evaluation points, weights and valid limits of integration depend on the type of orthogonal polynomials that are used 
+ * The evaluation points, weights and valid limits of integration depend on the type of orthogonal
+ * polynomials that are used 
  * (see {@link OrthogonalPolynomialFunctionGenerator} and {@link GaussLaguerreWeightAndAbscissaFunction}).
  * 
  */
 public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double, Double> {
+
   private final int _n;
   private final QuadratureWeightAndAbscissaFunction _generator;
   final GaussianQuadratureData _quadrature;
@@ -37,7 +39,7 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
    * @param n The number of sample points to be used in the integration, not negative or zero
    * @param generator The generator of weights and abscissas
    */
-  public GaussianQuadratureIntegrator1D(final int n, final QuadratureWeightAndAbscissaFunction generator) {
+  public GaussianQuadratureIntegrator1D(int n, QuadratureWeightAndAbscissaFunction generator) {
     ArgChecker.isTrue(n > 0, "number of intervals must be > 0");
     ArgChecker.notNull(generator, "generating function");
     _n = n;
@@ -49,26 +51,30 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
    * {@inheritDoc}
    */
   @Override
-  public Double integrate(final Function1D<Double, Double> function, final Double lower, final Double upper) {
+  public Double integrate(Function1D<Double, Double> function, Double lower, Double upper) {
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(lower, "lower");
     ArgChecker.notNull(upper, "upper");
-    final Function1D<Double, Double> integral = getIntegralFunction(function, lower, upper);
+    Function1D<Double, Double> integral = getIntegralFunction(function, lower, upper);
     return integrateFromPolyFunc(integral);
   }
 
   /**
-   * If a function $g(x)$ can be written as $W(x)f(x)$, where the weight function $W(x)$ corresponds to one of the Gaussian quadrature forms, then we may
-   * approximate the integral of $g(x)$ over a specific range as $\int^b_a g(x) dx =\int^b_a W(x)f(x) dx \approx \sum_{i=0}^{N-1} w_i f(x_i)$, were the abscissas $x_i$
-   * and the weights $w_i$ have been precomputed. This is accurate if $f(x)$ can be approximated by a polynomial. 
-   * @param polyFunction The function $f(x)$ rather than the full function $g(x) = W(x)f(x)$ This should be well approximated by a polynomial.
+   * If a function $g(x)$ can be written as $W(x)f(x)$, where the weight function $W(x)$ corresponds
+   * to one of the Gaussian quadrature forms, then we may approximate the integral of $g(x)$ over
+   * a specific range as $\int^b_a g(x) dx =\int^b_a W(x)f(x) dx \approx \sum_{i=0}^{N-1} w_i f(x_i)$,
+   * were the abscissas $x_i$ and the weights $w_i$ have been precomputed. This is accurate
+   * if $f(x)$ can be approximated by a polynomial.
+   * 
+   * @param polyFunction The function $f(x)$ rather than the full function $g(x) = W(x)f(x)$
+   *  This should be well approximated by a polynomial.
    * @return The integral 
    */
-  public double integrateFromPolyFunc(final Function1D<Double, Double> polyFunction) {
+  public double integrateFromPolyFunc(Function1D<Double, Double> polyFunction) {
     ArgChecker.notNull(polyFunction, "polyFunction");
-    final double[] abscissas = _quadrature.getAbscissas();
-    final int n = abscissas.length;
-    final double[] weights = _quadrature.getWeights();
+    double[] abscissas = _quadrature.getAbscissas();
+    int n = abscissas.length;
+    double[] weights = _quadrature.getWeights();
     double sum = 0;
     for (int i = 0; i < n; i++) {
       sum += polyFunction.evaluate(abscissas[i]) * weights[i];
@@ -88,11 +94,14 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
    * @param upper The upper integration limit, not null
    * @return A function in the appropriate form for integration
    */
-  public abstract Function1D<Double, Double> getIntegralFunction(final Function1D<Double, Double> function, final Double lower, final Double upper);
+  public abstract Function1D<Double, Double> getIntegralFunction(
+      Function1D<Double, Double> function,
+      Double lower,
+      Double upper);
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     result = prime * result + _generator.hashCode();
     result = prime * result + _n;
@@ -100,7 +109,7 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -110,7 +119,7 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final GaussianQuadratureIntegrator1D other = (GaussianQuadratureIntegrator1D) obj;
+    GaussianQuadratureIntegrator1D other = (GaussianQuadratureIntegrator1D) obj;
     if (_n != other._n) {
       return false;
     }

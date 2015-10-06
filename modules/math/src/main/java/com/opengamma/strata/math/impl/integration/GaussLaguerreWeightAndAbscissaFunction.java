@@ -30,6 +30,7 @@ import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
  * {@link LaguerrePolynomialFunction}.
  */
 public class GaussLaguerreWeightAndAbscissaFunction implements QuadratureWeightAndAbscissaFunction {
+
   private static final LaguerrePolynomialFunction LAGUERRE = new LaguerrePolynomialFunction();
   private static final NewtonRaphsonSingleRootFinder ROOT_FINDER = new NewtonRaphsonSingleRootFinder(1e-10);
   private static final DoubleUnaryOperator GAMMA_FUNCTION = new GammaFunction();
@@ -45,7 +46,7 @@ public class GaussLaguerreWeightAndAbscissaFunction implements QuadratureWeightA
   /**
    * @param alpha The value of $\alpha$ to use when generating the polynomials.
    */
-  public GaussLaguerreWeightAndAbscissaFunction(final double alpha) {
+  public GaussLaguerreWeightAndAbscissaFunction(double alpha) {
     _alpha = alpha;
   }
 
@@ -53,32 +54,36 @@ public class GaussLaguerreWeightAndAbscissaFunction implements QuadratureWeightA
    * {@inheritDoc}
    */
   @Override
-  public GaussianQuadratureData generate(final int n) {
+  public GaussianQuadratureData generate(int n) {
     ArgChecker.isTrue(n > 0);
-    final Pair<DoubleFunction1D, DoubleFunction1D>[] polynomials = LAGUERRE.getPolynomialsAndFirstDerivative(n, _alpha);
-    final Pair<DoubleFunction1D, DoubleFunction1D> pair = polynomials[n];
-    final DoubleFunction1D p1 = polynomials[n - 1].getFirst();
-    final DoubleFunction1D function = pair.getFirst();
-    final DoubleFunction1D derivative = pair.getSecond();
-    final double[] x = new double[n];
-    final double[] w = new double[n];
+    Pair<DoubleFunction1D, DoubleFunction1D>[] polynomials = LAGUERRE.getPolynomialsAndFirstDerivative(n, _alpha);
+    Pair<DoubleFunction1D, DoubleFunction1D> pair = polynomials[n];
+    DoubleFunction1D p1 = polynomials[n - 1].getFirst();
+    DoubleFunction1D function = pair.getFirst();
+    DoubleFunction1D derivative = pair.getSecond();
+    double[] x = new double[n];
+    double[] w = new double[n];
     double root = 0;
     for (int i = 0; i < n; i++) {
       root = ROOT_FINDER.getRoot(function, derivative, getInitialRootGuess(root, i, n, x));
       x[i] = root;
-      w[i] = -GAMMA_FUNCTION.applyAsDouble(_alpha + n) / CombinatoricsUtils.factorialDouble(n) / (derivative.evaluate(root) * p1.evaluate(root));
+      w[i] =
+          -GAMMA_FUNCTION.applyAsDouble(_alpha + n) / CombinatoricsUtils.factorialDouble(n) /
+              (derivative.evaluate(root) * p1.evaluate(root));
     }
     return new GaussianQuadratureData(x, w);
   }
 
-  private double getInitialRootGuess(final double previousRoot, final int i, final int n, final double[] x) {
+  private double getInitialRootGuess(double previousRoot, int i, int n, double[] x) {
     if (i == 0) {
       return (1 + _alpha) * (3 + 0.92 * _alpha) / (1 + 1.8 * _alpha + 2.4 * n);
     }
     if (i == 1) {
       return previousRoot + (15 + 6.25 * _alpha) / (1 + 0.9 * _alpha + 2.5 * n);
     }
-    final int j = i - 1;
-    return previousRoot + ((1 + 2.55 * j) / 1.9 / j + 1.26 * j * _alpha / (1 + 3.5 * j)) * (previousRoot - x[i - 2]) / (1 + 0.3 * _alpha);
+    int j = i - 1;
+    return previousRoot + ((1 + 2.55 * j) / 1.9 / j + 1.26 * j * _alpha / (1 + 3.5 * j)) * (previousRoot - x[i - 2]) /
+        (1 + 0.3 * _alpha);
   }
+
 }

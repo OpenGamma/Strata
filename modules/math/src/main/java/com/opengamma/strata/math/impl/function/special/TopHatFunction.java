@@ -26,28 +26,34 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * This function is discontinuous at $x_1$ and $x_2$.
  */
 public class TopHatFunction extends Function1D<Double, Double> {
+
   private final double _x1;
   private final double _x2;
   private final double _y;
 
   /**
-   * @param x1 The lower edge 
-   * @param x2 The upper edge, must be greater than x1
-   * @param y The height 
+   * Creates an instance.
+   * 
+   * @param x1  the lower edge 
+   * @param x2  the upper edge, must be greater than x1
+   * @param y  the height 
    */
-  public TopHatFunction(final double x1, final double x2, final double y) {
+  public TopHatFunction(double x1, double x2, double y) {
     ArgChecker.isTrue(x1 < x2, "x1 must be less than x2");
     _x1 = x1;
     _x2 = x2;
     _y = y;
   }
 
+  //-------------------------------------------------------------------------
   /**
+   * Evaluates the function.
+   * 
    * @param x The argument of the function, not null. Must have $x_1 < x < x_2$
    * @return The value of the function
    */
   @Override
-  public Double evaluate(final Double x) {
+  public Double evaluate(Double x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(x != _x1, "Function is undefined for x = x1");
     ArgChecker.isTrue(x != _x2, "Function is undefined for x = x2");

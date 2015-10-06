@@ -47,7 +47,14 @@ public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
   }
 
   private LeastSquaresRegressionResult getResultWithStatistics(
-      double[][] x, double[] y, double[] betas, double[] yModel, DoubleMatrix2D transpose, DoubleMatrix2D matrix, boolean useIntercept) {
+      double[][] x,
+      double[] y,
+      double[] betas,
+      double[] yModel,
+      DoubleMatrix2D transpose,
+      DoubleMatrix2D matrix,
+      boolean useIntercept) {
+
     double yMean = 0.;
     for (double y1 : y) {
       yMean += y1;

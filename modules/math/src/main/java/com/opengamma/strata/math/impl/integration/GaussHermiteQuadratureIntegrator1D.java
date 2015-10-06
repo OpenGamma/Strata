@@ -22,13 +22,14 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * limits of integration.
  */
 public class GaussHermiteQuadratureIntegrator1D extends GaussianQuadratureIntegrator1D {
-  private static final Double[] LIMITS = new Double[] {Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY };
+
+  private static final Double[] LIMITS = new Double[] {Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY};
   private static final GaussHermiteWeightAndAbscissaFunction GENERATOR = new GaussHermiteWeightAndAbscissaFunction();
 
   /**
    * @param n The number of sample points to use in the integration
    */
-  public GaussHermiteQuadratureIntegrator1D(final int n) {
+  public GaussHermiteQuadratureIntegrator1D(int n) {
     super(n, GENERATOR);
   }
 
@@ -54,18 +55,16 @@ public class GaussHermiteQuadratureIntegrator1D extends GaussianQuadratureIntegr
    * @throws UnsupportedOperationException If the lower limit is not $-\infty$ or the upper limit is not $\infty$
    */
   @Override
-  public Function1D<Double, Double> getIntegralFunction(final Function1D<Double, Double> function, final Double lower, final Double upper) {
+  public Function1D<Double, Double> getIntegralFunction(Function1D<Double, Double> function, Double lower, Double upper) {
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(lower, "lower");
     ArgChecker.notNull(upper, "upper");
     if (lower.equals(LIMITS[0]) && upper.equals(LIMITS[1])) {
       return new Function1D<Double, Double>() {
-
         @Override
-        public Double evaluate(final Double x) {
+        public Double evaluate(Double x) {
           return Math.exp(x * x) * function.evaluate(x);
         }
-
       };
     }
     throw new UnsupportedOperationException("Limits for this integration method are +/-infinity");

@@ -21,13 +21,14 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * the limits $[0, \infty]$.
  */
 public class GaussLaguerreQuadratureIntegrator1D extends GaussianQuadratureIntegrator1D {
-  private static final Double[] LIMITS = new Double[] {0., Double.POSITIVE_INFINITY };
 
-  public GaussLaguerreQuadratureIntegrator1D(final int n) {
+  private static final Double[] LIMITS = new Double[] {0., Double.POSITIVE_INFINITY};
+
+  public GaussLaguerreQuadratureIntegrator1D(int n) {
     super(n, new GaussLaguerreWeightAndAbscissaFunction());
   }
 
-  public GaussLaguerreQuadratureIntegrator1D(final int n, final double alpha) {
+  public GaussLaguerreQuadratureIntegrator1D(int n, double alpha) {
     super(n, new GaussLaguerreWeightAndAbscissaFunction(alpha));
   }
 
@@ -50,17 +51,16 @@ public class GaussLaguerreQuadratureIntegrator1D extends GaussianQuadratureInteg
    * @throws UnsupportedOperationException If the lower limit is not $-\infty$ or the upper limit is not $\infty$
    */
   @Override
-  public Function1D<Double, Double> getIntegralFunction(final Function1D<Double, Double> function, final Double lower, final Double upper) {
+  public Function1D<Double, Double> getIntegralFunction(Function1D<Double, Double> function, Double lower, Double upper) {
     if (lower.equals(LIMITS[0]) && upper.equals(LIMITS[1])) {
       return new Function1D<Double, Double>() {
-
         @Override
-        public Double evaluate(final Double x) {
+        public Double evaluate(Double x) {
           return function.evaluate(x) * Math.exp(x);
         }
-
       };
     }
     throw new UnsupportedOperationException("Limits for Gauss-Laguerre integration are 0 and +infinity");
   }
+
 }

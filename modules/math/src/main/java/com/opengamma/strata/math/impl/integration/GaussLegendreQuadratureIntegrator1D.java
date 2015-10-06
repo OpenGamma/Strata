@@ -20,13 +20,14 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * The function to integrate is scaled in such a way as to allow any values for the limits of the integrals.
  */
 public class GaussLegendreQuadratureIntegrator1D extends GaussianQuadratureIntegrator1D {
-  private static final Double[] LIMITS = new Double[] {-1., 1. };
+
+  private static final Double[] LIMITS = new Double[] {-1., 1.};
   private static final GaussLegendreWeightAndAbscissaFunction GENERATOR = new GaussLegendreWeightAndAbscissaFunction();
 
   /**
    * @param n The number of sample points to be used in the integration, not negative or zero
    */
-  public GaussLegendreQuadratureIntegrator1D(final int n) {
+  public GaussLegendreQuadratureIntegrator1D(int n) {
     super(n, GENERATOR);
   }
 
@@ -47,19 +48,17 @@ public class GaussLegendreQuadratureIntegrator1D extends GaussianQuadratureInteg
    * $$
    */
   @Override
-  public Function1D<Double, Double> getIntegralFunction(final Function1D<Double, Double> function, final Double lower, final Double upper) {
+  public Function1D<Double, Double> getIntegralFunction(Function1D<Double, Double> function, Double lower, Double upper) {
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(lower, "lower");
     ArgChecker.notNull(upper, "upper");
-    final double m = (upper - lower) / 2;
-    final double c = (upper + lower) / 2;
+    double m = (upper - lower) / 2;
+    double c = (upper + lower) / 2;
     return new Function1D<Double, Double>() {
-
       @Override
-      public Double evaluate(final Double x) {
+      public Double evaluate(Double x) {
         return m * function.evaluate(m * x + c);
       }
-
     };
   }
 

@@ -13,6 +13,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * Class holding the results of calculations of weights and abscissas by {@link QuadratureWeightAndAbscissaFunction}. 
  */
 public class GaussianQuadratureData {
+
   private final double[] _weights;
   private final double[] _abscissas;
 
@@ -20,7 +21,7 @@ public class GaussianQuadratureData {
    * @param abscissas An array containing the abscissas, not null
    * @param weights An array containing the weights, not null, must be the same length as the abscissa array
    */
-  public GaussianQuadratureData(final double[] abscissas, final double[] weights) {
+  public GaussianQuadratureData(double[] abscissas, double[] weights) {
     ArgChecker.notNull(abscissas, "abscissas");
     ArgChecker.notNull(weights, "weights");
     ArgChecker.isTrue(abscissas.length == weights.length, "Abscissa and weight arrays must be the same length");
@@ -44,7 +45,7 @@ public class GaussianQuadratureData {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     result = prime * result + Arrays.hashCode(_abscissas);
     result = prime * result + Arrays.hashCode(_weights);
@@ -52,7 +53,7 @@ public class GaussianQuadratureData {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -62,7 +63,7 @@ public class GaussianQuadratureData {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final GaussianQuadratureData other = (GaussianQuadratureData) obj;
+    GaussianQuadratureData other = (GaussianQuadratureData) obj;
     if (!Arrays.equals(_abscissas, other._abscissas)) {
       return false;
     }

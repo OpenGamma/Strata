@@ -29,27 +29,27 @@ public interface NonLinearParameterTransforms {
    * @param modelParameters   the model parameters
    * @return The fitting parameters
    */
-  DoubleMatrix1D transform(final DoubleMatrix1D modelParameters);
+  DoubleMatrix1D transform(DoubleMatrix1D modelParameters);
 
   /**
    * Transforms from a set of unconstrained fitting parameters to a (possibly larger) set of function parameters 
    * @param fittingParameters The fitting parameters
    * @return The model parameters
    */
-  DoubleMatrix1D inverseTransform(final DoubleMatrix1D fittingParameters);
+  DoubleMatrix1D inverseTransform(DoubleMatrix1D fittingParameters);
 
   /**
    * Calculates the Jacobian - the rate of change of the fitting parameters WRT the model parameters 
    * @param modelParameters The model parameters 
    * @return The Jacobian 
    */
-  DoubleMatrix2D jacobian(final DoubleMatrix1D modelParameters);
+  DoubleMatrix2D jacobian(DoubleMatrix1D modelParameters);
 
   /**
    * Calculates the inverse Jacobian  - the rate of change of the model parameters WRT the fitting parameters 
    * @param fittingParameters The fitting parameters
    * @return the inverse Jacobian 
    */
-  DoubleMatrix2D inverseJacobian(final DoubleMatrix1D fittingParameters);
+  DoubleMatrix2D inverseJacobian(DoubleMatrix1D fittingParameters);
 
 }

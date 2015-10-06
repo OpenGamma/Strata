@@ -15,22 +15,25 @@ public class ParameterizedCurveVectorFunctionProvider extends DoublesVectorFunct
   private final ParameterizedCurve _pCurve;
 
   /**
-   * Set up a {@link VectorFunctionProvider} backed by a {@link ParameterizedCurve}
-   * @param pCurve A parameterised curve 
+   * Creates an instance backed by a {@link ParameterizedCurve}.
+   * 
+   * @param pCurve  the parameterised curve 
    */
-  public ParameterizedCurveVectorFunctionProvider(final ParameterizedCurve pCurve) {
+  public ParameterizedCurveVectorFunctionProvider(ParameterizedCurve pCurve) {
     ArgChecker.notNull(pCurve, "pCurve");
     _pCurve = pCurve;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * produces a {@link VectorFunction} which builds a {@link ParameterizedCurve} from the input vector (treated 
-   * as curve parameters), then samples the curve at the smaplePoints, to produce the output vector. 
-   * @param samplePoints points where we sample the curve 
+   * Produces a {@link VectorFunction} which builds a {@link ParameterizedCurve} from the input vector
+   * (treated as curve parameters), then samples the curve at the smaplePoints, to produce the output vector.
+   * 
+   * @param samplePoints the points where we sample the curve 
    * @return a {@link ParameterizedCurveVectorFunction}
    */
   @Override
-  public VectorFunction from(final double[] samplePoints) {
+  public VectorFunction from(double[] samplePoints) {
     return new ParameterizedCurveVectorFunction(samplePoints, _pCurve);
   }
 

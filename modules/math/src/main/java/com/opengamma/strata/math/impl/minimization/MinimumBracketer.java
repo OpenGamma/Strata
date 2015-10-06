@@ -21,10 +21,11 @@ public abstract class MinimumBracketer {
 
   public abstract double[] getBracketedPoints(Function1D<Double, Double> f, double xLower, double xUpper);
 
-  protected void checkInputs(final Function1D<Double, Double> f, final double xLower, final double xUpper) {
+  protected void checkInputs(Function1D<Double, Double> f, double xLower, double xUpper) {
     ArgChecker.notNull(f, "function");
     if (DoubleMath.fuzzyEquals(xLower, xUpper, ZERO)) {
       throw new IllegalArgumentException("Lower and upper values were not distinct");
     }
   }
+
 }

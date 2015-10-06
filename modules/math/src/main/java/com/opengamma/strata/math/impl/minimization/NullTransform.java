@@ -15,7 +15,7 @@ public class NullTransform implements ParameterLimitsTransform {
    * {@inheritDoc}
    */
   @Override
-  public double inverseTransform(final double y) {
+  public double inverseTransform(double y) {
     return y;
   }
 
@@ -24,7 +24,7 @@ public class NullTransform implements ParameterLimitsTransform {
    * {@inheritDoc}
    */
   @Override
-  public double inverseTransformGradient(final double y) {
+  public double inverseTransformGradient(double y) {
     return 1;
   }
 
@@ -33,7 +33,7 @@ public class NullTransform implements ParameterLimitsTransform {
    * {@inheritDoc}
    */
   @Override
-  public double transform(final double x) {
+  public double transform(double x) {
     return x;
   }
 
@@ -42,7 +42,7 @@ public class NullTransform implements ParameterLimitsTransform {
    * {@inheritDoc}
    */
   @Override
-  public double transformGradient(final double x) {
+  public double transformGradient(double x) {
     return 1;
   }
 
@@ -52,7 +52,7 @@ public class NullTransform implements ParameterLimitsTransform {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }

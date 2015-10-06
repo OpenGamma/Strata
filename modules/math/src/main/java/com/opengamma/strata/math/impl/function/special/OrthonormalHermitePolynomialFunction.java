@@ -14,35 +14,38 @@ import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
  * 
  */
 public class OrthonormalHermitePolynomialFunction extends OrthogonalPolynomialFunctionGenerator {
+
   private static final double C1 = 1. / Math.pow(Math.PI, 0.25);
   private static final double C2 = Math.sqrt(2) * C1;
-  private static final RealPolynomialFunction1D F0 = new RealPolynomialFunction1D(new double[] {C1 });
-  private static final RealPolynomialFunction1D DF1 = new RealPolynomialFunction1D(new double[] {C2 });
+  private static final RealPolynomialFunction1D F0 = new RealPolynomialFunction1D(new double[] {C1});
+  private static final RealPolynomialFunction1D DF1 = new RealPolynomialFunction1D(new double[] {C2});
 
   @Override
-  public DoubleFunction1D[] getPolynomials(final int n) {
+  public DoubleFunction1D[] getPolynomials(int n) {
     ArgChecker.isTrue(n >= 0);
-    final DoubleFunction1D[] polynomials = new DoubleFunction1D[n + 1];
+    DoubleFunction1D[] polynomials = new DoubleFunction1D[n + 1];
     for (int i = 0; i <= n; i++) {
       if (i == 0) {
         polynomials[i] = F0;
       } else if (i == 1) {
         polynomials[i] = polynomials[0].multiply(Math.sqrt(2)).multiply(getX());
       } else {
-        polynomials[i] = polynomials[i - 1].multiply(getX()).multiply(Math.sqrt(2. / i)).subtract(polynomials[i - 2].multiply(Math.sqrt((i - 1.) / i)));
+        polynomials[i] =
+            polynomials[i - 1].multiply(getX()).multiply(Math.sqrt(2. / i))
+                .subtract(polynomials[i - 2].multiply(Math.sqrt((i - 1.) / i)));
       }
     }
     return polynomials;
   }
 
   @Override
-  public Pair<DoubleFunction1D, DoubleFunction1D>[] getPolynomialsAndFirstDerivative(final int n) {
+  public Pair<DoubleFunction1D, DoubleFunction1D>[] getPolynomialsAndFirstDerivative(int n) {
     ArgChecker.isTrue(n >= 0);
     @SuppressWarnings("unchecked")
-    final Pair<DoubleFunction1D, DoubleFunction1D>[] polynomials = new Pair[n + 1];
+    Pair<DoubleFunction1D, DoubleFunction1D>[] polynomials = new Pair[n + 1];
     DoubleFunction1D p, dp, p1, p2;
-    final double sqrt2 = Math.sqrt(2);
-    final DoubleFunction1D x = getX();
+    double sqrt2 = Math.sqrt(2);
+    DoubleFunction1D x = getX();
     for (int i = 0; i <= n; i++) {
       if (i == 0) {
         polynomials[i] = Pair.of((DoubleFunction1D) F0, getZero());
@@ -58,4 +61,5 @@ public class OrthonormalHermitePolynomialFunction extends OrthogonalPolynomialFu
     }
     return polynomials;
   }
+
 }

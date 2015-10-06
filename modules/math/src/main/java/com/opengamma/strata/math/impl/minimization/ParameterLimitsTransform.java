@@ -11,6 +11,7 @@ package com.opengamma.strata.math.impl.minimization;
  * yStar the transformed (fitting) parameter, then we write y* = f(y)
  */
 public interface ParameterLimitsTransform {
+
   /** Types of the limits */
   public enum LimitType {
     /** Greater than limit */

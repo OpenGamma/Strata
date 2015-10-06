@@ -25,41 +25,42 @@ import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
  * the first derivative of the $i^{th}$ polynomial.
  */
 public class GaussHermiteWeightAndAbscissaFunction implements QuadratureWeightAndAbscissaFunction {
+
   /** Weight generator */
   private static final OrthonormalHermitePolynomialFunction HERMITE = new OrthonormalHermitePolynomialFunction();
   /** The root-finder */
   private static final NewtonRaphsonSingleRootFinder ROOT_FINDER = new NewtonRaphsonSingleRootFinder(1e-12);
 
   @Override
-  public GaussianQuadratureData generate(final int n) {
+  public GaussianQuadratureData generate(int n) {
     ArgChecker.isTrue(n > 0);
-    final double[] x = new double[n];
-    final double[] w = new double[n];
-    final boolean odd = n % 2 != 0;
-    final int m = (n + 1) / 2 - (odd ? 1 : 0);
-    final Pair<DoubleFunction1D, DoubleFunction1D>[] polynomials = HERMITE.getPolynomialsAndFirstDerivative(n);
-    final Pair<DoubleFunction1D, DoubleFunction1D> pair = polynomials[n];
-    final DoubleFunction1D function = pair.getFirst();
-    final DoubleFunction1D derivative = pair.getSecond();
+    double[] x = new double[n];
+    double[] w = new double[n];
+    boolean odd = n % 2 != 0;
+    int m = (n + 1) / 2 - (odd ? 1 : 0);
+    Pair<DoubleFunction1D, DoubleFunction1D>[] polynomials = HERMITE.getPolynomialsAndFirstDerivative(n);
+    Pair<DoubleFunction1D, DoubleFunction1D> pair = polynomials[n];
+    DoubleFunction1D function = pair.getFirst();
+    DoubleFunction1D derivative = pair.getSecond();
     double root = 0;
 
     for (int i = 0; i < m; i++) {
       root = getInitialRootGuess(root, i, n, x);
       root = ROOT_FINDER.getRoot(function, derivative, root);
-      final double dp = derivative.evaluate(root);
+      double dp = derivative.evaluate(root);
       x[i] = -root;
       x[n - 1 - i] = root;
       w[i] = 2. / (dp * dp);
       w[n - 1 - i] = w[i];
     }
     if (odd) {
-      final double dp = derivative.evaluate(0.0);
+      double dp = derivative.evaluate(0.0);
       w[m] = 2. / dp / dp;
     }
     return new GaussianQuadratureData(x, w);
   }
 
-  private double getInitialRootGuess(final double previousRoot, final int i, final int n, final double[] x) {
+  private double getInitialRootGuess(double previousRoot, int i, int n, double[] x) {
     if (i == 0) {
       return Math.sqrt(2 * n + 1) - 1.85575 * Math.pow(2 * n + 1, -1. / 6);
     }
@@ -74,4 +75,5 @@ public class GaussHermiteWeightAndAbscissaFunction implements QuadratureWeightAn
     }
     return 2 * previousRoot + x[i - 2];
   }
+
 }

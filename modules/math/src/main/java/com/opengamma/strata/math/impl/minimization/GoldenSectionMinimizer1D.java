@@ -13,21 +13,22 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * 
  */
 public class GoldenSectionMinimizer1D implements ScalarMinimizer {
+
   private static final double GOLDEN = 0.61803399;
   private static final MinimumBracketer BRACKETER = new ParabolicMinimumBracketer();
   private static final int MAX_ITER = 10000;
   private static final double EPS = 1e-12;
 
   @Override
-  public double minimize(final Function1D<Double, Double> f, final double startPosition, final double lower, final double upper) {
+  public double minimize(Function1D<Double, Double> f, double startPosition, double lower, double upper) {
     return minimize(f, lower, upper);
   }
 
-  public double minimize(final Function1D<Double, Double> f, final double lower, final double upper) {
+  public double minimize(Function1D<Double, Double> f, double lower, double upper) {
     ArgChecker.notNull(f, "function");
     double x0, x1, x2, x3, f1, f2, temp;
     int i = 0;
-    final double[] triplet = BRACKETER.getBracketedPoints(f, lower, upper);
+    double[] triplet = BRACKETER.getBracketedPoints(f, lower, upper);
     x0 = triplet[0];
     x3 = triplet[2];
     if (Math.abs(triplet[2] - triplet[1]) > Math.abs(triplet[1] - triplet[0])) {
@@ -57,7 +58,8 @@ public class GoldenSectionMinimizer1D implements ScalarMinimizer {
       }
       i++;
       if (i > MAX_ITER) {
-        throw new MathException("Could not find minimum: this should not happen because minimum should have been successfully bracketed");
+        throw new MathException(
+            "Could not find minimum: this should not happen because minimum should have been successfully bracketed");
       }
     }
     if (f1 < f2) {
@@ -67,7 +69,7 @@ public class GoldenSectionMinimizer1D implements ScalarMinimizer {
   }
 
   @Override
-  public Double minimize(final Function1D<Double, Double> function, final Double startPosition) {
+  public Double minimize(Function1D<Double, Double> function, Double startPosition) {
     throw new UnsupportedOperationException("Need lower and upper bounds to use this minimization method");
   }
 }

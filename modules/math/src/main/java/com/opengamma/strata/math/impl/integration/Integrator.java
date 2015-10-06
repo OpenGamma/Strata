@@ -28,4 +28,5 @@ public interface Integrator<T, U, V extends Function<U, T>> {
    * @return The result of the integral
    */
   T integrate(V f, U[] lower, U[] upper);
+
 }

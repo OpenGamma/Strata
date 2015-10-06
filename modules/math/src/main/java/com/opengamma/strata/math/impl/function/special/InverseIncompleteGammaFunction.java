@@ -12,13 +12,15 @@ import com.opengamma.strata.math.impl.function.Function2D;
 /**
  * 
  */
-//TODO either find another implementation or delete this class
 public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
+//TODO either find another implementation or delete this class
+
   private final Function1D<Double, Double> _lnGamma = new NaturalLogGammaFunction();
   private static final double EPS = 1e-8;
 
+  //-------------------------------------------------------------------------
   @Override
-  public Double evaluate(final Double a, final Double p) {
+  public Double evaluate(Double a, Double p) {
     ArgChecker.notNegativeOrZero(a, "a");
     ArgChecker.inRangeExclusive(p, 0d, 1d, "p");
     double x;
@@ -26,9 +28,9 @@ public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
     double t;
     double u;
     double pp, lna1 = 0, afac = 0;
-    final double a1 = a - 1;
-    final Function1D<Double, Double> gammaIncomplete = new IncompleteGammaFunction(a);
-    final double gln = _lnGamma.evaluate(a);
+    double a1 = a - 1;
+    Function1D<Double, Double> gammaIncomplete = new IncompleteGammaFunction(a);
+    double gln = _lnGamma.evaluate(a);
     if (a > 1) {
       lna1 = Math.log(a1);
       afac = Math.exp(a1 * (lna1 - 1) - gln);

@@ -8,10 +8,9 @@ package com.opengamma.strata.math.impl.function;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * This class defines a 1-D function that takes both its argument and
- * parameters inputs into the {@link #evaluate} method. The function can also
- * be converted into a 1-D function of the arguments or a 1-D function of the
- * parameters.
+ * This class defines a 1-D function that takes both its argument and parameters inputs
+ * into the {@link #evaluate} method. The function can also be converted into a 1-D function
+ * of the arguments or a 1-D function of the parameters.
  *
  * For example, assume that there is a function $f(x, \overline{a})$ defined as:
  * $$
@@ -39,53 +38,56 @@ import com.opengamma.strata.collect.ArgChecker;
  * This class is particularly useful when trying to fit the parameters of a model,
  * such as in a Nelson Siegel Svennson bond curve model.
  * 
- * @param <S> Type of arguments
- * @param <T> Type of parameters
- * @param <U> Type of result
+ * @param <S> the type of arguments
+ * @param <T> the type of parameters
+ * @param <U> the type of result
  */
 public abstract class ParameterizedFunction<S, T, U> {
 
   /**
-   * @param x The value at which the function is to be evaluated
-   * @param parameters The parameters of the function
+   * Evaluates the function.
+   * 
+   * @param x  the value at which the function is to be evaluated
+   * @param parameters  the parameters of the function
    * @return The value of the function at <i>x</i> with the parameters as input
    */
   public abstract U evaluate(S x, T parameters);
 
   /**
-   * @param x The value at which the function is to be evaluated, not null
-   * @return A function that is always evaluated at <i>x</i> for different values of the parameters
+   * Uses the parameters to create a function.
+   * 
+   * @param x  the value at which the function is to be evaluated, not null
+   * @return a function that is always evaluated at <i>x</i> for different values of the parameters
    */
-  public Function1D<T, U> asFunctionOfParameters(final S x) {
+  public Function1D<T, U> asFunctionOfParameters(S x) {
     ArgChecker.notNull(x, "x");
     return new Function1D<T, U>() {
-
       @Override
-      public final U evaluate(final T params) {
+      public U evaluate(T params) {
         return ParameterizedFunction.this.evaluate(x, params);
       }
-
     };
   }
 
   /**
-   * @param params The parameters for which the function is to be evaluated, not null
-   * @return A function that can be evaluated at different <i>x</i> with the input parameters
+   * Uses the parameters to create a function.
+   * 
+   * @param params  the parameters for which the function is to be evaluated, not null
+   * @return a function that can be evaluated at different <i>x</i> with the input parameters
    */
-  public Function1D<S, U> asFunctionOfArguments(final T params) {
+  public Function1D<S, U> asFunctionOfArguments(T params) {
     ArgChecker.notNull(params, "params");
     return new Function1D<S, U>() {
-
       @Override
-      public U evaluate(final S x) {
+      public U evaluate(S x) {
         return ParameterizedFunction.this.evaluate(x, params);
       }
-
     };
   }
 
   /**
-   * Get the number of parameters 
+   * Gets the number of parameters.
+   * 
    * @return the number of parameters 
    */
   public abstract int getNumberOfParameters();

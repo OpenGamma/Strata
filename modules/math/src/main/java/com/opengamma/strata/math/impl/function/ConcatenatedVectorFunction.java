@@ -25,10 +25,13 @@ public class ConcatenatedVectorFunction extends VectorFunction {
   private final int _sizeRange;
 
   /**
-   * Form the concatenated function, in the order that the sub functions are given. 
-   * @param functions The sub functions 
+   * Creates an instance.
+   * <p>
+   * This creates the concatenated function, in the order that the sub functions are given.
+   * 
+   * @param functions  the sub functions 
    */
-  public ConcatenatedVectorFunction(final VectorFunction[] functions) {
+  public ConcatenatedVectorFunction(VectorFunction[] functions) {
     ArgChecker.noNulls(functions, "functions");
     _functions = functions;
     _nPartitions = functions.length;
@@ -46,18 +49,23 @@ public class ConcatenatedVectorFunction extends VectorFunction {
     _sizeRange = n;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
-    //arg check done by partition
-    final DoubleMatrix1D[] subX = partition(x);
-    final DoubleMatrix2D jac = new DoubleMatrix2D(getLengthOfRange(), getLengthOfDomain());
+  public DoubleMatrix2D calculateJacobian(DoubleMatrix1D x) {
+    ArgChecker.notNull(x, "x");
+    ArgChecker.isTrue(
+        x.getNumberOfElements() == getLengthOfDomain(),
+        "Incorrect length of x. Is {} but should be {}", x.getNumberOfElements(), getLengthOfDomain());
+
+    DoubleMatrix1D[] subX = partition(x);
+    DoubleMatrix2D jac = new DoubleMatrix2D(getLengthOfRange(), getLengthOfDomain());
 
     int pos1 = 0;
     int pos2 = 0;
     for (int i = 0; i < _nPartitions; i++) {
-      final DoubleMatrix2D subJac = _functions[i].calculateJacobian(subX[i]);
-      final int nRows = _yPartition[i];
-      final int nCols = _xPartition[i];
+      DoubleMatrix2D subJac = _functions[i].calculateJacobian(subX[i]);
+      int nRows = _yPartition[i];
+      int nCols = _xPartition[i];
       if (nCols > 0) {
         for (int r = 0; r < nRows; r++) {
           System.arraycopy(subJac.getData()[r], 0, jac.getData()[pos1++], pos2, nCols);
@@ -71,33 +79,35 @@ public class ConcatenatedVectorFunction extends VectorFunction {
   }
 
   @Override
-  public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-    //arg check done by partition
-    final DoubleMatrix1D[] subX = partition(x); //split the vector into sub vectors 
-    final DoubleMatrix1D y = new DoubleMatrix1D(getLengthOfRange());
+  public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+    ArgChecker.notNull(x, "x");
+    ArgChecker.isTrue(
+        x.getNumberOfElements() == getLengthOfDomain(),
+        "Incorrect length of x. Is {} but should be {}", x.getNumberOfElements(), getLengthOfDomain());
+    DoubleMatrix1D[] subX = partition(x);
+    double[] y = new double[getLengthOfRange()];
     int pos = 0;
     //evaluate each function (with the appropriate sub vector) and concatenate the results 
     for (int i = 0; i < _nPartitions; i++) {
-      final double[] subY = _functions[i].evaluate(subX[i]).getData();
-      final int length = subY.length;
-      System.arraycopy(subY, 0, y.getData(), pos, length);
+      double[] subY = _functions[i].evaluate(subX[i]).getData();
+      int length = subY.length;
+      System.arraycopy(subY, 0, y, pos, length);
       pos += length;
     }
-    return y;
+    return new DoubleMatrix1D(y);
   }
 
   /**
-   * This splits a vectors into a number of sub vectors with lengths given by _xPartition
-   * @param x The vector to be spit 
+   * This splits a vectors into a number of sub vectors with lengths given by _xPartition.
+   * 
+   * @param x  the vector to be spit 
    * @return a set of sub vectors 
    */
-  private DoubleMatrix1D[] partition(final DoubleMatrix1D x) {
-    ArgChecker.notNull(x, "x");
-    ArgChecker.isTrue(x.getNumberOfElements() == getLengthOfDomain(), "Incorrect length of x. Is {} but should be {}", x.getNumberOfElements(), getLengthOfDomain());
-    final DoubleMatrix1D[] res = new DoubleMatrix1D[_nPartitions];
+  private DoubleMatrix1D[] partition(DoubleMatrix1D x) {
+    DoubleMatrix1D[] res = new DoubleMatrix1D[_nPartitions];
     int pos = 0;
     for (int i = 0; i < _nPartitions; i++) {
-      final int length = _xPartition[i];
+      int length = _xPartition[i];
       res[i] = new DoubleMatrix1D(length);
       System.arraycopy(x.getData(), pos, res[i].getData(), 0, length);
       pos += length;

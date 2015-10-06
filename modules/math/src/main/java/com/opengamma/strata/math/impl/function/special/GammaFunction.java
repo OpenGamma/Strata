@@ -10,7 +10,6 @@ import java.util.function.DoubleUnaryOperator;
 import org.apache.commons.math3.special.Gamma;
 
 /**
- * 
  * The gamma function is a generalization of the factorial to complex and real
  * numbers. It is defined by the integral:
  * $$

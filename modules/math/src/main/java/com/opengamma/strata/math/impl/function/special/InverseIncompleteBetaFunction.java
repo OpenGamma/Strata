@@ -13,15 +13,16 @@ import com.opengamma.strata.math.impl.function.Function1D;
 /**
  * 
  */
-//TODO either find another implementation or delete this class
 public class InverseIncompleteBetaFunction extends Function1D<Double, Double> {
+//TODO either find another implementation or delete this class
+
   private final double _a;
   private final double _b;
   private final Function1D<Double, Double> _lnGamma = new NaturalLogGammaFunction();
   private final Function1D<Double, Double> _beta;
   private static final double EPS = 1e-9;
 
-  public InverseIncompleteBetaFunction(final double a, final double b) {
+  public InverseIncompleteBetaFunction(double a, double b) {
     ArgChecker.notNegativeOrZero(a, "a");
     ArgChecker.notNegativeOrZero(b, "b");
     _a = a;
@@ -29,11 +30,12 @@ public class InverseIncompleteBetaFunction extends Function1D<Double, Double> {
     _beta = new IncompleteBetaFunction(a, b);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public Double evaluate(final Double x) {
+  public Double evaluate(Double x) {
     ArgChecker.inRangeInclusive(x, 0d, 1d, "x");
     double pp, p, t, h, w, lnA, lnB, u, a1 = _a - 1;
-    final double b1 = _b - 1;
+    double b1 = _b - 1;
     if (_a >= 1 && _b >= 1) {
       pp = x < 0.5 ? x : 1 - x;
       t = Math.sqrt(-2 * Math.log(pp));
@@ -42,8 +44,8 @@ public class InverseIncompleteBetaFunction extends Function1D<Double, Double> {
         p *= -1;
       }
       a1 = (Math.sqrt(p) - 3.) / 6.;
-      final double tempA = 1. / (2 * _a - 1);
-      final double tempB = 1. / (2 * _b - 1);
+      double tempA = 1. / (2 * _a - 1);
+      double tempB = 1. / (2 * _b - 1);
       h = 2. / (tempA + tempB);
       w = p * Math.sqrt(a1 + h) / h - (tempB - tempA) * (a1 + 5. / 6 - 2. / (3 * h));
       p = _a / (_a + _b + Math.exp(2 * w));
@@ -59,7 +61,7 @@ public class InverseIncompleteBetaFunction extends Function1D<Double, Double> {
         p = 1 - Math.pow(_b * w * (1 - x), 1. / _b);
       }
     }
-    final double afac = -_lnGamma.evaluate(_a) - _lnGamma.evaluate(_b) + _lnGamma.evaluate(_a + _b);
+    double afac = -_lnGamma.evaluate(_a) - _lnGamma.evaluate(_b) + _lnGamma.evaluate(_a + _b);
     double error;
     for (int j = 0; j < 10; j++) {
       if (DoubleMath.fuzzyEquals(p, 0d, 1e-16) || DoubleMath.fuzzyEquals(p, (double) 1, 1e-16)) {
@@ -82,4 +84,5 @@ public class InverseIncompleteBetaFunction extends Function1D<Double, Double> {
     }
     return p;
   }
+
 }

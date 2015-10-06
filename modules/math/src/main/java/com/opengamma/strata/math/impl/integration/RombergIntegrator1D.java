@@ -26,6 +26,7 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
  * of Romberg integration.
  */
 public class RombergIntegrator1D extends Integrator1D<Double, Double> {
+
   private static final Logger s_logger = LoggerFactory.getLogger(RombergIntegrator1D.class);
   private final UnivariateIntegrator _integrator = new RombergIntegrator();
   private static final int MAX_EVAL = 10000;
@@ -39,7 +40,7 @@ public class RombergIntegrator1D extends Integrator1D<Double, Double> {
    * @return The result of the integration
    */
   @Override
-  public Double integrate(final Function1D<Double, Double> f, final Double lower, final Double upper) {
+  public Double integrate(Function1D<Double, Double> f, Double lower, Double upper) {
     ArgChecker.notNull(f, "f");
     ArgChecker.notNull(lower, "lower bound");
     ArgChecker.notNull(upper, "upper bound");
@@ -53,6 +54,6 @@ public class RombergIntegrator1D extends Integrator1D<Double, Double> {
     } catch (MaxCountExceededException | MathIllegalArgumentException e) {
       throw new MathException(e);
     }
-
   }
+
 }

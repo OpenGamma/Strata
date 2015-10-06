@@ -27,6 +27,7 @@ import com.opengamma.strata.math.impl.TrigonometricFunctionUtils;
  * $$
  */
 public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
+
   private static final double TANH_MAX = 25.0;
   private final double _lower;
   private final double _upper;
@@ -38,7 +39,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
    * @param upper Upper limit
    * @throws IllegalArgumentException If the upper limit is not greater than the lower limit
    */
-  public DoubleRangeLimitTransform(final double lower, final double upper) {
+  public DoubleRangeLimitTransform(double lower, double upper) {
     ArgChecker.isTrue(upper > lower, "upper limit must be greater than lower");
     _lower = lower;
     _upper = upper;
@@ -51,7 +52,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
    * {@inheritDoc}
    */
   @Override
-  public double inverseTransform(final double y) {
+  public double inverseTransform(double y) {
     if (y > TANH_MAX) {
       return _upper;
     } else if (y < -TANH_MAX) {
@@ -65,7 +66,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
    * @throws IllegalArgumentException If $x > b$ or $x < a$
    */
   @Override
-  public double transform(final double x) {
+  public double transform(double x) {
     ArgChecker.isTrue(x <= _upper && x >= _lower, "parameter out of range");
     if (x == _upper) {
       return TANH_MAX;
@@ -80,13 +81,13 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
    * {@inheritDoc}
    */
   @Override
-  public double inverseTransformGradient(final double y) {
+  public double inverseTransformGradient(double y) {
     if (y > TANH_MAX || y < -TANH_MAX) {
       return 0.0;
     }
-    final double p = 2 * y;
-    final double ep = Math.exp(p);
-    final double epp1 = ep + 1;
+    double p = 2 * y;
+    double ep = Math.exp(p);
+    double epp1 = ep + 1;
     return _scale * 4 * ep / (epp1 * epp1);
   }
 
@@ -95,15 +96,15 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
    * @throws IllegalArgumentException If $x > b$ or $x < a$
    */
   @Override
-  public double transformGradient(final double x) {
+  public double transformGradient(double x) {
     ArgChecker.isTrue(x <= _upper && x >= _lower, "parameter out of range");
-    final double t = (x - _mid) / _scale;
+    double t = (x - _mid) / _scale;
     return 1 / (_scale * (1 - t * t));
   }
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     long temp;
     temp = Double.doubleToLongBits(_lower);
@@ -114,7 +115,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -124,7 +125,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final DoubleRangeLimitTransform other = (DoubleRangeLimitTransform) obj;
+    DoubleRangeLimitTransform other = (DoubleRangeLimitTransform) obj;
     if (Double.doubleToLongBits(_lower) != Double.doubleToLongBits(other._lower)) {
       return false;
     }

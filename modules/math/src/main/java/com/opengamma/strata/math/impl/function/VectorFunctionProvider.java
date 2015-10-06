@@ -8,24 +8,27 @@ package com.opengamma.strata.math.impl.function;
 import java.util.List;
 
 /**
- * Interface for anything the provides a vector function which depends on some extraneous data
- * @param <T> type of extraneous data 
+ * Interface for anything the provides a vector function which depends on some extraneous data.
+ * 
+ * @param <T> the type of extraneous data 
  * @see VectorFunction
  */
 public interface VectorFunctionProvider<T> {
 
   /**
-   * Produce a vector function that maps from some 'model' parameters to values at the sample points 
-   * @param samplePoints List of sample points 
+   * Produces a vector function that maps from some 'model' parameters to values at the sample points.
+   * 
+   * @param samplePoints  the list of sample points 
    * @return a {@link VectorFunction}
    */
-  VectorFunction from(final List<T> samplePoints);
+  VectorFunction from(List<T> samplePoints);
 
   /**
-   * Produce a vector function that maps from some 'model' parameters to values at the sample points 
-   * @param samplePoints Array of sample points
+   * Produces a vector function that maps from some 'model' parameters to values at the sample points.
+   * 
+   * @param samplePoints the array of sample points
    * @return a {@link VectorFunction}
    */
-  VectorFunction from(final T[] samplePoints);
+  VectorFunction from(T[] samplePoints);
 
 }
