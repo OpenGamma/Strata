@@ -37,14 +37,13 @@ class UnsupportedValueFormatter
   @Override
   public String formatForDisplay(Object object) {
     Set<String> validTokens = ValuePathEvaluator.tokens(object);
+
     if (validTokens.isEmpty()) {
-      return Messages.format("<{}> - drilling into this type is not supported",
-          object.getClass().getSimpleName());
+      return Messages.format("<{}> - drilling into this type is not supported", object.getClass().getSimpleName());
     } else {
       List<String> orderedTokens = new ArrayList<>(validTokens);
       orderedTokens.sort(null);
-      return Messages.format("<{}> - drill down using a field: {}",
-          object.getClass().getSimpleName(), orderedTokens);
+      return Messages.format("<{}> - drill down using a field: {}", object.getClass().getSimpleName(), orderedTokens);
     }
   }
 

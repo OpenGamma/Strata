@@ -5,15 +5,15 @@
  */
 package com.opengamma.strata.report.framework.expression;
 
+import java.util.List;
+
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.collect.result.Result;
 
 /**
  * Evaluates a token against a currency amount.
  */
-public class CurrencyAmountTokenEvaluator
-    extends TokenEvaluator<CurrencyAmount> {
+public class CurrencyAmountTokenEvaluator extends TokenEvaluator<CurrencyAmount> {
 
   private final String CURRENCY_FIELD = "currency";
   private final String AMOUNT_FIELD = "amount";
@@ -29,15 +29,15 @@ public class CurrencyAmountTokenEvaluator
   }
 
   @Override
-  public Result<?> evaluate(CurrencyAmount amount, String token) {
-    if (token.equals(CURRENCY_FIELD)) {
-      return Result.success(amount.getCurrency());
+  public EvaluationResult evaluate(CurrencyAmount amount, String firstToken, List<String> remainingTokens) {
+    if (firstToken.equalsIgnoreCase(CURRENCY_FIELD)) {
+      return EvaluationResult.success(amount.getCurrency(), remainingTokens);
     }
-    if (token.equals(AMOUNT_FIELD)) {
+    if (firstToken.equalsIgnoreCase(AMOUNT_FIELD)) {
       // Can be rendered directly - retains the currency for formatting purposes
-      return Result.success(amount);
+      return EvaluationResult.success(amount, remainingTokens);
     }
-    return invalidTokenFailure(amount, token);
+    return invalidTokenFailure(amount, firstToken);
   }
 
 }

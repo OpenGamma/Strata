@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 
@@ -39,18 +38,23 @@ public class CurveCurrencyParameterSensitivitiesTokenEvaluator
   }
 
   @Override
-  public Result<?> evaluate(CurveCurrencyParameterSensitivities sensitivities, String token) {
+  public EvaluationResult evaluate(
+      CurveCurrencyParameterSensitivities sensitivities,
+      String firstToken,
+      List<String> remainingTokens) {
+
     List<CurveCurrencyParameterSensitivity> matchingSensitivities = sensitivities.getSensitivities().stream()
-        .filter(sensitivity -> matchesToken(sensitivity, token))
+        .filter(sensitivity -> matchesToken(sensitivity, firstToken))
         .collect(toImmutableList());
 
     switch (matchingSensitivities.size()) {
       case 0:
-        return invalidTokenFailure(sensitivities, token);
+        return invalidTokenFailure(sensitivities, firstToken);
       case 1:
-        return Result.success(matchingSensitivities.get(0));
+        return EvaluationResult.success(matchingSensitivities.get(0), remainingTokens);
+
       default:
-        return Result.success(CurveCurrencyParameterSensitivities.of(matchingSensitivities));
+        return EvaluationResult.success(CurveCurrencyParameterSensitivities.of(matchingSensitivities), remainingTokens);
     }
   }
 
@@ -63,7 +67,8 @@ public class CurveCurrencyParameterSensitivitiesTokenEvaluator
   }
 
   private boolean matchesToken(CurveCurrencyParameterSensitivity sensitivity, String token) {
-    return token.equals(sensitivity.getCurrency().getCode().toLowerCase()) ||
-        token.equals(sensitivity.getCurveName().toString().toLowerCase());
+    return token.equalsIgnoreCase(sensitivity.getCurrency().getCode()) ||
+        token.equalsIgnoreCase(sensitivity.getCurveName().toString());
   }
+
 }

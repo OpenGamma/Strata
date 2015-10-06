@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.report.framework.expression;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -13,9 +14,6 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 
 import com.google.common.collect.Sets;
-import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.collect.result.FailureReason;
-import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
 
@@ -24,8 +22,7 @@ import com.opengamma.strata.finance.TradeInfo;
  * <p>
  * This merges the {@link Trade} and {@link TradeInfo} objects, giving priority to {@code Trade}.
  */
-public class TradeTokenEvaluator
-    extends TokenEvaluator<Trade> {
+public class TradeTokenEvaluator extends TokenEvaluator<Trade> {
 
   @Override
   public Class<Trade> getTargetType() {
@@ -39,36 +36,35 @@ public class TradeTokenEvaluator
   }
 
   @Override
-  public Result<?> evaluate(Trade trade, String token) {
+  public EvaluationResult evaluate(Trade trade, String firstToken, List<String> remainingTokens) {
     MetaBean metaBean = JodaBeanUtils.metaBean(trade.getClass());
 
     // trade
-    Optional<String> propertyName1 = metaBean.metaPropertyMap().keySet().stream()
-        .filter(p -> p.equalsIgnoreCase(token))
+    Optional<String> tradePropertyName = metaBean.metaPropertyMap().keySet().stream()
+        .filter(p -> p.equalsIgnoreCase(firstToken))
         .findFirst();
 
-    if (propertyName1.isPresent()) {
-      Object propertyValue = metaBean.metaProperty(propertyName1.get()).get((Bean) trade);
+    if (tradePropertyName.isPresent()) {
+      Object propertyValue = metaBean.metaProperty(tradePropertyName.get()).get((Bean) trade);
 
       return propertyValue != null ?
-          Result.success(propertyValue) :
-          Result.failure(FailureReason.INVALID_INPUT, Messages.format("Property '{}' not set", token));
+          EvaluationResult.success(propertyValue, remainingTokens) :
+          EvaluationResult.failure("Property '{}' not set", firstToken);
     }
 
     // trade info
-    Optional<String> propertyName2 = trade.getTradeInfo().propertyNames().stream()
-        .filter(p -> p.equalsIgnoreCase(token))
+    Optional<String> tradeInfoPropertyName = trade.getTradeInfo().propertyNames().stream()
+        .filter(p -> p.equalsIgnoreCase(firstToken))
         .findFirst();
 
-    if (propertyName2.isPresent()) {
-      Object propertyValue = trade.getTradeInfo().property(propertyName2.get()).get();
+    if (tradeInfoPropertyName.isPresent()) {
+      Object propertyValue = trade.getTradeInfo().property(tradeInfoPropertyName.get()).get();
 
       return propertyValue != null ?
-          Result.success(propertyValue) :
-          Result.failure(FailureReason.INVALID_INPUT, Messages.format("Property '{}' not set", token));
+          EvaluationResult.success(propertyValue, remainingTokens) :
+          EvaluationResult.failure("Property '{}' not set", firstToken);
     }
-    // no match
-    return invalidTokenFailure(trade, token);
+    return invalidTokenFailure(trade, firstToken);
   }
 
 }

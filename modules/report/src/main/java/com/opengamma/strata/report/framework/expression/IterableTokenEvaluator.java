@@ -7,8 +7,8 @@ package com.opengamma.strata.report.framework.expression;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
+import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.joda.beans.Bean;
 import org.joda.beans.Property;
@@ -20,7 +20,6 @@ import com.google.common.collect.Multiset;
 import com.google.common.primitives.Ints;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapLegType;
 
@@ -49,8 +48,7 @@ import com.opengamma.strata.finance.rate.swap.SwapLegType;
  * </pre>
  * If both legs have the same currency it would obviously not be possible to use the currency to select a leg.
  */
-public class IterableTokenEvaluator
-    extends TokenEvaluator<Iterable<?>> {
+public class IterableTokenEvaluator extends TokenEvaluator<Iterable<?>> {
 
   private static final Set<Class<?>> SUPPORTED_FIELD_TYPES = ImmutableSet.of(
       Currency.class,
@@ -73,16 +71,17 @@ public class IterableTokenEvaluator
     }
     return tokens.stream()
         .filter(token -> tokens.count(token) == 1)
-        .collect(Collectors.toSet());
+        .collect(toImmutableSet());
   }
 
   @Override
-  public Result<?> evaluate(Iterable<?> iterable, String token) {
+  public EvaluationResult evaluate(Iterable<?> iterable, String firstToken, List<String> remainingTokens) {
+    String token = firstToken.toLowerCase();
     Integer index = Ints.tryParse(token);
 
     if (index != null) {
       try {
-        return Result.success(Iterables.get(iterable, index));
+        return EvaluationResult.success(Iterables.get(iterable, index), remainingTokens);
       } catch (IndexOutOfBoundsException e) {
         return invalidTokenFailure(iterable, token);
       }
@@ -96,7 +95,7 @@ public class IterableTokenEvaluator
       if (!tokens.contains(token)) {
         return ambiguousTokenFailure(iterable, token);
       }
-      return Result.success(item);
+      return EvaluationResult.success(item, remainingTokens);
     }
     return invalidTokenFailure(iterable, token);
   }
@@ -108,7 +107,7 @@ public class IterableTokenEvaluator
     }
     Bean bean = (Bean) object;
     return bean.propertyNames().stream()
-        .map(name -> bean.property(name))
+        .map(bean::property)
         .filter(p -> SUPPORTED_FIELD_TYPES.contains(p.metaProperty().propertyType()))
         .map(Property::get)
         .filter(v -> v != null)

@@ -76,4 +76,5 @@ public enum ValueRootType {
         .orElseThrow(() -> new IllegalArgumentException(
             Messages.format("Invalid root: {}. Value path must start with one of: {}", rootString, VALID_ROOTS)));
   }
+
 }
