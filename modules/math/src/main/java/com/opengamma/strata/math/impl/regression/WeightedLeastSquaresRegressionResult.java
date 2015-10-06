@@ -10,23 +10,32 @@ package com.opengamma.strata.math.impl.regression;
  */
 public class WeightedLeastSquaresRegressionResult extends LeastSquaresRegressionResult {
 
-  public WeightedLeastSquaresRegressionResult(final LeastSquaresRegressionResult result) {
+  public WeightedLeastSquaresRegressionResult(LeastSquaresRegressionResult result) {
     super(result);
   }
 
-  public WeightedLeastSquaresRegressionResult(final double[] betas, final double[] residuals, final double meanSquareError, final double[] standardErrorOfBeta,
-      final double rSquared, final double rSquaredAdjusted, final double[] tStats, final double[] pValues, final boolean hasIntercept) {
+  public WeightedLeastSquaresRegressionResult(
+      double[] betas,
+      double[] residuals,
+      double meanSquareError,
+      double[] standardErrorOfBeta,
+      double rSquared,
+      double rSquaredAdjusted,
+      double[] tStats,
+      double[] pValues,
+      boolean hasIntercept) {
+
     super(betas, residuals, meanSquareError, standardErrorOfBeta, rSquared, rSquaredAdjusted, tStats, pValues, hasIntercept);
   }
 
-  public double getWeightedPredictedValue(final double[] x, final double[] w) {
+  public double getWeightedPredictedValue(double[] x, double[] w) {
     if (x == null) {
       throw new IllegalArgumentException("Variable array was null");
     }
     if (w == null) {
       throw new IllegalArgumentException("Weight array was null");
     }
-    final double[] betas = getBetas();
+    double[] betas = getBetas();
     if (hasIntercept() && x.length != betas.length - 1 || x.length != betas.length) {
       throw new IllegalArgumentException("Number of variables did not match number used in regression");
     }

@@ -23,18 +23,18 @@ public abstract class ParameterizedCurve extends ParameterizedFunction<Double, D
    * to its parameters, i.e. $g(x) = \frac{\partial f(x;\boldsymbol{\theta})}{\partial \boldsymbol{\theta}}$<p>
    * The default calculation is performed using finite difference (via {@link ScalarFieldFirstOrderDifferentiator}) but
    * it is expected that this will be overridden by concrete subclasses.  
-   * @param params The value of the parameters ($\boldsymbol{\theta}$) at which the sensitivity is calculated 
-   * @return The sensitivity as a function with a Double (x) as its single argument and a vector as its return value.
+   * 
+   * @param params  the value of the parameters ($\boldsymbol{\theta}$) at which the sensitivity is calculated 
+   * @return the sensitivity as a function with a Double (x) as its single argument and a vector as its return value
    */
-  public Function1D<Double, DoubleMatrix1D> getYParameterSensitivity(final DoubleMatrix1D params) {
+  public Function1D<Double, DoubleMatrix1D> getYParameterSensitivity(DoubleMatrix1D params) {
 
     return new Function1D<Double, DoubleMatrix1D>() {
 
       @Override
-      public DoubleMatrix1D evaluate(final Double x) {
-        final Function1D<DoubleMatrix1D, Double> f = asFunctionOfParameters(x);
-
-        final Function1D<DoubleMatrix1D, DoubleMatrix1D> g = FIRST_ORDER_DIFF.differentiate(f);
+      public DoubleMatrix1D evaluate(Double x) {
+        Function1D<DoubleMatrix1D, Double> f = asFunctionOfParameters(x);
+        Function1D<DoubleMatrix1D, DoubleMatrix1D> g = FIRST_ORDER_DIFF.differentiate(f);
         return g.evaluate(params);
       }
     };

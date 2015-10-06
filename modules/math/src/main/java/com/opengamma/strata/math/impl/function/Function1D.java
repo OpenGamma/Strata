@@ -9,28 +9,33 @@ import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * 1-D function implementation.
- * @param <S> Type of the arguments
- * @param <T> Return type of the function
+ * 
+ * @param <S> the type of the arguments
+ * @param <T> the return type of the function
  */
 public abstract class Function1D<S, T> implements Function<S, T> {
 
   /**
-   * Implementation of the interface. This method only uses the first argument.
-   * @param x The list of inputs into the function, not null and no null elements
-   * @return The value of the function
+   * Implementation of the interface.
+   * This method only uses the first argument.
+   * 
+   * @param x  the list of inputs into the function, not null and no null elements
+   * @return the value of the function
    */
   @SuppressWarnings("unchecked")
   @Override
-  public T evaluate(final S... x) {
+  public T evaluate(S... x) {
     ArgChecker.noNulls(x, "parameter list");
     ArgChecker.isTrue(x.length == 1, "parameter list must have one element");
     return evaluate(x[0]);
   }
 
   /**
-   * 1-D function method
-   * @param x The argument of the function, not null
-   * @return The value of the function
+   * 1-D function method.
+   * 
+   * @param x  the argument of the function, not null
+   * @return the value of the function
    */
   public abstract T evaluate(S x);
+
 }

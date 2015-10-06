@@ -16,12 +16,16 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class NamedVariableLeastSquaresRegressionResult extends LeastSquaresRegressionResult {
+
   private static final Logger s_logger = LoggerFactory.getLogger(NamedVariableLeastSquaresRegressionResult.class);
   private final List<String> _independentVariableNames;
   private final LeastSquaresRegressionResult _result;
   private static final String INTERCEPT_STRING = "Intercept";
 
-  public NamedVariableLeastSquaresRegressionResult(final List<String> independentVariableNames, final LeastSquaresRegressionResult result) {
+  public NamedVariableLeastSquaresRegressionResult(
+      List<String> independentVariableNames,
+      LeastSquaresRegressionResult result) {
+
     super(result);
     if (independentVariableNames == null) {
       throw new IllegalArgumentException("List of independent variable names was null");
@@ -55,7 +59,7 @@ public class NamedVariableLeastSquaresRegressionResult extends LeastSquaresRegre
     return _result;
   }
 
-  public Double getPredictedValue(final Map<String, Double> namesAndValues) {
+  public Double getPredictedValue(Map<String, Double> namesAndValues) {
     if (namesAndValues == null) {
       throw new IllegalArgumentException("Map was null");
     }
@@ -63,7 +67,7 @@ public class NamedVariableLeastSquaresRegressionResult extends LeastSquaresRegre
       s_logger.warn("Map was empty: returning 0");
       return 0.;
     }
-    final double[] betas = getBetas();
+    double[] betas = getBetas();
     double sum = 0;
     if (hasIntercept()) {
       if (namesAndValues.size() < betas.length - 1) {
@@ -75,7 +79,7 @@ public class NamedVariableLeastSquaresRegressionResult extends LeastSquaresRegre
       }
     }
     int i = hasIntercept() ? 1 : 0;
-    for (final String name : getIndependentVariableNames()) {
+    for (String name : getIndependentVariableNames()) {
       if (name.equals(INTERCEPT_STRING)) {
         sum += betas[0];
       } else {
@@ -90,7 +94,7 @@ public class NamedVariableLeastSquaresRegressionResult extends LeastSquaresRegre
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = super.hashCode();
     result = prime * result + (_independentVariableNames == null ? 0 : _independentVariableNames.hashCode());
     result = prime * result + (_result == null ? 0 : _result.hashCode());
@@ -98,7 +102,7 @@ public class NamedVariableLeastSquaresRegressionResult extends LeastSquaresRegre
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -108,7 +112,7 @@ public class NamedVariableLeastSquaresRegressionResult extends LeastSquaresRegre
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final NamedVariableLeastSquaresRegressionResult other = (NamedVariableLeastSquaresRegressionResult) obj;
+    NamedVariableLeastSquaresRegressionResult other = (NamedVariableLeastSquaresRegressionResult) obj;
     if (_independentVariableNames == null) {
       if (other._independentVariableNames != null) {
         return false;

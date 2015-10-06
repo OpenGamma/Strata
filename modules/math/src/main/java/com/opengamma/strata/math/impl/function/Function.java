@@ -11,15 +11,16 @@ package com.opengamma.strata.math.impl.function;
  * multi-dimensional (but not multi-type), as can the function value. The return
  * type of the function is not necessarily the same as that of the inputs.
  *
- * @param <S> Type of the arguments
- * @param <T> Return type of the function
+ * @param <S> the type of the arguments
+ * @param <T> the return type of the function
  */
 public interface Function<S, T> {
 
   /**
+   * Evaluates the function.
    *
-   * @param x The list of inputs into the function, not null and no null elements
-   * @return The value of the function
+   * @param x  the list of inputs into the function, not null and no null elements
+   * @return the value of the function
    */
   @SuppressWarnings("unchecked")
   T evaluate(S... x);

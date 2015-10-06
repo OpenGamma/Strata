@@ -53,6 +53,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * so any value of $y$ will give a value of $x$.
  */
 public class SingleRangeLimitTransform implements ParameterLimitsTransform {
+
   private static final double EXP_MAX = 50.;
   private final double _limit;
   private final int _sign;
@@ -61,7 +62,7 @@ public class SingleRangeLimitTransform implements ParameterLimitsTransform {
    * @param a The limit level 
    * @param limitType Type of the limit for the parameter
    */
-  public SingleRangeLimitTransform(final double a, final LimitType limitType) {
+  public SingleRangeLimitTransform(double a, LimitType limitType) {
     _limit = a;
     _sign = limitType == LimitType.GREATER_THAN ? 1 : -1;
   }
@@ -70,7 +71,7 @@ public class SingleRangeLimitTransform implements ParameterLimitsTransform {
    * {@inheritDoc}
    */
   @Override
-  public double inverseTransform(final double y) {
+  public double inverseTransform(double y) {
     if (y > EXP_MAX) {
       return _limit + _sign * y;
     } else if (y < -EXP_MAX) {
@@ -81,16 +82,16 @@ public class SingleRangeLimitTransform implements ParameterLimitsTransform {
 
   /**
    * {@inheritDoc}
-   * @throws IllegalArgumentException If the value of $x$ is not consistent with the limit (e.g. the limit is $x > a$ and $x$ is
-   * less than $a$
+   * @throws IllegalArgumentException If the value of $x$ is not consistent with the limit
+   *  (e.g. the limit is $x > a$ and $x$ is less than $a$
    */
   @Override
-  public double transform(final double x) {
+  public double transform(double x) {
     ArgChecker.isTrue(_sign * x >= _sign * _limit, "x not in limit");
     if (x == _limit) {
       return -EXP_MAX;
     }
-    final double r = _sign * (x - _limit);
+    double r = _sign * (x - _limit);
     if (r > EXP_MAX) {
       return r;
     }
@@ -101,33 +102,33 @@ public class SingleRangeLimitTransform implements ParameterLimitsTransform {
    * {@inheritDoc}
    */
   @Override
-  public double inverseTransformGradient(final double y) {
+  public double inverseTransformGradient(double y) {
     if (y > EXP_MAX) {
       return _sign;
     }
-    final double temp = Math.exp(y);
+    double temp = Math.exp(y);
     return _sign * temp / (temp + 1);
   }
 
   /**
    * {@inheritDoc}
-   * @throws IllegalArgumentException If the value of $x$ is not consistent with the limit (e.g. the limit is $x > a$ and $x$ is
-   * less than $a$
+   * @throws IllegalArgumentException If the value of $x$ is not consistent with the limit
+   *  (e.g. the limit is $x > a$ and $x$ is less than $a$
    */
   @Override
-  public double transformGradient(final double x) {
+  public double transformGradient(double x) {
     ArgChecker.isTrue(_sign * x >= _sign * _limit, "x not in limit");
-    final double r = _sign * (x - _limit);
+    double r = _sign * (x - _limit);
     if (r > EXP_MAX) {
       return 1.0;
     }
-    final double temp = Math.exp(r);
+    double temp = Math.exp(r);
     return _sign * temp / (temp - 1);
   }
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     long temp;
     temp = Double.doubleToLongBits(_limit);
@@ -137,7 +138,7 @@ public class SingleRangeLimitTransform implements ParameterLimitsTransform {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -147,7 +148,7 @@ public class SingleRangeLimitTransform implements ParameterLimitsTransform {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final SingleRangeLimitTransform other = (SingleRangeLimitTransform) obj;
+    SingleRangeLimitTransform other = (SingleRangeLimitTransform) obj;
     if (Double.doubleToLongBits(_limit) != Double.doubleToLongBits(other._limit)) {
       return false;
     }

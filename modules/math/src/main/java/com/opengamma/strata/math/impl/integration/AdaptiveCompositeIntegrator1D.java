@@ -25,7 +25,7 @@ public class AdaptiveCompositeIntegrator1D extends Integrator1D<Double, Double> 
   /**
    * @param integrator The base integrator 
    */
-  public AdaptiveCompositeIntegrator1D(final Integrator1D<Double, Double> integrator) {
+  public AdaptiveCompositeIntegrator1D(Integrator1D<Double, Double> integrator) {
     ArgChecker.notNull(integrator, "integrator");
     _integrator = integrator;
     _gain = 15.;
@@ -37,7 +37,7 @@ public class AdaptiveCompositeIntegrator1D extends Integrator1D<Double, Double> 
    * @param gain The gain ratio
    * @param tol The tolerance
    */
-  public AdaptiveCompositeIntegrator1D(final Integrator1D<Double, Double> integrator, final double gain, final double tol) {
+  public AdaptiveCompositeIntegrator1D(Integrator1D<Double, Double> integrator, double gain, double tol) {
     ArgChecker.notNull(integrator, "integrator");
     _integrator = integrator;
     _gain = gain;
@@ -45,7 +45,7 @@ public class AdaptiveCompositeIntegrator1D extends Integrator1D<Double, Double> 
   }
 
   @Override
-  public Double integrate(final Function1D<Double, Double> f, final Double lower, final Double upper) {
+  public Double integrate(Function1D<Double, Double> f, Double lower, Double upper) {
     ArgChecker.notNull(f, "f");
     ArgChecker.notNull(lower, "lower bound");
     ArgChecker.notNull(upper, "upper bound");
@@ -55,33 +55,35 @@ public class AdaptiveCompositeIntegrator1D extends Integrator1D<Double, Double> 
       }
       s_logger.info("Upper bound was less than lower bound; swapping bounds and negating result");
       return -integration(f, upper, lower);
-    } catch (final Exception e) {
+    } catch (Exception e) {
       throw new IllegalStateException("function evaluation returned NaN or Inf");
     }
   }
 
-  private Double integration(final Function1D<Double, Double> f, final Double lower, final Double upper) {
-    final double res = _integrator.integrate(f, lower, upper);
+  private Double integration(Function1D<Double, Double> f, Double lower, Double upper) {
+    double res = _integrator.integrate(f, lower, upper);
     return integrationRec(f, lower, upper, res, MAX_IT);
   }
 
-  private double integrationRec(final Function1D<Double, Double> f, final double lower, final double upper, final double res, final double counter) {
-    final double localTol = _gain * _tol;
-    final double half = 0.5 * (lower + upper);
-    final double newResDw = _integrator.integrate(f, lower, half);
-    final double newResUp = _integrator.integrate(f, half, upper);
-    final double newRes = newResUp + newResDw;
+  private double integrationRec(Function1D<Double, Double> f, double lower, double upper, double res, double counter) {
+    double localTol = _gain * _tol;
+    double half = 0.5 * (lower + upper);
+    double newResDw = _integrator.integrate(f, lower, half);
+    double newResUp = _integrator.integrate(f, half, upper);
+    double newRes = newResUp + newResDw;
 
-    if (Math.abs(res - newRes) < localTol || counter == 0 || (Math.abs(res) < 1.e-14 && Math.abs(newResUp) < 1.e-14 && Math.abs(newResDw) < 1.e-14)) {
+    if (Math.abs(res - newRes) < localTol || counter == 0 ||
+        (Math.abs(res) < 1.e-14 && Math.abs(newResUp) < 1.e-14 && Math.abs(newResDw) < 1.e-14)) {
       return newRes + (newRes - res) / _gain;
     }
 
-    return integrationRec(f, lower, half, newResDw, counter - 1) + integrationRec(f, half, upper, newResUp, counter - 1);
+    return integrationRec(f, lower, half, newResDw, counter - 1) +
+        integrationRec(f, half, upper, newResUp, counter - 1);
   }
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     long temp;
     temp = Double.doubleToLongBits(_gain);

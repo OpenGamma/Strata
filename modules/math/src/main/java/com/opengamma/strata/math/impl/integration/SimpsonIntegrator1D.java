@@ -32,20 +32,24 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
  * of Simpson integration.
  */
 public class SimpsonIntegrator1D extends Integrator1D<Double, Double> {
+
   private static final Logger s_logger = LoggerFactory.getLogger(SimpsonIntegrator1D.class);
   private final UnivariateIntegrator _integrator = new SimpsonIntegrator();
   private static final int MAX_EVAL = 1000;
 
   /**
-   * Simpson's integration method. Note that the Commons implementation fails if the lower bound is larger than the upper - 
+   * Simpson's integration method.
+   * <p>
+   * Note that the Commons implementation fails if the lower bound is larger than the upper - 
    * in this case, the bounds are reversed and the result negated. 
+   * 
    * @param f The function to integrate, not null
    * @param lower The lower bound, not null
    * @param upper The upper bound, not null
    * @return The result of the integration
    */
   @Override
-  public Double integrate(final Function1D<Double, Double> f, final Double lower, final Double upper) {
+  public Double integrate(Function1D<Double, Double> f, Double lower, Double upper) {
     ArgChecker.notNull(f, "function");
     ArgChecker.notNull(lower, "lower bound");
     ArgChecker.notNull(upper, "upper bound");

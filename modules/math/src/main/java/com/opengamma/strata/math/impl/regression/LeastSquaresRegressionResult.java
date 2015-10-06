@@ -14,6 +14,7 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 public class LeastSquaresRegressionResult {
   //TODO the predicted value calculation should be separated out from this class.
+
   private final double[] _residuals;
   private final double[] _betas;
   private final double _meanSquareError;
@@ -24,7 +25,7 @@ public class LeastSquaresRegressionResult {
   private final double[] _pValues;
   private final boolean _hasIntercept;
 
-  public LeastSquaresRegressionResult(final LeastSquaresRegressionResult result) {
+  public LeastSquaresRegressionResult(LeastSquaresRegressionResult result) {
     ArgChecker.notNull(result, "regression result");
     _betas = result.getBetas();
     _residuals = result.getResiduals();
@@ -37,8 +38,17 @@ public class LeastSquaresRegressionResult {
     _hasIntercept = result.hasIntercept();
   }
 
-  public LeastSquaresRegressionResult(final double[] betas, final double[] residuals, final double meanSquareError, final double[] standardErrorOfBeta, final double rSquared,
-      final double rSquaredAdjusted, final double[] tStats, final double[] pValues, final boolean hasIntercept) {
+  public LeastSquaresRegressionResult(
+      double[] betas,
+      double[] residuals,
+      double meanSquareError,
+      double[] standardErrorOfBeta,
+      double rSquared,
+      double rSquaredAdjusted,
+      double[] tStats,
+      double[] pValues,
+      boolean hasIntercept) {
+
     _betas = betas;
     _residuals = residuals;
     _meanSquareError = meanSquareError;
@@ -86,9 +96,9 @@ public class LeastSquaresRegressionResult {
     return _hasIntercept;
   }
 
-  public double getPredictedValue(final double[] x) {
+  public double getPredictedValue(double[] x) {
     ArgChecker.notNull(x, "x");
-    final double[] betas = getBetas();
+    double[] betas = getBetas();
     if (hasIntercept()) {
       if (x.length != betas.length - 1) {
         throw new IllegalArgumentException("Number of variables did not match number used in regression");
@@ -115,7 +125,7 @@ public class LeastSquaresRegressionResult {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     result = prime * result + Arrays.hashCode(_betas);
     result = prime * result + (_hasIntercept ? 1231 : 1237);
@@ -134,7 +144,7 @@ public class LeastSquaresRegressionResult {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -144,7 +154,7 @@ public class LeastSquaresRegressionResult {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final LeastSquaresRegressionResult other = (LeastSquaresRegressionResult) obj;
+    LeastSquaresRegressionResult other = (LeastSquaresRegressionResult) obj;
     if (!Arrays.equals(_betas, other._betas)) {
       return false;
     }

@@ -8,7 +8,8 @@ package com.opengamma.strata.math.impl.minimization;
 import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
- * Interface for classes that extend the functionality of {@link Minimizer} by providing a method that allows the search area for the minimum to be bounded. 
+ * Interface for classes that extend the functionality of {@link Minimizer} by providing
+ * a method that allows the search area for the minimum to be bounded. 
  */
 public interface ScalarMinimizer extends Minimizer<Function1D<Double, Double>, Double> {
 

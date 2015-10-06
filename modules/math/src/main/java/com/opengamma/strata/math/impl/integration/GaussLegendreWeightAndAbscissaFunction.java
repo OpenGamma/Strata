@@ -25,6 +25,7 @@ import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
  * {@link LegendrePolynomialFunction}.
  */
 public class GaussLegendreWeightAndAbscissaFunction implements QuadratureWeightAndAbscissaFunction {
+
   private static final LegendrePolynomialFunction LEGENDRE = new LegendrePolynomialFunction();
   private static final NewtonRaphsonSingleRootFinder ROOT_FINDER = new NewtonRaphsonSingleRootFinder(1e-15);
 
@@ -32,27 +33,28 @@ public class GaussLegendreWeightAndAbscissaFunction implements QuadratureWeightA
    * {@inheritDoc}
    */
   @Override
-  public GaussianQuadratureData generate(final int n) {
+  public GaussianQuadratureData generate(int n) {
     ArgChecker.isTrue(n > 0);
-    final int mid = (n + 1) / 2;
-    final double[] x = new double[n];
-    final double[] w = new double[n];
-    final Pair<DoubleFunction1D, DoubleFunction1D>[] polynomials = LEGENDRE.getPolynomialsAndFirstDerivative(n);
-    final Pair<DoubleFunction1D, DoubleFunction1D> pair = polynomials[n];
-    final DoubleFunction1D function = pair.getFirst();
-    final DoubleFunction1D derivative = pair.getSecond();
+    int mid = (n + 1) / 2;
+    double[] x = new double[n];
+    double[] w = new double[n];
+    Pair<DoubleFunction1D, DoubleFunction1D>[] polynomials = LEGENDRE.getPolynomialsAndFirstDerivative(n);
+    Pair<DoubleFunction1D, DoubleFunction1D> pair = polynomials[n];
+    DoubleFunction1D function = pair.getFirst();
+    DoubleFunction1D derivative = pair.getSecond();
     for (int i = 0; i < mid; i++) {
-      final double root = ROOT_FINDER.getRoot(function, derivative, getInitialRootGuess(i, n));
+      double root = ROOT_FINDER.getRoot(function, derivative, getInitialRootGuess(i, n));
       x[i] = -root;
       x[n - i - 1] = root;
-      final double dp = derivative.evaluate(root);
+      double dp = derivative.evaluate(root);
       w[i] = 2 / ((1 - root * root) * dp * dp);
       w[n - i - 1] = w[i];
     }
     return new GaussianQuadratureData(x, w);
   }
 
-  private double getInitialRootGuess(final int i, final int n) {
+  private double getInitialRootGuess(int i, int n) {
     return Math.cos(Math.PI * (i + 0.75) / (n + 0.5));
   }
+
 }

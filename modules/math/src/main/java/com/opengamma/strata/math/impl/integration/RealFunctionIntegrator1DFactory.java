@@ -46,13 +46,14 @@ public final class RealFunctionIntegrator1DFactory {
   }
 
   /**
-   * Given a name, returns an instance of that integrator
-   * @param integratorName The name of the integrator
-   * @return The integrator
-   * @throws IllegalArgumentException If the integrator name is null or there is no integrator for that name
+   * Given a name, returns an instance of that integrator.
+   * 
+   * @param integratorName  the name of the integrator
+   * @return the integrator
+   * @throws IllegalArgumentException if the integrator name is null or there is no integrator for that name
    */
-  public static Integrator1D<Double, Double> getIntegrator(final String integratorName) {
-    final Integrator1D<Double, Double> integrator = s_staticInstances.get(integratorName);
+  public static Integrator1D<Double, Double> getIntegrator(String integratorName) {
+    Integrator1D<Double, Double> integrator = s_staticInstances.get(integratorName);
     if (integrator != null) {
       return integrator;
     }
@@ -60,14 +61,16 @@ public final class RealFunctionIntegrator1DFactory {
   }
 
   /**
-   * Given an integrator, returns its name
-   * @param integrator The integrator
-   * @return The name of that integrator (null if not found)
+   * Given an integrator, returns its name.
+   * 
+   * @param integrator  the integrator
+   * @return the name of that integrator (null if not found)
    */
-  public static String getIntegratorName(final Integrator1D<Double, Double> integrator) {
+  public static String getIntegratorName(Integrator1D<Double, Double> integrator) {
     if (integrator == null) {
       return null;
     }
     return s_instanceNames.get(integrator.getClass());
   }
+
 }

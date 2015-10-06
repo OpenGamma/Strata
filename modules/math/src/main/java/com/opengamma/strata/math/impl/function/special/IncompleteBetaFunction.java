@@ -13,7 +13,6 @@ import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
- * 
  * The incomplete beta function is defined as:
  * $$
  * \begin{equation*}
@@ -23,31 +22,34 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * where $a,b>0$.
  * <p>
  * This class uses the <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/special/Beta.html">Commons Math library implementation</a> of the Beta function.
- * 
  */
 public class IncompleteBetaFunction extends Function1D<Double, Double> {
+
   private final double _a;
   private final double _b;
   private final double _eps;
   private final int _maxIter;
 
   /**
-   * Uses the default values for the accuracy ($10^{-12}$) and number of iterations ($10000$).
-   * @param a a, $a > 0$
-   * @param b b, $b > 0$
+   * Creates an instance using the default values for the accuracy
+   * ({@code 10^-12}) and number of iterations ({@code 10000}).
+   * 
+   * @param a  a, $a > 0$
+   * @param b  b, $b > 0$
    */
-  public IncompleteBetaFunction(final double a, final double b) {
+  public IncompleteBetaFunction(double a, double b) {
     this(a, b, 1e-12, 10000);
   }
 
   /**
+   * Creates an instance.
    * 
-   * @param a a, $a > 0$
-   * @param b b, $b > 0$
-   * @param eps Approximation accuracy, $\epsilon \geq 0$
-   * @param maxIter Maximum number of iterations, $\iter \geq 1$
+   * @param a  a, $a > 0$
+   * @param b  b, $b > 0$
+   * @param eps  approximation accuracy, $\epsilon \geq 0$
+   * @param maxIter  maximum number of iterations, $\iter \geq 1$
    */
-  public IncompleteBetaFunction(final double a, final double b, final double eps, final int maxIter) {
+  public IncompleteBetaFunction(double a, double b, double eps, int maxIter) {
     ArgChecker.isTrue(a > 0, "a must be > 0");
     ArgChecker.isTrue(b > 0, "b must be > 0");
     ArgChecker.isTrue(eps >= 0, "eps must not be negative");
@@ -58,13 +60,16 @@ public class IncompleteBetaFunction extends Function1D<Double, Double> {
     _maxIter = maxIter;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @param x x
+   * Evaluates the function.
+   * 
+   * @param x  x
    * @return the value of the function
-   * @throws IllegalArgumentException If $x < 0$ or $x > 1$
+   * @throws IllegalArgumentException if $x < 0$ or $x > 1$
    */
   @Override
-  public Double evaluate(final Double x) {
+  public Double evaluate(Double x) {
     ArgChecker.isTrue(x >= 0 && x <= 1, "x must be in the range 0 to 1");
     try {
       return Beta.regularizedBeta(x, _a, _b, _eps, _maxIter);
@@ -72,4 +77,5 @@ public class IncompleteBetaFunction extends Function1D<Double, Double> {
       throw new MathException(e);
     }
   }
+
 }

@@ -23,14 +23,15 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * limits of the integrals.
  */
 public class GaussJacobiQuadratureIntegrator1D extends GaussianQuadratureIntegrator1D {
+
   private static final GaussJacobiWeightAndAbscissaFunction GENERATOR = new GaussJacobiWeightAndAbscissaFunction(0, 0);
-  private static final Double[] LIMITS = new Double[] {-1., 1. };
+  private static final Double[] LIMITS = new Double[] {-1., 1.};
 
   //TODO allow alpha and beta to be set
   /**
    * @param n The number of sample points to be used in the integration, not negative or zero
    */
-  public GaussJacobiQuadratureIntegrator1D(final int n) {
+  public GaussJacobiQuadratureIntegrator1D(int n) {
     super(n, GENERATOR);
   }
 
@@ -52,19 +53,18 @@ public class GaussJacobiQuadratureIntegrator1D extends GaussianQuadratureIntegra
    * $$
    */
   @Override
-  public Function1D<Double, Double> getIntegralFunction(final Function1D<Double, Double> function, final Double lower, final Double upper) {
+  public Function1D<Double, Double> getIntegralFunction(Function1D<Double, Double> function, Double lower, Double upper) {
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(lower, "lower");
     ArgChecker.notNull(upper, "upper");
-    final double m = (upper - lower) / 2;
-    final double c = (upper + lower) / 2;
+    double m = (upper - lower) / 2;
+    double c = (upper + lower) / 2;
     return new Function1D<Double, Double>() {
-
       @Override
-      public Double evaluate(final Double x) {
+      public Double evaluate(Double x) {
         return m * function.evaluate(m * x + c);
       }
-
     };
   }
+
 }

@@ -30,6 +30,7 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
  * of trapezoidal integration.
  */
 public class ExtendedTrapezoidIntegrator1D extends Integrator1D<Double, Double> {
+
   private static final Logger s_logger = LoggerFactory.getLogger(ExtendedTrapezoidIntegrator1D.class);
   private static final UnivariateIntegrator INTEGRATOR = new TrapezoidIntegrator();
   private static final int MAX_EVAL = 10000;
@@ -40,7 +41,7 @@ public class ExtendedTrapezoidIntegrator1D extends Integrator1D<Double, Double> 
    * {@inheritDoc}
    */
   @Override
-  public Double integrate(final Function1D<Double, Double> f, final Double lower, final Double upper) {
+  public Double integrate(Function1D<Double, Double> f, Double lower, Double upper) {
     ArgChecker.notNull(f, "f");
     ArgChecker.notNull(lower, "lower");
     ArgChecker.notNull(upper, "upper");
@@ -55,4 +56,5 @@ public class ExtendedTrapezoidIntegrator1D extends Integrator1D<Double, Double> 
       throw new MathException(e);
     }
   }
+
 }

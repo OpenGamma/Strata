@@ -15,13 +15,14 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * specialised methods.
  */
 public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
+
   private static final double DEF_TOL = 1e-10;
   private static final double STEP_SIZE_LIMIT = 1e-50;
   private static final int DEF_MIN_STEPS = 10;
   private final double _absTol, _relTol;
   private final int _minSteps;
 
-  public RungeKuttaIntegrator1D(final double absTol, final double relTol, final int minSteps) {
+  public RungeKuttaIntegrator1D(double absTol, double relTol, int minSteps) {
     if (absTol < 0.0 || Double.isNaN(absTol) || Double.isInfinite(absTol)) {
       throw new IllegalArgumentException("Absolute Tolerance must be greater than zero");
     }
@@ -36,19 +37,19 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
     _minSteps = minSteps;
   }
 
-  public RungeKuttaIntegrator1D(final double tol, final int minSteps) {
+  public RungeKuttaIntegrator1D(double tol, int minSteps) {
     this(tol, tol, minSteps);
   }
 
-  public RungeKuttaIntegrator1D(final double atol, final double rtol) {
+  public RungeKuttaIntegrator1D(double atol, double rtol) {
     this(atol, rtol, DEF_MIN_STEPS);
   }
 
-  public RungeKuttaIntegrator1D(final double tol) {
+  public RungeKuttaIntegrator1D(double tol) {
     this(tol, tol, DEF_MIN_STEPS);
   }
 
-  public RungeKuttaIntegrator1D(final int minSteps) {
+  public RungeKuttaIntegrator1D(int minSteps) {
     this(DEF_TOL, minSteps);
   }
 
@@ -58,14 +59,14 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
   }
 
   @Override
-  public Double integrate(final Function1D<Double, Double> f, final Double lower, final Double upper) {
+  public Double integrate(Function1D<Double, Double> f, Double lower, Double upper) {
     ArgChecker.notNull(lower, "lower");
     ArgChecker.notNull(upper, "upper");
     if (Double.isNaN(lower) || Double.isInfinite(lower) || Double.isInfinite(upper) || Double.isNaN(upper)) {
       throw new IllegalArgumentException("lower or upper was NaN or Inf");
     }
 
-    final double h = (upper - lower) / _minSteps;
+    double h = (upper - lower) / _minSteps;
     double f1, f2, f3, x;
     x = lower;
     f1 = f.evaluate(x);
@@ -91,26 +92,32 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
     return result;
   }
 
-  private double calculateRungeKuttaFourthOrder(final Function1D<Double, Double> f, final double x, final double h, final double fl, final double fm, final double fu) {
+  private double calculateRungeKuttaFourthOrder(
+      Function1D<Double, Double> f,
+      double x,
+      double h,
+      double fl,
+      double fm,
+      double fu) {
     //    if (Double.isNaN(h) || Double.isInfinite(h) || 
     //        Double.isNaN(fl) || Double.isInfinite(fl) ||
     //        Double.isNaN(fm) || Double.isInfinite(fm) ||
     //        Double.isNaN(fu) || Double.isInfinite(fu)) {
     //      throw new OpenGammaRuntimeException("h was Inf or NaN");
     //    }
-    final double f1 = f.evaluate(x + 0.25 * h);
+    double f1 = f.evaluate(x + 0.25 * h);
     if (Double.isNaN(f1) || Double.isInfinite(f1)) {
       throw new IllegalStateException("f.evaluate returned NaN or Inf");
     }
-    final double f2 = f.evaluate(x + 0.75 * h);
+    double f2 = f.evaluate(x + 0.75 * h);
     if (Double.isNaN(f2) || Double.isInfinite(f2)) {
       throw new IllegalStateException("f.evaluate returned NaN or Inf");
     }
-    final double ya = h * (fl + 4.0 * fm + fu) / 6.0;
-    final double yb = h * (fl + 2.0 * fm + 4.0 * (f1 + f2) + fu) / 12.0;
+    double ya = h * (fl + 4.0 * fm + fu) / 6.0;
+    double yb = h * (fl + 2.0 * fm + 4.0 * (f1 + f2) + fu) / 12.0;
 
-    final double diff = Math.abs(ya - yb);
-    final double abs = Math.max(Math.abs(ya), Math.abs(yb));
+    double diff = Math.abs(ya - yb);
+    double abs = Math.max(Math.abs(ya), Math.abs(yb));
 
     if (diff < _absTol + _relTol * abs) {
       return yb + (yb - ya) / 15.0;
@@ -121,7 +128,8 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
       return yb + (yb - ya) / 15.0;
     }
 
-    return calculateRungeKuttaFourthOrder(f, x, h / 2.0, fl, f1, fm) + calculateRungeKuttaFourthOrder(f, x + h / 2.0, h / 2.0, fm, f2, fu);
+    return calculateRungeKuttaFourthOrder(f, x, h / 2.0, fl, f1, fm) +
+        calculateRungeKuttaFourthOrder(f, x + h / 2.0, h / 2.0, fm, f2, fu);
   }
 
 }

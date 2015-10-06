@@ -22,7 +22,7 @@ public class IntegratorRepeated2D extends Integrator2D<Double, Double> {
    * Constructor.
    * @param integrator1D The 1-D integrator to be used for each repeated integral.
    */
-  public IntegratorRepeated2D(final Integrator1D<Double, Double> integrator1D) {
+  public IntegratorRepeated2D(Integrator1D<Double, Double> integrator1D) {
     _integrator1D = integrator1D;
   }
 
@@ -39,21 +39,19 @@ public class IntegratorRepeated2D extends Integrator2D<Double, Double> {
    * @param upper The upper bound (for the inner-first variable).
    * @return The inner integral function.
    */
-  private Function1D<Double, Double> innerIntegral(final Function2D<Double, Double> f, final Double lower, final Double upper) {
+  private Function1D<Double, Double> innerIntegral(Function2D<Double, Double> f, Double lower, Double upper) {
 
     return new Function1D<Double, Double>() {
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(final Double y) {
-
+      public Double evaluate(Double y) {
         Function1D<Double, Double> fy = new Function1D<Double, Double>() {
           @Override
           public Double evaluate(Double x) {
             return f.evaluate(x, y);
           }
         };
-
         return _integrator1D.integrate(fy, lower, upper);
       }
     };

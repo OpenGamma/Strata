@@ -13,6 +13,7 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
  * 
  */
 public class GeneralizedLeastSquaresRegression extends LeastSquaresRegression {
+
   private static CommonsMatrixAlgebra s_algebra = new CommonsMatrixAlgebra();
 
   @Override
@@ -56,4 +57,5 @@ public class GeneralizedLeastSquaresRegression extends LeastSquaresRegression {
     }
     return new WeightedLeastSquaresRegressionResult(betas, residuals, 0.0, null, 0.0, 0.0, null, null, useIntercept);
   }
+
 }
