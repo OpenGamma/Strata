@@ -39,7 +39,10 @@ public class ExpandedSwaptionTest {
   private static final LocalTime EXPIRY_TIME = LocalTime.of(11, 0);
   private static final ZoneId ZONE = ZoneId.of("Z");
   private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
-  private static final SwaptionSettlement CASH_SETTLE = CashSettlement.DEFAULT;
+  private static final SwaptionSettlement CASH_SETTLE = CashSettlement.builder()
+      .cashSettlementMethod(CashSettlementMethod.PAR_YIELD)
+      .settlementDate(SWAP.getLegs().get(0).getStartDate())
+      .build();
 
   public void test_builder() {
     ExpandedSwaption test = ExpandedSwaption.builder()
