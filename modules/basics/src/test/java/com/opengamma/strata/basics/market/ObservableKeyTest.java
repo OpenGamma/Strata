@@ -7,6 +7,10 @@ package com.opengamma.strata.basics.market;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.Set;
+
+import org.joda.beans.MetaBean;
+import org.joda.beans.Property;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.id.StandardId;
@@ -32,6 +36,21 @@ public class ObservableKeyTest {
     @Override
     public FieldName getFieldName() {
       throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MetaBean metaBean() {
+      return null;
+    }
+
+    @Override
+    public <R> Property<R> property(String propertyName) {
+      return null;
+    }
+
+    @Override
+    public Set<String> propertyNames() {
+      return null;
     }
   };
 

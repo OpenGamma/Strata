@@ -6,6 +6,10 @@
 package com.opengamma.strata.basics.market;
 
 import java.util.Objects;
+import java.util.Set;
+
+import org.joda.beans.MetaBean;
+import org.joda.beans.Property;
 
 import com.opengamma.strata.collect.id.StandardId;
 
@@ -70,6 +74,22 @@ public class TestObservableKey implements ObservableKey {
   @Override
   public String toString() {
     return "TestObservableId [id=" + id + ", field=" + fieldName + "]";
+  }
+  @Override
+  public MetaBean metaBean() {
+    return null;
+  }
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return null;
+  }
+  @Override
+  public Set<String> propertyNames() {
+    return null;
+  }
+  @Override
+  public Class<Double> getMarketDataType() {
+    return null;
   }
 
 }
