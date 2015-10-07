@@ -5,9 +5,11 @@
  */
 package com.opengamma.strata.basics.market;
 
-import java.util.Map;
-import java.util.Map.Entry;
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
+import java.util.Map;
+
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -19,62 +21,12 @@ public interface ObservableValues {
 
   /**
    * Obtains observable values based on a map.
-   * <p>
-   * The map is not copied, and as such it must either be immutable or thread-safe.
    * 
    * @param map  the map of key to value
    * @return the observable values
    */
-  public static ObservableValues of(Map<ObservableKey, Double> map) {
-    ArgChecker.notNull(map, "map");
-    return new ObservableValues() {
-      @Override
-      public boolean containsValue(ObservableKey marketDataKey) {
-        return map.containsKey(marketDataKey);
-      }
-
-      @Override
-      public double getValue(ObservableKey marketDataKey) {
-        Double value = map.get(marketDataKey);
-        if (value == null) {
-          throw new IllegalArgumentException("Market data not found: " + marketDataKey);
-        }
-        return value;
-      }
-    };
-  }
-
-  /**
-   * Obtains observable values based on a map.
-   * <p>
-   * The map is not copied, and as such it must either be immutable or thread-safe.
-   * 
-   * @param map  the map of key to value
-   * @return the observable values
-   */
-  public static ObservableValues ofIdMap(Map<ObservableId, Double> map) {
-    ArgChecker.notNull(map, "map");
-    return new ObservableValues() {
-      @Override
-      public boolean containsValue(ObservableKey marketDataKey) {
-        for (ObservableId id : map.keySet()) {
-          if (id.toObservableKey().equals(marketDataKey)) {
-            return true;
-          }
-        }
-        return false;
-      }
-
-      @Override
-      public double getValue(ObservableKey marketDataKey) {
-        for (Entry<ObservableId, Double> entry : map.entrySet()) {
-          if (entry.getKey().toObservableKey().equals(marketDataKey)) {
-            return entry.getValue();
-          }
-        }
-        throw new IllegalArgumentException("Market data not found: " + marketDataKey);
-      }
-    };
+  public static ObservableValues of(Map<? extends ObservableKey, Double> map) {
+    return ImmutableObservableValues.of(map);
   }
 
   /**
@@ -87,21 +39,19 @@ public interface ObservableValues {
    * @return the observable values
    */
   public static ObservableValues of(ObservableKey key, double value) {
-    ArgChecker.notNull(key, "key");
-    return new ObservableValues() {
-      @Override
-      public boolean containsValue(ObservableKey marketDataKey) {
-        return key.equals(marketDataKey);
-      }
+    return ImmutableObservableValues.of(ImmutableMap.of(key, value));
+  }
 
-      @Override
-      public double getValue(ObservableKey marketDataKey) {
-        if (key.equals(marketDataKey)) {
-          return value;
-        }
-        throw new IllegalArgumentException("Market data not found: " + marketDataKey);
-      }
-    };
+  /**
+   * Obtains observable values based on a map of IDs.
+   * 
+   * @param map  the map of key to value
+   * @return the observable values
+   */
+  public static ObservableValues ofIdMap(Map<? extends ObservableId, Double> map) {
+    ArgChecker.notNull(map, "map");
+    return ImmutableObservableValues.of(map.entrySet().stream()
+        .collect(toImmutableMap(e -> e.getKey().toObservableKey(), e -> e.getValue())));
   }
 
   //-------------------------------------------------------------------------

@@ -16,26 +16,27 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
+
 /**
  * Test {@link ImmutableObservableValues}.
  */
+@Test
 public class ImmutableObservableValuesTest {
 
   private static final String ID_1 = "ID 1";
   private static final String ID_2 = "ID 2";
   private static final double VALUE_1 = 1.0;
   private static final double VALUE_2 = 2.0;
-  private static final Map<ObservableKey, Double> VALUES = new HashMap<>();
-  static {
-    VALUES.put(TestObservableKey.of(ID_1), VALUE_1);
-    VALUES.put(TestObservableKey.of(ID_2), VALUE_2);
-  }
+  private static final Map<TestObservableKey, Double> VALUES = ImmutableMap.of(
+      TestObservableKey.of(ID_1), VALUE_1,
+      TestObservableKey.of(ID_2), VALUE_2);
 
   public void test_null_map() {
     assertThrowsIllegalArg(() -> ImmutableObservableValues.of(null));
   }
-  
-  @Test
+
+  //-------------------------------------------------------------------------
   public void test_of() {
     ImmutableObservableValues test = ImmutableObservableValues.of(VALUES);
     assertEquals(test.getValues(), VALUES);
@@ -56,4 +57,5 @@ public class ImmutableObservableValuesTest {
     ImmutableObservableValues test = ImmutableObservableValues.of(VALUES);
     assertSerialization(test);
   }
+
 }
