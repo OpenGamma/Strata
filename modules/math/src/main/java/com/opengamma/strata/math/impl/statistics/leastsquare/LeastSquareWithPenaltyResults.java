@@ -13,6 +13,7 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
  * Hold for results of {@link NonLinearLeastSquareWithPenalty}
  */
 public class LeastSquareWithPenaltyResults extends LeastSquareResults {
+
   private final double _penalty;
 
   /**
@@ -57,4 +58,5 @@ public class LeastSquareWithPenaltyResults extends LeastSquareResults {
   public double getPenalty() {
     return _penalty;
   }
+
 }

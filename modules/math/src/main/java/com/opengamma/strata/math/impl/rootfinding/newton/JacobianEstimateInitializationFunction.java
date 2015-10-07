@@ -16,7 +16,10 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 public class JacobianEstimateInitializationFunction implements NewtonRootFinderMatrixInitializationFunction {
 
   @Override
-  public DoubleMatrix2D getInitializedMatrix(Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction, final DoubleMatrix1D x) {
+  public DoubleMatrix2D getInitializedMatrix(
+      Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction,
+      DoubleMatrix1D x) {
+
     ArgChecker.notNull(jacobianFunction, "Jacobian Function");
     ArgChecker.notNull(x, "x");
     return jacobianFunction.evaluate(x);

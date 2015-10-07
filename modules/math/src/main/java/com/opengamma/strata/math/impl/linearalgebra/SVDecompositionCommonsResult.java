@@ -18,6 +18,7 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
  * Wrapper for results of the Commons implementation of singular value decomposition {@link SVDecompositionCommons}
  */
 public class SVDecompositionCommonsResult implements SVDecompositionResult {
+
   private final double _condition;
   private final double _norm;
   private final int _rank;
@@ -32,7 +33,7 @@ public class SVDecompositionCommonsResult implements SVDecompositionResult {
   /**
    * @param svd The result of the SV decomposition, not null
    */
-  public SVDecompositionCommonsResult(final SingularValueDecomposition svd) {
+  public SVDecompositionCommonsResult(SingularValueDecomposition svd) {
     ArgChecker.notNull(svd, "svd");
     _condition = svd.getConditionNumber();
     _norm = svd.getNorm();
@@ -122,7 +123,7 @@ public class SVDecompositionCommonsResult implements SVDecompositionResult {
    * {@inheritDoc}
    */
   @Override
-  public DoubleMatrix1D solve(final DoubleMatrix1D b) {
+  public DoubleMatrix1D solve(DoubleMatrix1D b) {
     ArgChecker.notNull(b, "b");
     return CommonsMathWrapper.unwrap(_solver.solve(CommonsMathWrapper.wrap(b)));
   }
@@ -131,7 +132,7 @@ public class SVDecompositionCommonsResult implements SVDecompositionResult {
    * {@inheritDoc}
    */
   @Override
-  public double[] solve(final double[] b) {
+  public double[] solve(double[] b) {
     ArgChecker.notNull(b, "b");
     return _solver.solve(new ArrayRealVector(b)).toArray();
   }
@@ -140,7 +141,7 @@ public class SVDecompositionCommonsResult implements SVDecompositionResult {
    * {@inheritDoc}
    */
   @Override
-  public DoubleMatrix2D solve(final DoubleMatrix2D b) {
+  public DoubleMatrix2D solve(DoubleMatrix2D b) {
     ArgChecker.notNull(b, "b");
     return CommonsMathWrapper.unwrap(_solver.solve(CommonsMathWrapper.wrap(b)));
   }

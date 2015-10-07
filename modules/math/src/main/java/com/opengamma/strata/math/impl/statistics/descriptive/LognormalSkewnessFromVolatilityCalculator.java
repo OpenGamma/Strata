@@ -14,7 +14,7 @@ public class LognormalSkewnessFromVolatilityCalculator implements DoubleBinaryOp
 
   @Override
   public double applyAsDouble(double sigma, double t) {
-    final double y = Math.sqrt(Math.exp(sigma * sigma * t) - 1);
+    double y = Math.sqrt(Math.exp(sigma * sigma * t) - 1);
     return y * (3 + y * y);
   }
 

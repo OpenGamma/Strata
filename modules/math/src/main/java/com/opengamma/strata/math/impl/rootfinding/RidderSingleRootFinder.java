@@ -34,7 +34,7 @@ public class RidderSingleRootFinder extends RealSingleRootFinder {
   /**
    * @param functionValueAccuracy The accuracy of the function evaluations.
    */
-  public RidderSingleRootFinder(final double functionValueAccuracy) {
+  public RidderSingleRootFinder(double functionValueAccuracy) {
     _ridder = new RiddersSolver(functionValueAccuracy);
   }
 
@@ -42,22 +42,24 @@ public class RidderSingleRootFinder extends RealSingleRootFinder {
    * @param functionValueAccuracy The accuracy of the function evaluations.
    * @param absoluteAccurary The maximum absolute error of the variable.
    */
-  public RidderSingleRootFinder(final double functionValueAccuracy, final double absoluteAccurary) {
+  public RidderSingleRootFinder(double functionValueAccuracy, double absoluteAccurary) {
     _ridder = new RiddersSolver(functionValueAccuracy, absoluteAccurary);
   }
 
   /**
    * {@inheritDoc}
-   * @throws MathException If the Commons method could not evaluate the function; if the Commons method could not converge.
+   * @throws MathException If the Commons method could not evaluate the function;
+   *  if the Commons method could not converge.
    */
   @Override
-  public Double getRoot(final Function1D<Double, Double> function, final Double xLow, final Double xHigh) {
+  public Double getRoot(Function1D<Double, Double> function, Double xLow, Double xHigh) {
     checkInputs(function, xLow, xHigh);
-    final UnivariateFunction wrapped = CommonsMathWrapper.wrapUnivariate(function);
+    UnivariateFunction wrapped = CommonsMathWrapper.wrapUnivariate(function);
     try {
       return _ridder.solve(MAX_ITER, wrapped, xLow, xHigh);
     } catch (TooManyEvaluationsException | NoBracketingException e) {
       throw new MathException(e);
     }
   }
+
 }

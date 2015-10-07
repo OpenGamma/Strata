@@ -17,6 +17,7 @@ import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
  * <a href="http://mathworld.wolfram.com/CubicFormula.html">here</a>.
  */
 public class CubicRootFinder implements Polynomial1DRootFinder<ComplexNumber> {
+
   private static final double TWO_PI = 2 * Math.PI;
 
   /**
@@ -24,31 +25,37 @@ public class CubicRootFinder implements Polynomial1DRootFinder<ComplexNumber> {
    * @throws IllegalArgumentException If the function is not cubic
    */
   @Override
-  public ComplexNumber[] getRoots(final RealPolynomialFunction1D function) {
+  public ComplexNumber[] getRoots(RealPolynomialFunction1D function) {
     ArgChecker.notNull(function, "function");
-    final double[] coefficients = function.getCoefficients();
+    double[] coefficients = function.getCoefficients();
     ArgChecker.isTrue(coefficients.length == 4, "Function is not a cubic");
-    final double divisor = coefficients[3];
-    final double a = coefficients[2] / divisor;
-    final double b = coefficients[1] / divisor;
-    final double c = coefficients[0] / divisor;
-    final double aSq = a * a;
-    final double q = (aSq - 3 * b) / 9;
-    final double r = (2 * a * aSq - 9 * a * b + 27 * c) / 54;
-    final double rSq = r * r;
-    final double qCb = q * q * q;
-    final double constant = a / 3;
+    double divisor = coefficients[3];
+    double a = coefficients[2] / divisor;
+    double b = coefficients[1] / divisor;
+    double c = coefficients[0] / divisor;
+    double aSq = a * a;
+    double q = (aSq - 3 * b) / 9;
+    double r = (2 * a * aSq - 9 * a * b + 27 * c) / 54;
+    double rSq = r * r;
+    double qCb = q * q * q;
+    double constant = a / 3;
     if (rSq < qCb) {
-      final double mult = -2 * Math.sqrt(q);
-      final double theta = Math.acos(r / Math.sqrt(qCb));
-      return new ComplexNumber[] {new ComplexNumber(mult * Math.cos(theta / 3) - constant, 0), new ComplexNumber(mult * Math.cos((theta + TWO_PI) / 3) - constant, 0),
-        new ComplexNumber(mult * Math.cos((theta - TWO_PI) / 3) - constant, 0) };
+      double mult = -2 * Math.sqrt(q);
+      double theta = Math.acos(r / Math.sqrt(qCb));
+      return new ComplexNumber[] {
+          new ComplexNumber(mult * Math.cos(theta / 3) - constant, 0),
+          new ComplexNumber(mult * Math.cos((theta + TWO_PI) / 3) - constant, 0),
+          new ComplexNumber(mult * Math.cos((theta - TWO_PI) / 3) - constant, 0)};
     }
-    final double s = -Math.signum(r) * Math.cbrt(Math.abs(r) + Math.sqrt(rSq - qCb));
-    final double t = DoubleMath.fuzzyEquals(s, 0d, 1e-16) ? 0 : q / s;
-    final double sum = s + t;
-    final double real = -0.5 * sum - constant;
-    final double imaginary = Math.sqrt(3) * (s - t) / 2;
-    return new ComplexNumber[] {new ComplexNumber(sum - constant, 0), new ComplexNumber(real, imaginary), new ComplexNumber(real, -imaginary) };
+    double s = -Math.signum(r) * Math.cbrt(Math.abs(r) + Math.sqrt(rSq - qCb));
+    double t = DoubleMath.fuzzyEquals(s, 0d, 1e-16) ? 0 : q / s;
+    double sum = s + t;
+    double real = -0.5 * sum - constant;
+    double imaginary = Math.sqrt(3) * (s - t) / 2;
+    return new ComplexNumber[] {
+        new ComplexNumber(sum - constant, 0),
+        new ComplexNumber(real, imaginary),
+        new ComplexNumber(real, -imaginary)};
   }
+
 }

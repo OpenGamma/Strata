@@ -7,11 +7,11 @@ package com.opengamma.strata.math.impl.statistics.distribution;
 
 import java.util.Date;
 
-import cern.jet.random.engine.MersenneTwister64;
-import cern.jet.random.engine.RandomEngine;
-
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.collect.ArgChecker;
+
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
 
 /**
  * 
@@ -69,7 +69,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
    * @param sigma The scale parameter, not negative or zero
    * @param ksi The shape parameter, not zero
    */
-  public GeneralizedParetoDistribution(final double mu, final double sigma, final double ksi) {
+  public GeneralizedParetoDistribution(double mu, double sigma, double ksi) {
     this(mu, sigma, ksi, new MersenneTwister64(new Date()));
   }
 
@@ -80,7 +80,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
    * @param ksi The shape parameter
    * @param engine A uniform random number generator, not null
    */
-  public GeneralizedParetoDistribution(final double mu, final double sigma, final double ksi, final RandomEngine engine) {
+  public GeneralizedParetoDistribution(double mu, double sigma, double ksi, RandomEngine engine) {
     ArgChecker.isTrue(sigma > 0, "sigma must be > 0");
     ArgChecker.isTrue(!DoubleMath.fuzzyEquals(ksi, 0d, 1e-15), "ksi cannot be zero");
     ArgChecker.notNull(engine, "engine");
@@ -116,7 +116,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
    * @throws IllegalArgumentException If $x \not\in$ support
    */
   @Override
-  public double getCDF(final Double x) {
+  public double getCDF(Double x) {
     ArgChecker.notNull(x, "x");
     return 1 - Math.pow(1 + _ksi * getZ(x), -1. / _ksi);
   }
@@ -127,7 +127,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
    * @throws UnsupportedOperationException always
    */
   @Override
-  public double getInverseCDF(final Double p) {
+  public double getInverseCDF(Double p) {
     throw new UnsupportedOperationException();
   }
 
@@ -136,7 +136,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
   * @throws IllegalArgumentException If $x \not\in$ support
   */
   @Override
-  public double getPDF(final Double x) {
+  public double getPDF(Double x) {
     ArgChecker.notNull(x, "x");
     return Math.pow(1 + _ksi * getZ(x), -(1. / _ksi + 1)) / _sigma;
   }
@@ -149,7 +149,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
     return _mu + _sigma * (Math.pow(_engine.nextDouble(), -_ksi) - 1) / _ksi;
   }
 
-  private double getZ(final double x) {
+  private double getZ(double x) {
     if (_ksi > 0 && x < _mu) {
       throw new IllegalArgumentException("Support for GPD is in the range x >= mu if ksi > 0");
     }
@@ -161,7 +161,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     long temp;
     temp = Double.doubleToLongBits(_ksi);
@@ -174,7 +174,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -184,7 +184,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final GeneralizedParetoDistribution other = (GeneralizedParetoDistribution) obj;
+    GeneralizedParetoDistribution other = (GeneralizedParetoDistribution) obj;
     if (Double.doubleToLongBits(_ksi) != Double.doubleToLongBits(other._ksi)) {
       return false;
     }

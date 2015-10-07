@@ -19,11 +19,16 @@ import com.opengamma.strata.math.impl.matrix.Matrix;
 public class BroydenMatrixUpdateFunction implements NewtonRootFinderMatrixUpdateFunction {
 
   @Override
-  public DoubleMatrix2D getUpdatedMatrix(Function1D<DoubleMatrix1D, DoubleMatrix2D> j, DoubleMatrix1D x, final DoubleMatrix1D deltaX, final DoubleMatrix1D deltaY, final DoubleMatrix2D matrix) {
+  public DoubleMatrix2D getUpdatedMatrix(
+      Function1D<DoubleMatrix1D, DoubleMatrix2D> j, DoubleMatrix1D x,
+      DoubleMatrix1D deltaX,
+      DoubleMatrix1D deltaY,
+      DoubleMatrix2D matrix) {
+
     ArgChecker.notNull(deltaX, "deltaX");
     ArgChecker.notNull(deltaY, "deltaY");
     ArgChecker.notNull(matrix, "matrix");
-    final double length2 = OG_ALGEBRA.getInnerProduct(deltaX, deltaX);
+    double length2 = OG_ALGEBRA.getInnerProduct(deltaX, deltaX);
     if (length2 == 0.0) {
       return matrix;
     }

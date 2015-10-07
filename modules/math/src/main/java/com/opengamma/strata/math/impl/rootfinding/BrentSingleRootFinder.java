@@ -12,6 +12,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * 
  */
 public class BrentSingleRootFinder extends RealSingleRootFinder {
+
   private static final int MAX_ITER = 100;
   private static final double ZERO = 1e-16;
   private final double _accuracy;
@@ -26,12 +27,13 @@ public class BrentSingleRootFinder extends RealSingleRootFinder {
   /**
    * @param accuracy The accuracy of the root
    */
-  public BrentSingleRootFinder(final double accuracy) {
+  public BrentSingleRootFinder(double accuracy) {
     _accuracy = accuracy;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public Double getRoot(final Function1D<Double, Double> function, final Double xLower, final Double xUpper) {
+  public Double getRoot(Function1D<Double, Double> function, Double xLower, Double xUpper) {
     checkInputs(function, xLower, xUpper);
     if (xLower.equals(xUpper)) {
       return xLower;
@@ -105,4 +107,5 @@ public class BrentSingleRootFinder extends RealSingleRootFinder {
     }
     throw new MathException("Could not converge to root in " + MAX_ITER + " attempts");
   }
+
 }

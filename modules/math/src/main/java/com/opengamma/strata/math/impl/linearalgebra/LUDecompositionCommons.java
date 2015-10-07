@@ -18,14 +18,11 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
  */
 public class LUDecompositionCommons extends Decomposition<LUDecompositionResult> {
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public LUDecompositionResult evaluate(final DoubleMatrix2D x) {
+  public LUDecompositionResult evaluate(DoubleMatrix2D x) {
     ArgChecker.notNull(x, "x");
-    final RealMatrix temp = CommonsMathWrapper.wrap(x);
-    final LUDecomposition lu = new LUDecomposition(temp);
+    RealMatrix temp = CommonsMathWrapper.wrap(x);
+    LUDecomposition lu = new LUDecomposition(temp);
     return new LUDecompositionCommonsResult(lu);
   }
 

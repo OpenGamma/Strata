@@ -43,7 +43,7 @@ public class NonLinearLeastSquareWithPenalty {
    */
   public static final Function1D<DoubleMatrix1D, Boolean> UNCONSTRAINED = new Function1D<DoubleMatrix1D, Boolean>() {
     @Override
-    public Boolean evaluate(final DoubleMatrix1D x) {
+    public Boolean evaluate(DoubleMatrix1D x) {
       return true;
     }
   };
@@ -232,7 +232,8 @@ public class NonLinearLeastSquareWithPenalty {
     ArgChecker.notNull(startPos, "startPos");
     int nObs = observedValues.getNumberOfElements();
     ArgChecker.isTrue(nObs == sigma.getNumberOfElements(), "observedValues and sigma must be same length");
-    ArgChecker.isTrue(allowedValue.evaluate(startPos), "The start position {} is not valid for this model. Please choose a valid start position", startPos);
+    ArgChecker.isTrue(allowedValue.evaluate(startPos),
+        "The start position {} is not valid for this model. Please choose a valid start position", startPos);
 
     DoubleMatrix2D alpha;
     DecompositionResult decmp;
@@ -340,7 +341,8 @@ public class NonLinearLeastSquareWithPenalty {
     int n = observedValues.getNumberOfElements();
     DoubleMatrix1D modelValues = func.evaluate(theta);
     ArgChecker.isTrue(n == modelValues.getNumberOfElements(),
-        "Number of data points different between model (" + modelValues.getNumberOfElements() + ") and observed (" + n + ")");
+        "Number of data points different between model (" + modelValues.getNumberOfElements() +
+            ") and observed (" + n + ")");
     double[] res = new double[n];
     for (int i = 0; i < n; i++) {
       res[i] = (observedValues.getEntry(i) - modelValues.getEntry(i)) / sigma.getEntry(i);

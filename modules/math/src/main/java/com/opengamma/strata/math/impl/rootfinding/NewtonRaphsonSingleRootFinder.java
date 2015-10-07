@@ -38,6 +38,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * and convergence will be even slower). Use of another root-finder is recommended in this case.
  */
 public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
+
   private static final int MAX_ITER = 10000;
   private final double _accuracy;
 
@@ -49,52 +50,61 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
   }
 
   /**
-   * Takes the accuracy of the root as a parameter - this is the maximum difference between the true root and the returned value that is allowed. 
+   * Takes the accuracy of the root as a parameter - this is the maximum difference
+   * between the true root and the returned value that is allowed. 
    * If this is negative, then the absolute value is used.
+   * 
    * @param accuracy The accuracy
    */
-  public NewtonRaphsonSingleRootFinder(final double accuracy) {
+  public NewtonRaphsonSingleRootFinder(double accuracy) {
     _accuracy = Math.abs(accuracy);
   }
 
   /**
    * {@inheritDoc}
-   * @throws MathException If the root is not found in 1000 attempts; if the Newton step takes the estimate for the root outside the original bounds.
+   * @throws MathException If the root is not found in 1000 attempts; if the Newton
+   *  step takes the estimate for the root outside the original bounds.
    */
   @Override
-  public Double getRoot(final Function1D<Double, Double> function, final Double x1, final Double x2) {
+  public Double getRoot(Function1D<Double, Double> function, Double x1, Double x2) {
     ArgChecker.notNull(function, "function");
     return getRoot(DoubleFunction1D.from(function), x1, x2);
   }
 
-  public Double getRoot(final Function1D<Double, Double> function, final Double x) {
+  //-------------------------------------------------------------------------
+  public Double getRoot(Function1D<Double, Double> function, Double x) {
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(x, "x");
-    final DoubleFunction1D f = DoubleFunction1D.from(function);
+    DoubleFunction1D f = DoubleFunction1D.from(function);
     return getRoot(f, f.derivative(), x);
   }
 
   /**
-   * Uses the {@link DoubleFunction1D#derivative()} method. <i>x<sub>1</sub></i> and <i>x<sub>2</sub></i> do not have to be increasing.
+   * Uses the {@link DoubleFunction1D#derivative()} method. <i>x<sub>1</sub></i> and
+   * <i>x<sub>2</sub></i> do not have to be increasing.
+   * 
    * @param function The function, not null
    * @param x1 The first bound of the root, not null
    * @param x2 The second bound of the root, not null
    * @return The root
-   * @throws MathException If the root is not found in 1000 attempts; if the Newton step takes the estimate for the root outside the original bounds.
+   * @throws MathException If the root is not found in 1000 attempts; if the Newton
+   *  step takes the estimate for the root outside the original bounds.
    */
-  public Double getRoot(final DoubleFunction1D function, final Double x1, final Double x2) {
+  public Double getRoot(DoubleFunction1D function, Double x1, Double x2) {
     ArgChecker.notNull(function, "function");
     return getRoot(function, function.derivative(), x1, x2);
   }
 
   /**
-   * Uses the {@link DoubleFunction1D#derivative()} method. This method uses an initial guess for the root, rather than bounds.
+   * Uses the {@link DoubleFunction1D#derivative()} method. This method uses an initial
+   * guess for the root, rather than bounds.
+   * 
    * @param function The function, not null
    * @param x The initial guess for the root, not null
    * @return The root
    * @throws MathException If the root is not found in 1000 attempts.
    */
-  public Double getRoot(final DoubleFunction1D function, final Double x) {
+  public Double getRoot(DoubleFunction1D function, Double x) {
     ArgChecker.notNull(function, "function");
     return getRoot(function, function.derivative(), x);
   }
@@ -106,9 +116,10 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
    * @param x1 The first bound of the root, not null
    * @param x2 The second bound of the root, not null
    * @return The root
-   * @throws MathException If the root is not found in 1000 attempts; if the Newton step takes the estimate for the root outside the original bounds.
+   * @throws MathException If the root is not found in 1000 attempts; if the Newton
+   *  step takes the estimate for the root outside the original bounds.
    */
-  public Double getRoot(final Function1D<Double, Double> function, final Function1D<Double, Double> derivative, final Double x1, final Double x2) {
+  public Double getRoot(Function1D<Double, Double> function, Function1D<Double, Double> derivative, Double x1, Double x2) {
     checkInputs(function, x1, x2);
     ArgChecker.notNull(derivative, "derivative");
     return getRoot(DoubleFunction1D.from(function), DoubleFunction1D.from(derivative), x1, x2);
@@ -122,7 +133,7 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
    * @return The root
    * @throws MathException If the root is not found in 1000 attempts.
    */
-  public Double getRoot(final Function1D<Double, Double> function, final Function1D<Double, Double> derivative, final Double x) {
+  public Double getRoot(Function1D<Double, Double> function, Function1D<Double, Double> derivative, Double x) {
     return getRoot(DoubleFunction1D.from(function), DoubleFunction1D.from(derivative), x);
   }
 
@@ -133,27 +144,28 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
    * @param x1 The first bound of the root, not null
    * @param x2 The second bound of the root, not null
    * @return The root
-   * @throws MathException If the root is not found in 1000 attempts; if the Newton step takes the estimate for the root outside the original bounds.
+   * @throws MathException If the root is not found in 1000 attempts; if the Newton
+   *  step takes the estimate for the root outside the original bounds.
    */
-  public Double getRoot(final DoubleFunction1D function, final DoubleFunction1D derivative, final Double x1, final Double x2) {
+  public Double getRoot(DoubleFunction1D function, DoubleFunction1D derivative, Double x1, Double x2) {
     checkInputs(function, x1, x2);
     ArgChecker.notNull(derivative, "derivative function");
-    final double y1 = function.evaluate(x1);
+    double y1 = function.evaluate(x1);
     if (Math.abs(y1) < _accuracy) {
       return x1;
     }
-    final double y2 = function.evaluate(x2);
+    double y2 = function.evaluate(x2);
     if (Math.abs(y2) < _accuracy) {
       return x2;
     }
     double x = (x1 + x2) / 2;
     double x3 = y2 < 0 ? x2 : x1;
     double x4 = y2 < 0 ? x1 : x2;
-    final double xLower = x1 > x2 ? x2 : x1;
-    final double xUpper = x1 > x2 ? x1 : x2;
+    double xLower = x1 > x2 ? x2 : x1;
+    double xUpper = x1 > x2 ? x1 : x2;
     for (int i = 0; i < MAX_ITER; i++) {
-      final double y = function.evaluate(x);
-      final double dy = derivative.evaluate(x);
+      double y = function.evaluate(x);
+      double dy = derivative.evaluate(x);
       double dx = -y / dy;
       if (Math.abs(dx) <= _accuracy) {
         return x + dx;
@@ -180,15 +192,15 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
    * @return The root
    * @throws MathException If the root is not found in 1000 attempts.
    */
-  public Double getRoot(final DoubleFunction1D function, final DoubleFunction1D derivative, final Double x) {
+  public Double getRoot(DoubleFunction1D function, DoubleFunction1D derivative, Double x) {
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(derivative, "derivative function");
     ArgChecker.notNull(x, "x");
     double root = x;
     for (int i = 0; i < MAX_ITER; i++) {
-      final double y = function.evaluate(root);
-      final double dy = derivative.evaluate(root);
-      final double dx = y / dy;
+      double y = function.evaluate(root);
+      double dy = derivative.evaluate(root);
+      double dx = y / dy;
       if (Math.abs(dx) <= _accuracy) {
         return root - dx;
       }
@@ -196,4 +208,5 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
     }
     throw new MathException("Could not find root in " + MAX_ITER + " attempts");
   }
+
 }

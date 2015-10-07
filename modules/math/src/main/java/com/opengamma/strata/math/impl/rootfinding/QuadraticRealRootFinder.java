@@ -28,18 +28,19 @@ public class QuadraticRealRootFinder implements Polynomial1DRootFinder<Double> {
    * @throws MathException If the roots are not real
    */
   @Override
-  public Double[] getRoots(final RealPolynomialFunction1D function) {
+  public Double[] getRoots(RealPolynomialFunction1D function) {
     ArgChecker.notNull(function, "function");
-    final double[] coefficients = function.getCoefficients();
+    double[] coefficients = function.getCoefficients();
     ArgChecker.isTrue(coefficients.length == 3, "Function is not a quadratic");
-    final double c = coefficients[0];
-    final double b = coefficients[1];
-    final double a = coefficients[2];
-    final double discriminant = b * b - 4 * a * c;
+    double c = coefficients[0];
+    double b = coefficients[1];
+    double a = coefficients[2];
+    double discriminant = b * b - 4 * a * c;
     if (discriminant < 0) {
       throw new MathException("No real roots for quadratic");
     }
-    final double q = -0.5 * (b + Math.signum(b) * discriminant);
-    return new Double[] {q / a, c / q };
+    double q = -0.5 * (b + Math.signum(b) * discriminant);
+    return new Double[] {q / a, c / q};
   }
+
 }

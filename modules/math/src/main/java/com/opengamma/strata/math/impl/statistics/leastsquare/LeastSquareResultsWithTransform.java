@@ -24,14 +24,14 @@ public class LeastSquareResultsWithTransform extends LeastSquareResults {
   private final DoubleMatrix1D _modelParameters;
   private DoubleMatrix2D _inverseJacobianModelPararms;
 
-  public LeastSquareResultsWithTransform(final LeastSquareResults transformedFitResult) {
+  public LeastSquareResultsWithTransform(LeastSquareResults transformedFitResult) {
     super(transformedFitResult);
     _transform = null;
     _modelParameters = transformedFitResult.getFitParameters();
     _inverseJacobianModelPararms = getFittingParameterSensitivityToData();
   }
 
-  public LeastSquareResultsWithTransform(final LeastSquareResults transformedFitResult, final NonLinearParameterTransforms transform) {
+  public LeastSquareResultsWithTransform(LeastSquareResults transformedFitResult, NonLinearParameterTransforms transform) {
     super(transformedFitResult);
     ArgChecker.notNull(transform, "null transform");
     _transform = transform;
@@ -62,7 +62,7 @@ public class LeastSquareResultsWithTransform extends LeastSquareResults {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = super.hashCode();
     result = prime * result + ((_inverseJacobianModelPararms == null) ? 0 : _inverseJacobianModelPararms.hashCode());
     result = prime * result + ((_modelParameters == null) ? 0 : _modelParameters.hashCode());
@@ -108,7 +108,8 @@ public class LeastSquareResultsWithTransform extends LeastSquareResults {
 
   @Override
   public String toString() {
-    return "LeastSquareResults [chiSq=" + getChiSq() + ", fit parameters=" + getFitParameters().toString() + ", model parameters= " + getModelParameters().toString() + ", covariance="
+    return "LeastSquareResults [chiSq=" + getChiSq() + ", fit parameters=" + getFitParameters().toString() +
+        ", model parameters= " + getModelParameters().toString() + ", covariance="
         + getCovariance().toString() + "]";
   }
 

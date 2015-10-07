@@ -7,14 +7,14 @@ package com.opengamma.strata.math.impl.statistics.distribution;
 
 import java.util.Date;
 
-import cern.jet.random.StudentT;
-import cern.jet.random.engine.MersenneTwister64;
-import cern.jet.random.engine.RandomEngine;
-
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.special.GammaFunction;
 import com.opengamma.strata.math.impl.function.special.InverseIncompleteBetaFunction;
+
+import cern.jet.random.StudentT;
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
 
 /**
  * Student's T-distribution is a continuous probability distribution with probability density function
@@ -34,7 +34,7 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
   /**
    * @param degFreedom The number of degrees of freedom, not negative or zero
    */
-  public StudentTDistribution(final double degFreedom) {
+  public StudentTDistribution(double degFreedom) {
     this(degFreedom, new MersenneTwister64(new Date()));
   }
 
@@ -42,7 +42,7 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
    * @param degFreedom The number of degrees of freedom, not negative or zero
    * @param engine A generator of uniform random numbers, not null
    */
-  public StudentTDistribution(final double degFreedom, final RandomEngine engine) {
+  public StudentTDistribution(double degFreedom, RandomEngine engine) {
     ArgChecker.isTrue(degFreedom > 0, "degrees of freedom");
     ArgChecker.notNull(engine, "engine");
     _degFreedom = degFreedom;
@@ -54,7 +54,7 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
    * {@inheritDoc}
    */
   @Override
-  public double getCDF(final Double x) {
+  public double getCDF(Double x) {
     ArgChecker.notNull(x, "x");
     return _dist.cdf(x);
   }
@@ -63,7 +63,7 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
    * {@inheritDoc}
    */
   @Override
-  public double getPDF(final Double x) {
+  public double getPDF(Double x) {
     ArgChecker.notNull(x, "x");
     return _dist.pdf(x);
   }
@@ -88,10 +88,10 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
    * where $B$ is the inverse incomplete Beta function ({@link InverseIncompleteBetaFunction}).
    */
   @Override
-  public double getInverseCDF(final Double p) {
+  public double getInverseCDF(Double p) {
     ArgChecker.notNull(p, "p");
     ArgChecker.isTrue(p >= 0 && p <= 1, "Probability must be >= 0 and <= 1");
-    final double x = _beta.evaluate(2 * Math.min(p, 1 - p));
+    double x = _beta.evaluate(2 * Math.min(p, 1 - p));
     return Math.signum(p - 0.5) * Math.sqrt(_degFreedom * (1. / x - 1));
   }
 
@@ -104,7 +104,7 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     long temp;
     temp = Double.doubleToLongBits(_degFreedom);
@@ -113,7 +113,7 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -123,7 +123,8 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final StudentTDistribution other = (StudentTDistribution) obj;
+    StudentTDistribution other = (StudentTDistribution) obj;
     return Double.doubleToLongBits(_degFreedom) == Double.doubleToLongBits(other._degFreedom);
   }
+
 }

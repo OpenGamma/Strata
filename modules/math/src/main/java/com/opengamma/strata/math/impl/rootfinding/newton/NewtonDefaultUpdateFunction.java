@@ -16,8 +16,13 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 public class NewtonDefaultUpdateFunction implements NewtonRootFinderMatrixUpdateFunction {
 
   @Override
-  public DoubleMatrix2D getUpdatedMatrix(Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction, DoubleMatrix1D x, final DoubleMatrix1D deltaX, final DoubleMatrix1D deltaY,
-      final DoubleMatrix2D matrix) {
+  public DoubleMatrix2D getUpdatedMatrix(
+      Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction,
+      DoubleMatrix1D x,
+      DoubleMatrix1D deltaX,
+      DoubleMatrix1D deltaY,
+      DoubleMatrix2D matrix) {
+
     ArgChecker.notNull(jacobianFunction, "jacobianFunction");
     ArgChecker.notNull(x, "x");
     return jacobianFunction.evaluate(x);

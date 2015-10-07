@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.math.impl.minimization;
 
 import com.opengamma.strata.math.impl.function.Function1D;
@@ -11,8 +16,8 @@ public class PositiveOrZero extends Function1D<DoubleMatrix1D, Boolean> {
 
   @Override
   public Boolean evaluate(DoubleMatrix1D x) {
-    final double[] data = x.getData();
-    for (final double value : data) {
+    double[] data = x.getData();
+    for (double value : data) {
       if (value < 0.0) {
         return false;
       }

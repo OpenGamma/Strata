@@ -14,4 +14,5 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 public interface NewtonRootFinderDirectionFunction {
 
   DoubleMatrix1D getDirection(DoubleMatrix2D estimate, DoubleMatrix1D y);
+
 }

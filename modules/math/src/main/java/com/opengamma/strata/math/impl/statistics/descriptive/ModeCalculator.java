@@ -19,20 +19,16 @@ public class ModeCalculator implements Function<double[], Double> {
   private static final double EPS = 1e-16;
 
   //TODO more than one value can be the mode
-  /**
-   * @param x The array of data, not null or empty
-   * @return The arithmetic mean
-   */
   @Override
-  public Double apply(final double[] x) {
+  public Double apply(double[] x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(x.length > 0, "x cannot be empty");
     if (x.length == 1) {
       return x[0];
     }
-    final double[] x1 = Arrays.copyOf(x, x.length);
+    double[] x1 = Arrays.copyOf(x, x.length);
     Arrays.sort(x1);
-    final TreeMap<Integer, Double> counts = new TreeMap<>();
+    TreeMap<Integer, Double> counts = new TreeMap<>();
     int count = 1;
     for (int i = 1; i < x1.length; i++) {
       if (Math.abs(x1[i] - x1[i - 1]) < EPS) {
@@ -47,4 +43,5 @@ public class ModeCalculator implements Function<double[], Double> {
     }
     return counts.lastEntry().getValue();
   }
+
 }

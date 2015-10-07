@@ -19,20 +19,20 @@ public interface DecompositionResult {
    * @param b a vector, not null
    * @return the vector x
    */
-  DoubleMatrix1D solve(final DoubleMatrix1D b);
+  DoubleMatrix1D solve(DoubleMatrix1D b);
 
   /**
    * Solves $\mathbf{A}x = b$ where $\mathbf{A}$ is a (decomposed) matrix and $b$ is a vector. 
    * @param b vector, not null
    * @return the vector x 
    */
-  double[] solve(final double[] b);
+  double[] solve(double[] b);
 
   /**
    * Solves $\mathbf{A}x = \mathbf{B}$ where $\mathbf{A}$ is a (decomposed) matrix and $\mathbf{B}$ is a matrix.
    * @param b matrix, not null
    * @return the matrix x
    */
-  DoubleMatrix2D solve(final DoubleMatrix2D b);
+  DoubleMatrix2D solve(DoubleMatrix2D b);
 
 }

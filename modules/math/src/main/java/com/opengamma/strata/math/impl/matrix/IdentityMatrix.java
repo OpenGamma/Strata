@@ -14,7 +14,7 @@ public class IdentityMatrix extends DoubleMatrix2D {
 
   private final int _size;
 
-  public IdentityMatrix(final int size) {
+  public IdentityMatrix(int size) {
     super(size, size);
     ArgChecker.isTrue(size > 0, "size must be > 0");
     for (int i = 0; i < size; i++) {
@@ -29,7 +29,7 @@ public class IdentityMatrix extends DoubleMatrix2D {
   }
 
   @Override
-  public Double getEntry(final int... indices) {
+  public Double getEntry(int... indices) {
     ArgChecker.isTrue(indices.length == 2, "pass only two indices");
     return indices[0] == indices[1] ? 1.0 : 0.0;
   }

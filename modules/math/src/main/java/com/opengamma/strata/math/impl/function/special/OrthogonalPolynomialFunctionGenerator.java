@@ -20,7 +20,7 @@ public abstract class OrthogonalPolynomialFunctionGenerator {
 
   public abstract DoubleFunction1D[] getPolynomials(int n);
 
-  public abstract Pair<DoubleFunction1D, DoubleFunction1D>[] getPolynomialsAndFirstDerivative(final int n);
+  public abstract Pair<DoubleFunction1D, DoubleFunction1D>[] getPolynomialsAndFirstDerivative(int n);
 
   protected DoubleFunction1D getZero() {
     return ZERO;

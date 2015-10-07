@@ -20,17 +20,15 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * where $\overline{x}$ is the sample mean. For the sample variance, see {@link SampleVarianceCalculator}.
  */
 public class PopulationVarianceCalculator extends Function1D<double[], Double> {
+
   private final Function1D<double[], Double> _variance = new SampleVarianceCalculator();
 
-  /**
-   * @param x The array of data, not null, must contain at least two elements
-   * @return The population variance
-   */
   @Override
-  public Double evaluate(final double[] x) {
+  public Double evaluate(double[] x) {
     ArgChecker.notNull(x, "x");
-    final int n = x.length;
+    int n = x.length;
     ArgChecker.isTrue(n >= 2, "Need at least two points to calculate the population variance");
     return _variance.evaluate(x) * (n - 1) / n;
   }
+
 }

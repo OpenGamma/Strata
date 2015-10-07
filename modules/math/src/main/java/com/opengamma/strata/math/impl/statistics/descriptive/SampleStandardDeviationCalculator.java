@@ -13,14 +13,11 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * the sample variance (see {@link SampleVarianceCalculator}).
  */
 public class SampleStandardDeviationCalculator extends Function1D<double[], Double> {
+
   private static final Function1D<double[], Double> VARIANCE = new SampleVarianceCalculator();
 
-  /**
-   * @param x The array of data, not null, must contain at least two data points
-   * @return The sample standard deviation
-   */
   @Override
-  public Double evaluate(final double[] x) {
+  public Double evaluate(double[] x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(x.length >= 2, "Need at least two points to calculate standard deviation");
     return Math.sqrt(VARIANCE.evaluate(x));

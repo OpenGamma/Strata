@@ -26,20 +26,16 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 public class MedianCalculator implements Function<double[], Double> {
 
-  /**
-   * @param x The array of data, not null or empty
-   * @return The median
-   */
   @Override
-  public Double apply(final double[] x) {
+  public Double apply(double[] x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(x.length > 0, "x cannot be empty");
     if (x.length == 1) {
       return x[0];
     }
-    final double[] x1 = Arrays.copyOf(x, x.length);
+    double[] x1 = Arrays.copyOf(x, x.length);
     Arrays.sort(x1);
-    final int mid = x1.length / 2;
+    int mid = x1.length / 2;
     if (x1.length % 2 == 1) {
       return x1[mid];
     }

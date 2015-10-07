@@ -25,7 +25,7 @@ public abstract class Integrator1D<T, U> implements Integrator<T, U, Function1D<
    * {@inheritDoc}
    */
   @Override
-  public T integrate(final Function1D<U, T> f, final U[] lower, final U[] upper) {
+  public T integrate(Function1D<U, T> f, U[] lower, U[] upper) {
     ArgChecker.notNull(f, "function was null");
     ArgChecker.notNull(lower, "lower bound array was null");
     ArgChecker.notNull(upper, "upper bound array was null");

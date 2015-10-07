@@ -16,19 +16,16 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
  */
 public class InverseTridiagonalMatrixCalculator extends Function1D<TridiagonalMatrix, DoubleMatrix2D> {
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public DoubleMatrix2D evaluate(final TridiagonalMatrix x) {
+  public DoubleMatrix2D evaluate(TridiagonalMatrix x) {
     ArgChecker.notNull(x, "x");
-    final double[] a = x.getDiagonalData();
-    final double[] b = x.getUpperSubDiagonalData();
-    final double[] c = x.getLowerSubDiagonalData();
-    final int n = a.length;
+    double[] a = x.getDiagonalData();
+    double[] b = x.getUpperSubDiagonalData();
+    double[] c = x.getLowerSubDiagonalData();
+    int n = a.length;
     int i, j, k;
-    final double[] theta = new double[n + 1];
-    final double[] phi = new double[n];
+    double[] theta = new double[n + 1];
+    double[] phi = new double[n];
 
     theta[0] = 1.0;
     theta[1] = a[0];
@@ -47,7 +44,7 @@ public class InverseTridiagonalMatrixCalculator extends Function1D<TridiagonalMa
     }
 
     double product;
-    final double[][] res = new double[n][n];
+    double[][] res = new double[n][n];
 
     for (j = 0; j < n; j++) {
       for (i = 0; i <= j; i++) {
@@ -65,7 +62,6 @@ public class InverseTridiagonalMatrixCalculator extends Function1D<TridiagonalMa
         res[i][j] = ((i + j) % 2 == 0 ? 1 : -1) * product * theta[j] * phi[i] / theta[n];
       }
     }
-
     return new DoubleMatrix2D(res);
   }
 
