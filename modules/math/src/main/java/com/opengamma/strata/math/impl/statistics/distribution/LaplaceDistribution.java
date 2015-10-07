@@ -7,10 +7,10 @@ package com.opengamma.strata.math.impl.statistics.distribution;
 
 import java.util.Date;
 
+import com.opengamma.strata.collect.ArgChecker;
+
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
-
-import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * The Laplace distribution is a continuous probability distribution with probability density function
@@ -50,7 +50,7 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
    * @param mu The location parameter
    * @param b The scale parameter, greater than zero
    */
-  public LaplaceDistribution(final double mu, final double b) {
+  public LaplaceDistribution(double mu, double b) {
     this(mu, b, new MersenneTwister64(new Date()));
   }
 
@@ -59,7 +59,7 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
    * @param b The scale parameter, greater than zero
    * @param engine A uniform random number generator, not null
    */
-  public LaplaceDistribution(final double mu, final double b, final RandomEngine engine) {
+  public LaplaceDistribution(double mu, double b, RandomEngine engine) {
     ArgChecker.isTrue(b > 0, "b must be > 0");
     ArgChecker.notNull(engine, "engine");
     _mu = mu;
@@ -71,7 +71,7 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
    * {@inheritDoc}
    */
   @Override
-  public double getCDF(final Double x) {
+  public double getCDF(Double x) {
     ArgChecker.notNull(x, "x");
     return 0.5 * (1 + Math.signum(x - _mu) * (1 - Math.exp(-Math.abs(x - _mu) / _b)));
   }
@@ -80,7 +80,7 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
    * {@inheritDoc}
    */
   @Override
-  public double getInverseCDF(final Double p) {
+  public double getInverseCDF(Double p) {
     ArgChecker.notNull(p, "p");
     ArgChecker.isTrue(p >= 0 && p <= 1, "Probability must lie between 0 and 1 (inclusive)");
     return _mu - _b * Math.signum(p - 0.5) * Math.log(1 - 2 * Math.abs(p - 0.5));
@@ -90,7 +90,7 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
    * {@inheritDoc}
    */
   @Override
-  public double getPDF(final Double x) {
+  public double getPDF(Double x) {
     ArgChecker.notNull(x, "x");
     return Math.exp(-Math.abs(x - _mu) / _b) / (2 * _b);
   }
@@ -100,7 +100,7 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
    */
   @Override
   public double nextRandom() {
-    final double u = _engine.nextDouble() - 0.5;
+    double u = _engine.nextDouble() - 0.5;
     return _mu - _b * Math.signum(u) * Math.log(1 - 2 * Math.abs(u));
   }
 
@@ -120,7 +120,7 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     long temp;
     temp = Double.doubleToLongBits(_b);
@@ -131,7 +131,7 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -141,7 +141,7 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final LaplaceDistribution other = (LaplaceDistribution) obj;
+    LaplaceDistribution other = (LaplaceDistribution) obj;
     if (Double.doubleToLongBits(_b) != Double.doubleToLongBits(other._b)) {
       return false;
     }

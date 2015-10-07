@@ -58,6 +58,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * 
  */
 public class GeneralizedExtremeValueDistribution implements ProbabilityDistribution<Double> {
+
   private final double _mu;
   private final double _sigma;
   private final double _ksi;
@@ -69,7 +70,7 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
    * @param sigma The scale parameter, not negative or zero
    * @param ksi The shape parameter
    */
-  public GeneralizedExtremeValueDistribution(final double mu, final double sigma, final double ksi) {
+  public GeneralizedExtremeValueDistribution(double mu, double sigma, double ksi) {
     ArgChecker.isTrue(sigma >= 0, "sigma must be >= 0");
     _mu = mu;
     _sigma = sigma;
@@ -82,7 +83,7 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
    * @throws IllegalArgumentException If $x \not\in$ support
    */
   @Override
-  public double getCDF(final Double x) {
+  public double getCDF(Double x) {
     ArgChecker.notNull(x, "x");
     return Math.exp(-getT(x));
   }
@@ -93,7 +94,7 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
    * @throws UnsupportedOperationException always
    */
   @Override
-  public double getInverseCDF(final Double p) {
+  public double getInverseCDF(Double p) {
     throw new UnsupportedOperationException();
   }
 
@@ -102,9 +103,9 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
    * @throws IllegalArgumentException If $x \not\in$ support
    */
   @Override
-  public double getPDF(final Double x) {
+  public double getPDF(Double x) {
     ArgChecker.notNull(x, "x");
-    final double t = getT(x);
+    double t = getT(x);
     return Math.pow(t, _ksi + 1) * Math.exp(-t) / _sigma;
   }
 
@@ -139,7 +140,7 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
     return _ksi;
   }
 
-  private double getT(final double x) {
+  private double getT(double x) {
     if (_ksiIsZero) {
       return Math.exp(-(x - _mu) / _sigma);
     }
@@ -154,7 +155,7 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     long temp;
     temp = Double.doubleToLongBits(_ksi);
@@ -167,7 +168,7 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -177,7 +178,7 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final GeneralizedExtremeValueDistribution other = (GeneralizedExtremeValueDistribution) obj;
+    GeneralizedExtremeValueDistribution other = (GeneralizedExtremeValueDistribution) obj;
     if (Double.doubleToLongBits(_ksi) != Double.doubleToLongBits(other._ksi)) {
       return false;
     }

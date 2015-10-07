@@ -28,7 +28,7 @@ public class LUDecompositionCommonsResult implements LUDecompositionResult {
   /**
    * @param lu The result of the LU decomposition, not null. $\mathbf{L}$ cannot be singular.
    */
-  public LUDecompositionCommonsResult(final LUDecomposition lu) {
+  public LUDecompositionCommonsResult(LUDecomposition lu) {
     ArgChecker.notNull(lu, "LU decomposition");
     ArgChecker.notNull(lu.getL(), "Matrix is singular; could not perform LU decomposition");
     _determinant = lu.getDeterminant();
@@ -83,7 +83,7 @@ public class LUDecompositionCommonsResult implements LUDecompositionResult {
    * {@inheritDoc}
    */
   @Override
-  public DoubleMatrix1D solve(final DoubleMatrix1D b) {
+  public DoubleMatrix1D solve(DoubleMatrix1D b) {
     ArgChecker.notNull(b, "b");
     return CommonsMathWrapper.unwrap(_solver.solve(CommonsMathWrapper.wrap(b)));
   }
@@ -92,7 +92,7 @@ public class LUDecompositionCommonsResult implements LUDecompositionResult {
    * {@inheritDoc}
    */
   @Override
-  public double[] solve(final double[] b) {
+  public double[] solve(double[] b) {
     ArgChecker.notNull(b, "b");
     return _solver.solve(new ArrayRealVector(b)).toArray();
   }
@@ -101,7 +101,7 @@ public class LUDecompositionCommonsResult implements LUDecompositionResult {
    * {@inheritDoc}
    */
   @Override
-  public DoubleMatrix2D solve(final DoubleMatrix2D b) {
+  public DoubleMatrix2D solve(DoubleMatrix2D b) {
     ArgChecker.notNull(b, "b");
     return CommonsMathWrapper.unwrap(_solver.solve(CommonsMathWrapper.wrap(b)));
   }

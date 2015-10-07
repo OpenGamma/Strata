@@ -21,30 +21,31 @@ import com.opengamma.strata.collect.ArgChecker;
  * (<a href="http://www.codeplanet.eu/files/download/accuratecumnorm.pdf">link</a>).
  */
 public class BivariateNormalDistribution implements ProbabilityDistribution<double[]> {
+
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private static final double TWO_PI = 2 * Math.PI;
-  private static final double[] X = new double[] {0.04691008, 0.23076534, 0.5, 0.76923466, 0.95308992 };
-  private static final double[] Y = new double[] {0.018854042, 0.038088059, 0.0452707394, 0.038088059, 0.018854042 };
+  private static final double[] X = new double[] {0.04691008, 0.23076534, 0.5, 0.76923466, 0.95308992};
+  private static final double[] Y = new double[] {0.018854042, 0.038088059, 0.0452707394, 0.038088059, 0.018854042};
 
   /**
    * @param x The parameters for the function, $(x, y, \rho$, with $-1 \geq \rho \geq 1$, not null 
    * @return The cdf
    */
   @Override
-  public double getCDF(final double[] x) {
+  public double getCDF(double[] x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(x.length == 3, "Need a, b and rho values");
     ArgChecker.isTrue(x[2] >= -1 && x[2] <= 1, "Correlation must be >= -1 and <= 1");
-    final double a = x[0];
+    double a = x[0];
     double b = x[1];
-    final double rho = x[2];
+    double rho = x[2];
     if (a == Double.POSITIVE_INFINITY || b == Double.POSITIVE_INFINITY) {
       return 1;
     }
     if (a == Double.NEGATIVE_INFINITY || b == Double.NEGATIVE_INFINITY) {
       return 0;
     }
-    final double sumSq = (a * a + b * b) / 2.;
+    double sumSq = (a * a + b * b) / 2.;
     double rho1, rho2, rho3, ab, absDiff, h5, c, d, mult = 0, rho3Sq, eab, e, result;
     if (Math.abs(rho) >= 0.7) {
       rho1 = 1 - rho * rho;
@@ -73,7 +74,7 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<doub
           mult = mult - Y[i] * Math.exp(-h5 / rho3Sq) * (e - 1 - c * rho3Sq);
         }
       }
-      final double corr = Double.isNaN(mult) ? 0. : mult * rho2 * eab;
+      double corr = Double.isNaN(mult) ? 0. : mult * rho2 * eab;
       result = corr + NORMAL.getCDF(Math.min(a, b));
       if (rho < 0) {
         result = NORMAL.getCDF(a) - result;
@@ -88,7 +89,7 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<doub
         mult = mult + Y[i] * Math.exp((rho3 * ab - sumSq) / rho1) / Math.sqrt(rho1);
       }
     }
-    final double corr = Double.isNaN(mult) ? 0. : rho * mult;
+    double corr = Double.isNaN(mult) ? 0. : rho * mult;
     return NORMAL.getCDF(a) * NORMAL.getCDF(b) + corr;
   }
 
@@ -98,7 +99,7 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<doub
    * @throws UnsupportedOperationException always
    */
   @Override
-  public double getInverseCDF(final double[] p) {
+  public double getInverseCDF(double[] p) {
     throw new UnsupportedOperationException();
   }
 
@@ -107,11 +108,11 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<doub
    * @return The pdf  
    */
   @Override
-  public double getPDF(final double[] x) {
+  public double getPDF(double[] x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(x.length == 3, "Need a, b and rho values");
     ArgChecker.isTrue(x[2] >= -1 && x[2] <= 1, "Correlation must be >= -1 and <= 1");
-    final double denom = 1 - x[2] * x[2];
+    double denom = 1 - x[2] * x[2];
     return Math.exp(-(x[0] * x[0] - 2 * x[2] * x[0] * x[1] + x[1] * x[1]) / (2 * denom)) / (TWO_PI * Math.sqrt(denom));
   }
 
@@ -124,4 +125,5 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<doub
   public double nextRandom() {
     throw new UnsupportedOperationException();
   }
+
 }

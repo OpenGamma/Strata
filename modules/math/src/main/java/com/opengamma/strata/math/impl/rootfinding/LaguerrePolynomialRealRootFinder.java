@@ -24,6 +24,7 @@ import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
  */
 //TODO Have a complex and real root finder
 public class LaguerrePolynomialRealRootFinder implements Polynomial1DRootFinder<Double> {
+
   private static final LaguerreSolver ROOT_FINDER = new LaguerreSolver();
   private static final double EPS = 1e-16;
 
@@ -32,12 +33,12 @@ public class LaguerrePolynomialRealRootFinder implements Polynomial1DRootFinder<
    * @throws MathException If there are no real roots; if the Commons method could not evaluate the function; if the Commons method could not converge.
    */
   @Override
-  public Double[] getRoots(final RealPolynomialFunction1D function) {
+  public Double[] getRoots(RealPolynomialFunction1D function) {
     ArgChecker.notNull(function, "function");
     try {
-      final Complex[] roots = ROOT_FINDER.solveAllComplex(function.getCoefficients(), 0);
-      final List<Double> realRoots = new ArrayList<>();
-      for (final Complex c : roots) {
+      Complex[] roots = ROOT_FINDER.solveAllComplex(function.getCoefficients(), 0);
+      List<Double> realRoots = new ArrayList<>();
+      for (Complex c : roots) {
         if (DoubleMath.fuzzyEquals(c.getImaginary(), 0d, EPS)) {
           realRoots.add(c.getReal());
         }
@@ -50,4 +51,5 @@ public class LaguerrePolynomialRealRootFinder implements Polynomial1DRootFinder<
       throw new MathException(e);
     }
   }
+
 }

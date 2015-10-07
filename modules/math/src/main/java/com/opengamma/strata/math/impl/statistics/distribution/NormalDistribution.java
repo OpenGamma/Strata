@@ -7,12 +7,12 @@ package com.opengamma.strata.math.impl.statistics.distribution;
 
 import java.util.Date;
 
+import com.opengamma.strata.collect.ArgChecker;
+
 import cern.jet.random.Normal;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 import cern.jet.stat.Probability;
-
-import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * The normal distribution is a continuous probability distribution with probability density function
@@ -25,6 +25,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * the distribution.
  */
 public class NormalDistribution implements ProbabilityDistribution<Double> {
+
   private static final double ROOT2 = Math.sqrt(2);
 
   // TODO need a better seed
@@ -36,7 +37,7 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
    * @param mean The mean of the distribution
    * @param standardDeviation The standard deviation of the distribution, not negative or zero
    */
-  public NormalDistribution(final double mean, final double standardDeviation) {
+  public NormalDistribution(double mean, double standardDeviation) {
     this(mean, standardDeviation, new MersenneTwister64(new Date()));
   }
 
@@ -45,7 +46,7 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
    * @param standardDeviation The standard deviation of the distribution, not negative or zero
    * @param randomEngine A generator of uniform random numbers, not null
    */
-  public NormalDistribution(final double mean, final double standardDeviation, final RandomEngine randomEngine) {
+  public NormalDistribution(double mean, double standardDeviation, RandomEngine randomEngine) {
     ArgChecker.isTrue(standardDeviation > 0, "standard deviation");
     ArgChecker.notNull(randomEngine, "randomEngine");
     _mean = mean;
@@ -57,7 +58,7 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
    * {@inheritDoc}
    */
   @Override
-  public double getCDF(final Double x) {
+  public double getCDF(Double x) {
     ArgChecker.notNull(x, "x");
     return DERFC.getErfc(-x / ROOT2) / 2;
   }
@@ -66,7 +67,7 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
    * {@inheritDoc}
    */
   @Override
-  public double getPDF(final Double x) {
+  public double getPDF(Double x) {
     ArgChecker.notNull(x, "x");
     return _normal.pdf(x);
   }
@@ -83,7 +84,7 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
    * {@inheritDoc}
    */
   @Override
-  public double getInverseCDF(final Double p) {
+  public double getInverseCDF(Double p) {
     ArgChecker.notNull(p, "p");
     ArgChecker.isTrue(p >= 0 && p <= 1, "Probability must be >= 0 and <= 1");
     return Probability.normalInverse(p);
@@ -105,7 +106,7 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     long temp;
     temp = Double.doubleToLongBits(_mean);
@@ -116,7 +117,7 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -126,10 +127,11 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final NormalDistribution other = (NormalDistribution) obj;
+    NormalDistribution other = (NormalDistribution) obj;
     if (Double.doubleToLongBits(_mean) != Double.doubleToLongBits(other._mean)) {
       return false;
     }
     return Double.doubleToLongBits(_standardDeviation) == Double.doubleToLongBits(other._standardDeviation);
   }
+
 }

@@ -38,7 +38,7 @@ public class CholeskyDecompositionOpenGammaResult implements CholeskyDecompositi
    * Constructor.
    * @param lArray The matrix L as an array of doubles.
    */
-  public CholeskyDecompositionOpenGammaResult(final double[][] lArray) {
+  public CholeskyDecompositionOpenGammaResult(double[][] lArray) {
     _lArray = lArray;
     _l = new DoubleMatrix2D(_lArray);
     _lT = ALGEBRA.getTranspose(_l);
@@ -57,7 +57,7 @@ public class CholeskyDecompositionOpenGammaResult implements CholeskyDecompositi
   public double[] solve(double[] b) {
     int dim = b.length;
     ArgChecker.isTrue(dim == _lArray.length, "b array of incorrect size");
-    final double[] x = new double[dim];
+    double[] x = new double[dim];
     System.arraycopy(b, 0, x, 0, dim);
     // L y = b (y stored in x array)
     for (int looprow = 0; looprow < dim; looprow++) {
@@ -82,7 +82,7 @@ public class CholeskyDecompositionOpenGammaResult implements CholeskyDecompositi
     int nbCol = b.getNumberOfColumns();
     ArgChecker.isTrue(nbRow == _lArray.length, "b array of incorrect size");
     double[][] bArray = b.getData();
-    final double[][] x = new double[nbRow][nbCol];
+    double[][] x = new double[nbRow][nbCol];
     for (int looprow = 0; looprow < nbRow; looprow++) {
       System.arraycopy(bArray[looprow], 0, x[looprow], 0, nbCol);
     }

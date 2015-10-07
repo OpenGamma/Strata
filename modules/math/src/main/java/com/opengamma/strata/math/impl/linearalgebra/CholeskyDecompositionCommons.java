@@ -23,9 +23,9 @@ public class CholeskyDecompositionCommons extends Decomposition<CholeskyDecompos
    * {@inheritDoc}
    */
   @Override
-  public CholeskyDecompositionResult evaluate(final DoubleMatrix2D x) {
+  public CholeskyDecompositionResult evaluate(DoubleMatrix2D x) {
     ArgChecker.notNull(x, "x");
-    final RealMatrix temp = CommonsMathWrapper.wrap(x);
+    RealMatrix temp = CommonsMathWrapper.wrap(x);
     CholeskyDecomposition cholesky;
     try {
       cholesky = new CholeskyDecomposition(temp);

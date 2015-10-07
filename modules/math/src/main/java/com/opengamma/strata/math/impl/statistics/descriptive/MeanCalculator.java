@@ -19,18 +19,15 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * $$
  */
 public class MeanCalculator extends Function1D<double[], Double> {
-  /**
-   * @param x The array of data, not null or empty
-   * @return The arithmetic mean
-   */
+
   @Override
-  public Double evaluate(final double[] x) {
+  public Double evaluate(double[] x) {
     ArgChecker.notEmpty(x, "x");
     if (x.length == 1) {
       return x[0];
     }
     double sum = 0;
-    for (final Double d : x) {
+    for (Double d : x) {
       sum += d;
     }
     return sum / x.length;

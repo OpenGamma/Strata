@@ -16,7 +16,7 @@ public class HermitePolynomialFunction extends OrthogonalPolynomialFunctionGener
 
   private static final DoubleFunction1D TWO_X = new DoubleFunction1D() {
     @Override
-    public Double evaluate(final Double x) {
+    public Double evaluate(Double x) {
       return 2 * x;
     }
   };
@@ -24,7 +24,7 @@ public class HermitePolynomialFunction extends OrthogonalPolynomialFunctionGener
   @Override
   public DoubleFunction1D[] getPolynomials(int n) {
     ArgChecker.isTrue(n >= 0);
-    final DoubleFunction1D[] polynomials = new DoubleFunction1D[n + 1];
+    DoubleFunction1D[] polynomials = new DoubleFunction1D[n + 1];
     for (int i = 0; i <= n; i++) {
       if (i == 0) {
         polynomials[i] = getOne();
@@ -41,7 +41,7 @@ public class HermitePolynomialFunction extends OrthogonalPolynomialFunctionGener
   }
 
   @Override
-  public Pair<DoubleFunction1D, DoubleFunction1D>[] getPolynomialsAndFirstDerivative(final int n) {
+  public Pair<DoubleFunction1D, DoubleFunction1D>[] getPolynomialsAndFirstDerivative(int n) {
     throw new UnsupportedOperationException();
   }
 

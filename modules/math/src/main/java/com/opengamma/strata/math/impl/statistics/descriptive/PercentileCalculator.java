@@ -15,12 +15,13 @@ import com.opengamma.strata.collect.ArgChecker;
  * below which a certain percentage of the data fall. 
  */
 public class PercentileCalculator implements Function<double[], Double> {
+
   private double _percentile;
 
   /**
    * @param percentile The percentile, must be between 0 and 1
    */
-  public PercentileCalculator(final double percentile) {
+  public PercentileCalculator(double percentile) {
     ArgChecker.isTrue(percentile > 0 && percentile < 1, "Percentile must be between 0 and 1");
     _percentile = percentile;
   }
@@ -28,7 +29,7 @@ public class PercentileCalculator implements Function<double[], Double> {
   /**
    * @param percentile The percentile, must be between 0 and 1
    */
-  public void setPercentile(final double percentile) {
+  public void setPercentile(double percentile) {
     ArgChecker.isTrue(percentile > 0 && percentile < 1, "Percentile must be between 0 and 1");
     _percentile = percentile;
   }
@@ -38,21 +39,22 @@ public class PercentileCalculator implements Function<double[], Double> {
    * @return The percentile
    */
   @Override
-  public Double apply(final double[] x) {
+  public Double apply(double[] x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(x.length > 0, "x cannot be empty");
-    final int length = x.length;
-    final double[] copy = Arrays.copyOf(x, length);
+    int length = x.length;
+    double[] copy = Arrays.copyOf(x, length);
     Arrays.sort(copy);
-    final double n = _percentile * (length - 1) + 1;
+    double n = _percentile * (length - 1) + 1;
     if (Math.round(n) == 1) {
       return copy[0];
     }
     if (Math.round(n) == length) {
       return copy[length - 1];
     }
-    final double d = n % 1;
-    final int k = (int) Math.round(n - d);
+    double d = n % 1;
+    int k = (int) Math.round(n - d);
     return copy[k - 1] + d * (copy[k] - copy[k - 1]);
   }
+
 }

@@ -28,6 +28,7 @@ import com.opengamma.strata.math.impl.function.special.GammaFunction;
  * (<a href="http://fisher.utstat.toronto.edu/dfraser/documents/192.pdf">link</a>). Otherwise, the algorithm is taken from "Computing the Non-Central Chi-Squared Distribution Function", Ding.
  */
 public class NonCentralChiSquaredDistribution implements ProbabilityDistribution<Double> {
+
   private final double _lambdaOverTwo;
   private final int _k;
   private final double _dofOverTwo;
@@ -38,7 +39,7 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
    * @param degrees The number of degrees of freedom, not negative or zero
    * @param nonCentrality The non-centrality parameter, not negative
    */
-  public NonCentralChiSquaredDistribution(final double degrees, final double nonCentrality) {
+  public NonCentralChiSquaredDistribution(double degrees, double nonCentrality) {
     ArgChecker.isTrue(degrees > 0, "degrees of freedom must be > 0, have " + degrees);
     ArgChecker.isTrue(nonCentrality >= 0, "non-centrality must be >= 0, have " + nonCentrality);
     _dofOverTwo = degrees / 2.0;
@@ -48,14 +49,14 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
     if (_lambdaOverTwo == 0) {
       _pStart = 0.0;
     } else {
-      final double logP = -_lambdaOverTwo + _k * Math.log(_lambdaOverTwo) - Gamma.logGamma(_k + 1);
+      double logP = -_lambdaOverTwo + _k * Math.log(_lambdaOverTwo) - Gamma.logGamma(_k + 1);
       _pStart = Math.exp(logP);
     }
   }
 
-  private double getFraserApproxCDF(final double x) {
-    final double s = Math.sqrt(_lambdaOverTwo * 2.0);
-    final double mu = Math.sqrt(x);
+  private double getFraserApproxCDF(double x) {
+    double s = Math.sqrt(_lambdaOverTwo * 2.0);
+    double mu = Math.sqrt(x);
     double z;
     if (Double.doubleToLongBits(mu) == Double.doubleToLongBits(s)) {
       z = (1 - _dofOverTwo * 2.0) / 2 / s;
@@ -69,7 +70,7 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
    * {@inheritDoc}
    */
   @Override
-  public double getCDF(final Double x) {
+  public double getCDF(Double x) {
     ArgChecker.notNull(x, "x");
     if (x < 0) {
       return 0.0;
@@ -80,8 +81,8 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
     }
 
     double regGammaStart = 0;
-    final double halfX = x / 2.0;
-    final double logX = Math.log(halfX);
+    double halfX = x / 2.0;
+    double logX = Math.log(halfX);
     try {
       regGammaStart = Gamma.regularizedGammaP(_dofOverTwo + _k, halfX);
     } catch (MaxCountExceededException ex) {
@@ -127,7 +128,7 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
    * @throws UnsupportedOperationException always
    */
   @Override
-  public double getInverseCDF(final Double p) {
+  public double getInverseCDF(Double p) {
     throw new UnsupportedOperationException();
   }
 
@@ -137,7 +138,7 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
    * @throws UnsupportedOperationException always
    */
   @Override
-  public double getPDF(final Double x) {
+  public double getPDF(Double x) {
     throw new UnsupportedOperationException();
   }
 
@@ -167,7 +168,7 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     long temp;
     temp = Double.doubleToLongBits(_dofOverTwo);
@@ -178,7 +179,7 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -188,10 +189,11 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final NonCentralChiSquaredDistribution other = (NonCentralChiSquaredDistribution) obj;
+    NonCentralChiSquaredDistribution other = (NonCentralChiSquaredDistribution) obj;
     if (Double.doubleToLongBits(_dofOverTwo) != Double.doubleToLongBits(other._dofOverTwo)) {
       return false;
     }
     return Double.doubleToLongBits(_lambdaOverTwo) == Double.doubleToLongBits(other._lambdaOverTwo);
   }
+
 }

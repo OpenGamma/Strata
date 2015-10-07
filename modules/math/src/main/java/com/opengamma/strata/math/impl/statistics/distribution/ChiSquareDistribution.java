@@ -7,13 +7,13 @@ package com.opengamma.strata.math.impl.statistics.distribution;
 
 import java.util.Date;
 
-import cern.jet.random.ChiSquare;
-import cern.jet.random.engine.MersenneTwister64;
-import cern.jet.random.engine.RandomEngine;
-
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.function.Function2D;
 import com.opengamma.strata.math.impl.function.special.InverseIncompleteGammaFunction;
+
+import cern.jet.random.ChiSquare;
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
 
 /**
  * A $\chi^2$ distribution with $k$ degrees of freedom is the distribution of
@@ -35,6 +35,7 @@ import com.opengamma.strata.math.impl.function.special.InverseIncompleteGammaFun
  * 
  */
 public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
+
   private final Function2D<Double, Double> _inverseFunction = new InverseIncompleteGammaFunction();
   private final ChiSquare _chiSquare;
   private final double _degrees;
@@ -42,7 +43,7 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
   /**
    * @param degrees The degrees of freedom of the distribution, not less than one
    */
-  public ChiSquareDistribution(final double degrees) {
+  public ChiSquareDistribution(double degrees) {
     this(degrees, new MersenneTwister64(new Date()));
   }
 
@@ -50,7 +51,7 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
    * @param degrees The degrees of freedom of the distribution, not less than one
    * @param engine A uniform random number generator, not null
    */
-  public ChiSquareDistribution(final double degrees, final RandomEngine engine) {
+  public ChiSquareDistribution(double degrees, RandomEngine engine) {
     ArgChecker.isTrue(degrees >= 1, "Degrees of freedom must be greater than or equal to one");
     ArgChecker.notNull(engine, "engine");
     _chiSquare = new ChiSquare(degrees, engine);
@@ -61,7 +62,7 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
    * {@inheritDoc}
    */
   @Override
-  public double getCDF(final Double x) {
+  public double getCDF(Double x) {
     ArgChecker.notNull(x, "x");
     return _chiSquare.cdf(x);
   }
@@ -70,7 +71,7 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
    * {@inheritDoc}
    */
   @Override
-  public double getPDF(final Double x) {
+  public double getPDF(Double x) {
     ArgChecker.notNull(x, "x");
     return _chiSquare.pdf(x);
   }
@@ -79,7 +80,7 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
    * {@inheritDoc}
    */
   @Override
-  public double getInverseCDF(final Double p) {
+  public double getInverseCDF(Double p) {
     ArgChecker.notNull(p, "p");
     ArgChecker.isTrue(p >= 0 && p <= 1, "Probability must lie between 0 and 1");
     return 2 * _inverseFunction.evaluate(0.5 * _degrees, p);
@@ -102,7 +103,7 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     long temp;
     temp = Double.doubleToLongBits(_degrees);
@@ -111,7 +112,7 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -121,7 +122,7 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final ChiSquareDistribution other = (ChiSquareDistribution) obj;
+    ChiSquareDistribution other = (ChiSquareDistribution) obj;
     return Double.doubleToLongBits(_degrees) == Double.doubleToLongBits(other._degrees);
   }
 

@@ -13,12 +13,12 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
  */
 public abstract class MatrixValidate {
 
-  public static void notNaNOrInfinite(final DoubleMatrix2D x) {
-    final int rows = x.getNumberOfRows();
-    final int cols = x.getNumberOfColumns();
+  public static void notNaNOrInfinite(DoubleMatrix2D x) {
+    int rows = x.getNumberOfRows();
+    int cols = x.getNumberOfColumns();
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
-        final double temp = x.getEntry(i, j);
+        double temp = x.getEntry(i, j);
         if (Double.isNaN(temp)) {
           throw new MathException("Matrix contains a NaN");
         }
@@ -28,4 +28,5 @@ public abstract class MatrixValidate {
       }
     }
   }
+
 }

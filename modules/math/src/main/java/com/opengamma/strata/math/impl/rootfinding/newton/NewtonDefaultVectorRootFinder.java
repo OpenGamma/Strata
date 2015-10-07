@@ -13,6 +13,7 @@ import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
  * If the analytic Jacobian is not known, it will be calculated using central difference 
  */
 public class NewtonDefaultVectorRootFinder extends NewtonVectorRootFinder {
+
   private static final double DEF_TOL = 1e-7;
   private static final int MAX_STEPS = 100;
 
@@ -20,12 +21,18 @@ public class NewtonDefaultVectorRootFinder extends NewtonVectorRootFinder {
     this(DEF_TOL, DEF_TOL, MAX_STEPS);
   }
 
-  public NewtonDefaultVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps) {
+  public NewtonDefaultVectorRootFinder(double absoluteTol, double relativeTol, int maxSteps) {
     this(absoluteTol, relativeTol, maxSteps, new LUDecompositionCommons());
   }
 
-  public NewtonDefaultVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, final Decomposition<?> decomp) {
-    super(absoluteTol, relativeTol, maxSteps, new JacobianDirectionFunction(decomp), new JacobianEstimateInitializationFunction(), new NewtonDefaultUpdateFunction());
+  public NewtonDefaultVectorRootFinder(double absoluteTol, double relativeTol, int maxSteps, Decomposition<?> decomp) {
+    super(
+        absoluteTol,
+        relativeTol,
+        maxSteps,
+        new JacobianDirectionFunction(decomp),
+        new JacobianEstimateInitializationFunction(),
+        new NewtonDefaultUpdateFunction());
   }
 
 }

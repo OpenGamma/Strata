@@ -26,6 +26,7 @@ import com.opengamma.strata.math.impl.matrix.Matrix;
  * $$
  */
 public class TridiagonalMatrix implements Matrix<Double> {
+
   private final double[] _a;
   private final double[] _b;
   private final double[] _c;
@@ -33,14 +34,16 @@ public class TridiagonalMatrix implements Matrix<Double> {
 
   /**
    * @param a An array containing the diagonal values of the matrix, not null
-   * @param b An array containing the upper sub-diagonal values of the matrix, not null. Its length must be one less than the length of the diagonal array
-   * @param c An array containing the lower sub-diagonal values of the matrix, not null. Its length must be one less than the length of the diagonal array
+   * @param b An array containing the upper sub-diagonal values of the matrix, not null.
+   *  Its length must be one less than the length of the diagonal array
+   * @param c An array containing the lower sub-diagonal values of the matrix, not null.
+   *  Its length must be one less than the length of the diagonal array
    */
-  public TridiagonalMatrix(final double[] a, final double[] b, final double[] c) {
+  public TridiagonalMatrix(double[] a, double[] b, double[] c) {
     ArgChecker.notNull(a, "a");
     ArgChecker.notNull(b, "b");
     ArgChecker.notNull(c, "c");
-    final int n = a.length;
+    int n = a.length;
     ArgChecker.isTrue(b.length == n - 1, "Length of subdiagonal b is incorrect");
     ArgChecker.isTrue(c.length == n - 1, "Length of subdiagonal c is incorrect");
     _a = a;
@@ -105,7 +108,7 @@ public class TridiagonalMatrix implements Matrix<Double> {
 
   private void calMatrix() {
     int n = _a.length;
-    final double[][] data = new double[n][n];
+    double[][] data = new double[n][n];
     for (int i = 0; i < n; i++) {
       data[i][i] = _a[i];
     }
@@ -120,7 +123,7 @@ public class TridiagonalMatrix implements Matrix<Double> {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     result = prime * result + Arrays.hashCode(_a);
     result = prime * result + Arrays.hashCode(_b);
@@ -129,7 +132,7 @@ public class TridiagonalMatrix implements Matrix<Double> {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -139,7 +142,7 @@ public class TridiagonalMatrix implements Matrix<Double> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final TridiagonalMatrix other = (TridiagonalMatrix) obj;
+    TridiagonalMatrix other = (TridiagonalMatrix) obj;
     if (!Arrays.equals(_a, other._a)) {
       return false;
     }
@@ -160,9 +163,9 @@ public class TridiagonalMatrix implements Matrix<Double> {
   @Override
   public Double getEntry(int... index) {
     ArgChecker.notNull(index, "indices");
-    final int n = _a.length;
-    final int i = index[0];
-    final int j = index[1];
+    int n = _a.length;
+    int i = index[0];
+    int j = index[1];
     ArgChecker.isTrue(i >= 0 && i < n, "x index {} out of range. Matrix has {} rows", index[0], n);
     ArgChecker.isTrue(j >= 0 && j < n, "y index {} out of range. Matrix has {} columns", index[1], n);
     if (i == j) {
@@ -175,4 +178,5 @@ public class TridiagonalMatrix implements Matrix<Double> {
 
     return 0.0;
   }
+
 }

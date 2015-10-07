@@ -18,6 +18,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * below the accuracy, or the evaluation of the function at $x$ is zero.
  */
 public class BisectionSingleRootFinder extends RealSingleRootFinder {
+
   private final double _accuracy;
   private static final int MAX_ITER = 100;
   private static final double ZERO = 1e-16;
@@ -32,18 +33,19 @@ public class BisectionSingleRootFinder extends RealSingleRootFinder {
   /**
    * @param accuracy The required accuracy of the $x$-position of the root
    */
-  public BisectionSingleRootFinder(final double accuracy) {
+  public BisectionSingleRootFinder(double accuracy) {
     _accuracy = Math.abs(accuracy);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * {@inheritDoc}
    * @throws MathException If the root is not found to the required accuracy in 100 attempts
    */
   @Override
-  public Double getRoot(final Function1D<Double, Double> function, final Double x1, final Double x2) {
+  public Double getRoot(Function1D<Double, Double> function, Double x1, Double x2) {
     checkInputs(function, x1, x2);
-    final double y1 = function.evaluate(x1);
+    double y1 = function.evaluate(x1);
     double y = function.evaluate(x2);
     if (Math.abs(y) < _accuracy) {
       return x2;
@@ -72,4 +74,5 @@ public class BisectionSingleRootFinder extends RealSingleRootFinder {
     }
     throw new MathException("Could not find root in " + MAX_ITER + " attempts");
   }
+
 }

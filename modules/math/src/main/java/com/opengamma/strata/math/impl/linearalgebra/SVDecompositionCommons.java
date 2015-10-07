@@ -18,9 +18,6 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
  */
 public class SVDecompositionCommons extends Decomposition<SVDecompositionResult> {
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public SVDecompositionResult evaluate(DoubleMatrix2D x) {
     ArgChecker.notNull(x, "x");

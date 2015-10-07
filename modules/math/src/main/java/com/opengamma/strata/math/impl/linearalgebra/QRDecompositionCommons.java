@@ -18,14 +18,11 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
  */
 public class QRDecompositionCommons extends Decomposition<QRDecompositionResult> {
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public QRDecompositionResult evaluate(final DoubleMatrix2D x) {
+  public QRDecompositionResult evaluate(DoubleMatrix2D x) {
     ArgChecker.notNull(x, "x");
-    final RealMatrix temp = CommonsMathWrapper.wrap(x);
-    final QRDecomposition qr = new QRDecomposition(temp);
+    RealMatrix temp = CommonsMathWrapper.wrap(x);
+    QRDecomposition qr = new QRDecomposition(temp);
     return new QRDecompositionCommonsResult(qr);
   }
 

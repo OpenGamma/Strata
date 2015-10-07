@@ -18,6 +18,7 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
  * Wrapper for results of the Commons implementation of Cholesky decomposition ({@link CholeskyDecompositionCommons})
  */
 public class CholeskyDecompositionCommonsResult implements CholeskyDecompositionResult {
+
   private final double _determinant;
   private final DoubleMatrix2D _l;
   private final DoubleMatrix2D _lt;
@@ -27,7 +28,7 @@ public class CholeskyDecompositionCommonsResult implements CholeskyDecomposition
    * Constructor.
    * @param ch The result of the Cholesky decomposition.
    */
-  public CholeskyDecompositionCommonsResult(final CholeskyDecomposition ch) {
+  public CholeskyDecompositionCommonsResult(CholeskyDecomposition ch) {
     ArgChecker.notNull(ch, "Cholesky decomposition");
     _determinant = ch.getDeterminant();
     _l = CommonsMathWrapper.unwrap(ch.getL());

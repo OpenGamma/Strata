@@ -27,9 +27,9 @@ public class GeometricMeanCalculator implements Function<double[], Double> {
    * @return The geometric mean
    */
   @Override
-  public Double apply(final double[] x) {
+  public Double apply(double[] x) {
     ArgChecker.notEmpty(x, "x");
-    final int n = x.length;
+    int n = x.length;
     double mult = x[0];
     for (int i = 1; i < n; i++) {
       mult *= x[i];

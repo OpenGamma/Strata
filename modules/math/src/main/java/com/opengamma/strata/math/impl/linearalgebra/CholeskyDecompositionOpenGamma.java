@@ -28,7 +28,7 @@ public class CholeskyDecompositionOpenGamma extends Decomposition<CholeskyDecomp
    * {@inheritDoc}
    */
   @Override
-  public CholeskyDecompositionResult evaluate(final DoubleMatrix2D x) {
+  public CholeskyDecompositionResult evaluate(DoubleMatrix2D x) {
     return evaluate(x, DEFAULT_SYMMETRY_THRESHOLD, DEFAULT_POSITIVITY_THRESHOLD);
   }
 
@@ -39,7 +39,7 @@ public class CholeskyDecompositionOpenGamma extends Decomposition<CholeskyDecomp
    * @param positivityThreshold The positivity threshold.
    * @return The Cholesky decomposition.
    */
-  public CholeskyDecompositionResult evaluate(final DoubleMatrix2D matrix, final double symmetryThreshold, final double positivityThreshold) {
+  public CholeskyDecompositionResult evaluate(DoubleMatrix2D matrix, double symmetryThreshold, double positivityThreshold) {
     ArgChecker.notNull(matrix, "Matrix null");
     int nbRow = matrix.getNumberOfRows();
     int nbCol = matrix.getNumberOfColumns();

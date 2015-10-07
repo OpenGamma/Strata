@@ -15,4 +15,5 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 public interface NewtonRootFinderMatrixInitializationFunction {
 
   DoubleMatrix2D getInitializedMatrix(Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction, DoubleMatrix1D x);
+
 }

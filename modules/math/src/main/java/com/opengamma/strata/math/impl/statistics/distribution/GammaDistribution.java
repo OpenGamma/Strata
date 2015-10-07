@@ -7,11 +7,11 @@ package com.opengamma.strata.math.impl.statistics.distribution;
 
 import java.util.Date;
 
+import com.opengamma.strata.collect.ArgChecker;
+
 import cern.jet.random.Gamma;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
-
-import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * The Gamma distribution is a continuous probability distribution with cdf
@@ -31,6 +31,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * 
  */
 public class GammaDistribution implements ProbabilityDistribution<Double> {
+
   private final Gamma _gamma;
   private final double _k;
   private final double _theta;
@@ -39,7 +40,7 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
    * @param k The shape parameter of the distribution, not negative or zero
    * @param theta The scale parameter of the distribution, not negative or zero
    */
-  public GammaDistribution(final double k, final double theta) {
+  public GammaDistribution(double k, double theta) {
     this(k, theta, new MersenneTwister(new Date()));
   }
 
@@ -48,7 +49,7 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
    * @param theta The scale parameter of the distribution, not negative or zero
    * @param engine A uniform random number generator, not null
    */
-  public GammaDistribution(final double k, final double theta, final RandomEngine engine) {
+  public GammaDistribution(double k, double theta, RandomEngine engine) {
     ArgChecker.isTrue(k > 0, "k must be > 0");
     ArgChecker.isTrue(theta > 0, "theta must be > 0");
     ArgChecker.notNull(engine, "engine");
@@ -61,7 +62,7 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
    * {@inheritDoc}
    */
   @Override
-  public double getCDF(final Double x) {
+  public double getCDF(Double x) {
     ArgChecker.notNull(x, "x");
     return _gamma.cdf(x);
   }
@@ -72,7 +73,7 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
    * @throws UnsupportedOperationException always
    */
   @Override
-  public double getInverseCDF(final Double p) {
+  public double getInverseCDF(Double p) {
     throw new UnsupportedOperationException();
   }
 
@@ -80,7 +81,7 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
    * {@inheritDoc}
    */
   @Override
-  public double getPDF(final Double x) {
+  public double getPDF(Double x) {
     ArgChecker.notNull(x, "x");
     return _gamma.pdf(x);
   }
@@ -109,7 +110,7 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     long temp;
     temp = Double.doubleToLongBits(_k);
@@ -120,7 +121,7 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -130,7 +131,7 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final GammaDistribution other = (GammaDistribution) obj;
+    GammaDistribution other = (GammaDistribution) obj;
     if (Double.doubleToLongBits(_k) != Double.doubleToLongBits(other._k)) {
       return false;
     }
