@@ -106,7 +106,7 @@ public class CommonsMathWrapperTest {
   public void testVectorAsMatrix() {
     RealMatrix commons = CommonsMathWrapper.wrapAsMatrix(OG_VECTOR);
     double[][] data = commons.getData();
-    assertEquals(data.length, OG_VECTOR.getNumberOfElements());
+    assertEquals(data.length, OG_VECTOR.size());
     assertEquals(data[0].length, 1);
   }
 

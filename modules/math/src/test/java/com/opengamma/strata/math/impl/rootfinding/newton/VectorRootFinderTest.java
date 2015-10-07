@@ -55,7 +55,7 @@ public abstract class VectorRootFinderTest {
 
     @Override
     public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
-      if (x.getNumberOfElements() != 2) {
+      if (x.size() != 2) {
         throw new IllegalArgumentException("This test is for 2-d vector only");
       }
       final double[][] res = new double[2][2];
@@ -76,7 +76,7 @@ public abstract class VectorRootFinderTest {
 
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-      if (x.getNumberOfElements() != 3) {
+      if (x.size() != 3) {
         throw new IllegalArgumentException("This test is for 3-d vector only");
       }
       final double[] res = new double[3];
@@ -90,7 +90,7 @@ public abstract class VectorRootFinderTest {
 
     @Override
     public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
-      if (x.getNumberOfElements() != 3) {
+      if (x.size() != 3) {
         throw new IllegalArgumentException("This test is for 3-d vector only");
       }
       final double[][] res = new double[3][3];

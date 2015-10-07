@@ -221,7 +221,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
   private boolean isConverged(DataBundle data) {
     DoubleMatrix1D deltaX = data.getDeltaX();
     DoubleMatrix1D x = data.getX();
-    int n = deltaX.getNumberOfElements();
+    int n = deltaX.size();
     double diff, scale;
     for (int i = 0; i < n; i++) {
       diff = Math.abs(deltaX.getEntry(i));

@@ -39,7 +39,7 @@ public class LeastSquareResults {
     ArgChecker.isTrue(chiSq >= 0, "chi square < 0");
     ArgChecker.notNull(parameters, "parameters");
     ArgChecker.notNull(covariance, "covariance");
-    int n = parameters.getNumberOfElements();
+    int n = parameters.size();
     ArgChecker.isTrue(covariance.getNumberOfColumns() == n, "covariance matrix not square");
     ArgChecker.isTrue(covariance.getNumberOfRows() == n, "covariance matrix wrong size");
     //TODO test size of inverse Jacobian

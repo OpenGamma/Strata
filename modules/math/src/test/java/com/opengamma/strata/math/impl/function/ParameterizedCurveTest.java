@@ -28,7 +28,7 @@ public class ParameterizedCurveTest {
 
       @Override
       public Double evaluate(final Double x, final DoubleMatrix1D parameters) {
-        assertEquals(3, parameters.getNumberOfElements());
+        assertEquals(3, parameters.size());
         final double a = parameters.getEntry(0);
         final double b = parameters.getEntry(1);
         final double c = parameters.getEntry(2);

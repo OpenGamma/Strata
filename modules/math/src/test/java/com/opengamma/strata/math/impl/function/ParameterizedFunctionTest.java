@@ -45,7 +45,7 @@ public class ParameterizedFunctionTest {
     @Override
     public Double evaluate(final Double x, final DoubleMatrix1D a) {
       ArgChecker.notNull(a, "parameters");
-      if (a.getNumberOfElements() != 2) {
+      if (a.size() != 2) {
         throw new IllegalArgumentException("wrong number of parameters");
       }
       return a.getEntry(0) * Math.sin(a.getEntry(1) * x);

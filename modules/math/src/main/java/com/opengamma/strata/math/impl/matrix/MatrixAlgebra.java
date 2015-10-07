@@ -19,7 +19,7 @@ public abstract class MatrixAlgebra {
    * @return The sum of the two matrices
    * @throws IllegalArgumentException If the matrices are not of the same type, if the matrices are not the same shape.
    */
-  public Matrix<?> add(Matrix<?> m1, Matrix<?> m2) {
+  public Matrix add(Matrix m1, Matrix m2) {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix1D) {
@@ -64,7 +64,7 @@ public abstract class MatrixAlgebra {
    * @param m2 The denominator, not null. This matrix must be a {@link DoubleMatrix2D}.
    * @return The result
    */
-  public Matrix<?> divide(Matrix<?> m1, Matrix<?> m2) {
+  public Matrix divide(Matrix m1, Matrix m2) {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
     ArgChecker.isTrue(m1 instanceof DoubleMatrix2D, "Can only divide a 2D matrix");
@@ -102,7 +102,7 @@ public abstract class MatrixAlgebra {
    * @param m2 The second matrix, not null. This matrix must be a {@link DoubleMatrix2D}.
    * @return The Kronecker product
    */
-  public Matrix<?> kroneckerProduct(Matrix<?> m1, Matrix<?> m2) {
+  public Matrix kroneckerProduct(Matrix m1, Matrix m2) {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix2D) {
@@ -138,7 +138,7 @@ public abstract class MatrixAlgebra {
    * @param m2 The second matrix, not null.
    * @return The product of the two matrices.
    */
-  public abstract Matrix<?> multiply(Matrix<?> m1, Matrix<?> m2);
+  public abstract Matrix multiply(Matrix m1, Matrix m2);
 
   /**
    * Scale a vector or matrix by a given amount, i.e. each element is multiplied by the scale.
@@ -146,7 +146,7 @@ public abstract class MatrixAlgebra {
    * @param scale The scale
    * @return the scaled vector or matrix
    */
-  public Matrix<?> scale(Matrix<?> m, double scale) {
+  public Matrix scale(Matrix m, double scale) {
     ArgChecker.notNull(m, "m");
     if (m instanceof DoubleMatrix1D) {
       double[] x = ((DoubleMatrix1D) m).getData();
@@ -177,7 +177,7 @@ public abstract class MatrixAlgebra {
    * @return The second matrix subtracted from the first
    * @throws IllegalArgumentException If the matrices are not of the same type, if the matrices are not the same shape.
    */
-  public Matrix<?> subtract(Matrix<?> m1, Matrix<?> m2) {
+  public Matrix subtract(Matrix m1, Matrix m2) {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix1D) {
@@ -219,21 +219,21 @@ public abstract class MatrixAlgebra {
    * @param m A matrix, not null
    * @return The condition number of the matrix
    */
-  public abstract double getCondition(Matrix<?> m);
+  public abstract double getCondition(Matrix m);
 
   /**
    * Returns the determinant of the matrix.
    * @param m A matrix, not null
    * @return The determinant of the matrix
    */
-  public abstract double getDeterminant(Matrix<?> m);
+  public abstract double getDeterminant(Matrix m);
 
   /**
    * Returns the inverse (or pseudo-inverse) of the matrix.
    * @param m A matrix, not null
    * @return The inverse matrix
    */
-  public abstract DoubleMatrix2D getInverse(Matrix<?> m);
+  public abstract DoubleMatrix2D getInverse(Matrix m);
 
   /**
    * Returns the inner (or dot) product.
@@ -242,7 +242,7 @@ public abstract class MatrixAlgebra {
    * @return The scalar dot product
    * @exception IllegalArgumentException If the vectors are not the same size
    */
-  public abstract double getInnerProduct(Matrix<?> m1, Matrix<?> m2);
+  public abstract double getInnerProduct(Matrix m1, Matrix m2);
 
   /**
    * Returns the outer product.
@@ -251,7 +251,7 @@ public abstract class MatrixAlgebra {
    * @return The outer product
    * @exception IllegalArgumentException If the vectors are not the same size
    */
-  public abstract DoubleMatrix2D getOuterProduct(Matrix<?> m1, Matrix<?> m2);
+  public abstract DoubleMatrix2D getOuterProduct(Matrix m1, Matrix m2);
 
   /**
    * For a vector, returns the <a href="http://mathworld.wolfram.com/L1-Norm.html">$L_1$ norm</a>
@@ -261,7 +261,7 @@ public abstract class MatrixAlgebra {
    * @param m A vector or matrix, not null
    * @return The $L_1$ norm
    */
-  public abstract double getNorm1(Matrix<?> m);
+  public abstract double getNorm1(Matrix m);
 
   /**
    * For a vector, returns <a href="http://mathworld.wolfram.com/L2-Norm.html">$L_2$ norm</a> (also known as the
@@ -271,7 +271,7 @@ public abstract class MatrixAlgebra {
    * @param m A vector or matrix, not null
    * @return the norm
    */
-  public abstract double getNorm2(Matrix<?> m);
+  public abstract double getNorm2(Matrix m);
 
   /**
    * For a vector, returns the <a href="http://mathworld.wolfram.com/L-Infinity-Norm.html">$L_\infty$ norm</a>.
@@ -281,7 +281,7 @@ public abstract class MatrixAlgebra {
    * @param m a vector or a matrix, not null
    * @return the norm
    */
-  public abstract double getNormInfinity(Matrix<?> m);
+  public abstract double getNormInfinity(Matrix m);
 
   /**
    * Returns a matrix raised to an integer power, e.g. $\mathbf{A}^3 = \mathbf{A}\mathbf{A}\mathbf{A}$.
@@ -289,7 +289,7 @@ public abstract class MatrixAlgebra {
    * @param p An integer power
    * @return The result
    */
-  public abstract DoubleMatrix2D getPower(Matrix<?> m, int p);
+  public abstract DoubleMatrix2D getPower(Matrix m, int p);
 
   /**
    * Returns a matrix raised to a power, $\mathbf{A}^3 = \mathbf{A}\mathbf{A}\mathbf{A}$.
@@ -297,21 +297,21 @@ public abstract class MatrixAlgebra {
    * @param p The power
    * @return The result
    */
-  public abstract DoubleMatrix2D getPower(Matrix<?> m, double p);
+  public abstract DoubleMatrix2D getPower(Matrix m, double p);
 
   /**
    * Returns the trace (i.e. sum of diagonal elements) of a matrix.
    * @param m A matrix, not null. The matrix must be square.
    * @return The trace
    */
-  public abstract double getTrace(Matrix<?> m);
+  public abstract double getTrace(Matrix m);
 
   /**
    * Returns the transpose of a matrix.
    * @param m A matrix, not null
    * @return The transpose matrix
    */
-  public abstract DoubleMatrix2D getTranspose(Matrix<?> m);
+  public abstract DoubleMatrix2D getTranspose(Matrix m);
 
   /**
    * Compute $A^T A$, where A is a matrix

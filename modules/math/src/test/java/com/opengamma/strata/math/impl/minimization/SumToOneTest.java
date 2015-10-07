@@ -54,7 +54,7 @@ public class SumToOneTest {
       }
       SumToOne trans = new SumToOne(n);
       DoubleMatrix1D to = trans.transform(new DoubleMatrix1D(from));
-      assertEquals(n, to.getNumberOfElements());
+      assertEquals(n, to.size());
       double sum = 0;
       for (int i = 0; i < n; i++) {
         sum += to.getEntry(i);

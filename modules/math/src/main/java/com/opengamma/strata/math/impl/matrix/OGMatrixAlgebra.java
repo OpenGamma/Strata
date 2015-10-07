@@ -21,7 +21,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
    * @throws UnsupportedOperationException always
    */
   @Override
-  public double getCondition(Matrix<?> m) {
+  public double getCondition(Matrix m) {
     throw new UnsupportedOperationException();
   }
 
@@ -30,7 +30,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
    * @throws UnsupportedOperationException always
    */
   @Override
-  public double getDeterminant(Matrix<?> m) {
+  public double getDeterminant(Matrix m) {
     throw new UnsupportedOperationException();
   }
 
@@ -38,7 +38,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
    * {@inheritDoc}
    */
   @Override
-  public double getInnerProduct(Matrix<?> m1, Matrix<?> m2) {
+  public double getInnerProduct(Matrix m1, Matrix m2) {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
@@ -61,7 +61,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
    * @throws UnsupportedOperationException always
    */
   @Override
-  public DoubleMatrix2D getInverse(Matrix<?> m) {
+  public DoubleMatrix2D getInverse(Matrix m) {
     throw new UnsupportedOperationException();
   }
 
@@ -70,7 +70,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
    * @throws UnsupportedOperationException always
    */
   @Override
-  public double getNorm1(Matrix<?> m) {
+  public double getNorm1(Matrix m) {
     throw new UnsupportedOperationException();
   }
 
@@ -79,7 +79,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
    * @throws IllegalArgumentException If the matrix is not a {@link DoubleMatrix1D}
    */
   @Override
-  public double getNorm2(Matrix<?> m) {
+  public double getNorm2(Matrix m) {
     ArgChecker.notNull(m, "m");
     if (m instanceof DoubleMatrix1D) {
       double[] a = ((DoubleMatrix1D) m).getData();
@@ -100,7 +100,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
    * @throws UnsupportedOperationException always
    */
   @Override
-  public double getNormInfinity(Matrix<?> m) {
+  public double getNormInfinity(Matrix m) {
     throw new UnsupportedOperationException();
   }
 
@@ -108,7 +108,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
    * {@inheritDoc}
    */
   @Override
-  public DoubleMatrix2D getOuterProduct(Matrix<?> m1, Matrix<?> m2) {
+  public DoubleMatrix2D getOuterProduct(Matrix m1, Matrix m2) {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
@@ -134,7 +134,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
    * @throws UnsupportedOperationException always
    */
   @Override
-  public DoubleMatrix2D getPower(Matrix<?> m, int p) {
+  public DoubleMatrix2D getPower(Matrix m, int p) {
     throw new UnsupportedOperationException();
   }
 
@@ -142,7 +142,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
    * {@inheritDoc}
    */
   @Override
-  public double getTrace(Matrix<?> m) {
+  public double getTrace(Matrix m) {
     ArgChecker.notNull(m, "m");
     if (m instanceof DoubleMatrix2D) {
       double[][] data = ((DoubleMatrix2D) m).getData();
@@ -161,7 +161,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
    * {@inheritDoc}
    */
   @Override
-  public DoubleMatrix2D getTranspose(Matrix<?> m) {
+  public DoubleMatrix2D getTranspose(Matrix m) {
     ArgChecker.notNull(m, "m");
     if (m instanceof IdentityMatrix) {
       return (IdentityMatrix) m;
@@ -191,7 +191,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
    * </ul>
    */
   @Override
-  public Matrix<?> multiply(Matrix<?> m1, Matrix<?> m2) {
+  public Matrix multiply(Matrix m1, Matrix m2) {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
     if (m1 instanceof IdentityMatrix) {
@@ -235,7 +235,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
    * @throws UnsupportedOperationException always
    */
   @Override
-  public DoubleMatrix2D getPower(Matrix<?> m, double p) {
+  public DoubleMatrix2D getPower(Matrix m, double p) {
     throw new UnsupportedOperationException();
   }
 
@@ -284,16 +284,16 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
   }
 
   private DoubleMatrix1D multiply(IdentityMatrix matrix, DoubleMatrix1D vector) {
-    ArgChecker.isTrue(matrix.getSize() == vector.getNumberOfElements(),
+    ArgChecker.isTrue(matrix.getSize() == vector.size(),
         "size of identity matrix ({}) does not match size of vector ({})", matrix.getSize(),
-        vector.getNumberOfElements());
+        vector.size());
     return vector;
   }
 
   private DoubleMatrix1D multiply(DoubleMatrix1D vector, IdentityMatrix matrix) {
-    ArgChecker.isTrue(matrix.getSize() == vector.getNumberOfElements(),
+    ArgChecker.isTrue(matrix.getSize() == vector.size(),
         "size of identity matrix ({}) does not match size of vector ({})", matrix.getSize(),
-        vector.getNumberOfElements());
+        vector.size());
     return vector;
   }
 

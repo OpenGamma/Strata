@@ -280,7 +280,7 @@ public abstract class PenaltyMatrixGenerator {
    * @return a the flattened matrix 
    */
   public static DoubleMatrix1D flattenMatrix(DoubleMatrix2D aMatrix) {
-    int elements = aMatrix.getNumberOfElements();
+    int elements = aMatrix.size();
     double[] data = new double[elements];
     int nRows = aMatrix.getNumberOfRows();
     int nCols = aMatrix.getNumberOfColumns();

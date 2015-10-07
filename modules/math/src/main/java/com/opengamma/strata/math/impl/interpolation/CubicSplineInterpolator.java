@@ -70,7 +70,7 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
     final DoubleMatrix2D coefMatrix = _solver.solve(xValuesSrt, yValuesSrt);
     final int nCoefs = coefMatrix.getNumberOfColumns();
 
-    for (int i = 0; i < _solver.getKnotsMat1D(xValuesSrt).getNumberOfElements() - 1; ++i) {
+    for (int i = 0; i < _solver.getKnotsMat1D(xValuesSrt).size() - 1; ++i) {
       for (int j = 0; j < nCoefs; ++j) {
         ArgChecker.isFalse(Double.isNaN(coefMatrix.getData()[i][j]), "Too large input");
         ArgChecker.isFalse(Double.isInfinite(coefMatrix.getData()[i][j]), "Too large input");

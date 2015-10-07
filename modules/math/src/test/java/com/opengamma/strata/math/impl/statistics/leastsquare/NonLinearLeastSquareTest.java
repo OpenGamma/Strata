@@ -48,8 +48,8 @@ public class NonLinearLeastSquareTest {
     @SuppressWarnings("synthetic-access")
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D a) {
-      ArgChecker.isTrue(a.getNumberOfElements() == 4, "four parameters");
-      final int n = X.getNumberOfElements();
+      ArgChecker.isTrue(a.size() == 4, "four parameters");
+      final int n = X.size();
       final double[] res = new double[n];
       for (int i = 0; i < n; i++) {
         res[i] = a.getEntry(0) * Math.sin(a.getEntry(1) * X.getEntry(i) + a.getEntry(2)) + a.getEntry(3);
@@ -62,7 +62,7 @@ public class NonLinearLeastSquareTest {
 
     @Override
     public Double evaluate(final Double x, final DoubleMatrix1D a) {
-      ArgChecker.isTrue(a.getNumberOfElements() == getNumberOfParameters(), "four parameters");
+      ArgChecker.isTrue(a.size() == getNumberOfParameters(), "four parameters");
       return a.getEntry(0) * Math.sin(a.getEntry(1) * x + a.getEntry(2)) + a.getEntry(3);
     }
 
@@ -76,7 +76,7 @@ public class NonLinearLeastSquareTest {
 
     @Override
     public DoubleMatrix1D evaluate(final Double x, final DoubleMatrix1D a) {
-      ArgChecker.isTrue(a.getNumberOfElements() == getNumberOfParameters(), "four parameters");
+      ArgChecker.isTrue(a.size() == getNumberOfParameters(), "four parameters");
       final double temp1 = Math.sin(a.getEntry(1) * x + a.getEntry(2));
       final double temp2 = Math.cos(a.getEntry(1) * x + a.getEntry(2));
       final double[] res = new double[4];
@@ -98,12 +98,12 @@ public class NonLinearLeastSquareTest {
     @SuppressWarnings("synthetic-access")
     @Override
     public DoubleMatrix2D evaluate(final DoubleMatrix1D a) {
-      final int n = X.getNumberOfElements();
-      final int m = a.getNumberOfElements();
+      final int n = X.size();
+      final int m = a.size();
       final double[][] res = new double[n][m];
       for (int i = 0; i < n; i++) {
         final DoubleMatrix1D temp = PARAM_GRAD.evaluate(X.getEntry(i), a);
-        ArgChecker.isTrue(m == temp.getNumberOfElements());
+        ArgChecker.isTrue(m == temp.size());
         for (int j = 0; j < m; j++) {
           res[i][j] = temp.getEntry(j);
         }

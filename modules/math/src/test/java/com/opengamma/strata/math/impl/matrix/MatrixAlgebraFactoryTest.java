@@ -25,67 +25,67 @@ public class MatrixAlgebraFactoryTest {
     assertNull(MatrixAlgebraFactory.getMatrixAlgebraName(new MatrixAlgebra() {
 
       @Override
-      public double getCondition(Matrix<?> m) {
+      public double getCondition(Matrix m) {
         return 0;
       }
 
       @Override
-      public double getDeterminant(Matrix<?> m) {
+      public double getDeterminant(Matrix m) {
         return 0;
       }
 
       @Override
-      public double getInnerProduct(Matrix<?> m1, Matrix<?> m2) {
+      public double getInnerProduct(Matrix m1, Matrix m2) {
         return 0;
       }
 
       @Override
-      public DoubleMatrix2D getInverse(Matrix<?> m) {
+      public DoubleMatrix2D getInverse(Matrix m) {
         return null;
       }
 
       @Override
-      public double getNorm1(Matrix<?> m) {
+      public double getNorm1(Matrix m) {
         return 0;
       }
 
       @Override
-      public double getNorm2(Matrix<?> m) {
+      public double getNorm2(Matrix m) {
         return 0;
       }
 
       @Override
-      public double getNormInfinity(Matrix<?> m) {
+      public double getNormInfinity(Matrix m) {
         return 0;
       }
 
       @Override
-      public DoubleMatrix2D getOuterProduct(Matrix<?> m1, Matrix<?> m2) {
+      public DoubleMatrix2D getOuterProduct(Matrix m1, Matrix m2) {
         return null;
       }
 
       @Override
-      public DoubleMatrix2D getPower(Matrix<?> m, int p) {
+      public DoubleMatrix2D getPower(Matrix m, int p) {
         return null;
       }
 
       @Override
-      public DoubleMatrix2D getPower(Matrix<?> m, double p) {
+      public DoubleMatrix2D getPower(Matrix m, double p) {
         return null;
       }
 
       @Override
-      public double getTrace(Matrix<?> m) {
+      public double getTrace(Matrix m) {
         return 0;
       }
 
       @Override
-      public DoubleMatrix2D getTranspose(Matrix<?> m) {
+      public DoubleMatrix2D getTranspose(Matrix m) {
         return null;
       }
 
       @Override
-      public Matrix<?> multiply(Matrix<?> m1, Matrix<?> m2) {
+      public Matrix multiply(Matrix m1, Matrix m2) {
         return null;
       }
 

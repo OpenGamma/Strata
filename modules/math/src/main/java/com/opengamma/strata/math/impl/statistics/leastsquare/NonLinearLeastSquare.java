@@ -74,8 +74,8 @@ public class NonLinearLeastSquare {
 
     ArgChecker.notNull(x, "x");
     ArgChecker.notNull(y, "y");
-    int n = x.getNumberOfElements();
-    ArgChecker.isTrue(y.getNumberOfElements() == n, "y wrong length");
+    int n = x.size();
+    ArgChecker.isTrue(y.size() == n, "y wrong length");
     double[] sigmas = new double[n];
     Arrays.fill(sigmas, 1);
     return solve(x, y, new DoubleMatrix1D(sigmas), func, startPos);
@@ -102,8 +102,8 @@ public class NonLinearLeastSquare {
     ArgChecker.notNull(x, "x");
     ArgChecker.notNull(y, "y");
     ArgChecker.notNull(sigma, "sigma");
-    int n = x.getNumberOfElements();
-    ArgChecker.isTrue(y.getNumberOfElements() == n, "y wrong length");
+    int n = x.size();
+    ArgChecker.isTrue(y.size() == n, "y wrong length");
     double[] sigmas = new double[n];
     Arrays.fill(sigmas, sigma);
     return solve(x, y, new DoubleMatrix1D(sigmas), func, startPos);
@@ -132,15 +132,15 @@ public class NonLinearLeastSquare {
     ArgChecker.notNull(y, "y");
     ArgChecker.notNull(sigma, "sigma");
 
-    int n = x.getNumberOfElements();
-    ArgChecker.isTrue(y.getNumberOfElements() == n, "y wrong length");
-    ArgChecker.isTrue(sigma.getNumberOfElements() == n, "sigma wrong length");
+    int n = x.size();
+    ArgChecker.isTrue(y.size() == n, "y wrong length");
+    ArgChecker.isTrue(sigma.size() == n, "sigma wrong length");
 
     Function1D<DoubleMatrix1D, DoubleMatrix1D> func1D = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
       @Override
       public DoubleMatrix1D evaluate(DoubleMatrix1D theta) {
-        int m = x.getNumberOfElements();
+        int m = x.size();
         double[] res = new double[m];
         for (int i = 0; i < m; i++) {
           res[i] = func.evaluate(x.getEntry(i), theta);
@@ -173,8 +173,8 @@ public class NonLinearLeastSquare {
     ArgChecker.notNull(x, "x");
     ArgChecker.notNull(y, "y");
     ArgChecker.notNull(x, "sigma");
-    int n = x.getNumberOfElements();
-    ArgChecker.isTrue(y.getNumberOfElements() == n, "y wrong length");
+    int n = x.size();
+    ArgChecker.isTrue(y.size() == n, "y wrong length");
     double[] sigmas = new double[n];
     Arrays.fill(sigmas, 1); // emcleod 31-1-2011 arbitrary value for now
     return solve(x, y, new DoubleMatrix1D(sigmas), func, grad, startPos);
@@ -203,8 +203,8 @@ public class NonLinearLeastSquare {
 
     ArgChecker.notNull(x, "x");
     ArgChecker.notNull(y, "y");
-    int n = x.getNumberOfElements();
-    ArgChecker.isTrue(y.getNumberOfElements() == n, "y wrong length");
+    int n = x.size();
+    ArgChecker.isTrue(y.size() == n, "y wrong length");
     double[] sigmas = new double[n];
     Arrays.fill(sigmas, sigma);
     return solve(x, y, new DoubleMatrix1D(sigmas), func, grad, startPos);
@@ -235,14 +235,14 @@ public class NonLinearLeastSquare {
     ArgChecker.notNull(y, "y");
     ArgChecker.notNull(x, "sigma");
 
-    int n = x.getNumberOfElements();
-    ArgChecker.isTrue(y.getNumberOfElements() == n, "y wrong length");
-    ArgChecker.isTrue(sigma.getNumberOfElements() == n, "sigma wrong length");
+    int n = x.size();
+    ArgChecker.isTrue(y.size() == n, "y wrong length");
+    ArgChecker.isTrue(sigma.size() == n, "sigma wrong length");
 
     Function1D<DoubleMatrix1D, DoubleMatrix1D> func1D = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
       @Override
       public DoubleMatrix1D evaluate(DoubleMatrix1D theta) {
-        int m = x.getNumberOfElements();
+        int m = x.size();
         double[] res = new double[m];
         for (int i = 0; i < m; i++) {
           res[i] = func.evaluate(x.getEntry(i), theta);
@@ -254,7 +254,7 @@ public class NonLinearLeastSquare {
     Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
       @Override
       public DoubleMatrix2D evaluate(DoubleMatrix1D theta) {
-        int m = x.getNumberOfElements();
+        int m = x.size();
         double[][] res = new double[m][];
         for (int i = 0; i < m; i++) {
           DoubleMatrix1D temp = grad.evaluate(x.getEntry(i), theta);
@@ -281,7 +281,7 @@ public class NonLinearLeastSquare {
       Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
       DoubleMatrix1D startPos) {
 
-    int n = observedValues.getNumberOfElements();
+    int n = observedValues.size();
     VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
     return solve(observedValues, new DoubleMatrix1D(n, 1.0), func, jac.differentiate(func), startPos, null);
   }
@@ -404,9 +404,9 @@ public class NonLinearLeastSquare {
     ArgChecker.notNull(func, " func");
     ArgChecker.notNull(jac, " jac");
     ArgChecker.notNull(startPos, "startPos");
-    int nObs = observedValues.getNumberOfElements();
-    int nParms = startPos.getNumberOfElements();
-    ArgChecker.isTrue(nObs == sigma.getNumberOfElements(), "observedValues and sigma must be same length");
+    int nObs = observedValues.size();
+    int nParms = startPos.size();
+    ArgChecker.isTrue(nObs == sigma.size(), "observedValues and sigma must be same length");
     ArgChecker.isTrue(nObs >= nParms,
         "must have data points greater or equal to number of parameters. #date points = {}, #parameters = {}", nObs, nParms);
     ArgChecker.isTrue(constraints.evaluate(startPos),
@@ -586,7 +586,7 @@ public class NonLinearLeastSquare {
     if (maxJumps == null) {
       return true;
     }
-    int n = deltaTheta.getNumberOfElements();
+    int n = deltaTheta.size();
     for (int i = 0; i < n; i++) {
       if (Math.abs(deltaTheta.getEntry(i)) > maxJumps.getEntry(i)) {
         return false;
@@ -649,10 +649,10 @@ public class NonLinearLeastSquare {
       DoubleMatrix1D observedValues,
       DoubleMatrix1D sigma, DoubleMatrix1D theta) {
 
-    int n = observedValues.getNumberOfElements();
+    int n = observedValues.size();
     DoubleMatrix1D modelValues = func.evaluate(theta);
-    ArgChecker.isTrue(n == modelValues.getNumberOfElements(),
-        "Number of data points different between model (" + modelValues.getNumberOfElements() + ") and observed (" + n + ")");
+    ArgChecker.isTrue(n == modelValues.size(),
+        "Number of data points different between model (" + modelValues.size() + ") and observed (" + n + ")");
     double[] res = new double[n];
     for (int i = 0; i < n; i++) {
       res[i] = (observedValues.getEntry(i) - modelValues.getEntry(i)) / sigma.getEntry(i);
@@ -686,8 +686,8 @@ public class NonLinearLeastSquare {
     double[][] data = res.getData();
     int n = res.getNumberOfRows();
     int m = res.getNumberOfColumns();
-    ArgChecker.isTrue(theta.getNumberOfElements() == m, "Jacobian is wrong size");
-    ArgChecker.isTrue(sigma.getNumberOfElements() == n, "Jacobian is wrong size");
+    ArgChecker.isTrue(theta.size() == m, "Jacobian is wrong size");
+    ArgChecker.isTrue(sigma.size() == n, "Jacobian is wrong size");
 
     for (int i = 0; i < n; i++) {
       double sigmaInv = 1.0 / sigma.getEntry(i);

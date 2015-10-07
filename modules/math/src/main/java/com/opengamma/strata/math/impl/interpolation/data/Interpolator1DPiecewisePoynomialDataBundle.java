@@ -72,7 +72,7 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
    * @return Y values of breakpoints
    */
   public double[] getBreakPointsY() {
-    final int nKnots = _poly.getKnots().getNumberOfElements();
+    final int nKnots = _poly.getKnots().size();
     final double[][] coefMat = _poly.getCoefMatrix().getData();
     final int nCoefs = coefMat[0].length;
     final double[] values = new double[nKnots];

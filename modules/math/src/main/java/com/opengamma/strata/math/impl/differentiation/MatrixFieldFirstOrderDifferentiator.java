@@ -58,7 +58,7 @@ public class MatrixFieldFirstOrderDifferentiator
       @Override
       public DoubleMatrix2D[] evaluate(DoubleMatrix1D x) {
         ArgChecker.notNull(x, "x");
-        int n = x.getNumberOfElements();
+        int n = x.size();
 
         DoubleMatrix2D[] res = new DoubleMatrix2D[n];
         double[] xData = x.getData();
@@ -96,7 +96,7 @@ public class MatrixFieldFirstOrderDifferentiator
         ArgChecker.notNull(x, "x");
         ArgChecker.isTrue(domain.evaluate(x), "point {} is not in the function domain", x.toString());
 
-        int n = x.getNumberOfElements();
+        int n = x.size();
         double[] xData = x.getData();
         double oldValue;
         DoubleMatrix2D[] y = new DoubleMatrix2D[3];

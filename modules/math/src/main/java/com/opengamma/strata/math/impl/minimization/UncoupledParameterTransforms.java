@@ -39,7 +39,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
     ArgChecker.notNull(startValues, "null start values");
     ArgChecker.notEmpty(transforms, "must specify transforms");
     ArgChecker.notNull(fixed, "must specify what is fixed (even if none)");
-    _nMP = startValues.getNumberOfElements();
+    _nMP = startValues.size();
     ArgChecker.isTrue(_nMP == transforms.length, "Have {}-dimensional start value but {} transforms", _nMP, transforms.length);
     _freeParameters = new boolean[_nMP];
     for (int i = 0; i < _nMP; i++) {
@@ -83,7 +83,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   @Override
   public DoubleMatrix1D transform(DoubleMatrix1D functionParameters) {
     ArgChecker.notNull(functionParameters, "function parameters");
-    ArgChecker.isTrue(functionParameters.getNumberOfElements() == _nMP, "functionParameters wrong dimension");
+    ArgChecker.isTrue(functionParameters.size() == _nMP, "functionParameters wrong dimension");
     double[] fittingParameter = new double[_nFP];
     for (int i = 0, j = 0; i < _nMP; i++) {
       if (_freeParameters[i]) {
@@ -102,7 +102,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   @Override
   public DoubleMatrix1D inverseTransform(DoubleMatrix1D fittingParameters) {
     ArgChecker.notNull(fittingParameters, "fitting parameters");
-    ArgChecker.isTrue(fittingParameters.getNumberOfElements() == _nFP, "fittingParameter wrong dimension");
+    ArgChecker.isTrue(fittingParameters.size() == _nFP, "fittingParameter wrong dimension");
     double[] modelParameter = new double[_nMP];
     for (int i = 0, j = 0; i < _nMP; i++) {
       if (_freeParameters[i]) {
@@ -125,7 +125,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   @Override
   public DoubleMatrix2D jacobian(DoubleMatrix1D functionParameters) {
     ArgChecker.notNull(functionParameters, "function parameters");
-    ArgChecker.isTrue(functionParameters.getNumberOfElements() == _nMP, "functionParameters wrong dimension");
+    ArgChecker.isTrue(functionParameters.size() == _nMP, "functionParameters wrong dimension");
     double[][] jac = new double[_nFP][_nMP];
     for (int i = 0, j = 0; i < _nMP; i++) {
       if (_freeParameters[i]) {
@@ -148,7 +148,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   @Override
   public DoubleMatrix2D inverseJacobian(DoubleMatrix1D fittingParameters) {
     ArgChecker.notNull(fittingParameters, "fitting parameters");
-    ArgChecker.isTrue(fittingParameters.getNumberOfElements() == _nFP, "fitting parameters wrong dimension");
+    ArgChecker.isTrue(fittingParameters.size() == _nFP, "fitting parameters wrong dimension");
     double[][] jac = new double[_nMP][_nFP];
     int[] p = new int[_nMP];
     int[] q = new int[_nMP];

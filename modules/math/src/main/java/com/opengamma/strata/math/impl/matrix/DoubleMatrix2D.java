@@ -11,7 +11,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * A minimal implementation of a 2D matrix of doubles.
  *
  */
-public class DoubleMatrix2D implements Matrix<Double> {
+public class DoubleMatrix2D implements Matrix {
   private final double[][] _data;
   private final int _rows;
   private final int _columns;
@@ -103,14 +103,17 @@ public class DoubleMatrix2D implements Matrix<Double> {
   }
 
   /**
-   * {@inheritDoc}
+   * Gets the value at the specified index in this array.
+   * 
+   * @param index1  the first zero-based index to retrieve
+   * @param index2  the second zero-based index to retrieve
+   * @return the value at the index
+   * @throws IndexOutOfBoundsException if the index is invalid
    */
-  @Override
-  public Double getEntry(final int... index) {
-    ArgChecker.notNull(index, "indices");
-    ArgChecker.isTrue(index[0] < _data.length, "x index {} is greater than length of array {}", index[0], _data.length);
-    ArgChecker.isTrue(index[1] < _data[0].length, "y index {} is greater than length of array {}", index[1], _data[0].length);
-    return _data[index[0]][index[1]];
+  public double getEntry(int index1, int index2) {
+    ArgChecker.isTrue(index1 < _data.length, "x index {} is greater than length of array {}", index1, _data.length);
+    ArgChecker.isTrue(index2 < _data[0].length, "y index {} is greater than length of array {}", index2, _data[0].length);
+    return _data[index1][index2];
   }
 
   /**
@@ -132,11 +135,13 @@ public class DoubleMatrix2D implements Matrix<Double> {
     return temp.getData();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public int getNumberOfElements() {
+  public int dimensions() {
+    return 2;
+  }
+
+  @Override
+  public int size() {
     return _elements;
   }
 

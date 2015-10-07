@@ -123,8 +123,8 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
       public DoubleMatrix2D[] evaluate(DoubleMatrix1D x) {
         ArgChecker.notNull(x, "x");
         DoubleMatrix1D y = function.evaluate(x);
-        int n = x.getNumberOfElements();
-        int m = y.getNumberOfElements();
+        int n = x.size();
+        int m = y.size();
         double[] xData = x.getData();
         double oldValueJ, oldValueK;
         double[][][] res = new double[m][n][n];
@@ -181,8 +181,8 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
       public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
         ArgChecker.notNull(x, "x");
         DoubleMatrix1D y = function.evaluate(x);
-        int n = x.getNumberOfElements();
-        int m = y.getNumberOfElements();
+        int n = x.size();
+        int m = y.size();
         double[] xData = x.getData();
         double oldValue;
         double[][] res = new double[m][n];

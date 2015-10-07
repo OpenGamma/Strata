@@ -118,7 +118,7 @@ public final class CommonsMathWrapper {
    */
   public static RealMatrix wrapAsMatrix(DoubleMatrix1D x) {
     ArgChecker.notNull(x, "x");
-    int n = x.getNumberOfElements();
+    int n = x.size();
     double[][] y = new double[n][1];
     for (int i = 0; i < n; i++) {
       y[i][0] = x.getEntry(i);

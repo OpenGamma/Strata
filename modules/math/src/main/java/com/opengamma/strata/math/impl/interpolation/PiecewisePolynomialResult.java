@@ -36,7 +36,7 @@ public class PiecewisePolynomialResult {
 
     _knots = knots;
     _coefMatrix = coefMatrix;
-    _nIntervals = knots.getNumberOfElements() - 1;
+    _nIntervals = knots.size() - 1;
     _order = order;
     _dim = dim;
 
