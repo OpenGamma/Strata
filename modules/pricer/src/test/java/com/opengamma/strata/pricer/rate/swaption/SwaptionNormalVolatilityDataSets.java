@@ -93,6 +93,11 @@ public class SwaptionNormalVolatilityDataSets {
         USD_1Y_LIBOR3M, DayCounts.ACT_365F, VALUATION_DATE_STD, VALUATION_TIME_STD, VALUATION_ZONE_STD);
   }
 
+  public static NormalVolatilityExpiryTenorSwaptionProvider normalVolSwaptionProviderUsdStd(LocalDate valuationDate) {
+    return NormalVolatilityExpiryTenorSwaptionProvider.of(SURFACE_STD, USD_1Y_LIBOR3M, DayCounts.ACT_365F,
+        valuationDate, VALUATION_TIME_STD, VALUATION_ZONE_STD);
+  }
+
   //     =====     Flat volatilities for testing     =====
 
   private static final double[] TIMES_FLAT = new double[] {0.0, 100.0, 0.0, 100.0};
