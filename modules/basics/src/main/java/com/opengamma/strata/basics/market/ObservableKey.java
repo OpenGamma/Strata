@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.basics.market;
 
+import org.joda.beans.ImmutableBean;
+
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.id.StandardIdentifiable;
 
@@ -14,7 +16,8 @@ import com.opengamma.strata.collect.id.StandardIdentifiable;
  * Observable data can be requested from an external data provider, for example Bloomberg or Reuters.
  */
 public interface ObservableKey
-    extends MarketDataKey<Double>, StandardIdentifiable {
+    extends ImmutableBean, MarketDataKey<Double>, StandardIdentifiable {
+  // TODO: Enhance Joda-Beans so no need to extend ImmutableBean
 
   /**
    * Gets the standard identifier identifying the data.
