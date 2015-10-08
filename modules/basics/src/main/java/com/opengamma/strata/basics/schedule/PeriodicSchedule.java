@@ -30,6 +30,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -177,21 +178,33 @@ public final class PeriodicSchedule
    * The stub convention is used during schedule construction to determine whether the irregular
    * remaining period occurs at the start or end of the schedule.
    * It also determines whether the irregular period is shorter or longer than the regular period.
+   * This property interacts with the "explicit dates" of {@link PeriodicSchedule#getFirstRegularStartDate()}
+   * and {@link PeriodicSchedule#getLastRegularEndDate()}.
    * <p>
    * The convention 'None' may be used to explicitly indicate there are no stubs.
+   * There must be no explicit dates.
    * This will be validated during schedule construction.
    * <p>
    * The convention 'Both' may be used to explicitly indicate there is both an initial and final stub.
    * The stubs themselves must be specified using explicit dates.
    * This will be validated during schedule construction.
    * <p>
-   * If the stub convention is not present, then the convention will be implied from the actual
-   * explicit dates that have been specified.
+   * The conventions 'ShortInitial', 'LongInitial', 'ShortFinal' and 'LongFinal' are used to
+   * indicate the type of stub to be generated. The exact behavior varies depending on whether
+   * there are explicit dates or not:
    * <p>
-   * If both a stub convention and explicit dates are specified, then the combination will be
-   * validated during schedule construction. For example, the combination of an explicit dated
+   * If explicit dates are specified, then the combination of stub convention an explicit date
+   * will be validated during schedule construction. For example, the combination of an explicit dated
    * initial stub and a stub convention of 'ShortInitial' or 'LongInitial' is valid, but other
    * stub conventions, such as 'ShortFinal' or 'None' would be invalid.
+   * <p>
+   * If explicit dates are not specified, then it is not required that a stub is generated.
+   * The convention determines whether to generate dates from the start date forward, or the
+   * end date backwards. Date generation may or may not result in a stub, but if it does then
+   * the stub will be of the correct type.
+   * <p>
+   * When the stub convention is not present, the generation of stubs is based entirely on
+   * the presence or absence of the explicit dates.
    */
   @PropertyDefinition(get = "optional")
   private final StubConvention stubConvention;
@@ -234,6 +247,23 @@ public final class PeriodicSchedule
    */
   @PropertyDefinition(get = "optional")
   private final LocalDate lastRegularEndDate;
+  /**
+   * The optional start date of the first schedule period, overriding normal schedule generation.
+   * <p>
+   * This property is rarely used, and is generally needed when accrual starts before the effective date.
+   * If specified, it overrides the start date of the first period once schedule generation has been completed.
+   * Note that all schedule generation rules apply to 'startDate', with this applied as a final step.
+   * This field primarily exists to support the FpML 'firstPeriodStartDate' concept.
+   * <p>
+   * If set, it should be different to the start date, although this is not validated.
+   * Validation does check that it is before the 'firstRegularStartDate'.
+   * <p>
+   * During schedule generation, if this is present it will be used to override the start date
+   * of the first generated schedule period.
+   * If not present, then the the start of the first period will be the normal start date.
+   */
+  @PropertyDefinition(get = "optional")
+  private final AdjustableDate overrideStartDate;
 
   //-------------------------------------------------------------------------
   /**
@@ -324,6 +354,10 @@ public final class PeriodicSchedule
         ArgChecker.inOrderNotEqual(
             firstRegularStartDate, lastRegularEndDate, "firstRegularStartDate", "lastRegularEndDate");
       }
+      if (overrideStartDate != null) {
+        ArgChecker.inOrderNotEqual(
+            overrideStartDate.getUnadjusted(), firstRegularStartDate, "overrideStartDate", "firstRegularStartDate");
+      }
     }
     if (lastRegularEndDate != null) {
       ArgChecker.inOrderOrEqual(
@@ -402,6 +436,7 @@ public final class PeriodicSchedule
 
   // creates the unadjusted dates, returning the mutable list
   private List<LocalDate> generateUnadjustedDates() {
+    LocalDate effectiveStartDate = overrideStartDate != null ? overrideStartDate.getUnadjusted() : startDate;
     LocalDate regStart = getEffectiveFirstRegularStartDate();
     LocalDate regEnd = getEffectiveLastRegularEndDate();
     boolean explicitInitialStub = !startDate.equals(regStart);
@@ -411,7 +446,7 @@ public final class PeriodicSchedule
       if (explicitInitialStub || explicitFinalStub) {
         throw new ScheduleException(this, "Explict stubs must not be specified when using 'Term' frequency");
       }
-      return ImmutableList.of(startDate, endDate);
+      return ImmutableList.of(effectiveStartDate, endDate);
     }
     // calculate base schedule excluding explicit stubs
     RollConvention rollConv = getEffectiveRollConvention();
@@ -426,6 +461,8 @@ public final class PeriodicSchedule
     if (explicitFinalStub) {
       unadj.add(endDate);
     }
+    // handle override start date
+    unadj.set(0, effectiveStartDate);
     return unadj;
   }
 
@@ -524,11 +561,11 @@ public final class PeriodicSchedule
   // applies the appropriate business day adjustment to each date
   private List<LocalDate> applyBusinessDayAdjustment(List<LocalDate> unadj) {
     List<LocalDate> adj = new ArrayList<>(unadj.size());
-    adj.add(MoreObjects.firstNonNull(startDateBusinessDayAdjustment, businessDayAdjustment).adjust(startDate));
+    adj.add(getAdjustedStartDate());
     for (int i = 1; i < unadj.size() - 1; i++) {
       adj.add(businessDayAdjustment.adjust(unadj.get(i)));
     }
-    adj.add(MoreObjects.firstNonNull(endDateBusinessDayAdjustment, businessDayAdjustment).adjust(endDate));
+    adj.add(getAdjustedEndDate());
     return adj;
   }
 
@@ -619,11 +656,14 @@ public final class PeriodicSchedule
    * Gets the start date, adjusted to be a valid business day.
    * <p>
    * This applies the business day rules from {@link #getEffectiveStartDateBusinessDayAdjustment()}
-   * to the start date.
+   * to the start date. If the override start date is present, it will be returned.
    * 
    * @return the start date, adjusted to a valid business day
    */
   public LocalDate getAdjustedStartDate() {
+    if (overrideStartDate != null) {
+      return overrideStartDate.adjusted();
+    }
     return getEffectiveStartDateBusinessDayAdjustment().adjust(startDate);
   }
 
@@ -676,7 +716,8 @@ public final class PeriodicSchedule
       StubConvention stubConvention,
       RollConvention rollConvention,
       LocalDate firstRegularStartDate,
-      LocalDate lastRegularEndDate) {
+      LocalDate lastRegularEndDate,
+      AdjustableDate overrideStartDate) {
     JodaBeanUtils.notNull(startDate, "startDate");
     JodaBeanUtils.notNull(endDate, "endDate");
     JodaBeanUtils.notNull(frequency, "frequency");
@@ -691,6 +732,7 @@ public final class PeriodicSchedule
     this.rollConvention = rollConvention;
     this.firstRegularStartDate = firstRegularStartDate;
     this.lastRegularEndDate = lastRegularEndDate;
+    this.overrideStartDate = overrideStartDate;
     validate();
   }
 
@@ -804,21 +846,33 @@ public final class PeriodicSchedule
    * The stub convention is used during schedule construction to determine whether the irregular
    * remaining period occurs at the start or end of the schedule.
    * It also determines whether the irregular period is shorter or longer than the regular period.
+   * This property interacts with the "explicit dates" of {@link PeriodicSchedule#getFirstRegularStartDate()}
+   * and {@link PeriodicSchedule#getLastRegularEndDate()}.
    * <p>
    * The convention 'None' may be used to explicitly indicate there are no stubs.
+   * There must be no explicit dates.
    * This will be validated during schedule construction.
    * <p>
    * The convention 'Both' may be used to explicitly indicate there is both an initial and final stub.
    * The stubs themselves must be specified using explicit dates.
    * This will be validated during schedule construction.
    * <p>
-   * If the stub convention is not present, then the convention will be implied from the actual
-   * explicit dates that have been specified.
+   * The conventions 'ShortInitial', 'LongInitial', 'ShortFinal' and 'LongFinal' are used to
+   * indicate the type of stub to be generated. The exact behavior varies depending on whether
+   * there are explicit dates or not:
    * <p>
-   * If both a stub convention and explicit dates are specified, then the combination will be
-   * validated during schedule construction. For example, the combination of an explicit dated
+   * If explicit dates are specified, then the combination of stub convention an explicit date
+   * will be validated during schedule construction. For example, the combination of an explicit dated
    * initial stub and a stub convention of 'ShortInitial' or 'LongInitial' is valid, but other
    * stub conventions, such as 'ShortFinal' or 'None' would be invalid.
+   * <p>
+   * If explicit dates are not specified, then it is not required that a stub is generated.
+   * The convention determines whether to generate dates from the start date forward, or the
+   * end date backwards. Date generation may or may not result in a stub, but if it does then
+   * the stub will be of the correct type.
+   * <p>
+   * When the stub convention is not present, the generation of stubs is based entirely on
+   * the presence or absence of the explicit dates.
    * @return the optional value of the property, not null
    */
   public Optional<StubConvention> getStubConvention() {
@@ -878,6 +932,27 @@ public final class PeriodicSchedule
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the optional start date of the first schedule period, overriding normal schedule generation.
+   * <p>
+   * This property is rarely used, and is generally needed when accrual starts before the effective date.
+   * If specified, it overrides the start date of the first period once schedule generation has been completed.
+   * Note that all schedule generation rules apply to 'startDate', with this applied as a final step.
+   * This field primarily exists to support the FpML 'firstPeriodStartDate' concept.
+   * <p>
+   * If set, it should be different to the start date, although this is not validated.
+   * Validation does check that it is before the 'firstRegularStartDate'.
+   * <p>
+   * During schedule generation, if this is present it will be used to override the start date
+   * of the first generated schedule period.
+   * If not present, then the the start of the first period will be the normal start date.
+   * @return the optional value of the property, not null
+   */
+  public Optional<AdjustableDate> getOverrideStartDate() {
+    return Optional.ofNullable(overrideStartDate);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -901,7 +976,8 @@ public final class PeriodicSchedule
           JodaBeanUtils.equal(stubConvention, other.stubConvention) &&
           JodaBeanUtils.equal(rollConvention, other.rollConvention) &&
           JodaBeanUtils.equal(firstRegularStartDate, other.firstRegularStartDate) &&
-          JodaBeanUtils.equal(lastRegularEndDate, other.lastRegularEndDate);
+          JodaBeanUtils.equal(lastRegularEndDate, other.lastRegularEndDate) &&
+          JodaBeanUtils.equal(overrideStartDate, other.overrideStartDate);
     }
     return false;
   }
@@ -919,12 +995,13 @@ public final class PeriodicSchedule
     hash = hash * 31 + JodaBeanUtils.hashCode(rollConvention);
     hash = hash * 31 + JodaBeanUtils.hashCode(firstRegularStartDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(lastRegularEndDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(overrideStartDate);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(352);
+    StringBuilder buf = new StringBuilder(384);
     buf.append("PeriodicSchedule{");
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
@@ -935,7 +1012,8 @@ public final class PeriodicSchedule
     buf.append("stubConvention").append('=').append(stubConvention).append(',').append(' ');
     buf.append("rollConvention").append('=').append(rollConvention).append(',').append(' ');
     buf.append("firstRegularStartDate").append('=').append(firstRegularStartDate).append(',').append(' ');
-    buf.append("lastRegularEndDate").append('=').append(JodaBeanUtils.toString(lastRegularEndDate));
+    buf.append("lastRegularEndDate").append('=').append(lastRegularEndDate).append(',').append(' ');
+    buf.append("overrideStartDate").append('=').append(JodaBeanUtils.toString(overrideStartDate));
     buf.append('}');
     return buf.toString();
   }
@@ -1001,6 +1079,11 @@ public final class PeriodicSchedule
     private final MetaProperty<LocalDate> lastRegularEndDate = DirectMetaProperty.ofImmutable(
         this, "lastRegularEndDate", PeriodicSchedule.class, LocalDate.class);
     /**
+     * The meta-property for the {@code overrideStartDate} property.
+     */
+    private final MetaProperty<AdjustableDate> overrideStartDate = DirectMetaProperty.ofImmutable(
+        this, "overrideStartDate", PeriodicSchedule.class, AdjustableDate.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -1014,7 +1097,8 @@ public final class PeriodicSchedule
         "stubConvention",
         "rollConvention",
         "firstRegularStartDate",
-        "lastRegularEndDate");
+        "lastRegularEndDate",
+        "overrideStartDate");
 
     /**
      * Restricted constructor.
@@ -1045,6 +1129,8 @@ public final class PeriodicSchedule
           return firstRegularStartDate;
         case -1540679645:  // lastRegularEndDate
           return lastRegularEndDate;
+        case -599936828:  // overrideStartDate
+          return overrideStartDate;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -1145,6 +1231,14 @@ public final class PeriodicSchedule
       return lastRegularEndDate;
     }
 
+    /**
+     * The meta-property for the {@code overrideStartDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<AdjustableDate> overrideStartDate() {
+      return overrideStartDate;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -1169,6 +1263,8 @@ public final class PeriodicSchedule
           return ((PeriodicSchedule) bean).firstRegularStartDate;
         case -1540679645:  // lastRegularEndDate
           return ((PeriodicSchedule) bean).lastRegularEndDate;
+        case -599936828:  // overrideStartDate
+          return ((PeriodicSchedule) bean).overrideStartDate;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -1200,6 +1296,7 @@ public final class PeriodicSchedule
     private RollConvention rollConvention;
     private LocalDate firstRegularStartDate;
     private LocalDate lastRegularEndDate;
+    private AdjustableDate overrideStartDate;
 
     /**
      * Restricted constructor.
@@ -1222,6 +1319,7 @@ public final class PeriodicSchedule
       this.rollConvention = beanToCopy.rollConvention;
       this.firstRegularStartDate = beanToCopy.firstRegularStartDate;
       this.lastRegularEndDate = beanToCopy.lastRegularEndDate;
+      this.overrideStartDate = beanToCopy.overrideStartDate;
     }
 
     //-----------------------------------------------------------------------
@@ -1248,6 +1346,8 @@ public final class PeriodicSchedule
           return firstRegularStartDate;
         case -1540679645:  // lastRegularEndDate
           return lastRegularEndDate;
+        case -599936828:  // overrideStartDate
+          return overrideStartDate;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -1285,6 +1385,9 @@ public final class PeriodicSchedule
           break;
         case -1540679645:  // lastRegularEndDate
           this.lastRegularEndDate = (LocalDate) newValue;
+          break;
+        case -599936828:  // overrideStartDate
+          this.overrideStartDate = (AdjustableDate) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -1328,7 +1431,8 @@ public final class PeriodicSchedule
           stubConvention,
           rollConvention,
           firstRegularStartDate,
-          lastRegularEndDate);
+          lastRegularEndDate,
+          overrideStartDate);
     }
 
     //-----------------------------------------------------------------------
@@ -1436,21 +1540,33 @@ public final class PeriodicSchedule
      * The stub convention is used during schedule construction to determine whether the irregular
      * remaining period occurs at the start or end of the schedule.
      * It also determines whether the irregular period is shorter or longer than the regular period.
+     * This property interacts with the "explicit dates" of {@link PeriodicSchedule#getFirstRegularStartDate()}
+     * and {@link PeriodicSchedule#getLastRegularEndDate()}.
      * <p>
      * The convention 'None' may be used to explicitly indicate there are no stubs.
+     * There must be no explicit dates.
      * This will be validated during schedule construction.
      * <p>
      * The convention 'Both' may be used to explicitly indicate there is both an initial and final stub.
      * The stubs themselves must be specified using explicit dates.
      * This will be validated during schedule construction.
      * <p>
-     * If the stub convention is not present, then the convention will be implied from the actual
-     * explicit dates that have been specified.
+     * The conventions 'ShortInitial', 'LongInitial', 'ShortFinal' and 'LongFinal' are used to
+     * indicate the type of stub to be generated. The exact behavior varies depending on whether
+     * there are explicit dates or not:
      * <p>
-     * If both a stub convention and explicit dates are specified, then the combination will be
-     * validated during schedule construction. For example, the combination of an explicit dated
+     * If explicit dates are specified, then the combination of stub convention an explicit date
+     * will be validated during schedule construction. For example, the combination of an explicit dated
      * initial stub and a stub convention of 'ShortInitial' or 'LongInitial' is valid, but other
      * stub conventions, such as 'ShortFinal' or 'None' would be invalid.
+     * <p>
+     * If explicit dates are not specified, then it is not required that a stub is generated.
+     * The convention determines whether to generate dates from the start date forward, or the
+     * end date backwards. Date generation may or may not result in a stub, but if it does then
+     * the stub will be of the correct type.
+     * <p>
+     * When the stub convention is not present, the generation of stubs is based entirely on
+     * the presence or absence of the explicit dates.
      * @param stubConvention  the new value
      * @return this, for chaining, not null
      */
@@ -1513,10 +1629,32 @@ public final class PeriodicSchedule
       return this;
     }
 
+    /**
+     * Sets the optional start date of the first schedule period, overriding normal schedule generation.
+     * <p>
+     * This property is rarely used, and is generally needed when accrual starts before the effective date.
+     * If specified, it overrides the start date of the first period once schedule generation has been completed.
+     * Note that all schedule generation rules apply to 'startDate', with this applied as a final step.
+     * This field primarily exists to support the FpML 'firstPeriodStartDate' concept.
+     * <p>
+     * If set, it should be different to the start date, although this is not validated.
+     * Validation does check that it is before the 'firstRegularStartDate'.
+     * <p>
+     * During schedule generation, if this is present it will be used to override the start date
+     * of the first generated schedule period.
+     * If not present, then the the start of the first period will be the normal start date.
+     * @param overrideStartDate  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder overrideStartDate(AdjustableDate overrideStartDate) {
+      this.overrideStartDate = overrideStartDate;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(352);
+      StringBuilder buf = new StringBuilder(384);
       buf.append("PeriodicSchedule.Builder{");
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
@@ -1527,7 +1665,8 @@ public final class PeriodicSchedule
       buf.append("stubConvention").append('=').append(JodaBeanUtils.toString(stubConvention)).append(',').append(' ');
       buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(rollConvention)).append(',').append(' ');
       buf.append("firstRegularStartDate").append('=').append(JodaBeanUtils.toString(firstRegularStartDate)).append(',').append(' ');
-      buf.append("lastRegularEndDate").append('=').append(JodaBeanUtils.toString(lastRegularEndDate));
+      buf.append("lastRegularEndDate").append('=').append(JodaBeanUtils.toString(lastRegularEndDate)).append(',').append(' ');
+      buf.append("overrideStartDate").append('=').append(JodaBeanUtils.toString(overrideStartDate));
       buf.append('}');
       return buf.toString();
     }
