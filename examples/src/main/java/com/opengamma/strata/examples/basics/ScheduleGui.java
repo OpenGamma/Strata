@@ -6,6 +6,24 @@
 package com.opengamma.strata.examples.basics;
 
 import java.time.LocalDate;
+import java.time.Period;
+
+import org.joda.beans.Bean;
+import org.joda.beans.MetaProperty;
+
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.BusinessDayConvention;
+import com.opengamma.strata.basics.date.BusinessDayConventions;
+import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.schedule.RollConvention;
+import com.opengamma.strata.basics.schedule.RollConventions;
+import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.ScheduleException;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.schedule.StubConvention;
 
 import javafx.application.Application;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -25,22 +43,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import org.joda.beans.Bean;
-import org.joda.beans.MetaProperty;
-
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.BusinessDayConvention;
-import com.opengamma.strata.basics.date.BusinessDayConventions;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
-import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.basics.schedule.PeriodicSchedule;
-import com.opengamma.strata.basics.schedule.RollConvention;
-import com.opengamma.strata.basics.schedule.RollConventions;
-import com.opengamma.strata.basics.schedule.Schedule;
-import com.opengamma.strata.basics.schedule.ScheduleException;
-import com.opengamma.strata.basics.schedule.SchedulePeriod;
-import com.opengamma.strata.basics.schedule.StubConvention;
 
 /**
  * A simple GUI demonstration of schedule generation.
@@ -64,14 +66,16 @@ public class ScheduleGui extends Application {
   //-------------------------------------------------------------------------
   @Override
   public void start(Stage primaryStage) {
+    LocalDate today = LocalDate.now();
+
     // setup GUI elements
     Label startLbl = new Label("Start date:");
-    DatePicker startInp = new DatePicker(LocalDate.now());
+    DatePicker startInp = new DatePicker(today);
     startLbl.setLabelFor(startInp);
     startInp.setShowWeekNumbers(false);
 
     Label endLbl = new Label("End date:");
-    DatePicker endInp = new DatePicker(LocalDate.now().plusYears(1));
+    DatePicker endInp = new DatePicker(today.plusYears(1));
     endLbl.setLabelFor(endInp);
     endInp.setShowWeekNumbers(false);
 
@@ -122,7 +126,13 @@ public class ScheduleGui extends Application {
             HolidayCalendars.GBLO,
             HolidayCalendars.EUTA,
             HolidayCalendars.FRPA,
-            HolidayCalendars.USGS));
+            HolidayCalendars.JPTO,
+            HolidayCalendars.NYFD,
+            HolidayCalendars.NYSE,
+            HolidayCalendars.USNY,
+            HolidayCalendars.USGS,
+            HolidayCalendars.NO_HOLIDAYS,
+            HolidayCalendars.SAT_SUN));
     holidayLbl.setLabelFor(holidayInp);
     holidayInp.setValue(HolidayCalendars.GBLO);
 
@@ -134,26 +144,35 @@ public class ScheduleGui extends Application {
     resultUnadjStartCol.setCellValueFactory(new TableCallback<>(SchedulePeriod.meta().unadjustedStartDate()));
     TableColumn<SchedulePeriod, LocalDate> resultUnadjEndCol = new TableColumn<>("End");
     resultUnadjEndCol.setCellValueFactory(new TableCallback<>(SchedulePeriod.meta().unadjustedEndDate()));
+    TableColumn<SchedulePeriod, Period> resultUnadjLenCol = new TableColumn<>("Length");
+    resultUnadjLenCol.setCellValueFactory(ReadOnlyCallback.of(
+        sch -> Period.between(sch.getUnadjustedStartDate(), sch.getUnadjustedEndDate())));
 
     TableColumn<SchedulePeriod, LocalDate> resultStartCol = new TableColumn<>("Start");
     resultStartCol.setCellValueFactory(new TableCallback<>(SchedulePeriod.meta().startDate()));
     TableColumn<SchedulePeriod, LocalDate> resultEndCol = new TableColumn<>("End");
     resultEndCol.setCellValueFactory(new TableCallback<>(SchedulePeriod.meta().endDate()));
+    TableColumn<SchedulePeriod, Period> resultLenCol = new TableColumn<>("Length");
+    resultLenCol.setCellValueFactory(ReadOnlyCallback.of(sch -> sch.length()));
 
     unadjustedCol.getColumns().add(resultUnadjStartCol);
     unadjustedCol.getColumns().add(resultUnadjEndCol);
+    unadjustedCol.getColumns().add(resultUnadjLenCol);
     adjustedCol.getColumns().add(resultStartCol);
     adjustedCol.getColumns().add(resultEndCol);
+    adjustedCol.getColumns().add(resultLenCol);
     resultGrid.getColumns().add(unadjustedCol);
     resultGrid.getColumns().add(adjustedCol);
     resultGrid.setPlaceholder(new Label("Schedule not yet generated"));
 
     unadjustedCol.prefWidthProperty().bind(resultGrid.widthProperty().divide(2));
     adjustedCol.prefWidthProperty().bind(resultGrid.widthProperty().divide(2));
-    resultUnadjStartCol.prefWidthProperty().bind(unadjustedCol.widthProperty().divide(2));
-    resultUnadjEndCol.prefWidthProperty().bind(unadjustedCol.widthProperty().divide(2));
-    resultStartCol.prefWidthProperty().bind(adjustedCol.widthProperty().divide(2));
-    resultEndCol.prefWidthProperty().bind(adjustedCol.widthProperty().divide(2));
+    resultUnadjStartCol.prefWidthProperty().bind(unadjustedCol.widthProperty().divide(3));
+    resultUnadjEndCol.prefWidthProperty().bind(unadjustedCol.widthProperty().divide(3));
+    resultUnadjLenCol.prefWidthProperty().bind(unadjustedCol.widthProperty().divide(3));
+    resultStartCol.prefWidthProperty().bind(adjustedCol.widthProperty().divide(3));
+    resultEndCol.prefWidthProperty().bind(adjustedCol.widthProperty().divide(3));
+    resultLenCol.prefWidthProperty().bind(adjustedCol.widthProperty().divide(3));
 
     // setup generation button
     // this uses the GUI thread which is not the best idea
@@ -242,6 +261,21 @@ public class ScheduleGui extends Application {
       }
       return new ReadOnlyObjectWrapper<T>(value);
     }
+  }
+
+  // allow simpler way to define a callback
+  static interface ReadOnlyCallback<S, T> extends Callback<CellDataFeatures<S, T>, ObservableValue<T>> {
+
+    public static <S, T> Callback<CellDataFeatures<S, T>, ObservableValue<T>> of(ReadOnlyCallback<S, T> underlying) {
+      return underlying;
+    }
+
+    @Override
+    public default ObservableValue<T> call(CellDataFeatures<S, T> param) {
+      return new ReadOnlyObjectWrapper<T>(callValue(param.getValue()));
+    }
+
+    public abstract T callValue(S value);
   }
 
 }
