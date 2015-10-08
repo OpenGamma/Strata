@@ -123,7 +123,7 @@ public class NonLinearLeastSquareWithPenalty {
       DoubleMatrix1D startPos,
       DoubleMatrix2D penalty) {
 
-    int n = observedValues.getNumberOfElements();
+    int n = observedValues.size();
     VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
     return solve(observedValues, new DoubleMatrix1D(n, 1.0), func, jac.differentiate(func), startPos, penalty);
   }
@@ -230,8 +230,8 @@ public class NonLinearLeastSquareWithPenalty {
     ArgChecker.notNull(func, " func");
     ArgChecker.notNull(jac, " jac");
     ArgChecker.notNull(startPos, "startPos");
-    int nObs = observedValues.getNumberOfElements();
-    ArgChecker.isTrue(nObs == sigma.getNumberOfElements(), "observedValues and sigma must be same length");
+    int nObs = observedValues.size();
+    ArgChecker.isTrue(nObs == sigma.size(), "observedValues and sigma must be same length");
     ArgChecker.isTrue(allowedValue.evaluate(startPos),
         "The start position {} is not valid for this model. Please choose a valid start position", startPos);
 
@@ -338,10 +338,10 @@ public class NonLinearLeastSquareWithPenalty {
       DoubleMatrix1D sigma,
       DoubleMatrix1D theta) {
 
-    int n = observedValues.getNumberOfElements();
+    int n = observedValues.size();
     DoubleMatrix1D modelValues = func.evaluate(theta);
-    ArgChecker.isTrue(n == modelValues.getNumberOfElements(),
-        "Number of data points different between model (" + modelValues.getNumberOfElements() +
+    ArgChecker.isTrue(n == modelValues.size(),
+        "Number of data points different between model (" + modelValues.size() +
             ") and observed (" + n + ")");
     double[] res = new double[n];
     for (int i = 0; i < n; i++) {
@@ -373,8 +373,8 @@ public class NonLinearLeastSquareWithPenalty {
     double[][] data = res.getData();
     int n = res.getNumberOfRows();
     int m = res.getNumberOfColumns();
-    ArgChecker.isTrue(theta.getNumberOfElements() == m, "Jacobian is wrong size");
-    ArgChecker.isTrue(sigma.getNumberOfElements() == n, "Jacobian is wrong size");
+    ArgChecker.isTrue(theta.size() == m, "Jacobian is wrong size");
+    ArgChecker.isTrue(sigma.size() == n, "Jacobian is wrong size");
 
     for (int i = 0; i < n; i++) {
       double sigmaInv = 1.0 / sigma.getEntry(i);

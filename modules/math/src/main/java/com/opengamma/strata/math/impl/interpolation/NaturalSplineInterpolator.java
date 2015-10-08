@@ -73,7 +73,7 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
     final DoubleMatrix2D coefMatrix = this._solver.solve(xValuesSrt, yValuesSrt);
     final int nCoefs = coefMatrix.getNumberOfColumns();
 
-    final int nInts = this._solver.getKnotsMat1D(xValuesSrt).getNumberOfElements() - 1;
+    final int nInts = this._solver.getKnotsMat1D(xValuesSrt).size() - 1;
     for (int i = 0; i < nInts; ++i) {
       for (int j = 0; j < nCoefs; ++j) {
         ArgChecker.isFalse(Double.isNaN(coefMatrix.getData()[i][j]), "Too large input");

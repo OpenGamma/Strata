@@ -160,12 +160,12 @@ public class ConcatenatedVectorFunctionTest {
     final int n = x.length;
     int pos = 0;
     for (int i = 0; i < n; i++) {
-      pos += x[i].getNumberOfElements();
+      pos += x[i].size();
     }
     final DoubleMatrix1D res = new DoubleMatrix1D(pos);
     pos = 0;
     for (int i = 0; i < n; i++) {
-      final int m = x[i].getNumberOfElements();
+      final int m = x[i].size();
       System.arraycopy(x[i].getData(), 0, res.getData(), pos, m);
       pos += m;
     }

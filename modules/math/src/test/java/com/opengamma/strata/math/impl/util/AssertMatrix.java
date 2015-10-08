@@ -27,8 +27,8 @@ public abstract class AssertMatrix {
   public static void assertEqualsVectors(DoubleMatrix1D v1, DoubleMatrix1D v2, double delta) {
     ArgChecker.notNull(v1, "v1");
     ArgChecker.notNull(v2, "v2");
-    int size = v1.getNumberOfElements();
-    assertEquals("sizes:", size, v2.getNumberOfElements());
+    int size = v1.size();
+    assertEquals("sizes:", size, v2.size());
 
     for (int i = 0; i < size; i++) {
       assertEquals("", v1.getEntry(i), v2.getEntry(i), delta);

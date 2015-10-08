@@ -6,20 +6,29 @@
 package com.opengamma.strata.math.impl.matrix;
 
 /**
- * Interface representing a matrix that can have an arbitrary number of dimensions and that contains an arbitrary type of data. 
- * @param <T> Type of elements
+ * Base interface for all matrix types.
+ * <p>
+ * An n-dimensional matrix of elements of a fixed size.
+ * A 1-dimensional matrix is typically known as an array.
  */
-public interface Matrix<T> {
+public interface Matrix {
 
   /**
-   * @return The number of elements in this matrix
+   * Gets the number of dimensions of the matrix.
+   * <p>
+   * Each matrix type has a fixed number of dimensions, returned by this method.
+   * 
+   * @return the dimensions of the matrix
    */
-  int getNumberOfElements();
+  public abstract int dimensions();
 
   /**
-   * Gets the entry specified by the indices. For example, for a 3-D matrix, the indices matrix must have three elements.
-   * @param indices The indices, not null. The number of indices must match the dimension of the matrix
-   * @return The entry 
+   * Gets the size of the matrix.
+   * <p>
+   * This is the total number of elements in the matrix.
+   * 
+   * @return the size of the matrix
    */
-  T getEntry(int... indices);
+  public abstract int size();
+
 }

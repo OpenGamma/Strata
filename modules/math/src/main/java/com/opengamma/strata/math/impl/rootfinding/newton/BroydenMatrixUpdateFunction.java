@@ -32,7 +32,7 @@ public class BroydenMatrixUpdateFunction implements NewtonRootFinderMatrixUpdate
     if (length2 == 0.0) {
       return matrix;
     }
-    Matrix<?> temp = OG_ALGEBRA.subtract(deltaY, OG_ALGEBRA.multiply(matrix, deltaX));
+    Matrix temp = OG_ALGEBRA.subtract(deltaY, OG_ALGEBRA.multiply(matrix, deltaX));
     temp = OG_ALGEBRA.scale(temp, 1.0 / length2);
     return (DoubleMatrix2D) OG_ALGEBRA.add(matrix, OG_ALGEBRA.getOuterProduct(temp, deltaX));
   }

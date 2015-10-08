@@ -12,7 +12,7 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * A minimal implementation of a vector (in the mathematical sense) that contains doubles.
  */
-public class DoubleMatrix1D implements Matrix<Double> {
+public class DoubleMatrix1D implements Matrix {
   private final double[] _data;
   private final int _elements;
   /** Empty vector */
@@ -59,6 +59,27 @@ public class DoubleMatrix1D implements Matrix<Double> {
     _data = new double[_elements];
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the number of dimensions of this array.
+   * 
+   * @return one
+   */
+  @Override
+  public int dimensions() {
+    return 1;
+  }
+
+  /**
+   * Gets the size of this array.
+   * 
+   * @return the array size, zero or greater
+   */
+  @Override
+  public int size() {
+    return _elements;
+  }
+
   /**
    * Returns the underlying vector data. If this is changed so is the vector.
    * @see #toArray to get a copy of data
@@ -78,20 +99,14 @@ public class DoubleMatrix1D implements Matrix<Double> {
   }
 
   /**
-   * {@inheritDoc}
+   * Gets the value at the specified index in this array.
+   * 
+   * @param index  the zero-based index to retrieve
+   * @return the value at the index
+   * @throws IndexOutOfBoundsException if the index is invalid
    */
-  @Override
-  public int getNumberOfElements() {
-    return _elements;
-  }
-
-  /**
-   * {@inheritDoc}
-   * This method expects one index - any subsequent indices will be ignored.
-   */
-  @Override
-  public Double getEntry(final int... index) {
-    return _data[index[0]];
+  public double getEntry(int index) {
+    return _data[index];
   }
 
   @Override

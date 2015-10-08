@@ -139,8 +139,8 @@ public class PiecewisePolynomialFunction2D {
 
     DoubleMatrix1D knots0 = pp.getKnots0();
     DoubleMatrix1D knots1 = pp.getKnots1();
-    int nKnots0 = knots0.getNumberOfElements();
-    int nKnots1 = knots1.getNumberOfElements();
+    int nKnots0 = knots0.size();
+    int nKnots1 = knots1.size();
     DoubleMatrix2D[][] coefs = pp.getCoefs();
 
     DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
@@ -180,8 +180,8 @@ public class PiecewisePolynomialFunction2D {
 
     DoubleMatrix1D knots0 = pp.getKnots0();
     DoubleMatrix1D knots1 = pp.getKnots1();
-    int nKnots0 = knots0.getNumberOfElements();
-    int nKnots1 = knots1.getNumberOfElements();
+    int nKnots0 = knots0.size();
+    int nKnots1 = knots1.size();
     DoubleMatrix2D[][] coefs = pp.getCoefs();
 
     DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
@@ -221,8 +221,8 @@ public class PiecewisePolynomialFunction2D {
 
     DoubleMatrix1D knots0 = pp.getKnots0();
     DoubleMatrix1D knots1 = pp.getKnots1();
-    int nKnots0 = knots0.getNumberOfElements();
-    int nKnots1 = knots1.getNumberOfElements();
+    int nKnots0 = knots0.size();
+    int nKnots1 = knots1.size();
     DoubleMatrix2D[][] coefs = pp.getCoefs();
 
     DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
@@ -262,8 +262,8 @@ public class PiecewisePolynomialFunction2D {
 
     DoubleMatrix1D knots0 = pp.getKnots0();
     DoubleMatrix1D knots1 = pp.getKnots1();
-    int nKnots0 = knots0.getNumberOfElements();
-    int nKnots1 = knots1.getNumberOfElements();
+    int nKnots0 = knots0.size();
+    int nKnots1 = knots1.size();
     DoubleMatrix2D[][] coefs = pp.getCoefs();
 
     DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
@@ -304,8 +304,8 @@ public class PiecewisePolynomialFunction2D {
 
     DoubleMatrix1D knots0 = pp.getKnots0();
     DoubleMatrix1D knots1 = pp.getKnots1();
-    int nKnots0 = knots0.getNumberOfElements();
-    int nKnots1 = knots1.getNumberOfElements();
+    int nKnots0 = knots0.size();
+    int nKnots1 = knots1.size();
     DoubleMatrix2D[][] coefs = pp.getCoefs();
 
     DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
@@ -346,8 +346,8 @@ public class PiecewisePolynomialFunction2D {
 
     DoubleMatrix1D knots0 = pp.getKnots0();
     DoubleMatrix1D knots1 = pp.getKnots1();
-    int nKnots0 = knots0.getNumberOfElements();
-    int nKnots1 = knots1.getNumberOfElements();
+    int nKnots0 = knots0.size();
+    int nKnots1 = knots1.size();
     DoubleMatrix2D[][] coefs = pp.getCoefs();
 
     DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
@@ -387,8 +387,8 @@ public class PiecewisePolynomialFunction2D {
 
     DoubleMatrix1D knots0 = pp.getKnots0();
     DoubleMatrix1D knots1 = pp.getKnots1();
-    int nKnots0 = knots0.getNumberOfElements();
-    int nKnots1 = knots1.getNumberOfElements();
+    int nKnots0 = knots0.size();
+    int nKnots1 = knots1.size();
     DoubleMatrix2D[][] coefs = pp.getCoefs();
 
     DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
@@ -429,8 +429,8 @@ public class PiecewisePolynomialFunction2D {
 
     DoubleMatrix1D knots0 = pp.getKnots0();
     DoubleMatrix1D knots1 = pp.getKnots1();
-    int nKnots0 = knots0.getNumberOfElements();
-    int nKnots1 = knots1.getNumberOfElements();
+    int nKnots0 = knots0.size();
+    int nKnots1 = knots1.size();
     DoubleMatrix2D[][] coefs = pp.getCoefs();
 
     DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
@@ -470,8 +470,8 @@ public class PiecewisePolynomialFunction2D {
 
     DoubleMatrix1D knots0 = pp.getKnots0();
     DoubleMatrix1D knots1 = pp.getKnots1();
-    int nKnots0 = knots0.getNumberOfElements();
-    int nKnots1 = knots1.getNumberOfElements();
+    int nKnots0 = knots0.size();
+    int nKnots1 = knots1.size();
     DoubleMatrix2D[][] coefs = pp.getCoefs();
 
     DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
@@ -511,8 +511,8 @@ public class PiecewisePolynomialFunction2D {
 
     DoubleMatrix1D knots0 = pp.getKnots0();
     DoubleMatrix1D knots1 = pp.getKnots1();
-    int nKnots0 = knots0.getNumberOfElements();
-    int nKnots1 = knots1.getNumberOfElements();
+    int nKnots0 = knots0.size();
+    int nKnots1 = knots1.size();
     DoubleMatrix2D[][] coefs = pp.getCoefs();
 
     DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];

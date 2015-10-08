@@ -24,14 +24,13 @@ public class IdentityMatrix extends DoubleMatrix2D {
   }
 
   @Override
-  public int getNumberOfElements() {
+  public int size() {
     return _size * _size;
   }
 
   @Override
-  public Double getEntry(int... indices) {
-    ArgChecker.isTrue(indices.length == 2, "pass only two indices");
-    return indices[0] == indices[1] ? 1.0 : 0.0;
+  public double getEntry(int index1, int index2) {
+    return index1 == index2 ? 1.0 : 0.0;
   }
 
   /**

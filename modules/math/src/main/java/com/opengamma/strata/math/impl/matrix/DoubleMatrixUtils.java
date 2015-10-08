@@ -59,7 +59,7 @@ public final class DoubleMatrixUtils {
    */
   public static DoubleMatrix2D getTwoDimensionalDiagonalMatrix(DoubleMatrix1D vector) {
     ArgChecker.notNull(vector, "vector");
-    int n = vector.getNumberOfElements();
+    int n = vector.size();
     if (n == 0) {
       return DoubleMatrix2D.EMPTY_MATRIX;
     }

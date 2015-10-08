@@ -45,7 +45,7 @@ public class DoubleMatrix1DTest {
       x[i] = i;
     }
     DoubleMatrix1D d = new DoubleMatrix1D(x);
-    assertEquals(d.getNumberOfElements(), n);
+    assertEquals(d.size(), n);
     final double[] y = d.getData();
     for (int i = 0; i < n; i++) {
       assertEquals(x[i], y[i], 1e-15);
