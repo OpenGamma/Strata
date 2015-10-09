@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.volatility.smile;
+package com.opengamma.strata.pricer.impl.volatility.smile.function;
 
 import java.io.Serializable;
 import java.util.Arrays;

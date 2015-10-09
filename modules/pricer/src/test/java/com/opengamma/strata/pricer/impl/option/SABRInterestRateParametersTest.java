@@ -20,9 +20,9 @@ import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
-import com.opengamma.strata.pricer.impl.volatility.smile.SABRFormulaData;
-import com.opengamma.strata.pricer.impl.volatility.smile.SABRHaganVolatilityFunctionProvider;
-import com.opengamma.strata.pricer.impl.volatility.smile.VolatilityFunctionProvider;
+import com.opengamma.strata.pricer.impl.volatility.smile.function.SABRFormulaData;
+import com.opengamma.strata.pricer.impl.volatility.smile.function.SABRHaganVolatilityFunctionProvider;
+import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 
 /**
  * Test {@link SABRInterestRateParameters}.

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.volatility.smile;
+package com.opengamma.strata.pricer.impl.volatility.smile.function;
 
 import static com.opengamma.strata.basics.PutCall.CALL;
 import static org.testng.Assert.assertEquals;
@@ -11,6 +11,8 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
+import com.opengamma.strata.pricer.impl.volatility.smile.function.SABRFormulaData;
+import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 
 /**
  * Test case for SABR volatility function providers. 

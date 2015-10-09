@@ -28,8 +28,8 @@ import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.pricer.impl.volatility.VolatilityModel;
-import com.opengamma.strata.pricer.impl.volatility.smile.SABRFormulaData;
-import com.opengamma.strata.pricer.impl.volatility.smile.VolatilityFunctionProvider;
+import com.opengamma.strata.pricer.impl.volatility.smile.function.SABRFormulaData;
+import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 
 /**
  * The volatility surface description under SABR model.  

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.volatility.smile;
+package com.opengamma.strata.pricer.impl.volatility.smile.function;
 
 import static com.opengamma.strata.basics.PutCall.CALL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -25,6 +25,9 @@ import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
+import com.opengamma.strata.pricer.impl.volatility.smile.function.SABRFormulaData;
+import com.opengamma.strata.pricer.impl.volatility.smile.function.SABRHaganVolatilityFunctionProvider;
+import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 
 /**
  * Test {@link SABRHaganVolatilityFunctionProvider}.

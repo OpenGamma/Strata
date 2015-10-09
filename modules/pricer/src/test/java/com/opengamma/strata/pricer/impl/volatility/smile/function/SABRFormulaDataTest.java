@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.volatility.smile;
+package com.opengamma.strata.pricer.impl.volatility.smile.function;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -13,6 +13,8 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
 import org.testng.annotations.Test;
+
+import com.opengamma.strata.pricer.impl.volatility.smile.function.SABRFormulaData;
 
 /**
  * Test {@link SABRFormulaData}.
