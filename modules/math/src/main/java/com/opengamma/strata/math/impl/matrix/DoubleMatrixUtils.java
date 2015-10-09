@@ -40,7 +40,7 @@ public final class DoubleMatrixUtils {
   public static DoubleMatrix2D getIdentityMatrix2D(int dimension) {
     ArgChecker.isTrue(dimension >= 0, "dimension must be >= 0");
     if (dimension == 0) {
-      return DoubleMatrix2D.EMPTY_MATRIX;
+      return DoubleMatrix2D.EMPTY;
     }
     if (dimension == 1) {
       return new DoubleMatrix2D(new double[][] {new double[] {1}});
@@ -61,7 +61,7 @@ public final class DoubleMatrixUtils {
     ArgChecker.notNull(vector, "vector");
     int n = vector.size();
     if (n == 0) {
-      return DoubleMatrix2D.EMPTY_MATRIX;
+      return DoubleMatrix2D.EMPTY;
     }
     double[][] data = new double[n][n];
     for (int i = 0; i < n; i++) {
