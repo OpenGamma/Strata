@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.strata.basics.market.ImmutableObservableValues">
+ <values>
+  <entry>
+   <item type="com.opengamma.strata.market.key.QuoteKey">
+    <standardId>OG-TICKER~USD-IRS3M-12Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.03195</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-OIS-1M</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>7.2E-4</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-IRS3M-10Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.0293</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-OIS-3M</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>9.3E-4</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-OIS-2M</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>8.2E-4</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-OIS-6M</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>9.0E-4</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-OIS-5Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.01515</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-OIS-4Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.011215</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-OIS-10Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.026685</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-OIS-7Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.02111</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-OIS-6Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.018455</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-IRS3M-15Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.034235</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-OIS-9Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.025135</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-IRS3M-30Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.037345</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-OIS-8Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.02332</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-FRA6Mx9M</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.0029605</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-OIS-9M</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.00105</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-IRS3M-1Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.002943</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-IRS3M-25Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.0369685</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-FRA3Mx6M</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.0025825</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-IRS3M-7Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.023962</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-IRS3M-5Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.01732</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-IRS3M-4Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.013808</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-IRS3M-3Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.0093915</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-IRS3M-20Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.036155</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-IRS3M-2Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.00503</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-OIS-1Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.001185</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-OIS-3Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.00704</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-OIS-2Y</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.0031865</item>
+  </entry>
+  <entry>
+   <item type="QuoteKey">
+    <standardId>OG-TICKER~USD-Fixing-3M</standardId>
+    <fieldName>MarketValue</fieldName>
+   </item>
+   <item>0.002366</item>
+  </entry>
+ </values>
+</bean>
