@@ -41,12 +41,11 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-      final double x1 = x.get(0);
-      final double x2 = x.get(1);
-      final double[] y = new double[2];
-      y[0] = 2 * x1 - x2 + Math.cos(x2) - x2 * Math.cos(x1);
-      y[1] = 4 * x2 - x1 - x1 * Math.sin(x2) - Math.sin(x1);
-      return new DoubleMatrix1D(y);
+      double x1 = x.get(0);
+      double x2 = x.get(1);
+      return DoubleMatrix1D.of(
+          2 * x1 - x2 + Math.cos(x2) - x2 * Math.cos(x1),
+          4 * x2 - x1 - x1 * Math.sin(x2) - Math.sin(x1));
     }
 
   };
@@ -67,7 +66,7 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
 
   @Test
   public void test() {
-    final DoubleMatrix1D x = new DoubleMatrix1D(.2245, -1.2344);
+    final DoubleMatrix1D x = DoubleMatrix1D.of(.2245, -1.2344);
     final DoubleMatrix1D anGrad = G.evaluate(x);
     final DoubleMatrix1D fdFwdGrad = FORWARD.differentiate(F).evaluate(x);
     final DoubleMatrix1D fdCentGrad = CENTRAL.differentiate(F).evaluate(x);
@@ -83,9 +82,9 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
   @Test
   public void domainTest() {
     final DoubleMatrix1D[] x = new DoubleMatrix1D[3];
-    x[0] = new DoubleMatrix1D(0.2245, -1.2344);
-    x[1] = new DoubleMatrix1D(0.0, 12.6);
-    x[2] = new DoubleMatrix1D(Math.PI, 0.0);
+    x[0] = DoubleMatrix1D.of(0.2245, -1.2344);
+    x[1] = DoubleMatrix1D.of(0.0, 12.6);
+    x[2] = DoubleMatrix1D.of(Math.PI, 0.0);
 
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> fdGradFunc = CENTRAL.differentiate(F, DOMAIN);
 

@@ -43,25 +43,28 @@ public class ParameterizedSurfaceTest {
       }
     };
 
-    final ParameterizedFunction<DoublesPair, DoubleMatrix1D, DoubleMatrix1D> parmSense = new ParameterizedFunction<DoublesPair, DoubleMatrix1D, DoubleMatrix1D>() {
+    final ParameterizedFunction<DoublesPair, DoubleMatrix1D, DoubleMatrix1D> parmSense =
+        new ParameterizedFunction<DoublesPair, DoubleMatrix1D, DoubleMatrix1D>() {
 
-      @Override
-      public DoubleMatrix1D evaluate(final DoublesPair xy, final DoubleMatrix1D parameters) {
-        final double a = parameters.get(0);
-        final double b = parameters.get(1);
-        final double c = parameters.get(2);
-        final DoubleMatrix1D res = new DoubleMatrix1D(Math.sin(b * xy.getFirst() + c * xy.getSecond()), xy.getFirst() * a * Math.cos(b * xy.getFirst() + c * xy.getSecond()), xy.getSecond() * a *
-            Math.cos(b * xy.getFirst() + c * xy.getSecond()));
-        return res;
-      }
+          @Override
+          public DoubleMatrix1D evaluate(final DoublesPair xy, final DoubleMatrix1D parameters) {
+            double a = parameters.get(0);
+            double b = parameters.get(1);
+            double c = parameters.get(2);
+            DoubleMatrix1D res = DoubleMatrix1D.of(
+                Math.sin(b * xy.getFirst() + c * xy.getSecond()),
+                xy.getFirst() * a * Math.cos(b * xy.getFirst() + c * xy.getSecond()), xy.getSecond() * a *
+                    Math.cos(b * xy.getFirst() + c * xy.getSecond()));
+            return res;
+          }
 
-      @Override
-      public int getNumberOfParameters() {
-        return 3;
-      }
-    };
+          @Override
+          public int getNumberOfParameters() {
+            return 3;
+          }
+        };
 
-    final DoubleMatrix1D params = new DoubleMatrix1D(0.7, -0.3, 1.2);
+    final DoubleMatrix1D params = DoubleMatrix1D.of(0.7, -0.3, 1.2);
     final Function1D<DoublesPair, DoubleMatrix1D> paramsSenseFD = testSurface.getZParameterSensitivity(params);
     final Function1D<DoublesPair, DoubleMatrix1D> paramsSenseAnal = parmSense.asFunctionOfArguments(params);
 

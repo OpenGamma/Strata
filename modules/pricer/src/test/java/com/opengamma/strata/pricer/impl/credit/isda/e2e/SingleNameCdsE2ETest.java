@@ -188,7 +188,7 @@ public class SingleNameCdsE2ETest extends IsdaBaseTest {
     assertDoubleArray("bucketed CS01", expectedBCS01, bucketedCS01, TOL);
     assertEqualsRelativeTol("value on default", 596646.5456374668, valueOnDefault, TOL);
     assertEqualsRelativeTol("recovery01", -42466.90028665213, recovery01, TOL);
-    assertDoubleArray("hedge ratio", expectedRatio, hedgeRatio.getData(), TOL);
+    assertDoubleArray("hedge ratio", expectedRatio, hedgeRatio.toArray(), TOL);
   }
 
   /**
@@ -256,7 +256,7 @@ public class SingleNameCdsE2ETest extends IsdaBaseTest {
     assertDoubleArray("bucketed CS01", expectedBCS01, bucketedCS01, TOL);
     assertEqualsRelativeTol("value on default", 472164.1037851431, valueOnDefault, TOL);
     assertEqualsRelativeTol("recovery01", -386575.79968012485, recovery01, TOL);
-    assertDoubleArray("hedge ratio", expectedRatio, hedgeRatio.getData(), TOL);
+    assertDoubleArray("hedge ratio", expectedRatio, hedgeRatio.toArray(), TOL);
   }
 
   /**
@@ -323,7 +323,7 @@ public class SingleNameCdsE2ETest extends IsdaBaseTest {
     assertDoubleArray("bucketed CS01", expectedBCS01, bucketedCS01, TOL);
     assertEqualsRelativeTol("value on default", 600000.0, valueOnDefault, TOL); // zero PV, no accrued
     assertEqualsRelativeTol("recovery01", -267669.60396132956, recovery01, TOL);
-    assertDoubleArray("hedge ratio", expectedRatio, hedgeRatio.getData(), TOL);
+    assertDoubleArray("hedge ratio", expectedRatio, hedgeRatio.toArray(), TOL);
   }
 
   private void assertEqualsRelativeTol(String message, double expected, double result, double relTol) {

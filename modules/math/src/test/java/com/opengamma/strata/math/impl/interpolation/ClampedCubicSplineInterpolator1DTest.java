@@ -80,9 +80,9 @@ public class ClampedCubicSplineInterpolator1DTest {
         yValues3Add[i] = yValues3[i - 1];
       }
 
-      final double[] resPrim1 = INTERP.interpolate(xValues, yValues1Add, xKeys).getData();
-      final double[] resPrim2 = INTERP.interpolate(xValues, yValues2Add, xKeys).getData();
-      final double[] resPrim3 = INTERP.interpolate(xValues, yValues3Add, xKeys).getData();
+      final double[] resPrim1 = INTERP.interpolate(xValues, yValues1Add, xKeys).toArray();
+      final double[] resPrim2 = INTERP.interpolate(xValues, yValues2Add, xKeys).toArray();
+      final double[] resPrim3 = INTERP.interpolate(xValues, yValues3Add, xKeys).toArray();
 
       Interpolator1DDataBundle dataBund1 = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1);
       Interpolator1DDataBundle dataBund2 = INTERP1D.getDataBundle(xValues, yValues2);
@@ -145,9 +145,9 @@ public class ClampedCubicSplineInterpolator1DTest {
         yValues3Add[i] = yValues3[i - 1];
       }
 
-      final double[] resPrim1 = INTERP.interpolate(xValues, yValues1Add, xKeys).getData();
-      final double[] resPrim2 = INTERP.interpolate(xValues, yValues2Add, xKeys).getData();
-      final double[] resPrim3 = INTERP.interpolate(xValues, yValues3Add, xKeys).getData();
+      final double[] resPrim1 = INTERP.interpolate(xValues, yValues1Add, xKeys).toArray();
+      final double[] resPrim2 = INTERP.interpolate(xValues, yValues2Add, xKeys).toArray();
+      final double[] resPrim3 = INTERP.interpolate(xValues, yValues3Add, xKeys).toArray();
 
       Interpolator1DDataBundle dataBund1 = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1, grad1, grad2);
       Interpolator1DDataBundle dataBund2 = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues2, grad1, grad2);
@@ -233,8 +233,8 @@ public class ClampedCubicSplineInterpolator1DTest {
       yValues2Ext[0] = 0.;
       yValues1Ext[nData + 1] = 0.;
       yValues2Ext[nData + 1] = 0.;
-      final double[] resPrim1 = INTERP.interpolate(xValues, yValues1Ext, xKeys).getData();
-      final double[] resPrim2 = INTERP.interpolate(xValues, yValues2Ext, xKeys).getData();
+      final double[] resPrim1 = INTERP.interpolate(xValues, yValues1Ext, xKeys).toArray();
+      final double[] resPrim2 = INTERP.interpolate(xValues, yValues2Ext, xKeys).toArray();
 
       Interpolator1DDataBundle dataBund1 = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1);
       Interpolator1DDataBundle dataBund2 = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues2);
@@ -278,8 +278,8 @@ public class ClampedCubicSplineInterpolator1DTest {
         yValues2Ext[0] = bdConds[k];
         yValues1Ext[nData + 1] = bdConds[l];
         yValues2Ext[nData + 1] = bdConds[l];
-        final double[] resPrim1 = INTERP.interpolate(xValues, yValues1Ext, xKeys).getData();
-        final double[] resPrim2 = INTERP.interpolate(xValues, yValues2Ext, xKeys).getData();
+        final double[] resPrim1 = INTERP.interpolate(xValues, yValues1Ext, xKeys).toArray();
+        final double[] resPrim2 = INTERP.interpolate(xValues, yValues2Ext, xKeys).toArray();
 
         Interpolator1DDataBundle dataBund1 = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1, bdConds[k], bdConds[l]);
         Interpolator1DDataBundle dataBund2 = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues2, bdConds[k], bdConds[l]);

@@ -46,7 +46,7 @@ public class ParameterizedCurveVectorFunctionTest {
     final VectorFunction f = pro.from(points);
     assertEquals(2, f.getLengthOfDomain());
     assertEquals(3, f.getLengthOfRange());
-    final DoubleMatrix1D x = new DoubleMatrix1D(0.5, 2.0); //the parameters a & b
+    final DoubleMatrix1D x = DoubleMatrix1D.of(0.5, 2.0); //the parameters a & b
     final DoubleMatrix1D y = f.evaluate(x);
     assertEquals(0.5 * Math.sinh(-2.0), y.get(0), 1e-14);
     assertEquals(0.0, y.get(1), 1e-14);

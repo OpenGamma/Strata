@@ -50,8 +50,8 @@ public class ReciprocalExtrapolator1D
     @Override
     public DoubleMatrix1D evaluate(PiecewisePolynomialResult pp, double xKey) {
       ArgChecker.notNull(pp, "pp");
-      double[] knots = pp.getKnots().getData();
-      int nKnots = knots.length;
+      DoubleMatrix1D knots = pp.getKnots();
+      int nKnots = knots.size();
       DoubleMatrix2D coefMatrix = pp.getCoefMatrix();
       int dim = pp.getDimensions();
       double[] res = new double[dim];
@@ -60,20 +60,20 @@ public class ReciprocalExtrapolator1D
         indicator--; //there is 1 less interval that knots 
       }
       for (int j = 0; j < dim; ++j) {
-        double[] coefs = coefMatrix.row(dim * indicator + j).getData();
-        res[j] = getValue(coefs, xKey, knots[indicator]);
+        DoubleMatrix1D coefs = coefMatrix.row(dim * indicator + j);
+        res[j] = getValue(coefs, xKey, knots.get(indicator));
 
         ArgChecker.isFalse(Double.isInfinite(res[j]), "Too large input");
         ArgChecker.isFalse(Double.isNaN(res[j]), "Too large input");
       }
 
-      return new DoubleMatrix1D(res);
+      return DoubleMatrix1D.copyOf(res);
     }
 
     @Override
     public DoubleMatrix1D differentiate(PiecewisePolynomialResult pp, double xKey) {
       ArgChecker.notNull(pp, "pp");
-      double[] knots = pp.getKnots().getData();
+      DoubleMatrix1D knots = pp.getKnots();
       int nKnots = pp.getNumberOfIntervals() + 1;
       int nCoefs = pp.getOrder();
       int dim = pp.getDimensions();
@@ -84,10 +84,10 @@ public class ReciprocalExtrapolator1D
       }
       DoubleMatrix2D coefMatrix = pp.getCoefMatrix();
       for (int j = 0; j < dim; ++j) {
-        double[] coefs = coefMatrix.row(dim * indicator + j).getData();
-        res[j] = coefs[nCoefs - 2];
+        DoubleMatrix1D coefs = coefMatrix.row(dim * indicator + j);
+        res[j] = coefs.get(nCoefs - 2);
       }
-      return new DoubleMatrix1D(res);
+      return DoubleMatrix1D.copyOf(res);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class ReciprocalExtrapolator1D
       int nKnots = pp.getNumberOfIntervals() + 1;
       int dim = pp.getDimensions();
       double[] result = new double[dim * (nKnots - 1)];
-      return new DoubleMatrix1D(result);
+      return DoubleMatrix1D.copyOf(result);
     }
 
     @Override

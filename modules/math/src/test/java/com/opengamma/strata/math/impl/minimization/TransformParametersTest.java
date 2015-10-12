@@ -19,7 +19,7 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
  */
 @Test
 public class TransformParametersTest {
-  private static final DoubleMatrix1D INIT = new DoubleMatrix1D(new double[] {1, 2, 3, 4 });
+  private static final DoubleMatrix1D INIT = DoubleMatrix1D.of(1, 2, 3, 4);
   private static final ParameterLimitsTransform[] NULLS = new ParameterLimitsTransform[] {new NullTransform(), new NullTransform(), new NullTransform(), new NullTransform() };
   private static final BitSet FIXED = new BitSet(4);
   private static final UncoupledParameterTransforms PARAMS;
@@ -66,7 +66,7 @@ public class TransformParametersTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTransformWrongParameters() {
-    PARAMS.transform(new DoubleMatrix1D(new double[] {1, 2 }));
+    PARAMS.transform(DoubleMatrix1D.of(1, 2));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -76,7 +76,7 @@ public class TransformParametersTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInverseTransformWrongParameters() {
-    PARAMS.inverseTransform(new DoubleMatrix1D(new double[] {1, 2 }));
+    PARAMS.inverseTransform(DoubleMatrix1D.of(1, 2));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -86,7 +86,7 @@ public class TransformParametersTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testJacobianWrongParameters() {
-    PARAMS.jacobian(new DoubleMatrix1D(new double[] {1, 2 }));
+    PARAMS.jacobian(DoubleMatrix1D.of(1, 2));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -96,7 +96,7 @@ public class TransformParametersTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInverseJacobianWrongParameters() {
-    PARAMS.inverseJacobian(new DoubleMatrix1D(new double[] {1, 2 }));
+    PARAMS.inverseJacobian(DoubleMatrix1D.of(1, 2));
   }
 
   @Test
@@ -106,7 +106,7 @@ public class TransformParametersTest {
     UncoupledParameterTransforms other = new UncoupledParameterTransforms(INIT, NULLS, FIXED);
     assertEquals(PARAMS, other);
     assertEquals(PARAMS.hashCode(), other.hashCode());
-    other = new UncoupledParameterTransforms(new DoubleMatrix1D(new double[] {1, 2, 4, 5 }), NULLS, FIXED);
+    other = new UncoupledParameterTransforms(DoubleMatrix1D.of(1, 2, 4, 5), NULLS, FIXED);
     assertFalse(other.equals(PARAMS));
     other = new UncoupledParameterTransforms(INIT, new ParameterLimitsTransform[] {new DoubleRangeLimitTransform(1, 2), new NullTransform(), new NullTransform(), new NullTransform() }, FIXED);
     assertFalse(other.equals(PARAMS));
@@ -116,7 +116,7 @@ public class TransformParametersTest {
 
   @Test
   public void testTransformAndInverse() {
-    final DoubleMatrix1D functionParameters = new DoubleMatrix1D(new double[] {1, 2, 6, 4 });
+    final DoubleMatrix1D functionParameters = DoubleMatrix1D.of(1, 2, 6, 4);
     assertEquals(PARAMS.inverseTransform(PARAMS.transform(functionParameters)), functionParameters);
   }
 }

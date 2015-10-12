@@ -41,7 +41,8 @@ public class DoubleMatrixUtilsTest {
   @Test
   public void testDiagonalMatrix() {
     assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(DoubleMatrix1D.EMPTY), DoubleMatrix2D.EMPTY);
-    assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(new DoubleMatrix1D(new double[] {1, 1, 1, 1 })), DoubleMatrixUtils.getIdentityMatrix2D(4));
+    assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(
+        DoubleMatrix1D.of(1, 1, 1, 1)), DoubleMatrixUtils.getIdentityMatrix2D(4));
     assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(new double[0]), DoubleMatrix2D.EMPTY);
     assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(new double[] {1, 1, 1, 1 }), DoubleMatrixUtils.getIdentityMatrix2D(4));
   }

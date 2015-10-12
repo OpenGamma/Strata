@@ -21,16 +21,15 @@ public abstract class MinimizationTestFunctions {
     }
   };
 
-  public static final Function1D<DoubleMatrix1D, DoubleMatrix1D> ROSENBROCK_GRAD = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
-
-    @Override
-    public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-      double[] temp = new double[2];
-      temp[0] = 2 * (x.get(0) - 1) + 400 * x.get(0) * (FunctionUtils.square(x.get(0)) - x.get(1));
-      temp[1] = 200 * (x.get(1) - FunctionUtils.square(x.get(0)));
-      return new DoubleMatrix1D(temp);
-    }
-  };
+  public static final Function1D<DoubleMatrix1D, DoubleMatrix1D> ROSENBROCK_GRAD =
+      new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+        @Override
+        public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+          return DoubleMatrix1D.of(
+              2 * (x.get(0) - 1) + 400 * x.get(0) * (FunctionUtils.square(x.get(0)) - x.get(1)),
+              200 * (x.get(1) - FunctionUtils.square(x.get(0))));
+        }
+      };
 
   public static final Function1D<DoubleMatrix1D, Double> UNCOUPLED_ROSENBROCK = new Function1D<DoubleMatrix1D, Double>() {
 
@@ -75,7 +74,7 @@ public abstract class MinimizationTestFunctions {
         res[i] = 2 * (x.get(i) - 1) + 400 * x.get(i) * (FunctionUtils.square(x.get(i)) - x.get(i + 1)) + 200
             * (x.get(i) - FunctionUtils.square(x.get(i - 1)));
       }
-      return new DoubleMatrix1D(res);
+          return DoubleMatrix1D.copyOf(res);
     }
   };
 }

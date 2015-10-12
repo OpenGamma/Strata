@@ -74,7 +74,7 @@ public class SquareLinearInterpolator1DTest {
         double max = index == nData - 1 ? xData[nData - 1] : boundedValues.getHigherBoundKey();
         Function1D<DoubleMatrix1D, Boolean> domain = getDomainFunction(min, max);
         Function1D<DoubleMatrix1D, DoubleMatrix1D> diffFunc = DIFF.differentiate(interpFunc, domain);
-        double finiteFirst = diffFunc.evaluate(new DoubleMatrix1D(new double[] {key })).get(0);
+        double finiteFirst = diffFunc.evaluate(DoubleMatrix1D.of(key)).get(0);
         InterpolatorTestUtil.assertRelative("linearInterpolationConsistencyTest, firstDerivative", expectedFirst,
             computedFirst, TOL);
         InterpolatorTestUtil.assertRelative("linearInterpolationConsistencyTest, firstDerivative", finiteFirst,
@@ -99,8 +99,8 @@ public class SquareLinearInterpolator1DTest {
    */
   @Test
   public void recoveryTest() {
-    final double[] xData = new double[] {1.0, 2.0, 3.5, 4.0 };
-    final int nData = xData.length;
+    final DoubleMatrix1D xData = DoubleMatrix1D.of(1.0, 2.0, 3.5, 4.0);
+    final int nData = xData.size();
     final double[] aValue = new double[] {1.5, 2.0, -2.0 };
     final double[] bValue = new double[] {2.0, 1.0, 15.0 };
     Function1D<Double, Double> valFunc = new Function1D<Double, Double>() {
@@ -119,14 +119,14 @@ public class SquareLinearInterpolator1DTest {
     };
     double[] yData = new double[nData];
     for (int i = 0; i < nData; ++i) {
-      yData[i] = valFunc.evaluate(xData[i]);
+      yData[i] = valFunc.evaluate(xData.get(i));
     }
 
-    Interpolator1DDataBundle bundle = INTERP.getDataBundle(xData, yData);
+    Interpolator1DDataBundle bundle = INTERP.getDataBundle(xData.toArray(), yData);
     int nKeys = 100;
-    double interval = (xData[nData - 1] - xData[0]) / (nKeys - 1);
+    double interval = (xData.get(nData - 1) - xData.get(0)) / (nKeys - 1);
     for (int i = 0; i < nKeys; ++i) {
-      double key = xData[0] + interval * i;
+      double key = xData.get(0) + interval * i;
       /* value */
       double computed = INTERP.interpolate(bundle, key);
       double expected = valFunc.evaluate(key);

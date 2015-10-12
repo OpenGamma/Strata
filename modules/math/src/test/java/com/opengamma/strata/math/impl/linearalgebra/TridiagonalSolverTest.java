@@ -44,16 +44,16 @@ public class TridiagonalSolverTest {
     }
 
     final TridiagonalMatrix m = new TridiagonalMatrix(b, a, c);
-    final DoubleMatrix1D xVec = new DoubleMatrix1D(x);
+    final DoubleMatrix1D xVec = DoubleMatrix1D.copyOf(x);
     final DoubleMatrix1D yVec = (DoubleMatrix1D) MA.multiply(m, xVec);
 
-    final double[] xSolv = solvTriDag(m, yVec).getData();
+    final double[] xSolv = solvTriDag(m, yVec).toArray();
 
     for (int i = 0; i < n; i++) {
       assertEquals(x[i], xSolv[i], 1e-9);
     }
 
-    DoubleMatrix1D resi = (DoubleMatrix1D) MA.subtract(MA.multiply(m, new DoubleMatrix1D(xSolv)), yVec);
+    DoubleMatrix1D resi = (DoubleMatrix1D) MA.subtract(MA.multiply(m, DoubleMatrix1D.copyOf(xSolv)), yVec);
     double err = MA.getNorm2(resi);
     assertEquals(0.0, err, 1e-14);
 

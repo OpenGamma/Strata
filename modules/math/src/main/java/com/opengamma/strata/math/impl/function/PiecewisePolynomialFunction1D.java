@@ -41,27 +41,21 @@ public class PiecewisePolynomialFunction1D {
     ArgChecker.isFalse(Double.isNaN(xKey), "xKey containing NaN");
     ArgChecker.isFalse(Double.isInfinite(xKey), "xKey containing Infinity");
 
-    double[] knots = pp.getKnots().getData();
-    int nKnots = knots.length;
+    DoubleMatrix1D knots = pp.getKnots();
+    int nKnots = knots.size();
     DoubleMatrix2D coefMatrix = pp.getCoefMatrix();
-    int dim = pp.getDimensions();
 
-    double[] res = new double[dim];
+    // check for 1 less interval that knots 
+    int lowerBound = FunctionUtils.getLowerBoundIndex(knots, xKey);
+    int indicator = lowerBound == nKnots - 1 ? lowerBound - 1 : lowerBound;
 
-    int indicator = FunctionUtils.getLowerBoundIndex(knots, xKey);
-    if (indicator == nKnots - 1) {
-      indicator--; //there is 1 less interval that knots 
-    }
-
-    for (int j = 0; j < dim; ++j) {
-      double[] coefs = coefMatrix.row(dim * indicator + j).getData();
-      res[j] = getValue(coefs, xKey, knots[indicator]);
-
-      ArgChecker.isFalse(Double.isInfinite(res[j]), "Too large input");
-      ArgChecker.isFalse(Double.isNaN(res[j]), "Too large input");
-    }
-
-    return new DoubleMatrix1D(res);
+    return DoubleMatrix1D.of(pp.getDimensions(), i -> {
+      DoubleMatrix1D coefs = coefMatrix.row(pp.getDimensions() * indicator + i);
+      double res = getValue(coefs, xKey, knots.get(indicator));
+      ArgChecker.isFalse(Double.isInfinite(res), "Too large input");
+      ArgChecker.isFalse(Double.isNaN(res), "Too large input");
+      return res;
+    });
   }
 
   /**
@@ -83,8 +77,8 @@ public class PiecewisePolynomialFunction1D {
       ArgChecker.isFalse(Double.isInfinite(xKeys[i]), "xKeys containing Infinity");
     }
 
-    double[] knots = pp.getKnots().getData();
-    int nKnots = knots.length;
+    DoubleMatrix1D knots = pp.getKnots();
+    int nKnots = knots.size();
     DoubleMatrix2D coefMatrix = pp.getCoefMatrix();
     int dim = pp.getDimensions();
 
@@ -93,17 +87,17 @@ public class PiecewisePolynomialFunction1D {
     for (int k = 0; k < dim; ++k) {
       for (int j = 0; j < keyLength; ++j) {
         int indicator = 0;
-        if (xKeys[j] < knots[1]) {
+        if (xKeys[j] < knots.get(1)) {
           indicator = 0;
         } else {
           for (int i = 1; i < nKnots - 1; ++i) {
-            if (knots[i] <= xKeys[j]) {
+            if (knots.get(i) <= xKeys[j]) {
               indicator = i;
             }
           }
         }
-        double[] coefs = coefMatrix.row(dim * indicator + k).getData();
-        res[k][j] = getValue(coefs, xKeys[j], knots[indicator]);
+        DoubleMatrix1D coefs = coefMatrix.row(dim * indicator + k);
+        res[k][j] = getValue(coefs, xKeys[j], knots.get(indicator));
         ArgChecker.isFalse(Double.isInfinite(res[k][j]), "Too large input");
         ArgChecker.isFalse(Double.isNaN(res[k][j]), "Too large input");
       }
@@ -135,8 +129,8 @@ public class PiecewisePolynomialFunction1D {
       }
     }
 
-    double[] knots = pp.getKnots().getData();
-    int nKnots = knots.length;
+    DoubleMatrix1D knots = pp.getKnots();
+    int nKnots = knots.size();
     DoubleMatrix2D coefMatrix = pp.getCoefMatrix();
     int dim = pp.getDimensions();
 
@@ -146,18 +140,18 @@ public class PiecewisePolynomialFunction1D {
       for (int l = 0; l < keyDim; ++l) {
         for (int j = 0; j < keyLength; ++j) {
           int indicator = 0;
-          if (xKeys[l][j] < knots[1]) {
+          if (xKeys[l][j] < knots.get(1)) {
             indicator = 0;
           } else {
             for (int i = 1; i < nKnots - 1; ++i) {
-              if (knots[i] <= xKeys[l][j]) {
+              if (knots.get(i) <= xKeys[l][j]) {
                 indicator = i;
               }
             }
           }
 
-          double[] coefs = coefMatrix.row(dim * indicator + k).getData();
-          res[k][l][j] = getValue(coefs, xKeys[l][j], knots[indicator]);
+          DoubleMatrix1D coefs = coefMatrix.row(dim * indicator + k);
+          res[k][l][j] = getValue(coefs, xKeys[l][j], knots.get(indicator));
           ArgChecker.isFalse(Double.isInfinite(res[k][l][j]), "Too large input");
           ArgChecker.isFalse(Double.isNaN(res[k][l][j]), "Too large input");
         }
@@ -337,7 +331,7 @@ public class PiecewisePolynomialFunction1D {
     ArgChecker.isFalse(Double.isInfinite(initialKey), "initialKey containing Infinity");
     ArgChecker.isTrue(pp.getDimensions() == 1, "Dimension should be 1");
 
-    double[] knots = pp.getKnots().toArray();
+    DoubleMatrix1D knots = pp.getKnots();
     int nCoefs = pp.getOrder();
     int nKnots = pp.getNumberOfIntervals() + 1;
     double[][] coefMatrix = pp.getCoefMatrix().getData();
@@ -357,24 +351,24 @@ public class PiecewisePolynomialFunction1D {
     Arrays.fill(constTerms, 0.);
 
     int indicator = 0;
-    if (initialKey <= knots[1]) {
+    if (initialKey <= knots.get(1)) {
       indicator = 0;
     } else {
       for (int i = 1; i < nKnots - 1; ++i) {
-        if (knots[i] < initialKey) {
+        if (knots.get(i) < initialKey) {
           indicator = i;
         }
       }
     }
 
-    double sum = getValue(res[indicator], initialKey, knots[indicator]);
+    double sum = getValue(res[indicator], initialKey, knots.get(indicator));
     for (int i = indicator; i < nKnots - 2; ++i) {
-      constTerms[i + 1] = constTerms[i] + getValue(res[i], knots[i + 1], knots[i]) - sum;
+      constTerms[i + 1] = constTerms[i] + getValue(res[i], knots.get(i + 1), knots.get(i)) - sum;
       sum = 0.;
     }
-    constTerms[indicator] = -getValue(res[indicator], initialKey, knots[indicator]);
+    constTerms[indicator] = -getValue(res[indicator], initialKey, knots.get(indicator));
     for (int i = indicator - 1; i > -1; --i) {
-      constTerms[i] = constTerms[i + 1] - getValue(res[i], knots[i + 1], knots[i]);
+      constTerms[i] = constTerms[i + 1] - getValue(res[i], knots.get(i + 1), knots.get(i));
     }
     for (int i = 0; i < nKnots - 1; ++i) {
       res[i][nCoefs] = constTerms[i];
@@ -382,7 +376,7 @@ public class PiecewisePolynomialFunction1D {
     PiecewisePolynomialResult ppInt =
         new PiecewisePolynomialResult(pp.getKnots(), new DoubleMatrix2D(res), nCoefs + 1, 1);
 
-    return evaluate(ppInt, xKey).toArray()[0];
+    return evaluate(ppInt, xKey).get(0);
   }
 
   /**
@@ -401,7 +395,7 @@ public class PiecewisePolynomialFunction1D {
     ArgChecker.isFalse(Double.isInfinite(initialKey), "initialKey containing Infinity");
     ArgChecker.isTrue(pp.getDimensions() == 1, "Dimension should be 1");
 
-    double[] knots = pp.getKnots().toArray();
+    DoubleMatrix1D knots = pp.getKnots();
     int nCoefs = pp.getOrder();
     int nKnots = pp.getNumberOfIntervals() + 1;
     double[][] coefMatrix = pp.getCoefMatrix().getData();
@@ -421,25 +415,25 @@ public class PiecewisePolynomialFunction1D {
     Arrays.fill(constTerms, 0.);
 
     int indicator = 0;
-    if (initialKey <= knots[1]) {
+    if (initialKey <= knots.get(1)) {
       indicator = 0;
     } else {
       for (int i = 1; i < nKnots - 1; ++i) {
-        if (knots[i] < initialKey) {
+        if (knots.get(i) < initialKey) {
           indicator = i;
         }
       }
     }
 
-    double sum = getValue(res[indicator], initialKey, knots[indicator]);
+    double sum = getValue(res[indicator], initialKey, knots.get(indicator));
     for (int i = indicator; i < nKnots - 2; ++i) {
-      constTerms[i + 1] = constTerms[i] + getValue(res[i], knots[i + 1], knots[i]) - sum;
+      constTerms[i + 1] = constTerms[i] + getValue(res[i], knots.get(i + 1), knots.get(i)) - sum;
       sum = 0.;
     }
 
-    constTerms[indicator] = -getValue(res[indicator], initialKey, knots[indicator]);
+    constTerms[indicator] = -getValue(res[indicator], initialKey, knots.get(indicator));
     for (int i = indicator - 1; i > -1; --i) {
-      constTerms[i] = constTerms[i + 1] - getValue(res[i], knots[i + 1], knots[i]);
+      constTerms[i] = constTerms[i + 1] - getValue(res[i], knots.get(i + 1), knots.get(i));
     }
     for (int i = 0; i < nKnots - 1; ++i) {
       res[i][nCoefs] = constTerms[i];
@@ -448,7 +442,19 @@ public class PiecewisePolynomialFunction1D {
     PiecewisePolynomialResult ppInt =
         new PiecewisePolynomialResult(pp.getKnots(), new DoubleMatrix2D(res), nCoefs + 1, 1);
 
-    return new DoubleMatrix1D(evaluate(ppInt, xKeys).getData()[0]);
+    return DoubleMatrix1D.copyOf(evaluate(ppInt, xKeys).getData()[0]);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * @param coefs  {a_n,a_{n-1},...} of f(x) = a_n x^{n} + a_{n-1} x^{n-1} + ....
+   * @param x  the x-value
+   * @param leftknot  the knot specifying underlying interpolation function
+   * @return the value of the underlying interpolation function at the value of x
+   */
+  protected double getValue(DoubleMatrix1D coefs, double x, double leftknot) {
+    // needs to delegate as method is protected
+    return getValue(coefs.toArrayUnsafe(), x, leftknot);
   }
 
   /**

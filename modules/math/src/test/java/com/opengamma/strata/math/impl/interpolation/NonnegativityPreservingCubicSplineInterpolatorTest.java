@@ -43,7 +43,7 @@ public class NonnegativityPreservingCubicSplineInterpolatorTest {
     final int nPts = 101;
     for (int i = 0; i < 101; ++i) {
       final double key = 1. + 4. / (nPts - 1) * i;
-      assertTrue(function.evaluate(resultPos, key).getData()[0] >= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(0) >= 0.);
     }
 
     final int nData = xValues.length;
@@ -76,7 +76,7 @@ public class NonnegativityPreservingCubicSplineInterpolatorTest {
     final int nPts = 101;
     for (int i = 0; i < 101; ++i) {
       final double key = 1. + 4. / (nPts - 1) * i;
-      assertTrue(function.evaluate(resultPos, key).getData()[0] >= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(0) >= 0.);
     }
 
     final int dim = yValues.length;
@@ -112,7 +112,7 @@ public class NonnegativityPreservingCubicSplineInterpolatorTest {
     final int nPts = 101;
     for (int i = 0; i < 101; ++i) {
       final double key = 1. + 4. / (nPts - 1) * i;
-      assertTrue(function.evaluate(resultPos, key).getData()[0] >= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(0) >= 0.);
     }
 
     final int nData = xValues.length;
@@ -145,7 +145,7 @@ public class NonnegativityPreservingCubicSplineInterpolatorTest {
     final int nPts = 101;
     for (int i = 0; i < 101; ++i) {
       final double key = 1. + 5. / (nPts - 1) * i;
-      assertTrue(function.evaluate(resultPos, key).getData()[0] >= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(0) >= 0.);
     }
 
     final int dim = yValues.length;
@@ -209,7 +209,7 @@ public class NonnegativityPreservingCubicSplineInterpolatorTest {
     final int nPts = 101;
     for (int i = 0; i < 101; ++i) {
       final double key = 1. + 5. / (nPts - 1) * i;
-      assertTrue(function.evaluate(resultPos, key).getData()[0] >= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(0) >= 0.);
     }
 
     final int nData = xValues.length;
@@ -244,8 +244,8 @@ public class NonnegativityPreservingCubicSplineInterpolatorTest {
     final int nPts = 101;
     for (int i = 0; i < 101; ++i) {
       final double key = 1. + 5. / (nPts - 1) * i;
-      assertTrue(function.evaluate(resultPos, key).getData()[0] >= 0.);
-      assertTrue(function.evaluate(resultPos, key).getData()[1] >= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(0) >= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(1) >= 0.);
     }
 
     final int dim = yValues.length;

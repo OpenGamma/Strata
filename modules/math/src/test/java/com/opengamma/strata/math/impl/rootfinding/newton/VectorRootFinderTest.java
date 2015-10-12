@@ -27,28 +27,26 @@ public abstract class VectorRootFinderTest {
 
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-      final double[] data = x.getData();
+      final double[] data = x.toArray();
       if (data.length != 2) {
         throw new IllegalArgumentException("This test is for 2-d vector only");
       }
-      final double[] res = new double[2];
-      res[0] = data[0] + data[1];
-      res[1] = 2 * data[0] - data[1] - 3.0;
-      return new DoubleMatrix1D(res);
+      return DoubleMatrix1D.of(
+          data[0] + data[1],
+          2 * data[0] - data[1] - 3.0);
     }
   };
   static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FUNCTION2D = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-      final double[] data = x.getData();
+      final double[] data = x.toArray();
       if (data.length != 2) {
         throw new IllegalArgumentException("This test is for 2-d vector only");
       }
-      final double[] res = new double[2];
-      res[0] = data[1] * Math.exp(data[0]) - Math.E;
-      res[1] = data[0] * data[0] + data[1] * data[1] - 2.0;
-      return new DoubleMatrix1D(res);
+      return DoubleMatrix1D.of(
+          data[1] * Math.exp(data[0]) - Math.E,
+          data[0] * data[0] + data[1] * data[1] - 2.0);
     }
   };
   static final Function1D<DoubleMatrix1D, DoubleMatrix2D> JACOBIAN2D = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
@@ -79,11 +77,10 @@ public abstract class VectorRootFinderTest {
       if (x.size() != 3) {
         throw new IllegalArgumentException("This test is for 3-d vector only");
       }
-      final double[] res = new double[3];
-      res[0] = Math.exp(x.get(0) + x.get(1)) + x.get(2) - Math.E + 1.0;
-      res[1] = x.get(2) * Math.exp(x.get(0) - x.get(1)) + Math.E;
-      res[2] = OG_ALGEBRA.getInnerProduct(x, x) - 2.0;
-      return new DoubleMatrix1D(res);
+      return DoubleMatrix1D.of(
+          Math.exp(x.get(0) + x.get(1)) + x.get(2) - Math.E + 1.0,
+          x.get(2) * Math.exp(x.get(0) - x.get(1)) + Math.E,
+          OG_ALGEBRA.getInnerProduct(x, x) - 2.0);
     }
   };
   static final Function1D<DoubleMatrix1D, DoubleMatrix2D> JACOBIAN3D = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
@@ -145,7 +142,7 @@ public abstract class VectorRootFinderTest {
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
       calculateSwapRates();
-      final double[] yield = x.getData();
+      final double[] yield = x.toArray();
       final double[] diff = new double[n];
       double pi;
       double acc = 0.0;
@@ -154,8 +151,7 @@ public abstract class VectorRootFinderTest {
         acc += (TIME_GRID[i] - (i == 0 ? 0.0 : TIME_GRID[i - 1])) * pi;
         diff[i] = (1.0 - pi) / acc - _swapRates[i];
       }
-
-      return new DoubleMatrix1D(diff);
+      return DoubleMatrix1D.copyOf(diff);
     }
 
   };
@@ -171,7 +167,7 @@ public abstract class VectorRootFinderTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
-    DUMMY.getRoot(null, new DoubleMatrix1D(new double[0]));
+    DUMMY.getRoot(null, DoubleMatrix1D.EMPTY);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -180,27 +176,27 @@ public abstract class VectorRootFinderTest {
   }
 
   protected void assertLinear(final VectorRootFinder rootFinder, final double eps) {
-    final DoubleMatrix1D x0 = new DoubleMatrix1D(0.0, 0.0);
+    final DoubleMatrix1D x0 = DoubleMatrix1D.of(0.0, 0.0);
     final DoubleMatrix1D x1 = rootFinder.getRoot(LINEAR, x0);
-    assertEquals(1.0, x1.getData()[0], eps);
-    assertEquals(-1.0, x1.getData()[1], eps);
+    assertEquals(1.0, x1.get(0), eps);
+    assertEquals(-1.0, x1.get(1), eps);
   }
 
   // Note: at the root (1,1) the Jacobian is singular which leads to very slow convergence and is why
   // we switch to using SVD rather than the default LU
   protected void assertFunction2D(final NewtonVectorRootFinder rootFinder, final double eps) {
-    final DoubleMatrix1D x0 = new DoubleMatrix1D(-0.0, 0.0);
+    final DoubleMatrix1D x0 = DoubleMatrix1D.of(-0.0, 0.0);
     final DoubleMatrix1D x1 = rootFinder.getRoot(FUNCTION2D, JACOBIAN2D, x0);
     assertEquals(1.0, x1.get(0), eps);
     assertEquals(1.0, x1.get(1), eps);
   }
 
   protected void assertFunction3D(final NewtonVectorRootFinder rootFinder, final double eps) {
-    final DoubleMatrix1D x0 = new DoubleMatrix1D(0.8, 0.2, -0.7);
+    final DoubleMatrix1D x0 = DoubleMatrix1D.of(0.8, 0.2, -0.7);
     final DoubleMatrix1D x1 = rootFinder.getRoot(FUNCTION3D, JACOBIAN3D, x0);
-    assertEquals(1.0, x1.getData()[0], eps);
-    assertEquals(0.0, x1.getData()[1], eps);
-    assertEquals(-1.0, x1.getData()[2], eps);
+    assertEquals(1.0, x1.get(0), eps);
+    assertEquals(0.0, x1.get(1), eps);
+    assertEquals(-1.0, x1.get(2), eps);
   }
 
   protected void assertYieldCurveBootstrap(final VectorRootFinder rootFinder, final double eps) {
@@ -209,10 +205,10 @@ public abstract class VectorRootFinderTest {
     for (int i = 0; i < n; i++) {
       flatCurve[i] = 0.05;
     }
-    final DoubleMatrix1D x0 = new DoubleMatrix1D(flatCurve);
+    final DoubleMatrix1D x0 = DoubleMatrix1D.copyOf(flatCurve);
     final DoubleMatrix1D x1 = rootFinder.getRoot(SWAP_RATES, x0);
     for (int i = 0; i < n; i++) {
-      assertEquals(-Math.log(DUMMY_YIELD_CURVE.evaluate(TIME_GRID[i])) / TIME_GRID[i], x1.getData()[i], eps);
+      assertEquals(-Math.log(DUMMY_YIELD_CURVE.evaluate(TIME_GRID[i])) / TIME_GRID[i], x1.get(i), eps);
     }
   }
 

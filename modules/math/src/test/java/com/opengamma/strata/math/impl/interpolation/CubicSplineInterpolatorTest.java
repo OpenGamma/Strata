@@ -58,7 +58,7 @@ public class CubicSplineInterpolatorTest {
     assertEquals(resultMatrix.getNumberOfIntervals(), nIntervalsMatrix);
     assertEquals(resultMatrix.getOrder(), orderMatrix);
     assertEquals(resultMatrix.getDimensions(), dimMatrix);
-    assertEquals(resultMatrix.getKnots().getData(), knotsMatrix);
+    assertEquals(resultMatrix.getKnots().toArray(), knotsMatrix);
 
     DoubleMatrix2D resultValuesMatrix2D = interpMatrix.interpolate(xValues, yValuesMatrix, xSamples);
     final int nSamples = xSamples.length;
@@ -72,7 +72,7 @@ public class CubicSplineInterpolatorTest {
     DoubleMatrix1D resultValuesMatrix1D = interpMatrix.interpolate(xValues, yValuesMatrix, xSamples[0]);
     for (int i = 0; i < dimMatrix; ++i) {
       final double ref = ySamples[i][0] == 0. ? 1. : Math.abs(ySamples[i][0]);
-      assertEquals(resultValuesMatrix1D.getData()[i], ySamples[i][0], ref * EPS);
+      assertEquals(resultValuesMatrix1D.get(i), ySamples[i][0], ref * EPS);
     }
 
     DoubleMatrix2D[] resultValuesMatrix2DVec = interpMatrix.interpolate(xValues, yValuesMatrix, xSamplesMatrix);
@@ -99,12 +99,12 @@ public class CubicSplineInterpolatorTest {
     assertEquals(result.getNumberOfIntervals(), nIntervalsMatrix);
     assertEquals(result.getOrder(), orderMatrix);
     assertEquals(result.getDimensions(), 1);
-    assertEquals(result.getKnots().getData(), knotsMatrix);
+    assertEquals(result.getKnots().toArray(), knotsMatrix);
 
     DoubleMatrix1D resultValues1D = interp.interpolate(xValues, yValues, xSamples);
     for (int j = 0; j < nSamples; ++j) {
       final double ref = ySamples[0][j] == 0. ? 1. : Math.abs(ySamples[0][j]);
-      assertEquals(resultValues1D.getData()[j], ySamples[0][j], ref * EPS);
+      assertEquals(resultValues1D.get(j), ySamples[0][j], ref * EPS);
     }
 
     double resultValue = interp.interpolate(xValues, yValues, xSamples[1]);
@@ -160,7 +160,7 @@ public class CubicSplineInterpolatorTest {
     assertEquals(resultMatrix.getNumberOfIntervals(), nIntervalsMatrix);
     assertEquals(resultMatrix.getOrder(), orderMatrix);
     assertEquals(resultMatrix.getDimensions(), dimMatrix);
-    assertEquals(resultMatrix.getKnots().getData(), knotsMatrix);
+    assertEquals(resultMatrix.getKnots().toArray(), knotsMatrix);
 
     DoubleMatrix2D resultValuesMatrix2D = interpMatrix.interpolate(xValues, yValuesMatrix, xSamples);
     final int nSamples = xSamples.length;
@@ -174,7 +174,7 @@ public class CubicSplineInterpolatorTest {
     DoubleMatrix1D resultValuesMatrix1D = interpMatrix.interpolate(xValues, yValuesMatrix, xSamples[0]);
     for (int i = 0; i < dimMatrix; ++i) {
       final double ref = ySamples[i][0] == 0. ? 1. : Math.abs(ySamples[i][0]);
-      assertEquals(resultValuesMatrix1D.getData()[i], ySamples[i][0], ref * EPS);
+      assertEquals(resultValuesMatrix1D.get(i), ySamples[i][0], ref * EPS);
     }
 
     DoubleMatrix2D[] resultValuesMatrix2DVec = interpMatrix.interpolate(xValues, yValuesMatrix, xSamplesMatrix);
@@ -201,12 +201,12 @@ public class CubicSplineInterpolatorTest {
     assertEquals(result.getNumberOfIntervals(), nIntervalsMatrix);
     assertEquals(result.getOrder(), orderMatrix);
     assertEquals(result.getDimensions(), 1);
-    assertEquals(result.getKnots().getData(), knotsMatrix);
+    assertEquals(result.getKnots().toArray(), knotsMatrix);
 
     DoubleMatrix1D resultValues1D = interp.interpolate(xValues, yValues, xSamples);
     for (int j = 0; j < nSamples; ++j) {
       final double ref = ySamples[0][j] == 0. ? 1. : Math.abs(ySamples[0][j]);
-      assertEquals(resultValues1D.getData()[j], ySamples[0][j], ref * EPS);
+      assertEquals(resultValues1D.get(j), ySamples[0][j], ref * EPS);
     }
 
     double resultValue = interp.interpolate(xValues, yValues, xSamples[1]);
@@ -264,7 +264,7 @@ public class CubicSplineInterpolatorTest {
 
     assertEquals(resultLin.getDimensions(), yDim);
     assertEquals(resultLin.getNumberOfIntervals(), 1);
-    assertEquals(resultLin.getKnots().getData(), xValuesForLin);
+    assertEquals(resultLin.getKnots().toArray(), xValuesForLin);
     assertEquals(resultLin.getOrder(), 2);
 
     resultLin = interp.interpolate(xValuesForLin, yValuesForLin[0]);
@@ -276,7 +276,7 @@ public class CubicSplineInterpolatorTest {
 
     assertEquals(resultLin.getDimensions(), 1);
     assertEquals(resultLin.getNumberOfIntervals(), 1);
-    assertEquals(resultLin.getKnots().getData(), xValuesForLin);
+    assertEquals(resultLin.getKnots().toArray(), xValuesForLin);
     assertEquals(resultLin.getOrder(), 2);
 
     DoubleMatrix2D resultMatrixLin2D = interp.interpolate(xValuesForLin, yValuesForLin[0], xKeys);
@@ -290,7 +290,7 @@ public class CubicSplineInterpolatorTest {
     DoubleMatrix1D resultMatrixLin1D = interp.interpolate(xValuesForLin, yValuesForLin[0], xKeys[0]);
     for (int j = 0; j < keyLength; ++j) {
       final double ref = yExpectedForLin[0][0][j] == 0. ? 1. : Math.abs(yExpectedForLin[0][0][j]);
-      assertEquals(resultMatrixLin1D.getData()[j], yExpectedForLin[0][0][j], ref * EPS);
+      assertEquals(resultMatrixLin1D.get(j), yExpectedForLin[0][0][j], ref * EPS);
     }
 
     double resultMatrixLinValue = interp.interpolate(xValuesForLin, yValuesForLin[0], xKeys[0][0]);
@@ -302,7 +302,7 @@ public class CubicSplineInterpolatorTest {
     DoubleMatrix1D resultMatrixLinValues1D = interp.interpolate(xValuesForLin, yValuesForLin, xKeys[0][0]);
     for (int i = 0; i < yDim; ++i) {
       final double ref = yExpectedForLin[i][0][0] == 0. ? 1. : Math.abs(yExpectedForLin[i][0][0]);
-      assertEquals(resultMatrixLinValues1D.getData()[i], yExpectedForLin[i][0][0], ref * EPS);
+      assertEquals(resultMatrixLinValues1D.get(i), yExpectedForLin[i][0][0], ref * EPS);
     }
 
     DoubleMatrix2D[] resultMatrixLin2DVec = interp.interpolate(xValuesForLin, yValuesForLin, xKeys);
@@ -332,7 +332,7 @@ public class CubicSplineInterpolatorTest {
 
     assertEquals(resultQuad.getDimensions(), yDim);
     assertEquals(resultQuad.getNumberOfIntervals(), 1);
-    assertEquals(resultQuad.getKnots().getData(), new double[] {xValuesForQuad[0], xValuesForQuad[2] });
+    assertEquals(resultQuad.getKnots().toArray(), new double[] {xValuesForQuad[0], xValuesForQuad[2]});
     assertEquals(resultQuad.getOrder(), 3);
 
     resultQuad = interp.interpolate(xValuesForQuad, yValuesForQuad[0]);
@@ -344,7 +344,7 @@ public class CubicSplineInterpolatorTest {
 
     assertEquals(resultQuad.getDimensions(), 1);
     assertEquals(resultQuad.getNumberOfIntervals(), 1);
-    assertEquals(resultQuad.getKnots().getData(), new double[] {xValuesForQuad[0], xValuesForQuad[2] });
+    assertEquals(resultQuad.getKnots().toArray(), new double[] {xValuesForQuad[0], xValuesForQuad[2]});
     assertEquals(resultQuad.getOrder(), 3);
 
     DoubleMatrix2D resultMatrixQuad2D = interp.interpolate(xValuesForQuad, yValuesForQuad[0], xKeys);
@@ -358,7 +358,7 @@ public class CubicSplineInterpolatorTest {
     DoubleMatrix1D resultMatrixQuad1D = interp.interpolate(xValuesForQuad, yValuesForQuad[0], xKeys[0]);
     for (int j = 0; j < keyLength; ++j) {
       final double ref = yExpectedForQuad[0][0][j] == 0. ? 1. : Math.abs(yExpectedForQuad[0][0][j]);
-      assertEquals(resultMatrixQuad1D.getData()[j], yExpectedForQuad[0][0][j], ref * EPS);
+      assertEquals(resultMatrixQuad1D.get(j), yExpectedForQuad[0][0][j], ref * EPS);
     }
 
     double resultMatrixQuadValue = interp.interpolate(xValuesForQuad, yValuesForQuad[0], xKeys[0][0]);
@@ -370,7 +370,7 @@ public class CubicSplineInterpolatorTest {
     DoubleMatrix1D resultMatrixQuadValues1D = interp.interpolate(xValuesForQuad, yValuesForQuad, xKeys[0][0]);
     for (int i = 0; i < yDim; ++i) {
       final double ref = yExpectedForQuad[i][0][0] == 0. ? 1. : Math.abs(yExpectedForQuad[i][0][0]);
-      assertEquals(resultMatrixQuadValues1D.getData()[i], yExpectedForQuad[i][0][0], ref * EPS);
+      assertEquals(resultMatrixQuadValues1D.get(i), yExpectedForQuad[i][0][0], ref * EPS);
     }
 
     DoubleMatrix2D[] resultMatrixQuad2DVec = interp.interpolate(xValuesForQuad, yValuesForQuad, xKeys);

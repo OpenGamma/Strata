@@ -30,7 +30,7 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 @Test
 public class CommonsMathWrapperTest {
 
-  private static final DoubleMatrix1D OG_VECTOR = new DoubleMatrix1D(new double[] {1, 2, 3});
+  private static final DoubleMatrix1D OG_VECTOR = DoubleMatrix1D.of(1, 2, 3);
   private static final DoubleMatrix2D OG_MATRIX = new DoubleMatrix2D(
       new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9}});
   private static final Function1D<Double, Double> OG_FUNCTION_1D = new Function1D<Double, Double>() {

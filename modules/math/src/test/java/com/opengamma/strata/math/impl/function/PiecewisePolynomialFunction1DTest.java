@@ -38,7 +38,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int keyLength = xKeys[0].length;
     final int keyDim = xKeys.length;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     final DoubleMatrix2D[] valuesResMat = function.evaluate(pp, xKeys);
@@ -59,16 +59,16 @@ public class PiecewisePolynomialFunction1DTest {
       }
     }
 
-    double[] valuesResVec = function.evaluate(pp, xKeys[0][0]).getData();
+    DoubleMatrix1D valuesResVec = function.evaluate(pp, xKeys[0][0]);
     for (int i = 0; i < dim; ++i) {
       final double ref = valuesExp[i][0][0] == 0. ? 1. : Math.abs(valuesExp[i][0][0]);
-      assertEquals(valuesResVec[i], valuesExp[i][0][0], ref * EPS);
+      assertEquals(valuesResVec.get(i), valuesExp[i][0][0], ref * EPS);
     }
 
-    valuesResVec = function.evaluate(pp, xKeys[0][3]).getData();
+    valuesResVec = function.evaluate(pp, xKeys[0][3]);
     for (int i = 0; i < dim; ++i) {
       final double ref = valuesExp[i][0][3] == 0. ? 1. : Math.abs(valuesExp[i][0][3]);
-      assertEquals(valuesResVec[i], valuesExp[i][0][3], ref * EPS);
+      assertEquals(valuesResVec.get(i), valuesExp[i][0][3], ref * EPS);
     }
 
   }
@@ -96,7 +96,7 @@ public class PiecewisePolynomialFunction1DTest {
     }
     final double[] differentiateExp = new double[] {1., 1., 1., 1. };
 
-    PiecewisePolynomialResult result = new PiecewisePolynomialResult(new DoubleMatrix1D(knots), coefsMatrix, 3, 1);
+    PiecewisePolynomialResult result = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(knots), coefsMatrix, 3, 1);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     final double[] values = function.evaluate(result, xKeys).getData()[0];
@@ -104,7 +104,7 @@ public class PiecewisePolynomialFunction1DTest {
     final double[][] integrate = new double[nInit][nKeys];
     for (int i = 0; i < nInit; ++i) {
       for (int j = 0; j < nKeys; ++j) {
-        integrate[i][j] = function.integrate(result, initials[i], xKeys).getData()[j];
+        integrate[i][j] = function.integrate(result, initials[i], xKeys).get(j);
       }
     }
 
@@ -156,7 +156,7 @@ public class PiecewisePolynomialFunction1DTest {
       differentiateTwiceExp[j] = -2.;
     }
 
-    PiecewisePolynomialResult result = new PiecewisePolynomialResult(new DoubleMatrix1D(knots), coefsMatrix, 3, 1);
+    PiecewisePolynomialResult result = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(knots), coefsMatrix, 3, 1);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     final double[] values = function.evaluate(result, xKeys).getData()[0];
@@ -165,7 +165,7 @@ public class PiecewisePolynomialFunction1DTest {
     final double[][] integrate = new double[nInit][nKeys];
     for (int i = 0; i < nInit; ++i) {
       for (int j = 0; j < nKeys; ++j) {
-        integrate[i][j] = function.integrate(result, initials[i], xKeys).getData()[j];
+        integrate[i][j] = function.integrate(result, initials[i], xKeys).get(j);
       }
     }
 
@@ -225,14 +225,15 @@ public class PiecewisePolynomialFunction1DTest {
     }
 
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
-    PiecewisePolynomialResult result = new PiecewisePolynomialResult(new DoubleMatrix1D(knots), new DoubleMatrix2D(coefMat), 5, 1);
+    PiecewisePolynomialResult result =
+        new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(knots), new DoubleMatrix2D(coefMat), 5, 1);
 
     final double[] differentiate = function.differentiate(result, xKeys).getData()[0];
     final double[] differentiateTwice = function.differentiateTwice(result, xKeys).getData()[0];
     final double[][] integrate = new double[nInit][nKeys];
     for (int i = 0; i < nInit; ++i) {
       for (int j = 0; j < nKeys; ++j) {
-        integrate[i][j] = function.integrate(result, initials[i], xKeys).getData()[j];
+        integrate[i][j] = function.integrate(result, initials[i], xKeys).get(j);
       }
     }
 
@@ -254,19 +255,19 @@ public class PiecewisePolynomialFunction1DTest {
 
     {
       final double ref = differentiateExp[0] == 0. ? 1. : Math.abs(differentiateExp[0]);
-      assertEquals(function.differentiate(result, xKeys[0]).getData()[0], differentiateExp[0], ref * EPS);
+      assertEquals(function.differentiate(result, xKeys[0]).get(0), differentiateExp[0], ref * EPS);
     }
     {
       final double ref = differentiateExp[3] == 0. ? 1. : Math.abs(differentiateExp[3]);
-      assertEquals(function.differentiate(result, xKeys[3]).getData()[0], differentiateExp[3], ref * EPS);
+      assertEquals(function.differentiate(result, xKeys[3]).get(0), differentiateExp[3], ref * EPS);
     }
     {
       final double ref = differentiateTwiceExp[0] == 0. ? 1. : Math.abs(differentiateTwiceExp[0]);
-      assertEquals(function.differentiateTwice(result, xKeys[0]).getData()[0], differentiateTwiceExp[0], ref * EPS);
+      assertEquals(function.differentiateTwice(result, xKeys[0]).get(0), differentiateTwiceExp[0], ref * EPS);
     }
     {
       final double ref = differentiateTwiceExp[3] == 0. ? 1. : Math.abs(differentiateTwiceExp[3]);
-      assertEquals(function.differentiateTwice(result, xKeys[3]).getData()[0], differentiateTwiceExp[3], ref * EPS);
+      assertEquals(function.differentiateTwice(result, xKeys[3]).get(0), differentiateTwiceExp[3], ref * EPS);
     }
     {
       final double ref = integrateExp[0][0] == 0. ? 1. : Math.abs(integrateExp[0][0]);
@@ -298,7 +299,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     pp = null;
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -317,7 +318,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     pp = null;
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -336,7 +337,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     pp = null;
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -355,7 +356,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 1;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     pp = null;
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -374,7 +375,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 1;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     pp = null;
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -393,7 +394,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     pp = null;
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -412,7 +413,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     pp = null;
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -433,7 +434,7 @@ public class PiecewisePolynomialFunction1DTest {
 
     xKeys = null;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.evaluate(pp, xKeys);
@@ -453,7 +454,7 @@ public class PiecewisePolynomialFunction1DTest {
 
     xKeys = null;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.evaluate(pp, xKeys);
@@ -473,7 +474,7 @@ public class PiecewisePolynomialFunction1DTest {
 
     xKeys = null;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.integrate(pp, 1., xKeys);
@@ -493,7 +494,7 @@ public class PiecewisePolynomialFunction1DTest {
 
     xKeys = null;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.differentiate(pp, xKeys);
@@ -511,7 +512,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.evaluate(pp, xKeys[0][0]);
@@ -529,7 +530,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.evaluate(pp, xKeys[0]);
@@ -547,7 +548,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.evaluate(pp, xKeys);
@@ -565,7 +566,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 1;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.integrate(pp, 1., xKeys[0][0]);
@@ -583,7 +584,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 1;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.integrate(pp, 1., xKeys);
@@ -601,7 +602,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.evaluate(pp, xKeys[0][0]);
@@ -619,7 +620,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.evaluate(pp, xKeys[0]);
@@ -637,7 +638,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.evaluate(pp, xKeys);
@@ -655,7 +656,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 1;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.integrate(pp, 1., xKeys[0][0]);
@@ -673,7 +674,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 1;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.integrate(pp, 1., xKeys);
@@ -691,7 +692,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.integrate(pp, 1., xKeys[0]);
@@ -709,7 +710,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.integrate(pp, 1., xKeys);
@@ -727,7 +728,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 1;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.differentiate(pp, xKeys[0]);
@@ -745,7 +746,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 1;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.differentiate(pp, xKeys);
@@ -763,7 +764,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 2;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.differentiateTwice(pp, xKeys[0]);
@@ -781,7 +782,7 @@ public class PiecewisePolynomialFunction1DTest {
     final int dim = 2;
     final int nCoefs = 2;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValues), coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.differentiateTwice(pp, xKeys);

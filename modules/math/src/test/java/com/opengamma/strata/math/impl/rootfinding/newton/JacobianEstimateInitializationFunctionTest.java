@@ -23,12 +23,12 @@ public class JacobianEstimateInitializationFunctionTest {
   private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> J = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
     @Override
     public DoubleMatrix2D evaluate(DoubleMatrix1D v) {
-      double[] x = v.getData();
+      double[] x = v.toArray();
       return new DoubleMatrix2D(new double[][] { {x[0] * x[0], x[0] * x[1] }, {x[0] - x[1], x[1] * x[1] } });
     }
   };
 
-  private static final DoubleMatrix1D X = new DoubleMatrix1D(new double[] {1, 2 });
+  private static final DoubleMatrix1D X = DoubleMatrix1D.of(1, 2);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {

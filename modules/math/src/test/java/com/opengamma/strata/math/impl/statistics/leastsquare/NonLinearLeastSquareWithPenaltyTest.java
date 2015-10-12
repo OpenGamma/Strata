@@ -45,11 +45,7 @@ public class NonLinearLeastSquareWithPenaltyTest {
 
       @Override
       public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-        double[] temp = new double[n];
-        for (int i = 0; i < n; i++) {
-          temp[i] = x.get(onIndex[i]);
-        }
-        return new DoubleMatrix1D(temp);
+        return DoubleMatrix1D.of(n, i -> x.get(onIndex[i]));
       }
     };
 
@@ -66,14 +62,10 @@ public class NonLinearLeastSquareWithPenaltyTest {
     };
 
     Well44497b random = new Well44497b(0L);
-    double[] temp = new double[nWeights];
-    for (int i = 0; i < nWeights; i++) {
-      temp[i] = random.nextDouble();
-    }
-    DoubleMatrix1D start = new DoubleMatrix1D(temp);
+    DoubleMatrix1D start = DoubleMatrix1D.of(nWeights, i -> random.nextDouble());
 
     LeastSquareWithPenaltyResults lsRes = NLLSWP.solve(
-        new DoubleMatrix1D(obs),
+        DoubleMatrix1D.copyOf(obs),
         DoubleMatrix1D.filled(n, 0.01),
         func,
         jac,

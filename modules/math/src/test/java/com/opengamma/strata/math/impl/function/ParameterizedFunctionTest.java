@@ -71,7 +71,7 @@ public class ParameterizedFunctionTest {
 
   @Test
   public void testSin() {
-    final DoubleMatrix1D parms = new DoubleMatrix1D(new double[] {-1.0, 0.5 });
+    final DoubleMatrix1D parms = DoubleMatrix1D.of(-1.0, 0.5);
     assertEquals(-Math.sin(1.0), VECTOR_PARAMS.evaluate(2.0, parms), 0.0);
 
     final Function1D<Double, Double> func = VECTOR_PARAMS.asFunctionOfArguments(parms);
@@ -84,7 +84,7 @@ public class ParameterizedFunctionTest {
     final Function1D<DoubleMatrix1D, Double> params_func = VECTOR_PARAMS.asFunctionOfParameters(1.0);
     final ScalarFieldFirstOrderDifferentiator vdiff = new ScalarFieldFirstOrderDifferentiator();
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> vgrad = vdiff.differentiate(params_func);
-    final DoubleMatrix1D res = vgrad.evaluate(new DoubleMatrix1D(new double[] {Math.PI, 0 }));
+    final DoubleMatrix1D res = vgrad.evaluate(DoubleMatrix1D.of(Math.PI, 0));
     assertEquals(0.0, res.get(0), 1e-8);
     assertEquals(Math.PI, res.get(1), 1e-8);
   }

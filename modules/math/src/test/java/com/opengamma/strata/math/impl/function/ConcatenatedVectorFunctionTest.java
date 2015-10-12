@@ -31,13 +31,13 @@ public class ConcatenatedVectorFunctionTest {
     F[0] = new VectorFunction() {
 
       @Override
-      public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
         return DoubleMatrix1D.filled(1, x.get(0) + 2 * x.get(1));
       }
 
       @Override
-      public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
-        final DoubleMatrix2D jac = DoubleMatrix2D.filled(1, 2);
+      public DoubleMatrix2D calculateJacobian(DoubleMatrix1D x) {
+        DoubleMatrix2D jac = DoubleMatrix2D.filled(1, 2);
         jac.getData()[0][0] = 1.0;
         jac.getData()[0][1] = 2.0;
         return jac;
@@ -57,22 +57,22 @@ public class ConcatenatedVectorFunctionTest {
     F[1] = new VectorFunction() {
 
       @Override
-      public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-        final double x1 = x.get(0);
-        final double x2 = x.get(1);
-        final double y1 = x1 * x2;
-        final double y2 = x2 * x2;
-        return new DoubleMatrix1D(y1, y2);
+      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+        double x1 = x.get(0);
+        double x2 = x.get(1);
+        double y1 = x1 * x2;
+        double y2 = x2 * x2;
+        return DoubleMatrix1D.of(y1, y2);
       }
 
       @Override
-      public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
-        final double x1 = x.get(0);
-        final double x2 = x.get(1);
-        final double j11 = x2;
-        final double j12 = x1;
-        final double j21 = 0.0;
-        final double j22 = 2 * x2;
+      public DoubleMatrix2D calculateJacobian(DoubleMatrix1D x) {
+        double x1 = x.get(0);
+        double x2 = x.get(1);
+        double j11 = x2;
+        double j12 = x1;
+        double j21 = 0.0;
+        double j22 = 2 * x2;
         return new DoubleMatrix2D(new double[][] { {j11, j12 }, {j21, j22 } });
       }
 
@@ -90,18 +90,18 @@ public class ConcatenatedVectorFunctionTest {
     F[2] = new VectorFunction() {
 
       @Override
-      public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-        final double x1 = x.get(0);
-        final double y1 = x1;
-        final double y2 = Math.sin(x1);
-        return new DoubleMatrix1D(y1, y2);
+      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+        double x1 = x.get(0);
+        double y1 = x1;
+        double y2 = Math.sin(x1);
+        return DoubleMatrix1D.of(y1, y2);
       }
 
       @Override
-      public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
-        final double x1 = x.get(0);
-        final double j11 = 1.0;
-        final double j21 = Math.cos(x1);
+      public DoubleMatrix2D calculateJacobian(DoubleMatrix1D x) {
+        double x1 = x.get(0);
+        double j11 = 1.0;
+        double j21 = Math.cos(x1);
         return new DoubleMatrix2D(new double[][] { {j11 }, {j21 } });
       }
 
@@ -116,13 +116,13 @@ public class ConcatenatedVectorFunctionTest {
       }
     };
 
-    X[0] = new DoubleMatrix1D(-2., 2.);
-    X[1] = new DoubleMatrix1D(1., 2.);
-    X[2] = new DoubleMatrix1D(Math.PI);
+    X[0] = DoubleMatrix1D.of(-2., 2.);
+    X[1] = DoubleMatrix1D.of(1., 2.);
+    X[2] = DoubleMatrix1D.of(Math.PI);
 
-    Y_EXP[0] = new DoubleMatrix1D(2.0);
-    Y_EXP[1] = new DoubleMatrix1D(2.0, 4.0);
-    Y_EXP[2] = new DoubleMatrix1D(Math.PI, 0.0);
+    Y_EXP[0] = DoubleMatrix1D.of(2.0);
+    Y_EXP[1] = DoubleMatrix1D.of(2.0, 4.0);
+    Y_EXP[2] = DoubleMatrix1D.of(Math.PI, 0.0);
     JAC_EXP[0] = new DoubleMatrix2D(new double[][] {{1.0, 2.0 } });
     JAC_EXP[1] = new DoubleMatrix2D(new double[][] { {2.0, 1.0 }, {0.0, 4.0 } });
     JAC_EXP[2] = new DoubleMatrix2D(new double[][] { {1.0 }, {-1.0 } });
@@ -135,8 +135,8 @@ public class ConcatenatedVectorFunctionTest {
   public void functionsTest() {
 
     for (int i = 0; i < 3; i++) {
-      final DoubleMatrix1D y = F[i].evaluate(X[i]);
-      final DoubleMatrix2D jac = F[i].calculateJacobian(X[i]);
+      DoubleMatrix1D y = F[i].evaluate(X[i]);
+      DoubleMatrix2D jac = F[i].calculateJacobian(X[i]);
       AssertMatrix.assertEqualsVectors(Y_EXP[i], y, 1e-15);
       AssertMatrix.assertEqualsMatrix(JAC_EXP[i], jac, 1e-15);
     }
@@ -144,32 +144,15 @@ public class ConcatenatedVectorFunctionTest {
 
   @Test
   public void conCatTest() {
-
-    final DoubleMatrix1D cx = conCat(X);
-    final DoubleMatrix1D cyExp = conCat(Y_EXP);
-    final ConcatenatedVectorFunction cf = new ConcatenatedVectorFunction(F);
-    final DoubleMatrix1D cy = cf.evaluate(cx);
+    DoubleMatrix1D cx = X[0].concat(X[1]).concat(X[2]);
+    DoubleMatrix1D cyExp = Y_EXP[0].concat(Y_EXP[1]).concat(Y_EXP[2]);
+    ConcatenatedVectorFunction cf = new ConcatenatedVectorFunction(F);
+    DoubleMatrix1D cy = cf.evaluate(cx);
     AssertMatrix.assertEqualsVectors(cyExp, cy, 1e-15);
 
-    final DoubleMatrix2D cJac = cf.calculateJacobian(cx);
-    final DoubleMatrix2D fdJac = DIFF.differentiate(cf).evaluate(cx);
+    DoubleMatrix2D cJac = cf.calculateJacobian(cx);
+    DoubleMatrix2D fdJac = DIFF.differentiate(cf).evaluate(cx);
     AssertMatrix.assertEqualsMatrix(fdJac, cJac, 1e-10);
-  }
-
-  private DoubleMatrix1D conCat(final DoubleMatrix1D[] x) {
-    final int n = x.length;
-    int pos = 0;
-    for (int i = 0; i < n; i++) {
-      pos += x[i].size();
-    }
-    final DoubleMatrix1D res = DoubleMatrix1D.filled(pos);
-    pos = 0;
-    for (int i = 0; i < n; i++) {
-      final int m = x[i].size();
-      System.arraycopy(x[i].getData(), 0, res.getData(), pos, m);
-      pos += m;
-    }
-    return res;
   }
 
 }

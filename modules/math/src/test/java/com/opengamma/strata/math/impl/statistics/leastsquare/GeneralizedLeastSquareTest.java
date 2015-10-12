@@ -110,7 +110,7 @@ public class GeneralizedLeastSquareTest {
       final double[] temp = new double[2];
       temp[0] = 2.0 * RANDOM.nextDouble();
       temp[1] = 2.0 * RANDOM.nextDouble();
-      X_TRIG.add(new DoubleMatrix1D(temp));
+      X_TRIG.add(DoubleMatrix1D.copyOf(temp));
       Y_TRIG.add(VECTOR_TEST_FUNCTION.evaluate(X_TRIG.get(i)));
       SIGMA[i] = 0.01;
       SIGMA_TRIG.add(0.01);
@@ -170,7 +170,8 @@ public class GeneralizedLeastSquareTest {
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
 
     final LeastSquareResults results = gls.solve(X, Y, SIGMA, BASIS_FUNCTIONS);
-    final Function1D<Double, Double> spline = new BasisFunctionAggregation<>(BASIS_FUNCTIONS, results.getFitParameters().getData());
+    final Function1D<Double, Double> spline =
+        new BasisFunctionAggregation<>(BASIS_FUNCTIONS, results.getFitParameters().toArray());
     assertEquals(0.0, results.getChiSq(), 1e-12);
     assertEquals(-0.023605293, spline.evaluate(0.5), 1e-8);
 
@@ -192,7 +193,8 @@ public class GeneralizedLeastSquareTest {
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
 
     final LeastSquareResults results = gls.solve(X_SIN_EXP, Y_SIN_EXP, SIGMA_COS_EXP, BASIS_FUNCTIONS_2D);
-    final Function1D<double[], Double> spline = new BasisFunctionAggregation<>(BASIS_FUNCTIONS_2D, results.getFitParameters().getData());
+    final Function1D<double[], Double> spline =
+        new BasisFunctionAggregation<>(BASIS_FUNCTIONS_2D, results.getFitParameters().toArray());
     assertEquals(0.0, results.getChiSq(), 1e-16);
     assertEquals(0.05161579, spline.evaluate(new double[] {4, 3 }), 1e-8);
 

@@ -25,9 +25,9 @@ public class OGMatrixAlgebraTest {
     {-2., 1., -2. } });
   private static final DoubleMatrix2D B = new DoubleMatrix2D(new double[][] { {1, 1 }, {2, -2 }, {3, 1 } });
   private static final DoubleMatrix2D C = new DoubleMatrix2D(new double[][] { {14, 0 }, {1, -3 }, {-6, -6 } });
-  private static final DoubleMatrix1D D = new DoubleMatrix1D(new double[] {1, 1, 1 });
-  private static final DoubleMatrix1D E = new DoubleMatrix1D(new double[] {-1, 2, 3 });
-  private static final DoubleMatrix1D F = new DoubleMatrix1D(new double[] {2, -2, 1 });
+  private static final DoubleMatrix1D D = DoubleMatrix1D.of(1, 1, 1);
+  private static final DoubleMatrix1D E = DoubleMatrix1D.of(-1, 2, 3);
+  private static final DoubleMatrix1D F = DoubleMatrix1D.of(2, -2, 1);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMatrixSizeMismatch() {
@@ -92,7 +92,7 @@ public class OGMatrixAlgebraTest {
     }
 
     final TridiagonalMatrix m = new TridiagonalMatrix(c, u, l);
-    final DoubleMatrix1D xVec = new DoubleMatrix1D(x);
+    final DoubleMatrix1D xVec = DoubleMatrix1D.copyOf(x);
     DoubleMatrix1D y1 = (DoubleMatrix1D) ALGEBRA.multiply(m, xVec);
     DoubleMatrix2D full = m.toDoubleMatrix2D();
     DoubleMatrix1D y2 = (DoubleMatrix1D) ALGEBRA.multiply(full, xVec);
