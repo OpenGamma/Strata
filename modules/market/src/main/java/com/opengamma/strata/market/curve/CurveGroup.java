@@ -69,6 +69,8 @@ public final class CurveGroup
   //-------------------------------------------------------------------------
   /**
    * Finds the discount curve for the currency if there is one in the group.
+   * <p>
+   * If the curve is not found, optional empty is returned.
    *
    * @param currency  the currency for which a discount curve is required
    * @return the discount curve for the currency if there is one in the group
@@ -79,6 +81,8 @@ public final class CurveGroup
 
   /**
    * Finds the forward curve for the index if there is one in the group.
+   * <p>
+   * If the curve is not found, optional empty is returned.
    *
    * @param index  the index for which a forward curve is required
    * @return the forward curve for the index if there is one in the group

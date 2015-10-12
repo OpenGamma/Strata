@@ -155,6 +155,8 @@ public final class CurveCurrencyParameterSensitivities
 
   /**
    * Finds a single sensitivity instance by name and currency.
+   * <p>
+   * If the sensitivity is not found, optional empty is returned.
    * 
    * @param name  the curve name to find
    * @param currency  the currency to find
