@@ -55,7 +55,7 @@ Strata modules
 Strata is formed from a number of modules:
 
 * [Examples](examples/README.md)
-* [Report](modules/report-beta/README.md)
+* [Report](modules/report/README.md)
 * [Function](modules/function/README.md)
 * [Engine](modules/engine/README.md)
 * [Pricer](modules/pricer/README.md)
