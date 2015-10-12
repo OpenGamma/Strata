@@ -29,9 +29,9 @@ public class ParameterizedCurveTest {
       @Override
       public Double evaluate(final Double x, final DoubleMatrix1D parameters) {
         assertEquals(3, parameters.size());
-        final double a = parameters.getEntry(0);
-        final double b = parameters.getEntry(1);
-        final double c = parameters.getEntry(2);
+        final double a = parameters.get(0);
+        final double b = parameters.get(1);
+        final double c = parameters.get(2);
         return a * Math.sin(b * x) + c;
       }
 
@@ -46,8 +46,8 @@ public class ParameterizedCurveTest {
 
       @Override
       public DoubleMatrix1D evaluate(final Double x, final DoubleMatrix1D parameters) {
-        final double a = parameters.getEntry(0);
-        final double b = parameters.getEntry(1);
+        final double a = parameters.get(0);
+        final double b = parameters.get(1);
         final DoubleMatrix1D res = new DoubleMatrix1D(Math.sin(b * x), x * a * Math.cos(b * x), 1.0);
         return res;
       }
@@ -67,7 +67,7 @@ public class ParameterizedCurveTest {
       final DoubleMatrix1D s1 = paramsSenseAnal.evaluate(x);
       final DoubleMatrix1D s2 = paramsSenseFD.evaluate(x);
       for (int j = 0; j < 3; j++) {
-        assertEquals(s1.getEntry(j), s2.getEntry(j), 1e-10);
+        assertEquals(s1.get(j), s2.get(j), 1e-10);
       }
     }
 

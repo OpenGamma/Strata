@@ -31,7 +31,7 @@ public abstract class AssertMatrix {
     assertEquals("sizes:", size, v2.size());
 
     for (int i = 0; i < size; i++) {
-      assertEquals("", v1.getEntry(i), v2.getEntry(i), delta);
+      assertEquals("", v1.get(i), v2.get(i), delta);
     }
   }
 

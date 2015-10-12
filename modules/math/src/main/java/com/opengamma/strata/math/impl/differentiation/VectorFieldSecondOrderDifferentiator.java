@@ -138,7 +138,7 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
           xData[j] -= twoEps;
           down = function.evaluate(x);
           for (i = 0; i < m; i++) {
-            res[i][j][j] = (up.getEntry(i) + down.getEntry(i) - 2 * y.getEntry(i)) / epsSqr;
+            res[i][j][j] = (up.get(i) + down.get(i) - 2 * y.get(i)) / epsSqr;
           }
           for (k = j + 1; k < n; k++) {
             oldValueK = xData[k];
@@ -152,7 +152,7 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
             upup = function.evaluate(x);
             xData[k] = oldValueK;
             for (i = 0; i < m; i++) {
-              res[i][j][k] = (upup.getEntry(i) + downdown.getEntry(i) - updown.getEntry(i) - downup.getEntry(i)) / 4 / epsSqr;
+              res[i][j][k] = (upup.get(i) + downdown.get(i) - updown.get(i) - downup.get(i)) / 4 / epsSqr;
             }
           }
           xData[j] = oldValueJ;
@@ -196,7 +196,7 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
           xData[j] -= twoEps;
           down = function.evaluate(x);
           for (i = 0; i < m; i++) {
-            res[i][j] = (up.getEntry(i) + down.getEntry(i) - 2 * y.getEntry(i)) / epsSqr;
+            res[i][j] = (up.get(i) + down.get(i) - 2 * y.get(i)) / epsSqr;
           }
           xData[j] = oldValue;
         }

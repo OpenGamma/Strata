@@ -31,8 +31,8 @@ public class NonLinearTransformFunctionTest {
     @Override
     public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
       ArgChecker.isTrue(x.size() == 2);
-      double x1 = x.getEntry(0);
-      double x2 = x.getEntry(1);
+      double x1 = x.get(0);
+      double x2 = x.get(1);
       double[] y = new double[3];
       y[0] = Math.sin(x1) * Math.cos(x2);
       y[1] = Math.sin(x1) * Math.sin(x2);
@@ -45,8 +45,8 @@ public class NonLinearTransformFunctionTest {
     @Override
     public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
       ArgChecker.isTrue(x.size() == 2);
-      double x1 = x.getEntry(0);
-      double x2 = x.getEntry(1);
+      double x1 = x.get(0);
+      double x2 = x.get(1);
       double[][] y = new double[3][2];
       y[0][0] = Math.cos(x1) * Math.cos(x2);
       y[0][1] = -Math.sin(x1) * Math.sin(x2);
@@ -82,9 +82,9 @@ public class NonLinearTransformFunctionTest {
     final double rootHalf = Math.sqrt(0.5);
     DoubleMatrix1D y = func.evaluate(x);
     assertEquals(3, y.size());
-    assertEquals(rootHalf * Math.cos(0.5), y.getEntry(0), 1e-9);
-    assertEquals(rootHalf * Math.sin(0.5), y.getEntry(1), 1e-9);
-    assertEquals(rootHalf, y.getEntry(2), 1e-9);
+    assertEquals(rootHalf * Math.cos(0.5), y.get(0), 1e-9);
+    assertEquals(rootHalf * Math.sin(0.5), y.get(1), 1e-9);
+    assertEquals(rootHalf, y.get(2), 1e-9);
 
     DoubleMatrix2D jac = jacFunc.evaluate(x);
     assertEquals(3, jac.getNumberOfRows());

@@ -356,26 +356,6 @@ public final class DoubleMatrix1D
   }
 
   /**
-   * Create an vector of length n with all entries equal to value.
-   * 
-   * @param n  the number of elements
-   * @param value  the value of all the elements
-   */
-  public DoubleMatrix1D(int n, double value) {
-    this.array = new double[n];
-    Arrays.fill(this.array, value);
-  }
-
-  /**
-   * Create an vector of length n with all entries zero.
-   * 
-   * @param n  number of elements
-   */
-  public DoubleMatrix1D(int n) {
-    this.array = new double[n];
-  }
-
-  /**
    * Returns the underlying vector data. If this is changed so is the vector.
    * 
    * @return an array containing the vector elements
@@ -383,17 +363,6 @@ public final class DoubleMatrix1D
    */
   public double[] getData() {
     return array;
-  }
-
-  /**
-   * Gets the value at the specified index in this array.
-   * 
-   * @param index  the zero-based index to retrieve
-   * @return the value at the index
-   * @throws IndexOutOfBoundsException if the index is invalid
-   */
-  public double getEntry(int index) {
-    return array[index];
   }
 
   // end of old code to be removed

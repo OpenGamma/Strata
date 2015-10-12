@@ -172,7 +172,7 @@ public class MatrixAlgebraTest {
       final DoubleMatrix1D m4 = (DoubleMatrix1D) m2;
       assertEquals(m3.size(), m4.size());
       for (int i = 0; i < m3.size(); i++) {
-        assertEquals(m3.getEntry(i), m4.getEntry(i), EPS);
+        assertEquals(m3.get(i), m4.get(i), EPS);
       }
       return;
     }

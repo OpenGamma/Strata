@@ -50,7 +50,7 @@ public class OGMatrixAlgebraTest {
     int i, j;
     for (i = 0; i < rows; i++) {
       for (j = 0; j < cols; j++) {
-        assertEquals(res.getEntry(i, j), E.getEntry(i) * F.getEntry(j), 1e-15);
+        assertEquals(res.getEntry(i, j), E.get(i) * F.get(j), 1e-15);
       }
     }
 
@@ -69,9 +69,9 @@ public class OGMatrixAlgebraTest {
     }
 
     final DoubleMatrix1D d = (DoubleMatrix1D) ALGEBRA.multiply(A, D);
-    assertEquals(6, d.getEntry(0), 1e-15);
-    assertEquals(0, d.getEntry(1), 1e-15);
-    assertEquals(-3, d.getEntry(2), 1e-15);
+    assertEquals(6, d.get(0), 1e-15);
+    assertEquals(0, d.get(1), 1e-15);
+    assertEquals(-3, d.get(2), 1e-15);
   }
 
   @Test
@@ -98,7 +98,7 @@ public class OGMatrixAlgebraTest {
     DoubleMatrix1D y2 = (DoubleMatrix1D) ALGEBRA.multiply(full, xVec);
 
     for (int i = 0; i < n; i++) {
-      assertEquals(y1.getEntry(i), y2.getEntry(i), 1e-12);
+      assertEquals(y1.get(i), y2.get(i), 1e-12);
     }
 
   }

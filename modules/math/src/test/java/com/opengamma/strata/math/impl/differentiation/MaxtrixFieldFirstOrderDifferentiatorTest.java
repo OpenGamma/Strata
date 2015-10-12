@@ -24,8 +24,8 @@ public class MaxtrixFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
-      double x1 = x.getEntry(0);
-      double x2 = x.getEntry(1);
+      double x1 = x.get(0);
+      double x2 = x.get(1);
       double[][] y = new double[3][2];
       y[0][0] = x1 * x1 + 2 * x2 * x2 - x1 * x2 + x1 * Math.cos(x2) - x2 * Math.sin(x1);
       y[1][0] = 2 * x1 * x2 * Math.cos(x1 * x2) - x1 * Math.sin(x1) - x2 * Math.cos(x2);
@@ -41,8 +41,8 @@ public class MaxtrixFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix2D[] evaluate(final DoubleMatrix1D x) {
-      double x1 = x.getEntry(0);
-      double x2 = x.getEntry(1);
+      double x1 = x.get(0);
+      double x2 = x.get(1);
       double[][] y = new double[3][2];
       y[0][0] = 2 * x1 - x2 + Math.cos(x2) - x2 * Math.cos(x1);
       y[1][0] = 2 * x2 * Math.cos(x1 * x2) - 2 * x1 * x2 * x2 * Math.sin(x1 * x2) - Math.sin(x1) - x1 * Math.cos(x1);

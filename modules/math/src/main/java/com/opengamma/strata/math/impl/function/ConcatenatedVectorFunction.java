@@ -108,7 +108,7 @@ public class ConcatenatedVectorFunction extends VectorFunction {
     int pos = 0;
     for (int i = 0; i < _nPartitions; i++) {
       int length = _xPartition[i];
-      res[i] = new DoubleMatrix1D(length);
+      res[i] = DoubleMatrix1D.filled(length);
       System.arraycopy(x.getData(), pos, res[i].getData(), 0, length);
       pos += length;
     }

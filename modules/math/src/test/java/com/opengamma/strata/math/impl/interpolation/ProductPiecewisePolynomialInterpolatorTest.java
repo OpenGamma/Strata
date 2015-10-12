@@ -73,9 +73,9 @@ public class ProductPiecewisePolynomialInterpolatorTest {
             xyValues);
         for (int j = 0; j < nKeys; ++j) {
           double key = xValues[0] + interval * j;
-          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(resultBase, key).getEntry(0), FUNC
+          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(resultBase, key).get(0), FUNC
               .evaluate(result, key)
-              .getEntry(0), EPS);
+              .get(0), EPS);
           InterpolatorTestUtil.assertArrayRelative("notClampedTest", FUNC.nodeSensitivity(resultBase, key).getData(),
               FUNC.nodeSensitivity(result, key).getData(), EPS);
         }
@@ -133,9 +133,9 @@ public class ProductPiecewisePolynomialInterpolatorTest {
             xValuesForBase, xyValuesBase);
         for (int j = 0; j < nKeys; ++j) {
           double key = xValues[0] + interval * j;
-          InterpolatorTestUtil.assertRelative("clampedTest", FUNC.evaluate(resultBase, key).getEntry(0),
+          InterpolatorTestUtil.assertRelative("clampedTest", FUNC.evaluate(resultBase, key).get(0),
               FUNC.evaluate(result, key)
-                  .getEntry(0), EPS);
+                  .get(0), EPS);
           InterpolatorTestUtil.assertArrayRelative("clampedTest", FUNC.nodeSensitivity(resultBase, key).getData(),
               FUNC.nodeSensitivity(result, key).getData(), EPS);
         }
@@ -191,7 +191,7 @@ public class ProductPiecewisePolynomialInterpolatorTest {
         double[] tmpDw = FUNC.evaluate(resultDw, keys).getData()[0];
         for (int l = 0; l < nKeys; ++l) {
           double res = 0.5 * (tmpUp[l] - tmpDw[l]) / DELTA; // lk
-          InterpolatorTestUtil.assertRelative("linearExtrapolationTest", sense[l].getEntry(k), res, DELTA);
+          InterpolatorTestUtil.assertRelative("linearExtrapolationTest", sense[l].get(k), res, DELTA);
         }
       }
     }
@@ -249,7 +249,7 @@ public class ProductPiecewisePolynomialInterpolatorTest {
         double[] tmpDw = FUNC.evaluate(resultDw, keys).getData()[0];
         for (int l = 0; l < nKeys; ++l) {
           double res = 0.5 * (tmpUp[l] - tmpDw[l]) / DELTA;
-          InterpolatorTestUtil.assertRelative("linearExtrapolationTest", sense[l].getEntry(k), res, DELTA * 10.0);
+          InterpolatorTestUtil.assertRelative("linearExtrapolationTest", sense[l].get(k), res, DELTA * 10.0);
         }
       }
       ProductPiecewisePolynomialInterpolator interpUp = new ProductPiecewisePolynomialInterpolator(INTERP_SENSE[i],
@@ -262,7 +262,7 @@ public class ProductPiecewisePolynomialInterpolatorTest {
       double[] tmpDw = FUNC.evaluate(resultDw, keys).getData()[0];
       for (int l = 0; l < nKeys; ++l) {
         double res = 0.5 * (tmpUp[l] - tmpDw[l]) / DELTA;
-        InterpolatorTestUtil.assertRelative("linearExtrapolationTest", sense[l].getEntry(nData), res, DELTA);
+        InterpolatorTestUtil.assertRelative("linearExtrapolationTest", sense[l].get(nData), res, DELTA);
       }
     }
   }

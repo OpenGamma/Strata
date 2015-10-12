@@ -24,7 +24,7 @@ public class LeastSquareWithPenaltyResultTest {
     double chi2 = 13.234324;
     double pen = 2.3445;
     int nParms = 12;
-    DoubleMatrix1D parms = new DoubleMatrix1D(nParms, 0.5);
+    DoubleMatrix1D parms = DoubleMatrix1D.filled(nParms, 0.5);
     DoubleMatrix2D cov = new DoubleMatrix2D(nParms, nParms);
 
     LeastSquareWithPenaltyResults res = new LeastSquareWithPenaltyResults(chi2, pen, parms, cov);

@@ -65,7 +65,7 @@ public final class DoubleMatrixUtils {
     }
     double[][] data = new double[n][n];
     for (int i = 0; i < n; i++) {
-      data[i][i] = vector.getEntry(i);
+      data[i][i] = vector.get(i);
     }
     return new DoubleMatrix2D(data);
   }

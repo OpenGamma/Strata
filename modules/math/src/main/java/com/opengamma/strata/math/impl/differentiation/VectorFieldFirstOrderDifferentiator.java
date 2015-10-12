@@ -100,7 +100,7 @@ public class VectorFieldFirstOrderDifferentiator
               xData[j] += eps;
               up = function.evaluate(x);
               for (i = 0; i < m; i++) {
-                res[i][j] = (up.getEntry(i) - y.getEntry(i)) / eps;
+                res[i][j] = (up.get(i) - y.get(i)) / eps;
               }
               xData[j] = oldValue;
             }
@@ -128,7 +128,7 @@ public class VectorFieldFirstOrderDifferentiator
               xData[j] -= twoEps;
               down = function.evaluate(x);
               for (i = 0; i < m; i++) {
-                res[i][j] = (up.getEntry(i) - down.getEntry(i)) / twoEps;
+                res[i][j] = (up.get(i) - down.get(i)) / twoEps;
               }
               xData[j] = oldValue;
             }
@@ -154,7 +154,7 @@ public class VectorFieldFirstOrderDifferentiator
               xData[j] -= eps;
               down = function.evaluate(x);
               for (i = 0; i < m; i++) {
-                res[i][j] = (y.getEntry(i) - down.getEntry(i)) / eps;
+                res[i][j] = (y.get(i) - down.get(i)) / eps;
               }
               xData[j] = oldValue;
             }
@@ -230,7 +230,7 @@ public class VectorFieldFirstOrderDifferentiator
             double sum = 0;
             for (int k = 0; k < 3; k++) {
               if (w[k] != 0.0) {
-                sum += w[k] * y[k].getEntry(i);
+                sum += w[k] * y[k].get(i);
               }
             }
             res[i][j] = sum / twoEps;

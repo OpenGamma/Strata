@@ -31,9 +31,9 @@ public class ParameterizedSurfaceTest {
       @Override
       public Double evaluate(final DoublesPair xy, final DoubleMatrix1D parameters) {
         assertEquals(3, parameters.size());
-        final double a = parameters.getEntry(0);
-        final double b = parameters.getEntry(1);
-        final double c = parameters.getEntry(2);
+        final double a = parameters.get(0);
+        final double b = parameters.get(1);
+        final double c = parameters.get(2);
         return a * Math.sin(b * xy.getFirst() + c * xy.getSecond()) + Math.cos(xy.getSecond());
       }
 
@@ -47,9 +47,9 @@ public class ParameterizedSurfaceTest {
 
       @Override
       public DoubleMatrix1D evaluate(final DoublesPair xy, final DoubleMatrix1D parameters) {
-        final double a = parameters.getEntry(0);
-        final double b = parameters.getEntry(1);
-        final double c = parameters.getEntry(2);
+        final double a = parameters.get(0);
+        final double b = parameters.get(1);
+        final double c = parameters.get(2);
         final DoubleMatrix1D res = new DoubleMatrix1D(Math.sin(b * xy.getFirst() + c * xy.getSecond()), xy.getFirst() * a * Math.cos(b * xy.getFirst() + c * xy.getSecond()), xy.getSecond() * a *
             Math.cos(b * xy.getFirst() + c * xy.getSecond()));
         return res;
@@ -73,7 +73,7 @@ public class ParameterizedSurfaceTest {
         final DoubleMatrix1D s1 = paramsSenseAnal.evaluate(xy);
         final DoubleMatrix1D s2 = paramsSenseFD.evaluate(xy);
         for (int k = 0; k < 3; k++) {
-          assertEquals(s1.getEntry(k), s2.getEntry(k), 1e-10);
+          assertEquals(s1.get(k), s2.get(k), 1e-10);
         }
       }
     }

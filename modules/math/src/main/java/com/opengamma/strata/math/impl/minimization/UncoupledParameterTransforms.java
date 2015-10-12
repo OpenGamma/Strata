@@ -87,7 +87,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
     double[] fittingParameter = new double[_nFP];
     for (int i = 0, j = 0; i < _nMP; i++) {
       if (_freeParameters[i]) {
-        fittingParameter[j] = _transforms[i].transform(functionParameters.getEntry(i));
+        fittingParameter[j] = _transforms[i].transform(functionParameters.get(i));
         j++;
       }
     }
@@ -106,10 +106,10 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
     double[] modelParameter = new double[_nMP];
     for (int i = 0, j = 0; i < _nMP; i++) {
       if (_freeParameters[i]) {
-        modelParameter[i] = _transforms[i].inverseTransform(fittingParameters.getEntry(j));
+        modelParameter[i] = _transforms[i].inverseTransform(fittingParameters.get(j));
         j++;
       } else {
-        modelParameter[i] = _startValues.getEntry(i);
+        modelParameter[i] = _startValues.get(i);
       }
     }
     return new DoubleMatrix1D(modelParameter);
@@ -129,7 +129,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
     double[][] jac = new double[_nFP][_nMP];
     for (int i = 0, j = 0; i < _nMP; i++) {
       if (_freeParameters[i]) {
-        jac[j][i] = _transforms[i].transformGradient(functionParameters.getEntry(i));
+        jac[j][i] = _transforms[i].transformGradient(functionParameters.get(i));
         j++;
       }
     }
@@ -164,7 +164,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
     for (int i = 0; i < t; i++) {
       pderef = p[i];
       qderef = q[i];
-      jac[pderef][qderef] = _transforms[pderef].inverseTransformGradient(fittingParameters.getEntry(qderef));
+      jac[pderef][qderef] = _transforms[pderef].inverseTransformGradient(fittingParameters.get(qderef));
     }
     return new DoubleMatrix2D(jac);
   }

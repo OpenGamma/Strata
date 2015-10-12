@@ -110,9 +110,9 @@ public class ProductPiecewisePolynomialInterpolator extends PiecewisePolynomialI
     double[] nodes = result.getKnots().getData();
     if (Math.abs(xValues[xValues.length - 1] - nodes[nIntervalsAll]) < EPS) {
       double lastNodeX = nodes[nIntervalsAll];
-      double lastNodeY = FUNC.evaluate(result, lastNodeX).getEntry(0);
+      double lastNodeY = FUNC.evaluate(result, lastNodeX).get(0);
       double extraNode = 2.0 * nodes[nIntervalsAll] - nodes[nIntervalsAll - 1];
-      double extraDerivative = FUNC.differentiate(result, lastNodeX).getEntry(0);
+      double extraDerivative = FUNC.differentiate(result, lastNodeX).get(0);
       double[] newKnots = new double[nIntervalsAll + 2];
       System.arraycopy(result.getKnots().getData(), 0, newKnots, 0, nIntervalsAll + 1);
       newKnots[nIntervalsAll + 1] = extraNode; // dummy node, outside the data range
