@@ -32,12 +32,12 @@ public class ConcatenatedVectorFunctionTest {
 
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-        return new DoubleMatrix1D(1, x.getEntry(0) + 2 * x.getEntry(1));
+        return DoubleMatrix1D.filled(1, x.get(0) + 2 * x.get(1));
       }
 
       @Override
       public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
-        final DoubleMatrix2D jac = new DoubleMatrix2D(1, 2);
+        final DoubleMatrix2D jac = DoubleMatrix2D.filled(1, 2);
         jac.getData()[0][0] = 1.0;
         jac.getData()[0][1] = 2.0;
         return jac;
@@ -58,8 +58,8 @@ public class ConcatenatedVectorFunctionTest {
 
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-        final double x1 = x.getEntry(0);
-        final double x2 = x.getEntry(1);
+        final double x1 = x.get(0);
+        final double x2 = x.get(1);
         final double y1 = x1 * x2;
         final double y2 = x2 * x2;
         return new DoubleMatrix1D(y1, y2);
@@ -67,8 +67,8 @@ public class ConcatenatedVectorFunctionTest {
 
       @Override
       public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
-        final double x1 = x.getEntry(0);
-        final double x2 = x.getEntry(1);
+        final double x1 = x.get(0);
+        final double x2 = x.get(1);
         final double j11 = x2;
         final double j12 = x1;
         final double j21 = 0.0;
@@ -91,7 +91,7 @@ public class ConcatenatedVectorFunctionTest {
 
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-        final double x1 = x.getEntry(0);
+        final double x1 = x.get(0);
         final double y1 = x1;
         final double y2 = Math.sin(x1);
         return new DoubleMatrix1D(y1, y2);
@@ -99,7 +99,7 @@ public class ConcatenatedVectorFunctionTest {
 
       @Override
       public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
-        final double x1 = x.getEntry(0);
+        final double x1 = x.get(0);
         final double j11 = 1.0;
         final double j21 = Math.cos(x1);
         return new DoubleMatrix2D(new double[][] { {j11 }, {j21 } });
@@ -162,7 +162,7 @@ public class ConcatenatedVectorFunctionTest {
     for (int i = 0; i < n; i++) {
       pos += x[i].size();
     }
-    final DoubleMatrix1D res = new DoubleMatrix1D(pos);
+    final DoubleMatrix1D res = DoubleMatrix1D.filled(pos);
     pos = 0;
     for (int i = 0; i < n; i++) {
       final int m = x[i].size();

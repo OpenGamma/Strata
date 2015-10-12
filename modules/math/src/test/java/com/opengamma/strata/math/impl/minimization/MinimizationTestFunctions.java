@@ -17,7 +17,7 @@ public abstract class MinimizationTestFunctions {
 
     @Override
     public Double evaluate(DoubleMatrix1D x) {
-      return FunctionUtils.square(1 - x.getEntry(0)) + 100 * FunctionUtils.square(x.getEntry(1) - FunctionUtils.square(x.getEntry(0)));
+      return FunctionUtils.square(1 - x.get(0)) + 100 * FunctionUtils.square(x.get(1) - FunctionUtils.square(x.get(0)));
     }
   };
 
@@ -26,8 +26,8 @@ public abstract class MinimizationTestFunctions {
     @Override
     public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
       double[] temp = new double[2];
-      temp[0] = 2 * (x.getEntry(0) - 1) + 400 * x.getEntry(0) * (FunctionUtils.square(x.getEntry(0)) - x.getEntry(1));
-      temp[1] = 200 * (x.getEntry(1) - FunctionUtils.square(x.getEntry(0)));
+      temp[0] = 2 * (x.get(0) - 1) + 400 * x.get(0) * (FunctionUtils.square(x.get(0)) - x.get(1));
+      temp[1] = 200 * (x.get(1) - FunctionUtils.square(x.get(0)));
       return new DoubleMatrix1D(temp);
     }
   };
@@ -42,7 +42,7 @@ public abstract class MinimizationTestFunctions {
       }
       double sum = 0;
       for (int i = 0; i < n / 2; i++) {
-        sum += FunctionUtils.square(1 - x.getEntry(2 * i)) + 100 * FunctionUtils.square(x.getEntry(2 * i + 1) - FunctionUtils.square(x.getEntry(2 * i)));
+        sum += FunctionUtils.square(1 - x.get(2 * i)) + 100 * FunctionUtils.square(x.get(2 * i + 1) - FunctionUtils.square(x.get(2 * i)));
       }
       return sum;
     }
@@ -56,7 +56,7 @@ public abstract class MinimizationTestFunctions {
 
       double sum = 0;
       for (int i = 0; i < n - 1; i++) {
-        sum += FunctionUtils.square(1 - x.getEntry(i)) + 100 * FunctionUtils.square(x.getEntry(i + 1) - FunctionUtils.square(x.getEntry(i)));
+        sum += FunctionUtils.square(1 - x.get(i)) + 100 * FunctionUtils.square(x.get(i + 1) - FunctionUtils.square(x.get(i)));
       }
       return sum;
     }
@@ -69,11 +69,11 @@ public abstract class MinimizationTestFunctions {
       int n = x.size();
 
       double[] res = new double[n];
-      res[0] = 2 * (x.getEntry(0) - 1) + 400 * x.getEntry(0) * (FunctionUtils.square(x.getEntry(0)) - x.getEntry(1));
-      res[n - 1] = 200 * (x.getEntry(n - 1) - FunctionUtils.square(x.getEntry(n - 2)));
+      res[0] = 2 * (x.get(0) - 1) + 400 * x.get(0) * (FunctionUtils.square(x.get(0)) - x.get(1));
+      res[n - 1] = 200 * (x.get(n - 1) - FunctionUtils.square(x.get(n - 2)));
       for (int i = 1; i < n - 1; i++) {
-        res[i] = 2 * (x.getEntry(i) - 1) + 400 * x.getEntry(i) * (FunctionUtils.square(x.getEntry(i)) - x.getEntry(i + 1)) + 200
-            * (x.getEntry(i) - FunctionUtils.square(x.getEntry(i - 1)));
+        res[i] = 2 * (x.get(i) - 1) + 400 * x.get(i) * (FunctionUtils.square(x.get(i)) - x.get(i + 1)) + 200
+            * (x.get(i) - FunctionUtils.square(x.get(i - 1)));
       }
       return new DoubleMatrix1D(res);
     }

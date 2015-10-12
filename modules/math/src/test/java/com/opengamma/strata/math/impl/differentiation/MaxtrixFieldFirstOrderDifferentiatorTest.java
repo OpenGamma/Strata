@@ -24,8 +24,8 @@ public class MaxtrixFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
-      double x1 = x.getEntry(0);
-      double x2 = x.getEntry(1);
+      double x1 = x.get(0);
+      double x2 = x.get(1);
       double[][] y = new double[3][2];
       y[0][0] = x1 * x1 + 2 * x2 * x2 - x1 * x2 + x1 * Math.cos(x2) - x2 * Math.sin(x1);
       y[1][0] = 2 * x1 * x2 * Math.cos(x1 * x2) - x1 * Math.sin(x1) - x2 * Math.cos(x2);
@@ -41,8 +41,8 @@ public class MaxtrixFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix2D[] evaluate(final DoubleMatrix1D x) {
-      double x1 = x.getEntry(0);
-      double x2 = x.getEntry(1);
+      double x1 = x.get(0);
+      double x2 = x.get(1);
       double[][] y = new double[3][2];
       y[0][0] = 2 * x1 - x2 + Math.cos(x2) - x2 * Math.cos(x1);
       y[1][0] = 2 * x2 * Math.cos(x1 * x2) - 2 * x1 * x2 * x2 * Math.sin(x1 * x2) - Math.sin(x1) - x1 * Math.cos(x1);
@@ -72,16 +72,16 @@ public class MaxtrixFieldFirstOrderDifferentiatorTest {
     DoubleMatrix2D[] fdRes = G.evaluate(x);
 
     final int p = fdRes.length;
-    final int n = fdRes[0].getNumberOfRows();
-    final int m = fdRes[0].getNumberOfColumns();
+    final int n = fdRes[0].rowCount();
+    final int m = fdRes[0].columnCount();
     assertEquals(p, alRes.length);
-    assertEquals(n, alRes[0].getNumberOfRows());
-    assertEquals(m, alRes[0].getNumberOfColumns());
+    assertEquals(n, alRes[0].rowCount());
+    assertEquals(m, alRes[0].columnCount());
 
     for (int k = 0; k < p; k++) {
       for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-          assertEquals(fdRes[k].getEntry(i, j), alRes[k].getEntry(i, j), 1e-8);
+          assertEquals(fdRes[k].get(i, j), alRes[k].get(i, j), 1e-8);
         }
       }
     }

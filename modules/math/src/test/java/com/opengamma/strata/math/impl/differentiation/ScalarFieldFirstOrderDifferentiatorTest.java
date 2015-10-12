@@ -22,8 +22,8 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
 
     @Override
     public Double evaluate(final DoubleMatrix1D x) {
-      final double x1 = x.getEntry(0);
-      final double x2 = x.getEntry(1);
+      final double x1 = x.get(0);
+      final double x2 = x.get(1);
       return x1 * x1 + 2 * x2 * x2 - x1 * x2 + x1 * Math.cos(x2) - x2 * Math.sin(x1);
     }
   };
@@ -32,7 +32,7 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
 
     @Override
     public Boolean evaluate(final DoubleMatrix1D x) {
-      final double x1 = x.getEntry(0);
+      final double x1 = x.get(0);
       return x1 >= 0.0 && x1 <= Math.PI;
     }
   };
@@ -41,8 +41,8 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-      final double x1 = x.getEntry(0);
-      final double x2 = x.getEntry(1);
+      final double x1 = x.get(0);
+      final double x2 = x.get(1);
       final double[] y = new double[2];
       y[0] = 2 * x1 - x2 + Math.cos(x2) - x2 * Math.cos(x1);
       y[1] = 4 * x2 - x1 - x1 * Math.sin(x2) - Math.sin(x1);
@@ -74,9 +74,9 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
     final DoubleMatrix1D fdBackGrad = BACKWARD.differentiate(F).evaluate(x);
 
     for (int i = 0; i < 2; i++) {
-      assertEquals(fdFwdGrad.getEntry(i), anGrad.getEntry(i), 10 * EPS);
-      assertEquals(fdCentGrad.getEntry(i), anGrad.getEntry(i), EPS * EPS);
-      assertEquals(fdBackGrad.getEntry(i), anGrad.getEntry(i), 10 * EPS);
+      assertEquals(fdFwdGrad.get(i), anGrad.get(i), 10 * EPS);
+      assertEquals(fdCentGrad.get(i), anGrad.get(i), EPS * EPS);
+      assertEquals(fdBackGrad.get(i), anGrad.get(i), 10 * EPS);
     }
   }
 
@@ -93,7 +93,7 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
       final DoubleMatrix1D fdRes = fdGradFunc.evaluate(x[k]);
       final DoubleMatrix1D alRes = G.evaluate(x[k]);
       for (int i = 0; i < 2; i++) {
-        assertEquals(fdRes.getEntry(i), alRes.getEntry(i), 1e-7);
+        assertEquals(fdRes.get(i), alRes.get(i), 1e-7);
       }
     }
   }

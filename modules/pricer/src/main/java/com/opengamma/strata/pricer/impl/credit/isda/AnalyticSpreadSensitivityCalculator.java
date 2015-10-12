@@ -215,7 +215,7 @@ public class AnalyticSpreadSensitivityCalculator {
     ArgChecker.isTrue(m == cdsCoupon.length, m + " CDSs but " + cdsCoupon.length + " coupons");
     LUDecompositionCommons decomp = new LUDecompositionCommons();
     int n = bucketCDSs.length;
-    DoubleMatrix2D jacT = new DoubleMatrix2D(n, n);
+    DoubleMatrix2D jacT = DoubleMatrix2D.filled(n, n);
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
         jacT.getData()[j][i] = _pricer.parSpreadCreditSensitivity(bucketCDSs[i], yieldCurve, creditCurve, j);

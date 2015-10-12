@@ -545,8 +545,8 @@ public class PiecewisePolynomialFunction2D {
    */
   private double getValue(DoubleMatrix2D coefMat, double x0, double x1, double leftKnot0, double leftKnot1) {
 
-    int order0 = coefMat.getNumberOfRows();
-    int order1 = coefMat.getNumberOfColumns();
+    int order0 = coefMat.rowCount();
+    int order1 = coefMat.columnCount();
     double x0Mod = x0 - leftKnot0;
     double x1Mod = x1 - leftKnot1;
     double res = 0.;

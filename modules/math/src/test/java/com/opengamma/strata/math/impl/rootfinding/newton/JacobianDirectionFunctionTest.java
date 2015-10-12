@@ -47,9 +47,9 @@ public class JacobianDirectionFunctionTest {
   public void test() {
     double eps = 1e-9;
     DoubleMatrix1D direction = F.getDirection(M, Y);
-    assertEquals(direction.getEntry(0), 1. / X0, eps);
-    assertEquals(direction.getEntry(1), 1. / X1, eps);
-    assertEquals(direction.getEntry(2), 1. / X2, eps);
+    assertEquals(direction.get(0), 1. / X0, eps);
+    assertEquals(direction.get(1), 1. / X1, eps);
+    assertEquals(direction.get(2), 1. / X2, eps);
   }
 
 }

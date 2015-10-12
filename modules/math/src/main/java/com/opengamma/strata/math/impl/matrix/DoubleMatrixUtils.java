@@ -21,12 +21,12 @@ public final class DoubleMatrixUtils {
    * @return The transposed matrix
    */
   public static DoubleMatrix2D getTranspose(DoubleMatrix2D matrix) {
-    int rows = matrix.getNumberOfRows();
-    int columns = matrix.getNumberOfColumns();
+    int rows = matrix.rowCount();
+    int columns = matrix.columnCount();
     double[][] primitives = new double[columns][rows];
     for (int i = 0; i < columns; i++) {
       for (int j = 0; j < rows; j++) {
-        primitives[i][j] = matrix.getEntry(j, i);
+        primitives[i][j] = matrix.get(j, i);
       }
     }
     return new DoubleMatrix2D(primitives);
@@ -65,7 +65,7 @@ public final class DoubleMatrixUtils {
     }
     double[][] data = new double[n][n];
     for (int i = 0; i < n; i++) {
-      data[i][i] = vector.getEntry(i);
+      data[i][i] = vector.get(i);
     }
     return new DoubleMatrix2D(data);
   }

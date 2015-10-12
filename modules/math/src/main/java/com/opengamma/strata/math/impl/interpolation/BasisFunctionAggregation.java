@@ -50,7 +50,7 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
   public DoubleMatrix1D weightSensitivity(final T x) {
     ArgChecker.notNull(x, "x");
     final int n = _w.length;
-    final DoubleMatrix1D res = new DoubleMatrix1D(n);
+    final DoubleMatrix1D res = DoubleMatrix1D.filled(n);
     final double[] data = res.getData();
     for (int i = 0; i < n; i++) {
       data[i] = _f.get(i).evaluate(x);
@@ -67,7 +67,7 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
     ArgChecker.notNull(x, "x");
     final int n = _w.length;
     double sum = 0;
-    final DoubleMatrix1D sense = new DoubleMatrix1D(n);
+    final DoubleMatrix1D sense = DoubleMatrix1D.filled(n);
     final double[] data = sense.getData();
     for (int i = 0; i < n; i++) {
       final double temp = _f.get(i).evaluate(x);

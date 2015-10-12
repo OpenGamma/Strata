@@ -304,7 +304,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
 
       DoubleMatrix1D w = luRes.solve(vLambda);
       for (int j = 0; j < nPillars; j++) {
-        System.out.print("\t" + w.getEntry(j));
+        System.out.print("\t" + w.get(j));
       }
       System.out.print("\n");
     }

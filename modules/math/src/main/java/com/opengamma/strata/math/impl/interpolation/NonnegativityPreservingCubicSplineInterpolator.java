@@ -147,13 +147,13 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
       coefMatrix[i] = new DoubleMatrix2D(_solver.solve(yValuesSrt, intervals, slopes, first));
     }
 
-    final int nIntervals = coefMatrix[0].getNumberOfRows();
-    final int nCoefs = coefMatrix[0].getNumberOfColumns();
+    final int nIntervals = coefMatrix[0].rowCount();
+    final int nCoefs = coefMatrix[0].columnCount();
     double[][] resMatrix = new double[dim * nIntervals][nCoefs];
 
     for (int i = 0; i < nIntervals; ++i) {
       for (int j = 0; j < dim; ++j) {
-        resMatrix[dim * i + j] = coefMatrix[j].getRowVector(i).getData();
+        resMatrix[dim * i + j] = coefMatrix[j].row(i).getData();
       }
     }
 
@@ -214,11 +214,11 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
 
     for (int k = 0; k < nDataPts; k++) {
       DoubleMatrix2D m = resMatrix[k];
-      final int rows = m.getNumberOfRows();
-      final int cols = m.getNumberOfColumns();
+      final int rows = m.rowCount();
+      final int cols = m.columnCount();
       for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-          ArgChecker.isTrue(Doubles.isFinite(m.getEntry(i, j)), "Matrix contains a NaN or infinite");
+          ArgChecker.isTrue(Doubles.isFinite(m.get(i, j)), "Matrix contains a NaN or infinite");
         }
       }
     }
@@ -226,7 +226,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
     final DoubleMatrix2D coefMatrix = resMatrix[0];
     final DoubleMatrix2D[] coefSenseMatrix = new DoubleMatrix2D[nDataPts - 1];
     System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, nDataPts - 1);
-    final int nCoefs = coefMatrix.getNumberOfColumns();
+    final int nCoefs = coefMatrix.columnCount();
 
     return new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
   }

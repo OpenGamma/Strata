@@ -320,10 +320,10 @@ public abstract class MatrixAlgebra {
    */
   public DoubleMatrix2D matrixTransposeMultiplyMatrix(DoubleMatrix2D a) {
     ArgChecker.notNull(a, "a");
-    int n = a.getNumberOfRows();
-    int m = a.getNumberOfColumns();
+    int n = a.rowCount();
+    int m = a.columnCount();
 
-    DoubleMatrix2D res = new DoubleMatrix2D(m, m);
+    DoubleMatrix2D res = DoubleMatrix2D.filled(m, m);
     double[][] data = res.getData();
     double[][] aData = a.getData();
 

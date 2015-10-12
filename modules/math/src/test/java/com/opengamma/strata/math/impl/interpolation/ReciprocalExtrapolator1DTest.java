@@ -59,7 +59,7 @@ public class ReciprocalExtrapolator1DTest {
         InterpolatorTestUtil.assertArrayRelative("notClampedTest", xValues, data.getKeys(), EPS);
         InterpolatorTestUtil.assertArrayRelative("notClampedTest", yValues, data.getValues(), EPS);
         /* left extrapolation */
-        double grad = FUNC.differentiate(result, xValues[0]).getEntry(0);
+        double grad = FUNC.differentiate(result, xValues[0]).get(0);
         for (int j = 1; j < nKeys; ++j) {
           double key = xValues[0] - interval * j;
           double ref = grad * (key - xValues[0]) + yValues[0] * xValues[0];
@@ -96,7 +96,7 @@ public class ReciprocalExtrapolator1DTest {
         /* right extrapolation */
         for (int j = 1; j < nKeys; ++j) {
           double key = xValues[nData - 1] + interval * j;
-          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(result, key).getEntry(0) / key,
+          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(result, key).get(0) / key,
               extrap1D.extrapolate(data, key, interpolator1D), EPS);
           double keyUp = key + DELTA;
           double keyDw = key - DELTA;
@@ -157,7 +157,7 @@ public class ReciprocalExtrapolator1DTest {
         Interpolator1DDataBundle data = interpolator1D.getDataBundleFromSortedArrays(xValues, yValues);
         InterpolatorTestUtil.assertArrayRelative("notClampedTest", xValues, data.getKeys(), EPS);
         InterpolatorTestUtil.assertArrayRelative("notClampedTest", yValues, data.getValues(), EPS);
-        double grad = FUNC.differentiate(result, xValues[0]).getEntry(0);
+        double grad = FUNC.differentiate(result, xValues[0]).get(0);
         /* left extrapolation */
         for (int j = 1; j < nKeys; ++j) {
           double key = xValues[0] - interval * j;
@@ -198,7 +198,7 @@ public class ReciprocalExtrapolator1DTest {
           double key = xValues[nData - 1] + interval * j;
           InterpolatorTestUtil.assertRelative(
               "notClampedTest " + k,
-              FUNC.evaluate(result, key).getEntry(0) / key,
+              FUNC.evaluate(result, key).get(0) / key,
               extrap1D.extrapolate(data, key, interpolator1D),
               EPS);
           double keyUp = key + DELTA;

@@ -69,26 +69,26 @@ public abstract class SVDecompositionCalculationTestCase {
   }
 
   private void checkEquals(final DoubleMatrix2D x, final DoubleMatrix2D y) {
-    final int n = x.getNumberOfRows();
-    final int m = x.getNumberOfColumns();
-    assertEquals(n, y.getNumberOfRows());
-    assertEquals(m, y.getNumberOfColumns());
+    final int n = x.rowCount();
+    final int m = x.columnCount();
+    assertEquals(n, y.rowCount());
+    assertEquals(m, y.columnCount());
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < m; j++) {
-        assertEquals(x.getEntry(i, j), y.getEntry(i, j), EPS);
+        assertEquals(x.get(i, j), y.get(i, j), EPS);
       }
     }
   }
 
   private void checkIdentity(final DoubleMatrix2D x) {
-    final int n = x.getNumberOfRows();
-    assertEquals(x.getNumberOfColumns(), n);
+    final int n = x.rowCount();
+    assertEquals(x.columnCount(), n);
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
         if (i == j) {
-          assertEquals(1.0, x.getEntry(i, i), EPS);
+          assertEquals(1.0, x.get(i, i), EPS);
         } else {
-          assertEquals(0.0, x.getEntry(i, j), EPS);
+          assertEquals(0.0, x.get(i, j), EPS);
         }
       }
     }

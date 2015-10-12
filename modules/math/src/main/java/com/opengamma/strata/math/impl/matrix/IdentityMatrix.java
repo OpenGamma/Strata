@@ -18,15 +18,20 @@ public class IdentityMatrix extends DoubleMatrix2D {
   private static final long serialVersionUID = 1L;
 
   public IdentityMatrix(int size) {
-    super(size, size);
+    super(build(size), size, size);
+  }
+
+  private static double[][] build(int size) {
     ArgChecker.isTrue(size > 0, "size must be > 0");
+    double[][] array = new double[size][size];
     for (int i = 0; i < size; i++) {
-      getData()[i][i] = 1.0;
+      array[i][i] = 1.0;
     }
+    return array;
   }
 
   @Override
-  public double getEntry(int index1, int index2) {
+  public double get(int index1, int index2) {
     return index1 == index2 ? 1.0 : 0.0;
   }
 

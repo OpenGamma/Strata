@@ -125,7 +125,7 @@ public class NonLinearLeastSquareWithPenalty {
 
     int n = observedValues.size();
     VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
-    return solve(observedValues, new DoubleMatrix1D(n, 1.0), func, jac.differentiate(func), startPos, penalty);
+    return solve(observedValues, DoubleMatrix1D.filled(n, 1.0), func, jac.differentiate(func), startPos, penalty);
   }
 
   /**
@@ -326,7 +326,7 @@ public class NonLinearLeastSquareWithPenalty {
       DoubleMatrix1D newTheta,
       DoubleMatrix1D sigma) {
 
-    DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.getNumberOfRows()));
+    DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.rowCount()));
     DoubleMatrix2D bT = getBTranspose(jacobian, sigma);
     DoubleMatrix2D inverseJacobian = decmp.solve(bT);
     return new LeastSquareWithPenaltyResults(chiSqr, penalty, newTheta, covariance, inverseJacobian);
@@ -345,22 +345,22 @@ public class NonLinearLeastSquareWithPenalty {
             ") and observed (" + n + ")");
     double[] res = new double[n];
     for (int i = 0; i < n; i++) {
-      res[i] = (observedValues.getEntry(i) - modelValues.getEntry(i)) / sigma.getEntry(i);
+      res[i] = (observedValues.get(i) - modelValues.get(i)) / sigma.get(i);
     }
 
     return new DoubleMatrix1D(res);
   }
 
   private DoubleMatrix2D getBTranspose(DoubleMatrix2D jacobian, DoubleMatrix1D sigma) {
-    int n = jacobian.getNumberOfRows();
-    int m = jacobian.getNumberOfColumns();
+    int n = jacobian.rowCount();
+    int m = jacobian.columnCount();
 
-    DoubleMatrix2D res = new DoubleMatrix2D(m, n);
+    DoubleMatrix2D res = DoubleMatrix2D.filled(m, n);
     double[][] data = res.getData();
     double[][] jacData = jacobian.getData();
 
     for (int i = 0; i < n; i++) {
-      double sigmaInv = 1.0 / sigma.getEntry(i);
+      double sigmaInv = 1.0 / sigma.get(i);
       for (int k = 0; k < m; k++) {
         data[k][i] = jacData[i][k] * sigmaInv;
       }
@@ -371,13 +371,13 @@ public class NonLinearLeastSquareWithPenalty {
   private DoubleMatrix2D getJacobian(Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, DoubleMatrix1D sigma, DoubleMatrix1D theta) {
     DoubleMatrix2D res = jac.evaluate(theta);
     double[][] data = res.getData();
-    int n = res.getNumberOfRows();
-    int m = res.getNumberOfColumns();
+    int n = res.rowCount();
+    int m = res.columnCount();
     ArgChecker.isTrue(theta.size() == m, "Jacobian is wrong size");
     ArgChecker.isTrue(sigma.size() == n, "Jacobian is wrong size");
 
     for (int i = 0; i < n; i++) {
-      double sigmaInv = 1.0 / sigma.getEntry(i);
+      double sigmaInv = 1.0 / sigma.get(i);
       for (int j = 0; j < m; j++) {
         data[i][j] *= sigmaInv;
       }
@@ -395,7 +395,7 @@ public class NonLinearLeastSquareWithPenalty {
 
   private DoubleMatrix2D getModifiedCurvatureMatrix(DoubleMatrix2D jacobian, double lambda, DoubleMatrix2D penalty) {
     double onePLambda = 1.0 + lambda;
-    int m = jacobian.getNumberOfColumns();
+    int m = jacobian.columnCount();
     DoubleMatrix2D alpha = (DoubleMatrix2D) MA.add(MA.matrixTransposeMultiplyMatrix(jacobian), penalty);
     // scale the diagonal
     double[][] data = alpha.getData();

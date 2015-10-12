@@ -45,12 +45,12 @@ public class OGMatrixAlgebraTest {
   @Test
   public void testOuterProduct() {
     final DoubleMatrix2D res = ALGEBRA.getOuterProduct(E, F);
-    final int rows = res.getNumberOfRows();
-    final int cols = res.getNumberOfColumns();
+    final int rows = res.rowCount();
+    final int cols = res.columnCount();
     int i, j;
     for (i = 0; i < rows; i++) {
       for (j = 0; j < cols; j++) {
-        assertEquals(res.getEntry(i, j), E.getEntry(i) * F.getEntry(j), 1e-15);
+        assertEquals(res.get(i, j), E.get(i) * F.get(j), 1e-15);
       }
     }
 
@@ -59,19 +59,19 @@ public class OGMatrixAlgebraTest {
   @Test
   public void testMultiply() {
     final DoubleMatrix2D c = (DoubleMatrix2D) ALGEBRA.multiply(A, B);
-    final int rows = c.getNumberOfRows();
-    final int cols = c.getNumberOfColumns();
+    final int rows = c.rowCount();
+    final int cols = c.columnCount();
     int i, j;
     for (i = 0; i < rows; i++) {
       for (j = 0; j < cols; j++) {
-        assertEquals(c.getEntry(i, j), C.getEntry(i, j), 1e-15);
+        assertEquals(c.get(i, j), C.get(i, j), 1e-15);
       }
     }
 
     final DoubleMatrix1D d = (DoubleMatrix1D) ALGEBRA.multiply(A, D);
-    assertEquals(6, d.getEntry(0), 1e-15);
-    assertEquals(0, d.getEntry(1), 1e-15);
-    assertEquals(-3, d.getEntry(2), 1e-15);
+    assertEquals(6, d.get(0), 1e-15);
+    assertEquals(0, d.get(1), 1e-15);
+    assertEquals(-3, d.get(2), 1e-15);
   }
 
   @Test
@@ -98,7 +98,7 @@ public class OGMatrixAlgebraTest {
     DoubleMatrix1D y2 = (DoubleMatrix1D) ALGEBRA.multiply(full, xVec);
 
     for (int i = 0; i < n; i++) {
-      assertEquals(y1.getEntry(i), y2.getEntry(i), 1e-12);
+      assertEquals(y1.get(i), y2.get(i), 1e-12);
     }
 
   }
@@ -106,11 +106,11 @@ public class OGMatrixAlgebraTest {
   @Test
   public void testTranspose() {
     final DoubleMatrix2D a = new DoubleMatrix2D(new double[][] { {1, 2 }, {3, 4 }, {5, 6 } });
-    assertEquals(3, a.getNumberOfRows());
-    assertEquals(2, a.getNumberOfColumns());
+    assertEquals(3, a.rowCount());
+    assertEquals(2, a.columnCount());
     DoubleMatrix2D aT = ALGEBRA.getTranspose(a);
-    assertEquals(2, aT.getNumberOfRows());
-    assertEquals(3, aT.getNumberOfColumns());
+    assertEquals(2, aT.rowCount());
+    assertEquals(3, aT.columnCount());
 
   }
 

@@ -45,12 +45,12 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
 
     double s = xKey - knots[interval];
     DoubleMatrix2D a = pp.getCoefficientSensitivity(interval);
-    int nCoefs = a.getNumberOfRows();
+    int nCoefs = a.rowCount();
 
-    DoubleMatrix1D res = a.getRowVector(0);
+    DoubleMatrix1D res = a.row(0);
     for (int i = 1; i < nCoefs; i++) {
       res = (DoubleMatrix1D) MA.scale(res, s);
-      res = (DoubleMatrix1D) MA.add(res, a.getRowVector(i));
+      res = (DoubleMatrix1D) MA.add(res, a.row(i));
     }
 
     return res;
@@ -89,12 +89,12 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
 
       double s = xKey - knots[interval];
       DoubleMatrix2D a = pp.getCoefficientSensitivity(interval);
-      int nCoefs = a.getNumberOfRows();
+      int nCoefs = a.rowCount();
 
-      res[j] = a.getRowVector(0);
+      res[j] = a.row(0);
       for (int i = 1; i < nCoefs; i++) {
         res[j] = (DoubleMatrix1D) MA.scale(res[j], s);
-        res[j] = (DoubleMatrix1D) MA.add(res[j], a.getRowVector(i));
+        res[j] = (DoubleMatrix1D) MA.add(res[j], a.row(i));
       }
     }
 
@@ -130,10 +130,10 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
     double s = xKey - knots[interval];
     DoubleMatrix2D a = pp.getCoefficientSensitivity(interval);
 
-    DoubleMatrix1D res = (DoubleMatrix1D) MA.scale(a.getRowVector(0), nCoefs - 1);
+    DoubleMatrix1D res = (DoubleMatrix1D) MA.scale(a.row(0), nCoefs - 1);
     for (int i = 1; i < nCoefs - 1; i++) {
       res = (DoubleMatrix1D) MA.scale(res, s);
-      res = (DoubleMatrix1D) MA.add(res, MA.scale(a.getRowVector(i), nCoefs - 1 - i));
+      res = (DoubleMatrix1D) MA.add(res, MA.scale(a.row(i), nCoefs - 1 - i));
     }
 
     return res;
@@ -158,7 +158,7 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
 
     DoubleMatrix2D[] diffSense = new DoubleMatrix2D[nIntervals];
     DoubleMatrix2D[] senseMat = pp.getCoefficientSensitivityAll();
-    int nData = senseMat[0].getNumberOfColumns();
+    int nData = senseMat[0].columnCount();
     for (int i = 0; i < nIntervals; ++i) {
       double[][] senseMatArray = senseMat[i].toArray();
       double[][] tmp = new double[nCoefs - 1][nData];
@@ -204,10 +204,10 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
     double s = xKey - knots[interval];
     DoubleMatrix2D a = pp.getCoefficientSensitivity(interval);
 
-    DoubleMatrix1D res = (DoubleMatrix1D) MA.scale(a.getRowVector(0), (nCoefs - 1) * (nCoefs - 2));
+    DoubleMatrix1D res = (DoubleMatrix1D) MA.scale(a.row(0), (nCoefs - 1) * (nCoefs - 2));
     for (int i = 1; i < nCoefs - 2; i++) {
       res = (DoubleMatrix1D) MA.scale(res, s);
-      res = (DoubleMatrix1D) MA.add(res, MA.scale(a.getRowVector(i), (nCoefs - 1 - i) * (nCoefs - 2 - i)));
+      res = (DoubleMatrix1D) MA.add(res, MA.scale(a.row(i), (nCoefs - 1 - i) * (nCoefs - 2 - i)));
     }
 
     return res;
@@ -232,7 +232,7 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
 
     DoubleMatrix2D[] diffSense = new DoubleMatrix2D[nIntervals];
     DoubleMatrix2D[] senseMat = pp.getCoefficientSensitivityAll();
-    int nData = senseMat[0].getNumberOfColumns();
+    int nData = senseMat[0].columnCount();
     for (int i = 0; i < nIntervals; ++i) {
       double[][] senseMatArray = senseMat[i].toArray();
       double[][] tmp = new double[nCoefs - 2][nData];

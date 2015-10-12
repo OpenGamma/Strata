@@ -63,7 +63,7 @@ public class ProductPolynomialExtrapolator1DTest {
         /* left extrapolation */
         for (int j = 1; j < nKeys; ++j) {
           double key = xValues[0] - interval * j;
-          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(result, key).getEntry(0) / key,
+          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(result, key).get(0) / key,
               extrap1D.extrapolate(data, key, interpolator1D), EPS);
           double keyUp = key + DELTA;
           double keyDw = key - DELTA;
@@ -91,7 +91,7 @@ public class ProductPolynomialExtrapolator1DTest {
         /* right extrapolation */
         for (int j = 1; j < nKeys; ++j) {
           double key = xValues[nData - 1] + interval * j;
-          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(result, key).getEntry(0) / key,
+          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(result, key).get(0) / key,
               extrap1D.extrapolate(data, key, interpolator1D), EPS);
           double keyUp = key + DELTA;
           double keyDw = key - DELTA;
@@ -154,7 +154,7 @@ public class ProductPolynomialExtrapolator1DTest {
           double key = xValues[0] - interval * j;
           InterpolatorTestUtil.assertRelative(
               "notClampedTest",
-              FUNC.evaluate(result, key).getEntry(0) / key,
+              FUNC.evaluate(result, key).get(0) / key,
               extrap1D.extrapolate(data, key, interpolator1D),
               EPS);
           double keyUp = key + DELTA;
@@ -188,7 +188,7 @@ public class ProductPolynomialExtrapolator1DTest {
           double key = xValues[nData - 1] + interval * j;
           InterpolatorTestUtil.assertRelative(
               "notClampedTest",
-              FUNC.evaluate(result, key).getEntry(0) / key,
+              FUNC.evaluate(result, key).get(0) / key,
               extrap1D.extrapolate(data, key, interpolator1D),
               EPS);
           double keyUp = key + DELTA;

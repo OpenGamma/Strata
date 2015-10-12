@@ -178,20 +178,6 @@ public class DoubleMatrix2D implements Matrix, Serializable {
   //-------------------------------------------------------------------------
   // start of old code to be removed
   /**
-   * Sets up an empty matrix
-   * @param rows Number of rows
-   * @param columns Number of columns
-   */
-  public DoubleMatrix2D(int rows, int columns) {
-    ArgChecker.isTrue(rows > 0, "row number cannot be negative or zero");
-    ArgChecker.isTrue(columns > 0, "column number cannot be negative or zero");
-    this.rows = rows;
-    this.columns = columns;
-    this.array = new double[rows][columns];
-    this.elements = rows * columns;
-  }
-
-  /**
    * @param data The data, not null. The data is expected in row-column form.
    * @throws IllegalArgumentException If the matrix is not rectangular
    */
@@ -214,86 +200,12 @@ public class DoubleMatrix2D implements Matrix, Serializable {
   }
 
   /**
-   * @param data The data, not null. The data is expected in row-column form.
-   * @throws IllegalArgumentException If the matrix is not rectangular
-   */
-  public DoubleMatrix2D(Double[][] data) {
-    ArgChecker.notNull(data, "data");
-    if (data.length == 0) {
-      this.array = new double[0][0];
-      this.elements = 0;
-      this.rows = 0;
-      this.columns = 0;
-    } else {
-      this.rows = data.length;
-      this.columns = data[0].length;
-      this.array = new double[rows][columns];
-      for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < columns; j++) {
-          this.array[i][j] = data[i][j];
-        }
-      }
-      this.elements = rows * columns;
-    }
-  }
-
-  /**
-   * Returns the row for a particular index.
-   * @param index The index
-   * @return The row
-   */
-  public DoubleMatrix1D getRowVector(final int index) {
-    return new DoubleMatrix1D(array[index]);
-  }
-
-  /**
-   * Returns the column for a particular index.
-   * @param index The index
-   * @return The column
-   */
-  public DoubleMatrix1D getColumnVector(final int index) {
-    final double[] res = new double[rows];
-    for (int i = 0; i < rows; i++) {
-      res[i] = array[i][index];
-    }
-    return new DoubleMatrix1D(res);
-  }
-
-  /**
-   * Gets the value at the specified index in this array.
-   * 
-   * @param index1  the first zero-based index to retrieve
-   * @param index2  the second zero-based index to retrieve
-   * @return the value at the index
-   * @throws IndexOutOfBoundsException if the index is invalid
-   */
-  public double getEntry(int index1, int index2) {
-    ArgChecker.isTrue(index1 < array.length, "x index {} is greater than length of array {}", index1, array.length);
-    ArgChecker.isTrue(index2 < array[0].length, "y index {} is greater than length of array {}", index2, array[0].length);
-    return array[index1][index2];
-  }
-
-  /**
    * Returns the underlying matrix data. If this is changed so is the matrix.
    * @see #toArray to get a copy of data
    * @return An array of arrays containing the matrix elements
    */
   public double[][] getData() {
     return array;
-  }
-
-  /**
-   * @return The number of rows in this matrix
-   */
-  public int getNumberOfRows() {
-    return rows;
-  }
-
-  /**
-   * @return The number of columns in this matrix
-   */
-  public int getNumberOfColumns() {
-    return columns;
   }
 
   // end of old code to be removed
