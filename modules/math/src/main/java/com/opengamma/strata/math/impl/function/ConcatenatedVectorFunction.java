@@ -54,8 +54,8 @@ public class ConcatenatedVectorFunction extends VectorFunction {
   public DoubleMatrix2D calculateJacobian(DoubleMatrix1D x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(
-        x.getNumberOfElements() == getLengthOfDomain(),
-        "Incorrect length of x. Is {} but should be {}", x.getNumberOfElements(), getLengthOfDomain());
+        x.size() == getLengthOfDomain(),
+        "Incorrect length of x. Is {} but should be {}", x.size(), getLengthOfDomain());
 
     DoubleMatrix1D[] subX = partition(x);
     DoubleMatrix2D jac = new DoubleMatrix2D(getLengthOfRange(), getLengthOfDomain());
@@ -82,8 +82,8 @@ public class ConcatenatedVectorFunction extends VectorFunction {
   public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(
-        x.getNumberOfElements() == getLengthOfDomain(),
-        "Incorrect length of x. Is {} but should be {}", x.getNumberOfElements(), getLengthOfDomain());
+        x.size() == getLengthOfDomain(),
+        "Incorrect length of x. Is {} but should be {}", x.size(), getLengthOfDomain());
     DoubleMatrix1D[] subX = partition(x);
     double[] y = new double[getLengthOfRange()];
     int pos = 0;

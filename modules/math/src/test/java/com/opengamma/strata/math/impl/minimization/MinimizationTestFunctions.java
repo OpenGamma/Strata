@@ -36,7 +36,7 @@ public abstract class MinimizationTestFunctions {
 
     @Override
     public Double evaluate(final DoubleMatrix1D x) {
-      final int n = x.getNumberOfElements();
+      final int n = x.size();
       if (n % 2 != 0) {
         throw new IllegalArgumentException("vector length must be even");
       }
@@ -52,7 +52,7 @@ public abstract class MinimizationTestFunctions {
 
     @Override
     public Double evaluate(DoubleMatrix1D x) {
-      int n = x.getNumberOfElements();
+      int n = x.size();
 
       double sum = 0;
       for (int i = 0; i < n - 1; i++) {
@@ -66,7 +66,7 @@ public abstract class MinimizationTestFunctions {
 
     @Override
     public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-      int n = x.getNumberOfElements();
+      int n = x.size();
 
       double[] res = new double[n];
       res[0] = 2 * (x.getEntry(0) - 1) + 400 * x.getEntry(0) * (FunctionUtils.square(x.getEntry(0)) - x.getEntry(1));

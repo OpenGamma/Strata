@@ -22,15 +22,14 @@ public class MatrixAlgebraImplementationTest {
   private static final DoubleMatrix1D M2 = new DoubleMatrix1D(new double[] {3, 4 });
   private static final DoubleMatrix2D M3 = new DoubleMatrix2D(new double[][] {new double[] {1, 2 }, new double[] {2, 1 } });
   private static final DoubleMatrix2D M4 = new DoubleMatrix2D(new double[][] {new double[] {5, 6 }, new double[] {7, 8 } });
-  private static final Matrix<?> M5 = new Matrix<Double>() {
-
+  private static final Matrix M5 = new Matrix() {
     @Override
-    public Double getEntry(final int... indices) {
-      return null;
+    public int dimensions() {
+      return 1;
     }
 
     @Override
-    public int getNumberOfElements() {
+    public int size() {
       return 0;
     }
 
@@ -263,13 +262,13 @@ public class MatrixAlgebraImplementationTest {
     assertMatrixEquals(COMMONS.getPower(M3, 3), COMMONS.multiply(M3, COMMONS.multiply(M3, M3)));
   }
 
-  private void assertMatrixEquals(final Matrix<?> m1, final Matrix<?> m2) {
+  private void assertMatrixEquals(final Matrix m1, final Matrix m2) {
     if (m1 instanceof DoubleMatrix1D) {
       assertTrue(m2 instanceof DoubleMatrix1D);
       final DoubleMatrix1D m3 = (DoubleMatrix1D) m1;
       final DoubleMatrix1D m4 = (DoubleMatrix1D) m2;
-      assertEquals(m3.getNumberOfElements(), m4.getNumberOfElements());
-      for (int i = 0; i < m3.getNumberOfElements(); i++) {
+      assertEquals(m3.size(), m4.size());
+      for (int i = 0; i < m3.size(); i++) {
         assertEquals(m3.getEntry(i), m4.getEntry(i), EPS);
       }
       return;
@@ -277,7 +276,7 @@ public class MatrixAlgebraImplementationTest {
     if (m2 instanceof DoubleMatrix2D) {
       final DoubleMatrix2D m3 = (DoubleMatrix2D) m1;
       final DoubleMatrix2D m4 = (DoubleMatrix2D) m2;
-      assertEquals(m3.getNumberOfElements(), m4.getNumberOfElements());
+      assertEquals(m3.size(), m4.size());
       assertEquals(m3.getNumberOfRows(), m4.getNumberOfRows());
       assertEquals(m3.getNumberOfColumns(), m4.getNumberOfColumns());
       for (int i = 0; i < m3.getNumberOfRows(); i++) {

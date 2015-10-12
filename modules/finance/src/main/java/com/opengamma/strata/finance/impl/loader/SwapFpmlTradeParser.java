@@ -190,13 +190,9 @@ final class SwapFpmlTradeParser
     if (!bda.equals(endDate.getAdjustment())) {
       accrualScheduleBuilder.endDateBusinessDayAdjustment(endDate.getAdjustment());
     }
-    // first date (overwrites the start date)
+    // first period start date
     calcPeriodDatesEl.findChild("firstPeriodStartDate").ifPresent(el -> {
-      AdjustableDate actualStartDate = document.parseAdjustableDate(el);
-      accrualScheduleBuilder.startDate(actualStartDate.getUnadjusted());
-      if (!bda.equals(actualStartDate.getAdjustment())) {
-        accrualScheduleBuilder.startDateBusinessDayAdjustment(actualStartDate.getAdjustment());
-      }
+      accrualScheduleBuilder.overrideStartDate(document.parseAdjustableDate(el));
     });
     // first regular date
     calcPeriodDatesEl.findChild("firstRegularPeriodStartDate").ifPresent(el -> {

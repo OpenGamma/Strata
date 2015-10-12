@@ -40,7 +40,7 @@ public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleMa
   @Override
   public LinkedHashMap<String, Interpolator1DDataBundle> evaluate(final DoubleMatrix1D x) {
     ArgChecker.notNull(x, "null data x");
-    ArgChecker.isTrue(_nNodes == x.getNumberOfElements(), "x wrong length");
+    ArgChecker.isTrue(_nNodes == x.size(), "x wrong length");
 
     final LinkedHashMap<String, Interpolator1DDataBundle> res = new LinkedHashMap<>();
     int index = 0;

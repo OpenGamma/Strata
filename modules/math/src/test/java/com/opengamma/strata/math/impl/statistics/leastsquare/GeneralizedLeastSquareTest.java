@@ -80,7 +80,7 @@ public class GeneralizedLeastSquareTest {
       final Function1D<DoubleMatrix1D, Double> func = new Function1D<DoubleMatrix1D, Double>() {
         @Override
         public Double evaluate(final DoubleMatrix1D x) {
-          ArgChecker.isTrue(x.getNumberOfElements() == 2);
+          ArgChecker.isTrue(x.size() == 2);
           return Math.sin((2 * k + 1) * x.getEntry(0)) * Math.cos((2 * k + 1) * x.getEntry(1));
         }
       };

@@ -39,8 +39,8 @@ public class PiecewisePolynomialResult2D {
     _knots1 = knots1;
     _coefMatrix = coefMatrix;
     _nIntervals = new int[2];
-    _nIntervals[0] = knots0.getNumberOfElements() - 1;
-    _nIntervals[1] = knots1.getNumberOfElements() - 1;
+    _nIntervals[0] = knots0.size() - 1;
+    _nIntervals[1] = knots1.size() - 1;
     _order = order;
   }
 

@@ -184,7 +184,7 @@ public class HedgeRatioCalculator {
     ArgChecker.notNull(hedgeCDSSensitivities, "hedgeCDSSensitivities");
     int nRows = hedgeCDSSensitivities.getNumberOfRows();
     int nCols = hedgeCDSSensitivities.getNumberOfColumns();
-    ArgChecker.isTrue(nRows == cdsSensitivities.getNumberOfElements(), "Number of matrix rows does not match vector length");
+    ArgChecker.isTrue(nRows == cdsSensitivities.size(), "Number of matrix rows does not match vector length");
     if (nCols == nRows) {
       LUDecompositionCommons decomp = new LUDecompositionCommons();
       LUDecompositionResult luRes = decomp.evaluate(hedgeCDSSensitivities);

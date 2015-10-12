@@ -30,7 +30,7 @@ public class NonLinearTransformFunctionTest {
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FUNCTION = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
     @Override
     public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-      ArgChecker.isTrue(x.getNumberOfElements() == 2);
+      ArgChecker.isTrue(x.size() == 2);
       double x1 = x.getEntry(0);
       double x2 = x.getEntry(1);
       double[] y = new double[3];
@@ -44,7 +44,7 @@ public class NonLinearTransformFunctionTest {
   private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> JACOBIAN = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
     @Override
     public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
-      ArgChecker.isTrue(x.getNumberOfElements() == 2);
+      ArgChecker.isTrue(x.size() == 2);
       double x1 = x.getEntry(0);
       double x2 = x.getEntry(1);
       double[][] y = new double[3][2];
@@ -81,7 +81,7 @@ public class NonLinearTransformFunctionTest {
     DoubleMatrix1D x = new DoubleMatrix1D(new double[] {0.5 });
     final double rootHalf = Math.sqrt(0.5);
     DoubleMatrix1D y = func.evaluate(x);
-    assertEquals(3, y.getNumberOfElements());
+    assertEquals(3, y.size());
     assertEquals(rootHalf * Math.cos(0.5), y.getEntry(0), 1e-9);
     assertEquals(rootHalf * Math.sin(0.5), y.getEntry(1), 1e-9);
     assertEquals(rootHalf, y.getEntry(2), 1e-9);

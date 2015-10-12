@@ -43,7 +43,7 @@ public class InterpolatedCurveVectorFunctionTest {
     DoubleMatrix1D y = vf.evaluate(x);
     DoubleMatrix2D jac = vf.calculateJacobian(x);
     assertEqualsVectors(x, y, 1e-15);
-    assertEqualsMatrix(new IdentityMatrix(x.getNumberOfElements()), jac, 1e-15);
+    assertEqualsMatrix(new IdentityMatrix(x.size()), jac, 1e-15);
 
     final double[] samplePoints = new double[] {-2, -1, 0, 1, 2, 3, 4 };
     vf = new InterpolatedCurveVectorFunction(samplePoints, interpolator, knots);
@@ -153,7 +153,7 @@ public class InterpolatedCurveVectorFunctionTest {
     System.arraycopy(x2.getData(), 0, x.getData(), nKnots1, nKnots2);
     final DoubleMatrix1D y = vf.evaluate(x);
 
-    assertEquals(samplePoints.length * 3, y.getNumberOfElements());
+    assertEquals(samplePoints.length * 3, y.size());
     final DoubleMatrix2D jac = vf.calculateJacobian(x);
 
     assertEquals(samplePoints.length * 3, jac.getNumberOfRows());

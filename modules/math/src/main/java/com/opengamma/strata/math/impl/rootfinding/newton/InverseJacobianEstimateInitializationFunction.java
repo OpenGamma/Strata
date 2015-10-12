@@ -31,7 +31,7 @@ public class InverseJacobianEstimateInitializationFunction implements NewtonRoot
     ArgChecker.notNull(x, "x");
     DoubleMatrix2D estimate = jacobianFunction.evaluate(x);
     DecompositionResult decompositionResult = _decomposition.evaluate(estimate);
-    return decompositionResult.solve(DoubleMatrixUtils.getIdentityMatrix2D(x.getNumberOfElements()));
+    return decompositionResult.solve(DoubleMatrixUtils.getIdentityMatrix2D(x.size()));
   }
 
 }

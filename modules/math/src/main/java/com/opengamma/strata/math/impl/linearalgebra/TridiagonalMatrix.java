@@ -25,7 +25,7 @@ import com.opengamma.strata.math.impl.matrix.Matrix;
  * \end{align*}
  * $$
  */
-public class TridiagonalMatrix implements Matrix<Double> {
+public class TridiagonalMatrix implements Matrix {
 
   private final double[] _a;
   private final double[] _b;
@@ -156,12 +156,16 @@ public class TridiagonalMatrix implements Matrix<Double> {
   }
 
   @Override
-  public int getNumberOfElements() {
-    return _a.length;
+  public int dimensions() {
+    return 2;
   }
 
   @Override
-  public Double getEntry(int... index) {
+  public int size() {
+    return _a.length;
+  }
+
+  public double getEntry(int... index) {
     ArgChecker.notNull(index, "indices");
     int n = _a.length;
     int i = index[0];

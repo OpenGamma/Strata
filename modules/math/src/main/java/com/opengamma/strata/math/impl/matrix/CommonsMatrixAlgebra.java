@@ -19,7 +19,7 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
 public class CommonsMatrixAlgebra extends MatrixAlgebra {
 
   @Override
-  public double getCondition(Matrix<?> m) {
+  public double getCondition(Matrix m) {
     ArgChecker.notNull(m, "m");
     if (m instanceof DoubleMatrix2D) {
       RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
@@ -30,7 +30,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
   }
 
   @Override
-  public double getDeterminant(Matrix<?> m) {
+  public double getDeterminant(Matrix m) {
     ArgChecker.notNull(m, "m");
     if (m instanceof DoubleMatrix2D) {
       RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
@@ -41,7 +41,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
   }
 
   @Override
-  public double getInnerProduct(Matrix<?> m1, Matrix<?> m2) {
+  public double getInnerProduct(Matrix m1, Matrix m2) {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
@@ -54,7 +54,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
   }
 
   @Override
-  public DoubleMatrix2D getInverse(Matrix<?> m) {
+  public DoubleMatrix2D getInverse(Matrix m) {
     ArgChecker.notNull(m, "matrix was null");
     if (m instanceof DoubleMatrix2D) {
       RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
@@ -66,7 +66,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
   }
 
   @Override
-  public double getNorm1(Matrix<?> m) {
+  public double getNorm1(Matrix m) {
     ArgChecker.notNull(m, "m");
     if (m instanceof DoubleMatrix1D) {
       RealVector temp = CommonsMathWrapper.wrap((DoubleMatrix1D) m);
@@ -86,7 +86,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
   }
 
   @Override
-  public double getNorm2(Matrix<?> m) {
+  public double getNorm2(Matrix m) {
     ArgChecker.notNull(m, "m");
     if (m instanceof DoubleMatrix1D) {
       RealVector temp = CommonsMathWrapper.wrap((DoubleMatrix1D) m);
@@ -100,7 +100,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
   }
 
   @Override
-  public double getNormInfinity(Matrix<?> m) {
+  public double getNormInfinity(Matrix m) {
     ArgChecker.notNull(m, "m");
     if (m instanceof DoubleMatrix1D) {
       RealVector temp = CommonsMathWrapper.wrap((DoubleMatrix1D) m);
@@ -120,7 +120,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
   }
 
   @Override
-  public DoubleMatrix2D getOuterProduct(Matrix<?> m1, Matrix<?> m2) {
+  public DoubleMatrix2D getOuterProduct(Matrix m1, Matrix m2) {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
@@ -133,7 +133,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
   }
 
   @Override
-  public DoubleMatrix2D getPower(Matrix<?> m, int p) {
+  public DoubleMatrix2D getPower(Matrix m, int p) {
     ArgChecker.notNull(m, "m");
     RealMatrix temp;
     if (m instanceof DoubleMatrix2D) {
@@ -154,12 +154,12 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
    * @return The result
    */
   @Override
-  public DoubleMatrix2D getPower(Matrix<?> m, double p) {
+  public DoubleMatrix2D getPower(Matrix m, double p) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public double getTrace(Matrix<?> m) {
+  public double getTrace(Matrix m) {
     ArgChecker.notNull(m, "m");
     if (m instanceof DoubleMatrix2D) {
       RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
@@ -169,7 +169,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
   }
 
   @Override
-  public DoubleMatrix2D getTranspose(Matrix<?> m) {
+  public DoubleMatrix2D getTranspose(Matrix m) {
     ArgChecker.notNull(m, "m");
     if (m instanceof DoubleMatrix2D) {
       RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
@@ -187,7 +187,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
    * </ul>
    */
   @Override
-  public Matrix<?> multiply(Matrix<?> m1, Matrix<?> m2) {
+  public Matrix multiply(Matrix m1, Matrix m2) {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
     ArgChecker.isTrue(!(m1 instanceof DoubleMatrix1D), "Cannot have 1D matrix as first argument");

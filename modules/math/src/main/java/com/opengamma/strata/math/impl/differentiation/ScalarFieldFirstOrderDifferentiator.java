@@ -69,7 +69,7 @@ public class ScalarFieldFirstOrderDifferentiator
           @Override
           public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
             ArgChecker.notNull(x, "x");
-            int n = x.getNumberOfElements();
+            int n = x.size();
             double y = function.evaluate(x);
             double[] xData = x.getData();
             double oldValue;
@@ -89,7 +89,7 @@ public class ScalarFieldFirstOrderDifferentiator
           @Override
           public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
             ArgChecker.notNull(x, "x");
-            int n = x.getNumberOfElements();
+            int n = x.size();
             double[] xData = x.getData();
             double oldValue;
             double up, down;
@@ -113,7 +113,7 @@ public class ScalarFieldFirstOrderDifferentiator
           public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
             ArgChecker.notNull(x, "x");
             double y = function.evaluate(x);
-            int n = x.getNumberOfElements();
+            int n = x.size();
             double[] xData = x.getData();
             double oldValue;
             double[] res = new double[n];
@@ -151,7 +151,7 @@ public class ScalarFieldFirstOrderDifferentiator
         ArgChecker.notNull(x, "x");
         ArgChecker.isTrue(domain.evaluate(x), "point {} is not in the function domain", x.toString());
 
-        int n = x.getNumberOfElements();
+        int n = x.size();
         double[] xData = x.getData();
         double oldValue;
         double[] y = new double[3];

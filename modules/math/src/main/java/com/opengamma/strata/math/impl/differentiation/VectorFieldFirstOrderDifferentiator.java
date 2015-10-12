@@ -88,8 +88,8 @@ public class VectorFieldFirstOrderDifferentiator
           public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
             ArgChecker.notNull(x, "x");
             DoubleMatrix1D y = function.evaluate(x);
-            int n = x.getNumberOfElements();
-            int m = y.getNumberOfElements();
+            int n = x.size();
+            int m = y.size();
             double[] xData = x.getData();
             double oldValue;
             double[][] res = new double[m][n];
@@ -114,8 +114,8 @@ public class VectorFieldFirstOrderDifferentiator
           public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
             ArgChecker.notNull(x, "x");
             DoubleMatrix1D y = function.evaluate(x); // need this unused evaluation to get size of y
-            int n = x.getNumberOfElements();
-            int m = y.getNumberOfElements();
+            int n = x.size();
+            int m = y.size();
             double[] xData = x.getData();
             double oldValue;
             double[][] res = new double[m][n];
@@ -142,8 +142,8 @@ public class VectorFieldFirstOrderDifferentiator
           public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
             ArgChecker.notNull(x, "x");
             DoubleMatrix1D y = function.evaluate(x);
-            int n = x.getNumberOfElements();
-            int m = y.getNumberOfElements();
+            int n = x.size();
+            int m = y.size();
             double[] xData = x.getData();
             double oldValue;
             double[][] res = new double[m][n];
@@ -186,8 +186,8 @@ public class VectorFieldFirstOrderDifferentiator
         ArgChecker.isTrue(domain.evaluate(x), "point {} is not in the function domain", x.toString());
 
         DoubleMatrix1D mid = function.evaluate(x); // need this unused evaluation to get size of y
-        int n = x.getNumberOfElements();
-        int m = mid.getNumberOfElements();
+        int n = x.size();
+        int m = mid.size();
         double[] xData = x.getData();
         double oldValue;
         double[][] res = new double[m][n];
