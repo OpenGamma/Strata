@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.examples.marketdata;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 import org.joda.beans.Bean;
@@ -16,6 +15,7 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.Unchecked;
 import com.opengamma.strata.math.impl.interpolation.FlatExtrapolator1D;
 import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
 
@@ -59,14 +59,8 @@ public final class LoaderUtils {
    * @param fileName  the file name
    * @return the bean
    */
-  public static Bean loadXmlBean(String fileName) {
-    Bean b = null;
-    try {
-      b = JodaBeanSer.PRETTY.xmlReader().read(new FileReader(fileName));
-    } catch (FileNotFoundException ex) {
-      ex.printStackTrace();
-    }
-    return b;
+  public static <T extends Bean> T loadXmlBean(String fileName, Class<T> type) {
+    return Unchecked.wrap(() -> JodaBeanSer.PRETTY.xmlReader().read(new FileReader(fileName), type));
   }
 
 }
