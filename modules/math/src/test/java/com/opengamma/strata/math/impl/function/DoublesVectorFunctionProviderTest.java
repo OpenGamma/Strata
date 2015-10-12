@@ -27,7 +27,7 @@ public class DoublesVectorFunctionProviderTest {
 
       @Override
       public Double evaluate(final Double x, final DoubleMatrix1D parameters) {
-        return parameters.getEntry(0) + parameters.getEntry(1) * x + parameters.getEntry(2) * x * x;
+        return parameters.get(0) + parameters.get(1) * x + parameters.get(2) * x * x;
       }
 
       @Override

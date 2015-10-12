@@ -269,7 +269,7 @@ public class MatrixAlgebraImplementationTest {
       final DoubleMatrix1D m4 = (DoubleMatrix1D) m2;
       assertEquals(m3.size(), m4.size());
       for (int i = 0; i < m3.size(); i++) {
-        assertEquals(m3.getEntry(i), m4.getEntry(i), EPS);
+        assertEquals(m3.get(i), m4.get(i), EPS);
       }
       return;
     }
@@ -277,11 +277,11 @@ public class MatrixAlgebraImplementationTest {
       final DoubleMatrix2D m3 = (DoubleMatrix2D) m1;
       final DoubleMatrix2D m4 = (DoubleMatrix2D) m2;
       assertEquals(m3.size(), m4.size());
-      assertEquals(m3.getNumberOfRows(), m4.getNumberOfRows());
-      assertEquals(m3.getNumberOfColumns(), m4.getNumberOfColumns());
-      for (int i = 0; i < m3.getNumberOfRows(); i++) {
-        for (int j = 0; j < m3.getNumberOfColumns(); j++) {
-          assertEquals(m3.getEntry(i, j), m4.getEntry(i, j), EPS);
+      assertEquals(m3.rowCount(), m4.rowCount());
+      assertEquals(m3.columnCount(), m4.columnCount());
+      for (int i = 0; i < m3.rowCount(); i++) {
+        for (int j = 0; j < m3.columnCount(); j++) {
+          assertEquals(m3.get(i, j), m4.get(i, j), EPS);
         }
       }
     }

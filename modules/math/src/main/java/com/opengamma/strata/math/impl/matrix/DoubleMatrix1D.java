@@ -5,60 +5,367 @@
  */
 package com.opengamma.strata.math.impl.matrix;
 
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.util.AbstractList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.RandomAccess;
+import java.util.Set;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.DoubleStream;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyStyle;
+import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicMetaProperty;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.DoubleArrayMath;
+import com.opengamma.strata.collect.function.DoubleTenaryOperator;
+import com.opengamma.strata.collect.function.IntDoubleConsumer;
+import com.opengamma.strata.collect.function.IntDoubleToDoubleFunction;
 
 /**
- * A minimal implementation of a vector (in the mathematical sense) that contains doubles.
+ * An immutable array of {@code double} values.
+ * <p>
+ * This provides functionality similar to {@link List} but for {@code double[]}.
+ * <p>
+ * In mathematical terms, this is a vector, or one-dimensional matrix.
  */
-public class DoubleMatrix1D implements Matrix {
-  private final double[] _data;
-  private final int _elements;
-  /** Empty vector */
-  public static final DoubleMatrix1D EMPTY_MATRIX = new DoubleMatrix1D(new double[0]);
+public final class DoubleMatrix1D
+    implements Matrix, ImmutableBean, Serializable {
 
   /**
-   * @param data The data, not null
+   * An empty array.
    */
-  public DoubleMatrix1D(final Double[] data) {
-    ArgChecker.notNull(data, "data");
-    _elements = data.length;
-    _data = new double[_elements];
-    for (int i = 0; i < _elements; i++) {
-      _data[i] = data[i];
+  public static final DoubleMatrix1D EMPTY = new DoubleMatrix1D(new double[0], true);
+
+  /**
+   * Serialization version.
+   */
+  private static final long serialVersionUID = 1L;
+  static {
+    JodaBeanUtils.registerMetaBean(Meta.META);
+  }
+
+  /**
+   * The underlying array of doubles.
+   */
+  private final double[] array;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an empty immutable array.
+   * 
+   * @return the empty immutable array
+   */
+  public static DoubleMatrix1D of() {
+    return EMPTY;
+  }
+
+  /**
+   * Obtains an immutable array with a single value.
+   * 
+   * @param value  the single value
+   * @return an array containing the specified value
+   */
+  public static DoubleMatrix1D of(double value) {
+    return new DoubleMatrix1D(new double[] {value}, true);
+  }
+
+  /**
+   * Obtains an immutable array with two values.
+   * 
+   * @param value1  the first value
+   * @param value2  the second value
+   * @return an array containing the specified values
+   */
+  public static DoubleMatrix1D of(double value1, double value2) {
+    return new DoubleMatrix1D(new double[] {value1, value2}, true);
+  }
+
+  /**
+   * Obtains an immutable array with three values.
+   * 
+   * @param value1  the first value
+   * @param value2  the second value
+   * @param value3  the third value
+   * @return an array containing the specified values
+   */
+  public static DoubleMatrix1D of(double value1, double value2, double value3) {
+    return new DoubleMatrix1D(new double[] {value1, value2, value3}, true);
+  }
+
+  /**
+   * Obtains an immutable array with four values.
+   * 
+   * @param value1  the first value
+   * @param value2  the second value
+   * @param value3  the third value
+   * @param value4  the fourth value
+   * @return an array containing the specified values
+   */
+  public static DoubleMatrix1D of(double value1, double value2, double value3, double value4) {
+    return new DoubleMatrix1D(new double[] {value1, value2, value3, value4}, true);
+  }
+
+  /**
+   * Obtains an immutable array with five values.
+   * 
+   * @param value1  the first value
+   * @param value2  the second value
+   * @param value3  the third value
+   * @param value4  the fourth value
+   * @param value5  the fifth value
+   * @return an array containing the specified values
+   */
+  public static DoubleMatrix1D of(
+      double value1, double value2, double value3, double value4, double value5) {
+    return new DoubleMatrix1D(new double[] {value1, value2, value3, value4, value5}, true);
+  }
+
+  /**
+   * Obtains an immutable array with six values.
+   * 
+   * @param value1  the first value
+   * @param value2  the second value
+   * @param value3  the third value
+   * @param value4  the fourth value
+   * @param value5  the fifth value
+   * @param value6  the sixth value
+   * @return an array containing the specified values
+   */
+  public static DoubleMatrix1D of(
+      double value1, double value2, double value3, double value4,
+      double value5, double value6) {
+    return new DoubleMatrix1D(new double[] {value1, value2, value3, value4, value5, value6}, true);
+  }
+
+  /**
+   * Obtains an immutable array with seven values.
+   * 
+   * @param value1  the first value
+   * @param value2  the second value
+   * @param value3  the third value
+   * @param value4  the fourth value
+   * @param value5  the fifth value
+   * @param value6  the sixth value
+   * @param value7  the seventh value
+   * @return an array containing the specified values
+   */
+  public static DoubleMatrix1D of(
+      double value1, double value2, double value3, double value4,
+      double value5, double value6, double value7) {
+    return new DoubleMatrix1D(new double[] {value1, value2, value3, value4, value5, value6, value7}, true);
+  }
+
+  /**
+   * Obtains an immutable array with eight values.
+   * 
+   * @param value1  the first value
+   * @param value2  the second value
+   * @param value3  the third value
+   * @param value4  the fourth value
+   * @param value5  the fifth value
+   * @param value6  the sixth value
+   * @param value7  the seventh value
+   * @param value8  the eighth value
+   * @return an array containing the specified values
+   */
+  public static DoubleMatrix1D of(
+      double value1, double value2, double value3, double value4,
+      double value5, double value6, double value7, double value8) {
+    return new DoubleMatrix1D(new double[] {value1, value2, value3, value4, value5, value6, value7, value8}, true);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance with entries filled using a function.
+   * <p>
+   * The function is passed the array index and returns the value for that index.
+   * 
+   * @param size  the number of elements
+   * @param valueFunction  the function used to populate the value
+   * @return an array initialized using the function
+   */
+  public static DoubleMatrix1D of(int size, IntToDoubleFunction valueFunction) {
+    if (size == 0) {
+      return EMPTY;
     }
+    double[] array = new double[size];
+    for (int i = 0; i < array.length; i++) {
+      array[i] = valueFunction.applyAsDouble(i);
+    }
+    return new DoubleMatrix1D(array, true);
   }
 
   /**
-   * @param data The data, not null
+   * Obtains an instance by wrapping an array.
+   * <p>
+   * This method is inherently unsafe as it relies on good behavior by callers.
+   * Callers must never make any changes to the passed in array after calling this method.
+   * Doing so would violate the immutability of this class.
+   * 
+   * @param array  the array to assign
+   * @return an array instance wrapping the specified array
    */
-  public DoubleMatrix1D(final double... data) {
+  public static DoubleMatrix1D ofUnsafe(double[] array) {
+    if (array.length == 0) {
+      return EMPTY;
+    }
+    return new DoubleMatrix1D(array, true);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Obtains an instance from a list of {@code Double}.
+   * 
+   * @param list  the list to initialize from
+   * @return an array containing the specified values
+   */
+  public static DoubleMatrix1D copyOf(List<Double> list) {
+    if (list.size() == 0) {
+      return EMPTY;
+    }
+    if (list instanceof ImmList) {
+      return ((ImmList) list).underlying;
+    }
+    return new DoubleMatrix1D(Doubles.toArray(list), true);
+  }
+
+  /**
+   * Obtains an instance from an array of {@code double}.
+   * <p>
+   * The input array is copied and not mutated.
+   * 
+   * @param array  the array to copy, cloned
+   * @return an array containing the specified values
+   */
+  public static DoubleMatrix1D copyOf(double... array) {
+    if (array.length == 0) {
+      return EMPTY;
+    }
+    return new DoubleMatrix1D(array.clone(), true);
+  }
+
+  /**
+   * Obtains an instance by copying part of an array.
+   * <p>
+   * The input array is copied and not mutated.
+   * 
+   * @param array  the array to copy
+   * @param fromIndex  the offset from the start of the array
+   * @return an array containing the specified values
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public static DoubleMatrix1D copyOf(double[] array, int fromIndex) {
+    return copyOf(array, fromIndex, array.length);
+  }
+
+  /**
+   * Obtains an instance by copying part of an array.
+   * <p>
+   * The input array is copied and not mutated.
+   * 
+   * @param array  the array to copy
+   * @param fromIndexInclusive  the start index of the input array to copy from
+   * @param toIndexExclusive  the end index of the input array to copy to
+   * @return an array containing the specified values
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public static DoubleMatrix1D copyOf(double[] array, int fromIndexInclusive, int toIndexExclusive) {
+    if (fromIndexInclusive > array.length) {
+      throw new IndexOutOfBoundsException("Array index out of bounds: " + fromIndexInclusive + " > " + array.length);
+    }
+    if (toIndexExclusive > array.length) {
+      throw new IndexOutOfBoundsException("Array index out of bounds: " + toIndexExclusive + " > " + array.length);
+    }
+    if ((toIndexExclusive - fromIndexInclusive) == 0) {
+      return EMPTY;
+    }
+    return new DoubleMatrix1D(Arrays.copyOfRange(array, fromIndexInclusive, toIndexExclusive), true);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance with all entries equal to the zero.
+   * 
+   * @param size  the number of elements
+   * @return an array filled with zeroes
+   */
+  public static DoubleMatrix1D filled(int size) {
+    if (size == 0) {
+      return EMPTY;
+    }
+    return new DoubleMatrix1D(new double[size], true);
+  }
+
+  /**
+   * Obtains an instance with all entries equal to the same value.
+   * 
+   * @param size  the number of elements
+   * @param value  the value of all the elements
+   * @return an array filled with the specified value
+   */
+  public static DoubleMatrix1D filled(int size, double value) {
+    if (size == 0) {
+      return EMPTY;
+    }
+    double[] array = new double[size];
+    Arrays.fill(array, value);
+    return new DoubleMatrix1D(array, true);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from an array of {@code double}.
+   * 
+   * @param array  the array to copy, cloned
+   */
+  private DoubleMatrix1D(double[] array, boolean trusted) {
+    this.array = array;
+  }
+
+  //-------------------------------------------------------------------------
+  // start of old code to be removed
+  /**
+   * Creates an instance.
+   * 
+   * @param data  the data
+   */
+  public DoubleMatrix1D(double... data) {
     ArgChecker.notNull(data, "data");
-    _elements = data.length;
-    _data = Arrays.copyOf(data, _elements);
+    this.array = data.clone();
   }
 
   /**
-   * Create an vector of length n with all entries equal to value
-   * @param n number of elements
-   * @param value value of elements
+   * Returns the underlying vector data. If this is changed so is the vector.
+   * 
+   * @return an array containing the vector elements
+   * @see #toArray to get a copy of data
    */
-  public DoubleMatrix1D(final int n, final double value) {
-    _elements = n;
-    _data = new double[_elements];
-    Arrays.fill(_data, value);
+  public double[] getData() {
+    return array;
   }
 
-  /**
-   * Create an vector of length n with all entries zero
-   * @param n number of elements
-   */
-  public DoubleMatrix1D(final int n) {
-    _elements = n;
-    _data = new double[_elements];
-  }
-
+  // end of old code to be removed
   //-------------------------------------------------------------------------
   /**
    * Gets the number of dimensions of this array.
@@ -77,27 +384,19 @@ public class DoubleMatrix1D implements Matrix {
    */
   @Override
   public int size() {
-    return _elements;
+    return array.length;
   }
 
   /**
-   * Returns the underlying vector data. If this is changed so is the vector.
-   * @see #toArray to get a copy of data
-   * @return An array containing the vector elements
+   * Checks if this array is empty.
+   * 
+   * @return true if empty
    */
-  public double[] getData() {
-    return _data;
+  public boolean isEmpty() {
+    return array.length == 0;
   }
 
-  /**
-   * Convert the vector to a double array.
-   * As its elements are copied, the array is independent from the vector data.
-   * @return An array containing a copy of vector elements
-   */
-  public double[] toArray() {
-    return Arrays.copyOf(_data, _elements);
-  }
-
+  //-------------------------------------------------------------------------
   /**
    * Gets the value at the specified index in this array.
    * 
@@ -105,45 +404,777 @@ public class DoubleMatrix1D implements Matrix {
    * @return the value at the index
    * @throws IndexOutOfBoundsException if the index is invalid
    */
-  public double getEntry(int index) {
-    return _data[index];
+  public double get(int index) {
+    return array[index];
+  }
+
+  /**
+   * Checks if this array contains the specified value.
+   * <p>
+   * The value is checked using {@code Double.doubleToLongBits} in order to match {@code equals}.
+   * This also allow this method to be used to find any occurrences of NaN.
+   * 
+   * @param value  the value to find
+   * @return true if the value is contained in this array
+   */
+  public boolean contains(double value) {
+    if (array.length > 0) {
+      long bits = Double.doubleToLongBits(value);
+      for (int i = 0; i < array.length; i++) {
+        if (Double.doubleToLongBits(array[i]) == bits) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Find the index of the first occurrence of the specified value.
+   * <p>
+   * The value is checked using {@code Double.doubleToLongBits} in order to match {@code equals}.
+   * This also allow this method to be used to find any occurrences of NaN.
+   * 
+   * @param value  the value to find
+   * @return the index of the value, -1 if not found
+   */
+  public int indexOf(double value) {
+    if (array.length > 0) {
+      long bits = Double.doubleToLongBits(value);
+      for (int i = 0; i < array.length; i++) {
+        if (Double.doubleToLongBits(array[i]) == bits) {
+          return i;
+        }
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Find the index of the first occurrence of the specified value.
+   * <p>
+   * The value is checked using {@code Double.doubleToLongBits} in order to match {@code equals}.
+   * This also allow this method to be used to find any occurrences of NaN.
+   * 
+   * @param value  the value to find
+   * @return the index of the value, -1 if not found
+   */
+  public int lastIndexOf(double value) {
+    if (array.length > 0) {
+      long bits = Double.doubleToLongBits(value);
+      for (int i = array.length - 1; i >= 0; i--) {
+        if (Double.doubleToLongBits(array[i]) == bits) {
+          return i;
+        }
+      }
+    }
+    return -1;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Copies this array into the specified array.
+   * <p>
+   * The specified array must be at least as large as this array.
+   * If it is larger, then the remainder of the array will be untouched.
+   * 
+   * @param destination  the array to copy into
+   * @param offset  the offset in the destination array to start from
+   * @throws IndexOutOfBoundsException if the destination array is not large enough
+   *  or the offset is negative
+   */
+  public void copyInto(double[] destination, int offset) {
+    if (destination.length < array.length + offset) {
+      throw new IndexOutOfBoundsException("Destination array is not large enough");
+    }
+    System.arraycopy(array, 0, destination, offset, array.length);
+  }
+
+  /**
+   * Returns an array holding the values from the specified index onwards.
+   * 
+   * @param fromIndexInclusive  the start index of the array to copy from
+   * @return an array instance with the specified bounds
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public DoubleMatrix1D subArray(int fromIndexInclusive) {
+    return subArray(fromIndexInclusive, array.length);
+  }
+
+  /**
+   * Returns an array holding the values between the specified from and to indices.
+   * 
+   * @param fromIndexInclusive  the start index of the array to copy from
+   * @param toIndexExclusive  the end index of the array to copy to
+   * @return an array instance with the specified bounds
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public DoubleMatrix1D subArray(int fromIndexInclusive, int toIndexExclusive) {
+    return copyOf(array, fromIndexInclusive, toIndexExclusive);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts this instance to an independent {@code double[]}.
+   * 
+   * @return a copy of the underlying array
+   */
+  public double[] toArray() {
+    return array.clone();
+  }
+
+  /**
+   * Returns the underlying array.
+   * <p>
+   * This method is inherently unsafe as it relies on good behavior by callers.
+   * Callers must never make any changes to the array returned by this method.
+   * Doing so would violate the immutability of this class.
+   * 
+   * @return the raw array
+   */
+  public double[] toArrayUnsafe() {
+    return array;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a list equivalent to this array.
+   * 
+   * @return a list wrapping this array
+   */
+  public List<Double> toList() {
+    return new ImmList(this);
+  }
+
+  /**
+   * Returns a stream over the array values.
+   *
+   * @return a stream over the values in the array
+   */
+  public DoubleStream stream() {
+    return DoubleStream.of(array);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Applies an action to each value in the array.
+   * <p>
+   * This is used to perform an action on the contents of this array.
+   * The action receives both the index and the value.
+   * For example, the action could print out the array.
+   * <pre>
+   *   base.forEach((index, value) -> System.out.println(index + ": " + value));
+   * </pre>
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   *
+   * @param action  the action to be applied
+   */
+  public void forEach(IntDoubleConsumer action) {
+    for (int i = 0; i < array.length; i++) {
+      action.accept(i, array[i]);
+    }
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Returns an instance with the value at the specified index changed.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param index  the zero-based index to set
+   * @param newValue  the new value to store
+   * @return a copy of this array with the value at the index changed
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public DoubleMatrix1D with(int index, double newValue) {
+    if (Double.doubleToLongBits(array[index]) == Double.doubleToLongBits(newValue)) {
+      return this;
+    }
+    double[] result = array.clone();
+    result[index] = newValue;
+    return new DoubleMatrix1D(result, true);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns an instance with each value multiplied by the specified factor.
+   * <p>
+   * This is used to multiply the contents of this array, returning a new array.
+   * <p>
+   * This is a special case of {@link #map(DoubleUnaryOperator)}.
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param factor  the multiplicative factor
+   * @return a copy of this array with the each value multiplied by the factor
+   */
+  public DoubleMatrix1D multipliedBy(double factor) {
+    if (factor == 1d) {
+      return this;
+    }
+    double[] result = array.clone();
+    for (int i = 0; i < array.length; i++) {
+      result[i] = array[i] * factor;
+    }
+    return new DoubleMatrix1D(result, true);
+  }
+
+  /**
+   * Returns an instance with an operation applied to each value in the array.
+   * <p>
+   * This is used to perform an operation on the contents of this array, returning a new array.
+   * The operator only receives the value.
+   * For example, the operator could take the inverse of each element.
+   * <pre>
+   *   result = base.map(value -> 1 / value);
+   * </pre>
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   *
+   * @param operator  the operator to be applied
+   * @return a copy of this array with the operator applied to the original values
+   */
+  public DoubleMatrix1D map(DoubleUnaryOperator operator) {
+    double[] result = array.clone();
+    for (int i = 0; i < array.length; i++) {
+      result[i] = operator.applyAsDouble(array[i]);
+    }
+    return new DoubleMatrix1D(result, true);
+  }
+
+  /**
+   * Returns an instance with an operation applied to each indexed value in the array.
+   * <p>
+   * This is used to perform an operation on the contents of this array, returning a new array.
+   * The function receives both the index and the value.
+   * For example, the operator could multiply the value by the index.
+   * <pre>
+   *   result = base.mapWithIndex((index, value) -> index * value);
+   * </pre>
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   *
+   * @param function  the function to be applied
+   * @return a copy of this array with the operator applied to the original values
+   */
+  public DoubleMatrix1D mapWithIndex(IntDoubleToDoubleFunction function) {
+    double[] result = array.clone();
+    for (int i = 0; i < array.length; i++) {
+      result[i] = function.applyAsDouble(i, array[i]);
+    }
+    return new DoubleMatrix1D(result, true);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns an instance where each element is the sum of the matching values
+   * in this array and the other array.
+   * <p>
+   * This is used to add two arrays, returning a new array.
+   * Element {@code n} in the resulting array is equal to element {@code n} in this array
+   * plus element {@code n} in the other array.
+   * The arrays must be of the same size.
+   * <p>
+   * This is a special case of {@link #combine(DoubleMatrix1D, DoubleBinaryOperator)}.
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param other  the other array
+   * @return a copy of this array with matching elements added
+   * @throws IllegalArgumentException if the arrays have different sizes
+   */
+  public DoubleMatrix1D plus(DoubleMatrix1D other) {
+    if (array.length != other.array.length) {
+      throw new IllegalArgumentException("Arrays have different sizes");
+    }
+    double[] result = array.clone();
+    for (int i = 0; i < array.length; i++) {
+      result[i] = array[i] + other.array[i];
+    }
+    return new DoubleMatrix1D(result, true);
+  }
+
+  /**
+   * Returns an instance where each element is equal to the difference between the
+   * matching values in this array and the other array.
+   * <p>
+   * This is used to subtract the second array from the first, returning a new array.
+   * Element {@code n} in the resulting array is equal to element {@code n} in this array
+   * minus element {@code n} in the other array.
+   * The arrays must be of the same size.
+   * <p>
+   * This is a special case of {@link #combine(DoubleMatrix1D, DoubleBinaryOperator)}.
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param other  the other array
+   * @return a copy of this array with matching elements added
+   * @throws IllegalArgumentException if the arrays have different sizes
+   */
+  public DoubleMatrix1D minus(DoubleMatrix1D other) {
+    if (array.length != other.array.length) {
+      throw new IllegalArgumentException("Arrays have different sizes");
+    }
+    double[] result = array.clone();
+    for (int i = 0; i < array.length; i++) {
+      result[i] = array[i] - other.array[i];
+    }
+    return new DoubleMatrix1D(result, true);
+  }
+
+  /**
+   * Returns an instance where each element is formed by some combination of the matching
+   * values in this array and the other array.
+   * <p>
+   * This is used to combine two arrays, returning a new array.
+   * Element {@code n} in the resulting array is equal to the result of the operator
+   * when applied to element {@code n} in this array and element {@code n} in the other array.
+   * The arrays must be of the same size.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param other  the other array
+   * @param operator  the operator used to combine each pair of values
+   * @return a copy of this array with the specified array added at the end
+   * @throws IllegalArgumentException if the arrays have different sizes
+   */
+  public DoubleMatrix1D combine(DoubleMatrix1D other, DoubleBinaryOperator operator) {
+    if (array.length != other.array.length) {
+      throw new IllegalArgumentException("Arrays have different sizes");
+    }
+    double[] result = array.clone();
+    for (int i = 0; i < array.length; i++) {
+      result[i] = operator.applyAsDouble(array[i], other.array[i]);
+    }
+    return new DoubleMatrix1D(result, true);
+  }
+
+  /**
+   * Combines this array and the other array returning a reduced value.
+   * <p>
+   * This is used to combine two arrays, returning a single reduced value.
+   * The operator is called once for each element in the arrays.
+   * The arrays must be of the same size.
+   * <p>
+   * The first argument to the operator is the running total of the reduction, starting from zero.
+   * The second argument to the operator is the element from this array.
+   * The third argument to the operator is the element from the other array.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param other  the other array
+   * @param operator  the operator used to combine each pair of values with the current total
+   * @return the result of the reduction
+   * @throws IllegalArgumentException if the arrays have different sizes
+   */
+  public double combineReduce(DoubleMatrix1D other, DoubleTenaryOperator operator) {
+    if (array.length != other.array.length) {
+      throw new IllegalArgumentException("Arrays have different sizes");
+    }
+    double result = 0;
+    for (int i = 0; i < array.length; i++) {
+      result = operator.applyAsDouble(result, array[i], other.array[i]);
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns an array that combines this array and the specified array.
+   * <p>
+   * The result will have a length equal to {@code this.size() + arrayToConcat.length}.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param arrayToConcat  the array to add to the end of this array
+   * @return a copy of this array with the specified array added at the end
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public DoubleMatrix1D concat(double[] arrayToConcat) {
+    if (array.length == 0) {
+      return copyOf(arrayToConcat);
+    }
+    if (arrayToConcat.length == 0) {
+      return this;
+    }
+    double[] result = new double[array.length + arrayToConcat.length];
+    System.arraycopy(array, 0, result, 0, array.length);
+    System.arraycopy(arrayToConcat, 0, result, array.length, arrayToConcat.length);
+    return new DoubleMatrix1D(result, true);
+  }
+
+  /**
+   * Returns an array that combines this array and the specified array.
+   * <p>
+   * The result will have a length equal to {@code this.size() + newArray.length}.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param arrayToConcat  the new array to add to the end of this array
+   * @return a copy of this array with the specified array added at the end
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public DoubleMatrix1D concat(DoubleMatrix1D arrayToConcat) {
+    if (array.length == 0) {
+      return arrayToConcat;
+    }
+    if (arrayToConcat.array.length == 0) {
+      return this;
+    }
+    return concat(arrayToConcat.array);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Returns a sorted copy of this array.
+   * <p>
+   * This uses {@link Arrays#sort(double[])}.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @return a sorted copy of this array
+   */
+  public DoubleMatrix1D sorted() {
+    if (array.length < 2) {
+      return this;
+    }
+    double[] result = array.clone();
+    Arrays.sort(result);
+    return new DoubleMatrix1D(result, true);
+  }
+
+  /**
+   * Returns the minimum value held in the array.
+   * <p>
+   * If the array is empty, then an exception is thrown.
+   * If the array contains NaN, then the result is NaN.
+   * 
+   * @return the minimum value
+   * @throws IllegalStateException if the array is empty
+   */
+  public double min() {
+    if (array.length == 0) {
+      throw new IllegalStateException("Unable to find minimum of an empty array");
+    }
+    if (array.length == 1) {
+      return array[0];
+    }
+    double min = Double.POSITIVE_INFINITY;
+    for (int i = 0; i < array.length; i++) {
+      min = Math.min(min, array[i]);
+    }
+    return min;
+  }
+
+  /**
+   * Returns the minimum value held in the array.
+   * <p>
+   * If the array is empty, then an exception is thrown.
+   * If the array contains NaN, then the result is NaN.
+   * 
+   * @return the maximum value
+   * @throws IllegalStateException if the array is empty
+   */
+  public double max() {
+    if (array.length == 0) {
+      throw new IllegalStateException("Unable to find maximum of an empty array");
+    }
+    if (array.length == 1) {
+      return array[0];
+    }
+    double max = Double.NEGATIVE_INFINITY;
+    for (int i = 0; i < array.length; i++) {
+      max = Math.max(max, array[i]);
+    }
+    return max;
+  }
+
+  /**
+   * Returns the total of all the values in the array.
+   * <p>
+   * This is a special case of {@link #reduce(double, DoubleBinaryOperator)}.
+   * 
+   * @return the total of all the values
+   */
+  public double total() {
+    double total = 0;
+    for (int i = 0; i < array.length; i++) {
+      total += array[i];
+    }
+    return total;
+  }
+
+  /**
+   * Reduces this array returning a single value.
+   * <p>
+   * This is used to reduce the values in this array to a single value.
+   * The operator is called once for each element in the arrays.
+   * The first argument to the operator is the running total of the reduction, starting from zero.
+   * The second argument to the operator is the element.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param identity  the identity value to start from
+   * @param operator  the operator used to combine the value with the current total
+   * @return the result of the reduction
+   */
+  public double reduce(double identity, DoubleBinaryOperator operator) {
+    double result = identity;
+    for (int i = 0; i < array.length; i++) {
+      result = operator.applyAsDouble(result, array[i]);
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public MetaBean metaBean() {
+    return Meta.META;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj instanceof DoubleMatrix1D) {
+      DoubleMatrix1D other = (DoubleMatrix1D) obj;
+      return Arrays.equals(array, other.array);
+    }
+    return false;
   }
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + Arrays.hashCode(_data);
-    return result;
-  }
-
-  @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final DoubleMatrix1D other = (DoubleMatrix1D) obj;
-    if (!Arrays.equals(_data, other._data)) {
-      return false;
-    }
-    return true;
+    return Arrays.hashCode(array);
   }
 
   @Override
   public String toString() {
-    final StringBuffer sb = new StringBuffer();
-    final int n = _data.length;
-    sb.append(" (");
-    for (int i = 0; i < (n - 1); i++) {
-      sb.append(_data[i] + ", ");
-    }
-    sb.append(_data[n - 1] + ") ");
-    return sb.toString();
+    return Arrays.toString(array);
   }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Immutable {@code Iterator} representation of the array.
+   */
+  static class ImmIterator implements ListIterator<Double> {
+    private final double[] array;
+    private int index;
+
+    public ImmIterator(double[] array) {
+      this.array = array;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return index < array.length;
+    }
+
+    @Override
+    public boolean hasPrevious() {
+      return index > 0;
+    }
+
+    @Override
+    public Double next() {
+      if (hasNext()) {
+        return array[index++];
+      }
+      throw new NoSuchElementException("Iteration has reached the last element");
+    }
+
+    @Override
+    public Double previous() {
+      if (hasPrevious()) {
+        return array[--index];
+      }
+      throw new NoSuchElementException("Iteration has reached the first element");
+    }
+
+    @Override
+    public int nextIndex() {
+      return index;
+    }
+
+    @Override
+    public int previousIndex() {
+      return index - 1;
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException("Unable to remove from DoubleMatrix1D");
+    }
+
+    @Override
+    public void set(Double value) {
+      throw new UnsupportedOperationException("Unable to set value in DoubleMatrix1D");
+    }
+
+    @Override
+    public void add(Double value) {
+      throw new UnsupportedOperationException("Unable to add value to DoubleMatrix1D");
+    }
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Immutable {@code List} representation of the array.
+   */
+  static class ImmList extends AbstractList<Double> implements RandomAccess, Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private final DoubleMatrix1D underlying;
+
+    ImmList(DoubleMatrix1D underlying) {
+      this.underlying = underlying;
+    }
+
+    @Override
+    public int size() {
+      return underlying.size();
+    }
+
+    @Override
+    public Double get(int index) {
+      return underlying.get(index);
+    }
+
+    @Override
+    public boolean contains(Object obj) {
+      return (obj instanceof Double ? underlying.contains((Double) obj) : false);
+    }
+
+    @Override
+    public int indexOf(Object obj) {
+      return (obj instanceof Double ? underlying.indexOf((Double) obj) : -1);
+    }
+
+    @Override
+    public int lastIndexOf(Object obj) {
+      return (obj instanceof Double ? underlying.lastIndexOf((Double) obj) : -1);
+    }
+
+    @Override
+    public ListIterator<Double> iterator() {
+      return listIterator();
+    }
+
+    @Override
+    public ListIterator<Double> listIterator() {
+      return new ImmIterator(underlying.array);
+    }
+
+    @Override
+    protected void removeRange(int fromIndex, int toIndex) {
+      throw new UnsupportedOperationException("Unable to remove from ImmutableDoubleArray");
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Meta bean.
+   */
+  static final class Meta extends BasicMetaBean {
+
+    private static final MetaBean META = new Meta();
+    private static final MetaProperty<double[]> ARRAY = new BasicMetaProperty<double[]>("array") {
+
+      @Override
+      public MetaBean metaBean() {
+        return META;
+      }
+
+      @Override
+      public Class<?> declaringType() {
+        return DoubleMatrix1D.class;
+      }
+
+      @Override
+      public Class<double[]> propertyType() {
+        return double[].class;
+      }
+
+      @Override
+      public Type propertyGenericType() {
+        return double[].class;
+      }
+
+      @Override
+      public PropertyStyle style() {
+        return PropertyStyle.IMMUTABLE;
+      }
+
+      @Override
+      public List<Annotation> annotations() {
+        return ImmutableList.of();
+      }
+
+      @Override
+      public double[] get(Bean bean) {
+        return ((DoubleMatrix1D) bean).toArray();
+      }
+
+      @Override
+      public void set(Bean bean, Object value) {
+        throw new UnsupportedOperationException("Property cannot be written: " + name());
+      }
+    };
+    private static final ImmutableMap<String, MetaProperty<?>> MAP = ImmutableMap.of("array", ARRAY);
+
+    private Meta() {
+    }
+
+    @Override
+    public BeanBuilder<DoubleMatrix1D> builder() {
+      return new BasicImmutableBeanBuilder<DoubleMatrix1D>(this) {
+        private double[] array = DoubleArrayMath.EMPTY_DOUBLE_ARRAY;
+
+        @Override
+        public Object get(String propertyName) {
+          if (propertyName.equals(ARRAY.name())) {
+            return array.clone();
+          } else {
+            throw new NoSuchElementException("Unknown property: " + propertyName);
+          }
+        }
+
+        @Override
+        public BeanBuilder<DoubleMatrix1D> set(String propertyName, Object value) {
+          if (propertyName.equals(ARRAY.name())) {
+            this.array = ((double[]) ArgChecker.notNull(value, "value")).clone();
+          } else {
+            throw new NoSuchElementException("Unknown property: " + propertyName);
+          }
+          return this;
+        }
+
+        @Override
+        public DoubleMatrix1D build() {
+          return new DoubleMatrix1D(array, true);
+        }
+      };
+    }
+
+    @Override
+    public Class<? extends Bean> beanType() {
+      return DoubleMatrix1D.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return MAP;
+    }
+  }
+
 }

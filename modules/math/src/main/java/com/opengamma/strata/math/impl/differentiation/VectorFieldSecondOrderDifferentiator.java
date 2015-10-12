@@ -91,16 +91,16 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
    */
   private DoubleMatrix2D[] reshapeTensor(DoubleMatrix2D[] gamma) {
     int m = gamma.length;
-    int n = gamma[0].getNumberOfRows();
-    ArgChecker.isTrue(gamma[0].getNumberOfColumns() == m,
-        "tenor wrong size. Seond index is {}, should be {}", gamma[0].getNumberOfColumns(), m);
+    int n = gamma[0].rowCount();
+    ArgChecker.isTrue(gamma[0].columnCount() == m,
+        "tenor wrong size. Seond index is {}, should be {}", gamma[0].columnCount(), m);
     DoubleMatrix2D[] res = new DoubleMatrix2D[n];
     for (int i = 0; i < n; i++) {
       double[][] temp = new double[m][m];
       for (int j = 0; j < m; j++) {
         DoubleMatrix2D gammaJ = gamma[j];
         for (int k = j; k < m; k++) {
-          temp[j][k] = gammaJ.getEntry(i, k);
+          temp[j][k] = gammaJ.get(i, k);
         }
       }
       for (int j = 0; j < m; j++) {
@@ -138,7 +138,7 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
           xData[j] -= twoEps;
           down = function.evaluate(x);
           for (i = 0; i < m; i++) {
-            res[i][j][j] = (up.getEntry(i) + down.getEntry(i) - 2 * y.getEntry(i)) / epsSqr;
+            res[i][j][j] = (up.get(i) + down.get(i) - 2 * y.get(i)) / epsSqr;
           }
           for (k = j + 1; k < n; k++) {
             oldValueK = xData[k];
@@ -152,7 +152,7 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
             upup = function.evaluate(x);
             xData[k] = oldValueK;
             for (i = 0; i < m; i++) {
-              res[i][j][k] = (upup.getEntry(i) + downdown.getEntry(i) - updown.getEntry(i) - downup.getEntry(i)) / 4 / epsSqr;
+              res[i][j][k] = (upup.get(i) + downdown.get(i) - updown.get(i) - downup.get(i)) / 4 / epsSqr;
             }
           }
           xData[j] = oldValueJ;
@@ -196,7 +196,7 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
           xData[j] -= twoEps;
           down = function.evaluate(x);
           for (i = 0; i < m; i++) {
-            res[i][j] = (up.getEntry(i) + down.getEntry(i) - 2 * y.getEntry(i)) / epsSqr;
+            res[i][j] = (up.get(i) + down.get(i) - 2 * y.get(i)) / epsSqr;
           }
           xData[j] = oldValue;
         }

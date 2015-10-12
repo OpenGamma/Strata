@@ -295,6 +295,56 @@ public class DiscountingSwapLegPricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Computes the conventional cash annuity from a swap leg. 
+   * <p>
+   * The computation is relevant only for standard swaps with constant notional and regular payments.
+   * The swap leg must be a fixed leg. However, this is not checked internally.
+   * 
+   * @param fixedLeg  the fixed leg of the swap.
+   * @param yield  the yield.
+   * @return the cash annuity.
+   */
+  public double annuityCash(SwapLeg fixedLeg, double yield) {
+    ExpandedSwapLeg expanded = fixedLeg.expand();
+    int nbFixedPeriod =  expanded.getPaymentPeriods().size();
+    PaymentPeriod paymentPeriod = expanded.getPaymentPeriods().get(0);
+    ArgChecker.isTrue(paymentPeriod instanceof RatePaymentPeriod, "payment period should be RatePaymentPeriod");
+    RatePaymentPeriod ratePaymentPeriod = (RatePaymentPeriod) paymentPeriod;
+    int nbFixedPaymentYear = (int) Math.round(1d /
+        ratePaymentPeriod.getDayCount().yearFraction(ratePaymentPeriod.getStartDate(), ratePaymentPeriod.getEndDate()));
+    double notional = Math.abs(ratePaymentPeriod.getNotional());
+    double annuityCash = notional * (1d - Math.pow(1d + yield / nbFixedPaymentYear, -nbFixedPeriod)) / yield;
+    return annuityCash;
+  }
+
+  /**
+   * Computes the derivative of the conventional cash annuity with respect to the yield from a swap leg. 
+   * <p>
+   * The computation is relevant only for standard swaps with constant notional and regular payments.
+   * The swap leg must be a fixed leg. However, this is not checked internally. 
+   * 
+   * @param fixedLeg  the fixed leg of the swap.
+   * @param yield  the yield.
+   * @return the cash annuity.
+   */
+  public double annuityCashDerivative(SwapLeg fixedLeg, double yield) {
+    ExpandedSwapLeg expanded = fixedLeg.expand();
+    int nbFixedPeriod = expanded.getPaymentPeriods().size();
+    PaymentPeriod paymentPeriod = expanded.getPaymentPeriods().get(0);
+    ArgChecker.isTrue(paymentPeriod instanceof RatePaymentPeriod, "payment period should be RatePaymentPeriod");
+    RatePaymentPeriod ratePaymentPeriod = (RatePaymentPeriod) paymentPeriod;
+    int nbFixedPaymentYear = (int) Math.round(1d /
+        ratePaymentPeriod.getDayCount().yearFraction(ratePaymentPeriod.getStartDate(), ratePaymentPeriod.getEndDate()));
+    double notional = Math.abs(ratePaymentPeriod.getNotional());
+    double fwdOverPeriods = yield / nbFixedPaymentYear;
+    int nbFixedPeriodPlus = 1 + nbFixedPeriod;
+    double annuityCashDerivative = notional * Math.pow(yield, -2)
+        * ((1d + nbFixedPeriodPlus * fwdOverPeriods) * Math.pow(1d + fwdOverPeriods, -nbFixedPeriodPlus) - 1d);
+    return annuityCashDerivative;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the future cash flows of the swap leg.
    * <p>
    * Each expected cash flow is added to the result.

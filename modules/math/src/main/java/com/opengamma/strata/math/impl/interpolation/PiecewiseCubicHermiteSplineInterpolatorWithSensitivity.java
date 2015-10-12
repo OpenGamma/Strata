@@ -63,11 +63,11 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
     ArgChecker.isTrue(n == nDataPts, "wrong number of matricies");
     for (int k = 0; k < n; k++) {
       DoubleMatrix2D m = temp[k];
-      final int rows = m.getNumberOfRows();
-      final int cols = m.getNumberOfColumns();
+      final int rows = m.rowCount();
+      final int cols = m.columnCount();
       for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-          ArgChecker.isTrue(Doubles.isFinite(m.getEntry(i, j)), "Matrix contains a NaN or infinite");
+          ArgChecker.isTrue(Doubles.isFinite(m.get(i, j)), "Matrix contains a NaN or infinite");
         }
       }
     }

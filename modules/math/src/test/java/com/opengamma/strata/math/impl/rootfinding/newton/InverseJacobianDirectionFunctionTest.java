@@ -46,8 +46,8 @@ public class InverseJacobianDirectionFunctionTest {
   public void test() {
     double eps = 1e-9;
     DoubleMatrix1D direction = F.getDirection(M, Y);
-    assertEquals(direction.getEntry(0), X0, eps);
-    assertEquals(direction.getEntry(1), X1, eps);
-    assertEquals(direction.getEntry(2), X2, eps);
+    assertEquals(direction.get(0), X0, eps);
+    assertEquals(direction.get(1), X1, eps);
+    assertEquals(direction.get(2), X2, eps);
   }
 }

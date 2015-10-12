@@ -6,33 +6,47 @@
 package com.opengamma.strata.finance.rate.swaption;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Defines the settlement type and settlement method of swaptions.
  * <p>
- * The settlement type is {@link SettlementType#CASH}. This means that a cash amount is paid
+ * The settlement type is {@link SettlementType#CASH}, This means that a cash amount is paid
  * by the short party to the long party at the exercise date.
  */
 @BeanDefinition
-public final class CashSettlement
-    implements SwaptionSettlement, ImmutableBean, Serializable {
+public final class CashSettlement implements SwaptionSettlement, ImmutableBean, Serializable {
 
   /**
-   * Default instance.
+   * The settlement date. 
+   * <p>
+   * The payoff of the option is settled at this date. 
    */
-  public static final CashSettlement DEFAULT = builder().build();
+  @PropertyDefinition(validate = "notNull")
+  private final LocalDate settlementDate;
+
+  /**
+   * The cash settlement method. 
+   * <p>
+   * The settlement rate of the cash settled swaption is specified by respective cash settlement methods.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final CashSettlementMethod cashSettlementMethod;
 
   @Override
   public SettlementType getSettlementType() {
@@ -66,7 +80,13 @@ public final class CashSettlement
     return new CashSettlement.Builder();
   }
 
-  private CashSettlement() {
+  private CashSettlement(
+      LocalDate settlementDate,
+      CashSettlementMethod cashSettlementMethod) {
+    JodaBeanUtils.notNull(settlementDate, "settlementDate");
+    JodaBeanUtils.notNull(cashSettlementMethod, "cashSettlementMethod");
+    this.settlementDate = settlementDate;
+    this.cashSettlementMethod = cashSettlementMethod;
   }
 
   @Override
@@ -85,13 +105,45 @@ public final class CashSettlement
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the settlement date.
+   * <p>
+   * The payoff of the option is settled at this date.
+   * @return the value of the property, not null
+   */
+  public LocalDate getSettlementDate() {
+    return settlementDate;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the cash settlement method.
+   * <p>
+   * The settlement rate of the cash settled swaption is specified by respective cash settlement methods.
+   * @return the value of the property, not null
+   */
+  public CashSettlementMethod getCashSettlementMethod() {
+    return cashSettlementMethod;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Returns a builder that allows this bean to be mutated.
+   * @return the mutable builder, not null
+   */
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      return true;
+      CashSettlement other = (CashSettlement) obj;
+      return JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
+          JodaBeanUtils.equal(getCashSettlementMethod(), other.getCashSettlementMethod());
     }
     return false;
   }
@@ -99,13 +151,17 @@ public final class CashSettlement
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCashSettlementMethod());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(32);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("CashSettlement{");
+    buf.append("settlementDate").append('=').append(getSettlementDate()).append(',').append(' ');
+    buf.append("cashSettlementMethod").append('=').append(JodaBeanUtils.toString(getCashSettlementMethod()));
     buf.append('}');
     return buf.toString();
   }
@@ -121,15 +177,38 @@ public final class CashSettlement
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code settlementDate} property.
+     */
+    private final MetaProperty<LocalDate> settlementDate = DirectMetaProperty.ofImmutable(
+        this, "settlementDate", CashSettlement.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code cashSettlementMethod} property.
+     */
+    private final MetaProperty<CashSettlementMethod> cashSettlementMethod = DirectMetaProperty.ofImmutable(
+        this, "cashSettlementMethod", CashSettlement.class, CashSettlementMethod.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null);
+        this, null,
+        "settlementDate",
+        "cashSettlementMethod");
 
     /**
      * Restricted constructor.
      */
     private Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -295948169:  // settlementDate
+          return settlementDate;
+        case 958004413:  // cashSettlementMethod
+          return cashSettlementMethod;
+      }
+      return super.metaPropertyGet(propertyName);
     }
 
     @Override
@@ -148,6 +227,43 @@ public final class CashSettlement
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> settlementDate() {
+      return settlementDate;
+    }
+
+    /**
+     * The meta-property for the {@code cashSettlementMethod} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<CashSettlementMethod> cashSettlementMethod() {
+      return cashSettlementMethod;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -295948169:  // settlementDate
+          return ((CashSettlement) bean).getSettlementDate();
+        case 958004413:  // cashSettlementMethod
+          return ((CashSettlement) bean).getCashSettlementMethod();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      metaProperty(propertyName);
+      if (quiet) {
+        return;
+      }
+      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
+    }
+
   }
 
   //-----------------------------------------------------------------------
@@ -156,21 +272,50 @@ public final class CashSettlement
    */
   public static final class Builder extends DirectFieldsBeanBuilder<CashSettlement> {
 
+    private LocalDate settlementDate;
+    private CashSettlementMethod cashSettlementMethod;
+
     /**
      * Restricted constructor.
      */
     private Builder() {
     }
 
+    /**
+     * Restricted copy constructor.
+     * @param beanToCopy  the bean to copy from, not null
+     */
+    private Builder(CashSettlement beanToCopy) {
+      this.settlementDate = beanToCopy.getSettlementDate();
+      this.cashSettlementMethod = beanToCopy.getCashSettlementMethod();
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
-      throw new NoSuchElementException("Unknown property: " + propertyName);
+      switch (propertyName.hashCode()) {
+        case -295948169:  // settlementDate
+          return settlementDate;
+        case 958004413:  // cashSettlementMethod
+          return cashSettlementMethod;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
     }
 
     @Override
     public Builder set(String propertyName, Object newValue) {
-      throw new NoSuchElementException("Unknown property: " + propertyName);
+      switch (propertyName.hashCode()) {
+        case -295948169:  // settlementDate
+          this.settlementDate = (LocalDate) newValue;
+          break;
+        case 958004413:  // cashSettlementMethod
+          this.cashSettlementMethod = (CashSettlementMethod) newValue;
+          break;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+      return this;
     }
 
     @Override
@@ -199,13 +344,47 @@ public final class CashSettlement
 
     @Override
     public CashSettlement build() {
-      return new CashSettlement();
+      return new CashSettlement(
+          settlementDate,
+          cashSettlementMethod);
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Sets the settlement date.
+     * <p>
+     * The payoff of the option is settled at this date.
+     * @param settlementDate  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder settlementDate(LocalDate settlementDate) {
+      JodaBeanUtils.notNull(settlementDate, "settlementDate");
+      this.settlementDate = settlementDate;
+      return this;
+    }
+
+    /**
+     * Sets the cash settlement method.
+     * <p>
+     * The settlement rate of the cash settled swaption is specified by respective cash settlement methods.
+     * @param cashSettlementMethod  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder cashSettlementMethod(CashSettlementMethod cashSettlementMethod) {
+      JodaBeanUtils.notNull(cashSettlementMethod, "cashSettlementMethod");
+      this.cashSettlementMethod = cashSettlementMethod;
+      return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      return "CashSettlement.Builder{}";
+      StringBuilder buf = new StringBuilder(96);
+      buf.append("CashSettlement.Builder{");
+      buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(settlementDate)).append(',').append(' ');
+      buf.append("cashSettlementMethod").append('=').append(JodaBeanUtils.toString(cashSettlementMethod));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

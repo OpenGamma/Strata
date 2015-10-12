@@ -23,8 +23,8 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-      final double x1 = x.getEntry(0);
-      final double x2 = x.getEntry(1);
+      final double x1 = x.get(0);
+      final double x2 = x.get(1);
       final double[] y = new double[2];
       y[0] = x1 * x1 + 2 * x2 * x2 - x1 * x2 + x1 * Math.cos(x2) - x2 * Math.sin(x1);
       y[1] = 2 * x1 * x2 * Math.cos(x1 * x2) - x1 * Math.sin(x1) - x2 * Math.cos(x2);
@@ -36,8 +36,8 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-      final double x1 = x.getEntry(0);
-      final double x2 = x.getEntry(1);
+      final double x1 = x.get(0);
+      final double x2 = x.get(1);
       final double[] y = new double[3];
       y[0] = x1 * x1 + 2 * x2 * x2 - x1 * x2 + x1 * Math.cos(x2) - x2 * Math.sin(x1);
       y[1] = 2 * x1 * x2 * Math.cos(x1 * x2) - x1 * Math.sin(x1) - x2 * Math.cos(x2);
@@ -50,8 +50,8 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
-      final double x1 = x.getEntry(0);
-      final double x2 = x.getEntry(1);
+      final double x1 = x.get(0);
+      final double x2 = x.get(1);
       final double[][] jac = new double[2][2];
       jac[0][0] = 2 * x1 - x2 + Math.cos(x2) - x2 * Math.cos(x1);
       jac[0][1] = 4 * x2 - x1 - x1 * Math.sin(x2) - Math.sin(x1);
@@ -65,8 +65,8 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
-      final double x1 = x.getEntry(0);
-      final double x2 = x.getEntry(1);
+      final double x1 = x.get(0);
+      final double x2 = x.get(1);
       final double[][] jac = new double[3][2];
       jac[0][0] = 2 * x1 - x2 + Math.cos(x2) - x2 * Math.cos(x1);
       jac[0][1] = 4 * x2 - x1 - x1 * Math.sin(x2) - Math.sin(x1);
@@ -82,8 +82,8 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     @Override
     public Boolean evaluate(final DoubleMatrix1D x) {
-      final double x1 = x.getEntry(0);
-      final double x2 = x.getEntry(1);
+      final double x1 = x.get(0);
+      final double x2 = x.get(1);
       if (x1 < 0 || x1 > Math.PI || x2 < 0 || x2 > Math.PI) {
         return false;
       }
@@ -117,9 +117,9 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
-        assertEquals(fdFwdJac.getEntry(i, j), anJac.getEntry(i, j), 10 * EPS);
-        assertEquals(fdCentGrad.getEntry(i, j), anJac.getEntry(i, j), 10 * EPS * EPS);
-        assertEquals(fdBackGrad.getEntry(i, j), anJac.getEntry(i, j), 10 * EPS);
+        assertEquals(fdFwdJac.get(i, j), anJac.get(i, j), 10 * EPS);
+        assertEquals(fdCentGrad.get(i, j), anJac.get(i, j), 10 * EPS * EPS);
+        assertEquals(fdBackGrad.get(i, j), anJac.get(i, j), 10 * EPS);
       }
     }
   }
@@ -134,9 +134,9 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 2; j++) {
-        assertEquals(fdFwdJac.getEntry(i, j), anJac.getEntry(i, j), 10 * EPS);
-        assertEquals(fdCentGrad.getEntry(i, j), anJac.getEntry(i, j), 10 * EPS * EPS);
-        assertEquals(fdBackGrad.getEntry(i, j), anJac.getEntry(i, j), 10 * EPS);
+        assertEquals(fdFwdJac.get(i, j), anJac.get(i, j), 10 * EPS);
+        assertEquals(fdCentGrad.get(i, j), anJac.get(i, j), 10 * EPS * EPS);
+        assertEquals(fdBackGrad.get(i, j), anJac.get(i, j), 10 * EPS);
       }
     }
   }
@@ -167,7 +167,7 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
       for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 2; j++) {
-          assertEquals("set " + k, anJac.getEntry(i, j), fdJac.getEntry(i, j), 1e-8);
+          assertEquals("set " + k, anJac.get(i, j), fdJac.get(i, j), 1e-8);
         }
       }
     }

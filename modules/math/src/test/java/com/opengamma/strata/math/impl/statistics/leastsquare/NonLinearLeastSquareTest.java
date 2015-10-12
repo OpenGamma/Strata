@@ -52,7 +52,7 @@ public class NonLinearLeastSquareTest {
       final int n = X.size();
       final double[] res = new double[n];
       for (int i = 0; i < n; i++) {
-        res[i] = a.getEntry(0) * Math.sin(a.getEntry(1) * X.getEntry(i) + a.getEntry(2)) + a.getEntry(3);
+        res[i] = a.get(0) * Math.sin(a.get(1) * X.get(i) + a.get(2)) + a.get(3);
       }
       return new DoubleMatrix1D(res);
     }
@@ -63,7 +63,7 @@ public class NonLinearLeastSquareTest {
     @Override
     public Double evaluate(final Double x, final DoubleMatrix1D a) {
       ArgChecker.isTrue(a.size() == getNumberOfParameters(), "four parameters");
-      return a.getEntry(0) * Math.sin(a.getEntry(1) * x + a.getEntry(2)) + a.getEntry(3);
+      return a.get(0) * Math.sin(a.get(1) * x + a.get(2)) + a.get(3);
     }
 
     @Override
@@ -77,11 +77,11 @@ public class NonLinearLeastSquareTest {
     @Override
     public DoubleMatrix1D evaluate(final Double x, final DoubleMatrix1D a) {
       ArgChecker.isTrue(a.size() == getNumberOfParameters(), "four parameters");
-      final double temp1 = Math.sin(a.getEntry(1) * x + a.getEntry(2));
-      final double temp2 = Math.cos(a.getEntry(1) * x + a.getEntry(2));
+      final double temp1 = Math.sin(a.get(1) * x + a.get(2));
+      final double temp2 = Math.cos(a.get(1) * x + a.get(2));
       final double[] res = new double[4];
       res[0] = temp1;
-      res[2] = a.getEntry(0) * temp2;
+      res[2] = a.get(0) * temp2;
       res[1] = x * res[2];
       res[3] = 1.0;
       return new DoubleMatrix1D(res);
@@ -102,10 +102,10 @@ public class NonLinearLeastSquareTest {
       final int m = a.size();
       final double[][] res = new double[n][m];
       for (int i = 0; i < n; i++) {
-        final DoubleMatrix1D temp = PARAM_GRAD.evaluate(X.getEntry(i), a);
+        final DoubleMatrix1D temp = PARAM_GRAD.evaluate(X.get(i), a);
         ArgChecker.isTrue(m == temp.size());
         for (int j = 0; j < m; j++) {
-          res[i][j] = temp.getEntry(j);
+          res[i][j] = temp.get(j);
         }
       }
       return new DoubleMatrix2D(res);
@@ -119,8 +119,8 @@ public class NonLinearLeastSquareTest {
 
     for (int i = 0; i < 20; i++) {
       X.getData()[i] = -Math.PI + i * Math.PI / 10;
-      Y.getData()[i] = TARGET.evaluate(X.getEntry(i));
-      SIGMA.getData()[i] = 0.1 * Math.exp(Math.abs(X.getEntry(i)) / Math.PI);
+      Y.getData()[i] = TARGET.evaluate(X.get(i));
+      SIGMA.getData()[i] = 0.1 * Math.exp(Math.abs(X.get(i)) / Math.PI);
     }
 
     LS = new NonLinearLeastSquare();
@@ -130,32 +130,32 @@ public class NonLinearLeastSquareTest {
     final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {1.2, 0.8, -0.2, -0.3 });
     LeastSquareResults result = LS.solve(X, Y, SIGMA, PARAM_FUNCTION, PARAM_GRAD, start);
     assertEquals(0.0, result.getChiSq(), 1e-8);
-    assertEquals(1.0, result.getFitParameters().getEntry(0), 1e-8);
-    assertEquals(1.0, result.getFitParameters().getEntry(1), 1e-8);
-    assertEquals(0.0, result.getFitParameters().getEntry(2), 1e-8);
-    assertEquals(0.0, result.getFitParameters().getEntry(3), 1e-8);
-    result = LS.solve(X, Y, SIGMA.getEntry(0), PARAM_FUNCTION, PARAM_GRAD, start);
+    assertEquals(1.0, result.getFitParameters().get(0), 1e-8);
+    assertEquals(1.0, result.getFitParameters().get(1), 1e-8);
+    assertEquals(0.0, result.getFitParameters().get(2), 1e-8);
+    assertEquals(0.0, result.getFitParameters().get(3), 1e-8);
+    result = LS.solve(X, Y, SIGMA.get(0), PARAM_FUNCTION, PARAM_GRAD, start);
     assertEquals(0.0, result.getChiSq(), 1e-8);
-    assertEquals(1.0, result.getFitParameters().getEntry(0), 1e-8);
-    assertEquals(1.0, result.getFitParameters().getEntry(1), 1e-8);
-    assertEquals(0.0, result.getFitParameters().getEntry(2), 1e-8);
-    assertEquals(0.0, result.getFitParameters().getEntry(3), 1e-8);
+    assertEquals(1.0, result.getFitParameters().get(0), 1e-8);
+    assertEquals(1.0, result.getFitParameters().get(1), 1e-8);
+    assertEquals(0.0, result.getFitParameters().get(2), 1e-8);
+    assertEquals(0.0, result.getFitParameters().get(3), 1e-8);
     result = LS.solve(X, Y, PARAM_FUNCTION, PARAM_GRAD, start);
     assertEquals(0.0, result.getChiSq(), 1e-8);
-    assertEquals(1.0, result.getFitParameters().getEntry(0), 1e-8);
-    assertEquals(1.0, result.getFitParameters().getEntry(1), 1e-8);
-    assertEquals(0.0, result.getFitParameters().getEntry(2), 1e-8);
-    assertEquals(0.0, result.getFitParameters().getEntry(3), 1e-8);
+    assertEquals(1.0, result.getFitParameters().get(0), 1e-8);
+    assertEquals(1.0, result.getFitParameters().get(1), 1e-8);
+    assertEquals(0.0, result.getFitParameters().get(2), 1e-8);
+    assertEquals(0.0, result.getFitParameters().get(3), 1e-8);
   }
 
   public void solveExactTest2() {
     final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {0.2, 1.8, 0.2, 0.3 });
     final LeastSquareResults result = LS.solve(Y, SIGMA, FUNCTION, start);
     assertEquals(0.0, result.getChiSq(), 1e-8);
-    assertEquals(1.0, result.getFitParameters().getEntry(0), 1e-8);
-    assertEquals(1.0, result.getFitParameters().getEntry(1), 1e-8);
-    assertEquals(0.0, result.getFitParameters().getEntry(2), 1e-8);
-    assertEquals(0.0, result.getFitParameters().getEntry(3), 1e-8);
+    assertEquals(1.0, result.getFitParameters().get(0), 1e-8);
+    assertEquals(1.0, result.getFitParameters().get(1), 1e-8);
+    assertEquals(0.0, result.getFitParameters().get(2), 1e-8);
+    assertEquals(0.0, result.getFitParameters().get(3), 1e-8);
   }
 
   public void solveExactWithoutGradientTest() {
@@ -165,17 +165,17 @@ public class NonLinearLeastSquareTest {
     final NonLinearLeastSquare ls = new NonLinearLeastSquare();
     final LeastSquareResults result = ls.solve(X, Y, SIGMA, PARAM_FUNCTION, start);
     assertEquals(0.0, result.getChiSq(), 1e-8);
-    assertEquals(1.0, result.getFitParameters().getEntry(0), 1e-8);
-    assertEquals(1.0, result.getFitParameters().getEntry(1), 1e-8);
-    assertEquals(0.0, result.getFitParameters().getEntry(2), 1e-8);
-    assertEquals(0.0, result.getFitParameters().getEntry(3), 1e-8);
+    assertEquals(1.0, result.getFitParameters().get(0), 1e-8);
+    assertEquals(1.0, result.getFitParameters().get(1), 1e-8);
+    assertEquals(0.0, result.getFitParameters().get(2), 1e-8);
+    assertEquals(0.0, result.getFitParameters().get(3), 1e-8);
   }
 
   public void solveRandomNoiseTest() {
     final MatrixAlgebra ma = new OGMatrixAlgebra();
     final double[] y = new double[20];
     for (int i = 0; i < 20; i++) {
-      y[i] = Y.getEntry(i) + SIGMA.getEntry(i) * NORMAL.nextRandom();
+      y[i] = Y.get(i) + SIGMA.get(i) * NORMAL.nextRandom();
     }
     final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {0.7, 1.4, 0.2, -0.3 });
     final NonLinearLeastSquare ls = new NonLinearLeastSquare();
@@ -203,7 +203,7 @@ public class NonLinearLeastSquareTest {
     final MatrixAlgebra ma = new OGMatrixAlgebra();
     final double[] dy = new double[20];
     for (int i = 0; i < 20; i++) {
-      dy[i] = 0.1 * SIGMA.getEntry(i) * NORMAL.nextRandom();
+      dy[i] = 0.1 * SIGMA.get(i) * NORMAL.nextRandom();
     }
     final DoubleMatrix1D deltaY = new DoubleMatrix1D(dy);
     final DoubleMatrix1D solution = new DoubleMatrix1D(new double[] {1.0, 1.0, 0.0, 0.0 });
@@ -217,10 +217,10 @@ public class NonLinearLeastSquareTest {
     final LeastSquareResults lsRes = ls.solve(X, y, SIGMA, PARAM_FUNCTION, PARAM_GRAD, solution);
     final DoubleMatrix1D trueDeltaParms = (DoubleMatrix1D) ma.subtract(lsRes.getFitParameters(), solution);
 
-    assertEquals(trueDeltaParms.getEntry(0), deltaParms.getEntry(0), 5e-5);
-    assertEquals(trueDeltaParms.getEntry(1), deltaParms.getEntry(1), 5e-5);
-    assertEquals(trueDeltaParms.getEntry(2), deltaParms.getEntry(2), 5e-5);
-    assertEquals(trueDeltaParms.getEntry(3), deltaParms.getEntry(3), 5e-5);
+    assertEquals(trueDeltaParms.get(0), deltaParms.get(0), 5e-5);
+    assertEquals(trueDeltaParms.get(1), deltaParms.get(1), 5e-5);
+    assertEquals(trueDeltaParms.get(2), deltaParms.get(2), 5e-5);
+    assertEquals(trueDeltaParms.get(3), deltaParms.get(3), 5e-5);
   }
 
 }

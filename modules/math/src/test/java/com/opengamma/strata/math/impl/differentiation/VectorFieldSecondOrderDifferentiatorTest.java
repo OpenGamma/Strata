@@ -23,8 +23,8 @@ public class VectorFieldSecondOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-      double a = x.getEntry(0);
-      double theta = x.getEntry(1);
+      double a = x.get(0);
+      double theta = x.get(1);
       double[] temp = new double[2];
       double c1 = Math.cos(theta);
       temp[0] = a * c1 * c1;
@@ -37,8 +37,8 @@ public class VectorFieldSecondOrderDifferentiatorTest {
 
     @Override
     public Boolean evaluate(DoubleMatrix1D x) {
-      double a = x.getEntry(0);
-      double theta = x.getEntry(1);
+      double a = x.get(0);
+      double theta = x.get(1);
       if (a <= 0) {
         return false;
       }
@@ -52,8 +52,8 @@ public class VectorFieldSecondOrderDifferentiatorTest {
   private static Function1D<DoubleMatrix1D, DoubleMatrix2D> DW1 = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
     @Override
     public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
-      double a = x.getEntry(0);
-      double theta = x.getEntry(1);
+      double a = x.get(0);
+      double theta = x.get(1);
       double[][] temp = new double[2][2];
       double c1 = Math.cos(theta);
       double s1 = Math.sin(theta);
@@ -68,8 +68,8 @@ public class VectorFieldSecondOrderDifferentiatorTest {
   private static Function1D<DoubleMatrix1D, DoubleMatrix2D> DW2 = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
     @Override
     public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
-      double a = x.getEntry(0);
-      double theta = x.getEntry(1);
+      double a = x.get(0);
+      double theta = x.get(1);
       double[][] temp = new double[2][2];
       double c1 = Math.cos(theta);
       double s1 = Math.sin(theta);
@@ -95,8 +95,8 @@ public class VectorFieldSecondOrderDifferentiatorTest {
     DoubleMatrix2D t2 = DW2.evaluate(x);
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
-        assertEquals("first observation " + i + " " + j, t1.getEntry(i, j), fdValues[0].getEntry(i, j), 1e-6);
-        assertEquals("second observation " + i + " " + j, t2.getEntry(i, j), fdValues[1].getEntry(i, j), 1e-6);
+        assertEquals("first observation " + i + " " + j, t1.get(i, j), fdValues[0].get(i, j), 1e-6);
+        assertEquals("second observation " + i + " " + j, t2.get(i, j), fdValues[1].get(i, j), 1e-6);
       }
     }
   }
@@ -126,8 +126,8 @@ public class VectorFieldSecondOrderDifferentiatorTest {
       DoubleMatrix2D t2 = DW2.evaluate(x[k]);
       for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++) {
-          assertEquals("first observation " + i + " " + j, t1.getEntry(i, j), fdValues[0].getEntry(i, j), 1e-6);
-          assertEquals("second observation " + i + " " + j, t2.getEntry(i, j), fdValues[1].getEntry(i, j), 1e-6);
+          assertEquals("first observation " + i + " " + j, t1.get(i, j), fdValues[0].get(i, j), 1e-6);
+          assertEquals("second observation " + i + " " + j, t2.get(i, j), fdValues[1].get(i, j), 1e-6);
         }
       }
     }

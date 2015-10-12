@@ -35,7 +35,7 @@ public class InterpolatedCurveVectorFunctionTest {
     //sample at the knots 
     InterpolatedCurveVectorFunction vf = new InterpolatedCurveVectorFunction(knots, interpolator, knots);
     final int nKnots = knots.length;
-    final DoubleMatrix1D x = new DoubleMatrix1D(nKnots);
+    final DoubleMatrix1D x = DoubleMatrix1D.filled(nKnots);
     for (int i = 0; i < nKnots; i++) {
       x.getData()[i] = Math.sin(knots[i]);
     }
@@ -122,7 +122,7 @@ public class InterpolatedCurveVectorFunctionTest {
 
       @Override
       public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
-        return DoubleMatrix2D.EMPTY_MATRIX;
+        return DoubleMatrix2D.EMPTY;
       }
 
       @Override
@@ -138,17 +138,17 @@ public class InterpolatedCurveVectorFunctionTest {
 
     final VectorFunction vf = new ConcatenatedVectorFunction(new VectorFunction[] {vf1, vf3, vf2 });
     final int nKnots1 = knots1.length;
-    final DoubleMatrix1D x1 = new DoubleMatrix1D(nKnots1);
+    final DoubleMatrix1D x1 = DoubleMatrix1D.filled(nKnots1);
     for (int i = 0; i < nKnots1; i++) {
       x1.getData()[i] = Math.sin(knots1[i]);
     }
     final int nKnots2 = knots2.length;
-    final DoubleMatrix1D x2 = new DoubleMatrix1D(nKnots2);
+    final DoubleMatrix1D x2 = DoubleMatrix1D.filled(nKnots2);
     for (int i = 0; i < nKnots2; i++) {
       x2.getData()[i] = Math.sin(knots2[i]);
     }
     final int nKnots = nKnots1 + nKnots2;
-    final DoubleMatrix1D x = new DoubleMatrix1D(nKnots);
+    final DoubleMatrix1D x = DoubleMatrix1D.filled(nKnots);
     System.arraycopy(x1.getData(), 0, x.getData(), 0, nKnots1);
     System.arraycopy(x2.getData(), 0, x.getData(), nKnots1, nKnots2);
     final DoubleMatrix1D y = vf.evaluate(x);
@@ -156,8 +156,8 @@ public class InterpolatedCurveVectorFunctionTest {
     assertEquals(samplePoints.length * 3, y.size());
     final DoubleMatrix2D jac = vf.calculateJacobian(x);
 
-    assertEquals(samplePoints.length * 3, jac.getNumberOfRows());
-    assertEquals(nKnots, jac.getNumberOfColumns());
+    assertEquals(samplePoints.length * 3, jac.rowCount());
+    assertEquals(nKnots, jac.columnCount());
 
     final DoubleMatrix2D jacFD = DIFF.differentiate(vf).evaluate(x);
     assertEqualsMatrix(jac, jacFD, 1e-4);

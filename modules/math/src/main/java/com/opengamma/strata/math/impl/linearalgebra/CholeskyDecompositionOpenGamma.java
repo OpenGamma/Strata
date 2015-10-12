@@ -41,8 +41,8 @@ public class CholeskyDecompositionOpenGamma extends Decomposition<CholeskyDecomp
    */
   public CholeskyDecompositionResult evaluate(DoubleMatrix2D matrix, double symmetryThreshold, double positivityThreshold) {
     ArgChecker.notNull(matrix, "Matrix null");
-    int nbRow = matrix.getNumberOfRows();
-    int nbCol = matrix.getNumberOfColumns();
+    int nbRow = matrix.rowCount();
+    int nbCol = matrix.columnCount();
     ArgChecker.isTrue(nbRow == nbCol, "Matrix not square");
     double[][] l = new double[nbRow][nbRow];
     // Check symmetry and initial fill of _lTArray

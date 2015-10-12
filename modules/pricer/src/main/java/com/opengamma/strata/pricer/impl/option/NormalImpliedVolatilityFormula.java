@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.impl.option;
 
 import com.google.common.math.DoubleMath;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.rootfinding.BisectionSingleRootFinder;
@@ -61,10 +62,9 @@ public class NormalImpliedVolatilityFormula {
     double sigma = (Math.abs(data.getNormalVolatility()) < 1e-10 ? 0.3 * f : data.getNormalVolatility());
     NormalFunctionData newData = NormalFunctionData.of(f, numeraire, sigma);
     double maxChange = 0.5 * f;
-    double[] priceDerivative = new double[3];
-    double price = NORMAL_PRICE_FUNCTION.getPriceAdjoint(option, newData, priceDerivative);
-    double vega = priceDerivative[1];
-    double change = (price - optionPrice) / vega;
+    ValueDerivatives price = NORMAL_PRICE_FUNCTION.getPriceAdjoint(option, newData);
+    double vega = price.getDerivative(1);
+    double change = (price.getValue() - optionPrice) / vega;
     double sign = Math.signum(change);
     change = sign * Math.min(maxChange, Math.abs(change));
     if (change > 0 && change > sigma) {
@@ -74,9 +74,9 @@ public class NormalImpliedVolatilityFormula {
     while (Math.abs(change) > EPS) {
       sigma -= change;
       newData = NormalFunctionData.of(f, numeraire, sigma);
-      price = NORMAL_PRICE_FUNCTION.getPriceAdjoint(option, newData, priceDerivative);
-      vega = priceDerivative[1];
-      change = (price - optionPrice) / vega;
+      price = NORMAL_PRICE_FUNCTION.getPriceAdjoint(option, newData);
+      vega = price.getDerivative(1);
+      change = (price.getValue() - optionPrice) / vega;
       sign = Math.signum(change);
       change = sign * Math.min(maxChange, Math.abs(change));
       if (change > 0 && change > sigma) {

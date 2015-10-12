@@ -134,8 +134,8 @@ public abstract class PiecewisePolynomialInterpolator2D {
    */
   protected double getValue(final DoubleMatrix2D coefMat, final double x0, final double x1, final double leftKnot0, final double leftKnot1) {
 
-    final int order0 = coefMat.getNumberOfRows();
-    final int order1 = coefMat.getNumberOfColumns();
+    final int order0 = coefMat.rowCount();
+    final int order1 = coefMat.columnCount();
     final double x0Mod = x0 - leftKnot0;
     final double x1Mod = x1 - leftKnot1;
     double res = 0.;

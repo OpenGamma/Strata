@@ -262,7 +262,7 @@ abstract class CubicSplineSolver {
     final DoubleMatrix1D[] res = new DoubleMatrix1D[nDataPts + 1];
     res[0] = new DoubleMatrix1D(backSubstitution(uMat, forwardSubstitution(lMat, doubVecMod)));
     for (int i = 0; i < nDataPts; ++i) {
-      final double[] doubMat2Colum = doubMat2Matrix.getColumnVector(i).getData();
+      final double[] doubMat2Colum = doubMat2Matrix.column(i).getData();
       final double[] doubVecMod2 = ((DoubleMatrix1D) OG_ALGEBRA.multiply(pMat, new DoubleMatrix1D(doubMat2Colum))).getData();
       res[i + 1] = new DoubleMatrix1D(backSubstitution(uMat, forwardSubstitution(lMat, doubVecMod2)));
     }

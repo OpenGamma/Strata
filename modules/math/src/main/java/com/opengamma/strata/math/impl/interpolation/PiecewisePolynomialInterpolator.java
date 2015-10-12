@@ -56,7 +56,7 @@ public abstract class PiecewisePolynomialInterpolator {
         }
       }
     }
-    final double[] coefs = coefMatrix.getRowVector(indicator).getData();
+    final double[] coefs = coefMatrix.row(indicator).getData();
     res = getValue(coefs, xKey, knots[indicator]);
     ArgChecker.isFalse(Double.isInfinite(res), "Too large input");
     ArgChecker.isFalse(Double.isNaN(res), "Too large input");
@@ -97,7 +97,7 @@ public abstract class PiecewisePolynomialInterpolator {
           }
         }
       }
-      final double[] coefs = coefMatrix.getRowVector(indicator).getData();
+      final double[] coefs = coefMatrix.row(indicator).getData();
       res[j] = getValue(coefs, xKeys[j], knots[indicator]);
       ArgChecker.isFalse(Double.isInfinite(res[j]), "Too large input");
       ArgChecker.isFalse(Double.isNaN(res[j]), "Too large input");
@@ -125,7 +125,7 @@ public abstract class PiecewisePolynomialInterpolator {
 
     for (int i = 0; i < keyDim; ++i) {
       for (int j = 0; j < keyLength; ++j) {
-        res[i][j] = interpolate(xValues, yValues, matrix.getRowVector(i).getData()).getData()[j];
+        res[i][j] = interpolate(xValues, yValues, matrix.row(i).getData()).getData()[j];
       }
     }
 
@@ -142,12 +142,12 @@ public abstract class PiecewisePolynomialInterpolator {
   public DoubleMatrix1D interpolate(final double[] xValues, final double[][] yValuesMatrix, final double x) {
 
     final DoubleMatrix2D matrix = new DoubleMatrix2D(yValuesMatrix);
-    final int dim = matrix.getNumberOfRows();
+    final int dim = matrix.rowCount();
 
     double[] res = new double[dim];
 
     for (int i = 0; i < dim; ++i) {
-      res[i] = interpolate(xValues, matrix.getRowVector(i).getData(), x);
+      res[i] = interpolate(xValues, matrix.row(i).getData(), x);
     }
 
     return new DoubleMatrix1D(res);
@@ -170,7 +170,7 @@ public abstract class PiecewisePolynomialInterpolator {
     double[][] res = new double[dim][keyLength];
 
     for (int i = 0; i < dim; ++i) {
-      res[i] = interpolate(xValues, matrix.getRowVector(i).getData(), x).getData();
+      res[i] = interpolate(xValues, matrix.row(i).getData(), x).getData();
     }
 
     return new DoubleMatrix2D(res);
@@ -192,7 +192,7 @@ public abstract class PiecewisePolynomialInterpolator {
     DoubleMatrix2D[] resMatrix2D = new DoubleMatrix2D[keyColumn];
 
     for (int i = 0; i < keyColumn; ++i) {
-      resMatrix2D[i] = interpolate(xValues, yValuesMatrix, matrix.getColumnVector(i).getData());
+      resMatrix2D[i] = interpolate(xValues, yValuesMatrix, matrix.column(i).getData());
     }
 
     return resMatrix2D;

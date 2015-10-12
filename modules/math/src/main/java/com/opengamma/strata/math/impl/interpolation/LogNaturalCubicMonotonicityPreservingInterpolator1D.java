@@ -58,7 +58,7 @@ public final class LogNaturalCubicMonotonicityPreservingInterpolator1D
     ArgChecker.isTrue(data instanceof Interpolator1DLogPiecewisePoynomialDataBundle);
     Interpolator1DLogPiecewisePoynomialDataBundle polyData = (Interpolator1DLogPiecewisePoynomialDataBundle) data;
     DoubleMatrix1D res = FUNC.evaluate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value);
-    return Math.exp(res.getEntry(0));
+    return Math.exp(res.get(0));
   }
 
   @Override
@@ -71,7 +71,7 @@ public final class LogNaturalCubicMonotonicityPreservingInterpolator1D
     DoubleMatrix1D resDerivative = FUNC.differentiate(
         polyData.getPiecewisePolynomialResultsWithSensitivity(),
         value);
-    return Math.exp(resValue.getEntry(0)) * resDerivative.getEntry(0);
+    return Math.exp(resValue.get(0)) * resDerivative.get(0);
   }
 
   @Override
@@ -81,7 +81,7 @@ public final class LogNaturalCubicMonotonicityPreservingInterpolator1D
     ArgChecker.isTrue(data instanceof Interpolator1DLogPiecewisePoynomialDataBundle);
     Interpolator1DLogPiecewisePoynomialDataBundle polyData = (Interpolator1DLogPiecewisePoynomialDataBundle) data;
     double[] resSense = FUNC.nodeSensitivity(polyData.getPiecewisePolynomialResultsWithSensitivity(), value).getData();
-    double resValue = Math.exp(FUNC.evaluate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value).getEntry(0));
+    double resValue = Math.exp(FUNC.evaluate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value).get(0));
     double[] knotValues = data.getValues();
     int nKnots = knotValues.length;
     double[] res = new double[nKnots];

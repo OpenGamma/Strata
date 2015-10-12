@@ -224,7 +224,7 @@ public class GeneralizedLeastSquare {
     for (i = 0; i < n; i++) {
       double temp = 0;
       for (k = 0; k < m; k++) {
-        temp += w.getEntry(k) * f[k][i];
+        temp += w.get(k) * f[k][i];
       }
       chiSq += FunctionUtils.square(y.get(i) - temp) * invSigmaSqr[i];
     }
@@ -288,7 +288,7 @@ public class GeneralizedLeastSquare {
     for (i = 0; i < n; i++) {
       double temp = 0;
       for (k = 0; k < m; k++) {
-        temp += w.getEntry(k) * f[k][i];
+        temp += w.get(k) * f[k][i];
       }
       chiSq += FunctionUtils.square(y.get(i) - temp) * invSigmaSqr[i];
     }

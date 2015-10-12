@@ -78,13 +78,13 @@ public class CholeskyDecompositionOpenGammaTest {
   }
 
   private void checkEquals(final DoubleMatrix2D x, final DoubleMatrix2D y) {
-    final int n = x.getNumberOfRows();
-    final int m = x.getNumberOfColumns();
-    assertEquals(n, y.getNumberOfRows());
-    assertEquals(m, y.getNumberOfColumns());
+    final int n = x.rowCount();
+    final int m = x.columnCount();
+    assertEquals(n, y.rowCount());
+    assertEquals(m, y.columnCount());
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < m; j++) {
-        assertEquals(x.getEntry(i, j), y.getEntry(i, j), EPS);
+        assertEquals(x.get(i, j), y.get(i, j), EPS);
       }
     }
   }

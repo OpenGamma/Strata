@@ -74,7 +74,7 @@ public class SquareLinearInterpolator1DTest {
         double max = index == nData - 1 ? xData[nData - 1] : boundedValues.getHigherBoundKey();
         Function1D<DoubleMatrix1D, Boolean> domain = getDomainFunction(min, max);
         Function1D<DoubleMatrix1D, DoubleMatrix1D> diffFunc = DIFF.differentiate(interpFunc, domain);
-        double finiteFirst = diffFunc.evaluate(new DoubleMatrix1D(new double[] {key })).getEntry(0);
+        double finiteFirst = diffFunc.evaluate(new DoubleMatrix1D(new double[] {key })).get(0);
         InterpolatorTestUtil.assertRelative("linearInterpolationConsistencyTest, firstDerivative", expectedFirst,
             computedFirst, TOL);
         InterpolatorTestUtil.assertRelative("linearInterpolationConsistencyTest, firstDerivative", finiteFirst,
@@ -167,7 +167,7 @@ public class SquareLinearInterpolator1DTest {
     return new Function1D<DoubleMatrix1D, Boolean>() {
       @Override
       public Boolean evaluate(DoubleMatrix1D x) {
-        double x1 = x.getEntry(0);
+        double x1 = x.get(0);
         return x1 >= min && x1 <= max;
       }
     };
@@ -178,7 +178,7 @@ public class SquareLinearInterpolator1DTest {
     return new Function1D<DoubleMatrix1D, Double>() {
       @Override
       public Double evaluate(DoubleMatrix1D x) {
-        double x1 = x.getEntry(0);
+        double x1 = x.get(0);
         return interp.interpolate(bundle, x1);
       }
     };

@@ -96,10 +96,10 @@ public class ProductPiecewisePolynomialInterpolator1D extends Interpolator1D {
   Double interpolate(Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle data, Double value,
       PiecewisePolynomialFunction1D function, double small) {
     if (Math.abs(value) < small) {
-      return function.differentiate(data.getPiecewisePolynomialResult(), value).getEntry(0);
+      return function.differentiate(data.getPiecewisePolynomialResult(), value).get(0);
     }
     DoubleMatrix1D res = function.evaluate(data.getPiecewisePolynomialResult(), value);
-    return res.getEntry(0) / value;
+    return res.get(0) / value;
   }
 
   /**
@@ -113,11 +113,11 @@ public class ProductPiecewisePolynomialInterpolator1D extends Interpolator1D {
   double firstDerivative(Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle data, Double value,
       PiecewisePolynomialFunction1D function, double small) {
     if (Math.abs(value) < small) {
-      return 0.5 * function.differentiateTwice(data.getPiecewisePolynomialResult(), value).getEntry(0);
+      return 0.5 * function.differentiateTwice(data.getPiecewisePolynomialResult(), value).get(0);
     }
     DoubleMatrix1D resValue = function.evaluate(data.getPiecewisePolynomialResult(), value);
     DoubleMatrix1D resDerivative = function.differentiate(data.getPiecewisePolynomialResult(), value);
-    return resDerivative.getEntry(0) / value - resValue.getEntry(0) / value / value;
+    return resDerivative.get(0) / value - resValue.get(0) / value / value;
   }
 
   /**

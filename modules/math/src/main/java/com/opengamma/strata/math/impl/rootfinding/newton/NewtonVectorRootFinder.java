@@ -224,8 +224,8 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     int n = deltaX.size();
     double diff, scale;
     for (int i = 0; i < n; i++) {
-      diff = Math.abs(deltaX.getEntry(i));
-      scale = Math.abs(x.getEntry(i));
+      diff = Math.abs(deltaX.get(i));
+      scale = Math.abs(x.get(i));
       if (diff > _absoluteTol + scale * _relativeTol) {
         return false;
       }

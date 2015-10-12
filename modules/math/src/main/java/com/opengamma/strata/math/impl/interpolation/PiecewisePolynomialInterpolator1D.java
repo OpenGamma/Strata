@@ -38,7 +38,7 @@ public abstract class PiecewisePolynomialInterpolator1D extends Interpolator1D {
     ArgChecker.isTrue(data instanceof Interpolator1DPiecewisePoynomialDataBundle);
     final Interpolator1DPiecewisePoynomialDataBundle polyData = (Interpolator1DPiecewisePoynomialDataBundle) data;
     final DoubleMatrix1D res = FUNC.evaluate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value);
-    return res.getEntry(0);
+    return res.get(0);
   }
 
   @Override
@@ -48,7 +48,7 @@ public abstract class PiecewisePolynomialInterpolator1D extends Interpolator1D {
     ArgChecker.isTrue(data instanceof Interpolator1DPiecewisePoynomialDataBundle);
     final Interpolator1DPiecewisePoynomialDataBundle polyData = (Interpolator1DPiecewisePoynomialDataBundle) data;
     final DoubleMatrix1D res = FUNC.differentiate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value);
-    return res.getEntry(0);
+    return res.get(0);
   }
 
   @Override
