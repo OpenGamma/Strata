@@ -9,7 +9,7 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.JacobianCurveCalibration;
+import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -43,6 +43,6 @@ public interface RatesProviderGenerator {
    */
   public abstract ImmutableRatesProvider generate(
       double[] parameters,
-      Map<CurveName, JacobianCurveCalibration> jacobians);
+      Map<CurveName, JacobianCalibrationMatrix> jacobians);
 
 }

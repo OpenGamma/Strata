@@ -134,15 +134,15 @@ public final class DefaultCurveMetadataBuilder {
    * <p>
    * This stores the day count in the additional information map using the
    * key {@link CurveInfoType#DAY_COUNT}.
+   * <p>
+   * This is stored in the additional information map using {@code Map.put} semantics,
+   * removing the key if the day count is null.
    * 
    * @param dayCount  the day count, may be null
    * @return this, for chaining
    */
   public DefaultCurveMetadataBuilder dayCount(DayCount dayCount) {
-    if (dayCount != null) {
-      this.info.put(CurveInfoType.DAY_COUNT, dayCount);
-    }
-    return this;
+    return addInfo(CurveInfoType.DAY_COUNT, dayCount);
   }
 
   //-------------------------------------------------------------------------
@@ -151,21 +151,22 @@ public final class DefaultCurveMetadataBuilder {
    * <p>
    * This stores the calibration information in the additional information map
    * using the key {@link CurveInfoType#JACOBIAN}.
+   * <p>
+   * This is stored in the additional information map using {@code Map.put} semantics,
+   * removing the key if the jacobian is null.
    * 
    * @param jacobian  the calibration information, may be null
    * @return this, for chaining
    */
-  public DefaultCurveMetadataBuilder jacobian(JacobianCurveCalibration jacobian) {
-    if (jacobian != null) {
-      this.info.put(CurveInfoType.JACOBIAN, jacobian);
-    }
-    return this;
+  public DefaultCurveMetadataBuilder jacobian(JacobianCalibrationMatrix jacobian) {
+    return addInfo(CurveInfoType.JACOBIAN, jacobian);
   }
 
   /**
    * Adds a single piece of additional information.
    * <p>
-   * This is stored in the additional information map using {@code Map.put} semantics
+   * This is stored in the additional information map using {@code Map.put} semantics,
+   * removing the key if the instance is null.
    * 
    * @param type  the type to store under
    * @param instance  the instance to store, may be null
@@ -175,6 +176,8 @@ public final class DefaultCurveMetadataBuilder {
     ArgChecker.notNull(type, "type");
     if (instance != null) {
       this.info.put(type, instance);
+    } else {
+      this.info.remove(type);
     }
     return this;
   }

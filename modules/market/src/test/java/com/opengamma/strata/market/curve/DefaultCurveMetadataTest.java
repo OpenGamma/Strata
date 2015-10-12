@@ -30,7 +30,7 @@ public class DefaultCurveMetadataTest {
 
   private static final String NAME = "TestCurve";
   private static final CurveName CURVE_NAME = CurveName.of(NAME);
-  private static final JacobianCurveCalibration JACOBIAN_DATA = JacobianCurveCalibration.of(
+  private static final JacobianCalibrationMatrix JACOBIAN_DATA = JacobianCalibrationMatrix.of(
       ImmutableList.of(CurveParameterSize.of(CURVE_NAME, 1)),
       DoubleMatrix2D.filled(2, 2));
 

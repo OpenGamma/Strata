@@ -23,7 +23,7 @@ public class CurveInfoTypeTest {
   }
 
   public void test_JACOBIAN() {
-    CurveInfoType<JacobianCurveCalibration> test = CurveInfoType.JACOBIAN;
+    CurveInfoType<JacobianCalibrationMatrix> test = CurveInfoType.JACOBIAN;
     assertEquals(test.toString(), "Jacobian");
   }
 

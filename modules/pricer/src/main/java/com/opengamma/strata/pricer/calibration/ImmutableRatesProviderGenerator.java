@@ -23,7 +23,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.JacobianCurveCalibration;
+import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
 import com.opengamma.strata.market.curve.definition.NodalCurveDefinition;
@@ -109,7 +109,7 @@ public class ImmutableRatesProviderGenerator
   @Override
   public ImmutableRatesProvider generate(
       double[] parameters,
-      Map<CurveName, JacobianCurveCalibration> jacobians) {
+      Map<CurveName, JacobianCalibrationMatrix> jacobians) {
     
     // collect curves for child provider based on existing provider
     Map<Currency, Curve> discountCurves = new HashMap<>();
@@ -149,9 +149,9 @@ public class ImmutableRatesProviderGenerator
   // build the map of additional info
   private Map<CurveInfoType<?>, Object> additionalInfoMap(
       NodalCurveDefinition curveDefn,
-      Map<CurveName, JacobianCurveCalibration> jacobians) {
+      Map<CurveName, JacobianCalibrationMatrix> jacobians) {
 
-    JacobianCurveCalibration jacobian = jacobians.get(curveDefn.getName());
+    JacobianCalibrationMatrix jacobian = jacobians.get(curveDefn.getName());
     if (jacobian == null) {
       return ImmutableMap.of();
     }
