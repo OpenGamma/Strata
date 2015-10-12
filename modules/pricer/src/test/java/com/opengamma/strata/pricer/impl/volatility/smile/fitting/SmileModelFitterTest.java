@@ -90,7 +90,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
       T data = getModelData();
       assertEquals(data.getNumberOfParameters(), n);
       for (int i = 0; i < n; i++) {
-        assertEquals(data.getParameter(i), res.getEntry(i), _paramValueEps);
+        assertEquals(data.getParameter(i), res.get(i), _paramValueEps);
       }
     }
   }
@@ -109,7 +109,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
       T data = getModelData();
       assertEquals(data.getNumberOfParameters(), n);
       for (int i = 0; i < n; i++) {
-        assertEquals(data.getParameter(i), res.getEntry(i), eps);
+        assertEquals(data.getParameter(i), res.get(i), eps);
       }
     }
   }
@@ -205,16 +205,16 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFuncFD = differ.differentiate(func);
     DoubleMatrix2D jac = jacFunc.evaluate(x);
     DoubleMatrix2D jacFD = jacFuncFD.evaluate(x);
-    int rows = jacFD.getNumberOfRows();
-    int cols = jacFD.getNumberOfColumns();
+    int rows = jacFD.rowCount();
+    int cols = jacFD.columnCount();
 
     assertEquals(_cleanVols.length, rows);
     assertEquals(n, cols);
-    assertEquals(rows, jac.getNumberOfRows());
-    assertEquals(cols, jac.getNumberOfColumns());
+    assertEquals(rows, jac.rowCount());
+    assertEquals(cols, jac.columnCount());
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
-        assertEquals(jacFD.getEntry(i, j), jac.getEntry(i, j), 2e-2);
+        assertEquals(jacFD.get(i, j), jac.get(i, j), 2e-2);
       }
     }
   }
