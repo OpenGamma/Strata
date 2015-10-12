@@ -56,7 +56,10 @@ import com.opengamma.strata.market.id.IndexRateId;
 
 /**
  * Test for curve calibration with 2 curves in USD. 
- * One curve is Discounting and Fed Fund forward and the other one is Libor 3M forward. 
+ * <p>
+ * One curve is used for Discounting and Fed Fund forward.
+ * The other curve is used for Libor 3M forward. 
+ * <p>
  * Curve configuration and market data loaded from XML files.
  * Tests that the trades used for calibration have a PV of 0.
  */
@@ -66,86 +69,101 @@ public class CalibrationCheckExample {
 
   private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
 
-  /* Utils */
+  /**
+   * The tolerance to use.
+   */
   private static final double TOLERANCE_PV = 1.0E-8;
+  /**
+   * The number of threads to use.
+   */
   private static final int NB_THREADS = 1;
+  /**
+   * The curve group name.
+   */
+  private static final String CURVE_GROUP_NAME = "USD-DSCON-LIBOR3M";
 
-  /* Files */
+  /**
+   * The location of the data files.
+   */
   private static final String PATH_CONFIG = "src/main/resources/example-marketdata/quotes/";
-  private static final String SUFFIX_XML = ".xml";
+  /**
+   * The location of the curve definition.
+   */
+  private static final String CURVE_GROUP_CONFIG_FILE_NAME = PATH_CONFIG + "USD-DSCON-LIBOR3M.xml";
+  /**
+   * The location of the market quotes file.
+   */
+  private static final String MARKET_QUOTES_FILE_NAME = PATH_CONFIG + "market_quotes_usd.xml";
 
-  /* CurveGroupDefinition */
-  private static final String CURVE_GROUP_NAME_STR = "USD-DSCON-LIBOR3M";  
-  private static final String CURVE_GROUP_CONFIG_FILE_NAME = PATH_CONFIG + CURVE_GROUP_NAME_STR + SUFFIX_XML;
-  
-  /* All quotes for the curve calibration */
-  private static final String MARKET_QUOTE_FILE_NAME = "market_quotes_usd";
-
+  //-------------------------------------------------------------------------
   /** 
    * Runs the calibration and checks that all the trades used in the curve calibration have a PV of 0.
    * 
    * @param args  -p to run the performance estimate
    */
   public static void main(String[] args) {
-    
+
     System.out.println("Starting curve calibration: configuration and data loaded from files");
     Pair<List<Trade>, Results> results = getResults();
-    System.out.println("Computed PV for all instruments used in the calibration set.");
+    System.out.println("Computed PV for all instruments used in the calibration set");
 
-    // check that all trades have a PV of 0
-    int n = 0;
-    for (Result<?> pv : results.getSecond().getItems()) {
-      String output = "  |--> PV for " + results.getFirst().get(n).getClass() + " computed: " + pv.isSuccess();
+    // check that all trades have a PV of near 0
+    for (int i = 0; i < results.getFirst().size(); i++) {
+      Trade trade = results.getFirst().get(i);
+      Result<?> pv = results.getSecond().getItems().get(i);
+      String output = "  |--> PV for " + trade.getClass().getSimpleName() + " computed: " + pv.isSuccess();
       Object pvValue = pv.getValue();
       ArgChecker.isTrue((pvValue instanceof MultiCurrencyAmount) || (pvValue instanceof CurrencyAmount), "result type");
       if (pvValue instanceof CurrencyAmount) {
         CurrencyAmount ca = (CurrencyAmount) pvValue;
-        ArgChecker.isTrue(Math.abs(ca.getAmount()) < TOLERANCE_PV , "pv should be small");
+        ArgChecker.isTrue(Math.abs(ca.getAmount()) < TOLERANCE_PV, "PV should be small");
         output = output + " with value: " + ca;
       } else {
         MultiCurrencyAmount pvMCA = (MultiCurrencyAmount) pvValue;
         output = output + " with values: " + pvMCA;
       }
       System.out.println(output);
-      n++;
     }
-    if(args.length>0) {
-      if(args[0].equals("-p")) {
+
+    // optionally test performance
+    if (args.length > 0) {
+      if (args[0].equals("-p")) {
         performance_calibration_pricing();
       }
     }
-    System.out.println("Checked PV for all instruments used in the calibration set are small.");
+    System.out.println("Checked PV for all instruments used in the calibration set are near to zero");
   }
 
-  /* Example of performance: loading data from file, calibration and PV. */
+  // Example of performance: loading data from file, calibration and PV
   public static void performance_calibration_pricing() {
-    long startTime, endTime;
     int nbTests = 10;
     int nbRep = 3;
     int count = 0;
 
     for (int i = 0; i < nbRep; i++) {
-
-      startTime = System.currentTimeMillis();
+      long startTime = System.currentTimeMillis();
       for (int looprep = 0; looprep < nbTests; looprep++) {
         Results r = getResults().getSecond();
         count += r.getColumnCount() + r.getRowCount();
       }
-      endTime = System.currentTimeMillis();
-      System.out.println("Performance: " + nbTests + " config load +  curve calibrations + pv check (1 thread) in "
-          + (endTime - startTime) + " ms.");
+      long endTime = System.currentTimeMillis();
+      System.out.println("Performance: " + nbTests + " config load + curve calibrations + pv check (1 thread) in "
+          + (endTime - startTime) + " ms");
       // Previous run: 400 ms for 10 cycles
     }
-    System.out.println("Avoiding hotspot: " + count);
+    if (count == 0) {
+      System.out.println("Avoiding hotspot: " + count);
+    }
   }
 
+  //-------------------------------------------------------------------------
   // Compute the PV results for the instruments used in calibration from the config
   private static Pair<List<Trade>, Results> getResults() {
+    // load quotes
     ImmutableObservableValues marketQuotes =
-        LoaderUtils.loadXmlBean(PATH_CONFIG + MARKET_QUOTE_FILE_NAME + SUFFIX_XML, ImmutableObservableValues.class);
-    CurveGroupDefinition curveGroupDefinition =
-        LoaderUtils.loadXmlBean(CURVE_GROUP_CONFIG_FILE_NAME, CurveGroupDefinition.class);
+        LoaderUtils.loadXmlBean(MARKET_QUOTES_FILE_NAME, ImmutableObservableValues.class);
 
+    // create the market data builder and populate with known data
     MarketEnvironmentBuilder snapshotBuilder =
         MarketEnvironment.builder(VALUATION_DATE)
             .addTimeSeries(IndexRateId.of(USD_LIBOR_3M), TS_EMTPY)
@@ -155,14 +173,18 @@ public class CalibrationCheckExample {
     }
     MarketEnvironment snapshot = snapshotBuilder.build();
 
-    // the trades used for calibration
+    // load the curve definition
+    CurveGroupDefinition curveGroupDefinition =
+        LoaderUtils.loadXmlBean(CURVE_GROUP_CONFIG_FILE_NAME, CurveGroupDefinition.class);
+
+    // extract the trades used for calibration
     List<Trade> trades = new ArrayList<>();
     ImmutableList<CurveGroupEntry> curveGroups = curveGroupDefinition.getEntries();
     for (CurveGroupEntry entry : curveGroups) {
       ImmutableList<CurveNode> nodes = entry.getCurveDefinition().getNodes();
       for (CurveNode node : nodes) {
         if (!(node instanceof IborFixingDepositCurveNode)) {
-          // Fixing are nor real trade and there is no function for them
+          // IborFixingDeposit is not a real trade, so there is no appropriate comparison
           trades.add(node.trade(VALUATION_DATE, marketQuotes));
         }
       }
@@ -172,20 +194,30 @@ public class CalibrationCheckExample {
     List<Column> columns = ImmutableList.of(
         Column.of(Measure.PRESENT_VALUE));
 
+    // the configuration that defines how to create the curves when a curve group is requested
+    MarketDataConfig marketDataConfig = MarketDataConfig.builder()
+        .add(CurveGroupName.of(CURVE_GROUP_NAME), curveGroupDefinition)
+        .build();
+
+    // the configuration defining the curve group to use when finding a curve
+    MarketDataRules marketDataRules = MarketDataRules.of(
+        MarketDataRule.anyTarget(MarketDataMappingsBuilder.create()
+            .curveGroup(CurveGroupName.of(CURVE_GROUP_NAME))
+            .build()));
+
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(StandardComponents.pricingRules())
-        .marketDataConfig(MarketDataConfig.builder().add(CurveGroupName.of(CURVE_GROUP_NAME_STR), curveGroupDefinition).build())
-        .marketDataRules(MarketDataRules.of(
-            MarketDataRule.anyTarget(MarketDataMappingsBuilder.create()
-                .curveGroup(CurveGroupName.of(CURVE_GROUP_NAME_STR)).build())))
+        .marketDataConfig(marketDataConfig)
+        .marketDataRules(marketDataRules)
         .build();
 
     // create the engine and calculate the results
     CalculationEngine engine = create();
     return Pair.of(trades, engine.calculate(trades, columns, rules, snapshot));
-  }  
+  }
 
+  //-------------------------------------------------------------------------
   // Create the calculation engine
   private static CalculationEngine create() {
     // create the calculation runner that calculates the results

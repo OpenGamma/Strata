@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.examples.marketdata;
 
-import java.io.FileReader;
+import java.io.FileInputStream;
 
 import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
@@ -56,11 +56,13 @@ public final class LoaderUtils {
 
   /**
    * Load a bean in XML format from a file.
+   * 
    * @param fileName  the file name
+   * @param type  the bean type
    * @return the bean
    */
   public static <T extends Bean> T loadXmlBean(String fileName, Class<T> type) {
-    return Unchecked.wrap(() -> JodaBeanSer.PRETTY.xmlReader().read(new FileReader(fileName), type));
+    return Unchecked.wrap(() -> JodaBeanSer.PRETTY.xmlReader().read(new FileInputStream(fileName), type));
   }
 
 }
