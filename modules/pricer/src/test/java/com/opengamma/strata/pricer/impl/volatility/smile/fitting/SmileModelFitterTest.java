@@ -81,7 +81,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
       fittedModel.toString();
 
       assertEquals(0.0, results.getChiSq(), _chiSqEps);
-      int n = res.getNumberOfElements();
+      int n = res.dimensions();
       T data = getModelData();
       assertEquals(data.getNumberOfParameters(), n);
       for (int i = 0; i < n; i++) {
@@ -100,7 +100,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
       DoubleMatrix1D res = results.getModelParameters();
       double eps = 1e-2;
       assertTrue(results.getChiSq() < 7);
-      int n = res.getNumberOfElements();
+      int n = res.dimensions();
       T data = getModelData();
       assertEquals(data.getNumberOfParameters(), n);
       for (int i = 0; i < n; i++) {
@@ -193,7 +193,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
   }
 
   private void testJacobian(DoubleMatrix1D x) {
-    int n = x.getNumberOfElements();
+    int n = x.dimensions();
     Function1D<DoubleMatrix1D, DoubleMatrix1D> func = _fitter.getModelValueFunction();
     Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc = _fitter.getModelJacobianFunction();
     VectorFieldFirstOrderDifferentiator differ = new VectorFieldFirstOrderDifferentiator();
