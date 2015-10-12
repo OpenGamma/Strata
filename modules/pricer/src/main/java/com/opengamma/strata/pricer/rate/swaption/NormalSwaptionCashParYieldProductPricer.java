@@ -9,6 +9,7 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.FixedRateObservation;
 import com.opengamma.strata.finance.rate.RateObservation;
@@ -187,14 +188,14 @@ public class NormalSwaptionCashParYieldProductPricer {
     boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
     NormalFunctionData normalData = NormalFunctionData.of(forward, 1d, volatility);
     EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiry, isCall ? PutCall.CALL : PutCall.PUT);
-    double[] adj = new double[3];
-    double price = NORMAL.getPriceAdjoint(option, normalData, adj);
+    ValueDerivatives price = NORMAL.getPriceAdjoint(option, normalData);
     PointSensitivityBuilder forwardSensi = swapPricer.parRateSensitivity(underlying, ratesProvider);
     PointSensitivityBuilder discountSettleSensi =
         ratesProvider.discountFactors(fixedLeg.getCurrency()).zeroRatePointSensitivity(settlementDate);
     double sign = (expanded.getLongShort() == LongShort.LONG) ? 1.0 : -1.0;
-    return forwardSensi.multipliedBy(sign * discountSettle * (annuityCash * adj[0] + annuityCashDr * price))
-        .combinedWith(discountSettleSensi.multipliedBy(sign * annuityCash * price));
+    return forwardSensi.multipliedBy(sign * discountSettle * 
+        (annuityCash * price.getDerivative(0) + annuityCashDr * price.getValue()))
+        .combinedWith(discountSettleSensi.multipliedBy(sign * annuityCash * price.getValue()));
   }
 
   //-------------------------------------------------------------------------
