@@ -21,6 +21,7 @@ import static com.opengamma.strata.finance.rate.swap.CompoundingMethod.STRAIGHT;
 import static com.opengamma.strata.finance.rate.swap.SwapLegType.FIXED;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_CMP_EXPANDED_SWAP_LEG_PAY_USD;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_EXPANDED_SWAP_LEG_PAY_USD;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_EXPANDED_SWAP_LEG_REC_USD;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_FX_RESET_EXPANDED_SWAP_LEG_PAY_GBP;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_USD;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2;
@@ -393,6 +394,51 @@ public class DiscountingSwapLegPricerTest {
     PointSensitivities res = test.futureValueSensitivity(expSwapLeg, MOCK_PROV).build();
 
     assertTrue(res.equalWithTolerance(expected, TOLERANCE));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_annuityCash_onePeriod() {
+    double yield = 0.01;
+    DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
+    double computed = test.annuityCash(FIXED_EXPANDED_SWAP_LEG_REC_USD, yield);
+    double expected = SwapDummyData.NOTIONAL * (1d - 1d / (1d + yield / 4d)) / yield;
+    assertEquals(computed, expected, SwapDummyData.NOTIONAL * TOLERANCE);
+  }
+
+  public void test_annuityCash_twoPeriods() {
+    ExpandedSwapLeg leg = ExpandedSwapLeg.builder()
+        .type(FIXED)
+        .payReceive(PAY)
+        .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_PAY_USD, FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2)
+        .build();
+    double yield = 0.01;
+    DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
+    double computed = test.annuityCash(leg, yield);
+    double expected = SwapDummyData.NOTIONAL * (1d - Math.pow(1d + yield / 4d, -2)) / yield;
+    assertEquals(computed, expected, SwapDummyData.NOTIONAL * TOLERANCE);
+  }
+
+  public void test_annuityCashDerivative_onePeriod() {
+    double yield = 0.01;
+    DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
+    double computed = test.annuityCashDerivative(FIXED_EXPANDED_SWAP_LEG_REC_USD, yield);
+    double expected = 0.5 * (test.annuityCash(FIXED_EXPANDED_SWAP_LEG_REC_USD, yield + FD_SHIFT)
+        - test.annuityCash(FIXED_EXPANDED_SWAP_LEG_REC_USD, yield - FD_SHIFT)) / FD_SHIFT;
+    assertEquals(computed, expected, SwapDummyData.NOTIONAL * FD_SHIFT);
+  }
+
+  public void test_annuityCashDerivative_twoPeriods() {
+    ExpandedSwapLeg leg = ExpandedSwapLeg.builder()
+        .type(FIXED)
+        .payReceive(PAY)
+        .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_PAY_USD, FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2)
+        .build();
+    double yield = 0.01;
+    DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
+    double computed = test.annuityCashDerivative(leg, yield);
+    double expected = 0.5 / FD_SHIFT
+        * (test.annuityCash(leg, yield + FD_SHIFT) - test.annuityCash(leg, yield - FD_SHIFT));
+    assertEquals(computed, expected, SwapDummyData.NOTIONAL * FD_SHIFT);
   }
 
   //-------------------------------------------------------------------------
