@@ -476,7 +476,7 @@ public class NonLinearLeastSquare {
         for (int i = 0; i < nObs; i++) {
           for (int j = 0; j < nParms; j++) {
             for (int k = 0; k < nParms; k++) {
-              temp[j][k] -= newError.get(i) * secDiv[i].getEntry(j, k) / sigma.get(i);
+              temp[j][k] -= newError.get(i) * secDiv[i].get(j, k) / sigma.get(i);
             }
           }
         }
@@ -494,7 +494,7 @@ public class NonLinearLeastSquare {
         for (int i = 0; i < nParms; i++) {
           double a = 0.0;
           for (int j = 0; j < nParms; j++) {
-            a += u.getEntry(j, i) * v.getEntry(j, i);
+            a += u.get(j, i) * v.get(j, i);
           }
           int sign = a > 0.0 ? 1 : -1;
           if (w[i] * sign < 0.0) {
@@ -513,7 +513,7 @@ public class NonLinearLeastSquare {
             if (w[i] < 0.0) {
               double scale = 0.5 * Math.sqrt(-oldChiSqr * w[i]) / sum;
               for (int j = 0; j < nParms; j++) {
-                p[j] += scale * u.getEntry(j, i);
+                p[j] += scale * u.get(j, i);
               }
             }
           }
@@ -637,7 +637,7 @@ public class NonLinearLeastSquare {
       DoubleMatrix1D newTheta,
       DoubleMatrix1D sigma) {
 
-    DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.getNumberOfRows()));
+    DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.rowCount()));
     DoubleMatrix2D bT = getBTranspose(jacobian, sigma);
     DoubleMatrix2D inverseJacobian = decmp.solve(bT);
     return new LeastSquareResults(newChiSqr, newTheta, covariance, inverseJacobian);
@@ -662,15 +662,15 @@ public class NonLinearLeastSquare {
   }
 
   private DoubleMatrix2D getBTranspose(DoubleMatrix2D jacobian, DoubleMatrix1D sigma) {
-    int n = jacobian.getNumberOfRows();
-    int m = jacobian.getNumberOfColumns();
+    int n = jacobian.rowCount();
+    int m = jacobian.columnCount();
 
     double[][] res = new double[m][n];
 
     for (int i = 0; i < n; i++) {
       double sigmaInv = 1.0 / sigma.get(i);
       for (int k = 0; k < m; k++) {
-        res[k][i] = jacobian.getEntry(i, k) * sigmaInv;
+        res[k][i] = jacobian.get(i, k) * sigmaInv;
       }
     }
     return new DoubleMatrix2D(res);
@@ -684,8 +684,8 @@ public class NonLinearLeastSquare {
 
     DoubleMatrix2D res = jac.evaluate(theta);
     double[][] data = res.getData();
-    int n = res.getNumberOfRows();
-    int m = res.getNumberOfColumns();
+    int n = res.rowCount();
+    int m = res.columnCount();
     ArgChecker.isTrue(theta.size() == m, "Jacobian is wrong size");
     ArgChecker.isTrue(sigma.size() == n, "Jacobian is wrong size");
 
@@ -708,15 +708,15 @@ public class NonLinearLeastSquare {
 
   @SuppressWarnings("unused")
   private DoubleMatrix1D getDiagonalCurvatureMatrix(DoubleMatrix2D jacobian) {
-    int n = jacobian.getNumberOfRows();
-    int m = jacobian.getNumberOfColumns();
+    int n = jacobian.rowCount();
+    int m = jacobian.columnCount();
 
     double[] alpha = new double[m];
 
     for (int i = 0; i < m; i++) {
       double sum = 0.0;
       for (int k = 0; k < n; k++) {
-        sum += FunctionUtils.square(jacobian.getEntry(k, i));
+        sum += FunctionUtils.square(jacobian.get(k, i));
       }
       alpha[i] = sum;
     }
@@ -725,7 +725,7 @@ public class NonLinearLeastSquare {
 
   private DoubleMatrix2D getModifiedCurvatureMatrix(DoubleMatrix2D jacobian, double lambda) {
 
-    int m = jacobian.getNumberOfColumns();
+    int m = jacobian.columnCount();
     double onePLambda = 1.0 + lambda;
     DoubleMatrix2D alpha = _algebra.matrixTransposeMultiplyMatrix(jacobian);
     // scale the diagonal

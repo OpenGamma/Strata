@@ -78,8 +78,8 @@ public class CholeskyDecompositionOpenGammaResult implements CholeskyDecompositi
 
   @Override
   public DoubleMatrix2D solve(DoubleMatrix2D b) {
-    int nbRow = b.getNumberOfRows();
-    int nbCol = b.getNumberOfColumns();
+    int nbRow = b.rowCount();
+    int nbCol = b.columnCount();
     ArgChecker.isTrue(nbRow == _lArray.length, "b array of incorrect size");
     double[][] bArray = b.getData();
     double[][] x = new double[nbRow][nbCol];

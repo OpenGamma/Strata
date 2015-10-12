@@ -130,10 +130,10 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
       System.arraycopy(yValues, 0, temp, 0, nData);
       temp[i] += eps;
       pp = PCHIP.interpolate(X, temp);
-      final DoubleMatrix1D yUp = PPVAL.evaluate(pp, xx).getRowVector(0);
+      final DoubleMatrix1D yUp = PPVAL.evaluate(pp, xx).row(0);
       temp[i] -= 2 * eps;
       pp = PCHIP.interpolate(X, temp);
-      final DoubleMatrix1D yDown = PPVAL.evaluate(pp, xx).getRowVector(0);
+      final DoubleMatrix1D yDown = PPVAL.evaluate(pp, xx).row(0);
       res[i] = (DoubleMatrix1D) MA.scale(MA.subtract(yUp, yDown), scale);
     }
     return res;

@@ -25,13 +25,13 @@ public class LeastSquareWithPenaltyResultTest {
     double pen = 2.3445;
     int nParms = 12;
     DoubleMatrix1D parms = DoubleMatrix1D.filled(nParms, 0.5);
-    DoubleMatrix2D cov = new DoubleMatrix2D(nParms, nParms);
+    DoubleMatrix2D cov = DoubleMatrix2D.filled(nParms, nParms);
 
     LeastSquareWithPenaltyResults res = new LeastSquareWithPenaltyResults(chi2, pen, parms, cov);
     assertEquals(chi2, res.getChiSq());
     assertEquals(pen, res.getPenalty());
 
-    DoubleMatrix2D invJac = new DoubleMatrix2D(nParms, 5);
+    DoubleMatrix2D invJac = DoubleMatrix2D.filled(nParms, 5);
     res = new LeastSquareWithPenaltyResults(chi2, pen, parms, cov, invJac);
     assertEquals(chi2, res.getChiSq());
     assertEquals(pen, res.getPenalty());

@@ -47,7 +47,7 @@ public abstract class PenaltyMatrixGenerator {
     if (k == 0) {
       return new IdentityMatrix(m);
     }
-    DoubleMatrix2D d = new DoubleMatrix2D(m, m);
+    DoubleMatrix2D d = DoubleMatrix2D.filled(m, m);
     double[][] data = d.getData();
     int[] coeff = new int[k + 1];
 
@@ -167,7 +167,7 @@ public abstract class PenaltyMatrixGenerator {
       w[i] = 1.0 / (dx[i] * dx[i + 1] * (dx[i] + dx[i + 1]));
     }
 
-    DoubleMatrix2D res = new DoubleMatrix2D(size, size);
+    DoubleMatrix2D res = DoubleMatrix2D.filled(size, size);
     double[][] data = res.getData();
 
     if (k == 1) {
@@ -282,8 +282,8 @@ public abstract class PenaltyMatrixGenerator {
   public static DoubleMatrix1D flattenMatrix(DoubleMatrix2D aMatrix) {
     int elements = aMatrix.size();
     double[] data = new double[elements];
-    int nRows = aMatrix.getNumberOfRows();
-    int nCols = aMatrix.getNumberOfColumns();
+    int nRows = aMatrix.rowCount();
+    int nCols = aMatrix.columnCount();
     int pos = 0;
     for (int i = 0; i < nRows; i++) {
       System.arraycopy(aMatrix.getData()[i], 0, data, pos, nCols);
@@ -308,7 +308,7 @@ public abstract class PenaltyMatrixGenerator {
     int dim = numElements.length;
     ArgChecker.notNull(m, "m");
     ArgChecker.isTrue(index >= 0 && index < dim, "indices outside range");
-    ArgChecker.isTrue(m.getNumberOfColumns() == numElements[index], "columns in m ({}) do not match numElements for index ({})", m.getNumberOfColumns(), numElements[index]);
+    ArgChecker.isTrue(m.columnCount() == numElements[index], "columns in m ({}) do not match numElements for index ({})", m.columnCount(), numElements[index]);
     int postProduct = 1;
     int preProduct = 1;
     for (int j = index + 1; j < dim; j++) {

@@ -87,11 +87,11 @@ public class NonLinearTransformFunctionTest {
     assertEquals(rootHalf, y.get(2), 1e-9);
 
     DoubleMatrix2D jac = jacFunc.evaluate(x);
-    assertEquals(3, jac.getNumberOfRows());
-    assertEquals(1, jac.getNumberOfColumns());
-    assertEquals(-rootHalf * Math.sin(0.5), jac.getEntry(0, 0), 1e-9);
-    assertEquals(rootHalf * Math.cos(0.5), jac.getEntry(1, 0), 1e-9);
-    assertEquals(0, jac.getEntry(2, 0), 1e-9);
+    assertEquals(3, jac.rowCount());
+    assertEquals(1, jac.columnCount());
+    assertEquals(-rootHalf * Math.sin(0.5), jac.get(0, 0), 1e-9);
+    assertEquals(rootHalf * Math.cos(0.5), jac.get(1, 0), 1e-9);
+    assertEquals(0, jac.get(2, 0), 1e-9);
   }
 
   @Test
@@ -109,12 +109,12 @@ public class NonLinearTransformFunctionTest {
     DoubleMatrix1D testPoint = new DoubleMatrix1D(new double[] {4.5, -2.1 });
     DoubleMatrix2D jac = jacFunc.evaluate(testPoint);
     DoubleMatrix2D jacFD = jacFuncFD.evaluate(testPoint);
-    assertEquals(3, jac.getNumberOfRows());
-    assertEquals(2, jac.getNumberOfColumns());
+    assertEquals(3, jac.rowCount());
+    assertEquals(2, jac.columnCount());
 
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 2; j++) {
-        assertEquals(jacFD.getEntry(i, j), jac.getEntry(i, j), 1e-6);
+        assertEquals(jacFD.get(i, j), jac.get(i, j), 1e-6);
       }
     }
   }

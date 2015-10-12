@@ -46,7 +46,7 @@ public class JacobianEstimateInitializationFunctionTest {
     DoubleMatrix2D m2 = J.evaluate(X);
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
-        assertEquals(m1.getEntry(i, j), m2.getEntry(i, j), 1e-9);
+        assertEquals(m1.get(i, j), m2.get(i, j), 1e-9);
       }
     }
   }

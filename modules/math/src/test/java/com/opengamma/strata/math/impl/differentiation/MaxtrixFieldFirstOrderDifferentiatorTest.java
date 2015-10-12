@@ -72,16 +72,16 @@ public class MaxtrixFieldFirstOrderDifferentiatorTest {
     DoubleMatrix2D[] fdRes = G.evaluate(x);
 
     final int p = fdRes.length;
-    final int n = fdRes[0].getNumberOfRows();
-    final int m = fdRes[0].getNumberOfColumns();
+    final int n = fdRes[0].rowCount();
+    final int m = fdRes[0].columnCount();
     assertEquals(p, alRes.length);
-    assertEquals(n, alRes[0].getNumberOfRows());
-    assertEquals(m, alRes[0].getNumberOfColumns());
+    assertEquals(n, alRes[0].rowCount());
+    assertEquals(m, alRes[0].columnCount());
 
     for (int k = 0; k < p; k++) {
       for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-          assertEquals(fdRes[k].getEntry(i, j), alRes[k].getEntry(i, j), 1e-8);
+          assertEquals(fdRes[k].get(i, j), alRes[k].get(i, j), 1e-8);
         }
       }
     }

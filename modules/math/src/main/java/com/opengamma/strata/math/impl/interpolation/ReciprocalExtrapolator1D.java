@@ -60,7 +60,7 @@ public class ReciprocalExtrapolator1D
         indicator--; //there is 1 less interval that knots 
       }
       for (int j = 0; j < dim; ++j) {
-        double[] coefs = coefMatrix.getRowVector(dim * indicator + j).getData();
+        double[] coefs = coefMatrix.row(dim * indicator + j).getData();
         res[j] = getValue(coefs, xKey, knots[indicator]);
 
         ArgChecker.isFalse(Double.isInfinite(res[j]), "Too large input");
@@ -84,7 +84,7 @@ public class ReciprocalExtrapolator1D
       }
       DoubleMatrix2D coefMatrix = pp.getCoefMatrix();
       for (int j = 0; j < dim; ++j) {
-        double[] coefs = coefMatrix.getRowVector(dim * indicator + j).getData();
+        double[] coefs = coefMatrix.row(dim * indicator + j).getData();
         res[j] = coefs[nCoefs - 2];
       }
       return new DoubleMatrix1D(res);

@@ -71,7 +71,7 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
     DoubleArrayMath.sortPairs(xValuesSrt, yValuesSrt);
 
     final DoubleMatrix2D coefMatrix = this._solver.solve(xValuesSrt, yValuesSrt);
-    final int nCoefs = coefMatrix.getNumberOfColumns();
+    final int nCoefs = coefMatrix.columnCount();
 
     final int nInts = this._solver.getKnotsMat1D(xValuesSrt).size() - 1;
     for (int i = 0; i < nInts; ++i) {
@@ -133,13 +133,13 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
 
     DoubleMatrix2D[] coefMatrix = this._solver.solveMultiDim(xValuesSrt, new DoubleMatrix2D(yValuesMatrixSrt));
 
-    final int nIntervals = coefMatrix[0].getNumberOfRows();
-    final int nCoefs = coefMatrix[0].getNumberOfColumns();
+    final int nIntervals = coefMatrix[0].rowCount();
+    final int nCoefs = coefMatrix[0].columnCount();
     double[][] resMatrix = new double[dim * nIntervals][nCoefs];
 
     for (int i = 0; i < nIntervals; ++i) {
       for (int j = 0; j < dim; ++j) {
-        resMatrix[dim * i + j] = coefMatrix[j].getRowVector(i).getData();
+        resMatrix[dim * i + j] = coefMatrix[j].row(i).getData();
       }
     }
 
@@ -183,11 +183,11 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
     final int len = resMatrix.length;
     for (int k = 0; k < len; k++) {
       DoubleMatrix2D m = resMatrix[k];
-      final int rows = m.getNumberOfRows();
-      final int cols = m.getNumberOfColumns();
+      final int rows = m.rowCount();
+      final int cols = m.columnCount();
       for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-          ArgChecker.isTrue(Doubles.isFinite(m.getEntry(i, j)), "Matrix contains a NaN or infinite");
+          ArgChecker.isTrue(Doubles.isFinite(m.get(i, j)), "Matrix contains a NaN or infinite");
         }
       }
     }
@@ -195,7 +195,7 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
     final DoubleMatrix2D coefMatrix = resMatrix[0];
     final DoubleMatrix2D[] coefSenseMatrix = new DoubleMatrix2D[len - 1];
     System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, len - 1);
-    final int nCoefs = coefMatrix.getNumberOfColumns();
+    final int nCoefs = coefMatrix.columnCount();
 
     return new PiecewisePolynomialResultsWithSensitivity(this._solver.getKnotsMat1D(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
   }

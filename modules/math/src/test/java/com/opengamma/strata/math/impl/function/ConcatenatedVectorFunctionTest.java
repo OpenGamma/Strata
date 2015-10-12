@@ -37,7 +37,7 @@ public class ConcatenatedVectorFunctionTest {
 
       @Override
       public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
-        final DoubleMatrix2D jac = new DoubleMatrix2D(1, 2);
+        final DoubleMatrix2D jac = DoubleMatrix2D.filled(1, 2);
         jac.getData()[0][0] = 1.0;
         jac.getData()[0][1] = 2.0;
         return jac;

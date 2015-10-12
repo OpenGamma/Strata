@@ -161,7 +161,7 @@ public class ProductPiecewisePolynomialInterpolatorTest {
       for (int j = 0; j < nKeys; ++j) {
         keys[j] = xValues[nData - 1] + j * interval;
       }
-      double[] values = FUNC.evaluate(result, keys).getRowVector(0).getData();
+      double[] values = FUNC.evaluate(result, keys).row(0).getData();
       for (int j = 2; j < nKeys; ++j) {
         InterpolatorTestUtil.assertRelative("linearExtrapolationTest", values[j - 1] - values[j - 2], values[j - 1] -
             values[j - 2], EPS);
@@ -174,7 +174,7 @@ public class ProductPiecewisePolynomialInterpolatorTest {
       for (int j = 0; j < nKeys; ++j) {
         keys[j] = xValues[nData - 1] + j * interval;
       }
-      double[] values = FUNC.evaluate(result, keys).getRowVector(0).getData();
+      double[] values = FUNC.evaluate(result, keys).row(0).getData();
       for (int j = 2; j < nKeys; ++j) {
         InterpolatorTestUtil.assertRelative("linearExtrapolationTest", values[j - 1] - values[j - 2], values[j - 1] -
             values[j - 2], EPS);
@@ -218,7 +218,7 @@ public class ProductPiecewisePolynomialInterpolatorTest {
       for (int j = 0; j < nKeys; ++j) {
         keys[j] = xValuesClamped[nClamped - 1] + j * interval;
       }
-      double[] values = FUNC.evaluate(result, keys).getRowVector(0).getData();
+      double[] values = FUNC.evaluate(result, keys).row(0).getData();
       for (int j = 2; j < nKeys; ++j) {
         InterpolatorTestUtil.assertRelative("linearExtrapolationTest", values[j - 1] - values[j - 2], values[j - 1] -
             values[j - 2], EPS);
@@ -232,7 +232,7 @@ public class ProductPiecewisePolynomialInterpolatorTest {
       for (int j = 0; j < nKeys; ++j) {
         keys[j] = xValuesClamped[nClamped - 1] + j * interval;
       }
-      double[] values = FUNC.evaluate(result, keys).getRowVector(0).getData();
+      double[] values = FUNC.evaluate(result, keys).row(0).getData();
       for (int j = 2; j < nKeys; ++j) {
         InterpolatorTestUtil.assertRelative("linearExtrapolationTest", values[j - 1] - values[j - 2], values[j - 1] -
             values[j - 2], EPS);

@@ -60,7 +60,7 @@ public class InverseJacobianEstimateInitializationFunctionTest {
     DoubleMatrix2D identity = DoubleMatrixUtils.getIdentityMatrix2D(2);
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
-        assertEquals(m3.getEntry(i, j), identity.getEntry(i, j), 1e-6);
+        assertEquals(m3.get(i, j), identity.get(i, j), 1e-6);
       }
     }
   }

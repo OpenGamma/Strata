@@ -117,9 +117,9 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
-        assertEquals(fdFwdJac.getEntry(i, j), anJac.getEntry(i, j), 10 * EPS);
-        assertEquals(fdCentGrad.getEntry(i, j), anJac.getEntry(i, j), 10 * EPS * EPS);
-        assertEquals(fdBackGrad.getEntry(i, j), anJac.getEntry(i, j), 10 * EPS);
+        assertEquals(fdFwdJac.get(i, j), anJac.get(i, j), 10 * EPS);
+        assertEquals(fdCentGrad.get(i, j), anJac.get(i, j), 10 * EPS * EPS);
+        assertEquals(fdBackGrad.get(i, j), anJac.get(i, j), 10 * EPS);
       }
     }
   }
@@ -134,9 +134,9 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 2; j++) {
-        assertEquals(fdFwdJac.getEntry(i, j), anJac.getEntry(i, j), 10 * EPS);
-        assertEquals(fdCentGrad.getEntry(i, j), anJac.getEntry(i, j), 10 * EPS * EPS);
-        assertEquals(fdBackGrad.getEntry(i, j), anJac.getEntry(i, j), 10 * EPS);
+        assertEquals(fdFwdJac.get(i, j), anJac.get(i, j), 10 * EPS);
+        assertEquals(fdCentGrad.get(i, j), anJac.get(i, j), 10 * EPS * EPS);
+        assertEquals(fdBackGrad.get(i, j), anJac.get(i, j), 10 * EPS);
       }
     }
   }
@@ -167,7 +167,7 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
       for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 2; j++) {
-          assertEquals("set " + k, anJac.getEntry(i, j), fdJac.getEntry(i, j), 1e-8);
+          assertEquals("set " + k, anJac.get(i, j), fdJac.get(i, j), 1e-8);
         }
       }
     }

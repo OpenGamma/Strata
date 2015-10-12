@@ -118,7 +118,7 @@ public class ProductPiecewisePolynomialInterpolator extends PiecewisePolynomialI
       newKnots[nIntervalsAll + 1] = extraNode; // dummy node, outside the data range
       double[][] newCoefMatrix = new double[nIntervalsAll + 1][];
       for (int i = 0; i < nIntervalsAll; ++i) {
-        newCoefMatrix[i] = Arrays.copyOf(result.getCoefMatrix().getRowVector(i).getData(), result.getOrder());
+        newCoefMatrix[i] = Arrays.copyOf(result.getCoefMatrix().row(i).getData(), result.getOrder());
       }
       newCoefMatrix[nIntervalsAll] = new double[result.getOrder()];
       newCoefMatrix[nIntervalsAll][result.getOrder() - 1] = lastNodeY;

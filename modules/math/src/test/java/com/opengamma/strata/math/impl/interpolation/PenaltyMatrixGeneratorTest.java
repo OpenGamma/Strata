@@ -34,9 +34,9 @@ public class PenaltyMatrixGeneratorTest {
 
     DoubleMatrix1D zeroVector = DoubleMatrix1D.filled(n);
     DoubleMatrix2D d1 = PenaltyMatrixGenerator.getDifferenceMatrix(n, 1); //first order difference matrix
-    assertEquals(n, d1.getNumberOfRows());
-    assertEquals(n, d1.getNumberOfColumns());
-    AssertMatrix.assertEqualsVectors(zeroVector, d1.getRowVector(0), 1e-15); //first row should be zero
+    assertEquals(n, d1.rowCount());
+    assertEquals(n, d1.columnCount());
+    AssertMatrix.assertEqualsVectors(zeroVector, d1.row(0), 1e-15); //first row should be zero
 
     final DoubleMatrix1D x = DoubleMatrix1D.filled(n, 1.0);
     DoubleMatrix1D d1x = (DoubleMatrix1D) MA.multiply(d1, x);
@@ -44,10 +44,10 @@ public class PenaltyMatrixGeneratorTest {
     AssertMatrix.assertEqualsVectors(zeroVector, d1x, 1e-14);
 
     DoubleMatrix2D d2 = PenaltyMatrixGenerator.getDifferenceMatrix(n, 2); //second order difference matrix
-    assertEquals(n, d2.getNumberOfRows());
-    assertEquals(n, d2.getNumberOfColumns());
-    AssertMatrix.assertEqualsVectors(zeroVector, d2.getRowVector(0), 1e-15); //first two rows should be zero
-    AssertMatrix.assertEqualsVectors(zeroVector, d2.getRowVector(1), 1e-15);
+    assertEquals(n, d2.rowCount());
+    assertEquals(n, d2.columnCount());
+    AssertMatrix.assertEqualsVectors(zeroVector, d2.row(0), 1e-15); //first two rows should be zero
+    AssertMatrix.assertEqualsVectors(zeroVector, d2.row(1), 1e-15);
 
     for (int i = 0; i < n; i++) {
       x.getData()[i] = i;
@@ -63,11 +63,11 @@ public class PenaltyMatrixGeneratorTest {
     AssertMatrix.assertEqualsVectors(zeroVector, d2x, 1e-14);
 
     DoubleMatrix2D d3 = PenaltyMatrixGenerator.getDifferenceMatrix(n, 3); //third order difference matrix
-    assertEquals(n, d3.getNumberOfRows());
-    assertEquals(n, d3.getNumberOfColumns());
-    AssertMatrix.assertEqualsVectors(zeroVector, d3.getRowVector(0), 1e-15); //first three rows should be zero
-    AssertMatrix.assertEqualsVectors(zeroVector, d3.getRowVector(1), 1e-15);
-    AssertMatrix.assertEqualsVectors(zeroVector, d3.getRowVector(2), 1e-15);
+    assertEquals(n, d3.rowCount());
+    assertEquals(n, d3.columnCount());
+    AssertMatrix.assertEqualsVectors(zeroVector, d3.row(0), 1e-15); //first three rows should be zero
+    AssertMatrix.assertEqualsVectors(zeroVector, d3.row(1), 1e-15);
+    AssertMatrix.assertEqualsVectors(zeroVector, d3.row(2), 1e-15);
 
     for (int i = 0; i < n; i++) {
       x.getData()[i] = 0.5 + i + 0.1 * i * i;

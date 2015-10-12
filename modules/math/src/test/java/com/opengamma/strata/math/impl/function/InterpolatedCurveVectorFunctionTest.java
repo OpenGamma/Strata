@@ -156,8 +156,8 @@ public class InterpolatedCurveVectorFunctionTest {
     assertEquals(samplePoints.length * 3, y.size());
     final DoubleMatrix2D jac = vf.calculateJacobian(x);
 
-    assertEquals(samplePoints.length * 3, jac.getNumberOfRows());
-    assertEquals(nKnots, jac.getNumberOfColumns());
+    assertEquals(samplePoints.length * 3, jac.rowCount());
+    assertEquals(nKnots, jac.columnCount());
 
     final DoubleMatrix2D jacFD = DIFF.differentiate(vf).evaluate(x);
     assertEqualsMatrix(jac, jacFD, 1e-4);

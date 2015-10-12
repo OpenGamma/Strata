@@ -80,7 +80,7 @@ public class LeastSquareResultsTest {
     for (int i = 0; i < 2; i++) {
       assertEquals(PARAMS.get(i), res.getFitParameters().get(i), 0);
       for (int j = 0; j < 2; j++) {
-        assertEquals(COVAR.getEntry(i, j), res.getCovariance().getEntry(i, j), 0);
+        assertEquals(COVAR.get(i, j), res.getCovariance().get(i, j), 0);
       }
     }
     res = new LeastSquareResults(chiSq, PARAMS, COVAR, INV_JAC);
@@ -88,8 +88,8 @@ public class LeastSquareResultsTest {
     for (int i = 0; i < 2; i++) {
       assertEquals(PARAMS.get(i), res.getFitParameters().get(i), 0);
       for (int j = 0; j < 2; j++) {
-        assertEquals(COVAR.getEntry(i, j), res.getCovariance().getEntry(i, j), 0);
-        assertEquals(INV_JAC.getEntry(i, j), res.getFittingParameterSensitivityToData().getEntry(i, j), 0);
+        assertEquals(COVAR.get(i, j), res.getCovariance().get(i, j), 0);
+        assertEquals(INV_JAC.get(i, j), res.getFittingParameterSensitivityToData().get(i, j), 0);
       }
     }
   }
