@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.calibration;
+package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -16,15 +16,14 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.definition.CurveParameterSize;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
- * Test {@link JacobianCurveCalibrationInfo}.
+ * Test {@link JacobianCurveCalibration}.
  */
 @Test
-public class JacobianCurveCalibrationInfoTest {
+public class JacobianCurveCalibrationTest {
 
   private static final CurveName NAME1 = CurveName.of("Test1");
   private static final CurveName NAME2 = CurveName.of("Test2");
@@ -36,7 +35,7 @@ public class JacobianCurveCalibrationInfoTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    JacobianCurveCalibrationInfo test = JacobianCurveCalibrationInfo.of(CPS, MATRIX);
+    JacobianCurveCalibration test = JacobianCurveCalibration.of(CPS, MATRIX);
     assertEquals(test.getOrder(), CPS);
     assertEquals(test.getJacobianMatrix(), MATRIX);
     assertEquals(test.getCurveCount(), 2);
@@ -45,7 +44,7 @@ public class JacobianCurveCalibrationInfoTest {
 
   //-------------------------------------------------------------------------
   public void test_split() {
-    JacobianCurveCalibrationInfo test = JacobianCurveCalibrationInfo.of(CPS, MATRIX);
+    JacobianCurveCalibration test = JacobianCurveCalibration.of(CPS, MATRIX);
     double[] array = {1, 2, 3, 4, 5};
     double[] array1 = {1, 2, 3};
     double[] array2 = {4, 5};
@@ -54,14 +53,14 @@ public class JacobianCurveCalibrationInfoTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    JacobianCurveCalibrationInfo test = JacobianCurveCalibrationInfo.of(CPS, MATRIX);
+    JacobianCurveCalibration test = JacobianCurveCalibration.of(CPS, MATRIX);
     coverImmutableBean(test);
-    JacobianCurveCalibrationInfo test2 = JacobianCurveCalibrationInfo.of(ImmutableList.of(CPS1), MATRIX2);
+    JacobianCurveCalibration test2 = JacobianCurveCalibration.of(ImmutableList.of(CPS1), MATRIX2);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    JacobianCurveCalibrationInfo test = JacobianCurveCalibrationInfo.of(CPS, MATRIX);
+    JacobianCurveCalibration test = JacobianCurveCalibration.of(CPS, MATRIX);
     assertSerialization(test);
   }
 

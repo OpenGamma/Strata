@@ -50,7 +50,7 @@ public final class DefaultCurveMetadataBuilder {
    * This stores additional information for the curve.
    * <p>
    * The most common information is the {@linkplain CurveInfoType#DAY_COUNT day count}
-   * and {@linkplain CurveInfoType#CURVE_CALIBRATION curve calibration information}.
+   * and {@linkplain CurveInfoType#JACOBIAN curve calibration Jacobian}.
    */
   private final Map<CurveInfoType<?>, Object> info = new HashMap<>();
   /**
@@ -150,14 +150,14 @@ public final class DefaultCurveMetadataBuilder {
    * Sets the calibration information.
    * <p>
    * This stores the calibration information in the additional information map
-   * using the key {@link CurveInfoType#CURVE_CALIBRATION}.
+   * using the key {@link CurveInfoType#JACOBIAN}.
    * 
-   * @param calibrationInfo  the calibration information, may be null
+   * @param jacobian  the calibration information, may be null
    * @return this, for chaining
    */
-  public DefaultCurveMetadataBuilder calibrationInfo(CurveCalibrationInfo calibrationInfo) {
-    if (calibrationInfo != null) {
-      this.info.put(CurveInfoType.CURVE_CALIBRATION, calibrationInfo);
+  public DefaultCurveMetadataBuilder jacobian(JacobianCurveCalibration jacobian) {
+    if (jacobian != null) {
+      this.info.put(CurveInfoType.JACOBIAN, jacobian);
     }
     return this;
   }
@@ -165,7 +165,7 @@ public final class DefaultCurveMetadataBuilder {
   /**
    * Adds a single piece of additional information.
    * <p>
-   * This is stored in the additional information map.
+   * This is stored in the additional information map using {@code Map.put} semantics
    * 
    * @param type  the type to store under
    * @param instance  the instance to store, may be null
@@ -176,6 +176,20 @@ public final class DefaultCurveMetadataBuilder {
     if (instance != null) {
       this.info.put(type, instance);
     }
+    return this;
+  }
+
+  /**
+   * Adds additional information.
+   * <p>
+   * This is stored in the additional information map using {@code Map.putAll} semantics
+   * 
+   * @param info  the information to add
+   * @return this, for chaining
+   */
+  public <T> DefaultCurveMetadataBuilder addInfo(Map<CurveInfoType<?>, Object> info) {
+    ArgChecker.notNull(info, "infoMap");
+    this.info.putAll(info);
     return this;
   }
 

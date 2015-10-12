@@ -23,9 +23,9 @@ public final class CurveInfoType<T>
    */
   public static final CurveInfoType<DayCount> DAY_COUNT = CurveInfoType.of("DayCount");
   /**
-   * Key used to access information about the {@link CurveCalibrationInfo}.
+   * Key used to access information about the {@link JacobianCurveCalibration}.
    */
-  public static final CurveInfoType<CurveCalibrationInfo> CURVE_CALIBRATION = CurveInfoType.of("CurveCalibration");
+  public static final CurveInfoType<JacobianCurveCalibration> JACOBIAN = CurveInfoType.of("Jacobian");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

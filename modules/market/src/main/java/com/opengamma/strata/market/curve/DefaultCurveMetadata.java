@@ -70,7 +70,7 @@ public final class DefaultCurveMetadata
    * This stores additional information for the curve.
    * <p>
    * The most common information is the {@linkplain CurveInfoType#DAY_COUNT day count}
-   * and {@linkplain CurveInfoType#CURVE_CALIBRATION curve calibration information}.
+   * and {@linkplain CurveInfoType#JACOBIAN curve calibration Jacobian}.
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<CurveInfoType<?>, Object> info;
@@ -250,7 +250,7 @@ public final class DefaultCurveMetadata
    * This stores additional information for the curve.
    * <p>
    * The most common information is the {@linkplain CurveInfoType#DAY_COUNT day count}
-   * and {@linkplain CurveInfoType#CURVE_CALIBRATION curve calibration information}.
+   * and {@linkplain CurveInfoType#JACOBIAN curve calibration Jacobian}.
    * @return the value of the property, not null
    */
   public ImmutableMap<CurveInfoType<?>, Object> getInfo() {

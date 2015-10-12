@@ -62,7 +62,7 @@ public interface CurveMetadata {
    * This method supplies whatever additional information is available for the curve.
    * <p>
    * The most common information is the {@linkplain CurveInfoType#DAY_COUNT day count}
-   * and {@linkplain CurveInfoType#CURVE_CALIBRATION curve calibration information}.
+   * and {@linkplain CurveInfoType#JACOBIAN curve calibration information}.
    * 
    * @param type  the type to find
    * @return the curve information
@@ -77,7 +77,7 @@ public interface CurveMetadata {
    * Finds curve information of a specific type.
    * <p>
    * The most common information is the {@linkplain CurveInfoType#DAY_COUNT day count}
-   * and {@linkplain CurveInfoType#CURVE_CALIBRATION curve calibration information}.
+   * and {@linkplain CurveInfoType#JACOBIAN curve calibration information}.
    * <p>
    * If the info is not found, optional empty is returned.
    * 

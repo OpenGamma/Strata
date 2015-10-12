@@ -18,6 +18,7 @@ import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.JacobianCurveCalibration;
 import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
 import com.opengamma.strata.market.curve.definition.CurveNode;
@@ -157,7 +158,7 @@ public final class CurveCalibrator {
     // perform calibration one group at a time, building up the result by mutating these variables
     ImmutableRatesProvider providerCombined = knownData;
     ImmutableList<CurveParameterSize> orderPrev = ImmutableList.of();
-    ImmutableMap<CurveName, JacobianCurveCalibrationInfo> jacobians = ImmutableMap.of();
+    ImmutableMap<CurveName, JacobianCurveCalibration> jacobians = ImmutableMap.of();
     for (CurveGroupDefinition groupDefn : allGroupsDefn) {
       // combine all data in the group into flat lists
       ImmutableList<Trade> trades = groupDefn.trades(knownData.getValuationDate(), marketData);
@@ -216,13 +217,13 @@ public final class CurveCalibrator {
   //-------------------------------------------------------------------------
   // calculates the Jacobian and builds the result, called once per group
   // this uses, but does not alter, data from previous groups
-  private ImmutableMap<CurveName, JacobianCurveCalibrationInfo> updateBlockBundleForGroup(
+  private ImmutableMap<CurveName, JacobianCurveCalibration> updateBlockBundleForGroup(
       ImmutableRatesProvider provider,
       ImmutableList<Trade> trades,
       ImmutableList<CurveParameterSize> orderGroup,
       ImmutableList<CurveParameterSize> orderPrev,
       ImmutableList<CurveParameterSize> orderAll,
-      ImmutableMap<CurveName, JacobianCurveCalibrationInfo> jacobians) {
+      ImmutableMap<CurveName, JacobianCurveCalibration> jacobians) {
 
     // sensitivity to all parameters in the stated order
     int totalParamsGroup = orderGroup.stream().mapToInt(e -> e.getParameterCount()).sum();
@@ -239,7 +240,7 @@ public final class CurveCalibrator {
         res, pDmCurrentMatrix, nbTrades, totalParamsGroup, totalParamsPrevious, orderPrev, jacobians);
 
     // add to the mutable block bundle, one entry for each curve in this group
-    ImmutableMap.Builder<CurveName, JacobianCurveCalibrationInfo> jacobianBuilder = ImmutableMap.builder();
+    ImmutableMap.Builder<CurveName, JacobianCurveCalibration> jacobianBuilder = ImmutableMap.builder();
     jacobianBuilder.putAll(jacobians);
     double[][] pDmCurrentArray = pDmCurrentMatrix.getData();
     int startIndex = 0;
@@ -258,7 +259,7 @@ public final class CurveCalibrator {
       }
       // build final Jacobian matrix
       DoubleMatrix2D pDmCurveMatrix = new DoubleMatrix2D(pDmCurveArray);
-      jacobianBuilder.put(order.getName(), JacobianCurveCalibrationInfo.of(orderAll, pDmCurveMatrix));
+      jacobianBuilder.put(order.getName(), JacobianCurveCalibration.of(orderAll, pDmCurveMatrix));
       startIndex += paramCount;
     }
     return jacobianBuilder.build();
@@ -300,7 +301,7 @@ public final class CurveCalibrator {
       int totalParamsGroup,
       int totalParamsPrevious,
       ImmutableList<CurveParameterSize> orderPrevious,
-      ImmutableMap<CurveName, JacobianCurveCalibrationInfo> jacobiansPrevious) {
+      ImmutableMap<CurveName, JacobianCurveCalibration> jacobiansPrevious) {
 
     double[][] pDmPreviousArray = new double[0][0];
     if (totalParamsPrevious > 0) {
@@ -315,7 +316,7 @@ public final class CurveCalibrator {
       int startIndexOuter = 0;
       for (CurveParameterSize order : orderPrevious) {  // l
         int paramCountOuter = order.getParameterCount();
-        JacobianCurveCalibrationInfo thisInfo = jacobiansPrevious.get(order.getName());
+        JacobianCurveCalibration thisInfo = jacobiansPrevious.get(order.getName());
         double[][] thisMatrix = thisInfo.getJacobianMatrix().getData();
         int startIndexInner = 0;
         for (CurveParameterSize order2 : orderPrevious) {  // k

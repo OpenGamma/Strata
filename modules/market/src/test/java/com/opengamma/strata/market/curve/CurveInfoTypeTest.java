@@ -22,9 +22,9 @@ public class CurveInfoTypeTest {
     assertEquals(test.toString(), "DayCount");
   }
 
-  public void test_CURVE_CALIBRATION() {
-    CurveInfoType<CurveCalibrationInfo> test = CurveInfoType.CURVE_CALIBRATION;
-    assertEquals(test.toString(), "CurveCalibration");
+  public void test_JACOBIAN() {
+    CurveInfoType<JacobianCurveCalibration> test = CurveInfoType.JACOBIAN;
+    assertEquals(test.toString(), "Jacobian");
   }
 
   public void coverage() {

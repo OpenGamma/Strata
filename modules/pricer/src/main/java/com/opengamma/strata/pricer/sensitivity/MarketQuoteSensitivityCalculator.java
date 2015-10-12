@@ -13,19 +13,19 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
+import com.opengamma.strata.market.curve.JacobianCurveCalibration;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
-import com.opengamma.strata.pricer.calibration.JacobianCurveCalibrationInfo;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
  * Calculator to obtain the Market Quote sensitivities.
  * <p>
- * This needs the {@link JacobianCurveCalibrationInfo} obtained during curve calibration.
+ * This needs the {@link JacobianCurveCalibration} obtained during curve calibration.
  * The Market Quote sensitivities are also called Par Rate when the instruments used
  * in the curve calibration are quoted in rate, e.g. IRS, FRA or OIS.
  */
@@ -61,9 +61,7 @@ public class MarketQuoteSensitivityCalculator {
       Curve curve = provider.findCurve(paramSens.getCurveName())
           .orElseThrow(() -> new IllegalArgumentException(
               "Market Quote sensitivity requires curve: " + paramSens.getCurveName()));
-      JacobianCurveCalibrationInfo info = curve.getMetadata().findInfo(CurveInfoType.CURVE_CALIBRATION)
-          .filter(JacobianCurveCalibrationInfo.class::isInstance)
-          .map(JacobianCurveCalibrationInfo.class::cast)
+      JacobianCurveCalibration info = curve.getMetadata().findInfo(CurveInfoType.JACOBIAN)
           .orElseThrow(() -> new IllegalArgumentException(
               "Market Quote sensitivity requires Jacobian calibration information"));
 

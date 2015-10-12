@@ -18,7 +18,9 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.market.curve.definition.CurveParameterSize;
 import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
  * Test {@link CurveMetadata}.
@@ -28,6 +30,9 @@ public class DefaultCurveMetadataTest {
 
   private static final String NAME = "TestCurve";
   private static final CurveName CURVE_NAME = CurveName.of(NAME);
+  private static final JacobianCurveCalibration JACOBIAN_DATA = JacobianCurveCalibration.of(
+      ImmutableList.of(CurveParameterSize.of(CURVE_NAME, 1)),
+      DoubleMatrix2D.filled(2, 2));
 
   //-------------------------------------------------------------------------
   public void test_of_String_noMetadata() {
@@ -54,7 +59,7 @@ public class DefaultCurveMetadataTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.DISCOUNT_FACTOR)
         .dayCount(ACT_360)
-        .calibrationInfo(DummyCurveCalibrationInfo.INSTANCE)
+        .jacobian(JACOBIAN_DATA)
         .parameterMetadata(ImmutableList.of(CurveParameterMetadata.empty()))
         .build();
     assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
@@ -62,8 +67,8 @@ public class DefaultCurveMetadataTest {
     assertThat(test.getYValueType()).isEqualTo(ValueType.DISCOUNT_FACTOR);
     assertThat(test.getInfo(CurveInfoType.DAY_COUNT)).isEqualTo(ACT_360);
     assertThat(test.findInfo(CurveInfoType.DAY_COUNT)).isEqualTo(Optional.of(ACT_360));
-    assertThat(test.getInfo(CurveInfoType.CURVE_CALIBRATION)).isEqualTo(DummyCurveCalibrationInfo.INSTANCE);
-    assertThat(test.findInfo(CurveInfoType.CURVE_CALIBRATION)).isEqualTo(Optional.of(DummyCurveCalibrationInfo.INSTANCE));
+    assertThat(test.getInfo(CurveInfoType.JACOBIAN)).isEqualTo(JACOBIAN_DATA);
+    assertThat(test.findInfo(CurveInfoType.JACOBIAN)).isEqualTo(Optional.of(JACOBIAN_DATA));
     assertThat(test.findInfo(CurveInfoType.of("Rubbish"))).isEqualTo(Optional.empty());
     assertThat(test.getParameterMetadata().isPresent()).isTrue();
     assertThat(test.getParameterMetadata().get()).containsExactly(CurveParameterMetadata.empty());
@@ -75,15 +80,15 @@ public class DefaultCurveMetadataTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.DISCOUNT_FACTOR)
         .addInfo(CurveInfoType.DAY_COUNT, ACT_360)
-        .calibrationInfo(DummyCurveCalibrationInfo.INSTANCE)
+        .jacobian(JACOBIAN_DATA)
         .parameterMetadata(CurveParameterMetadata.empty())
         .build();
     assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
     assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
     assertThat(test.getYValueType()).isEqualTo(ValueType.DISCOUNT_FACTOR);
     assertThat(test.findInfo(CurveInfoType.DAY_COUNT)).isEqualTo(Optional.of(ACT_360));
-    assertThat(test.getInfo(CurveInfoType.CURVE_CALIBRATION)).isEqualTo(DummyCurveCalibrationInfo.INSTANCE);
-    assertThat(test.findInfo(CurveInfoType.CURVE_CALIBRATION)).isEqualTo(Optional.of(DummyCurveCalibrationInfo.INSTANCE));
+    assertThat(test.getInfo(CurveInfoType.JACOBIAN)).isEqualTo(JACOBIAN_DATA);
+    assertThat(test.findInfo(CurveInfoType.JACOBIAN)).isEqualTo(Optional.of(JACOBIAN_DATA));
     assertThat(test.findInfo(CurveInfoType.of("Rubbish"))).isEqualTo(Optional.empty());
     assertThat(test.getParameterMetadata().isPresent()).isTrue();
     assertThat(test.getParameterMetadata().get()).containsExactly(CurveParameterMetadata.empty());
@@ -95,15 +100,15 @@ public class DefaultCurveMetadataTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.DISCOUNT_FACTOR)
         .dayCount(null)
-        .calibrationInfo(null)
-        .addInfo(CurveInfoType.CURVE_CALIBRATION, null)
+        .jacobian(null)
+        .addInfo(CurveInfoType.JACOBIAN, null)
         .parameterMetadata((List<CurveParameterMetadata>) null)
         .build();
     assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
     assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
     assertThat(test.getYValueType()).isEqualTo(ValueType.DISCOUNT_FACTOR);
     assertThat(test.findInfo(CurveInfoType.DAY_COUNT)).isEqualTo(Optional.empty());
-    assertThat(test.findInfo(CurveInfoType.CURVE_CALIBRATION)).isEqualTo(Optional.empty());
+    assertThat(test.findInfo(CurveInfoType.JACOBIAN)).isEqualTo(Optional.empty());
     assertThat(test.findInfo(CurveInfoType.of("Rubbish"))).isEqualTo(Optional.empty());
     assertThat(test.getParameterMetadata().isPresent()).isFalse();
   }
@@ -120,7 +125,7 @@ public class DefaultCurveMetadataTest {
     assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
     assertThat(test.getYValueType()).isEqualTo(ValueType.DISCOUNT_FACTOR);
     assertThat(test.findInfo(CurveInfoType.DAY_COUNT)).isEqualTo(Optional.empty());
-    assertThat(test.findInfo(CurveInfoType.CURVE_CALIBRATION)).isEqualTo(Optional.empty());
+    assertThat(test.findInfo(CurveInfoType.JACOBIAN)).isEqualTo(Optional.empty());
     assertThat(test.findInfo(CurveInfoType.of("Rubbish"))).isEqualTo(Optional.empty());
     assertThat(test.getParameterMetadata().isPresent()).isTrue();
     assertThat(test.getParameterMetadata().get()).containsExactly(CurveParameterMetadata.empty());
@@ -138,7 +143,7 @@ public class DefaultCurveMetadataTest {
     assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
     assertThat(test.getYValueType()).isEqualTo(ValueType.DISCOUNT_FACTOR);
     assertThat(test.findInfo(CurveInfoType.DAY_COUNT)).isEqualTo(Optional.empty());
-    assertThat(test.findInfo(CurveInfoType.CURVE_CALIBRATION)).isEqualTo(Optional.empty());
+    assertThat(test.findInfo(CurveInfoType.JACOBIAN)).isEqualTo(Optional.empty());
     assertThat(test.findInfo(CurveInfoType.of("Rubbish"))).isEqualTo(Optional.empty());
     assertThat(test.getParameterMetadata().isPresent()).isTrue();
     assertThat(test.getParameterMetadata().get()).containsExactly(
@@ -166,7 +171,7 @@ public class DefaultCurveMetadataTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.DISCOUNT_FACTOR)
         .dayCount(ACT_360)
-        .calibrationInfo(DummyCurveCalibrationInfo.INSTANCE)
+        .jacobian(JACOBIAN_DATA)
         .parameterMetadata(CurveParameterMetadata.empty())
         .build();
     coverBeanEquals(test, test2);
