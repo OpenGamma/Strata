@@ -63,7 +63,7 @@ public class NormalImpliedVolatilityFormula {
     NormalFunctionData newData = NormalFunctionData.of(f, numeraire, sigma);
     double maxChange = 0.5 * f;
     ValueDerivatives price = NORMAL_PRICE_FUNCTION.getPriceAdjoint(option, newData);
-    double vega = price.getDerivatives()[1];
+    double vega = price.getDerivative(1);
     double change = (price.getValue() - optionPrice) / vega;
     double sign = Math.signum(change);
     change = sign * Math.min(maxChange, Math.abs(change));
@@ -75,7 +75,7 @@ public class NormalImpliedVolatilityFormula {
       sigma -= change;
       newData = NormalFunctionData.of(f, numeraire, sigma);
       price = NORMAL_PRICE_FUNCTION.getPriceAdjoint(option, newData);
-      vega = price.getDerivatives()[1];
+      vega = price.getDerivative(1);
       change = (price.getValue() - optionPrice) / vega;
       sign = Math.signum(change);
       change = sign * Math.min(maxChange, Math.abs(change));

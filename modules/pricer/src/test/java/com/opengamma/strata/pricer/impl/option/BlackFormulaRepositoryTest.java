@@ -159,7 +159,7 @@ public class BlackFormulaRepositoryTest {
               EuropeanVanillaOption.of(STRIKES_INPUT[loopstrike], TIME_TO_EXPIRY, PutCall.ofPut(!callput));
           BlackFunctionData data = BlackFunctionData.of(FORWARD, 1.0, VOLS[loopVols]);
           ValueDerivatives d = function.getPriceAdjoint(option, data);
-          double delta = d.getDerivatives()[0];
+          double delta = d.getDerivative(0);
           double strikeOutput =
               BlackFormulaRepository.impliedStrike(delta, callput, FORWARD, TIME_TO_EXPIRY, VOLS[loopVols]);
           assertEquals("Implied strike: (data " + loopstrike + " / " + callput + ")", STRIKES_INPUT[loopstrike],

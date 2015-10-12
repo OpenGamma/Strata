@@ -194,7 +194,7 @@ public class NormalSwaptionCashParYieldProductPricer {
         ratesProvider.discountFactors(fixedLeg.getCurrency()).zeroRatePointSensitivity(settlementDate);
     double sign = (expanded.getLongShort() == LongShort.LONG) ? 1.0 : -1.0;
     return forwardSensi.multipliedBy(sign * discountSettle * 
-        (annuityCash * price.getDerivatives()[0] + annuityCashDr * price.getValue()))
+        (annuityCash * price.getDerivative(0) + annuityCashDr * price.getValue()))
         .combinedWith(discountSettleSensi.multipliedBy(sign * annuityCash * price.getValue()));
   }
 

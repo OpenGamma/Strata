@@ -62,7 +62,7 @@ public class NormalPriceFunctionTest {
     double priceFP = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataFP);
     double priceFM = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataFM);
     double derivativeF_FD = (priceFP - priceFM) / (2 * deltaF);
-    assertEquals(priceAdjoint.getDerivatives()[0], derivativeF_FD, 1E-7);
+    assertEquals(priceAdjoint.getDerivative(0), derivativeF_FD, 1E-7);
     // Derivative strike.
     double deltaK = 0.01;
     EuropeanVanillaOption optionKP = EuropeanVanillaOption.of(F - DELTA + deltaK, T, CALL);
@@ -70,7 +70,7 @@ public class NormalPriceFunctionTest {
     double priceKP = FUNCTION.getPriceFunction(optionKP).evaluate(VOL_DATA);
     double priceKM = FUNCTION.getPriceFunction(optionKM).evaluate(VOL_DATA);
     double derivativeK_FD = (priceKP - priceKM) / (2 * deltaK);
-    assertEquals(priceAdjoint.getDerivatives()[2], derivativeK_FD, 1E-7);
+    assertEquals(priceAdjoint.getDerivative(2), derivativeK_FD, 1E-7);
     // Derivative volatility.
     double deltaV = 0.0001;
     NormalFunctionData dataVP = NormalFunctionData.of(F, DF, SIGMA + deltaV);
@@ -78,7 +78,7 @@ public class NormalPriceFunctionTest {
     double priceVP = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVP);
     double priceVM = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVM);
     double derivativeV_FD = (priceVP - priceVM) / (2 * deltaV);
-    assertEquals(priceAdjoint.getDerivatives()[1], derivativeV_FD, 1E-6);
+    assertEquals(priceAdjoint.getDerivative(1), derivativeV_FD, 1E-6);
   }
 
   private static final EuropeanVanillaOption ATM_CALL = EuropeanVanillaOption.of(F, T, CALL);
@@ -95,8 +95,8 @@ public class NormalPriceFunctionTest {
       ValueDerivatives price = FUNCTION.getPriceAdjoint(option, VOL_DATA);
       double delta = FUNCTION.getDelta(option, VOL_DATA);
       double vega = FUNCTION.getVega(option, VOL_DATA);
-      assertEquals(price.getDerivatives()[0], delta, tol);
-      assertEquals(price.getDerivatives()[1], vega, tol);
+      assertEquals(price.getDerivative(0), delta, tol);
+      assertEquals(price.getDerivative(1), vega, tol);
 
       // testing second order derivative against finite difference approximation
       NormalFunctionData dataUp = NormalFunctionData.of(F + eps, DF, SIGMA);

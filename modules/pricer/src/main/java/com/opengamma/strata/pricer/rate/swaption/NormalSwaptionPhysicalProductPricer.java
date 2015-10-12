@@ -197,7 +197,7 @@ public class NormalSwaptionPhysicalProductPricer {
     ValueDerivatives pv = NORMAL.getPriceAdjoint(option, normalData);
     double sign = (expanded.getLongShort() == LongShort.LONG) ? 1.0 : -1.0;
     return pvbpDr.multipliedBy(pv.getValue() * sign * Math.signum(pvbp))
-        .combinedWith(forwardDr.multipliedBy(pv.getDerivatives()[0] * Math.abs(pvbp) * sign));
+        .combinedWith(forwardDr.multipliedBy(pv.getDerivative(0) * Math.abs(pvbp) * sign));
   }
 
   //-------------------------------------------------------------------------

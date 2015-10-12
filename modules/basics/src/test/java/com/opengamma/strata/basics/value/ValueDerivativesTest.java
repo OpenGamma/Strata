@@ -8,10 +8,9 @@ package com.opengamma.strata.basics.value;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
-import org.testng.internal.junit.ArrayAsserts;
 
 /**
  * Test {@link ValueDerivatives}.
@@ -21,11 +20,14 @@ public class ValueDerivativesTest {
 
   private static final double VALUE = 123.4;
   private static final double[] DERIVATIVES = {1.0, 2.0, 3.0};
-  
+
   public void test_of() {
     ValueDerivatives test = ValueDerivatives.of(VALUE, DERIVATIVES);
     assertEquals(test.getValue(), VALUE, 0);
-    ArrayAsserts.assertArrayEquals(test.getDerivatives(), DERIVATIVES, 0);    
+    assertEquals(test.getDerivatives(), DERIVATIVES);
+    assertEquals(test.getDerivative(0), DERIVATIVES[0]);
+    assertEquals(test.getDerivative(1), DERIVATIVES[1]);
+    assertEquals(test.getDerivative(2), DERIVATIVES[2]);
   }
 
   //-------------------------------------------------------------------------
@@ -40,4 +42,5 @@ public class ValueDerivativesTest {
     ValueDerivatives test = ValueDerivatives.of(VALUE, DERIVATIVES);
     assertSerialization(test);
   }
+
 }
