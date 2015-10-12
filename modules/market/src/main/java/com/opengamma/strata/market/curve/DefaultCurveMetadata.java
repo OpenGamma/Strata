@@ -72,6 +72,13 @@ public final class DefaultCurveMetadata
   @PropertyDefinition(get = "optional", overrideGet = true)
   private final DayCount dayCount;
   /**
+   * The curve calibration information, optional.
+   * <p>
+   * When a curve is calibrated, useful information is obtained, which can be stored here.
+   */
+  @PropertyDefinition(get = "optional", overrideGet = true)
+  private final CurveCalibrationInfo calibrationInfo;
+  /**
    * The metadata about the parameters.
    * <p>
    * If present, the parameter metadata will match the number of parameters on the curve.
@@ -101,7 +108,7 @@ public final class DefaultCurveMetadata
    * @return the metadata
    */
   public static DefaultCurveMetadata of(CurveName name) {
-    return new DefaultCurveMetadata(name, ValueType.UNKNOWN, ValueType.UNKNOWN, null, null);
+    return new DefaultCurveMetadata(name, ValueType.UNKNOWN, ValueType.UNKNOWN, null, null, null);
   }
 
   //-------------------------------------------------------------------------
@@ -149,6 +156,7 @@ public final class DefaultCurveMetadata
       ValueType xValueType,
       ValueType yValueType,
       DayCount dayCount,
+      CurveCalibrationInfo calibrationInfo,
       List<? extends CurveParameterMetadata> parameterMetadata) {
     JodaBeanUtils.notNull(curveName, "curveName");
     JodaBeanUtils.notNull(xValueType, "xValueType");
@@ -157,6 +165,7 @@ public final class DefaultCurveMetadata
     this.xValueType = xValueType;
     this.yValueType = yValueType;
     this.dayCount = dayCount;
+    this.calibrationInfo = calibrationInfo;
     this.parameterMetadata = (parameterMetadata != null ? ImmutableList.copyOf(parameterMetadata) : null);
   }
 
@@ -230,6 +239,18 @@ public final class DefaultCurveMetadata
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the curve calibration information, optional.
+   * <p>
+   * When a curve is calibrated, useful information is obtained, which can be stored here.
+   * @return the optional value of the property, not null
+   */
+  @Override
+  public Optional<CurveCalibrationInfo> getCalibrationInfo() {
+    return Optional.ofNullable(calibrationInfo);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the metadata about the parameters.
    * <p>
    * If present, the parameter metadata will match the number of parameters on the curve.
@@ -260,6 +281,7 @@ public final class DefaultCurveMetadata
           JodaBeanUtils.equal(getXValueType(), other.getXValueType()) &&
           JodaBeanUtils.equal(getYValueType(), other.getYValueType()) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
+          JodaBeanUtils.equal(calibrationInfo, other.calibrationInfo) &&
           JodaBeanUtils.equal(parameterMetadata, other.parameterMetadata);
     }
     return false;
@@ -272,18 +294,20 @@ public final class DefaultCurveMetadata
     hash = hash * 31 + JodaBeanUtils.hashCode(getXValueType());
     hash = hash * 31 + JodaBeanUtils.hashCode(getYValueType());
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(calibrationInfo);
     hash = hash * 31 + JodaBeanUtils.hashCode(parameterMetadata);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("DefaultCurveMetadata{");
     buf.append("curveName").append('=').append(getCurveName()).append(',').append(' ');
     buf.append("xValueType").append('=').append(getXValueType()).append(',').append(' ');
     buf.append("yValueType").append('=').append(getYValueType()).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("calibrationInfo").append('=').append(calibrationInfo).append(',').append(' ');
     buf.append("parameterMetadata").append('=').append(JodaBeanUtils.toString(parameterMetadata));
     buf.append('}');
     return buf.toString();
@@ -320,6 +344,11 @@ public final class DefaultCurveMetadata
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
         this, "dayCount", DefaultCurveMetadata.class, DayCount.class);
     /**
+     * The meta-property for the {@code calibrationInfo} property.
+     */
+    private final MetaProperty<CurveCalibrationInfo> calibrationInfo = DirectMetaProperty.ofImmutable(
+        this, "calibrationInfo", DefaultCurveMetadata.class, CurveCalibrationInfo.class);
+    /**
      * The meta-property for the {@code parameterMetadata} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -334,6 +363,7 @@ public final class DefaultCurveMetadata
         "xValueType",
         "yValueType",
         "dayCount",
+        "calibrationInfo",
         "parameterMetadata");
 
     /**
@@ -353,6 +383,8 @@ public final class DefaultCurveMetadata
           return yValueType;
         case 1905311443:  // dayCount
           return dayCount;
+        case -1706594888:  // calibrationInfo
+          return calibrationInfo;
         case -1169106440:  // parameterMetadata
           return parameterMetadata;
       }
@@ -408,6 +440,14 @@ public final class DefaultCurveMetadata
     }
 
     /**
+     * The meta-property for the {@code calibrationInfo} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<CurveCalibrationInfo> calibrationInfo() {
+      return calibrationInfo;
+    }
+
+    /**
      * The meta-property for the {@code parameterMetadata} property.
      * @return the meta-property, not null
      */
@@ -427,6 +467,8 @@ public final class DefaultCurveMetadata
           return ((DefaultCurveMetadata) bean).getYValueType();
         case 1905311443:  // dayCount
           return ((DefaultCurveMetadata) bean).dayCount;
+        case -1706594888:  // calibrationInfo
+          return ((DefaultCurveMetadata) bean).calibrationInfo;
         case -1169106440:  // parameterMetadata
           return ((DefaultCurveMetadata) bean).parameterMetadata;
       }
@@ -454,6 +496,7 @@ public final class DefaultCurveMetadata
     private ValueType xValueType;
     private ValueType yValueType;
     private DayCount dayCount;
+    private CurveCalibrationInfo calibrationInfo;
     private List<? extends CurveParameterMetadata> parameterMetadata;
 
     /**
@@ -472,6 +515,7 @@ public final class DefaultCurveMetadata
       this.xValueType = beanToCopy.getXValueType();
       this.yValueType = beanToCopy.getYValueType();
       this.dayCount = beanToCopy.dayCount;
+      this.calibrationInfo = beanToCopy.calibrationInfo;
       this.parameterMetadata = beanToCopy.parameterMetadata;
     }
 
@@ -487,6 +531,8 @@ public final class DefaultCurveMetadata
           return yValueType;
         case 1905311443:  // dayCount
           return dayCount;
+        case -1706594888:  // calibrationInfo
+          return calibrationInfo;
         case -1169106440:  // parameterMetadata
           return parameterMetadata;
         default:
@@ -509,6 +555,9 @@ public final class DefaultCurveMetadata
           break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
+          break;
+        case -1706594888:  // calibrationInfo
+          this.calibrationInfo = (CurveCalibrationInfo) newValue;
           break;
         case -1169106440:  // parameterMetadata
           this.parameterMetadata = (List<? extends CurveParameterMetadata>) newValue;
@@ -550,6 +599,7 @@ public final class DefaultCurveMetadata
           xValueType,
           yValueType,
           dayCount,
+          calibrationInfo,
           parameterMetadata);
     }
 
@@ -611,6 +661,18 @@ public final class DefaultCurveMetadata
     }
 
     /**
+     * Sets the curve calibration information, optional.
+     * <p>
+     * When a curve is calibrated, useful information is obtained, which can be stored here.
+     * @param calibrationInfo  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder calibrationInfo(CurveCalibrationInfo calibrationInfo) {
+      this.calibrationInfo = calibrationInfo;
+      return this;
+    }
+
+    /**
      * Sets the metadata about the parameters.
      * <p>
      * If present, the parameter metadata will match the number of parameters on the curve.
@@ -635,12 +697,13 @@ public final class DefaultCurveMetadata
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(224);
       buf.append("DefaultCurveMetadata.Builder{");
       buf.append("curveName").append('=').append(JodaBeanUtils.toString(curveName)).append(',').append(' ');
       buf.append("xValueType").append('=').append(JodaBeanUtils.toString(xValueType)).append(',').append(' ');
       buf.append("yValueType").append('=').append(JodaBeanUtils.toString(yValueType)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+      buf.append("calibrationInfo").append('=').append(JodaBeanUtils.toString(calibrationInfo)).append(',').append(' ');
       buf.append("parameterMetadata").append('=').append(JodaBeanUtils.toString(parameterMetadata));
       buf.append('}');
       return buf.toString();

@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.CurveCalibrationInfo;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
@@ -118,6 +119,11 @@ public final class InterpolatedNodalCurveDefinition
   //-------------------------------------------------------------------------
   @Override
   public CurveMetadata metadata(LocalDate valuationDate) {
+    return metadata(valuationDate, null);
+  }
+
+  // creates the metadata with optional calibration info
+  private CurveMetadata metadata(LocalDate valuationDate, CurveCalibrationInfo calibrationInfo) {
     List<CurveParameterMetadata> nodeMetadata = nodes.stream()
         .map(node -> node.metadata(valuationDate))
         .collect(toImmutableList());
@@ -126,14 +132,15 @@ public final class InterpolatedNodalCurveDefinition
         .xValueType(xValueType)
         .yValueType(yValueType)
         .dayCount(dayCount)
+        .calibrationInfo(calibrationInfo)
         .parameterMetadata(nodeMetadata)
         .build();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public NodalCurve curve(LocalDate valuationDate, double[] parameters) {
-    CurveMetadata meta = metadata(valuationDate);
+  public NodalCurve curve(LocalDate valuationDate, double[] parameters, CurveCalibrationInfo calibrationInfo) {
+    CurveMetadata meta = metadata(valuationDate, calibrationInfo);
     double[] nodeTimes = new double[getParameterCount()];
     for (int i = 0; i < getParameterCount(); i++) {
       LocalDate nodeDate = ((DatedCurveParameterMetadata) meta.getParameterMetadata().get().get(i)).getDate();

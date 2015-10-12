@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.Period;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.market.curve.CurveCalibrationInfo;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.NodalCurve;
@@ -86,8 +87,9 @@ public interface NodalCurveDefinition {
    * 
    * @param valuationDate  the valuation date
    * @param parameters  the array of parameters
+   * @param calibrationInfo  the curve calibration info, may be null
    * @return the curve
    */
-  public abstract NodalCurve curve(LocalDate valuationDate, double[] parameters);
+  public abstract NodalCurve curve(LocalDate valuationDate, double[] parameters, CurveCalibrationInfo calibrationInfo);
 
 }

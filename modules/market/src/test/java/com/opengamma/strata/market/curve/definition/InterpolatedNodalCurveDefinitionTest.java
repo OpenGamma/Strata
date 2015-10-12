@@ -25,6 +25,7 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
+import com.opengamma.strata.market.curve.DummyCurveCalibrationInfo;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
@@ -109,6 +110,7 @@ public class InterpolatedNodalCurveDefinitionTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
         .dayCount(ACT_365F)
+        .calibrationInfo(DummyCurveCalibrationInfo.INSTANCE)
         .parameterMetadata(NODES.get(0).metadata(VAL_DATE), NODES.get(1).metadata(VAL_DATE))
         .build();
     InterpolatedNodalCurve expected = InterpolatedNodalCurve.builder()
@@ -119,7 +121,7 @@ public class InterpolatedNodalCurveDefinitionTest {
         .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
         .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
         .build();
-    assertEquals(test.curve(VAL_DATE, new double[] {1d, 1.5d}), expected);
+    assertEquals(test.curve(VAL_DATE, new double[] {1d, 1.5d}, DummyCurveCalibrationInfo.INSTANCE), expected);
   }
 
   //-------------------------------------------------------------------------

@@ -34,6 +34,7 @@ public class DefaultCurveMetadataTest {
     assertThat(test.getXValueType()).isEqualTo(ValueType.UNKNOWN);
     assertThat(test.getYValueType()).isEqualTo(ValueType.UNKNOWN);
     assertThat(test.getDayCount()).isEqualTo(Optional.empty());
+    assertThat(test.getCalibrationInfo()).isEqualTo(Optional.empty());
     assertThat(test.getParameterMetadata().isPresent()).isFalse();
   }
 
@@ -43,6 +44,7 @@ public class DefaultCurveMetadataTest {
     assertThat(test.getXValueType()).isEqualTo(ValueType.UNKNOWN);
     assertThat(test.getYValueType()).isEqualTo(ValueType.UNKNOWN);
     assertThat(test.getDayCount()).isEqualTo(Optional.empty());
+    assertThat(test.getCalibrationInfo()).isEqualTo(Optional.empty());
     assertThat(test.getParameterMetadata().isPresent()).isFalse();
   }
 
@@ -52,12 +54,14 @@ public class DefaultCurveMetadataTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.DISCOUNT_FACTOR)
         .dayCount(ACT_360)
+        .calibrationInfo(DummyCurveCalibrationInfo.INSTANCE)
         .parameterMetadata(ImmutableList.of(CurveParameterMetadata.empty()))
         .build();
     assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
     assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
     assertThat(test.getYValueType()).isEqualTo(ValueType.DISCOUNT_FACTOR);
     assertThat(test.getDayCount()).isEqualTo(Optional.of(ACT_360));
+    assertThat(test.getCalibrationInfo()).isEqualTo(Optional.of(DummyCurveCalibrationInfo.INSTANCE));
     assertThat(test.getParameterMetadata().isPresent()).isTrue();
     assertThat(test.getParameterMetadata().get()).containsExactly(CurveParameterMetadata.empty());
   }
@@ -71,6 +75,7 @@ public class DefaultCurveMetadataTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.DISCOUNT_FACTOR)
         .dayCount(ACT_360)
+        .calibrationInfo(DummyCurveCalibrationInfo.INSTANCE)
         .parameterMetadata(CurveParameterMetadata.empty())
         .build();
     coverBeanEquals(test, test2);

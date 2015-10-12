@@ -1,11 +1,9 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer.calibration;
-
-import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -29,49 +27,42 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.market.curve.CurveCalibrationInfo;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
- * Information about a block of curves that was built together.
+ * Jacobian matrix information produced during curve calibration.
  * <p>
- * This provides details of the names of the curves and the number of parameters they have.
- * This is used in curve calibration to create and split a single array of all parameters from all curves.
+ * The inverse Jacobian matrix produced using curve calibration is stored here.
+ * The information is used to calculate market quote sensitivity.
  */
 @BeanDefinition(builderScope = "private")
-public final class CurveBuildingBlock
-    implements ImmutableBean, Serializable {
+public final class JacobianCurveCalibrationInfo
+    implements CurveCalibrationInfo, ImmutableBean, Serializable {
 
   /**
-   * The empty block.
-   */
-  private static final CurveBuildingBlock EMPTY = new CurveBuildingBlock(ImmutableList.of());
-
-  /**
-   * The curve parameter sizes.
-   * <p>
-   * The entries are used to define the curve order and the number of parameters.
+   * The order of the curves in the block that was calibrated together.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableList<CurveParameterSize> data;
+  private final ImmutableList<CurveParameterSize> order;
+  /**
+   * The inverse Jacobian matrix produced during curve calibration.
+   * This is the derivative of the curve parameters with respect to the market quotes.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final DoubleMatrix2D jacobianMatrix;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an empty block.
+   * Obtains a block from a map of curve name to curve block and Jacobian matrix.
    * 
-   * @return the empty block
+   * @param order  the order of the curves in the block that was calibrated together
+   * @param jacobianMatrix  the inverse Jacobian matrix produced during curve calibration
+   * @return the info
    */
-  public static CurveBuildingBlock empty() {
-    return EMPTY;
-  }
-
-  /**
-   * Obtains a block from a map of curve name to curve parameter size.
-   * 
-   * @param data  the block data
-   * @return the block
-   */
-  public static CurveBuildingBlock of(List<CurveParameterSize> data) {
-    return new CurveBuildingBlock(data);
+  public static JacobianCurveCalibrationInfo of(List<CurveParameterSize> order, DoubleMatrix2D jacobianMatrix) {
+    return new JacobianCurveCalibrationInfo(order, jacobianMatrix);
   }
 
   //-------------------------------------------------------------------------
@@ -81,7 +72,7 @@ public final class CurveBuildingBlock
    * @return the number of curves
    */
   public int getCurveCount() {
-    return data.size();
+    return order.size();
   }
 
   /**
@@ -90,61 +81,27 @@ public final class CurveBuildingBlock
    * @return the number of curves
    */
   public int getTotalParameterCount() {
-    return data.stream()
+    return order.stream()
         .mapToInt(CurveParameterSize::getParameterCount)
         .sum();
   }
 
   /**
-   * Finds the start index of the specified curve.
+   * Checks if this info contains the specified curve.
+   * 
+   * @param name  the curve to find
+   * @return true if the curve is matched
+   */
+  public boolean containsCurve(CurveName name) {
+    return order.stream().anyMatch(o -> o.getName().equals(name));
+  }
+
+  /**
+   * Splits the array according to the curve order.
    * <p>
-   * The result represents the start in index in the combined array of all parameters.
-   * 
-   * @param name  the curve name
-   * @return the start index
-   * @throws IllegalArgumentException if the curve cannot be found
-   */
-  public int getStart(CurveName name) {
-    int start = 0;
-    for (CurveParameterSize entry : data) {
-      if (entry.getName().equals(name)) {
-        return start;
-      }
-      start += entry.getParameterCount();
-    }
-    throw new IllegalArgumentException("Unable to find data for curve: " + name);
-  }
-
-  /**
-   * Finds the number of parameters of the specified curve.
-   * 
-   * @param name  the curve name
-   * @return the number of parameters
-   * @throws IllegalArgumentException if the curve cannot be found
-   */
-  public int getParameterCount(CurveName name) {
-    return data.stream()
-        .filter(entry -> entry.getName().equals(name))
-        .findFirst()
-        .map(CurveParameterSize::getParameterCount)
-        .orElseThrow(() -> new IllegalArgumentException("Unable to find data for curve: " + name));
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the set of curve names.
-   * 
-   * @return the set of names
-   */
-  public Set<CurveName> getAllNames() {
-    return data.stream()
-        .map(e -> e.getName())
-        .collect(toImmutableSet());
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Splits the combined array according to the curve order and sizes of this block.
+   * The input array must be of the same size as the total number of parameters.
+   * The result consists of a map of arrays, where each array is the appropriate
+   * section of the input array as defined by the curve order.
    * 
    * @param array  the array to split
    * @return the section of the array identified by this block
@@ -152,7 +109,7 @@ public final class CurveBuildingBlock
   public Map<CurveName, double[]> splitValues(double[] array) {
     LinkedHashMap<CurveName, double[]> result = new LinkedHashMap<>();
     int start = 0;
-    for (CurveParameterSize paramSizes : data) {
+    for (CurveParameterSize paramSizes : order) {
       int size = paramSizes.getParameterCount();
       double[] extracted = Arrays.copyOfRange(array, start, start + size);
       result.put(paramSizes.getName(), extracted);
@@ -164,15 +121,15 @@ public final class CurveBuildingBlock
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code CurveBuildingBlock}.
+   * The meta-bean for {@code JacobianCurveCalibrationInfo}.
    * @return the meta-bean, not null
    */
-  public static CurveBuildingBlock.Meta meta() {
-    return CurveBuildingBlock.Meta.INSTANCE;
+  public static JacobianCurveCalibrationInfo.Meta meta() {
+    return JacobianCurveCalibrationInfo.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(CurveBuildingBlock.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(JacobianCurveCalibrationInfo.Meta.INSTANCE);
   }
 
   /**
@@ -180,15 +137,18 @@ public final class CurveBuildingBlock
    */
   private static final long serialVersionUID = 1L;
 
-  private CurveBuildingBlock(
-      List<CurveParameterSize> data) {
-    JodaBeanUtils.notNull(data, "data");
-    this.data = ImmutableList.copyOf(data);
+  private JacobianCurveCalibrationInfo(
+      List<CurveParameterSize> order,
+      DoubleMatrix2D jacobianMatrix) {
+    JodaBeanUtils.notNull(order, "order");
+    JodaBeanUtils.notNull(jacobianMatrix, "jacobianMatrix");
+    this.order = ImmutableList.copyOf(order);
+    this.jacobianMatrix = jacobianMatrix;
   }
 
   @Override
-  public CurveBuildingBlock.Meta metaBean() {
-    return CurveBuildingBlock.Meta.INSTANCE;
+  public JacobianCurveCalibrationInfo.Meta metaBean() {
+    return JacobianCurveCalibrationInfo.Meta.INSTANCE;
   }
 
   @Override
@@ -203,13 +163,21 @@ public final class CurveBuildingBlock
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curve parameter sizes.
-   * <p>
-   * The entries are used to define the curve order and the number of parameters.
+   * Gets the order of the curves in the block that was calibrated together.
    * @return the value of the property, not null
    */
-  public ImmutableList<CurveParameterSize> getData() {
-    return data;
+  public ImmutableList<CurveParameterSize> getOrder() {
+    return order;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the inverse Jacobian matrix produced during curve calibration.
+   * This is the derivative of the curve parameters with respect to the market quotes.
+   * @return the value of the property, not null
+   */
+  public DoubleMatrix2D getJacobianMatrix() {
+    return jacobianMatrix;
   }
 
   //-----------------------------------------------------------------------
@@ -219,8 +187,9 @@ public final class CurveBuildingBlock
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CurveBuildingBlock other = (CurveBuildingBlock) obj;
-      return JodaBeanUtils.equal(getData(), other.getData());
+      JacobianCurveCalibrationInfo other = (JacobianCurveCalibrationInfo) obj;
+      return JodaBeanUtils.equal(getOrder(), other.getOrder()) &&
+          JodaBeanUtils.equal(getJacobianMatrix(), other.getJacobianMatrix());
     }
     return false;
   }
@@ -228,22 +197,24 @@ public final class CurveBuildingBlock
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOrder());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJacobianMatrix());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(64);
-    buf.append("CurveBuildingBlock{");
-    buf.append("data").append('=').append(JodaBeanUtils.toString(getData()));
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("JacobianCurveCalibrationInfo{");
+    buf.append("order").append('=').append(getOrder()).append(',').append(' ');
+    buf.append("jacobianMatrix").append('=').append(JodaBeanUtils.toString(getJacobianMatrix()));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code CurveBuildingBlock}.
+   * The meta-bean for {@code JacobianCurveCalibrationInfo}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -252,17 +223,23 @@ public final class CurveBuildingBlock
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code data} property.
+     * The meta-property for the {@code order} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<CurveParameterSize>> data = DirectMetaProperty.ofImmutable(
-        this, "data", CurveBuildingBlock.class, (Class) ImmutableList.class);
+    private final MetaProperty<ImmutableList<CurveParameterSize>> order = DirectMetaProperty.ofImmutable(
+        this, "order", JacobianCurveCalibrationInfo.class, (Class) ImmutableList.class);
+    /**
+     * The meta-property for the {@code jacobianMatrix} property.
+     */
+    private final MetaProperty<DoubleMatrix2D> jacobianMatrix = DirectMetaProperty.ofImmutable(
+        this, "jacobianMatrix", JacobianCurveCalibrationInfo.class, DoubleMatrix2D.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "data");
+        "order",
+        "jacobianMatrix");
 
     /**
      * Restricted constructor.
@@ -273,20 +250,22 @@ public final class CurveBuildingBlock
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3076010:  // data
-          return data;
+        case 106006350:  // order
+          return order;
+        case 1656240056:  // jacobianMatrix
+          return jacobianMatrix;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public BeanBuilder<? extends CurveBuildingBlock> builder() {
-      return new CurveBuildingBlock.Builder();
+    public BeanBuilder<? extends JacobianCurveCalibrationInfo> builder() {
+      return new JacobianCurveCalibrationInfo.Builder();
     }
 
     @Override
-    public Class<? extends CurveBuildingBlock> beanType() {
-      return CurveBuildingBlock.class;
+    public Class<? extends JacobianCurveCalibrationInfo> beanType() {
+      return JacobianCurveCalibrationInfo.class;
     }
 
     @Override
@@ -296,19 +275,29 @@ public final class CurveBuildingBlock
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code data} property.
+     * The meta-property for the {@code order} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<CurveParameterSize>> data() {
-      return data;
+    public MetaProperty<ImmutableList<CurveParameterSize>> order() {
+      return order;
+    }
+
+    /**
+     * The meta-property for the {@code jacobianMatrix} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<DoubleMatrix2D> jacobianMatrix() {
+      return jacobianMatrix;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 3076010:  // data
-          return ((CurveBuildingBlock) bean).getData();
+        case 106006350:  // order
+          return ((JacobianCurveCalibrationInfo) bean).getOrder();
+        case 1656240056:  // jacobianMatrix
+          return ((JacobianCurveCalibrationInfo) bean).getJacobianMatrix();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -326,11 +315,12 @@ public final class CurveBuildingBlock
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code CurveBuildingBlock}.
+   * The bean-builder for {@code JacobianCurveCalibrationInfo}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<CurveBuildingBlock> {
+  private static final class Builder extends DirectFieldsBeanBuilder<JacobianCurveCalibrationInfo> {
 
-    private List<CurveParameterSize> data = ImmutableList.of();
+    private List<CurveParameterSize> order = ImmutableList.of();
+    private DoubleMatrix2D jacobianMatrix;
 
     /**
      * Restricted constructor.
@@ -342,8 +332,10 @@ public final class CurveBuildingBlock
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3076010:  // data
-          return data;
+        case 106006350:  // order
+          return order;
+        case 1656240056:  // jacobianMatrix
+          return jacobianMatrix;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -353,8 +345,11 @@ public final class CurveBuildingBlock
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 3076010:  // data
-          this.data = (List<CurveParameterSize>) newValue;
+        case 106006350:  // order
+          this.order = (List<CurveParameterSize>) newValue;
+          break;
+        case 1656240056:  // jacobianMatrix
+          this.jacobianMatrix = (DoubleMatrix2D) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -387,17 +382,19 @@ public final class CurveBuildingBlock
     }
 
     @Override
-    public CurveBuildingBlock build() {
-      return new CurveBuildingBlock(
-          data);
+    public JacobianCurveCalibrationInfo build() {
+      return new JacobianCurveCalibrationInfo(
+          order,
+          jacobianMatrix);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(64);
-      buf.append("CurveBuildingBlock.Builder{");
-      buf.append("data").append('=').append(JodaBeanUtils.toString(data));
+      StringBuilder buf = new StringBuilder(96);
+      buf.append("JacobianCurveCalibrationInfo.Builder{");
+      buf.append("order").append('=').append(JodaBeanUtils.toString(order)).append(',').append(' ');
+      buf.append("jacobianMatrix").append('=').append(JodaBeanUtils.toString(jacobianMatrix));
       buf.append('}');
       return buf.toString();
     }

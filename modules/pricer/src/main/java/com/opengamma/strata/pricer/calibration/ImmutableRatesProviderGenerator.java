@@ -20,6 +20,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveCalibrationInfo;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
@@ -104,7 +105,10 @@ public class ImmutableRatesProviderGenerator
 
   //-------------------------------------------------------------------------
   @Override
-  public ImmutableRatesProvider generate(double[] parameters) {
+  public ImmutableRatesProvider generate(
+      double[] parameters,
+      Map<CurveName, ? extends CurveCalibrationInfo> info) {
+    
     // collect curves for child provider based on existing provider
     Map<Currency, Curve> discountCurves = new HashMap<>();
     Map<Index, Curve> indexCurves = new HashMap<>();
@@ -112,16 +116,15 @@ public class ImmutableRatesProviderGenerator
     indexCurves.putAll(knownProvider.getIndexCurves());
 
     // generate curves from combined parameter array
-    int nbCurves = curveDefinitions.size();
-    int nbPreviousParams = 0;
-    for (int i = 0; i < nbCurves; i++) {
+    int startIndex = 0;
+    for (int i = 0; i < curveDefinitions.size(); i++) {
       NodalCurveDefinition curveDefn = curveDefinitions.get(i);
       // extract parameters for the child curve
-      int nbParams = curveDefn.getParameterCount();
-      double[] curveParams = Arrays.copyOfRange(parameters, nbPreviousParams, nbPreviousParams + nbParams);
-      nbPreviousParams += nbParams;
+      int paramCount = curveDefn.getParameterCount();
+      double[] curveParams = Arrays.copyOfRange(parameters, startIndex, startIndex + paramCount);
+      startIndex += paramCount;
       // create the child curve
-      Curve curve = curveDefn.curve(knownProvider.getValuationDate(), curveParams);
+      Curve curve = curveDefn.curve(knownProvider.getValuationDate(), curveParams, info.get(curveDefn.getName()));
       // put child curve into maps
       Set<Currency> currencies = discountCurveNames.get(curveDefn.getName());
       for (Currency currency : currencies) {

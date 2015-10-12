@@ -65,6 +65,15 @@ public interface CurveMetadata {
   public abstract Optional<DayCount> getDayCount();
 
   /**
+   * Gets the calibration information, optional.
+   * <p>
+   * When a curve is calibrated, useful information is obtained, which can be stored here.
+   * 
+   * @return the calibration information
+   */
+  public abstract Optional<CurveCalibrationInfo> getCalibrationInfo();
+
+  /**
    * Gets metadata about each parameter underlying the curve, optional.
    * <p>
    * If present, the parameter metadata will match the number of parameters on the curve.
