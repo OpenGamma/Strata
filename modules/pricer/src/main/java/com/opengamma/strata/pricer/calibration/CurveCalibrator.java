@@ -21,7 +21,7 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
 import com.opengamma.strata.market.curve.definition.CurveNode;
-import com.opengamma.strata.market.curve.definition.NodalCurveDefinition;
+import com.opengamma.strata.market.curve.definition.CurveParameterSize;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
@@ -189,8 +189,7 @@ public final class CurveCalibrator {
   private static ImmutableList<CurveParameterSize> toOrder(CurveGroupDefinition groupDefn) {
     ImmutableList.Builder<CurveParameterSize> builder = ImmutableList.builder();
     for (CurveGroupEntry entry : groupDefn.getEntries()) {
-      NodalCurveDefinition defn = entry.getCurveDefinition();
-      builder.add(CurveParameterSize.of(defn.getName(), defn.getParameterCount()));
+      builder.add(entry.getCurveDefinition().toCurveParameterSize());
     }
     return builder.build();
   }

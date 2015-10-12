@@ -11,11 +11,13 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.market.value.ValueType;
 
 /**
@@ -29,26 +31,24 @@ public class DefaultCurveMetadataTest {
 
   //-------------------------------------------------------------------------
   public void test_of_String_noMetadata() {
-    CurveMetadata test = DefaultCurveMetadata.of(NAME);
+    DefaultCurveMetadata test = DefaultCurveMetadata.of(NAME);
     assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
     assertThat(test.getXValueType()).isEqualTo(ValueType.UNKNOWN);
     assertThat(test.getYValueType()).isEqualTo(ValueType.UNKNOWN);
-    assertThat(test.getDayCount()).isEqualTo(Optional.empty());
-    assertThat(test.getCalibrationInfo()).isEqualTo(Optional.empty());
+    assertThat(test.getInfo()).isEqualTo(ImmutableMap.of());
     assertThat(test.getParameterMetadata().isPresent()).isFalse();
   }
 
   public void test_of_CurveName_noMetadata() {
-    CurveMetadata test = DefaultCurveMetadata.of(CURVE_NAME);
+    DefaultCurveMetadata test = DefaultCurveMetadata.of(CURVE_NAME);
     assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
     assertThat(test.getXValueType()).isEqualTo(ValueType.UNKNOWN);
     assertThat(test.getYValueType()).isEqualTo(ValueType.UNKNOWN);
-    assertThat(test.getDayCount()).isEqualTo(Optional.empty());
-    assertThat(test.getCalibrationInfo()).isEqualTo(Optional.empty());
+    assertThat(test.getInfo()).isEqualTo(ImmutableMap.of());
     assertThat(test.getParameterMetadata().isPresent()).isFalse();
   }
 
-  public void test_builder() {
+  public void test_builder1() {
     DefaultCurveMetadata test = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME)
         .xValueType(ValueType.YEAR_FRACTION)
@@ -60,10 +60,101 @@ public class DefaultCurveMetadataTest {
     assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
     assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
     assertThat(test.getYValueType()).isEqualTo(ValueType.DISCOUNT_FACTOR);
-    assertThat(test.getDayCount()).isEqualTo(Optional.of(ACT_360));
-    assertThat(test.getCalibrationInfo()).isEqualTo(Optional.of(DummyCurveCalibrationInfo.INSTANCE));
+    assertThat(test.getInfo(CurveInfoType.DAY_COUNT)).isEqualTo(ACT_360);
+    assertThat(test.findInfo(CurveInfoType.DAY_COUNT)).isEqualTo(Optional.of(ACT_360));
+    assertThat(test.getInfo(CurveInfoType.CURVE_CALIBRATION)).isEqualTo(DummyCurveCalibrationInfo.INSTANCE);
+    assertThat(test.findInfo(CurveInfoType.CURVE_CALIBRATION)).isEqualTo(Optional.of(DummyCurveCalibrationInfo.INSTANCE));
+    assertThat(test.findInfo(CurveInfoType.of("Rubbish"))).isEqualTo(Optional.empty());
     assertThat(test.getParameterMetadata().isPresent()).isTrue();
     assertThat(test.getParameterMetadata().get()).containsExactly(CurveParameterMetadata.empty());
+  }
+
+  public void test_builder2() {
+    DefaultCurveMetadata test = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.DISCOUNT_FACTOR)
+        .addInfo(CurveInfoType.DAY_COUNT, ACT_360)
+        .calibrationInfo(DummyCurveCalibrationInfo.INSTANCE)
+        .parameterMetadata(CurveParameterMetadata.empty())
+        .build();
+    assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
+    assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
+    assertThat(test.getYValueType()).isEqualTo(ValueType.DISCOUNT_FACTOR);
+    assertThat(test.findInfo(CurveInfoType.DAY_COUNT)).isEqualTo(Optional.of(ACT_360));
+    assertThat(test.getInfo(CurveInfoType.CURVE_CALIBRATION)).isEqualTo(DummyCurveCalibrationInfo.INSTANCE);
+    assertThat(test.findInfo(CurveInfoType.CURVE_CALIBRATION)).isEqualTo(Optional.of(DummyCurveCalibrationInfo.INSTANCE));
+    assertThat(test.findInfo(CurveInfoType.of("Rubbish"))).isEqualTo(Optional.empty());
+    assertThat(test.getParameterMetadata().isPresent()).isTrue();
+    assertThat(test.getParameterMetadata().get()).containsExactly(CurveParameterMetadata.empty());
+  }
+
+  public void test_builder3() {
+    DefaultCurveMetadata test = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.DISCOUNT_FACTOR)
+        .dayCount(null)
+        .calibrationInfo(null)
+        .addInfo(CurveInfoType.CURVE_CALIBRATION, null)
+        .parameterMetadata((List<CurveParameterMetadata>) null)
+        .build();
+    assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
+    assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
+    assertThat(test.getYValueType()).isEqualTo(ValueType.DISCOUNT_FACTOR);
+    assertThat(test.findInfo(CurveInfoType.DAY_COUNT)).isEqualTo(Optional.empty());
+    assertThat(test.findInfo(CurveInfoType.CURVE_CALIBRATION)).isEqualTo(Optional.empty());
+    assertThat(test.findInfo(CurveInfoType.of("Rubbish"))).isEqualTo(Optional.empty());
+    assertThat(test.getParameterMetadata().isPresent()).isFalse();
+  }
+
+  public void test_builder4() {
+    DefaultCurveMetadata test = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.DISCOUNT_FACTOR)
+        .parameterMetadata(CurveParameterMetadata.empty())
+        .parameterMetadata(CurveParameterMetadata.empty())  // second replaces first
+        .build();
+    assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
+    assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
+    assertThat(test.getYValueType()).isEqualTo(ValueType.DISCOUNT_FACTOR);
+    assertThat(test.findInfo(CurveInfoType.DAY_COUNT)).isEqualTo(Optional.empty());
+    assertThat(test.findInfo(CurveInfoType.CURVE_CALIBRATION)).isEqualTo(Optional.empty());
+    assertThat(test.findInfo(CurveInfoType.of("Rubbish"))).isEqualTo(Optional.empty());
+    assertThat(test.getParameterMetadata().isPresent()).isTrue();
+    assertThat(test.getParameterMetadata().get()).containsExactly(CurveParameterMetadata.empty());
+  }
+
+  public void test_builder5() {
+    DefaultCurveMetadata test = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.DISCOUNT_FACTOR)
+        .addParameterMetadata(CurveParameterMetadata.empty())
+        .addParameterMetadata(CurveParameterMetadata.empty())
+        .build();
+    assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
+    assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
+    assertThat(test.getYValueType()).isEqualTo(ValueType.DISCOUNT_FACTOR);
+    assertThat(test.findInfo(CurveInfoType.DAY_COUNT)).isEqualTo(Optional.empty());
+    assertThat(test.findInfo(CurveInfoType.CURVE_CALIBRATION)).isEqualTo(Optional.empty());
+    assertThat(test.findInfo(CurveInfoType.of("Rubbish"))).isEqualTo(Optional.empty());
+    assertThat(test.getParameterMetadata().isPresent()).isTrue();
+    assertThat(test.getParameterMetadata().get()).containsExactly(
+        CurveParameterMetadata.empty(), CurveParameterMetadata.empty());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_withParameterMetadata() {
+    DefaultCurveMetadata base = DefaultCurveMetadata.of(CURVE_NAME);
+    DefaultCurveMetadata test = base.withParameterMetadata(CurveParameterMetadata.listOfEmpty(2));
+    assertThat(test.getParameterMetadata().isPresent()).isTrue();
+    assertThat(test.getParameterMetadata().get()).containsAll(CurveParameterMetadata.listOfEmpty(2));
+    // redo for test coverage
+    DefaultCurveMetadata test2 = test.withParameterMetadata(CurveParameterMetadata.listOfEmpty(3));
+    assertThat(test2.getParameterMetadata().isPresent()).isTrue();
+    assertThat(test2.getParameterMetadata().get()).containsAll(CurveParameterMetadata.listOfEmpty(3));
   }
 
   //-------------------------------------------------------------------------

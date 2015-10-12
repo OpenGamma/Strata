@@ -30,6 +30,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.market.Perturbation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
@@ -103,13 +104,13 @@ public final class SimpleDiscountFactors
         ValueType.YEAR_FRACTION, "Incorrect x-value type for discount curve");
     curve.getMetadata().getYValueType().checkEquals(
         ValueType.DISCOUNT_FACTOR, "Incorrect y-value type for discount curve");
-    if (!curve.getMetadata().getDayCount().isPresent()) {
+    if (!curve.getMetadata().findInfo(CurveInfoType.DAY_COUNT).isPresent()) {
       throw new IllegalArgumentException("Incorrect curve metadata, missing DayCount");
     }
     this.currency = currency;
     this.valuationDate = valuationDate;
     this.curve = curve;
-    this.dayCount = curve.getMetadata().getDayCount().get();
+    this.dayCount = curve.getMetadata().getInfo(CurveInfoType.DAY_COUNT);
   }
 
   //-------------------------------------------------------------------------

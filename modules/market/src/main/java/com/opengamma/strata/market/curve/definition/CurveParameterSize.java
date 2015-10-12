@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.calibration;
+package com.opengamma.strata.market.curve.definition;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -28,6 +28,8 @@ import com.opengamma.strata.market.curve.CurveName;
 
 /**
  * The curve name and number of parameters.
+ * <p>
+ * This holds the curve name and the number of parameters that define it.
  */
 @BeanDefinition(builderScope = "private")
 public final class CurveParameterSize

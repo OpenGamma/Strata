@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
@@ -60,10 +61,11 @@ public class MarketQuoteSensitivityCalculator {
       Curve curve = provider.findCurve(paramSens.getCurveName())
           .orElseThrow(() -> new IllegalArgumentException(
               "Market Quote sensitivity requires curve: " + paramSens.getCurveName()));
-      JacobianCurveCalibrationInfo info = curve.getMetadata().getCalibrationInfo()
+      JacobianCurveCalibrationInfo info = curve.getMetadata().findInfo(CurveInfoType.CURVE_CALIBRATION)
+          .filter(JacobianCurveCalibrationInfo.class::isInstance)
+          .map(JacobianCurveCalibrationInfo.class::cast)
           .orElseThrow(() -> new IllegalArgumentException(
-              "Market Quote sensitivity requires Jacobian calibration information"))
-          .convertTo(JacobianCurveCalibrationInfo.class);
+              "Market Quote sensitivity requires Jacobian calibration information"));
 
       // calculate the market quote sensitivity using the Jacobian
       DoubleMatrix2D jacobian = info.getJacobianMatrix();

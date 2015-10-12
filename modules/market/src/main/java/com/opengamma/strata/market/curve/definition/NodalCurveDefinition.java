@@ -92,4 +92,16 @@ public interface NodalCurveDefinition {
    */
   public abstract NodalCurve curve(LocalDate valuationDate, double[] parameters, CurveCalibrationInfo calibrationInfo);
 
+  /**
+   * Converts this definition to the summary form.
+   * <p>
+   * The {@link CurveParameterSize} class provides a summary of this definition
+   * consisting of the name and parameter size.
+   * 
+   * @return the summary form
+   */
+  public default CurveParameterSize toCurveParameterSize() {
+    return CurveParameterSize.of(getName(), getParameterCount());
+  }
+
 }
