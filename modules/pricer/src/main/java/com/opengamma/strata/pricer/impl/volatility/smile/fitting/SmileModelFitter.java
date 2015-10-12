@@ -2,6 +2,7 @@ package com.opengamma.strata.pricer.impl.volatility.smile.fitting;
 
 import java.util.BitSet;
 
+import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
@@ -14,6 +15,7 @@ import com.opengamma.strata.math.impl.minimization.NonLinearTransformFunction;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.strata.math.impl.statistics.leastsquare.NonLinearLeastSquare;
+import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SmileModelData;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 
@@ -72,9 +74,33 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
 
     _marketValues = new DoubleMatrix1D(impliedVols);
     _errors = new DoubleMatrix1D(error);
-    _volFunc = model.getVolatilityFunction(forward, strikes, timeToExpiry);
-    _volAdjointFunc = model.getModelAdjointFunction(forward, strikes, timeToExpiry);
     _model = model;
+    
+    EuropeanVanillaOption[] option = new EuropeanVanillaOption[n];
+    for (int i = 0; i < n; i++) {
+      PutCall putCall = strikes[i] >= forward ? PutCall.CALL : PutCall.PUT;
+      option[i] = EuropeanVanillaOption.of(strikes[i], timeToExpiry, putCall);
+    }
+    _volFunc = new Function1D<T, double[]>() {
+      @Override
+      public double[] evaluate(T data) {
+        double[] res = new double[n];
+        for (int i = 0; i < n; ++i) {
+          res[i] = _model.getVolatility(option[i], forward, data);
+        }
+        return res;
+      }
+    };
+    _volAdjointFunc = new Function1D<T, double[][]>() {
+      @Override
+      public double[][] evaluate(T data) {
+        double[][] resAdj = new double[n][];
+        for (int i = 0; i < n; ++i) {
+          resAdj[i] = _model.getVolatilityModelAdjoint(option[i], forward, data);
+        }
+        return resAdj;
+      }
+    };
   }
 
   /**

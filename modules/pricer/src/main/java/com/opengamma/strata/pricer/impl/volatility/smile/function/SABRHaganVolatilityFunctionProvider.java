@@ -24,10 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
 
 /**
@@ -58,74 +56,10 @@ public final class SABRHaganVolatilityFunctionProvider
   private static final double ATM_EPS = 1e-7;
 
   @Override
-  public Function1D<SABRFormulaData, Double> getVolatilityFunction(EuropeanVanillaOption option, double forward) {
-
-    ArgChecker.notNull(option, "option");
-    ArgChecker.isTrue(forward >= 0.0, "forward must be greater than zero");
-    return new Function1D<SABRFormulaData, Double>() {
-      @Override
-      public Double evaluate(SABRFormulaData data) {
-        ArgChecker.notNull(data, "data");
-        return getVolatility(option, forward, data);
-      }
-    };
-  }
-
-  @Override
-  public Function1D<SABRFormulaData, double[]> getVolatilityAdjointFunction(EuropeanVanillaOption option, double forward) {
-
-    ArgChecker.notNull(option, "option");
-    ArgChecker.isTrue(forward >= 0.0, "forward must be greater than zero");
-    return new Function1D<SABRFormulaData, double[]>() {
-      @Override
-      public double[] evaluate(SABRFormulaData data) {
-        ArgChecker.notNull(data, "data");
-        return getVolatilityAdjoint(option, forward, data);
-      }
-    };
-  }
-
-  @Override
-  public Function1D<SABRFormulaData, double[][]> getVolatilityAdjointFunction(
-      double forward,
-      double[] strikes,
-      double timeToExpiry) {
-
-    return getVolatilityAdjointFunctionByCallingSingleStrikes(forward, strikes, timeToExpiry);
-  }
-
-  @Override
-  public Function1D<SABRFormulaData, double[]> getModelAdjointFunction(EuropeanVanillaOption option, double forward) {
-
-    ArgChecker.notNull(option, "option");
-    ArgChecker.isTrue(forward >= 0.0, "forward must be greater than zero");
-    return new Function1D<SABRFormulaData, double[]>() {
-      @Override
-      public double[] evaluate(SABRFormulaData data) {
-        ArgChecker.notNull(data, "data");
-        return getVolatilityModelAdjoint(option, forward, data);
-      }
-    };
-  }
-
-  @Override
-  public Function1D<SABRFormulaData, double[][]> getModelAdjointFunction(
-      double forward,
-      double[] strikes,
-      double timeToExpiry) {
-
-    return getModelAdjointFunctionByCallingSingleStrikes(forward, strikes, timeToExpiry);
-  }
-
-  /**
-   * Computes volatility based on the standard Hagan formula. 
-   * 
-   * @param option  the option.
-   * @param forward  the forward value of the underlying
-   * @param data  the SABR data.
-   * @return the volatility
-   */
   public double getVolatility(EuropeanVanillaOption option, double forward, SABRFormulaData data) {
+    ArgChecker.notNull(option, "option");
+    ArgChecker.isTrue(forward >= 0.0, "forward must be greater than zero");
+    ArgChecker.notNull(data, "data");
 
     double timeToExpiry = option.getTimeToExpiry();
     double strike = option.getStrike();
@@ -186,26 +120,6 @@ public final class SABRHaganVolatilityFunctionProvider
   }
 
   /**
-   * Computes volatility based on the standard Hagan formula. 
-   * 
-   * @param forward  the forward value of the underlying
-   * @param strike  the strike value
-   * @param timeToExpiry  the time to expiry
-   * @param alpha  the alpha parameter
-   * @param beta  the beta parameter
-   * @param rho  the rho parameter
-   * @param nu  the nu parameter
-   * @return the volatility
-   */
-  public double getVolatility(double forward, double strike, double timeToExpiry, double alpha, double beta,
-      double rho, double nu) {
-    ArgChecker.isTrue(forward > 0, "Forward must be > 0");
-    EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, timeToExpiry, PutCall.CALL);
-    SABRFormulaData data = SABRFormulaData.of(alpha, beta, rho, nu);
-    return getVolatility(option, forward, data);
-  }
-
-  /**
    * Computes the volatility sensitivity to the SABR parameters. 
    * <p>
    * This returns an array with alpha, beta, rho and nu sensitivities.
@@ -215,7 +129,11 @@ public final class SABRHaganVolatilityFunctionProvider
    * @param data  the SABR data.
    * @return the sensitivities
    */
+  @Override
   public double[] getVolatilityModelAdjoint(EuropeanVanillaOption option, double forward, SABRFormulaData data) {
+    ArgChecker.notNull(option, "option");
+    ArgChecker.isTrue(forward >= 0.0, "forward must be greater than zero");
+    ArgChecker.notNull(data, "data");
 
     double[] volatilityAdjoint = new double[4];
     double alpha = data.getAlpha();
@@ -291,7 +209,7 @@ public final class SABRHaganVolatilityFunctionProvider
   }
 
   /**
-   * Computes the Black implied volatility in the SABR model and its derivatives.
+   * Computes the implied volatility in the SABR model and its derivatives.
    * <p>
    * This returns an array with [0] the volatility, [1] Derivative w.r.t the forward, [2] the derivative w.r.t the strike, 
    * [3] the derivative w.r.t. to alpha, [4] the derivative w.r.t. to beta, [5] the derivative w.r.t. to rho, and 
@@ -302,6 +220,7 @@ public final class SABRHaganVolatilityFunctionProvider
    * @param data The SABR data.
    * @return the volatility and sensitivities
    */
+  @Override
   public double[] getVolatilityAdjoint(EuropeanVanillaOption option, double forward, SABRFormulaData data) {
     /**
      * The array storing the price and derivatives.

@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.math.impl.function.Function1D;
@@ -25,9 +26,6 @@ import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.SABRFormulaData;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.SABRHaganVolatilityFunctionProvider;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 
 /**
  * Test {@link SABRHaganVolatilityFunctionProvider}.
@@ -78,7 +76,7 @@ public class SABRHaganVolatilityFunctionProviderTest extends SABRVolatilityFunct
       strike[looppts + nbPoints] = forward + ((double) looppts) / nbPoints * range;
       option = EuropeanVanillaOption.of(strike[looppts + nbPoints], timeToExpiry, CALL);
       SABRFormulaData SabrData = SABRFormulaData.of(alpha, beta, rho, nu);
-      sabrVolatilty[looppts + nbPoints] = FUNCTION.getVolatilityFunction(option, forward).evaluate(SabrData);
+      sabrVolatilty[looppts + nbPoints] = FUNCTION.getVolatility(option, forward, SabrData);
     }
     for (int looppts = -nbPoints; looppts < nbPoints; looppts++) {
       assertTrue(Math.abs(sabrVolatilty[looppts + nbPoints + 1] - sabrVolatilty[looppts + nbPoints]) /
@@ -121,7 +119,7 @@ public class SABRHaganVolatilityFunctionProviderTest extends SABRVolatilityFunct
     double tol = 1e-6;
     SABRFormulaData data = DATA.withAlpha(0.0);
     testVolatilityAdjoint(F, CALL_ATM, data, eps, tol);
-    double volatility = FUNCTION.getVolatilityFunction(CALL_ITM, F).evaluate(data);
+    double volatility = FUNCTION.getVolatility(CALL_ITM, F, data);
     double[] volatilityAdjoint = FUNCTION.getVolatilityAdjoint(CALL_ITM, F, data);
     assertEquals(volatility, volatilityAdjoint[0], tol);
     assertEquals(0.0, volatilityAdjoint[1], tol);
@@ -379,8 +377,10 @@ public class SABRHaganVolatilityFunctionProviderTest extends SABRVolatilityFunct
     double volForwardSense = vol[1];
     double delta = bsDelta + bsVega * volForwardSense;
 
-    double volUp = FUNCTION.getVolatility(f + eps, k, t, alpha, beta, rho, nu);
-    double volDown = FUNCTION.getVolatility(f - eps, k, t, alpha, beta, rho, nu);
+    SABRFormulaData data = SABRFormulaData.of(alpha, beta, rho, nu);
+    EuropeanVanillaOption option = EuropeanVanillaOption.of(k, t, CALL);
+    double volUp = FUNCTION.getVolatility(option, f + eps, data);
+    double volDown = FUNCTION.getVolatility(option, f - eps, data);
     double priceUp = BlackFormulaRepository.price(f + eps, k, t, volUp, true);
     double price = BlackFormulaRepository.price(f, k, t, vol[0], true);
     double priceDown = BlackFormulaRepository.price(f - eps, k, t, volDown, true);
@@ -538,23 +538,9 @@ public class SABRHaganVolatilityFunctionProviderTest extends SABRVolatilityFunct
 
   private void testVolatilityAdjoint(double forward, EuropeanVanillaOption optionData, SABRFormulaData sabrData,
       double eps, double tol) {
-    double volatility = FUNCTION.getVolatilityFunction(optionData, forward).evaluate(sabrData);
-    double volatilityFromParameters = FUNCTION.getVolatility(forward, optionData.getStrike(),
-        optionData.getTimeToExpiry(), sabrData.getAlpha(), sabrData.getBeta(), sabrData.getRho(), sabrData.getNu());
+    double volatility = FUNCTION.getVolatility(optionData, forward, sabrData);
     double[] volatilityAdjoint = FUNCTION.getVolatilityAdjoint(optionData, forward, sabrData);
-    double[] volatilityAdjointFromFunction =
-        FUNCTION.getVolatilityAdjointFunction(optionData, forward).evaluate(sabrData);
-    double[][] volatilityAdjointMultiple = FUNCTION.getVolatilityAdjointFunction(
-        forward, new double[] {optionData.getStrike() }, optionData.getTimeToExpiry()).evaluate(sabrData);
-    int nAdj = volatilityAdjoint.length;
-    assertEquals(volatilityAdjointFromFunction.length, nAdj);
-    assertEquals(volatilityAdjointMultiple[0].length, nAdj);
-    for (int i = 0; i < nAdj; ++i) {
-      assertEquals(volatilityAdjointFromFunction[i], volatilityAdjoint[i], tol);
-      assertEquals(volatilityAdjointMultiple[0][i], volatilityAdjoint[i], tol);
-    }
     assertEquals(volatility, volatilityAdjoint[0], tol);
-    assertEquals(volatility, volatilityFromParameters, tol);
     assertEqualsRelTol("Forward Sensitivity" + sabrData.toString(),
         fdSensitivity(optionData, forward, sabrData, SABRParameter.Forward, eps), volatilityAdjoint[1], tol);
     assertEqualsRelTol("Strike Sensitivity" + sabrData.toString(),
@@ -572,16 +558,6 @@ public class SABRHaganVolatilityFunctionProviderTest extends SABRVolatilityFunct
   private void testVolatilityModelAdjoint(double forward, EuropeanVanillaOption optionData, SABRFormulaData sabrData,
       double eps, double tol) {
     double[] volatilityAdjoint = FUNCTION.getVolatilityModelAdjoint(optionData, forward, sabrData);
-    double[] volatilityAdjointFromFunction = FUNCTION.getModelAdjointFunction(optionData, forward).evaluate(sabrData);
-    double[][] volatilityAdjointMultiple = FUNCTION.getModelAdjointFunction(
-        forward, new double[] {optionData.getStrike() }, optionData.getTimeToExpiry()).evaluate(sabrData);
-    int nAdj = volatilityAdjoint.length;
-    assertEquals(volatilityAdjointFromFunction.length, nAdj);
-    assertEquals(volatilityAdjointMultiple[0].length, nAdj);
-    for (int i = 0; i < nAdj; ++i) {
-      assertEquals(volatilityAdjointFromFunction[i], volatilityAdjoint[i], tol);
-      assertEquals(volatilityAdjointMultiple[0][i], volatilityAdjoint[i], tol);
-    }
     assertEqualsRelTol("Alpha Sensitivity" + sabrData.toString(),
         fdSensitivity(optionData, forward, sabrData, SABRParameter.Alpha, eps), volatilityAdjoint[0], tol);
     assertEqualsRelTol("Beta Sensitivity" + sabrData.toString(),
@@ -594,8 +570,8 @@ public class SABRHaganVolatilityFunctionProviderTest extends SABRVolatilityFunct
 
   private void volatilityAdjoint2ForInstrument(EuropeanVanillaOption option, double tolerance1,
       double tolerance2) {
-    // Price
-    double volatility = FUNCTION.getVolatilityFunction(option, F).evaluate(DATA);
+    // vol
+    double volatility = FUNCTION.getVolatility(option, F, DATA);
     double[] volatilityAdjoint = FUNCTION.getVolatilityAdjoint(option, F, DATA);
     double[] volD = new double[6];
     double[][] volD2 = new double[2][2];
@@ -607,20 +583,20 @@ public class SABRHaganVolatilityFunctionProviderTest extends SABRVolatilityFunct
     }
     // Derivative forward-forward
     double deltaF = 0.000001;
-    double volatilityFP = FUNCTION.getVolatilityFunction(option, F + deltaF).evaluate(DATA);
-    double volatilityFM = FUNCTION.getVolatilityFunction(option, F - deltaF).evaluate(DATA);
+    double volatilityFP = FUNCTION.getVolatility(option, F + deltaF, DATA);
+    double volatilityFM = FUNCTION.getVolatility(option, F - deltaF, DATA);
     double derivativeFF_FD = (volatilityFP + volatilityFM - 2 * volatility) / (deltaF * deltaF);
     assertEquals(derivativeFF_FD, volD2[0][0], tolerance2);
     // Derivative strike-strike
     double deltaK = 0.000001;
     EuropeanVanillaOption optionKP = EuropeanVanillaOption.of(option.getStrike() + deltaK, T, CALL);
     EuropeanVanillaOption optionKM = EuropeanVanillaOption.of(option.getStrike() - deltaK, T, CALL);
-    double volatilityKP = FUNCTION.getVolatilityFunction(optionKP, F).evaluate(DATA);
-    double volatilityKM = FUNCTION.getVolatilityFunction(optionKM, F).evaluate(DATA);
+    double volatilityKP = FUNCTION.getVolatility(optionKP, F, DATA);
+    double volatilityKM = FUNCTION.getVolatility(optionKM, F, DATA);
     double derivativeKK_FD = (volatilityKP + volatilityKM - 2 * volatility) / (deltaK * deltaK);
     assertEquals(derivativeKK_FD, volD2[1][1], tolerance2);
     // Derivative strike-forward
-    double volatilityFPKP = FUNCTION.getVolatilityFunction(optionKP, F + deltaF).evaluate(DATA);
+    double volatilityFPKP = FUNCTION.getVolatility(optionKP, F + deltaF, DATA);
     double derivativeFK_FD = (volatilityFPKP + volatility - volatilityFP - volatilityKP) / (deltaF * deltaK);
     assertEquals(derivativeFK_FD, volD2[0][1], tolerance2);
     assertEquals(volD2[0][1], volD2[1][0], 1E-6);
@@ -641,7 +617,7 @@ public class SABRHaganVolatilityFunctionProviderTest extends SABRVolatilityFunct
     SABRFormulaData dataC = null;
     SABRFormulaData dataB = sabrData;
     SABRFormulaData dataA = null;
-    Function1D<SABRFormulaData, Double> func = FUNCTION.getVolatilityFunction(optionData, forward);
+    Function1D<SABRFormulaData, Double> func = getVolatilityFunction(optionData, forward);
 
     FiniteDifferenceType fdType = null;
 
@@ -650,13 +626,13 @@ public class SABRHaganVolatilityFunctionProviderTest extends SABRVolatilityFunct
         double strike = optionData.getStrike();
         if (strike >= delta) {
           fdType = FiniteDifferenceType.CENTRAL;
-          funcA = FUNCTION.getVolatilityFunction(withStrike(optionData, strike - delta), forward);
-          funcC = FUNCTION.getVolatilityFunction(withStrike(optionData, strike + delta), forward);
+          funcA = getVolatilityFunction(withStrike(optionData, strike - delta), forward);
+          funcC = getVolatilityFunction(withStrike(optionData, strike + delta), forward);
         } else {
           fdType = FiniteDifferenceType.FORWARD;
           funcA = func;
-          funcB = FUNCTION.getVolatilityFunction(withStrike(optionData, strike + delta), forward);
-          funcC = FUNCTION.getVolatilityFunction(withStrike(optionData, strike + 2 * delta), forward);
+          funcB = getVolatilityFunction(withStrike(optionData, strike + delta), forward);
+          funcC = getVolatilityFunction(withStrike(optionData, strike + 2 * delta), forward);
         }
         dataC = sabrData;
         dataB = sabrData;
@@ -665,13 +641,13 @@ public class SABRHaganVolatilityFunctionProviderTest extends SABRVolatilityFunct
       case Forward:
         if (forward > delta) {
           fdType = FiniteDifferenceType.CENTRAL;
-          funcA = FUNCTION.getVolatilityFunction(optionData, forward - delta);
-          funcC = FUNCTION.getVolatilityFunction(optionData, forward + delta);
+          funcA = getVolatilityFunction(optionData, forward - delta);
+          funcC = getVolatilityFunction(optionData, forward + delta);
         } else {
           fdType = FiniteDifferenceType.FORWARD;
           funcA = func;
-          funcB = FUNCTION.getVolatilityFunction(optionData, forward + delta);
-          funcC = FUNCTION.getVolatilityFunction(optionData, forward + 2 * delta);
+          funcB = getVolatilityFunction(optionData, forward + delta);
+          funcC = getVolatilityFunction(optionData, forward + 2 * delta);
         }
         dataC = sabrData;
         dataB = sabrData;
@@ -763,6 +739,16 @@ public class SABRHaganVolatilityFunctionProviderTest extends SABRVolatilityFunct
       }
     }
     throw new MathException("enum not found");
+  }
+
+  private Function1D<SABRFormulaData, Double> getVolatilityFunction(EuropeanVanillaOption option, double forward) {
+    return new Function1D<SABRFormulaData, Double>() {
+      @Override
+      public Double evaluate(SABRFormulaData data) {
+        ArgChecker.notNull(data, "data");
+        return FUNCTION.getVolatility(option, forward, data);
+      }
+    };
   }
 
   private EuropeanVanillaOption withStrike(EuropeanVanillaOption option, double strike) {

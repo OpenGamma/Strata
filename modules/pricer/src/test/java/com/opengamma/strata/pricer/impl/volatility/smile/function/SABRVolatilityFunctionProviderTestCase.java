@@ -11,8 +11,6 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.SABRFormulaData;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 
 /**
  * Test case for SABR volatility function providers. 
@@ -32,35 +30,35 @@ public abstract class SABRVolatilityFunctionProviderTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOption() {
-    getFunction().getVolatilityFunction(null, FORWARD);
+    getFunction().getVolatility(null, FORWARD, LOG_NORMAL_EQUIVALENT);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
-    getFunction().getVolatilityFunction(OPTION, FORWARD).evaluate((SABRFormulaData) null);
+    getFunction().getVolatility(OPTION, FORWARD, null);
   }
 
   @Test
   public void testLogNormalEquivalent() {
-    assertEquals(getFunction().getVolatilityFunction(OPTION, FORWARD).evaluate(LOG_NORMAL_EQUIVALENT),
+    assertEquals(getFunction().getVolatility(OPTION, FORWARD, LOG_NORMAL_EQUIVALENT),
         LOG_NORMAL_EQUIVALENT.getAlpha(), 0);
   }
 
   @Test
   public void testApproachingLogNormalEquivalent1() {
-    assertEquals(getFunction().getVolatilityFunction(OPTION, FORWARD).evaluate(APPROACHING_LOG_NORMAL_EQUIVALENT1),
+    assertEquals(getFunction().getVolatility(OPTION, FORWARD, APPROACHING_LOG_NORMAL_EQUIVALENT1),
         LOG_NORMAL_EQUIVALENT.getAlpha(), 1e-5);
   }
 
   @Test
   public void testApproachingLogNormalEquivalent2() {
-    assertEquals(getFunction().getVolatilityFunction(OPTION, FORWARD).evaluate(APPROACHING_LOG_NORMAL_EQUIVALENT2),
+    assertEquals(getFunction().getVolatility(OPTION, FORWARD, APPROACHING_LOG_NORMAL_EQUIVALENT2),
         LOG_NORMAL_EQUIVALENT.getAlpha(), 1e-5);
   }
 
   @Test
   public void testApproachingLogNormalEquivalent3() {
-    assertEquals(getFunction().getVolatilityFunction(OPTION, FORWARD).evaluate(APPROACHING_LOG_NORMAL_EQUIVALENT3),
+    assertEquals(getFunction().getVolatility(OPTION, FORWARD, APPROACHING_LOG_NORMAL_EQUIVALENT3),
         LOG_NORMAL_EQUIVALENT.getAlpha(), 1e-5);
   }
 

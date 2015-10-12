@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.function.Function1D;
@@ -19,6 +20,7 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
+import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SmileModelData;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 
@@ -58,9 +60,12 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     int n = strikes.length;
     _noisyVols = new double[n];
     _errors = new double[n];
-    _cleanVols = model.getVolatilityFunction(F, strikes, TIME_TO_EXPIRY).evaluate(data);
+    _cleanVols = new double[n];
     Arrays.fill(_errors, 1e-4);
     for (int i = 0; i < n; i++) {
+      PutCall putCall = strikes[i] >= F ? PutCall.CALL : PutCall.PUT;
+      EuropeanVanillaOption option = EuropeanVanillaOption.of(strikes[i], TIME_TO_EXPIRY, putCall);
+      _cleanVols[i] = model.getVolatility(option, F, data);
       _noisyVols[i] = _cleanVols[i] + UNIFORM.nextDouble() * _errors[i];
     }
     _fitter = getFitter(F, strikes, TIME_TO_EXPIRY, _cleanVols, _errors, model);
