@@ -12,7 +12,10 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 public class IdentityMatrix extends DoubleMatrix2D {
 
-  private final int _size;
+  /**
+   * Serialization version.
+   */
+  private static final long serialVersionUID = 1L;
 
   public IdentityMatrix(int size) {
     super(size, size);
@@ -20,12 +23,6 @@ public class IdentityMatrix extends DoubleMatrix2D {
     for (int i = 0; i < size; i++) {
       getData()[i][i] = 1.0;
     }
-    _size = size;
-  }
-
-  @Override
-  public int size() {
-    return _size * _size;
   }
 
   @Override
@@ -38,7 +35,7 @@ public class IdentityMatrix extends DoubleMatrix2D {
    * @return size
    */
   public int getSize() {
-    return _size;
+    return rowCount();
   }
 
 }

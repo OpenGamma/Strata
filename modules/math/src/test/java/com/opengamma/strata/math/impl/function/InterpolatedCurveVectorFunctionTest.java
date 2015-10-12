@@ -122,7 +122,7 @@ public class InterpolatedCurveVectorFunctionTest {
 
       @Override
       public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
-        return DoubleMatrix2D.EMPTY_MATRIX;
+        return DoubleMatrix2D.EMPTY;
       }
 
       @Override

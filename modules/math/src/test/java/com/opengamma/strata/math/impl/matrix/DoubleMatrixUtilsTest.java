@@ -32,7 +32,7 @@ public class DoubleMatrixUtilsTest {
 
   @Test
   public void testIdentity() {
-    assertEquals(DoubleMatrixUtils.getIdentityMatrix2D(0), DoubleMatrix2D.EMPTY_MATRIX);
+    assertEquals(DoubleMatrixUtils.getIdentityMatrix2D(0), DoubleMatrix2D.EMPTY);
     assertEquals(DoubleMatrixUtils.getIdentityMatrix2D(1), new DoubleMatrix2D(new double[][] {new double[] {1 } }));
     assertEquals(DoubleMatrixUtils.getIdentityMatrix2D(4), new DoubleMatrix2D(new double[][] {new double[] {1, 0, 0, 0 }, new double[] {0, 1, 0, 0 }, new double[] {0, 0, 1, 0 },
       new double[] {0, 0, 0, 1 } }));
@@ -40,9 +40,9 @@ public class DoubleMatrixUtilsTest {
 
   @Test
   public void testDiagonalMatrix() {
-    assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(DoubleMatrix1D.EMPTY_MATRIX), DoubleMatrix2D.EMPTY_MATRIX);
+    assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(DoubleMatrix1D.EMPTY), DoubleMatrix2D.EMPTY);
     assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(new DoubleMatrix1D(new double[] {1, 1, 1, 1 })), DoubleMatrixUtils.getIdentityMatrix2D(4));
-    assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(new double[0]), DoubleMatrix2D.EMPTY_MATRIX);
+    assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(new double[0]), DoubleMatrix2D.EMPTY);
     assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(new double[] {1, 1, 1, 1 }), DoubleMatrixUtils.getIdentityMatrix2D(4));
   }
 
