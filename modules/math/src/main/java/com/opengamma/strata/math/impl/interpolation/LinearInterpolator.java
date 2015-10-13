@@ -51,8 +51,8 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
 
     final DoubleMatrix2D coefMatrix = solve(xValuesSrt, yValuesSrt);
 
-    for (int i = 0; i < coefMatrix.getNumberOfRows(); ++i) {
-      for (int j = 0; j < coefMatrix.getNumberOfColumns(); ++j) {
+    for (int i = 0; i < coefMatrix.rowCount(); ++i) {
+      for (int j = 0; j < coefMatrix.columnCount(); ++j) {
         ArgChecker.isFalse(Double.isNaN(coefMatrix.getData()[i][j]), "Too large input");
         ArgChecker.isFalse(Double.isInfinite(coefMatrix.getData()[i][j]), "Too large input");
       }
@@ -67,7 +67,7 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
       ArgChecker.isTrue(Math.abs(ref - yValuesSrt[i + 1]) < ERROR * bound, "Input is too large/small or data are not distinct enough");
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), coefMatrix, coefMatrix.getNumberOfColumns(), 1);
+    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), coefMatrix, coefMatrix.columnCount(), 1);
   }
 
   @Override
@@ -122,13 +122,13 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    final int nIntervals = coefMatrix[0].getNumberOfRows();
-    final int nCoefs = coefMatrix[0].getNumberOfColumns();
+    final int nIntervals = coefMatrix[0].rowCount();
+    final int nCoefs = coefMatrix[0].columnCount();
     double[][] resMatrix = new double[dim * nIntervals][nCoefs];
 
     for (int i = 0; i < nIntervals; ++i) {
       for (int j = 0; j < dim; ++j) {
-        resMatrix[dim * i + j] = coefMatrix[j].getRowVector(i).getData();
+        resMatrix[dim * i + j] = coefMatrix[j].row(i).getData();
       }
     }
 

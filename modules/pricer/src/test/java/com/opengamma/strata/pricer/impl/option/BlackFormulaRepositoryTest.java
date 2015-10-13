@@ -13,6 +13,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.PutCall;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.integration.GaussHermiteQuadratureIntegrator1D;
 import com.opengamma.strata.math.impl.integration.RungeKuttaIntegrator1D;
@@ -157,8 +158,8 @@ public class BlackFormulaRepositoryTest {
           EuropeanVanillaOption option =
               EuropeanVanillaOption.of(STRIKES_INPUT[loopstrike], TIME_TO_EXPIRY, PutCall.ofPut(!callput));
           BlackFunctionData data = BlackFunctionData.of(FORWARD, 1.0, VOLS[loopVols]);
-          double[] d = function.getPriceAdjoint(option, data);
-          double delta = d[1];
+          ValueDerivatives d = function.getPriceAdjoint(option, data);
+          double delta = d.getDerivative(0);
           double strikeOutput =
               BlackFormulaRepository.impliedStrike(delta, callput, FORWARD, TIME_TO_EXPIRY, VOLS[loopVols]);
           assertEquals("Implied strike: (data " + loopstrike + " / " + callput + ")", STRIKES_INPUT[loopstrike],

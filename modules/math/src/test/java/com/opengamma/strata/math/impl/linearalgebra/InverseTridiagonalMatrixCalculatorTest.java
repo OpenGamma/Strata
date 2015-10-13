@@ -45,7 +45,7 @@ public class InverseTridiagonalMatrixCalculatorTest {
     final DoubleMatrix2D res = CALCULATOR.evaluate(new TridiagonalMatrix(a, b, c));
     for (i = 0; i < n; i++) {
       for (j = 0; j < n; j++) {
-        assertEquals((i == j ? 1.0 : 0.0), res.getEntry(i, j), EPS);
+        assertEquals((i == j ? 1.0 : 0.0), res.get(i, j), EPS);
       }
     }
 
@@ -56,11 +56,11 @@ public class InverseTridiagonalMatrixCalculatorTest {
     final DoubleMatrix2D res = CALCULATOR.evaluate(MATRIX);
     final DoubleMatrix2D idet = (DoubleMatrix2D) OG_ALGEBRA.multiply(TRI, res);
 
-    final int n = idet.getNumberOfRows();
+    final int n = idet.rowCount();
     int i, j;
     for (i = 0; i < n; i++) {
       for (j = 0; j < n; j++) {
-        assertEquals((i == j ? 1.0 : 0.0), idet.getEntry(i, j), EPS);
+        assertEquals((i == j ? 1.0 : 0.0), idet.get(i, j), EPS);
       }
     }
 

@@ -37,7 +37,7 @@ public class ParameterizedCurveVectorFunction extends VectorFunction {
   public DoubleMatrix2D calculateJacobian(DoubleMatrix1D x) {
     Function1D<Double, DoubleMatrix1D> sense = _curve.getYParameterSensitivity(x);
     int n = getLengthOfRange();
-    DoubleMatrix2D jac = new DoubleMatrix2D(n, getLengthOfDomain());
+    DoubleMatrix2D jac = DoubleMatrix2D.filled(n, getLengthOfDomain());
     for (int i = 0; i < n; i++) {
       jac.getData()[i] = sense.evaluate(_samplePoints[i]).toArray();
     }

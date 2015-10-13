@@ -48,7 +48,7 @@ public class ParameterizedFunctionTest {
       if (a.size() != 2) {
         throw new IllegalArgumentException("wrong number of parameters");
       }
-      return a.getEntry(0) * Math.sin(a.getEntry(1) * x);
+      return a.get(0) * Math.sin(a.get(1) * x);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class ParameterizedFunctionTest {
     final ScalarFieldFirstOrderDifferentiator vdiff = new ScalarFieldFirstOrderDifferentiator();
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> vgrad = vdiff.differentiate(params_func);
     final DoubleMatrix1D res = vgrad.evaluate(new DoubleMatrix1D(new double[] {Math.PI, 0 }));
-    assertEquals(0.0, res.getEntry(0), 1e-8);
-    assertEquals(Math.PI, res.getEntry(1), 1e-8);
+    assertEquals(0.0, res.get(0), 1e-8);
+    assertEquals(Math.PI, res.get(1), 1e-8);
   }
 }

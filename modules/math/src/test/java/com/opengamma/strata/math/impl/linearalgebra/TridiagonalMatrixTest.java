@@ -60,13 +60,13 @@ public class TridiagonalMatrixTest {
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
         if (i == j) {
-          assertEquals(matrix.getEntry(i, j), A[i], 0);
+          assertEquals(matrix.get(i, j), A[i], 0);
         } else if (j == i + 1) {
-          assertEquals(matrix.getEntry(i, j), B[j - 1], 0);
+          assertEquals(matrix.get(i, j), B[j - 1], 0);
         } else if (j == i - 1) {
-          assertEquals(matrix.getEntry(i, j), C[j], 0);
+          assertEquals(matrix.get(i, j), C[j], 0);
         } else {
-          assertEquals(matrix.getEntry(i, j), 0, 0);
+          assertEquals(matrix.get(i, j), 0, 0);
         }
       }
     }

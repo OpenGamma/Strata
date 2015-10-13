@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
@@ -52,13 +53,10 @@ public final class BlackPriceFunction {
    * 
    * @param option  the option description
    * @param data  the model data
-   * @return an array with [0] the price, [1] the derivative with respect to the forward,
-   *  [2] the derivative with respect to the volatility and [3] the derivative with respect to the strike
+   * @return a {@link ValueDerivatives} with the price in the value and the derivatives with
+   *  respect to [0] the forward, [1] the volatility and [2] the strike
    */
-  public double[] getPriceAdjoint(EuropeanVanillaOption option, BlackFunctionData data) {
-    // the array storing the price and derivatives
-    double[] priceAdjoint = new double[4];
-
+  public ValueDerivatives getPriceAdjoint(EuropeanVanillaOption option, BlackFunctionData data) {
     double strike = option.getStrike();
     double timeToExpiry = option.getTimeToExpiry();
     double vol = data.getBlackVolatility();
@@ -70,15 +68,16 @@ public final class BlackPriceFunction {
     // Implementation Note: Forward sweep.
     double volblack = 0, kappa = 0, d1 = 0, d2 = 0;
     double x = 0;
+    double price;
     if (strike < NEAR_ZERO || sqrttheta < NEAR_ZERO) {
       x = omega * (forward - strike);
-      priceAdjoint[0] = (x > 0 ? discountFactor * x : 0.0);
+      price = (x > 0 ? discountFactor * x : 0.0);
     } else {
       volblack = vol * sqrttheta;
       kappa = Math.log(forward / strike) / volblack - 0.5 * volblack;
       d1 = NORMAL.getCDF(omega * (kappa + volblack));
       d2 = NORMAL.getCDF(omega * kappa);
-      priceAdjoint[0] = discountFactor * omega * (forward * d1 - strike * d2);
+      price = discountFactor * omega * (forward * d1 - strike * d2);
     }
     // Implementation Note: Backward sweep.
     double pBar = 1.0;
@@ -97,10 +96,11 @@ public final class BlackPriceFunction {
       volblackBar = density1 * omega * d1Bar;
       volatilityBar = sqrttheta * volblackBar;
     }
-    priceAdjoint[1] = forwardBar;
-    priceAdjoint[2] = volatilityBar;
-    priceAdjoint[3] = strikeBar;
-    return priceAdjoint;
+    double[] priceAdjoint = new double[3];
+    priceAdjoint[0] = forwardBar;
+    priceAdjoint[1] = volatilityBar;
+    priceAdjoint[2] = strikeBar;
+    return ValueDerivatives.of(price, priceAdjoint);
   }
 
   /**

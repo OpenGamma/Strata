@@ -47,7 +47,7 @@ public class NonLinearLeastSquareWithPenaltyTest {
       public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
         double[] temp = new double[n];
         for (int i = 0; i < n; i++) {
-          temp[i] = x.getEntry(onIndex[i]);
+          temp[i] = x.get(onIndex[i]);
         }
         return new DoubleMatrix1D(temp);
       }
@@ -57,7 +57,7 @@ public class NonLinearLeastSquareWithPenaltyTest {
 
       @Override
       public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
-        DoubleMatrix2D res = new DoubleMatrix2D(n, nWeights);
+        DoubleMatrix2D res = DoubleMatrix2D.filled(n, nWeights);
         for (int i = 0; i < n; i++) {
           res.getData()[i][onIndex[i]] = 1.0;
         }
@@ -74,7 +74,7 @@ public class NonLinearLeastSquareWithPenaltyTest {
 
     LeastSquareWithPenaltyResults lsRes = NLLSWP.solve(
         new DoubleMatrix1D(obs),
-        new DoubleMatrix1D(n, 0.01),
+        DoubleMatrix1D.filled(n, 0.01),
         func,
         jac,
         start,
@@ -84,7 +84,7 @@ public class NonLinearLeastSquareWithPenaltyTest {
       System.out.println(lsRes.getFitParameters());
     }
     for (int i = 0; i < n; i++) {
-      assertEquals(obs[i], lsRes.getFitParameters().getEntry(onIndex[i]), 0.01);
+      assertEquals(obs[i], lsRes.getFitParameters().get(onIndex[i]), 0.01);
     }
     double expPen = 20.87912357454752;
     assertEquals(expPen, lsRes.getPenalty(), 1e-9);

@@ -27,8 +27,8 @@ public class ParameterizedCurveVectorFunctionTest {
 
       @Override
       public Double evaluate(final Double x, final DoubleMatrix1D parameters) {
-        final double a = parameters.getEntry(0);
-        final double b = parameters.getEntry(1);
+        final double a = parameters.get(0);
+        final double b = parameters.get(1);
         return a * Math.sinh(b * x);
       }
 
@@ -48,9 +48,9 @@ public class ParameterizedCurveVectorFunctionTest {
     assertEquals(3, f.getLengthOfRange());
     final DoubleMatrix1D x = new DoubleMatrix1D(0.5, 2.0); //the parameters a & b
     final DoubleMatrix1D y = f.evaluate(x);
-    assertEquals(0.5 * Math.sinh(-2.0), y.getEntry(0), 1e-14);
-    assertEquals(0.0, y.getEntry(1), 1e-14);
-    assertEquals(0.5 * Math.sinh(2.0), y.getEntry(2), 1e-14);
+    assertEquals(0.5 * Math.sinh(-2.0), y.get(0), 1e-14);
+    assertEquals(0.0, y.get(1), 1e-14);
+    assertEquals(0.5 * Math.sinh(2.0), y.get(2), 1e-14);
 
     final DoubleMatrix2D jac = f.calculateJacobian(x);
     final DoubleMatrix2D fdJac = (new VectorFieldFirstOrderDifferentiator().differentiate(f)).evaluate(x);

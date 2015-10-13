@@ -59,7 +59,7 @@ public class ProductPiecewisePolynomialInterpolator1DTest {
 
         for (int j = 0; j < nKeys; ++j) {
           double key = xValues[0] + interval * j;
-          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(result, key).getEntry(0) / key,
+          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(result, key).get(0) / key,
               interp1D.interpolate(data, key), EPS);
           double keyUp = key + DELTA;
           double keyDw = key - DELTA;
@@ -113,7 +113,7 @@ public class ProductPiecewisePolynomialInterpolator1DTest {
 
         for (int j = 0; j < nKeys; ++j) {
           double key = xValues[0] + interval * j;
-          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(result, key).getEntry(0) / key,
+          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(result, key).get(0) / key,
               interp1D.interpolate(data, key), EPS);
           double keyUp = key + DELTA;
           double keyDw = key - DELTA;

@@ -58,7 +58,7 @@ public class ConcatenatedVectorFunction extends VectorFunction {
         "Incorrect length of x. Is {} but should be {}", x.size(), getLengthOfDomain());
 
     DoubleMatrix1D[] subX = partition(x);
-    DoubleMatrix2D jac = new DoubleMatrix2D(getLengthOfRange(), getLengthOfDomain());
+    DoubleMatrix2D jac = DoubleMatrix2D.filled(getLengthOfRange(), getLengthOfDomain());
 
     int pos1 = 0;
     int pos2 = 0;
@@ -108,7 +108,7 @@ public class ConcatenatedVectorFunction extends VectorFunction {
     int pos = 0;
     for (int i = 0; i < _nPartitions; i++) {
       int length = _xPartition[i];
-      res[i] = new DoubleMatrix1D(length);
+      res[i] = DoubleMatrix1D.filled(length);
       System.arraycopy(x.getData(), pos, res[i].getData(), 0, length);
       pos += length;
     }

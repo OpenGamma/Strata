@@ -46,8 +46,8 @@ public class CubicSplineInterpolatorTest {
 
     PiecewisePolynomialResult resultMatrix = interpMatrix.interpolate(xValues, yValuesMatrix);
 
-    final int nRows = coefsExpectedMatrix.getNumberOfRows();
-    final int nCols = coefsExpectedMatrix.getNumberOfColumns();
+    final int nRows = coefsExpectedMatrix.rowCount();
+    final int nCols = coefsExpectedMatrix.columnCount();
     for (int i = 0; i < nRows; ++i) {
       for (int j = 0; j < nCols; ++j) {
         final double ref = coefsExpectedMatrix.getData()[i][j] == 0. ? 1. : Math.abs(coefsExpectedMatrix.getData()[i][j]);
@@ -148,8 +148,8 @@ public class CubicSplineInterpolatorTest {
 
     PiecewisePolynomialResult resultMatrix = interpMatrix.interpolate(xValues, yValuesMatrix);
 
-    final int nRows = coefsExpectedMatrix.getNumberOfRows();
-    final int nCols = coefsExpectedMatrix.getNumberOfColumns();
+    final int nRows = coefsExpectedMatrix.rowCount();
+    final int nCols = coefsExpectedMatrix.columnCount();
     for (int i = 0; i < nRows; ++i) {
       for (int j = 0; j < nCols; ++j) {
         final double ref = coefsExpectedMatrix.getData()[i][j] == 0. ? 1. : Math.abs(coefsExpectedMatrix.getData()[i][j]);

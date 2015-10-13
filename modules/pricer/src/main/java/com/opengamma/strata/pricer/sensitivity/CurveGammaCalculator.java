@@ -90,7 +90,7 @@ public class CurveGammaCalculator {
 
     @Override
     public DoubleMatrix1D evaluate(DoubleMatrix1D s) {
-      double shift = s.getEntry(0);
+      double shift = s.get(0);
       double[] yieldBumped = curve.getYValues();
       for (int loopnode = 0; loopnode < curve.getParameterCount(); loopnode++) {
         yieldBumped[loopnode] += shift;

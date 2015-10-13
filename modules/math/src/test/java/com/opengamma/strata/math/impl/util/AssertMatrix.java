@@ -31,7 +31,7 @@ public abstract class AssertMatrix {
     assertEquals("sizes:", size, v2.size());
 
     for (int i = 0; i < size; i++) {
-      assertEquals("", v1.getEntry(i), v2.getEntry(i), delta);
+      assertEquals("", v1.get(i), v2.get(i), delta);
     }
   }
 
@@ -46,13 +46,13 @@ public abstract class AssertMatrix {
   public static void assertEqualsMatrix(DoubleMatrix2D m1, DoubleMatrix2D m2, double delta) {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
-    int rows = m1.getNumberOfRows();
-    int cols = m1.getNumberOfColumns();
-    assertEquals("Number of rows:", rows, m2.getNumberOfRows());
-    assertEquals("Number of columns:", cols, m2.getNumberOfColumns());
+    int rows = m1.rowCount();
+    int cols = m1.columnCount();
+    assertEquals("Number of rows:", rows, m2.rowCount());
+    assertEquals("Number of columns:", cols, m2.columnCount());
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
-        assertEquals("", m1.getEntry(i, j), m2.getEntry(i, j), delta);
+        assertEquals("", m1.get(i, j), m2.get(i, j), delta);
       }
     }
   }

@@ -240,15 +240,15 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
   }
 
   private DoubleMatrix2D multiply(IdentityMatrix idet, DoubleMatrix2D m) {
-    ArgChecker.isTrue(idet.getSize() == m.getNumberOfRows(),
-        "size of identity matrix ({}) does not match number or rows of m ({})", idet.getSize(), m.getNumberOfRows());
+    ArgChecker.isTrue(idet.getSize() == m.rowCount(),
+        "size of identity matrix ({}) does not match number or rows of m ({})", idet.getSize(), m.rowCount());
     return m;
   }
 
   private DoubleMatrix2D multiply(DoubleMatrix2D m, IdentityMatrix idet) {
-    ArgChecker.isTrue(idet.getSize() == m.getNumberOfColumns(),
+    ArgChecker.isTrue(idet.getSize() == m.columnCount(),
         "size of identity matrix ({}) does not match number or columns of m ({})", idet.getSize(),
-        m.getNumberOfColumns());
+        m.columnCount());
     return m;
   }
 
@@ -264,8 +264,8 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     int p = b.length;
     ArgChecker.isTrue(
         a[0].length == p,
-        "Matrix size mismatch. m1 is " + m1.getNumberOfRows() + " by " + m1.getNumberOfColumns() + ", but m2 is " +
-            m2.getNumberOfRows() + " by " + m2.getNumberOfColumns());
+        "Matrix size mismatch. m1 is " + m1.rowCount() + " by " + m1.columnCount() + ", but m2 is " +
+            m2.rowCount() + " by " + m2.columnCount());
     int m = a.length;
     int n = b[0].length;
     double sum;

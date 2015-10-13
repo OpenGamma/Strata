@@ -79,7 +79,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
     for (int example = 0; example < nExamples; example++) {
       PiecewisePolynomialResult pp = PCHIP.interpolate(X, Y[example]);
       for (int i = 0; i < n; i++) {
-        final double y = PPVAL.evaluate(pp, XX[i]).getEntry(0);
+        final double y = PPVAL.evaluate(pp, XX[i]).get(0);
         assertEquals(YY[example][i], y, 1e-14);
       }
     }
@@ -92,7 +92,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
     for (int example = 0; example < nExamples; example++) {
       PiecewisePolynomialResult pp = PCHIP_S.interpolateWithSensitivity(X, Y[example]);
       for (int i = 0; i < n; i++) {
-        final double y = PPVAL_S.evaluate(pp, XX[i]).getEntry(0);
+        final double y = PPVAL_S.evaluate(pp, XX[i]).get(0);
 
         assertEquals("example: " + example + ", index:" + i, YY[example][i], y, 1e-14);
       }
@@ -112,7 +112,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
       for (int i = 0; i < n; i++) {
         DoubleMatrix1D res = PPVAL_S.nodeSensitivity(pp, XX[i]);
         for (int j = 0; j < nData; j++) {
-          assertEquals("example: " + example + ", sample: " + i + ", node: " + j, fdRes[j].getEntry(i), res.getEntry(j), 1e-4);
+          assertEquals("example: " + example + ", sample: " + i + ", node: " + j, fdRes[j].get(i), res.get(j), 1e-4);
         }
       }
     }
@@ -130,10 +130,10 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
       System.arraycopy(yValues, 0, temp, 0, nData);
       temp[i] += eps;
       pp = PCHIP.interpolate(X, temp);
-      final DoubleMatrix1D yUp = PPVAL.evaluate(pp, xx).getRowVector(0);
+      final DoubleMatrix1D yUp = PPVAL.evaluate(pp, xx).row(0);
       temp[i] -= 2 * eps;
       pp = PCHIP.interpolate(X, temp);
-      final DoubleMatrix1D yDown = PPVAL.evaluate(pp, xx).getRowVector(0);
+      final DoubleMatrix1D yDown = PPVAL.evaluate(pp, xx).row(0);
       res[i] = (DoubleMatrix1D) MA.scale(MA.subtract(yUp, yDown), scale);
     }
     return res;

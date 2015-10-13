@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
@@ -61,15 +62,12 @@ public final class NormalPriceFunction {
    * 
    * @param option  the option description
    * @param data  the model data
-   * @param priceDerivative  an array used to output the derivative of the price with respect to
-   *  [0] forward, [1] volatility, [2] strike, the length of the must should be 3
-   * @return the price
+   * @return a {@link ValueDerivatives} with the price in the value and the derivatives with
+   *  respect to [0] the forward, [1] the volatility and [2] the strike
    */
-  public double getPriceAdjoint(EuropeanVanillaOption option, NormalFunctionData data, double[] priceDerivative) {
+  public ValueDerivatives getPriceAdjoint(EuropeanVanillaOption option, NormalFunctionData data) {
     ArgChecker.notNull(option, "option");
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(priceDerivative, "derivatives");
-    ArgChecker.isTrue(priceDerivative.length == 3, "array size");
     double strike = option.getStrike();
     double t = option.getTimeToExpiry();
     double forward = data.getForward();
@@ -93,6 +91,7 @@ public final class NormalPriceFunction {
       price = numeraire * (sign * (forward - strike) * nCDF + sigmaRootT * nPDF);
     }
     // Implementation Note: Backward sweep.
+    double[] priceDerivative = new double[3];
     double priceBar = 1.0;
     if (sigmaRootT < NEAR_ZERO) {
       double xBar = (x > 0 ? numeraire : 0.0);
@@ -108,7 +107,7 @@ public final class NormalPriceFunction {
       double sigmaRootTBar = -arg / sigmaRootT * argBar + numeraire * nPDF * priceBar;
       priceDerivative[1] = Math.sqrt(t) * sigmaRootTBar;
     }
-    return price;
+    return ValueDerivatives.of(price, priceDerivative);
   }
 
   /**

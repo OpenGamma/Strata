@@ -48,7 +48,7 @@ public class InterpolatedCurveVectorFunction extends VectorFunction {
     Interpolator1DDataBundle db = _interpolator.getDataBundleFromSortedArrays(_knots, x.toArray());
     int n = _samplePoints.length;
     int nKnots = _knots.length;
-    DoubleMatrix2D res = new DoubleMatrix2D(n, nKnots);
+    DoubleMatrix2D res = DoubleMatrix2D.filled(n, nKnots);
     double[][] data = res.getData(); //direct access to matrix data
     for (int i = 0; i < n; i++) {
       data[i] = _interpolator.getNodeSensitivitiesForValue(db, _samplePoints[i]);
@@ -60,7 +60,7 @@ public class InterpolatedCurveVectorFunction extends VectorFunction {
   public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
     Interpolator1DDataBundle db = _interpolator.getDataBundleFromSortedArrays(_knots, x.toArray());
     int n = _samplePoints.length;
-    DoubleMatrix1D res = new DoubleMatrix1D(n);
+    DoubleMatrix1D res = DoubleMatrix1D.filled(n);
     double[] data = res.getData(); //direct access to vector data
     for (int i = 0; i < n; i++) {
       data[i] = _interpolator.interpolate(db, _samplePoints[i]);

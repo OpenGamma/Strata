@@ -54,7 +54,7 @@ public class PiecewisePolynomialFunction1D {
     }
 
     for (int j = 0; j < dim; ++j) {
-      double[] coefs = coefMatrix.getRowVector(dim * indicator + j).getData();
+      double[] coefs = coefMatrix.row(dim * indicator + j).getData();
       res[j] = getValue(coefs, xKey, knots[indicator]);
 
       ArgChecker.isFalse(Double.isInfinite(res[j]), "Too large input");
@@ -102,7 +102,7 @@ public class PiecewisePolynomialFunction1D {
             }
           }
         }
-        double[] coefs = coefMatrix.getRowVector(dim * indicator + k).getData();
+        double[] coefs = coefMatrix.row(dim * indicator + k).getData();
         res[k][j] = getValue(coefs, xKeys[j], knots[indicator]);
         ArgChecker.isFalse(Double.isInfinite(res[k][j]), "Too large input");
         ArgChecker.isFalse(Double.isNaN(res[k][j]), "Too large input");
@@ -156,7 +156,7 @@ public class PiecewisePolynomialFunction1D {
             }
           }
 
-          double[] coefs = coefMatrix.getRowVector(dim * indicator + k).getData();
+          double[] coefs = coefMatrix.row(dim * indicator + k).getData();
           res[k][l][j] = getValue(coefs, xKeys[l][j], knots[indicator]);
           ArgChecker.isFalse(Double.isInfinite(res[k][l][j]), "Too large input");
           ArgChecker.isFalse(Double.isNaN(res[k][l][j]), "Too large input");

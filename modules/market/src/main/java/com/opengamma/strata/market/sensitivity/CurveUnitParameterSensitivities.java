@@ -146,6 +146,8 @@ public final class CurveUnitParameterSensitivities
 
   /**
    * Finds a single sensitivity instance by name.
+   * <p>
+   * If the sensitivity is not found, optional empty is returned.
    * 
    * @param name  the curve name to find
    * @return the matching sensitivity

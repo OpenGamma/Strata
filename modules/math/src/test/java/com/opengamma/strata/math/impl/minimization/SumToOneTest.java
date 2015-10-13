@@ -57,7 +57,7 @@ public class SumToOneTest {
       assertEquals(n, to.size());
       double sum = 0;
       for (int i = 0; i < n; i++) {
-        sum += to.getEntry(i);
+        sum += to.get(i);
       }
       assertEquals("vector length " + n, 1.0, sum, 1e-9);
     }
@@ -75,7 +75,7 @@ public class SumToOneTest {
 
       DoubleMatrix1D theta2 = trans.inverseTransform(w);
       for (int j = 0; j < n - 1; j++) {
-        assertEquals("element " + j + ", of vector length " + n, theta[j], theta2.getEntry(j), 1e-9);
+        assertEquals("element " + j + ", of vector length " + n, theta[j], theta2.get(j), 1e-9);
       }
     }
   }
@@ -93,8 +93,8 @@ public class SumToOneTest {
       }
     };
 
-    DoubleMatrix1D sigma = new DoubleMatrix1D(n, 1e-4);
-    DoubleMatrix1D start = new DoubleMatrix1D(n - 1, 0.8);
+    DoubleMatrix1D sigma = DoubleMatrix1D.filled(n, 1e-4);
+    DoubleMatrix1D start = DoubleMatrix1D.filled(n - 1, 0.8);
 
     LeastSquareResults res = SOLVER.solve(new DoubleMatrix1D(w), sigma, func, start/*, maxJump*/);
     assertEquals("chi sqr", 0.0, res.getChiSq(), 1e-9);
@@ -127,8 +127,8 @@ public class SumToOneTest {
 
       @Override
       public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-        double a = x.getEntry(0);
-        double theta = x.getEntry(1);
+        double a = x.get(0);
+        double theta = x.get(1);
         double[] temp = new double[2];
         double c1 = Math.cos(theta);
         temp[0] = a * c1 * c1;
@@ -137,7 +137,7 @@ public class SumToOneTest {
       }
     };
 
-    DoubleMatrix1D sigma = new DoubleMatrix1D(n, 1e-4);
+    DoubleMatrix1D sigma = DoubleMatrix1D.filled(n, 1e-4);
     DoubleMatrix1D start = new DoubleMatrix1D(0.0, 0.8);
 
     LeastSquareResults res = SOLVER.solve(new DoubleMatrix1D(w), sigma, func, start/*, maxJump*/);
@@ -180,8 +180,8 @@ public class SumToOneTest {
       for (int j = 0; j < n - 1; j++) {
         double sum = 0.0;
         for (int i = 0; i < n; i++) {
-          sum += jac.getEntry(i, j);
-          assertEquals("element " + i + " " + j, fdJac.getEntry(i, j), jac.getEntry(i, j), 1e-6);
+          sum += jac.get(i, j);
+          assertEquals("element " + i + " " + j, fdJac.get(i, j), jac.get(i, j), 1e-6);
         }
         assertEquals("wrong sum of sensitivities", 0.0, sum, 1e-15);
       }

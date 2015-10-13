@@ -121,7 +121,7 @@ public final class CommonsMathWrapper {
     int n = x.size();
     double[][] y = new double[n][1];
     for (int i = 0; i < n; i++) {
-      y[i][0] = x.getEntry(i);
+      y[i][0] = x.get(i);
     }
     return new Array2DRowRealMatrix(x.getData());
   }

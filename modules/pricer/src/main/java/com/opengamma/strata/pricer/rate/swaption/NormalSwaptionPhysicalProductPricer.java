@@ -13,6 +13,7 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
@@ -193,11 +194,10 @@ public class NormalSwaptionPhysicalProductPricer {
     // Backward sweep
     PointSensitivityBuilder pvbpDr = swapPricer.getLegPricer().pvbpSensitivity(fixedLeg, ratesProvider);
     PointSensitivityBuilder forwardDr = swapPricer.parRateSensitivity(underlying, ratesProvider);
-    double[] ad = new double[3];
-    double pv = NORMAL.getPriceAdjoint(option, normalData, ad);
+    ValueDerivatives pv = NORMAL.getPriceAdjoint(option, normalData);
     double sign = (expanded.getLongShort() == LongShort.LONG) ? 1.0 : -1.0;
-    return pvbpDr.multipliedBy(pv * sign * Math.signum(pvbp))
-        .combinedWith(forwardDr.multipliedBy(ad[0] * Math.abs(pvbp) * sign));
+    return pvbpDr.multipliedBy(pv.getValue() * sign * Math.signum(pvbp))
+        .combinedWith(forwardDr.multipliedBy(pv.getDerivative(0) * Math.abs(pvbp) * sign));
   }
 
   //-------------------------------------------------------------------------

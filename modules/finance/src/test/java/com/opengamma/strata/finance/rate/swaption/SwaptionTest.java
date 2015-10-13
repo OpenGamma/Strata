@@ -47,7 +47,10 @@ public class SwaptionTest {
   private static final ZoneId ZONE = ZoneId.of("Z");
   private static final AdjustableDate ADJUSTABLE_EXPIRY_DATE = AdjustableDate.of(EXPIRY_DATE, ADJUSTMENT);
   private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
-  private static final SwaptionSettlement CASH_SETTLE = CashSettlement.DEFAULT;
+  private static final SwaptionSettlement CASH_SETTLE = CashSettlement.builder()
+      .cashSettlementMethod(CashSettlementMethod.PAR_YIELD)
+      .settlementDate(SWAP.getStartDate())
+      .build();
 
   public void test_builder() {
     Swaption test = Swaption.builder()
