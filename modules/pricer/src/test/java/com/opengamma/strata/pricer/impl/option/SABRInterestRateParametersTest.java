@@ -115,9 +115,14 @@ public class SABRInterestRateParametersTest {
     assertEquals(PARAMETERS.getVolatility(expiry, tenor, strike, forward), FUNCTION.getVolatility(option, forward, data));
     assertEquals(PARAMETERS.getVolatility(new double[] {expiry, tenor, strike, forward }),
         FUNCTION.getVolatility(option, forward, data));
-    double[] adjCmp = PARAMETERS.getVolatilityModelAdjoint(expiry, tenor, strike, forward);
-    double[] adjExp = FUNCTION.getVolatilityModelAdjoint(option, forward, data);
+    double[] modelAdjCmp = PARAMETERS.getVolatilityModelAdjoint(expiry, tenor, strike, forward);
+    double[] modelAdjExp = FUNCTION.getVolatilityModelAdjoint(option, forward, data);
     for (int i = 0; i < 4; ++i) {
+      assertEquals(modelAdjCmp[i], modelAdjExp[i]);
+    }
+    double[] adjCmp = PARAMETERS.getVolatilityAdjoint(expiry, tenor, strike, forward);
+    double[] adjExp = FUNCTION.getVolatilityAdjoint(option, forward, data);
+    for (int i = 0; i < 7; ++i) {
       assertEquals(adjCmp[i], adjExp[i]);
     }
     SABRInterestRateParameters other =

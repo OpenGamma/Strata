@@ -47,11 +47,13 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
 
   /**
    * Computes volatility and the adjoint (volatility sensitivity to forward, strike and model parameters). 
+   * <p>
+   * This should be overridden where possible. 
    * 
    * @param option  the option, not null
    * @param forward  the forward value of the underlying
    * @param data  the model data
-   * @return Returns a function that, given data of type T, calculates the volatility adjoint
+   * @return the sensitivities
    */
   public double[] getVolatilityAdjoint(EuropeanVanillaOption option, double forward, T data) {
     ArgChecker.notNull(option, "option");
