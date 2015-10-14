@@ -91,7 +91,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
         j++;
       }
     }
-    return new DoubleMatrix1D(fittingParameter);
+    return DoubleMatrix1D.copyOf(fittingParameter);
   }
 
   /**
@@ -112,7 +112,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
         modelParameter[i] = _startValues.get(i);
       }
     }
-    return new DoubleMatrix1D(modelParameter);
+    return DoubleMatrix1D.copyOf(modelParameter);
   }
 
   /**

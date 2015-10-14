@@ -87,7 +87,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
       }
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(coefs), 4, 1);
+    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), new DoubleMatrix2D(coefs), 4, 1);
   }
 
   @Override
@@ -150,7 +150,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
 
     for (int i = 0; i < nIntervals; ++i) {
       for (int j = 0; j < dim; ++j) {
-        resMatrix[dim * i + j] = coefMatrix[j].row(i).getData();
+        resMatrix[dim * i + j] = coefMatrix[j].row(i).toArray();
       }
     }
 
@@ -161,7 +161,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
       }
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
   }
 
   @Override
@@ -211,7 +211,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
       final PiecewisePolynomialResult result = _method.interpolate(xValues, yValues);
       ArgChecker.isTrue(result.getOrder() == 4, "Primary interpolant is not cubic");
       final double[] initialFirst = _function.differentiate(result, xValues).getData()[0];
-      firstWithSensitivity[0] = new DoubleMatrix1D(firstDerivativeCalculator(intervals, slopes, initialFirst));
+      firstWithSensitivity[0] = DoubleMatrix1D.copyOf(firstDerivativeCalculator(intervals, slopes, initialFirst));
 
       int nExtra = nDataPts == yValuesLen ? 0 : 1;
       final double[] yValuesUp = Arrays.copyOf(yValues, nDataPts + 2 * nExtra);
@@ -237,7 +237,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         yValuesDw[i] = yValues[i];
       }
       for (int i = 0; i < nDataPts; ++i) {
-        firstWithSensitivity[i + 1] = new DoubleMatrix1D(tmp[i]);
+        firstWithSensitivity[i + 1] = DoubleMatrix1D.copyOf(tmp[i]);
       }
     } else {
       final PiecewisePolynomialResultsWithSensitivity resultWithSensitivity = _method.interpolateWithSensitivity(xValues, yValues);
@@ -265,7 +265,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, nDataPts - 1);
     final int nCoefs = coefMatrix.columnCount();
 
-    return new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
+    return new PiecewisePolynomialResultsWithSensitivity(DoubleMatrix1D.copyOf(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
   }
 
   @Override
@@ -357,12 +357,12 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         if (Math.abs(absFirst - refValueWithSense[0]) < SMALL) {
           first[i] = absFirst <= refValueWithSense[0] ? initialFirst[i] : sigInitialFirst * refValueWithSense[0];
           for (int k = 0; k < nDataPts; ++k) {
-            tmpSense[k] = 0.5 * (initialFirstSense[i].getData()[k] + sigInitialFirst * refValueWithSense[k + 1]);
+            tmpSense[k] = 0.5 * (initialFirstSense[i].get(k) + sigInitialFirst * refValueWithSense[k + 1]);
           }
         } else {
           if (absFirst < refValueWithSense[0]) {
             first[i] = initialFirst[i];
-            System.arraycopy(initialFirstSense[i].getData(), 0, tmpSense, 0, nDataPts);
+            System.arraycopy(initialFirstSense[i].toArray(), 0, tmpSense, 0, nDataPts);
           } else {
             first[i] = sigInitialFirst * refValueWithSense[0];
             for (int k = 0; k < nDataPts; ++k) {
@@ -371,7 +371,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
           }
         }
       }
-      res[i + 1] = new DoubleMatrix1D(tmpSense);
+      res[i + 1] = DoubleMatrix1D.copyOf(tmpSense);
     }
 
     final double[] tmpSenseIni = new double[nDataPts];
@@ -391,14 +391,14 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         if (Math.abs(absFirst - modSlope) < SMALL) {
           first[0] = absFirst <= modSlope ? initialFirst[0] : sigFirstIni * modSlope;
           for (int k = 0; k < nDataPts; ++k) {
-            tmpSenseIni[k] = 0.5 * (initialFirstSense[0].getData()[k] + 3. * sigFirstIni * slopesAbsSensitivity[0][k]);
+            tmpSenseIni[k] = 0.5 * (initialFirstSense[0].get(k) + 3. * sigFirstIni * slopesAbsSensitivity[0][k]);
           }
         } else {
           if (absFirst < modSlope) {
             first[0] = initialFirst[0];
             final double factor = Math.abs(initialFirst[0]) < SMALL ? 0.5 : 1.;
             for (int k = 0; k < nDataPts; ++k) {
-              tmpSenseIni[k] = factor * initialFirstSense[0].getData()[k];
+              tmpSenseIni[k] = factor * initialFirstSense[0].get(k);
             }
           } else {
             first[0] = sigFirstIni * modSlope;
@@ -409,7 +409,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         }
       }
     }
-    res[1] = new DoubleMatrix1D(tmpSenseIni);
+    res[1] = DoubleMatrix1D.copyOf(tmpSenseIni);
 
     final double[] tmpSenseFin = new double[nDataPts];
     final double sigFirstFin = Math.signum(initialFirst[nDataPts - 1]);
@@ -428,14 +428,15 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         if (Math.abs(absFirst - modSlope) < SMALL) {
           first[nDataPts - 1] = absFirst <= modSlope ? initialFirst[nDataPts - 1] : sigFirstFin * modSlope;
           for (int k = 0; k < nDataPts; ++k) {
-            tmpSenseFin[k] = 0.5 * (initialFirstSense[nDataPts - 1].getData()[k] + 3. * sigFirstFin * slopesAbsSensitivity[nDataPts - 2][k]);
+            tmpSenseFin[k] =
+                0.5 * (initialFirstSense[nDataPts - 1].get(k) + 3. * sigFirstFin * slopesAbsSensitivity[nDataPts - 2][k]);
           }
         } else {
           if (absFirst < modSlope) {
             first[nDataPts - 1] = initialFirst[nDataPts - 1];
             final double factor = Math.abs(initialFirst[nDataPts - 1]) < SMALL ? 0.5 : 1.;
             for (int k = 0; k < nDataPts; ++k) {
-              tmpSenseFin[k] = factor * initialFirstSense[nDataPts - 1].getData()[k];
+              tmpSenseFin[k] = factor * initialFirstSense[nDataPts - 1].get(k);
             }
           } else {
             first[nDataPts - 1] = sigFirstFin * modSlope;
@@ -446,9 +447,9 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         }
       }
     }
-    res[nDataPts] = new DoubleMatrix1D(tmpSenseFin);
+    res[nDataPts] = DoubleMatrix1D.copyOf(tmpSenseFin);
 
-    res[0] = new DoubleMatrix1D(first);
+    res[0] = DoubleMatrix1D.copyOf(first);
     return res;
   }
 

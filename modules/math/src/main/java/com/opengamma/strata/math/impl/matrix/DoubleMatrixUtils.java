@@ -77,6 +77,6 @@ public final class DoubleMatrixUtils {
    */
   public static DoubleMatrix2D getTwoDimensionalDiagonalMatrix(double[] vector) {
     ArgChecker.notNull(vector, "vector");
-    return getTwoDimensionalDiagonalMatrix(new DoubleMatrix1D(vector));
+    return getTwoDimensionalDiagonalMatrix(DoubleMatrix1D.copyOf(vector));
   }
 }

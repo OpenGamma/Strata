@@ -11,7 +11,6 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.primitives.Doubles;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ObservableValues;
@@ -210,8 +209,8 @@ public final class CurveCalibrator {
         new CalibrationDerivative(trades, measures, providerGenerator, curveOrder);
 
     // calibrate
-    DoubleMatrix1D initGuessMatrix = new DoubleMatrix1D(Doubles.toArray(initialGuesses));
-    return rootFinder.getRoot(valueCalculator, derivativeCalculator, initGuessMatrix).getData();
+    DoubleMatrix1D initGuessMatrix = DoubleMatrix1D.copyOf(initialGuesses);
+    return rootFinder.getRoot(valueCalculator, derivativeCalculator, initGuessMatrix).toArray();
   }
 
   //-------------------------------------------------------------------------

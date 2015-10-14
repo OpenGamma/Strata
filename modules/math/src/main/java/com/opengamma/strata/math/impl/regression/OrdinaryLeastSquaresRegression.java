@@ -37,7 +37,7 @@ public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
       dep[i] = y[i];
     }
     DoubleMatrix2D matrix = new DoubleMatrix2D(indep);
-    DoubleMatrix1D vector = new DoubleMatrix1D(dep);
+    DoubleMatrix1D vector = DoubleMatrix1D.copyOf(dep);
     DoubleMatrix2D transpose = _algebra.getTranspose(matrix);
     DoubleMatrix2D betasVector = (DoubleMatrix2D) _algebra.multiply(
         _algebra.multiply(_algebra.getInverse(_algebra.multiply(transpose, matrix)), transpose), vector);

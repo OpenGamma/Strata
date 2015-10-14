@@ -63,12 +63,7 @@ public class ParameterizedCurveVectorFunction extends VectorFunction {
   @Override
   public DoubleMatrix1D evaluate(DoubleMatrix1D curveParameters) {
     Function1D<Double, Double> func = _curve.asFunctionOfArguments(curveParameters);
-    int n = _samplePoints.length;
-    double[] y = new double[n];
-    for (int i = 0; i < n; i++) {
-      y[i] = func.evaluate(_samplePoints[i]);
-    }
-    return new DoubleMatrix1D(y);
+    return DoubleMatrix1D.of(_samplePoints.length, i -> func.evaluate(_samplePoints[i]));
   }
 
 }

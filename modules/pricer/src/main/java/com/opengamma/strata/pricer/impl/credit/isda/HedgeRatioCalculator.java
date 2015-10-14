@@ -62,13 +62,9 @@ public class HedgeRatioCalculator {
     ArgChecker.notNull(cds, "cds");
     ArgChecker.notNull(creditCurve, "creditCurve");
     ArgChecker.notNull(yieldCurve, "yieldCurve");
-
-    int nKnots = creditCurve.getNumberOfKnots();
-    double[] sense = new double[nKnots];
-    for (int i = 0; i < nKnots; i++) {
-      sense[i] = _pricer.pvCreditSensitivity(cds, yieldCurve, creditCurve, coupon, i);
-    }
-    return new DoubleMatrix1D(sense);
+    return DoubleMatrix1D.of(
+        creditCurve.getNumberOfKnots(),
+        i -> _pricer.pvCreditSensitivity(cds, yieldCurve, creditCurve, coupon, i));
   }
 
   /**

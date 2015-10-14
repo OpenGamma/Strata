@@ -17,10 +17,11 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
  * @param <T> The domain type of the function (e.g. Double, double[], DoubleMatrix1D etc) 
  */
 public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
+
   private final List<Function1D<T, Double>> _f;
   private final double[] _w;
 
-  public BasisFunctionAggregation(final List<Function1D<T, Double>> functions, final double[] weights) {
+  public BasisFunctionAggregation(List<Function1D<T, Double>> functions, double[] weights) {
     ArgChecker.notEmpty(functions, "no functions");
     ArgChecker.notNull(weights, "no weights");
     ArgChecker.isTrue(functions.size() == weights.length);
@@ -29,12 +30,12 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
   }
 
   @Override
-  public Double evaluate(final T x) {
+  public Double evaluate(T x) {
     ArgChecker.notNull(x, "x");
     double sum = 0;
-    final int n = _w.length;
+    int n = _w.length;
     for (int i = 0; i < n; i++) {
-      final double temp = _f.get(i).evaluate(x);
+      double temp = _f.get(i).evaluate(x);
       if (temp != 0.0) {
         sum += _w[i] * temp;
       }
@@ -43,39 +44,35 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
   }
 
   /**
-   * The sensitivity of the value at a point x to the weights of the basis functions 
+   * The sensitivity of the value at a point x to the weights of the basis functions.
+   * 
    * @param x value to be evaluated 
    * @return sensitivity w
    */
-  public DoubleMatrix1D weightSensitivity(final T x) {
+  public DoubleMatrix1D weightSensitivity(T x) {
     ArgChecker.notNull(x, "x");
-    final int n = _w.length;
-    final DoubleMatrix1D res = DoubleMatrix1D.filled(n);
-    final double[] data = res.getData();
-    for (int i = 0; i < n; i++) {
-      data[i] = _f.get(i).evaluate(x);
-    }
-    return res;
+    return DoubleMatrix1D.of(_w.length, i -> _f.get(i).evaluate(x));
   }
 
   /**
-   * The value of the function at the given point and its sensitivity to the weights of the basis functions
+   * The value of the function at the given point and its sensitivity to the weights of the basis functions.
+   * 
    * @param x value to be evaluated 
    * @return value and weight sensitivity 
    */
-  public Pair<Double, DoubleMatrix1D> valueAndWeightSensitivity(final T x) {
+  public Pair<Double, DoubleMatrix1D> valueAndWeightSensitivity(T x) {
     ArgChecker.notNull(x, "x");
-    final int n = _w.length;
+    int n = _w.length;
     double sum = 0;
-    final DoubleMatrix1D sense = DoubleMatrix1D.filled(n);
-    final double[] data = sense.getData();
+    double[] data = new double[n];
     for (int i = 0; i < n; i++) {
-      final double temp = _f.get(i).evaluate(x);
+      double temp = _f.get(i).evaluate(x);
       if (temp != 0.0) {
         sum += _w[i] * temp;
         data[i] = temp;
       }
     }
-    return Pair.of(sum, sense);
+    return Pair.of(sum, DoubleMatrix1D.ofUnsafe(data));
   }
+
 }

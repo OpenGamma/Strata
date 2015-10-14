@@ -80,7 +80,7 @@ public final class LogNaturalCubicMonotonicityPreservingInterpolator1D
     ArgChecker.notNull(data, "data bundle");
     ArgChecker.isTrue(data instanceof Interpolator1DLogPiecewisePoynomialDataBundle);
     Interpolator1DLogPiecewisePoynomialDataBundle polyData = (Interpolator1DLogPiecewisePoynomialDataBundle) data;
-    double[] resSense = FUNC.nodeSensitivity(polyData.getPiecewisePolynomialResultsWithSensitivity(), value).getData();
+    double[] resSense = FUNC.nodeSensitivity(polyData.getPiecewisePolynomialResultsWithSensitivity(), value).toArray();
     double resValue = Math.exp(FUNC.evaluate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value).get(0));
     double[] knotValues = data.getValues();
     int nKnots = knotValues.length;

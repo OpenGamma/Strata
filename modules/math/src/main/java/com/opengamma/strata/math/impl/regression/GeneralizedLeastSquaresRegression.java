@@ -32,7 +32,7 @@ public class GeneralizedLeastSquaresRegression extends LeastSquaresRegression {
       }
     }
     DoubleMatrix2D matrix = new DoubleMatrix2D(dep);
-    DoubleMatrix1D vector = new DoubleMatrix1D(indep);
+    DoubleMatrix1D vector = DoubleMatrix1D.copyOf(indep);
     DoubleMatrix2D w = new DoubleMatrix2D(wArray);
     DoubleMatrix2D transpose = s_algebra.getTranspose(matrix);
     DoubleMatrix2D betasVector = (DoubleMatrix2D)

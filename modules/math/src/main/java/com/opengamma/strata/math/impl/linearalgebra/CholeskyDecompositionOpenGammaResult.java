@@ -50,7 +50,7 @@ public class CholeskyDecompositionOpenGammaResult implements CholeskyDecompositi
 
   @Override
   public DoubleMatrix1D solve(DoubleMatrix1D b) {
-    return new DoubleMatrix1D(b.getData());
+    return b;
   }
 
   @Override

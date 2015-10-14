@@ -341,14 +341,8 @@ public class NonLinearLeastSquareWithPenalty {
     int n = observedValues.size();
     DoubleMatrix1D modelValues = func.evaluate(theta);
     ArgChecker.isTrue(n == modelValues.size(),
-        "Number of data points different between model (" + modelValues.size() +
-            ") and observed (" + n + ")");
-    double[] res = new double[n];
-    for (int i = 0; i < n; i++) {
-      res[i] = (observedValues.get(i) - modelValues.get(i)) / sigma.get(i);
-    }
-
-    return new DoubleMatrix1D(res);
+        "Number of data points different between model (" + modelValues.size() + ") and observed (" + n + ")");
+    return DoubleMatrix1D.of(n, i -> (observedValues.get(i) - modelValues.get(i)) / sigma.get(i));
   }
 
   private DoubleMatrix2D getBTranspose(DoubleMatrix2D jacobian, DoubleMatrix1D sigma) {
@@ -407,7 +401,7 @@ public class NonLinearLeastSquareWithPenalty {
 
   private double getANorm(DoubleMatrix2D aM, DoubleMatrix1D xV) {
     double[][] a = aM.getData();
-    double[] x = xV.getData();
+    double[] x = xV.toArray();
     int n = x.length;
     double sum = 0.0;
     for (int i = 0; i < n; i++) {

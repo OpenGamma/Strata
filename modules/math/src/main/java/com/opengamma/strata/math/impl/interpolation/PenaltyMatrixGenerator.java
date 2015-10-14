@@ -289,7 +289,7 @@ public abstract class PenaltyMatrixGenerator {
       System.arraycopy(aMatrix.getData()[i], 0, data, pos, nCols);
       pos += nCols;
     }
-    return new DoubleMatrix1D(data);
+    return DoubleMatrix1D.copyOf(data);
   }
 
   /**

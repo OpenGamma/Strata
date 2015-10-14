@@ -37,7 +37,7 @@ public class GeneralizedLeastSquareResults<T> extends LeastSquareResults {
 
     super(chiSq, parameters, covariance, null);
 
-    _function = new BasisFunctionAggregation<>(basisFunctions, parameters.getData());
+    _function = new BasisFunctionAggregation<>(basisFunctions, parameters.toArray());
   }
 
   //-------------------------------------------------------------------------

@@ -64,7 +64,7 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
    * @return X values of breakpoints
    */
   public double[] getBreakpointsX() {
-    return _poly.getKnots().getData();
+    return _poly.getKnots().toArray();
   }
 
   /**

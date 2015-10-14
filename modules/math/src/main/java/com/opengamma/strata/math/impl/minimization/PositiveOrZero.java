@@ -16,7 +16,7 @@ public class PositiveOrZero extends Function1D<DoubleMatrix1D, Boolean> {
 
   @Override
   public Boolean evaluate(DoubleMatrix1D x) {
-    double[] data = x.getData();
+    double[] data = x.toArray();
     for (double value : data) {
       if (value < 0.0) {
         return false;

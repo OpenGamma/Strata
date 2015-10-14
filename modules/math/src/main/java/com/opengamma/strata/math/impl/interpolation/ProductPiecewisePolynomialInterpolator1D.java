@@ -137,15 +137,15 @@ public class ProductPiecewisePolynomialInterpolator1D extends Interpolator1D {
     if (Math.abs(value) < small) {
       for (int i = 0; i < nData; ++i) {
         double den = Math.abs(data.getValues()[i]) < smallDiff ? eps : data.getValues()[i] * eps;
-        double up = function.differentiate(data.getPiecewisePolynomialResultUp()[i], value).getData()[0];
-        double dw = function.differentiate(data.getPiecewisePolynomialResultDw()[i], value).getData()[0];
+        double up = function.differentiate(data.getPiecewisePolynomialResultUp()[i], value).get(0);
+        double dw = function.differentiate(data.getPiecewisePolynomialResultDw()[i], value).get(0);
         res[i] = 0.5 * (up - dw) / den;
       }
     } else {
       for (int i = 0; i < nData; ++i) {
         double den = Math.abs(data.getValues()[i]) < smallDiff ? eps : data.getValues()[i] * eps;
-        double up = function.evaluate(data.getPiecewisePolynomialResultUp()[i], value).getData()[0];
-        double dw = function.evaluate(data.getPiecewisePolynomialResultDw()[i], value).getData()[0];
+        double up = function.evaluate(data.getPiecewisePolynomialResultUp()[i], value).get(0);
+        double dw = function.evaluate(data.getPiecewisePolynomialResultDw()[i], value).get(0);
         res[i] = 0.5 * (up - dw) / den / value;
       }
     }

@@ -60,7 +60,7 @@ public class TridiagonalSolver {
    * @return vector with same length as y
    */
   public static DoubleMatrix1D solvTriDag(TridiagonalMatrix aM, DoubleMatrix1D b) {
-    return new DoubleMatrix1D(solvTriDag(aM, b.getData()));
+    return DoubleMatrix1D.copyOf(solvTriDag(aM, b.toArray()));
   }
 
 }
