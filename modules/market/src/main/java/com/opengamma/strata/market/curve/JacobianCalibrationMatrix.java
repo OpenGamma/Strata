@@ -110,7 +110,7 @@ public final class JacobianCalibrationMatrix
    * section of the input array as defined by the curve order.
    * 
    * @param array  the array to split
-   * @return the section of the array identified by this block
+   * @return a map splitting the array by curve name
    */
   public Map<CurveName, double[]> splitValues(double[] array) {
     LinkedHashMap<CurveName, double[]> result = new LinkedHashMap<>();

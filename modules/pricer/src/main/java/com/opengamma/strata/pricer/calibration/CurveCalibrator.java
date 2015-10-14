@@ -182,11 +182,11 @@ public final class CurveCalibrator {
       // use Jacobians to build output curves
       providerCombined = providerGenerator.generate(calibratedGroupParams, jacobians);
     }
-    // create the final block bundle and return
+    // return the calibrated provider
     return providerCombined;
   }
 
-  // converts a definition to a block
+  // converts a definition to the curve order list
   private static ImmutableList<CurveParameterSize> toOrder(CurveGroupDefinition groupDefn) {
     ImmutableList.Builder<CurveParameterSize> builder = ImmutableList.builder();
     for (CurveGroupEntry entry : groupDefn.getEntries()) {
@@ -239,7 +239,7 @@ public final class CurveCalibrator {
     double[][] pDmPreviousArray = jacobianIndirect(
         res, pDmCurrentMatrix, nbTrades, totalParamsGroup, totalParamsPrevious, orderPrev, jacobians);
 
-    // add to the mutable block bundle, one entry for each curve in this group
+    // add to the map of jacobians, one entry for each curve in this group
     ImmutableMap.Builder<CurveName, JacobianCalibrationMatrix> jacobianBuilder = ImmutableMap.builder();
     jacobianBuilder.putAll(jacobians);
     double[][] pDmCurrentArray = pDmCurrentMatrix.getData();
