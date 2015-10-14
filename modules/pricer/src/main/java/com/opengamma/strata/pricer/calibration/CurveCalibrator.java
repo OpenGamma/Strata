@@ -175,7 +175,7 @@ public final class CurveCalibrator {
       ImmutableRatesProvider calibratedProvider = providerGenerator.generate(calibratedGroupParams);
 
       // use calibration to build Jacobian matrices
-      jacobians = updateBlockBundleForGroup(
+      jacobians = updateJacobiansForGroup(
           calibratedProvider, trades, orderGroup, orderPrev, orderPrevAndGroup, jacobians);
       orderPrev = orderPrevAndGroup;
 
@@ -217,7 +217,7 @@ public final class CurveCalibrator {
   //-------------------------------------------------------------------------
   // calculates the Jacobian and builds the result, called once per group
   // this uses, but does not alter, data from previous groups
-  private ImmutableMap<CurveName, JacobianCalibrationMatrix> updateBlockBundleForGroup(
+  private ImmutableMap<CurveName, JacobianCalibrationMatrix> updateJacobiansForGroup(
       ImmutableRatesProvider provider,
       ImmutableList<Trade> trades,
       ImmutableList<CurveParameterSize> orderGroup,
