@@ -26,8 +26,6 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.finance.rate.swap.type.IborIborSwapConventions;
 import com.opengamma.strata.finance.rate.swap.type.IborIborSwapTemplate;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
@@ -43,7 +41,10 @@ public class IborIborSwapCurveNodeTest {
 
   private static final IborIborSwapTemplate TEMPLATE =
       IborIborSwapTemplate.of(Period.ZERO, TENOR_10Y, IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M);
+  private static final IborIborSwapTemplate TEMPLATE2 =
+      IborIborSwapTemplate.of(Period.ofMonths(1), TENOR_10Y, IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M);
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "USD-BS36-10Y"));
+  private static final QuoteKey QUOTE_KEY2 = QuoteKey.of(StandardId.of("OG-Ticker", "Test"));
   private static final double SPREAD = 0.0015;
 
   public void test_builder() {
@@ -117,9 +118,7 @@ public class IborIborSwapCurveNodeTest {
   public void coverage() {
     IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     coverImmutableBean(test);
-    FixedIborSwapCurveNode test2 = FixedIborSwapCurveNode.of(
-        FixedIborSwapTemplate.of(TENOR_10Y, FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M),
-        QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")));
+    IborIborSwapCurveNode test2 = IborIborSwapCurveNode.of(TEMPLATE2, QUOTE_KEY2, 0.1);
     coverBeanEquals(test, test2);
   }
 
@@ -127,5 +126,5 @@ public class IborIborSwapCurveNodeTest {
     IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     assertSerialization(test);
   }
-  
+
 }

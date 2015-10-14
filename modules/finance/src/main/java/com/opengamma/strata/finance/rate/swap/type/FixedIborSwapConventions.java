@@ -27,11 +27,11 @@ import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.index.IborIndices;
 
 /**
- * Factory methods for market standard conventions
+ * Market standard Fixed-Ibor swap conventions.
  * <p>
  * http://www.opengamma.com/sites/default/files/interest-rate-instruments-and-market-conventions.pdf
  */
-public class FixedIborSwapConventions {
+public final class FixedIborSwapConventions {
 
   // GBLO+USNY calendar
   private static final HolidayCalendar GBLO_USNY = GBLO.combineWith(USNY);

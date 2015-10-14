@@ -6,10 +6,22 @@
 package com.opengamma.strata.market.curve.definition;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
@@ -21,25 +33,13 @@ import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
 
-import java.time.LocalDate;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-
-import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-
 /**
- * A curve node whose instrument is a Ibor-Ibor interest rate swap. The spread or market quote is on the first Ibor leg.
+ * A curve node whose instrument is a Ibor-Ibor interest rate swap.
+ * <p>
+ * The spread or market quote is on the first Ibor leg.
  */
 @BeanDefinition
-public class IborIborSwapCurveNode
+public final class IborIborSwapCurveNode
     implements CurveNode, ImmutableBean, Serializable {
 
   /**
@@ -53,7 +53,7 @@ public class IborIborSwapCurveNode
   @PropertyDefinition(validate = "notNull")
   private final ObservableKey rateKey;
   /**
-   * The spread added to the market data.
+   * The spread added to the market quote.
    */
   @PropertyDefinition
   private final double spread;
@@ -82,6 +82,7 @@ public class IborIborSwapCurveNode
     return IborIborSwapCurveNode.builder().template(template).rateKey(rateKey).spread(spread).build();
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Set<ObservableKey> requirements() {
     return ImmutableSet.of(rateKey);
@@ -134,16 +135,15 @@ public class IborIborSwapCurveNode
     return new IborIborSwapCurveNode.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected IborIborSwapCurveNode(IborIborSwapCurveNode.Builder builder) {
-    JodaBeanUtils.notNull(builder.template, "template");
-    JodaBeanUtils.notNull(builder.rateKey, "rateKey");
-    this.template = builder.template;
-    this.rateKey = builder.rateKey;
-    this.spread = builder.spread;
+  private IborIborSwapCurveNode(
+      IborIborSwapTemplate template,
+      ObservableKey rateKey,
+      double spread) {
+    JodaBeanUtils.notNull(template, "template");
+    JodaBeanUtils.notNull(rateKey, "rateKey");
+    this.template = template;
+    this.rateKey = rateKey;
+    this.spread = spread;
   }
 
   @Override
@@ -181,7 +181,7 @@ public class IborIborSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the spread added to the market data.
+   * Gets the spread added to the market quote.
    * @return the value of the property
    */
   public double getSpread() {
@@ -224,26 +224,18 @@ public class IborIborSwapCurveNode
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("IborIborSwapCurveNode{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("template").append('=').append(getTemplate()).append(',').append(' ');
+    buf.append("rateKey").append('=').append(getRateKey()).append(',').append(' ');
+    buf.append("spread").append('=').append(JodaBeanUtils.toString(getSpread()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("template").append('=').append(JodaBeanUtils.toString(getTemplate())).append(',').append(' ');
-    buf.append("rateKey").append('=').append(JodaBeanUtils.toString(getRateKey())).append(',').append(' ');
-    buf.append("spread").append('=').append(JodaBeanUtils.toString(getSpread())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code IborIborSwapCurveNode}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -276,7 +268,7 @@ public class IborIborSwapCurveNode
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -312,7 +304,7 @@ public class IborIborSwapCurveNode
      * The meta-property for the {@code template} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IborIborSwapTemplate> template() {
+    public MetaProperty<IborIborSwapTemplate> template() {
       return template;
     }
 
@@ -320,7 +312,7 @@ public class IborIborSwapCurveNode
      * The meta-property for the {@code rateKey} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ObservableKey> rateKey() {
+    public MetaProperty<ObservableKey> rateKey() {
       return rateKey;
     }
 
@@ -328,7 +320,7 @@ public class IborIborSwapCurveNode
      * The meta-property for the {@code spread} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> spread() {
+    public MetaProperty<Double> spread() {
       return spread;
     }
 
@@ -361,7 +353,7 @@ public class IborIborSwapCurveNode
   /**
    * The bean-builder for {@code IborIborSwapCurveNode}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<IborIborSwapCurveNode> {
+  public static final class Builder extends DirectFieldsBeanBuilder<IborIborSwapCurveNode> {
 
     private IborIborSwapTemplate template;
     private ObservableKey rateKey;
@@ -370,14 +362,14 @@ public class IborIborSwapCurveNode
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(IborIborSwapCurveNode beanToCopy) {
+    private Builder(IborIborSwapCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
       this.rateKey = beanToCopy.getRateKey();
       this.spread = beanToCopy.getSpread();
@@ -442,7 +434,10 @@ public class IborIborSwapCurveNode
 
     @Override
     public IborIborSwapCurveNode build() {
-      return new IborIborSwapCurveNode(this);
+      return new IborIborSwapCurveNode(
+          template,
+          rateKey,
+          spread);
     }
 
     //-----------------------------------------------------------------------
@@ -469,7 +464,7 @@ public class IborIborSwapCurveNode
     }
 
     /**
-     * Sets the spread added to the market data.
+     * Sets the spread added to the market quote.
      * @param spread  the new value
      * @return this, for chaining, not null
      */
@@ -483,19 +478,11 @@ public class IborIborSwapCurveNode
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("IborIborSwapCurveNode.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("rateKey").append('=').append(JodaBeanUtils.toString(rateKey)).append(',').append(' ');
-      buf.append("spread").append('=').append(JodaBeanUtils.toString(spread)).append(',').append(' ');
+      buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

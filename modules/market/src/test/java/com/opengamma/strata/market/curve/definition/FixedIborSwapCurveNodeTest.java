@@ -43,7 +43,7 @@ public class FixedIborSwapCurveNodeTest {
       FixedIborSwapTemplate.of(TENOR_10Y, FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M);
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit1"));
   private static final double SPREAD = 0.0015;
-  
+
   private static final double TOLERANCE_DF = 1.0E-10;
 
   public void test_builder() {
@@ -104,6 +104,7 @@ public class FixedIborSwapCurveNodeTest {
     double df = Math.exp(-TENOR_10Y.get(ChronoUnit.YEARS) * rate);
     assertEquals(
         node.initialGuess(valuationDate, ObservableValues.of(QUOTE_KEY, rate), ValueType.DISCOUNT_FACTOR), df, TOLERANCE_DF);
+    assertEquals(node.initialGuess(valuationDate, ObservableValues.of(QUOTE_KEY, rate), ValueType.PRICE_INDEX), 0d);
   }
 
   public void test_metadata() {
