@@ -5,6 +5,11 @@
  */
 package com.opengamma.strata.pricer.calibration;
 
+import java.util.Map;
+
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -23,6 +28,21 @@ public interface RatesProviderGenerator {
    * @param parameters  the parameters describing the provider
    * @return the provider
    */
-  public abstract ImmutableRatesProvider generate(double[] parameters);
+  public default ImmutableRatesProvider generate(double[] parameters) {
+    return generate(parameters, ImmutableMap.of());
+  }
+
+  /**
+   * Generates a rates provider from a set of parameters and calibration information.
+   * <p>
+   * The number of parameters passed has to match the total number of parameters in all the curves generated.
+   * 
+   * @param parameters  the parameters describing the provider
+   * @param jacobians  the curve calibration info
+   * @return the provider
+   */
+  public abstract ImmutableRatesProvider generate(
+      double[] parameters,
+      Map<CurveName, JacobianCalibrationMatrix> jacobians);
 
 }

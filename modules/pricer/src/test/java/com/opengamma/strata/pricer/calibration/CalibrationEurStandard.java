@@ -32,7 +32,6 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTemplate;
 import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
@@ -93,7 +92,7 @@ public class CalibrationEurStandard {
   private static final CalibrationMeasures CALIBRATION_MEASURES = CalibrationMeasures.DEFAULT;
   private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100, CALIBRATION_MEASURES);
 
-  public static Pair<ImmutableRatesProvider, CurveBuildingBlockBundle> calibrateEurStandard(
+  public static ImmutableRatesProvider calibrateEurStandard(
       LocalDate valuationDate,
       double[] dscOisQuotes,
       Period[] dscOisTenors,

@@ -9,7 +9,9 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -36,6 +38,7 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.DiscountFxForwardRates;
 import com.opengamma.strata.market.value.DiscountFxIndexRates;
@@ -104,6 +107,19 @@ public final class ImmutableRatesProvider
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.fxMatrix = FxMatrix.empty();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Finds the curve with the specified name.
+   * 
+   * @param name  the curve name
+   * @return the curve
+   */
+  public Optional<Curve> findCurve(CurveName name) {
+    return Stream.concat(discountCurves.values().stream(), indexCurves.values().stream())
+        .filter(c -> c.getName().equals(name))
+        .findFirst();
   }
 
   //-------------------------------------------------------------------------

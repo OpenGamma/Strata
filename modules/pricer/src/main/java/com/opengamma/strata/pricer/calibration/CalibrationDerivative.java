@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.calibration;
 import java.util.List;
 
 import com.opengamma.strata.finance.Trade;
+import com.opengamma.strata.market.curve.definition.CurveParameterSize;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;

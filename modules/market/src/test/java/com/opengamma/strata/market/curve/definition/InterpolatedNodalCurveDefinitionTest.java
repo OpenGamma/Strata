@@ -123,6 +123,21 @@ public class InterpolatedNodalCurveDefinitionTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_toCurveParameterSize() {
+    InterpolatedNodalCurveDefinition test = InterpolatedNodalCurveDefinition.builder()
+        .name(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.ZERO_RATE)
+        .dayCount(ACT_365F)
+        .nodes(NODES)
+        .interpolator(Interpolator1DFactory.LINEAR_INSTANCE)
+        .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
+        .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
+        .build();
+    assertEquals(test.toCurveParameterSize(), CurveParameterSize.of(CURVE_NAME, NODES.size()));
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     InterpolatedNodalCurveDefinition test = InterpolatedNodalCurveDefinition.builder()
         .name(CURVE_NAME)

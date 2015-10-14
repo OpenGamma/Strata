@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.finance.Trade;
+import com.opengamma.strata.market.curve.definition.CurveParameterSize;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
