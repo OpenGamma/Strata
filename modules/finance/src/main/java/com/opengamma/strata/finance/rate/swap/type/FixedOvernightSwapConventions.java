@@ -24,11 +24,11 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
 
 /**
- * Factory methods for market standard conventions
+ * Market standard Fixed-Overnight swap conventions.
  * <p>
  * http://www.opengamma.com/sites/default/files/interest-rate-instruments-and-market-conventions.pdf
  */
-public class FixedOvernightSwapConventions {
+public final class FixedOvernightSwapConventions {
 
   /**
    * USD fixed vs Fed Fund OIS swap for terms less than or equal to one year.
