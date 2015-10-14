@@ -75,6 +75,11 @@ public class DiscountingKnownAmountPaymentPeriodPricer
     return fv * (partialDays / totalDays);
   }
 
+  @Override
+  public double pvbp(KnownAmountPaymentPeriod period, RatesProvider provider) {
+    throw new UnsupportedOperationException("Unable to calculate PVBP for KnownAmountPaymentPeriod");
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public PointSensitivityBuilder presentValueSensitivity(KnownAmountPaymentPeriod period, RatesProvider provider) {
@@ -84,6 +89,11 @@ public class DiscountingKnownAmountPaymentPeriodPricer
   @Override
   public PointSensitivityBuilder futureValueSensitivity(KnownAmountPaymentPeriod period, RatesProvider provider) {
     return PointSensitivityBuilder.none();
+  }
+
+  @Override
+  public PointSensitivityBuilder pvbpSensitivity(KnownAmountPaymentPeriod period, RatesProvider provider) {
+    throw new UnsupportedOperationException("Unable to calculate PVBP for KnownAmountPaymentPeriod");
   }
 
   //-------------------------------------------------------------------------

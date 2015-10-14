@@ -103,6 +103,10 @@ public class DispatchingPaymentPeriodPricerTest {
     ignoreThrows(() -> test.futureValue(kapp, MOCK_PROV));
     ignoreThrows(() -> test.futureValue(mockPaymentPeriod, MOCK_PROV));
 
+    ignoreThrows(() -> test.pvbp(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV));
+    ignoreThrows(() -> test.pvbp(kapp, MOCK_PROV));
+    ignoreThrows(() -> test.pvbp(mockPaymentPeriod, MOCK_PROV));
+
     ignoreThrows(() -> test.presentValueSensitivity(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV));
     ignoreThrows(() -> test.presentValueSensitivity(kapp, MOCK_PROV));
     ignoreThrows(() -> test.presentValueSensitivity(mockPaymentPeriod, MOCK_PROV));
@@ -110,6 +114,10 @@ public class DispatchingPaymentPeriodPricerTest {
     ignoreThrows(() -> test.futureValueSensitivity(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV));
     ignoreThrows(() -> test.futureValueSensitivity(kapp, MOCK_PROV));
     ignoreThrows(() -> test.futureValueSensitivity(mockPaymentPeriod, MOCK_PROV));
+
+    ignoreThrows(() -> test.pvbpSensitivity(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV));
+    ignoreThrows(() -> test.pvbpSensitivity(kapp, MOCK_PROV));
+    ignoreThrows(() -> test.pvbpSensitivity(mockPaymentPeriod, MOCK_PROV));
 
     ignoreThrows(() -> test.accruedInterest(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV));
     ignoreThrows(() -> test.accruedInterest(kapp, MOCK_PROV));
