@@ -21,10 +21,10 @@ import com.opengamma.strata.math.impl.util.AssertMatrix;
 public class OGMatrixAlgebraTest {
   private static ProbabilityDistribution<Double> RANDOM = new NormalDistribution(0, 1);
   private static final MatrixAlgebra ALGEBRA = MatrixAlgebraFactory.getMatrixAlgebra("OG");
-  private static final DoubleMatrix2D A = new DoubleMatrix2D(new double[][] { {1., 2., 3. }, {-1., 1., 0. },
-    {-2., 1., -2. } });
-  private static final DoubleMatrix2D B = new DoubleMatrix2D(new double[][] { {1, 1 }, {2, -2 }, {3, 1 } });
-  private static final DoubleMatrix2D C = new DoubleMatrix2D(new double[][] { {14, 0 }, {1, -3 }, {-6, -6 } });
+  private static final DoubleMatrix2D A = DoubleMatrix2D.copyOf(
+      new double[][] { {1., 2., 3.}, {-1., 1., 0.}, {-2., 1., -2.}});
+  private static final DoubleMatrix2D B = DoubleMatrix2D.copyOf(new double[][] { {1, 1}, {2, -2}, {3, 1}});
+  private static final DoubleMatrix2D C = DoubleMatrix2D.copyOf(new double[][] { {14, 0}, {1, -3}, {-6, -6}});
   private static final DoubleMatrix1D D = DoubleMatrix1D.of(1, 1, 1);
   private static final DoubleMatrix1D E = DoubleMatrix1D.of(-1, 2, 3);
   private static final DoubleMatrix1D F = DoubleMatrix1D.of(2, -2, 1);
@@ -105,7 +105,7 @@ public class OGMatrixAlgebraTest {
 
   @Test
   public void testTranspose() {
-    final DoubleMatrix2D a = new DoubleMatrix2D(new double[][] { {1, 2 }, {3, 4 }, {5, 6 } });
+    final DoubleMatrix2D a = DoubleMatrix2D.copyOf(new double[][] { {1, 2}, {3, 4}, {5, 6}});
     assertEquals(3, a.rowCount());
     assertEquals(2, a.columnCount());
     DoubleMatrix2D aT = ALGEBRA.getTranspose(a);
@@ -116,7 +116,7 @@ public class OGMatrixAlgebraTest {
 
   @Test
   public void matrixTransposeMultipleMatrixTest() {
-    DoubleMatrix2D a = new DoubleMatrix2D(new double[][] { {1.0, 2.0, 3.0 }, {-3.0, 1.3, 7.0 } });
+    DoubleMatrix2D a = DoubleMatrix2D.copyOf(new double[][] { {1.0, 2.0, 3.0}, {-3.0, 1.3, 7.0}});
     DoubleMatrix2D aTa = ALGEBRA.matrixTransposeMultiplyMatrix(a);
     DoubleMatrix2D aTaRef = (DoubleMatrix2D) ALGEBRA.multiply(ALGEBRA.getTranspose(a), a);
     AssertMatrix.assertEqualsMatrix(aTaRef, aTa, 1e-15);

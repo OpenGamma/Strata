@@ -70,11 +70,11 @@ public class CubicSplineNakSolver extends CubicSplineSolver {
     if (nData == 2) {
       final double[][] res = new double[][] {{
         yValues[1] / intervals[0] - yValues[0] / intervals[0] - intervals[0] * solnVector[0] / 2. - intervals[0] * solnVector[1] / 6. + intervals[0] * solnVector[0] / 6., yValues[0] } };
-      return new DoubleMatrix2D(res);
+      return DoubleMatrix2D.copyOf(res);
     }
     if (nData == 3) {
       final double[][] res = new double[][] {{solnVector[0] / 2., yValues[1] / intervals[0] - yValues[0] / intervals[0] - intervals[0] * solnVector[0] / 2., yValues[0] } };
-      return new DoubleMatrix2D(res);
+      return DoubleMatrix2D.copyOf(res);
     }
     return getCommonSplineCoeffs(xValues, yValues, intervals, solnVector);
   }
@@ -85,12 +85,8 @@ public class CubicSplineNakSolver extends CubicSplineSolver {
 
     if (nData == 2) {
       final DoubleMatrix2D[] res = new DoubleMatrix2D[nData];
-      final double[][] coef = new double[][] {{yValues[1] / intervals[0] - yValues[0] / intervals[0], yValues[0] } };
-      res[0] = new DoubleMatrix2D(coef);
-      final double[][] coefSense = new double[2][];
-      coefSense[0] = new double[] {-1. / intervals[0], 1. / intervals[0] };
-      coefSense[1] = new double[] {1., 0. };
-      res[1] = new DoubleMatrix2D(coefSense);
+      res[0] = DoubleMatrix2D.of(1, 1, yValues[1] / intervals[0] - yValues[0] / intervals[0], yValues[0]);
+      res[1] = DoubleMatrix2D.of(2, 2, -1d / intervals[0], 1d / intervals[0], 1d, 0d);
       return res;
     }
     if (nData == 3) {
@@ -98,14 +94,14 @@ public class CubicSplineNakSolver extends CubicSplineSolver {
       final DoubleMatrix1D[] soln = combinedMatrixEqnSolver(toBeInv, vector, vecSensitivity);
       final double[][] coef = new double[][] {{soln[0].get(0) / 2.,
           yValues[1] / intervals[0] - yValues[0] / intervals[0] - intervals[0] * soln[0].get(0) / 2., yValues[0]}};
-      res[0] = new DoubleMatrix2D(coef);
+      res[0] = DoubleMatrix2D.copyOf(coef);
       final double[][] coefSense = new double[3][0];
       coefSense[0] = new double[] {soln[1].get(0) / 2., soln[2].get(0) / 2., soln[3].get(0) / 2.};
       coefSense[1] = new double[]
           {-1. / intervals[0] - intervals[0] * soln[1].get(0) / 2., 1. / intervals[0] - intervals[0] * soln[2].get(0) / 2.,
               -intervals[0] * soln[3].get(0) / 2.};
       coefSense[2] = new double[] {1., 0., 0. };
-      res[1] = new DoubleMatrix2D(coefSense);
+      res[1] = DoubleMatrix2D.copyOf(coefSense);
       return res;
     }
     final DoubleMatrix2D[] res = new DoubleMatrix2D[nData];

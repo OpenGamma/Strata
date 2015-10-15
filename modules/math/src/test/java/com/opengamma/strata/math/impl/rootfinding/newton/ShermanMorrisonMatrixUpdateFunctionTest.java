@@ -21,7 +21,7 @@ public class ShermanMorrisonMatrixUpdateFunctionTest {
   private static final MatrixAlgebra ALGEBRA = new OGMatrixAlgebra();
   private static final ShermanMorrisonMatrixUpdateFunction UPDATE = new ShermanMorrisonMatrixUpdateFunction(ALGEBRA);
   private static final DoubleMatrix1D V = DoubleMatrix1D.of(1, 2);
-  private static final DoubleMatrix2D M = new DoubleMatrix2D(new double[][] {new double[] {3, 4 }, new double[] {5, 6 } });
+  private static final DoubleMatrix2D M = DoubleMatrix2D.copyOf(new double[][] { {3, 4}, {5, 6}});
   private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> J = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
     @SuppressWarnings("synthetic-access")
     @Override

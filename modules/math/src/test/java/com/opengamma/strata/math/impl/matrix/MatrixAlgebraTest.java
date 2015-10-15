@@ -20,8 +20,8 @@ public class MatrixAlgebraTest {
 
   private static final DoubleMatrix1D M1 = DoubleMatrix1D.of(1, 2);
   private static final DoubleMatrix1D M2 = DoubleMatrix1D.of(3, 4);
-  private static final DoubleMatrix2D M3 = new DoubleMatrix2D(new double[][] {new double[] {1, 2 }, new double[] {3, 4 } });
-  private static final DoubleMatrix2D M4 = new DoubleMatrix2D(new double[][] {new double[] {5, 6 }, new double[] {7, 8 } });
+  private static final DoubleMatrix2D M3 = DoubleMatrix2D.of(2, 2, 1d, 2d, 3d, 4d);
+  private static final DoubleMatrix2D M4 = DoubleMatrix2D.of(2, 2, 5d, 6d, 7d, 8d);
   private static final Matrix M5 = new Matrix() {
     @Override
     public int dimensions() {
@@ -48,12 +48,12 @@ public class MatrixAlgebraTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddDifferentRowNumber2D() {
-    ALGEBRA.add(M3, new DoubleMatrix2D(new double[][] {new double[] {1, 2}, new double[] {3, 4}, new double[] {5, 6}}));
+    ALGEBRA.add(M3, DoubleMatrix2D.of(3, 2, 1d, 2d, 3d, 4d, 5d, 6d));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddDifferentColumnNumber2D() {
-    ALGEBRA.add(M3, new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}}));
+    ALGEBRA.add(M3, DoubleMatrix2D.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -78,7 +78,7 @@ public class MatrixAlgebraTest {
     assertMatrixEquals(m, DoubleMatrix1D.of(4, 6));
     m = ALGEBRA.add(M3, M4);
     assertTrue(m instanceof DoubleMatrix2D);
-    assertMatrixEquals(m, new DoubleMatrix2D(new double[][] {new double[] {6, 8}, new double[] {10, 12}}));
+    assertMatrixEquals(m, DoubleMatrix2D.of(2, 2, 6d, 8d, 10d, 12d));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -93,12 +93,12 @@ public class MatrixAlgebraTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSubtractDifferentRowNumber2D() {
-    ALGEBRA.subtract(M3, new DoubleMatrix2D(new double[][] {new double[] {1, 2}, new double[] {3, 4}, new double[] {5, 6}}));
+    ALGEBRA.subtract(M3, DoubleMatrix2D.of(3, 2, 1d, 2d, 3d, 4d, 5d, 6d));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSubtractDifferentColumnNumber2D() {
-    ALGEBRA.subtract(M3, new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}}));
+    ALGEBRA.subtract(M3, DoubleMatrix2D.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -123,7 +123,7 @@ public class MatrixAlgebraTest {
     assertMatrixEquals(m, DoubleMatrix1D.of(-2, -2));
     m = ALGEBRA.subtract(M3, M4);
     assertTrue(m instanceof DoubleMatrix2D);
-    assertMatrixEquals(m, new DoubleMatrix2D(new double[][] {new double[] {-4, -4}, new double[] {-4, -4}}));
+    assertMatrixEquals(m, DoubleMatrix2D.of(2, 2, -4d, -4d, -4d, -4d));
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
@@ -140,7 +140,7 @@ public class MatrixAlgebraTest {
     assertMatrixEquals(m, M1);
     m = ALGEBRA.scale(M3, 10);
     assertTrue(m instanceof DoubleMatrix2D);
-    assertMatrixEquals(m, new DoubleMatrix2D(new double[][] {new double[] {10, 20}, new double[] {30, 40}}));
+    assertMatrixEquals(m, DoubleMatrix2D.of(2, 2, 10d, 20d, 30d, 40d));
     m = ALGEBRA.scale(m, 0.1);
     assertMatrixEquals(m, M3);
   }
@@ -159,9 +159,7 @@ public class MatrixAlgebraTest {
   public void testKroneckerProduct() {
     Matrix m = ALGEBRA.kroneckerProduct(M3, M4);
     assertTrue(m instanceof DoubleMatrix2D);
-
-    assertMatrixEquals(m,
-        new DoubleMatrix2D(new double[][] { {5, 6, 10, 12}, {7, 8, 14, 16}, {15, 18, 20, 24}, {21, 24, 28, 32}}));
+    assertMatrixEquals(m, DoubleMatrix2D.of(4, 4, 5, 6, 10, 12, 7, 8, 14, 16, 15, 18, 20, 24, 21, 24, 28, 32));
 
   }
 

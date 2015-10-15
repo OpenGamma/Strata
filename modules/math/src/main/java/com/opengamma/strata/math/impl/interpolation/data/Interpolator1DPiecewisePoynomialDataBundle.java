@@ -8,6 +8,7 @@ package com.opengamma.strata.math.impl.interpolation.data;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialInterpolator;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWithSensitivity;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
  * Data bundle for PiecewisePolynomialInterpolator1D
@@ -72,12 +73,12 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
    * @return Y values of breakpoints
    */
   public double[] getBreakPointsY() {
-    final int nKnots = _poly.getKnots().size();
-    final double[][] coefMat = _poly.getCoefMatrix().getData();
-    final int nCoefs = coefMat[0].length;
-    final double[] values = new double[nKnots];
+    int nKnots = _poly.getKnots().size();
+    DoubleMatrix2D coefMat = _poly.getCoefMatrix();
+    int nCoefs = coefMat.columnCount();
+    double[] values = new double[nKnots];
     for (int i = 0; i < nKnots - 1; i++) {
-      values[i] = coefMat[i][nCoefs - 1];
+      values[i] = coefMat.get(i, nCoefs - 1);
     }
     values[nKnots - 1] = _underlyingData.lastValue();
 

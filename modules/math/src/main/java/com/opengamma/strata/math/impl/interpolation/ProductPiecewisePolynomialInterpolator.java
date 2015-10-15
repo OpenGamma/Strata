@@ -134,12 +134,16 @@ public class ProductPiecewisePolynomialInterpolator extends PiecewisePolynomialI
         double[][] extraCoefSense = new double[resultCast.getOrder()][extraSense.length];
         extraCoefSense[resultCast.getOrder() - 1] = Arrays.copyOf(extraSense, extraSense.length);
         extraCoefSense[resultCast.getOrder() - 2] = Arrays.copyOf(extraSenseDer, extraSenseDer.length);
-        newCoefSense[nIntervalsAll] = new DoubleMatrix2D(extraCoefSense);
-        return new PiecewisePolynomialResultsWithSensitivity(DoubleMatrix1D.copyOf(newKnots), new DoubleMatrix2D(
-            newCoefMatrix), resultCast.getOrder(), 1, newCoefSense);
+        newCoefSense[nIntervalsAll] = DoubleMatrix2D.copyOf(extraCoefSense);
+        return new PiecewisePolynomialResultsWithSensitivity(
+            DoubleMatrix1D.copyOf(newKnots),
+            DoubleMatrix2D.copyOf(newCoefMatrix),
+            resultCast.getOrder(),
+            1,
+            newCoefSense);
       }
       return new PiecewisePolynomialResult(
-          DoubleMatrix1D.copyOf(newKnots), new DoubleMatrix2D(newCoefMatrix), result.getOrder(), 1);
+          DoubleMatrix1D.copyOf(newKnots), DoubleMatrix2D.copyOf(newCoefMatrix), result.getOrder(), 1);
     }
     return result;
   }

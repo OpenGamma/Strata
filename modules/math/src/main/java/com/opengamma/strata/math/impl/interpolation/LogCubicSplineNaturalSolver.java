@@ -81,7 +81,7 @@ public class LogCubicSplineNaturalSolver extends CubicSplineSolver {
   protected DoubleMatrix1D[] combinedMatrixEqnSolver(final double[][] doubMat1, final double[] doubVec, final double[][] doubMat2) {
     final int size = doubVec.length;
     final DoubleMatrix1D[] res = new DoubleMatrix1D[size + 1];
-    final DoubleMatrix2D doubMat2Matrix = new DoubleMatrix2D(doubMat2);
+    final DoubleMatrix2D doubMat2Matrix = DoubleMatrix2D.copyOf(doubMat2);
 
     final double[] u = new double[size - 1];
     final double[] d = new double[size];

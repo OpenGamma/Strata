@@ -131,7 +131,7 @@ public class PolynomialsLeastSquaresFitter {
       }
     }
 
-    DoubleMatrix2D xDataMatrix = new DoubleMatrix2D(tmpMatrix);
+    DoubleMatrix2D xDataMatrix = DoubleMatrix2D.copyOf(tmpMatrix);
     DoubleMatrix1D yDataVector = DoubleMatrix1D.copyOf(yData);
 
     double vandNorm = COMMONS_ALGEBRA.getNorm2(xDataMatrix);
@@ -197,14 +197,12 @@ public class PolynomialsLeastSquaresFitter {
     DoubleMatrix2D tpMatrix = OG_ALGEBRA.getTranspose(qMatrix);
     DoubleMatrix1D yDataVecConv = (DoubleMatrix1D) OG_ALGEBRA.multiply(tpMatrix, yDataVector);
 
-    double[][] rMatrixDoub = rMatrix.getData();
-
     for (int i = 0; i < degree + 1; ++i) {
       double tmp = 0.;
       for (int j = 0; j < i; ++j) {
-        tmp -= rMatrixDoub[degree - i][degree - j] * res[degree - j] / rMatrixDoub[degree - i][degree - i];
+        tmp -= rMatrix.get(degree - i, degree - j) * res[degree - j] / rMatrix.get(degree - i, degree - i);
       }
-      res[degree - i] = yDataVecConv.get(degree - i) / rMatrixDoub[degree - i][degree - i] + tmp;
+      res[degree - i] = yDataVecConv.get(degree - i) / rMatrix.get(degree - i, degree - i) + tmp;
     }
 
     return res;

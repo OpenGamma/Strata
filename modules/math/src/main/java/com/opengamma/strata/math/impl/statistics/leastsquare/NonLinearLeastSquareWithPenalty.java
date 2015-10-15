@@ -350,21 +350,19 @@ public class NonLinearLeastSquareWithPenalty {
     int m = jacobian.columnCount();
 
     DoubleMatrix2D res = DoubleMatrix2D.filled(m, n);
-    double[][] data = res.getData();
-    double[][] jacData = jacobian.getData();
-
+    double[][] data = res.toArray();
     for (int i = 0; i < n; i++) {
       double sigmaInv = 1.0 / sigma.get(i);
       for (int k = 0; k < m; k++) {
-        data[k][i] = jacData[i][k] * sigmaInv;
+        data[k][i] = jacobian.get(i, k) * sigmaInv;
       }
     }
-    return res;
+    return DoubleMatrix2D.ofUnsafe(data);
   }
 
   private DoubleMatrix2D getJacobian(Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, DoubleMatrix1D sigma, DoubleMatrix1D theta) {
     DoubleMatrix2D res = jac.evaluate(theta);
-    double[][] data = res.getData();
+    double[][] data = res.toArray();
     int n = res.rowCount();
     int m = res.columnCount();
     ArgChecker.isTrue(theta.size() == m, "Jacobian is wrong size");
@@ -376,7 +374,7 @@ public class NonLinearLeastSquareWithPenalty {
         data[i][j] *= sigmaInv;
       }
     }
-    return res;
+    return DoubleMatrix2D.ofUnsafe(data);
   }
 
   private double getChiSqr(DoubleMatrix1D error) {
@@ -392,21 +390,19 @@ public class NonLinearLeastSquareWithPenalty {
     int m = jacobian.columnCount();
     DoubleMatrix2D alpha = (DoubleMatrix2D) MA.add(MA.matrixTransposeMultiplyMatrix(jacobian), penalty);
     // scale the diagonal
-    double[][] data = alpha.getData();
+    double[][] data = alpha.toArray();
     for (int i = 0; i < m; i++) {
       data[i][i] *= onePLambda;
     }
-    return alpha;
+    return DoubleMatrix2D.ofUnsafe(data);
   }
 
-  private double getANorm(DoubleMatrix2D aM, DoubleMatrix1D xV) {
-    double[][] a = aM.getData();
-    double[] x = xV.toArray();
-    int n = x.length;
+  private double getANorm(DoubleMatrix2D a, DoubleMatrix1D x) {
+    int n = x.size();
     double sum = 0.0;
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
-        sum += a[i][j] * x[i] * x[j];
+        sum += a.get(i, j) * x.get(i) * x.get(j);
       }
     }
     return sum;

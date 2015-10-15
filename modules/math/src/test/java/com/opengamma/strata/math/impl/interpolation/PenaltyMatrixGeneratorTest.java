@@ -137,7 +137,7 @@ public class PenaltyMatrixGeneratorTest {
         data[i][j] = 0.4 + j;
       }
     }
-    x = PenaltyMatrixGenerator.flattenMatrix(new DoubleMatrix2D(data));
+    x = PenaltyMatrixGenerator.flattenMatrix(DoubleMatrix2D.copyOf(data));
     r = MA.getInnerProduct(x, MA.multiply(p, x));
     assertEquals(0.0, r);
 

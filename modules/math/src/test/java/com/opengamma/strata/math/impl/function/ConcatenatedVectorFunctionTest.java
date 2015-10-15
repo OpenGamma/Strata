@@ -37,10 +37,7 @@ public class ConcatenatedVectorFunctionTest {
 
       @Override
       public DoubleMatrix2D calculateJacobian(DoubleMatrix1D x) {
-        DoubleMatrix2D jac = DoubleMatrix2D.filled(1, 2);
-        jac.getData()[0][0] = 1.0;
-        jac.getData()[0][1] = 2.0;
-        return jac;
+        return DoubleMatrix2D.of(1, 2, 1d, 2d);
       }
 
       @Override
@@ -73,7 +70,7 @@ public class ConcatenatedVectorFunctionTest {
         double j12 = x1;
         double j21 = 0.0;
         double j22 = 2 * x2;
-        return new DoubleMatrix2D(new double[][] { {j11, j12 }, {j21, j22 } });
+        return DoubleMatrix2D.of(2, 2, j11, j12, j21, j22);
       }
 
       @Override
@@ -102,7 +99,7 @@ public class ConcatenatedVectorFunctionTest {
         double x1 = x.get(0);
         double j11 = 1.0;
         double j21 = Math.cos(x1);
-        return new DoubleMatrix2D(new double[][] { {j11 }, {j21 } });
+        return DoubleMatrix2D.of(2, 1, j11, j21);
       }
 
       @Override
@@ -123,9 +120,9 @@ public class ConcatenatedVectorFunctionTest {
     Y_EXP[0] = DoubleMatrix1D.of(2.0);
     Y_EXP[1] = DoubleMatrix1D.of(2.0, 4.0);
     Y_EXP[2] = DoubleMatrix1D.of(Math.PI, 0.0);
-    JAC_EXP[0] = new DoubleMatrix2D(new double[][] {{1.0, 2.0 } });
-    JAC_EXP[1] = new DoubleMatrix2D(new double[][] { {2.0, 1.0 }, {0.0, 4.0 } });
-    JAC_EXP[2] = new DoubleMatrix2D(new double[][] { {1.0 }, {-1.0 } });
+    JAC_EXP[0] = DoubleMatrix2D.of(1, 2, 1d, 2d);
+    JAC_EXP[1] = DoubleMatrix2D.of(2, 2, 2d, 1d, 0d, 4d);
+    JAC_EXP[2] = DoubleMatrix2D.of(2, 1, 1d, -1d);
   }
 
   /**

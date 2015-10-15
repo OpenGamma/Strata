@@ -67,11 +67,7 @@ public class CurveGammaCalculator {
 
     Delta deltaShift = new Delta(curve, sensitivitiesFn);
     Function1D<DoubleMatrix1D, DoubleMatrix2D> gammaFn = fd.differentiate(deltaShift);
-    double[][] gamma2 = gammaFn.evaluate(DoubleMatrix1D.filled(1)).getData();
-    double[] gamma = new double[gamma2.length];
-    for (int i = 0; i < gamma2.length; i++) {
-      gamma[i] = gamma2[i][0];
-    }
+    double[] gamma = gammaFn.evaluate(DoubleMatrix1D.filled(1)).columnArray(0);
     return CurveCurrencyParameterSensitivity.of(curve.getMetadata(), curveCurrency, gamma);
   }
 

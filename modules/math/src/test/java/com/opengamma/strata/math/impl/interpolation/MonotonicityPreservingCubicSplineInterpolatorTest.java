@@ -220,7 +220,7 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
 
     for (int i = 2; i < resultPos.getNumberOfIntervals() - 2; ++i) {
       for (int j = 0; j < 4; ++j) {
-        assertEquals(resultPos.getCoefMatrix().getData()[i][j], result.getCoefMatrix().getData()[i][j], EPS);
+        assertEquals(resultPos.getCoefMatrix().get(i, j), result.getCoefMatrix().get(i, j), EPS);
       }
     }
 

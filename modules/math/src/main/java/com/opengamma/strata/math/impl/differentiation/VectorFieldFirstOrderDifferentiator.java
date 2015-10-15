@@ -98,7 +98,7 @@ public class VectorFieldFirstOrderDifferentiator
                 res[i][j] = (up.get(i) - y.get(i)) / eps;
               }
             }
-            return new DoubleMatrix2D(res);
+            return DoubleMatrix2D.copyOf(res);
           }
         };
       case CENTRAL:
@@ -119,7 +119,7 @@ public class VectorFieldFirstOrderDifferentiator
                 res[i][j] = (up.get(i) - down.get(i)) / twoEps;
               }
             }
-            return new DoubleMatrix2D(res);
+            return DoubleMatrix2D.copyOf(res);
           }
         };
       case BACKWARD:
@@ -139,7 +139,7 @@ public class VectorFieldFirstOrderDifferentiator
                 res[i][j] = (y.get(i) - down.get(i)) / eps;
               }
             }
-            return new DoubleMatrix2D(res);
+            return DoubleMatrix2D.copyOf(res);
           }
         };
       default:
@@ -210,7 +210,7 @@ public class VectorFieldFirstOrderDifferentiator
             res[i][j] = sum / twoEps;
           }
         }
-        return new DoubleMatrix2D(res);
+        return DoubleMatrix2D.copyOf(res);
       }
     };
   }

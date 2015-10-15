@@ -133,7 +133,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
         j++;
       }
     }
-    return new DoubleMatrix2D(jac);
+    return DoubleMatrix2D.copyOf(jac);
   }
 
   /**
@@ -166,7 +166,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
       qderef = q[i];
       jac[pderef][qderef] = _transforms[pderef].inverseTransformGradient(fittingParameters.get(qderef));
     }
-    return new DoubleMatrix2D(jac);
+    return DoubleMatrix2D.copyOf(jac);
   }
 
   @Override

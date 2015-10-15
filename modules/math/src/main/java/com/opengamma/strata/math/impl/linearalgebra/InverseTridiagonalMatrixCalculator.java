@@ -62,7 +62,7 @@ public class InverseTridiagonalMatrixCalculator extends Function1D<TridiagonalMa
         res[i][j] = ((i + j) % 2 == 0 ? 1 : -1) * product * theta[j] * phi[i] / theta[n];
       }
     }
-    return new DoubleMatrix2D(res);
+    return DoubleMatrix2D.copyOf(res);
   }
 
 }

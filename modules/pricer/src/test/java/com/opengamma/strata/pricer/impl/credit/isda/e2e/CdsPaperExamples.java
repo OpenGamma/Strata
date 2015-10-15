@@ -160,7 +160,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
       res[2][i] = notional * PRICER_MARKIT_FIX.pv(cds[i], YIELD_CURVE, CREDIT_CURVE, 0.01);
     }
 
-    System.out.println(new DoubleMatrix2D(res));
+    System.out.println(DoubleMatrix2D.copyOf(res));
   }
 
   /**
@@ -281,7 +281,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
         res[j][i] = sense;
       }
     }
-    DoubleMatrix2D jacT = new DoubleMatrix2D(res);
+    DoubleMatrix2D jacT = DoubleMatrix2D.copyOf(res);
     LUDecompositionCommons decomp = new LUDecompositionCommons();
     LUDecompositionResult luRes = decomp.evaluate(jacT);
 
@@ -437,7 +437,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
     Arrays.fill(coupons, COUPON);
     double[][] temp = ANALYTIC_SPREAD_SENSE_CAL.bucketedCS01FromCreditCurve(PILLAR_CDSS, coupons, PILLAR_CDSS, YIELD_CURVE,
         CREDIT_CURVE);
-    DoubleMatrix2D jacT = MA.getTranspose(new DoubleMatrix2D(temp));
+    DoubleMatrix2D jacT = MA.getTranspose(DoubleMatrix2D.copyOf(temp));
     LUDecompositionResult decRes = decomp.evaluate(jacT);
 
     int nMat = MATURITIES_6M_STEP.length;
@@ -448,7 +448,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
       double[] vs = ANALYTIC_SPREAD_SENSE_CAL.bucketedCS01FromCreditCurve(cds[i], COUPON, PILLAR_CDSS, YIELD_CURVE, CREDIT_CURVE);
       res[i] = decRes.solve(vs);
     }
-    DoubleMatrix2D hedge = new DoubleMatrix2D(res);
+    DoubleMatrix2D hedge = DoubleMatrix2D.copyOf(res);
     System.out.println(hedge);
   }
 

@@ -107,7 +107,7 @@ public final class CommonsMathWrapper {
    */
   public static RealMatrix wrap(DoubleMatrix2D x) {
     ArgChecker.notNull(x, "x");
-    return new Array2DRowRealMatrix(x.getData());
+    return new Array2DRowRealMatrix(x.toArrayUnsafe());
   }
 
   /**
@@ -134,7 +134,7 @@ public final class CommonsMathWrapper {
    */
   public static DoubleMatrix2D unwrap(RealMatrix x) {
     ArgChecker.notNull(x, "x");
-    return new DoubleMatrix2D(x.getData());
+    return DoubleMatrix2D.ofUnsafe(x.getData());
   }
 
   //-------------------------------------------------------------------------

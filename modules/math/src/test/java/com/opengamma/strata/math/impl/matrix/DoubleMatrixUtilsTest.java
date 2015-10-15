@@ -33,9 +33,9 @@ public class DoubleMatrixUtilsTest {
   @Test
   public void testIdentity() {
     assertEquals(DoubleMatrixUtils.getIdentityMatrix2D(0), DoubleMatrix2D.EMPTY);
-    assertEquals(DoubleMatrixUtils.getIdentityMatrix2D(1), new DoubleMatrix2D(new double[][] {new double[] {1 } }));
-    assertEquals(DoubleMatrixUtils.getIdentityMatrix2D(4), new DoubleMatrix2D(new double[][] {new double[] {1, 0, 0, 0 }, new double[] {0, 1, 0, 0 }, new double[] {0, 0, 1, 0 },
-      new double[] {0, 0, 0, 1 } }));
+    assertEquals(DoubleMatrixUtils.getIdentityMatrix2D(1), DoubleMatrix2D.copyOf(new double[][] {{1}}));
+    assertEquals(DoubleMatrixUtils.getIdentityMatrix2D(4),
+        DoubleMatrix2D.copyOf(new double[][] { {1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}}));
   }
 
   @Test
@@ -49,10 +49,13 @@ public class DoubleMatrixUtilsTest {
 
   @Test
   public void testTransposeMatrix() {
-    DoubleMatrix2D m = new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3 }, new double[] {4, 5, 6 }, new double[] {7, 8, 9 } });
-    assertEquals(DoubleMatrixUtils.getTranspose(m), new DoubleMatrix2D(new double[][] {new double[] {1, 4, 7 }, new double[] {2, 5, 8 }, new double[] {3, 6, 9 } }));
-    m = new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3, 4, 5, 6 }, new double[] {7, 8, 9, 10, 11, 12 }, new double[] {13, 14, 15, 16, 17, 18 } });
-    assertEquals(DoubleMatrixUtils.getTranspose(m), new DoubleMatrix2D(new double[][] {new double[] {1, 7, 13 }, new double[] {2, 8, 14 }, new double[] {3, 9, 15 }, new double[] {4, 10, 16 },
-      new double[] {5, 11, 17 }, new double[] {6, 12, 18 } }));
+    DoubleMatrix2D m =
+        DoubleMatrix2D.copyOf(new double[][] { {1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
+    assertEquals(DoubleMatrixUtils.getTranspose(m),
+        DoubleMatrix2D.copyOf(new double[][] { {1, 4, 7}, {2, 5, 8}, {3, 6, 9}}));
+    m = DoubleMatrix2D.copyOf(new double[][] { {1, 2, 3, 4, 5, 6}, {7, 8, 9, 10, 11, 12}, {13, 14, 15, 16, 17, 18}});
+    assertEquals(
+        DoubleMatrixUtils.getTranspose(m),
+        DoubleMatrix2D.copyOf(new double[][] { {1, 7, 13}, {2, 8, 14}, {3, 9, 15}, {4, 10, 16}, {5, 11, 17}, {6, 12, 18}}));
   }
 }

@@ -316,7 +316,7 @@ public class GeneralizedLeastSquare {
       }
     }
 
-    return new DoubleMatrix2D(a);
+    return DoubleMatrix2D.copyOf(a);
   }
 
   private DoubleMatrix2D getDiffMatrix(int m, int k) {
@@ -327,7 +327,7 @@ public class GeneralizedLeastSquare {
       for (int i = 0; i < m; i++) {
         data[i][i] = 1.0;
       }
-      return new DoubleMatrix2D(data);
+      return DoubleMatrix2D.copyOf(data);
     }
 
     int[] coeff = new int[k + 1];
@@ -343,7 +343,7 @@ public class GeneralizedLeastSquare {
         data[i][j + i - k] = coeff[j];
       }
     }
-    DoubleMatrix2D d = new DoubleMatrix2D(data);
+    DoubleMatrix2D d = DoubleMatrix2D.copyOf(data);
 
     DoubleMatrix2D dt = _algebra.getTranspose(d);
     return (DoubleMatrix2D) _algebra.multiply(dt, d);

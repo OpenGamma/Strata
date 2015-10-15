@@ -65,7 +65,7 @@ public class ConstrainedCubicSplineInterpolator extends PiecewisePolynomialInter
       ArgChecker.isTrue(Math.abs(ref - yValuesSrt[i + 1]) < ERROR * bound, "Input is too large/small or data points are too close");
     }
 
-    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), new DoubleMatrix2D(coefs), 4, 1);
+    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), DoubleMatrix2D.copyOf(coefs), 4, 1);
   }
 
   @Override
@@ -108,14 +108,14 @@ public class ConstrainedCubicSplineInterpolator extends PiecewisePolynomialInter
       final double[] slopes = _solver.slopesCalculator(yValuesSrt, intervals);
       final double[] first = firstDerivativeCalculator(slopes);
 
-      coefMatrix[i] = new DoubleMatrix2D(_solver.solve(yValuesSrt, intervals, slopes, first));
+      coefMatrix[i] = DoubleMatrix2D.copyOf(_solver.solve(yValuesSrt, intervals, slopes, first));
 
       for (int k = 0; k < intervals.length; ++k) {
         double ref = 0.;
         for (int j = 0; j < 4; ++j) {
-          ref += coefMatrix[i].getData()[k][j] * Math.pow(intervals[k], 3 - j);
-          ArgChecker.isFalse(Double.isNaN(coefMatrix[i].getData()[k][j]), "Too large input");
-          ArgChecker.isFalse(Double.isInfinite(coefMatrix[i].getData()[k][j]), "Too large input");
+          ref += coefMatrix[i].get(k, j) * Math.pow(intervals[k], 3 - j);
+          ArgChecker.isFalse(Double.isNaN(coefMatrix[i].get(k, j)), "Too large input");
+          ArgChecker.isFalse(Double.isInfinite(coefMatrix[i].get(k, j)), "Too large input");
         }
         final double bound = Math.max(Math.abs(ref) + Math.abs(yValuesSrt[k + 1]), 1.e-1);
         ArgChecker.isTrue(Math.abs(ref - yValuesSrt[k + 1]) < ERROR * bound, "Input is too large/small or data points are too close");
@@ -132,7 +132,7 @@ public class ConstrainedCubicSplineInterpolator extends PiecewisePolynomialInter
       }
     }
 
-    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), DoubleMatrix2D.copyOf(resMatrix), nCoefs, dim);
   }
 
   @Override
@@ -179,7 +179,7 @@ public class ConstrainedCubicSplineInterpolator extends PiecewisePolynomialInter
     for (int i = 0; i < nDataPts - 1; ++i) {
       double ref = 0.;
       for (int j = 0; j < 4; ++j) {
-        ref += coefMatrix.getData()[i][j] * Math.pow(intervals[i], 3 - j);
+        ref += coefMatrix.get(i, j) * Math.pow(intervals[i], 3 - j);
       }
       final double bound = Math.max(Math.abs(ref) + Math.abs(yValues[i + 1]), 1.e-1);
       ArgChecker.isTrue(Math.abs(ref - yValues[i + 1]) < ERROR * bound, "Input is too large/small or data points are too close");

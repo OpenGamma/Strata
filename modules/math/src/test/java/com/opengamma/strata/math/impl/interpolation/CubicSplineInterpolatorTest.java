@@ -35,8 +35,14 @@ public class CubicSplineInterpolatorTest {
     final double[][][] ySamplesMatrix = new double[][][] { { {-64., -1., 0., 1. }, {8., 27., 64., 125. } }, { {125., 20., 5., 0 }, {5., 20., 45., 80. } } };
     final int xDim = 2;
 
-    final DoubleMatrix2D coefsExpectedMatrix = new DoubleMatrix2D(
-        new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
+    final DoubleMatrix2D coefsExpectedMatrix = DoubleMatrix2D.copyOf(
+        new double[][] {
+            {1., -3., 3., -1},
+            {0., 5., -20., 20},
+            {1., 0., 0., 0.},
+            {0., 5., -10., 5},
+            {1., 3., 3., 1.},
+            {0., 5., 0., 0.}});
     final int dimMatrix = 2;
     final int orderMatrix = 4;
     final int nIntervalsMatrix = 3;
@@ -50,8 +56,8 @@ public class CubicSplineInterpolatorTest {
     final int nCols = coefsExpectedMatrix.columnCount();
     for (int i = 0; i < nRows; ++i) {
       for (int j = 0; j < nCols; ++j) {
-        final double ref = coefsExpectedMatrix.getData()[i][j] == 0. ? 1. : Math.abs(coefsExpectedMatrix.getData()[i][j]);
-        assertEquals(resultMatrix.getCoefMatrix().getData()[i][j], coefsExpectedMatrix.getData()[i][j], ref * EPS);
+        final double ref = coefsExpectedMatrix.get(i, j) == 0. ? 1. : Math.abs(coefsExpectedMatrix.get(i, j));
+        assertEquals(resultMatrix.getCoefMatrix().get(i, j), coefsExpectedMatrix.get(i, j), ref * EPS);
       }
     }
 
@@ -65,7 +71,7 @@ public class CubicSplineInterpolatorTest {
     for (int i = 0; i < dimMatrix; ++i) {
       for (int j = 0; j < nSamples; ++j) {
         final double ref = ySamples[i][j] == 0. ? 1. : Math.abs(ySamples[i][j]);
-        assertEquals(resultValuesMatrix2D.getData()[i][j], ySamples[i][j], ref * EPS);
+        assertEquals(resultValuesMatrix2D.get(i, j), ySamples[i][j], ref * EPS);
       }
     }
 
@@ -79,8 +85,8 @@ public class CubicSplineInterpolatorTest {
     for (int i = 0; i < nSamples; ++i) {
       for (int j = 0; j < dimMatrix; ++j) {
         for (int k = 0; k < xDim; ++k) {
-          final double ref = ySamplesMatrix[j][k][i] == 0. ? 1. : Math.abs(ySamplesMatrix[j][k][i]);
-          assertEquals(resultValuesMatrix2DVec[i].getData()[j][k], ySamplesMatrix[j][k][i], ref * EPS);
+          double ref = ySamplesMatrix[j][k][i] == 0. ? 1. : Math.abs(ySamplesMatrix[j][k][i]);
+          assertEquals(resultValuesMatrix2DVec[i].get(j, k), ySamplesMatrix[j][k][i], ref * EPS);
         }
       }
     }
@@ -91,8 +97,8 @@ public class CubicSplineInterpolatorTest {
 
     for (int i = 0; i < nIntervalsMatrix; ++i) {
       for (int j = 0; j < nCols; ++j) {
-        final double ref = coefsExpectedMatrix.getData()[2 * i][j] == 0. ? 1. : Math.abs(coefsExpectedMatrix.getData()[2 * i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsExpectedMatrix.getData()[2 * i][j], ref * EPS);
+        double ref = coefsExpectedMatrix.get(2 * i, j) == 0. ? 1. : Math.abs(coefsExpectedMatrix.get(2 * i, j));
+        assertEquals(result.getCoefMatrix().get(i, j), coefsExpectedMatrix.get(2 * i, j), ref * EPS);
       }
     }
 
@@ -115,7 +121,7 @@ public class CubicSplineInterpolatorTest {
     for (int i = 0; i < nSamples; ++i) {
       for (int k = 0; k < xDim; ++k) {
         final double ref = ySamplesMatrix[0][k][i] == 0. ? 1. : Math.abs(ySamplesMatrix[0][k][i]);
-        assertEquals(resultValuesMatrix2DSingle.getData()[k][i], ySamplesMatrix[0][k][i], ref * EPS);
+        assertEquals(resultValuesMatrix2DSingle.get(k, i), ySamplesMatrix[0][k][i], ref * EPS);
       }
     }
 
@@ -137,8 +143,14 @@ public class CubicSplineInterpolatorTest {
     final double[][][] ySamplesMatrix = new double[][][] { { {-64., -1., 0., 1. / 8. }, {8., 27., 64., 125. } }, { {125., 20., 5., 5. / 4. }, {5., 20., 45., 80. } } };
     final int xDim = 2;
 
-    final DoubleMatrix2D coefsExpectedMatrix = new DoubleMatrix2D(
-        new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
+    final DoubleMatrix2D coefsExpectedMatrix = DoubleMatrix2D.copyOf(
+        new double[][] {
+            {1., -3., 3., -1},
+            {0., 5., -20., 20},
+            {1., 0., 0., 0.},
+            {0., 5., -10., 5},
+            {1., 3., 3., 1.},
+            {0., 5., 0., 0.}});
     final int dimMatrix = 2;
     final int orderMatrix = 4;
     final int nIntervalsMatrix = 3;
@@ -152,8 +164,8 @@ public class CubicSplineInterpolatorTest {
     final int nCols = coefsExpectedMatrix.columnCount();
     for (int i = 0; i < nRows; ++i) {
       for (int j = 0; j < nCols; ++j) {
-        final double ref = coefsExpectedMatrix.getData()[i][j] == 0. ? 1. : Math.abs(coefsExpectedMatrix.getData()[i][j]);
-        assertEquals(resultMatrix.getCoefMatrix().getData()[i][j], coefsExpectedMatrix.getData()[i][j], ref * EPS);
+        final double ref = coefsExpectedMatrix.get(i, j) == 0. ? 1. : Math.abs(coefsExpectedMatrix.get(i, j));
+        assertEquals(resultMatrix.getCoefMatrix().get(i, j), coefsExpectedMatrix.get(i, j), ref * EPS);
       }
     }
 
@@ -167,7 +179,7 @@ public class CubicSplineInterpolatorTest {
     for (int i = 0; i < dimMatrix; ++i) {
       for (int j = 0; j < nSamples; ++j) {
         final double ref = ySamples[i][j] == 0. ? 1. : Math.abs(ySamples[i][j]);
-        assertEquals(resultValuesMatrix2D.getData()[i][j], ySamples[i][j], ref * EPS);
+        assertEquals(resultValuesMatrix2D.get(i, j), ySamples[i][j], ref * EPS);
       }
     }
 
@@ -182,7 +194,7 @@ public class CubicSplineInterpolatorTest {
       for (int j = 0; j < dimMatrix; ++j) {
         for (int k = 0; k < xDim; ++k) {
           final double ref = ySamplesMatrix[j][k][i] == 0. ? 1. : Math.abs(ySamplesMatrix[j][k][i]);
-          assertEquals(resultValuesMatrix2DVec[i].getData()[j][k], ySamplesMatrix[j][k][i], ref * EPS);
+          assertEquals(resultValuesMatrix2DVec[i].get(j, k), ySamplesMatrix[j][k][i], ref * EPS);
         }
       }
     }
@@ -193,8 +205,8 @@ public class CubicSplineInterpolatorTest {
 
     for (int i = 0; i < nIntervalsMatrix; ++i) {
       for (int j = 0; j < nCols; ++j) {
-        final double ref = coefsExpectedMatrix.getData()[2 * i][j] == 0. ? 1. : Math.abs(coefsExpectedMatrix.getData()[2 * i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsExpectedMatrix.getData()[2 * i][j], ref * EPS);
+        final double ref = coefsExpectedMatrix.get(2 * i, j) == 0. ? 1. : Math.abs(coefsExpectedMatrix.get(2 * i, j));
+        assertEquals(result.getCoefMatrix().get(i, j), coefsExpectedMatrix.get(2 * i, j), ref * EPS);
       }
     }
 
@@ -217,7 +229,7 @@ public class CubicSplineInterpolatorTest {
     for (int i = 0; i < nSamples; ++i) {
       for (int k = 0; k < xDim; ++k) {
         final double ref = ySamplesMatrix[0][k][i] == 0. ? 1. : Math.abs(ySamplesMatrix[0][k][i]);
-        assertEquals(resultValuesMatrix2DSingle.getData()[k][i], ySamplesMatrix[0][k][i], ref * EPS);
+        assertEquals(resultValuesMatrix2DSingle.get(k, i), ySamplesMatrix[0][k][i], ref * EPS);
       }
     }
 
@@ -258,7 +270,7 @@ public class CubicSplineInterpolatorTest {
     for (int i = 0; i < nRowsLin; ++i) {
       for (int j = 0; j < nColsLin; ++j) {
         final double ref = coefsExpectedForLin[i][j] == 0. ? 1. : Math.abs(coefsExpectedForLin[i][j]);
-        assertEquals(resultLin.getCoefMatrix().getData()[i][j], coefsExpectedForLin[i][j], ref * EPS);
+        assertEquals(resultLin.getCoefMatrix().get(i, j), coefsExpectedForLin[i][j], ref * EPS);
       }
     }
 
@@ -271,7 +283,7 @@ public class CubicSplineInterpolatorTest {
 
     for (int i = 0; i < 2; ++i) {
       final double ref = coefsExpectedForLin[0][i] == 0. ? 1. : Math.abs(coefsExpectedForLin[0][i]);
-      assertEquals(resultLin.getCoefMatrix().getData()[0][i], coefsExpectedForLin[0][i], ref * EPS);
+      assertEquals(resultLin.getCoefMatrix().get(0, i), coefsExpectedForLin[0][i], ref * EPS);
     }
 
     assertEquals(resultLin.getDimensions(), 1);
@@ -283,7 +295,7 @@ public class CubicSplineInterpolatorTest {
     for (int i = 0; i < keyDim; ++i) {
       for (int j = 0; j < keyLength; ++j) {
         final double ref = yExpectedForLin[0][i][j] == 0. ? 1. : Math.abs(yExpectedForLin[0][i][j]);
-        assertEquals(resultMatrixLin2D.getData()[i][j], yExpectedForLin[0][i][j], ref * EPS);
+        assertEquals(resultMatrixLin2D.get(i, j), yExpectedForLin[0][i][j], ref * EPS);
       }
     }
 
@@ -310,7 +322,7 @@ public class CubicSplineInterpolatorTest {
       for (int j = 0; j < keyDim; ++j) {
         for (int k = 0; k < keyLength; ++k) {
           final double ref = yExpectedForLin[i][j][k] == 0. ? 1. : Math.abs(yExpectedForLin[i][j][k]);
-          assertEquals(resultMatrixLin2DVec[k].getData()[i][j], yExpectedForLin[i][j][k], ref * EPS);
+          assertEquals(resultMatrixLin2DVec[k].get(i, j), yExpectedForLin[i][j][k], ref * EPS);
         }
       }
     }
@@ -326,7 +338,7 @@ public class CubicSplineInterpolatorTest {
     for (int i = 0; i < nRowsQuad; ++i) {
       for (int j = 0; j < nColsQuad; ++j) {
         final double ref = coefsExpectedForQuad[i][j] == 0. ? 1. : Math.abs(coefsExpectedForQuad[i][j]);
-        assertEquals(resultQuad.getCoefMatrix().getData()[i][j], coefsExpectedForQuad[i][j], ref * EPS);
+        assertEquals(resultQuad.getCoefMatrix().get(i, j), coefsExpectedForQuad[i][j], ref * EPS);
       }
     }
 
@@ -339,7 +351,7 @@ public class CubicSplineInterpolatorTest {
 
     for (int i = 0; i < 3; ++i) {
       final double ref = coefsExpectedForQuad[0][i] == 0. ? 1. : Math.abs(coefsExpectedForQuad[0][i]);
-      assertEquals(resultQuad.getCoefMatrix().getData()[0][i], coefsExpectedForQuad[0][i], ref * EPS);
+      assertEquals(resultQuad.getCoefMatrix().get(0, i), coefsExpectedForQuad[0][i], ref * EPS);
     }
 
     assertEquals(resultQuad.getDimensions(), 1);
@@ -351,7 +363,7 @@ public class CubicSplineInterpolatorTest {
     for (int i = 0; i < keyDim; ++i) {
       for (int j = 0; j < keyLength; ++j) {
         final double ref = yExpectedForQuad[0][i][j] == 0. ? 1. : Math.abs(yExpectedForQuad[0][i][j]);
-        assertEquals(resultMatrixQuad2D.getData()[i][j], yExpectedForQuad[0][i][j], ref * EPS);
+        assertEquals(resultMatrixQuad2D.get(i, j), yExpectedForQuad[0][i][j], ref * EPS);
       }
     }
 
@@ -378,7 +390,7 @@ public class CubicSplineInterpolatorTest {
       for (int j = 0; j < keyDim; ++j) {
         for (int k = 0; k < keyLength; ++k) {
           final double ref = yExpectedForQuad[i][j][k] == 0. ? 1. : Math.abs(yExpectedForQuad[i][j][k]);
-          assertEquals(resultMatrixQuad2DVec[k].getData()[i][j], yExpectedForQuad[i][j][k], ref * EPS);
+          assertEquals(resultMatrixQuad2DVec[k].get(i, j), yExpectedForQuad[i][j][k], ref * EPS);
         }
       }
     }

@@ -167,7 +167,7 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
           tmp[j][k] = (nCoefs - 1 - j) * senseMatArray[j][k];
         }
       }
-      diffSense[i] = new DoubleMatrix2D(tmp);
+      diffSense[i] = DoubleMatrix2D.copyOf(tmp);
     }
 
     PiecewisePolynomialResultsWithSensitivity ppDiff = new PiecewisePolynomialResultsWithSensitivity(
@@ -241,7 +241,7 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
           tmp[j][k] = (nCoefs - 1 - j) * (nCoefs - 2 - j) * senseMatArray[j][k];
         }
       }
-      diffSense[i] = new DoubleMatrix2D(tmp);
+      diffSense[i] = DoubleMatrix2D.copyOf(tmp);
     }
 
     PiecewisePolynomialResultsWithSensitivity ppDiff =

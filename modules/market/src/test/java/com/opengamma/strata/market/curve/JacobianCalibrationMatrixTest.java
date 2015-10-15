@@ -30,8 +30,8 @@ public class JacobianCalibrationMatrixTest {
   private static final CurveParameterSize CPS1 = CurveParameterSize.of(NAME1, 3);
   private static final CurveParameterSize CPS2 = CurveParameterSize.of(NAME2, 2);
   private static final List<CurveParameterSize> CPS = ImmutableList.of(CPS1, CPS2);
-  private static final DoubleMatrix2D MATRIX = new DoubleMatrix2D(new double[][] { {1d, 2d}, {2d, 3d}});
-  private static final DoubleMatrix2D MATRIX2 = new DoubleMatrix2D(new double[][] { {2d, 2d}, {3d, 3d}});
+  private static final DoubleMatrix2D MATRIX = DoubleMatrix2D.of(2, 2, 1d, 2d, 2d, 3d);
+  private static final DoubleMatrix2D MATRIX2 = DoubleMatrix2D.of(2, 2, 2d, 2d, 3d, 3d);
 
   //-------------------------------------------------------------------------
   public void test_of() {

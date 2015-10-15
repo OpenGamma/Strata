@@ -46,14 +46,10 @@ public class InterpolatedCurveVectorFunction extends VectorFunction {
   @Override
   public DoubleMatrix2D calculateJacobian(DoubleMatrix1D x) {
     Interpolator1DDataBundle db = _interpolator.getDataBundleFromSortedArrays(_knots, x.toArray());
-    int n = _samplePoints.length;
-    int nKnots = _knots.length;
-    DoubleMatrix2D res = DoubleMatrix2D.filled(n, nKnots);
-    double[][] data = res.getData(); //direct access to matrix data
-    for (int i = 0; i < n; i++) {
-      data[i] = _interpolator.getNodeSensitivitiesForValue(db, _samplePoints[i]);
-    }
-    return res;
+    return DoubleMatrix2D.ofArrays(
+        _samplePoints.length,
+        _knots.length,
+        i -> _interpolator.getNodeSensitivitiesForValue(db, _samplePoints[i]));
   }
 
   @Override

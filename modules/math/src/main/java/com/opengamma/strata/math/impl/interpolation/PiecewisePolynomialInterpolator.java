@@ -113,23 +113,13 @@ public abstract class PiecewisePolynomialInterpolator {
    * @return Values of the underlying cubic spline function at the values of x
    */
   public DoubleMatrix2D interpolate(final double[] xValues, final double[] yValues, final double[][] xMatrix) {
-
     ArgChecker.notNull(xMatrix, "xMatrix");
 
-    final int keyLength = xMatrix[0].length;
-    final int keyDim = xMatrix.length;
-
-    final DoubleMatrix2D matrix = new DoubleMatrix2D(xMatrix);
-
-    double[][] res = new double[keyDim][keyLength];
-
-    for (int i = 0; i < keyDim; ++i) {
-      for (int j = 0; j < keyLength; ++j) {
-        res[i][j] = interpolate(xValues, yValues, matrix.row(i).toArray()).get(j);
-      }
-    }
-
-    return new DoubleMatrix2D(res);
+    DoubleMatrix2D matrix = DoubleMatrix2D.copyOf(xMatrix);
+    return DoubleMatrix2D.ofArrayObjects(
+        xMatrix.length,
+        xMatrix[0].length,
+        i -> interpolate(xValues, yValues, matrix.rowArray(i)));
 
   }
 
@@ -140,17 +130,8 @@ public abstract class PiecewisePolynomialInterpolator {
    * @return Values of the underlying cubic spline functions interpolating {yValuesMatrix.RowVectors} at the value of x
    */
   public DoubleMatrix1D interpolate(final double[] xValues, final double[][] yValuesMatrix, final double x) {
-
-    final DoubleMatrix2D matrix = new DoubleMatrix2D(yValuesMatrix);
-    final int dim = matrix.rowCount();
-
-    double[] res = new double[dim];
-
-    for (int i = 0; i < dim; ++i) {
-      res[i] = interpolate(xValues, matrix.row(i).toArray(), x);
-    }
-
-    return DoubleMatrix1D.copyOf(res);
+    DoubleMatrix2D matrix = DoubleMatrix2D.copyOf(yValuesMatrix);
+    return DoubleMatrix1D.of(matrix.rowCount(), i -> interpolate(xValues, matrix.rowArray(i), x));
   }
 
   /**
@@ -162,18 +143,11 @@ public abstract class PiecewisePolynomialInterpolator {
   public DoubleMatrix2D interpolate(final double[] xValues, final double[][] yValuesMatrix, final double[] x) {
     ArgChecker.notNull(x, "x");
 
-    final int dim = yValuesMatrix.length;
-    final int keyLength = x.length;
-
-    final DoubleMatrix2D matrix = new DoubleMatrix2D(yValuesMatrix);
-
-    double[][] res = new double[dim][keyLength];
-
-    for (int i = 0; i < dim; ++i) {
-      res[i] = interpolate(xValues, matrix.row(i).toArray(), x).toArray();
-    }
-
-    return new DoubleMatrix2D(res);
+    final DoubleMatrix2D matrix = DoubleMatrix2D.copyOf(yValuesMatrix);
+    return DoubleMatrix2D.ofArrayObjects(
+        yValuesMatrix.length,
+        x.length,
+        i -> interpolate(xValues, matrix.rowArray(i), x));
   }
 
   /**
@@ -187,12 +161,12 @@ public abstract class PiecewisePolynomialInterpolator {
 
     final int keyColumn = xMatrix[0].length;
 
-    final DoubleMatrix2D matrix = new DoubleMatrix2D(xMatrix);
+    final DoubleMatrix2D matrix = DoubleMatrix2D.copyOf(xMatrix);
 
     DoubleMatrix2D[] resMatrix2D = new DoubleMatrix2D[keyColumn];
 
     for (int i = 0; i < keyColumn; ++i) {
-      resMatrix2D[i] = interpolate(xValues, yValuesMatrix, matrix.column(i).toArray());
+      resMatrix2D[i] = interpolate(xValues, yValuesMatrix, matrix.columnArray(i));
     }
 
     return resMatrix2D;

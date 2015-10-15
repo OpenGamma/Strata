@@ -240,7 +240,7 @@ public class NonLinearLeastSquare {
           DoubleMatrix1D temp = grad.evaluate(x.get(i), theta);
           res[i] = temp.toArray();
         }
-        return new DoubleMatrix2D(res);
+        return DoubleMatrix2D.copyOf(res);
       }
     };
 
@@ -460,7 +460,7 @@ public class NonLinearLeastSquare {
             }
           }
         }
-        DoubleMatrix2D newAlpha = (DoubleMatrix2D) _algebra.add(alpha0, new DoubleMatrix2D(temp));
+        DoubleMatrix2D newAlpha = (DoubleMatrix2D) _algebra.add(alpha0, DoubleMatrix2D.copyOf(temp));
 
         SVDecompositionResult svdRes = svd.evaluate(newAlpha);
         double[] w = svdRes.getSingularValues();
@@ -642,24 +642,23 @@ public class NonLinearLeastSquare {
         res[k][i] = jacobian.get(i, k) * sigmaInv;
       }
     }
-    return new DoubleMatrix2D(res);
+    return DoubleMatrix2D.copyOf(res);
   }
 
   private DoubleMatrix2D getJacobian(final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D sigma, final DoubleMatrix1D theta) {
     DoubleMatrix2D res = jac.evaluate(theta);
-    double[][] data = res.getData();
+    double[][] data = res.toArray();
     int n = res.rowCount();
     int m = res.columnCount();
     ArgChecker.isTrue(theta.size() == m, "Jacobian is wrong size");
     ArgChecker.isTrue(sigma.size() == n, "Jacobian is wrong size");
-
     for (int i = 0; i < n; i++) {
       double sigmaInv = 1.0 / sigma.get(i);
       for (int j = 0; j < m; j++) {
         data[i][j] *= sigmaInv;
       }
     }
-    return res;
+    return DoubleMatrix2D.ofUnsafe(data);
   }
 
   private double getChiSqr(DoubleMatrix1D error) {
@@ -693,11 +692,11 @@ public class NonLinearLeastSquare {
     double onePLambda = 1.0 + lambda;
     DoubleMatrix2D alpha = _algebra.matrixTransposeMultiplyMatrix(jacobian);
     // scale the diagonal
-    double[][] data = alpha.getData();
+    double[][] data = alpha.toArray();
     for (int i = 0; i < m; i++) {
       data[i][i] *= onePLambda;
     }
-    return alpha;
+    return DoubleMatrix2D.ofUnsafe(data);
   }
 
 }

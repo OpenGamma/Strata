@@ -187,8 +187,8 @@ public class ProductPiecewisePolynomialInterpolatorTest {
         yValuesDw[k] -= DELTA / xValues[k];
         PiecewisePolynomialResultsWithSensitivity resultUp = interp.interpolateWithSensitivity(xValues, yValuesUp);
         PiecewisePolynomialResultsWithSensitivity resultDw = interp.interpolateWithSensitivity(xValues, yValuesDw);
-        double[] tmpUp = FUNC.evaluate(resultUp, keys).getData()[0];
-        double[] tmpDw = FUNC.evaluate(resultDw, keys).getData()[0];
+        double[] tmpUp = FUNC.evaluate(resultUp, keys).rowArray(0);
+        double[] tmpDw = FUNC.evaluate(resultDw, keys).rowArray(0);
         for (int l = 0; l < nKeys; ++l) {
           double res = 0.5 * (tmpUp[l] - tmpDw[l]) / DELTA; // lk
           InterpolatorTestUtil.assertRelative("linearExtrapolationTest", sense[l].get(k), res, DELTA);
@@ -245,8 +245,8 @@ public class ProductPiecewisePolynomialInterpolatorTest {
         yValuesDw[k] -= DELTA / xValues[k];
         PiecewisePolynomialResultsWithSensitivity resultUp = interp.interpolateWithSensitivity(xValues, yValuesUp);
         PiecewisePolynomialResultsWithSensitivity resultDw = interp.interpolateWithSensitivity(xValues, yValuesDw);
-        double[] tmpUp = FUNC.evaluate(resultUp, keys).getData()[0];
-        double[] tmpDw = FUNC.evaluate(resultDw, keys).getData()[0];
+        double[] tmpUp = FUNC.evaluate(resultUp, keys).rowArray(0);
+        double[] tmpDw = FUNC.evaluate(resultDw, keys).rowArray(0);
         for (int l = 0; l < nKeys; ++l) {
           double res = 0.5 * (tmpUp[l] - tmpDw[l]) / DELTA;
           InterpolatorTestUtil.assertRelative("linearExtrapolationTest", sense[l].get(k), res, DELTA * 10.0);
@@ -258,8 +258,8 @@ public class ProductPiecewisePolynomialInterpolatorTest {
       ProductPiecewisePolynomialInterpolator interpDw = new ProductPiecewisePolynomialInterpolator(INTERP_SENSE[i],
           xValuesClamped, new double[] {yValuesClamped[0] - DELTA / xValuesClamped[0] });
       PiecewisePolynomialResultsWithSensitivity resultDw = interpDw.interpolateWithSensitivity(xValues, yValues);
-      double[] tmpUp = FUNC.evaluate(resultUp, keys).getData()[0];
-      double[] tmpDw = FUNC.evaluate(resultDw, keys).getData()[0];
+      double[] tmpUp = FUNC.evaluate(resultUp, keys).rowArray(0);
+      double[] tmpDw = FUNC.evaluate(resultDw, keys).rowArray(0);
       for (int l = 0; l < nKeys; ++l) {
         double res = 0.5 * (tmpUp[l] - tmpDw[l]) / DELTA;
         InterpolatorTestUtil.assertRelative("linearExtrapolationTest", sense[l].get(nData), res, DELTA);

@@ -48,7 +48,7 @@ public class ConstrainedCubicSplineInterpolatorTest {
     for (int i = 0; i < result.getNumberOfIntervals(); ++i) {
       for (int j = 0; j < result.getOrder(); ++j) {
         final double ref = Math.abs(coefsMatExp[i][j]) == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsMatExp[i][j], ref * EPS);
+        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
 
@@ -88,7 +88,7 @@ public class ConstrainedCubicSplineInterpolatorTest {
     for (int i = 0; i < result.getNumberOfIntervals() * result.getDimensions(); ++i) {
       for (int j = 0; j < result.getOrder(); ++j) {
         final double ref = Math.abs(coefsMatExp[i][j]) == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsMatExp[i][j], ref * EPS);
+        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
 
@@ -151,7 +151,7 @@ public class ConstrainedCubicSplineInterpolatorTest {
     for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 4; ++j) {
         final double ref = Math.abs(coefsMatPartExp[i][j]) == 0. ? 1. : Math.abs(coefsMatPartExp[i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsMatPartExp[i][j], ref * EPS);
+        assertEquals(result.getCoefMatrix().get(i, j), coefsMatPartExp[i][j], ref * EPS);
       }
     }
 

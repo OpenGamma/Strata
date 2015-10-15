@@ -22,7 +22,8 @@ public class CholeskyDecompositionCommonsTest {
 
   private static final MatrixAlgebra ALGEBRA = new CommonsMatrixAlgebra();
   private static final Decomposition<CholeskyDecompositionResult> CH = new CholeskyDecompositionCommons();
-  private static final DoubleMatrix2D A = new DoubleMatrix2D(new double[][] {new double[] {10.0, 2.0, -1.0 }, new double[] {2.0, 5.0, -2.0 }, new double[] {-1.0, -2.0, 15.0 } });
+  private static final DoubleMatrix2D A = DoubleMatrix2D.copyOf(
+      new double[][] { {10.0, 2.0, -1.0}, {2.0, 5.0, -2.0}, {-1.0, -2.0, 15.0}});
   private static final double EPS = 1e-9;
 
   @Test(expectedExceptions = IllegalArgumentException.class)

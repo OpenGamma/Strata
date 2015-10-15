@@ -43,7 +43,7 @@ public class NaturalSplineInterpolatorTest {
     for (int i = 0; i < nIntervalsExp; ++i) {
       for (int j = 0; j < orderExp; ++j) {
         final double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsMatExp[i][j], ref * EPS);
+        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
 
@@ -75,7 +75,7 @@ public class NaturalSplineInterpolatorTest {
     for (int i = 0; i < nIntervalsExp; ++i) {
       for (int j = 0; j < orderExp; ++j) {
         final double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsMatExp[i][j], ref * EPS);
+        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
 
@@ -228,7 +228,7 @@ public class NaturalSplineInterpolatorTest {
     for (int i = 0; i < nIntervalsExp * dimExp; ++i) {
       for (int j = 0; j < orderExp; ++j) {
         final double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsMatExp[i][j], ref * EPS);
+        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
 
@@ -261,7 +261,7 @@ public class NaturalSplineInterpolatorTest {
     for (int i = 0; i < nIntervalsExp * dimExp; ++i) {
       for (int j = 0; j < orderExp; ++j) {
         final double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsMatExp[i][j], ref * EPS);
+        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
 
@@ -430,7 +430,7 @@ public class NaturalSplineInterpolatorTest {
     for (int j = 0; j < keyDim; ++j) {
       for (int k = 0; k < keyLength; ++k) {
         final double ref = resultValuesExpected[k][0][j] == 0. ? 1. : Math.abs(resultValuesExpected[k][0][j]);
-        assertEquals(valuesMat1.getData()[j][k], resultValuesExpected[k][0][j], ref * EPS);
+        assertEquals(valuesMat1.get(j, k), resultValuesExpected[k][0][j], ref * EPS);
       }
     }
 
@@ -438,7 +438,7 @@ public class NaturalSplineInterpolatorTest {
     for (int i = 0; i < yDim; ++i) {
       for (int k = 0; k < keyLength; ++k) {
         final double ref = resultValuesExpected[k][i][0] == 0. ? 1. : Math.abs(resultValuesExpected[k][i][0]);
-        assertEquals(valuesMat2.getData()[i][k], resultValuesExpected[k][i][0], ref * EPS);
+        assertEquals(valuesMat2.get(i, k), resultValuesExpected[k][i][0], ref * EPS);
       }
     }
 
@@ -447,7 +447,7 @@ public class NaturalSplineInterpolatorTest {
       for (int j = 0; j < keyDim; ++j) {
         for (int k = 0; k < keyLength; ++k) {
           final double ref = resultValuesExpected[k][i][j] == 0. ? 1. : Math.abs(resultValuesExpected[k][i][j]);
-          assertEquals(valuesMat3[k].getData()[i][j], resultValuesExpected[k][i][j], ref * EPS);
+          assertEquals(valuesMat3[k].get(i, j), resultValuesExpected[k][i][j], ref * EPS);
         }
       }
     }

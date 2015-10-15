@@ -20,7 +20,8 @@ import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 @Test
 public abstract class SVDecompositionCalculationTestCase {
   private static final double EPS = 1e-10;
-  private static final DoubleMatrix2D A = new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3 }, new double[] {-3.4, -1, 4 }, new double[] {1, 6, 1 } });
+  private static final DoubleMatrix2D A = DoubleMatrix2D.copyOf(
+      new double[][] { {1, 2, 3}, {-3.4, -1, 4}, {1, 6, 1}});
 
   protected abstract Decomposition<SVDecompositionResult> getSVD();
 

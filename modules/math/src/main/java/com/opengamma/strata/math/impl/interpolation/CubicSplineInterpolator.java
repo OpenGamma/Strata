@@ -72,8 +72,8 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
 
     for (int i = 0; i < _solver.getKnotsMat1D(xValuesSrt).size() - 1; ++i) {
       for (int j = 0; j < nCoefs; ++j) {
-        ArgChecker.isFalse(Double.isNaN(coefMatrix.getData()[i][j]), "Too large input");
-        ArgChecker.isFalse(Double.isInfinite(coefMatrix.getData()[i][j]), "Too large input");
+        ArgChecker.isFalse(Double.isNaN(coefMatrix.get(i, j)), "Too large input");
+        ArgChecker.isFalse(Double.isInfinite(coefMatrix.get(i, j)), "Too large input");
       }
     }
 
@@ -151,7 +151,7 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    DoubleMatrix2D[] coefMatrix = _solver.solveMultiDim(xValuesSrt, new DoubleMatrix2D(yValuesMatrixSrt));
+    DoubleMatrix2D[] coefMatrix = _solver.solveMultiDim(xValuesSrt, DoubleMatrix2D.copyOf(yValuesMatrixSrt));
 
     final int nIntervals = coefMatrix[0].rowCount();
     final int nCoefs = coefMatrix[0].columnCount();
@@ -170,7 +170,7 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    return new PiecewisePolynomialResult(_solver.getKnotsMat1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(_solver.getKnotsMat1D(xValuesSrt), DoubleMatrix2D.copyOf(resMatrix), nCoefs, dim);
   }
 
   @Override

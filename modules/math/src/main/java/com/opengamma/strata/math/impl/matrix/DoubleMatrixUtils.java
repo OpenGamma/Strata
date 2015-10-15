@@ -21,15 +21,7 @@ public final class DoubleMatrixUtils {
    * @return The transposed matrix
    */
   public static DoubleMatrix2D getTranspose(DoubleMatrix2D matrix) {
-    int rows = matrix.rowCount();
-    int columns = matrix.columnCount();
-    double[][] primitives = new double[columns][rows];
-    for (int i = 0; i < columns; i++) {
-      for (int j = 0; j < rows; j++) {
-        primitives[i][j] = matrix.get(j, i);
-      }
-    }
-    return new DoubleMatrix2D(primitives);
+    return DoubleMatrix2D.of(matrix.columnCount(), matrix.rowCount(), (i, j) -> matrix.get(j, i));
   }
 
   /**
@@ -43,13 +35,9 @@ public final class DoubleMatrixUtils {
       return DoubleMatrix2D.EMPTY;
     }
     if (dimension == 1) {
-      return new DoubleMatrix2D(new double[][] {new double[] {1}});
+      return DoubleMatrix2D.of(1, 1, 1d);
     }
-    double[][] data = new double[dimension][dimension];
-    for (int i = 0; i < dimension; i++) {
-      data[i][i] = 1;
-    }
-    return new DoubleMatrix2D(data);
+    return DoubleMatrix2D.of(dimension, dimension, (i, j) -> (i == j) ? 1d : 0d);
   }
 
   /**
@@ -63,11 +51,7 @@ public final class DoubleMatrixUtils {
     if (n == 0) {
       return DoubleMatrix2D.EMPTY;
     }
-    double[][] data = new double[n][n];
-    for (int i = 0; i < n; i++) {
-      data[i][i] = vector.get(i);
-    }
-    return new DoubleMatrix2D(data);
+    return DoubleMatrix2D.of(n, n, (i, j) -> (i == j) ? vector.get(i) : 0d);
   }
 
   /**

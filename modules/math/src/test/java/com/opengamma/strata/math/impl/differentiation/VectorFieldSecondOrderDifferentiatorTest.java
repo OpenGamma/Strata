@@ -58,7 +58,7 @@ public class VectorFieldSecondOrderDifferentiatorTest {
       temp[1][1] = 2 * a * (1 - 2 * c1 * c1);
       temp[0][1] = -2 * s1 * c1;
       temp[1][0] = temp[0][1];
-      return new DoubleMatrix2D(temp);
+      return DoubleMatrix2D.copyOf(temp);
     }
   };
 
@@ -74,7 +74,7 @@ public class VectorFieldSecondOrderDifferentiatorTest {
       temp[1][1] = 2 * a * (2 * c1 * c1 - 1);
       temp[0][1] = 2 * s1 * c1;
       temp[1][0] = temp[0][1];
-      return new DoubleMatrix2D(temp);
+      return DoubleMatrix2D.copyOf(temp);
     }
   };
 
