@@ -23,12 +23,11 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-      final double x1 = x.get(0);
-      final double x2 = x.get(1);
-      final double[] y = new double[2];
-      y[0] = x1 * x1 + 2 * x2 * x2 - x1 * x2 + x1 * Math.cos(x2) - x2 * Math.sin(x1);
-      y[1] = 2 * x1 * x2 * Math.cos(x1 * x2) - x1 * Math.sin(x1) - x2 * Math.cos(x2);
-      return new DoubleMatrix1D(y);
+      double x1 = x.get(0);
+      double x2 = x.get(1);
+      return DoubleMatrix1D.of(
+          x1 * x1 + 2 * x2 * x2 - x1 * x2 + x1 * Math.cos(x2) - x2 * Math.sin(x1),
+          2 * x1 * x2 * Math.cos(x1 * x2) - x1 * Math.sin(x1) - x2 * Math.cos(x2));
     }
   };
 
@@ -36,13 +35,12 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-      final double x1 = x.get(0);
-      final double x2 = x.get(1);
-      final double[] y = new double[3];
-      y[0] = x1 * x1 + 2 * x2 * x2 - x1 * x2 + x1 * Math.cos(x2) - x2 * Math.sin(x1);
-      y[1] = 2 * x1 * x2 * Math.cos(x1 * x2) - x1 * Math.sin(x1) - x2 * Math.cos(x2);
-      y[2] = x1 - x2;
-      return new DoubleMatrix1D(y);
+      double x1 = x.get(0);
+      double x2 = x.get(1);
+      return DoubleMatrix1D.of(
+          x1 * x1 + 2 * x2 * x2 - x1 * x2 + x1 * Math.cos(x2) - x2 * Math.sin(x1),
+          2 * x1 * x2 * Math.cos(x1 * x2) - x1 * Math.sin(x1) - x2 * Math.cos(x2),
+          x1 - x2);
     }
   };
 
@@ -109,7 +107,7 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
   @Test
   public void test() {
-    final DoubleMatrix1D x = new DoubleMatrix1D(new double[] {.2245, -1.2344 });
+    final DoubleMatrix1D x = DoubleMatrix1D.of(.2245, -1.2344);
     final DoubleMatrix2D anJac = G.evaluate(x);
     final DoubleMatrix2D fdFwdJac = FORWARD.differentiate(F).evaluate(x);
     final DoubleMatrix2D fdCentGrad = CENTRAL.differentiate(F).evaluate(x);
@@ -126,7 +124,7 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
   @Test
   public void test2() {
-    final DoubleMatrix1D x = new DoubleMatrix1D(new double[] {1.3423, 0.235 });
+    final DoubleMatrix1D x = DoubleMatrix1D.of(1.3423, 0.235);
     final DoubleMatrix2D anJac = G2.evaluate(x);
     final DoubleMatrix2D fdFwdJac = FORWARD.differentiate(F2).evaluate(x);
     final DoubleMatrix2D fdCentGrad = CENTRAL.differentiate(F2).evaluate(x);
@@ -144,20 +142,20 @@ public class VectorFieldFirstOrderDifferentiatorTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void outsideDomainTest() {
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> fdJacFunc = CENTRAL.differentiate(F2, DOMAIN);
-    fdJacFunc.evaluate(new DoubleMatrix1D(2.3, 3.2));
+    fdJacFunc.evaluate(DoubleMatrix1D.of(2.3, 3.2));
   }
 
   @Test
   public void testDomain() {
     final DoubleMatrix1D[] x = new DoubleMatrix1D[7];
 
-    x[0] = new DoubleMatrix1D(new double[] {1.3423, 0.235 });
-    x[1] = new DoubleMatrix1D(new double[] {0.0, 1.235 });
-    x[2] = new DoubleMatrix1D(new double[] {Math.PI, 3.1 });
-    x[3] = new DoubleMatrix1D(new double[] {2.3, 0.0 });
-    x[4] = new DoubleMatrix1D(new double[] {2.3, Math.PI });
-    x[5] = new DoubleMatrix1D(new double[] {0.0, 0.0 });
-    x[6] = new DoubleMatrix1D(new double[] {Math.PI, Math.PI });
+    x[0] = DoubleMatrix1D.of(1.3423, 0.235);
+    x[1] = DoubleMatrix1D.of(0.0, 1.235);
+    x[2] = DoubleMatrix1D.of(Math.PI, 3.1);
+    x[3] = DoubleMatrix1D.of(2.3, 0.0);
+    x[4] = DoubleMatrix1D.of(2.3, Math.PI);
+    x[5] = DoubleMatrix1D.of(0.0, 0.0);
+    x[6] = DoubleMatrix1D.of(Math.PI, Math.PI);
 
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> fdJacFunc = CENTRAL.differentiate(F2, DOMAIN);
 

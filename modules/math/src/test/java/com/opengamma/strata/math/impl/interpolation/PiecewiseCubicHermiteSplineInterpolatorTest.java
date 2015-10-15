@@ -53,7 +53,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().getData()[j], xValues[j]);
+      assertEquals(result.getKnots().get(j), xValues[j]);
     }
   }
 
@@ -85,7 +85,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().getData()[j], xValues[j]);
+      assertEquals(result.getKnots().get(j), xValues[j]);
     }
   }
 
@@ -117,7 +117,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().getData()[j], xValues[j]);
+      assertEquals(result.getKnots().get(j), xValues[j]);
     }
   }
 
@@ -149,7 +149,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().getData()[j], xValues[j]);
+      assertEquals(result.getKnots().get(j), xValues[j]);
     }
   }
 
@@ -181,7 +181,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().getData()[j], xValues[j]);
+      assertEquals(result.getKnots().get(j), xValues[j]);
     }
   }
 
@@ -213,7 +213,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().getData()[j], xValues[j]);
+      assertEquals(result.getKnots().get(j), xValues[j]);
     }
   }
 
@@ -245,7 +245,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().getData()[j], xValues[j]);
+      assertEquals(result.getKnots().get(j), xValues[j]);
     }
   }
 
@@ -424,7 +424,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().getData()[j], xValues[j]);
+      assertEquals(result.getKnots().get(j), xValues[j]);
     }
   }
 
@@ -456,7 +456,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().getData()[j], xValues[j]);
+      assertEquals(result.getKnots().get(j), xValues[j]);
     }
   }
 
@@ -489,7 +489,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().getData()[j], xValues[j]);
+      assertEquals(result.getKnots().get(j), xValues[j]);
     }
   }
 
@@ -640,13 +640,13 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
     DoubleMatrix1D valuesVec1 = interp.interpolate(xValues, yValues, xKey[0][0]);
     for (int i = 0; i < yDim; ++i) {
       final double ref = resultValuesExpected[0][i][0] == 0. ? 1. : Math.abs(resultValuesExpected[0][i][0]);
-      assertEquals(valuesVec1.getData()[i], resultValuesExpected[0][i][0], ref * EPS);
+      assertEquals(valuesVec1.get(i), resultValuesExpected[0][i][0], ref * EPS);
     }
 
     DoubleMatrix1D valuesVec2 = interp.interpolate(xValues, yValues[0], xKey[0]);
     for (int k = 0; k < keyLength; ++k) {
       final double ref = resultValuesExpected[k][0][0] == 0. ? 1. : Math.abs(resultValuesExpected[k][0][0]);
-      assertEquals(valuesVec2.getData()[k], resultValuesExpected[k][0][0], ref * EPS);
+      assertEquals(valuesVec2.get(k), resultValuesExpected[k][0][0], ref * EPS);
     }
 
     DoubleMatrix2D valuesMat1 = interp.interpolate(xValues, yValues[0], xKey);

@@ -53,7 +53,7 @@ public class SumToOneTest {
         from[j] = RANDOM.nextDouble() * Math.PI / 2;
       }
       SumToOne trans = new SumToOne(n);
-      DoubleMatrix1D to = trans.transform(new DoubleMatrix1D(from));
+      DoubleMatrix1D to = trans.transform(DoubleMatrix1D.copyOf(from));
       assertEquals(n, to.size());
       double sum = 0;
       for (int i = 0; i < n; i++) {
@@ -71,7 +71,7 @@ public class SumToOneTest {
         theta[j] = RANDOM.nextDouble() * Math.PI / 2;
       }
       SumToOne trans = new SumToOne(n);
-      DoubleMatrix1D w = trans.transform(new DoubleMatrix1D(theta));
+      DoubleMatrix1D w = trans.transform(DoubleMatrix1D.copyOf(theta));
 
       DoubleMatrix1D theta2 = trans.inverseTransform(w);
       for (int j = 0; j < n - 1; j++) {
@@ -96,9 +96,9 @@ public class SumToOneTest {
     DoubleMatrix1D sigma = DoubleMatrix1D.filled(n, 1e-4);
     DoubleMatrix1D start = DoubleMatrix1D.filled(n - 1, 0.8);
 
-    LeastSquareResults res = SOLVER.solve(new DoubleMatrix1D(w), sigma, func, start/*, maxJump*/);
+    LeastSquareResults res = SOLVER.solve(DoubleMatrix1D.copyOf(w), sigma, func, start/*, maxJump*/);
     assertEquals("chi sqr", 0.0, res.getChiSq(), 1e-9);
-    double[] fit = res.getFitParameters().getData();
+    double[] fit = res.getFitParameters().toArray();
     double[] expected = trans.inverseTransform(w);
     for (int i = 0; i < n - 1; i++) {
       //put the fit result back in the range 0 - pi/2
@@ -129,20 +129,19 @@ public class SumToOneTest {
       public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
         double a = x.get(0);
         double theta = x.get(1);
-        double[] temp = new double[2];
         double c1 = Math.cos(theta);
-        temp[0] = a * c1 * c1;
-        temp[1] = a * (1 - c1 * c1);
-        return new DoubleMatrix1D(temp);
+        return DoubleMatrix1D.of(
+            a * c1 * c1,
+            a * (1 - c1 * c1));
       }
     };
 
     DoubleMatrix1D sigma = DoubleMatrix1D.filled(n, 1e-4);
-    DoubleMatrix1D start = new DoubleMatrix1D(0.0, 0.8);
+    DoubleMatrix1D start = DoubleMatrix1D.of(0.0, 0.8);
 
-    LeastSquareResults res = SOLVER.solve(new DoubleMatrix1D(w), sigma, func, start/*, maxJump*/);
+    LeastSquareResults res = SOLVER.solve(DoubleMatrix1D.copyOf(w), sigma, func, start/*, maxJump*/);
     assertEquals("chi sqr", 0.0, res.getChiSq(), 1e-9);
-    double[] fit = res.getFitParameters().getData();
+    double[] fit = res.getFitParameters().toArray();
     assertEquals(7.0, fit[0], 1e-9);
     assertEquals(Math.atan(Math.sqrt(4 / 3.)), fit[1], 1e-9);
   }
@@ -168,13 +167,8 @@ public class SumToOneTest {
 
     Function1D<DoubleMatrix1D, DoubleMatrix2D> fdJacFunc = DIFFER.differentiate(func);
 
-    double[] theta = new double[n - 1];
     for (int tries = 0; tries < 10; tries++) {
-
-      for (int i = 0; i < n - 1; i++) {
-        theta[i] = RANDOM.nextDouble();
-      }
-      DoubleMatrix1D vTheta = new DoubleMatrix1D(theta);
+      DoubleMatrix1D vTheta = DoubleMatrix1D.of(n - 1, i -> RANDOM.nextDouble());
       DoubleMatrix2D jac = jacFunc.evaluate(vTheta);
       DoubleMatrix2D fdJac = fdJacFunc.evaluate(vTheta);
       for (int j = 0; j < n - 1; j++) {

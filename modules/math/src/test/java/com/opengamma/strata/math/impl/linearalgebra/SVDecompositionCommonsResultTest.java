@@ -93,7 +93,7 @@ public class SVDecompositionCommonsResultTest {
     double[] expectedRaw = new double[] {0.0090821107573878, -0.0038563963265099, -0.0016307897061976, 0.1428043882617839 };
     assertTrue(FuzzyEquals.ArrayFuzzyEquals(result.solve(rawRHSvect), expectedRaw));
 
-    assertTrue(FuzzyEquals.ArrayFuzzyEquals(result.solve(new DoubleMatrix1D(rawRHSvect)).getData(), expectedRaw));
+    assertTrue(FuzzyEquals.ArrayFuzzyEquals(result.solve(DoubleMatrix1D.copyOf(rawRHSvect)).toArray(), expectedRaw));
   }
 
   public void testSolveForMatrix() {

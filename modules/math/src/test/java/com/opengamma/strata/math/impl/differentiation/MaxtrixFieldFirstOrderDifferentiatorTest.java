@@ -66,7 +66,7 @@ public class MaxtrixFieldFirstOrderDifferentiatorTest {
   public void test() {
     Function1D<DoubleMatrix1D, DoubleMatrix2D[]> analDiffFunc = DIFF.differentiate(F);
 
-    final DoubleMatrix1D x = new DoubleMatrix1D(new double[] {1.3423, 0.235 });
+    final DoubleMatrix1D x = DoubleMatrix1D.of(1.3423, 0.235);
 
     DoubleMatrix2D[] alRes = analDiffFunc.evaluate(x);
     DoubleMatrix2D[] fdRes = G.evaluate(x);

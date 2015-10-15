@@ -55,7 +55,7 @@ public final class DoubleMatrix1D
   /**
    * An empty array.
    */
-  public static final DoubleMatrix1D EMPTY = new DoubleMatrix1D(new double[0], true);
+  public static final DoubleMatrix1D EMPTY = new DoubleMatrix1D(new double[0]);
 
   /**
    * Serialization version.
@@ -87,7 +87,7 @@ public final class DoubleMatrix1D
    * @return an array containing the specified value
    */
   public static DoubleMatrix1D of(double value) {
-    return new DoubleMatrix1D(new double[] {value}, true);
+    return new DoubleMatrix1D(new double[] {value});
   }
 
   /**
@@ -98,7 +98,7 @@ public final class DoubleMatrix1D
    * @return an array containing the specified values
    */
   public static DoubleMatrix1D of(double value1, double value2) {
-    return new DoubleMatrix1D(new double[] {value1, value2}, true);
+    return new DoubleMatrix1D(new double[] {value1, value2});
   }
 
   /**
@@ -110,7 +110,7 @@ public final class DoubleMatrix1D
    * @return an array containing the specified values
    */
   public static DoubleMatrix1D of(double value1, double value2, double value3) {
-    return new DoubleMatrix1D(new double[] {value1, value2, value3}, true);
+    return new DoubleMatrix1D(new double[] {value1, value2, value3});
   }
 
   /**
@@ -123,7 +123,7 @@ public final class DoubleMatrix1D
    * @return an array containing the specified values
    */
   public static DoubleMatrix1D of(double value1, double value2, double value3, double value4) {
-    return new DoubleMatrix1D(new double[] {value1, value2, value3, value4}, true);
+    return new DoubleMatrix1D(new double[] {value1, value2, value3, value4});
   }
 
   /**
@@ -138,7 +138,7 @@ public final class DoubleMatrix1D
    */
   public static DoubleMatrix1D of(
       double value1, double value2, double value3, double value4, double value5) {
-    return new DoubleMatrix1D(new double[] {value1, value2, value3, value4, value5}, true);
+    return new DoubleMatrix1D(new double[] {value1, value2, value3, value4, value5});
   }
 
   /**
@@ -155,7 +155,7 @@ public final class DoubleMatrix1D
   public static DoubleMatrix1D of(
       double value1, double value2, double value3, double value4,
       double value5, double value6) {
-    return new DoubleMatrix1D(new double[] {value1, value2, value3, value4, value5, value6}, true);
+    return new DoubleMatrix1D(new double[] {value1, value2, value3, value4, value5, value6});
   }
 
   /**
@@ -173,7 +173,7 @@ public final class DoubleMatrix1D
   public static DoubleMatrix1D of(
       double value1, double value2, double value3, double value4,
       double value5, double value6, double value7) {
-    return new DoubleMatrix1D(new double[] {value1, value2, value3, value4, value5, value6, value7}, true);
+    return new DoubleMatrix1D(new double[] {value1, value2, value3, value4, value5, value6, value7});
   }
 
   /**
@@ -192,7 +192,7 @@ public final class DoubleMatrix1D
   public static DoubleMatrix1D of(
       double value1, double value2, double value3, double value4,
       double value5, double value6, double value7, double value8) {
-    return new DoubleMatrix1D(new double[] {value1, value2, value3, value4, value5, value6, value7, value8}, true);
+    return new DoubleMatrix1D(new double[] {value1, value2, value3, value4, value5, value6, value7, value8});
   }
 
   //-------------------------------------------------------------------------
@@ -213,7 +213,7 @@ public final class DoubleMatrix1D
     for (int i = 0; i < array.length; i++) {
       array[i] = valueFunction.applyAsDouble(i);
     }
-    return new DoubleMatrix1D(array, true);
+    return new DoubleMatrix1D(array);
   }
 
   /**
@@ -230,7 +230,7 @@ public final class DoubleMatrix1D
     if (array.length == 0) {
       return EMPTY;
     }
-    return new DoubleMatrix1D(array, true);
+    return new DoubleMatrix1D(array);
   }
 
   //-----------------------------------------------------------------------
@@ -247,7 +247,7 @@ public final class DoubleMatrix1D
     if (list instanceof ImmList) {
       return ((ImmList) list).underlying;
     }
-    return new DoubleMatrix1D(Doubles.toArray(list), true);
+    return new DoubleMatrix1D(Doubles.toArray(list));
   }
 
   /**
@@ -262,7 +262,7 @@ public final class DoubleMatrix1D
     if (array.length == 0) {
       return EMPTY;
     }
-    return new DoubleMatrix1D(array.clone(), true);
+    return new DoubleMatrix1D(array.clone());
   }
 
   /**
@@ -300,7 +300,7 @@ public final class DoubleMatrix1D
     if ((toIndexExclusive - fromIndexInclusive) == 0) {
       return EMPTY;
     }
-    return new DoubleMatrix1D(Arrays.copyOfRange(array, fromIndexInclusive, toIndexExclusive), true);
+    return new DoubleMatrix1D(Arrays.copyOfRange(array, fromIndexInclusive, toIndexExclusive));
   }
 
   //-------------------------------------------------------------------------
@@ -314,7 +314,7 @@ public final class DoubleMatrix1D
     if (size == 0) {
       return EMPTY;
     }
-    return new DoubleMatrix1D(new double[size], true);
+    return new DoubleMatrix1D(new double[size]);
   }
 
   /**
@@ -330,7 +330,7 @@ public final class DoubleMatrix1D
     }
     double[] array = new double[size];
     Arrays.fill(array, value);
-    return new DoubleMatrix1D(array, true);
+    return new DoubleMatrix1D(array);
   }
 
   //-------------------------------------------------------------------------
@@ -339,33 +339,10 @@ public final class DoubleMatrix1D
    * 
    * @param array  the array to copy, cloned
    */
-  private DoubleMatrix1D(double[] array, boolean trusted) {
+  private DoubleMatrix1D(double[] array) {
     this.array = array;
   }
 
-  //-------------------------------------------------------------------------
-  // start of old code to be removed
-  /**
-   * Creates an instance.
-   * 
-   * @param data  the data
-   */
-  public DoubleMatrix1D(double... data) {
-    ArgChecker.notNull(data, "data");
-    this.array = data.clone();
-  }
-
-  /**
-   * Returns the underlying vector data. If this is changed so is the vector.
-   * 
-   * @return an array containing the vector elements
-   * @see #toArray to get a copy of data
-   */
-  public double[] getData() {
-    return array;
-  }
-
-  // end of old code to be removed
   //-------------------------------------------------------------------------
   /**
    * Gets the number of dimensions of this array.
@@ -593,7 +570,7 @@ public final class DoubleMatrix1D
     }
     double[] result = array.clone();
     result[index] = newValue;
-    return new DoubleMatrix1D(result, true);
+    return new DoubleMatrix1D(result);
   }
 
   //-------------------------------------------------------------------------
@@ -616,7 +593,7 @@ public final class DoubleMatrix1D
     for (int i = 0; i < array.length; i++) {
       result[i] = array[i] * factor;
     }
-    return new DoubleMatrix1D(result, true);
+    return new DoubleMatrix1D(result);
   }
 
   /**
@@ -639,7 +616,7 @@ public final class DoubleMatrix1D
     for (int i = 0; i < array.length; i++) {
       result[i] = operator.applyAsDouble(array[i]);
     }
-    return new DoubleMatrix1D(result, true);
+    return new DoubleMatrix1D(result);
   }
 
   /**
@@ -662,7 +639,7 @@ public final class DoubleMatrix1D
     for (int i = 0; i < array.length; i++) {
       result[i] = function.applyAsDouble(i, array[i]);
     }
-    return new DoubleMatrix1D(result, true);
+    return new DoubleMatrix1D(result);
   }
 
   //-------------------------------------------------------------------------
@@ -690,7 +667,7 @@ public final class DoubleMatrix1D
     for (int i = 0; i < array.length; i++) {
       result[i] = array[i] + other.array[i];
     }
-    return new DoubleMatrix1D(result, true);
+    return new DoubleMatrix1D(result);
   }
 
   /**
@@ -717,7 +694,7 @@ public final class DoubleMatrix1D
     for (int i = 0; i < array.length; i++) {
       result[i] = array[i] - other.array[i];
     }
-    return new DoubleMatrix1D(result, true);
+    return new DoubleMatrix1D(result);
   }
 
   /**
@@ -744,7 +721,7 @@ public final class DoubleMatrix1D
     for (int i = 0; i < array.length; i++) {
       result[i] = operator.applyAsDouble(array[i], other.array[i]);
     }
-    return new DoubleMatrix1D(result, true);
+    return new DoubleMatrix1D(result);
   }
 
   /**
@@ -798,7 +775,7 @@ public final class DoubleMatrix1D
     double[] result = new double[array.length + arrayToConcat.length];
     System.arraycopy(array, 0, result, 0, array.length);
     System.arraycopy(arrayToConcat, 0, result, array.length, arrayToConcat.length);
-    return new DoubleMatrix1D(result, true);
+    return new DoubleMatrix1D(result);
   }
 
   /**
@@ -838,7 +815,7 @@ public final class DoubleMatrix1D
     }
     double[] result = array.clone();
     Arrays.sort(result);
-    return new DoubleMatrix1D(result, true);
+    return new DoubleMatrix1D(result);
   }
 
   /**
@@ -1161,7 +1138,7 @@ public final class DoubleMatrix1D
 
         @Override
         public DoubleMatrix1D build() {
-          return new DoubleMatrix1D(array, true);
+          return new DoubleMatrix1D(array);
         }
       };
     }

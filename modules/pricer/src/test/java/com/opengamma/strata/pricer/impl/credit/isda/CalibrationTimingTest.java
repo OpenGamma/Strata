@@ -143,7 +143,7 @@ public class CalibrationTimingTest extends IsdaBaseTest {
   public void yieldCurvePeturbTest() {
     System.out.println("CalibrationTimingTest - set enabled=false before push");
 
-    final DoubleMatrix1D base = new DoubleMatrix1D(YC_MARKET_RATES);
+    final DoubleMatrix1D base = DoubleMatrix1D.copyOf(YC_MARKET_RATES);
     final int nSims = 10000;
     final IsdaCompliantYieldCurveBuild ycBuilder = new IsdaCompliantYieldCurveBuild(SPOTDATE, YC_INST_TYPES, YC_INST_TENOR, ACT360, D30360, SWAP_INTERVAL, MOD_FOLLOWING);
 
@@ -151,17 +151,13 @@ public class CalibrationTimingTest extends IsdaBaseTest {
     int failed = 0;
     for (int count = 0; count < nSims; count++) {
 
-      final double[] temp = new double[NUM_YIELD_CURVE_POINTS];
-      for (int i = 0; i < NUM_YIELD_CURVE_POINTS; i++) {
-        temp[i] = NORMAL.nextRandom();
-      }
-      final DoubleMatrix1D z = new DoubleMatrix1D(temp);
+      final DoubleMatrix1D z = DoubleMatrix1D.of(NUM_YIELD_CURVE_POINTS, i -> NORMAL.nextRandom());
       final DoubleMatrix1D w = (DoubleMatrix1D) MA.multiply(YC_COVAR_SQR, z);
       final DoubleMatrix1D peturbedRates = (DoubleMatrix1D) MA.add(base, w);
 
       try {
         @SuppressWarnings("unused")
-        final IsdaCompliantCurve yieldCurve = ycBuilder.build(peturbedRates.getData());
+        final IsdaCompliantCurve yieldCurve = ycBuilder.build(peturbedRates.toArray());
       } catch (final MathException e) {
         failed++;
       }
@@ -187,24 +183,21 @@ public class CalibrationTimingTest extends IsdaBaseTest {
       coupons[i] = MARKET_CREDIT_SPREADS[i] / 10000.0;
     }
 
-    final DoubleMatrix1D base = new DoubleMatrix1D(coupons);
+    final DoubleMatrix1D base = DoubleMatrix1D.copyOf(coupons);
     final int nSims = 10000;
 
     final long startTime = System.nanoTime();
     int failed = 0;
     for (int count = 0; count < nSims; count++) {
 
-      final double[] temp = new double[NUM_CREDIT_CURVE_POINTS];
-      for (int i = 0; i < NUM_CREDIT_CURVE_POINTS; i++) {
-        temp[i] = NORMAL.nextRandom();
-      }
-      final DoubleMatrix1D z = new DoubleMatrix1D(temp);
+      final DoubleMatrix1D z = DoubleMatrix1D.of(NUM_CREDIT_CURVE_POINTS, i -> NORMAL.nextRandom());
       final DoubleMatrix1D w = (DoubleMatrix1D) MA.multiply(CC_COVAR_SQR, z);
       final DoubleMatrix1D peturbedSpreads = (DoubleMatrix1D) MA.add(base, w);
 
       try {
         @SuppressWarnings("unused")
-        final IsdaCompliantCreditCurve creditCurve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(cds, peturbedSpreads.getData(), yieldCurve);
+        final IsdaCompliantCreditCurve creditCurve =
+            CREDIT_CURVE_BUILDER.calibrateCreditCurve(cds, peturbedSpreads.toArray(), yieldCurve);
       } catch (final MathException e) {
         failed++;
       }

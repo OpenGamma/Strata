@@ -73,13 +73,13 @@ public class BicubicSplineInterpolatorTest {
 
     for (int i = 0; i < n0Data; ++i) {
       final double ref = Math.abs(x0Values[i]) == 0. ? 1. : Math.abs(x0Values[i]);
-      assertEquals(result.getKnots0().getData()[i], x0Values[i], ref * EPS);
-      assertEquals(result.getKnots2D().get(0).getData()[i], x0Values[i], ref * EPS);
+      assertEquals(result.getKnots0().get(i), x0Values[i], ref * EPS);
+      assertEquals(result.getKnots2D().get(0).get(i), x0Values[i], ref * EPS);
     }
     for (int i = 0; i < n1Data; ++i) {
       final double ref = Math.abs(x1Values[i]) == 0. ? 1. : Math.abs(x1Values[i]);
-      assertEquals(result.getKnots1().getData()[i], x1Values[i], ref * EPS);
-      assertEquals(result.getKnots2D().get(1).getData()[i], x1Values[i], ref * EPS);
+      assertEquals(result.getKnots1().get(i), x1Values[i], ref * EPS);
+      assertEquals(result.getKnots2D().get(1).get(i), x1Values[i], ref * EPS);
     }
     for (int i = 0; i < n0Data - 1; ++i) {
       for (int j = 0; j < n1Data - 1; ++j) {
@@ -163,13 +163,13 @@ public class BicubicSplineInterpolatorTest {
 
     for (int i = 0; i < n0Data; ++i) {
       final double ref = Math.abs(x0Values[i]) == 0. ? 1. : Math.abs(x0Values[i]);
-      assertEquals(result.getKnots0().getData()[i], x0Values[i], ref * EPS);
-      assertEquals(result.getKnots2D().get(0).getData()[i], x0Values[i], ref * EPS);
+      assertEquals(result.getKnots0().get(i), x0Values[i], ref * EPS);
+      assertEquals(result.getKnots2D().get(0).get(i), x0Values[i], ref * EPS);
     }
     for (int i = 0; i < n1Data; ++i) {
       final double ref = Math.abs(x1Values[i]) == 0. ? 1. : Math.abs(x1Values[i]);
-      assertEquals(result.getKnots1().getData()[i], x1Values[i], ref * EPS);
-      assertEquals(result.getKnots2D().get(1).getData()[i], x1Values[i], ref * EPS);
+      assertEquals(result.getKnots1().get(i), x1Values[i], ref * EPS);
+      assertEquals(result.getKnots2D().get(1).get(i), x1Values[i], ref * EPS);
     }
 
     for (int i = 0; i < n0Data - 1; ++i) {
@@ -256,13 +256,13 @@ public class BicubicSplineInterpolatorTest {
 
     for (int i = 0; i < n0Data; ++i) {
       final double ref = Math.abs(x0Values[i]) == 0. ? 1. : Math.abs(x0Values[i]);
-      assertEquals(result.getKnots0().getData()[i], x0Values[i], ref * EPS);
-      assertEquals(result.getKnots2D().get(0).getData()[i], x0Values[i], ref * EPS);
+      assertEquals(result.getKnots0().get(i), x0Values[i], ref * EPS);
+      assertEquals(result.getKnots2D().get(0).get(i), x0Values[i], ref * EPS);
     }
     for (int i = 0; i < n1Data; ++i) {
       final double ref = Math.abs(x1Values[i]) == 0. ? 1. : Math.abs(x1Values[i]);
-      assertEquals(result.getKnots1().getData()[i], x1Values[i], ref * EPS);
-      assertEquals(result.getKnots2D().get(1).getData()[i], x1Values[i], ref * EPS);
+      assertEquals(result.getKnots1().get(i), x1Values[i], ref * EPS);
+      assertEquals(result.getKnots2D().get(1).get(i), x1Values[i], ref * EPS);
     }
 
     for (int i = 0; i < n0Data - 1; ++i) {
@@ -343,13 +343,13 @@ public class BicubicSplineInterpolatorTest {
 
     for (int i = 0; i < n0Data; ++i) {
       final double ref = Math.abs(x0Values[i]) == 0. ? 1. : Math.abs(x0Values[i]);
-      assertEquals(result.getKnots0().getData()[i], x0Values[i], ref * EPS);
-      assertEquals(result.getKnots2D().get(0).getData()[i], x0Values[i], ref * EPS);
+      assertEquals(result.getKnots0().get(i), x0Values[i], ref * EPS);
+      assertEquals(result.getKnots2D().get(0).get(i), x0Values[i], ref * EPS);
     }
     for (int i = 0; i < n1Data; ++i) {
       final double ref = Math.abs(x1Values[i]) == 0. ? 1. : Math.abs(x1Values[i]);
-      assertEquals(result.getKnots1().getData()[i], x1Values[i], ref * EPS);
-      assertEquals(result.getKnots2D().get(1).getData()[i], x1Values[i], ref * EPS);
+      assertEquals(result.getKnots1().get(i), x1Values[i], ref * EPS);
+      assertEquals(result.getKnots2D().get(1).get(i), x1Values[i], ref * EPS);
     }
 
     for (int i = 0; i < n0Data - 1; ++i) {

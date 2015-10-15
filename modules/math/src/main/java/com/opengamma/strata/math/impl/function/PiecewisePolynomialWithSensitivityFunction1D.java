@@ -36,14 +36,14 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
       throw new UnsupportedOperationException();
     }
 
-    double[] knots = pp.getKnots().toArray();
-    int nKnots = knots.length;
+    DoubleMatrix1D knots = pp.getKnots();
+    int nKnots = knots.size();
     int interval = FunctionUtils.getLowerBoundIndex(knots, xKey);
     if (interval == nKnots - 1) {
       interval--; // there is 1 less interval that knots
     }
 
-    double s = xKey - knots[interval];
+    double s = xKey - knots.get(interval);
     DoubleMatrix2D a = pp.getCoefficientSensitivity(interval);
     int nCoefs = a.rowCount();
 
@@ -77,8 +77,8 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
       throw new UnsupportedOperationException();
     }
 
-    double[] knots = pp.getKnots().toArray();
-    int nKnots = knots.length;
+    DoubleMatrix1D knots = pp.getKnots();
+    int nKnots = knots.size();
 
     for (int j = 0; j < nKeys; ++j) {
       double xKey = xKeys[j];
@@ -87,7 +87,7 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
         interval--; // there is 1 less interval that knots
       }
 
-      double s = xKey - knots[interval];
+      double s = xKey - knots.get(interval);
       DoubleMatrix2D a = pp.getCoefficientSensitivity(interval);
       int nCoefs = a.rowCount();
 
@@ -120,14 +120,14 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
     int nCoefs = pp.getOrder();
     ArgChecker.isFalse(nCoefs < 2, "Polynomial degree is too low");
 
-    double[] knots = pp.getKnots().toArray();
-    int nKnots = knots.length;
+    DoubleMatrix1D knots = pp.getKnots();
+    int nKnots = knots.size();
     int interval = FunctionUtils.getLowerBoundIndex(knots, xKey);
     if (interval == nKnots - 1) {
       interval--; // there is 1 less interval that knots
     }
 
-    double s = xKey - knots[interval];
+    double s = xKey - knots.get(interval);
     DoubleMatrix2D a = pp.getCoefficientSensitivity(interval);
 
     DoubleMatrix1D res = (DoubleMatrix1D) MA.scale(a.row(0), nCoefs - 1);
@@ -194,14 +194,14 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
     int nCoefs = pp.getOrder();
     ArgChecker.isFalse(nCoefs < 3, "Polynomial degree is too low");
 
-    double[] knots = pp.getKnots().toArray();
-    int nKnots = knots.length;
+    DoubleMatrix1D knots = pp.getKnots();
+    int nKnots = knots.size();
     int interval = FunctionUtils.getLowerBoundIndex(knots, xKey);
     if (interval == nKnots - 1) {
       interval--; // there is 1 less interval that knots
     }
 
-    double s = xKey - knots[interval];
+    double s = xKey - knots.get(interval);
     DoubleMatrix2D a = pp.getCoefficientSensitivity(interval);
 
     DoubleMatrix1D res = (DoubleMatrix1D) MA.scale(a.row(0), (nCoefs - 1) * (nCoefs - 2));

@@ -22,8 +22,8 @@ public class PiecewisePolynomialFunction2DTest {
   private static final double EPS = 1e-14;
   private static final double INF = 1. / 0.;
 
-  private static final DoubleMatrix1D knots0 = new DoubleMatrix1D(new double[] {1., 2., 3., 4. });
-  private static final DoubleMatrix1D knots1 = new DoubleMatrix1D(new double[] {2., 3., 4. });
+  private static final DoubleMatrix1D knots0 = DoubleMatrix1D.of(1., 2., 3., 4.);
+  private static final DoubleMatrix1D knots1 = DoubleMatrix1D.of(2., 3., 4.);
 
   private static final int nKnots0 = 4;
   private static final int nKnots1 = 3;

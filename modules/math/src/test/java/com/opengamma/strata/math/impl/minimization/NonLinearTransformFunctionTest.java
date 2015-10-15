@@ -33,11 +33,10 @@ public class NonLinearTransformFunctionTest {
       ArgChecker.isTrue(x.size() == 2);
       double x1 = x.get(0);
       double x2 = x.get(1);
-      double[] y = new double[3];
-      y[0] = Math.sin(x1) * Math.cos(x2);
-      y[1] = Math.sin(x1) * Math.sin(x2);
-      y[2] = Math.cos(x1);
-      return new DoubleMatrix1D(y);
+      return DoubleMatrix1D.of(
+          Math.sin(x1) * Math.cos(x2),
+          Math.sin(x1) * Math.sin(x2),
+          Math.cos(x1));
     }
   };
 
@@ -72,13 +71,13 @@ public class NonLinearTransformFunctionTest {
   public void testNullTransform() {
     BitSet fixed = new BitSet();
     fixed.set(0);
-    DoubleMatrix1D start = new DoubleMatrix1D(new double[] {Math.PI / 4, 1 });
+    DoubleMatrix1D start = DoubleMatrix1D.of(Math.PI / 4, 1);
     UncoupledParameterTransforms transforms = new UncoupledParameterTransforms(start, NULL_TRANSFORMS, fixed);
     NonLinearTransformFunction transFunc = new NonLinearTransformFunction(FUNCTION, JACOBIAN, transforms);
     Function1D<DoubleMatrix1D, DoubleMatrix1D> func = transFunc.getFittingFunction();
     Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc = transFunc.getFittingJacobian();
 
-    DoubleMatrix1D x = new DoubleMatrix1D(new double[] {0.5 });
+    DoubleMatrix1D x = DoubleMatrix1D.of(0.5);
     final double rootHalf = Math.sqrt(0.5);
     DoubleMatrix1D y = func.evaluate(x);
     assertEquals(3, y.size());
@@ -97,7 +96,7 @@ public class NonLinearTransformFunctionTest {
   @Test
   public void testNonLinearTransform() {
     BitSet fixed = new BitSet();
-    DoubleMatrix1D start = new DoubleMatrix1D(new double[2]);
+    DoubleMatrix1D start = DoubleMatrix1D.filled(2);
     UncoupledParameterTransforms transforms = new UncoupledParameterTransforms(start, TRANSFORMS, fixed);
     NonLinearTransformFunction transFunc = new NonLinearTransformFunction(FUNCTION, JACOBIAN, transforms);
     Function1D<DoubleMatrix1D, DoubleMatrix1D> func = transFunc.getFittingFunction();
@@ -106,7 +105,7 @@ public class NonLinearTransformFunctionTest {
     VectorFieldFirstOrderDifferentiator diff = new VectorFieldFirstOrderDifferentiator();
     Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFuncFD = diff.differentiate(func);
 
-    DoubleMatrix1D testPoint = new DoubleMatrix1D(new double[] {4.5, -2.1 });
+    DoubleMatrix1D testPoint = DoubleMatrix1D.of(4.5, -2.1);
     DoubleMatrix2D jac = jacFunc.evaluate(testPoint);
     DoubleMatrix2D jacFD = jacFuncFD.evaluate(testPoint);
     assertEquals(3, jac.rowCount());

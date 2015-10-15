@@ -25,11 +25,8 @@ public class VectorFieldSecondOrderDifferentiatorTest {
     public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
       double a = x.get(0);
       double theta = x.get(1);
-      double[] temp = new double[2];
       double c1 = Math.cos(theta);
-      temp[0] = a * c1 * c1;
-      temp[1] = a * (1 - c1 * c1);
-      return new DoubleMatrix1D(temp);
+      return DoubleMatrix1D.of(a * c1 * c1, a * (1 - c1 * c1));
     }
   };
 
@@ -85,7 +82,7 @@ public class VectorFieldSecondOrderDifferentiatorTest {
   public void test() {
     double a = 2.3;
     double theta = 0.34;
-    DoubleMatrix1D x = new DoubleMatrix1D(new double[] {a, theta });
+    DoubleMatrix1D x = DoubleMatrix1D.of(a, theta);
 
     VectorFieldSecondOrderDifferentiator fd = new VectorFieldSecondOrderDifferentiator();
     Function1D<DoubleMatrix1D, DoubleMatrix2D[]> fdFuncs = fd.differentiate(FUNC);
@@ -105,17 +102,17 @@ public class VectorFieldSecondOrderDifferentiatorTest {
   public void outsideDomainTest() {
     VectorFieldSecondOrderDifferentiator fd = new VectorFieldSecondOrderDifferentiator();
     Function1D<DoubleMatrix1D, DoubleMatrix2D[]> fdFuncs = fd.differentiate(FUNC, DOMAIN);
-    fdFuncs.evaluate(new DoubleMatrix1D(-1.0, 0.3));
+    fdFuncs.evaluate(DoubleMatrix1D.of(-1.0, 0.3));
   }
 
   @Test
   public void domainTest() {
 
     DoubleMatrix1D[] x = new DoubleMatrix1D[4];
-    x[0] = new DoubleMatrix1D(2.3, 0.34);
-    x[1] = new DoubleMatrix1D(1e-8, 1.45);
-    x[2] = new DoubleMatrix1D(1.2, 0.0);
-    x[3] = new DoubleMatrix1D(1.2, Math.PI);
+    x[0] = DoubleMatrix1D.of(2.3, 0.34);
+    x[1] = DoubleMatrix1D.of(1e-8, 1.45);
+    x[2] = DoubleMatrix1D.of(1.2, 0.0);
+    x[3] = DoubleMatrix1D.of(1.2, Math.PI);
 
     VectorFieldSecondOrderDifferentiator fd = new VectorFieldSecondOrderDifferentiator();
     Function1D<DoubleMatrix1D, DoubleMatrix2D[]> fdFuncs = fd.differentiate(FUNC, DOMAIN);

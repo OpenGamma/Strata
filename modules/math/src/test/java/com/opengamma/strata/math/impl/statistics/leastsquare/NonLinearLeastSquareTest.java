@@ -54,7 +54,7 @@ public class NonLinearLeastSquareTest {
       for (int i = 0; i < n; i++) {
         res[i] = a.get(0) * Math.sin(a.get(1) * X.get(i) + a.get(2)) + a.get(3);
       }
-      return new DoubleMatrix1D(res);
+      return DoubleMatrix1D.copyOf(res);
     }
   };
 
@@ -79,12 +79,12 @@ public class NonLinearLeastSquareTest {
       ArgChecker.isTrue(a.size() == getNumberOfParameters(), "four parameters");
       final double temp1 = Math.sin(a.get(1) * x + a.get(2));
       final double temp2 = Math.cos(a.get(1) * x + a.get(2));
-      final double[] res = new double[4];
-      res[0] = temp1;
-      res[2] = a.get(0) * temp2;
-      res[1] = x * res[2];
-      res[3] = 1.0;
-      return new DoubleMatrix1D(res);
+          final double[] res = new double[4];
+          res[0] = temp1;
+          res[2] = a.get(0) * temp2;
+          res[1] = x * res[2];
+          res[3] = 1.0;
+          return DoubleMatrix1D.copyOf(res);
     }
 
     @Override
@@ -113,21 +113,14 @@ public class NonLinearLeastSquareTest {
   };
 
   static {
-    X = new DoubleMatrix1D(new double[20]);
-    Y = new DoubleMatrix1D(new double[20]);
-    SIGMA = new DoubleMatrix1D(new double[20]);
-
-    for (int i = 0; i < 20; i++) {
-      X.getData()[i] = -Math.PI + i * Math.PI / 10;
-      Y.getData()[i] = TARGET.evaluate(X.get(i));
-      SIGMA.getData()[i] = 0.1 * Math.exp(Math.abs(X.get(i)) / Math.PI);
-    }
-
+    X = DoubleMatrix1D.of(20, i -> -Math.PI + i * Math.PI / 10);
+    Y = DoubleMatrix1D.of(20, i -> TARGET.evaluate(X.get(i)));
+    SIGMA = DoubleMatrix1D.of(20, i -> 0.1 * Math.exp(Math.abs(X.get(i)) / Math.PI));
     LS = new NonLinearLeastSquare();
   }
 
   public void solveExactTest() {
-    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {1.2, 0.8, -0.2, -0.3 });
+    final DoubleMatrix1D start = DoubleMatrix1D.of(1.2, 0.8, -0.2, -0.3);
     LeastSquareResults result = LS.solve(X, Y, SIGMA, PARAM_FUNCTION, PARAM_GRAD, start);
     assertEquals(0.0, result.getChiSq(), 1e-8);
     assertEquals(1.0, result.getFitParameters().get(0), 1e-8);
@@ -149,7 +142,7 @@ public class NonLinearLeastSquareTest {
   }
 
   public void solveExactTest2() {
-    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {0.2, 1.8, 0.2, 0.3 });
+    final DoubleMatrix1D start = DoubleMatrix1D.of(0.2, 1.8, 0.2, 0.3);
     final LeastSquareResults result = LS.solve(Y, SIGMA, FUNCTION, start);
     assertEquals(0.0, result.getChiSq(), 1e-8);
     assertEquals(1.0, result.getFitParameters().get(0), 1e-8);
@@ -160,7 +153,7 @@ public class NonLinearLeastSquareTest {
 
   public void solveExactWithoutGradientTest() {
 
-    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {1.2, 0.8, -0.2, -0.3 });
+    final DoubleMatrix1D start = DoubleMatrix1D.of(1.2, 0.8, -0.2, -0.3);
 
     final NonLinearLeastSquare ls = new NonLinearLeastSquare();
     final LeastSquareResults result = ls.solve(X, Y, SIGMA, PARAM_FUNCTION, start);
@@ -177,15 +170,15 @@ public class NonLinearLeastSquareTest {
     for (int i = 0; i < 20; i++) {
       y[i] = Y.get(i) + SIGMA.get(i) * NORMAL.nextRandom();
     }
-    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {0.7, 1.4, 0.2, -0.3 });
+    final DoubleMatrix1D start = DoubleMatrix1D.of(0.7, 1.4, 0.2, -0.3);
     final NonLinearLeastSquare ls = new NonLinearLeastSquare();
-    final LeastSquareResults res = ls.solve(X, new DoubleMatrix1D(y), SIGMA, PARAM_FUNCTION, PARAM_GRAD, start);
+    final LeastSquareResults res = ls.solve(X, DoubleMatrix1D.copyOf(y), SIGMA, PARAM_FUNCTION, PARAM_GRAD, start);
 
     final double chiSqDoF = res.getChiSq() / 16;
     assertTrue(chiSqDoF > 0.25);
     assertTrue(chiSqDoF < 3.0);
 
-    final DoubleMatrix1D trueValues = new DoubleMatrix1D(new double[] {1, 1, 0, 0 });
+    final DoubleMatrix1D trueValues = DoubleMatrix1D.of(1, 1, 0, 0);
     final DoubleMatrix1D delta = (DoubleMatrix1D) ma.subtract(res.getFitParameters(), trueValues);
 
     final LUDecompositionCommons decmp = new LUDecompositionCommons();
@@ -205,8 +198,8 @@ public class NonLinearLeastSquareTest {
     for (int i = 0; i < 20; i++) {
       dy[i] = 0.1 * SIGMA.get(i) * NORMAL.nextRandom();
     }
-    final DoubleMatrix1D deltaY = new DoubleMatrix1D(dy);
-    final DoubleMatrix1D solution = new DoubleMatrix1D(new double[] {1.0, 1.0, 0.0, 0.0 });
+    final DoubleMatrix1D deltaY = DoubleMatrix1D.copyOf(dy);
+    final DoubleMatrix1D solution = DoubleMatrix1D.of(1.0, 1.0, 0.0, 0.0);
     final NonLinearLeastSquare ls = new NonLinearLeastSquare();
     final DoubleMatrix2D res = ls.calInverseJacobian(SIGMA, FUNCTION, GRAD, solution);
 

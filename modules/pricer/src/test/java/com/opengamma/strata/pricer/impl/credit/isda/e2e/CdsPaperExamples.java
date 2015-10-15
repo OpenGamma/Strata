@@ -295,12 +295,9 @@ public class CdsPaperExamples extends IsdaBaseTest {
       LocalDate mat = IMM_DATES[i];
       System.out.print(mat.format(DATE_FORMAT));
       CdsAnalytic cds = CDS_FACTORY.makeCds(TRADE_DATE, STARTDATE, mat);
-      double[] temp = new double[nPillars];
-      for (int j = 0; j < nPillars; j++) {
-        double sense = PRICER.pvCreditSensitivity(cds, YIELD_CURVE, CREDIT_CURVE, coupon, j);
-        temp[j] = sense;
-      }
-      DoubleMatrix1D vLambda = new DoubleMatrix1D(temp);
+      DoubleMatrix1D vLambda = DoubleMatrix1D.of(
+          nPillars,
+          j -> PRICER.pvCreditSensitivity(cds, YIELD_CURVE, CREDIT_CURVE, coupon, j));
 
       DoubleMatrix1D w = luRes.solve(vLambda);
       for (int j = 0; j < nPillars; j++) {

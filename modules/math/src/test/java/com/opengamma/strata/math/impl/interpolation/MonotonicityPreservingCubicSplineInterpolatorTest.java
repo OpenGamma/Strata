@@ -44,7 +44,7 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
     double key0 = 2.;
     for (int i = 1; i < nKeys; ++i) {
       final double key = 2. + 11. / (nKeys - 1) * i;
-      assertTrue(function.evaluate(resultPos, key).getData()[0] - function.evaluate(resultPos, key0).getData()[0] >= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(0) - function.evaluate(resultPos, key0).get(0) >= 0.);
 
       key0 = 2. + 11. / (nKeys - 1) * i;
     }
@@ -73,7 +73,7 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
     double key0 = -2.;
     for (int i = 1; i < nKeys; ++i) {
       final double key = -2. + 12. / (nKeys - 1) * i;
-      assertTrue(function.evaluate(resultPos, key).getData()[0] - function.evaluate(resultPos, key0).getData()[0] <= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(0) - function.evaluate(resultPos, key0).get(0) <= 0.);
 
       key0 = -2. + 11. / (nKeys - 1) * i;
     }
@@ -102,14 +102,14 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
     double key0 = -2.;
     for (int i = 1; i < nKeys; ++i) {
       final double key = -2. + 12. / (nKeys - 1) * i;
-      assertTrue(function.evaluate(resultPos, key).getData()[0] - function.evaluate(resultPos, key0).getData()[0] <= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(0) - function.evaluate(resultPos, key0).get(0) <= 0.);
 
       key0 = -2. + 11. / (nKeys - 1) * i;
     }
     key0 = -2.;
     for (int i = 1; i < nKeys; ++i) {
       final double key = -2. + 12. / (nKeys - 1) * i;
-      assertTrue(function.evaluate(resultPos, key).getData()[1] - function.evaluate(resultPos, key0).getData()[1] <= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(1) - function.evaluate(resultPos, key0).get(1) <= 0.);
 
       key0 = -2. + 11. / (nKeys - 1) * i;
     }
@@ -138,7 +138,7 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
     double key0 = -2.;
     for (int i = 1; i < nKeys; ++i) {
       final double key = -2. + 12. / (nKeys - 1) * i;
-      assertTrue(function.evaluate(resultPos, key).getData()[0] - function.evaluate(resultPos, key0).getData()[0] <= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(0) - function.evaluate(resultPos, key0).get(0) <= 0.);
 
       key0 = -2. + 11. / (nKeys - 1) * i;
     }
@@ -163,37 +163,37 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
     assertEquals(resultPos.getNumberOfIntervals(), result.getNumberOfIntervals());
     assertEquals(resultPos.getOrder(), result.getOrder());
 
-    assertTrue(function.evaluate(resultPos, 4.5).getData()[0] - function.evaluate(resultPos, 4).getData()[0] >= 0.);
-    assertTrue(function.evaluate(resultPos, 4.5).getData()[0] - function.evaluate(resultPos, 5).getData()[0] >= 0.);
-    assertTrue(function.evaluate(resultPos, 4.5).getData()[1] - function.evaluate(resultPos, 4).getData()[1] <= 0.);
-    assertTrue(function.evaluate(resultPos, 4.5).getData()[1] - function.evaluate(resultPos, 5).getData()[1] <= 0.);
+    assertTrue(function.evaluate(resultPos, 4.5).get(0) - function.evaluate(resultPos, 4).get(0) >= 0.);
+    assertTrue(function.evaluate(resultPos, 4.5).get(0) - function.evaluate(resultPos, 5).get(0) >= 0.);
+    assertTrue(function.evaluate(resultPos, 4.5).get(1) - function.evaluate(resultPos, 4).get(1) <= 0.);
+    assertTrue(function.evaluate(resultPos, 4.5).get(1) - function.evaluate(resultPos, 5).get(1) <= 0.);
 
     final int nKeys = 41;
     double key0 = 1.;
     for (int i = 1; i < nKeys; ++i) {
       final double key = 1. + 3. / (nKeys - 1) * i;
-      assertTrue(function.evaluate(resultPos, key).getData()[0] - function.evaluate(resultPos, key0).getData()[0] >= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(0) - function.evaluate(resultPos, key0).get(0) >= 0.);
 
       key0 = 1. + 3. / (nKeys - 1) * i;
     }
     key0 = 1.;
     for (int i = 1; i < nKeys; ++i) {
       final double key = 1. + 3. / (nKeys - 1) * i;
-      assertTrue(function.evaluate(resultPos, key).getData()[1] - function.evaluate(resultPos, key0).getData()[1] <= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(1) - function.evaluate(resultPos, key0).get(1) <= 0.);
 
       key0 = 1. + 3. / (nKeys - 1) * i;
     }
     key0 = 5.;
     for (int i = 1; i < nKeys; ++i) {
       final double key = 5. + 3. / (nKeys - 1) * i;
-      assertTrue(function.evaluate(resultPos, key).getData()[0] - function.evaluate(resultPos, key0).getData()[0] <= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(0) - function.evaluate(resultPos, key0).get(0) <= 0.);
 
       key0 = 5. + 3. / (nKeys - 1) * i;
     }
     key0 = 5.;
     for (int i = 1; i < nKeys; ++i) {
       final double key = 5. + 3. / (nKeys - 1) * i;
-      assertTrue(function.evaluate(resultPos, key).getData()[1] - function.evaluate(resultPos, key0).getData()[1] >= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(1) - function.evaluate(resultPos, key0).get(1) >= 0.);
 
       key0 = 5. + 3. / (nKeys - 1) * i;
     }
@@ -228,7 +228,7 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
     double key0 = -2.;
     for (int i = 1; i < nKeys; ++i) {
       final double key = -2. + 12. / (nKeys - 1) * i;
-      assertTrue(function.evaluate(resultPos, key).getData()[0] - function.evaluate(resultPos, key0).getData()[0] <= 0.);
+      assertTrue(function.evaluate(resultPos, key).get(0) - function.evaluate(resultPos, key0).get(0) <= 0.);
 
       key0 = -2. + 11. / (nKeys - 1) * i;
     }

@@ -50,8 +50,8 @@ public class CholeskyDecompositionOpenGammaTest {
     final CholeskyDecompositionResult result = CDOG.evaluate(A5);
     double[] b = new double[] {1.0, 2.0, 3.0, 4.0, -1.0 };
     double[] x = result.solve(b);
-    DoubleMatrix1D ax = (DoubleMatrix1D) ALGEBRA.multiply(A5, new DoubleMatrix1D(x));
-    ArrayAsserts.assertArrayEquals("Cholesky decomposition OpenGamma - solve", b, ax.getData(), 1.0E-10);
+    DoubleMatrix1D ax = (DoubleMatrix1D) ALGEBRA.multiply(A5, DoubleMatrix1D.copyOf(x));
+    ArrayAsserts.assertArrayEquals("Cholesky decomposition OpenGamma - solve", b, ax.toArray(), 1.0E-10);
   }
 
   /**
