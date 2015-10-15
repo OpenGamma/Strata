@@ -235,13 +235,13 @@ public final class CurveCalibrator {
     DoubleMatrix2D pDmCurrentMatrix = jacobianDirect(res, nbTrades, totalParamsGroup, totalParamsPrevious);
 
     // jacobian indirect: when totalParamsPrevious > 0
-    double[][] pDmPreviousArray = jacobianIndirect(
+    DoubleMatrix2D pDmPrevious = jacobianIndirect(
         res, pDmCurrentMatrix, nbTrades, totalParamsGroup, totalParamsPrevious, orderPrev, jacobians);
 
     // add to the map of jacobians, one entry for each curve in this group
     ImmutableMap.Builder<CurveName, JacobianCalibrationMatrix> jacobianBuilder = ImmutableMap.builder();
     jacobianBuilder.putAll(jacobians);
-    double[][] pDmCurrentArray = pDmCurrentMatrix.getData();
+    double[][] pDmCurrentArray = pDmCurrentMatrix.toArray();
     int startIndex = 0;
     for (CurveParameterSize order : orderGroup) {
       int paramCount = order.getParameterCount();
@@ -249,7 +249,7 @@ public final class CurveCalibrator {
       // copy data for previous groups
       if (totalParamsPrevious > 0) {
         for (int p = 0; p < paramCount; p++) {
-          System.arraycopy(pDmPreviousArray[startIndex + p], 0, pDmCurveArray[p], 0, totalParamsPrevious);
+          System.arraycopy(pDmPrevious.rowArray(startIndex + p), 0, pDmCurveArray[p], 0, totalParamsPrevious);
         }
       }
       // copy data for this group
@@ -257,7 +257,7 @@ public final class CurveCalibrator {
         System.arraycopy(pDmCurrentArray[startIndex + p], 0, pDmCurveArray[p], totalParamsPrevious, totalParamsGroup);
       }
       // build final Jacobian matrix
-      DoubleMatrix2D pDmCurveMatrix = new DoubleMatrix2D(pDmCurveArray);
+      DoubleMatrix2D pDmCurveMatrix = DoubleMatrix2D.copyOf(pDmCurveArray);
       jacobianBuilder.put(order.getName(), JacobianCalibrationMatrix.of(orderAll, pDmCurveMatrix));
       startIndex += paramCount;
     }
@@ -289,11 +289,11 @@ public final class CurveCalibrator {
     for (int i = 0; i < nbTrades; i++) {
       System.arraycopy(res[i], totalParamsPrevious, direct[i], 0, totalParamsGroup);
     }
-    return MATRIX_ALGEBRA.getInverse(new DoubleMatrix2D(direct));
+    return MATRIX_ALGEBRA.getInverse(DoubleMatrix2D.copyOf(direct));
   }
 
   // jacobian indirect, merging groups
-  private static double[][] jacobianIndirect(
+  private static DoubleMatrix2D jacobianIndirect(
       double[][] res,
       DoubleMatrix2D pDmCurrentMatrix,
       int nbTrades,
@@ -302,39 +302,37 @@ public final class CurveCalibrator {
       ImmutableList<CurveParameterSize> orderPrevious,
       ImmutableMap<CurveName, JacobianCalibrationMatrix> jacobiansPrevious) {
 
-    double[][] pDmPreviousArray = new double[0][0];
-    if (totalParamsPrevious > 0) {
-      double[][] nonDirect = new double[totalParamsGroup][totalParamsPrevious];
-      for (int i = 0; i < nbTrades; i++) {
-        System.arraycopy(res[i], 0, nonDirect[i], 0, totalParamsPrevious);
-      }
-      DoubleMatrix2D pDpPreviousMatrix = (DoubleMatrix2D) MATRIX_ALGEBRA.scale(
-          MATRIX_ALGEBRA.multiply(pDmCurrentMatrix, new DoubleMatrix2D(nonDirect)), -1d);
-      // transition Matrix: all curves from previous groups
-      double[][] transition = new double[totalParamsPrevious][totalParamsPrevious];
-      int startIndexOuter = 0;
-      for (CurveParameterSize order : orderPrevious) {  // l
-        int paramCountOuter = order.getParameterCount();
-        JacobianCalibrationMatrix thisInfo = jacobiansPrevious.get(order.getName());
-        double[][] thisMatrix = thisInfo.getJacobianMatrix().getData();
-        int startIndexInner = 0;
-        for (CurveParameterSize order2 : orderPrevious) {  // k
-          int paramCountInner = order2.getParameterCount();
-          if (thisInfo.containsCurve(order2.getName())) { // If not, the matrix stay with 0
-            for (int p = 0; p < paramCountOuter; p++) {
-              System.arraycopy(
-                  thisMatrix[p], startIndexOuter, transition[startIndexOuter + p], startIndexInner, paramCountInner);
-            }
-          }
-          startIndexInner += paramCountInner;
-        }
-        startIndexOuter += paramCountOuter;
-      }
-      DoubleMatrix2D transitionMatrix = new DoubleMatrix2D(transition);
-      DoubleMatrix2D pDmPreviousMatrix = (DoubleMatrix2D) MATRIX_ALGEBRA.multiply(pDpPreviousMatrix, transitionMatrix);
-      pDmPreviousArray = pDmPreviousMatrix.getData();
+    if (totalParamsPrevious == 0) {
+      return DoubleMatrix2D.EMPTY;
     }
-    return pDmPreviousArray;
+    double[][] nonDirect = new double[totalParamsGroup][totalParamsPrevious];
+    for (int i = 0; i < nbTrades; i++) {
+      System.arraycopy(res[i], 0, nonDirect[i], 0, totalParamsPrevious);
+    }
+    DoubleMatrix2D pDpPreviousMatrix = (DoubleMatrix2D) MATRIX_ALGEBRA.scale(
+        MATRIX_ALGEBRA.multiply(pDmCurrentMatrix, DoubleMatrix2D.copyOf(nonDirect)), -1d);
+    // transition Matrix: all curves from previous groups
+    double[][] transition = new double[totalParamsPrevious][totalParamsPrevious];
+    int startIndexOuter = 0;
+    for (CurveParameterSize order : orderPrevious) {  // l
+      int paramCountOuter = order.getParameterCount();
+      JacobianCalibrationMatrix thisInfo = jacobiansPrevious.get(order.getName());
+      DoubleMatrix2D thisMatrix = thisInfo.getJacobianMatrix();
+      int startIndexInner = 0;
+      for (CurveParameterSize order2 : orderPrevious) {  // k
+        int paramCountInner = order2.getParameterCount();
+        if (thisInfo.containsCurve(order2.getName())) { // If not, the matrix stay with 0
+          for (int p = 0; p < paramCountOuter; p++) {
+            System.arraycopy(
+                thisMatrix.rowArray(p), startIndexOuter, transition[startIndexOuter + p], startIndexInner, paramCountInner);
+          }
+        }
+        startIndexInner += paramCountInner;
+      }
+      startIndexOuter += paramCountOuter;
+    }
+    DoubleMatrix2D transitionMatrix = DoubleMatrix2D.copyOf(transition);
+    return (DoubleMatrix2D) MATRIX_ALGEBRA.multiply(pDpPreviousMatrix, transitionMatrix);
   }
 
 }

@@ -6,6 +6,7 @@
 package com.opengamma.strata.math.impl.matrix;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
@@ -29,7 +30,13 @@ public class DoubleMatrix2DTest {
     assertMatrix(DoubleMatrix2D.of());
   }
 
-  public void test_of_lambda() {
+  public void test_of_values() {
+    assertMatrix(DoubleMatrix2D.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d), 1d, 2d, 3d, 4d, 5d, 6d);
+    assertMatrix(DoubleMatrix2D.of(6, 1, 1d, 2d, 3d, 4d, 5d, 6d), 1d, 2d, 3d, 4d, 5d, 6d);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_of_intintlambda() {
     assertMatrix(DoubleMatrix2D.of(0, 0, (i, j) -> {
       throw new AssertionError();
     }));
@@ -42,6 +49,38 @@ public class DoubleMatrix2DTest {
     AtomicInteger counter = new AtomicInteger(2);
     assertMatrix(DoubleMatrix2D.of(1, 2, (i, j) -> counter.getAndIncrement()), 2d, 3d);
     assertMatrix(DoubleMatrix2D.of(2, 2, (i, j) -> (i + 1) * (j + 1)), 1d, 2d, 2d, 4d);
+  }
+
+  public void test_ofArrayObjects() {
+    assertMatrix(DoubleMatrix2D.ofArrayObjects(0, 0, i -> {
+      throw new AssertionError();
+    }));
+    assertMatrix(DoubleMatrix2D.ofArrayObjects(0, 2, i -> {
+      throw new AssertionError();
+    }));
+    assertMatrix(DoubleMatrix2D.ofArrayObjects(2, 0, i -> {
+      throw new AssertionError();
+    }));
+    AtomicInteger counter = new AtomicInteger(2);
+    assertMatrix(DoubleMatrix2D.ofArrayObjects(1, 2,
+        i -> DoubleMatrix1D.of(counter.getAndIncrement(), counter.getAndIncrement())), 2d, 3d);
+    assertThrowsIllegalArg(() -> DoubleMatrix2D.ofArrayObjects(1, 2, i -> DoubleMatrix1D.EMPTY));
+  }
+
+  public void test_ofArrays() {
+    assertMatrix(DoubleMatrix2D.ofArrays(0, 0, i -> {
+      throw new AssertionError();
+    }));
+    assertMatrix(DoubleMatrix2D.ofArrays(0, 2, i -> {
+      throw new AssertionError();
+    }));
+    assertMatrix(DoubleMatrix2D.ofArrays(2, 0, i -> {
+      throw new AssertionError();
+    }));
+    AtomicInteger counter = new AtomicInteger(2);
+    assertMatrix(DoubleMatrix2D.ofArrays(1, 2,
+        i -> new double[] {counter.getAndIncrement(), counter.getAndIncrement()}), 2d, 3d);
+    assertThrowsIllegalArg(() -> DoubleMatrix2D.ofArrays(1, 2, i -> new double[0]));
   }
 
   public void test_ofUnsafe() {
@@ -105,6 +144,16 @@ public class DoubleMatrix2DTest {
     assertThrows(() -> test.row(4), IndexOutOfBoundsException.class);
   }
 
+  public void test_rowArray() {
+    double[][] base = { {1d, 2d}, {3d, 4d}, {5d, 6d}};
+    DoubleMatrix2D test = DoubleMatrix2D.copyOf(base);
+    assertEquals(test.rowArray(0), new double[] {1d, 2d});
+    assertEquals(test.rowArray(1), new double[] {3d, 4d});
+    assertEquals(test.rowArray(2), new double[] {5d, 6d});
+    assertThrows(() -> test.rowArray(-1), IndexOutOfBoundsException.class);
+    assertThrows(() -> test.rowArray(4), IndexOutOfBoundsException.class);
+  }
+
   public void test_column() {
     double[][] base = { {1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix2D test = DoubleMatrix2D.copyOf(base);
@@ -112,6 +161,15 @@ public class DoubleMatrix2DTest {
     assertEquals(test.column(1), DoubleMatrix1D.of(2d, 4d, 6d));
     assertThrows(() -> test.column(-1), IndexOutOfBoundsException.class);
     assertThrows(() -> test.column(4), IndexOutOfBoundsException.class);
+  }
+
+  public void test_columnArray() {
+    double[][] base = { {1d, 2d}, {3d, 4d}, {5d, 6d}};
+    DoubleMatrix2D test = DoubleMatrix2D.copyOf(base);
+    assertEquals(test.columnArray(0), new double[] {1d, 3d, 5d});
+    assertEquals(test.columnArray(1), new double[] {2d, 4d, 6d});
+    assertThrows(() -> test.columnArray(-1), IndexOutOfBoundsException.class);
+    assertThrows(() -> test.columnArray(4), IndexOutOfBoundsException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -153,6 +211,28 @@ public class DoubleMatrix2DTest {
     double[][] base = { {1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix2D test = DoubleMatrix2D.copyOf(base);
     assertMatrix(test.mapWithIndex((i, j, v) -> i * (j + 1) * v), 0d, 0d, 3d, 8d, 10d, 24d);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_plus() {
+    DoubleMatrix2D test1 = DoubleMatrix2D.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d);
+    DoubleMatrix2D test2 = DoubleMatrix2D.of(2, 3, 0.5d, 0.6d, 0.7d, 0.5d, 0.6d, 0.7d);
+    assertMatrix(test1.plus(test2), 1.5d, 2.6d, 3.7d, 4.5d, 5.6d, 6.7d);
+    assertThrows(() -> test1.plus(DoubleMatrix2D.EMPTY), IllegalArgumentException.class);
+  }
+
+  public void test_minus() {
+    DoubleMatrix2D test1 = DoubleMatrix2D.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d);
+    DoubleMatrix2D test2 = DoubleMatrix2D.of(2, 3, 0.5d, 0.6d, 0.7d, 0.5d, 0.6d, 0.7d);
+    assertMatrix(test1.minus(test2), 0.5d, 1.4d, 2.3d, 3.5d, 4.4d, 5.3d);
+    assertThrows(() -> test1.minus(DoubleMatrix2D.EMPTY), IllegalArgumentException.class);
+  }
+
+  public void test_combine() {
+    DoubleMatrix2D test1 = DoubleMatrix2D.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d);
+    DoubleMatrix2D test2 = DoubleMatrix2D.of(2, 3, 0.5d, 0.6d, 0.7d, 0.5d, 0.6d, 0.7d);
+    assertMatrix(test1.combine(test2, (a, b) -> a * b), 0.5d, 2d * 0.6d, 3d * 0.7d, 4d * 0.5d, 5d * 0.6d, 6d * 0.7d);
+    assertThrows(() -> test1.combine(DoubleMatrix2D.EMPTY, (a, b) -> a * b), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------

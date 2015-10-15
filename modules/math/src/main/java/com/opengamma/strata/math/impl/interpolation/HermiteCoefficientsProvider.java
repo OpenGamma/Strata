@@ -60,7 +60,7 @@ public class HermiteCoefficientsProvider {
     DoubleMatrix2D[] res = new DoubleMatrix2D[nData];
 
     double[][] coef = solve(values, intervals, slopes, first);
-    res[0] = new DoubleMatrix2D(coef);
+    res[0] = DoubleMatrix2D.copyOf(coef);
 
     for (int i = 0; i < nData - 1; ++i) {
       double[][] coefSense = new double[4][nData];
@@ -75,7 +75,7 @@ public class HermiteCoefficientsProvider {
                 intervals[i];
         coefSense[2][k] = firstWithSensitivity[i + 1].get(k);
       }
-      res[i + 1] = new DoubleMatrix2D(coefSense);
+      res[i + 1] = DoubleMatrix2D.copyOf(coefSense);
     }
 
     return res;
@@ -134,7 +134,7 @@ public class HermiteCoefficientsProvider {
     DoubleMatrix2D[] res = new DoubleMatrix2D[nData];
 
     double[][] coef = solve(values, intervals, slopes, first, second);
-    res[0] = new DoubleMatrix2D(coef);
+    res[0] = DoubleMatrix2D.copyOf(coef);
 
     for (int i = 0; i < nData - 1; ++i) {
       double interval = intervals[i];
@@ -158,7 +158,7 @@ public class HermiteCoefficientsProvider {
         coefSense[3][k] = 0.5 * secondWithSensitivity[i + 1].get(k);
         coefSense[4][k] = firstWithSensitivity[i + 1].get(k);
       }
-      res[i + 1] = new DoubleMatrix2D(coefSense);
+      res[i + 1] = DoubleMatrix2D.copyOf(coefSense);
     }
 
     return res;

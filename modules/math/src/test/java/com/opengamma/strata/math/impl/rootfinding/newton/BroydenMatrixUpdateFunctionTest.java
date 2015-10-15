@@ -18,7 +18,7 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 public class BroydenMatrixUpdateFunctionTest {
   private static final BroydenMatrixUpdateFunction UPDATE = new BroydenMatrixUpdateFunction();
   private static final DoubleMatrix1D V = DoubleMatrix1D.of(1, 2);
-  private static final DoubleMatrix2D M = new DoubleMatrix2D(new double[][] {new double[] {3, 4 }, new double[] {5, 6 } });
+  private static final DoubleMatrix2D M = DoubleMatrix2D.copyOf(new double[][] { {3, 4}, {5, 6}});
   private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> J = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
     @Override
     public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {

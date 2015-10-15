@@ -40,7 +40,7 @@ public class CholeskyDecompositionOpenGammaResult implements CholeskyDecompositi
    */
   public CholeskyDecompositionOpenGammaResult(double[][] lArray) {
     _lArray = lArray;
-    _l = new DoubleMatrix2D(_lArray);
+    _l = DoubleMatrix2D.copyOf(_lArray);
     _lT = ALGEBRA.getTranspose(_l);
     _determinant = 1.0;
     for (int loopdiag = 0; loopdiag < _lArray.length; ++loopdiag) {
@@ -81,11 +81,7 @@ public class CholeskyDecompositionOpenGammaResult implements CholeskyDecompositi
     int nbRow = b.rowCount();
     int nbCol = b.columnCount();
     ArgChecker.isTrue(nbRow == _lArray.length, "b array of incorrect size");
-    double[][] bArray = b.getData();
-    double[][] x = new double[nbRow][nbCol];
-    for (int looprow = 0; looprow < nbRow; looprow++) {
-      System.arraycopy(bArray[looprow], 0, x[looprow], 0, nbCol);
-    }
+    double[][] x = b.toArray();
     // L Y = B (Y stored in x array)
     for (int loopcol = 0; loopcol < nbCol; loopcol++) {
       for (int looprow = 0; looprow < nbRow; looprow++) {
@@ -104,7 +100,7 @@ public class CholeskyDecompositionOpenGammaResult implements CholeskyDecompositi
         }
       }
     }
-    return new DoubleMatrix2D(x);
+    return DoubleMatrix2D.copyOf(x);
   }
 
   @Override

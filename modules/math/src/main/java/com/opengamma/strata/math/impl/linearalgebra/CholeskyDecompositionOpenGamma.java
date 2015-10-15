@@ -46,13 +46,14 @@ public class CholeskyDecompositionOpenGamma extends Decomposition<CholeskyDecomp
     ArgChecker.isTrue(nbRow == nbCol, "Matrix not square");
     double[][] l = new double[nbRow][nbRow];
     // Check symmetry and initial fill of _lTArray
-    double[][] matrixData = matrix.getData();
     for (int looprow = 0; looprow < nbRow; looprow++) {
       for (int loopcol = 0; loopcol <= looprow; loopcol++) {
-        double maxValue = Math.max(Math.abs(matrixData[looprow][loopcol]), Math.abs(matrixData[loopcol][looprow]));
-        double diff = Math.abs(matrixData[looprow][loopcol] - matrixData[loopcol][looprow]);
+        double rowcol = matrix.get(looprow, loopcol);
+        double colrow = matrix.get(loopcol, looprow);
+        double maxValue = Math.max(Math.abs(rowcol), Math.abs(colrow));
+        double diff = Math.abs(rowcol - colrow);
         ArgChecker.isTrue(diff <= maxValue * symmetryThreshold, "Matrix not symmetrical");
-        l[looprow][loopcol] = matrixData[looprow][loopcol];
+        l[looprow][loopcol] = rowcol;
       }
     }
     // The decomposition

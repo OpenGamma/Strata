@@ -55,7 +55,7 @@ public class VectorFieldFirstOrderDifferentiatorTest {
       jac[0][1] = 4 * x2 - x1 - x1 * Math.sin(x2) - Math.sin(x1);
       jac[1][0] = 2 * x2 * Math.cos(x1 * x2) - 2 * x1 * x2 * x2 * Math.sin(x1 * x2) - Math.sin(x1) - x1 * Math.cos(x1);
       jac[1][1] = 2 * x1 * Math.cos(x1 * x2) - 2 * x1 * x1 * x2 * Math.sin(x1 * x2) - Math.cos(x2) + x2 * Math.sin(x2);
-      return new DoubleMatrix2D(jac);
+      return DoubleMatrix2D.copyOf(jac);
     }
   };
 
@@ -72,7 +72,7 @@ public class VectorFieldFirstOrderDifferentiatorTest {
       jac[1][1] = 2 * x1 * Math.cos(x1 * x2) - 2 * x1 * x1 * x2 * Math.sin(x1 * x2) - Math.cos(x2) + x2 * Math.sin(x2);
       jac[2][0] = 1;
       jac[2][1] = -1;
-      return new DoubleMatrix2D(jac);
+      return DoubleMatrix2D.copyOf(jac);
     }
   };
 

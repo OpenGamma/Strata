@@ -29,22 +29,12 @@ public abstract class MatrixAlgebra {
         return array1.plus(array2);
       }
       throw new IllegalArgumentException("Tried to add a " + m1.getClass() + " and " + m2.getClass());
+
     } else if (m1 instanceof DoubleMatrix2D) {
       if (m2 instanceof DoubleMatrix2D) {
-
-        double[][] x1 = ((DoubleMatrix2D) m1).getData();
-        double[][] x2 = ((DoubleMatrix2D) m2).getData();
-        int n = x1.length;
-        int m = x1[0].length;
-        ArgChecker.isTrue(n == x2.length, "Can only add matrices of the same shape");
-        double[][] sum = new double[n][x1[0].length];
-        for (int i = 0; i < n; i++) {
-          ArgChecker.isTrue(m == x2[i].length, "Can only add matrices of the same shape");
-          for (int j = 0; j < m; j++) {
-            sum[i][j] = x1[i][j] + x2[i][j];
-          }
-        }
-        return new DoubleMatrix2D(sum);
+        DoubleMatrix2D matrix1 = (DoubleMatrix2D) m1;
+        DoubleMatrix2D matrix2 = (DoubleMatrix2D) m2;
+        return matrix1.plus(matrix2);
       }
       throw new IllegalArgumentException("Tried to add a " + m1.getClass() + " and " + m2.getClass());
     }
@@ -100,28 +90,28 @@ public abstract class MatrixAlgebra {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix2D) {
-      double[][] a = ((DoubleMatrix2D) m1).getData();
-      double[][] b = ((DoubleMatrix2D) m2).getData();
-      int aRows = a.length;
-      int aCols = a[0].length;
-      int bRows = b.length;
-      int bCols = b[0].length;
+      DoubleMatrix2D matrix1 = (DoubleMatrix2D) m1;
+      DoubleMatrix2D matrix2 = (DoubleMatrix2D) m2;
+      int aRows = matrix1.rowCount();
+      int aCols = matrix1.columnCount();
+      int bRows = matrix2.rowCount();
+      int bCols = matrix2.columnCount();
       int rRows = aRows * bRows;
       int rCols = aCols * bCols;
       double[][] res = new double[rRows][rCols];
       for (int i = 0; i < aRows; i++) {
         for (int j = 0; j < aCols; j++) {
-          double t = a[i][j];
+          double t = matrix1.get(i, j);
           if (t != 0.0) {
             for (int k = 0; k < bRows; k++) {
               for (int l = 0; l < bCols; l++) {
-                res[i * bRows + k][j * bCols + l] = t * b[k][l];
+                res[i * bRows + k][j * bCols + l] = t * matrix2.get(k, l);
               }
             }
           }
         }
       }
-      return new DoubleMatrix2D(res);
+      return DoubleMatrix2D.ofUnsafe(res);
     }
     throw new IllegalArgumentException("Can only calculate the Kronecker product of two DoubleMatrix2D.");
   }
@@ -146,15 +136,7 @@ public abstract class MatrixAlgebra {
       return ((DoubleMatrix1D) m).multipliedBy(scale);
 
     } else if (m instanceof DoubleMatrix2D) {
-      double[][] x = ((DoubleMatrix2D) m).getData();
-      int n = x.length;
-      double[][] scaled = new double[n][x[0].length];
-      for (int i = 0; i < n; i++) {
-        for (int j = 0; j < x[0].length; j++) {
-          scaled[i][j] = x[i][j] * scale;
-        }
-      }
-      return new DoubleMatrix2D(scaled);
+      return ((DoubleMatrix2D) m).multipliedBy(scale);
     }
     throw new UnsupportedOperationException();
   }
@@ -178,19 +160,9 @@ public abstract class MatrixAlgebra {
       throw new IllegalArgumentException("Tried to subtract a " + m1.getClass() + " and " + m2.getClass());
     } else if (m1 instanceof DoubleMatrix2D) {
       if (m2 instanceof DoubleMatrix2D) {
-        double[][] x1 = ((DoubleMatrix2D) m1).getData();
-        double[][] x2 = ((DoubleMatrix2D) m2).getData();
-        int n = x1.length;
-        int m = x1[0].length;
-        ArgChecker.isTrue(n == x2.length, "Can only subtract matrices of the same shape");
-        double[][] sum = new double[n][x1[0].length];
-        for (int i = 0; i < n; i++) {
-          ArgChecker.isTrue(m == x2[i].length, "Can only subtract matrices of the same shape");
-          for (int j = 0; j < m; j++) {
-            sum[i][j] = x1[i][j] - x2[i][j];
-          }
-        }
-        return new DoubleMatrix2D(sum);
+        DoubleMatrix2D matrix1 = (DoubleMatrix2D) m1;
+        DoubleMatrix2D matrix2 = (DoubleMatrix2D) m2;
+        return matrix1.minus(matrix2);
       }
       throw new IllegalArgumentException("Tried to subtract a " + m1.getClass() + " and " + m2.getClass());
     }
@@ -306,26 +278,24 @@ public abstract class MatrixAlgebra {
     int n = a.rowCount();
     int m = a.columnCount();
 
-    DoubleMatrix2D res = DoubleMatrix2D.filled(m, m);
-    double[][] data = res.getData();
-    double[][] aData = a.getData();
-
+    double[][] data = new double[m][m];
     for (int i = 0; i < m; i++) {
-      double sum = 0.0;
+      double sum = 0d;
       for (int k = 0; k < n; k++) {
-        sum += aData[k][i] * aData[k][i];
+        sum += a.get(k, i) * a.get(k, i);
       }
       data[i][i] = sum;
 
       for (int j = i + 1; j < m; j++) {
-        sum = 0.0;
+        sum = 0d;
         for (int k = 0; k < n; k++) {
-          sum += aData[k][i] * aData[k][j];
+          sum += a.get(k, i) * a.get(k, j);
         }
         data[i][j] = sum;
         data[j][i] = sum;
       }
     }
-    return res;
+    return DoubleMatrix2D.ofUnsafe(data);
   }
+
 }

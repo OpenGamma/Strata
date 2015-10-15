@@ -106,7 +106,7 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
           temp[j][k] = temp[k][j];
         }
       }
-      res[i] = new DoubleMatrix2D(temp);
+      res[i] = DoubleMatrix2D.copyOf(temp);
     }
     return res;
   }
@@ -152,7 +152,7 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
               res[i][j][k] = res[i][k][j];
             }
           }
-          mres[i] = new DoubleMatrix2D(res[i]);
+          mres[i] = DoubleMatrix2D.copyOf(res[i]);
         }
         return mres;
       }
@@ -180,7 +180,7 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
             res[i][j] = (up.get(i) + down.get(i) - 2 * y.get(i)) / epsSqr;
           }
         }
-        return new DoubleMatrix2D(res);
+        return DoubleMatrix2D.copyOf(res);
       }
     };
   }

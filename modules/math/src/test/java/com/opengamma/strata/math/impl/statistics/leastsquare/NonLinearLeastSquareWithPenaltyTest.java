@@ -53,11 +53,10 @@ public class NonLinearLeastSquareWithPenaltyTest {
 
       @Override
       public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
-        DoubleMatrix2D res = DoubleMatrix2D.filled(n, nWeights);
-        for (int i = 0; i < n; i++) {
-          res.getData()[i][onIndex[i]] = 1.0;
-        }
-        return res;
+        return DoubleMatrix2D.of(
+            n,
+            nWeights,
+            (i, j) -> j == onIndex[i] ? 1d : 0d);
       }
     };
 

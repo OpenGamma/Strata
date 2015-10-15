@@ -84,8 +84,7 @@ public abstract class PiecewisePolynomialInterpolator2D {
       }
     }
 
-    return new DoubleMatrix2D(res);
-
+    return DoubleMatrix2D.copyOf(res);
   }
 
   /**
@@ -149,7 +148,7 @@ public abstract class PiecewisePolynomialInterpolator2D {
 
     for (int i = 0; i < order0; ++i) {
       for (int j = 0; j < order1; ++j) {
-        res += coefMat.getData()[order0 - i - 1][order1 - j - 1] * Math.pow(x0Mod, i) * Math.pow(x1Mod, j);
+        res += coefMat.get(order0 - i - 1, order1 - j - 1) * Math.pow(x0Mod, i) * Math.pow(x1Mod, j);
       }
     }
 

@@ -24,7 +24,7 @@ public class InverseJacobianDirectionFunctionTest {
   private static final double X0 = 2.4;
   private static final double X1 = 7.6;
   private static final double X2 = 4.5;
-  private static final DoubleMatrix2D M = new DoubleMatrix2D(new double[][] {new double[] {X0, 0, 0 }, new double[] {0, X1, 0 }, new double[] {0, 0, X2 } });
+  private static final DoubleMatrix2D M = DoubleMatrix2D.copyOf(new double[][] { {X0, 0, 0}, {0, X1, 0}, {0, 0, X2}});
   private static final DoubleMatrix1D Y = DoubleMatrix1D.of(1, 1, 1);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

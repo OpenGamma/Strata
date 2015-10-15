@@ -33,7 +33,7 @@ public class MaxtrixFieldFirstOrderDifferentiatorTest {
       y[0][1] = 7.0;
       y[1][1] = Math.sin(x1);
       y[2][1] = Math.cos(x2);
-      return new DoubleMatrix2D(y);
+      return DoubleMatrix2D.copyOf(y);
     }
   };
 
@@ -50,14 +50,14 @@ public class MaxtrixFieldFirstOrderDifferentiatorTest {
       y[0][1] = 0.;
       y[1][1] = Math.cos(x1);
       y[2][1] = 0.0;
-      DoubleMatrix2D m1 = new DoubleMatrix2D(y);
+      DoubleMatrix2D m1 = DoubleMatrix2D.copyOf(y);
       y[0][0] = 4 * x2 - x1 - x1 * Math.sin(x2) - Math.sin(x1);
       y[1][0] = 2 * x1 * Math.cos(x1 * x2) - 2 * x1 * x1 * x2 * Math.sin(x1 * x2) - Math.cos(x2) + x2 * Math.sin(x2);
       y[2][0] = -1.;
       y[0][1] = 0.;
       y[1][1] = 0.0;
       y[2][1] = -Math.sin(x2);
-      DoubleMatrix2D m2 = new DoubleMatrix2D(y);
+      DoubleMatrix2D m2 = DoubleMatrix2D.copyOf(y);
       return new DoubleMatrix2D[] {m1, m2 };
     }
   };

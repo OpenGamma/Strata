@@ -176,7 +176,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
 
       final DoubleMatrix2D inverseTriDiag = getInverseTridiagonalMatrix(deltaX);
       final DoubleMatrix2D rhsMatrix = getRHSMatrix(oneOverDeltaX);
-      _secondDerivativesSensitivities = ((DoubleMatrix2D) OG_ALGEBRA.multiply(inverseTriDiag, rhsMatrix)).getData();
+      _secondDerivativesSensitivities = ((DoubleMatrix2D) OG_ALGEBRA.multiply(inverseTriDiag, rhsMatrix)).toArray();
     }
     return _secondDerivativesSensitivities;
   }
@@ -199,7 +199,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
       res[n - 1][n - 1] = -oneOverDeltaX[n - 2];
       res[n - 2][n - 2] = oneOverDeltaX[n - 2];
     }
-    return new DoubleMatrix2D(res);
+    return DoubleMatrix2D.copyOf(res);
   }
 
   private DoubleMatrix1D getRHSVector(final double[] deltaYOverDeltaX) {

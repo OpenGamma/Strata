@@ -55,10 +55,10 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
         final PiecewisePolynomialResultsWithSensitivity resultUp = interps[k].interpolateWithSensitivity(xValues, yValuesUp);
         final PiecewisePolynomialResultsWithSensitivity resultDw = interps[k].interpolateWithSensitivity(xValues, yValuesDw);
 
-        final double[] valuesUp = FUNCTION.evaluate(resultUp, xKeys).getData()[0];
-        final double[] valuesDw = FUNCTION.evaluate(resultDw, xKeys).getData()[0];
-        final double[] diffUp = FUNCTION.differentiate(resultUp, xKeys).getData()[0];
-        final double[] diffDw = FUNCTION.differentiate(resultDw, xKeys).getData()[0];
+        final double[] valuesUp = FUNCTION.evaluate(resultUp, xKeys).rowArray(0);
+        final double[] valuesDw = FUNCTION.evaluate(resultDw, xKeys).rowArray(0);
+        final double[] diffUp = FUNCTION.differentiate(resultUp, xKeys).rowArray(0);
+        final double[] diffDw = FUNCTION.differentiate(resultDw, xKeys).rowArray(0);
         for (int i = 0; i < 10 * nData; ++i) {
           final double xKeyUp = xKeys[i] * (1. + EPS);
           final double xKeyDw = xKeys[i] * (1. - EPS);
@@ -107,8 +107,8 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
         final PiecewisePolynomialResultsWithSensitivity resultUp = interps[k].interpolateWithSensitivity(xValues, yValuesUp);
         final PiecewisePolynomialResultsWithSensitivity resultDw = interps[k].interpolateWithSensitivity(xValues, yValuesDw);
 
-        final double[] diffUp = FUNCTION.differentiateTwice(resultUp, xKeys).getData()[0];
-        final double[] diffDw = FUNCTION.differentiateTwice(resultDw, xKeys).getData()[0];
+        final double[] diffUp = FUNCTION.differentiateTwice(resultUp, xKeys).toArray()[0];
+        final double[] diffDw = FUNCTION.differentiateTwice(resultDw, xKeys).toArray()[0];
         for (int i = 0; i < 10 * nData; ++i) {
           final double xKeyUp = xKeys[i] * (1. + EPS);
           final double xKeyDw = xKeys[i] * (1. - EPS);
@@ -159,10 +159,10 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
             final PiecewisePolynomialResultsWithSensitivity resultUp = interps[k].interpolateWithSensitivity(xValues, yValuesUp);
             final PiecewisePolynomialResultsWithSensitivity resultDw = interps[k].interpolateWithSensitivity(xValues, yValuesDw);
 
-            final double[] valuesUp = FUNCTION.evaluate(resultUp, xKeys).getData()[0];
-            final double[] valuesDw = FUNCTION.evaluate(resultDw, xKeys).getData()[0];
-            final double[] diffUp = FUNCTION.differentiate(resultUp, xKeys).getData()[0];
-            final double[] diffDw = FUNCTION.differentiate(resultDw, xKeys).getData()[0];
+            final double[] valuesUp = FUNCTION.evaluate(resultUp, xKeys).toArray()[0];
+            final double[] valuesDw = FUNCTION.evaluate(resultDw, xKeys).toArray()[0];
+            final double[] diffUp = FUNCTION.differentiate(resultUp, xKeys).toArray()[0];
+            final double[] diffDw = FUNCTION.differentiate(resultDw, xKeys).toArray()[0];
             for (int i = 0; i < 10 * nData; ++i) {
               final double xKeyUp = xKeys[i] * (1. + EPS);
               final double xKeyDw = xKeys[i] * (1. - EPS);
@@ -216,8 +216,8 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
             final PiecewisePolynomialResultsWithSensitivity resultUp = interps[k].interpolateWithSensitivity(xValues, yValuesUp);
             final PiecewisePolynomialResultsWithSensitivity resultDw = interps[k].interpolateWithSensitivity(xValues, yValuesDw);
 
-            final double[] diffUp = FUNCTION.differentiateTwice(resultUp, xKeys).getData()[0];
-            final double[] diffDw = FUNCTION.differentiateTwice(resultDw, xKeys).getData()[0];
+            final double[] diffUp = FUNCTION.differentiateTwice(resultUp, xKeys).toArray()[0];
+            final double[] diffDw = FUNCTION.differentiateTwice(resultDw, xKeys).toArray()[0];
             for (int i = 0; i < 10 * nData; ++i) {
               final double xKeyUp = xKeys[i] * (1. + EPS);
               final double xKeyDw = xKeys[i] * (1. - EPS);

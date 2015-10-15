@@ -20,7 +20,7 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
  * order: Number of coefficients in polynomial, which is equal to (polynomial degree) + 1
  * dim: Number of splines
  * which are in the super class, and 
- * _coeffSense Node sensitivity of the coefficients _coeffSense[i].getData()[j][k] is \frac{\partial a^i_{n-j}}{\partial y_k}
+ * _coeffSense Node sensitivity of the coefficients _coeffSense[i].get(j, k) is \frac{\partial a^i_{n-j}}{\partial y_k}
  */
 public class PiecewisePolynomialResultsWithSensitivity extends PiecewisePolynomialResult {
 

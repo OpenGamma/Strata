@@ -51,8 +51,8 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
 
     for (int i = 0; i < coefMatrix.rowCount(); ++i) {
       for (int j = 0; j < coefMatrix.columnCount(); ++j) {
-        ArgChecker.isFalse(Double.isNaN(coefMatrix.getData()[i][j]), "Too large input");
-        ArgChecker.isFalse(Double.isInfinite(coefMatrix.getData()[i][j]), "Too large input");
+        ArgChecker.isFalse(Double.isNaN(coefMatrix.get(i, j)), "Too large input");
+        ArgChecker.isFalse(Double.isInfinite(coefMatrix.get(i, j)), "Too large input");
       }
     }
 
@@ -114,7 +114,7 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
       }
     }
 
-    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), DoubleMatrix2D.copyOf(resMatrix), nCoefs, dim);
   }
 
   @Override
@@ -153,7 +153,7 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
         res[i][3] = yValues[i];
       }
     }
-    return new DoubleMatrix2D(res);
+    return DoubleMatrix2D.copyOf(res);
   }
 
   /**

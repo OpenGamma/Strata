@@ -118,7 +118,7 @@ public class PiecewisePolynomialFunction2D {
       }
     }
 
-    return new DoubleMatrix2D(res);
+    return DoubleMatrix2D.copyOf(res);
   }
 
   //-------------------------------------------------------------------------
@@ -147,13 +147,11 @@ public class PiecewisePolynomialFunction2D {
 
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        double[][] matTmp = new double[order0 - 1][order1];
-        for (int k = 0; k < order0 - 1; ++k) {
-          for (int l = 0; l < order1; ++l) {
-            matTmp[k][l] = coefs[i][j].getData()[k][l] * (order0 - k - 1);
-          }
-        }
-        res[i][j] = new DoubleMatrix2D(matTmp);
+        DoubleMatrix2D coef = coefs[i][j];
+        res[i][j] = DoubleMatrix2D.of(
+            order0 - 1,
+            order1,
+            (k, l) -> coef.get(k, l) * (order0 - k - 1));
       }
     }
 
@@ -188,13 +186,11 @@ public class PiecewisePolynomialFunction2D {
 
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        double[][] matTmp = new double[order0][order1 - 1];
-        for (int k = 0; k < order0; ++k) {
-          for (int l = 0; l < order1 - 1; ++l) {
-            matTmp[k][l] = coefs[i][j].getData()[k][l] * (order1 - l - 1);
-          }
-        }
-        res[i][j] = new DoubleMatrix2D(matTmp);
+        DoubleMatrix2D coef = coefs[i][j];
+        res[i][j] = DoubleMatrix2D.of(
+            order0,
+            order1 - 1,
+            (k, l) -> coef.get(k, l) * (order1 - l - 1));
       }
     }
 
@@ -229,13 +225,11 @@ public class PiecewisePolynomialFunction2D {
 
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        double[][] matTmp = new double[order0 - 1][order1];
-        for (int k = 0; k < order0 - 1; ++k) {
-          for (int l = 0; l < order1; ++l) {
-            matTmp[k][l] = coefs[i][j].getData()[k][l] * (order0 - k - 1);
-          }
-        }
-        res[i][j] = new DoubleMatrix2D(matTmp);
+        DoubleMatrix2D coef = coefs[i][j];
+        res[i][j] = DoubleMatrix2D.of(
+            order0 - 1,
+            order1,
+            (k, l) -> coef.get(k, l) * (order0 - k - 1));
       }
     }
 
@@ -270,13 +264,11 @@ public class PiecewisePolynomialFunction2D {
 
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        double[][] matTmp = new double[order0][order1 - 1];
-        for (int k = 0; k < order0; ++k) {
-          for (int l = 0; l < order1 - 1; ++l) {
-            matTmp[k][l] = coefs[i][j].getData()[k][l] * (order1 - l - 1);
-          }
-        }
-        res[i][j] = new DoubleMatrix2D(matTmp);
+        DoubleMatrix2D coef = coefs[i][j];
+        res[i][j] = DoubleMatrix2D.of(
+            order0,
+            order1 - 1,
+            (k, l) -> coef.get(k, l) * (order1 - l - 1));
       }
     }
 
@@ -312,13 +304,11 @@ public class PiecewisePolynomialFunction2D {
 
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        double[][] matTmp = new double[order0 - 1][order1 - 1];
-        for (int k = 0; k < order0 - 1; ++k) {
-          for (int l = 0; l < order1 - 1; ++l) {
-            matTmp[k][l] = coefs[i][j].getData()[k][l] * (order1 - l - 1) * (order0 - k - 1);
-          }
-        }
-        res[i][j] = new DoubleMatrix2D(matTmp);
+        DoubleMatrix2D coef = coefs[i][j];
+        res[i][j] = DoubleMatrix2D.of(
+            order0 - 1,
+            order1 - 1,
+            (k, l) -> coef.get(k, l) * (order1 - l - 1) * (order0 - k - 1));
       }
     }
 
@@ -354,13 +344,11 @@ public class PiecewisePolynomialFunction2D {
 
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        double[][] matTmp = new double[order0 - 2][order1];
-        for (int k = 0; k < order0 - 2; ++k) {
-          for (int l = 0; l < order1; ++l) {
-            matTmp[k][l] = coefs[i][j].getData()[k][l] * (order0 - k - 1) * (order0 - k - 2);
-          }
-        }
-        res[i][j] = new DoubleMatrix2D(matTmp);
+        DoubleMatrix2D coef = coefs[i][j];
+        res[i][j] = DoubleMatrix2D.of(
+            order0 - 2,
+            order1,
+            (k, l) -> coef.get(k, l) * (order0 - k - 1) * (order0 - k - 2));
       }
     }
 
@@ -395,13 +383,11 @@ public class PiecewisePolynomialFunction2D {
 
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        double[][] matTmp = new double[order0][order1 - 2];
-        for (int k = 0; k < order0; ++k) {
-          for (int l = 0; l < order1 - 2; ++l) {
-            matTmp[k][l] = coefs[i][j].getData()[k][l] * (order1 - l - 1) * (order1 - l - 2);
-          }
-        }
-        res[i][j] = new DoubleMatrix2D(matTmp);
+        DoubleMatrix2D coef = coefs[i][j];
+        res[i][j] = DoubleMatrix2D.of(
+            order0,
+            order1 - 2,
+            (k, l) -> coef.get(k, l) * (order1 - l - 1) * (order1 - l - 2));
       }
     }
 
@@ -437,13 +423,11 @@ public class PiecewisePolynomialFunction2D {
 
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        double[][] matTmp = new double[order0 - 1][order1 - 1];
-        for (int k = 0; k < order0 - 1; ++k) {
-          for (int l = 0; l < order1 - 1; ++l) {
-            matTmp[k][l] = coefs[i][j].getData()[k][l] * (order1 - l - 1) * (order0 - k - 1);
-          }
-        }
-        res[i][j] = new DoubleMatrix2D(matTmp);
+        DoubleMatrix2D coef = coefs[i][j];
+        res[i][j] = DoubleMatrix2D.of(
+            order0 - 1,
+            order1 - 1,
+            (k, l) -> coef.get(k, l) * (order1 - l - 1) * (order0 - k - 1));
       }
     }
 
@@ -475,16 +459,13 @@ public class PiecewisePolynomialFunction2D {
     DoubleMatrix2D[][] coefs = pp.getCoefs();
 
     DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
-
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        double[][] matTmp = new double[order0 - 2][order1];
-        for (int k = 0; k < order0 - 2; ++k) {
-          for (int l = 0; l < order1; ++l) {
-            matTmp[k][l] = coefs[i][j].getData()[k][l] * (order0 - k - 1) * (order0 - k - 2);
-          }
-        }
-        res[i][j] = new DoubleMatrix2D(matTmp);
+        DoubleMatrix2D coef = coefs[i][j];
+        res[i][j] = DoubleMatrix2D.of(
+            order0 - 2,
+            order1,
+            (k, l) -> coef.get(k, l) * (order0 - k - 1) * (order0 - k - 2));
       }
     }
 
@@ -516,16 +497,13 @@ public class PiecewisePolynomialFunction2D {
     DoubleMatrix2D[][] coefs = pp.getCoefs();
 
     DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
-
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        double[][] matTmp = new double[order0][order1 - 2];
-        for (int k = 0; k < order0; ++k) {
-          for (int l = 0; l < order1 - 2; ++l) {
-            matTmp[k][l] = coefs[i][j].getData()[k][l] * (order1 - l - 1) * (order1 - l - 2);
-          }
-        }
-        res[i][j] = new DoubleMatrix2D(matTmp);
+        DoubleMatrix2D coef = coefs[i][j];
+        res[i][j] = DoubleMatrix2D.of(
+            order0,
+            order1 - 2,
+            (k, l) -> coef.get(k, l) * (order1 - l - 1) * (order1 - l - 2));
       }
     }
 
@@ -553,7 +531,7 @@ public class PiecewisePolynomialFunction2D {
 
     for (int i = 0; i < order0; ++i) {
       for (int j = 0; j < order1; ++j) {
-        res += coefMat.getData()[order0 - i - 1][order1 - j - 1] * Math.pow(x0Mod, i) * Math.pow(x1Mod, j);
+        res += coefMat.get(order0 - i - 1, order1 - j - 1) * Math.pow(x0Mod, i) * Math.pow(x1Mod, j);
       }
     }
     return res;

@@ -47,22 +47,20 @@ public abstract class PenaltyMatrixGenerator {
     if (k == 0) {
       return new IdentityMatrix(m);
     }
-    DoubleMatrix2D d = DoubleMatrix2D.filled(m, m);
-    double[][] data = d.getData();
     int[] coeff = new int[k + 1];
-
     int sign = 1;
     for (int i = k; i >= 0; i--) {
       coeff[i] = (int) (sign * binomialCoefficient(k, i));
       sign = -sign;
     }
 
+    double[][] data = new double[m][m];
     for (int i = k; i < m; i++) {
       for (int j = 0; j < k + 1; j++) {
         data[i][j + i - k] = coeff[j];
       }
     }
-    return d;
+    return DoubleMatrix2D.ofUnsafe(data);
   }
 
   /**
@@ -167,9 +165,7 @@ public abstract class PenaltyMatrixGenerator {
       w[i] = 1.0 / (dx[i] * dx[i + 1] * (dx[i] + dx[i + 1]));
     }
 
-    DoubleMatrix2D res = DoubleMatrix2D.filled(size, size);
-    double[][] data = res.getData();
-
+    double[][] data = new double[size][size];
     if (k == 1) {
       for (int i = 1; i < (size - 1); i++) {
         data[i][i - 1] = -w[i - 1] * dx2[i];
@@ -185,7 +181,6 @@ public abstract class PenaltyMatrixGenerator {
         data[size - 1][size - 2] = -w[size - 3] * (dx2[size - 3] + dx2[size - 2] + 2 * dx[size - 2] * dx[size - 3]);
         data[size - 1][size - 1] = w[size - 3] * dx[size - 3] * (2 * dx[size - 2] + dx[size - 3]);
       }
-      return res;
     } else {
       for (int i = 1; i < (size - 1); i++) {
         double tmp = 2 * w[i - 1];
@@ -198,9 +193,8 @@ public abstract class PenaltyMatrixGenerator {
         data[0] = data[1];
         data[size - 1] = data[size - 2];
       }
-      return res;
     }
-
+    return DoubleMatrix2D.copyOf(data);
   }
 
   /**
@@ -286,7 +280,7 @@ public abstract class PenaltyMatrixGenerator {
     int nCols = aMatrix.columnCount();
     int pos = 0;
     for (int i = 0; i < nRows; i++) {
-      System.arraycopy(aMatrix.getData()[i], 0, data, pos, nCols);
+      System.arraycopy(aMatrix.rowArray(i), 0, data, pos, nCols);
       pos += nCols;
     }
     return DoubleMatrix1D.copyOf(data);

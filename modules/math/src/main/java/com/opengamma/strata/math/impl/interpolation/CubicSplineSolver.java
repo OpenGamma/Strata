@@ -101,7 +101,7 @@ abstract class CubicSplineSolver {
       res[i][2] = yValues[i + 1] / intervals[i] - yValues[i] / intervals[i] - intervals[i] * solnVector[i] / 2. - intervals[i] * solnVector[i + 1] / 6. + intervals[i] * solnVector[i] / 6.;
       res[i][3] = yValues[i];
     }
-    return new DoubleMatrix2D(res);
+    return DoubleMatrix2D.copyOf(res);
   }
 
   /**
@@ -126,7 +126,7 @@ abstract class CubicSplineSolver {
 
     DoubleMatrix2D[] resMat = new DoubleMatrix2D[nDataPts - 1];
     for (int i = 0; i < nDataPts - 1; ++i) {
-      resMat[i] = new DoubleMatrix2D(res[i]);
+      resMat[i] = DoubleMatrix2D.copyOf(res[i]);
     }
     return resMat;
   }
@@ -234,10 +234,10 @@ abstract class CubicSplineSolver {
    * @return Solution to the linear equation, x
    */
   protected double[] matrixEqnSolver(double[][] doubMat, double[] doubVec) {
-    LUDecompositionResult result = _luObj.evaluate(new DoubleMatrix2D(doubMat));
+    LUDecompositionResult result = _luObj.evaluate(DoubleMatrix2D.copyOf(doubMat));
 
-    double[][] lMat = result.getL().getData();
-    double[][] uMat = result.getU().getData();
+    double[][] lMat = result.getL().toArray();
+    double[][] uMat = result.getU().toArray();
     DoubleMatrix1D doubVecMod = ((DoubleMatrix1D) OG_ALGEBRA.multiply(result.getP(), DoubleMatrix1D.copyOf(doubVec)));
 
     return backSubstitution(uMat, forwardSubstitution(lMat, doubVecMod));
@@ -252,14 +252,14 @@ abstract class CubicSplineSolver {
    */
   protected DoubleMatrix1D[] combinedMatrixEqnSolver(double[][] doubMat1, double[] doubVec, double[][] doubMat2) {
     int nDataPts = doubVec.length;
-    LUDecompositionResult result = _luObj.evaluate(new DoubleMatrix2D(doubMat1));
+    LUDecompositionResult result = _luObj.evaluate(DoubleMatrix2D.copyOf(doubMat1));
 
-    double[][] lMat = result.getL().getData();
-    double[][] uMat = result.getU().getData();
+    double[][] lMat = result.getL().toArray();
+    double[][] uMat = result.getU().toArray();
     DoubleMatrix2D pMat = result.getP();
     DoubleMatrix1D doubVecMod = ((DoubleMatrix1D) OG_ALGEBRA.multiply(pMat, DoubleMatrix1D.copyOf(doubVec)));
 
-    DoubleMatrix2D doubMat2Matrix = new DoubleMatrix2D(doubMat2);
+    DoubleMatrix2D doubMat2Matrix = DoubleMatrix2D.copyOf(doubMat2);
     DoubleMatrix1D[] res = new DoubleMatrix1D[nDataPts + 1];
     res[0] = DoubleMatrix1D.copyOf(backSubstitution(uMat, forwardSubstitution(lMat, doubVecMod)));
     for (int i = 0; i < nDataPts; ++i) {

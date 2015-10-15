@@ -53,7 +53,7 @@ public class NonLinearTransformFunctionTest {
       y[1][1] = Math.sin(x1) * Math.cos(x2);
       y[2][0] = -Math.sin(x1);
       y[2][1] = 0;
-      return new DoubleMatrix2D(y);
+      return DoubleMatrix2D.copyOf(y);
     }
   };
 

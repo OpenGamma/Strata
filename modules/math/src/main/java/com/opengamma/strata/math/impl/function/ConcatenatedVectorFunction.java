@@ -56,7 +56,7 @@ public class ConcatenatedVectorFunction extends VectorFunction {
     ArgChecker.isTrue(
         x.size() == getLengthOfDomain(),
         "Incorrect length of x. Is {} but should be {}", x.size(), getLengthOfDomain());
-    DoubleMatrix2D jac = DoubleMatrix2D.filled(getLengthOfRange(), getLengthOfDomain());
+    double[][] jac = new double[getLengthOfRange()][getLengthOfDomain()];
 
     int posInput = 0;
     int pos1 = 0;
@@ -68,7 +68,7 @@ public class ConcatenatedVectorFunction extends VectorFunction {
       DoubleMatrix2D subJac = _functions[i].calculateJacobian(sub);
       if (nCols > 0) {
         for (int r = 0; r < nRows; r++) {
-          System.arraycopy(subJac.getData()[r], 0, jac.getData()[pos1++], pos2, nCols);
+          System.arraycopy(subJac.toArrayUnsafe()[r], 0, jac[pos1++], pos2, nCols);
         }
         pos2 += nCols;
       } else {
@@ -76,7 +76,7 @@ public class ConcatenatedVectorFunction extends VectorFunction {
       }
       posInput += nCols;
     }
-    return jac;
+    return DoubleMatrix2D.copyOf(jac);
   }
 
   @Override

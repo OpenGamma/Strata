@@ -32,7 +32,7 @@ public class InverseJacobianEstimateInitializationFunctionTest {
     @Override
     public DoubleMatrix2D evaluate(DoubleMatrix1D v) {
       double[] x = v.toArray();
-      return new DoubleMatrix2D(new double[][] { {x[0] * x[0], x[0] * x[1] }, {x[0] - x[1], x[1] * x[1] } });
+      return DoubleMatrix2D.copyOf(new double[][] { {x[0] * x[0], x[0] * x[1]}, {x[0] - x[1], x[1] * x[1]}});
     }
 
   };

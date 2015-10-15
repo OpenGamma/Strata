@@ -65,7 +65,7 @@ public abstract class VectorRootFinderTest {
         res[1][i] = 2 * x.get(i);
       }
 
-      return new DoubleMatrix2D(res);
+      return DoubleMatrix2D.copyOf(res);
     }
 
   };
@@ -102,7 +102,7 @@ public abstract class VectorRootFinderTest {
         res[2][i] = 2 * x.get(i);
       }
 
-      return new DoubleMatrix2D(res);
+      return DoubleMatrix2D.copyOf(res);
     }
 
   };

@@ -23,26 +23,27 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
   private static final double ERROR = 1.e-13;
 
   private PiecewisePolynomialInterpolator[] _method;
-  private static double[][] s_invMat;
+  private static DoubleMatrix2D s_invMat;
 
   static {
-    s_invMat = new double[16][16];
-    s_invMat[0] = new double[] {1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0. };
-    s_invMat[1] = new double[] {0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0. };
-    s_invMat[2] = new double[] {-3., 3., 0., 0., -2., -1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0. };
-    s_invMat[3] = new double[] {2., -2., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0. };
-    s_invMat[4] = new double[] {0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0. };
-    s_invMat[5] = new double[] {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0. };
-    s_invMat[6] = new double[] {0., 0., 0., 0., 0., 0., 0., 0., -3., 3., 0., 0., -2., -1., 0., 0. };
-    s_invMat[7] = new double[] {0., 0., 0., 0., 0., 0., 0., 0., 2., -2., 0., 0., 1., 1., 0., 0. };
-    s_invMat[8] = new double[] {-3., 0., 3., 0., 0., 0., 0., 0., -2., 0., -1., 0., 0., 0., 0., 0. };
-    s_invMat[9] = new double[] {0., 0., 0., 0., -3., 0., 3., 0., 0., 0., 0., 0., -2., 0., -1., 0. };
-    s_invMat[10] = new double[] {9., -9., -9., 9., 6., 3., -6., -3., 6., -6., 3., -3., 4., 2., 2., 1. };
-    s_invMat[11] = new double[] {-6., 6., 6., -6., -3., -3., 3., 3., -4., 4., -2., 2., -2., -2., -1., -1. };
-    s_invMat[12] = new double[] {2., 0., -2., 0., 0., 0., 0., 0., 1., 0., 1., 0., 0., 0., 0., 0. };
-    s_invMat[13] = new double[] {0., 0., 0., 0., 2., 0., -2., 0., 0., 0., 0., 0., 1., 0., 1., 0. };
-    s_invMat[14] = new double[] {-6., 6., 6., -6., -4., -2., 4., 2., -3., 3., -3., 3., -2., -1., -2., -1. };
-    s_invMat[15] = new double[] {4., -4., -4., 4., 2., 2., -2., -2., 2., -2., 2., -2., 1., 1., 1., 1. };
+    double[][] invMat = new double[16][16];
+    invMat[0] = new double[] {1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
+    invMat[1] = new double[] {0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
+    invMat[2] = new double[] {-3., 3., 0., 0., -2., -1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
+    invMat[3] = new double[] {2., -2., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
+    invMat[4] = new double[] {0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0.};
+    invMat[5] = new double[] {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0.};
+    invMat[6] = new double[] {0., 0., 0., 0., 0., 0., 0., 0., -3., 3., 0., 0., -2., -1., 0., 0.};
+    invMat[7] = new double[] {0., 0., 0., 0., 0., 0., 0., 0., 2., -2., 0., 0., 1., 1., 0., 0.};
+    invMat[8] = new double[] {-3., 0., 3., 0., 0., 0., 0., 0., -2., 0., -1., 0., 0., 0., 0., 0.};
+    invMat[9] = new double[] {0., 0., 0., 0., -3., 0., 3., 0., 0., 0., 0., 0., -2., 0., -1., 0.};
+    invMat[10] = new double[] {9., -9., -9., 9., 6., 3., -6., -3., 6., -6., 3., -3., 4., 2., 2., 1.};
+    invMat[11] = new double[] {-6., 6., 6., -6., -3., -3., 3., 3., -4., 4., -2., 2., -2., -2., -1., -1.};
+    invMat[12] = new double[] {2., 0., -2., 0., 0., 0., 0., 0., 1., 0., 1., 0., 0., 0., 0., 0.};
+    invMat[13] = new double[] {0., 0., 0., 0., 2., 0., -2., 0., 0., 0., 0., 0., 1., 0., 1., 0.};
+    invMat[14] = new double[] {-6., 6., 6., -6., -4., -2., 4., 2., -3., 3., -3., 3., -2., -1., -2., -1.};
+    invMat[15] = new double[] {4., -4., -4., 4., 2., 2., -2., -2., 2., -2., 2., -2., 1., 1., 1., 1.};
+    s_invMat = DoubleMatrix2D.ofUnsafe(invMat);
   }
 
   /**
@@ -77,17 +78,17 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
     final int nData0 = x0Values.length;
     final int nData1 = x1Values.length;
 
-    DoubleMatrix2D yValuesMatrix = new DoubleMatrix2D(yValues);
+    DoubleMatrix2D yValuesMatrix = DoubleMatrix2D.copyOf(yValues);
     final PiecewisePolynomialFunction1D func = new PiecewisePolynomialFunction1D();
     double[][] diff0 = new double[nData1][nData0];
     double[][] diff1 = new double[nData0][nData1];
     double[][] cross = new double[nData0][nData1];
 
-    final PiecewisePolynomialResult result0 = _method[0].interpolate(x0Values, OG_ALGEBRA.getTranspose(yValuesMatrix).getData());
-    diff0 = func.differentiate(result0, x0Values).getData();
+    PiecewisePolynomialResult result0 = _method[0].interpolate(x0Values, OG_ALGEBRA.getTranspose(yValuesMatrix).toArray());
+    diff0 = func.differentiate(result0, x0Values).toArray();
 
-    final PiecewisePolynomialResult result1 = _method[1].interpolate(x1Values, yValuesMatrix.getData());
-    diff1 = func.differentiate(result1, x1Values).getData();
+    PiecewisePolynomialResult result1 = _method[1].interpolate(x1Values, yValuesMatrix.toArray());
+    diff1 = func.differentiate(result1, x1Values).toArray();
 
     final int order = 4;
 
@@ -134,7 +135,7 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
           }
         }
         final DoubleMatrix1D diffs = DoubleMatrix1D.copyOf(diffsVec);
-        final DoubleMatrix1D ansVec = ((DoubleMatrix1D) OG_ALGEBRA.multiply(new DoubleMatrix2D(s_invMat), diffs));
+        final DoubleMatrix1D ansVec = ((DoubleMatrix1D) OG_ALGEBRA.multiply(s_invMat, diffs));
 
         double ref = 0.;
         double[][] coefMatTmp = new double[order][order];
@@ -151,7 +152,7 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
         }
         final double bound = Math.max(Math.abs(ref) + Math.abs(yValues[i + 1][j + 1]), 0.1);
         ArgChecker.isTrue(Math.abs(ref - yValues[i + 1][j + 1]) < ERROR * bound, "Input is too large/small or data points are too close");
-        coefMat[i][j] = new DoubleMatrix2D(coefMatTmp);
+        coefMat[i][j] = DoubleMatrix2D.copyOf(coefMatTmp);
       }
     }
 

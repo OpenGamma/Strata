@@ -157,7 +157,7 @@ public class SumToOne {
    * @return The N by N-1 Jacobian matrix
    */
   public DoubleMatrix2D jacobian(DoubleMatrix1D fitParms) {
-    return new DoubleMatrix2D(jacobian(fitParms.toArray()));
+    return DoubleMatrix2D.copyOf(jacobian(fitParms.toArray()));
   }
 
   private void cal(double[] cum, double factor, int d, int n, int p1, double[] res) {

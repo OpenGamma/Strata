@@ -210,9 +210,7 @@ public final class DoubleMatrix1D
       return EMPTY;
     }
     double[] array = new double[size];
-    for (int i = 0; i < array.length; i++) {
-      array[i] = valueFunction.applyAsDouble(i);
-    }
+    Arrays.setAll(array, valueFunction);
     return new DoubleMatrix1D(array);
   }
 
@@ -589,7 +587,7 @@ public final class DoubleMatrix1D
     if (factor == 1d) {
       return this;
     }
-    double[] result = array.clone();
+    double[] result = new double[array.length];
     for (int i = 0; i < array.length; i++) {
       result[i] = array[i] * factor;
     }
@@ -612,7 +610,7 @@ public final class DoubleMatrix1D
    * @return a copy of this array with the operator applied to the original values
    */
   public DoubleMatrix1D map(DoubleUnaryOperator operator) {
-    double[] result = array.clone();
+    double[] result = new double[array.length];
     for (int i = 0; i < array.length; i++) {
       result[i] = operator.applyAsDouble(array[i]);
     }
@@ -635,7 +633,7 @@ public final class DoubleMatrix1D
    * @return a copy of this array with the operator applied to the original values
    */
   public DoubleMatrix1D mapWithIndex(IntDoubleToDoubleFunction function) {
-    double[] result = array.clone();
+    double[] result = new double[array.length];
     for (int i = 0; i < array.length; i++) {
       result[i] = function.applyAsDouble(i, array[i]);
     }
@@ -663,7 +661,7 @@ public final class DoubleMatrix1D
     if (array.length != other.array.length) {
       throw new IllegalArgumentException("Arrays have different sizes");
     }
-    double[] result = array.clone();
+    double[] result = new double[array.length];
     for (int i = 0; i < array.length; i++) {
       result[i] = array[i] + other.array[i];
     }
@@ -683,14 +681,14 @@ public final class DoubleMatrix1D
    * This instance is immutable and unaffected by this method. 
    * 
    * @param other  the other array
-   * @return a copy of this array with matching elements added
+   * @return a copy of this array with matching elements subtracted
    * @throws IllegalArgumentException if the arrays have different sizes
    */
   public DoubleMatrix1D minus(DoubleMatrix1D other) {
     if (array.length != other.array.length) {
       throw new IllegalArgumentException("Arrays have different sizes");
     }
-    double[] result = array.clone();
+    double[] result = new double[array.length];
     for (int i = 0; i < array.length; i++) {
       result[i] = array[i] - other.array[i];
     }
@@ -710,14 +708,14 @@ public final class DoubleMatrix1D
    * 
    * @param other  the other array
    * @param operator  the operator used to combine each pair of values
-   * @return a copy of this array with the specified array added at the end
+   * @return a copy of this array combined with the specified array
    * @throws IllegalArgumentException if the arrays have different sizes
    */
   public DoubleMatrix1D combine(DoubleMatrix1D other, DoubleBinaryOperator operator) {
     if (array.length != other.array.length) {
       throw new IllegalArgumentException("Arrays have different sizes");
     }
-    double[] result = array.clone();
+    double[] result = new double[array.length];
     for (int i = 0; i < array.length; i++) {
       result[i] = operator.applyAsDouble(array[i], other.array[i]);
     }

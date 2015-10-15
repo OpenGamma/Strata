@@ -118,7 +118,7 @@ public class TridiagonalMatrix implements Matrix {
     for (int i = 1; i < n; i++) {
       data[i][i - 1] = _c[i - 1];
     }
-    _matrix = new DoubleMatrix2D(data);
+    _matrix = DoubleMatrix2D.copyOf(data);
   }
 
   @Override

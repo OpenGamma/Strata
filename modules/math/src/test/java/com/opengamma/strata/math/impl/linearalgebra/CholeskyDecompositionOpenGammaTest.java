@@ -24,9 +24,15 @@ public class CholeskyDecompositionOpenGammaTest {
   private static final MatrixAlgebra ALGEBRA = new OGMatrixAlgebra();
   private static final CholeskyDecompositionOpenGamma CDOG = new CholeskyDecompositionOpenGamma();
   private static final Decomposition<CholeskyDecompositionResult> CDC = new CholeskyDecompositionCommons();
-  private static final DoubleMatrix2D A3 = new DoubleMatrix2D(new double[][] {new double[] {10.0, 2.0, -1.0 }, new double[] {2.0, 5.0, -2.0 }, new double[] {-1.0, -2.0, 15.0 } });
-  private static final DoubleMatrix2D A5 = new DoubleMatrix2D(new double[][] {new double[] {10.0, 2.0, -1.0, 1.0, 1.0 }, new double[] {2.0, 5.0, -2.0, 0.5, 0.5 },
-    new double[] {-1.0, -2.0, 15.0, 1.0, 0.5 }, new double[] {1.0, 0.5, 1.0, 10.0, -1.0 }, new double[] {1.0, 0.5, 0.5, -1.0, 25.0 } });
+  private static final DoubleMatrix2D A3 = DoubleMatrix2D.copyOf(
+      new double[][] { {10.0, 2.0, -1.0}, {2.0, 5.0, -2.0}, {-1.0, -2.0, 15.0}});
+  private static final DoubleMatrix2D A5 = DoubleMatrix2D.copyOf(
+      new double[][] {
+          {10.0, 2.0, -1.0, 1.0, 1.0},
+          {2.0, 5.0, -2.0, 0.5, 0.5},
+          {-1.0, -2.0, 15.0, 1.0, 0.5},
+          {1.0, 0.5, 1.0, 10.0, -1.0},
+          {1.0, 0.5, 0.5, -1.0, 25.0}});
   private static final double EPS = 1e-9;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -60,10 +66,10 @@ public class CholeskyDecompositionOpenGammaTest {
   public void solveMatrix() {
     final CholeskyDecompositionResult result = CDOG.evaluate(A5);
     double[][] b = new double[][] { {1.0, 2.0 }, {2.0, 3.0 }, {3.0, 4.0 }, {4.0, -2.0 }, {-1.0, -1.0 } };
-    DoubleMatrix2D x = result.solve(new DoubleMatrix2D(b));
+    DoubleMatrix2D x = result.solve(DoubleMatrix2D.copyOf(b));
     DoubleMatrix2D ax = (DoubleMatrix2D) ALGEBRA.multiply(A5, x);
-    ArrayAsserts.assertArrayEquals("Cholesky decomposition OpenGamma - solve", b[0], ax.getData()[0], 1.0E-10);
-    ArrayAsserts.assertArrayEquals("Cholesky decomposition OpenGamma - solve", b[1], ax.getData()[1], 1.0E-10);
+    ArrayAsserts.assertArrayEquals("Cholesky decomposition OpenGamma - solve", b[0], ax.rowArray(0), 1.0E-10);
+    ArrayAsserts.assertArrayEquals("Cholesky decomposition OpenGamma - solve", b[1], ax.rowArray(1), 1.0E-10);
   }
 
   /**

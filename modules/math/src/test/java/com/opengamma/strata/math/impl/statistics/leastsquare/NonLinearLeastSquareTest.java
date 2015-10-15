@@ -108,7 +108,7 @@ public class NonLinearLeastSquareTest {
           res[i][j] = temp.get(j);
         }
       }
-      return new DoubleMatrix2D(res);
+      return DoubleMatrix2D.copyOf(res);
     }
   };
 

@@ -31,17 +31,17 @@ public class PiecewisePolynomialResultTest {
     final int dim2 = 1;
 
     final PiecewisePolynomialResult res1 =
-        new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(knots1), new DoubleMatrix2D(matrix1), order, dim1);
+        new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(knots1), DoubleMatrix2D.copyOf(matrix1), order, dim1);
     final PiecewisePolynomialResult res2 =
-        new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(knots1), new DoubleMatrix2D(matrix1), order, dim1);
+        new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(knots1), DoubleMatrix2D.copyOf(matrix1), order, dim1);
     final PiecewisePolynomialResult res3 =
-        new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(knots2), new DoubleMatrix2D(matrix2), order, dim2);
+        new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(knots2), DoubleMatrix2D.copyOf(matrix2), order, dim2);
     final PiecewisePolynomialResult res4 =
-        new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(knots1), new DoubleMatrix2D(matrix1), 2, dim1);
+        new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(knots1), DoubleMatrix2D.copyOf(matrix1), 2, dim1);
     final PiecewisePolynomialResult res5 =
-        new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(knots1), new DoubleMatrix2D(matrix1), order, dim1 - 1);
+        new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(knots1), DoubleMatrix2D.copyOf(matrix1), order, dim1 - 1);
     final PiecewisePolynomialResult res6 =
-        new PiecewisePolynomialResult(DoubleMatrix1D.of(1., 2., 3., 5.), new DoubleMatrix2D(matrix1), order, dim1);
+        new PiecewisePolynomialResult(DoubleMatrix1D.of(1., 2., 3., 5.), DoubleMatrix2D.copyOf(matrix1), order, dim1);
 
     assertTrue(res1.equals(res1));
 
@@ -68,18 +68,19 @@ public class PiecewisePolynomialResultTest {
     assertTrue(!(res1.equals(null)));
     assertTrue(!(res1.equals(DoubleMatrix1D.copyOf(knots1))));
 
-    final DoubleMatrix2D[] sense1 = new DoubleMatrix2D[] {new DoubleMatrix2D(matrix1), new DoubleMatrix2D(matrix1) };
-    final DoubleMatrix2D[] sense2 = new DoubleMatrix2D[] {new DoubleMatrix2D(matrix1), new DoubleMatrix2D(matrix1), new DoubleMatrix2D(matrix1) };
+    final DoubleMatrix2D[] sense1 = new DoubleMatrix2D[] {DoubleMatrix2D.copyOf(matrix1), DoubleMatrix2D.copyOf(matrix1)};
+    final DoubleMatrix2D[] sense2 =
+        new DoubleMatrix2D[] {DoubleMatrix2D.copyOf(matrix1), DoubleMatrix2D.copyOf(matrix1), DoubleMatrix2D.copyOf(matrix1)};
 
     final PiecewisePolynomialResultsWithSensitivity resSen1 =
         new PiecewisePolynomialResultsWithSensitivity(
-            DoubleMatrix1D.copyOf(knots1), new DoubleMatrix2D(matrix1), order, 1, sense1);
+            DoubleMatrix1D.copyOf(knots1), DoubleMatrix2D.copyOf(matrix1), order, 1, sense1);
     final PiecewisePolynomialResultsWithSensitivity resSen2 =
         new PiecewisePolynomialResultsWithSensitivity(
-            DoubleMatrix1D.copyOf(knots1), new DoubleMatrix2D(matrix1), order, 1, sense1);
+            DoubleMatrix1D.copyOf(knots1), DoubleMatrix2D.copyOf(matrix1), order, 1, sense1);
     final PiecewisePolynomialResultsWithSensitivity resSen3 =
         new PiecewisePolynomialResultsWithSensitivity(
-            DoubleMatrix1D.copyOf(knots1), new DoubleMatrix2D(matrix1), order, 1, sense2);
+            DoubleMatrix1D.copyOf(knots1), DoubleMatrix2D.copyOf(matrix1), order, 1, sense2);
     assertTrue(resSen1.equals(resSen1));
 
     assertTrue(!(resSen1.equals(DoubleMatrix1D.copyOf(knots1))));
@@ -98,7 +99,7 @@ public class PiecewisePolynomialResultTest {
       @SuppressWarnings("unused")
       final PiecewisePolynomialResultsWithSensitivity resSen0 =
           new PiecewisePolynomialResultsWithSensitivity(
-              DoubleMatrix1D.copyOf(knots1), new DoubleMatrix2D(matrix1), order, 2, sense1);
+              DoubleMatrix1D.copyOf(knots1), DoubleMatrix2D.copyOf(matrix1), order, 2, sense1);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof UnsupportedOperationException);

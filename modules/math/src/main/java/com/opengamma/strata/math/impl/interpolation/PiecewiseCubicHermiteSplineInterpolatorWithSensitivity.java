@@ -105,7 +105,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
     } else {
       SlopeFinderResults temp = slopeFinder(h, delta, yValues);
       final DoubleMatrix1D d = temp.getSlopes();
-      final double[][] dDy = temp.getSlopeJacobian().getData();
+      final double[][] dDy = temp.getSlopeJacobian().toArray();
 
       // form up the coefficient matrix
       for (int i = 0; i < n - 1; ++i) {
@@ -135,7 +135,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
       }
 
       // Now we have to pack this into an array of DoubleMatrix2D - my kingdom for a tensor class
-      res[0] = new DoubleMatrix2D(coeff);
+      res[0] = DoubleMatrix2D.copyOf(coeff);
       for (int k = 0; k < n - 1; k++) {
         double[][] coeffSense = new double[4][];
         coeffSense[0] = bDy[k];
@@ -143,7 +143,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
         coeffSense[2] = dDy[k];
         coeffSense[3] = new double[n];
         coeffSense[3][k] = 1.0;
-        res[k + 1] = new DoubleMatrix2D(coeffSense);
+        res[k + 1] = DoubleMatrix2D.copyOf(coeffSense);
       }
 
     }
@@ -229,7 +229,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
       jac[n - 1][n - i] = temp[i];
     }
 
-    return new SlopeFinderResults(DoubleMatrix1D.copyOf(d), new DoubleMatrix2D(jac));
+    return new SlopeFinderResults(DoubleMatrix1D.copyOf(d), DoubleMatrix2D.copyOf(jac));
   }
 
   /**

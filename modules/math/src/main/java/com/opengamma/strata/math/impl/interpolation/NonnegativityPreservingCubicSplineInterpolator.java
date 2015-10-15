@@ -79,7 +79,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
 
     ArgChecker.isTrue(result.getOrder() == 4, "Primary interpolant is not cubic");
 
-    final double[] initialFirst = _function.differentiate(result, xValuesSrt).getData()[0];
+    final double[] initialFirst = _function.differentiate(result, xValuesSrt).rowArray(0);
     final double[] first = firstDerivativeCalculator(yValuesSrt, intervals, slopes, initialFirst);
     final double[][] coefs = _solver.solve(yValuesSrt, intervals, slopes, first);
 
@@ -90,7 +90,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
       }
     }
 
-    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), new DoubleMatrix2D(coefs), 4, 1);
+    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), DoubleMatrix2D.copyOf(coefs), 4, 1);
   }
 
   @Override
@@ -141,10 +141,10 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
 
       ArgChecker.isTrue(result.getOrder() == 4, "Primary interpolant is not cubic");
 
-      final double[] initialFirst = _function.differentiate(result, xValuesSrt).getData()[0];
+      final double[] initialFirst = _function.differentiate(result, xValuesSrt).rowArray(0);
       final double[] first = firstDerivativeCalculator(yValuesSrt, intervals, slopes, initialFirst);
 
-      coefMatrix[i] = new DoubleMatrix2D(_solver.solve(yValuesSrt, intervals, slopes, first));
+      coefMatrix[i] = DoubleMatrix2D.copyOf(_solver.solve(yValuesSrt, intervals, slopes, first));
     }
 
     final int nIntervals = coefMatrix[0].rowCount();
@@ -164,7 +164,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
       }
     }
 
-    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), DoubleMatrix2D.copyOf(resMatrix), nCoefs, dim);
   }
 
   @Override
@@ -206,7 +206,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
 
     ArgChecker.isTrue(resultWithSensitivity.getOrder() == 4, "Primary interpolant is not cubic");
 
-    final double[] initialFirst = _function.differentiate(resultWithSensitivity, xValues).getData()[0];
+    final double[] initialFirst = _function.differentiate(resultWithSensitivity, xValues).rowArray(0);
     final double[][] slopeSensitivity = _solver.slopeSensitivityCalculator(intervals);
     final DoubleMatrix1D[] initialFirstSense = _function.differentiateNodeSensitivity(resultWithSensitivity, xValues);
     final DoubleMatrix1D[] firstWithSensitivity = firstDerivativeWithSensitivityCalculator(yValuesSrt, intervals, initialFirst, initialFirstSense);

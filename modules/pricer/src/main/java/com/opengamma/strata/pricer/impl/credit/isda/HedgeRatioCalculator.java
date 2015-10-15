@@ -97,7 +97,7 @@ public class HedgeRatioCalculator {
         sense[j][i] = _pricer.pvCreditSensitivity(cds[i], yieldCurve, creditCurve, coupons[i], j);
       }
     }
-    return new DoubleMatrix2D(sense);
+    return DoubleMatrix2D.copyOf(sense);
   }
 
   //-------------------------------------------------------------------------

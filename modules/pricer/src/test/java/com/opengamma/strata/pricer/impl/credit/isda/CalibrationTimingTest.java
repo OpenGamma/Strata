@@ -101,7 +101,7 @@ public class CalibrationTimingTest extends IsdaBaseTest {
         temp[i][j] = temp[j][i];
       }
     }
-    YC_COVAR = new DoubleMatrix2D(temp);
+    YC_COVAR = DoubleMatrix2D.copyOf(temp);
     CholeskyDecompositionResult res = CHOLESKY.evaluate(YC_COVAR);
     YC_COVAR_SQR = res.getL();
 
@@ -133,7 +133,7 @@ public class CalibrationTimingTest extends IsdaBaseTest {
         temp[i][j] = temp[j][i];
       }
     }
-    CC_COVAR = new DoubleMatrix2D(temp);
+    CC_COVAR = DoubleMatrix2D.copyOf(temp);
     res = CHOLESKY.evaluate(CC_COVAR);
     CC_COVAR_SQR = res.getL();
 

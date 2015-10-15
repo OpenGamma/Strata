@@ -31,8 +31,8 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 public class CommonsMathWrapperTest {
 
   private static final DoubleMatrix1D OG_VECTOR = DoubleMatrix1D.of(1, 2, 3);
-  private static final DoubleMatrix2D OG_MATRIX = new DoubleMatrix2D(
-      new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9}});
+  private static final DoubleMatrix2D OG_MATRIX = DoubleMatrix2D.copyOf(
+      new double[][] { {1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
   private static final Function1D<Double, Double> OG_FUNCTION_1D = new Function1D<Double, Double>() {
     @Override
     public Double evaluate(final Double x) {
@@ -135,8 +135,8 @@ public class CommonsMathWrapperTest {
   @Test
   public void testMatrix() {
     RealMatrix commons = CommonsMathWrapper.wrap(OG_MATRIX);
-    double[][] unwrapped = CommonsMathWrapper.unwrap(commons).getData();
-    double[][] ogData = OG_MATRIX.getData();
+    double[][] unwrapped = CommonsMathWrapper.unwrap(commons).toArray();
+    double[][] ogData = OG_MATRIX.toArray();
     int n = unwrapped.length;
     assertEquals(n, ogData.length);
     for (int i = 0; i < n; i++) {

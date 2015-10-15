@@ -70,11 +70,7 @@ class CalibrationDerivative
     ImmutableRatesProvider provider = providerGenerator.generate(data);
     // calculate derivative for each trade using the child provider
     int size = trades.size();
-    double[][] measure = new double[size][size];
-    for (int i = 0; i < size; i++) {
-      measure[i] = measures.derivative(trades.get(i), provider, curveOrder);
-    }
-    return new DoubleMatrix2D(measure);
+    return DoubleMatrix2D.ofArrays(size, size, i -> measures.derivative(trades.get(i), provider, curveOrder));
   }
 
 }

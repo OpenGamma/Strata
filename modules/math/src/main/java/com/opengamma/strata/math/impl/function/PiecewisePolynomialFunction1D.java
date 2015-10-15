@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.math.impl.function;
 
-import java.util.Arrays;
-
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResult;
@@ -103,7 +101,7 @@ public class PiecewisePolynomialFunction1D {
       }
     }
 
-    return new DoubleMatrix2D(res);
+    return DoubleMatrix2D.copyOf(res);
   }
 
   /**
@@ -160,7 +158,7 @@ public class PiecewisePolynomialFunction1D {
 
     DoubleMatrix2D[] resMat = new DoubleMatrix2D[dim];
     for (int i = 0; i < dim; ++i) {
-      resMat[i] = new DoubleMatrix2D(res[i]);
+      resMat[i] = DoubleMatrix2D.copyOf(res[i]);
     }
     return resMat;
   }
@@ -179,27 +177,15 @@ public class PiecewisePolynomialFunction1D {
     ArgChecker.notNull(pp, "pp");
     ArgChecker.isFalse(pp.getOrder() < 2, "polynomial degree < 1");
 
-    double[][] coefs = pp.getCoefMatrix().getData();
     DoubleMatrix1D knots = pp.getKnots();
-
-    int nKnots = pp.getNumberOfIntervals() + 1;
     int nCoefs = pp.getOrder();
-    int dim = pp.getDimensions();
-
-    double[][] res = new double[dim * (nKnots - 1)][nCoefs - 1];
-    for (int i = 0; i < dim * (nKnots - 1); ++i) {
-      Arrays.fill(res[i], 0.);
-    }
-
-    for (int i = 0; i < dim * (nKnots - 1); ++i) {
-      for (int j = 0; j < nCoefs - 1; ++j) {
-        res[i][j] = coefs[i][j] * (nCoefs - j - 1);
-      }
-    }
-
-    PiecewisePolynomialResult ppDiff =
-        new PiecewisePolynomialResult(knots, new DoubleMatrix2D(res), nCoefs - 1, pp.getDimensions());
-
+    int rowCount = pp.getDimensions() * pp.getNumberOfIntervals();
+    int colCount = nCoefs - 1;
+    DoubleMatrix2D coef = DoubleMatrix2D.of(
+        rowCount,
+        colCount,
+        (i, j) -> pp.getCoefMatrix().get(i, j) * (nCoefs - j - 1));
+    PiecewisePolynomialResult ppDiff = new PiecewisePolynomialResult(knots, coef, colCount, pp.getDimensions());
     return evaluate(ppDiff, xKey);
   }
 
@@ -216,27 +202,15 @@ public class PiecewisePolynomialFunction1D {
     ArgChecker.notNull(pp, "pp");
     ArgChecker.isFalse(pp.getOrder() < 2, "polynomial degree < 1");
 
-    double[][] coefs = pp.getCoefMatrix().getData();
     DoubleMatrix1D knots = pp.getKnots();
-
-    int nKnots = pp.getNumberOfIntervals() + 1;
     int nCoefs = pp.getOrder();
-    int dim = pp.getDimensions();
-
-    double[][] res = new double[dim * (nKnots - 1)][nCoefs - 1];
-    for (int i = 0; i < dim * (nKnots - 1); ++i) {
-      Arrays.fill(res[i], 0.);
-    }
-
-    for (int i = 0; i < dim * (nKnots - 1); ++i) {
-      for (int j = 0; j < nCoefs - 1; ++j) {
-        res[i][j] = coefs[i][j] * (nCoefs - j - 1);
-      }
-    }
-
-    PiecewisePolynomialResult ppDiff =
-        new PiecewisePolynomialResult(knots, new DoubleMatrix2D(res), nCoefs - 1, pp.getDimensions());
-
+    int rowCount = pp.getDimensions() * pp.getNumberOfIntervals();
+    int colCount = nCoefs - 1;
+    DoubleMatrix2D coef = DoubleMatrix2D.of(
+        rowCount,
+        colCount,
+        (i, j) -> pp.getCoefMatrix().get(i, j) * (nCoefs - j - 1));
+    PiecewisePolynomialResult ppDiff = new PiecewisePolynomialResult(knots, coef, colCount, pp.getDimensions());
     return evaluate(ppDiff, xKeys);
   }
 
@@ -254,27 +228,15 @@ public class PiecewisePolynomialFunction1D {
     ArgChecker.notNull(pp, "pp");
     ArgChecker.isFalse(pp.getOrder() < 3, "polynomial degree < 2");
 
-    double[][] coefs = pp.getCoefMatrix().getData();
     DoubleMatrix1D knots = pp.getKnots();
-
-    int nKnots = pp.getNumberOfIntervals() + 1;
     int nCoefs = pp.getOrder();
-    int dim = pp.getDimensions();
-
-    double[][] res = new double[dim * (nKnots - 1)][nCoefs - 2];
-    for (int i = 0; i < dim * (nKnots - 1); ++i) {
-      Arrays.fill(res[i], 0.);
-    }
-
-    for (int i = 0; i < dim * (nKnots - 1); ++i) {
-      for (int j = 0; j < nCoefs - 2; ++j) {
-        res[i][j] = coefs[i][j] * (nCoefs - j - 1) * (nCoefs - j - 2);
-      }
-    }
-
-    PiecewisePolynomialResult ppDiff =
-        new PiecewisePolynomialResult(knots, new DoubleMatrix2D(res), nCoefs - 1, pp.getDimensions());
-
+    int rowCount = pp.getDimensions() * pp.getNumberOfIntervals();
+    int colCount = nCoefs - 2;
+    DoubleMatrix2D coef = DoubleMatrix2D.of(
+        rowCount,
+        colCount,
+        (i, j) -> pp.getCoefMatrix().get(i, j) * (nCoefs - j - 1) * (nCoefs - j - 2));
+    PiecewisePolynomialResult ppDiff = new PiecewisePolynomialResult(knots, coef, nCoefs - 1, pp.getDimensions());
     return evaluate(ppDiff, xKey);
   }
 
@@ -291,27 +253,15 @@ public class PiecewisePolynomialFunction1D {
     ArgChecker.notNull(pp, "pp");
     ArgChecker.isFalse(pp.getOrder() < 3, "polynomial degree < 2");
 
-    double[][] coefs = pp.getCoefMatrix().getData();
     DoubleMatrix1D knots = pp.getKnots();
-
-    int nKnots = pp.getNumberOfIntervals() + 1;
     int nCoefs = pp.getOrder();
-    int dim = pp.getDimensions();
-
-    double[][] res = new double[dim * (nKnots - 1)][nCoefs - 2];
-    for (int i = 0; i < dim * (nKnots - 1); ++i) {
-      Arrays.fill(res[i], 0.);
-    }
-
-    for (int i = 0; i < dim * (nKnots - 1); ++i) {
-      for (int j = 0; j < nCoefs - 2; ++j) {
-        res[i][j] = coefs[i][j] * (nCoefs - j - 1) * (nCoefs - j - 2);
-      }
-    }
-
-    PiecewisePolynomialResult ppDiff =
-        new PiecewisePolynomialResult(knots, new DoubleMatrix2D(res), nCoefs - 1, pp.getDimensions());
-
+    int rowCount = pp.getDimensions() * pp.getNumberOfIntervals();
+    int colCount = nCoefs - 2;
+    DoubleMatrix2D coef = DoubleMatrix2D.of(
+        rowCount,
+        colCount,
+        (i, j) -> pp.getCoefMatrix().get(i, j) * (nCoefs - j - 1) * (nCoefs - j - 2));
+    PiecewisePolynomialResult ppDiff = new PiecewisePolynomialResult(knots, coef, nCoefs - 1, pp.getDimensions());
     return evaluate(ppDiff, xKeys);
   }
 
@@ -334,27 +284,22 @@ public class PiecewisePolynomialFunction1D {
     DoubleMatrix1D knots = pp.getKnots();
     int nCoefs = pp.getOrder();
     int nKnots = pp.getNumberOfIntervals() + 1;
-    double[][] coefMatrix = pp.getCoefMatrix().getData();
 
-    double[][] res = new double[nKnots - 1][nCoefs + 1];
-    for (int i = 0; i < nKnots - 1; ++i) {
-      Arrays.fill(res[i], 0.);
-    }
-
-    for (int i = 0; i < nKnots - 1; ++i) {
+    int rowCount = nKnots - 1;
+    int colCount = nCoefs + 1;
+    double[][] res = new double[rowCount][colCount];
+    for (int i = 0; i < rowCount; ++i) {
       for (int j = 0; j < nCoefs; ++j) {
-        res[i][j] = coefMatrix[i][j] / (nCoefs - j);
+        res[i][j] = pp.getCoefMatrix().get(i, j) / (nCoefs - j);
       }
     }
 
-    double[] constTerms = new double[nKnots - 1];
-    Arrays.fill(constTerms, 0.);
-
+    double[] constTerms = new double[rowCount];
     int indicator = 0;
     if (initialKey <= knots.get(1)) {
       indicator = 0;
     } else {
-      for (int i = 1; i < nKnots - 1; ++i) {
+      for (int i = 1; i < rowCount; ++i) {
         if (knots.get(i) < initialKey) {
           indicator = i;
         }
@@ -364,17 +309,17 @@ public class PiecewisePolynomialFunction1D {
     double sum = getValue(res[indicator], initialKey, knots.get(indicator));
     for (int i = indicator; i < nKnots - 2; ++i) {
       constTerms[i + 1] = constTerms[i] + getValue(res[i], knots.get(i + 1), knots.get(i)) - sum;
-      sum = 0.;
+      sum = 0d;
     }
     constTerms[indicator] = -getValue(res[indicator], initialKey, knots.get(indicator));
     for (int i = indicator - 1; i > -1; --i) {
       constTerms[i] = constTerms[i + 1] - getValue(res[i], knots.get(i + 1), knots.get(i));
     }
-    for (int i = 0; i < nKnots - 1; ++i) {
+    for (int i = 0; i < rowCount; ++i) {
       res[i][nCoefs] = constTerms[i];
     }
     PiecewisePolynomialResult ppInt =
-        new PiecewisePolynomialResult(pp.getKnots(), new DoubleMatrix2D(res), nCoefs + 1, 1);
+        new PiecewisePolynomialResult(pp.getKnots(), DoubleMatrix2D.copyOf(res), colCount, 1);
 
     return evaluate(ppInt, xKey).get(0);
   }
@@ -398,27 +343,22 @@ public class PiecewisePolynomialFunction1D {
     DoubleMatrix1D knots = pp.getKnots();
     int nCoefs = pp.getOrder();
     int nKnots = pp.getNumberOfIntervals() + 1;
-    double[][] coefMatrix = pp.getCoefMatrix().getData();
 
-    double[][] res = new double[nKnots - 1][nCoefs + 1];
-    for (int i = 0; i < nKnots - 1; ++i) {
-      Arrays.fill(res[i], 0.);
-    }
-
-    for (int i = 0; i < nKnots - 1; ++i) {
+    int rowCount = nKnots - 1;
+    int colCount = nCoefs + 1;
+    double[][] res = new double[rowCount][colCount];
+    for (int i = 0; i < rowCount; ++i) {
       for (int j = 0; j < nCoefs; ++j) {
-        res[i][j] = coefMatrix[i][j] / (nCoefs - j);
+        res[i][j] = pp.getCoefMatrix().get(i, j) / (nCoefs - j);
       }
     }
 
-    double[] constTerms = new double[nKnots - 1];
-    Arrays.fill(constTerms, 0.);
-
+    double[] constTerms = new double[rowCount];
     int indicator = 0;
     if (initialKey <= knots.get(1)) {
       indicator = 0;
     } else {
-      for (int i = 1; i < nKnots - 1; ++i) {
+      for (int i = 1; i < rowCount; ++i) {
         if (knots.get(i) < initialKey) {
           indicator = i;
         }
@@ -435,14 +375,14 @@ public class PiecewisePolynomialFunction1D {
     for (int i = indicator - 1; i > -1; --i) {
       constTerms[i] = constTerms[i + 1] - getValue(res[i], knots.get(i + 1), knots.get(i));
     }
-    for (int i = 0; i < nKnots - 1; ++i) {
+    for (int i = 0; i < rowCount; ++i) {
       res[i][nCoefs] = constTerms[i];
     }
 
     PiecewisePolynomialResult ppInt =
-        new PiecewisePolynomialResult(pp.getKnots(), new DoubleMatrix2D(res), nCoefs + 1, 1);
+        new PiecewisePolynomialResult(pp.getKnots(), DoubleMatrix2D.copyOf(res), colCount, 1);
 
-    return DoubleMatrix1D.copyOf(evaluate(ppInt, xKeys).getData()[0]);
+    return evaluate(ppInt, xKeys).row(0);
   }
 
   //-------------------------------------------------------------------------

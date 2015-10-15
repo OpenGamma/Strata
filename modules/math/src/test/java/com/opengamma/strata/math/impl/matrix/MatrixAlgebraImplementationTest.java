@@ -20,8 +20,8 @@ public class MatrixAlgebraImplementationTest {
   private static final MatrixAlgebra OG = MatrixAlgebraFactory.OG_ALGEBRA;
   private static final DoubleMatrix1D M1 = DoubleMatrix1D.of(1, 2);
   private static final DoubleMatrix1D M2 = DoubleMatrix1D.of(3, 4);
-  private static final DoubleMatrix2D M3 = new DoubleMatrix2D(new double[][] {new double[] {1, 2 }, new double[] {2, 1 } });
-  private static final DoubleMatrix2D M4 = new DoubleMatrix2D(new double[][] {new double[] {5, 6 }, new double[] {7, 8 } });
+  private static final DoubleMatrix2D M3 = DoubleMatrix2D.copyOf(new double[][] { {1, 2}, {2, 1}});
+  private static final DoubleMatrix2D M4 = DoubleMatrix2D.copyOf(new double[][] { {5, 6}, {7, 8}});
   private static final Matrix M5 = new Matrix() {
     @Override
     public int dimensions() {
@@ -152,7 +152,7 @@ public class MatrixAlgebraImplementationTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGTrace2() {
-    OG.getTrace(new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3 }, new double[] {4, 5, 6 } }));
+    OG.getTrace(DoubleMatrix2D.copyOf(new double[][] { {1, 2, 3}, {4, 5, 6}}));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -197,7 +197,7 @@ public class MatrixAlgebraImplementationTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGMultiply4() {
-    OG.multiply(new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3 }, new double[] {4, 5, 6 } }), M3);
+    OG.multiply(DoubleMatrix2D.copyOf(new double[][] { {1, 2, 3}, {4, 5, 6}}), M3);
   }
 
   @Test
@@ -240,24 +240,24 @@ public class MatrixAlgebraImplementationTest {
 
   @Test
   public void testInverse() {
-    assertMatrixEquals(COMMONS.getInverse(M3), new DoubleMatrix2D(
+    assertMatrixEquals(COMMONS.getInverse(M3), DoubleMatrix2D.copyOf(
         new double[][] { {-0.3333333333333333, 0.6666666666666666}, {0.6666666666666666, -0.3333333333333333}}));
   }
 
   @Test
   public void testMultiply() {
     assertMatrixEquals(COMMONS.multiply(DoubleMatrixUtils.getIdentityMatrix2D(2), M3), M3);
-    assertMatrixEquals(COMMONS.multiply(M3, M4), new DoubleMatrix2D(new double[][] { {19, 22}, {17, 20}}));
+    assertMatrixEquals(COMMONS.multiply(M3, M4), DoubleMatrix2D.copyOf(new double[][] { {19, 22}, {17, 20}}));
   }
 
   @Test
   public void testOuterProduct() {
-    assertMatrixEquals(COMMONS.getOuterProduct(M1, M2), new DoubleMatrix2D(new double[][] { {3, 4}, {6, 8}}));
+    assertMatrixEquals(COMMONS.getOuterProduct(M1, M2), DoubleMatrix2D.copyOf(new double[][] { {3, 4}, {6, 8}}));
   }
 
   @Test
   public void testPower() {
-    assertMatrixEquals(COMMONS.getPower(M3, 3), new DoubleMatrix2D(new double[][] { {13, 14}, {14, 13}}));
+    assertMatrixEquals(COMMONS.getPower(M3, 3), DoubleMatrix2D.copyOf(new double[][] { {13, 14}, {14, 13}}));
     assertMatrixEquals(COMMONS.getPower(M3, 3), COMMONS.multiply(M3, COMMONS.multiply(M3, M3)));
   }
 

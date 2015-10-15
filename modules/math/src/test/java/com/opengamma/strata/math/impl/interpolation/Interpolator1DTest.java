@@ -217,7 +217,7 @@ public class Interpolator1DTest {
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     for (int i = 0; i < dim; ++i) {
-      double[] bareResClamp = function.differentiate(bareInterp[0].interpolate(xValues, yValuesForClamped[i]), xKeys).getData()[0];
+      double[] bareResClamp = function.differentiate(bareInterp[0].interpolate(xValues, yValuesForClamped[i]), xKeys).rowArray(0);
       for (int j = 0; j < nKeys; ++j) {
         Interpolator1DDataBundle dataBundleClamp = wrappedInterp[0].getDataBundleFromSortedArrays(xValues, yValues[i]);
         double wrappedResClamp = wrappedInterp[0].firstDerivative(dataBundleClamp, xKeys[j]);
@@ -225,7 +225,7 @@ public class Interpolator1DTest {
       }
 
       for (int k = 1; k < nMethods; ++k) {
-        double[] bareRes = function.differentiate(bareInterp[k].interpolate(xValues, yValues[i]), xKeys).getData()[0];
+        double[] bareRes = function.differentiate(bareInterp[k].interpolate(xValues, yValues[i]), xKeys).rowArray(0);
         for (int j = 0; j < nKeys; ++j) {
           Interpolator1DDataBundle dataBundle = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues[i]);
           double wrappedRes = wrappedInterp[k].firstDerivative(dataBundle, xKeys[j]);
