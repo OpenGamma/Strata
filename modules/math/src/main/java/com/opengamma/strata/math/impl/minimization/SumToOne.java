@@ -69,7 +69,7 @@ public class SumToOne {
    * @return The N "model" parameters
    */
   public DoubleMatrix1D transform(DoubleMatrix1D fitParms) {
-    return new DoubleMatrix1D(transform(fitParms.getData()));
+    return DoubleMatrix1D.copyOf(transform(fitParms.toArray()));
   }
 
   /**
@@ -108,7 +108,7 @@ public class SumToOne {
    * @return The N-1 "fit" parameters
    */
   public DoubleMatrix1D inverseTransform(DoubleMatrix1D modelParms) {
-    return new DoubleMatrix1D(inverseTransform(modelParms.getData()));
+    return DoubleMatrix1D.copyOf(inverseTransform(modelParms.toArray()));
   }
 
   /**
@@ -157,7 +157,7 @@ public class SumToOne {
    * @return The N by N-1 Jacobian matrix
    */
   public DoubleMatrix2D jacobian(DoubleMatrix1D fitParms) {
-    return new DoubleMatrix2D(jacobian(fitParms.getData()));
+    return new DoubleMatrix2D(jacobian(fitParms.toArray()));
   }
 
   private void cal(double[] cum, double factor, int d, int n, int p1, double[] res) {

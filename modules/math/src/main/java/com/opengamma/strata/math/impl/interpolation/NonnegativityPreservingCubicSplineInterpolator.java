@@ -90,7 +90,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
       }
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(coefs), 4, 1);
+    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), new DoubleMatrix2D(coefs), 4, 1);
   }
 
   @Override
@@ -153,7 +153,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
 
     for (int i = 0; i < nIntervals; ++i) {
       for (int j = 0; j < dim; ++j) {
-        resMatrix[dim * i + j] = coefMatrix[j].row(i).getData();
+        resMatrix[dim * i + j] = coefMatrix[j].row(i).toArray();
       }
     }
 
@@ -164,7 +164,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
       }
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
   }
 
   @Override
@@ -228,7 +228,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
     System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, nDataPts - 1);
     final int nCoefs = coefMatrix.columnCount();
 
-    return new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
+    return new PiecewisePolynomialResultsWithSensitivity(DoubleMatrix1D.copyOf(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
   }
 
   @Override
@@ -278,7 +278,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
       if (Math.abs(ref - lower) < SMALL && tau != 0.) {
         newFirst[i] = ref >= lower ? initialFirst[i] : lower / tau;
         for (int k = 0; k < nDataPts; ++k) {
-          tmp[k] = 0.5 * initialFirstSense[i].getData()[k];
+          tmp[k] = 0.5 * initialFirstSense[i].get(k);
         }
         tmp[i] -= 1.5 / intervals[i];
       } else {
@@ -289,7 +289,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
           if (Math.abs(ref - upper) < SMALL && tau != 0.) {
             newFirst[i] = ref <= upper ? initialFirst[i] : upper / tau;
             for (int k = 0; k < nDataPts; ++k) {
-              tmp[k] = 0.5 * initialFirstSense[i].getData()[k];
+              tmp[k] = 0.5 * initialFirstSense[i].get(k);
             }
             tmp[i] += 1.5 / intervals[i - 1];
           } else {
@@ -298,12 +298,12 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
               tmp[i] = 3. / intervals[i - 1];
             } else {
               newFirst[i] = initialFirst[i];
-              System.arraycopy(initialFirstSense[i].getData(), 0, tmp, 0, nDataPts);
+              System.arraycopy(initialFirstSense[i].toArray(), 0, tmp, 0, nDataPts);
             }
           }
         }
       }
-      res[i + 1] = new DoubleMatrix1D(tmp);
+      res[i + 1] = DoubleMatrix1D.copyOf(tmp);
     }
     final double tauIni = Math.signum(yValues[0]);
     final double lowerIni = -3. * tauIni * yValues[0] / intervals[0];
@@ -314,7 +314,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
     if (Math.abs(refIni - lowerIni) < SMALL && tauIni != 0.) {
       newFirst[0] = refIni >= lowerIni ? initialFirst[0] : lowerIni / tauIni;
       for (int k = 0; k < nDataPts; ++k) {
-        tmpIni[k] = 0.5 * initialFirstSense[0].getData()[k];
+        tmpIni[k] = 0.5 * initialFirstSense[0].get(k);
       }
       tmpIni[0] -= 1.5 / intervals[0];
     } else {
@@ -325,7 +325,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
         if (Math.abs(refIni - upperIni) < SMALL && tauIni != 0.) {
           newFirst[0] = refIni <= upperIni ? initialFirst[0] : upperIni / tauIni;
           for (int k = 0; k < nDataPts; ++k) {
-            tmpIni[k] = 0.5 * initialFirstSense[0].getData()[k];
+            tmpIni[k] = 0.5 * initialFirstSense[0].get(k);
           }
           tmpIni[0] += 1.5 / intervals[0];
         } else {
@@ -334,12 +334,12 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
             tmpIni[0] = 3. / intervals[0];
           } else {
             newFirst[0] = initialFirst[0];
-            System.arraycopy(initialFirstSense[0].getData(), 0, tmpIni, 0, nDataPts);
+            System.arraycopy(initialFirstSense[0].toArray(), 0, tmpIni, 0, nDataPts);
           }
         }
       }
     }
-    res[1] = new DoubleMatrix1D(tmpIni);
+    res[1] = DoubleMatrix1D.copyOf(tmpIni);
     final double tauFin = Math.signum(yValues[nDataPts - 1]);
     final double lowerFin = -3. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2];
     final double upperFin = 3. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2];
@@ -349,7 +349,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
     if (Math.abs(refFin - lowerFin) < SMALL && tauFin != 0.) {
       newFirst[nDataPts - 1] = refFin >= lowerFin ? initialFirst[nDataPts - 1] : lowerFin / tauFin;
       for (int k = 0; k < nDataPts; ++k) {
-        tmpFin[k] = 0.5 * initialFirstSense[nDataPts - 1].getData()[k];
+        tmpFin[k] = 0.5 * initialFirstSense[nDataPts - 1].get(k);
       }
       tmpFin[nDataPts - 1] -= 1.5 / intervals[nDataPts - 2];
     } else {
@@ -360,7 +360,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
         if (Math.abs(refFin - upperFin) < SMALL && tauFin != 0.) {
           newFirst[nDataPts - 1] = refFin <= upperFin ? initialFirst[nDataPts - 1] : upperFin / tauFin;
           for (int k = 0; k < nDataPts; ++k) {
-            tmpFin[k] = 0.5 * initialFirstSense[nDataPts - 1].getData()[k];
+            tmpFin[k] = 0.5 * initialFirstSense[nDataPts - 1].get(k);
           }
           tmpFin[nDataPts - 1] += 1.5 / intervals[nDataPts - 2];
         } else {
@@ -369,13 +369,14 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
             tmpFin[nDataPts - 1] = 3. / intervals[nDataPts - 2];
           } else {
             newFirst[nDataPts - 1] = initialFirst[nDataPts - 1];
-            System.arraycopy(initialFirstSense[nDataPts - 1].getData(), 0, tmpFin, 0, nDataPts);
+            System.arraycopy(initialFirstSense[nDataPts - 1].toArray(), 0, tmpFin, 0, nDataPts);
           }
         }
       }
     }
-    res[nDataPts] = new DoubleMatrix1D(tmpFin);
-    res[0] = new DoubleMatrix1D(newFirst);
+    res[nDataPts] = DoubleMatrix1D.copyOf(tmpFin);
+    res[0] = DoubleMatrix1D.copyOf(newFirst);
     return res;
   }
+
 }

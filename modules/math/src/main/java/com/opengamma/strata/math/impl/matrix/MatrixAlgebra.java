@@ -24,15 +24,9 @@ public abstract class MatrixAlgebra {
     ArgChecker.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix1D) {
       if (m2 instanceof DoubleMatrix1D) {
-        double[] x1 = ((DoubleMatrix1D) m1).getData();
-        double[] x2 = ((DoubleMatrix1D) m2).getData();
-        int n = x1.length;
-        ArgChecker.isTrue(n == x2.length, "Can only add matrices of the same shape");
-        double[] sum = new double[n];
-        for (int i = 0; i < n; i++) {
-          sum[i] = x1[i] + x2[i];
-        }
-        return new DoubleMatrix1D(sum);
+        DoubleMatrix1D array1 = (DoubleMatrix1D) m1;
+        DoubleMatrix1D array2 = (DoubleMatrix1D) m2;
+        return array1.plus(array2);
       }
       throw new IllegalArgumentException("Tried to add a " + m1.getClass() + " and " + m2.getClass());
     } else if (m1 instanceof DoubleMatrix2D) {
@@ -149,13 +143,8 @@ public abstract class MatrixAlgebra {
   public Matrix scale(Matrix m, double scale) {
     ArgChecker.notNull(m, "m");
     if (m instanceof DoubleMatrix1D) {
-      double[] x = ((DoubleMatrix1D) m).getData();
-      int n = x.length;
-      double[] scaled = new double[n];
-      for (int i = 0; i < n; i++) {
-        scaled[i] = x[i] * scale;
-      }
-      return new DoubleMatrix1D(scaled);
+      return ((DoubleMatrix1D) m).multipliedBy(scale);
+
     } else if (m instanceof DoubleMatrix2D) {
       double[][] x = ((DoubleMatrix2D) m).getData();
       int n = x.length;
@@ -182,15 +171,9 @@ public abstract class MatrixAlgebra {
     ArgChecker.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix1D) {
       if (m2 instanceof DoubleMatrix1D) {
-        double[] x1 = ((DoubleMatrix1D) m1).getData();
-        double[] x2 = ((DoubleMatrix1D) m2).getData();
-        int n = x1.length;
-        ArgChecker.isTrue(n == x2.length, "Can only subtract matrices of the same shape");
-        double[] sum = new double[n];
-        for (int i = 0; i < n; i++) {
-          sum[i] = x1[i] - x2[i];
-        }
-        return new DoubleMatrix1D(sum);
+        DoubleMatrix1D array1 = (DoubleMatrix1D) m1;
+        DoubleMatrix1D array2 = (DoubleMatrix1D) m2;
+        return array1.minus(array2);
       }
       throw new IllegalArgumentException("Tried to subtract a " + m1.getClass() + " and " + m2.getClass());
     } else if (m1 instanceof DoubleMatrix2D) {

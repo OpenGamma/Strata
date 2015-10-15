@@ -208,7 +208,7 @@ public class GeneralizedLeastSquare {
 
     }
 
-    DoubleMatrix1D mb = new DoubleMatrix1D(b);
+    DoubleMatrix1D mb = DoubleMatrix1D.copyOf(b);
     DoubleMatrix2D ma = getAMatrix(f, invSigmaSqr);
 
     if (lambda > 0.0) {
@@ -270,7 +270,7 @@ public class GeneralizedLeastSquare {
 
     }
 
-    DoubleMatrix1D mb = new DoubleMatrix1D(b);
+    DoubleMatrix1D mb = DoubleMatrix1D.copyOf(b);
     DoubleMatrix2D ma = getAMatrix(f, invSigmaSqr);
 
     for (i = 0; i < dim; i++) {

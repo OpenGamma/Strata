@@ -48,7 +48,7 @@ public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleMa
     for (final String name : _interpolators.keySet()) {
       final Interpolator1D interpolator = _interpolators.get(name);
       final double[] nodes = _knotPoints.get(name);
-      final double[] values = Arrays.copyOfRange(x.getData(), index, index + nodes.length);
+      final double[] values = Arrays.copyOfRange(x.toArray(), index, index + nodes.length);
       index += nodes.length;
       final Interpolator1DDataBundle db = interpolator.getDataBundleFromSortedArrays(nodes, values);
       res.put(name, db);

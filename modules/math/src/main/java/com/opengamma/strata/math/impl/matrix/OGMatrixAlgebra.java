@@ -42,15 +42,9 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
-      double[] a = ((DoubleMatrix1D) m1).getData();
-      double[] b = ((DoubleMatrix1D) m2).getData();
-      int l = a.length;
-      ArgChecker.isTrue(l == b.length, "Matrix size mismacth");
-      double sum = 0.0;
-      for (int i = 0; i < l; i++) {
-        sum += a[i] * b[i];
-      }
-      return sum;
+      DoubleMatrix1D array1 = (DoubleMatrix1D) m1;
+      DoubleMatrix1D array2 = (DoubleMatrix1D) m2;
+      return array1.combineReduce(array2, (r, a1, a2) -> r + a1 * a2);
     }
     throw new IllegalArgumentException("Can only find inner product of DoubleMatrix1D; have " + m1.getClass() +
         " and " + m2.getClass());
@@ -82,13 +76,9 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
   public double getNorm2(Matrix m) {
     ArgChecker.notNull(m, "m");
     if (m instanceof DoubleMatrix1D) {
-      double[] a = ((DoubleMatrix1D) m).getData();
-      int l = a.length;
-      double sum = 0.0;
-      for (int i = 0; i < l; i++) {
-        sum += a[i] * a[i];
-      }
-      return Math.sqrt(sum);
+      DoubleMatrix1D array = (DoubleMatrix1D) m;
+      return Math.sqrt(array.reduce(0d, (r, v) -> r + v * v));
+
     } else if (m instanceof DoubleMatrix2D) {
       throw new UnsupportedOperationException();
     }
@@ -112,8 +102,8 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
-      double[] a = ((DoubleMatrix1D) m1).getData();
-      double[] b = ((DoubleMatrix1D) m2).getData();
+      double[] a = ((DoubleMatrix1D) m1).toArrayUnsafe();
+      double[] b = ((DoubleMatrix1D) m2).toArrayUnsafe();
       int m = a.length;
       int n = b.length;
       double[][] res = new double[m][n];
@@ -299,28 +289,23 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
 
   private DoubleMatrix1D multiply(DoubleMatrix2D matrix, DoubleMatrix1D vector) {
     double[][] a = matrix.getData();
-    double[] b = vector.getData();
+    double[] b = vector.toArrayUnsafe();
     int n = b.length;
     ArgChecker.isTrue(a[0].length == n, "Matrix/vector size mismatch");
-    int m = a.length;
-    double[] res = new double[m];
-    int i, j;
-    double sum;
-    for (i = 0; i < m; i++) {
-      sum = 0.0;
-      for (j = 0; j < n; j++) {
+    return DoubleMatrix1D.of(a.length, i -> {
+      double sum = 0;
+      for (int j = 0; j < n; j++) {
         sum += a[i][j] * b[j];
       }
-      res[i] = sum;
-    }
-    return new DoubleMatrix1D(res);
+      return sum;
+    });
   }
 
   private DoubleMatrix1D multiply(TridiagonalMatrix matrix, DoubleMatrix1D vector) {
     double[] a = matrix.getLowerSubDiagonalData();
     double[] b = matrix.getDiagonalData();
     double[] c = matrix.getUpperSubDiagonalData();
-    double[] x = vector.getData();
+    double[] x = vector.toArrayUnsafe();
     int n = x.length;
     ArgChecker.isTrue(b.length == n, "Matrix/vector size mismatch");
     double[] res = new double[n];
@@ -330,33 +315,28 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     for (i = 1; i < n - 1; i++) {
       res[i] = a[i - 1] * x[i - 1] + b[i] * x[i] + c[i] * x[i + 1];
     }
-    return new DoubleMatrix1D(res);
+    return DoubleMatrix1D.ofUnsafe(res);
   }
 
   private DoubleMatrix1D multiply(DoubleMatrix1D vector, DoubleMatrix2D matrix) {
-    double[] a = vector.getData();
+    double[] a = vector.toArrayUnsafe();
     double[][] b = matrix.getData();
     int n = a.length;
     ArgChecker.isTrue(b.length == n, "Matrix/vector size mismatch");
-    int m = b[0].length;
-    double[] res = new double[m];
-    int i, j;
-    double sum;
-    for (i = 0; i < m; i++) {
-      sum = 0.0;
-      for (j = 0; j < n; j++) {
+    return DoubleMatrix1D.of(b[0].length, i -> {
+      double sum = 0;
+      for (int j = 0; j < n; j++) {
         sum += a[j] * b[j][i];
       }
-      res[i] = sum;
-    }
-    return new DoubleMatrix1D(res);
+      return sum;
+    });
   }
 
   private DoubleMatrix1D multiply(DoubleMatrix1D vector, TridiagonalMatrix matrix) {
     double[] a = matrix.getLowerSubDiagonalData();
     double[] b = matrix.getDiagonalData();
     double[] c = matrix.getUpperSubDiagonalData();
-    double[] x = vector.getData();
+    double[] x = vector.toArrayUnsafe();
     int n = x.length;
     ArgChecker.isTrue(b.length == n, "Matrix/vector size mismatch");
     double[] res = new double[n];
@@ -366,7 +346,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     for (i = 1; i < n - 1; i++) {
       res[i] = a[i] * x[i + 1] + b[i] * x[i] + c[i - 1] * x[i - 1];
     }
-    return new DoubleMatrix1D(res);
+    return DoubleMatrix1D.ofUnsafe(res);
   }
 
 }

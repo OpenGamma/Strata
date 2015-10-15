@@ -67,9 +67,9 @@ public class MarketQuoteSensitivityCalculator {
 
       // calculate the market quote sensitivity using the Jacobian
       DoubleMatrix2D jacobian = info.getJacobianMatrix();
-      DoubleMatrix1D paramSensMatrix = new DoubleMatrix1D(paramSens.getSensitivity());
+      DoubleMatrix1D paramSensMatrix = DoubleMatrix1D.ofUnsafe(paramSens.getSensitivity());
       DoubleMatrix1D marketQuoteSensMatrix = (DoubleMatrix1D) MATRIX_ALGEBRA.multiply(paramSensMatrix, jacobian);
-      double[] marketQuoteSens = marketQuoteSensMatrix.getData();
+      double[] marketQuoteSens = marketQuoteSensMatrix.toArray();
 
       // split between different curves
       Map<CurveName, double[]> split = info.splitValues(marketQuoteSens);

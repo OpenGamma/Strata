@@ -56,7 +56,7 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
       }
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), coefMatrix, coefMatrix.columnCount(), 1);
+    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), coefMatrix, coefMatrix.columnCount(), 1);
   }
 
   @Override
@@ -103,7 +103,7 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
 
     for (int i = 0; i < nIntervals; ++i) {
       for (int j = 0; j < dim; ++j) {
-        resMatrix[dim * i + j] = coefMatrix[j].row(i).getData();
+        resMatrix[dim * i + j] = coefMatrix[j].row(i).toArray();
       }
     }
 
@@ -114,7 +114,7 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
       }
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
   }
 
   @Override

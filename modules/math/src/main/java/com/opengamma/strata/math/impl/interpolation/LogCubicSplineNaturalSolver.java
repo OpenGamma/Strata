@@ -35,11 +35,9 @@ public class LogCubicSplineNaturalSolver extends CubicSplineSolver {
   public DoubleMatrix2D[] solveMultiDim(final double[] xValues, final DoubleMatrix2D yValuesMatrix) {
     final int dim = yValuesMatrix.rowCount();
     DoubleMatrix2D[] coefMatrix = new DoubleMatrix2D[dim];
-
     for (int i = 0; i < dim; ++i) {
-      coefMatrix[i] = solve(xValues, yValuesMatrix.row(i).getData());
+      coefMatrix[i] = solve(xValues, yValuesMatrix.row(i).toArray());
     }
-
     return coefMatrix;
   }
 
@@ -96,12 +94,12 @@ public class LogCubicSplineNaturalSolver extends CubicSplineSolver {
     }
     d[size - 1] = doubMat1[size - 1][size - 1];
     final TridiagonalMatrix m = new TridiagonalMatrix(d, u, l);
-    res[0] = new DoubleMatrix1D(TridiagonalSolver.solvTriDag(m, doubVec));
+    res[0] = DoubleMatrix1D.copyOf(TridiagonalSolver.solvTriDag(m, doubVec));
     for (int i = 0; i < size; ++i) {
-      final double[] doubMat2Colum = doubMat2Matrix.column(i).getData();
-      res[i + 1] = new DoubleMatrix1D(TridiagonalSolver.solvTriDag(m, doubMat2Colum));
+      DoubleMatrix1D doubMat2Colum = doubMat2Matrix.column(i);
+      res[i + 1] = TridiagonalSolver.solvTriDag(m, doubMat2Colum);
     }
-
     return res;
   }
+
 }

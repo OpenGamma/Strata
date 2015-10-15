@@ -78,7 +78,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
     }
     final DoubleMatrix2D inverseTriDiag = getInverseTridiagonalMatrix(deltaX);
     final DoubleMatrix1D rhsVector = getRHSVector(deltaYOverDeltaX);
-    return ((DoubleMatrix1D) OG_ALGEBRA.multiply(inverseTriDiag, rhsVector)).getData();
+    return ((DoubleMatrix1D) OG_ALGEBRA.multiply(inverseTriDiag, rhsVector)).toArray();
   }
 
   @Override
@@ -216,7 +216,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
     if (!_rightNatural) {
       res[n - 1] = _rightFirstDev - deltaYOverDeltaX[n - 2];
     }
-    return new DoubleMatrix1D(res);
+    return DoubleMatrix1D.copyOf(res);
   }
 
   private DoubleMatrix2D getInverseTridiagonalMatrix(final double[] deltaX) {

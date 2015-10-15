@@ -18,7 +18,6 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
   private static final double DEFAULT_EPS = 1e-4;
 
   private final double eps;
-  private final double twoEps;
   private final double epsSqr;
   private final VectorFieldFirstOrderDifferentiator vectorFieldDiff;
   private final MatrixFieldFirstOrderDifferentiator maxtrixFieldDiff;
@@ -28,7 +27,6 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
    */
   public VectorFieldSecondOrderDifferentiator() {
     this.eps = DEFAULT_EPS;
-    this.twoEps = 2 * eps;
     this.epsSqr = eps * eps;
     this.vectorFieldDiff = new VectorFieldFirstOrderDifferentiator(eps);
     this.maxtrixFieldDiff = new MatrixFieldFirstOrderDifferentiator(eps);
@@ -125,42 +123,32 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
         DoubleMatrix1D y = function.evaluate(x);
         int n = x.size();
         int m = y.size();
-        double[] xData = x.getData();
-        double oldValueJ, oldValueK;
         double[][][] res = new double[m][n][n];
-        int i, j, k;
 
-        DoubleMatrix1D up, down, upup, updown, downup, downdown;
-        for (j = 0; j < n; j++) {
-          oldValueJ = xData[j];
-          xData[j] += eps;
-          up = function.evaluate(x);
-          xData[j] -= twoEps;
-          down = function.evaluate(x);
-          for (i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+          double xj = x.get(j);
+          DoubleMatrix1D xPlusOneEps = x.with(j, xj + eps);
+          DoubleMatrix1D xMinusOneEps = x.with(j, xj - eps);
+          DoubleMatrix1D up = function.evaluate(x.with(j, xj + eps));
+          DoubleMatrix1D down = function.evaluate(xMinusOneEps);
+          for (int i = 0; i < m; i++) {
             res[i][j][j] = (up.get(i) + down.get(i) - 2 * y.get(i)) / epsSqr;
           }
-          for (k = j + 1; k < n; k++) {
-            oldValueK = xData[k];
-            xData[k] += eps;
-            downup = function.evaluate(x);
-            xData[k] -= twoEps;
-            downdown = function.evaluate(x);
-            xData[j] += twoEps;
-            updown = function.evaluate(x);
-            xData[k] += twoEps;
-            upup = function.evaluate(x);
-            xData[k] = oldValueK;
-            for (i = 0; i < m; i++) {
+          for (int k = j + 1; k < n; k++) {
+            double xk = x.get(k);
+            DoubleMatrix1D downup = function.evaluate(xMinusOneEps.with(k, xk + eps));
+            DoubleMatrix1D downdown = function.evaluate(xMinusOneEps.with(k, xk - eps));
+            DoubleMatrix1D updown = function.evaluate(xPlusOneEps.with(k, xk - eps));
+            DoubleMatrix1D upup = function.evaluate(xPlusOneEps.with(k, xk + eps));
+            for (int i = 0; i < m; i++) {
               res[i][j][k] = (upup.get(i) + downdown.get(i) - updown.get(i) - downup.get(i)) / 4 / epsSqr;
             }
           }
-          xData[j] = oldValueJ;
         }
         DoubleMatrix2D[] mres = new DoubleMatrix2D[m];
-        for (i = 0; i < m; i++) {
-          for (j = 0; j < n; j++) {
-            for (k = 0; k < j; k++) {
+        for (int i = 0; i < m; i++) {
+          for (int j = 0; j < n; j++) {
+            for (int k = 0; k < j; k++) {
               res[i][j][k] = res[i][k][j];
             }
           }
@@ -183,22 +171,14 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
         DoubleMatrix1D y = function.evaluate(x);
         int n = x.size();
         int m = y.size();
-        double[] xData = x.getData();
-        double oldValue;
         double[][] res = new double[m][n];
-        int i, j;
-
-        DoubleMatrix1D up, down;
-        for (j = 0; j < n; j++) {
-          oldValue = xData[j];
-          xData[j] += eps;
-          up = function.evaluate(x);
-          xData[j] -= twoEps;
-          down = function.evaluate(x);
-          for (i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+          double xj = x.get(j);
+          DoubleMatrix1D up = function.evaluate(x.with(j, xj + eps));
+          DoubleMatrix1D down = function.evaluate(x.with(j, xj - eps));
+          for (int i = 0; i < m; i++) {
             res[i][j] = (up.get(i) + down.get(i) - 2 * y.get(i)) / epsSqr;
           }
-          xData[j] = oldValue;
         }
         return new DoubleMatrix2D(res);
       }

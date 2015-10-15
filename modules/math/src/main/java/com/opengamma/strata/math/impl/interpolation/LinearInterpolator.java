@@ -67,7 +67,7 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
       ArgChecker.isTrue(Math.abs(ref - yValuesSrt[i + 1]) < ERROR * bound, "Input is too large/small or data are not distinct enough");
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), coefMatrix, coefMatrix.columnCount(), 1);
+    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), coefMatrix, coefMatrix.columnCount(), 1);
   }
 
   @Override
@@ -128,11 +128,11 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
 
     for (int i = 0; i < nIntervals; ++i) {
       for (int j = 0; j < dim; ++j) {
-        resMatrix[dim * i + j] = coefMatrix[j].row(i).getData();
+        resMatrix[dim * i + j] = coefMatrix[j].row(i).toArray();
       }
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
   }
 
   @Override

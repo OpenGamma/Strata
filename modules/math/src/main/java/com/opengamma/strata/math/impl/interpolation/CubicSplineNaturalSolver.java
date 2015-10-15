@@ -34,7 +34,7 @@ public class CubicSplineNaturalSolver extends CubicSplineSolver {
     DoubleMatrix2D[] coefMatrix = new DoubleMatrix2D[dim];
 
     for (int i = 0; i < dim; ++i) {
-      coefMatrix[i] = solve(xValues, yValuesMatrix.row(i).getData());
+      coefMatrix[i] = solve(xValues, yValuesMatrix.row(i).toArray());
     }
 
     return coefMatrix;

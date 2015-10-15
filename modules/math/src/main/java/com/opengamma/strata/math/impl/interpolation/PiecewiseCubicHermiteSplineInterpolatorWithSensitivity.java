@@ -76,7 +76,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
     DoubleMatrix2D[] coefMatrixSense = new DoubleMatrix2D[n - 1];
     System.arraycopy(temp, 1, coefMatrixSense, 0, n - 1);
 
-    return new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(xValuesSrt), coefMatrix, 4, 1, coefMatrixSense);
+    return new PiecewisePolynomialResultsWithSensitivity(DoubleMatrix1D.copyOf(xValuesSrt), coefMatrix, 4, 1, coefMatrixSense);
   }
 
   /**
@@ -104,14 +104,14 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
       coeff[0][3] = xValues[0];
     } else {
       SlopeFinderResults temp = slopeFinder(h, delta, yValues);
-      final double[] d = temp.getSlopes().getData();
+      final DoubleMatrix1D d = temp.getSlopes();
       final double[][] dDy = temp.getSlopeJacobian().getData();
 
       // form up the coefficient matrix
       for (int i = 0; i < n - 1; ++i) {
-        coeff[i][0] = (d[i] - 2 * delta[i] + d[i + 1]) / h[i] / h[i]; // b
-        coeff[i][1] = (3 * delta[i] - 2. * d[i] - d[i + 1]) / h[i]; // c
-        coeff[i][2] = d[i];
+        coeff[i][0] = (d.get(i) - 2 * delta[i] + d.get(i + 1)) / h[i] / h[i]; // b
+        coeff[i][1] = (3 * delta[i] - 2. * d.get(i) - d.get(i + 1)) / h[i]; // c
+        coeff[i][2] = d.get(i);
         coeff[i][3] = yValues[i];
       }
 
@@ -229,7 +229,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
       jac[n - 1][n - i] = temp[i];
     }
 
-    return new SlopeFinderResults(new DoubleMatrix1D(d), new DoubleMatrix2D(jac));
+    return new SlopeFinderResults(DoubleMatrix1D.copyOf(d), new DoubleMatrix2D(jac));
   }
 
   /**

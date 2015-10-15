@@ -59,13 +59,7 @@ public class InterpolatedCurveVectorFunction extends VectorFunction {
   @Override
   public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
     Interpolator1DDataBundle db = _interpolator.getDataBundleFromSortedArrays(_knots, x.toArray());
-    int n = _samplePoints.length;
-    DoubleMatrix1D res = DoubleMatrix1D.filled(n);
-    double[] data = res.getData(); //direct access to vector data
-    for (int i = 0; i < n; i++) {
-      data[i] = _interpolator.interpolate(db, _samplePoints[i]);
-    }
-    return res;
+    return DoubleMatrix1D.of(_samplePoints.length, i -> _interpolator.interpolate(db, _samplePoints[i]));
   }
 
   @Override

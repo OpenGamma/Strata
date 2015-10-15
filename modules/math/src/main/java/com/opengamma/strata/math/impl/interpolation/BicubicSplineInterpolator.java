@@ -133,14 +133,17 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
             diffsVec[12 + l + 2 * m] = cross[i + l][j + m];
           }
         }
-        final DoubleMatrix1D diffs = new DoubleMatrix1D(diffsVec);
-        final double[] ansVec = ((DoubleMatrix1D) OG_ALGEBRA.multiply(new DoubleMatrix2D(s_invMat), diffs)).getData();
+        final DoubleMatrix1D diffs = DoubleMatrix1D.copyOf(diffsVec);
+        final DoubleMatrix1D ansVec = ((DoubleMatrix1D) OG_ALGEBRA.multiply(new DoubleMatrix2D(s_invMat), diffs));
 
         double ref = 0.;
         double[][] coefMatTmp = new double[order][order];
         for (int l = 0; l < order; ++l) {
           for (int m = 0; m < order; ++m) {
-            coefMatTmp[order - l - 1][order - m - 1] = ansVec[l + m * (order)] / Math.pow((x0Values[i + 1] - x0Values[i]), l) / Math.pow((x1Values[j + 1] - x1Values[j]), m);
+            coefMatTmp[order - l - 1][order - m - 1] =
+                ansVec.get(l + m * (order)) /
+                    Math.pow((x0Values[i + 1] - x0Values[i]), l) /
+                    Math.pow((x1Values[j + 1] - x1Values[j]), m);
             ArgChecker.isFalse(Double.isNaN(coefMatTmp[order - l - 1][order - m - 1]), "Too large/small input");
             ArgChecker.isFalse(Double.isInfinite(coefMatTmp[order - l - 1][order - m - 1]), "Too large/small input");
             ref += coefMatTmp[order - l - 1][order - m - 1] * Math.pow((x0Values[i + 1] - x0Values[i]), l) * Math.pow((x1Values[j + 1] - x1Values[j]), m);
@@ -152,6 +155,11 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
       }
     }
 
-    return new PiecewisePolynomialResult2D(new DoubleMatrix1D(x0Values), new DoubleMatrix1D(x1Values), coefMat, new int[] {order, order });
+    return new PiecewisePolynomialResult2D(
+        DoubleMatrix1D.copyOf(x0Values),
+        DoubleMatrix1D.copyOf(x1Values),
+        coefMat,
+        new int[] {order, order});
   }
+
 }

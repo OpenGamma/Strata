@@ -77,7 +77,7 @@ public final class CommonsMathWrapper {
    */
   public static MultivariateFunction wrapMultivariateVector(Function1D<DoubleMatrix1D, Double> f) {
     ArgChecker.notNull(f, "f");
-    return point -> f.evaluate(new DoubleMatrix1D(point));
+    return point -> f.evaluate(DoubleMatrix1D.copyOf(point));
   }
 
   /**
@@ -123,7 +123,7 @@ public final class CommonsMathWrapper {
     for (int i = 0; i < n; i++) {
       y[i][0] = x.get(i);
     }
-    return new Array2DRowRealMatrix(x.getData());
+    return new Array2DRowRealMatrix(x.toArrayUnsafe());  // cloned in Array2DRowRealMatrix constructor
   }
 
   /**
@@ -146,7 +146,7 @@ public final class CommonsMathWrapper {
    */
   public static RealVector wrap(DoubleMatrix1D x) {
     ArgChecker.notNull(x, "x");
-    return new ArrayRealVector(x.getData());
+    return new ArrayRealVector(x.toArrayUnsafe()); // cloned in ArrayRealVector constructor
   }
 
   /**
@@ -157,7 +157,7 @@ public final class CommonsMathWrapper {
    */
   public static DoubleMatrix1D unwrap(RealVector x) {
     ArgChecker.notNull(x, "x");
-    return new DoubleMatrix1D(x.toArray());
+    return DoubleMatrix1D.ofUnsafe(x.toArray());
   }
 
   //-------------------------------------------------------------------------

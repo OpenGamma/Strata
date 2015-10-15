@@ -69,18 +69,11 @@ public class ScalarFieldFirstOrderDifferentiator
           @Override
           public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
             ArgChecker.notNull(x, "x");
-            int n = x.size();
             double y = function.evaluate(x);
-            double[] xData = x.getData();
-            double oldValue;
-            double[] res = new double[n];
-            for (int i = 0; i < n; i++) {
-              oldValue = xData[i];
-              xData[i] += eps;
-              res[i] = (function.evaluate(x) - y) / eps;
-              xData[i] = oldValue;
-            }
-            return new DoubleMatrix1D(res);
+            return DoubleMatrix1D.of(x.size(), i -> {
+              double up = function.evaluate(x.with(i, x.get(i) + eps));
+              return (up - y) / eps;
+            });
           }
         };
       case CENTRAL:
@@ -89,21 +82,11 @@ public class ScalarFieldFirstOrderDifferentiator
           @Override
           public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
             ArgChecker.notNull(x, "x");
-            int n = x.size();
-            double[] xData = x.getData();
-            double oldValue;
-            double up, down;
-            double[] res = new double[n];
-            for (int i = 0; i < n; i++) {
-              oldValue = xData[i];
-              xData[i] += eps;
-              up = function.evaluate(x);
-              xData[i] -= twoEps;
-              down = function.evaluate(x);
-              res[i] = (up - down) / twoEps;
-              xData[i] = oldValue;
-            }
-            return new DoubleMatrix1D(res);
+            return DoubleMatrix1D.of(x.size(), i -> {
+              double up = function.evaluate(x.with(i, x.get(i) + eps));
+              double down = function.evaluate(x.with(i, x.get(i) - eps));
+              return (up - down) / twoEps;
+            });
           }
         };
       case BACKWARD:
@@ -113,17 +96,10 @@ public class ScalarFieldFirstOrderDifferentiator
           public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
             ArgChecker.notNull(x, "x");
             double y = function.evaluate(x);
-            int n = x.size();
-            double[] xData = x.getData();
-            double oldValue;
-            double[] res = new double[n];
-            for (int i = 0; i < n; i++) {
-              oldValue = xData[i];
-              xData[i] -= eps;
-              res[i] = (y - function.evaluate(x)) / eps;
-              xData[i] = oldValue;
-            }
-            return new DoubleMatrix1D(res);
+            return DoubleMatrix1D.of(x.size(), i -> {
+              double down = function.evaluate(x.with(i, x.get(i) - eps));
+              return (y - down) / eps;
+            });
           }
         };
       default:
@@ -151,50 +127,41 @@ public class ScalarFieldFirstOrderDifferentiator
         ArgChecker.notNull(x, "x");
         ArgChecker.isTrue(domain.evaluate(x), "point {} is not in the function domain", x.toString());
 
-        int n = x.size();
-        double[] xData = x.getData();
-        double oldValue;
-        double[] y = new double[3];
-        double[] res = new double[n];
-        double[] w;
-        for (int i = 0; i < n; i++) {
-          oldValue = xData[i];
-          xData[i] += eps;
-          if (!domain.evaluate(x)) {
-            xData[i] = oldValue - twoEps;
-            if (!domain.evaluate(x)) {
+        return DoubleMatrix1D.of(x.size(), i -> {
+          double xi = x.get(i);
+          DoubleMatrix1D xPlusOneEps = x.with(i, xi + eps);
+          DoubleMatrix1D xMinusOneEps = x.with(i, xi - eps);
+          double y0, y1, y2;
+          double[] w;
+          if (!domain.evaluate(xPlusOneEps)) {
+            DoubleMatrix1D xMinusTwoEps = x.with(i, xi - twoEps);
+            if (!domain.evaluate(xMinusTwoEps)) {
               throw new MathException("cannot get derivative at point " + x.toString() + " in direction " + i);
             }
-            y[0] = function.evaluate(x);
-            xData[i] = oldValue;
-            y[2] = function.evaluate(x);
-            xData[i] = oldValue - eps;
-            y[1] = function.evaluate(x);
+            y0 = function.evaluate(xMinusTwoEps);
+            y2 = function.evaluate(x);
+            y1 = function.evaluate(xMinusOneEps);
             w = wBack;
           } else {
-            double temp = function.evaluate(x);
-            xData[i] = oldValue - eps;
-            if (!domain.evaluate(x)) {
-              y[1] = temp;
-              xData[i] = oldValue;
-              y[0] = function.evaluate(x);
-              xData[i] = oldValue + twoEps;
-              y[2] = function.evaluate(x);
+            double temp = function.evaluate(xPlusOneEps);
+            if (!domain.evaluate(xMinusOneEps)) {
+              y1 = temp;
+              y0 = function.evaluate(x);
+              y2 = function.evaluate(x.with(i, xi + twoEps));
               w = wFwd;
             } else {
-              y[2] = temp;
-              xData[i] = oldValue - eps;
-              y[0] = function.evaluate(x);
+              y1 = 0;
+              y2 = temp;
+              y0 = function.evaluate(xMinusOneEps);
               w = wCent;
             }
           }
-          res[i] = y[0] * w[0] + y[2] * w[2];
+          double res = y0 * w[0] + y2 * w[2];
           if (w[1] != 0) {
-            res[i] += y[1] * w[1];
+            res += y1 * w[1];
           }
-          xData[i] = oldValue;
-        }
-        return new DoubleMatrix1D(res);
+          return res;
+        });
       }
     };
   }

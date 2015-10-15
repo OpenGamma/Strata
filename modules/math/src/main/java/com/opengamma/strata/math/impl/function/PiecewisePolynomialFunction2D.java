@@ -38,26 +38,26 @@ public class PiecewisePolynomialFunction2D {
     ArgChecker.isFalse(Double.isNaN(x1Key), "x1Key containing NaN");
     ArgChecker.isFalse(Double.isInfinite(x1Key), "x1Key containing Infinity");
 
-    double[] knots0 = pp.getKnots0().toArray();
-    double[] knots1 = pp.getKnots1().toArray();
-    int nKnots0 = knots0.length;
-    int nKnots1 = knots1.length;
+    DoubleMatrix1D knots0 = pp.getKnots0();
+    DoubleMatrix1D knots1 = pp.getKnots1();
+    int nKnots0 = knots0.size();
+    int nKnots1 = knots1.size();
 
     int ind0 = 0;
     int ind1 = 0;
 
     for (int k = 1; k < nKnots0 - 1; ++k) {
-      if (x0Key >= knots0[k]) {
+      if (x0Key >= knots0.get(k)) {
         ind0 = k;
       }
     }
 
     for (int i = 1; i < nKnots1 - 1; ++i) {
-      if (x1Key >= knots1[i]) {
+      if (x1Key >= knots1.get(i)) {
         ind1 = i;
       }
     }
-    double res = getValue(pp.getCoefs()[ind0][ind1], x0Key, x1Key, knots0[ind0], knots1[ind1]);
+    double res = getValue(pp.getCoefs()[ind0][ind1], x0Key, x1Key, knots0.get(ind0), knots1.get(ind1));
 
     ArgChecker.isFalse(Double.isInfinite(res), "Too large input");
     ArgChecker.isFalse(Double.isNaN(res), "Too large input");
@@ -90,10 +90,10 @@ public class PiecewisePolynomialFunction2D {
       ArgChecker.isFalse(Double.isInfinite(x1Keys[i]), "x1Keys containing Infinity");
     }
 
-    double[] knots0 = pp.getKnots0().toArray();
-    double[] knots1 = pp.getKnots1().toArray();
-    int nKnots0 = knots0.length;
-    int nKnots1 = knots1.length;
+    DoubleMatrix1D knots0 = pp.getKnots0();
+    DoubleMatrix1D knots1 = pp.getKnots1();
+    int nKnots0 = knots0.size();
+    int nKnots1 = knots1.size();
 
     double[][] res = new double[n0Keys][n1Keys];
 
@@ -103,16 +103,16 @@ public class PiecewisePolynomialFunction2D {
         int ind1 = 0;
 
         for (int k = 1; k < nKnots0 - 1; ++k) {
-          if (x0Keys[i] >= knots0[k]) {
+          if (x0Keys[i] >= knots0.get(k)) {
             ind0 = k;
           }
         }
         for (int k = 1; k < nKnots1 - 1; ++k) {
-          if (x1Keys[j] >= knots1[k]) {
+          if (x1Keys[j] >= knots1.get(k)) {
             ind1 = k;
           }
         }
-        res[i][j] = getValue(pp.getCoefs()[ind0][ind1], x0Keys[i], x1Keys[j], knots0[ind0], knots1[ind1]);
+        res[i][j] = getValue(pp.getCoefs()[ind0][ind1], x0Keys[i], x1Keys[j], knots0.get(ind0), knots1.get(ind1));
         ArgChecker.isFalse(Double.isInfinite(res[i][j]), "Too large input");
         ArgChecker.isFalse(Double.isNaN(res[i][j]), "Too large input");
       }

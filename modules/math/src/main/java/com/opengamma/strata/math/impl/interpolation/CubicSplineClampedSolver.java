@@ -64,7 +64,7 @@ public class CubicSplineClampedSolver extends CubicSplineSolver {
 
     for (int i = 0; i < dim; ++i) {
       resetConds(i);
-      coefMatrix[i] = solve(xValues, yValuesMatrix.row(i).getData());
+      coefMatrix[i] = solve(xValues, yValuesMatrix.row(i).toArray());
     }
 
     return coefMatrix;

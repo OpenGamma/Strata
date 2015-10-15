@@ -46,14 +46,12 @@ public class WeightedLeastSquaresRegression extends LeastSquaresRegression {
     }
     checkData(x, weights, y);
     double[][] dep = addInterceptVariable(x, useIntercept);
-    double[] indep = new double[y.length];
     double[] w = new double[weights.length];
     for (int i = 0; i < y.length; i++) {
-      indep[i] = y[i];
       w[i] = weights[i];
     }
     DoubleMatrix2D matrix = new DoubleMatrix2D(dep);
-    DoubleMatrix1D vector = new DoubleMatrix1D(indep);
+    DoubleMatrix1D vector = DoubleMatrix1D.copyOf(y);
     RealMatrix wDiag = new DiagonalMatrix(w);
     DoubleMatrix2D transpose = s_algebra.getTranspose(matrix);
 

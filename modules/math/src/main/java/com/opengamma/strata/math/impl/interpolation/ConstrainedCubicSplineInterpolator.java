@@ -65,7 +65,7 @@ public class ConstrainedCubicSplineInterpolator extends PiecewisePolynomialInter
       ArgChecker.isTrue(Math.abs(ref - yValuesSrt[i + 1]) < ERROR * bound, "Input is too large/small or data points are too close");
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(coefs), 4, 1);
+    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), new DoubleMatrix2D(coefs), 4, 1);
   }
 
   @Override
@@ -128,11 +128,11 @@ public class ConstrainedCubicSplineInterpolator extends PiecewisePolynomialInter
 
     for (int i = 0; i < nIntervals; ++i) {
       for (int j = 0; j < dim; ++j) {
-        resMatrix[dim * i + j] = coefMatrix[j].row(i).getData();
+        resMatrix[dim * i + j] = coefMatrix[j].row(i).toArray();
       }
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
   }
 
   @Override
@@ -188,7 +188,7 @@ public class ConstrainedCubicSplineInterpolator extends PiecewisePolynomialInter
     System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, nDataPts - 1);
     final int nCoefs = coefMatrix.columnCount();
 
-    return new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
+    return new PiecewisePolynomialResultsWithSensitivity(DoubleMatrix1D.copyOf(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
   }
 
   private double[] firstDerivativeCalculator(final double[] slopes) {
@@ -234,17 +234,17 @@ public class ConstrainedCubicSplineInterpolator extends PiecewisePolynomialInter
           }
         }
       }
-      res[i + 1] = new DoubleMatrix1D(sense[i]);
+      res[i + 1] = DoubleMatrix1D.copyOf(sense[i]);
     }
     first[0] = 1.5 * slopes[0] - 0.5 * first[1];
     first[nData - 1] = 1.5 * slopes[nData - 2] - 0.5 * first[nData - 2];
-    res[0] = new DoubleMatrix1D(first);
+    res[0] = DoubleMatrix1D.copyOf(first);
     for (int k = 0; k < nData; ++k) {
       sense[0][k] = 1.5 * slopeSensitivity[0][k] - 0.5 * sense[1][k];
       sense[nData - 1][k] = 1.5 * slopeSensitivity[nData - 2][k] - 0.5 * sense[nData - 2][k];
     }
-    res[1] = new DoubleMatrix1D(sense[0]);
-    res[nData] = new DoubleMatrix1D(sense[nData - 1]);
+    res[1] = DoubleMatrix1D.copyOf(sense[0]);
+    res[nData] = DoubleMatrix1D.copyOf(sense[nData - 1]);
 
     return res;
   }

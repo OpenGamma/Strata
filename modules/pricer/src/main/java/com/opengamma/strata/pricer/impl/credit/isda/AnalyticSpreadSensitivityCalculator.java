@@ -184,19 +184,13 @@ public class AnalyticSpreadSensitivityCalculator {
     ArgChecker.notNull(yieldCurve, "yieldCurve");
     LUDecompositionCommons decomp = new LUDecompositionCommons();
     int n = bucketCDSs.length;
-    double[] temp = new double[n];
-    double[][] res = new double[n][n];
-    for (int i = 0; i < n; i++) {
-      temp[i] = _pricer.pvCreditSensitivity(cds, yieldCurve, creditCurve, cdsCoupon, i);
-      for (int j = 0; j < n; j++) {
-        res[j][i] = _pricer.parSpreadCreditSensitivity(bucketCDSs[i], yieldCurve, creditCurve, j);
-      }
-    }
-    DoubleMatrix1D vLambda = new DoubleMatrix1D(temp);
-    DoubleMatrix2D jacT = new DoubleMatrix2D(res);
+    DoubleMatrix1D vLambda = DoubleMatrix1D.of(n,
+        i -> _pricer.pvCreditSensitivity(cds, yieldCurve, creditCurve, cdsCoupon, i));
+    DoubleMatrix2D jacT = DoubleMatrix2D.of(n, n,
+        (i, j) -> _pricer.parSpreadCreditSensitivity(bucketCDSs[j], yieldCurve, creditCurve, i));
     LUDecompositionResult luRes = decomp.evaluate(jacT);
     DoubleMatrix1D vS = luRes.solve(vLambda);
-    return vS.getData();
+    return vS.toArray();
   }
 
   public double[][] bucketedCS01FromCreditCurve(

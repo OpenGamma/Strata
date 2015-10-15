@@ -66,7 +66,7 @@ class CalibrationDerivative
   @Override
   public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
     // create child provider from matrix
-    double[] data = x.getData();
+    double[] data = x.toArray();
     ImmutableRatesProvider provider = providerGenerator.generate(data);
     // calculate derivative for each trade using the child provider
     int size = trades.size();

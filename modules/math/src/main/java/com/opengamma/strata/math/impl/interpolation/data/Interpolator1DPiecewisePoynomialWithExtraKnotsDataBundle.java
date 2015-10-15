@@ -99,7 +99,7 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
    * @return X values of breakpoints
    */
   public double[] getBreakpointsX() {
-    return _poly.getKnots().getData();
+    return _poly.getKnots().toArray();
   }
 
   /**

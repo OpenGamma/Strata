@@ -61,15 +61,11 @@ public class MatrixFieldFirstOrderDifferentiator
         int n = x.size();
 
         DoubleMatrix2D[] res = new DoubleMatrix2D[n];
-        double[] xData = x.getData();
         for (int i = 0; i < n; i++) {
-          double oldValue = xData[i];
-          xData[i] += eps;
-          DoubleMatrix2D up = function.evaluate(x);
-          xData[i] -= twoEps;
-          DoubleMatrix2D down = function.evaluate(x);
+          double xi = x.get(i);
+          DoubleMatrix2D up = function.evaluate(x.with(i, xi + eps));
+          DoubleMatrix2D down = function.evaluate(x.with(i, xi - eps));
           res[i] = (DoubleMatrix2D) MA.scale(MA.subtract(up, down), oneOverTwpEps); //TODO have this in one operation
-          xData[i] = oldValue;
         }
         return res;
       }
@@ -97,39 +93,31 @@ public class MatrixFieldFirstOrderDifferentiator
         ArgChecker.isTrue(domain.evaluate(x), "point {} is not in the function domain", x.toString());
 
         int n = x.size();
-        double[] xData = x.getData();
-        double oldValue;
         DoubleMatrix2D[] y = new DoubleMatrix2D[3];
         DoubleMatrix2D[] res = new DoubleMatrix2D[n];
         double[] w;
         for (int i = 0; i < n; i++) {
-          oldValue = xData[i];
-          xData[i] += eps;
-          if (!domain.evaluate(x)) {
-            xData[i] = oldValue - twoEps;
-            if (!domain.evaluate(x)) {
+          double xi = x.get(i);
+          DoubleMatrix1D xPlusOneEps = x.with(i, xi + eps);
+          DoubleMatrix1D xMinusOneEps = x.with(i, xi - eps);
+          if (!domain.evaluate(xPlusOneEps)) {
+            DoubleMatrix1D xMinusTwoEps = x.with(i, xi - twoEps);
+            if (!domain.evaluate(xMinusTwoEps)) {
               throw new MathException("cannot get derivative at point " + x.toString() + " in direction " + i);
             }
-            y[0] = function.evaluate(x);
-            xData[i] = oldValue;
+            y[0] = function.evaluate(xMinusTwoEps);
             y[2] = function.evaluate(x);
-            xData[i] = oldValue - eps;
-            y[1] = function.evaluate(x);
+            y[1] = function.evaluate(xMinusOneEps);
             w = wBack;
           } else {
-            DoubleMatrix2D temp = function.evaluate(x);
-            xData[i] = oldValue - eps;
-            if (!domain.evaluate(x)) {
-              y[1] = temp;
-              xData[i] = oldValue;
+            if (!domain.evaluate(xMinusOneEps)) {
+              y[1] = function.evaluate(xPlusOneEps);
               y[0] = function.evaluate(x);
-              xData[i] = oldValue + twoEps;
-              y[2] = function.evaluate(x);
+              y[2] = function.evaluate(x.with(i, xi + twoEps));
               w = wFwd;
             } else {
-              y[2] = temp;
-              xData[i] = oldValue - eps;
-              y[0] = function.evaluate(x);
+              y[2] = function.evaluate(xPlusOneEps);
+              y[0] = function.evaluate(xMinusOneEps);
               w = wCent;
             }
           }
@@ -137,7 +125,6 @@ public class MatrixFieldFirstOrderDifferentiator
           if (w[1] != 0) {
             res[i] = (DoubleMatrix2D) MA.add(res[i], MA.scale(y[1], w[1]));
           }
-          xData[i] = oldValue;
         }
         return res;
       }
