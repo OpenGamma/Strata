@@ -15,7 +15,6 @@ import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 
 /**
@@ -57,7 +56,7 @@ public class InverseJacobianEstimateInitializationFunctionTest {
     DoubleMatrix m1 = ESTIMATE.getInitializedMatrix(J, X);
     DoubleMatrix m2 = J.evaluate(X);
     DoubleMatrix m3 = (DoubleMatrix) (ALGEBRA.multiply(m1, m2));
-    DoubleMatrix identity = DoubleMatrixUtils.getIdentityMatrix2D(2);
+    DoubleMatrix identity = DoubleMatrix.identity(2);
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
         assertEquals(m3.get(i, j), identity.get(i, j), 1e-6);

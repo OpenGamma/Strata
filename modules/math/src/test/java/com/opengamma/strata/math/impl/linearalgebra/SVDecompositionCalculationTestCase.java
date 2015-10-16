@@ -10,8 +10,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 
 /**
@@ -39,8 +39,7 @@ public abstract class SVDecompositionCalculationTestCase {
     assertTrue(result instanceof SVDecompositionResult);
     final SVDecompositionResult svd_result = (SVDecompositionResult) result;
     final DoubleMatrix u = svd_result.getU();
-    final double[] sv = svd_result.getSingularValues();
-    final DoubleMatrix w = DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(sv);
+    final DoubleMatrix w = DoubleMatrix.diagonal(DoubleArray.copyOf(svd_result.getSingularValues()));
     final DoubleMatrix vt = svd_result.getVT();
     final DoubleMatrix a = (DoubleMatrix) algebra.multiply(algebra.multiply(u, w), vt);
     checkEquals(A, a);
@@ -62,7 +61,7 @@ public abstract class SVDecompositionCalculationTestCase {
         svinv[i] = 1.0 / sv[i];
       }
     }
-    final DoubleMatrix winv = DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(svinv);
+    final DoubleMatrix winv = DoubleMatrix.diagonal(DoubleArray.copyOf(svinv));
     final DoubleMatrix ainv = (DoubleMatrix) algebra.multiply(algebra.multiply(v, winv), ut);
     final DoubleMatrix identity = (DoubleMatrix) algebra.multiply(A, ainv);
     checkIdentity(identity);

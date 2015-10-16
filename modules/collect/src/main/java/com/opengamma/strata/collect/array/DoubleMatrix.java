@@ -24,7 +24,7 @@ import com.opengamma.strata.collect.function.IntIntToDoubleFunction;
  * <p>
  * In mathematical terms, this is a two-dimensional matrix.
  */
-public class DoubleMatrix implements Matrix, Serializable {
+public final class DoubleMatrix implements Matrix, Serializable {
 
   /**
    * An empty array.
@@ -238,6 +238,48 @@ public class DoubleMatrix implements Matrix, Serializable {
       Arrays.fill(array[i], value);
     }
     return new DoubleMatrix(array, rows, columns);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an identity matrix.
+   * <p>
+   * An identity matrix is square. It has every value equal to zero, except those
+   * on the primary diagonal, which are one.
+   * 
+   * @param size  the size of the matrix
+   * @return an identity matrix of the specified size
+   */
+  public static DoubleMatrix identity(int size) {
+    if (size == 0) {
+      return EMPTY;
+    }
+    double[][] array = new double[size][size];
+    for (int i = 0; i < size; i++) {
+      array[i][i] = 1d;
+    }
+    return new DoubleMatrix(array, size, size);
+  }
+
+  /**
+   * Obtains a diagonal matrix from the specified array.
+   * <p>
+   * A diagonal matrix is square. It only has values on the primary diagonal,
+   * and those values are taken from the specified array.
+   * 
+   * @param array  the array to use to create the matrix
+   * @return an identity matrix of the specified size
+   */
+  public static DoubleMatrix diagonal(DoubleArray array) {
+    int size = array.size();
+    if (size == 0) {
+      return EMPTY;
+    }
+    double[][] data = new double[size][size];
+    for (int i = 0; i < size; i++) {
+      data[i][i] = array.get(i);
+    }
+    return new DoubleMatrix(data, size, size);
   }
 
   //-------------------------------------------------------------------------
@@ -650,6 +692,19 @@ public class DoubleMatrix implements Matrix, Serializable {
       }
     }
     return result;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Transposes the matrix.
+   * <p>
+   * This converts a matrix of {@code m x n} into a matrix of {@code n x m}.
+   * Each element is moved to the opposite position.
+   * 
+   * @return the transposed matrix
+   */
+  public DoubleMatrix transpose() {
+    return DoubleMatrix.of(columns, rows, (i, j) -> array[j][i]);
   }
 
   //-------------------------------------------------------------------------

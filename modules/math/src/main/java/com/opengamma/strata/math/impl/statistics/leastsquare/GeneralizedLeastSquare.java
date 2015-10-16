@@ -21,7 +21,6 @@ import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
 import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionCommons;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 
 /**
@@ -218,7 +217,7 @@ public class GeneralizedLeastSquare {
 
     DecompositionResult decmp = _decomposition.evaluate(ma);
     DoubleArray w = decmp.solve(mb);
-    DoubleMatrix covar = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(m));
+    DoubleMatrix covar = decmp.solve(DoubleMatrix.identity(m));
 
     double chiSq = 0;
     for (i = 0; i < n; i++) {
@@ -282,7 +281,7 @@ public class GeneralizedLeastSquare {
 
     DecompositionResult decmp = _decomposition.evaluate(ma);
     DoubleArray w = decmp.solve(mb);
-    DoubleMatrix covar = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(m));
+    DoubleMatrix covar = decmp.solve(DoubleMatrix.identity(m));
 
     double chiSq = 0;
     for (i = 0; i < n; i++) {
@@ -364,10 +363,10 @@ public class GeneralizedLeastSquare {
     }
     DoubleMatrix temp = d;
     if (preProduct != 1) {
-      temp = (DoubleMatrix) _algebra.kroneckerProduct(DoubleMatrixUtils.getIdentityMatrix2D(preProduct), temp);
+      temp = (DoubleMatrix) _algebra.kroneckerProduct(DoubleMatrix.identity(preProduct), temp);
     }
     if (postProduct != 1) {
-      temp = (DoubleMatrix) _algebra.kroneckerProduct(temp, DoubleMatrixUtils.getIdentityMatrix2D(postProduct));
+      temp = (DoubleMatrix) _algebra.kroneckerProduct(temp, DoubleMatrix.identity(postProduct));
     }
 
     return temp;

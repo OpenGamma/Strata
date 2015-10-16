@@ -8,8 +8,6 @@ package com.opengamma.strata.math.impl.statistics.leastsquare;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.MersenneTwister64;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.ArgChecker;
@@ -19,10 +17,12 @@ import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.ParameterizedFunction;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionResult;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
+
+import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.MersenneTwister64;
 
 /**
  * Test.
@@ -183,7 +183,7 @@ public class NonLinearLeastSquareTest {
 
     final LUDecompositionCommons decmp = new LUDecompositionCommons();
     final LUDecompositionResult decmpRes = decmp.evaluate(res.getCovariance());
-    final DoubleMatrix invCovariance = decmpRes.solve(DoubleMatrixUtils.getIdentityMatrix2D(4));
+    final DoubleMatrix invCovariance = decmpRes.solve(DoubleMatrix.identity(4));
 
     double z = ma.getInnerProduct(delta, ma.multiply(invCovariance, delta));
     z = Math.sqrt(z);

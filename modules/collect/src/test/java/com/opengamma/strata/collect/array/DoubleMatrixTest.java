@@ -16,9 +16,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.array.DoubleMatrix;
-
 /**
  * Test {@link DoubleMatrix}.
  */
@@ -129,6 +126,19 @@ public class DoubleMatrixTest {
     assertMatrix(DoubleMatrix.filled(0, 2, 7d));
     assertMatrix(DoubleMatrix.filled(2, 0, 7d));
     assertMatrix(DoubleMatrix.filled(3, 2, 7d), 7d, 7d, 7d, 7d, 7d, 7d);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_identity() {
+    assertMatrix(DoubleMatrix.identity(0));
+    assertMatrix(DoubleMatrix.identity(2), 1d, 0d, 0d, 1d);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_diagonal() {
+    assertMatrix(DoubleMatrix.diagonal(DoubleArray.EMPTY));
+    assertMatrix(DoubleMatrix.diagonal(DoubleArray.of(2d, 3d, 4d)), 2d, 0d, 0d, 0d, 3d, 0d, 0d, 0d, 4d);
+    assertEquals(DoubleMatrix.diagonal(DoubleArray.of(1d, 1d, 1d)), DoubleMatrix.identity(3));
   }
 
   //-------------------------------------------------------------------------
@@ -254,6 +264,33 @@ public class DoubleMatrixTest {
     }), 2d);
     assertEquals(DoubleMatrix.copyOf(new double[][] {{2d}}).reduce(1d, (r, v) -> r * v), 2d);
     assertEquals(DoubleMatrix.copyOf(new double[][] {{2d, 3d}}).reduce(1d, (r, v) -> r * v), 6d);
+  }
+
+  //-------------------------------------------------------------------------
+  public void testTransposeMatrix() {
+    DoubleMatrix m0 = DoubleMatrix.EMPTY;
+    assertEquals(m0.transpose(), DoubleMatrix.EMPTY);
+
+    DoubleMatrix m1 = DoubleMatrix.copyOf(new double[][] {
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9}});
+    assertEquals(m1.transpose(), DoubleMatrix.copyOf(new double[][] {
+        {1, 4, 7},
+        {2, 5, 8},
+        {3, 6, 9}}));
+
+    DoubleMatrix m2 = DoubleMatrix.copyOf(new double[][] {
+        {1, 2, 3, 4, 5, 6},
+        {7, 8, 9, 10, 11, 12},
+        {13, 14, 15, 16, 17, 18}});
+    assertEquals(m2.transpose(), DoubleMatrix.copyOf(new double[][] {
+        {1, 7, 13},
+        {2, 8, 14},
+        {3, 9, 15},
+        {4, 10, 16},
+        {5, 11, 17},
+        {6, 12, 18}}));
   }
 
   //-------------------------------------------------------------------------
