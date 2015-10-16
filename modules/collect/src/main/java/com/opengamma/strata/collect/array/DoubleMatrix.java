@@ -695,6 +695,19 @@ public final class DoubleMatrix implements Matrix, Serializable {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Transposes the matrix.
+   * <p>
+   * This converts a matrix of {@code m x n} into a matrix of {@code n x m}.
+   * Each element is moved to the opposite position.
+   * 
+   * @return the transposed matrix
+   */
+  public DoubleMatrix transpose() {
+    return DoubleMatrix.of(columns, rows, (i, j) -> array[j][i]);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {

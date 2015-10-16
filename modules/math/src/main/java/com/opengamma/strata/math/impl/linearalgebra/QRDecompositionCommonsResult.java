@@ -12,7 +12,6 @@ import org.apache.commons.math3.linear.QRDecomposition;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
 
 /**
@@ -32,7 +31,7 @@ public class QRDecompositionCommonsResult implements QRDecompositionResult {
     ArgChecker.notNull(qr, "qr");
     _q = CommonsMathWrapper.unwrap(qr.getQ());
     _r = CommonsMathWrapper.unwrap(qr.getR());
-    _qTranspose = DoubleMatrixUtils.getTranspose(_q);
+    _qTranspose = _q.transpose();
     _solver = qr.getSolver();
   }
 
