@@ -52,9 +52,9 @@ public class IsdaCompliantDateCurveTest {
       assertEquals(0, clonedDates[i].compareTo(dates[i]));
       assertEquals(0, curve365.getCurveDate(i).compareTo(dates[i]));
       if (i == modPosition) {
-        assertEquals(rates[i] * 2., rateModCurve.getYValues()[i]);
+        assertEquals(rates[i] * 2., rateModCurve.getYValues().get(i));
       } else {
-        assertEquals(rates[i], rateModCurve.getYValues()[i]);
+        assertEquals(rates[i], rateModCurve.getYValues().get(i));
       }
       tt[i] = dcc.yearFraction(baseDate, dates[i]);
       rtt[i] = tt[i] * rates[i];

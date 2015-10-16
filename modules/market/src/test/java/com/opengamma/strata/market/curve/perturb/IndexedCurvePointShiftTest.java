@@ -22,6 +22,7 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.TestingCurve;
 import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Test {@link IndexedCurvePointShift}.
@@ -36,16 +37,16 @@ public class IndexedCurvePointShiftTest {
 
     Curve curve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F),
-        new double[] {1, 2, 3},
-        new double[] {5, 6, 7},
+        DoubleMatrix1D.of(1, 2, 3),
+        DoubleMatrix1D.of(5, 6, 7),
         INTERPOLATOR);
 
     Curve shiftedCurve = shift.applyTo(curve);
 
     Curve expectedCurve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F),
-        new double[] {1, 2, 3},
-        new double[] {5.1, 6, 7},
+        DoubleMatrix1D.of(1, 2, 3),
+        DoubleMatrix1D.of(5.1, 6, 7),
         INTERPOLATOR);
 
     // Check every point from 0 to 4 in steps of 0.1 is the same on the bumped curve and the expected curve
@@ -60,16 +61,16 @@ public class IndexedCurvePointShiftTest {
 
     Curve curve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F),
-        new double[] {1, 2, 3},
-        new double[] {5, 6, 7},
+        DoubleMatrix1D.of(1, 2, 3),
+        DoubleMatrix1D.of(5, 6, 7),
         INTERPOLATOR);
 
     Curve shiftedCurve = shift.applyTo(curve);
 
     Curve expectedCurve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F),
-        new double[] {1, 2, 3},
-        new double[] {5.5, 6, 7},
+        DoubleMatrix1D.of(1, 2, 3),
+        DoubleMatrix1D.of(5.5, 6, 7),
         INTERPOLATOR);
 
     // Check every point from 0 to 4 in steps of 0.1 is the same on the bumped curve and the expected curve

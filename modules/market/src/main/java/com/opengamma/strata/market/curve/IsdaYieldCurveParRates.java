@@ -37,6 +37,7 @@ import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
 @BeanDefinition(builderScope = "private")
 public final class IsdaYieldCurveParRates
     implements ImmutableBean, Serializable {
+  // TODO replace arrays with lists
 
   /**
    * The curve name.

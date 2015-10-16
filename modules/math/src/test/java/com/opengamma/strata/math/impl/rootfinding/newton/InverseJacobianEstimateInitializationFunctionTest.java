@@ -36,7 +36,7 @@ public class InverseJacobianEstimateInitializationFunctionTest {
     }
 
   };
-  private static final DoubleMatrix1D X = DoubleMatrix1D.copyOf(3, 4);
+  private static final DoubleMatrix1D X = DoubleMatrix1D.of(3, 4);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDecomposition() {

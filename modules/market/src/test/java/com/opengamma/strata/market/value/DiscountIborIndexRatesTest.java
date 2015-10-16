@@ -31,6 +31,7 @@ import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Test {@link DiscountIborIndexRates}.
@@ -46,9 +47,9 @@ public class DiscountIborIndexRatesTest {
   private static final CurveName NAME = CurveName.of("TestCurve");
   private static final CurveMetadata METADATA = Curves.zeroRates(NAME, ACT_365F);
   private static final InterpolatedNodalCurve CURVE =
-      InterpolatedNodalCurve.of(METADATA, new double[] {0, 10}, new double[] {0.01, 0.02}, INTERPOLATOR);
+      InterpolatedNodalCurve.of(METADATA, DoubleMatrix1D.of(0, 10), DoubleMatrix1D.of(0.01, 0.02), INTERPOLATOR);
   private static final InterpolatedNodalCurve CURVE2 =
-      InterpolatedNodalCurve.of(METADATA, new double[] {0, 10}, new double[] {0.01, 0.03}, INTERPOLATOR);
+      InterpolatedNodalCurve.of(METADATA, DoubleMatrix1D.of(0, 10), DoubleMatrix1D.of(0.01, 0.03), INTERPOLATOR);
   private static final ZeroRateDiscountFactors DFCURVE = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
   private static final ZeroRateDiscountFactors DFCURVE2 = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE2);
 

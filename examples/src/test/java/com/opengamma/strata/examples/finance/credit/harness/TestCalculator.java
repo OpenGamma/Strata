@@ -26,6 +26,7 @@ import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 public class TestCalculator implements Calculator {
 
@@ -47,7 +48,7 @@ public class TestCalculator implements Calculator {
   }
 
   @Override
-  public double[] calculateVectorValue(
+  public DoubleMatrix1D calculateVectorValue(
       LocalDate valuationDate, TradeSource tradeSource, Measure measure) {
 
     Result<?> result = calculateResults(valuationDate, tradeSource, ImmutableList.of(measure)).getItems().get(0);

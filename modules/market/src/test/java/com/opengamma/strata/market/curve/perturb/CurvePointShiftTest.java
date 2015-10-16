@@ -29,6 +29,7 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.curve.TestingCurve;
 import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Test {@link CurvePointShift}.
@@ -52,16 +53,16 @@ public class CurvePointShiftTest {
 
     Curve curve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, nodeMetadata),
-        new double[] {1, 2, 3},
-        new double[] {5, 6, 7},
+        DoubleMatrix1D.of(1, 2, 3),
+        DoubleMatrix1D.of(5, 6, 7),
         INTERPOLATOR);
 
     Curve shiftedCurve = shift.applyTo(curve);
 
     Curve expectedCurve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, nodeMetadata),
-        new double[] {1, 2, 3},
-        new double[] {5.2, 6.3, 7},
+        DoubleMatrix1D.of(1, 2, 3),
+        DoubleMatrix1D.of(5.2, 6.3, 7),
         INTERPOLATOR);
 
     // Check every point from 0 to 4 in steps of 0.1 is the same on the bumped curve and the expected curve
@@ -85,16 +86,16 @@ public class CurvePointShiftTest {
 
     Curve curve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, nodeMetadata),
-        new double[] {1, 2, 3},
-        new double[] {5, 6, 7},
+        DoubleMatrix1D.of(1, 2, 3),
+        DoubleMatrix1D.of(5, 6, 7),
         INTERPOLATOR);
 
     Curve shiftedCurve = shift.applyTo(curve);
 
     Curve expectedCurve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, nodeMetadata),
-        new double[] {1, 2, 3},
-        new double[] {6, 7.8, 7},
+        DoubleMatrix1D.of(1, 2, 3),
+        DoubleMatrix1D.of(6, 7.8, 7),
         INTERPOLATOR);
 
     // Check every point from 0 to 4 in steps of 0.1 is the same on the bumped curve and the expected curve
@@ -107,8 +108,8 @@ public class CurvePointShiftTest {
   public void noNodeMetadata() {
     Curve curve = InterpolatedNodalCurve.of(
         DefaultCurveMetadata.of("curve"),
-        new double[] {1, 2, 3},
-        new double[] {5, 6, 7},
+        DoubleMatrix1D.of(1, 2, 3),
+        DoubleMatrix1D.of(5, 6, 7),
         INTERPOLATOR);
 
     // use ImmutableMap to test coverage of builder.addShifts()

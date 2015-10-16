@@ -13,6 +13,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Test {@link CurveCurrencyParameterSensitivityValueFormatter}.
@@ -23,7 +24,7 @@ public class CurveCurrencyParameterSensitivityValueFormatterTest {
   public void formatForCsv() {
     CurveMetadata curveMetadata = DefaultCurveMetadata.of("foo");
     CurveCurrencyParameterSensitivity sensitivity =
-        CurveCurrencyParameterSensitivity.of(curveMetadata, Currency.AED, new double[]{10, 20, 30});
+        CurveCurrencyParameterSensitivity.of(curveMetadata, Currency.AED, DoubleMatrix1D.of(10, 20, 30));
     String str = CurveCurrencyParameterSensitivityValueFormatter.INSTANCE.formatForCsv(sensitivity);
     assertThat(str).isEqualTo("1 = 10 | 2 = 20 | 3 = 30");
   }
@@ -31,8 +32,9 @@ public class CurveCurrencyParameterSensitivityValueFormatterTest {
   public void formatForDisplay() {
     CurveMetadata curveMetadata = DefaultCurveMetadata.of("foo");
     CurveCurrencyParameterSensitivity sensitivity =
-        CurveCurrencyParameterSensitivity.of(curveMetadata, Currency.AED, new double[]{1, 2, 3});
+        CurveCurrencyParameterSensitivity.of(curveMetadata, Currency.AED, DoubleMatrix1D.of(1, 2, 3));
     String str = CurveCurrencyParameterSensitivityValueFormatter.INSTANCE.formatForDisplay(sensitivity);
     assertThat(str).isEqualTo("1 = 1.00        | 2 = 2.00        | 3 = 3.00       ");
   }
+
 }

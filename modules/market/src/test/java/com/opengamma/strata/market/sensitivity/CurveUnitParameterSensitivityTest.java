@@ -19,6 +19,7 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Test {@link CurveUnitParameterSensitivity}.
@@ -27,9 +28,10 @@ import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 public class CurveUnitParameterSensitivityTest {
 
   private static final double FACTOR1 = 3.14;
-  private static final double[] VECTOR1 = new double[] {100, 200, 300, 123};
-  private static final double[] VECTOR1_FACTOR = new double[] {100 * FACTOR1, 200 * FACTOR1, 300 * FACTOR1, 123 * FACTOR1};
-  private static final double[] VECTOR2 = new double[] {1000, 250, 321, 123, 321};
+  private static final DoubleMatrix1D VECTOR1 = DoubleMatrix1D.of(100, 200, 300, 123);
+  private static final DoubleMatrix1D VECTOR1_FACTOR =
+      DoubleMatrix1D.of(100 * FACTOR1, 200 * FACTOR1, 300 * FACTOR1, 123 * FACTOR1);
+  private static final DoubleMatrix1D VECTOR2 = DoubleMatrix1D.of(1000, 250, 321, 123, 321);
   private static final CurveName NAME1 = CurveName.of("NAME-1");
   private static final CurveMetadata METADATA1 = DefaultCurveMetadata.of(NAME1);
   private static final CurveName NAME2 = CurveName.of("NAME-2");
@@ -40,13 +42,13 @@ public class CurveUnitParameterSensitivityTest {
     CurveUnitParameterSensitivity test = CurveUnitParameterSensitivity.of(METADATA1, VECTOR1);
     assertThat(test.getMetadata()).isEqualTo(METADATA1);
     assertThat(test.getCurveName()).isEqualTo(NAME1);
-    assertThat(test.getParameterCount()).isEqualTo(VECTOR1.length);
+    assertThat(test.getParameterCount()).isEqualTo(VECTOR1.size());
     assertThat(test.getSensitivity()).isEqualTo(VECTOR1);
   }
 
   public void test_of_metadata_badMetadata() {
     CurveMetadata metadata = Curves.zeroRates(
-        CurveName.of("Name"), ACT_365F, CurveParameterMetadata.listOfEmpty(VECTOR1.length + 1));
+        CurveName.of("Name"), ACT_365F, CurveParameterMetadata.listOfEmpty(VECTOR1.size() + 1));
     assertThrowsIllegalArg(() -> CurveUnitParameterSensitivity.of(metadata, VECTOR1));
   }
 
@@ -68,14 +70,14 @@ public class CurveUnitParameterSensitivityTest {
     CurveUnitParameterSensitivity base = CurveUnitParameterSensitivity.of(METADATA1, VECTOR1);
     CurveUnitParameterSensitivity test = base.withSensitivity(VECTOR1_FACTOR);
     assertThat(test).isEqualTo(CurveUnitParameterSensitivity.of(METADATA1, VECTOR1_FACTOR));
-    assertThrowsIllegalArg(() -> base.withSensitivity(new double[] {1d}));
+    assertThrowsIllegalArg(() -> base.withSensitivity(DoubleMatrix1D.of(1d)));
   }
 
   //-------------------------------------------------------------------------
   public void test_total() {
     CurveUnitParameterSensitivity base = CurveUnitParameterSensitivity.of(METADATA1, VECTOR1);
     double test = base.total();
-    assertThat(test).isEqualTo(VECTOR1[0] + VECTOR1[1] + VECTOR1[2] + VECTOR1[3]);
+    assertThat(test).isEqualTo(VECTOR1.get(0) + VECTOR1.get(1) + VECTOR1.get(2) + VECTOR1.get(3));
   }
 
   //-------------------------------------------------------------------------

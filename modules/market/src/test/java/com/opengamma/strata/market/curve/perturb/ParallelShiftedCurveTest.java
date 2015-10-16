@@ -21,6 +21,7 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 @Test
 public class ParallelShiftedCurveTest {
@@ -67,8 +68,8 @@ public class ParallelShiftedCurveTest {
   public void test_yValueParameterSensitivity() {
     InterpolatedNodalCurve curve = InterpolatedNodalCurve.of(
         METADATA,
-        new double[] {0, 1},
-        new double[] {2, 2.5},
+        DoubleMatrix1D.of(0, 1),
+        DoubleMatrix1D.of(2, 2.5),
         Interpolator1DFactory.LINEAR_INSTANCE); // TODO Use CurveInterpolators.LINEAR when #261 is fixed
 
     Curve absoluteShiftedCurve = ParallelShiftedCurve.absolute(curve, 1);
@@ -82,8 +83,8 @@ public class ParallelShiftedCurveTest {
   public void test_firstDerivative() {
     InterpolatedNodalCurve curve = InterpolatedNodalCurve.of(
         METADATA,
-        new double[] {0, 1},
-        new double[] {2, 2.5},
+        DoubleMatrix1D.of(0, 1),
+        DoubleMatrix1D.of(2, 2.5),
         Interpolator1DFactory.LINEAR_INSTANCE); // TODO Use CurveInterpolators.LINEAR when #261 is fixed
 
     Curve absoluteShiftedCurve = ParallelShiftedCurve.absolute(curve, 1);

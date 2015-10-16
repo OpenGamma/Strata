@@ -29,6 +29,7 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Test {@link SimpleDiscountFactors}.
@@ -44,9 +45,9 @@ public class SimpleDiscountFactorsTest {
   private static final CurveMetadata METADATA = Curves.discountFactors(NAME, ACT_365F);
 
   private static final InterpolatedNodalCurve CURVE =
-      InterpolatedNodalCurve.of(METADATA, new double[] {0, 10}, new double[] {1, 2}, INTERPOLATOR);
+      InterpolatedNodalCurve.of(METADATA, DoubleMatrix1D.of(0, 10), DoubleMatrix1D.of(1, 2), INTERPOLATOR);
   private static final InterpolatedNodalCurve CURVE2 =
-      InterpolatedNodalCurve.of(METADATA, new double[] {0, 10}, new double[] {2, 3}, INTERPOLATOR);
+      InterpolatedNodalCurve.of(METADATA, DoubleMatrix1D.of(0, 10), DoubleMatrix1D.of(2, 3), INTERPOLATOR);
 
   private static final double SPREAD = 0.05;
   private static final double TOL = 1.0e-12;
@@ -64,16 +65,16 @@ public class SimpleDiscountFactorsTest {
 
   public void test_of_badCurve() {
     InterpolatedNodalCurve notYearFraction = InterpolatedNodalCurve.of(
-        Curves.prices(NAME), new double[] {0, 10}, new double[] {1, 2}, INTERPOLATOR);
+        Curves.prices(NAME), DoubleMatrix1D.of(0, 10), DoubleMatrix1D.of(1, 2), INTERPOLATOR);
     InterpolatedNodalCurve notDiscountFactor = InterpolatedNodalCurve.of(
-        Curves.zeroRates(NAME, ACT_365F), new double[] {0, 10}, new double[] {1, 2}, INTERPOLATOR);
+        Curves.zeroRates(NAME, ACT_365F), DoubleMatrix1D.of(0, 10), DoubleMatrix1D.of(1, 2), INTERPOLATOR);
     CurveMetadata noDayCountMetadata = DefaultCurveMetadata.builder()
         .curveName(NAME)
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.DISCOUNT_FACTOR)
         .build();
     InterpolatedNodalCurve notDayCount = InterpolatedNodalCurve.of(
-        noDayCountMetadata, new double[] {0, 10}, new double[] {1, 2}, INTERPOLATOR);
+        noDayCountMetadata, DoubleMatrix1D.of(0, 10), DoubleMatrix1D.of(1, 2), INTERPOLATOR);
     assertThrowsIllegalArg(() -> SimpleDiscountFactors.of(GBP, DATE_VAL, notYearFraction));
     assertThrowsIllegalArg(() -> SimpleDiscountFactors.of(GBP, DATE_VAL, notDiscountFactor));
     assertThrowsIllegalArg(() -> SimpleDiscountFactors.of(GBP, DATE_VAL, notDayCount));

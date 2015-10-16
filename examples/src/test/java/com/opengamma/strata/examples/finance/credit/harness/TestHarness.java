@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.examples.finance.credit.harness;
 
+import static org.testng.Assert.assertTrue;
+
 import java.time.LocalDate;
 
 import org.testng.Assert;
@@ -16,6 +18,7 @@ import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
 import com.opengamma.strata.finance.credit.type.CdsConventions;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 public class TestHarness {
 
@@ -146,20 +149,18 @@ public class TestHarness {
   public static class VectorMeasureOnADay {
 
     private final Measure measure;
-    private final double[] expected;
+    private final DoubleMatrix1D expected;
     private final TradeSource tradeSource;
 
     private VectorMeasureOnADay(Measure measure, double[] expected, TradeSource tradeSource) {
-      this.expected = expected;
+      this.expected = DoubleMatrix1D.copyOf(expected);
       this.measure = measure;
       this.tradeSource = tradeSource;
     }
 
     public void on(LocalDate valuationDate) {
-      double[] values = calculator.calculateVectorValue(valuationDate, tradeSource, measure);
-      for (int i = 0; i < values.length; i++) {
-        Assert.assertEquals(values[i], expected[i], epsilon);
-      }
+      DoubleMatrix1D values = calculator.calculateVectorValue(valuationDate, tradeSource, measure);
+      assertTrue(values.equalWithTolerance(expected, epsilon));
     }
   }
 

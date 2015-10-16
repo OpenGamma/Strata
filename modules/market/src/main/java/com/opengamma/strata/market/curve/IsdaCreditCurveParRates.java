@@ -40,6 +40,7 @@ public final class IsdaCreditCurveParRates
   // TODO the recovery rate is not really a part of the curve, but the data is available along side when
   // TODO as parsing the curves, so it is convenient to put it here for the moment.
   // TODO the scaling factor is the index factor and not really part of the curve
+  // TODO replace arrays with lists
 
   /**
    * The curve name.

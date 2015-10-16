@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.curve;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.market.curve.definition.CurveParameterSize;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
@@ -112,13 +112,12 @@ public final class JacobianCalibrationMatrix
    * @param array  the array to split
    * @return a map splitting the array by curve name
    */
-  public Map<CurveName, double[]> splitValues(double[] array) {
-    LinkedHashMap<CurveName, double[]> result = new LinkedHashMap<>();
+  public Map<CurveName, DoubleMatrix1D> splitValues(DoubleMatrix1D array) {
+    LinkedHashMap<CurveName, DoubleMatrix1D> result = new LinkedHashMap<>();
     int start = 0;
     for (CurveParameterSize paramSizes : order) {
       int size = paramSizes.getParameterCount();
-      double[] extracted = Arrays.copyOfRange(array, start, start + size);
-      result.put(paramSizes.getName(), extracted);
+      result.put(paramSizes.getName(), array.subArray(start, start + size));
       start += size;
     }
     return result;

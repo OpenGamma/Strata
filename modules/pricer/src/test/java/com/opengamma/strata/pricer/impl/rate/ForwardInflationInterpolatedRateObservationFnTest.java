@@ -29,6 +29,7 @@ import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.ForwardPriceIndexValues;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -147,8 +148,8 @@ public class ForwardInflationInterpolatedRateObservationFnTest {
     LocalDateDoubleTimeSeries timeSeries = LocalDateDoubleTimeSeries.of(VAL_MONTH.atEndOfMonth(), 300);
     InterpolatedNodalCurve curve = InterpolatedNodalCurve.of(
         Curves.prices("GB-RPIX"),
-        new double[] {4, 5, 16, 17},
-        new double[] {rateStart, rateStartInterp, rateEnd, rateEndInterp},
+        DoubleMatrix1D.of(4, 5, 16, 17),
+        DoubleMatrix1D.of(rateStart, rateStartInterp, rateEnd, rateEndInterp),
         INTERPOLATOR);
     ForwardPriceIndexValues values = ForwardPriceIndexValues.of(GB_RPIX, VAL_MONTH, timeSeries, curve);
     return ImmutableRatesProvider.builder()

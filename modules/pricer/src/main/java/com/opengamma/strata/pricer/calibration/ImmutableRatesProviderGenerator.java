@@ -6,7 +6,6 @@
 package com.opengamma.strata.pricer.calibration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +26,7 @@ import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
 import com.opengamma.strata.market.curve.definition.NodalCurveDefinition;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -108,7 +108,7 @@ public class ImmutableRatesProviderGenerator
   //-------------------------------------------------------------------------
   @Override
   public ImmutableRatesProvider generate(
-      double[] parameters,
+      DoubleMatrix1D parameters,
       Map<CurveName, JacobianCalibrationMatrix> jacobians) {
     
     // collect curves for child provider based on existing provider
@@ -123,7 +123,7 @@ public class ImmutableRatesProviderGenerator
       NodalCurveDefinition curveDefn = curveDefinitions.get(i);
       // extract parameters for the child curve
       int paramCount = curveDefn.getParameterCount();
-      double[] curveParams = Arrays.copyOfRange(parameters, startIndex, startIndex + paramCount);
+      DoubleMatrix1D curveParams = parameters.subArray(startIndex, startIndex + paramCount);
       startIndex += paramCount;
       // create the child curve
       Map<CurveInfoType<?>, Object> infoMap = additionalInfoMap(curveDefn, jacobians);

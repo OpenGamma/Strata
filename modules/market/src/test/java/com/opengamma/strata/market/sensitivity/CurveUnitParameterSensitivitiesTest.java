@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Test {@link CurveUnitParameterSensitivities}.
@@ -26,11 +27,11 @@ import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 public class CurveUnitParameterSensitivitiesTest {
 
   private static final double FACTOR1 = 3.14;
-  private static final double[] VECTOR1 = new double[] {100, 200, 300, 123};
-  private static final double[] VECTOR2 = new double[] {1000, 250, 321, 123};
-  private static final double[] VECTOR_ZERO = new double[] {0, 0, 0, 0};
-  private static final double[] TOTAL_USD = new double[] {1100, 450, 621, 246};
-  private static final double[] VECTOR3 = new double[] {1000, 250, 321, 123, 321};
+  private static final DoubleMatrix1D VECTOR1 = DoubleMatrix1D.of(100, 200, 300, 123);
+  private static final DoubleMatrix1D VECTOR2 = DoubleMatrix1D.of(1000, 250, 321, 123);
+  private static final DoubleMatrix1D VECTOR_ZERO = DoubleMatrix1D.of(0, 0, 0, 0);
+  private static final DoubleMatrix1D TOTAL_USD = DoubleMatrix1D.of(1100, 450, 621, 246);
+  private static final DoubleMatrix1D VECTOR3 = DoubleMatrix1D.of(1000, 250, 321, 123, 321);
   private static final CurveName NAME0 = CurveName.of("NAME-0");
   private static final CurveMetadata METADATA0 = DefaultCurveMetadata.of(NAME0);
   private static final CurveName NAME1 = CurveName.of("NAME-1");
@@ -47,7 +48,7 @@ public class CurveUnitParameterSensitivitiesTest {
   private static final CurveUnitParameterSensitivity ENTRY_TOTAL_1_2 =
       CurveUnitParameterSensitivity.of(METADATA1, TOTAL_USD);
   private static final CurveUnitParameterSensitivity ENTRY_SMALL =
-      CurveUnitParameterSensitivity.of(METADATA1, new double[] {100d});
+      CurveUnitParameterSensitivity.of(METADATA1, DoubleMatrix1D.of(100d));
   private static final CurveUnitParameterSensitivity ENTRY3 =
       CurveUnitParameterSensitivity.of(METADATA2, VECTOR3);
   private static final CurveUnitParameterSensitivity ENTRY_ZERO0 =
@@ -141,29 +142,29 @@ public class CurveUnitParameterSensitivitiesTest {
   public void test_multipliedBy_currency() {
     CurveCurrencyParameterSensitivities multiplied = SENSI_2.multipliedBy(USD, FACTOR1);
     assertThat(multiplied.size()).isEqualTo(2);
-    double[] test1 = multiplied.getSensitivity(NAME1, USD).getSensitivity();
-    for (int i = 0; i < VECTOR1.length; i++) {
-      assertThat(test1[i]).isEqualTo(VECTOR2[i] * FACTOR1);
+    DoubleMatrix1D test1 = multiplied.getSensitivity(NAME1, USD).getSensitivity();
+    for (int i = 0; i < VECTOR1.size(); i++) {
+      assertThat(test1.get(i)).isEqualTo(VECTOR2.get(i) * FACTOR1);
     }
-    double[] test2 = multiplied.getSensitivity(NAME2, USD).getSensitivity();
-    for (int i = 0; i < VECTOR1.length; i++) {
-      assertThat(test2[i]).isEqualTo(VECTOR3[i] * FACTOR1);
+    DoubleMatrix1D test2 = multiplied.getSensitivity(NAME2, USD).getSensitivity();
+    for (int i = 0; i < VECTOR1.size(); i++) {
+      assertThat(test2.get(i)).isEqualTo(VECTOR3.get(i) * FACTOR1);
     }
   }
 
   public void test_multipliedBy() {
     CurveUnitParameterSensitivities multiplied = SENSI_1.multipliedBy(FACTOR1);
-    double[] test = multiplied.getSensitivities().get(0).getSensitivity();
-    for (int i = 0; i < VECTOR1.length; i++) {
-      assertThat(test[i]).isEqualTo(VECTOR1[i] * FACTOR1);
+    DoubleMatrix1D test = multiplied.getSensitivities().get(0).getSensitivity();
+    for (int i = 0; i < VECTOR1.size(); i++) {
+      assertThat(test.get(i)).isEqualTo(VECTOR1.get(i) * FACTOR1);
     }
   }
 
   public void test_mapSensitivities() {
     CurveUnitParameterSensitivities multiplied = SENSI_1.mapSensitivities(a -> 1 / a);
-    double[] test = multiplied.getSensitivities().get(0).getSensitivity();
-    for (int i = 0; i < VECTOR1.length; i++) {
-      assertThat(test[i]).isEqualTo(1 / VECTOR1[i]);
+    DoubleMatrix1D test = multiplied.getSensitivities().get(0).getSensitivity();
+    for (int i = 0; i < VECTOR1.size(); i++) {
+      assertThat(test.get(i)).isEqualTo(1 / VECTOR1.get(i));
     }
   }
 

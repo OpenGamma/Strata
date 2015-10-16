@@ -56,14 +56,14 @@ class CurveCurrencyParameterSensitivityValueFormatter
         i -> parameterMetadata.get().get(i).getLabel() :
         i -> String.valueOf(i + 1);
 
-    for (int i = 0; i < sensitivity.getSensitivity().length; i++) {
-      String formattedSensitivity = formatFn.apply(sensitivity.getSensitivity()[i]);
+    for (int i = 0; i < sensitivity.getSensitivity().size(); i++) {
+      String formattedSensitivity = formatFn.apply(sensitivity.getSensitivity().get(i));
       String field = labelProvider.apply(i) + " = " + formattedSensitivity;
       if (pad) {
         field = Strings.padEnd(field, PADDED_FIELD_WIDTH, ' ');
       }
       sb.append(field);
-      if (i < sensitivity.getSensitivity().length - 1) {
+      if (i < sensitivity.getSensitivity().size() - 1) {
         sb.append(" | ");
       }
     }

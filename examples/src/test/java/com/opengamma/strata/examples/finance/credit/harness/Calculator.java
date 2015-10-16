@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.opengamma.strata.engine.calculation.Results;
 import com.opengamma.strata.engine.config.Measure;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 public interface Calculator {
 
@@ -18,7 +19,7 @@ public interface Calculator {
       TradeSource tradeSource,
       Measure measure);
 
-  double[] calculateVectorValue(
+  DoubleMatrix1D calculateVectorValue(
       LocalDate valuationDate,
       TradeSource tradeSource,
       Measure measure);
