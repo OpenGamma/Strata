@@ -26,6 +26,7 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * A yield or hazard curve values between nodes are linearly interpolated from t*r points,
@@ -426,7 +427,7 @@ public class IsdaCompliantCurve
    * @param t  the time
    * @return the sensitivity to the nodes, not null
    */
-  public double[] getNodeSensitivity(double t) {
+  public DoubleMatrix1D getNodeSensitivity(double t) {
 
     int n = this.t.length;
     double[] res = new double[n];
@@ -434,7 +435,7 @@ public class IsdaCompliantCurve
     // short-cut doing binary search
     if (t <= this.t[0]) {
       res[0] = 1.0;
-      return res;
+      return DoubleMatrix1D.copyOf(res);
     }
     if (t >= this.t[n - 1]) {
       int insertionPoint = n - 1;
@@ -443,13 +444,13 @@ public class IsdaCompliantCurve
       double dt = t2 - t1;
       res[insertionPoint - 1] = t1 * (t2 - t) / dt / t;
       res[insertionPoint] = t2 * (t - t1) / dt / t;
-      return res;
+      return DoubleMatrix1D.copyOf(res);
     }
 
     int index = Arrays.binarySearch(this.t, t);
     if (index >= 0) {
       res[index] = 1.0;
-      return res;
+      return DoubleMatrix1D.copyOf(res);
     }
 
     int insertionPoint = -(1 + index);
@@ -458,7 +459,7 @@ public class IsdaCompliantCurve
     double dt = t2 - t1;
     res[insertionPoint - 1] = t1 * (t2 - t) / dt / t;
     res[insertionPoint] = t2 * (t - t1) / dt / t;
-    return res;
+    return DoubleMatrix1D.copyOf(res);
   }
 
   /**

@@ -67,7 +67,7 @@ public class CurveGammaCalculator {
 
     Delta deltaShift = new Delta(curve, sensitivitiesFn);
     Function1D<DoubleMatrix1D, DoubleMatrix2D> gammaFn = fd.differentiate(deltaShift);
-    double[] gamma = gammaFn.evaluate(DoubleMatrix1D.filled(1)).columnArray(0);
+    DoubleMatrix1D gamma = gammaFn.evaluate(DoubleMatrix1D.filled(1)).column(0);
     return CurveCurrencyParameterSensitivity.of(curve.getMetadata(), curveCurrency, gamma);
   }
 
@@ -93,7 +93,7 @@ public class CurveGammaCalculator {
       }
       NodalCurve curveBumped = curve.withYValues(yieldBumped);
       CurveCurrencyParameterSensitivity pts = sensitivitiesFn.apply(curveBumped);
-      return DoubleMatrix1D.ofUnsafe(pts.getSensitivity());
+      return pts.getSensitivity();
     }
   }
 

@@ -20,6 +20,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
@@ -38,10 +39,10 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
     CurveCurrencyParameterSensitivities sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.SINGLE_USD, this::fn);
     double[] times = RatesProviderDataSets.TIMES_1;
     assertEquals(sensiComputed.size(), 1);
-    double[] s = sensiComputed.getSensitivities().get(0).getSensitivity();
-    assertEquals(s.length, times.length);
+    DoubleMatrix1D s = sensiComputed.getSensitivities().get(0).getSensitivity();
+    assertEquals(s.size(), times.length);
     for (int i = 0; i < times.length; i++) {
-      assertEquals(s[i], times[i] * 4.0d, TOLERANCE_DELTA);
+      assertEquals(s.get(i), times[i] * 4.0d, TOLERANCE_DELTA);
     }
   }
 
@@ -52,20 +53,20 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
     double[] times2 = RatesProviderDataSets.TIMES_2;
     double[] times3 = RatesProviderDataSets.TIMES_3;
     assertEquals(sensiComputed.size(), 3);
-    double[] s1 = sensiComputed.getSensitivity(RatesProviderDataSets.USD_DSC_NAME, USD).getSensitivity();
-    assertEquals(s1.length, times1.length);
+    DoubleMatrix1D s1 = sensiComputed.getSensitivity(RatesProviderDataSets.USD_DSC_NAME, USD).getSensitivity();
+    assertEquals(s1.size(), times1.length);
     for (int i = 0; i < times1.length; i++) {
-      assertEquals(times1[i] * 2.0d, s1[i], TOLERANCE_DELTA);
+      assertEquals(times1[i] * 2.0d, s1.get(i), TOLERANCE_DELTA);
     }
-    double[] s2 = sensiComputed.getSensitivity(RatesProviderDataSets.USD_L3_NAME, USD).getSensitivity();
-    assertEquals(s2.length, times2.length);
+    DoubleMatrix1D s2 = sensiComputed.getSensitivity(RatesProviderDataSets.USD_L3_NAME, USD).getSensitivity();
+    assertEquals(s2.size(), times2.length);
     for (int i = 0; i < times2.length; i++) {
-      assertEquals(times2[i], s2[i], TOLERANCE_DELTA);
+      assertEquals(times2[i], s2.get(i), TOLERANCE_DELTA);
     }
-    double[] s3 = sensiComputed.getSensitivity(RatesProviderDataSets.USD_L6_NAME, USD).getSensitivity();
-    assertEquals(s3.length, times3.length);
+    DoubleMatrix1D s3 = sensiComputed.getSensitivity(RatesProviderDataSets.USD_L6_NAME, USD).getSensitivity();
+    assertEquals(s3.size(), times3.length);
     for (int i = 0; i < times3.length; i++) {
-      assertEquals(times3[i], s3[i], TOLERANCE_DELTA);
+      assertEquals(times3[i], s3.get(i), TOLERANCE_DELTA);
     }
   }
 

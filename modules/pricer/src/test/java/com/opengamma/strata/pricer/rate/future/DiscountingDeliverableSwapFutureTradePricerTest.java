@@ -55,6 +55,7 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 
@@ -201,22 +202,17 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
   public void regression() {
     CurrencyAmount pv = TRADE_PRICER.presentValue(FUTURE_TRADE, PROVIDER, TRADE_PRICE);
     assertEquals(pv.getAmount(), 4022633.290539182, NOTIONAL * QUANTITY * TOL);
-    double[] dscExp = new double[] {347963.1427498563, 240275.26230191416, 123908.37739051704, -1302968.1341957184,
-        -8402797.591029292, -9024590.733895564};
-    double[] fwdExp = new double[] {1.5288758221797276E7, 1.2510651813905597E7, -1535786.53682933, -9496881.09854053,
-        -3.583343769759877E7, -1.1342379328462188E9};
+    DoubleMatrix1D dscExp = DoubleMatrix1D.of(
+        347963.1427498563, 240275.26230191416, 123908.37739051704,
+        -1302968.1341957184, -8402797.591029292, -9024590.733895564);
+    DoubleMatrix1D fwdExp =DoubleMatrix1D.of(
+        1.5288758221797276E7, 1.2510651813905597E7, -1535786.53682933,
+        -9496881.09854053, -3.583343769759877E7, -1.1342379328462188E9);
     PointSensitivities point = TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE, PROVIDER);
     CurveCurrencyParameterSensitivities sensi = PROVIDER.curveParameterSensitivity(point);
-    assertEqualsArray(sensi.getSensitivity(USD_DSC_NAME, USD).getSensitivity(), dscExp);
-    assertEqualsArray(sensi.getSensitivity(USD_FWD3_NAME, USD).getSensitivity(), fwdExp);
-  }
-
-  private void assertEqualsArray(double[] computed, double[] expected) {
-    int n = expected.length;
-    assertEquals(computed.length, n);
-    for (int i = 0; i < n; ++i) {
-      assertEquals(computed[i], expected[i], NOTIONAL * QUANTITY * EPS);
-    }
+    double tolerance = NOTIONAL * QUANTITY * EPS;
+    assertTrue(sensi.getSensitivity(USD_DSC_NAME, USD).getSensitivity().equalWithTolerance(dscExp, tolerance));
+    assertTrue(sensi.getSensitivity(USD_FWD3_NAME, USD).getSensitivity().equalWithTolerance(fwdExp, tolerance));
   }
 
 }

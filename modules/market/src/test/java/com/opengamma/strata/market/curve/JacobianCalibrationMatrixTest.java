@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.market.curve.definition.CurveParameterSize;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
@@ -45,9 +46,9 @@ public class JacobianCalibrationMatrixTest {
   //-------------------------------------------------------------------------
   public void test_split() {
     JacobianCalibrationMatrix test = JacobianCalibrationMatrix.of(CPS, MATRIX);
-    double[] array = {1, 2, 3, 4, 5};
-    double[] array1 = {1, 2, 3};
-    double[] array2 = {4, 5};
+    DoubleMatrix1D array = DoubleMatrix1D.of(1, 2, 3, 4, 5);
+    DoubleMatrix1D array1 = DoubleMatrix1D.of(1, 2, 3);
+    DoubleMatrix1D array2 = DoubleMatrix1D.of(4, 5);
     assertEquals(test.splitValues(array), ImmutableMap.of(NAME1, array1, NAME2, array2));
   }
 

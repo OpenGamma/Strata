@@ -16,13 +16,11 @@ import static org.testng.Assert.assertEquals;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.OptionalDouble;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -34,6 +32,7 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Tests {@link ForwardPriceIndexValues}.
@@ -69,8 +68,8 @@ public class ForwardPriceIndexValuesTest {
   private static final CurveMetadata METADATA = Curves.prices(NAME);
   private static final InterpolatedNodalCurve CURVE = InterpolatedNodalCurve.of(METADATA, TIMES, VALUES, INTERPOLATOR);
   private static final InterpolatedNodalCurve CURVE2 = InterpolatedNodalCurve.of(METADATA, TIMES, VALUES2, INTERPOLATOR);
-  private static final List<Double> SEASONALITY = ImmutableList.copyOf(
-      new Double[] {0.98d, 0.99d, 1.01d, 1.00d, 1.00d, 1.01d, 1.01d, 0.99d, 1.00d, 1.00d, 1.00d, 1.01d});
+  private static final DoubleMatrix1D SEASONALITY = DoubleMatrix1D.copyOf(
+      0.98d, 0.99d, 1.01d, 1.00d, 1.00d, 1.01d, 1.01d, 0.99d, 1.00d, 1.00d, 1.00d, 1.01d);
   private static final ForwardPriceIndexValues INSTANCE =
       ForwardPriceIndexValues.of(US_CPI_U, VAL_MONTH, USCPI_TS, CURVE, SEASONALITY);
 
@@ -81,14 +80,14 @@ public class ForwardPriceIndexValuesTest {
 
   //-------------------------------------------------------------------------
   public void test_NO_SEASONALITY() {
-    assertEquals(ForwardPriceIndexValues.NO_SEASONALITY, Collections.nCopies(12, 1d));
+    assertEquals(ForwardPriceIndexValues.NO_SEASONALITY, DoubleMatrix1D.filled(12, 1d));
   }
 
   public void test_of_noSeasonality() {
     ForwardPriceIndexValues test = ForwardPriceIndexValues.of(US_CPI_U, VAL_MONTH, USCPI_TS, CURVE);
     assertEquals(test.getIndex(), US_CPI_U);
     assertEquals(test.getValuationMonth(), VAL_MONTH);
-    assertEquals(test.getSeasonality(), Collections.nCopies(12, 1d));
+    assertEquals(test.getSeasonality(), DoubleMatrix1D.filled(12, 1d));
     assertEquals(test.getCurve(), CURVE);
     assertEquals(test.getCurveName(), NAME);
     assertEquals(test.getParameterCount(), TIMES.length);
@@ -106,7 +105,7 @@ public class ForwardPriceIndexValuesTest {
 
   public void test_of_wrongSeasonalityLength() {
     assertThrowsIllegalArg(() -> ForwardPriceIndexValues.of(
-        US_CPI_U, VAL_MONTH, USCPI_TS, CURVE, new ArrayList<>()));
+        US_CPI_U, VAL_MONTH, USCPI_TS, CURVE, DoubleMatrix1D.EMPTY));
   }
 
   public void test_of_startDateBeforeFixing() {
@@ -147,9 +146,8 @@ public class ForwardPriceIndexValuesTest {
   public void test_unitParameterSensitivity() {
     double shift = 0.0001;
     for (int i = 0; i < TEST_MONTHS.length; i++) {
-      double[] sensitivityComputed =
+      DoubleMatrix1D sensitivityComputed =
           INSTANCE.unitParameterSensitivity(TEST_MONTHS[i]).getSensitivity(NAME).getSensitivity();
-      double[] sensitivityExpected = new double[VALUES.length];
       for (int j = 0; j < VALUES.length; j++) {
         double[] valueFd = new double[2];
         for (int k = 0; k < 2; k++) {
@@ -160,8 +158,8 @@ public class ForwardPriceIndexValuesTest {
           ForwardPriceIndexValues curveShifted = INSTANCE.withCurve(INSTANCE.getCurve().shiftedBy(adjustments));
           valueFd[k] = curveShifted.value(TEST_MONTHS[i]);
         }
-        sensitivityExpected[j] = (valueFd[1] - valueFd[0]) / (2 * shift);
-        assertEquals(sensitivityComputed[j], sensitivityExpected[j], TOLERANCE_DELTA, "Test: " + i + " - sensi: " + j);
+        double sensitivityExpected = (valueFd[1] - valueFd[0]) / (2 * shift);
+        assertEquals(sensitivityComputed.get(j), sensitivityExpected, TOLERANCE_DELTA, "Test: " + i + " - sensi: " + j);
       }
     }
   }

@@ -56,8 +56,7 @@ class CalibrationValue
   @Override
   public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
     // create child provider from matrix
-    double[] data = x.toArray();
-    ImmutableRatesProvider childProvider = providerGenerator.generate(data);
+    ImmutableRatesProvider childProvider = providerGenerator.generate(x);
     // calculate value for each trade using the child provider
     return DoubleMatrix1D.of(trades.size(), i -> measures.value(trades.get(i), childProvider));
   }

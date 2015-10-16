@@ -44,6 +44,7 @@ import com.opengamma.strata.market.value.ForwardPriceIndexValues;
 import com.opengamma.strata.market.value.PriceIndexValues;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.NaturalCubicSplineInterpolator1D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
 
 /**
@@ -202,13 +203,10 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     YearMonth refMonth = YearMonth.from(valuationDate.plusMonths(9));
     InflationRateSensitivity pointSensi = InflationRateSensitivity.of(GB_RPI, refMonth, pointSensiValue);
     CurveCurrencyParameterSensitivities computed = provider.curveParameterSensitivity(pointSensi.build());
-    double[] sensiComputed = computed.getSensitivities().get(0).getSensitivity();
-    double[] sensiExpectedUnit =
+    DoubleMatrix1D sensiComputed = computed.getSensitivities().get(0).getSensitivity();
+    DoubleMatrix1D sensiExpectedUnit =
         provider.priceIndexValues(GB_RPI).unitParameterSensitivity(refMonth).getSensitivities().get(0).getSensitivity();
-    assertEquals(sensiComputed.length, sensiExpectedUnit.length);
-    for (int i = 0; i < sensiComputed.length; ++i) {
-      assertEquals(sensiComputed[i], sensiExpectedUnit[i] * pointSensiValue, eps);
-    }
+    assertTrue(sensiComputed.equalWithTolerance(sensiExpectedUnit.multipliedBy(pointSensiValue), eps));
   }
 
   //-------------------------------------------------------------------------
@@ -240,7 +238,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
 
     @Override
     public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
-      return CurveUnitParameterSensitivity.of(metadata, new double[] {1d});
+      return CurveUnitParameterSensitivity.of(metadata, DoubleMatrix1D.of(1d));
     }
 
     @Override

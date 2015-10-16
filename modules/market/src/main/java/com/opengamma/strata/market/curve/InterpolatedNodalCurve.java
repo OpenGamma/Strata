@@ -37,6 +37,7 @@ import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapol
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * A curve based on interpolation between a number of nodal points.
@@ -192,7 +193,7 @@ public final class InterpolatedNodalCurve
 
   @Override
   public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
-    double[] array = underlyingInterpolator.getNodeSensitivitiesForValue(underlyingDataBundle, x);
+    DoubleMatrix1D array = DoubleMatrix1D.copyOf(underlyingInterpolator.getNodeSensitivitiesForValue(underlyingDataBundle, x));
     return CurveUnitParameterSensitivity.of(metadata, array);
   }
 

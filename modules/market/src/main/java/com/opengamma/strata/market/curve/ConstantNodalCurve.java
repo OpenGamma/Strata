@@ -28,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * A curve based on a single constant value.
@@ -42,6 +43,11 @@ import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 @BeanDefinition(builderScope = "private")
 public final class ConstantNodalCurve
     implements NodalCurve, ImmutableBean, Serializable {
+
+  /**
+   * Sensitivity does not vary.
+   */
+  private static final DoubleMatrix1D SENSITIVITY = DoubleMatrix1D.of(1d);
 
   /**
    * The curve metadata.
@@ -120,7 +126,7 @@ public final class ConstantNodalCurve
 
   @Override
   public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
-    return CurveUnitParameterSensitivity.of(metadata, new double[] {1d});
+    return CurveUnitParameterSensitivity.of(metadata, SENSITIVITY);
   }
 
   @Override

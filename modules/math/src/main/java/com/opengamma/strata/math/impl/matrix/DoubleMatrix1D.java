@@ -916,6 +916,33 @@ public final class DoubleMatrix1D
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Checks if this array equals another within the specified tolerance.
+   * <p>
+   * This returns true if the two instances have {@code double} values that are
+   * equal within the specified tolerance.
+   * 
+   * @param other  the other array
+   * @param tolerance  the tolerance
+   * @return true if equal up to the tolerance
+   */
+  public boolean equalWithTolerance(DoubleMatrix1D other, double tolerance) {
+    return DoubleArrayMath.fuzzyEquals(array, other.array, tolerance);
+  }
+
+  /**
+   * Checks if this array equals zero within the specified tolerance.
+   * <p>
+   * This returns true if all the {@code double} values equal zero within the specified tolerance.
+   * 
+   * @param tolerance  the tolerance
+   * @return true if equal up to the tolerance
+   */
+  public boolean equalZeroWithTolerance(double tolerance) {
+    return DoubleArrayMath.fuzzyEqualsZero(array, tolerance);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {

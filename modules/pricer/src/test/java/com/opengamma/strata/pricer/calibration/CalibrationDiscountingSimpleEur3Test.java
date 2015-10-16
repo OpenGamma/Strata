@@ -30,6 +30,7 @@ import com.opengamma.strata.market.curve.definition.CurveNode;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
@@ -204,10 +205,10 @@ public class CalibrationDiscountingSimpleEur3Test {
       CurveCurrencyParameterSensitivity mqsDsc = mqs.getSensitivity(CalibrationEurStandard.DSCON_CURVE_NAME, EUR);
       assertTrue(mqsDsc.getCurveName().equals(CalibrationEurStandard.DSCON_CURVE_NAME));
       assertTrue(mqsDsc.getCurrency().equals(EUR));
-      double[] mqsData = mqsDsc.getSensitivity();
-      assertEquals(mqsData.length, DSC_MARKET_QUOTES.length);
-      for (int i = 0; i < mqsData.length; i++) {
-        assertEquals(mqsData[i], (i == loopnode) ? 1.0 : 0.0, TOLERANCE_DELTA);
+      DoubleMatrix1D mqsData = mqsDsc.getSensitivity();
+      assertEquals(mqsData.size(), DSC_MARKET_QUOTES.length);
+      for (int i = 0; i < mqsData.size(); i++) {
+        assertEquals(mqsData.get(i), (i == loopnode) ? 1.0 : 0.0, TOLERANCE_DELTA);
       }
     }
     // Test PV Fwd3
@@ -235,15 +236,15 @@ public class CalibrationDiscountingSimpleEur3Test {
       assertEquals(mqs.size(), 3);  // Calibration of all curves simultaneously
       CurveCurrencyParameterSensitivity mqsDsc = mqs.getSensitivity(CalibrationEurStandard.DSCON_CURVE_NAME, EUR);
       CurveCurrencyParameterSensitivity mqsFwd3 = mqs.getSensitivity(CalibrationEurStandard.FWD3_CURVE_NAME, EUR);
-      double[] mqsDscData = mqsDsc.getSensitivity();
-      assertEquals(mqsDscData.length, DSC_MARKET_QUOTES.length);
-      for (int i = 0; i < mqsDscData.length; i++) {
-        assertEquals(mqsDscData[i], 0.0, TOLERANCE_DELTA);
+      DoubleMatrix1D mqsDscData = mqsDsc.getSensitivity();
+      assertEquals(mqsDscData.size(), DSC_MARKET_QUOTES.length);
+      for (int i = 0; i < mqsDscData.size(); i++) {
+        assertEquals(mqsDscData.get(i), 0.0, TOLERANCE_DELTA);
       }
-      double[] mqsFwd3Data = mqsFwd3.getSensitivity();
-      assertEquals(mqsFwd3Data.length, fwd3MarketQuotes.length);
-      for (int i = 0; i < mqsFwd3Data.length; i++) {
-        assertEquals(mqsFwd3Data[i], (i == loopnode) ? 1.0 : 0.0, TOLERANCE_DELTA);
+      DoubleMatrix1D mqsFwd3Data = mqsFwd3.getSensitivity();
+      assertEquals(mqsFwd3Data.size(), fwd3MarketQuotes.length);
+      for (int i = 0; i < mqsFwd3Data.size(); i++) {
+        assertEquals(mqsFwd3Data.get(i), (i == loopnode) ? 1.0 : 0.0, TOLERANCE_DELTA);
       }
     }
     // Test PV Fwd6
@@ -272,20 +273,20 @@ public class CalibrationDiscountingSimpleEur3Test {
       CurveCurrencyParameterSensitivity mqsDsc = mqs.getSensitivity(CalibrationEurStandard.DSCON_CURVE_NAME, EUR);
       CurveCurrencyParameterSensitivity mqsFwd3 = mqs.getSensitivity(CalibrationEurStandard.FWD3_CURVE_NAME, EUR);
       CurveCurrencyParameterSensitivity mqsFwd6 = mqs.getSensitivity(CalibrationEurStandard.FWD6_CURVE_NAME, EUR);
-      double[] mqsDscData = mqsDsc.getSensitivity();
-      assertEquals(mqsDscData.length, DSC_MARKET_QUOTES.length);
-      for (int i = 0; i < mqsDscData.length; i++) {
-        assertEquals(mqsDscData[i], 0.0, TOLERANCE_DELTA);
+      DoubleMatrix1D mqsDscData = mqsDsc.getSensitivity();
+      assertEquals(mqsDscData.size(), DSC_MARKET_QUOTES.length);
+      for (int i = 0; i < mqsDscData.size(); i++) {
+        assertEquals(mqsDscData.get(i), 0.0, TOLERANCE_DELTA);
       }
-      double[] mqsFwd3Data = mqsFwd3.getSensitivity();
-      assertEquals(mqsFwd3Data.length, fwd3MarketQuotes.length);
-      for (int i = 0; i < mqsFwd3Data.length; i++) {
-        assertEquals(mqsFwd3Data[i], 0.0, TOLERANCE_DELTA);
+      DoubleMatrix1D mqsFwd3Data = mqsFwd3.getSensitivity();
+      assertEquals(mqsFwd3Data.size(), fwd3MarketQuotes.length);
+      for (int i = 0; i < mqsFwd3Data.size(); i++) {
+        assertEquals(mqsFwd3Data.get(i), 0.0, TOLERANCE_DELTA);
       }
-      double[] mqsFwd6Data = mqsFwd6.getSensitivity();
-      assertEquals(mqsFwd6Data.length, fwd6MarketQuotes.length);
-      for (int i = 0; i < mqsFwd6Data.length; i++) {
-        assertEquals(mqsFwd6Data[i], (i == loopnode) ? 1.0 : 0.0, TOLERANCE_DELTA);
+      DoubleMatrix1D mqsFwd6Data = mqsFwd6.getSensitivity();
+      assertEquals(mqsFwd6Data.size(), fwd6MarketQuotes.length);
+      for (int i = 0; i < mqsFwd6Data.size(); i++) {
+        assertEquals(mqsFwd6Data.get(i), (i == loopnode) ? 1.0 : 0.0, TOLERANCE_DELTA);
       }
     }
 

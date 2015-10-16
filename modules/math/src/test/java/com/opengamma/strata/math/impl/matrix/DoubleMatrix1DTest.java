@@ -377,6 +377,28 @@ public class DoubleMatrix1DTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_equalWithTolerance() {
+    DoubleMatrix1D a1 = DoubleMatrix1D.of(1d, 2d);
+    DoubleMatrix1D a2 = DoubleMatrix1D.of(1d, 2.02d);
+    DoubleMatrix1D a3 = DoubleMatrix1D.of(1d, 2.009d);
+    DoubleMatrix1D b = DoubleMatrix1D.of(1d, 2d, 3d);
+    assertEquals(a1.equalWithTolerance(a2, 0.01d), false);
+    assertEquals(a1.equalWithTolerance(a3, 0.01d), true);
+    assertEquals(a1.equalWithTolerance(b, 0.01d), false);
+  }
+
+  public void test_equalZeroWithTolerance() {
+    DoubleMatrix1D a1 = DoubleMatrix1D.of(0d, 0d);
+    DoubleMatrix1D a2 = DoubleMatrix1D.of(0d, 0.02d);
+    DoubleMatrix1D a3 = DoubleMatrix1D.of(0d, 0.009d);
+    DoubleMatrix1D b = DoubleMatrix1D.of(1d, 2d, 3d);
+    assertEquals(a1.equalZeroWithTolerance(0.01d), true);
+    assertEquals(a2.equalZeroWithTolerance(0.01d), false);
+    assertEquals(a3.equalZeroWithTolerance(0.01d), true);
+    assertEquals(b.equalZeroWithTolerance(0.01d), false);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_equalsHashCode() {
     DoubleMatrix1D a1 = DoubleMatrix1D.of(1d, 2d);
     DoubleMatrix1D a2 = DoubleMatrix1D.of(1d, 2d);

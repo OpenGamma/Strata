@@ -30,6 +30,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
@@ -41,6 +42,7 @@ import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.SwaptionVolatilitySurfaceExpiryTenorNodeMetadata;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Volatility environment for swaptions in the normal or Bachelier model. 
@@ -151,9 +153,12 @@ public final class NormalVolatilityExpiryTenorSwaptionProvider
         "Swap convention of provider should be the same as swap convention of swaption sensitivity");
     double expiry = relativeTime(point.getExpiry());
     double tenor = point.getTenor();
-    Map<DoublesPair, Double> result = surface.zValueParameterSensitivity(expiry, tenor);
+    // copy to ImmutableMap to lock order (keySet and values used separately but must match)
+    Map<DoublesPair, Double> result = ImmutableMap.copyOf(surface.zValueParameterSensitivity(expiry, tenor));
     SurfaceCurrencyParameterSensitivity parameterSensi = SurfaceCurrencyParameterSensitivity.of(
-        updateSurfaceMetadata(result.keySet()), point.getCurrency(), Doubles.toArray(result.values()));
+        updateSurfaceMetadata(result.keySet()),
+        point.getCurrency(),
+        DoubleMatrix1D.copyOf(Doubles.toArray(result.values())));
     return parameterSensi.multipliedBy(point.getSensitivity());
   }
 

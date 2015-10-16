@@ -18,6 +18,7 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -52,6 +53,7 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitiviti
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -102,8 +104,7 @@ public class CurveGammaCalculatorTest {
     Currency curveCurrency = SINGLE_CURRENCY;
     double[] y = curve.getYValues();
     int nbNode = y.length;
-    double[] gammaExpected = new double[nbNode];
-    for (int i = 0; i < nbNode; i++) {
+    DoubleMatrix1D gammaExpected = DoubleMatrix1D.of(nbNode, i -> {
       double[][][] yBumped = new double[2][2][nbNode];
       double[][] pv = new double[2][2];
       for (int pmi = 0; pmi < 2; pmi++) {
@@ -123,17 +124,15 @@ public class CurveGammaCalculatorTest {
           pv[pmi][pmP] = PRICER_SWAP.presentValue(SWAP, providerBumped).getAmount(USD).getAmount();
         }
       }
-      gammaExpected[i] = (pv[1][1] - pv[1][0] - pv[0][1] + pv[0][0]) / (4 * FD_SHIFT * FD_SHIFT);
-    }
+      return (pv[1][1] - pv[1][0] - pv[0][1] + pv[0][0]) / (4 * FD_SHIFT * FD_SHIFT);
+    });
     CurveCurrencyParameterSensitivity sensitivityComputed = GAMMA_CAL.calculateSemiParallelGamma(
         curve,
         curveCurrency,
         c -> buildSensitivities(c, provider));
     assertEquals(sensitivityComputed.getMetadata(), curve.getMetadata());
-    double[] gammaComputed = sensitivityComputed.getSensitivity();
-    for (int i = 0; i < nbNode; i++) {
-      assertEquals(gammaComputed[i], gammaExpected[i], TOLERANCE_GAMMA);
-    }
+    DoubleMatrix1D gammaComputed = sensitivityComputed.getSensitivity();
+    assertTrue(gammaComputed.equalWithTolerance(gammaExpected, TOLERANCE_GAMMA));
   }
 
   // Checks that different finite difference types and shifts give similar results.
@@ -145,24 +144,20 @@ public class CurveGammaCalculatorTest {
     CurveGammaCalculator calculatorForward5 = new CurveGammaCalculator(FiniteDifferenceType.FORWARD, FD_SHIFT);
     CurveGammaCalculator calculatorBackward5 = new CurveGammaCalculator(FiniteDifferenceType.BACKWARD, FD_SHIFT);
     CurveGammaCalculator calculatorCentral4 = new CurveGammaCalculator(FiniteDifferenceType.CENTRAL, 1.0E-4);
-    double[] gammaCentral5 = GAMMA_CAL.calculateSemiParallelGamma(
+    DoubleMatrix1D gammaCentral5 = GAMMA_CAL.calculateSemiParallelGamma(
         curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
-    int nbNode = gammaCentral5.length;
-    double[] gammaForward5 = calculatorForward5.calculateSemiParallelGamma(
+
+    DoubleMatrix1D gammaForward5 = calculatorForward5.calculateSemiParallelGamma(
         curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
-    for (int i = 0; i < nbNode; i++) {
-      assertEquals(gammaForward5[i], gammaCentral5[i], toleranceCoherency);
-    }
-    double[] gammaBackward5 = calculatorBackward5.calculateSemiParallelGamma(
+    assertTrue(gammaForward5.equalWithTolerance(gammaCentral5, toleranceCoherency));
+
+    DoubleMatrix1D gammaBackward5 = calculatorBackward5.calculateSemiParallelGamma(
         curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
-    for (int i = 0; i < nbNode; i++) {
-      assertEquals(gammaForward5[i], gammaBackward5[i], toleranceCoherency);
-    }
-    double[] gammaCentral4 = calculatorCentral4.calculateSemiParallelGamma(
+    assertTrue(gammaForward5.equalWithTolerance(gammaBackward5, toleranceCoherency));
+
+    DoubleMatrix1D gammaCentral4 = calculatorCentral4.calculateSemiParallelGamma(
         curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
-    for (int i = 0; i < nbNode; i++) {
-      assertEquals(gammaForward5[i], gammaCentral4[i], toleranceCoherency);
-    }
+    assertTrue(gammaForward5.equalWithTolerance(gammaCentral4, toleranceCoherency));
   }
 
   //-------------------------------------------------------------------------

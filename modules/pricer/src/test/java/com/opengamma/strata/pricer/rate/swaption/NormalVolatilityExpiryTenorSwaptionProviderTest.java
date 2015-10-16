@@ -43,6 +43,7 @@ import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapol
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Test {@link NormalVolatilityExpiryTenorSwaptionProvider}.
@@ -174,13 +175,13 @@ public class NormalVolatilityExpiryTenorSwaptionProviderTest {
       }
       SurfaceCurrencyParameterSensitivity sensiFromNoMetadata = PROVIDER.surfaceCurrencyParameterSensitivity(point);
       List<SurfaceParameterMetadata> list = sensi.getMetadata().getParameterMetadata().get();
-      double[] computed = sensi.getSensitivity();
-      assertEquals(computed.length, nData);
+      DoubleMatrix1D computed = sensi.getSensitivity();
+      assertEquals(computed.size(), nData);
       for (int j = 0; j < list.size(); ++j) {
         SwaptionVolatilitySurfaceExpiryTenorNodeMetadata metadata =
             (SwaptionVolatilitySurfaceExpiryTenorNodeMetadata) list.get(i);
         double expected = map.get(DoublesPair.of(metadata.getYearFraction(), metadata.getTenor()));
-        assertEquals(computed[i], expected, eps);
+        assertEquals(computed.get(i), expected, eps);
         assertTrue(sensiFromNoMetadata.getMetadata().getParameterMetadata().get().contains(metadata));
       }
     }

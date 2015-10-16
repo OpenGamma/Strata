@@ -12,6 +12,7 @@ import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntFunction;
 
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.function.IntIntDoubleConsumer;
 import com.opengamma.strata.collect.function.IntIntDoubleToDoubleFunction;
 import com.opengamma.strata.collect.function.IntIntToDoubleFunction;
@@ -132,7 +133,8 @@ public class DoubleMatrix2D implements Matrix, Serializable {
     for (int i = 0; i < array.length; i++) {
       double[] values = valuesFunction.apply(i);
       if (values.length != columns) {
-        throw new IllegalArgumentException("Function returned array of incorrect length");
+        throw new IllegalArgumentException(Messages.format(
+            "Function returned array of incorrect length {}, expected {}", values.length, columns));
       }
       array[i] = values.clone();
     }
@@ -157,7 +159,8 @@ public class DoubleMatrix2D implements Matrix, Serializable {
     for (int i = 0; i < array.length; i++) {
       DoubleMatrix1D values = valuesFunction.apply(i);
       if (values.size() != columns) {
-        throw new IllegalArgumentException("Function returned array of incorrect length");
+        throw new IllegalArgumentException(Messages.format(
+            "Function returned array of incorrect length {}, expected {}", values.size(), columns));
       }
       array[i] = values.toArrayUnsafe();
     }

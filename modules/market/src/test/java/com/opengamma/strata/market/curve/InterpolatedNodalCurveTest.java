@@ -30,6 +30,7 @@ import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Test {@link InterpolatedNodalCurve}.
@@ -85,7 +86,7 @@ public class InterpolatedNodalCurveTest {
     assertThat(test.yValue(10d)).isEqualTo(COMBINED.interpolate(bundle, 10d));
 
     assertThat(test.yValueParameterSensitivity(10d)).isEqualTo(
-        CurveUnitParameterSensitivity.of(METADATA, COMBINED.getNodeSensitivitiesForValue(bundle, 10d)));
+        CurveUnitParameterSensitivity.of(METADATA, DoubleMatrix1D.copyOf(COMBINED.getNodeSensitivitiesForValue(bundle, 10d))));
 
     assertThat(test.firstDerivative(10d)).isEqualTo(COMBINED.firstDerivative(bundle, 10d));
   }
