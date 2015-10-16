@@ -10,6 +10,7 @@ import java.util.function.DoubleUnaryOperator;
 
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.function.DoubleTenaryOperator;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * A surface based on {@code double} nodal points.
@@ -31,49 +32,41 @@ public interface NodalSurface
    * <p>
    * This method returns the fixed x-values used to define the surface.
    * This will be of the same size as the y-values and z-values.
-   * <p>
-   * The implementation will clone any internal data, thus the result may be mutated.
    * 
    * @return the x-values
    */
-  public abstract double[] getXValues();
+  public abstract DoubleMatrix1D getXValues();
 
   /**
    * Gets the known y-values of the surface.
    * <p>
    * This method returns the fixed y-values used to define the surface.
    * This will be of the same size as the x-values and z-values.
-   * <p>
-   * The implementation will clone any internal data, thus the result may be mutated.
    * 
    * @return the y-values
    */
-  public abstract double[] getYValues();
+  public abstract DoubleMatrix1D getYValues();
 
   /**
    * Gets the known z-values of the surface.
    * <p>
    * This method returns the fixed z-values used to define the surface.
    * This will be of the same size as the x-values and y-values.
-   * <p>
-   * The implementation will clone any internal data, thus the result may be mutated.
    * 
    * @return the z-values
    */
-  public abstract double[] getZValues();
+  public abstract DoubleMatrix1D getZValues();
 
   /**
    * Returns a new surface with the specified values.
    * <p>
    * This allows the z-values of the surface to be changed while retaining the
    * same x-values and y-values.
-   * <p>
-   * The implementation will clone the input array.
    * 
    * @param values  the new y-values for the surface
    * @return the new surface
    */
-  public abstract NodalSurface withZValues(double[] values);
+  public abstract NodalSurface withZValues(DoubleMatrix1D values);
 
   //-------------------------------------------------------------------------
   /**
@@ -89,13 +82,10 @@ public interface NodalSurface
    * @return the new surface
    */
   public default NodalSurface shiftedBy(DoubleTenaryOperator operator) {
-    double[] xValues = getXValues();
-    double[] yValues = getYValues();
-    double[] zValues = getZValues();
-    double[] shifted = new double[zValues.length];
-    for (int i = 0; i < yValues.length; i++) {
-      shifted[i] = operator.applyAsDouble(xValues[i], yValues[i], zValues[i]);
-    }
+    DoubleMatrix1D xValues = getXValues();
+    DoubleMatrix1D yValues = getYValues();
+    DoubleMatrix1D zValues = getZValues();
+    DoubleMatrix1D shifted = zValues.mapWithIndex((i, v) -> operator.applyAsDouble(xValues.get(i), yValues.get(i), v));
     return withZValues(shifted);
   }
 
@@ -111,12 +101,8 @@ public interface NodalSurface
    * @return the new surface
    */
   public default NodalSurface shiftedBy(List<ValueAdjustment> adjustments) {
-    double[] shifted = getZValues();
-    int minSize = Math.min(shifted.length, adjustments.size());
-    for (int i = 0; i < minSize; i++) {
-      shifted[i] = adjustments.get(i).adjust(shifted[i]);
-    }
-    return withZValues(shifted);
+    DoubleMatrix1D zValues = getZValues();
+    return withZValues(zValues.mapWithIndex((i, v) -> i < adjustments.size() ? adjustments.get(i).adjust(v) : v));
   }
 
   //-------------------------------------------------------------------------

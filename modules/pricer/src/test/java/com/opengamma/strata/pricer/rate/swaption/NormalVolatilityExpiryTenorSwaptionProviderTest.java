@@ -20,7 +20,6 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,18 +54,21 @@ public class NormalVolatilityExpiryTenorSwaptionProviderTest {
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
           Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
-  private static final double[] TIME = new double[] {0.25, 0.5, 1.0, 0.25, 0.5, 1.0, 0.25, 0.5, 1.0, 0.25, 0.5, 1.0};
-  private static final double[] TENOR = new double[] {3.0, 3.0, 3.0, 5.0, 5.0, 5.0, 7.0, 7.0, 7.0, 10.0, 10.0, 10.0};
-  private static final double[] VOL = new double[] {0.14, 0.12, 0.1, 0.14, 0.13, 0.12, 0.13, 0.12, 0.11, 0.12, 0.11, 0.1};
+  private static final DoubleMatrix1D TIME =
+      DoubleMatrix1D.of(0.25, 0.5, 1.0, 0.25, 0.5, 1.0, 0.25, 0.5, 1.0, 0.25, 0.5, 1.0);
+  private static final DoubleMatrix1D TENOR =
+      DoubleMatrix1D.of(3.0, 3.0, 3.0, 5.0, 5.0, 5.0, 7.0, 7.0, 7.0, 10.0, 10.0, 10.0);
+  private static final DoubleMatrix1D VOL =
+      DoubleMatrix1D.of(0.14, 0.12, 0.1, 0.14, 0.13, 0.12, 0.13, 0.12, 0.11, 0.12, 0.11, 0.1);
   private static final SurfaceMetadata METADATA_WITH_PARAM;
   private static final SurfaceMetadata METADATA;
   static {
     List<SwaptionVolatilitySurfaceExpiryTenorNodeMetadata> list =
         new ArrayList<SwaptionVolatilitySurfaceExpiryTenorNodeMetadata>();
-    int nData = TIME.length;
+    int nData = TIME.size();
     for (int i = 0; i < nData; ++i) {
       SwaptionVolatilitySurfaceExpiryTenorNodeMetadata parameterMetadata =
-          SwaptionVolatilitySurfaceExpiryTenorNodeMetadata.of(TIME[i], TENOR[i]);
+          SwaptionVolatilitySurfaceExpiryTenorNodeMetadata.of(TIME.get(i), TENOR.get(i));
       list.add(parameterMetadata);
     }
     METADATA_WITH_PARAM = DefaultSurfaceMetadata.builder()
@@ -147,17 +149,15 @@ public class NormalVolatilityExpiryTenorSwaptionProviderTest {
 
   public void test_volatility_sensitivity() {
     double eps = 1.0e-6;
-    int nData = TIME.length;
+    int nData = TIME.size();
     for (int i = 0; i < NB_TEST; i++) {
       SwaptionSensitivity point = SwaptionSensitivity.of(
-          CONVENTION, TEST_OPTION_EXPIRY[i], TENOR[i], TEST_STRIKE, TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
+          CONVENTION, TEST_OPTION_EXPIRY[i], TENOR.get(i), TEST_STRIKE, TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
       SurfaceCurrencyParameterSensitivity sensi = PROVIDER_WITH_PARAM.surfaceCurrencyParameterSensitivity(point);
       Map<DoublesPair, Double> map = new HashMap<DoublesPair, Double>();
       for (int j = 0; j < nData; ++j) {
-        double[] volDataUp = Arrays.copyOf(VOL, nData);
-        double[] volDataDw = Arrays.copyOf(VOL, nData);
-        volDataUp[j] += eps;
-        volDataDw[j] -= eps;
+        DoubleMatrix1D volDataUp = VOL.subArray(0, nData).with(j, VOL.get(j) + eps);
+        DoubleMatrix1D volDataDw = VOL.subArray(0, nData).with(j, VOL.get(j) - eps);
         InterpolatedNodalSurface paramUp =
             InterpolatedNodalSurface.of(METADATA_WITH_PARAM, TIME, TENOR, volDataUp, INTERPOLATOR_2D);
         InterpolatedNodalSurface paramDw =
@@ -171,7 +171,7 @@ public class NormalVolatilityExpiryTenorSwaptionProviderTest {
         double volDw = provDw.getVolatility(
             TEST_OPTION_EXPIRY[i], TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD);
         double fd = 0.5 * (volUp - volDw) / eps;
-        map.put(DoublesPair.of(TIME[j], TENOR[j]), fd);
+        map.put(DoublesPair.of(TIME.get(j), TENOR.get(j)), fd);
       }
       SurfaceCurrencyParameterSensitivity sensiFromNoMetadata = PROVIDER.surfaceCurrencyParameterSensitivity(point);
       List<SurfaceParameterMetadata> list = sensi.getMetadata().getParameterMetadata().get();

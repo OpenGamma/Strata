@@ -34,6 +34,7 @@ import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapol
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Black volatility data sets for testing.
@@ -47,15 +48,15 @@ public class SwaptionBlackVolatilityDataSets {
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
 
   //     =====     Standard figures for testing     =====
-  private static final double[] TIMES =
-      new double[] {0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0,
-          0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0};
-  private static final double[] TENOR =
-      new double[] {1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0,
-          5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0, 30.0, 30.0, 30.0, 30.0};
-  private static final double[] BLACK_VOL =
-      new double[] {0.45, 0.425, 0.4, 0.375, 0.425, 0.4, 0.375, 0.35, 0.4, 0.375, 0.35, 0.325, 0.375, 0.35, 0.325, 0.3,
-          0.35, 0.325, 0.3, 0.275};
+  private static final DoubleMatrix1D TIMES =
+      DoubleMatrix1D.of(0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0,
+          0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0);
+  private static final DoubleMatrix1D TENOR =
+      DoubleMatrix1D.of(1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0,
+          5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0, 30.0, 30.0, 30.0, 30.0);
+  private static final DoubleMatrix1D BLACK_VOL =
+      DoubleMatrix1D.of(0.45, 0.425, 0.4, 0.375, 0.425, 0.4, 0.375, 0.35, 0.4, 0.375, 0.35, 0.325, 0.375, 0.35, 0.325, 0.3,
+          0.35, 0.325, 0.3, 0.275);
   private static final SurfaceMetadata METADATA = DefaultSurfaceMetadata.builder()
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.YEAR_FRACTION)

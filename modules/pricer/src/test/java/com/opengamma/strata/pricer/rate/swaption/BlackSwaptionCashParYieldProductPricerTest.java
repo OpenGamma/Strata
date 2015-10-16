@@ -110,9 +110,9 @@ public class BlackSwaptionCashParYieldProductPricerTest {
       Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
-  private static final double[] EXPIRY = new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0 };
-  private static final double[] TENOR = new double[] {2, 2, 2, 10, 10, 10 };
-  private static final double[] VOL = new double[] {0.35, 0.34, 0.25, 0.30, 0.25, 0.20 };
+  private static final DoubleMatrix1D EXPIRY = DoubleMatrix1D.of(0.5, 1.0, 5.0, 0.5, 1.0, 5.0);
+  private static final DoubleMatrix1D TENOR = DoubleMatrix1D.of(2, 2, 2, 10, 10, 10);
+  private static final DoubleMatrix1D VOL = DoubleMatrix1D.of(0.35, 0.34, 0.25, 0.30, 0.25, 0.20);
   private static final SurfaceMetadata METADATA = DefaultSurfaceMetadata.builder()
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.YEAR_FRACTION)

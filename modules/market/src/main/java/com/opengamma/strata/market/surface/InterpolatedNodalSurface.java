@@ -30,6 +30,7 @@ import com.opengamma.strata.collect.function.DoubleTenaryOperator;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * A surface based on interpolation between a number of nodal points.
@@ -58,21 +59,21 @@ public final class InterpolatedNodalSurface
    * This array will contains at least two elements.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final double[] xValues;
+  private final DoubleMatrix1D xValues;
   /**
    * The array of y-values, one for each point.
    * <p>
    * This array will contains at least two elements and be of the same length as x-values.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final double[] yValues;
+  private final DoubleMatrix1D yValues;
   /**
    * The array of z-values, one for each point.
    * <p>
    * This array will contains at least two elements and be of the same length as x-values.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final double[] zValues;
+  private final DoubleMatrix1D zValues;
   /**
    * The underlying interpolator.
    */
@@ -99,9 +100,9 @@ public final class InterpolatedNodalSurface
    */
   public static InterpolatedNodalSurface of(
       SurfaceMetadata metadata,
-      double[] xValues,
-      double[] yValues,
-      double[] zValues,
+      DoubleMatrix1D xValues,
+      DoubleMatrix1D yValues,
+      DoubleMatrix1D zValues,
       GridInterpolator2D interpolator) {
 
     return InterpolatedNodalSurface.builder()
@@ -118,35 +119,35 @@ public final class InterpolatedNodalSurface
   @ImmutableConstructor
   private InterpolatedNodalSurface(
       SurfaceMetadata metadata,
-      double[] xValues,
-      double[] yValues,
-      double[] zValues,
+      DoubleMatrix1D xValues,
+      DoubleMatrix1D yValues,
+      DoubleMatrix1D zValues,
       GridInterpolator2D interpolator) {
     JodaBeanUtils.notNull(metadata, "metadata");
     JodaBeanUtils.notNull(xValues, "times");
     JodaBeanUtils.notNull(yValues, "values");
     JodaBeanUtils.notNull(interpolator, "interpolator");
-    if (xValues.length < 2) {
+    if (xValues.size() < 2) {
       throw new IllegalArgumentException("Length of x-values must be at least 2");
     }
-    if (xValues.length != yValues.length) {
+    if (xValues.size() != yValues.size()) {
       throw new IllegalArgumentException("Length of x-values and y-values must match");
     }
-    if (xValues.length != zValues.length) {
+    if (xValues.size() != zValues.size()) {
       throw new IllegalArgumentException("Length of x-values and z-values must match");
     }
     metadata.getParameterMetadata().ifPresent(params -> {
-      if (xValues.length != params.size()) {
+      if (xValues.size() != params.size()) {
         throw new IllegalArgumentException("Length of x-values and parameter metadata must match when metadata present");
       }
     });
     this.metadata = metadata;
-    this.xValues = xValues.clone();
-    this.yValues = yValues.clone();
-    this.zValues = zValues.clone();
+    this.xValues = xValues;
+    this.yValues = yValues;
+    this.zValues = zValues;
     Map<DoublesPair, Double> pairs = new HashMap<>();
-    for (int i = 0; i < xValues.length; i++) {
-      pairs.put(DoublesPair.of(xValues[i], yValues[i]), zValues[i]);
+    for (int i = 0; i < xValues.size(); i++) {
+      pairs.put(DoublesPair.of(xValues.get(i), yValues.get(i)), zValues.get(i));
     }
     this.interpolator = interpolator;
     underlyingDataBundle = interpolator.getDataBundle(pairs);
@@ -160,7 +161,7 @@ public final class InterpolatedNodalSurface
   //-------------------------------------------------------------------------
   @Override
   public int getParameterCount() {
-    return xValues.length;
+    return xValues.size();
   }
 
   //-------------------------------------------------------------------------
@@ -186,7 +187,7 @@ public final class InterpolatedNodalSurface
 
   //-------------------------------------------------------------------------
   @Override
-  public InterpolatedNodalSurface withZValues(double[] zValues) {
+  public InterpolatedNodalSurface withZValues(DoubleMatrix1D zValues) {
     return new InterpolatedNodalSurface(metadata, xValues, yValues, zValues, interpolator);
   }
 
@@ -263,8 +264,8 @@ public final class InterpolatedNodalSurface
    * @return the value of the property, not null
    */
   @Override
-  public double[] getXValues() {
-    return (xValues != null ? xValues.clone() : null);
+  public DoubleMatrix1D getXValues() {
+    return xValues;
   }
 
   //-----------------------------------------------------------------------
@@ -275,8 +276,8 @@ public final class InterpolatedNodalSurface
    * @return the value of the property, not null
    */
   @Override
-  public double[] getYValues() {
-    return (yValues != null ? yValues.clone() : null);
+  public DoubleMatrix1D getYValues() {
+    return yValues;
   }
 
   //-----------------------------------------------------------------------
@@ -287,8 +288,8 @@ public final class InterpolatedNodalSurface
    * @return the value of the property, not null
    */
   @Override
-  public double[] getZValues() {
-    return (zValues != null ? zValues.clone() : null);
+  public DoubleMatrix1D getZValues() {
+    return zValues;
   }
 
   //-----------------------------------------------------------------------
@@ -367,18 +368,18 @@ public final class InterpolatedNodalSurface
     /**
      * The meta-property for the {@code xValues} property.
      */
-    private final MetaProperty<double[]> xValues = DirectMetaProperty.ofImmutable(
-        this, "xValues", InterpolatedNodalSurface.class, double[].class);
+    private final MetaProperty<DoubleMatrix1D> xValues = DirectMetaProperty.ofImmutable(
+        this, "xValues", InterpolatedNodalSurface.class, DoubleMatrix1D.class);
     /**
      * The meta-property for the {@code yValues} property.
      */
-    private final MetaProperty<double[]> yValues = DirectMetaProperty.ofImmutable(
-        this, "yValues", InterpolatedNodalSurface.class, double[].class);
+    private final MetaProperty<DoubleMatrix1D> yValues = DirectMetaProperty.ofImmutable(
+        this, "yValues", InterpolatedNodalSurface.class, DoubleMatrix1D.class);
     /**
      * The meta-property for the {@code zValues} property.
      */
-    private final MetaProperty<double[]> zValues = DirectMetaProperty.ofImmutable(
-        this, "zValues", InterpolatedNodalSurface.class, double[].class);
+    private final MetaProperty<DoubleMatrix1D> zValues = DirectMetaProperty.ofImmutable(
+        this, "zValues", InterpolatedNodalSurface.class, DoubleMatrix1D.class);
     /**
      * The meta-property for the {@code interpolator} property.
      */
@@ -446,7 +447,7 @@ public final class InterpolatedNodalSurface
      * The meta-property for the {@code xValues} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<double[]> xValues() {
+    public MetaProperty<DoubleMatrix1D> xValues() {
       return xValues;
     }
 
@@ -454,7 +455,7 @@ public final class InterpolatedNodalSurface
      * The meta-property for the {@code yValues} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<double[]> yValues() {
+    public MetaProperty<DoubleMatrix1D> yValues() {
       return yValues;
     }
 
@@ -462,7 +463,7 @@ public final class InterpolatedNodalSurface
      * The meta-property for the {@code zValues} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<double[]> zValues() {
+    public MetaProperty<DoubleMatrix1D> zValues() {
       return zValues;
     }
 
@@ -510,9 +511,9 @@ public final class InterpolatedNodalSurface
   public static final class Builder extends DirectFieldsBeanBuilder<InterpolatedNodalSurface> {
 
     private SurfaceMetadata metadata;
-    private double[] xValues;
-    private double[] yValues;
-    private double[] zValues;
+    private DoubleMatrix1D xValues;
+    private DoubleMatrix1D yValues;
+    private DoubleMatrix1D zValues;
     private GridInterpolator2D interpolator;
 
     /**
@@ -527,9 +528,9 @@ public final class InterpolatedNodalSurface
      */
     private Builder(InterpolatedNodalSurface beanToCopy) {
       this.metadata = beanToCopy.getMetadata();
-      this.xValues = beanToCopy.getXValues().clone();
-      this.yValues = beanToCopy.getYValues().clone();
-      this.zValues = beanToCopy.getZValues().clone();
+      this.xValues = beanToCopy.getXValues();
+      this.yValues = beanToCopy.getYValues();
+      this.zValues = beanToCopy.getZValues();
       this.interpolator = beanToCopy.getInterpolator();
     }
 
@@ -559,13 +560,13 @@ public final class InterpolatedNodalSurface
           this.metadata = (SurfaceMetadata) newValue;
           break;
         case 1681280954:  // xValues
-          this.xValues = (double[]) newValue;
+          this.xValues = (DoubleMatrix1D) newValue;
           break;
         case -1726182661:  // yValues
-          this.yValues = (double[]) newValue;
+          this.yValues = (DoubleMatrix1D) newValue;
           break;
         case -838678980:  // zValues
-          this.zValues = (double[]) newValue;
+          this.zValues = (DoubleMatrix1D) newValue;
           break;
         case 2096253127:  // interpolator
           this.interpolator = (GridInterpolator2D) newValue;
@@ -632,7 +633,7 @@ public final class InterpolatedNodalSurface
      * @param xValues  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder xValues(double... xValues) {
+    public Builder xValues(DoubleMatrix1D xValues) {
       JodaBeanUtils.notNull(xValues, "xValues");
       this.xValues = xValues;
       return this;
@@ -645,7 +646,7 @@ public final class InterpolatedNodalSurface
      * @param yValues  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder yValues(double... yValues) {
+    public Builder yValues(DoubleMatrix1D yValues) {
       JodaBeanUtils.notNull(yValues, "yValues");
       this.yValues = yValues;
       return this;
@@ -658,7 +659,7 @@ public final class InterpolatedNodalSurface
      * @param zValues  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder zValues(double... zValues) {
+    public Builder zValues(DoubleMatrix1D zValues) {
       JodaBeanUtils.notNull(zValues, "zValues");
       this.zValues = zValues;
       return this;
