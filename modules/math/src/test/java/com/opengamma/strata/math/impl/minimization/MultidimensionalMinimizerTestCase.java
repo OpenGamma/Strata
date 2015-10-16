@@ -13,8 +13,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Abstract test.

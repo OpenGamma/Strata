@@ -21,13 +21,13 @@ import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.optim.PointValuePair;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.ComplexNumber;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.FunctionND;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Utility class for converting OpenGamma mathematical objects into

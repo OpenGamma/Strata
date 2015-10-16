@@ -16,9 +16,9 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.curve.definition.CurveParameterSize;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Test {@link JacobianCalibrationMatrix}.

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.math.impl.matrix;
+package com.opengamma.strata.collect.array;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -15,6 +15,9 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.annotations.Test;
+
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Test {@link DoubleMatrix}.
@@ -31,8 +34,12 @@ public class DoubleMatrixTest {
   }
 
   public void test_of_values() {
+    assertMatrix(DoubleMatrix.of(0, 0));
+    assertMatrix(DoubleMatrix.of(1, 0));
+    assertMatrix(DoubleMatrix.of(0, 1));
     assertMatrix(DoubleMatrix.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d), 1d, 2d, 3d, 4d, 5d, 6d);
     assertMatrix(DoubleMatrix.of(6, 1, 1d, 2d, 3d, 4d, 5d, 6d), 1d, 2d, 3d, 4d, 5d, 6d);
+    assertThrowsIllegalArg(() -> DoubleMatrix.of(1, 2, 1d));
   }
 
   //-------------------------------------------------------------------------
@@ -291,6 +298,7 @@ public class DoubleMatrixTest {
       }
       assertEquals(matrix.dimensions(), 2);
       assertEquals(matrix.isEmpty(), false);
+      assertEquals(matrix.isSquare(), matrix.rowCount() == matrix.columnCount());
     }
   }
 

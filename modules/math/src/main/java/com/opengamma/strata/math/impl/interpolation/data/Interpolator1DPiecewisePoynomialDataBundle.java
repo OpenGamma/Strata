@@ -6,9 +6,9 @@
 package com.opengamma.strata.math.impl.interpolation.data;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialInterpolator;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWithSensitivity;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Data bundle for PiecewisePolynomialInterpolator1D

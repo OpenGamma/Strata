@@ -8,10 +8,10 @@ package com.opengamma.strata.math.impl.interpolation;
 import static org.apache.commons.math3.util.CombinatoricsUtils.binomialCoefficient;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.collect.array.IdentityMatrix;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
-import com.opengamma.strata.math.impl.matrix.IdentityMatrix;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 

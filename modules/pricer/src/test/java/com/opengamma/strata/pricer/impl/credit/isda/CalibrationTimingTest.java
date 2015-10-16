@@ -12,12 +12,12 @@ import cern.jet.random.engine.MersenneTwister;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.linearalgebra.CholeskyDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.CholeskyDecompositionResult;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;

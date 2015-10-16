@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalytic;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalyticFactory;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsPriceType;

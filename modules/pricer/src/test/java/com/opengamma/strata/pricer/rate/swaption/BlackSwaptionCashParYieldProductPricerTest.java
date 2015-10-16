@@ -40,6 +40,7 @@ import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
 import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
 import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
@@ -74,7 +75,6 @@ import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapol
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;

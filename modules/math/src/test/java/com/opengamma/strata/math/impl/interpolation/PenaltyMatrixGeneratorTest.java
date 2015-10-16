@@ -10,10 +10,10 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.collect.array.IdentityMatrix;
 import com.opengamma.strata.math.impl.FunctionUtils;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
-import com.opengamma.strata.math.impl.matrix.IdentityMatrix;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.math.impl.util.AssertMatrix;

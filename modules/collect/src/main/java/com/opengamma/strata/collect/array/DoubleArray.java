@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.math.impl.matrix;
+package com.opengamma.strata.collect.array;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;

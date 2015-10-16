@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
@@ -20,8 +22,6 @@ import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
 import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionResult;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory;

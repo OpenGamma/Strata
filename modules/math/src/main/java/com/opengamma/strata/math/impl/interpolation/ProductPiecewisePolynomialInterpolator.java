@@ -9,9 +9,9 @@ import java.util.Arrays;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivityFunction1D;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Given a data set {xValues[i], yValues[i]}, interpolate {xValues[i], xValues[i] * yValues[i]} by a piecewise polynomial function. 

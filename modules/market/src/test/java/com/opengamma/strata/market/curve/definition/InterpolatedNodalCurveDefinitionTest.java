@@ -21,6 +21,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.market.curve.CurveName;
@@ -29,7 +30,6 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test {@link InterpolatedNodalCurveDefinition}.

@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * Set up a simple parameterised curve

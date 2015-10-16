@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Describes the transformation (and its inverse) from  a set of n variables (e.g. model parameters) to a set of m variables

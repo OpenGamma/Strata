@@ -30,6 +30,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
@@ -38,7 +39,6 @@ import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Provides values for a Price index from a forward curve.

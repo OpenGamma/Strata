@@ -27,9 +27,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.function.DoubleTenaryOperator;
 import com.opengamma.strata.collect.tuple.DoublesPair;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * A surface based on a single constant value.

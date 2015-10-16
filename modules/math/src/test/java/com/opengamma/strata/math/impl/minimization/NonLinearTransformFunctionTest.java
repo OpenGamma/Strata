@@ -12,10 +12,10 @@ import java.util.BitSet;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.minimization.ParameterLimitsTransform.LimitType;
 
 /**

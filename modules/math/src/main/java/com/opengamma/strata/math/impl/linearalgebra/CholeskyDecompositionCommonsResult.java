@@ -10,8 +10,8 @@ import org.apache.commons.math3.linear.CholeskyDecomposition;
 import org.apache.commons.math3.linear.DecompositionSolver;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
 
 /**

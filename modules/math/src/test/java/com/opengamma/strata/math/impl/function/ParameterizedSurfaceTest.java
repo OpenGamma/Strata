@@ -9,8 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Set up a simple parameterised surface (based on the function a * Math.sin(b * x + c * y) + Math.cos(y), where a, b, & c are the parameters)

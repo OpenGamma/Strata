@@ -7,8 +7,8 @@ package com.opengamma.strata.math.impl.interpolation;
 
 import java.util.Arrays;
 
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Solves cubic spline problem with Not-A-Knot endpoint conditions, where the third derivative at the endpoints is the same as that of their adjacent points

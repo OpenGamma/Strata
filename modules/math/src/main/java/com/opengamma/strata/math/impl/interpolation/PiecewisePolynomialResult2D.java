@@ -7,8 +7,8 @@ package com.opengamma.strata.math.impl.interpolation;
 
 import java.util.ArrayList;
 
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Result of 2D interpolation by piecewise polynomial f(x0,x1) containing

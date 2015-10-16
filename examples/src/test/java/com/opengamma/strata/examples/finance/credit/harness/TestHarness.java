@@ -12,13 +12,13 @@ import java.time.LocalDate;
 import org.testng.Assert;
 
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
 import com.opengamma.strata.finance.credit.type.CdsConventions;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 public class TestHarness {
 

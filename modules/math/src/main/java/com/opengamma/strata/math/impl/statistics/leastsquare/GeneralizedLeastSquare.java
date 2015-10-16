@@ -13,14 +13,14 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
 import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionCommons;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 

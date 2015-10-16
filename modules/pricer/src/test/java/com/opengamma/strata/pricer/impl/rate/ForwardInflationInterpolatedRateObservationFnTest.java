@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.InflationInterpolatedRateObservation;
 import com.opengamma.strata.market.curve.Curves;
@@ -29,7 +30,6 @@ import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.ForwardPriceIndexValues;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**

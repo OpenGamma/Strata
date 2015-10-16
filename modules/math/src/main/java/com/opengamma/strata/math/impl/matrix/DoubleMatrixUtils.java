@@ -6,6 +6,8 @@
 package com.opengamma.strata.math.impl.matrix;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Various utility classes for matrices.

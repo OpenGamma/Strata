@@ -14,9 +14,9 @@ import java.util.Arrays;
 import org.joda.beans.BeanBuilder;
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test {@link IsdaCompliantCurve}.

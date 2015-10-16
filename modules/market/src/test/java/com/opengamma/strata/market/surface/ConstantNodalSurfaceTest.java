@@ -16,8 +16,8 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test {@link ConstantNodalSurface}.

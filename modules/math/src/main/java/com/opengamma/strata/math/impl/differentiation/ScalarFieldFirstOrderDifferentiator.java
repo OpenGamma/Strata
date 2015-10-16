@@ -6,9 +6,9 @@
 package com.opengamma.strata.math.impl.differentiation;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Differentiates a scalar field (i.e. there is a scalar value for every point

@@ -6,9 +6,9 @@
 package com.opengamma.strata.math.impl.function;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResult2D;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Computes value, first derivative and integral of piecewise polynomial function.

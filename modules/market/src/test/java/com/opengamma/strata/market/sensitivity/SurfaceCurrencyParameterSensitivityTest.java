@@ -14,11 +14,11 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test {@link SurfaceCurrencyParameterSensitivity}.

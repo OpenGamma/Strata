@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.market.sensitivity.SurfaceCurrencyParameterSensitivity;
@@ -42,7 +43,6 @@ import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.SwaptionVolatilitySurfaceExpiryTenorNodeMetadata;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Volatility environment for swaptions in the log-normal or Black model. 

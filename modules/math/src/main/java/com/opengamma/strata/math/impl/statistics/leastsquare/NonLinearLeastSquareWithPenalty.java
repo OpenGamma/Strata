@@ -6,14 +6,14 @@
 package com.opengamma.strata.math.impl.statistics.leastsquare;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory;

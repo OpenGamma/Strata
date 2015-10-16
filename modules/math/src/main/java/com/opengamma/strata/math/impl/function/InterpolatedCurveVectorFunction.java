@@ -6,10 +6,10 @@
 package com.opengamma.strata.math.impl.function;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * If we sample an interpolated curve at a fix set of points (the sample points),

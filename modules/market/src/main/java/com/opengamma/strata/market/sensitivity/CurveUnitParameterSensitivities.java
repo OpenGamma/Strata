@@ -34,8 +34,8 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Unit parameter sensitivity for a collection of curves.

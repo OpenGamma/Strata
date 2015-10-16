@@ -10,13 +10,13 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.math.impl.differentiation.ScalarFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.data.InterpolationBoundedValues;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test SquareLinearInterpolator1D

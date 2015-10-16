@@ -8,10 +8,10 @@ package com.opengamma.strata.math.impl.interpolation.data;
 import java.util.Arrays;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialInterpolator;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResult;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWithSensitivity;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * For certain methods of {@link PiecewisePolynomialInterpolator} introducing extra breakpoints, {@link PiecewisePolynomialResultsWithSensitivity} is not well-defined

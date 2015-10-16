@@ -13,12 +13,12 @@ import java.util.function.Function;
 import org.joda.beans.MetaProperty;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**

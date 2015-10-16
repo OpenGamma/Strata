@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.value.ValueAdjustment;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * Test {@link ConstantNodalCurve}.

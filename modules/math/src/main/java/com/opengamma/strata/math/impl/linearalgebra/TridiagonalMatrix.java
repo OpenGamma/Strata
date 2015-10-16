@@ -8,8 +8,8 @@ package com.opengamma.strata.math.impl.linearalgebra;
 import java.util.Arrays;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
-import com.opengamma.strata.math.impl.matrix.Matrix;
+import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.collect.array.Matrix;
 
 /**
  * Class representing a tridiagonal matrix:

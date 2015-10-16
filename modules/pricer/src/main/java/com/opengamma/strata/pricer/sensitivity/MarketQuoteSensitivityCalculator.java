@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
@@ -16,8 +18,6 @@ import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;

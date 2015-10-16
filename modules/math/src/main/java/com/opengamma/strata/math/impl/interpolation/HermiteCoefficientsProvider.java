@@ -7,8 +7,8 @@ package com.opengamma.strata.math.impl.interpolation;
 
 import java.util.Arrays;
 
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Hermite interpolation is determined if one specifies first derivatives for a cubic interpolant and first and second derivatives for a quintic interpolant

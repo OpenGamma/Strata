@@ -6,9 +6,9 @@
 package com.opengamma.strata.math.impl.linearalgebra;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Direct inversion of a tridiagonal matrix using the method from

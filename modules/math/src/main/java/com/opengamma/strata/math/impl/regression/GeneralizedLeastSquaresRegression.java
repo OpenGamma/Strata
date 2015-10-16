@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.math.impl.regression;
 
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * 

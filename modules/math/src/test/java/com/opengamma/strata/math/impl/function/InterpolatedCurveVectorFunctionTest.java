@@ -11,13 +11,13 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.collect.array.IdentityMatrix;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
-import com.opengamma.strata.math.impl.matrix.IdentityMatrix;
 import com.opengamma.strata.math.impl.util.AssertMatrix;
 
 /**

@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.math.impl.function;
 
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Abstraction for the vector function $f: \mathbb{R}^m \to \mathbb{R}^n \quad x \mapsto f(x)$ where the 

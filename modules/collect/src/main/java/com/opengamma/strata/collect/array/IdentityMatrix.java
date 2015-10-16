@@ -3,12 +3,15 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.math.impl.matrix;
+package com.opengamma.strata.collect.array;
 
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * 
+ * An immutable identity matrix of {@code double} values.
+ * <p>
+ * An identity matrix is square. It has every value equal to zero, except those
+ * on the primary diagonal, which asre one.
  */
 public class IdentityMatrix extends DoubleMatrix {
 

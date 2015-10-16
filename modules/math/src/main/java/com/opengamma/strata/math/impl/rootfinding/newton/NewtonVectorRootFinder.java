@@ -10,11 +10,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.math.impl.rootfinding.VectorRootFinder;

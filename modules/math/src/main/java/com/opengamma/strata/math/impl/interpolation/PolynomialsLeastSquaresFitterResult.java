@@ -6,7 +6,7 @@
 package com.opengamma.strata.math.impl.interpolation;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Contains the result of a least squares regression for polynomial.

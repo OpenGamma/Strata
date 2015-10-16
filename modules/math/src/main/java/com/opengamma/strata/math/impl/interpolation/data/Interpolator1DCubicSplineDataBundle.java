@@ -10,10 +10,10 @@ import static com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory.OG_ALGE
 import java.util.Objects;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.linearalgebra.InverseTridiagonalMatrixCalculator;
 import com.opengamma.strata.math.impl.linearalgebra.TridiagonalMatrix;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * 

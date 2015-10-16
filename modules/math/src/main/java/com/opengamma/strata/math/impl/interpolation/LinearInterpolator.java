@@ -9,8 +9,8 @@ import java.util.Arrays;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Interpolate consecutive two points by a straight line

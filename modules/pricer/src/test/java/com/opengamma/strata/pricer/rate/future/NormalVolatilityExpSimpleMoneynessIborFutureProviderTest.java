@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.sensitivity.IborFutureOptionSensitivity;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
@@ -31,7 +32,6 @@ import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapol
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Tests {@link NormalVolatilityExpSimpleMoneynessIborFutureProvider}

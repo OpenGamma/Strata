@@ -11,6 +11,9 @@ import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.collect.array.Matrix;
 import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
 
 /**

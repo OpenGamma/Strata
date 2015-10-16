@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -44,7 +45,6 @@ import com.opengamma.strata.market.value.ForwardPriceIndexValues;
 import com.opengamma.strata.market.value.PriceIndexValues;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.NaturalCubicSplineInterpolator1D;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
 
 /**

@@ -21,6 +21,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -30,7 +31,6 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.RateCurveId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test {@link RatesCurvesCsvLoader}.

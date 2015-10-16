@@ -15,7 +15,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * An ISDA compliant credit curve.

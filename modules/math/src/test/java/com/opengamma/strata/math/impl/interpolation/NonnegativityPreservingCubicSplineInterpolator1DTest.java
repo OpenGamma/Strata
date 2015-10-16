@@ -11,8 +11,8 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test interpolateWithSensitivity method via PiecewisePolynomialInterpolator1D

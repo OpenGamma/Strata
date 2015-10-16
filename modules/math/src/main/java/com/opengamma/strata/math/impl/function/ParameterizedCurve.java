@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.math.impl.function;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.differentiation.ScalarFieldFirstOrderDifferentiator;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * A parameterised curve that gives the both the curve (the function y=f(x) where x and y are scalars) and the

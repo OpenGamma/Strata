@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.FlatExtrapolator1D;
@@ -30,7 +31,6 @@ import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test {@link InterpolatedNodalCurve}.

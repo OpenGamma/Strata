@@ -18,6 +18,7 @@ import cern.jet.random.engine.RandomEngine;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.BasisFunctionAggregation;
 import com.opengamma.strata.math.impl.interpolation.BasisFunctionGenerator;
@@ -27,7 +28,6 @@ import com.opengamma.strata.math.impl.interpolation.FlatExtrapolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.PSplineFitter;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 
 /**

@@ -38,8 +38,8 @@ import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Currency-based parameter sensitivity for a collection of curves.

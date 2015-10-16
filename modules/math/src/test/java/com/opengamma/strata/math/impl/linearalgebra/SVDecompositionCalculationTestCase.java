@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 

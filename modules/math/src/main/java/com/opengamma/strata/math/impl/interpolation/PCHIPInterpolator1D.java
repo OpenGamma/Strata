@@ -6,12 +6,12 @@
 package com.opengamma.strata.math.impl.interpolation;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivityFunction1D;
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DPiecewisePoynomialDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Piecewise Cubic Hermite Interpolating Polynomial (PCHIP)

@@ -11,9 +11,9 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivityFunction1D;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 

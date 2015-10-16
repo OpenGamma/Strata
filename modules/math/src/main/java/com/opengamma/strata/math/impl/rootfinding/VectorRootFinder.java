@@ -7,8 +7,8 @@ package com.opengamma.strata.math.impl.rootfinding;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Parent class for root-finders that calculate a root for a vector function

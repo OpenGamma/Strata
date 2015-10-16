@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.math.impl.matrix;
+package com.opengamma.strata.collect.array;
 
 import static com.opengamma.strata.collect.DoubleArrayMath.EMPTY_DOUBLE_ARRAY;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * Test {@link DoubleArray}.
@@ -43,6 +44,7 @@ public class DoubleArrayTest {
     assertMatrix(DoubleArray.of(1d, 2d, 3d, 4d, 5d, 6d), 1d, 2d, 3d, 4d, 5d, 6d);
     assertMatrix(DoubleArray.of(1d, 2d, 3d, 4d, 5d, 6d, 7d), 1d, 2d, 3d, 4d, 5d, 6d, 7d);
     assertMatrix(DoubleArray.of(1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d), 1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d);
+    assertMatrix(DoubleArray.of(1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d, 9d), 1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d, 9d);
   }
 
   public void test_of_lambda() {

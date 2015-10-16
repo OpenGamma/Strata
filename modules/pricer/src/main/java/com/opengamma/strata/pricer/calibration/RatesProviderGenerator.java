@@ -8,9 +8,9 @@ package com.opengamma.strata.pricer.calibration;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 

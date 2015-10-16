@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.DoubleBinaryOperator;
 
 import com.opengamma.strata.basics.value.ValueAdjustment;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * A curve based on {@code double} nodal points.

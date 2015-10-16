@@ -19,7 +19,7 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 

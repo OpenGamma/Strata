@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.linearalgebra.TridiagonalMatrix;
 import com.opengamma.strata.math.impl.linearalgebra.TridiagonalSolver;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * For specific cubic spline interpolations, polynomial coefficients are determined by the tridiagonal algorithm

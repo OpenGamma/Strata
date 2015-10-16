@@ -13,6 +13,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.CalculationEngine;
 import com.opengamma.strata.engine.CalculationRules;
@@ -26,7 +27,6 @@ import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 public class TestCalculator implements Calculator {
 

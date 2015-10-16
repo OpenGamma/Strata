@@ -34,6 +34,7 @@ import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.Security;
 import com.opengamma.strata.finance.SecurityLink;
@@ -55,7 +56,6 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 

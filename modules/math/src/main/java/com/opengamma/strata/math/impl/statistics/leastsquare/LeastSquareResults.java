@@ -8,8 +8,8 @@ package com.opengamma.strata.math.impl.statistics.leastsquare;
 import java.util.Objects;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Container for the results of a least square (minimum chi-square) fit, where some model (with a set of parameters), is calibrated

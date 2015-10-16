@@ -8,9 +8,9 @@ package com.opengamma.strata.math.impl.interpolation;
 import java.util.List;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * 

@@ -6,6 +6,10 @@
 package com.opengamma.strata.math.impl.matrix;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.collect.array.IdentityMatrix;
+import com.opengamma.strata.collect.array.Matrix;
 import com.opengamma.strata.math.impl.linearalgebra.TridiagonalMatrix;
 
 /**

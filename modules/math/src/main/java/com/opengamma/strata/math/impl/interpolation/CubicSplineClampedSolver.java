@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Solves cubic spline problem with clamped endpoint conditions, where the first derivative is specified at endpoints

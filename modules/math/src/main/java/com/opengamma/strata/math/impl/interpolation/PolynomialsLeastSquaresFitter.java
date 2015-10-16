@@ -11,13 +11,13 @@ import static com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory.OG_ALGE
 import java.util.Arrays;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
 import com.opengamma.strata.math.impl.linearalgebra.QRDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.QRDecompositionResult;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.regression.LeastSquaresRegressionResult;
 import com.opengamma.strata.math.impl.statistics.descriptive.MeanCalculator;
 import com.opengamma.strata.math.impl.statistics.descriptive.SampleStandardDeviationCalculator;

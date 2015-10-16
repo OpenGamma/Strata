@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.math.impl.linearalgebra;
 
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Contains the results of matrix decomposition. The decomposed matrices (e.g. the L and U matrices for LU decomposition) are stored in this class.

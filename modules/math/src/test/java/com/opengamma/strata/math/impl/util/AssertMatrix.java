@@ -8,8 +8,8 @@ package com.opengamma.strata.math.impl.util;
 import static org.testng.AssertJUnit.assertEquals;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Tests for whether vectors and matrices are equal within  some tolerance 

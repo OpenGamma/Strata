@@ -38,6 +38,7 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
 import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
 import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
@@ -53,7 +54,6 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitiviti
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;

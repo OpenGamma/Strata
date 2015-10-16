@@ -20,6 +20,7 @@ import java.time.ZoneId;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.Security;
 import com.opengamma.strata.finance.SecurityLink;
@@ -36,7 +37,6 @@ import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapol
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 
 /**

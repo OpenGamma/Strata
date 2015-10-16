@@ -29,9 +29,9 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.basics.currency.FxRateProvider;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceName;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Parameter sensitivity for a single surface.

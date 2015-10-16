@@ -7,11 +7,11 @@ package com.opengamma.strata.pricer.calibration;
 
 import java.util.List;
 
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.market.curve.definition.CurveParameterSize;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**

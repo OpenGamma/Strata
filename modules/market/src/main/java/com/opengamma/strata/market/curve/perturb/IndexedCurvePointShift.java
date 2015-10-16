@@ -25,9 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.strata.basics.market.Perturbation;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Perturbation which applies a shift to a single point on a nodal curve.

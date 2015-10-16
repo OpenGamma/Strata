@@ -18,11 +18,11 @@ import org.joda.beans.impl.light.LightMetaBean;
 
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivityFunction1D;
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DLogPiecewisePoynomialDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Find a interpolant F(x) = exp( f(x) ) where f(x) is a Natural cubic spline with Monotonicity cubic fileter. 

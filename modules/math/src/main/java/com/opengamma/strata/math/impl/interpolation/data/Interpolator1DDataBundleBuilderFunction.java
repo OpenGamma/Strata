@@ -10,9 +10,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * 

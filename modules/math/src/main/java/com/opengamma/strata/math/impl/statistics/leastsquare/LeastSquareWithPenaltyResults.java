@@ -6,8 +6,8 @@
 package com.opengamma.strata.math.impl.statistics.leastsquare;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Hold for results of {@link NonLinearLeastSquareWithPenalty}

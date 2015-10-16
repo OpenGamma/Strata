@@ -12,7 +12,7 @@ import java.util.BitSet;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * Test.

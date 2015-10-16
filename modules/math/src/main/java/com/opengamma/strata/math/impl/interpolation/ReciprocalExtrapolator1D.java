@@ -6,10 +6,10 @@
 package com.opengamma.strata.math.impl.interpolation;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Given a data set {x[i], y[i]}, extrapolate {x[i], x[i] * y[i]} by a linear function by

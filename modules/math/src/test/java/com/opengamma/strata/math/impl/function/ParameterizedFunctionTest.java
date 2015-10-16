@@ -10,9 +10,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.differentiation.ScalarFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.differentiation.ScalarFirstOrderDifferentiator;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test.

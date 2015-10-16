@@ -10,8 +10,8 @@ import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Test.

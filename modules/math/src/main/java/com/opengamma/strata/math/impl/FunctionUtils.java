@@ -8,7 +8,7 @@ package com.opengamma.strata.math.impl;
 import java.util.Arrays;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * A collection of basic useful maths functions.

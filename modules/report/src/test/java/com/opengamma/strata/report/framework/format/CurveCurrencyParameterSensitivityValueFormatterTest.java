@@ -10,10 +10,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test {@link CurveCurrencyParameterSensitivityValueFormatter}.

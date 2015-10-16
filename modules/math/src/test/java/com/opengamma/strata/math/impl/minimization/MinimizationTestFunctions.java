@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * 

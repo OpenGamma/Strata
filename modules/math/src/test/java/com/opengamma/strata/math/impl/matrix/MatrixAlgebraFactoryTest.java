@@ -10,6 +10,9 @@ import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.collect.array.Matrix;
+
 /**
  * Test.
  */

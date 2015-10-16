@@ -9,6 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.linearalgebra.TridiagonalMatrix;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;

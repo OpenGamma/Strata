@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * For a set of N-1 "fit" parameters, produces N "model" parameters that sum to one

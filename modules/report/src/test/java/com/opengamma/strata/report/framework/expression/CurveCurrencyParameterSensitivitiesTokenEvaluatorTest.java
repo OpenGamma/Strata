@@ -15,10 +15,10 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test {@link CurveCurrencyParameterSensitivitiesTokenEvaluator}.

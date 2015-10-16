@@ -9,10 +9,10 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.regression.LeastSquaresRegressionResult;
 import com.opengamma.strata.math.impl.statistics.descriptive.MeanCalculator;
 import com.opengamma.strata.math.impl.statistics.descriptive.SampleStandardDeviationCalculator;

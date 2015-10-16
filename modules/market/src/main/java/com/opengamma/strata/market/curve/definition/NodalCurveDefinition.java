@@ -11,12 +11,12 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.value.ValueType;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Provides the definition of how to calibrate a nodal curve.

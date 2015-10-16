@@ -12,11 +12,11 @@ import java.util.Collections;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Tests related to the exponential interpolator.

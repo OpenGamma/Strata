@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.math.impl.function;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.math.impl.differentiation.ScalarFieldFirstOrderDifferentiator;
-import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * A parameterised surface that gives the both the surface (the function z=f(xy) where xy is
