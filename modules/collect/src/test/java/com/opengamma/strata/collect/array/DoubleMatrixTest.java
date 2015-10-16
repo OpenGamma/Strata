@@ -16,9 +16,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.array.DoubleMatrix;
-
 /**
  * Test {@link DoubleMatrix}.
  */
@@ -135,6 +132,13 @@ public class DoubleMatrixTest {
   public void test_identity() {
     assertMatrix(DoubleMatrix.identity(0));
     assertMatrix(DoubleMatrix.identity(2), 1d, 0d, 0d, 1d);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_diagonal() {
+    assertMatrix(DoubleMatrix.diagonal(DoubleArray.EMPTY));
+    assertMatrix(DoubleMatrix.diagonal(DoubleArray.of(2d, 3d, 4d)), 2d, 0d, 0d, 0d, 3d, 0d, 0d, 0d, 4d);
+    assertEquals(DoubleMatrix.diagonal(DoubleArray.of(1d, 1d, 1d)), DoubleMatrix.identity(3));
   }
 
   //-------------------------------------------------------------------------

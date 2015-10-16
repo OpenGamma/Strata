@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.math.impl.matrix;
 
-import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
@@ -26,27 +24,4 @@ public final class DoubleMatrixUtils {
     return DoubleMatrix.of(matrix.columnCount(), matrix.rowCount(), (i, j) -> matrix.get(j, i));
   }
 
-  /**
-   * Converts a vector into a diagonal matrix.
-   * @param vector The vector, not null
-   * @return A diagonal matrix 
-   */
-  public static DoubleMatrix getTwoDimensionalDiagonalMatrix(DoubleArray vector) {
-    ArgChecker.notNull(vector, "vector");
-    int n = vector.size();
-    if (n == 0) {
-      return DoubleMatrix.EMPTY;
-    }
-    return DoubleMatrix.of(n, n, (i, j) -> (i == j) ? vector.get(i) : 0d);
-  }
-
-  /**
-   * Converts a vector into a diagonal matrix.
-   * @param vector The vector, not null
-   * @return A diagonal matrix
-   */
-  public static DoubleMatrix getTwoDimensionalDiagonalMatrix(double[] vector) {
-    ArgChecker.notNull(vector, "vector");
-    return getTwoDimensionalDiagonalMatrix(DoubleArray.copyOf(vector));
-  }
 }

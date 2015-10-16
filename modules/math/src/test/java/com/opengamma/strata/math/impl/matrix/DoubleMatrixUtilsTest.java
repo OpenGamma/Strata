@@ -9,7 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
@@ -17,25 +16,6 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
  */
 @Test
 public class DoubleMatrixUtilsTest {
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullVector() {
-    DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix((DoubleArray) null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullArray() {
-    DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix((double[]) null);
-  }
-
-  @Test
-  public void testDiagonalMatrix() {
-    assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(DoubleArray.EMPTY), DoubleMatrix.EMPTY);
-    assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(
-        DoubleArray.of(1, 1, 1, 1)), DoubleMatrix.identity(4));
-    assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(new double[0]), DoubleMatrix.EMPTY);
-    assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(new double[] {1, 1, 1, 1}), DoubleMatrix.identity(4));
-  }
 
   @Test
   public void testTransposeMatrix() {

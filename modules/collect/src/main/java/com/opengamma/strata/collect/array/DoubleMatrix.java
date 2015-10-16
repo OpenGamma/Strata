@@ -261,6 +261,27 @@ public final class DoubleMatrix implements Matrix, Serializable {
     return new DoubleMatrix(array, size, size);
   }
 
+  /**
+   * Obtains a diagonal matrix from the specified array.
+   * <p>
+   * A diagonal matrix is square. It only has values on the primary diagonal,
+   * and those values are taken from the specified array.
+   * 
+   * @param array  the array to use to create the matrix
+   * @return an identity matrix of the specified size
+   */
+  public static DoubleMatrix diagonal(DoubleArray array) {
+    int size = array.size();
+    if (size == 0) {
+      return EMPTY;
+    }
+    double[][] data = new double[size][size];
+    for (int i = 0; i < size; i++) {
+      data[i][i] = array.get(i);
+    }
+    return new DoubleMatrix(data, size, size);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Sets up an empty matrix.
