@@ -19,11 +19,6 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 public class DoubleMatrixUtilsTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNegativeDimension() {
-    DoubleMatrixUtils.getIdentityMatrix2D(-3);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVector() {
     DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix((DoubleArray) null);
   }
@@ -34,20 +29,12 @@ public class DoubleMatrixUtilsTest {
   }
 
   @Test
-  public void testIdentity() {
-    assertEquals(DoubleMatrixUtils.getIdentityMatrix2D(0), DoubleMatrix.EMPTY);
-    assertEquals(DoubleMatrixUtils.getIdentityMatrix2D(1), DoubleMatrix.copyOf(new double[][] {{1}}));
-    assertEquals(DoubleMatrixUtils.getIdentityMatrix2D(4),
-        DoubleMatrix.copyOf(new double[][] { {1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}}));
-  }
-
-  @Test
   public void testDiagonalMatrix() {
     assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(DoubleArray.EMPTY), DoubleMatrix.EMPTY);
     assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(
-        DoubleArray.of(1, 1, 1, 1)), DoubleMatrixUtils.getIdentityMatrix2D(4));
+        DoubleArray.of(1, 1, 1, 1)), DoubleMatrix.identity(4));
     assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(new double[0]), DoubleMatrix.EMPTY);
-    assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(new double[] {1, 1, 1, 1 }), DoubleMatrixUtils.getIdentityMatrix2D(4));
+    assertEquals(DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(new double[] {1, 1, 1, 1}), DoubleMatrix.identity(4));
   }
 
   @Test

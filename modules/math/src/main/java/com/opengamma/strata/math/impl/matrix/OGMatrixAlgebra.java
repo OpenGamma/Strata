@@ -8,7 +8,6 @@ package com.opengamma.strata.math.impl.matrix;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.collect.array.IdentityMatrix;
 import com.opengamma.strata.collect.array.Matrix;
 import com.opengamma.strata.math.impl.linearalgebra.TridiagonalMatrix;
 
@@ -150,9 +149,6 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
   @Override
   public DoubleMatrix getTranspose(Matrix m) {
     ArgChecker.notNull(m, "m");
-    if (m instanceof IdentityMatrix) {
-      return (IdentityMatrix) m;
-    }
     if (m instanceof DoubleMatrix) {
       DoubleMatrix matrix = (DoubleMatrix) m;
       return DoubleMatrix.of(matrix.columnCount(), matrix.rowCount(), (i, j) -> matrix.get(j, i));
@@ -172,26 +168,6 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
   public Matrix multiply(Matrix m1, Matrix m2) {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
-    if (m1 instanceof IdentityMatrix) {
-      if (m2 instanceof IdentityMatrix) {
-        return multiply((IdentityMatrix) m1, (IdentityMatrix) m2);
-      } else if (m2 instanceof DoubleArray) {
-        return multiply((IdentityMatrix) m1, (DoubleArray) m2);
-      } else if (m2 instanceof DoubleMatrix) {
-        return multiply((IdentityMatrix) m1, (DoubleMatrix) m2);
-      }
-      throw new IllegalArgumentException("can only handle IdentityMatrix by DoubleMatrix or DoubleArray, have " +
-          m1.getClass() + " and " + m2.getClass());
-    }
-    if (m2 instanceof IdentityMatrix) {
-      if (m1 instanceof DoubleArray) {
-        return multiply((DoubleArray) m1, (IdentityMatrix) m2);
-      } else if (m1 instanceof DoubleMatrix) {
-        return multiply((DoubleMatrix) m1, (IdentityMatrix) m2);
-      }
-      throw new IllegalArgumentException("can only handle  DoubleMatrix or DoubleArray by IdentityMatrix, have " +
-          m1.getClass() + " and " + m2.getClass());
-    }
     if (m1 instanceof TridiagonalMatrix && m2 instanceof DoubleArray) {
       return multiply((TridiagonalMatrix) m1, (DoubleArray) m2);
     } else if (m1 instanceof DoubleArray && m2 instanceof TridiagonalMatrix) {
@@ -217,25 +193,6 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     throw new UnsupportedOperationException();
   }
 
-  private DoubleMatrix multiply(IdentityMatrix idet, DoubleMatrix m) {
-    ArgChecker.isTrue(idet.getSize() == m.rowCount(),
-        "size of identity matrix ({}) does not match number or rows of m ({})", idet.getSize(), m.rowCount());
-    return m;
-  }
-
-  private DoubleMatrix multiply(DoubleMatrix m, IdentityMatrix idet) {
-    ArgChecker.isTrue(idet.getSize() == m.columnCount(),
-        "size of identity matrix ({}) does not match number or columns of m ({})", idet.getSize(),
-        m.columnCount());
-    return m;
-  }
-
-  private IdentityMatrix multiply(IdentityMatrix i1, IdentityMatrix i2) {
-    ArgChecker.isTrue(i1.getSize() == i2.getSize(),
-        "size of identity matrix 1 ({}) does not match size of identity matrix 2 ({})", i1.getSize(), i2.getSize());
-    return i1;
-  }
-
   private DoubleMatrix multiply(DoubleMatrix m1, DoubleMatrix m2) {
     int p = m2.rowCount();
     ArgChecker.isTrue(
@@ -252,20 +209,6 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
           }
           return sum;
         });
-  }
-
-  private DoubleArray multiply(IdentityMatrix matrix, DoubleArray vector) {
-    ArgChecker.isTrue(matrix.getSize() == vector.size(),
-        "size of identity matrix ({}) does not match size of vector ({})", matrix.getSize(),
-        vector.size());
-    return vector;
-  }
-
-  private DoubleArray multiply(DoubleArray vector, IdentityMatrix matrix) {
-    ArgChecker.isTrue(matrix.getSize() == vector.size(),
-        "size of identity matrix ({}) does not match size of vector ({})", matrix.getSize(),
-        vector.size());
-    return vector;
   }
 
   private DoubleArray multiply(DoubleMatrix matrix, DoubleArray vector) {

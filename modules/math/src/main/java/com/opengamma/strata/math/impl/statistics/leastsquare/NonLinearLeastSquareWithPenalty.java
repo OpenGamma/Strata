@@ -14,7 +14,6 @@ import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
@@ -326,7 +325,7 @@ public class NonLinearLeastSquareWithPenalty {
       DoubleArray newTheta,
       DoubleArray sigma) {
 
-    DoubleMatrix covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.rowCount()));
+    DoubleMatrix covariance = decmp.solve(DoubleMatrix.identity(alpha.rowCount()));
     DoubleMatrix bT = getBTranspose(jacobian, sigma);
     DoubleMatrix inverseJacobian = decmp.solve(bT);
     return new LeastSquareWithPenaltyResults(chiSqr, penalty, newTheta, covariance, inverseJacobian);

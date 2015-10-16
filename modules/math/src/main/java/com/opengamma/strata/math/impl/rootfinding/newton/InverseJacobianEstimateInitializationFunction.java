@@ -11,7 +11,6 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 
 /**
  * 
@@ -31,7 +30,7 @@ public class InverseJacobianEstimateInitializationFunction implements NewtonRoot
     ArgChecker.notNull(x, "x");
     DoubleMatrix estimate = jacobianFunction.evaluate(x);
     DecompositionResult decompositionResult = _decomposition.evaluate(estimate);
-    return decompositionResult.solve(DoubleMatrixUtils.getIdentityMatrix2D(x.size()));
+    return decompositionResult.solve(DoubleMatrix.identity(x.size()));
   }
 
 }

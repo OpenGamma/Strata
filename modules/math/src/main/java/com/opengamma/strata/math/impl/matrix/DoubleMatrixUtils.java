@@ -27,22 +27,6 @@ public final class DoubleMatrixUtils {
   }
 
   /**
-   * The identity matrix is a matrix with diagonal elements equals to one and zero elsewhere.
-   * @param dimension The dimension of matrix required, not negative or zero
-   * @return The identity matrix
-   */
-  public static DoubleMatrix getIdentityMatrix2D(int dimension) {
-    ArgChecker.isTrue(dimension >= 0, "dimension must be >= 0");
-    if (dimension == 0) {
-      return DoubleMatrix.EMPTY;
-    }
-    if (dimension == 1) {
-      return DoubleMatrix.of(1, 1, 1d);
-    }
-    return DoubleMatrix.of(dimension, dimension, (i, j) -> (i == j) ? 1d : 0d);
-  }
-
-  /**
    * Converts a vector into a diagonal matrix.
    * @param vector The vector, not null
    * @return A diagonal matrix 

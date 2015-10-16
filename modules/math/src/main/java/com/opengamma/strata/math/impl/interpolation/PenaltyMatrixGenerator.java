@@ -10,8 +10,6 @@ import static org.apache.commons.math3.util.CombinatoricsUtils.binomialCoefficie
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.collect.array.IdentityMatrix;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 
@@ -45,7 +43,7 @@ public abstract class PenaltyMatrixGenerator {
     ArgChecker.notNegative(k, "k");
     ArgChecker.isTrue(k < m, "Difference order too high, require m > k, but have: m = {} and k = {}", m, k);
     if (k == 0) {
-      return new IdentityMatrix(m);
+      return DoubleMatrix.identity(m);
     }
     int[] coeff = new int[k + 1];
     int sign = 1;
@@ -77,7 +75,7 @@ public abstract class PenaltyMatrixGenerator {
     ArgChecker.notNegative(k, "k");
     ArgChecker.isTrue(k < m, "Difference order too high, require m > k, but have: m = {} and k = {}", m, k);
     if (k == 0) {
-      return new IdentityMatrix(m);
+      return DoubleMatrix.identity(m);
     }
     DoubleMatrix d = getDifferenceMatrix(m, k);
     DoubleMatrix dt = MA.getTranspose(d);
@@ -147,7 +145,7 @@ public abstract class PenaltyMatrixGenerator {
     int size = x.length;
     ArgChecker.isTrue(k < size, "order too high. Length of x is {}, and k is {}", size, k);
     if (k == 0) {
-      return new IdentityMatrix(size);
+      return DoubleMatrix.identity(size);
     } else if (k > 2) {
       throw new UnsupportedOperationException("cannot handle order (k) > 2");
     }
@@ -211,7 +209,7 @@ public abstract class PenaltyMatrixGenerator {
     ArgChecker.notEmpty(x, "x");
     if (x.length == 1) {
       if (k == 0) {
-        return new IdentityMatrix(1);
+        return DoubleMatrix.identity(1);
       }
       throw new IllegalArgumentException("order too high. Length of x is 1 and k is " + k);
     }
@@ -313,10 +311,10 @@ public abstract class PenaltyMatrixGenerator {
     }
     DoubleMatrix temp = m;
     if (preProduct != 1) {
-      temp = (DoubleMatrix) MA.kroneckerProduct(temp, DoubleMatrixUtils.getIdentityMatrix2D(preProduct));
+      temp = (DoubleMatrix) MA.kroneckerProduct(temp, DoubleMatrix.identity(preProduct));
     }
     if (postProduct != 1) {
-      temp = (DoubleMatrix) MA.kroneckerProduct(DoubleMatrixUtils.getIdentityMatrix2D(postProduct), temp);
+      temp = (DoubleMatrix) MA.kroneckerProduct(DoubleMatrix.identity(postProduct), temp);
     }
 
     return temp;

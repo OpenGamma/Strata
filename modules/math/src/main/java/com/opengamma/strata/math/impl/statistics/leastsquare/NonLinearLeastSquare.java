@@ -22,7 +22,6 @@ import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
 import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionResult;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory;
 
@@ -617,7 +616,7 @@ public class NonLinearLeastSquare {
       DoubleArray newTheta,
       DoubleArray sigma) {
 
-    DoubleMatrix covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.rowCount()));
+    DoubleMatrix covariance = decmp.solve(DoubleMatrix.identity(alpha.rowCount()));
     DoubleMatrix bT = getBTranspose(jacobian, sigma);
     DoubleMatrix inverseJacobian = decmp.solve(bT);
     return new LeastSquareResults(newChiSqr, newTheta, covariance, inverseJacobian);

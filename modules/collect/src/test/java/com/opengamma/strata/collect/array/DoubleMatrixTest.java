@@ -132,6 +132,12 @@ public class DoubleMatrixTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_identity() {
+    assertMatrix(DoubleMatrix.identity(0));
+    assertMatrix(DoubleMatrix.identity(2), 1d, 0d, 0d, 1d);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_get() {
     double[][] base = { {1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);

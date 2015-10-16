@@ -24,7 +24,7 @@ import com.opengamma.strata.collect.function.IntIntToDoubleFunction;
  * <p>
  * In mathematical terms, this is a two-dimensional matrix.
  */
-public class DoubleMatrix implements Matrix, Serializable {
+public final class DoubleMatrix implements Matrix, Serializable {
 
   /**
    * An empty array.
@@ -238,6 +238,27 @@ public class DoubleMatrix implements Matrix, Serializable {
       Arrays.fill(array[i], value);
     }
     return new DoubleMatrix(array, rows, columns);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an identity matrix.
+   * <p>
+   * An identity matrix is square. It has every value equal to zero, except those
+   * on the primary diagonal, which are one.
+   * 
+   * @param size  the size of the matrix
+   * @return an identity matrix of the specified size
+   */
+  public static DoubleMatrix identity(int size) {
+    if (size == 0) {
+      return EMPTY;
+    }
+    double[][] array = new double[size][size];
+    for (int i = 0; i < size; i++) {
+      array[i][i] = 1d;
+    }
+    return new DoubleMatrix(array, size, size);
   }
 
   //-------------------------------------------------------------------------

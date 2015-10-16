@@ -13,7 +13,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.collect.array.IdentityMatrix;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
@@ -40,7 +39,7 @@ public class InterpolatedCurveVectorFunctionTest {
     DoubleArray y = vf.evaluate(x);
     DoubleMatrix jac = vf.calculateJacobian(x);
     assertEqualsVectors(x, y, 1e-15);
-    assertEqualsMatrix(new IdentityMatrix(x.size()), jac, 1e-15);
+    assertEqualsMatrix(DoubleMatrix.identity(x.size()), jac, 1e-15);
 
     double[] samplePoints = new double[] {-2, -1, 0, 1, 2, 3, 4};
     vf = new InterpolatedCurveVectorFunction(samplePoints, interpolator, knots);

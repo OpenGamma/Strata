@@ -250,7 +250,7 @@ public class MatrixAlgebraImplementationTest {
 
   @Test
   public void testMultiply() {
-    assertMatrixEquals(COMMONS.multiply(DoubleMatrixUtils.getIdentityMatrix2D(2), M3), M3);
+    assertMatrixEquals(COMMONS.multiply(DoubleMatrix.identity(2), M3), M3);
     assertMatrixEquals(COMMONS.multiply(M3, M4), DoubleMatrix.copyOf(new double[][] { {19, 22}, {17, 20}}));
   }
 

@@ -12,7 +12,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.collect.array.IdentityMatrix;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
@@ -30,7 +29,7 @@ public class PenaltyMatrixGeneratorTest {
     int n = 7;
 
     DoubleMatrix d0 = PenaltyMatrixGenerator.getDifferenceMatrix(n, 0); //zeroth order
-    AssertMatrix.assertEqualsMatrix(new IdentityMatrix(n), d0, 1e-15);
+    AssertMatrix.assertEqualsMatrix(DoubleMatrix.identity(n), d0, 1e-15);
 
     DoubleArray zeroVector = DoubleArray.filled(n);
     DoubleMatrix d1 = PenaltyMatrixGenerator.getDifferenceMatrix(n, 1); //first order difference matrix
@@ -92,7 +91,7 @@ public class PenaltyMatrixGeneratorTest {
   public void penaltyMatrix1DTest() {
     int n = 10;
     DoubleMatrix p0 = PenaltyMatrixGenerator.getPenaltyMatrix(n, 0); //zeroth order
-    AssertMatrix.assertEqualsMatrix(new IdentityMatrix(n), p0, 1e-15);
+    AssertMatrix.assertEqualsMatrix(DoubleMatrix.identity(n), p0, 1e-15);
 
     //constant
     DoubleArray x = DoubleArray.filled(n, 2.0);
@@ -238,7 +237,7 @@ public class PenaltyMatrixGeneratorTest {
 
     int n = x.length;
     DoubleMatrix d0 = PenaltyMatrixGenerator.getDerivativeMatrix(x, 0, true);
-    AssertMatrix.assertEqualsMatrix(new IdentityMatrix(n), d0, 1e-14);
+    AssertMatrix.assertEqualsMatrix(DoubleMatrix.identity(n), d0, 1e-14);
 
     DoubleMatrix d1 = PenaltyMatrixGenerator.getDerivativeMatrix(x, 1, true);
     DoubleMatrix d2 = PenaltyMatrixGenerator.getDerivativeMatrix(x, 2, true);
@@ -341,7 +340,7 @@ public class PenaltyMatrixGeneratorTest {
   public void zeroOrderSinglePointTest() {
     double[] x = new double[] {0.2};
     DoubleMatrix p1 = PenaltyMatrixGenerator.getPenaltyMatrix(x, 0);
-    AssertMatrix.assertEqualsMatrix(new IdentityMatrix(1), p1, 1e-15);
+    AssertMatrix.assertEqualsMatrix(DoubleMatrix.identity(1), p1, 1e-15);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -363,9 +362,9 @@ public class PenaltyMatrixGeneratorTest {
     int ny = y.length;
 
     DoubleMatrix p0 = PenaltyMatrixGenerator.getPenaltyMatrix(new double[][] {x, y}, 0, 0);
-    AssertMatrix.assertEqualsMatrix(new IdentityMatrix(nx * ny), p0, 1e-14);
+    AssertMatrix.assertEqualsMatrix(DoubleMatrix.identity(nx * ny), p0, 1e-14);
     p0 = PenaltyMatrixGenerator.getPenaltyMatrix(new double[][] {x, y}, 0, 1);
-    AssertMatrix.assertEqualsMatrix(new IdentityMatrix(nx * ny), p0, 1e-14);
+    AssertMatrix.assertEqualsMatrix(DoubleMatrix.identity(nx * ny), p0, 1e-14);
 
     DoubleMatrix diffX1DFirstOrder = PenaltyMatrixGenerator.getDerivativeMatrix(x, 1, true);
     DoubleMatrix diffY1DFirstOrder = PenaltyMatrixGenerator.getDerivativeMatrix(y, 1, true);
