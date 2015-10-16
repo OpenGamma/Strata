@@ -30,7 +30,6 @@ import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
-
 /**
  * Pricer for for rate swap products.
  * <p>
@@ -226,7 +225,7 @@ public class DiscountingSwapProductPricer {
    * The par spread is the common spread on all payments of the first leg for which the total swap present value is 0.
    * <p>
    * The par spread will be computed with respect to the first leg. For that leg, all the payments have a unique 
-   * accrual period (no compounding) and no FX reset.
+   * accrual period or multiple accrual periods with Flat compounding and no FX reset.
    * 
    * @param product  the swap product for which the par rate should be computed
    * @param provider  the rates provider
@@ -274,11 +273,11 @@ public class DiscountingSwapProductPricer {
     PointSensitivityBuilder builder = PointSensitivityBuilder.none();
     for (ExpandedSwapLeg leg : product.expand().getLegs()) {
       PointSensitivityBuilder ls = legPricer.presentValueSensitivity(leg, provider);
-      PointSensitivityBuilder lsConverted = 
+      PointSensitivityBuilder lsConverted =
           ls.withCurrency(currency).multipliedBy(provider.fxRate(leg.getCurrency(), currency));
       builder = builder.combinedWith(lsConverted);
     }
-    return builder;    
+    return builder;
   }
 
   /**

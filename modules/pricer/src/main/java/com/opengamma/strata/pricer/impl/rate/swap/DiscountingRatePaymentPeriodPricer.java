@@ -14,6 +14,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.RateObservation;
+import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
 import com.opengamma.strata.finance.rate.swap.FxReset;
 import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
@@ -70,6 +71,28 @@ public class DiscountingRatePaymentPeriodPricer
     // fxRate is 1 if no FX conversion
     double notional = period.getNotional() * fxRate(period, provider);
     return accrualWithNotional(period, notional, provider);
+  }
+
+  @Override
+  public double pvbp(RatePaymentPeriod paymentPeriod, RatesProvider provider) {
+    ArgChecker.isTrue(!paymentPeriod.getFxReset().isPresent(), "FX reset is not supported");
+    int accPeriodCount = paymentPeriod.getAccrualPeriods().size();
+    ArgChecker.isTrue(accPeriodCount == 1 || paymentPeriod.getCompoundingMethod().equals(CompoundingMethod.FLAT),
+        "Only one accrued period or Flat compounding supported");
+    // no compounding
+    if (accPeriodCount == 1) {
+      RateAccrualPeriod accrualPeriod = paymentPeriod.getAccrualPeriods().get(0);
+      double df = provider.discountFactor(paymentPeriod.getCurrency(), paymentPeriod.getPaymentDate());
+      return df * accrualPeriod.getYearFraction() * paymentPeriod.getNotional();
+    } else {
+      // Flat compounding
+      switch (paymentPeriod.getCompoundingMethod()) {
+        case FLAT:
+          return pvbpCompoundedFlat(paymentPeriod, provider);
+        default:
+          throw new UnsupportedOperationException("PVBP not implemented yet for non FLAT compounding");
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -229,6 +252,29 @@ public class DiscountingRatePaymentPeriodPricer
     double notional = period.getNotional() * fxRate(period, provider);
     sensiAccrual = sensiAccrual.multipliedBy(notional);
     return sensiFx.combinedWith(sensiAccrual);
+  }
+
+  @Override
+  public PointSensitivityBuilder pvbpSensitivity(RatePaymentPeriod paymentPeriod, RatesProvider provider) {
+    ArgChecker.isTrue(!paymentPeriod.getFxReset().isPresent(), "FX reset is not supported");
+    int accPeriodCount = paymentPeriod.getAccrualPeriods().size();
+    ArgChecker.isTrue(accPeriodCount == 1 || paymentPeriod.getCompoundingMethod().equals(CompoundingMethod.FLAT),
+        "Only one accrued period or Flat compounding supported");
+    // no compounding
+    if (accPeriodCount == 1) {
+      RateAccrualPeriod accrualPeriod = paymentPeriod.getAccrualPeriods().get(0);
+      DiscountFactors discountFactors = provider.discountFactors(paymentPeriod.getCurrency());
+      return discountFactors.zeroRatePointSensitivity(paymentPeriod.getPaymentDate())
+          .multipliedBy(accrualPeriod.getYearFraction() * paymentPeriod.getNotional());
+    } else {
+      // Flat compounding
+      switch (paymentPeriod.getCompoundingMethod()) {
+        case FLAT:
+          return pvbpSensitivtyCompoundedFlat(paymentPeriod, provider);
+        default:
+          throw new UnsupportedOperationException("PVBP not implemented yet for non FLAT compounding");
+      }
+    }
   }
 
   // resolve the FX rate sensitivity from the FX reset
@@ -391,7 +437,7 @@ public class DiscountingRatePaymentPeriodPricer
     // Note that the future value is not published since this is potentially misleading when
     // compounding is being applied, and when it isn't then it's the same as the future
     // value of the payment period.
-    
+
     builder.put(ExplainKey.ENTRY_TYPE, "AccrualPeriod");
     builder.put(ExplainKey.START_DATE, accrualPeriod.getStartDate());
     builder.put(ExplainKey.UNADJUSTED_START_DATE, accrualPeriod.getUnadjustedStartDate());
@@ -403,6 +449,65 @@ public class DiscountingRatePaymentPeriodPricer
     builder.put(ExplainKey.SPREAD, accrualPeriod.getSpread());
     builder.put(ExplainKey.PAY_OFF_RATE, accrualPeriod.getNegativeRateMethod().adjust(payOffRate));
     builder.put(ExplainKey.UNIT_AMOUNT, ua);
+  }
+
+  //-------------------------------------------------------------------------
+  // sensitivity to the spread for a payment period with FLAT compounding type
+  private double pvbpCompoundedFlat(RatePaymentPeriod paymentPeriod, RatesProvider provider) {
+    int nbCmp = paymentPeriod.getAccrualPeriods().size();
+    double[] rate = paymentPeriod.getAccrualPeriods().stream()
+        .mapToDouble(ap -> rawRate(ap, provider))
+        .toArray();
+    double df = provider.discountFactor(paymentPeriod.getCurrency(), paymentPeriod.getPaymentDate());
+    double rBar = 1.0;
+    double[] cpaAccumulatedBar = new double[nbCmp + 1];
+    cpaAccumulatedBar[nbCmp] = paymentPeriod.getNotional() * df * rBar;
+    double spreadBar = 0.0d;
+    for (int j = nbCmp - 1; j >= 0; j--) {
+      cpaAccumulatedBar[j] = (1.0d + paymentPeriod.getAccrualPeriods().get(j).getYearFraction() * rate[j]
+          * paymentPeriod.getAccrualPeriods().get(j).getGearing()) * cpaAccumulatedBar[j + 1];
+      spreadBar += paymentPeriod.getAccrualPeriods().get(j).getYearFraction() * cpaAccumulatedBar[j + 1];
+    }
+    return spreadBar;
+  }
+
+  // sensitivity to the spread for a payment period with FLAT compounding type
+  private PointSensitivityBuilder pvbpSensitivtyCompoundedFlat(RatePaymentPeriod paymentPeriod, RatesProvider provider) {
+    Currency ccy = paymentPeriod.getCurrency();
+    int nbCmp = paymentPeriod.getAccrualPeriods().size();
+    double[] rate = paymentPeriod.getAccrualPeriods().stream()
+        .mapToDouble(ap -> rawRate(ap, provider))
+        .toArray();
+    double df = provider.discountFactor(ccy, paymentPeriod.getPaymentDate());
+    double rB1 = 1.0;
+    double[] cpaAccumulatedB1 = new double[nbCmp + 1];
+    cpaAccumulatedB1[nbCmp] = paymentPeriod.getNotional() * df * rB1;
+    for (int j = nbCmp - 1; j >= 0; j--) {
+      RateAccrualPeriod accrualPeriod = paymentPeriod.getAccrualPeriods().get(j);
+      cpaAccumulatedB1[j] = (1.0d + accrualPeriod.getYearFraction() * rate[j]
+          * accrualPeriod.getGearing()) * cpaAccumulatedB1[j + 1];
+    }
+    // backward sweep
+    double pvbpB2 = 1.0d;
+    double[] cpaAccumulatedB1B2 = new double[nbCmp + 1];
+    double[] rateB2 = new double[nbCmp];
+    for (int j = 0; j < nbCmp; j++) {
+      RateAccrualPeriod accrualPeriod = paymentPeriod.getAccrualPeriods().get(j);
+      cpaAccumulatedB1B2[j + 1] += accrualPeriod.getYearFraction() * pvbpB2;
+      cpaAccumulatedB1B2[j + 1] += (1.0d + accrualPeriod.getYearFraction() * rate[j]
+          * accrualPeriod.getGearing()) * cpaAccumulatedB1B2[j];
+      rateB2[j] += accrualPeriod.getYearFraction() * accrualPeriod.getGearing() *
+          cpaAccumulatedB1[j + 1] * cpaAccumulatedB1B2[j];
+    }
+    double dfB2 = paymentPeriod.getNotional() * rB1 * cpaAccumulatedB1B2[nbCmp];
+    PointSensitivityBuilder dfdr = provider.discountFactors(ccy).zeroRatePointSensitivity(paymentPeriod.getPaymentDate());
+    PointSensitivityBuilder pvbpdr = dfdr.multipliedBy(dfB2);
+    for (int j = 0; j < nbCmp; j++) {
+      RateAccrualPeriod accrualPeriod = paymentPeriod.getAccrualPeriods().get(j);
+      pvbpdr = pvbpdr.combinedWith(rateObservationFn.rateSensitivity(accrualPeriod.getRateObservation(),
+          accrualPeriod.getStartDate(), accrualPeriod.getEndDate(), provider).multipliedBy(rateB2[j]));
+    }
+    return pvbpdr;
   }
 
 }

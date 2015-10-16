@@ -12,6 +12,7 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.basics.schedule.Frequency.P12M;
@@ -19,10 +20,14 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.finance.rate.swap.CompoundingMethod.STRAIGHT;
 import static com.opengamma.strata.finance.rate.swap.SwapLegType.FIXED;
-import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_CMP_EXPANDED_SWAP_LEG_PAY_USD;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_CMP_FLAT_EXPANDED_SWAP_LEG_PAY_GBP;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_CMP_NONE_EXPANDED_SWAP_LEG_PAY_GBP;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_EXPANDED_SWAP_LEG_PAY_USD;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_EXPANDED_SWAP_LEG_REC_USD;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_FX_RESET_EXPANDED_SWAP_LEG_PAY_GBP;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_RATE_ACCRUAL_PERIOD;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_RATE_ACCRUAL_PERIOD_2;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_CMP_FLAT_REC_GBP;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_USD;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.IBOR_EXPANDED_SWAP_LEG_REC_GBP;
@@ -67,9 +72,11 @@ import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
+import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
+import com.opengamma.strata.finance.rate.swap.type.IborIborSwapConventions;
 import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.Curve;
@@ -105,6 +112,7 @@ public class DiscountingSwapLegPricerTest {
 
   private static final double TOLERANCE = 1.0e-12;
   private static final double TOLERANCE_DELTA = 1.0E+0;
+  private static final double TOLERANCE_PVBP_FD = 1.0E-4;
 
   private static final DiscountingSwapLegPricer PRICER_LEG = DiscountingSwapLegPricer.DEFAULT;
   private static final ImmutableRatesProvider RATES_GBP = RatesProviderDataSets.MULTI_GBP;
@@ -167,14 +175,51 @@ public class DiscountingSwapLegPricerTest {
     assertEquals(test.pvbp(leg, mockProv), expected, TOLERANCE);
   }
 
+  public void test_pvbp_compounding_flat_fixed() {
+    DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
+    PaymentPeriod p = FIXED_CMP_FLAT_EXPANDED_SWAP_LEG_PAY_GBP.getPaymentPeriods().get(0);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(RatesProviderDataSets.VAL_DATE_2014_01_22);
+    double df1 = 0.99d;
+    when(mockProv.discountFactor(GBP, p.getPaymentDate()))
+        .thenReturn(df1);
+    double spread = 1.0E-6;
+    RateAccrualPeriod ap1 = FIXED_RATE_ACCRUAL_PERIOD.toBuilder().spread(spread).build();
+    RateAccrualPeriod ap2 = FIXED_RATE_ACCRUAL_PERIOD_2.toBuilder().spread(spread).build();
+    RatePaymentPeriod pp = FIXED_RATE_PAYMENT_PERIOD_CMP_FLAT_REC_GBP.toBuilder().accrualPeriods(ap1, ap2).build();
+    ExpandedSwapLeg sl = FIXED_CMP_FLAT_EXPANDED_SWAP_LEG_PAY_GBP.toBuilder().paymentPeriods(pp).build();
+    CurrencyAmount pv0 = PRICER_LEG.presentValue(FIXED_CMP_FLAT_EXPANDED_SWAP_LEG_PAY_GBP, mockProv);
+    CurrencyAmount pvP = PRICER_LEG.presentValue(sl, mockProv);
+    double pvbpExpected = (pvP.getAmount() - pv0.getAmount()) / spread;
+    double pvbpComputed = test.pvbp(FIXED_CMP_FLAT_EXPANDED_SWAP_LEG_PAY_GBP, mockProv);
+    assertEquals(pvbpComputed, pvbpExpected, TOLERANCE_PVBP_FD);
+  }
+
+  public void test_pvbp_compounding_flat_ibor() {
+    LocalDate tradeDate = RATES_USD.getValuationDate();
+    LocalDate effectiveDate = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.getSpotDateOffset().adjust(tradeDate);
+    LocalDate endDate = effectiveDate.plus(TENOR_10Y);
+    double spread = 0.0015;
+    double shift = 1.0E-6;
+    RateCalculationSwapLeg leg0 = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.getSpreadLeg()
+        .toLeg(effectiveDate, endDate, RECEIVE, NOTIONAL, spread);
+    RateCalculationSwapLeg legP = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.getSpreadLeg()
+        .toLeg(effectiveDate, endDate, RECEIVE, NOTIONAL, spread + shift);
+    double parSpread = PRICER_LEG.pvbp(leg0, RATES_USD);
+    double pv0 = PRICER_LEG.presentValue(leg0, RATES_USD).getAmount();
+    double pvP = PRICER_LEG.presentValue(legP, RATES_USD).getAmount();
+    double parSpreadExpected = (pvP - pv0) / shift;
+    assertEquals(parSpread, parSpreadExpected, TOLERANCE_PVBP_FD);
+  }
+
   public void test_pvbp_fxReset() {
     DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
     assertThrowsIllegalArg(() -> test.pvbp(FIXED_FX_RESET_EXPANDED_SWAP_LEG_PAY_GBP, MOCK_PROV));
   }
 
-  public void test_pvbp_compounding() {
+  public void test_pvbp_compounding_none() {
     DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.pvbp(FIXED_CMP_EXPANDED_SWAP_LEG_PAY_USD, MOCK_PROV));
+    assertThrowsIllegalArg(() -> test.pvbp(FIXED_CMP_NONE_EXPANDED_SWAP_LEG_PAY_GBP, MOCK_PROV));
   }
 
   //-------------------------------------------------------------------------
@@ -373,7 +418,25 @@ public class DiscountingSwapLegPricerTest {
 
   public void test_pvbpSensitivity_Compounding() {
     DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.pvbpSensitivity(FIXED_CMP_EXPANDED_SWAP_LEG_PAY_USD, MOCK_PROV));
+    assertThrowsIllegalArg(() -> test.pvbpSensitivity(FIXED_CMP_NONE_EXPANDED_SWAP_LEG_PAY_GBP, MOCK_PROV));
+  }
+
+  public void test_pvbpSensitivity_compounding_flat_ibor() {
+    LocalDate tradeDate = RATES_USD.getValuationDate();
+    LocalDate effectiveDate = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.getSpotDateOffset().adjust(tradeDate);
+    LocalDate endDate = effectiveDate.plus(TENOR_10Y);
+    double spread = 0.0015;
+    RateCalculationSwapLeg leg = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.getSpreadLeg()
+        .toLeg(effectiveDate, endDate, RECEIVE, NOTIONAL, spread);
+    PointSensitivities pvbppts = PRICER_LEG.pvbpSensitivity(leg, RATES_USD).build();
+    CurveCurrencyParameterSensitivities psAd = RATES_USD.curveParameterSensitivity(pvbppts);
+    CurveCurrencyParameterSensitivities psFd =
+        FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_USD, (p) -> CurrencyAmount.of(USD, PRICER_LEG.pvbp(leg, p)));
+    ImmutableList<CurveCurrencyParameterSensitivity> listAd = psAd.getSensitivities();
+    ImmutableList<CurveCurrencyParameterSensitivity> listFd = psFd.getSensitivities();
+    assertEquals(listAd.size(), 2); // No Libor 6M sensitivity
+    assertEquals(listFd.size(), 3); // Libor 6M sensitivity equal to 0 in Finite Difference
+    assertTrue(psAd.equalWithTolerance(psFd, TOLERANCE_DELTA));
   }
 
   //-------------------------------------------------------------------------
