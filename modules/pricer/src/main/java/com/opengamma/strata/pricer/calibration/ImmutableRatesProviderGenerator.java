@@ -6,7 +6,6 @@
 package com.opengamma.strata.pricer.calibration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,7 +123,7 @@ public class ImmutableRatesProviderGenerator
       NodalCurveDefinition curveDefn = curveDefinitions.get(i);
       // extract parameters for the child curve
       int paramCount = curveDefn.getParameterCount();
-      double[] curveParams = Arrays.copyOfRange(parameters.toArrayUnsafe(), startIndex, startIndex + paramCount);
+      DoubleMatrix1D curveParams = parameters.subArray(startIndex, startIndex + paramCount);
       startIndex += paramCount;
       // create the child curve
       Map<CurveInfoType<?>, Object> infoMap = additionalInfoMap(curveDefn, jacobians);

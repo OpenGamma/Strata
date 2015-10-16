@@ -591,8 +591,8 @@ public class IsdaCompliantCurveTest {
 
     rt[0] = forward[0] * time[0];
     r[0] = forward[0];
-    double[] xData = cv1.getXValues();
-    double[] yData = cv1.getYValues();
+    double[] xData = cv1.getXValues().toArray();
+    double[] yData = cv1.getYValues().toArray();
     for (int i = 1; i < num; ++i) {
       rt[i] = rt[i - 1] + forward[i] * (time[i] - time[i - 1]);
       r[i] = rt[i] / time[i];

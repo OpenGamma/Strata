@@ -15,6 +15,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * An ISDA compliant yield curve.
@@ -26,11 +27,19 @@ public class IsdaCompliantYieldCurve extends IsdaCompliantCurve {
     return new IsdaCompliantYieldCurve(IsdaCompliantCurve.makeFromForwardRates(t, fwd));
   }
 
+  public static IsdaCompliantYieldCurve makeFromForwardRates(DoubleMatrix1D t, DoubleMatrix1D fwd) {
+    return makeFromForwardRates(t.toArray(), fwd.toArray());
+  }
+
   public static IsdaCompliantYieldCurve makeFromRT(double[] t, double[] rt) {
     ArgChecker.notEmpty(t, "t");
     ArgChecker.notEmpty(rt, "rt");
     ArgChecker.isTrue(t.length == rt.length, "length of t not equal to length of rt");
     return new IsdaCompliantYieldCurve(new IsdaCompliantCurve(new double[][] {t, rt}));
+  }
+
+  public static IsdaCompliantYieldCurve makeFromRT(DoubleMatrix1D t, DoubleMatrix1D rt) {
+    return makeFromRT(t.toArray(), rt.toArray());
   }
 
   /**

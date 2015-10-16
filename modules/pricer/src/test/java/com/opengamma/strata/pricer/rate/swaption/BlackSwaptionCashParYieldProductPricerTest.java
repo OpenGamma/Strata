@@ -88,13 +88,13 @@ public class BlackSwaptionCashParYieldProductPricerTest {
   private static final LocalDate VALUATION = LocalDate.of(2012, 1, 10);
   // curve
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
-  private static final double[] DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
-  private static final double[] DSC_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150 };
+  private static final DoubleMatrix1D DSC_TIME = DoubleMatrix1D.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
+  private static final DoubleMatrix1D DSC_RATE = DoubleMatrix1D.of(0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150);
   private static final CurveName DSC_NAME = CurveName.of("EUR Dsc");
   private static final CurveMetadata META_DSC = Curves.zeroRates(DSC_NAME, ACT_ACT_ISDA);
   private static final InterpolatedNodalCurve DSC_CURVE = InterpolatedNodalCurve.of(META_DSC, DSC_TIME, DSC_RATE, INTERPOLATOR); 
-  private static final double[] FWD6_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
-  private static final double[] FWD6_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150 };
+  private static final DoubleMatrix1D FWD6_TIME = DoubleMatrix1D.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
+  private static final DoubleMatrix1D FWD6_RATE = DoubleMatrix1D.of(0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150);
   private static final CurveName FWD6_NAME = CurveName.of("EUR EURIBOR 6M");
   private static final CurveMetadata META_FWD6 = Curves.zeroRates(FWD6_NAME, ACT_ACT_ISDA);
   private static final InterpolatedNodalCurve FWD6_CURVE = InterpolatedNodalCurve.of(META_FWD6, FWD6_TIME, FWD6_RATE, INTERPOLATOR); 

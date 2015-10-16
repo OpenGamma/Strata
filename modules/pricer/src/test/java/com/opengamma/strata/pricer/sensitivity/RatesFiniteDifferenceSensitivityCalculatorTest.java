@@ -37,36 +37,36 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
   @Test
   public void sensitivity_single_curve() {
     CurveCurrencyParameterSensitivities sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.SINGLE_USD, this::fn);
-    double[] times = RatesProviderDataSets.TIMES_1;
+    DoubleMatrix1D times = RatesProviderDataSets.TIMES_1;
     assertEquals(sensiComputed.size(), 1);
     DoubleMatrix1D s = sensiComputed.getSensitivities().get(0).getSensitivity();
-    assertEquals(s.size(), times.length);
-    for (int i = 0; i < times.length; i++) {
-      assertEquals(s.get(i), times[i] * 4.0d, TOLERANCE_DELTA);
+    assertEquals(s.size(), times.size());
+    for (int i = 0; i < times.size(); i++) {
+      assertEquals(s.get(i), times.get(i) * 4.0d, TOLERANCE_DELTA);
     }
   }
 
   @Test
   public void sensitivity_multi_curve() {
     CurveCurrencyParameterSensitivities sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.MULTI_USD, this::fn);
-    double[] times1 = RatesProviderDataSets.TIMES_1;
-    double[] times2 = RatesProviderDataSets.TIMES_2;
-    double[] times3 = RatesProviderDataSets.TIMES_3;
+    DoubleMatrix1D times1 = RatesProviderDataSets.TIMES_1;
+    DoubleMatrix1D times2 = RatesProviderDataSets.TIMES_2;
+    DoubleMatrix1D times3 = RatesProviderDataSets.TIMES_3;
     assertEquals(sensiComputed.size(), 3);
     DoubleMatrix1D s1 = sensiComputed.getSensitivity(RatesProviderDataSets.USD_DSC_NAME, USD).getSensitivity();
-    assertEquals(s1.size(), times1.length);
-    for (int i = 0; i < times1.length; i++) {
-      assertEquals(times1[i] * 2.0d, s1.get(i), TOLERANCE_DELTA);
+    assertEquals(s1.size(), times1.size());
+    for (int i = 0; i < times1.size(); i++) {
+      assertEquals(times1.get(i) * 2.0d, s1.get(i), TOLERANCE_DELTA);
     }
     DoubleMatrix1D s2 = sensiComputed.getSensitivity(RatesProviderDataSets.USD_L3_NAME, USD).getSensitivity();
-    assertEquals(s2.size(), times2.length);
-    for (int i = 0; i < times2.length; i++) {
-      assertEquals(times2[i], s2.get(i), TOLERANCE_DELTA);
+    assertEquals(s2.size(), times2.size());
+    for (int i = 0; i < times2.size(); i++) {
+      assertEquals(times2.get(i), s2.get(i), TOLERANCE_DELTA);
     }
     DoubleMatrix1D s3 = sensiComputed.getSensitivity(RatesProviderDataSets.USD_L6_NAME, USD).getSensitivity();
-    assertEquals(s3.size(), times3.length);
-    for (int i = 0; i < times3.length; i++) {
-      assertEquals(times3[i], s3.get(i), TOLERANCE_DELTA);
+    assertEquals(s3.size(), times3.size());
+    for (int i = 0; i < times3.size(); i++) {
+      assertEquals(times3.get(i), s3.get(i), TOLERANCE_DELTA);
     }
   }
 
@@ -91,11 +91,11 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
   // compute the sum of the product of times and rates
   private double sumProduct(InterpolatedNodalCurve curveInt) {
     double result = 0.0;
-    double[] x = curveInt.getXValues();
-    double[] y = curveInt.getYValues();
-    int nbNodePoint = x.length;
+    DoubleMatrix1D x = curveInt.getXValues();
+    DoubleMatrix1D y = curveInt.getYValues();
+    int nbNodePoint = x.size();
     for (int i = 0; i < nbNodePoint; i++) {
-      result += x[i] * y[i];
+      result += x.get(i) * y.get(i);
     }
     return result;
   }

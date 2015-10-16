@@ -195,6 +195,36 @@ public final class DoubleMatrix1D
     return new DoubleMatrix1D(new double[] {value1, value2, value3, value4, value5, value6, value7, value8});
   }
 
+  /**
+   * Obtains an immutable array with more than eight values.
+   * 
+   * @param value1  the first value
+   * @param value2  the second value
+   * @param value3  the third value
+   * @param value4  the fourth value
+   * @param value5  the fifth value
+   * @param value6  the sixth value
+   * @param value7  the seventh value
+   * @param value8  the eighth value
+   * @param otherValues  the other values
+   * @return an array containing the specified values
+   */
+  public static DoubleMatrix1D of(
+      double value1, double value2, double value3, double value4,
+      double value5, double value6, double value7, double value8, double... otherValues) {
+    double[] base = new double[otherValues.length + 8];
+    base[0] = value1;
+    base[1] = value2;
+    base[2] = value3;
+    base[3] = value4;
+    base[4] = value5;
+    base[5] = value6;
+    base[6] = value7;
+    base[7] = value8;
+    System.arraycopy(otherValues, 0, base, 8, otherValues.length);
+    return new DoubleMatrix1D(base);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance with entries filled using a function.
@@ -256,7 +286,7 @@ public final class DoubleMatrix1D
    * @param array  the array to copy, cloned
    * @return an array containing the specified values
    */
-  public static DoubleMatrix1D copyOf(double... array) {
+  public static DoubleMatrix1D copyOf(double[] array) {
     if (array.length == 0) {
       return EMPTY;
     }

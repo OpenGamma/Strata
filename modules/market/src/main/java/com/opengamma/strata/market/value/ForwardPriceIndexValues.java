@@ -181,8 +181,8 @@ public final class ForwardPriceIndexValues
     // add the latest element of the time series as the first node on the curve
     YearMonth lastMonth = YearMonth.from(timeSeries.getLatestDate());
     double nbMonth = valuationMonth.until(lastMonth, MONTHS);
-    double[] x = curve.getXValues();
-    ArgChecker.isTrue(nbMonth < x[0], "the first estimation month should be after the last known index fixing");
+    DoubleMatrix1D x = curve.getXValues();
+    ArgChecker.isTrue(nbMonth < x.get(0), "The first estimation month should be after the last known index fixing");
     this.extendedCurve = curve.withNode(0, nbMonth, timeSeries.getLatestValue());
   }
 

@@ -84,7 +84,7 @@ public class RatesFiniteDifferenceSensitivityCalculator {
     CurveCurrencyParameterSensitivities result = CurveCurrencyParameterSensitivities.empty();
     for (Entry<T, Curve> entry : baseCurves.entrySet()) {
       NodalCurve curveInt = entry.getValue().toNodalCurve();
-      int nbNodePoint = curveInt.getXValues().length;
+      int nbNodePoint = curveInt.getXValues().size();
       DoubleMatrix1D sensitivity = DoubleMatrix1D.of(nbNodePoint, i -> {
         Curve dscBumped = bumpedCurve(curveInt, i);
         Map<T, Curve> mapBumped = new HashMap<>(baseCurves);
@@ -100,9 +100,8 @@ public class RatesFiniteDifferenceSensitivityCalculator {
 
   // create new curve by bumping the existing curve at a given parameter
   private NodalCurve bumpedCurve(NodalCurve curveInt, int loopnode) {
-    double[] yieldBumped = curveInt.getYValues();
-    yieldBumped[loopnode] += shift;
-    return curveInt.withYValues(yieldBumped);
+    DoubleMatrix1D yValues = curveInt.getYValues();
+    return curveInt.withYValues(yValues.with(loopnode, yValues.get(loopnode) + shift));
   }
 
 }

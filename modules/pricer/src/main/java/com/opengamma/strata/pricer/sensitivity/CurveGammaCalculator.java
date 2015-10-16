@@ -87,10 +87,7 @@ public class CurveGammaCalculator {
     @Override
     public DoubleMatrix1D evaluate(DoubleMatrix1D s) {
       double shift = s.get(0);
-      double[] yieldBumped = curve.getYValues();
-      for (int loopnode = 0; loopnode < curve.getParameterCount(); loopnode++) {
-        yieldBumped[loopnode] += shift;
-      }
+      DoubleMatrix1D yieldBumped = curve.getYValues().map(v -> v + shift);
       NodalCurve curveBumped = curve.withYValues(yieldBumped);
       CurveCurrencyParameterSensitivity pts = sensitivitiesFn.apply(curveBumped);
       return pts.getSensitivity();

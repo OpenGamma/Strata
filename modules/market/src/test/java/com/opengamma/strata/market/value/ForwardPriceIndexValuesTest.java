@@ -60,15 +60,15 @@ public class ForwardPriceIndexValuesTest {
     USCPI_TS = builder.build();
   }
 
-  private static final double[] TIMES = new double[] {9.0, 21.0, 57.0, 117.0};
-  private static final double[] VALUES = new double[] {240.500, 245.000, 265.000, 286.000};
-  private static final double[] VALUES2 = new double[] {243.500, 248.000, 268.000, 289.000};
+  private static final DoubleMatrix1D TIMES = DoubleMatrix1D.of(9.0, 21.0, 57.0, 117.0);
+  private static final DoubleMatrix1D VALUES = DoubleMatrix1D.of(240.500, 245.000, 265.000, 286.000);
+  private static final DoubleMatrix1D VALUES2 = DoubleMatrix1D.of(243.500, 248.000, 268.000, 289.000);
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final CurveName NAME = CurveName.of("USD-HICP");
   private static final CurveMetadata METADATA = Curves.prices(NAME);
   private static final InterpolatedNodalCurve CURVE = InterpolatedNodalCurve.of(METADATA, TIMES, VALUES, INTERPOLATOR);
   private static final InterpolatedNodalCurve CURVE2 = InterpolatedNodalCurve.of(METADATA, TIMES, VALUES2, INTERPOLATOR);
-  private static final DoubleMatrix1D SEASONALITY = DoubleMatrix1D.copyOf(
+  private static final DoubleMatrix1D SEASONALITY = DoubleMatrix1D.of(
       0.98d, 0.99d, 1.01d, 1.00d, 1.00d, 1.01d, 1.01d, 0.99d, 1.00d, 1.00d, 1.00d, 1.01d);
   private static final ForwardPriceIndexValues INSTANCE =
       ForwardPriceIndexValues.of(US_CPI_U, VAL_MONTH, USCPI_TS, CURVE, SEASONALITY);
@@ -90,7 +90,7 @@ public class ForwardPriceIndexValuesTest {
     assertEquals(test.getSeasonality(), DoubleMatrix1D.filled(12, 1d));
     assertEquals(test.getCurve(), CURVE);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), TIMES.length);
+    assertEquals(test.getParameterCount(), TIMES.size());
   }
 
   public void test_of_seasonality() {
@@ -100,7 +100,7 @@ public class ForwardPriceIndexValuesTest {
     assertEquals(test.getSeasonality(), SEASONALITY);
     assertEquals(test.getCurve(), CURVE);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), TIMES.length);
+    assertEquals(test.getParameterCount(), TIMES.size());
   }
 
   public void test_of_wrongSeasonalityLength() {
@@ -109,7 +109,7 @@ public class ForwardPriceIndexValuesTest {
   }
 
   public void test_of_startDateBeforeFixing() {
-    double[] monthWrong = new double[] {-10.0, 21.0, 57.0, 117.0};
+    DoubleMatrix1D monthWrong = DoubleMatrix1D.of(-10.0, 21.0, 57.0, 117.0);
     InterpolatedNodalCurve interpolated = CURVE.toBuilder().xValues(monthWrong).build();
     assertThrowsIllegalArg(() -> ForwardPriceIndexValues.of(US_CPI_U, VAL_MONTH, USCPI_TS, interpolated, SEASONALITY));
   }
@@ -148,11 +148,11 @@ public class ForwardPriceIndexValuesTest {
     for (int i = 0; i < TEST_MONTHS.length; i++) {
       DoubleMatrix1D sensitivityComputed =
           INSTANCE.unitParameterSensitivity(TEST_MONTHS[i]).getSensitivity(NAME).getSensitivity();
-      for (int j = 0; j < VALUES.length; j++) {
+      for (int j = 0; j < VALUES.size(); j++) {
         double[] valueFd = new double[2];
         for (int k = 0; k < 2; k++) {
           List<ValueAdjustment> adjustments = new ArrayList<>();
-          for (int l = 0; l < VALUES.length; l++) {
+          for (int l = 0; l < VALUES.size(); l++) {
             adjustments.add(ValueAdjustment.ofDeltaAmount((l == j) ? ((k == 0) ? -shift : shift) : 0.0d));
           }
           ForwardPriceIndexValues curveShifted = INSTANCE.withCurve(INSTANCE.getCurve().shiftedBy(adjustments));

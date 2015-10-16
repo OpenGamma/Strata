@@ -184,8 +184,8 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     double eps = 1.0e-13;
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
     YearMonth valuationMonth = YearMonth.of(2014, 1);
-    double[] x = new double[] {0.5, 1.0, 2.0};
-    double[] y = new double[] {224.2, 262.6, 277.5};
+    DoubleMatrix1D x = DoubleMatrix1D.of(0.5, 1.0, 2.0);
+    DoubleMatrix1D y = DoubleMatrix1D.of(224.2, 262.6, 277.5);
     NaturalCubicSplineInterpolator1D interp = Interpolator1DFactory.NATURAL_CUBIC_SPLINE_INSTANCE;
     String curveName = "GB_RPI_CURVE";
     InterpolatedNodalCurve interpCurve = InterpolatedNodalCurve.of(Curves.prices(curveName), x, y, interp);

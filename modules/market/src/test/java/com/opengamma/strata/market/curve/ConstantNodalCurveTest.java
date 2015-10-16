@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Test {@link ConstantNodalCurve}.
@@ -33,8 +34,8 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(VALUE);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(VALUE);
   }
 
   public void test_of_CurveName() {
@@ -42,8 +43,8 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(VALUE);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(VALUE);
   }
 
   public void test_of_CurveMetadata() {
@@ -51,8 +52,8 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(VALUE);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(VALUE);
   }
 
   //-------------------------------------------------------------------------
@@ -74,18 +75,18 @@ public class ConstantNodalCurveTest {
   //-------------------------------------------------------------------------
   public void test_withYValues() {
     ConstantNodalCurve base = ConstantNodalCurve.of(CURVE_NAME, VALUE);
-    ConstantNodalCurve test = base.withYValues(new double[] {4d});
+    ConstantNodalCurve test = base.withYValues(DoubleMatrix1D.of(4d));
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(4d);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(4d);
   }
 
   public void test_withYValues_badSize() {
     ConstantNodalCurve base = ConstantNodalCurve.of(CURVE_NAME, VALUE);
-    assertThrowsIllegalArg(() -> base.withYValues(new double[0]));
-    assertThrowsIllegalArg(() -> base.withYValues(new double[] {4d, 6d}));
+    assertThrowsIllegalArg(() -> base.withYValues(DoubleMatrix1D.EMPTY));
+    assertThrowsIllegalArg(() -> base.withYValues(DoubleMatrix1D.of(4d, 6d)));
   }
 
   public void test_shiftedBy_operator() {
@@ -94,8 +95,8 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(4d);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(4d);
   }
 
   public void test_shiftedBy_adjustment() {
@@ -104,8 +105,8 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(4d);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(4d);
   }
 
   //-------------------------------------------------------------------------

@@ -102,19 +102,19 @@ public class CurveGammaCalculatorTest {
     ImmutableRatesProvider provider = SINGLE;
     NodalCurve curve = Iterables.getOnlyElement(provider.getDiscountCurves().values()).toNodalCurve();
     Currency curveCurrency = SINGLE_CURRENCY;
-    double[] y = curve.getYValues();
-    int nbNode = y.length;
+    DoubleMatrix1D y = curve.getYValues();
+    int nbNode = y.size();
     DoubleMatrix1D gammaExpected = DoubleMatrix1D.of(nbNode, i -> {
       double[][][] yBumped = new double[2][2][nbNode];
       double[][] pv = new double[2][2];
       for (int pmi = 0; pmi < 2; pmi++) {
         for (int pmP = 0; pmP < 2; pmP++) {
-          yBumped[pmi][pmP] = y.clone();
+          yBumped[pmi][pmP] = y.toArray();
           yBumped[pmi][pmP][i] += (pmi == 0 ? 1.0 : -1.0) * FD_SHIFT;
           for (int j = 0; j < nbNode; j++) {
             yBumped[pmi][pmP][j] += (pmP == 0 ? 1.0 : -1.0) * FD_SHIFT;
           }
-          Curve curveBumped = curve.withYValues(yBumped[pmi][pmP]);
+          Curve curveBumped = curve.withYValues(DoubleMatrix1D.copyOf(yBumped[pmi][pmP]));
           ImmutableRatesProvider providerBumped = provider.toBuilder()
               .discountCurves(provider.getDiscountCurves().keySet().stream()
                   .collect(toImmutableMap(Function.identity(), k -> curveBumped)))

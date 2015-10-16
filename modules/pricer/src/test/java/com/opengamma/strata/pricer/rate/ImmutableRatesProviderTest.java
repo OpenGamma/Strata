@@ -37,6 +37,7 @@ import com.opengamma.strata.market.value.ForwardPriceIndexValues;
 import com.opengamma.strata.market.value.PriceIndexValues;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Test {@link ImmutableRatesProvider}.
@@ -65,7 +66,8 @@ public class ImmutableRatesProviderTest {
       GB_RPI,
       VAL_MONTH,
       LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 252),
-      InterpolatedNodalCurve.of(Curves.prices("GB-RPI"), new double[] {1d, 10d}, new double[] {252d, 252d}, INTERPOLATOR));
+      InterpolatedNodalCurve.of(
+          Curves.prices("GB-RPI"), DoubleMatrix1D.of(1d, 10d), DoubleMatrix1D.of(252d, 252d), INTERPOLATOR));
 
   //-------------------------------------------------------------------------
   public void test_builder() {

@@ -45,6 +45,10 @@ public final class ConstantNodalCurve
     implements NodalCurve, ImmutableBean, Serializable {
 
   /**
+   * X-values does not vary.
+   */
+  private static final DoubleMatrix1D X_VALUES = DoubleMatrix1D.of(0d);
+  /**
    * Sensitivity does not vary.
    */
   private static final DoubleMatrix1D SENSITIVITY = DoubleMatrix1D.of(1d);
@@ -109,13 +113,13 @@ public final class ConstantNodalCurve
   }
 
   @Override
-  public double[] getXValues() {
-    return new double[] {0d};
+  public DoubleMatrix1D getXValues() {
+    return X_VALUES;
   }
 
   @Override
-  public double[] getYValues() {
-    return new double[] {yValue};
+  public DoubleMatrix1D getYValues() {
+    return DoubleMatrix1D.of(yValue);
   }
 
   //-------------------------------------------------------------------------
@@ -136,9 +140,9 @@ public final class ConstantNodalCurve
 
   //-------------------------------------------------------------------------
   @Override
-  public ConstantNodalCurve withYValues(double[] yValues) {
-    ArgChecker.isTrue(yValues.length == 1, "YValues array must be size one");
-    return new ConstantNodalCurve(metadata, yValues[0]);
+  public ConstantNodalCurve withYValues(DoubleMatrix1D yValues) {
+    ArgChecker.isTrue(yValues.size() == 1, "YValues array must be size one");
+    return new ConstantNodalCurve(metadata, yValues.get(0));
   }
 
   @Override

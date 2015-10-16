@@ -31,6 +31,7 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * A perturbation that applies different shifts to specific points on a curve.
@@ -88,15 +89,13 @@ public final class CurvePointShift
         .orElseThrow(() -> new IllegalArgumentException(Messages.format(
             "Unable to apply point shifts to curve '{}' because it has no parameter metadata", curve.getName())));
     NodalCurve nodalCurve = curve.toNodalCurve();
-    double[] yValues = nodalCurve.getYValues();  // this get method clones the array so we can mutate it
-    for (int i = 0; i < yValues.length; i++) {
+    DoubleMatrix1D yValues = nodalCurve.getYValues();
+    DoubleMatrix1D shifted = yValues.mapWithIndex((i, v) -> {
       CurveParameterMetadata meta = nodeMetadata.get(i);
       Double shiftAmount = shiftAmountForNode(meta);
-      if (shiftAmount != null) {
-        yValues[i] = shiftType.applyShift(yValues[i], shiftAmount);
-      }
-    }
-    return nodalCurve.withYValues(yValues);
+      return shiftAmount != null ? shiftType.applyShift(v, shiftAmount) : v;
+    });
+    return nodalCurve.withYValues(shifted);
   }
 
   // find the shift amount applicable for the node, null if none

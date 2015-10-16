@@ -25,6 +25,7 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.RepoCurveZeroRateSensitivity;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Test {@link RepoCurveDiscountFactors}.
@@ -38,7 +39,7 @@ public class RepoCurveDiscountFactorsTest {
   private static final CurveName NAME = CurveName.of("TestCurve");
   private static final CurveMetadata METADATA = Curves.zeroRates(NAME, ACT_365F);
   private static final InterpolatedNodalCurve CURVE =
-      InterpolatedNodalCurve.of(METADATA, new double[] {0, 10 }, new double[] {1, 2 }, INTERPOLATOR);
+      InterpolatedNodalCurve.of(METADATA, DoubleMatrix1D.of(0, 10), DoubleMatrix1D.of(1, 2), INTERPOLATOR);
   private static final DiscountFactors DSC_FACTORS = ZeroRateDiscountFactors.of(GBP, DATE, CURVE);
   private static final BondGroup GROUP = BondGroup.of("ISSUER1 BND 5Y");
 
