@@ -30,7 +30,7 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -41,29 +41,29 @@ public class RatesProviderDataSets {
   /** Wednesday. */
   public static final LocalDate VAL_DATE_2014_01_22 = LocalDate.of(2014, 1, 22);
 
-  public static final DoubleMatrix1D TIMES_1 = DoubleMatrix1D.of(
+  public static final DoubleArray TIMES_1 = DoubleArray.of(
       0.01, 0.25, 0.50, 1.0, 2.0, 3.0, 5.0, 7.0, 10.0, 30.0); // 10 nodes
-  public static final DoubleMatrix1D TIMES_2 = DoubleMatrix1D.of(
+  public static final DoubleArray TIMES_2 = DoubleArray.of(
       0.25, 0.50, 1.0, 2.0, 3.0, 5.0, 7.0, 10.0, 30.0); // 9 nodes
-  public static final DoubleMatrix1D TIMES_3 = DoubleMatrix1D.of(
+  public static final DoubleArray TIMES_3 = DoubleArray.of(
       0.50, 1.0, 2.0, 3.0, 5.0, 7.0, 10.0, 30.0); // 8 nodes
-  public static final DoubleMatrix1D RATES_1 = DoubleMatrix1D.of(
+  public static final DoubleArray RATES_1 = DoubleArray.of(
       0.0100, 0.0110, 0.0120, 0.0130, 0.0140, 0.0150, 0.0160, 0.0170, 0.0180, 0.0190);
-  public static final DoubleMatrix1D RATES_2 = DoubleMatrix1D.of(
+  public static final DoubleArray RATES_2 = DoubleArray.of(
       0.0120, 0.0130, 0.0140, 0.0150, 0.0160, 0.0170, 0.0180, 0.0190, 0.0200);
-  public static final DoubleMatrix1D RATES_3 = DoubleMatrix1D.of(
+  public static final DoubleArray RATES_3 = DoubleArray.of(
       0.0140, 0.0150, 0.0160, 0.0170, 0.0180, 0.0190, 0.0200, 0.0210);
-  public static final DoubleMatrix1D RATES_1_1 = DoubleMatrix1D.of(
+  public static final DoubleArray RATES_1_1 = DoubleArray.of(
       0.0100, 0.0110, 0.0120, 0.0130, 0.0140, 0.0150, 0.0160, 0.0170, 0.0180, 0.0190);
-  public static final DoubleMatrix1D RATES_2_1 = DoubleMatrix1D.of(
+  public static final DoubleArray RATES_2_1 = DoubleArray.of(
       0.0120, 0.0130, 0.0140, 0.0150, 0.0160, 0.0170, 0.0180, 0.0190, 0.0200);
-  public static final DoubleMatrix1D RATES_3_1 = DoubleMatrix1D.of(
+  public static final DoubleArray RATES_3_1 = DoubleArray.of(
       0.0140, 0.0150, 0.0160, 0.0170, 0.0180, 0.0190, 0.0200, 0.0210);
-  public static final DoubleMatrix1D RATES_1_2 = DoubleMatrix1D.of(
+  public static final DoubleArray RATES_1_2 = DoubleArray.of(
       0.0200, 0.0210, 0.0220, 0.0230, 0.0240, 0.0250, 0.0260, 0.0270, 0.0280, 0.0290);
-  public static final DoubleMatrix1D RATES_2_2 = DoubleMatrix1D.of(
+  public static final DoubleArray RATES_2_2 = DoubleArray.of(
       0.0220, 0.0230, 0.0240, 0.0250, 0.0260, 0.0270, 0.0280, 0.0290, 0.0300);
-  public static final DoubleMatrix1D RATES_3_2 = DoubleMatrix1D.of(
+  public static final DoubleArray RATES_3_2 = DoubleArray.of(
       0.0240, 0.0250, 0.0260, 0.0270, 0.0280, 0.0290, 0.0300, 0.0310);
 
   //-------------------------------------------------------------------------

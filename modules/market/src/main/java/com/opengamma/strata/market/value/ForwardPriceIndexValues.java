@@ -38,7 +38,7 @@ import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Provides values for a Price index from a forward curve.
@@ -55,7 +55,7 @@ public final class ForwardPriceIndexValues
    * The list used when there is no seasonality.
    * It consists of 12 entries, all of value 1.
    */
-  public static final DoubleMatrix1D NO_SEASONALITY = DoubleMatrix1D.filled(12, 1d);
+  public static final DoubleArray NO_SEASONALITY = DoubleArray.filled(12, 1d);
 
   /**
    * The index that the values are for.
@@ -90,7 +90,7 @@ public final class ForwardPriceIndexValues
    * from the interpolated part of the curve multiplied by the seasonal adjustment.
    */
   @PropertyDefinition(validate = "notNull")
-  private final DoubleMatrix1D seasonality;
+  private final DoubleArray seasonality;
   /**
    * The underlying extended curve.
    * This has an additional curve node at the start equal to the last point in the time-series.
@@ -152,7 +152,7 @@ public final class ForwardPriceIndexValues
       YearMonth valuationMonth,
       LocalDateDoubleTimeSeries fixings,
       InterpolatedNodalCurve curve,
-      DoubleMatrix1D seasonality) {
+      DoubleArray seasonality) {
 
     return new ForwardPriceIndexValues(index, valuationMonth, fixings, curve, seasonality);
   }
@@ -163,7 +163,7 @@ public final class ForwardPriceIndexValues
       YearMonth valuationMonth,
       LocalDateDoubleTimeSeries timeSeries,
       InterpolatedNodalCurve curve,
-      DoubleMatrix1D seasonality) {
+      DoubleArray seasonality) {
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(valuationMonth, "valuationMonth");
     ArgChecker.notNull(timeSeries, "timeSeries");
@@ -181,7 +181,7 @@ public final class ForwardPriceIndexValues
     // add the latest element of the time series as the first node on the curve
     YearMonth lastMonth = YearMonth.from(timeSeries.getLatestDate());
     double nbMonth = valuationMonth.until(lastMonth, MONTHS);
-    DoubleMatrix1D x = curve.getXValues();
+    DoubleArray x = curve.getXValues();
     ArgChecker.isTrue(nbMonth < x.get(0), "The first estimation month should be after the last known index fixing");
     this.extendedCurve = curve.withNode(0, nbMonth, timeSeries.getLatestValue());
   }
@@ -229,14 +229,14 @@ public final class ForwardPriceIndexValues
     // no sensitivity if historic month price index present in the time series
     if (timeSeries.get(month.atEndOfMonth()).isPresent()) {
       return CurveUnitParameterSensitivities.of(
-          CurveUnitParameterSensitivity.of(curve.getMetadata(), DoubleMatrix1D.filled(getParameterCount())));
+          CurveUnitParameterSensitivity.of(curve.getMetadata(), DoubleArray.filled(getParameterCount())));
     }
     double nbMonth = valuationMonth.until(month, MONTHS);
     int month0 = month.getMonthValue() - 1;
     double adjustment = seasonality.get(month0);
-    DoubleMatrix1D unadjustedSensitivity = extendedCurve.yValueParameterSensitivity(nbMonth).getSensitivity();
+    DoubleArray unadjustedSensitivity = extendedCurve.yValueParameterSensitivity(nbMonth).getSensitivity();
     // remove first element which is to the last fixing and multiply by seasonality
-    DoubleMatrix1D adjustedSensitivity = unadjustedSensitivity.subArray(1).multipliedBy(adjustment);
+    DoubleArray adjustedSensitivity = unadjustedSensitivity.subArray(1).multipliedBy(adjustment);
     return CurveUnitParameterSensitivities.of(CurveUnitParameterSensitivity.of(curve.getMetadata(), adjustedSensitivity));
   }
 
@@ -345,7 +345,7 @@ public final class ForwardPriceIndexValues
    * from the interpolated part of the curve multiplied by the seasonal adjustment.
    * @return the value of the property, not null
    */
-  public DoubleMatrix1D getSeasonality() {
+  public DoubleArray getSeasonality() {
     return seasonality;
   }
 
@@ -423,8 +423,8 @@ public final class ForwardPriceIndexValues
     /**
      * The meta-property for the {@code seasonality} property.
      */
-    private final MetaProperty<DoubleMatrix1D> seasonality = DirectMetaProperty.ofImmutable(
-        this, "seasonality", ForwardPriceIndexValues.class, DoubleMatrix1D.class);
+    private final MetaProperty<DoubleArray> seasonality = DirectMetaProperty.ofImmutable(
+        this, "seasonality", ForwardPriceIndexValues.class, DoubleArray.class);
     /**
      * The meta-properties.
      */
@@ -511,7 +511,7 @@ public final class ForwardPriceIndexValues
      * The meta-property for the {@code seasonality} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DoubleMatrix1D> seasonality() {
+    public MetaProperty<DoubleArray> seasonality() {
       return seasonality;
     }
 
@@ -554,7 +554,7 @@ public final class ForwardPriceIndexValues
     private YearMonth valuationMonth;
     private LocalDateDoubleTimeSeries timeSeries;
     private InterpolatedNodalCurve curve;
-    private DoubleMatrix1D seasonality;
+    private DoubleArray seasonality;
 
     /**
      * Restricted constructor.
@@ -597,7 +597,7 @@ public final class ForwardPriceIndexValues
           this.curve = (InterpolatedNodalCurve) newValue;
           break;
         case -857898080:  // seasonality
-          this.seasonality = (DoubleMatrix1D) newValue;
+          this.seasonality = (DoubleArray) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

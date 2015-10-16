@@ -35,7 +35,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Unit parameter sensitivity for a collection of curves.
@@ -50,7 +50,7 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
  * For example, par rate sensitivity would be expressed using this class as there is no associated currency.
  * <p>
  * One way of viewing this class is as a {@code Map} from a specific sensitivity key to
- * {@code DoubleMatrix1D} sensitivity values. However, instead or being structured as a {@code Map},
+ * {@code DoubleArray} sensitivity values. However, instead or being structured as a {@code Map},
  * the data is structured as a {@code List}, with the key and value in each entry.
  */
 @BeanDefinition(builderScope = "private")
@@ -200,7 +200,7 @@ public final class CurveUnitParameterSensitivities
         mutable, addition, CurveUnitParameterSensitivity::compareKey);
     if (index >= 0) {
       CurveUnitParameterSensitivity base = mutable.get(index);
-      DoubleMatrix1D combined = base.getSensitivity().plus(addition.getSensitivity());
+      DoubleArray combined = base.getSensitivity().plus(addition.getSensitivity());
       mutable.set(index, base.withSensitivity(combined));
     } else {
       int insertionPoint = -(index + 1);

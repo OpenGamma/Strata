@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalytic;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalyticFactory;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsPriceType;
@@ -163,7 +163,7 @@ public class SingleNameCdsE2ETest extends IsdaBaseTest {
     double recovery01 = RISK_CAL.recoveryRateSensitivity(pricingCDS, YIELD_CURVE, CREDIT_CURVE) * NOTIONAL; // Analytic
     double[] bucketCDSCoupons = new double[PILLAR_CDSS.length];
     Arrays.fill(bucketCDSCoupons, COUPON);
-    DoubleMatrix1D hedgeRatio = HEDGE_CAL.getHedgeRatios(pricingCDS, COUPON, HEDGE_CDSS, HEDGE_COUPON,
+    DoubleArray hedgeRatio = HEDGE_CAL.getHedgeRatios(pricingCDS, COUPON, HEDGE_CDSS, HEDGE_COUPON,
         CREDIT_CURVE, YIELD_CURVE);
 
     double[] expectedBIR01 = new double[] {-3.554654175175198E-4, -0.011674986050841385, 0.027624587315561167,
@@ -227,7 +227,7 @@ public class SingleNameCdsE2ETest extends IsdaBaseTest {
     double recovery01 = RISK_CAL.recoveryRateSensitivity(pricingCDS, YIELD_CURVE, CREDIT_CURVE) * NOTIONAL;
     double[] bucketCDSCoupons = new double[PILLAR_CDSS.length];
     Arrays.fill(bucketCDSCoupons, COUPON);
-    DoubleMatrix1D hedgeRatio = HEDGE_CAL.getHedgeRatios(pricingCDS, COUPON, HEDGE_CDSS, HEDGE_COUPON,
+    DoubleArray hedgeRatio = HEDGE_CAL.getHedgeRatios(pricingCDS, COUPON, HEDGE_CDSS, HEDGE_COUPON,
         CREDIT_CURVE, YIELD_CURVE);
 
     double[] expectedBIR01 = new double[] {0.10195891236852717, -0.011674986061249726, 0.027624587339847295,
@@ -296,7 +296,7 @@ public class SingleNameCdsE2ETest extends IsdaBaseTest {
     double recovery01 = RISK_CAL.recoveryRateSensitivity(pricingCDS, YIELD_CURVE, CREDIT_CURVE) * NOTIONAL;
     double[] bucketCDSCoupons = new double[PILLAR_CDSS.length];
     Arrays.fill(bucketCDSCoupons, COUPON);
-    DoubleMatrix1D hedgeRatio = HEDGE_CAL.getHedgeRatios(pricingCDS, coupon, HEDGE_CDSS, HEDGE_COUPON,
+    DoubleArray hedgeRatio = HEDGE_CAL.getHedgeRatios(pricingCDS, coupon, HEDGE_CDSS, HEDGE_COUPON,
         CREDIT_CURVE, YIELD_CURVE);
 
     double[] expectedBIR01 = new double[] {-0.006036998789760162, -0.00868633129313956, 0.09937045325481009,

@@ -10,7 +10,7 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * 
  */
-public class IdentityMatrix extends DoubleMatrix2D {
+public class IdentityMatrix extends DoubleMatrix {
 
   /**
    * Serialization version.

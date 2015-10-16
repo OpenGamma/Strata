@@ -19,7 +19,7 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 
@@ -63,7 +63,7 @@ public class HedgeRatioCalculatorTest extends IsdaBaseTest {
     final int n = HEDGE_CDS.length;
     final double[] hedgeCoupons = new double[n];
     Arrays.fill(hedgeCoupons, cdsCoupon);
-    final DoubleMatrix1D w = HEDGE_CAL.getHedgeRatios(cds, cdsCoupon, HEDGE_CDS, hedgeCoupons, CREDIT_CURVE, YIELD_CURVE);
+    final DoubleArray w = HEDGE_CAL.getHedgeRatios(cds, cdsCoupon, HEDGE_CDS, hedgeCoupons, CREDIT_CURVE, YIELD_CURVE);
     final double[] expected = new double[] {-1.1842173839714448E-6, 0.36244465818986815, 0.6376106050590048, 0.0, 0.0, 0.0 };
     //regression test
     for (int i = 0; i < n; i++) {
@@ -107,7 +107,7 @@ public class HedgeRatioCalculatorTest extends IsdaBaseTest {
     final int n = HEDGE_CDS.length;
     final double[] hedgeCoupons = new double[n];
     Arrays.fill(hedgeCoupons, cdsCoupon);
-    final DoubleMatrix1D w = HEDGE_CAL.getHedgeRatios(cds, cdsCoupon, HEDGE_CDS, hedgeCoupons, flatCC, YIELD_CURVE);
+    final DoubleArray w = HEDGE_CAL.getHedgeRatios(cds, cdsCoupon, HEDGE_CDS, hedgeCoupons, flatCC, YIELD_CURVE);
     System.out.println(w);
   }
 
@@ -120,7 +120,7 @@ public class HedgeRatioCalculatorTest extends IsdaBaseTest {
     final int n = hedgeCDS.length;
     final double[] hedgeCoupons = new double[n];
     Arrays.fill(hedgeCoupons, cdsCoupon);
-    final DoubleMatrix1D w = HEDGE_CAL.getHedgeRatios(cds, cdsCoupon, hedgeCDS, hedgeCoupons, CREDIT_CURVE, YIELD_CURVE);
+    final DoubleArray w = HEDGE_CAL.getHedgeRatios(cds, cdsCoupon, hedgeCDS, hedgeCoupons, CREDIT_CURVE, YIELD_CURVE);
     final double[] expected = new double[] {0.3877847710928422, 0.026594401620818442 };
     for (int i = 0; i < n; i++) {
       assertEquals("", expected[i], w.get(i), 1e-15);

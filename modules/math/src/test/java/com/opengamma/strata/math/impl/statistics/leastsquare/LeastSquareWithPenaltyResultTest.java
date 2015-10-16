@@ -9,8 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * 
@@ -24,14 +24,14 @@ public class LeastSquareWithPenaltyResultTest {
     double chi2 = 13.234324;
     double pen = 2.3445;
     int nParms = 12;
-    DoubleMatrix1D parms = DoubleMatrix1D.filled(nParms, 0.5);
-    DoubleMatrix2D cov = DoubleMatrix2D.filled(nParms, nParms);
+    DoubleArray parms = DoubleArray.filled(nParms, 0.5);
+    DoubleMatrix cov = DoubleMatrix.filled(nParms, nParms);
 
     LeastSquareWithPenaltyResults res = new LeastSquareWithPenaltyResults(chi2, pen, parms, cov);
     assertEquals(chi2, res.getChiSq());
     assertEquals(pen, res.getPenalty());
 
-    DoubleMatrix2D invJac = DoubleMatrix2D.filled(nParms, 5);
+    DoubleMatrix invJac = DoubleMatrix.filled(nParms, 5);
     res = new LeastSquareWithPenaltyResults(chi2, pen, parms, cov, invJac);
     assertEquals(chi2, res.getChiSq());
     assertEquals(pen, res.getPenalty());

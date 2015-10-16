@@ -8,8 +8,8 @@ package com.opengamma.strata.math.impl.interpolation;
 import java.util.Arrays;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Result of interpolation by piecewise polynomial containing
@@ -24,7 +24,7 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
  */
 public class PiecewisePolynomialResultsWithSensitivity extends PiecewisePolynomialResult {
 
-  private final DoubleMatrix2D[] _coeffSense;
+  private final DoubleMatrix[] _coeffSense;
 
   /**
    * 
@@ -34,7 +34,7 @@ public class PiecewisePolynomialResultsWithSensitivity extends PiecewisePolynomi
    * @param dim  the dim
    * @param coeffSense the sensitivity of the coefficients to the nodes (y-values)
    */
-  public PiecewisePolynomialResultsWithSensitivity(DoubleMatrix1D knots, DoubleMatrix2D coefMatrix, int order, int dim, final DoubleMatrix2D[] coeffSense) {
+  public PiecewisePolynomialResultsWithSensitivity(DoubleArray knots, DoubleMatrix coefMatrix, int order, int dim, final DoubleMatrix[] coeffSense) {
     super(knots, coefMatrix, order, dim);
     if (dim != 1) {
       throw new UnsupportedOperationException();
@@ -47,7 +47,7 @@ public class PiecewisePolynomialResultsWithSensitivity extends PiecewisePolynomi
    * Access _coeffSense
    * @return _coeffSense
    */
-  public DoubleMatrix2D[] getCoefficientSensitivityAll() {
+  public DoubleMatrix[] getCoefficientSensitivityAll() {
     return _coeffSense;
   }
 
@@ -56,7 +56,7 @@ public class PiecewisePolynomialResultsWithSensitivity extends PiecewisePolynomi
    * @param interval  the interval
    * @return _coeffSense for the i-th interval
    */
-  public DoubleMatrix2D getCoefficientSensitivity(final int interval) {
+  public DoubleMatrix getCoefficientSensitivity(final int interval) {
     return _coeffSense[interval];
   }
 

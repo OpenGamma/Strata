@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.math.impl.util.AssertMatrix;
 
 /**
@@ -26,7 +26,7 @@ public class DoublesVectorFunctionProviderTest {
     final ParameterizedCurve curve = new ParameterizedCurve() {
 
       @Override
-      public Double evaluate(final Double x, final DoubleMatrix1D parameters) {
+      public Double evaluate(final Double x, final DoubleArray parameters) {
         return parameters.get(0) + parameters.get(1) * x + parameters.get(2) * x * x;
       }
 
@@ -45,12 +45,12 @@ public class DoublesVectorFunctionProviderTest {
     };
 
     //a = -2, b = 1, c = 0.5
-    final DoubleMatrix1D parms = DoubleMatrix1D.of(-2.0, 1.0, 0.5);
+    final DoubleArray parms = DoubleArray.of(-2.0, 1.0, 0.5);
 
     //sample the curve at x = -1, 0, and 1 
     VectorFunction f = pro.from(new Double[] {-1.0, 0.0, 1.0 });
-    DoubleMatrix1D y = f.evaluate(parms);
-    AssertMatrix.assertEqualsVectors(DoubleMatrix1D.of(-2.5, -2.0, -0.5), y, 1e-15);
+    DoubleArray y = f.evaluate(parms);
+    AssertMatrix.assertEqualsVectors(DoubleArray.of(-2.5, -2.0, -0.5), y, 1e-15);
 
     final List<Double> l = new ArrayList<>(3);
     l.add(0.0);
@@ -58,7 +58,7 @@ public class DoublesVectorFunctionProviderTest {
     l.add(4.0);
     f = pro.from(l);
     y = f.evaluate(parms);
-    AssertMatrix.assertEqualsVectors(DoubleMatrix1D.of(-2.0, 2.0, 10.0), y, 1e-15);
+    AssertMatrix.assertEqualsVectors(DoubleArray.of(-2.0, 2.0, 10.0), y, 1e-15);
   }
 
 }

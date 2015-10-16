@@ -17,8 +17,8 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.market.curve.definition.CurveParameterSize;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Test {@link JacobianCalibrationMatrix}.
@@ -31,8 +31,8 @@ public class JacobianCalibrationMatrixTest {
   private static final CurveParameterSize CPS1 = CurveParameterSize.of(NAME1, 3);
   private static final CurveParameterSize CPS2 = CurveParameterSize.of(NAME2, 2);
   private static final List<CurveParameterSize> CPS = ImmutableList.of(CPS1, CPS2);
-  private static final DoubleMatrix2D MATRIX = DoubleMatrix2D.of(2, 2, 1d, 2d, 2d, 3d);
-  private static final DoubleMatrix2D MATRIX2 = DoubleMatrix2D.of(2, 2, 2d, 2d, 3d, 3d);
+  private static final DoubleMatrix MATRIX = DoubleMatrix.of(2, 2, 1d, 2d, 2d, 3d);
+  private static final DoubleMatrix MATRIX2 = DoubleMatrix.of(2, 2, 2d, 2d, 3d, 3d);
 
   //-------------------------------------------------------------------------
   public void test_of() {
@@ -46,9 +46,9 @@ public class JacobianCalibrationMatrixTest {
   //-------------------------------------------------------------------------
   public void test_split() {
     JacobianCalibrationMatrix test = JacobianCalibrationMatrix.of(CPS, MATRIX);
-    DoubleMatrix1D array = DoubleMatrix1D.of(1, 2, 3, 4, 5);
-    DoubleMatrix1D array1 = DoubleMatrix1D.of(1, 2, 3);
-    DoubleMatrix1D array2 = DoubleMatrix1D.of(4, 5);
+    DoubleArray array = DoubleArray.of(1, 2, 3, 4, 5);
+    DoubleArray array1 = DoubleArray.of(1, 2, 3);
+    DoubleArray array2 = DoubleArray.of(4, 5);
     assertEquals(test.splitValues(array), ImmutableMap.of(NAME1, array1, NAME2, array2));
   }
 

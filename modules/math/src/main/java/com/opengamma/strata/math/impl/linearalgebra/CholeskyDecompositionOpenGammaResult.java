@@ -6,8 +6,8 @@
 package com.opengamma.strata.math.impl.linearalgebra;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 
@@ -24,11 +24,11 @@ public class CholeskyDecompositionOpenGammaResult implements CholeskyDecompositi
   /**
    * The matrix L, result of the decomposition.
    */
-  private final DoubleMatrix2D _l;
+  private final DoubleMatrix _l;
   /**
    * The matrix L^T, result of the decomposition.
    */
-  private final DoubleMatrix2D _lT;
+  private final DoubleMatrix _lT;
   /**
    * The determinant of the original matrix A = L L^T.
    */
@@ -40,7 +40,7 @@ public class CholeskyDecompositionOpenGammaResult implements CholeskyDecompositi
    */
   public CholeskyDecompositionOpenGammaResult(double[][] lArray) {
     _lArray = lArray;
-    _l = DoubleMatrix2D.copyOf(_lArray);
+    _l = DoubleMatrix.copyOf(_lArray);
     _lT = ALGEBRA.getTranspose(_l);
     _determinant = 1.0;
     for (int loopdiag = 0; loopdiag < _lArray.length; ++loopdiag) {
@@ -49,7 +49,7 @@ public class CholeskyDecompositionOpenGammaResult implements CholeskyDecompositi
   }
 
   @Override
-  public DoubleMatrix1D solve(DoubleMatrix1D b) {
+  public DoubleArray solve(DoubleArray b) {
     return b;
   }
 
@@ -77,7 +77,7 @@ public class CholeskyDecompositionOpenGammaResult implements CholeskyDecompositi
   }
 
   @Override
-  public DoubleMatrix2D solve(DoubleMatrix2D b) {
+  public DoubleMatrix solve(DoubleMatrix b) {
     int nbRow = b.rowCount();
     int nbCol = b.columnCount();
     ArgChecker.isTrue(nbRow == _lArray.length, "b array of incorrect size");
@@ -100,16 +100,16 @@ public class CholeskyDecompositionOpenGammaResult implements CholeskyDecompositi
         }
       }
     }
-    return DoubleMatrix2D.copyOf(x);
+    return DoubleMatrix.copyOf(x);
   }
 
   @Override
-  public DoubleMatrix2D getL() {
+  public DoubleMatrix getL() {
     return _l;
   }
 
   @Override
-  public DoubleMatrix2D getLT() {
+  public DoubleMatrix getLT() {
     return _lT;
   }
 

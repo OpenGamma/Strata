@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Set up a simple parameterised curve
@@ -28,7 +28,7 @@ public class ParameterizedCurveTest {
     final ParameterizedCurve testCurve = new ParameterizedCurve() {
 
       @Override
-      public Double evaluate(final Double x, final DoubleMatrix1D parameters) {
+      public Double evaluate(final Double x, final DoubleArray parameters) {
         assertEquals(3, parameters.size());
         double a = parameters.get(0);
         double b = parameters.get(1);
@@ -43,14 +43,14 @@ public class ParameterizedCurveTest {
 
     };
 
-    ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D> parmSense =
-        new ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D>() {
+    ParameterizedFunction<Double, DoubleArray, DoubleArray> parmSense =
+        new ParameterizedFunction<Double, DoubleArray, DoubleArray>() {
 
           @Override
-          public DoubleMatrix1D evaluate(Double x, DoubleMatrix1D parameters) {
+          public DoubleArray evaluate(Double x, DoubleArray parameters) {
             double a = parameters.get(0);
             double b = parameters.get(1);
-            DoubleMatrix1D res = DoubleMatrix1D.of(Math.sin(b * x), x * a * Math.cos(b * x), 1.0);
+            DoubleArray res = DoubleArray.of(Math.sin(b * x), x * a * Math.cos(b * x), 1.0);
             return res;
           }
 
@@ -60,14 +60,14 @@ public class ParameterizedCurveTest {
           }
         };
 
-    DoubleMatrix1D params = DoubleMatrix1D.of(0.7, -0.3, 1.2);
-    Function1D<Double, DoubleMatrix1D> paramsSenseFD = testCurve.getYParameterSensitivity(params);
-    Function1D<Double, DoubleMatrix1D> paramsSenseAnal = parmSense.asFunctionOfArguments(params);
+    DoubleArray params = DoubleArray.of(0.7, -0.3, 1.2);
+    Function1D<Double, DoubleArray> paramsSenseFD = testCurve.getYParameterSensitivity(params);
+    Function1D<Double, DoubleArray> paramsSenseAnal = parmSense.asFunctionOfArguments(params);
 
     for (int i = 0; i < 20; i++) {
       double x = Math.PI * (-0.5 + i / 19.);
-      DoubleMatrix1D s1 = paramsSenseAnal.evaluate(x);
-      DoubleMatrix1D s2 = paramsSenseFD.evaluate(x);
+      DoubleArray s1 = paramsSenseAnal.evaluate(x);
+      DoubleArray s2 = paramsSenseFD.evaluate(x);
       for (int j = 0; j < 3; j++) {
         assertEquals(s1.get(j), s2.get(j), 1e-10);
       }

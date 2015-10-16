@@ -11,7 +11,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import cern.jet.random.engine.MersenneTwister;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
@@ -44,8 +44,8 @@ public class TridiagonalSolverTest {
     }
 
     final TridiagonalMatrix m = new TridiagonalMatrix(b, a, c);
-    final DoubleMatrix1D xVec = DoubleMatrix1D.copyOf(x);
-    final DoubleMatrix1D yVec = (DoubleMatrix1D) MA.multiply(m, xVec);
+    final DoubleArray xVec = DoubleArray.copyOf(x);
+    final DoubleArray yVec = (DoubleArray) MA.multiply(m, xVec);
 
     final double[] xSolv = solvTriDag(m, yVec).toArray();
 
@@ -53,7 +53,7 @@ public class TridiagonalSolverTest {
       assertEquals(x[i], xSolv[i], 1e-9);
     }
 
-    DoubleMatrix1D resi = (DoubleMatrix1D) MA.subtract(MA.multiply(m, DoubleMatrix1D.copyOf(xSolv)), yVec);
+    DoubleArray resi = (DoubleArray) MA.subtract(MA.multiply(m, DoubleArray.copyOf(xSolv)), yVec);
     double err = MA.getNorm2(resi);
     assertEquals(0.0, err, 1e-14);
 

@@ -91,7 +91,7 @@ import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.ForwardPriceIndexValues;
 import com.opengamma.strata.market.value.PriceIndexValues;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
 import com.opengamma.strata.pricer.impl.rate.ForwardInflationInterpolatedRateObservationFn;
@@ -522,8 +522,8 @@ public class DiscountingSwapLegPricerTest {
       LocalDateDoubleTimeSeries.of(VAL_DATE_INFLATION.minusMonths(3), START_INDEX),
       InterpolatedNodalCurve.of(
           Curves.prices("GB_RPI_CURVE"),
-          DoubleMatrix1D.of(1, 200),
-          DoubleMatrix1D.of(CONSTANT_INDEX, CONSTANT_INDEX),
+          DoubleArray.of(1, 200),
+          DoubleArray.of(CONSTANT_INDEX, CONSTANT_INDEX),
           INTERPOLATOR));
 
   private static final CurveInterpolator INTERP_SPLINE = Interpolator1DFactory.NATURAL_CUBIC_SPLINE_INSTANCE;
@@ -533,8 +533,8 @@ public class DiscountingSwapLegPricerTest {
       LocalDateDoubleTimeSeries.of(VAL_DATE_INFLATION.minusMonths(3), 227.2),
       InterpolatedNodalCurve.of(
           Curves.prices("GB_RPI_CURVE"),
-          DoubleMatrix1D.of(6, 12, 24, 60, 120),
-          DoubleMatrix1D.of(227.2, 252.6, 289.5, 323.1, 351.1),
+          DoubleArray.of(6, 12, 24, 60, 120),
+          DoubleArray.of(227.2, 252.6, 289.5, 323.1, 351.1),
           INTERP_SPLINE));
 
   private static final double EPS = 1.0e-14;

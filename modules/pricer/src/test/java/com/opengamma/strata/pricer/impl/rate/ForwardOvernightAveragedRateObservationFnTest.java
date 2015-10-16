@@ -41,7 +41,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.OvernightIndexRates;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
@@ -321,8 +321,8 @@ public class ForwardOvernightAveragedRateObservationFnTest {
   /** Test parameter sensitivity with finite difference sensitivity calculator. Two days cutoff period. */
   public void rateFedFundTwoDaysCutoffParameterSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
-    DoubleMatrix1D time = DoubleMatrix1D.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
-    DoubleMatrix1D rate = DoubleMatrix1D.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
+    DoubleArray time = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
+    DoubleArray rate = DoubleArray.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
 
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       Curve onCurve = InterpolatedNodalCurve.of(
@@ -351,8 +351,8 @@ public class ForwardOvernightAveragedRateObservationFnTest {
   /** Test parameter sensitivity with finite difference sensitivity calculator. No cutoff period. */
   public void rateChfNoCutOffParameterSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
-    DoubleMatrix1D time = DoubleMatrix1D.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
-    DoubleMatrix1D rate = DoubleMatrix1D.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
+    DoubleArray time = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
+    DoubleArray rate = DoubleArray.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
 
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       Curve onCurve = InterpolatedNodalCurve.of(

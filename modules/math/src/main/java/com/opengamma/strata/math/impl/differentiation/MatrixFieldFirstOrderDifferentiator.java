@@ -8,8 +8,8 @@ package com.opengamma.strata.math.impl.differentiation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 
@@ -17,7 +17,7 @@ import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
  * Matrix field first order differentiator.
  */
 public class MatrixFieldFirstOrderDifferentiator
-    implements Differentiator<DoubleMatrix1D, DoubleMatrix2D, DoubleMatrix2D[]> {
+    implements Differentiator<DoubleArray, DoubleMatrix, DoubleMatrix[]> {
 
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
   private static final double DEFAULT_EPS = 1e-5;
@@ -49,23 +49,23 @@ public class MatrixFieldFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<DoubleMatrix1D, DoubleMatrix2D[]> differentiate(
-      Function1D<DoubleMatrix1D, DoubleMatrix2D> function) {
+  public Function1D<DoubleArray, DoubleMatrix[]> differentiate(
+      Function1D<DoubleArray, DoubleMatrix> function) {
 
     ArgChecker.notNull(function, "function");
-    return new Function1D<DoubleMatrix1D, DoubleMatrix2D[]>() {
+    return new Function1D<DoubleArray, DoubleMatrix[]>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix2D[] evaluate(DoubleMatrix1D x) {
+      public DoubleMatrix[] evaluate(DoubleArray x) {
         ArgChecker.notNull(x, "x");
         int n = x.size();
 
-        DoubleMatrix2D[] res = new DoubleMatrix2D[n];
+        DoubleMatrix[] res = new DoubleMatrix[n];
         for (int i = 0; i < n; i++) {
           double xi = x.get(i);
-          DoubleMatrix2D up = function.evaluate(x.with(i, xi + eps));
-          DoubleMatrix2D down = function.evaluate(x.with(i, xi - eps));
-          res[i] = (DoubleMatrix2D) MA.scale(MA.subtract(up, down), oneOverTwpEps); //TODO have this in one operation
+          DoubleMatrix up = function.evaluate(x.with(i, xi + eps));
+          DoubleMatrix down = function.evaluate(x.with(i, xi - eps));
+          res[i] = (DoubleMatrix) MA.scale(MA.subtract(up, down), oneOverTwpEps); //TODO have this in one operation
         }
         return res;
       }
@@ -74,9 +74,9 @@ public class MatrixFieldFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<DoubleMatrix1D, DoubleMatrix2D[]> differentiate(
-      Function1D<DoubleMatrix1D, DoubleMatrix2D> function,
-      Function1D<DoubleMatrix1D, Boolean> domain) {
+  public Function1D<DoubleArray, DoubleMatrix[]> differentiate(
+      Function1D<DoubleArray, DoubleMatrix> function,
+      Function1D<DoubleArray, Boolean> domain) {
 
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(domain, "domain");
@@ -85,23 +85,23 @@ public class MatrixFieldFirstOrderDifferentiator
     double[] wCent = new double[] {-1. / twoEps, 0., 1. / twoEps};
     double[] wBack = new double[] {1. / twoEps, -4. / twoEps, 3. / twoEps};
 
-    return new Function1D<DoubleMatrix1D, DoubleMatrix2D[]>() {
+    return new Function1D<DoubleArray, DoubleMatrix[]>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix2D[] evaluate(DoubleMatrix1D x) {
+      public DoubleMatrix[] evaluate(DoubleArray x) {
         ArgChecker.notNull(x, "x");
         ArgChecker.isTrue(domain.evaluate(x), "point {} is not in the function domain", x.toString());
 
         int n = x.size();
-        DoubleMatrix2D[] y = new DoubleMatrix2D[3];
-        DoubleMatrix2D[] res = new DoubleMatrix2D[n];
+        DoubleMatrix[] y = new DoubleMatrix[3];
+        DoubleMatrix[] res = new DoubleMatrix[n];
         double[] w;
         for (int i = 0; i < n; i++) {
           double xi = x.get(i);
-          DoubleMatrix1D xPlusOneEps = x.with(i, xi + eps);
-          DoubleMatrix1D xMinusOneEps = x.with(i, xi - eps);
+          DoubleArray xPlusOneEps = x.with(i, xi + eps);
+          DoubleArray xMinusOneEps = x.with(i, xi - eps);
           if (!domain.evaluate(xPlusOneEps)) {
-            DoubleMatrix1D xMinusTwoEps = x.with(i, xi - twoEps);
+            DoubleArray xMinusTwoEps = x.with(i, xi - twoEps);
             if (!domain.evaluate(xMinusTwoEps)) {
               throw new MathException("cannot get derivative at point " + x.toString() + " in direction " + i);
             }
@@ -121,9 +121,9 @@ public class MatrixFieldFirstOrderDifferentiator
               w = wCent;
             }
           }
-          res[i] = (DoubleMatrix2D) MA.add(MA.scale(y[0], w[0]), MA.scale(y[2], w[2]));
+          res[i] = (DoubleMatrix) MA.add(MA.scale(y[0], w[0]), MA.scale(y[2], w[2]));
           if (w[1] != 0) {
-            res[i] = (DoubleMatrix2D) MA.add(res[i], MA.scale(y[1], w[1]));
+            res[i] = (DoubleMatrix) MA.add(res[i], MA.scale(y[1], w[1]));
           }
         }
         return res;

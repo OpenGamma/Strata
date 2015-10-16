@@ -8,7 +8,7 @@ package com.opengamma.strata.math.impl.differentiation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Differentiates a scalar field (i.e. there is a scalar value for every point
@@ -21,7 +21,7 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
  * $\frac{dy}{dx_i}$.
  */
 public class ScalarFieldFirstOrderDifferentiator
-    implements Differentiator<DoubleMatrix1D, Double, DoubleMatrix1D> {
+    implements Differentiator<DoubleArray, Double, DoubleArray> {
 
   private static final double DEFAULT_EPS = 1e-5;
   private static final double MIN_EPS = Math.sqrt(Double.MIN_NORMAL);
@@ -58,31 +58,31 @@ public class ScalarFieldFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<DoubleMatrix1D, DoubleMatrix1D> differentiate(
-      Function1D<DoubleMatrix1D, Double> function) {
+  public Function1D<DoubleArray, DoubleArray> differentiate(
+      Function1D<DoubleArray, Double> function) {
 
     ArgChecker.notNull(function, "function");
     switch (differenceType) {
       case FORWARD:
-        return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+        return new Function1D<DoubleArray, DoubleArray>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+          public DoubleArray evaluate(DoubleArray x) {
             ArgChecker.notNull(x, "x");
             double y = function.evaluate(x);
-            return DoubleMatrix1D.of(x.size(), i -> {
+            return DoubleArray.of(x.size(), i -> {
               double up = function.evaluate(x.with(i, x.get(i) + eps));
               return (up - y) / eps;
             });
           }
         };
       case CENTRAL:
-        return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+        return new Function1D<DoubleArray, DoubleArray>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+          public DoubleArray evaluate(DoubleArray x) {
             ArgChecker.notNull(x, "x");
-            return DoubleMatrix1D.of(x.size(), i -> {
+            return DoubleArray.of(x.size(), i -> {
               double up = function.evaluate(x.with(i, x.get(i) + eps));
               double down = function.evaluate(x.with(i, x.get(i) - eps));
               return (up - down) / twoEps;
@@ -90,13 +90,13 @@ public class ScalarFieldFirstOrderDifferentiator
           }
         };
       case BACKWARD:
-        return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+        return new Function1D<DoubleArray, DoubleArray>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+          public DoubleArray evaluate(DoubleArray x) {
             ArgChecker.notNull(x, "x");
             double y = function.evaluate(x);
-            return DoubleMatrix1D.of(x.size(), i -> {
+            return DoubleArray.of(x.size(), i -> {
               double down = function.evaluate(x.with(i, x.get(i) - eps));
               return (y - down) / eps;
             });
@@ -109,9 +109,9 @@ public class ScalarFieldFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<DoubleMatrix1D, DoubleMatrix1D> differentiate(
-      Function1D<DoubleMatrix1D, Double> function,
-      Function1D<DoubleMatrix1D, Boolean> domain) {
+  public Function1D<DoubleArray, DoubleArray> differentiate(
+      Function1D<DoubleArray, Double> function,
+      Function1D<DoubleArray, Boolean> domain) {
 
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(domain, "domain");
@@ -120,21 +120,21 @@ public class ScalarFieldFirstOrderDifferentiator
     double[] wCent = new double[] {-1. / twoEps, 0., 1. / twoEps};
     double[] wBack = new double[] {1. / twoEps, -4. / twoEps, 3. / twoEps};
 
-    return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+    return new Function1D<DoubleArray, DoubleArray>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+      public DoubleArray evaluate(DoubleArray x) {
         ArgChecker.notNull(x, "x");
         ArgChecker.isTrue(domain.evaluate(x), "point {} is not in the function domain", x.toString());
 
-        return DoubleMatrix1D.of(x.size(), i -> {
+        return DoubleArray.of(x.size(), i -> {
           double xi = x.get(i);
-          DoubleMatrix1D xPlusOneEps = x.with(i, xi + eps);
-          DoubleMatrix1D xMinusOneEps = x.with(i, xi - eps);
+          DoubleArray xPlusOneEps = x.with(i, xi + eps);
+          DoubleArray xMinusOneEps = x.with(i, xi - eps);
           double y0, y1, y2;
           double[] w;
           if (!domain.evaluate(xPlusOneEps)) {
-            DoubleMatrix1D xMinusTwoEps = x.with(i, xi - twoEps);
+            DoubleArray xMinusTwoEps = x.with(i, xi - twoEps);
             if (!domain.evaluate(xMinusTwoEps)) {
               throw new MathException("cannot get derivative at point " + x.toString() + " in direction " + i);
             }

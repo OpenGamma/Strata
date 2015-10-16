@@ -12,8 +12,8 @@ import java.util.Arrays;
 import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionResult;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Abstract class of solving cubic spline problem
@@ -34,7 +34,7 @@ abstract class CubicSplineSolver {
    * @return Coefficient matrix whose i-th row vector is (a_0,a_1,...) for i-th intervals, where a_0,a_1,... are coefficients of f(x) = a_0 + a_1 x^1 + ....
    * Note that the degree of polynomial is NOT necessarily 3
    */
-  public abstract DoubleMatrix2D solve(double[] xValues, double[] yValues);
+  public abstract DoubleMatrix solve(double[] xValues, double[] yValues);
 
   /**
    * One-dimensional cubic spline
@@ -45,7 +45,7 @@ abstract class CubicSplineSolver {
    * @return Array of  matrices: the 0-th element is Coefficient Matrix (same as the solve method above), the i-th element is \frac{\partial a^{i-1}_j}{\partial yValues_k} 
    * where a_0^i,a_1^i,... are coefficients of f^i(x) = a_0^i + a_1^i (x - xValues_{i}) + .... with x \in [xValues_{i}, xValues_{i+1}]
    */
-  public abstract DoubleMatrix2D[] solveWithSensitivity(double[] xValues, double[] yValues);
+  public abstract DoubleMatrix[] solveWithSensitivity(double[] xValues, double[] yValues);
 
   /**
    * Multi-dimensional cubic spline
@@ -57,14 +57,14 @@ abstract class CubicSplineSolver {
    * Each matrix corresponds to an interpolation (xValues, yValuesMatrix RowVector)
    * Note that the degree of polynomial is NOT necessarily 3
    */
-  public abstract DoubleMatrix2D[] solveMultiDim(double[] xValues, DoubleMatrix2D yValuesMatrix);
+  public abstract DoubleMatrix[] solveMultiDim(double[] xValues, DoubleMatrix yValuesMatrix);
 
   /**
    * @param xValues X values of data
    * @return X values of knots (Note that these are NOT necessarily xValues if nDataPts=2,3)
    */
-  public DoubleMatrix1D getKnotsMat1D(double[] xValues) {
-    return DoubleMatrix1D.copyOf(xValues);
+  public DoubleArray getKnotsMat1D(double[] xValues) {
+    return DoubleArray.copyOf(xValues);
   }
 
   /**
@@ -91,7 +91,7 @@ abstract class CubicSplineSolver {
    * @param solnVector Values of second derivative at knots
    * @return Coefficient matrix whose i-th row vector is {a_0,a_1,...} for i-th intervals, where a_0,a_1,... are coefficients of f(x) = a_0 + a_1 x^1 + ....
    */
-  protected DoubleMatrix2D getCommonSplineCoeffs(double[] xValues, double[] yValues, double[] intervals, double[] solnVector) {
+  protected DoubleMatrix getCommonSplineCoeffs(double[] xValues, double[] yValues, double[] intervals, double[] solnVector) {
 
     int nDataPts = xValues.length;
     double[][] res = new double[nDataPts - 1][4];
@@ -101,7 +101,7 @@ abstract class CubicSplineSolver {
       res[i][2] = yValues[i + 1] / intervals[i] - yValues[i] / intervals[i] - intervals[i] * solnVector[i] / 2. - intervals[i] * solnVector[i + 1] / 6. + intervals[i] * solnVector[i] / 6.;
       res[i][3] = yValues[i];
     }
-    return DoubleMatrix2D.copyOf(res);
+    return DoubleMatrix.copyOf(res);
   }
 
   /**
@@ -109,7 +109,7 @@ abstract class CubicSplineSolver {
    * @param solnMatrix Sensitivity of second derivatives (x 0.5)  
    * @return Array of i coefficient matrices \frac{\partial a^i_j}{\partial y_k}
    */
-  protected DoubleMatrix2D[] getCommonSensitivityCoeffs(double[] intervals, double[][] solnMatrix) {
+  protected DoubleMatrix[] getCommonSensitivityCoeffs(double[] intervals, double[][] solnMatrix) {
 
     int nDataPts = intervals.length + 1;
     double[][][] res = new double[nDataPts - 1][4][nDataPts];
@@ -124,9 +124,9 @@ abstract class CubicSplineSolver {
       }
     }
 
-    DoubleMatrix2D[] resMat = new DoubleMatrix2D[nDataPts - 1];
+    DoubleMatrix[] resMat = new DoubleMatrix[nDataPts - 1];
     for (int i = 0; i < nDataPts - 1; ++i) {
-      resMat[i] = DoubleMatrix2D.copyOf(res[i]);
+      resMat[i] = DoubleMatrix.copyOf(res[i]);
     }
     return resMat;
   }
@@ -141,13 +141,13 @@ abstract class CubicSplineSolver {
    * @param commonVecSensitivity The matrix L
    * @return Coefficient matrices of interpolant (x) and its node sensitivity (N)
    */
-  protected DoubleMatrix2D[] getCommonCoefficientWithSensitivity(double[] xValues, double[] yValues, double[] intervals,
+  protected DoubleMatrix[] getCommonCoefficientWithSensitivity(double[] xValues, double[] yValues, double[] intervals,
       double[][] toBeInv, double[] commonVector,
       double[][] commonVecSensitivity) {
     int nDataPts = xValues.length;
 
-    DoubleMatrix1D[] soln = this.combinedMatrixEqnSolver(toBeInv, commonVector, commonVecSensitivity);
-    DoubleMatrix2D[] res = new DoubleMatrix2D[nDataPts];
+    DoubleArray[] soln = this.combinedMatrixEqnSolver(toBeInv, commonVector, commonVecSensitivity);
+    DoubleMatrix[] res = new DoubleMatrix[nDataPts];
 
     res[0] = getCommonSplineCoeffs(xValues, yValues, intervals, soln[0].toArray());
     double[][] solnMatrix = new double[nDataPts][nDataPts];
@@ -156,7 +156,7 @@ abstract class CubicSplineSolver {
         solnMatrix[i][j] = soln[j + 1].get(i);
       }
     }
-    DoubleMatrix2D[] tmp = getCommonSensitivityCoeffs(intervals, solnMatrix);
+    DoubleMatrix[] tmp = getCommonSensitivityCoeffs(intervals, solnMatrix);
     System.arraycopy(tmp, 0, res, 1, nDataPts - 1);
 
     return res;
@@ -234,11 +234,11 @@ abstract class CubicSplineSolver {
    * @return Solution to the linear equation, x
    */
   protected double[] matrixEqnSolver(double[][] doubMat, double[] doubVec) {
-    LUDecompositionResult result = _luObj.evaluate(DoubleMatrix2D.copyOf(doubMat));
+    LUDecompositionResult result = _luObj.evaluate(DoubleMatrix.copyOf(doubMat));
 
     double[][] lMat = result.getL().toArray();
     double[][] uMat = result.getU().toArray();
-    DoubleMatrix1D doubVecMod = ((DoubleMatrix1D) OG_ALGEBRA.multiply(result.getP(), DoubleMatrix1D.copyOf(doubVec)));
+    DoubleArray doubVecMod = ((DoubleArray) OG_ALGEBRA.multiply(result.getP(), DoubleArray.copyOf(doubVec)));
 
     return backSubstitution(uMat, forwardSubstitution(lMat, doubVecMod));
   }
@@ -250,22 +250,22 @@ abstract class CubicSplineSolver {
    * @param doubMat2 The matrix L
    * @return The solutions to the linear systems, x,N
    */
-  protected DoubleMatrix1D[] combinedMatrixEqnSolver(double[][] doubMat1, double[] doubVec, double[][] doubMat2) {
+  protected DoubleArray[] combinedMatrixEqnSolver(double[][] doubMat1, double[] doubVec, double[][] doubMat2) {
     int nDataPts = doubVec.length;
-    LUDecompositionResult result = _luObj.evaluate(DoubleMatrix2D.copyOf(doubMat1));
+    LUDecompositionResult result = _luObj.evaluate(DoubleMatrix.copyOf(doubMat1));
 
     double[][] lMat = result.getL().toArray();
     double[][] uMat = result.getU().toArray();
-    DoubleMatrix2D pMat = result.getP();
-    DoubleMatrix1D doubVecMod = ((DoubleMatrix1D) OG_ALGEBRA.multiply(pMat, DoubleMatrix1D.copyOf(doubVec)));
+    DoubleMatrix pMat = result.getP();
+    DoubleArray doubVecMod = ((DoubleArray) OG_ALGEBRA.multiply(pMat, DoubleArray.copyOf(doubVec)));
 
-    DoubleMatrix2D doubMat2Matrix = DoubleMatrix2D.copyOf(doubMat2);
-    DoubleMatrix1D[] res = new DoubleMatrix1D[nDataPts + 1];
-    res[0] = DoubleMatrix1D.copyOf(backSubstitution(uMat, forwardSubstitution(lMat, doubVecMod)));
+    DoubleMatrix doubMat2Matrix = DoubleMatrix.copyOf(doubMat2);
+    DoubleArray[] res = new DoubleArray[nDataPts + 1];
+    res[0] = DoubleArray.copyOf(backSubstitution(uMat, forwardSubstitution(lMat, doubVecMod)));
     for (int i = 0; i < nDataPts; ++i) {
-      DoubleMatrix1D doubMat2Colum = doubMat2Matrix.column(i);
-      DoubleMatrix1D doubVecMod2 = ((DoubleMatrix1D) OG_ALGEBRA.multiply(pMat, doubMat2Colum));
-      res[i + 1] = DoubleMatrix1D.copyOf(backSubstitution(uMat, forwardSubstitution(lMat, doubVecMod2)));
+      DoubleArray doubMat2Colum = doubMat2Matrix.column(i);
+      DoubleArray doubVecMod2 = ((DoubleArray) OG_ALGEBRA.multiply(pMat, doubMat2Colum));
+      res[i + 1] = DoubleArray.copyOf(backSubstitution(uMat, forwardSubstitution(lMat, doubVecMod2)));
     }
     return res;
   }
@@ -277,7 +277,7 @@ abstract class CubicSplineSolver {
    * @param doubVec Vector b
    * @return Solution to the linear equation, x
    */
-  private double[] forwardSubstitution(double[][] lMat, DoubleMatrix1D doubVec) {
+  private double[] forwardSubstitution(double[][] lMat, DoubleArray doubVec) {
     int size = lMat.length;
     double[] res = new double[size];
     for (int i = 0; i < size; ++i) {

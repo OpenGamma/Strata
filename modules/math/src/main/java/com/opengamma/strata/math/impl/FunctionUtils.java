@@ -8,7 +8,7 @@ package com.opengamma.strata.math.impl;
 import java.util.Arrays;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * A collection of basic useful maths functions.
@@ -137,7 +137,7 @@ public final class FunctionUtils {
    * @param value  the value to search for
    * @return the index in the array
    */
-  public static int getLowerBoundIndex(DoubleMatrix1D set, double value) {
+  public static int getLowerBoundIndex(DoubleArray set, double value) {
     int n = set.size();
     if (value < set.get(0)) {
       return 0;

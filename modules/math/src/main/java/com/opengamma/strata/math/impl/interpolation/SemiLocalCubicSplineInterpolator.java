@@ -10,8 +10,8 @@ import java.util.Arrays;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Cubic spline interpolation based on 
@@ -70,7 +70,7 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
           "Input is too large/small or data points are too close");
     }
 
-    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), DoubleMatrix2D.copyOf(coefs), 4, 1);
+    return new PiecewisePolynomialResult(DoubleArray.copyOf(xValuesSrt), DoubleMatrix.copyOf(coefs), 4, 1);
   }
 
   @Override
@@ -103,7 +103,7 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
     }
 
     double[] xValuesSrt = new double[nDataPts];
-    DoubleMatrix2D[] coefMatrix = new DoubleMatrix2D[dim];
+    DoubleMatrix[] coefMatrix = new DoubleMatrix[dim];
 
     for (int i = 0; i < dim; ++i) {
       xValuesSrt = Arrays.copyOf(xValues, nDataPts);
@@ -114,7 +114,7 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
       double[] slopes = _solver.slopesCalculator(yValuesSrt, intervals);
       double[] first = firstDerivativeCalculator(slopes);
 
-      coefMatrix[i] = DoubleMatrix2D.copyOf(_solver.solve(yValuesSrt, intervals, slopes, first));
+      coefMatrix[i] = DoubleMatrix.copyOf(_solver.solve(yValuesSrt, intervals, slopes, first));
 
       for (int k = 0; k < intervals.length; ++k) {
         double ref = 0.;
@@ -139,7 +139,7 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
       }
     }
 
-    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), DoubleMatrix2D.copyOf(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(DoubleArray.copyOf(xValuesSrt), DoubleMatrix.copyOf(resMatrix), nCoefs, dim);
   }
 
   @Override
@@ -168,12 +168,12 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
     double[] intervals = _solver.intervalsCalculator(xValues);
     double[] slopes = _solver.slopesCalculator(yValues, intervals);
     double[][] slopeSensitivity = _solver.slopeSensitivityCalculator(intervals);
-    DoubleMatrix1D[] firstWithSensitivity =
+    DoubleArray[] firstWithSensitivity =
         firstDerivativeWithSensitivityCalculator(yValues, intervals, slopes, slopeSensitivity);
-    DoubleMatrix2D[] resMatrix = _solver.solveWithSensitivity(yValues, intervals, slopes, slopeSensitivity, firstWithSensitivity);
+    DoubleMatrix[] resMatrix = _solver.solveWithSensitivity(yValues, intervals, slopes, slopeSensitivity, firstWithSensitivity);
 
     for (int k = 0; k < nDataPts; k++) {
-      DoubleMatrix2D m = resMatrix[k];
+      DoubleMatrix m = resMatrix[k];
       int rows = m.rowCount();
       int cols = m.columnCount();
       for (int i = 0; i < rows; ++i) {
@@ -183,7 +183,7 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
       }
     }
 
-    DoubleMatrix2D coefMatrix = resMatrix[0];
+    DoubleMatrix coefMatrix = resMatrix[0];
     for (int i = 0; i < nDataPts - 1; ++i) {
       double ref = 0.;
       for (int j = 0; j < 4; ++j) {
@@ -193,12 +193,12 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
       ArgChecker.isTrue(Math.abs(ref - yValues[i + 1]) < ERROR * bound,
           "Input is too large/small or data points are too close");
     }
-    DoubleMatrix2D[] coefSenseMatrix = new DoubleMatrix2D[nDataPts - 1];
+    DoubleMatrix[] coefSenseMatrix = new DoubleMatrix[nDataPts - 1];
     System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, nDataPts - 1);
     int nCoefs = coefMatrix.columnCount();
 
     return new PiecewisePolynomialResultsWithSensitivity(
-        DoubleMatrix1D.copyOf(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
+        DoubleArray.copyOf(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
   }
 
   private double[] firstDerivativeCalculator(double[] slopes) {
@@ -226,7 +226,7 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
     return res;
   }
 
-  private DoubleMatrix1D[] firstDerivativeWithSensitivityCalculator(
+  private DoubleArray[] firstDerivativeWithSensitivityCalculator(
       double[] yValues,
       double[] intervals,
       double[] slopes,
@@ -235,15 +235,15 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
     int nData = yValues.length;
     double[] slopesExt = getExtraPoints(slopes);
     double[][] slopeSensitivityExtTransp = new double[nData][nData + 3];
-    DoubleMatrix1D[] res = new DoubleMatrix1D[nData + 1];
-    DoubleMatrix2D senseMat = DoubleMatrix2D.copyOf(slopeSensitivity);
+    DoubleArray[] res = new DoubleArray[nData + 1];
+    DoubleMatrix senseMat = DoubleMatrix.copyOf(slopeSensitivity);
 
     for (int i = 0; i < nData; ++i) {
       slopeSensitivityExtTransp[i] = getExtraPoints(senseMat.column(i).toArray());
     }
 
-    DoubleMatrix1D[] modSlopesWithSensitivity = modSlopesWithSensitivityCalculator(slopesExt, slopeSensitivityExtTransp);
-    DoubleMatrix1D modSlopesWithSense0 = modSlopesWithSensitivity[0];
+    DoubleArray[] modSlopesWithSensitivity = modSlopesWithSensitivityCalculator(slopesExt, slopeSensitivityExtTransp);
+    DoubleArray modSlopesWithSense0 = modSlopesWithSensitivity[0];
 
     double[] first = new double[nData];
     for (int i = 0; i < nData; ++i) {
@@ -278,17 +278,17 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
                   modSlopesWithSense0.get(i) * modSlopesWithSensitivity[i + 3].get(k)) / den / den;
         }
       }
-      res[i + 1] = DoubleMatrix1D.copyOf(tmp);
+      res[i + 1] = DoubleArray.copyOf(tmp);
     }
-    res[0] = DoubleMatrix1D.copyOf(first);
+    res[0] = DoubleArray.copyOf(first);
 
     return res;
   }
 
-  private DoubleMatrix1D[] modSlopesWithSensitivityCalculator(double[] slopesExt, double[][] slopeSensitivityExtTransp) {
+  private DoubleArray[] modSlopesWithSensitivityCalculator(double[] slopesExt, double[][] slopeSensitivityExtTransp) {
     int nData = slopesExt.length - 3;
     double[] modSlopes = new double[nData + 2];
-    DoubleMatrix1D[] res = new DoubleMatrix1D[nData + 3];
+    DoubleArray[] res = new DoubleArray[nData + 3];
 
     for (int i = 0; i < nData + 2; ++i) {
       double[] tmp = new double[nData];
@@ -308,9 +308,9 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
           }
         }
       }
-      res[i + 1] = DoubleMatrix1D.copyOf(tmp);
+      res[i + 1] = DoubleArray.copyOf(tmp);
     }
-    res[0] = DoubleMatrix1D.copyOf(modSlopes);
+    res[0] = DoubleArray.copyOf(modSlopes);
 
     return res;
   }

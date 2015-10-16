@@ -15,8 +15,8 @@ import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDiffe
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.IdentityMatrix;
 import com.opengamma.strata.math.impl.util.AssertMatrix;
 
@@ -35,10 +35,10 @@ public class InterpolatedCurveVectorFunctionTest {
 
     //sample at the knots 
     InterpolatedCurveVectorFunction vf = new InterpolatedCurveVectorFunction(knots, interpolator, knots);
-    DoubleMatrix1D x = DoubleMatrix1D.of(knots.length, i -> Math.sin(knots[i]));
+    DoubleArray x = DoubleArray.of(knots.length, i -> Math.sin(knots[i]));
 
-    DoubleMatrix1D y = vf.evaluate(x);
-    DoubleMatrix2D jac = vf.calculateJacobian(x);
+    DoubleArray y = vf.evaluate(x);
+    DoubleMatrix jac = vf.calculateJacobian(x);
     assertEqualsVectors(x, y, 1e-15);
     assertEqualsMatrix(new IdentityMatrix(x.size()), jac, 1e-15);
 
@@ -47,7 +47,7 @@ public class InterpolatedCurveVectorFunctionTest {
     y = vf.evaluate(x);
     jac = vf.calculateJacobian(x);
 
-    DoubleMatrix2D jacFD = DIFF.differentiate(vf).evaluate(x);
+    DoubleMatrix jacFD = DIFF.differentiate(vf).evaluate(x);
     assertEqualsMatrix(jac, jacFD, 5e-5);
   }
 
@@ -80,9 +80,9 @@ public class InterpolatedCurveVectorFunctionTest {
     VectorFunction vf1 = pro.from(samplePoints);
     VectorFunction vf2 = new InterpolatedCurveVectorFunction(samplePoints, interpolator, knots);
 
-    DoubleMatrix1D knotValues = DoubleMatrix1D.of(-1.0, 1.0, -1.0, 1.0, -1.0);
-    DoubleMatrix1D y1 = vf1.evaluate(knotValues);
-    DoubleMatrix1D y2 = vf2.evaluate(knotValues);
+    DoubleArray knotValues = DoubleArray.of(-1.0, 1.0, -1.0, 1.0, -1.0);
+    DoubleArray y1 = vf1.evaluate(knotValues);
+    DoubleArray y2 = vf2.evaluate(knotValues);
     AssertMatrix.assertEqualsVectors(y1, y2, 1e-13);
 
     assertEquals(interpolator, pro.getInterpolator());
@@ -108,16 +108,16 @@ public class InterpolatedCurveVectorFunctionTest {
      * This takes no arguments, i.e. it represents a fixed curve that we are sampling 
      */
     VectorFunction vf3 = new VectorFunction() {
-      DoubleMatrix1D _y = DoubleMatrix1D.of(samplePoints.length, i -> Math.sin(samplePoints[i]));
+      DoubleArray _y = DoubleArray.of(samplePoints.length, i -> Math.sin(samplePoints[i]));
 
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+      public DoubleArray evaluate(DoubleArray x) {
         return _y;
       }
 
       @Override
-      public DoubleMatrix2D calculateJacobian(DoubleMatrix1D x) {
-        return DoubleMatrix2D.EMPTY;
+      public DoubleMatrix calculateJacobian(DoubleArray x) {
+        return DoubleMatrix.EMPTY;
       }
 
       @Override
@@ -133,20 +133,20 @@ public class InterpolatedCurveVectorFunctionTest {
 
     VectorFunction vf = new ConcatenatedVectorFunction(new VectorFunction[] {vf1, vf3, vf2});
     int nKnots1 = knots1.length;
-    DoubleMatrix1D x1 = DoubleMatrix1D.of(nKnots1, i -> Math.sin(knots1[i]));
+    DoubleArray x1 = DoubleArray.of(nKnots1, i -> Math.sin(knots1[i]));
     int nKnots2 = knots2.length;
-    DoubleMatrix1D x2 = DoubleMatrix1D.of(nKnots2, i -> Math.sin(knots2[i]));
+    DoubleArray x2 = DoubleArray.of(nKnots2, i -> Math.sin(knots2[i]));
     int nKnots = nKnots1 + nKnots2;
-    DoubleMatrix1D x = x1.concat(x2);
-    DoubleMatrix1D y = vf.evaluate(x);
+    DoubleArray x = x1.concat(x2);
+    DoubleArray y = vf.evaluate(x);
 
     assertEquals(samplePoints.length * 3, y.size());
-    DoubleMatrix2D jac = vf.calculateJacobian(x);
+    DoubleMatrix jac = vf.calculateJacobian(x);
 
     assertEquals(samplePoints.length * 3, jac.rowCount());
     assertEquals(nKnots, jac.columnCount());
 
-    DoubleMatrix2D jacFD = DIFF.differentiate(vf).evaluate(x);
+    DoubleMatrix jacFD = DIFF.differentiate(vf).evaluate(x);
     assertEqualsMatrix(jac, jacFD, 1e-4);
 
   }

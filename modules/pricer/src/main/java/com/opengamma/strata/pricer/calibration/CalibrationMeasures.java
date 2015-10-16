@@ -19,7 +19,7 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitiviti
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -116,15 +116,15 @@ public final class CalibrationMeasures {
    * @param curveOrder  the order of the curves
    * @return the sensitivity derivative
    */
-  public DoubleMatrix1D derivative(Trade trade, ImmutableRatesProvider provider, List<CurveParameterSize> curveOrder) {
+  public DoubleArray derivative(Trade trade, ImmutableRatesProvider provider, List<CurveParameterSize> curveOrder) {
     CurveUnitParameterSensitivities unitSens = extractSensitivities(trade, provider);
 
     // expand to a concatenated array
-    DoubleMatrix1D result = DoubleMatrix1D.EMPTY;
+    DoubleArray result = DoubleArray.EMPTY;
     for (CurveParameterSize curveParams : curveOrder) {
-      DoubleMatrix1D sens = unitSens.findSensitivity(curveParams.getName())
+      DoubleArray sens = unitSens.findSensitivity(curveParams.getName())
           .map(s -> s.getSensitivity())
-          .orElseGet(() -> DoubleMatrix1D.filled(curveParams.getParameterCount()));
+          .orElseGet(() -> DoubleArray.filled(curveParams.getParameterCount()));
       result = result.concat(sens);
     }
     return result;

@@ -18,7 +18,7 @@ import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
 import com.opengamma.strata.finance.credit.type.CdsConventions;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 public class TestHarness {
 
@@ -149,17 +149,17 @@ public class TestHarness {
   public static class VectorMeasureOnADay {
 
     private final Measure measure;
-    private final DoubleMatrix1D expected;
+    private final DoubleArray expected;
     private final TradeSource tradeSource;
 
     private VectorMeasureOnADay(Measure measure, double[] expected, TradeSource tradeSource) {
-      this.expected = DoubleMatrix1D.copyOf(expected);
+      this.expected = DoubleArray.copyOf(expected);
       this.measure = measure;
       this.tradeSource = tradeSource;
     }
 
     public void on(LocalDate valuationDate) {
-      DoubleMatrix1D values = calculator.calculateVectorValue(valuationDate, tradeSource, measure);
+      DoubleArray values = calculator.calculateVectorValue(valuationDate, tradeSource, measure);
       assertTrue(values.equalWithTolerance(expected, epsilon));
     }
   }

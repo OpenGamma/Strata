@@ -11,8 +11,8 @@ import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivityFunction1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Filter for nonnegativity of cubic spline interpolation based on 
@@ -90,7 +90,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
       }
     }
 
-    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), DoubleMatrix2D.copyOf(coefs), 4, 1);
+    return new PiecewisePolynomialResult(DoubleArray.copyOf(xValuesSrt), DoubleMatrix.copyOf(coefs), 4, 1);
   }
 
   @Override
@@ -123,7 +123,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
     }
 
     double[] xValuesSrt = new double[nDataPts];
-    DoubleMatrix2D[] coefMatrix = new DoubleMatrix2D[dim];
+    DoubleMatrix[] coefMatrix = new DoubleMatrix[dim];
 
     for (int i = 0; i < dim; ++i) {
       xValuesSrt = Arrays.copyOf(xValues, nDataPts);
@@ -144,7 +144,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
       final double[] initialFirst = _function.differentiate(result, xValuesSrt).rowArray(0);
       final double[] first = firstDerivativeCalculator(yValuesSrt, intervals, slopes, initialFirst);
 
-      coefMatrix[i] = DoubleMatrix2D.copyOf(_solver.solve(yValuesSrt, intervals, slopes, first));
+      coefMatrix[i] = DoubleMatrix.copyOf(_solver.solve(yValuesSrt, intervals, slopes, first));
     }
 
     final int nIntervals = coefMatrix[0].rowCount();
@@ -164,7 +164,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
       }
     }
 
-    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), DoubleMatrix2D.copyOf(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(DoubleArray.copyOf(xValuesSrt), DoubleMatrix.copyOf(resMatrix), nCoefs, dim);
   }
 
   @Override
@@ -208,12 +208,12 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
 
     final double[] initialFirst = _function.differentiate(resultWithSensitivity, xValues).rowArray(0);
     final double[][] slopeSensitivity = _solver.slopeSensitivityCalculator(intervals);
-    final DoubleMatrix1D[] initialFirstSense = _function.differentiateNodeSensitivity(resultWithSensitivity, xValues);
-    final DoubleMatrix1D[] firstWithSensitivity = firstDerivativeWithSensitivityCalculator(yValuesSrt, intervals, initialFirst, initialFirstSense);
-    final DoubleMatrix2D[] resMatrix = _solver.solveWithSensitivity(yValuesSrt, intervals, slopes, slopeSensitivity, firstWithSensitivity);
+    final DoubleArray[] initialFirstSense = _function.differentiateNodeSensitivity(resultWithSensitivity, xValues);
+    final DoubleArray[] firstWithSensitivity = firstDerivativeWithSensitivityCalculator(yValuesSrt, intervals, initialFirst, initialFirstSense);
+    final DoubleMatrix[] resMatrix = _solver.solveWithSensitivity(yValuesSrt, intervals, slopes, slopeSensitivity, firstWithSensitivity);
 
     for (int k = 0; k < nDataPts; k++) {
-      DoubleMatrix2D m = resMatrix[k];
+      DoubleMatrix m = resMatrix[k];
       final int rows = m.rowCount();
       final int cols = m.columnCount();
       for (int i = 0; i < rows; ++i) {
@@ -223,12 +223,12 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
       }
     }
 
-    final DoubleMatrix2D coefMatrix = resMatrix[0];
-    final DoubleMatrix2D[] coefSenseMatrix = new DoubleMatrix2D[nDataPts - 1];
+    final DoubleMatrix coefMatrix = resMatrix[0];
+    final DoubleMatrix[] coefSenseMatrix = new DoubleMatrix[nDataPts - 1];
     System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, nDataPts - 1);
     final int nCoefs = coefMatrix.columnCount();
 
-    return new PiecewisePolynomialResultsWithSensitivity(DoubleMatrix1D.copyOf(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
+    return new PiecewisePolynomialResultsWithSensitivity(DoubleArray.copyOf(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
   }
 
   @Override
@@ -262,10 +262,10 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
     return res;
   }
 
-  private DoubleMatrix1D[] firstDerivativeWithSensitivityCalculator(final double[] yValues, final double[] intervals, final double[] initialFirst,
-      final DoubleMatrix1D[] initialFirstSense) {
+  private DoubleArray[] firstDerivativeWithSensitivityCalculator(final double[] yValues, final double[] intervals, final double[] initialFirst,
+      final DoubleArray[] initialFirstSense) {
     final int nDataPts = yValues.length;
-    final DoubleMatrix1D[] res = new DoubleMatrix1D[nDataPts + 1];
+    final DoubleArray[] res = new DoubleArray[nDataPts + 1];
     final double[] newFirst = new double[nDataPts];
 
     for (int i = 1; i < nDataPts - 1; ++i) {
@@ -303,7 +303,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
           }
         }
       }
-      res[i + 1] = DoubleMatrix1D.copyOf(tmp);
+      res[i + 1] = DoubleArray.copyOf(tmp);
     }
     final double tauIni = Math.signum(yValues[0]);
     final double lowerIni = -3. * tauIni * yValues[0] / intervals[0];
@@ -339,7 +339,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
         }
       }
     }
-    res[1] = DoubleMatrix1D.copyOf(tmpIni);
+    res[1] = DoubleArray.copyOf(tmpIni);
     final double tauFin = Math.signum(yValues[nDataPts - 1]);
     final double lowerFin = -3. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2];
     final double upperFin = 3. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2];
@@ -374,8 +374,8 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
         }
       }
     }
-    res[nDataPts] = DoubleMatrix1D.copyOf(tmpFin);
-    res[0] = DoubleMatrix1D.copyOf(newFirst);
+    res[nDataPts] = DoubleArray.copyOf(tmpFin);
+    res[0] = DoubleArray.copyOf(newFirst);
     return res;
   }
 

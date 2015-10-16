@@ -42,7 +42,7 @@ import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.value.ValueType;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Provides the definition of how to calibrate an interpolated nodal curve.
@@ -141,9 +141,9 @@ public final class InterpolatedNodalCurveDefinition
 
   //-------------------------------------------------------------------------
   @Override
-  public NodalCurve curve(LocalDate valuationDate, DoubleMatrix1D parameters, Map<CurveInfoType<?>, Object> additionalInfo) {
+  public NodalCurve curve(LocalDate valuationDate, DoubleArray parameters, Map<CurveInfoType<?>, Object> additionalInfo) {
     CurveMetadata meta = metadata(valuationDate, additionalInfo);
-    DoubleMatrix1D nodeTimes = DoubleMatrix1D.of(getParameterCount(), i -> {
+    DoubleArray nodeTimes = DoubleArray.of(getParameterCount(), i -> {
       LocalDate nodeDate = ((DatedCurveParameterMetadata) meta.getParameterMetadata().get().get(i)).getDate();
       return getDayCount().get().yearFraction(valuationDate, nodeDate);
     });

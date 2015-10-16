@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.tuple.DoublesPair;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test {@link ConstantNodalSurface}.
@@ -89,7 +89,7 @@ public class ConstantNodalSurfaceTest {
   //-------------------------------------------------------------------------
   public void test_withZValues() {
     ConstantNodalSurface base = ConstantNodalSurface.of(SURFACE_NAME, VALUE);
-    ConstantNodalSurface test = base.withZValues(DoubleMatrix1D.of(4d));
+    ConstantNodalSurface test = base.withZValues(DoubleArray.of(4d));
     assertThat(test.getName()).isEqualTo(SURFACE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
@@ -100,8 +100,8 @@ public class ConstantNodalSurfaceTest {
 
   public void test_withZValues_badSize() {
     ConstantNodalSurface base = ConstantNodalSurface.of(SURFACE_NAME, VALUE);
-    assertThrowsIllegalArg(() -> base.withZValues(DoubleMatrix1D.EMPTY));
-    assertThrowsIllegalArg(() -> base.withZValues(DoubleMatrix1D.of(4d, 6d)));
+    assertThrowsIllegalArg(() -> base.withZValues(DoubleArray.EMPTY));
+    assertThrowsIllegalArg(() -> base.withZValues(DoubleArray.of(4d, 6d)));
   }
 
   public void test_shiftedBy_operator() {

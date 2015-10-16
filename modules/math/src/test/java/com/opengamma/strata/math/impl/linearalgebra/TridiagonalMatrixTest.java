@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Test.
@@ -56,7 +56,7 @@ public class TridiagonalMatrixTest {
     assertTrue(Arrays.equals(B, M.getUpperSubDiagonalData()));
     assertTrue(Arrays.equals(C, M.getLowerSubDiagonalData()));
     final int n = A.length;
-    final DoubleMatrix2D matrix = M.toDoubleMatrix2D();
+    final DoubleMatrix matrix = M.toDoubleMatrix();
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
         if (i == j) {

@@ -11,7 +11,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialInterpolator;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResult;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWithSensitivity;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * For certain methods of {@link PiecewisePolynomialInterpolator} introducing extra breakpoints, {@link PiecewisePolynomialResultsWithSensitivity} is not well-defined
@@ -109,7 +109,7 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
    */
   public double[] getBreakPointsY() {
     int nKnots = _poly.getKnots().size();
-    DoubleMatrix2D coefMat = _poly.getCoefMatrix();
+    DoubleMatrix coefMat = _poly.getCoefMatrix();
     int nCoefs = coefMat.columnCount();
     double[] values = new double[nKnots];
     for (int i = 0; i < nKnots - 1; i++) {

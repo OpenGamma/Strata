@@ -10,11 +10,11 @@ import java.util.List;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * 
- * @param <T> The domain type of the function (e.g. Double, double[], DoubleMatrix1D etc) 
+ * @param <T> The domain type of the function (e.g. Double, double[], DoubleArray etc) 
  */
 public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
 
@@ -49,9 +49,9 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
    * @param x value to be evaluated 
    * @return sensitivity w
    */
-  public DoubleMatrix1D weightSensitivity(T x) {
+  public DoubleArray weightSensitivity(T x) {
     ArgChecker.notNull(x, "x");
-    return DoubleMatrix1D.of(_w.length, i -> _f.get(i).evaluate(x));
+    return DoubleArray.of(_w.length, i -> _f.get(i).evaluate(x));
   }
 
   /**
@@ -60,7 +60,7 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
    * @param x value to be evaluated 
    * @return value and weight sensitivity 
    */
-  public Pair<Double, DoubleMatrix1D> valueAndWeightSensitivity(T x) {
+  public Pair<Double, DoubleArray> valueAndWeightSensitivity(T x) {
     ArgChecker.notNull(x, "x");
     int n = _w.length;
     double sum = 0;
@@ -72,7 +72,7 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
         data[i] = temp;
       }
     }
-    return Pair.of(sum, DoubleMatrix1D.ofUnsafe(data));
+    return Pair.of(sum, DoubleArray.ofUnsafe(data));
   }
 
 }

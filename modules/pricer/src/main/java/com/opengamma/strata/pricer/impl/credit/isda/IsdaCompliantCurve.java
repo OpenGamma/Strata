@@ -26,7 +26,7 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * A yield or hazard curve values between nodes are linearly interpolated from t*r points,
@@ -75,7 +75,7 @@ public class IsdaCompliantCurve
     return new IsdaCompliantCurve(new double[][] {t, rt});
   }
 
-  public static IsdaCompliantCurve makeFromRT(DoubleMatrix1D t, DoubleMatrix1D rt) {
+  public static IsdaCompliantCurve makeFromRT(DoubleArray t, DoubleArray rt) {
     return makeFromRT(t.toArray(), rt.toArray());
   }
 
@@ -431,7 +431,7 @@ public class IsdaCompliantCurve
    * @param t  the time
    * @return the sensitivity to the nodes, not null
    */
-  public DoubleMatrix1D getNodeSensitivity(double t) {
+  public DoubleArray getNodeSensitivity(double t) {
 
     int n = this.t.length;
     double[] res = new double[n];
@@ -439,7 +439,7 @@ public class IsdaCompliantCurve
     // short-cut doing binary search
     if (t <= this.t[0]) {
       res[0] = 1.0;
-      return DoubleMatrix1D.copyOf(res);
+      return DoubleArray.copyOf(res);
     }
     if (t >= this.t[n - 1]) {
       int insertionPoint = n - 1;
@@ -448,13 +448,13 @@ public class IsdaCompliantCurve
       double dt = t2 - t1;
       res[insertionPoint - 1] = t1 * (t2 - t) / dt / t;
       res[insertionPoint] = t2 * (t - t1) / dt / t;
-      return DoubleMatrix1D.copyOf(res);
+      return DoubleArray.copyOf(res);
     }
 
     int index = Arrays.binarySearch(this.t, t);
     if (index >= 0) {
       res[index] = 1.0;
-      return DoubleMatrix1D.copyOf(res);
+      return DoubleArray.copyOf(res);
     }
 
     int insertionPoint = -(1 + index);
@@ -463,7 +463,7 @@ public class IsdaCompliantCurve
     double dt = t2 - t1;
     res[insertionPoint - 1] = t1 * (t2 - t) / dt / t;
     res[insertionPoint] = t2 * (t - t1) / dt / t;
-    return DoubleMatrix1D.copyOf(res);
+    return DoubleArray.copyOf(res);
   }
 
   /**
@@ -643,17 +643,17 @@ public class IsdaCompliantCurve
   }
 
   @Override
-  public DoubleMatrix1D getXValues() {
-    return DoubleMatrix1D.copyOf(t);
+  public DoubleArray getXValues() {
+    return DoubleArray.copyOf(t);
   }
 
   @Override
-  public DoubleMatrix1D getYValues() {
-    return DoubleMatrix1D.copyOf(getKnotZeroRates());
+  public DoubleArray getYValues() {
+    return DoubleArray.copyOf(getKnotZeroRates());
   }
 
   @Override
-  public NodalCurve withYValues(DoubleMatrix1D values) {
+  public NodalCurve withYValues(DoubleArray values) {
     return IsdaCompliantCurve.makeFromRT(getXValues(), values);
   }
 

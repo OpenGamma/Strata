@@ -26,8 +26,8 @@ import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.FunctionND;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Utility class for converting OpenGamma mathematical objects into
@@ -75,9 +75,9 @@ public final class CommonsMathWrapper {
    * @param f  an OG 1-D function mapping vectors of doubles onto doubles
    * @return a Commons multivariate real function
    */
-  public static MultivariateFunction wrapMultivariateVector(Function1D<DoubleMatrix1D, Double> f) {
+  public static MultivariateFunction wrapMultivariateVector(Function1D<DoubleArray, Double> f) {
     ArgChecker.notNull(f, "f");
-    return point -> f.evaluate(DoubleMatrix1D.copyOf(point));
+    return point -> f.evaluate(DoubleArray.copyOf(point));
   }
 
   /**
@@ -105,7 +105,7 @@ public final class CommonsMathWrapper {
    * @param x  an OG 2-D matrix of doubles
    * @return a Commons matrix
    */
-  public static RealMatrix wrap(DoubleMatrix2D x) {
+  public static RealMatrix wrap(DoubleMatrix x) {
     ArgChecker.notNull(x, "x");
     return new Array2DRowRealMatrix(x.toArrayUnsafe());
   }
@@ -116,7 +116,7 @@ public final class CommonsMathWrapper {
    * @param x  an OG 1-D vector of doubles
    * @return a Commons matrix 
    */
-  public static RealMatrix wrapAsMatrix(DoubleMatrix1D x) {
+  public static RealMatrix wrapAsMatrix(DoubleArray x) {
     ArgChecker.notNull(x, "x");
     int n = x.size();
     double[][] y = new double[n][1];
@@ -132,9 +132,9 @@ public final class CommonsMathWrapper {
    * @param x  a Commons matrix
    * @return an OG 2-D matrix of doubles
    */
-  public static DoubleMatrix2D unwrap(RealMatrix x) {
+  public static DoubleMatrix unwrap(RealMatrix x) {
     ArgChecker.notNull(x, "x");
-    return DoubleMatrix2D.ofUnsafe(x.getData());
+    return DoubleMatrix.ofUnsafe(x.getData());
   }
 
   //-------------------------------------------------------------------------
@@ -144,7 +144,7 @@ public final class CommonsMathWrapper {
    * @param x  an OG vector of doubles
    * @return a Commons vector
    */
-  public static RealVector wrap(DoubleMatrix1D x) {
+  public static RealVector wrap(DoubleArray x) {
     ArgChecker.notNull(x, "x");
     return new ArrayRealVector(x.toArrayUnsafe()); // cloned in ArrayRealVector constructor
   }
@@ -155,9 +155,9 @@ public final class CommonsMathWrapper {
    * @param x  a Commons vector
    * @return an OG 1-D matrix of doubles
    */
-  public static DoubleMatrix1D unwrap(RealVector x) {
+  public static DoubleArray unwrap(RealVector x) {
     ArgChecker.notNull(x, "x");
-    return DoubleMatrix1D.ofUnsafe(x.toArray());
+    return DoubleArray.ofUnsafe(x.toArray());
   }
 
   //-------------------------------------------------------------------------

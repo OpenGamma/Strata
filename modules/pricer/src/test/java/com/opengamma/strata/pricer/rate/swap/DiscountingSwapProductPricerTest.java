@@ -94,7 +94,7 @@ import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.ForwardPriceIndexValues;
 import com.opengamma.strata.market.value.PriceIndexValues;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -132,8 +132,8 @@ public class DiscountingSwapProductPricerTest {
       LocalDateDoubleTimeSeries.of(date(2014, 3, 31), START_INDEX),
       InterpolatedNodalCurve.of(
           Curves.prices("GB_RPI_CURVE_FLAT"),
-          DoubleMatrix1D.of(1, 1000),
-          DoubleMatrix1D.of(CONSTANT_INDEX, CONSTANT_INDEX),
+          DoubleArray.of(1, 1000),
+          DoubleArray.of(CONSTANT_INDEX, CONSTANT_INDEX),
           INTERPOLATOR));
   
 

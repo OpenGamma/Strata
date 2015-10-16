@@ -29,7 +29,7 @@ import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.function.DoubleTenaryOperator;
 import com.opengamma.strata.collect.tuple.DoublesPair;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * A surface based on a single constant value.
@@ -49,7 +49,7 @@ public final class ConstantNodalSurface
   /**
    * X-values and y-values do not vary.
    */
-  private static final DoubleMatrix1D VALUES = DoubleMatrix1D.of(0d);
+  private static final DoubleArray VALUES = DoubleArray.of(0d);
 
   /**
    * The surface metadata.
@@ -111,18 +111,18 @@ public final class ConstantNodalSurface
   }
 
   @Override
-  public DoubleMatrix1D getXValues() {
+  public DoubleArray getXValues() {
     return VALUES;
   }
 
   @Override
-  public DoubleMatrix1D getYValues() {
+  public DoubleArray getYValues() {
     return VALUES;
   }
 
   @Override
-  public DoubleMatrix1D getZValues() {
-    return DoubleMatrix1D.of(zValue);
+  public DoubleArray getZValues() {
+    return DoubleArray.of(zValue);
   }
 
   //-------------------------------------------------------------------------
@@ -138,7 +138,7 @@ public final class ConstantNodalSurface
 
   //-------------------------------------------------------------------------
   @Override
-  public ConstantNodalSurface withZValues(DoubleMatrix1D zValues) {
+  public ConstantNodalSurface withZValues(DoubleArray zValues) {
     ArgChecker.isTrue(zValues.size() == 1, "ZValues array must be size one");
     return new ConstantNodalSurface(metadata, zValues.get(0));
   }

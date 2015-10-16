@@ -10,7 +10,7 @@ import java.util.Arrays;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * 
@@ -70,7 +70,7 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
     yValuesSrt = Arrays.copyOf(yValues, nDataPts);
     DoubleArrayMath.sortPairs(xValuesSrt, yValuesSrt);
 
-    final DoubleMatrix2D coefMatrix = this._solver.solve(xValuesSrt, yValuesSrt);
+    final DoubleMatrix coefMatrix = this._solver.solve(xValuesSrt, yValuesSrt);
     final int nCoefs = coefMatrix.columnCount();
 
     final int nInts = this._solver.getKnotsMat1D(xValuesSrt).size() - 1;
@@ -131,7 +131,7 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
       yValuesMatrixSrt[i] = Arrays.copyOf(yValuesSrt, nDataPts);
     }
 
-    DoubleMatrix2D[] coefMatrix = this._solver.solveMultiDim(xValuesSrt, DoubleMatrix2D.copyOf(yValuesMatrixSrt));
+    DoubleMatrix[] coefMatrix = this._solver.solveMultiDim(xValuesSrt, DoubleMatrix.copyOf(yValuesMatrixSrt));
 
     final int nIntervals = coefMatrix[0].rowCount();
     final int nCoefs = coefMatrix[0].columnCount();
@@ -150,7 +150,7 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    return new PiecewisePolynomialResult(this._solver.getKnotsMat1D(xValuesSrt), DoubleMatrix2D.copyOf(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(this._solver.getKnotsMat1D(xValuesSrt), DoubleMatrix.copyOf(resMatrix), nCoefs, dim);
   }
 
   @Override
@@ -179,10 +179,10 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    final DoubleMatrix2D[] resMatrix = this._solver.solveWithSensitivity(xValues, yValues);
+    final DoubleMatrix[] resMatrix = this._solver.solveWithSensitivity(xValues, yValues);
     final int len = resMatrix.length;
     for (int k = 0; k < len; k++) {
-      DoubleMatrix2D m = resMatrix[k];
+      DoubleMatrix m = resMatrix[k];
       final int rows = m.rowCount();
       final int cols = m.columnCount();
       for (int i = 0; i < rows; ++i) {
@@ -192,8 +192,8 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    final DoubleMatrix2D coefMatrix = resMatrix[0];
-    final DoubleMatrix2D[] coefSenseMatrix = new DoubleMatrix2D[len - 1];
+    final DoubleMatrix coefMatrix = resMatrix[0];
+    final DoubleMatrix[] coefSenseMatrix = new DoubleMatrix[len - 1];
     System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, len - 1);
     final int nCoefs = coefMatrix.columnCount();
 

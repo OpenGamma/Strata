@@ -16,8 +16,8 @@ import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -66,14 +66,14 @@ public class MarketQuoteSensitivityCalculator {
               "Market Quote sensitivity requires Jacobian calibration information"));
 
       // calculate the market quote sensitivity using the Jacobian
-      DoubleMatrix2D jacobian = info.getJacobianMatrix();
-      DoubleMatrix1D paramSensMatrix = paramSens.getSensitivity();
-      DoubleMatrix1D marketQuoteSensMatrix = (DoubleMatrix1D) MATRIX_ALGEBRA.multiply(paramSensMatrix, jacobian);
-      DoubleMatrix1D marketQuoteSens = marketQuoteSensMatrix;
+      DoubleMatrix jacobian = info.getJacobianMatrix();
+      DoubleArray paramSensMatrix = paramSens.getSensitivity();
+      DoubleArray marketQuoteSensMatrix = (DoubleArray) MATRIX_ALGEBRA.multiply(paramSensMatrix, jacobian);
+      DoubleArray marketQuoteSens = marketQuoteSensMatrix;
 
       // split between different curves
-      Map<CurveName, DoubleMatrix1D> split = info.splitValues(marketQuoteSens);
-      for (Entry<CurveName, DoubleMatrix1D> entry : split.entrySet()) {
+      Map<CurveName, DoubleArray> split = info.splitValues(marketQuoteSens);
+      for (Entry<CurveName, DoubleArray> entry : split.entrySet()) {
         // build result without curve metadata
         CurveCurrencyParameterSensitivity maketQuoteSens = CurveCurrencyParameterSensitivity.of(
             DefaultCurveMetadata.of(entry.getKey()),

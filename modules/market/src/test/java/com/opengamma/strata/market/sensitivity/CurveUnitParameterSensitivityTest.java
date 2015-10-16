@@ -19,7 +19,7 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test {@link CurveUnitParameterSensitivity}.
@@ -28,10 +28,10 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 public class CurveUnitParameterSensitivityTest {
 
   private static final double FACTOR1 = 3.14;
-  private static final DoubleMatrix1D VECTOR1 = DoubleMatrix1D.of(100, 200, 300, 123);
-  private static final DoubleMatrix1D VECTOR1_FACTOR =
-      DoubleMatrix1D.of(100 * FACTOR1, 200 * FACTOR1, 300 * FACTOR1, 123 * FACTOR1);
-  private static final DoubleMatrix1D VECTOR2 = DoubleMatrix1D.of(1000, 250, 321, 123, 321);
+  private static final DoubleArray VECTOR1 = DoubleArray.of(100, 200, 300, 123);
+  private static final DoubleArray VECTOR1_FACTOR =
+      DoubleArray.of(100 * FACTOR1, 200 * FACTOR1, 300 * FACTOR1, 123 * FACTOR1);
+  private static final DoubleArray VECTOR2 = DoubleArray.of(1000, 250, 321, 123, 321);
   private static final CurveName NAME1 = CurveName.of("NAME-1");
   private static final CurveMetadata METADATA1 = DefaultCurveMetadata.of(NAME1);
   private static final CurveName NAME2 = CurveName.of("NAME-2");
@@ -70,7 +70,7 @@ public class CurveUnitParameterSensitivityTest {
     CurveUnitParameterSensitivity base = CurveUnitParameterSensitivity.of(METADATA1, VECTOR1);
     CurveUnitParameterSensitivity test = base.withSensitivity(VECTOR1_FACTOR);
     assertThat(test).isEqualTo(CurveUnitParameterSensitivity.of(METADATA1, VECTOR1_FACTOR));
-    assertThrowsIllegalArg(() -> base.withSensitivity(DoubleMatrix1D.of(1d)));
+    assertThrowsIllegalArg(() -> base.withSensitivity(DoubleArray.of(1d)));
   }
 
   //-------------------------------------------------------------------------

@@ -16,7 +16,7 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.value.ValueType;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Provides the definition of how to calibrate a nodal curve.
@@ -92,7 +92,7 @@ public interface NodalCurveDefinition {
    * @param parameters  the array of parameters
    * @return the curve
    */
-  public default NodalCurve curve(LocalDate valuationDate, DoubleMatrix1D parameters) {
+  public default NodalCurve curve(LocalDate valuationDate, DoubleArray parameters) {
     return curve(valuationDate, parameters, ImmutableMap.of());
   }
 
@@ -110,7 +110,7 @@ public interface NodalCurveDefinition {
    */
   public abstract NodalCurve curve(
       LocalDate valuationDate,
-      DoubleMatrix1D parameters,
+      DoubleArray parameters,
       Map<CurveInfoType<?>, Object> additionalInfo);
 
   /**

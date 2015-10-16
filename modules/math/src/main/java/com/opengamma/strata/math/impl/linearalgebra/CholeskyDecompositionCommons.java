@@ -10,7 +10,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
 
 /**
@@ -23,7 +23,7 @@ public class CholeskyDecompositionCommons extends Decomposition<CholeskyDecompos
    * {@inheritDoc}
    */
   @Override
-  public CholeskyDecompositionResult evaluate(DoubleMatrix2D x) {
+  public CholeskyDecompositionResult evaluate(DoubleMatrix x) {
     ArgChecker.notNull(x, "x");
     RealMatrix temp = CommonsMathWrapper.wrap(x);
     CholeskyDecomposition cholesky;

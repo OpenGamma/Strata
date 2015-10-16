@@ -18,7 +18,7 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -85,7 +85,7 @@ public class RatesFiniteDifferenceSensitivityCalculator {
     for (Entry<T, Curve> entry : baseCurves.entrySet()) {
       NodalCurve curveInt = entry.getValue().toNodalCurve();
       int nbNodePoint = curveInt.getXValues().size();
-      DoubleMatrix1D sensitivity = DoubleMatrix1D.of(nbNodePoint, i -> {
+      DoubleArray sensitivity = DoubleArray.of(nbNodePoint, i -> {
         Curve dscBumped = bumpedCurve(curveInt, i);
         Map<T, Curve> mapBumped = new HashMap<>(baseCurves);
         mapBumped.put(entry.getKey(), dscBumped);
@@ -100,7 +100,7 @@ public class RatesFiniteDifferenceSensitivityCalculator {
 
   // create new curve by bumping the existing curve at a given parameter
   private NodalCurve bumpedCurve(NodalCurve curveInt, int loopnode) {
-    DoubleMatrix1D yValues = curveInt.getYValues();
+    DoubleArray yValues = curveInt.getYValues();
     return curveInt.withYValues(yValues.with(loopnode, yValues.get(loopnode) + shift));
   }
 

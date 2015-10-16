@@ -10,8 +10,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Test.
@@ -20,15 +20,15 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 public class JacobianEstimateInitializationFunctionTest {
 
   private static final JacobianEstimateInitializationFunction ESTIMATE = new JacobianEstimateInitializationFunction();
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> J = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+  private static final Function1D<DoubleArray, DoubleMatrix> J = new Function1D<DoubleArray, DoubleMatrix>() {
     @Override
-    public DoubleMatrix2D evaluate(DoubleMatrix1D v) {
+    public DoubleMatrix evaluate(DoubleArray v) {
       double[] x = v.toArray();
-      return DoubleMatrix2D.copyOf(new double[][] { {x[0] * x[0], x[0] * x[1]}, {x[0] - x[1], x[1] * x[1]}});
+      return DoubleMatrix.copyOf(new double[][] { {x[0] * x[0], x[0] * x[1]}, {x[0] - x[1], x[1] * x[1]}});
     }
   };
 
-  private static final DoubleMatrix1D X = DoubleMatrix1D.of(1, 2);
+  private static final DoubleArray X = DoubleArray.of(1, 2);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
@@ -42,8 +42,8 @@ public class JacobianEstimateInitializationFunctionTest {
 
   @Test
   public void test() {
-    DoubleMatrix2D m1 = ESTIMATE.getInitializedMatrix(J, X);
-    DoubleMatrix2D m2 = J.evaluate(X);
+    DoubleMatrix m1 = ESTIMATE.getInitializedMatrix(J, X);
+    DoubleMatrix m2 = J.evaluate(X);
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
         assertEquals(m1.get(i, j), m2.get(i, j), 1e-9);

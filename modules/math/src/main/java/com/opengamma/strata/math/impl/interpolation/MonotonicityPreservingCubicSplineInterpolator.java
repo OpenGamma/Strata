@@ -11,8 +11,8 @@ import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivityFunction1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Filter for local monotonicity of cubic spline interpolation based on 
@@ -87,7 +87,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
       }
     }
 
-    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), DoubleMatrix2D.copyOf(coefs), 4, 1);
+    return new PiecewisePolynomialResult(DoubleArray.copyOf(xValuesSrt), DoubleMatrix.copyOf(coefs), 4, 1);
   }
 
   @Override
@@ -120,7 +120,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     }
 
     double[] xValuesSrt = new double[nDataPts];
-    DoubleMatrix2D[] coefMatrix = new DoubleMatrix2D[dim];
+    DoubleMatrix[] coefMatrix = new DoubleMatrix[dim];
 
     for (int i = 0; i < dim; ++i) {
       xValuesSrt = Arrays.copyOf(xValues, nDataPts);
@@ -141,7 +141,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
       final double[] initialFirst = _function.differentiate(result, xValuesSrt).rowArray(0);
       final double[] first = firstDerivativeCalculator(intervals, slopes, initialFirst);
 
-      coefMatrix[i] = DoubleMatrix2D.copyOf(_solver.solve(yValuesSrt, intervals, slopes, first));
+      coefMatrix[i] = DoubleMatrix.copyOf(_solver.solve(yValuesSrt, intervals, slopes, first));
     }
 
     final int nIntervals = coefMatrix[0].rowCount();
@@ -161,7 +161,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
       }
     }
 
-    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), DoubleMatrix2D.copyOf(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(DoubleArray.copyOf(xValuesSrt), DoubleMatrix.copyOf(resMatrix), nCoefs, dim);
   }
 
   @Override
@@ -197,10 +197,10 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
 
     final double[] intervals = _solver.intervalsCalculator(xValues);
     final double[] slopes = _solver.slopesCalculator(yValuesSrt, intervals);
-    final DoubleMatrix2D[] slopesSensitivityWithAbs = slopesSensitivityWithAbsCalculator(intervals, slopes);
+    final DoubleMatrix[] slopesSensitivityWithAbs = slopesSensitivityWithAbsCalculator(intervals, slopes);
     final double[][] slopesSensitivity = slopesSensitivityWithAbs[0].toArray();
     final double[][] slopesAbsSensitivity = slopesSensitivityWithAbs[1].toArray();
-    DoubleMatrix1D[] firstWithSensitivity = new DoubleMatrix1D[nDataPts + 1];
+    DoubleArray[] firstWithSensitivity = new DoubleArray[nDataPts + 1];
 
     /*
      * Mode sensitivity is not computed analytically for |s_i| = |s_{i+1}| or s_{i-1}*h_{i} + s_{i}*h_{i-1} = 0. 
@@ -211,7 +211,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
       final PiecewisePolynomialResult result = _method.interpolate(xValues, yValues);
       ArgChecker.isTrue(result.getOrder() == 4, "Primary interpolant is not cubic");
       final double[] initialFirst = _function.differentiate(result, xValues).rowArray(0);
-      firstWithSensitivity[0] = DoubleMatrix1D.copyOf(firstDerivativeCalculator(intervals, slopes, initialFirst));
+      firstWithSensitivity[0] = DoubleArray.copyOf(firstDerivativeCalculator(intervals, slopes, initialFirst));
 
       int nExtra = nDataPts == yValuesLen ? 0 : 1;
       final double[] yValuesUp = Arrays.copyOf(yValues, nDataPts + 2 * nExtra);
@@ -237,20 +237,20 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         yValuesDw[i] = yValues[i];
       }
       for (int i = 0; i < nDataPts; ++i) {
-        firstWithSensitivity[i + 1] = DoubleMatrix1D.copyOf(tmp[i]);
+        firstWithSensitivity[i + 1] = DoubleArray.copyOf(tmp[i]);
       }
     } else {
       final PiecewisePolynomialResultsWithSensitivity resultWithSensitivity = _method.interpolateWithSensitivity(xValues, yValues);
       ArgChecker.isTrue(resultWithSensitivity.getOrder() == 4, "Primary interpolant is not cubic");
 
       final double[] initialFirst = _function.differentiate(resultWithSensitivity, xValues).rowArray(0);
-      final DoubleMatrix1D[] initialFirstSense = _function.differentiateNodeSensitivity(resultWithSensitivity, xValues);
+      final DoubleArray[] initialFirstSense = _function.differentiateNodeSensitivity(resultWithSensitivity, xValues);
       firstWithSensitivity = firstDerivativeWithSensitivityCalculator(intervals, slopes, slopesSensitivity, slopesAbsSensitivity, initialFirst, initialFirstSense);
     }
-    final DoubleMatrix2D[] resMatrix = _solver.solveWithSensitivity(yValuesSrt, intervals, slopes, slopesSensitivity, firstWithSensitivity);
+    final DoubleMatrix[] resMatrix = _solver.solveWithSensitivity(yValuesSrt, intervals, slopes, slopesSensitivity, firstWithSensitivity);
 
     for (int k = 0; k < nDataPts; k++) {
-      DoubleMatrix2D m = resMatrix[k];
+      DoubleMatrix m = resMatrix[k];
       final int rows = m.rowCount();
       final int cols = m.columnCount();
       for (int i = 0; i < rows; ++i) {
@@ -260,12 +260,12 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
       }
     }
 
-    final DoubleMatrix2D coefMatrix = resMatrix[0];
-    final DoubleMatrix2D[] coefSenseMatrix = new DoubleMatrix2D[nDataPts - 1];
+    final DoubleMatrix coefMatrix = resMatrix[0];
+    final DoubleMatrix[] coefSenseMatrix = new DoubleMatrix[nDataPts - 1];
     System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, nDataPts - 1);
     final int nCoefs = coefMatrix.columnCount();
 
-    return new PiecewisePolynomialResultsWithSensitivity(DoubleMatrix1D.copyOf(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
+    return new PiecewisePolynomialResultsWithSensitivity(DoubleArray.copyOf(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
   }
 
   @Override
@@ -314,13 +314,13 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     return res;
   }
 
-  private DoubleMatrix1D[] firstDerivativeWithSensitivityCalculator(final double[] intervals, final double[] slopes, final double[][] slopesSensitivity,
-      final double[][] slopesAbsSensitivity, final double[] initialFirst, final DoubleMatrix1D[] initialFirstSense) {
+  private DoubleArray[] firstDerivativeWithSensitivityCalculator(final double[] intervals, final double[] slopes, final double[][] slopesSensitivity,
+      final double[][] slopesAbsSensitivity, final double[] initialFirst, final DoubleArray[] initialFirstSense) {
     final int nDataPts = intervals.length + 1;
-    final DoubleMatrix1D[] res = new DoubleMatrix1D[nDataPts + 1];
+    final DoubleArray[] res = new DoubleArray[nDataPts + 1];
     final double[] first = new double[nDataPts];
     final double[][] pSlopes = parabolaSlopesCalculator(intervals, slopes);
-    final DoubleMatrix2D[] pSlopesAbsSensitivity = parabolaSlopesAbstSensitivityCalculator(intervals, slopesSensitivity, pSlopes);
+    final DoubleMatrix[] pSlopesAbsSensitivity = parabolaSlopesAbstSensitivityCalculator(intervals, slopesSensitivity, pSlopes);
 
     for (int i = 1; i < nDataPts - 1; ++i) {
       final double[] tmpSense = new double[nDataPts];
@@ -386,7 +386,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
           }
         }
       }
-      res[i + 1] = DoubleMatrix1D.copyOf(tmpSense);
+      res[i + 1] = DoubleArray.copyOf(tmpSense);
     }
 
     final double[] tmpSenseIni = new double[nDataPts];
@@ -424,7 +424,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         }
       }
     }
-    res[1] = DoubleMatrix1D.copyOf(tmpSenseIni);
+    res[1] = DoubleArray.copyOf(tmpSenseIni);
 
     final double[] tmpSenseFin = new double[nDataPts];
     final double sigFirstFin = Math.signum(initialFirst[nDataPts - 1]);
@@ -462,9 +462,9 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         }
       }
     }
-    res[nDataPts] = DoubleMatrix1D.copyOf(tmpSenseFin);
+    res[nDataPts] = DoubleArray.copyOf(tmpSenseFin);
 
-    res[0] = DoubleMatrix1D.copyOf(first);
+    res[0] = DoubleArray.copyOf(first);
     return res;
   }
 
@@ -491,8 +491,8 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     return res;
   }
 
-  private DoubleMatrix2D[] parabolaSlopesAbstSensitivityCalculator(final double[] intervals, final double[][] slopeSensitivity, final double[][] parabolaSlopes) {
-    final DoubleMatrix2D[] res = new DoubleMatrix2D[3];
+  private DoubleMatrix[] parabolaSlopesAbstSensitivityCalculator(final double[] intervals, final double[][] slopeSensitivity, final double[][] parabolaSlopes) {
+    final DoubleMatrix[] res = new DoubleMatrix[3];
     final int nData = intervals.length + 1;
 
     final double[][] left = new double[nData - 3][nData];
@@ -527,16 +527,16 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
       center[nData - 3][k] = sigCenterFin * (slopeSensitivity[nData - 3][k] * intervals[nData - 2] + slopeSensitivity[nData - 2][k] * intervals[nData - 3]) /
           (intervals[nData - 3] + intervals[nData - 2]);
     }
-    res[0] = DoubleMatrix2D.copyOf(left);
-    res[1] = DoubleMatrix2D.copyOf(center);
-    res[2] = DoubleMatrix2D.copyOf(right);
+    res[0] = DoubleMatrix.copyOf(left);
+    res[1] = DoubleMatrix.copyOf(center);
+    res[2] = DoubleMatrix.copyOf(right);
 
     return res;
   }
 
-  private DoubleMatrix2D[] slopesSensitivityWithAbsCalculator(final double[] intervals, final double[] slopes) {
+  private DoubleMatrix[] slopesSensitivityWithAbsCalculator(final double[] intervals, final double[] slopes) {
     final int nDataPts = intervals.length + 1;
-    final DoubleMatrix2D[] res = new DoubleMatrix2D[2];
+    final DoubleMatrix[] res = new DoubleMatrix[2];
     final double[][] slopesSensitivity = new double[nDataPts - 1][nDataPts];
     final double[][] absSlopesSensitivity = new double[nDataPts - 1][nDataPts];
 
@@ -555,8 +555,8 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         absSlopesSensitivity[i][i + 1] = -slopesSensitivity[i][i + 1];
       }
     }
-    res[0] = DoubleMatrix2D.copyOf(slopesSensitivity);
-    res[1] = DoubleMatrix2D.copyOf(absSlopesSensitivity);
+    res[0] = DoubleMatrix.copyOf(slopesSensitivity);
+    res[1] = DoubleMatrix.copyOf(absSlopesSensitivity);
     return res;
   }
 

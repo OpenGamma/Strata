@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Solves cubic spline problem with natural endpoint conditions, where the second derivative at the endpoints is 0
@@ -13,13 +13,13 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 public class CubicSplineNaturalSolver extends CubicSplineSolver {
 
   @Override
-  public DoubleMatrix2D solve(final double[] xValues, final double[] yValues) {
+  public DoubleMatrix solve(final double[] xValues, final double[] yValues) {
     final double[] intervals = getDiffs(xValues);
     return getCommonSplineCoeffs(xValues, yValues, intervals, matrixEqnSolver(getMatrix(intervals), getCommonVectorElements(yValues, intervals)));
   }
 
   @Override
-  public DoubleMatrix2D[] solveWithSensitivity(final double[] xValues, final double[] yValues) {
+  public DoubleMatrix[] solveWithSensitivity(final double[] xValues, final double[] yValues) {
     final double[] intervals = getDiffs(xValues);
     final double[][] toBeInv = getMatrix(intervals);
     final double[] commonVector = getCommonVectorElements(yValues, intervals);
@@ -29,9 +29,9 @@ public class CubicSplineNaturalSolver extends CubicSplineSolver {
   }
 
   @Override
-  public DoubleMatrix2D[] solveMultiDim(final double[] xValues, final DoubleMatrix2D yValuesMatrix) {
+  public DoubleMatrix[] solveMultiDim(final double[] xValues, final DoubleMatrix yValuesMatrix) {
     final int dim = yValuesMatrix.rowCount();
-    DoubleMatrix2D[] coefMatrix = new DoubleMatrix2D[dim];
+    DoubleMatrix[] coefMatrix = new DoubleMatrix[dim];
 
     for (int i = 0; i < dim; ++i) {
       coefMatrix[i] = solve(xValues, yValuesMatrix.row(i).toArray());

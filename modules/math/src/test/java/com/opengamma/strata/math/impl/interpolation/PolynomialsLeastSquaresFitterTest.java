@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.regression.LeastSquaresRegressionResult;
 import com.opengamma.strata.math.impl.statistics.descriptive.MeanCalculator;
 import com.opengamma.strata.math.impl.statistics.descriptive.SampleStandardDeviationCalculator;
@@ -167,7 +167,7 @@ public class PolynomialsLeastSquaresFitterTest {
     final int degree = 2;
 
     PolynomialsLeastSquaresFitterResult resultVer = regObj1.regressVerbose(xValues, yValues, degree, false);
-    DoubleMatrix2D rMatResult = resultVer.getRMat();
+    DoubleMatrix rMatResult = resultVer.getRMat();
 
     for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 3; ++j) {

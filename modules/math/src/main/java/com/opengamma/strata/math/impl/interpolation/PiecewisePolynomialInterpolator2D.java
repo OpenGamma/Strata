@@ -6,8 +6,8 @@
 package com.opengamma.strata.math.impl.interpolation;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Abstract class for interpolations based on 2d piecewise polynomial functions 
@@ -32,7 +32,7 @@ public abstract class PiecewisePolynomialInterpolator2D {
    * @param x1Keys  the keys
    * @return Values of 2D interpolant at (x0Key_i, x1Keys_j) 
    */
-  public DoubleMatrix2D interpolate(
+  public DoubleMatrix interpolate(
       double[] x0Values,
       double[] x1Values,
       double[][] yValues,
@@ -56,8 +56,8 @@ public abstract class PiecewisePolynomialInterpolator2D {
 
     PiecewisePolynomialResult2D result = this.interpolate(x0Values, x1Values, yValues);
 
-    DoubleMatrix1D knots0 = result.getKnots0();
-    DoubleMatrix1D knots1 = result.getKnots1();
+    DoubleArray knots0 = result.getKnots0();
+    DoubleArray knots1 = result.getKnots1();
     int nKnots0 = knots0.size();
     int nKnots1 = knots1.size();
 
@@ -84,7 +84,7 @@ public abstract class PiecewisePolynomialInterpolator2D {
       }
     }
 
-    return DoubleMatrix2D.copyOf(res);
+    return DoubleMatrix.copyOf(res);
   }
 
   /**
@@ -103,8 +103,8 @@ public abstract class PiecewisePolynomialInterpolator2D {
     ArgChecker.isFalse(Double.isNaN(x1Key), "x1Key containing NaN");
     ArgChecker.isFalse(Double.isInfinite(x1Key), "x1Key containing Infinity");
 
-    DoubleMatrix1D knots0 = result.getKnots0();
-    DoubleMatrix1D knots1 = result.getKnots1();
+    DoubleArray knots0 = result.getKnots0();
+    DoubleArray knots1 = result.getKnots1();
     int nKnots0 = knots0.size();
     int nKnots1 = knots1.size();
 
@@ -138,7 +138,7 @@ public abstract class PiecewisePolynomialInterpolator2D {
    * @param leftKnot1  the leftKnot1
    * @return sum_{i=0}^{order0-1} sum_{j=0}^{order1-1} coefMat_{ij} (x0-leftKnots0)^{order0-1-i} (x1-leftKnots1)^{order0-1-j}
    */
-  protected double getValue(DoubleMatrix2D coefMat, double x0, double x1, double leftKnot0, double leftKnot1) {
+  protected double getValue(DoubleMatrix coefMat, double x0, double x1, double leftKnot0, double leftKnot1) {
 
     int order0 = coefMat.rowCount();
     int order1 = coefMat.columnCount();

@@ -32,7 +32,7 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Tests {@link ForwardPriceIndexValues}.
@@ -60,15 +60,15 @@ public class ForwardPriceIndexValuesTest {
     USCPI_TS = builder.build();
   }
 
-  private static final DoubleMatrix1D TIMES = DoubleMatrix1D.of(9.0, 21.0, 57.0, 117.0);
-  private static final DoubleMatrix1D VALUES = DoubleMatrix1D.of(240.500, 245.000, 265.000, 286.000);
-  private static final DoubleMatrix1D VALUES2 = DoubleMatrix1D.of(243.500, 248.000, 268.000, 289.000);
+  private static final DoubleArray TIMES = DoubleArray.of(9.0, 21.0, 57.0, 117.0);
+  private static final DoubleArray VALUES = DoubleArray.of(240.500, 245.000, 265.000, 286.000);
+  private static final DoubleArray VALUES2 = DoubleArray.of(243.500, 248.000, 268.000, 289.000);
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final CurveName NAME = CurveName.of("USD-HICP");
   private static final CurveMetadata METADATA = Curves.prices(NAME);
   private static final InterpolatedNodalCurve CURVE = InterpolatedNodalCurve.of(METADATA, TIMES, VALUES, INTERPOLATOR);
   private static final InterpolatedNodalCurve CURVE2 = InterpolatedNodalCurve.of(METADATA, TIMES, VALUES2, INTERPOLATOR);
-  private static final DoubleMatrix1D SEASONALITY = DoubleMatrix1D.of(
+  private static final DoubleArray SEASONALITY = DoubleArray.of(
       0.98d, 0.99d, 1.01d, 1.00d, 1.00d, 1.01d, 1.01d, 0.99d, 1.00d, 1.00d, 1.00d, 1.01d);
   private static final ForwardPriceIndexValues INSTANCE =
       ForwardPriceIndexValues.of(US_CPI_U, VAL_MONTH, USCPI_TS, CURVE, SEASONALITY);
@@ -80,14 +80,14 @@ public class ForwardPriceIndexValuesTest {
 
   //-------------------------------------------------------------------------
   public void test_NO_SEASONALITY() {
-    assertEquals(ForwardPriceIndexValues.NO_SEASONALITY, DoubleMatrix1D.filled(12, 1d));
+    assertEquals(ForwardPriceIndexValues.NO_SEASONALITY, DoubleArray.filled(12, 1d));
   }
 
   public void test_of_noSeasonality() {
     ForwardPriceIndexValues test = ForwardPriceIndexValues.of(US_CPI_U, VAL_MONTH, USCPI_TS, CURVE);
     assertEquals(test.getIndex(), US_CPI_U);
     assertEquals(test.getValuationMonth(), VAL_MONTH);
-    assertEquals(test.getSeasonality(), DoubleMatrix1D.filled(12, 1d));
+    assertEquals(test.getSeasonality(), DoubleArray.filled(12, 1d));
     assertEquals(test.getCurve(), CURVE);
     assertEquals(test.getCurveName(), NAME);
     assertEquals(test.getParameterCount(), TIMES.size());
@@ -105,11 +105,11 @@ public class ForwardPriceIndexValuesTest {
 
   public void test_of_wrongSeasonalityLength() {
     assertThrowsIllegalArg(() -> ForwardPriceIndexValues.of(
-        US_CPI_U, VAL_MONTH, USCPI_TS, CURVE, DoubleMatrix1D.EMPTY));
+        US_CPI_U, VAL_MONTH, USCPI_TS, CURVE, DoubleArray.EMPTY));
   }
 
   public void test_of_startDateBeforeFixing() {
-    DoubleMatrix1D monthWrong = DoubleMatrix1D.of(-10.0, 21.0, 57.0, 117.0);
+    DoubleArray monthWrong = DoubleArray.of(-10.0, 21.0, 57.0, 117.0);
     InterpolatedNodalCurve interpolated = CURVE.toBuilder().xValues(monthWrong).build();
     assertThrowsIllegalArg(() -> ForwardPriceIndexValues.of(US_CPI_U, VAL_MONTH, USCPI_TS, interpolated, SEASONALITY));
   }
@@ -146,7 +146,7 @@ public class ForwardPriceIndexValuesTest {
   public void test_unitParameterSensitivity() {
     double shift = 0.0001;
     for (int i = 0; i < TEST_MONTHS.length; i++) {
-      DoubleMatrix1D sensitivityComputed =
+      DoubleArray sensitivityComputed =
           INSTANCE.unitParameterSensitivity(TEST_MONTHS[i]).getSensitivity(NAME).getSensitivity();
       for (int j = 0; j < VALUES.size(); j++) {
         double[] valueFd = new double[2];

@@ -8,8 +8,8 @@ package com.opengamma.strata.math.impl.statistics.leastsquare;
 import java.util.Objects;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Container for the results of a least square (minimum chi-square) fit, where some model (with a set of parameters), is calibrated
@@ -18,23 +18,23 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 public class LeastSquareResults {
 
   private final double _chiSq;
-  private final DoubleMatrix1D _parameters;
-  private final DoubleMatrix2D _covariance;
-  private final DoubleMatrix2D _inverseJacobian;
+  private final DoubleArray _parameters;
+  private final DoubleMatrix _covariance;
+  private final DoubleMatrix _inverseJacobian;
 
   public LeastSquareResults(LeastSquareResults from) {
     this(from._chiSq, from._parameters, from._covariance, from._inverseJacobian);
   }
 
-  public LeastSquareResults(double chiSq, DoubleMatrix1D parameters, DoubleMatrix2D covariance) {
+  public LeastSquareResults(double chiSq, DoubleArray parameters, DoubleMatrix covariance) {
     this(chiSq, parameters, covariance, null);
   }
 
   public LeastSquareResults(
       double chiSq,
-      DoubleMatrix1D parameters,
-      DoubleMatrix2D covariance,
-      DoubleMatrix2D inverseJacobian) {
+      DoubleArray parameters,
+      DoubleMatrix covariance,
+      DoubleMatrix inverseJacobian) {
 
     ArgChecker.isTrue(chiSq >= 0, "chi square < 0");
     ArgChecker.notNull(parameters, "parameters");
@@ -61,7 +61,7 @@ public class LeastSquareResults {
    * Gets the value of the fitting parameters, when the chi-squared is minimised
    * @return the parameters
    */
-  public DoubleMatrix1D getFitParameters() {
+  public DoubleArray getFitParameters() {
     return _parameters;
   }
 
@@ -71,7 +71,7 @@ public class LeastSquareResults {
    * full mathematical interpretation (See NR third edition, p812-816)
    * @return the formal covariance matrix
    */
-  public DoubleMatrix2D getCovariance() {
+  public DoubleMatrix getCovariance() {
     return _covariance;
   }
 
@@ -83,7 +83,7 @@ public class LeastSquareResults {
    * 
    * @return a matrix
    */
-  public DoubleMatrix2D getFittingParameterSensitivityToData() {
+  public DoubleMatrix getFittingParameterSensitivityToData() {
     if (_inverseJacobian == null) {
       throw new UnsupportedOperationException("The inverse Jacobian was not set");
     }

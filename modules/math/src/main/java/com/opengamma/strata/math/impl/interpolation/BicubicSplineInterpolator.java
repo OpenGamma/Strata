@@ -9,8 +9,8 @@ import static com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory.OG_ALGE
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  *  Given a set of data (x0Values_i, x1Values_j, yValues_{ij}), derive the piecewise bicubic function, f(x0,x1) = sum_{i=0}^{3} sum_{j=0}^{3} coefMat_{ij} (x0-x0Values_i)^{3-i} (x1-x1Values_j)^{3-j},
@@ -23,7 +23,7 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
   private static final double ERROR = 1.e-13;
 
   private PiecewisePolynomialInterpolator[] _method;
-  private static DoubleMatrix2D s_invMat;
+  private static DoubleMatrix s_invMat;
 
   static {
     double[][] invMat = new double[16][16];
@@ -43,7 +43,7 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
     invMat[13] = new double[] {0., 0., 0., 0., 2., 0., -2., 0., 0., 0., 0., 0., 1., 0., 1., 0.};
     invMat[14] = new double[] {-6., 6., 6., -6., -4., -2., 4., 2., -3., 3., -3., 3., -2., -1., -2., -1.};
     invMat[15] = new double[] {4., -4., -4., 4., 2., 2., -2., -2., 2., -2., 2., -2., 1., 1., 1., 1.};
-    s_invMat = DoubleMatrix2D.ofUnsafe(invMat);
+    s_invMat = DoubleMatrix.ofUnsafe(invMat);
   }
 
   /**
@@ -78,7 +78,7 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
     final int nData0 = x0Values.length;
     final int nData1 = x1Values.length;
 
-    DoubleMatrix2D yValuesMatrix = DoubleMatrix2D.copyOf(yValues);
+    DoubleMatrix yValuesMatrix = DoubleMatrix.copyOf(yValues);
     final PiecewisePolynomialFunction1D func = new PiecewisePolynomialFunction1D();
     double[][] diff0 = new double[nData1][nData0];
     double[][] diff1 = new double[nData0][nData1];
@@ -110,7 +110,7 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
       }
     }
 
-    DoubleMatrix2D[][] coefMat = new DoubleMatrix2D[nData0 - 1][nData1 - 1];
+    DoubleMatrix[][] coefMat = new DoubleMatrix[nData0 - 1][nData1 - 1];
     for (int i = 0; i < nData0 - 1; ++i) {
       for (int j = 0; j < nData1 - 1; ++j) {
         double[] diffsVec = new double[16];
@@ -134,8 +134,8 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
             diffsVec[12 + l + 2 * m] = cross[i + l][j + m];
           }
         }
-        final DoubleMatrix1D diffs = DoubleMatrix1D.copyOf(diffsVec);
-        final DoubleMatrix1D ansVec = ((DoubleMatrix1D) OG_ALGEBRA.multiply(s_invMat, diffs));
+        final DoubleArray diffs = DoubleArray.copyOf(diffsVec);
+        final DoubleArray ansVec = ((DoubleArray) OG_ALGEBRA.multiply(s_invMat, diffs));
 
         double ref = 0.;
         double[][] coefMatTmp = new double[order][order];
@@ -152,13 +152,13 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
         }
         final double bound = Math.max(Math.abs(ref) + Math.abs(yValues[i + 1][j + 1]), 0.1);
         ArgChecker.isTrue(Math.abs(ref - yValues[i + 1][j + 1]) < ERROR * bound, "Input is too large/small or data points are too close");
-        coefMat[i][j] = DoubleMatrix2D.copyOf(coefMatTmp);
+        coefMat[i][j] = DoubleMatrix.copyOf(coefMatTmp);
       }
     }
 
     return new PiecewisePolynomialResult2D(
-        DoubleMatrix1D.copyOf(x0Values),
-        DoubleMatrix1D.copyOf(x1Values),
+        DoubleArray.copyOf(x0Values),
+        DoubleArray.copyOf(x1Values),
         coefMat,
         new int[] {order, order});
   }

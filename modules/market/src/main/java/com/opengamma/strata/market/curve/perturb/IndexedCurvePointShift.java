@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.strata.basics.market.Perturbation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Perturbation which applies a shift to a single point on a nodal curve.
@@ -101,8 +101,8 @@ public final class IndexedCurvePointShift
   public Curve applyTo(Curve curve) {
     log.debug("Applying {} shift of {} to curve '{}' at node {}", shiftType, shiftAmount, curve.getName(), nodeIndex);
     NodalCurve nodalCurve = curve.toNodalCurve();
-    DoubleMatrix1D yValues = nodalCurve.getYValues();
-    DoubleMatrix1D shifted = yValues.with(nodeIndex, shiftType.applyShift(yValues.get(nodeIndex), shiftAmount));
+    DoubleArray yValues = nodalCurve.getYValues();
+    DoubleArray shifted = yValues.with(nodeIndex, shiftType.applyShift(yValues.get(nodeIndex), shiftAmount));
     return nodalCurve.withYValues(shifted);
   }
 

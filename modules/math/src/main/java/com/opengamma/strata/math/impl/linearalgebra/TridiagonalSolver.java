@@ -8,7 +8,7 @@ package com.opengamma.strata.math.impl.linearalgebra;
 import java.util.Arrays;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * 
@@ -59,8 +59,8 @@ public class TridiagonalSolver {
    * @param b known vector (must be same length as rows/columns of matrix)
    * @return vector with same length as y
    */
-  public static DoubleMatrix1D solvTriDag(TridiagonalMatrix aM, DoubleMatrix1D b) {
-    return DoubleMatrix1D.copyOf(solvTriDag(aM, b.toArray()));
+  public static DoubleArray solvTriDag(TridiagonalMatrix aM, DoubleArray b) {
+    return DoubleArray.copyOf(solvTriDag(aM, b.toArray()));
   }
 
 }

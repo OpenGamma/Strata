@@ -9,8 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 
@@ -24,8 +24,8 @@ public class InverseJacobianDirectionFunctionTest {
   private static final double X0 = 2.4;
   private static final double X1 = 7.6;
   private static final double X2 = 4.5;
-  private static final DoubleMatrix2D M = DoubleMatrix2D.copyOf(new double[][] { {X0, 0, 0}, {0, X1, 0}, {0, 0, X2}});
-  private static final DoubleMatrix1D Y = DoubleMatrix1D.of(1, 1, 1);
+  private static final DoubleMatrix M = DoubleMatrix.copyOf(new double[][] { {X0, 0, 0}, {0, X1, 0}, {0, 0, X2}});
+  private static final DoubleArray Y = DoubleArray.of(1, 1, 1);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
@@ -45,7 +45,7 @@ public class InverseJacobianDirectionFunctionTest {
   @Test
   public void test() {
     double eps = 1e-9;
-    DoubleMatrix1D direction = F.getDirection(M, Y);
+    DoubleArray direction = F.getDirection(M, Y);
     assertEquals(direction.get(0), X0, eps);
     assertEquals(direction.get(1), X1, eps);
     assertEquals(direction.get(2), X2, eps);

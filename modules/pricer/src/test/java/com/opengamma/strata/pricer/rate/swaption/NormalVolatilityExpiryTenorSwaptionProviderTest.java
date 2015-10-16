@@ -42,7 +42,7 @@ import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapol
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test {@link NormalVolatilityExpiryTenorSwaptionProvider}.
@@ -54,12 +54,12 @@ public class NormalVolatilityExpiryTenorSwaptionProviderTest {
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
           Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
-  private static final DoubleMatrix1D TIME =
-      DoubleMatrix1D.of(0.25, 0.5, 1.0, 0.25, 0.5, 1.0, 0.25, 0.5, 1.0, 0.25, 0.5, 1.0);
-  private static final DoubleMatrix1D TENOR =
-      DoubleMatrix1D.of(3.0, 3.0, 3.0, 5.0, 5.0, 5.0, 7.0, 7.0, 7.0, 10.0, 10.0, 10.0);
-  private static final DoubleMatrix1D VOL =
-      DoubleMatrix1D.of(0.14, 0.12, 0.1, 0.14, 0.13, 0.12, 0.13, 0.12, 0.11, 0.12, 0.11, 0.1);
+  private static final DoubleArray TIME =
+      DoubleArray.of(0.25, 0.5, 1.0, 0.25, 0.5, 1.0, 0.25, 0.5, 1.0, 0.25, 0.5, 1.0);
+  private static final DoubleArray TENOR =
+      DoubleArray.of(3.0, 3.0, 3.0, 5.0, 5.0, 5.0, 7.0, 7.0, 7.0, 10.0, 10.0, 10.0);
+  private static final DoubleArray VOL =
+      DoubleArray.of(0.14, 0.12, 0.1, 0.14, 0.13, 0.12, 0.13, 0.12, 0.11, 0.12, 0.11, 0.1);
   private static final SurfaceMetadata METADATA_WITH_PARAM;
   private static final SurfaceMetadata METADATA;
   static {
@@ -156,8 +156,8 @@ public class NormalVolatilityExpiryTenorSwaptionProviderTest {
       SurfaceCurrencyParameterSensitivity sensi = PROVIDER_WITH_PARAM.surfaceCurrencyParameterSensitivity(point);
       Map<DoublesPair, Double> map = new HashMap<DoublesPair, Double>();
       for (int j = 0; j < nData; ++j) {
-        DoubleMatrix1D volDataUp = VOL.subArray(0, nData).with(j, VOL.get(j) + eps);
-        DoubleMatrix1D volDataDw = VOL.subArray(0, nData).with(j, VOL.get(j) - eps);
+        DoubleArray volDataUp = VOL.subArray(0, nData).with(j, VOL.get(j) + eps);
+        DoubleArray volDataDw = VOL.subArray(0, nData).with(j, VOL.get(j) - eps);
         InterpolatedNodalSurface paramUp =
             InterpolatedNodalSurface.of(METADATA_WITH_PARAM, TIME, TENOR, volDataUp, INTERPOLATOR_2D);
         InterpolatedNodalSurface paramDw =
@@ -175,7 +175,7 @@ public class NormalVolatilityExpiryTenorSwaptionProviderTest {
       }
       SurfaceCurrencyParameterSensitivity sensiFromNoMetadata = PROVIDER.surfaceCurrencyParameterSensitivity(point);
       List<SurfaceParameterMetadata> list = sensi.getMetadata().getParameterMetadata().get();
-      DoubleMatrix1D computed = sensi.getSensitivity();
+      DoubleArray computed = sensi.getSensitivity();
       assertEquals(computed.size(), nData);
       for (int j = 0; j < list.size(); ++j) {
         SwaptionVolatilitySurfaceExpiryTenorNodeMetadata metadata =

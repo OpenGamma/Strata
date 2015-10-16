@@ -28,7 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * A curve based on a single constant value.
@@ -47,11 +47,11 @@ public final class ConstantNodalCurve
   /**
    * X-values does not vary.
    */
-  private static final DoubleMatrix1D X_VALUES = DoubleMatrix1D.of(0d);
+  private static final DoubleArray X_VALUES = DoubleArray.of(0d);
   /**
    * Sensitivity does not vary.
    */
-  private static final DoubleMatrix1D SENSITIVITY = DoubleMatrix1D.of(1d);
+  private static final DoubleArray SENSITIVITY = DoubleArray.of(1d);
 
   /**
    * The curve metadata.
@@ -113,13 +113,13 @@ public final class ConstantNodalCurve
   }
 
   @Override
-  public DoubleMatrix1D getXValues() {
+  public DoubleArray getXValues() {
     return X_VALUES;
   }
 
   @Override
-  public DoubleMatrix1D getYValues() {
-    return DoubleMatrix1D.of(yValue);
+  public DoubleArray getYValues() {
+    return DoubleArray.of(yValue);
   }
 
   //-------------------------------------------------------------------------
@@ -140,7 +140,7 @@ public final class ConstantNodalCurve
 
   //-------------------------------------------------------------------------
   @Override
-  public ConstantNodalCurve withYValues(DoubleMatrix1D yValues) {
+  public ConstantNodalCurve withYValues(DoubleArray yValues) {
     ArgChecker.isTrue(yValues.size() == 1, "YValues array must be size one");
     return new ConstantNodalCurve(metadata, yValues.get(0));
   }

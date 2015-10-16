@@ -22,18 +22,18 @@ public abstract class MatrixAlgebra {
   public Matrix add(Matrix m1, Matrix m2) {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
-    if (m1 instanceof DoubleMatrix1D) {
-      if (m2 instanceof DoubleMatrix1D) {
-        DoubleMatrix1D array1 = (DoubleMatrix1D) m1;
-        DoubleMatrix1D array2 = (DoubleMatrix1D) m2;
+    if (m1 instanceof DoubleArray) {
+      if (m2 instanceof DoubleArray) {
+        DoubleArray array1 = (DoubleArray) m1;
+        DoubleArray array2 = (DoubleArray) m2;
         return array1.plus(array2);
       }
       throw new IllegalArgumentException("Tried to add a " + m1.getClass() + " and " + m2.getClass());
 
-    } else if (m1 instanceof DoubleMatrix2D) {
-      if (m2 instanceof DoubleMatrix2D) {
-        DoubleMatrix2D matrix1 = (DoubleMatrix2D) m1;
-        DoubleMatrix2D matrix2 = (DoubleMatrix2D) m2;
+    } else if (m1 instanceof DoubleMatrix) {
+      if (m2 instanceof DoubleMatrix) {
+        DoubleMatrix matrix1 = (DoubleMatrix) m1;
+        DoubleMatrix matrix2 = (DoubleMatrix) m2;
         return matrix1.plus(matrix2);
       }
       throw new IllegalArgumentException("Tried to add a " + m1.getClass() + " and " + m2.getClass());
@@ -44,15 +44,15 @@ public abstract class MatrixAlgebra {
   /**
    * Returns the quotient of two matrices $C = \frac{A}{B} = AB^{-1}$, where
    * $B^{-1}$ is the pseudo-inverse of $B$ i.e. $BB^{-1} = \mathbb{1}$.
-   * @param m1 The numerator matrix, not null. This matrix must be a {@link DoubleMatrix2D}.
-   * @param m2 The denominator, not null. This matrix must be a {@link DoubleMatrix2D}.
+   * @param m1 The numerator matrix, not null. This matrix must be a {@link DoubleMatrix}.
+   * @param m2 The denominator, not null. This matrix must be a {@link DoubleMatrix}.
    * @return The result
    */
   public Matrix divide(Matrix m1, Matrix m2) {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
-    ArgChecker.isTrue(m1 instanceof DoubleMatrix2D, "Can only divide a 2D matrix");
-    ArgChecker.isTrue(m2 instanceof DoubleMatrix2D, "Can only perform division with a 2D matrix");
+    ArgChecker.isTrue(m1 instanceof DoubleMatrix, "Can only divide a 2D matrix");
+    ArgChecker.isTrue(m2 instanceof DoubleMatrix, "Can only perform division with a 2D matrix");
     return multiply(m1, getInverse(m2));
   }
 
@@ -82,16 +82,16 @@ public abstract class MatrixAlgebra {
    * \end{pmatrix}
    * \end{align*}
    * $$
-   * @param m1 The first matrix, not null. This matrix must be a {@link DoubleMatrix2D}.
-   * @param m2 The second matrix, not null. This matrix must be a {@link DoubleMatrix2D}.
+   * @param m1 The first matrix, not null. This matrix must be a {@link DoubleMatrix}.
+   * @param m2 The second matrix, not null. This matrix must be a {@link DoubleMatrix}.
    * @return The Kronecker product
    */
   public Matrix kroneckerProduct(Matrix m1, Matrix m2) {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
-    if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix2D) {
-      DoubleMatrix2D matrix1 = (DoubleMatrix2D) m1;
-      DoubleMatrix2D matrix2 = (DoubleMatrix2D) m2;
+    if (m1 instanceof DoubleMatrix && m2 instanceof DoubleMatrix) {
+      DoubleMatrix matrix1 = (DoubleMatrix) m1;
+      DoubleMatrix matrix2 = (DoubleMatrix) m2;
       int aRows = matrix1.rowCount();
       int aCols = matrix1.columnCount();
       int bRows = matrix2.rowCount();
@@ -111,9 +111,9 @@ public abstract class MatrixAlgebra {
           }
         }
       }
-      return DoubleMatrix2D.ofUnsafe(res);
+      return DoubleMatrix.ofUnsafe(res);
     }
-    throw new IllegalArgumentException("Can only calculate the Kronecker product of two DoubleMatrix2D.");
+    throw new IllegalArgumentException("Can only calculate the Kronecker product of two DoubleMatrix.");
   }
 
   /**
@@ -132,11 +132,11 @@ public abstract class MatrixAlgebra {
    */
   public Matrix scale(Matrix m, double scale) {
     ArgChecker.notNull(m, "m");
-    if (m instanceof DoubleMatrix1D) {
-      return ((DoubleMatrix1D) m).multipliedBy(scale);
+    if (m instanceof DoubleArray) {
+      return ((DoubleArray) m).multipliedBy(scale);
 
-    } else if (m instanceof DoubleMatrix2D) {
-      return ((DoubleMatrix2D) m).multipliedBy(scale);
+    } else if (m instanceof DoubleMatrix) {
+      return ((DoubleMatrix) m).multipliedBy(scale);
     }
     throw new UnsupportedOperationException();
   }
@@ -151,17 +151,17 @@ public abstract class MatrixAlgebra {
   public Matrix subtract(Matrix m1, Matrix m2) {
     ArgChecker.notNull(m1, "m1");
     ArgChecker.notNull(m2, "m2");
-    if (m1 instanceof DoubleMatrix1D) {
-      if (m2 instanceof DoubleMatrix1D) {
-        DoubleMatrix1D array1 = (DoubleMatrix1D) m1;
-        DoubleMatrix1D array2 = (DoubleMatrix1D) m2;
+    if (m1 instanceof DoubleArray) {
+      if (m2 instanceof DoubleArray) {
+        DoubleArray array1 = (DoubleArray) m1;
+        DoubleArray array2 = (DoubleArray) m2;
         return array1.minus(array2);
       }
       throw new IllegalArgumentException("Tried to subtract a " + m1.getClass() + " and " + m2.getClass());
-    } else if (m1 instanceof DoubleMatrix2D) {
-      if (m2 instanceof DoubleMatrix2D) {
-        DoubleMatrix2D matrix1 = (DoubleMatrix2D) m1;
-        DoubleMatrix2D matrix2 = (DoubleMatrix2D) m2;
+    } else if (m1 instanceof DoubleMatrix) {
+      if (m2 instanceof DoubleMatrix) {
+        DoubleMatrix matrix1 = (DoubleMatrix) m1;
+        DoubleMatrix matrix2 = (DoubleMatrix) m2;
         return matrix1.minus(matrix2);
       }
       throw new IllegalArgumentException("Tried to subtract a " + m1.getClass() + " and " + m2.getClass());
@@ -188,7 +188,7 @@ public abstract class MatrixAlgebra {
    * @param m A matrix, not null
    * @return The inverse matrix
    */
-  public abstract DoubleMatrix2D getInverse(Matrix m);
+  public abstract DoubleMatrix getInverse(Matrix m);
 
   /**
    * Returns the inner (or dot) product.
@@ -206,7 +206,7 @@ public abstract class MatrixAlgebra {
    * @return The outer product
    * @exception IllegalArgumentException If the vectors are not the same size
    */
-  public abstract DoubleMatrix2D getOuterProduct(Matrix m1, Matrix m2);
+  public abstract DoubleMatrix getOuterProduct(Matrix m1, Matrix m2);
 
   /**
    * For a vector, returns the <a href="http://mathworld.wolfram.com/L1-Norm.html">$L_1$ norm</a>
@@ -244,7 +244,7 @@ public abstract class MatrixAlgebra {
    * @param p An integer power
    * @return The result
    */
-  public abstract DoubleMatrix2D getPower(Matrix m, int p);
+  public abstract DoubleMatrix getPower(Matrix m, int p);
 
   /**
    * Returns a matrix raised to a power, $\mathbf{A}^3 = \mathbf{A}\mathbf{A}\mathbf{A}$.
@@ -252,7 +252,7 @@ public abstract class MatrixAlgebra {
    * @param p The power
    * @return The result
    */
-  public abstract DoubleMatrix2D getPower(Matrix m, double p);
+  public abstract DoubleMatrix getPower(Matrix m, double p);
 
   /**
    * Returns the trace (i.e. sum of diagonal elements) of a matrix.
@@ -266,14 +266,14 @@ public abstract class MatrixAlgebra {
    * @param m A matrix, not null
    * @return The transpose matrix
    */
-  public abstract DoubleMatrix2D getTranspose(Matrix m);
+  public abstract DoubleMatrix getTranspose(Matrix m);
 
   /**
    * Compute $A^T A$, where A is a matrix
    * @param a The matrix
    * @return The result of $A^T A$
    */
-  public DoubleMatrix2D matrixTransposeMultiplyMatrix(DoubleMatrix2D a) {
+  public DoubleMatrix matrixTransposeMultiplyMatrix(DoubleMatrix a) {
     ArgChecker.notNull(a, "a");
     int n = a.rowCount();
     int m = a.columnCount();
@@ -295,7 +295,7 @@ public abstract class MatrixAlgebra {
         data[j][i] = sum;
       }
     }
-    return DoubleMatrix2D.ofUnsafe(data);
+    return DoubleMatrix.ofUnsafe(data);
   }
 
 }

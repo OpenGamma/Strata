@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * 
@@ -50,27 +50,27 @@ public class WeightedLeastSquaresRegression extends LeastSquaresRegression {
     for (int i = 0; i < y.length; i++) {
       w[i] = weights[i];
     }
-    DoubleMatrix2D matrix = DoubleMatrix2D.copyOf(dep);
-    DoubleMatrix1D vector = DoubleMatrix1D.copyOf(y);
+    DoubleMatrix matrix = DoubleMatrix.copyOf(dep);
+    DoubleArray vector = DoubleArray.copyOf(y);
     RealMatrix wDiag = new DiagonalMatrix(w);
-    DoubleMatrix2D transpose = s_algebra.getTranspose(matrix);
+    DoubleMatrix transpose = s_algebra.getTranspose(matrix);
 
-    DoubleMatrix2D wDiagTimesMatrix = DoubleMatrix2D.ofUnsafe(wDiag.multiply(
+    DoubleMatrix wDiagTimesMatrix = DoubleMatrix.ofUnsafe(wDiag.multiply(
         new Array2DRowRealMatrix(matrix.toArrayUnsafe())).getData());
-    DoubleMatrix2D tmp = (DoubleMatrix2D) s_algebra.multiply(
+    DoubleMatrix tmp = (DoubleMatrix) s_algebra.multiply(
         s_algebra.getInverse(s_algebra.multiply(transpose, wDiagTimesMatrix)), transpose);
 
-    DoubleMatrix2D wTmpTimesDiag =
-        DoubleMatrix2D.copyOf(wDiag.preMultiply(new Array2DRowRealMatrix(tmp.toArrayUnsafe())).getData());
-    DoubleMatrix2D betasVector = (DoubleMatrix2D) s_algebra.multiply(wTmpTimesDiag, vector);
-    double[] yModel = super.writeArrayAsVector(((DoubleMatrix2D) s_algebra.multiply(matrix, betasVector)).toArray());
+    DoubleMatrix wTmpTimesDiag =
+        DoubleMatrix.copyOf(wDiag.preMultiply(new Array2DRowRealMatrix(tmp.toArrayUnsafe())).getData());
+    DoubleMatrix betasVector = (DoubleMatrix) s_algebra.multiply(wTmpTimesDiag, vector);
+    double[] yModel = super.writeArrayAsVector(((DoubleMatrix) s_algebra.multiply(matrix, betasVector)).toArray());
     double[] betas = super.writeArrayAsVector(betasVector.toArray());
     return getResultWithStatistics(x, convertArray(wDiag.getData()), y, betas, yModel, transpose, matrix, useIntercept);
   }
 
   private LeastSquaresRegressionResult getResultWithStatistics(
       double[][] x, double[][] w, double[] y, double[] betas, double[] yModel,
-      DoubleMatrix2D transpose, DoubleMatrix2D matrix, boolean useIntercept) {
+      DoubleMatrix transpose, DoubleMatrix matrix, boolean useIntercept) {
     double yMean = 0.;
     for (double y1 : y) {
       yMean += y1;

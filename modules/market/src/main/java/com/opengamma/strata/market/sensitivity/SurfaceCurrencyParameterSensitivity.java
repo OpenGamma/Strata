@@ -31,7 +31,7 @@ import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceName;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Parameter sensitivity for a single surface.
@@ -64,7 +64,7 @@ public final class SurfaceCurrencyParameterSensitivity
    * There will be one sensitivity value for each parameter of the surface.
    */
   @PropertyDefinition(validate = "notNull")
-  private final DoubleMatrix1D sensitivity;
+  private final DoubleArray sensitivity;
 
   //-------------------------------------------------------------------------
   /**
@@ -78,7 +78,7 @@ public final class SurfaceCurrencyParameterSensitivity
   public static SurfaceCurrencyParameterSensitivity of(
       SurfaceMetadata metadata,
       Currency currency,
-      DoubleMatrix1D sensitivity) {
+      DoubleArray sensitivity) {
 
     return new SurfaceCurrencyParameterSensitivity(metadata, currency, sensitivity);
   }
@@ -188,7 +188,7 @@ public final class SurfaceCurrencyParameterSensitivity
    * @param sensitivity  the new sensitivity values
    * @return an instance based on this one, with the specified sensitivity values
    */
-  public SurfaceCurrencyParameterSensitivity withSensitivity(DoubleMatrix1D sensitivity) {
+  public SurfaceCurrencyParameterSensitivity withSensitivity(DoubleArray sensitivity) {
     if (sensitivity.size() != this.sensitivity.size()) {
       throw new IllegalArgumentException("Length of sensitivity must match parameter count");
     }
@@ -222,7 +222,7 @@ public final class SurfaceCurrencyParameterSensitivity
   private SurfaceCurrencyParameterSensitivity(
       SurfaceMetadata metadata,
       Currency currency,
-      DoubleMatrix1D sensitivity) {
+      DoubleArray sensitivity) {
     JodaBeanUtils.notNull(metadata, "metadata");
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(sensitivity, "sensitivity");
@@ -274,7 +274,7 @@ public final class SurfaceCurrencyParameterSensitivity
    * There will be one sensitivity value for each parameter of the surface.
    * @return the value of the property, not null
    */
-  public DoubleMatrix1D getSensitivity() {
+  public DoubleArray getSensitivity() {
     return sensitivity;
   }
 
@@ -336,8 +336,8 @@ public final class SurfaceCurrencyParameterSensitivity
     /**
      * The meta-property for the {@code sensitivity} property.
      */
-    private final MetaProperty<DoubleMatrix1D> sensitivity = DirectMetaProperty.ofImmutable(
-        this, "sensitivity", SurfaceCurrencyParameterSensitivity.class, DoubleMatrix1D.class);
+    private final MetaProperty<DoubleArray> sensitivity = DirectMetaProperty.ofImmutable(
+        this, "sensitivity", SurfaceCurrencyParameterSensitivity.class, DoubleArray.class);
     /**
      * The meta-properties.
      */
@@ -402,7 +402,7 @@ public final class SurfaceCurrencyParameterSensitivity
      * The meta-property for the {@code sensitivity} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DoubleMatrix1D> sensitivity() {
+    public MetaProperty<DoubleArray> sensitivity() {
       return sensitivity;
     }
 
@@ -439,7 +439,7 @@ public final class SurfaceCurrencyParameterSensitivity
 
     private SurfaceMetadata metadata;
     private Currency currency;
-    private DoubleMatrix1D sensitivity;
+    private DoubleArray sensitivity;
 
     /**
      * Restricted constructor.
@@ -472,7 +472,7 @@ public final class SurfaceCurrencyParameterSensitivity
           this.currency = (Currency) newValue;
           break;
         case 564403871:  // sensitivity
-          this.sensitivity = (DoubleMatrix1D) newValue;
+          this.sensitivity = (DoubleArray) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

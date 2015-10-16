@@ -35,7 +35,7 @@ import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapol
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * A curve based on interpolation between a number of nodal points.
@@ -66,14 +66,14 @@ public final class InterpolatedNodalCurve
    * This array will contains at least two elements and be of the same length as y-values.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final DoubleMatrix1D xValues;
+  private final DoubleArray xValues;
   /**
    * The array of y-values, one for each point.
    * <p>
    * This array will contains at least two elements and be of the same length as x-values.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final DoubleMatrix1D yValues;
+  private final DoubleArray yValues;
   /**
    * The extrapolator for x-values on the left, defaulted to 'Flat".
    * This is used for x-values smaller than the smallest known x-value.
@@ -116,8 +116,8 @@ public final class InterpolatedNodalCurve
    */
   public static InterpolatedNodalCurve of(
       CurveMetadata metadata,
-      DoubleMatrix1D xValues,
-      DoubleMatrix1D yValues,
+      DoubleArray xValues,
+      DoubleArray yValues,
       CurveInterpolator interpolator) {
 
     return InterpolatedNodalCurve.builder()
@@ -133,8 +133,8 @@ public final class InterpolatedNodalCurve
   @ImmutableConstructor
   private InterpolatedNodalCurve(
       CurveMetadata metadata,
-      DoubleMatrix1D xValues,
-      DoubleMatrix1D yValues,
+      DoubleArray xValues,
+      DoubleArray yValues,
       CurveExtrapolator extrapolatorLeft,
       CurveInterpolator interpolator,
       CurveExtrapolator extrapolatorRight) {
@@ -193,7 +193,7 @@ public final class InterpolatedNodalCurve
 
   @Override
   public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
-    DoubleMatrix1D array = DoubleMatrix1D.copyOf(underlyingInterpolator.getNodeSensitivitiesForValue(underlyingDataBundle, x));
+    DoubleArray array = DoubleArray.copyOf(underlyingInterpolator.getNodeSensitivitiesForValue(underlyingDataBundle, x));
     return CurveUnitParameterSensitivity.of(metadata, array);
   }
 
@@ -204,7 +204,7 @@ public final class InterpolatedNodalCurve
 
   //-------------------------------------------------------------------------
   @Override
-  public InterpolatedNodalCurve withYValues(DoubleMatrix1D yValues) {
+  public InterpolatedNodalCurve withYValues(DoubleArray yValues) {
     return new InterpolatedNodalCurve(metadata, xValues, yValues, extrapolatorLeft, interpolator, extrapolatorRight);
   }
 
@@ -231,8 +231,8 @@ public final class InterpolatedNodalCurve
    * @return the updated curve
    */
   public InterpolatedNodalCurve withNode(int index, double x, double y) {
-    DoubleMatrix1D xExtended = xValues.subArray(0, index).concat(new double[] {x}).concat(xValues.subArray(index));
-    DoubleMatrix1D yExtended = yValues.subArray(0, index).concat(new double[] {y}).concat(yValues.subArray(index));
+    DoubleArray xExtended = xValues.subArray(0, index).concat(new double[] {x}).concat(xValues.subArray(index));
+    DoubleArray yExtended = yValues.subArray(0, index).concat(new double[] {y}).concat(yValues.subArray(index));
     CurveMetadata metadata = getMetadata().withParameterMetadata(null);
     return new InterpolatedNodalCurve(metadata, xExtended, yExtended, extrapolatorLeft, interpolator, extrapolatorRight);
   }
@@ -250,8 +250,8 @@ public final class InterpolatedNodalCurve
    * @return the updated curve
    */
   public InterpolatedNodalCurve withNode(int index, CurveParameterMetadata paramMetadata, double x, double y) {
-    DoubleMatrix1D xExtended = xValues.subArray(0, index).concat(new double[] {x}).concat(xValues.subArray(index));
-    DoubleMatrix1D yExtended = yValues.subArray(0, index).concat(new double[] {y}).concat(yValues.subArray(index));
+    DoubleArray xExtended = xValues.subArray(0, index).concat(new double[] {x}).concat(xValues.subArray(index));
+    DoubleArray yExtended = yValues.subArray(0, index).concat(new double[] {y}).concat(yValues.subArray(index));
     // add to existing metadata, or do nothing if no existing metadata
     CurveMetadata md = metadata.getParameterMetadata()
         .map(params -> {
@@ -326,7 +326,7 @@ public final class InterpolatedNodalCurve
    * @return the value of the property, not null
    */
   @Override
-  public DoubleMatrix1D getXValues() {
+  public DoubleArray getXValues() {
     return xValues;
   }
 
@@ -338,7 +338,7 @@ public final class InterpolatedNodalCurve
    * @return the value of the property, not null
    */
   @Override
-  public DoubleMatrix1D getYValues() {
+  public DoubleArray getYValues() {
     return yValues;
   }
 
@@ -442,13 +442,13 @@ public final class InterpolatedNodalCurve
     /**
      * The meta-property for the {@code xValues} property.
      */
-    private final MetaProperty<DoubleMatrix1D> xValues = DirectMetaProperty.ofImmutable(
-        this, "xValues", InterpolatedNodalCurve.class, DoubleMatrix1D.class);
+    private final MetaProperty<DoubleArray> xValues = DirectMetaProperty.ofImmutable(
+        this, "xValues", InterpolatedNodalCurve.class, DoubleArray.class);
     /**
      * The meta-property for the {@code yValues} property.
      */
-    private final MetaProperty<DoubleMatrix1D> yValues = DirectMetaProperty.ofImmutable(
-        this, "yValues", InterpolatedNodalCurve.class, DoubleMatrix1D.class);
+    private final MetaProperty<DoubleArray> yValues = DirectMetaProperty.ofImmutable(
+        this, "yValues", InterpolatedNodalCurve.class, DoubleArray.class);
     /**
      * The meta-property for the {@code extrapolatorLeft} property.
      */
@@ -529,7 +529,7 @@ public final class InterpolatedNodalCurve
      * The meta-property for the {@code xValues} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DoubleMatrix1D> xValues() {
+    public MetaProperty<DoubleArray> xValues() {
       return xValues;
     }
 
@@ -537,7 +537,7 @@ public final class InterpolatedNodalCurve
      * The meta-property for the {@code yValues} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DoubleMatrix1D> yValues() {
+    public MetaProperty<DoubleArray> yValues() {
       return yValues;
     }
 
@@ -603,8 +603,8 @@ public final class InterpolatedNodalCurve
   public static final class Builder extends DirectFieldsBeanBuilder<InterpolatedNodalCurve> {
 
     private CurveMetadata metadata;
-    private DoubleMatrix1D xValues;
-    private DoubleMatrix1D yValues;
+    private DoubleArray xValues;
+    private DoubleArray yValues;
     private CurveExtrapolator extrapolatorLeft;
     private CurveInterpolator interpolator;
     private CurveExtrapolator extrapolatorRight;
@@ -657,10 +657,10 @@ public final class InterpolatedNodalCurve
           this.metadata = (CurveMetadata) newValue;
           break;
         case 1681280954:  // xValues
-          this.xValues = (DoubleMatrix1D) newValue;
+          this.xValues = (DoubleArray) newValue;
           break;
         case -1726182661:  // yValues
-          this.yValues = (DoubleMatrix1D) newValue;
+          this.yValues = (DoubleArray) newValue;
           break;
         case 1271703994:  // extrapolatorLeft
           this.extrapolatorLeft = (CurveExtrapolator) newValue;
@@ -734,7 +734,7 @@ public final class InterpolatedNodalCurve
      * @param xValues  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder xValues(DoubleMatrix1D xValues) {
+    public Builder xValues(DoubleArray xValues) {
       JodaBeanUtils.notNull(xValues, "xValues");
       this.xValues = xValues;
       return this;
@@ -747,7 +747,7 @@ public final class InterpolatedNodalCurve
      * @param yValues  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder yValues(DoubleMatrix1D yValues) {
+    public Builder yValues(DoubleArray yValues) {
       JodaBeanUtils.notNull(yValues, "yValues");
       this.yValues = yValues;
       return this;

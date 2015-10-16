@@ -28,7 +28,7 @@ import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Unit parameter sensitivity for a single curve.
@@ -56,7 +56,7 @@ public final class CurveUnitParameterSensitivity
    * There will be one sensitivity value for each parameter of the curve.
    */
   @PropertyDefinition(validate = "notNull")
-  private final DoubleMatrix1D sensitivity;
+  private final DoubleArray sensitivity;
 
   //-------------------------------------------------------------------------
   /**
@@ -66,7 +66,7 @@ public final class CurveUnitParameterSensitivity
    * @param sensitivity  the sensitivity values, one for each node in the curve
    * @return the sensitivity object
    */
-  public static CurveUnitParameterSensitivity of(CurveMetadata metadata, DoubleMatrix1D sensitivity) {
+  public static CurveUnitParameterSensitivity of(CurveMetadata metadata, DoubleArray sensitivity) {
     return new CurveUnitParameterSensitivity(metadata, sensitivity);
   }
 
@@ -162,7 +162,7 @@ public final class CurveUnitParameterSensitivity
    * @param sensitivity  the new sensitivity values
    * @return an instance based on this one, with the specified sensitivity values
    */
-  public CurveUnitParameterSensitivity withSensitivity(DoubleMatrix1D sensitivity) {
+  public CurveUnitParameterSensitivity withSensitivity(DoubleArray sensitivity) {
     if (sensitivity.size() != this.sensitivity.size()) {
       throw new IllegalArgumentException("Length of sensitivity must match parameter count");
     }
@@ -195,7 +195,7 @@ public final class CurveUnitParameterSensitivity
 
   private CurveUnitParameterSensitivity(
       CurveMetadata metadata,
-      DoubleMatrix1D sensitivity) {
+      DoubleArray sensitivity) {
     JodaBeanUtils.notNull(metadata, "metadata");
     JodaBeanUtils.notNull(sensitivity, "sensitivity");
     this.metadata = metadata;
@@ -236,7 +236,7 @@ public final class CurveUnitParameterSensitivity
    * There will be one sensitivity value for each parameter of the curve.
    * @return the value of the property, not null
    */
-  public DoubleMatrix1D getSensitivity() {
+  public DoubleArray getSensitivity() {
     return sensitivity;
   }
 
@@ -290,8 +290,8 @@ public final class CurveUnitParameterSensitivity
     /**
      * The meta-property for the {@code sensitivity} property.
      */
-    private final MetaProperty<DoubleMatrix1D> sensitivity = DirectMetaProperty.ofImmutable(
-        this, "sensitivity", CurveUnitParameterSensitivity.class, DoubleMatrix1D.class);
+    private final MetaProperty<DoubleArray> sensitivity = DirectMetaProperty.ofImmutable(
+        this, "sensitivity", CurveUnitParameterSensitivity.class, DoubleArray.class);
     /**
      * The meta-properties.
      */
@@ -345,7 +345,7 @@ public final class CurveUnitParameterSensitivity
      * The meta-property for the {@code sensitivity} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DoubleMatrix1D> sensitivity() {
+    public MetaProperty<DoubleArray> sensitivity() {
       return sensitivity;
     }
 
@@ -379,7 +379,7 @@ public final class CurveUnitParameterSensitivity
   private static final class Builder extends DirectFieldsBeanBuilder<CurveUnitParameterSensitivity> {
 
     private CurveMetadata metadata;
-    private DoubleMatrix1D sensitivity;
+    private DoubleArray sensitivity;
 
     /**
      * Restricted constructor.
@@ -407,7 +407,7 @@ public final class CurveUnitParameterSensitivity
           this.metadata = (CurveMetadata) newValue;
           break;
         case 564403871:  // sensitivity
-          this.sensitivity = (DoubleMatrix1D) newValue;
+          this.sensitivity = (DoubleArray) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

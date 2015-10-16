@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.market.curve.definition.CurveParameterSize;
 import com.opengamma.strata.market.value.ValueType;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Test {@link CurveMetadata}.
@@ -32,7 +32,7 @@ public class DefaultCurveMetadataTest {
   private static final CurveName CURVE_NAME = CurveName.of(NAME);
   private static final JacobianCalibrationMatrix JACOBIAN_DATA = JacobianCalibrationMatrix.of(
       ImmutableList.of(CurveParameterSize.of(CURVE_NAME, 1)),
-      DoubleMatrix2D.filled(2, 2));
+      DoubleMatrix.filled(2, 2));
 
   //-------------------------------------------------------------------------
   public void test_of_String_noMetadata() {

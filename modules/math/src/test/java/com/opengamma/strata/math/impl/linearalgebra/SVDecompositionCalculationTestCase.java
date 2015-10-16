@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 
@@ -20,7 +20,7 @@ import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 @Test
 public abstract class SVDecompositionCalculationTestCase {
   private static final double EPS = 1e-10;
-  private static final DoubleMatrix2D A = DoubleMatrix2D.copyOf(
+  private static final DoubleMatrix A = DoubleMatrix.copyOf(
       new double[][] { {1, 2, 3}, {-3.4, -1, 4}, {1, 6, 1}});
 
   protected abstract Decomposition<SVDecompositionResult> getSVD();
@@ -29,7 +29,7 @@ public abstract class SVDecompositionCalculationTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullObjectMatrix() {
-    getSVD().evaluate((DoubleMatrix2D) null);
+    getSVD().evaluate((DoubleMatrix) null);
   }
 
   @Test
@@ -38,11 +38,11 @@ public abstract class SVDecompositionCalculationTestCase {
     final DecompositionResult result = getSVD().evaluate(A);
     assertTrue(result instanceof SVDecompositionResult);
     final SVDecompositionResult svd_result = (SVDecompositionResult) result;
-    final DoubleMatrix2D u = svd_result.getU();
+    final DoubleMatrix u = svd_result.getU();
     final double[] sv = svd_result.getSingularValues();
-    final DoubleMatrix2D w = DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(sv);
-    final DoubleMatrix2D vt = svd_result.getVT();
-    final DoubleMatrix2D a = (DoubleMatrix2D) algebra.multiply(algebra.multiply(u, w), vt);
+    final DoubleMatrix w = DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(sv);
+    final DoubleMatrix vt = svd_result.getVT();
+    final DoubleMatrix a = (DoubleMatrix) algebra.multiply(algebra.multiply(u, w), vt);
     checkEquals(A, a);
   }
 
@@ -50,8 +50,8 @@ public abstract class SVDecompositionCalculationTestCase {
   public void testInvert() {
     final MatrixAlgebra algebra = getAlgebra();
     final SVDecompositionResult result = getSVD().evaluate(A);
-    final DoubleMatrix2D ut = result.getUT();
-    final DoubleMatrix2D v = result.getV();
+    final DoubleMatrix ut = result.getUT();
+    final DoubleMatrix v = result.getV();
     final double[] sv = result.getSingularValues();
     final int n = sv.length;
     final double[] svinv = new double[n];
@@ -62,14 +62,14 @@ public abstract class SVDecompositionCalculationTestCase {
         svinv[i] = 1.0 / sv[i];
       }
     }
-    final DoubleMatrix2D winv = DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(svinv);
-    final DoubleMatrix2D ainv = (DoubleMatrix2D) algebra.multiply(algebra.multiply(v, winv), ut);
-    final DoubleMatrix2D identity = (DoubleMatrix2D) algebra.multiply(A, ainv);
+    final DoubleMatrix winv = DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(svinv);
+    final DoubleMatrix ainv = (DoubleMatrix) algebra.multiply(algebra.multiply(v, winv), ut);
+    final DoubleMatrix identity = (DoubleMatrix) algebra.multiply(A, ainv);
     checkIdentity(identity);
 
   }
 
-  private void checkEquals(final DoubleMatrix2D x, final DoubleMatrix2D y) {
+  private void checkEquals(final DoubleMatrix x, final DoubleMatrix y) {
     final int n = x.rowCount();
     final int m = x.columnCount();
     assertEquals(n, y.rowCount());
@@ -81,7 +81,7 @@ public abstract class SVDecompositionCalculationTestCase {
     }
   }
 
-  private void checkIdentity(final DoubleMatrix2D x) {
+  private void checkIdentity(final DoubleMatrix x) {
     final int n = x.rowCount();
     assertEquals(x.columnCount(), n);
     for (int i = 0; i < n; i++) {

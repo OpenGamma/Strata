@@ -28,7 +28,7 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * A curve with a parallel shift applied to its y-values.
@@ -151,8 +151,8 @@ public final class ParallelShiftedCurve
   @Override
   public NodalCurve toNodalCurve() {
     NodalCurve underlying = underlyingCurve.toNodalCurve();
-    DoubleMatrix1D yValues = underlying.getYValues();
-    DoubleMatrix1D shifted = yValues.map(v -> shiftType.applyShift(v, shiftAmount));
+    DoubleArray yValues = underlying.getYValues();
+    DoubleArray shifted = yValues.map(v -> shiftType.applyShift(v, shiftAmount));
     return underlying.withYValues(shifted);
   }
 

@@ -24,12 +24,12 @@ import com.opengamma.strata.collect.function.IntIntToDoubleFunction;
  * <p>
  * In mathematical terms, this is a two-dimensional matrix.
  */
-public class DoubleMatrix2D implements Matrix, Serializable {
+public class DoubleMatrix implements Matrix, Serializable {
 
   /**
    * An empty array.
    */
-  public static final DoubleMatrix2D EMPTY = new DoubleMatrix2D(new double[0][0], 0, 0);
+  public static final DoubleMatrix EMPTY = new DoubleMatrix(new double[0][0], 0, 0);
 
   /**
    * Serialization version.
@@ -59,7 +59,7 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * 
    * @return the empty immutable matrix
    */
-  public static DoubleMatrix2D of() {
+  public static DoubleMatrix of() {
     return EMPTY;
   }
 
@@ -76,7 +76,7 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * @return an array containing the specified value
    * @throws IllegalArgumentException if the values array if the incorrect length
    */
-  public static DoubleMatrix2D of(int rows, int columns, double... values) {
+  public static DoubleMatrix of(int rows, int columns, double... values) {
     if (values.length != rows * columns) {
       throw new IllegalArgumentException("Values array not of length rows * columns");
     }
@@ -87,7 +87,7 @@ public class DoubleMatrix2D implements Matrix, Serializable {
     for (int i = 0; i < values.length; i++) {
       array[i / columns][i % columns] = values[i];
     }
-    return new DoubleMatrix2D(array, rows, columns);
+    return new DoubleMatrix(array, rows, columns);
   }
 
   //-------------------------------------------------------------------------
@@ -101,7 +101,7 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * @param valueFunction  the function used to populate the value
    * @return a matrix initialized using the function
    */
-  public static DoubleMatrix2D of(int rows, int columns, IntIntToDoubleFunction valueFunction) {
+  public static DoubleMatrix of(int rows, int columns, IntIntToDoubleFunction valueFunction) {
     if (rows == 0 || columns == 0) {
       return EMPTY;
     }
@@ -112,7 +112,7 @@ public class DoubleMatrix2D implements Matrix, Serializable {
         inner[j] = valueFunction.applyAsDouble(i, j);
       }
     }
-    return new DoubleMatrix2D(array, rows, columns);
+    return new DoubleMatrix(array, rows, columns);
   }
 
   /**
@@ -125,7 +125,7 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * @param valuesFunction  the function used to populate the values
    * @return a matrix initialized using the function
    */
-  public static DoubleMatrix2D ofArrays(int rows, int columns, IntFunction<double[]> valuesFunction) {
+  public static DoubleMatrix ofArrays(int rows, int columns, IntFunction<double[]> valuesFunction) {
     if (rows == 0 || columns == 0) {
       return EMPTY;
     }
@@ -138,7 +138,7 @@ public class DoubleMatrix2D implements Matrix, Serializable {
       }
       array[i] = values.clone();
     }
-    return new DoubleMatrix2D(array, rows, columns);
+    return new DoubleMatrix(array, rows, columns);
   }
 
   /**
@@ -151,20 +151,20 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * @param valuesFunction  the function used to populate the values
    * @return a matrix initialized using the function
    */
-  public static DoubleMatrix2D ofArrayObjects(int rows, int columns, IntFunction<DoubleMatrix1D> valuesFunction) {
+  public static DoubleMatrix ofArrayObjects(int rows, int columns, IntFunction<DoubleArray> valuesFunction) {
     if (rows == 0 || columns == 0) {
       return EMPTY;
     }
     double[][] array = new double[rows][columns];
     for (int i = 0; i < array.length; i++) {
-      DoubleMatrix1D values = valuesFunction.apply(i);
+      DoubleArray values = valuesFunction.apply(i);
       if (values.size() != columns) {
         throw new IllegalArgumentException(Messages.format(
             "Function returned array of incorrect length {}, expected {}", values.size(), columns));
       }
       array[i] = values.toArrayUnsafe();
     }
-    return new DoubleMatrix2D(array, rows, columns);
+    return new DoubleMatrix(array, rows, columns);
   }
 
   /**
@@ -180,12 +180,12 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * @param array  the array to assign
    * @return a matrix wrapping the specified array
    */
-  public static DoubleMatrix2D ofUnsafe(double[][] array) {
+  public static DoubleMatrix ofUnsafe(double[][] array) {
     int rows = array.length;
     if (rows == 0 || array[0].length == 0) {
       return EMPTY;
     }
-    return new DoubleMatrix2D(array, rows, array[0].length);
+    return new DoubleMatrix(array, rows, array[0].length);
   }
 
   //-------------------------------------------------------------------------
@@ -197,13 +197,13 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * @param array  the array to copy, cloned
    * @return a matrix containing the specified values
    */
-  public static DoubleMatrix2D copyOf(double[][] array) {
+  public static DoubleMatrix copyOf(double[][] array) {
     int rows = array.length;
     if (rows == 0 || array[0].length == 0) {
       return EMPTY;
     }
     int columns = array[0].length;
-    return new DoubleMatrix2D(deepClone(array, rows, columns), rows, columns);
+    return new DoubleMatrix(deepClone(array, rows, columns), rows, columns);
   }
 
   //-------------------------------------------------------------------------
@@ -214,11 +214,11 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * @param columns  the number of columns
    * @return a matrix filled with zeroes
    */
-  public static DoubleMatrix2D filled(int rows, int columns) {
+  public static DoubleMatrix filled(int rows, int columns) {
     if (rows == 0 || columns == 0) {
       return EMPTY;
     }
-    return new DoubleMatrix2D(new double[rows][columns], rows, columns);
+    return new DoubleMatrix(new double[rows][columns], rows, columns);
   }
 
   /**
@@ -229,7 +229,7 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * @param value  the value of all the elements
    * @return a matrix filled with the specified value
    */
-  public static DoubleMatrix2D filled(int rows, int columns, double value) {
+  public static DoubleMatrix filled(int rows, int columns, double value) {
     if (rows == 0 || columns == 0) {
       return EMPTY;
     }
@@ -237,7 +237,7 @@ public class DoubleMatrix2D implements Matrix, Serializable {
     for (int i = 0; i < array.length; i++) {
       Arrays.fill(array[i], value);
     }
-    return new DoubleMatrix2D(array, rows, columns);
+    return new DoubleMatrix(array, rows, columns);
   }
 
   //-------------------------------------------------------------------------
@@ -248,7 +248,7 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * @param rows  the number of rows
    * @param columns  the number of columns
    */
-  DoubleMatrix2D(double[][] data, int rows, int columns) {
+  DoubleMatrix(double[][] data, int rows, int columns) {
     this.rows = rows;
     this.columns = columns;
     this.array = data;
@@ -345,8 +345,8 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * @param row  the zero-based row index to retrieve
    * @return the row
    */
-  public DoubleMatrix1D row(int row) {
-    return DoubleMatrix1D.ofUnsafe(array[row]);
+  public DoubleArray row(int row) {
+    return DoubleArray.ofUnsafe(array[row]);
   }
 
   /**
@@ -365,8 +365,8 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * @param column  the zero-based column index to retrieve
    * @return the column
    */
-  public DoubleMatrix1D column(int column) {
-    return DoubleMatrix1D.of(rows, i -> array[i][column]);
+  public DoubleArray column(int column) {
+    return DoubleArray.of(rows, i -> array[i][column]);
   }
 
   /**
@@ -437,14 +437,14 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * @return a copy of this matrix with the value at the index changed
    * @throws IndexOutOfBoundsException if either index is invalid
    */
-  public DoubleMatrix2D with(int row, int column, double newValue) {
+  public DoubleMatrix with(int row, int column, double newValue) {
     if (Double.doubleToLongBits(array[row][column]) == Double.doubleToLongBits(newValue)) {
       return this;
     }
     double[][] result = array.clone();  // shallow clone rows array
     result[row] = result[row].clone();  // clone the column actually being changed, share the rest
     result[row][column] = newValue;
-    return new DoubleMatrix2D(result, rows, columns);
+    return new DoubleMatrix(result, rows, columns);
   }
 
   //-------------------------------------------------------------------------
@@ -459,7 +459,7 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * @param factor  the multiplicative factor
    * @return a copy of this matrix with the each value multiplied by the factor
    */
-  public DoubleMatrix2D multipliedBy(double factor) {
+  public DoubleMatrix multipliedBy(double factor) {
     if (factor == 1d) {
       return this;
     }
@@ -469,7 +469,7 @@ public class DoubleMatrix2D implements Matrix, Serializable {
         result[i][j] = array[i][j] * factor;
       }
     }
-    return new DoubleMatrix2D(result, rows, columns);
+    return new DoubleMatrix(result, rows, columns);
   }
 
   /**
@@ -487,14 +487,14 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * @param operator  the operator to be applied
    * @return a copy of this matrix with the operator applied to the original values
    */
-  public DoubleMatrix2D map(DoubleUnaryOperator operator) {
+  public DoubleMatrix map(DoubleUnaryOperator operator) {
     double[][] result = new double[rows][columns];
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < columns; j++) {
         result[i][j] = operator.applyAsDouble(array[i][j]);
       }
     }
-    return new DoubleMatrix2D(result, rows, columns);
+    return new DoubleMatrix(result, rows, columns);
   }
 
   /**
@@ -512,14 +512,14 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * @param function  the function to be applied
    * @return a copy of this matrix with the operator applied to the original values
    */
-  public DoubleMatrix2D mapWithIndex(IntIntDoubleToDoubleFunction function) {
+  public DoubleMatrix mapWithIndex(IntIntDoubleToDoubleFunction function) {
     double[][] result = new double[rows][columns];
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < columns; j++) {
         result[i][j] = function.applyAsDouble(i, j, array[i][j]);
       }
     }
-    return new DoubleMatrix2D(result, rows, columns);
+    return new DoubleMatrix(result, rows, columns);
   }
 
   //-------------------------------------------------------------------------
@@ -532,14 +532,14 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * plus element {@code (i,j)} in the other matrix.
    * The matrices must be of the same size.
    * <p>
-   * This is a special case of {@link #combine(DoubleMatrix2D, DoubleBinaryOperator)}.
+   * This is a special case of {@link #combine(DoubleMatrix, DoubleBinaryOperator)}.
    * This instance is immutable and unaffected by this method. 
    * 
    * @param other  the other matrix
    * @return a copy of this matrix with matching elements added
    * @throws IllegalArgumentException if the matrices have different sizes
    */
-  public DoubleMatrix2D plus(DoubleMatrix2D other) {
+  public DoubleMatrix plus(DoubleMatrix other) {
     if (rows != other.rows || columns != other.columns) {
       throw new IllegalArgumentException("Arrays have different sizes");
     }
@@ -549,7 +549,7 @@ public class DoubleMatrix2D implements Matrix, Serializable {
         result[i][j] = array[i][j] + other.array[i][j];
       }
     }
-    return new DoubleMatrix2D(result, rows, columns);
+    return new DoubleMatrix(result, rows, columns);
   }
 
   /**
@@ -561,14 +561,14 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * minus element {@code (i,j)} in the other matrix.
    * The matrices must be of the same size.
    * <p>
-   * This is a special case of {@link #combine(DoubleMatrix2D, DoubleBinaryOperator)}.
+   * This is a special case of {@link #combine(DoubleMatrix, DoubleBinaryOperator)}.
    * This instance is immutable and unaffected by this method. 
    * 
    * @param other  the other matrix
    * @return a copy of this matrix with matching elements subtracted
    * @throws IllegalArgumentException if the matrices have different sizes
    */
-  public DoubleMatrix2D minus(DoubleMatrix2D other) {
+  public DoubleMatrix minus(DoubleMatrix other) {
     if (rows != other.rows || columns != other.columns) {
       throw new IllegalArgumentException("Arrays have different sizes");
     }
@@ -578,7 +578,7 @@ public class DoubleMatrix2D implements Matrix, Serializable {
         result[i][j] = array[i][j] - other.array[i][j];
       }
     }
-    return new DoubleMatrix2D(result, rows, columns);
+    return new DoubleMatrix(result, rows, columns);
   }
 
   /**
@@ -597,7 +597,7 @@ public class DoubleMatrix2D implements Matrix, Serializable {
    * @return a copy of this matrix combined with the specified matrix
    * @throws IllegalArgumentException if the matrices have different sizes
    */
-  public DoubleMatrix2D combine(DoubleMatrix2D other, DoubleBinaryOperator operator) {
+  public DoubleMatrix combine(DoubleMatrix other, DoubleBinaryOperator operator) {
     if (rows != other.rows || columns != other.columns) {
       throw new IllegalArgumentException("Arrays have different sizes");
     }
@@ -607,7 +607,7 @@ public class DoubleMatrix2D implements Matrix, Serializable {
         result[i][j] = operator.applyAsDouble(array[i][j], other.array[i][j]);
       }
     }
-    return new DoubleMatrix2D(result, rows, columns);
+    return new DoubleMatrix(result, rows, columns);
   }
 
   //-------------------------------------------------------------------------
@@ -658,8 +658,8 @@ public class DoubleMatrix2D implements Matrix, Serializable {
     if (this == obj) {
       return true;
     }
-    if (obj instanceof DoubleMatrix2D) {
-      DoubleMatrix2D other = (DoubleMatrix2D) obj;
+    if (obj instanceof DoubleMatrix) {
+      DoubleMatrix other = (DoubleMatrix) obj;
       if (columns != other.columns || rows != other.rows) {
         return false;
       }

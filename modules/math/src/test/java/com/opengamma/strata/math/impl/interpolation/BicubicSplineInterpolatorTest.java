@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction2D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Test.
@@ -47,10 +47,10 @@ public class BicubicSplineInterpolatorTest {
     final int n1IntExp = n1Data - 1;
     final int orderExp = 4;
 
-    DoubleMatrix2D[][] coefsExp = new DoubleMatrix2D[n0Data - 1][n1Data - 1];
+    DoubleMatrix[][] coefsExp = new DoubleMatrix[n0Data - 1][n1Data - 1];
     for (int i = 0; i < n0Data - 1; ++i) {
       for (int j = 0; j < n1Data - 1; ++j) {
-        coefsExp[i][j] = DoubleMatrix2D.ofUnsafe(
+        coefsExp[i][j] = DoubleMatrix.ofUnsafe(
             new double[][] {
                 {0., 0., 0., 0.,},
                 {0., 0., 0., 0.,},
@@ -96,7 +96,7 @@ public class BicubicSplineInterpolatorTest {
       }
     }
 
-    DoubleMatrix2D resValues = interp.interpolate(x0Values, x1Values, yValues, x0Keys, x1Keys);
+    DoubleMatrix resValues = interp.interpolate(x0Values, x1Values, yValues, x0Keys, x1Keys);
 
     for (int i = 0; i < n0Keys; ++i) {
       for (int j = 0; j < n1Keys; ++j) {
@@ -183,15 +183,15 @@ public class BicubicSplineInterpolatorTest {
       }
     }
 
-    DoubleMatrix2D resValues = interp.interpolate(x0Values, x1Values, yValues, x0Values, x1Values);
+    DoubleMatrix resValues = interp.interpolate(x0Values, x1Values, yValues, x0Values, x1Values);
     PiecewisePolynomialFunction2D func2D = new PiecewisePolynomialFunction2D();
-    DoubleMatrix2D resDiffX0 = func2D.differentiateX0(result, x0Values, x1Values);
-    DoubleMatrix2D resDiffX1 = func2D.differentiateX1(result, x0Values, x1Values);
+    DoubleMatrix resDiffX0 = func2D.differentiateX0(result, x0Values, x1Values);
+    DoubleMatrix resDiffX1 = func2D.differentiateX1(result, x0Values, x1Values);
 
     final PiecewisePolynomialFunction1D func1D = new PiecewisePolynomialFunction1D();
-    DoubleMatrix2D expDiffX0 = func1D.differentiate(method.interpolate(
-        x0Values, OG_ALGEBRA.getTranspose(DoubleMatrix2D.copyOf(yValues)).toArray()), x0Values);
-    DoubleMatrix2D expDiffX1 = func1D.differentiate(method.interpolate(x1Values, yValues), x1Values);
+    DoubleMatrix expDiffX0 = func1D.differentiate(method.interpolate(
+        x0Values, OG_ALGEBRA.getTranspose(DoubleMatrix.copyOf(yValues)).toArray()), x0Values);
+    DoubleMatrix expDiffX1 = func1D.differentiate(method.interpolate(x1Values, yValues), x1Values);
 
     for (int i = 0; i < n0Data; ++i) {
       for (int j = 0; j < n1Data; ++j) {
@@ -277,15 +277,15 @@ public class BicubicSplineInterpolatorTest {
       }
     }
 
-    DoubleMatrix2D resValues = interp.interpolate(x0Values, x1Values, yValues, x0Values, x1Values);
+    DoubleMatrix resValues = interp.interpolate(x0Values, x1Values, yValues, x0Values, x1Values);
     final PiecewisePolynomialFunction2D func2D = new PiecewisePolynomialFunction2D();
-    DoubleMatrix2D resDiffX0 = func2D.differentiateX0(result, x0Values, x1Values);
-    DoubleMatrix2D resDiffX1 = func2D.differentiateX1(result, x0Values, x1Values);
+    DoubleMatrix resDiffX0 = func2D.differentiateX0(result, x0Values, x1Values);
+    DoubleMatrix resDiffX1 = func2D.differentiateX1(result, x0Values, x1Values);
 
     final PiecewisePolynomialFunction1D func1D = new PiecewisePolynomialFunction1D();
-    DoubleMatrix2D expDiffX0 = func1D.differentiate(method.interpolate(
-        x0Values, OG_ALGEBRA.getTranspose(DoubleMatrix2D.copyOf(yValues)).toArray()), x0Values);
-    DoubleMatrix2D expDiffX1 = func1D.differentiate(method.interpolate(x1Values, yValues), x1Values);
+    DoubleMatrix expDiffX0 = func1D.differentiate(method.interpolate(
+        x0Values, OG_ALGEBRA.getTranspose(DoubleMatrix.copyOf(yValues)).toArray()), x0Values);
+    DoubleMatrix expDiffX1 = func1D.differentiate(method.interpolate(x1Values, yValues), x1Values);
 
     for (int i = 0; i < n0Data; ++i) {
       for (int j = 0; j < n1Data; ++j) {
@@ -365,15 +365,15 @@ public class BicubicSplineInterpolatorTest {
       }
     }
 
-    DoubleMatrix2D resValues = interp.interpolate(x0Values, x1Values, yValues, x0Values, x1Values);
+    DoubleMatrix resValues = interp.interpolate(x0Values, x1Values, yValues, x0Values, x1Values);
     PiecewisePolynomialFunction2D func2D = new PiecewisePolynomialFunction2D();
-    DoubleMatrix2D resDiffX0 = func2D.differentiateX0(result, x0Values, x1Values);
-    DoubleMatrix2D resDiffX1 = func2D.differentiateX1(result, x0Values, x1Values);
+    DoubleMatrix resDiffX0 = func2D.differentiateX0(result, x0Values, x1Values);
+    DoubleMatrix resDiffX1 = func2D.differentiateX1(result, x0Values, x1Values);
 
     PiecewisePolynomialFunction1D func1D = new PiecewisePolynomialFunction1D();
-    DoubleMatrix2D expDiffX0 = func1D.differentiate(
-        method.interpolate(x0Values, OG_ALGEBRA.getTranspose(DoubleMatrix2D.copyOf(yValues)).toArray()), x0Values);
-    DoubleMatrix2D expDiffX1 = func1D.differentiate(method.interpolate(x1Values, yValues), x1Values);
+    DoubleMatrix expDiffX0 = func1D.differentiate(
+        method.interpolate(x0Values, OG_ALGEBRA.getTranspose(DoubleMatrix.copyOf(yValues)).toArray()), x0Values);
+    DoubleMatrix expDiffX1 = func1D.differentiate(method.interpolate(x1Values, yValues), x1Values);
 
     for (int i = 0; i < n0Data; ++i) {
       for (int j = 0; j < n1Data; ++j) {

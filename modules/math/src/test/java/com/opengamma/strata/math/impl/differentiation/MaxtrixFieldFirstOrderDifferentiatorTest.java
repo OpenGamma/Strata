@@ -10,8 +10,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Test.
@@ -20,10 +20,10 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 public class MaxtrixFieldFirstOrderDifferentiatorTest {
   private static final MatrixFieldFirstOrderDifferentiator DIFF = new MatrixFieldFirstOrderDifferentiator();
 
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> F = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+  private static final Function1D<DoubleArray, DoubleMatrix> F = new Function1D<DoubleArray, DoubleMatrix>() {
 
     @Override
-    public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
+    public DoubleMatrix evaluate(final DoubleArray x) {
       double x1 = x.get(0);
       double x2 = x.get(1);
       double[][] y = new double[3][2];
@@ -33,14 +33,14 @@ public class MaxtrixFieldFirstOrderDifferentiatorTest {
       y[0][1] = 7.0;
       y[1][1] = Math.sin(x1);
       y[2][1] = Math.cos(x2);
-      return DoubleMatrix2D.copyOf(y);
+      return DoubleMatrix.copyOf(y);
     }
   };
 
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D[]> G = new Function1D<DoubleMatrix1D, DoubleMatrix2D[]>() {
+  private static final Function1D<DoubleArray, DoubleMatrix[]> G = new Function1D<DoubleArray, DoubleMatrix[]>() {
 
     @Override
-    public DoubleMatrix2D[] evaluate(final DoubleMatrix1D x) {
+    public DoubleMatrix[] evaluate(final DoubleArray x) {
       double x1 = x.get(0);
       double x2 = x.get(1);
       double[][] y = new double[3][2];
@@ -50,26 +50,26 @@ public class MaxtrixFieldFirstOrderDifferentiatorTest {
       y[0][1] = 0.;
       y[1][1] = Math.cos(x1);
       y[2][1] = 0.0;
-      DoubleMatrix2D m1 = DoubleMatrix2D.copyOf(y);
+      DoubleMatrix m1 = DoubleMatrix.copyOf(y);
       y[0][0] = 4 * x2 - x1 - x1 * Math.sin(x2) - Math.sin(x1);
       y[1][0] = 2 * x1 * Math.cos(x1 * x2) - 2 * x1 * x1 * x2 * Math.sin(x1 * x2) - Math.cos(x2) + x2 * Math.sin(x2);
       y[2][0] = -1.;
       y[0][1] = 0.;
       y[1][1] = 0.0;
       y[2][1] = -Math.sin(x2);
-      DoubleMatrix2D m2 = DoubleMatrix2D.copyOf(y);
-      return new DoubleMatrix2D[] {m1, m2 };
+      DoubleMatrix m2 = DoubleMatrix.copyOf(y);
+      return new DoubleMatrix[] {m1, m2 };
     }
   };
 
   @Test
   public void test() {
-    Function1D<DoubleMatrix1D, DoubleMatrix2D[]> analDiffFunc = DIFF.differentiate(F);
+    Function1D<DoubleArray, DoubleMatrix[]> analDiffFunc = DIFF.differentiate(F);
 
-    final DoubleMatrix1D x = DoubleMatrix1D.of(1.3423, 0.235);
+    final DoubleArray x = DoubleArray.of(1.3423, 0.235);
 
-    DoubleMatrix2D[] alRes = analDiffFunc.evaluate(x);
-    DoubleMatrix2D[] fdRes = G.evaluate(x);
+    DoubleMatrix[] alRes = analDiffFunc.evaluate(x);
+    DoubleMatrix[] fdRes = G.evaluate(x);
 
     final int p = fdRes.length;
     final int n = fdRes[0].rowCount();

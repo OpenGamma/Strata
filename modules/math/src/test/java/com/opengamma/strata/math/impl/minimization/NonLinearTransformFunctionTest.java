@@ -14,8 +14,8 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.minimization.ParameterLimitsTransform.LimitType;
 
 /**
@@ -27,22 +27,22 @@ public class NonLinearTransformFunctionTest {
   private static final ParameterLimitsTransform[] NULL_TRANSFORMS;
   private static final ParameterLimitsTransform[] TRANSFORMS;
 
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FUNCTION = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  private static final Function1D<DoubleArray, DoubleArray> FUNCTION = new Function1D<DoubleArray, DoubleArray>() {
     @Override
-    public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+    public DoubleArray evaluate(DoubleArray x) {
       ArgChecker.isTrue(x.size() == 2);
       double x1 = x.get(0);
       double x2 = x.get(1);
-      return DoubleMatrix1D.of(
+      return DoubleArray.of(
           Math.sin(x1) * Math.cos(x2),
           Math.sin(x1) * Math.sin(x2),
           Math.cos(x1));
     }
   };
 
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> JACOBIAN = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+  private static final Function1D<DoubleArray, DoubleMatrix> JACOBIAN = new Function1D<DoubleArray, DoubleMatrix>() {
     @Override
-    public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
+    public DoubleMatrix evaluate(DoubleArray x) {
       ArgChecker.isTrue(x.size() == 2);
       double x1 = x.get(0);
       double x2 = x.get(1);
@@ -53,7 +53,7 @@ public class NonLinearTransformFunctionTest {
       y[1][1] = Math.sin(x1) * Math.cos(x2);
       y[2][0] = -Math.sin(x1);
       y[2][1] = 0;
-      return DoubleMatrix2D.copyOf(y);
+      return DoubleMatrix.copyOf(y);
     }
   };
 
@@ -71,21 +71,21 @@ public class NonLinearTransformFunctionTest {
   public void testNullTransform() {
     BitSet fixed = new BitSet();
     fixed.set(0);
-    DoubleMatrix1D start = DoubleMatrix1D.of(Math.PI / 4, 1);
+    DoubleArray start = DoubleArray.of(Math.PI / 4, 1);
     UncoupledParameterTransforms transforms = new UncoupledParameterTransforms(start, NULL_TRANSFORMS, fixed);
     NonLinearTransformFunction transFunc = new NonLinearTransformFunction(FUNCTION, JACOBIAN, transforms);
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> func = transFunc.getFittingFunction();
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc = transFunc.getFittingJacobian();
+    Function1D<DoubleArray, DoubleArray> func = transFunc.getFittingFunction();
+    Function1D<DoubleArray, DoubleMatrix> jacFunc = transFunc.getFittingJacobian();
 
-    DoubleMatrix1D x = DoubleMatrix1D.of(0.5);
+    DoubleArray x = DoubleArray.of(0.5);
     final double rootHalf = Math.sqrt(0.5);
-    DoubleMatrix1D y = func.evaluate(x);
+    DoubleArray y = func.evaluate(x);
     assertEquals(3, y.size());
     assertEquals(rootHalf * Math.cos(0.5), y.get(0), 1e-9);
     assertEquals(rootHalf * Math.sin(0.5), y.get(1), 1e-9);
     assertEquals(rootHalf, y.get(2), 1e-9);
 
-    DoubleMatrix2D jac = jacFunc.evaluate(x);
+    DoubleMatrix jac = jacFunc.evaluate(x);
     assertEquals(3, jac.rowCount());
     assertEquals(1, jac.columnCount());
     assertEquals(-rootHalf * Math.sin(0.5), jac.get(0, 0), 1e-9);
@@ -96,18 +96,18 @@ public class NonLinearTransformFunctionTest {
   @Test
   public void testNonLinearTransform() {
     BitSet fixed = new BitSet();
-    DoubleMatrix1D start = DoubleMatrix1D.filled(2);
+    DoubleArray start = DoubleArray.filled(2);
     UncoupledParameterTransforms transforms = new UncoupledParameterTransforms(start, TRANSFORMS, fixed);
     NonLinearTransformFunction transFunc = new NonLinearTransformFunction(FUNCTION, JACOBIAN, transforms);
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> func = transFunc.getFittingFunction();
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc = transFunc.getFittingJacobian();
+    Function1D<DoubleArray, DoubleArray> func = transFunc.getFittingFunction();
+    Function1D<DoubleArray, DoubleMatrix> jacFunc = transFunc.getFittingJacobian();
 
     VectorFieldFirstOrderDifferentiator diff = new VectorFieldFirstOrderDifferentiator();
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFuncFD = diff.differentiate(func);
+    Function1D<DoubleArray, DoubleMatrix> jacFuncFD = diff.differentiate(func);
 
-    DoubleMatrix1D testPoint = DoubleMatrix1D.of(4.5, -2.1);
-    DoubleMatrix2D jac = jacFunc.evaluate(testPoint);
-    DoubleMatrix2D jacFD = jacFuncFD.evaluate(testPoint);
+    DoubleArray testPoint = DoubleArray.of(4.5, -2.1);
+    DoubleMatrix jac = jacFunc.evaluate(testPoint);
+    DoubleMatrix jacFD = jacFuncFD.evaluate(testPoint);
     assertEquals(3, jac.rowCount());
     assertEquals(2, jac.columnCount());
 

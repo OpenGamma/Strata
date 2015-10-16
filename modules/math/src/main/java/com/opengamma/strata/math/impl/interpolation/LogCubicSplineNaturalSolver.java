@@ -7,8 +7,8 @@ package com.opengamma.strata.math.impl.interpolation;
 
 import com.opengamma.strata.math.impl.linearalgebra.TridiagonalMatrix;
 import com.opengamma.strata.math.impl.linearalgebra.TridiagonalSolver;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * For specific cubic spline interpolations, polynomial coefficients are determined by the tridiagonal algorithm
@@ -16,13 +16,13 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 public class LogCubicSplineNaturalSolver extends CubicSplineSolver {
 
   @Override
-  public DoubleMatrix2D solve(final double[] xValues, final double[] yValues) {
+  public DoubleMatrix solve(final double[] xValues, final double[] yValues) {
     final double[] intervals = getDiffs(xValues);
     return getCommonSplineCoeffs(xValues, yValues, intervals, matrixEqnSolver(getMatrix(intervals), getCommonVectorElements(yValues, intervals)));
   }
 
   @Override
-  public DoubleMatrix2D[] solveWithSensitivity(final double[] xValues, final double[] yValues) {
+  public DoubleMatrix[] solveWithSensitivity(final double[] xValues, final double[] yValues) {
     final double[] intervals = getDiffs(xValues);
     final double[][] toBeInv = getMatrix(intervals);
     final double[] commonVector = getCommonVectorElements(yValues, intervals);
@@ -32,9 +32,9 @@ public class LogCubicSplineNaturalSolver extends CubicSplineSolver {
   }
 
   @Override
-  public DoubleMatrix2D[] solveMultiDim(final double[] xValues, final DoubleMatrix2D yValuesMatrix) {
+  public DoubleMatrix[] solveMultiDim(final double[] xValues, final DoubleMatrix yValuesMatrix) {
     final int dim = yValuesMatrix.rowCount();
-    DoubleMatrix2D[] coefMatrix = new DoubleMatrix2D[dim];
+    DoubleMatrix[] coefMatrix = new DoubleMatrix[dim];
     for (int i = 0; i < dim; ++i) {
       coefMatrix[i] = solve(xValues, yValuesMatrix.row(i).toArray());
     }
@@ -78,10 +78,10 @@ public class LogCubicSplineNaturalSolver extends CubicSplineSolver {
   }
 
   @Override
-  protected DoubleMatrix1D[] combinedMatrixEqnSolver(final double[][] doubMat1, final double[] doubVec, final double[][] doubMat2) {
+  protected DoubleArray[] combinedMatrixEqnSolver(final double[][] doubMat1, final double[] doubVec, final double[][] doubMat2) {
     final int size = doubVec.length;
-    final DoubleMatrix1D[] res = new DoubleMatrix1D[size + 1];
-    final DoubleMatrix2D doubMat2Matrix = DoubleMatrix2D.copyOf(doubMat2);
+    final DoubleArray[] res = new DoubleArray[size + 1];
+    final DoubleMatrix doubMat2Matrix = DoubleMatrix.copyOf(doubMat2);
 
     final double[] u = new double[size - 1];
     final double[] d = new double[size];
@@ -94,9 +94,9 @@ public class LogCubicSplineNaturalSolver extends CubicSplineSolver {
     }
     d[size - 1] = doubMat1[size - 1][size - 1];
     final TridiagonalMatrix m = new TridiagonalMatrix(d, u, l);
-    res[0] = DoubleMatrix1D.copyOf(TridiagonalSolver.solvTriDag(m, doubVec));
+    res[0] = DoubleArray.copyOf(TridiagonalSolver.solvTriDag(m, doubVec));
     for (int i = 0; i < size; ++i) {
-      DoubleMatrix1D doubMat2Colum = doubMat2Matrix.column(i);
+      DoubleArray doubMat2Colum = doubMat2Matrix.column(i);
       res[i + 1] = TridiagonalSolver.solvTriDag(m, doubMat2Colum);
     }
     return res;

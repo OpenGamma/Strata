@@ -8,8 +8,8 @@ package com.opengamma.strata.math.impl.interpolation;
 import static org.apache.commons.math3.util.CombinatoricsUtils.binomialCoefficient;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.IdentityMatrix;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
@@ -40,7 +40,7 @@ public abstract class PenaltyMatrixGenerator {
    * @param k Difference order. Require m > k 
    * @return The k^th order difference matrix 
    */
-  public static DoubleMatrix2D getDifferenceMatrix(int m, int k) {
+  public static DoubleMatrix getDifferenceMatrix(int m, int k) {
     ArgChecker.notNegativeOrZero(m, "m");
     ArgChecker.notNegative(k, "k");
     ArgChecker.isTrue(k < m, "Difference order too high, require m > k, but have: m = {} and k = {}", m, k);
@@ -60,7 +60,7 @@ public abstract class PenaltyMatrixGenerator {
         data[i][j + i - k] = coeff[j];
       }
     }
-    return DoubleMatrix2D.ofUnsafe(data);
+    return DoubleMatrix.ofUnsafe(data);
   }
 
   /**
@@ -72,16 +72,16 @@ public abstract class PenaltyMatrixGenerator {
    * @param k Difference order. Require m > k 
    * @return The k^th order penalty matrix, P
    */
-  public static DoubleMatrix2D getPenaltyMatrix(int m, int k) {
+  public static DoubleMatrix getPenaltyMatrix(int m, int k) {
     ArgChecker.notNegativeOrZero(m, "m");
     ArgChecker.notNegative(k, "k");
     ArgChecker.isTrue(k < m, "Difference order too high, require m > k, but have: m = {} and k = {}", m, k);
     if (k == 0) {
       return new IdentityMatrix(m);
     }
-    DoubleMatrix2D d = getDifferenceMatrix(m, k);
-    DoubleMatrix2D dt = MA.getTranspose(d);
-    return (DoubleMatrix2D) MA.multiply(dt, d);
+    DoubleMatrix d = getDifferenceMatrix(m, k);
+    DoubleMatrix dt = MA.getTranspose(d);
+    return (DoubleMatrix) MA.multiply(dt, d);
   }
 
   /**
@@ -93,10 +93,10 @@ public abstract class PenaltyMatrixGenerator {
    * @param index Which set of indices does the matrix act on 
    * @return A penalty matrix 
    */
-  public static DoubleMatrix2D getPenaltyMatrix(int[] numElements, int k, int index) {
+  public static DoubleMatrix getPenaltyMatrix(int[] numElements, int k, int index) {
     ArgChecker.notEmpty(numElements, "size");
     ArgChecker.isTrue(index >= 0 && index < numElements.length, "index must be in range 0 to {}", numElements.length);
-    DoubleMatrix2D d = getPenaltyMatrix(numElements[index], k);
+    DoubleMatrix d = getPenaltyMatrix(numElements[index], k);
     return getMatrixForFlattened(numElements, d, index);
   }
 
@@ -109,7 +109,7 @@ public abstract class PenaltyMatrixGenerator {
    * @param lambda The scaling for each dimension 
    * @return  A penalty matrix 
    */
-  public static DoubleMatrix2D getPenaltyMatrix(int[] numElements, int[] k, double[] lambda) {
+  public static DoubleMatrix getPenaltyMatrix(int[] numElements, int[] k, double[] lambda) {
     ArgChecker.notEmpty(numElements, "size");
     ArgChecker.notEmpty(k, "k");
     ArgChecker.notEmpty(lambda, "lambda");
@@ -117,10 +117,10 @@ public abstract class PenaltyMatrixGenerator {
     ArgChecker.isTrue(dim == k.length, "k different length to size");
     ArgChecker.isTrue(dim == lambda.length, "lambda different lenght to size");
 
-    DoubleMatrix2D p = (DoubleMatrix2D) MA.scale(getPenaltyMatrix(numElements, k[0], 0), lambda[0]);
+    DoubleMatrix p = (DoubleMatrix) MA.scale(getPenaltyMatrix(numElements, k[0], 0), lambda[0]);
     for (int i = 1; i < dim; i++) {
-      DoubleMatrix2D temp = (DoubleMatrix2D) MA.scale(getPenaltyMatrix(numElements, k[i], i), lambda[i]);
-      p = (DoubleMatrix2D) MA.add(p, temp);
+      DoubleMatrix temp = (DoubleMatrix) MA.scale(getPenaltyMatrix(numElements, k[i], i), lambda[i]);
+      p = (DoubleMatrix) MA.add(p, temp);
     }
     return p;
   }
@@ -141,7 +141,7 @@ public abstract class PenaltyMatrixGenerator {
    * the first and last rows of the matrix are empty 
    * @return The derivative matrix
    */
-  public static DoubleMatrix2D getDerivativeMatrix(double[] x, int k, boolean includeEnds) {
+  public static DoubleMatrix getDerivativeMatrix(double[] x, int k, boolean includeEnds) {
     ArgChecker.notEmpty(x, "x");
     ArgChecker.notNegative(k, "k");
     int size = x.length;
@@ -194,7 +194,7 @@ public abstract class PenaltyMatrixGenerator {
         data[size - 1] = data[size - 2];
       }
     }
-    return DoubleMatrix2D.copyOf(data);
+    return DoubleMatrix.copyOf(data);
   }
 
   /**
@@ -207,7 +207,7 @@ public abstract class PenaltyMatrixGenerator {
    * @param k order The order <b>Only first and second order are currently implemented</b>
    * @return The k^th order penalty matrix
    */
-  public static DoubleMatrix2D getPenaltyMatrix(double[] x, int k) {
+  public static DoubleMatrix getPenaltyMatrix(double[] x, int k) {
     ArgChecker.notEmpty(x, "x");
     if (x.length == 1) {
       if (k == 0) {
@@ -218,9 +218,9 @@ public abstract class PenaltyMatrixGenerator {
     double range = x[x.length - 1] - x[0];
     ArgChecker.notNegativeOrZero(range, "range of x");
     double scale = Math.pow(range, k);
-    DoubleMatrix2D d = (DoubleMatrix2D) MA.scale(getDerivativeMatrix(x, k, false), scale);
-    DoubleMatrix2D dt = MA.getTranspose(d);
-    return (DoubleMatrix2D) MA.multiply(dt, d);
+    DoubleMatrix d = (DoubleMatrix) MA.scale(getDerivativeMatrix(x, k, false), scale);
+    DoubleMatrix dt = MA.getTranspose(d);
+    return (DoubleMatrix) MA.multiply(dt, d);
   }
 
   /**
@@ -230,7 +230,7 @@ public abstract class PenaltyMatrixGenerator {
    * @param index which index to act on 
    * @return a penalty matrix 
    */
-  public static DoubleMatrix2D getPenaltyMatrix(double[][] x, int k, int index) {
+  public static DoubleMatrix getPenaltyMatrix(double[][] x, int k, int index) {
     ArgChecker.noNulls(x, "x");
     //k is checked in call below
     int dim = x.length;
@@ -238,7 +238,7 @@ public abstract class PenaltyMatrixGenerator {
     for (int i = 0; i < dim; i++) {
       numElements[i] = x[i].length;
     }
-    DoubleMatrix2D p = getPenaltyMatrix(x[index], k);
+    DoubleMatrix p = getPenaltyMatrix(x[index], k);
 
     return getMatrixForFlattened(numElements, p, index);
   }
@@ -251,7 +251,7 @@ public abstract class PenaltyMatrixGenerator {
    * @param lambda the strength of the penalty in each dimension
    * @return a penalty matrix
    */
-  public static DoubleMatrix2D getPenaltyMatrix(double[][] x, int[] k, double[] lambda) {
+  public static DoubleMatrix getPenaltyMatrix(double[][] x, int[] k, double[] lambda) {
     ArgChecker.notEmpty(k, "k");
     //values of k are checked in calls to 1D getPenaltyMatrix
     ArgChecker.notEmpty(lambda, "lambda");
@@ -259,10 +259,10 @@ public abstract class PenaltyMatrixGenerator {
     ArgChecker.isTrue(dim == k.length, "k different lenght to size");
     ArgChecker.isTrue(dim == lambda.length, "lambda different length to size");
 
-    DoubleMatrix2D p = (DoubleMatrix2D) MA.scale(getPenaltyMatrix(x, k[0], 0), lambda[0]);
+    DoubleMatrix p = (DoubleMatrix) MA.scale(getPenaltyMatrix(x, k[0], 0), lambda[0]);
     for (int i = 1; i < dim; i++) {
-      DoubleMatrix2D temp = (DoubleMatrix2D) MA.scale(getPenaltyMatrix(x, k[i], i), lambda[i]);
-      p = (DoubleMatrix2D) MA.add(p, temp);
+      DoubleMatrix temp = (DoubleMatrix) MA.scale(getPenaltyMatrix(x, k[i], i), lambda[i]);
+      p = (DoubleMatrix) MA.add(p, temp);
     }
     return p;
   }
@@ -273,7 +273,7 @@ public abstract class PenaltyMatrixGenerator {
    * @param aMatrix A matrix
    * @return a the flattened matrix 
    */
-  public static DoubleMatrix1D flattenMatrix(DoubleMatrix2D aMatrix) {
+  public static DoubleArray flattenMatrix(DoubleMatrix aMatrix) {
     int elements = aMatrix.size();
     double[] data = new double[elements];
     int nRows = aMatrix.rowCount();
@@ -283,7 +283,7 @@ public abstract class PenaltyMatrixGenerator {
       System.arraycopy(aMatrix.rowArray(i), 0, data, pos, nCols);
       pos += nCols;
     }
-    return DoubleMatrix1D.copyOf(data);
+    return DoubleArray.copyOf(data);
   }
 
   /**
@@ -297,7 +297,7 @@ public abstract class PenaltyMatrixGenerator {
    * @param index Which index does the matrix act on 
    * @return A (larger) matrix which acts on the flattened vector 
    */
-  public static DoubleMatrix2D getMatrixForFlattened(int[] numElements, DoubleMatrix2D m, int index) {
+  public static DoubleMatrix getMatrixForFlattened(int[] numElements, DoubleMatrix m, int index) {
     ArgChecker.notEmpty(numElements, "numElements");
     int dim = numElements.length;
     ArgChecker.notNull(m, "m");
@@ -311,12 +311,12 @@ public abstract class PenaltyMatrixGenerator {
     for (int j = 0; j < index; j++) {
       postProduct *= numElements[j];
     }
-    DoubleMatrix2D temp = m;
+    DoubleMatrix temp = m;
     if (preProduct != 1) {
-      temp = (DoubleMatrix2D) MA.kroneckerProduct(temp, DoubleMatrixUtils.getIdentityMatrix2D(preProduct));
+      temp = (DoubleMatrix) MA.kroneckerProduct(temp, DoubleMatrixUtils.getIdentityMatrix2D(preProduct));
     }
     if (postProduct != 1) {
-      temp = (DoubleMatrix2D) MA.kroneckerProduct(DoubleMatrixUtils.getIdentityMatrix2D(postProduct), temp);
+      temp = (DoubleMatrix) MA.kroneckerProduct(DoubleMatrixUtils.getIdentityMatrix2D(postProduct), temp);
     }
 
     return temp;

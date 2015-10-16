@@ -20,8 +20,8 @@ public final class DoubleMatrixUtils {
    * @param matrix The matrix to transpose, not null
    * @return The transposed matrix
    */
-  public static DoubleMatrix2D getTranspose(DoubleMatrix2D matrix) {
-    return DoubleMatrix2D.of(matrix.columnCount(), matrix.rowCount(), (i, j) -> matrix.get(j, i));
+  public static DoubleMatrix getTranspose(DoubleMatrix matrix) {
+    return DoubleMatrix.of(matrix.columnCount(), matrix.rowCount(), (i, j) -> matrix.get(j, i));
   }
 
   /**
@@ -29,15 +29,15 @@ public final class DoubleMatrixUtils {
    * @param dimension The dimension of matrix required, not negative or zero
    * @return The identity matrix
    */
-  public static DoubleMatrix2D getIdentityMatrix2D(int dimension) {
+  public static DoubleMatrix getIdentityMatrix2D(int dimension) {
     ArgChecker.isTrue(dimension >= 0, "dimension must be >= 0");
     if (dimension == 0) {
-      return DoubleMatrix2D.EMPTY;
+      return DoubleMatrix.EMPTY;
     }
     if (dimension == 1) {
-      return DoubleMatrix2D.of(1, 1, 1d);
+      return DoubleMatrix.of(1, 1, 1d);
     }
-    return DoubleMatrix2D.of(dimension, dimension, (i, j) -> (i == j) ? 1d : 0d);
+    return DoubleMatrix.of(dimension, dimension, (i, j) -> (i == j) ? 1d : 0d);
   }
 
   /**
@@ -45,13 +45,13 @@ public final class DoubleMatrixUtils {
    * @param vector The vector, not null
    * @return A diagonal matrix 
    */
-  public static DoubleMatrix2D getTwoDimensionalDiagonalMatrix(DoubleMatrix1D vector) {
+  public static DoubleMatrix getTwoDimensionalDiagonalMatrix(DoubleArray vector) {
     ArgChecker.notNull(vector, "vector");
     int n = vector.size();
     if (n == 0) {
-      return DoubleMatrix2D.EMPTY;
+      return DoubleMatrix.EMPTY;
     }
-    return DoubleMatrix2D.of(n, n, (i, j) -> (i == j) ? vector.get(i) : 0d);
+    return DoubleMatrix.of(n, n, (i, j) -> (i == j) ? vector.get(i) : 0d);
   }
 
   /**
@@ -59,8 +59,8 @@ public final class DoubleMatrixUtils {
    * @param vector The vector, not null
    * @return A diagonal matrix
    */
-  public static DoubleMatrix2D getTwoDimensionalDiagonalMatrix(double[] vector) {
+  public static DoubleMatrix getTwoDimensionalDiagonalMatrix(double[] vector) {
     ArgChecker.notNull(vector, "vector");
-    return getTwoDimensionalDiagonalMatrix(DoubleMatrix1D.copyOf(vector));
+    return getTwoDimensionalDiagonalMatrix(DoubleArray.copyOf(vector));
   }
 }

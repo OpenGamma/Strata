@@ -12,7 +12,7 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test interpolateWithSensitivity method via PiecewisePolynomialInterpolator1D
@@ -427,7 +427,7 @@ public class NonnegativityPreservingCubicSplineInterpolator1DTest {
 
       final NonnegativityPreservingCubicSplineInterpolator bare = new NonnegativityPreservingCubicSplineInterpolator(new CubicSplineInterpolator());
       final NonnegativityPreservingCubicSplineInterpolator1D wrap = new NonnegativityPreservingCubicSplineInterpolator1D(new CubicSplineInterpolator());
-      final DoubleMatrix1D resPrim1 = bare.interpolate(xValues, yValues1[k], xKeys);
+      final DoubleArray resPrim1 = bare.interpolate(xValues, yValues1[k], xKeys);
       Interpolator1DDataBundle dataBund1 = wrap.getDataBundleFromSortedArrays(xValues, yValues1[k]);
       for (int i = 0; i < 10 * nData; ++i) {
         final double ref1 = resPrim1.get(i);

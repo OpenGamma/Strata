@@ -13,8 +13,8 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Computes the cross-gamma and related figures to the rate curves parameters for rates provider.
@@ -66,8 +66,8 @@ public class CurveGammaCalculator {
       Function<NodalCurve, CurveCurrencyParameterSensitivity> sensitivitiesFn) {
 
     Delta deltaShift = new Delta(curve, sensitivitiesFn);
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> gammaFn = fd.differentiate(deltaShift);
-    DoubleMatrix1D gamma = gammaFn.evaluate(DoubleMatrix1D.filled(1)).column(0);
+    Function1D<DoubleArray, DoubleMatrix> gammaFn = fd.differentiate(deltaShift);
+    DoubleArray gamma = gammaFn.evaluate(DoubleArray.filled(1)).column(0);
     return CurveCurrencyParameterSensitivity.of(curve.getMetadata(), curveCurrency, gamma);
   }
 
@@ -75,7 +75,7 @@ public class CurveGammaCalculator {
   /**
    * Inner class to compute the delta for a given parallel shift of the curve.
    */
-  static class Delta extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
+  static class Delta extends Function1D<DoubleArray, DoubleArray> {
     private final NodalCurve curve;
     private final Function<NodalCurve, CurveCurrencyParameterSensitivity> sensitivitiesFn;
 
@@ -85,9 +85,9 @@ public class CurveGammaCalculator {
     }
 
     @Override
-    public DoubleMatrix1D evaluate(DoubleMatrix1D s) {
+    public DoubleArray evaluate(DoubleArray s) {
       double shift = s.get(0);
-      DoubleMatrix1D yieldBumped = curve.getYValues().map(v -> v + shift);
+      DoubleArray yieldBumped = curve.getYValues().map(v -> v + shift);
       NodalCurve curveBumped = curve.withYValues(yieldBumped);
       CurveCurrencyParameterSensitivity pts = sensitivitiesFn.apply(curveBumped);
       return pts.getSensitivity();

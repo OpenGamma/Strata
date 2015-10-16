@@ -16,8 +16,8 @@ import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
 import com.opengamma.strata.math.impl.linearalgebra.QRDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.QRDecompositionResult;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.regression.LeastSquaresRegressionResult;
 import com.opengamma.strata.math.impl.statistics.descriptive.MeanCalculator;
 import com.opengamma.strata.math.impl.statistics.descriptive.SampleStandardDeviationCalculator;
@@ -61,9 +61,9 @@ public class PolynomialsLeastSquaresFitter {
     LeastSquaresRegressionResult result = regress(xData, yData, degree, normalize);
 
     int nData = xData.length;
-    DoubleMatrix2D rMatriX = _qrResult.getR();
+    DoubleMatrix rMatriX = _qrResult.getR();
 
-    DoubleMatrix1D resResult = DoubleMatrix1D.copyOf(result.getResiduals());
+    DoubleArray resResult = DoubleArray.copyOf(result.getResiduals());
     double resNorm = OG_ALGEBRA.getNorm2(resResult);
 
     if (normalize == true) {
@@ -131,8 +131,8 @@ public class PolynomialsLeastSquaresFitter {
       }
     }
 
-    DoubleMatrix2D xDataMatrix = DoubleMatrix2D.copyOf(tmpMatrix);
-    DoubleMatrix1D yDataVector = DoubleMatrix1D.copyOf(yData);
+    DoubleMatrix xDataMatrix = DoubleMatrix.copyOf(tmpMatrix);
+    DoubleArray yDataVector = DoubleArray.copyOf(yData);
 
     double vandNorm = COMMONS_ALGEBRA.getNorm2(xDataMatrix);
     ArgChecker.isFalse(vandNorm > 1e9, "Too large input data or too many degrees");
@@ -144,13 +144,13 @@ public class PolynomialsLeastSquaresFitter {
   /**
    * This regression method is private and called in other regression methods
    * @param xDataMatrix _nData x (_degree + 1) matrix whose low vector is (xData[i]^0, xData[i]^1, ..., xData[i]^{_degree})
-   * @param yDataVector yData of DoubleMatrix1D
+   * @param yDataVector the y-values
    * @param nData Number of data points
    * @param degree
    */
   private LeastSquaresRegressionResult regress(
-      DoubleMatrix2D xDataMatrix,
-      DoubleMatrix1D yDataVector,
+      DoubleMatrix xDataMatrix,
+      DoubleArray yDataVector,
       int nData,
       int degree) {
 
@@ -159,8 +159,8 @@ public class PolynomialsLeastSquaresFitter {
     DecompositionResult decompResult = qrComm.evaluate(xDataMatrix);
     _qrResult = (QRDecompositionResult) decompResult;
 
-    DoubleMatrix2D qMatrix = _qrResult.getQ();
-    DoubleMatrix2D rMatrix = _qrResult.getR();
+    DoubleMatrix qMatrix = _qrResult.getQ();
+    DoubleMatrix rMatrix = _qrResult.getR();
 
     double[] betas = backSubstitution(qMatrix, rMatrix, yDataVector, degree);
     double[] residuals = residualsSolver(xDataMatrix, betas, yDataVector);
@@ -186,16 +186,16 @@ public class PolynomialsLeastSquaresFitter {
    * @return Coefficients of the polynomial which minimize least square
    */
   private double[] backSubstitution(
-      DoubleMatrix2D qMatrix,
-      DoubleMatrix2D rMatrix,
-      DoubleMatrix1D yDataVector,
+      DoubleMatrix qMatrix,
+      DoubleMatrix rMatrix,
+      DoubleArray yDataVector,
       int degree) {
 
     double[] res = new double[degree + 1];
     Arrays.fill(res, 0.);
 
-    DoubleMatrix2D tpMatrix = OG_ALGEBRA.getTranspose(qMatrix);
-    DoubleMatrix1D yDataVecConv = (DoubleMatrix1D) OG_ALGEBRA.multiply(tpMatrix, yDataVector);
+    DoubleMatrix tpMatrix = OG_ALGEBRA.getTranspose(qMatrix);
+    DoubleArray yDataVecConv = (DoubleArray) OG_ALGEBRA.multiply(tpMatrix, yDataVector);
 
     for (int i = 0; i < degree + 1; ++i) {
       double tmp = 0.;
@@ -215,12 +215,12 @@ public class PolynomialsLeastSquaresFitter {
    * @param yDataVector
    * @return Difference between yData[i] and f(xData[i]), where f() is the polynomial with derived coefficients
    */
-  private double[] residualsSolver(DoubleMatrix2D xDataMatrix, double[] betas, DoubleMatrix1D yDataVector) {
+  private double[] residualsSolver(DoubleMatrix xDataMatrix, double[] betas, DoubleArray yDataVector) {
 
-    DoubleMatrix1D betasVector = DoubleMatrix1D.copyOf(betas);
+    DoubleArray betasVector = DoubleArray.copyOf(betas);
 
-    DoubleMatrix1D modelValuesVector = (DoubleMatrix1D) OG_ALGEBRA.multiply(xDataMatrix, betasVector);
-    DoubleMatrix1D res = (DoubleMatrix1D) OG_ALGEBRA.subtract(yDataVector, modelValuesVector);
+    DoubleArray modelValuesVector = (DoubleArray) OG_ALGEBRA.multiply(xDataMatrix, betasVector);
+    DoubleArray res = (DoubleArray) OG_ALGEBRA.subtract(yDataVector, modelValuesVector);
 
     return res.toArray();
 

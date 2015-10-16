@@ -10,8 +10,8 @@ import java.util.Arrays;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivityFunction1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Given a data set {xValues[i], yValues[i]}, interpolate {xValues[i], xValues[i] * yValues[i]} by a piecewise polynomial function. 
@@ -127,23 +127,23 @@ public class ProductPiecewisePolynomialInterpolator extends PiecewisePolynomialI
         PiecewisePolynomialResultsWithSensitivity resultCast = (PiecewisePolynomialResultsWithSensitivity) result;
         double[] extraSense = FUNC.nodeSensitivity(resultCast, lastNodeX).toArray();
         double[] extraSenseDer = FUNC.differentiateNodeSensitivity(resultCast, lastNodeX).toArray();
-        DoubleMatrix2D[] newCoefSense = new DoubleMatrix2D[nIntervalsAll + 1];
+        DoubleMatrix[] newCoefSense = new DoubleMatrix[nIntervalsAll + 1];
         for (int i = 0; i < nIntervalsAll; ++i) {
           newCoefSense[i] = resultCast.getCoefficientSensitivity(i);
         }
         double[][] extraCoefSense = new double[resultCast.getOrder()][extraSense.length];
         extraCoefSense[resultCast.getOrder() - 1] = Arrays.copyOf(extraSense, extraSense.length);
         extraCoefSense[resultCast.getOrder() - 2] = Arrays.copyOf(extraSenseDer, extraSenseDer.length);
-        newCoefSense[nIntervalsAll] = DoubleMatrix2D.copyOf(extraCoefSense);
+        newCoefSense[nIntervalsAll] = DoubleMatrix.copyOf(extraCoefSense);
         return new PiecewisePolynomialResultsWithSensitivity(
-            DoubleMatrix1D.copyOf(newKnots),
-            DoubleMatrix2D.copyOf(newCoefMatrix),
+            DoubleArray.copyOf(newKnots),
+            DoubleMatrix.copyOf(newCoefMatrix),
             resultCast.getOrder(),
             1,
             newCoefSense);
       }
       return new PiecewisePolynomialResult(
-          DoubleMatrix1D.copyOf(newKnots), DoubleMatrix2D.copyOf(newCoefMatrix), result.getOrder(), 1);
+          DoubleArray.copyOf(newKnots), DoubleMatrix.copyOf(newCoefMatrix), result.getOrder(), 1);
     }
     return result;
   }

@@ -22,7 +22,7 @@ import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivit
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DLogPiecewisePoynomialDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Find a interpolant F(x) = exp( f(x) ) where f(x) is a Natural cubic spline with Monotonicity cubic fileter. 
@@ -57,7 +57,7 @@ public final class LogNaturalCubicMonotonicityPreservingInterpolator1D
     JodaBeanUtils.notNull(data, "data");
     ArgChecker.isTrue(data instanceof Interpolator1DLogPiecewisePoynomialDataBundle);
     Interpolator1DLogPiecewisePoynomialDataBundle polyData = (Interpolator1DLogPiecewisePoynomialDataBundle) data;
-    DoubleMatrix1D res = FUNC.evaluate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value);
+    DoubleArray res = FUNC.evaluate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value);
     return Math.exp(res.get(0));
   }
 
@@ -67,8 +67,8 @@ public final class LogNaturalCubicMonotonicityPreservingInterpolator1D
     JodaBeanUtils.notNull(data, "data");
     ArgChecker.isTrue(data instanceof Interpolator1DLogPiecewisePoynomialDataBundle);
     Interpolator1DLogPiecewisePoynomialDataBundle polyData = (Interpolator1DLogPiecewisePoynomialDataBundle) data;
-    DoubleMatrix1D resValue = FUNC.evaluate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value);
-    DoubleMatrix1D resDerivative = FUNC.differentiate(
+    DoubleArray resValue = FUNC.evaluate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value);
+    DoubleArray resDerivative = FUNC.differentiate(
         polyData.getPiecewisePolynomialResultsWithSensitivity(),
         value);
     return Math.exp(resValue.get(0)) * resDerivative.get(0);

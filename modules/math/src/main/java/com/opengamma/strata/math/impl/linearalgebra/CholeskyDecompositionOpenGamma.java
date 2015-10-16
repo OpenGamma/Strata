@@ -6,7 +6,7 @@
 package com.opengamma.strata.math.impl.linearalgebra;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * OpenGamma implementation of the Cholesky decomposition and its differentiation.
@@ -28,7 +28,7 @@ public class CholeskyDecompositionOpenGamma extends Decomposition<CholeskyDecomp
    * {@inheritDoc}
    */
   @Override
-  public CholeskyDecompositionResult evaluate(DoubleMatrix2D x) {
+  public CholeskyDecompositionResult evaluate(DoubleMatrix x) {
     return evaluate(x, DEFAULT_SYMMETRY_THRESHOLD, DEFAULT_POSITIVITY_THRESHOLD);
   }
 
@@ -39,7 +39,7 @@ public class CholeskyDecompositionOpenGamma extends Decomposition<CholeskyDecomp
    * @param positivityThreshold The positivity threshold.
    * @return The Cholesky decomposition.
    */
-  public CholeskyDecompositionResult evaluate(DoubleMatrix2D matrix, double symmetryThreshold, double positivityThreshold) {
+  public CholeskyDecompositionResult evaluate(DoubleMatrix matrix, double symmetryThreshold, double positivityThreshold) {
     ArgChecker.notNull(matrix, "Matrix null");
     int nbRow = matrix.rowCount();
     int nbCol = matrix.columnCount();

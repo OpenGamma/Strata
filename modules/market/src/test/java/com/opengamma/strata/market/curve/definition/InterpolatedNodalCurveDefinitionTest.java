@@ -29,7 +29,7 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test {@link InterpolatedNodalCurveDefinition}.
@@ -114,13 +114,13 @@ public class InterpolatedNodalCurveDefinitionTest {
         .build();
     InterpolatedNodalCurve expected = InterpolatedNodalCurve.builder()
         .metadata(metadata)
-        .xValues(DoubleMatrix1D.of(ACT_365F.yearFraction(VAL_DATE, DATE1), ACT_365F.yearFraction(VAL_DATE, DATE2)))
-        .yValues(DoubleMatrix1D.of(1d, 1.5d))
+        .xValues(DoubleArray.of(ACT_365F.yearFraction(VAL_DATE, DATE1), ACT_365F.yearFraction(VAL_DATE, DATE2)))
+        .yValues(DoubleArray.of(1d, 1.5d))
         .interpolator(Interpolator1DFactory.LINEAR_INSTANCE)
         .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
         .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
         .build();
-    assertEquals(test.curve(VAL_DATE, DoubleMatrix1D.of(1d, 1.5d)), expected);
+    assertEquals(test.curve(VAL_DATE, DoubleArray.of(1d, 1.5d)), expected);
   }
 
   //-------------------------------------------------------------------------

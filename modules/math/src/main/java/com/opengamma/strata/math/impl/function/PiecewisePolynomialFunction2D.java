@@ -7,8 +7,8 @@ package com.opengamma.strata.math.impl.function;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResult2D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Computes value, first derivative and integral of piecewise polynomial function.
@@ -38,8 +38,8 @@ public class PiecewisePolynomialFunction2D {
     ArgChecker.isFalse(Double.isNaN(x1Key), "x1Key containing NaN");
     ArgChecker.isFalse(Double.isInfinite(x1Key), "x1Key containing Infinity");
 
-    DoubleMatrix1D knots0 = pp.getKnots0();
-    DoubleMatrix1D knots1 = pp.getKnots1();
+    DoubleArray knots0 = pp.getKnots0();
+    DoubleArray knots1 = pp.getKnots1();
     int nKnots0 = knots0.size();
     int nKnots1 = knots1.size();
 
@@ -73,7 +73,7 @@ public class PiecewisePolynomialFunction2D {
    * @param x1Keys  the first keys
    * @return the values of piecewise polynomial function in 2D at (x0Keys_i, x1Keys_j)
    */
-  public DoubleMatrix2D evaluate(PiecewisePolynomialResult2D pp, double[] x0Keys, double[] x1Keys) {
+  public DoubleMatrix evaluate(PiecewisePolynomialResult2D pp, double[] x0Keys, double[] x1Keys) {
     ArgChecker.notNull(pp, "pp");
     ArgChecker.notNull(x0Keys, "x0Keys");
     ArgChecker.notNull(x1Keys, "x1Keys");
@@ -90,8 +90,8 @@ public class PiecewisePolynomialFunction2D {
       ArgChecker.isFalse(Double.isInfinite(x1Keys[i]), "x1Keys containing Infinity");
     }
 
-    DoubleMatrix1D knots0 = pp.getKnots0();
-    DoubleMatrix1D knots1 = pp.getKnots1();
+    DoubleArray knots0 = pp.getKnots0();
+    DoubleArray knots1 = pp.getKnots1();
     int nKnots0 = knots0.size();
     int nKnots1 = knots1.size();
 
@@ -118,7 +118,7 @@ public class PiecewisePolynomialFunction2D {
       }
     }
 
-    return DoubleMatrix2D.copyOf(res);
+    return DoubleMatrix.copyOf(res);
   }
 
   //-------------------------------------------------------------------------
@@ -137,18 +137,18 @@ public class PiecewisePolynomialFunction2D {
     int order1 = pp.getOrder()[1];
     ArgChecker.isFalse(order0 < 2, "polynomial degree of x0 < 1");
 
-    DoubleMatrix1D knots0 = pp.getKnots0();
-    DoubleMatrix1D knots1 = pp.getKnots1();
+    DoubleArray knots0 = pp.getKnots0();
+    DoubleArray knots1 = pp.getKnots1();
     int nKnots0 = knots0.size();
     int nKnots1 = knots1.size();
-    DoubleMatrix2D[][] coefs = pp.getCoefs();
+    DoubleMatrix[][] coefs = pp.getCoefs();
 
-    DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
+    DoubleMatrix[][] res = new DoubleMatrix[nKnots0][nKnots1];
 
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        DoubleMatrix2D coef = coefs[i][j];
-        res[i][j] = DoubleMatrix2D.of(
+        DoubleMatrix coef = coefs[i][j];
+        res[i][j] = DoubleMatrix.of(
             order0 - 1,
             order1,
             (k, l) -> coef.get(k, l) * (order0 - k - 1));
@@ -176,18 +176,18 @@ public class PiecewisePolynomialFunction2D {
     int order1 = pp.getOrder()[1];
     ArgChecker.isFalse(order1 < 2, "polynomial degree of x1 < 1");
 
-    DoubleMatrix1D knots0 = pp.getKnots0();
-    DoubleMatrix1D knots1 = pp.getKnots1();
+    DoubleArray knots0 = pp.getKnots0();
+    DoubleArray knots1 = pp.getKnots1();
     int nKnots0 = knots0.size();
     int nKnots1 = knots1.size();
-    DoubleMatrix2D[][] coefs = pp.getCoefs();
+    DoubleMatrix[][] coefs = pp.getCoefs();
 
-    DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
+    DoubleMatrix[][] res = new DoubleMatrix[nKnots0][nKnots1];
 
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        DoubleMatrix2D coef = coefs[i][j];
-        res[i][j] = DoubleMatrix2D.of(
+        DoubleMatrix coef = coefs[i][j];
+        res[i][j] = DoubleMatrix.of(
             order0,
             order1 - 1,
             (k, l) -> coef.get(k, l) * (order1 - l - 1));
@@ -209,24 +209,24 @@ public class PiecewisePolynomialFunction2D {
    * @return Values of first derivative of two-dimensional piecewise polynomial function
    *  with respect to x0 at (x0Keys_i, x1Keys_j)
    */
-  public DoubleMatrix2D differentiateX0(PiecewisePolynomialResult2D pp, double[] x0Keys, double[] x1Keys) {
+  public DoubleMatrix differentiateX0(PiecewisePolynomialResult2D pp, double[] x0Keys, double[] x1Keys) {
     ArgChecker.notNull(pp, "pp");
     int order0 = pp.getOrder()[0];
     int order1 = pp.getOrder()[1];
     ArgChecker.isFalse(order0 < 2, "polynomial degree of x0 < 1");
 
-    DoubleMatrix1D knots0 = pp.getKnots0();
-    DoubleMatrix1D knots1 = pp.getKnots1();
+    DoubleArray knots0 = pp.getKnots0();
+    DoubleArray knots1 = pp.getKnots1();
     int nKnots0 = knots0.size();
     int nKnots1 = knots1.size();
-    DoubleMatrix2D[][] coefs = pp.getCoefs();
+    DoubleMatrix[][] coefs = pp.getCoefs();
 
-    DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
+    DoubleMatrix[][] res = new DoubleMatrix[nKnots0][nKnots1];
 
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        DoubleMatrix2D coef = coefs[i][j];
-        res[i][j] = DoubleMatrix2D.of(
+        DoubleMatrix coef = coefs[i][j];
+        res[i][j] = DoubleMatrix.of(
             order0 - 1,
             order1,
             (k, l) -> coef.get(k, l) * (order0 - k - 1));
@@ -248,24 +248,24 @@ public class PiecewisePolynomialFunction2D {
    * @return Values of first derivative of two-dimensional piecewise polynomial function
    *  with respect to x1 at (x0Keys_i, x1Keys_j)
    */
-  public DoubleMatrix2D differentiateX1(PiecewisePolynomialResult2D pp, double[] x0Keys, double[] x1Keys) {
+  public DoubleMatrix differentiateX1(PiecewisePolynomialResult2D pp, double[] x0Keys, double[] x1Keys) {
     ArgChecker.notNull(pp, "pp");
     int order0 = pp.getOrder()[0];
     int order1 = pp.getOrder()[1];
     ArgChecker.isFalse(order1 < 2, "polynomial degree of x1 < 1");
 
-    DoubleMatrix1D knots0 = pp.getKnots0();
-    DoubleMatrix1D knots1 = pp.getKnots1();
+    DoubleArray knots0 = pp.getKnots0();
+    DoubleArray knots1 = pp.getKnots1();
     int nKnots0 = knots0.size();
     int nKnots1 = knots1.size();
-    DoubleMatrix2D[][] coefs = pp.getCoefs();
+    DoubleMatrix[][] coefs = pp.getCoefs();
 
-    DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
+    DoubleMatrix[][] res = new DoubleMatrix[nKnots0][nKnots1];
 
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        DoubleMatrix2D coef = coefs[i][j];
-        res[i][j] = DoubleMatrix2D.of(
+        DoubleMatrix coef = coefs[i][j];
+        res[i][j] = DoubleMatrix.of(
             order0,
             order1 - 1,
             (k, l) -> coef.get(k, l) * (order1 - l - 1));
@@ -294,18 +294,18 @@ public class PiecewisePolynomialFunction2D {
     ArgChecker.isFalse(order0 < 2, "polynomial degree of x0 < 1");
     ArgChecker.isFalse(order1 < 2, "polynomial degree of x1 < 1");
 
-    DoubleMatrix1D knots0 = pp.getKnots0();
-    DoubleMatrix1D knots1 = pp.getKnots1();
+    DoubleArray knots0 = pp.getKnots0();
+    DoubleArray knots1 = pp.getKnots1();
     int nKnots0 = knots0.size();
     int nKnots1 = knots1.size();
-    DoubleMatrix2D[][] coefs = pp.getCoefs();
+    DoubleMatrix[][] coefs = pp.getCoefs();
 
-    DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
+    DoubleMatrix[][] res = new DoubleMatrix[nKnots0][nKnots1];
 
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        DoubleMatrix2D coef = coefs[i][j];
-        res[i][j] = DoubleMatrix2D.of(
+        DoubleMatrix coef = coefs[i][j];
+        res[i][j] = DoubleMatrix.of(
             order0 - 1,
             order1 - 1,
             (k, l) -> coef.get(k, l) * (order1 - l - 1) * (order0 - k - 1));
@@ -334,18 +334,18 @@ public class PiecewisePolynomialFunction2D {
     int order1 = pp.getOrder()[1];
     ArgChecker.isFalse(order0 < 3, "polynomial degree of x0 < 2");
 
-    DoubleMatrix1D knots0 = pp.getKnots0();
-    DoubleMatrix1D knots1 = pp.getKnots1();
+    DoubleArray knots0 = pp.getKnots0();
+    DoubleArray knots1 = pp.getKnots1();
     int nKnots0 = knots0.size();
     int nKnots1 = knots1.size();
-    DoubleMatrix2D[][] coefs = pp.getCoefs();
+    DoubleMatrix[][] coefs = pp.getCoefs();
 
-    DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
+    DoubleMatrix[][] res = new DoubleMatrix[nKnots0][nKnots1];
 
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        DoubleMatrix2D coef = coefs[i][j];
-        res[i][j] = DoubleMatrix2D.of(
+        DoubleMatrix coef = coefs[i][j];
+        res[i][j] = DoubleMatrix.of(
             order0 - 2,
             order1,
             (k, l) -> coef.get(k, l) * (order0 - k - 1) * (order0 - k - 2));
@@ -373,18 +373,18 @@ public class PiecewisePolynomialFunction2D {
     int order1 = pp.getOrder()[1];
     ArgChecker.isFalse(order1 < 3, "polynomial degree of x1 < 2");
 
-    DoubleMatrix1D knots0 = pp.getKnots0();
-    DoubleMatrix1D knots1 = pp.getKnots1();
+    DoubleArray knots0 = pp.getKnots0();
+    DoubleArray knots1 = pp.getKnots1();
     int nKnots0 = knots0.size();
     int nKnots1 = knots1.size();
-    DoubleMatrix2D[][] coefs = pp.getCoefs();
+    DoubleMatrix[][] coefs = pp.getCoefs();
 
-    DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
+    DoubleMatrix[][] res = new DoubleMatrix[nKnots0][nKnots1];
 
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        DoubleMatrix2D coef = coefs[i][j];
-        res[i][j] = DoubleMatrix2D.of(
+        DoubleMatrix coef = coefs[i][j];
+        res[i][j] = DoubleMatrix.of(
             order0,
             order1 - 2,
             (k, l) -> coef.get(k, l) * (order1 - l - 1) * (order1 - l - 2));
@@ -406,25 +406,25 @@ public class PiecewisePolynomialFunction2D {
    * @param x1Keys  the second keys
    * @return the values of cross derivative of two-dimensional piecewise polynomial function at (x0Keys_i, x1Keys_j)
    */
-  public DoubleMatrix2D differentiateCross(PiecewisePolynomialResult2D pp, double[] x0Keys, double[] x1Keys) {
+  public DoubleMatrix differentiateCross(PiecewisePolynomialResult2D pp, double[] x0Keys, double[] x1Keys) {
     ArgChecker.notNull(pp, "pp");
     int order0 = pp.getOrder()[0];
     int order1 = pp.getOrder()[1];
     ArgChecker.isFalse(order0 < 2, "polynomial degree of x0 < 1");
     ArgChecker.isFalse(order1 < 2, "polynomial degree of x1 < 1");
 
-    DoubleMatrix1D knots0 = pp.getKnots0();
-    DoubleMatrix1D knots1 = pp.getKnots1();
+    DoubleArray knots0 = pp.getKnots0();
+    DoubleArray knots1 = pp.getKnots1();
     int nKnots0 = knots0.size();
     int nKnots1 = knots1.size();
-    DoubleMatrix2D[][] coefs = pp.getCoefs();
+    DoubleMatrix[][] coefs = pp.getCoefs();
 
-    DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
+    DoubleMatrix[][] res = new DoubleMatrix[nKnots0][nKnots1];
 
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        DoubleMatrix2D coef = coefs[i][j];
-        res[i][j] = DoubleMatrix2D.of(
+        DoubleMatrix coef = coefs[i][j];
+        res[i][j] = DoubleMatrix.of(
             order0 - 1,
             order1 - 1,
             (k, l) -> coef.get(k, l) * (order1 - l - 1) * (order0 - k - 1));
@@ -446,23 +446,23 @@ public class PiecewisePolynomialFunction2D {
    * @return the values of second derivative of two-dimensional piecewise polynomial function
    *  with respect to x0 at (x0Keys_i, x1Keys_j)
    */
-  public DoubleMatrix2D differentiateTwiceX0(PiecewisePolynomialResult2D pp, double[] x0Keys, double[] x1Keys) {
+  public DoubleMatrix differentiateTwiceX0(PiecewisePolynomialResult2D pp, double[] x0Keys, double[] x1Keys) {
     ArgChecker.notNull(pp, "pp");
     int order0 = pp.getOrder()[0];
     int order1 = pp.getOrder()[1];
     ArgChecker.isFalse(order0 < 3, "polynomial degree of x0 < 2");
 
-    DoubleMatrix1D knots0 = pp.getKnots0();
-    DoubleMatrix1D knots1 = pp.getKnots1();
+    DoubleArray knots0 = pp.getKnots0();
+    DoubleArray knots1 = pp.getKnots1();
     int nKnots0 = knots0.size();
     int nKnots1 = knots1.size();
-    DoubleMatrix2D[][] coefs = pp.getCoefs();
+    DoubleMatrix[][] coefs = pp.getCoefs();
 
-    DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
+    DoubleMatrix[][] res = new DoubleMatrix[nKnots0][nKnots1];
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        DoubleMatrix2D coef = coefs[i][j];
-        res[i][j] = DoubleMatrix2D.of(
+        DoubleMatrix coef = coefs[i][j];
+        res[i][j] = DoubleMatrix.of(
             order0 - 2,
             order1,
             (k, l) -> coef.get(k, l) * (order0 - k - 1) * (order0 - k - 2));
@@ -484,23 +484,23 @@ public class PiecewisePolynomialFunction2D {
    * @return the values of second derivative of two-dimensional piecewise polynomial function
    *  with respect to x1 at (x0Keys_i, x1Keys_j)
    */
-  public DoubleMatrix2D differentiateTwiceX1(PiecewisePolynomialResult2D pp, double[] x0Keys, double[] x1Keys) {
+  public DoubleMatrix differentiateTwiceX1(PiecewisePolynomialResult2D pp, double[] x0Keys, double[] x1Keys) {
     ArgChecker.notNull(pp, "pp");
     int order0 = pp.getOrder()[0];
     int order1 = pp.getOrder()[1];
     ArgChecker.isFalse(order1 < 3, "polynomial degree of x1 < 2");
 
-    DoubleMatrix1D knots0 = pp.getKnots0();
-    DoubleMatrix1D knots1 = pp.getKnots1();
+    DoubleArray knots0 = pp.getKnots0();
+    DoubleArray knots1 = pp.getKnots1();
     int nKnots0 = knots0.size();
     int nKnots1 = knots1.size();
-    DoubleMatrix2D[][] coefs = pp.getCoefs();
+    DoubleMatrix[][] coefs = pp.getCoefs();
 
-    DoubleMatrix2D[][] res = new DoubleMatrix2D[nKnots0][nKnots1];
+    DoubleMatrix[][] res = new DoubleMatrix[nKnots0][nKnots1];
     for (int i = 0; i < nKnots0 - 1; ++i) {
       for (int j = 0; j < nKnots1 - 1; ++j) {
-        DoubleMatrix2D coef = coefs[i][j];
-        res[i][j] = DoubleMatrix2D.of(
+        DoubleMatrix coef = coefs[i][j];
+        res[i][j] = DoubleMatrix.of(
             order0,
             order1 - 2,
             (k, l) -> coef.get(k, l) * (order1 - l - 1) * (order1 - l - 2));
@@ -521,7 +521,7 @@ public class PiecewisePolynomialFunction2D {
    * @param leftKnot1 
    * @return sum_{i=0}^{order0-1} sum_{j=0}^{order1-1} coefMat_{ij} (x0-leftKnots0)^{order0-1-i} (x1-leftKnots1)^{order0-1-j}
    */
-  private double getValue(DoubleMatrix2D coefMat, double x0, double x1, double leftKnot0, double leftKnot1) {
+  private double getValue(DoubleMatrix coefMat, double x0, double x1, double leftKnot0, double leftKnot1) {
 
     int order0 = coefMat.rowCount();
     int order1 = coefMat.columnCount();

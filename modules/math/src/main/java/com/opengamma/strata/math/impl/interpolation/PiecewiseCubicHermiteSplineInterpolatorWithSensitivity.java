@@ -11,8 +11,8 @@ import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.math.impl.FunctionUtils;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * C1 cubic interpolation preserving monotonicity based on 
@@ -54,7 +54,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
       ArgChecker.isFalse(xValuesSrt[i - 1] == xValuesSrt[i], "xValues should be distinct");
     }
 
-    final DoubleMatrix2D[] temp = solve(xValuesSrt, yValuesSrt);
+    final DoubleMatrix[] temp = solve(xValuesSrt, yValuesSrt);
 
     // check the matrices
     // TODO remove some of these tests
@@ -62,7 +62,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
     int n = temp.length;
     ArgChecker.isTrue(n == nDataPts, "wrong number of matricies");
     for (int k = 0; k < n; k++) {
-      DoubleMatrix2D m = temp[k];
+      DoubleMatrix m = temp[k];
       final int rows = m.rowCount();
       final int cols = m.columnCount();
       for (int i = 0; i < rows; ++i) {
@@ -72,11 +72,11 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
       }
     }
 
-    DoubleMatrix2D coefMatrix = temp[0];
-    DoubleMatrix2D[] coefMatrixSense = new DoubleMatrix2D[n - 1];
+    DoubleMatrix coefMatrix = temp[0];
+    DoubleMatrix[] coefMatrixSense = new DoubleMatrix[n - 1];
     System.arraycopy(temp, 1, coefMatrixSense, 0, n - 1);
 
-    return new PiecewisePolynomialResultsWithSensitivity(DoubleMatrix1D.copyOf(xValuesSrt), coefMatrix, 4, 1, coefMatrixSense);
+    return new PiecewisePolynomialResultsWithSensitivity(DoubleArray.copyOf(xValuesSrt), coefMatrix, 4, 1, coefMatrixSense);
   }
 
   /**
@@ -84,14 +84,14 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
    * @param yValues Y values of data
    * @return Coefficient matrix whose i-th row vector is {a3, a2, a1, a0} of f(x) = a3 * (x-x_i)^3 + a2 * (x-x_i)^2 +... for the i-th interval
    */
-  private DoubleMatrix2D[] solve(final double[] xValues, final double[] yValues) {
+  private DoubleMatrix[] solve(final double[] xValues, final double[] yValues) {
 
     final int n = xValues.length;
 
     double[][] coeff = new double[n - 1][4];
     double[] h = new double[n - 1];
     double[] delta = new double[n - 1];
-    DoubleMatrix2D[] res = new DoubleMatrix2D[n];
+    DoubleMatrix[] res = new DoubleMatrix[n];
 
     for (int i = 0; i < n - 1; ++i) {
       h[i] = xValues[i + 1] - xValues[i];
@@ -104,7 +104,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
       coeff[0][3] = xValues[0];
     } else {
       SlopeFinderResults temp = slopeFinder(h, delta, yValues);
-      final DoubleMatrix1D d = temp.getSlopes();
+      final DoubleArray d = temp.getSlopes();
       final double[][] dDy = temp.getSlopeJacobian().toArray();
 
       // form up the coefficient matrix
@@ -134,8 +134,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
         }
       }
 
-      // Now we have to pack this into an array of DoubleMatrix2D - my kingdom for a tensor class
-      res[0] = DoubleMatrix2D.copyOf(coeff);
+      // Now we have to pack this into an array of DoubleMatrix - my kingdom for a tensor class
+      res[0] = DoubleMatrix.copyOf(coeff);
       for (int k = 0; k < n - 1; k++) {
         double[][] coeffSense = new double[4][];
         coeffSense[0] = bDy[k];
@@ -143,7 +143,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
         coeffSense[2] = dDy[k];
         coeffSense[3] = new double[n];
         coeffSense[3][k] = 1.0;
-        res[k + 1] = DoubleMatrix2D.copyOf(coeffSense);
+        res[k + 1] = DoubleMatrix.copyOf(coeffSense);
       }
 
     }
@@ -151,20 +151,20 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
   }
 
   private class SlopeFinderResults {
-    private final DoubleMatrix1D _d;
-    private final DoubleMatrix2D _dDy;
+    private final DoubleArray _d;
+    private final DoubleMatrix _dDy;
 
-    public SlopeFinderResults(final DoubleMatrix1D d, final DoubleMatrix2D dDy) {
+    public SlopeFinderResults(final DoubleArray d, final DoubleMatrix dDy) {
       // this is a private class - don't do the normal checks on inputs
       _d = d;
       _dDy = dDy;
     }
 
-    public DoubleMatrix1D getSlopes() {
+    public DoubleArray getSlopes() {
       return _d;
     }
 
-    public DoubleMatrix2D getSlopeJacobian() {
+    public DoubleMatrix getSlopeJacobian() {
       return _dDy;
     }
 
@@ -229,7 +229,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
       jac[n - 1][n - i] = temp[i];
     }
 
-    return new SlopeFinderResults(DoubleMatrix1D.copyOf(d), DoubleMatrix2D.copyOf(jac));
+    return new SlopeFinderResults(DoubleArray.copyOf(d), DoubleMatrix.copyOf(jac));
   }
 
   /**

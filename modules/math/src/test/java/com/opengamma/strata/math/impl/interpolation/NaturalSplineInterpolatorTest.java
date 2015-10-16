@@ -9,8 +9,8 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Test.
@@ -414,19 +414,19 @@ public class NaturalSplineInterpolatorTest {
       assertEquals(value, resultValuesExpected[0][0][0], ref * EPS);
     }
 
-    DoubleMatrix1D valuesVec1 = interp.interpolate(xValues, yValues, xKey[0][0]);
+    DoubleArray valuesVec1 = interp.interpolate(xValues, yValues, xKey[0][0]);
     for (int i = 0; i < yDim; ++i) {
       final double ref = resultValuesExpected[0][i][0] == 0. ? 1. : Math.abs(resultValuesExpected[0][i][0]);
       assertEquals(valuesVec1.get(i), resultValuesExpected[0][i][0], ref * EPS);
     }
 
-    DoubleMatrix1D valuesVec2 = interp.interpolate(xValues, yValues[0], xKey[0]);
+    DoubleArray valuesVec2 = interp.interpolate(xValues, yValues[0], xKey[0]);
     for (int k = 0; k < keyLength; ++k) {
       final double ref = resultValuesExpected[k][0][0] == 0. ? 1. : Math.abs(resultValuesExpected[k][0][0]);
       assertEquals(valuesVec2.get(k), resultValuesExpected[k][0][0], ref * EPS);
     }
 
-    DoubleMatrix2D valuesMat1 = interp.interpolate(xValues, yValues[0], xKey);
+    DoubleMatrix valuesMat1 = interp.interpolate(xValues, yValues[0], xKey);
     for (int j = 0; j < keyDim; ++j) {
       for (int k = 0; k < keyLength; ++k) {
         final double ref = resultValuesExpected[k][0][j] == 0. ? 1. : Math.abs(resultValuesExpected[k][0][j]);
@@ -434,7 +434,7 @@ public class NaturalSplineInterpolatorTest {
       }
     }
 
-    DoubleMatrix2D valuesMat2 = interp.interpolate(xValues, yValues, xKey[0]);
+    DoubleMatrix valuesMat2 = interp.interpolate(xValues, yValues, xKey[0]);
     for (int i = 0; i < yDim; ++i) {
       for (int k = 0; k < keyLength; ++k) {
         final double ref = resultValuesExpected[k][i][0] == 0. ? 1. : Math.abs(resultValuesExpected[k][i][0]);
@@ -442,7 +442,7 @@ public class NaturalSplineInterpolatorTest {
       }
     }
 
-    DoubleMatrix2D[] valuesMat3 = interp.interpolate(xValues, yValues, xKey);
+    DoubleMatrix[] valuesMat3 = interp.interpolate(xValues, yValues, xKey);
     for (int i = 0; i < yDim; ++i) {
       for (int j = 0; j < keyDim; ++j) {
         for (int k = 0; k < keyLength; ++k) {

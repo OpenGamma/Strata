@@ -31,7 +31,7 @@ import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapol
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Tests {@link NormalVolatilityExpSimpleMoneynessIborFutureProvider}
@@ -43,14 +43,14 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
           Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
-  private static final DoubleMatrix1D TIMES =
-      DoubleMatrix1D.of(0.25, 0.50, 1.00, 0.25, 0.50, 1.00, 0.25, 0.50, 1.00, 0.25, 0.50, 1.00);
-  private static final DoubleMatrix1D MONEYNESS_PRICES =
-      DoubleMatrix1D.of(-0.02, -0.02, -0.02, -0.01, -0.01, -0.01, 0.00, 0.00, 0.00, 0.01, 0.01, 0.01);
-  private static final DoubleMatrix1D MONEYNESS_RATES =
-      DoubleMatrix1D.of(0.02, 0.02, 0.02, 0.01, 0.01, 0.01, 0.00, 0.00, 0.00, -0.01, -0.01, -0.01);
-  private static final DoubleMatrix1D NORMAL_VOL =
-      DoubleMatrix1D.of(0.01, 0.011, 0.012, 0.011, 0.012, 0.013, 0.012, 0.013, 0.014, 0.010, 0.012, 0.014);
+  private static final DoubleArray TIMES =
+      DoubleArray.of(0.25, 0.50, 1.00, 0.25, 0.50, 1.00, 0.25, 0.50, 1.00, 0.25, 0.50, 1.00);
+  private static final DoubleArray MONEYNESS_PRICES =
+      DoubleArray.of(-0.02, -0.02, -0.02, -0.01, -0.01, -0.01, 0.00, 0.00, 0.00, 0.01, 0.01, 0.01);
+  private static final DoubleArray MONEYNESS_RATES =
+      DoubleArray.of(0.02, 0.02, 0.02, 0.01, 0.01, 0.01, 0.00, 0.00, 0.00, -0.01, -0.01, -0.01);
+  private static final DoubleArray NORMAL_VOL =
+      DoubleArray.of(0.01, 0.011, 0.012, 0.011, 0.012, 0.013, 0.012, 0.013, 0.014, 0.010, 0.012, 0.014);
   private static final InterpolatedNodalSurface PARAMETERS_PRICE = InterpolatedNodalSurface.of(
       DefaultSurfaceMetadata.of("Price"), TIMES, MONEYNESS_PRICES, NORMAL_VOL, INTERPOLATOR_2D);
   private static final InterpolatedNodalSurface PARAMETERS_RATE = InterpolatedNodalSurface.of(
@@ -122,7 +122,7 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
     double shift = 1.0E-6;
     double v0 = VOL_SIMPLE_MONEY_RATE.getVolatility(expiry, fixing, strikePrice, futurePrice);
     for (int i = 0; i < NORMAL_VOL.size(); i++) {
-      DoubleMatrix1D v = NORMAL_VOL.with(i, NORMAL_VOL.get(i) + shift);
+      DoubleArray v = NORMAL_VOL.with(i, NORMAL_VOL.get(i) + shift);
       InterpolatedNodalSurface param = InterpolatedNodalSurface.of(
           DefaultSurfaceMetadata.of("Rate"), TIMES, MONEYNESS_RATES, v, INTERPOLATOR_2D);
       NormalVolatilityExpSimpleMoneynessIborFutureProvider vol = NormalVolatilityExpSimpleMoneynessIborFutureProvider

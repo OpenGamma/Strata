@@ -10,8 +10,8 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResult2D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Test.
@@ -22,30 +22,30 @@ public class PiecewisePolynomialFunction2DTest {
   private static final double EPS = 1e-14;
   private static final double INF = 1. / 0.;
 
-  private static final DoubleMatrix1D knots0 = DoubleMatrix1D.of(1., 2., 3., 4.);
-  private static final DoubleMatrix1D knots1 = DoubleMatrix1D.of(2., 3., 4.);
+  private static final DoubleArray knots0 = DoubleArray.of(1., 2., 3., 4.);
+  private static final DoubleArray knots1 = DoubleArray.of(2., 3., 4.);
 
   private static final int nKnots0 = 4;
   private static final int nKnots1 = 3;
-  private static DoubleMatrix2D[][] coefs;
+  private static DoubleMatrix[][] coefs;
   static {
-    coefs = new DoubleMatrix2D[nKnots0 - 1][nKnots1 - 1];
-    coefs[0][0] = DoubleMatrix2D.copyOf(
+    coefs = new DoubleMatrix[nKnots0 - 1][nKnots1 - 1];
+    coefs[0][0] = DoubleMatrix.copyOf(
         new double[][] { {1d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}});
-    coefs[1][0] = DoubleMatrix2D.copyOf(
+    coefs[1][0] = DoubleMatrix.copyOf(
         new double[][] { {1d, 0d, 0d, 0d}, {4d, 0d, 0d, 0d}, {6d, 0d, 0d, 0d}, {4d, 0d, 0d, 0d}, {1d, 0d, 0d, 0d}});
-    coefs[2][0] = DoubleMatrix2D.copyOf(
+    coefs[2][0] = DoubleMatrix.copyOf(
         new double[][] { {1d, 0d, 0d, 0d}, {8d, 0d, 0d, 0d}, {24d, 0d, 0d, 0d}, {32d, 0d, 0d, 0d}, {16d, 0d, 0d, 0d}});
-    coefs[0][1] = DoubleMatrix2D.copyOf(
+    coefs[0][1] = DoubleMatrix.copyOf(
         new double[][] { {1d, 3d, 3d, 1d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}});
-    coefs[1][1] = DoubleMatrix2D.copyOf(
+    coefs[1][1] = DoubleMatrix.copyOf(
         new double[][] {
             {1d, 3d, 3d, 1d},
             {4. * 1d, 4. * 3d, 4. * 3d, 4. * 1d},
             {6. * 1d, 6. * 3d, 6. * 3d, 6. * 1d},
             {4. * 1d, 4. * 3d, 4. * 3d, 4. * 1d},
             {1d, 3d, 3d, 1d}});
-    coefs[2][1] = DoubleMatrix2D.copyOf(
+    coefs[2][1] = DoubleMatrix.copyOf(
         new double[][] {
             {1d, 3d, 3d, 1d},
             {8. * 1d, 8. * 3d, 8. * 3d, 8. * 1d},
@@ -55,26 +55,26 @@ public class PiecewisePolynomialFunction2DTest {
         });
   }
 
-  private static DoubleMatrix2D[][] coefsConst;
+  private static DoubleMatrix[][] coefsConst;
   static {
-    coefsConst = new DoubleMatrix2D[nKnots0 - 1][nKnots1 - 1];
-    coefsConst[0][0] = DoubleMatrix2D.of(1, 1, 4d);
-    coefsConst[1][0] = DoubleMatrix2D.of(1, 1, 4d);
-    coefsConst[2][0] = DoubleMatrix2D.of(1, 1, 4d);
-    coefsConst[0][1] = DoubleMatrix2D.of(1, 1, 4d);
-    coefsConst[1][1] = DoubleMatrix2D.of(1, 1, 4d);
-    coefsConst[2][1] = DoubleMatrix2D.of(1, 1, 4d);
+    coefsConst = new DoubleMatrix[nKnots0 - 1][nKnots1 - 1];
+    coefsConst[0][0] = DoubleMatrix.of(1, 1, 4d);
+    coefsConst[1][0] = DoubleMatrix.of(1, 1, 4d);
+    coefsConst[2][0] = DoubleMatrix.of(1, 1, 4d);
+    coefsConst[0][1] = DoubleMatrix.of(1, 1, 4d);
+    coefsConst[1][1] = DoubleMatrix.of(1, 1, 4d);
+    coefsConst[2][1] = DoubleMatrix.of(1, 1, 4d);
   }
 
-  private static DoubleMatrix2D[][] coefsLin;
+  private static DoubleMatrix[][] coefsLin;
   static {
-    coefsLin = new DoubleMatrix2D[nKnots0 - 1][nKnots1 - 1];
-    coefsLin[0][0] = DoubleMatrix2D.of(2, 2, 1d, 2d, 2d, 4d);
-    coefsLin[1][0] = DoubleMatrix2D.of(2, 2, 1d, 2d, 2d, 4d);
-    coefsLin[2][0] = DoubleMatrix2D.of(2, 2, 1d, 2d, 2d, 4d);
-    coefsLin[0][1] = DoubleMatrix2D.of(2, 2, 1d, 3d, 3d, 9d);
-    coefsLin[1][1] = DoubleMatrix2D.of(2, 2, 1d, 3d, 3d, 9d);
-    coefsLin[2][1] = DoubleMatrix2D.of(2, 2, 1d, 3d, 3d, 9d);
+    coefsLin = new DoubleMatrix[nKnots0 - 1][nKnots1 - 1];
+    coefsLin[0][0] = DoubleMatrix.of(2, 2, 1d, 2d, 2d, 4d);
+    coefsLin[1][0] = DoubleMatrix.of(2, 2, 1d, 2d, 2d, 4d);
+    coefsLin[2][0] = DoubleMatrix.of(2, 2, 1d, 2d, 2d, 4d);
+    coefsLin[0][1] = DoubleMatrix.of(2, 2, 1d, 3d, 3d, 9d);
+    coefsLin[1][1] = DoubleMatrix.of(2, 2, 1d, 3d, 3d, 9d);
+    coefsLin[2][1] = DoubleMatrix.of(2, 2, 1d, 3d, 3d, 9d);
   }
 
   /**
@@ -895,14 +895,14 @@ public class PiecewisePolynomialFunction2DTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void linConstDiffCrossTest() {
 
-    DoubleMatrix2D[][] coefsLinConst;
-    coefsLinConst = new DoubleMatrix2D[nKnots0 - 1][nKnots1 - 1];
-    coefsLinConst[0][0] = DoubleMatrix2D.copyOf(new double[][] { {2.}, {2. * 2.}});
-    coefsLinConst[1][0] = DoubleMatrix2D.copyOf(new double[][] { {2.}, {2. * 2.}});
-    coefsLinConst[2][0] = DoubleMatrix2D.copyOf(new double[][] { {2.}, {2. * 2.}});
-    coefsLinConst[0][1] = DoubleMatrix2D.copyOf(new double[][] { {2.}, {3. * 2.}});
-    coefsLinConst[1][1] = DoubleMatrix2D.copyOf(new double[][] { {2.}, {3. * 2.}});
-    coefsLinConst[2][1] = DoubleMatrix2D.copyOf(new double[][] { {2.}, {3. * 2.}});
+    DoubleMatrix[][] coefsLinConst;
+    coefsLinConst = new DoubleMatrix[nKnots0 - 1][nKnots1 - 1];
+    coefsLinConst[0][0] = DoubleMatrix.copyOf(new double[][] { {2.}, {2. * 2.}});
+    coefsLinConst[1][0] = DoubleMatrix.copyOf(new double[][] { {2.}, {2. * 2.}});
+    coefsLinConst[2][0] = DoubleMatrix.copyOf(new double[][] { {2.}, {2. * 2.}});
+    coefsLinConst[0][1] = DoubleMatrix.copyOf(new double[][] { {2.}, {3. * 2.}});
+    coefsLinConst[1][1] = DoubleMatrix.copyOf(new double[][] { {2.}, {3. * 2.}});
+    coefsLinConst[2][1] = DoubleMatrix.copyOf(new double[][] { {2.}, {3. * 2.}});
 
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLinConst, new int[] {2, 1 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -947,14 +947,14 @@ public class PiecewisePolynomialFunction2DTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void linConstDiffCrossMultiTest() {
 
-    DoubleMatrix2D[][] coefsLinConst;
-    coefsLinConst = new DoubleMatrix2D[nKnots0 - 1][nKnots1 - 1];
-    coefsLinConst[0][0] = DoubleMatrix2D.copyOf(new double[][] { {2.}, {2. * 2.}});
-    coefsLinConst[1][0] = DoubleMatrix2D.copyOf(new double[][] { {2.}, {2. * 2.}});
-    coefsLinConst[2][0] = DoubleMatrix2D.copyOf(new double[][] { {2.}, {2. * 2.}});
-    coefsLinConst[0][1] = DoubleMatrix2D.copyOf(new double[][] { {2.}, {3. * 2.}});
-    coefsLinConst[1][1] = DoubleMatrix2D.copyOf(new double[][] { {2.}, {3. * 2.}});
-    coefsLinConst[2][1] = DoubleMatrix2D.copyOf(new double[][] { {2.}, {3. * 2.}});
+    DoubleMatrix[][] coefsLinConst;
+    coefsLinConst = new DoubleMatrix[nKnots0 - 1][nKnots1 - 1];
+    coefsLinConst[0][0] = DoubleMatrix.copyOf(new double[][] { {2.}, {2. * 2.}});
+    coefsLinConst[1][0] = DoubleMatrix.copyOf(new double[][] { {2.}, {2. * 2.}});
+    coefsLinConst[2][0] = DoubleMatrix.copyOf(new double[][] { {2.}, {2. * 2.}});
+    coefsLinConst[0][1] = DoubleMatrix.copyOf(new double[][] { {2.}, {3. * 2.}});
+    coefsLinConst[1][1] = DoubleMatrix.copyOf(new double[][] { {2.}, {3. * 2.}});
+    coefsLinConst[2][1] = DoubleMatrix.copyOf(new double[][] { {2.}, {3. * 2.}});
 
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLinConst, new int[] {2, 1 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();

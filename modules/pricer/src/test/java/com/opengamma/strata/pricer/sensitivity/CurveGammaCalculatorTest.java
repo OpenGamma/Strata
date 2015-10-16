@@ -53,7 +53,7 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitiviti
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -102,9 +102,9 @@ public class CurveGammaCalculatorTest {
     ImmutableRatesProvider provider = SINGLE;
     NodalCurve curve = Iterables.getOnlyElement(provider.getDiscountCurves().values()).toNodalCurve();
     Currency curveCurrency = SINGLE_CURRENCY;
-    DoubleMatrix1D y = curve.getYValues();
+    DoubleArray y = curve.getYValues();
     int nbNode = y.size();
-    DoubleMatrix1D gammaExpected = DoubleMatrix1D.of(nbNode, i -> {
+    DoubleArray gammaExpected = DoubleArray.of(nbNode, i -> {
       double[][][] yBumped = new double[2][2][nbNode];
       double[][] pv = new double[2][2];
       for (int pmi = 0; pmi < 2; pmi++) {
@@ -114,7 +114,7 @@ public class CurveGammaCalculatorTest {
           for (int j = 0; j < nbNode; j++) {
             yBumped[pmi][pmP][j] += (pmP == 0 ? 1.0 : -1.0) * FD_SHIFT;
           }
-          Curve curveBumped = curve.withYValues(DoubleMatrix1D.copyOf(yBumped[pmi][pmP]));
+          Curve curveBumped = curve.withYValues(DoubleArray.copyOf(yBumped[pmi][pmP]));
           ImmutableRatesProvider providerBumped = provider.toBuilder()
               .discountCurves(provider.getDiscountCurves().keySet().stream()
                   .collect(toImmutableMap(Function.identity(), k -> curveBumped)))
@@ -131,7 +131,7 @@ public class CurveGammaCalculatorTest {
         curveCurrency,
         c -> buildSensitivities(c, provider));
     assertEquals(sensitivityComputed.getMetadata(), curve.getMetadata());
-    DoubleMatrix1D gammaComputed = sensitivityComputed.getSensitivity();
+    DoubleArray gammaComputed = sensitivityComputed.getSensitivity();
     assertTrue(gammaComputed.equalWithTolerance(gammaExpected, TOLERANCE_GAMMA));
   }
 
@@ -144,18 +144,18 @@ public class CurveGammaCalculatorTest {
     CurveGammaCalculator calculatorForward5 = new CurveGammaCalculator(FiniteDifferenceType.FORWARD, FD_SHIFT);
     CurveGammaCalculator calculatorBackward5 = new CurveGammaCalculator(FiniteDifferenceType.BACKWARD, FD_SHIFT);
     CurveGammaCalculator calculatorCentral4 = new CurveGammaCalculator(FiniteDifferenceType.CENTRAL, 1.0E-4);
-    DoubleMatrix1D gammaCentral5 = GAMMA_CAL.calculateSemiParallelGamma(
+    DoubleArray gammaCentral5 = GAMMA_CAL.calculateSemiParallelGamma(
         curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
 
-    DoubleMatrix1D gammaForward5 = calculatorForward5.calculateSemiParallelGamma(
+    DoubleArray gammaForward5 = calculatorForward5.calculateSemiParallelGamma(
         curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
     assertTrue(gammaForward5.equalWithTolerance(gammaCentral5, toleranceCoherency));
 
-    DoubleMatrix1D gammaBackward5 = calculatorBackward5.calculateSemiParallelGamma(
+    DoubleArray gammaBackward5 = calculatorBackward5.calculateSemiParallelGamma(
         curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
     assertTrue(gammaForward5.equalWithTolerance(gammaBackward5, toleranceCoherency));
 
-    DoubleMatrix1D gammaCentral4 = calculatorCentral4.calculateSemiParallelGamma(
+    DoubleArray gammaCentral4 = calculatorCentral4.calculateSemiParallelGamma(
         curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
     assertTrue(gammaForward5.equalWithTolerance(gammaCentral4, toleranceCoherency));
   }

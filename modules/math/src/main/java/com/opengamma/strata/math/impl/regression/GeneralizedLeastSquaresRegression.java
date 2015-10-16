@@ -6,8 +6,8 @@
 package com.opengamma.strata.math.impl.regression;
 
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * 
@@ -31,18 +31,18 @@ public class GeneralizedLeastSquaresRegression extends LeastSquaresRegression {
         wArray[i][j] = weights[i][j];
       }
     }
-    DoubleMatrix2D matrix = DoubleMatrix2D.copyOf(dep);
-    DoubleMatrix1D vector = DoubleMatrix1D.copyOf(indep);
-    DoubleMatrix2D w = DoubleMatrix2D.copyOf(wArray);
-    DoubleMatrix2D transpose = s_algebra.getTranspose(matrix);
-    DoubleMatrix2D betasVector = (DoubleMatrix2D)
+    DoubleMatrix matrix = DoubleMatrix.copyOf(dep);
+    DoubleArray vector = DoubleArray.copyOf(indep);
+    DoubleMatrix w = DoubleMatrix.copyOf(wArray);
+    DoubleMatrix transpose = s_algebra.getTranspose(matrix);
+    DoubleMatrix betasVector = (DoubleMatrix)
         s_algebra.multiply(
             s_algebra.multiply(
                 s_algebra.multiply(
                     s_algebra.getInverse(s_algebra.multiply(transpose, s_algebra.multiply(w, matrix))), transpose),
                 w),
             vector);
-    double[] yModel = super.writeArrayAsVector(((DoubleMatrix2D) s_algebra.multiply(matrix, betasVector)).toArray());
+    double[] yModel = super.writeArrayAsVector(((DoubleMatrix) s_algebra.multiply(matrix, betasVector)).toArray());
     double[] betas = super.writeArrayAsVector(betasVector.toArray());
     return getResultWithStatistics(x, y, betas, yModel, useIntercept);
   }

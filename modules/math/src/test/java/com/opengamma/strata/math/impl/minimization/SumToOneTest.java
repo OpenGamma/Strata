@@ -13,8 +13,8 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResults;
@@ -53,7 +53,7 @@ public class SumToOneTest {
         from[j] = RANDOM.nextDouble() * Math.PI / 2;
       }
       SumToOne trans = new SumToOne(n);
-      DoubleMatrix1D to = trans.transform(DoubleMatrix1D.copyOf(from));
+      DoubleArray to = trans.transform(DoubleArray.copyOf(from));
       assertEquals(n, to.size());
       double sum = 0;
       for (int i = 0; i < n; i++) {
@@ -71,9 +71,9 @@ public class SumToOneTest {
         theta[j] = RANDOM.nextDouble() * Math.PI / 2;
       }
       SumToOne trans = new SumToOne(n);
-      DoubleMatrix1D w = trans.transform(DoubleMatrix1D.copyOf(theta));
+      DoubleArray w = trans.transform(DoubleArray.copyOf(theta));
 
-      DoubleMatrix1D theta2 = trans.inverseTransform(w);
+      DoubleArray theta2 = trans.inverseTransform(w);
       for (int j = 0; j < n - 1; j++) {
         assertEquals("element " + j + ", of vector length " + n, theta[j], theta2.get(j), 1e-9);
       }
@@ -85,18 +85,18 @@ public class SumToOneTest {
     double[] w = new double[] {0.01, 0.5, 0.3, 0.19 };
     final int n = w.length;
     final SumToOne trans = new SumToOne(n);
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+    Function1D<DoubleArray, DoubleArray> func = new Function1D<DoubleArray, DoubleArray>() {
 
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D theta) {
+      public DoubleArray evaluate(DoubleArray theta) {
         return trans.transform(theta);
       }
     };
 
-    DoubleMatrix1D sigma = DoubleMatrix1D.filled(n, 1e-4);
-    DoubleMatrix1D start = DoubleMatrix1D.filled(n - 1, 0.8);
+    DoubleArray sigma = DoubleArray.filled(n, 1e-4);
+    DoubleArray start = DoubleArray.filled(n - 1, 0.8);
 
-    LeastSquareResults res = SOLVER.solve(DoubleMatrix1D.copyOf(w), sigma, func, start/*, maxJump*/);
+    LeastSquareResults res = SOLVER.solve(DoubleArray.copyOf(w), sigma, func, start/*, maxJump*/);
     assertEquals("chi sqr", 0.0, res.getChiSq(), 1e-9);
     double[] fit = res.getFitParameters().toArray();
     double[] expected = trans.inverseTransform(w);
@@ -123,23 +123,23 @@ public class SumToOneTest {
   public void solverTest2() {
     double[] w = new double[] {3.0, 4.0 };
     final int n = w.length;
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+    Function1D<DoubleArray, DoubleArray> func = new Function1D<DoubleArray, DoubleArray>() {
 
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+      public DoubleArray evaluate(DoubleArray x) {
         double a = x.get(0);
         double theta = x.get(1);
         double c1 = Math.cos(theta);
-        return DoubleMatrix1D.of(
+        return DoubleArray.of(
             a * c1 * c1,
             a * (1 - c1 * c1));
       }
     };
 
-    DoubleMatrix1D sigma = DoubleMatrix1D.filled(n, 1e-4);
-    DoubleMatrix1D start = DoubleMatrix1D.of(0.0, 0.8);
+    DoubleArray sigma = DoubleArray.filled(n, 1e-4);
+    DoubleArray start = DoubleArray.of(0.0, 0.8);
 
-    LeastSquareResults res = SOLVER.solve(DoubleMatrix1D.copyOf(w), sigma, func, start/*, maxJump*/);
+    LeastSquareResults res = SOLVER.solve(DoubleArray.copyOf(w), sigma, func, start/*, maxJump*/);
     assertEquals("chi sqr", 0.0, res.getChiSq(), 1e-9);
     double[] fit = res.getFitParameters().toArray();
     assertEquals(7.0, fit[0], 1e-9);
@@ -151,26 +151,26 @@ public class SumToOneTest {
     final int n = 5;
 
     final SumToOne trans = new SumToOne(n);
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+    Function1D<DoubleArray, DoubleArray> func = new Function1D<DoubleArray, DoubleArray>() {
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D theta) {
+      public DoubleArray evaluate(DoubleArray theta) {
         return trans.transform(theta);
       }
     };
 
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+    Function1D<DoubleArray, DoubleMatrix> jacFunc = new Function1D<DoubleArray, DoubleMatrix>() {
       @Override
-      public DoubleMatrix2D evaluate(DoubleMatrix1D theta) {
+      public DoubleMatrix evaluate(DoubleArray theta) {
         return trans.jacobian(theta);
       }
     };
 
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> fdJacFunc = DIFFER.differentiate(func);
+    Function1D<DoubleArray, DoubleMatrix> fdJacFunc = DIFFER.differentiate(func);
 
     for (int tries = 0; tries < 10; tries++) {
-      DoubleMatrix1D vTheta = DoubleMatrix1D.of(n - 1, i -> RANDOM.nextDouble());
-      DoubleMatrix2D jac = jacFunc.evaluate(vTheta);
-      DoubleMatrix2D fdJac = fdJacFunc.evaluate(vTheta);
+      DoubleArray vTheta = DoubleArray.of(n - 1, i -> RANDOM.nextDouble());
+      DoubleMatrix jac = jacFunc.evaluate(vTheta);
+      DoubleMatrix fdJac = fdJacFunc.evaluate(vTheta);
       for (int j = 0; j < n - 1; j++) {
         double sum = 0.0;
         for (int i = 0; i < n; i++) {

@@ -42,7 +42,7 @@ import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.SwaptionVolatilitySurfaceExpiryTenorNodeMetadata;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Volatility environment for swaptions in the normal or Bachelier model. 
@@ -158,7 +158,7 @@ public final class NormalVolatilityExpiryTenorSwaptionProvider
     SurfaceCurrencyParameterSensitivity parameterSensi = SurfaceCurrencyParameterSensitivity.of(
         updateSurfaceMetadata(result.keySet()),
         point.getCurrency(),
-        DoubleMatrix1D.copyOf(Doubles.toArray(result.values())));
+        DoubleArray.copyOf(Doubles.toArray(result.values())));
     return parameterSensi.multipliedBy(point.getSensitivity());
   }
 

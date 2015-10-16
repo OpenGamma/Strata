@@ -16,7 +16,7 @@ import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Tests related to the exponential interpolator.
@@ -126,7 +126,7 @@ public class ExponentialInterpolator1DTest {
     int keySize1 = keys1.length;
     double[] expectedValues1 = new double[keySize1];
     for (int i = 0; i < keySize1; ++i) {
-      int index = FunctionUtils.getLowerBoundIndex(DoubleMatrix1D.copyOf(xData1), keys1[i]);
+      int index = FunctionUtils.getLowerBoundIndex(DoubleArray.copyOf(xData1), keys1[i]);
       expectedValues1[i] = func1[index].evaluate(keys1[i]);
     }
     testInterpolation(xData1, yData1, keys1, expectedValues1, false);
@@ -152,7 +152,7 @@ public class ExponentialInterpolator1DTest {
     int keySize2 = keys2.length;
     double[] expectedValues2 = new double[keySize2];
     for (int i = 0; i < keySize2; ++i) {
-      int index = FunctionUtils.getLowerBoundIndex(DoubleMatrix1D.copyOf(xData2), keys2[i]);
+      int index = FunctionUtils.getLowerBoundIndex(DoubleArray.copyOf(xData2), keys2[i]);
       expectedValues2[i] = func2[index].evaluate(keys2[i]);
     }
     testInterpolation(xData2, yData2, keys2, expectedValues2, false);

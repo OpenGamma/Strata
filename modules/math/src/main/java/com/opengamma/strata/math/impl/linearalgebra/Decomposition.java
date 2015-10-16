@@ -6,13 +6,13 @@
 package com.opengamma.strata.math.impl.linearalgebra;
 
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Base class for matrix decompositions (e.g. SVD, LU etc).
  * @param <S> The type of the decomposition result
  */
 
-public abstract class Decomposition<S extends DecompositionResult> extends Function1D<DoubleMatrix2D, S> {
+public abstract class Decomposition<S extends DecompositionResult> extends Function1D<DoubleMatrix, S> {
 
 }

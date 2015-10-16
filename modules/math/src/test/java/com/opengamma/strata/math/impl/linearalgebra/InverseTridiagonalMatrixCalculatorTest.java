@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Test.
@@ -23,7 +23,7 @@ public class InverseTridiagonalMatrixCalculatorTest {
   private static final double[] C = new double[] {0.56, 0.63, -0.42, -0.23, 0.76, 1.76, 1.0, 2.4, -0.4, 2.4234 };
 
   private static final TridiagonalMatrix MATRIX = new TridiagonalMatrix(A, B, C);
-  private static final DoubleMatrix2D TRI = MATRIX.toDoubleMatrix2D();
+  private static final DoubleMatrix TRI = MATRIX.toDoubleMatrix();
   private static final double EPS = 1e-15;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -42,7 +42,7 @@ public class InverseTridiagonalMatrixCalculatorTest {
     for (i = 0; i < n; i++) {
       a[i] = 1.0;
     }
-    final DoubleMatrix2D res = CALCULATOR.evaluate(new TridiagonalMatrix(a, b, c));
+    final DoubleMatrix res = CALCULATOR.evaluate(new TridiagonalMatrix(a, b, c));
     for (i = 0; i < n; i++) {
       for (j = 0; j < n; j++) {
         assertEquals((i == j ? 1.0 : 0.0), res.get(i, j), EPS);
@@ -53,8 +53,8 @@ public class InverseTridiagonalMatrixCalculatorTest {
 
   @Test
   public void testInvert() {
-    final DoubleMatrix2D res = CALCULATOR.evaluate(MATRIX);
-    final DoubleMatrix2D idet = (DoubleMatrix2D) OG_ALGEBRA.multiply(TRI, res);
+    final DoubleMatrix res = CALCULATOR.evaluate(MATRIX);
+    final DoubleMatrix idet = (DoubleMatrix) OG_ALGEBRA.multiply(TRI, res);
 
     final int n = idet.rowCount();
     int i, j;

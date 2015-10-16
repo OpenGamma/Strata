@@ -16,7 +16,7 @@ import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurve;
@@ -137,17 +137,17 @@ public class IsdaCdsPricer {
     }
 
     @Override
-    public DoubleMatrix1D getXValues() {
+    public DoubleArray getXValues() {
       return underlyingCurve.getXValues();
     }
 
     @Override
-    public DoubleMatrix1D getYValues() {
-      return DoubleMatrix1D.copyOf(underlyingCurve.getRt());
+    public DoubleArray getYValues() {
+      return DoubleArray.copyOf(underlyingCurve.getRt());
     }
 
     @Override
-    public NodalCurve withYValues(DoubleMatrix1D values) {
+    public NodalCurve withYValues(DoubleArray values) {
       return new ISDANodalCurve(IsdaCompliantCurve.makeFromRT(getXValues(), values), curveMetadata);
     }
 
@@ -168,7 +168,7 @@ public class IsdaCdsPricer {
 
     @Override
     public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
-      return CurveUnitParameterSensitivity.of(curveMetadata, DoubleMatrix1D.EMPTY);
+      return CurveUnitParameterSensitivity.of(curveMetadata, DoubleArray.EMPTY);
     }
 
     @Override
@@ -198,7 +198,7 @@ public class IsdaCdsPricer {
       return new ISDANodalCurve(underlying, yieldCurveParRates.getCurveMetaData());
     }
 
-    public static NodalCurve of(IsdaYieldCurveParRates yieldCurveParRates, DoubleMatrix1D t, DoubleMatrix1D rt) {
+    public static NodalCurve of(IsdaYieldCurveParRates yieldCurveParRates, DoubleArray t, DoubleArray rt) {
       IsdaCompliantYieldCurve yieldCurve = IsdaCompliantYieldCurve.makeFromRT(t, rt);
       IsdaCompliantCurve underlying = yieldCurve;
       return new ISDANodalCurve(underlying, yieldCurveParRates.getCurveMetaData());
@@ -211,7 +211,7 @@ public class IsdaCdsPricer {
       return new ISDANodalCurve(underlying, creditCurveParRates.getCurveMetaData());
     }
 
-    public static NodalCurve of(IsdaCreditCurveParRates creditCurveParRates, DoubleMatrix1D t, DoubleMatrix1D ht) {
+    public static NodalCurve of(IsdaCreditCurveParRates creditCurveParRates, DoubleArray t, DoubleArray ht) {
       IsdaCompliantCreditCurve creditCurve = IsdaCompliantCreditCurve.makeFromRT(t, ht);
       IsdaCompliantCurve underlying = creditCurve;
       return new ISDANodalCurve(underlying, creditCurveParRates.getCurveMetaData());
@@ -306,7 +306,7 @@ public class IsdaCdsPricer {
     NodalCurve creditCurve = ISDANodalCurve.of(valuationDate, creditCurveParRates, yieldCurve, recoveryRate);
 
     int points = yieldCurveParRates.getNumberOfPoints();
-    DoubleMatrix1D paramSens = DoubleMatrix1D.of(points, i -> {
+    DoubleArray paramSens = DoubleArray.of(points, i -> {
       NodalCurve bumpedYieldCurve = ISDANodalCurve.of(
           valuationDate, yieldCurveParRates.bucketedShiftParRatesinBps(i, ONE_BPS));
       NodalCurve bumpedCreditCurve = ISDANodalCurve.of(
@@ -345,8 +345,8 @@ public class IsdaCdsPricer {
     NodalCurve creditCurve = ISDANodalCurve.of(valuationDate, creditCurveParRates, yieldCurve, recoveryRate);
 
     int points = yieldCurveParRates.getNumberOfPoints();
-    DoubleMatrix1D paramSens = DoubleMatrix1D.of(points, i -> {
-      DoubleMatrix1D shiftVector = yieldCurve.getYValues();
+    DoubleArray paramSens = DoubleArray.of(points, i -> {
+      DoubleArray shiftVector = yieldCurve.getYValues();
       shiftVector = shiftVector.with(i, shiftVector.get(i) + ONE_BPS);
       NodalCurve bumpedYieldCurve = ISDANodalCurve.of(yieldCurveParRates, yieldCurve.getXValues(), shiftVector);
       NodalCurve bumpedCreditCurve = ISDANodalCurve.of(valuationDate, creditCurveParRates, bumpedYieldCurve, recoveryRate);
@@ -451,7 +451,7 @@ public class IsdaCdsPricer {
     NodalCurve creditCurve = ISDANodalCurve.of(valuationDate, creditCurveParRates, yieldCurve, recoveryRate);
 
     int points = creditCurveParRates.getNumberOfPoints();
-    DoubleMatrix1D paramSens = DoubleMatrix1D.of(points, i -> {
+    DoubleArray paramSens = DoubleArray.of(points, i -> {
       NodalCurve bumpedYieldCurve = yieldCurve;
       NodalCurve bumpedCreditCurve = ISDANodalCurve.of(
           valuationDate, creditCurveParRates.bucketedShiftParRatesinBps(i, ONE_BPS), yieldCurve, recoveryRate);
@@ -489,8 +489,8 @@ public class IsdaCdsPricer {
     NodalCurve creditCurve = ISDANodalCurve.of(valuationDate, creditCurveParRates, yieldCurve, recoveryRate);
 
     int points = creditCurveParRates.getNumberOfPoints();
-    DoubleMatrix1D paramSens = DoubleMatrix1D.of(points, i -> {
-      DoubleMatrix1D shiftVector = creditCurve.getYValues();
+    DoubleArray paramSens = DoubleArray.of(points, i -> {
+      DoubleArray shiftVector = creditCurve.getYValues();
       shiftVector = shiftVector.with(i, shiftVector.get(i) + ONE_BPS);
       NodalCurve bumpedYieldCurve = yieldCurve;
       NodalCurve bumpedCreditCurve = ISDANodalCurve.of(creditCurveParRates, creditCurve.getXValues(), shiftVector);

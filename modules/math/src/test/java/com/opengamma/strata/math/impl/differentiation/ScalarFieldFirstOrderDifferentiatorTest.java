@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test.
@@ -18,32 +18,32 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 @Test
 public class ScalarFieldFirstOrderDifferentiatorTest {
 
-  private static final Function1D<DoubleMatrix1D, Double> F = new Function1D<DoubleMatrix1D, Double>() {
+  private static final Function1D<DoubleArray, Double> F = new Function1D<DoubleArray, Double>() {
 
     @Override
-    public Double evaluate(final DoubleMatrix1D x) {
+    public Double evaluate(final DoubleArray x) {
       final double x1 = x.get(0);
       final double x2 = x.get(1);
       return x1 * x1 + 2 * x2 * x2 - x1 * x2 + x1 * Math.cos(x2) - x2 * Math.sin(x1);
     }
   };
 
-  private static final Function1D<DoubleMatrix1D, Boolean> DOMAIN = new Function1D<DoubleMatrix1D, Boolean>() {
+  private static final Function1D<DoubleArray, Boolean> DOMAIN = new Function1D<DoubleArray, Boolean>() {
 
     @Override
-    public Boolean evaluate(final DoubleMatrix1D x) {
+    public Boolean evaluate(final DoubleArray x) {
       final double x1 = x.get(0);
       return x1 >= 0.0 && x1 <= Math.PI;
     }
   };
 
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> G = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  private static final Function1D<DoubleArray, DoubleArray> G = new Function1D<DoubleArray, DoubleArray>() {
 
     @Override
-    public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+    public DoubleArray evaluate(final DoubleArray x) {
       double x1 = x.get(0);
       double x2 = x.get(1);
-      return DoubleMatrix1D.of(
+      return DoubleArray.of(
           2 * x1 - x2 + Math.cos(x2) - x2 * Math.cos(x1),
           4 * x2 - x1 - x1 * Math.sin(x2) - Math.sin(x1));
     }
@@ -61,16 +61,16 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
-    CENTRAL.differentiate((Function1D<DoubleMatrix1D, Double>) null);
+    CENTRAL.differentiate((Function1D<DoubleArray, Double>) null);
   }
 
   @Test
   public void test() {
-    final DoubleMatrix1D x = DoubleMatrix1D.of(.2245, -1.2344);
-    final DoubleMatrix1D anGrad = G.evaluate(x);
-    final DoubleMatrix1D fdFwdGrad = FORWARD.differentiate(F).evaluate(x);
-    final DoubleMatrix1D fdCentGrad = CENTRAL.differentiate(F).evaluate(x);
-    final DoubleMatrix1D fdBackGrad = BACKWARD.differentiate(F).evaluate(x);
+    final DoubleArray x = DoubleArray.of(.2245, -1.2344);
+    final DoubleArray anGrad = G.evaluate(x);
+    final DoubleArray fdFwdGrad = FORWARD.differentiate(F).evaluate(x);
+    final DoubleArray fdCentGrad = CENTRAL.differentiate(F).evaluate(x);
+    final DoubleArray fdBackGrad = BACKWARD.differentiate(F).evaluate(x);
 
     for (int i = 0; i < 2; i++) {
       assertEquals(fdFwdGrad.get(i), anGrad.get(i), 10 * EPS);
@@ -81,16 +81,16 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
 
   @Test
   public void domainTest() {
-    final DoubleMatrix1D[] x = new DoubleMatrix1D[3];
-    x[0] = DoubleMatrix1D.of(0.2245, -1.2344);
-    x[1] = DoubleMatrix1D.of(0.0, 12.6);
-    x[2] = DoubleMatrix1D.of(Math.PI, 0.0);
+    final DoubleArray[] x = new DoubleArray[3];
+    x[0] = DoubleArray.of(0.2245, -1.2344);
+    x[1] = DoubleArray.of(0.0, 12.6);
+    x[2] = DoubleArray.of(Math.PI, 0.0);
 
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> fdGradFunc = CENTRAL.differentiate(F, DOMAIN);
+    final Function1D<DoubleArray, DoubleArray> fdGradFunc = CENTRAL.differentiate(F, DOMAIN);
 
     for (int k = 0; k < 3; k++) {
-      final DoubleMatrix1D fdRes = fdGradFunc.evaluate(x[k]);
-      final DoubleMatrix1D alRes = G.evaluate(x[k]);
+      final DoubleArray fdRes = fdGradFunc.evaluate(x[k]);
+      final DoubleArray alRes = G.evaluate(x[k]);
       for (int i = 0; i < 2; i++) {
         assertEquals(fdRes.get(i), alRes.get(i), 1e-7);
       }

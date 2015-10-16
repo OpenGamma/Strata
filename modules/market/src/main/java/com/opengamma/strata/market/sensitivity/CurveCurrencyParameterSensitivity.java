@@ -31,7 +31,7 @@ import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Parameter sensitivity for a single curve.
@@ -64,7 +64,7 @@ public final class CurveCurrencyParameterSensitivity
    * There will be one sensitivity value for each parameter of the curve.
    */
   @PropertyDefinition(validate = "notNull")
-  private final DoubleMatrix1D sensitivity;
+  private final DoubleArray sensitivity;
 
   //-------------------------------------------------------------------------
   /**
@@ -75,7 +75,7 @@ public final class CurveCurrencyParameterSensitivity
    * @param sensitivity  the sensitivity values, one for each node in the curve
    * @return the sensitivity object
    */
-  public static CurveCurrencyParameterSensitivity of(CurveMetadata metadata, Currency currency, DoubleMatrix1D sensitivity) {
+  public static CurveCurrencyParameterSensitivity of(CurveMetadata metadata, Currency currency, DoubleArray sensitivity) {
     return new CurveCurrencyParameterSensitivity(metadata, currency, sensitivity);
   }
 
@@ -184,7 +184,7 @@ public final class CurveCurrencyParameterSensitivity
    * @param sensitivity  the new sensitivity values
    * @return an instance based on this one, with the specified sensitivity values
    */
-  public CurveCurrencyParameterSensitivity withSensitivity(DoubleMatrix1D sensitivity) {
+  public CurveCurrencyParameterSensitivity withSensitivity(DoubleArray sensitivity) {
     if (sensitivity.size() != this.sensitivity.size()) {
       throw new IllegalArgumentException("Length of sensitivity must match parameter count");
     }
@@ -218,7 +218,7 @@ public final class CurveCurrencyParameterSensitivity
   private CurveCurrencyParameterSensitivity(
       CurveMetadata metadata,
       Currency currency,
-      DoubleMatrix1D sensitivity) {
+      DoubleArray sensitivity) {
     JodaBeanUtils.notNull(metadata, "metadata");
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(sensitivity, "sensitivity");
@@ -270,7 +270,7 @@ public final class CurveCurrencyParameterSensitivity
    * There will be one sensitivity value for each parameter of the curve.
    * @return the value of the property, not null
    */
-  public DoubleMatrix1D getSensitivity() {
+  public DoubleArray getSensitivity() {
     return sensitivity;
   }
 
@@ -332,8 +332,8 @@ public final class CurveCurrencyParameterSensitivity
     /**
      * The meta-property for the {@code sensitivity} property.
      */
-    private final MetaProperty<DoubleMatrix1D> sensitivity = DirectMetaProperty.ofImmutable(
-        this, "sensitivity", CurveCurrencyParameterSensitivity.class, DoubleMatrix1D.class);
+    private final MetaProperty<DoubleArray> sensitivity = DirectMetaProperty.ofImmutable(
+        this, "sensitivity", CurveCurrencyParameterSensitivity.class, DoubleArray.class);
     /**
      * The meta-properties.
      */
@@ -398,7 +398,7 @@ public final class CurveCurrencyParameterSensitivity
      * The meta-property for the {@code sensitivity} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DoubleMatrix1D> sensitivity() {
+    public MetaProperty<DoubleArray> sensitivity() {
       return sensitivity;
     }
 
@@ -435,7 +435,7 @@ public final class CurveCurrencyParameterSensitivity
 
     private CurveMetadata metadata;
     private Currency currency;
-    private DoubleMatrix1D sensitivity;
+    private DoubleArray sensitivity;
 
     /**
      * Restricted constructor.
@@ -468,7 +468,7 @@ public final class CurveCurrencyParameterSensitivity
           this.currency = (Currency) newValue;
           break;
         case 564403871:  // sensitivity
-          this.sensitivity = (DoubleMatrix1D) newValue;
+          this.sensitivity = (DoubleArray) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

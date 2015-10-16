@@ -18,10 +18,10 @@ public class MatrixAlgebraImplementationTest {
 
   private static final MatrixAlgebra COMMONS = MatrixAlgebraFactory.COMMONS_ALGEBRA;
   private static final MatrixAlgebra OG = MatrixAlgebraFactory.OG_ALGEBRA;
-  private static final DoubleMatrix1D M1 = DoubleMatrix1D.of(1, 2);
-  private static final DoubleMatrix1D M2 = DoubleMatrix1D.of(3, 4);
-  private static final DoubleMatrix2D M3 = DoubleMatrix2D.copyOf(new double[][] { {1, 2}, {2, 1}});
-  private static final DoubleMatrix2D M4 = DoubleMatrix2D.copyOf(new double[][] { {5, 6}, {7, 8}});
+  private static final DoubleArray M1 = DoubleArray.of(1, 2);
+  private static final DoubleArray M2 = DoubleArray.of(3, 4);
+  private static final DoubleMatrix M3 = DoubleMatrix.copyOf(new double[][] { {1, 2}, {2, 1}});
+  private static final DoubleMatrix M4 = DoubleMatrix.copyOf(new double[][] { {5, 6}, {7, 8}});
   private static final Matrix M5 = new Matrix() {
     @Override
     public int dimensions() {
@@ -62,7 +62,7 @@ public class MatrixAlgebraImplementationTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGInnerProduct1() {
-    OG.getInnerProduct(M1, DoubleMatrix1D.of(1, 2, 3));
+    OG.getInnerProduct(M1, DoubleArray.of(1, 2, 3));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -152,7 +152,7 @@ public class MatrixAlgebraImplementationTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGTrace2() {
-    OG.getTrace(DoubleMatrix2D.copyOf(new double[][] { {1, 2, 3}, {4, 5, 6}}));
+    OG.getTrace(DoubleMatrix.copyOf(new double[][] { {1, 2, 3}, {4, 5, 6}}));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -187,17 +187,17 @@ public class MatrixAlgebraImplementationTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGMultiply2() {
-    OG.multiply(DoubleMatrix1D.of(1, 2, 3), M3);
+    OG.multiply(DoubleArray.of(1, 2, 3), M3);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGMultiply3() {
-    OG.multiply(M3, DoubleMatrix1D.of(1, 2, 3));
+    OG.multiply(M3, DoubleArray.of(1, 2, 3));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGMultiply4() {
-    OG.multiply(DoubleMatrix2D.copyOf(new double[][] { {1, 2, 3}, {4, 5, 6}}), M3);
+    OG.multiply(DoubleMatrix.copyOf(new double[][] { {1, 2, 3}, {4, 5, 6}}), M3);
   }
 
   @Test
@@ -240,41 +240,41 @@ public class MatrixAlgebraImplementationTest {
 
   @Test
   public void testInverse() {
-    assertMatrixEquals(COMMONS.getInverse(M3), DoubleMatrix2D.copyOf(
+    assertMatrixEquals(COMMONS.getInverse(M3), DoubleMatrix.copyOf(
         new double[][] { {-0.3333333333333333, 0.6666666666666666}, {0.6666666666666666, -0.3333333333333333}}));
   }
 
   @Test
   public void testMultiply() {
     assertMatrixEquals(COMMONS.multiply(DoubleMatrixUtils.getIdentityMatrix2D(2), M3), M3);
-    assertMatrixEquals(COMMONS.multiply(M3, M4), DoubleMatrix2D.copyOf(new double[][] { {19, 22}, {17, 20}}));
+    assertMatrixEquals(COMMONS.multiply(M3, M4), DoubleMatrix.copyOf(new double[][] { {19, 22}, {17, 20}}));
   }
 
   @Test
   public void testOuterProduct() {
-    assertMatrixEquals(COMMONS.getOuterProduct(M1, M2), DoubleMatrix2D.copyOf(new double[][] { {3, 4}, {6, 8}}));
+    assertMatrixEquals(COMMONS.getOuterProduct(M1, M2), DoubleMatrix.copyOf(new double[][] { {3, 4}, {6, 8}}));
   }
 
   @Test
   public void testPower() {
-    assertMatrixEquals(COMMONS.getPower(M3, 3), DoubleMatrix2D.copyOf(new double[][] { {13, 14}, {14, 13}}));
+    assertMatrixEquals(COMMONS.getPower(M3, 3), DoubleMatrix.copyOf(new double[][] { {13, 14}, {14, 13}}));
     assertMatrixEquals(COMMONS.getPower(M3, 3), COMMONS.multiply(M3, COMMONS.multiply(M3, M3)));
   }
 
   private void assertMatrixEquals(final Matrix m1, final Matrix m2) {
-    if (m1 instanceof DoubleMatrix1D) {
-      assertTrue(m2 instanceof DoubleMatrix1D);
-      final DoubleMatrix1D m3 = (DoubleMatrix1D) m1;
-      final DoubleMatrix1D m4 = (DoubleMatrix1D) m2;
+    if (m1 instanceof DoubleArray) {
+      assertTrue(m2 instanceof DoubleArray);
+      final DoubleArray m3 = (DoubleArray) m1;
+      final DoubleArray m4 = (DoubleArray) m2;
       assertEquals(m3.size(), m4.size());
       for (int i = 0; i < m3.size(); i++) {
         assertEquals(m3.get(i), m4.get(i), EPS);
       }
       return;
     }
-    if (m2 instanceof DoubleMatrix2D) {
-      final DoubleMatrix2D m3 = (DoubleMatrix2D) m1;
-      final DoubleMatrix2D m4 = (DoubleMatrix2D) m2;
+    if (m2 instanceof DoubleMatrix) {
+      final DoubleMatrix m3 = (DoubleMatrix) m1;
+      final DoubleMatrix m4 = (DoubleMatrix) m2;
       assertEquals(m3.size(), m4.size());
       assertEquals(m3.rowCount(), m4.rowCount());
       assertEquals(m3.columnCount(), m4.columnCount());

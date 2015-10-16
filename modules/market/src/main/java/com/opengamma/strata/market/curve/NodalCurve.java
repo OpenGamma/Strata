@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.DoubleBinaryOperator;
 
 import com.opengamma.strata.basics.value.ValueAdjustment;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * A curve based on {@code double} nodal points.
@@ -33,7 +33,7 @@ public interface NodalCurve
    * 
    * @return the x-values
    */
-  public abstract DoubleMatrix1D getXValues();
+  public abstract DoubleArray getXValues();
 
   /**
    * Gets the known y-values of the curve.
@@ -43,7 +43,7 @@ public interface NodalCurve
    * 
    * @return the y-values
    */
-  public abstract DoubleMatrix1D getYValues();
+  public abstract DoubleArray getYValues();
 
   /**
    * Returns a new curve with the specified values.
@@ -53,7 +53,7 @@ public interface NodalCurve
    * @param values  the new y-values for the curve
    * @return the new curve
    */
-  public abstract NodalCurve withYValues(DoubleMatrix1D values);
+  public abstract NodalCurve withYValues(DoubleArray values);
 
   //-------------------------------------------------------------------------
   /**
@@ -69,8 +69,8 @@ public interface NodalCurve
    * @return the new curve
    */
   public default NodalCurve shiftedBy(DoubleBinaryOperator operator) {
-    DoubleMatrix1D xValues = getXValues();
-    DoubleMatrix1D yValues = getYValues();
+    DoubleArray xValues = getXValues();
+    DoubleArray yValues = getYValues();
     return withYValues(yValues.mapWithIndex((i, v) -> operator.applyAsDouble(xValues.get(i), v)));
   }
 
@@ -86,7 +86,7 @@ public interface NodalCurve
    * @return the new curve
    */
   public default NodalCurve shiftedBy(List<ValueAdjustment> adjustments) {
-    DoubleMatrix1D yValues = getYValues();
+    DoubleArray yValues = getYValues();
     return withYValues(yValues.mapWithIndex((i, v) -> i < adjustments.size() ? adjustments.get(i).adjust(v) : v));
   }
 

@@ -27,8 +27,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.market.curve.definition.CurveParameterSize;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Jacobian matrix information produced during curve calibration.
@@ -52,7 +52,7 @@ public final class JacobianCalibrationMatrix
    * This is the derivative of the curve parameters with respect to the market quotes.
    */
   @PropertyDefinition(validate = "notNull")
-  private final DoubleMatrix2D jacobianMatrix;
+  private final DoubleMatrix jacobianMatrix;
 
   //-------------------------------------------------------------------------
   /**
@@ -67,7 +67,7 @@ public final class JacobianCalibrationMatrix
    * @param jacobianMatrix  the inverse Jacobian matrix produced during curve calibration
    * @return the info
    */
-  public static JacobianCalibrationMatrix of(List<CurveParameterSize> order, DoubleMatrix2D jacobianMatrix) {
+  public static JacobianCalibrationMatrix of(List<CurveParameterSize> order, DoubleMatrix jacobianMatrix) {
     return new JacobianCalibrationMatrix(order, jacobianMatrix);
   }
 
@@ -112,8 +112,8 @@ public final class JacobianCalibrationMatrix
    * @param array  the array to split
    * @return a map splitting the array by curve name
    */
-  public Map<CurveName, DoubleMatrix1D> splitValues(DoubleMatrix1D array) {
-    LinkedHashMap<CurveName, DoubleMatrix1D> result = new LinkedHashMap<>();
+  public Map<CurveName, DoubleArray> splitValues(DoubleArray array) {
+    LinkedHashMap<CurveName, DoubleArray> result = new LinkedHashMap<>();
     int start = 0;
     for (CurveParameterSize paramSizes : order) {
       int size = paramSizes.getParameterCount();
@@ -144,7 +144,7 @@ public final class JacobianCalibrationMatrix
 
   private JacobianCalibrationMatrix(
       List<CurveParameterSize> order,
-      DoubleMatrix2D jacobianMatrix) {
+      DoubleMatrix jacobianMatrix) {
     JodaBeanUtils.notNull(order, "order");
     JodaBeanUtils.notNull(jacobianMatrix, "jacobianMatrix");
     this.order = ImmutableList.copyOf(order);
@@ -183,7 +183,7 @@ public final class JacobianCalibrationMatrix
    * This is the derivative of the curve parameters with respect to the market quotes.
    * @return the value of the property, not null
    */
-  public DoubleMatrix2D getJacobianMatrix() {
+  public DoubleMatrix getJacobianMatrix() {
     return jacobianMatrix;
   }
 
@@ -238,8 +238,8 @@ public final class JacobianCalibrationMatrix
     /**
      * The meta-property for the {@code jacobianMatrix} property.
      */
-    private final MetaProperty<DoubleMatrix2D> jacobianMatrix = DirectMetaProperty.ofImmutable(
-        this, "jacobianMatrix", JacobianCalibrationMatrix.class, DoubleMatrix2D.class);
+    private final MetaProperty<DoubleMatrix> jacobianMatrix = DirectMetaProperty.ofImmutable(
+        this, "jacobianMatrix", JacobianCalibrationMatrix.class, DoubleMatrix.class);
     /**
      * The meta-properties.
      */
@@ -293,7 +293,7 @@ public final class JacobianCalibrationMatrix
      * The meta-property for the {@code jacobianMatrix} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DoubleMatrix2D> jacobianMatrix() {
+    public MetaProperty<DoubleMatrix> jacobianMatrix() {
       return jacobianMatrix;
     }
 
@@ -327,7 +327,7 @@ public final class JacobianCalibrationMatrix
   private static final class Builder extends DirectFieldsBeanBuilder<JacobianCalibrationMatrix> {
 
     private List<CurveParameterSize> order = ImmutableList.of();
-    private DoubleMatrix2D jacobianMatrix;
+    private DoubleMatrix jacobianMatrix;
 
     /**
      * Restricted constructor.
@@ -356,7 +356,7 @@ public final class JacobianCalibrationMatrix
           this.order = (List<CurveParameterSize>) newValue;
           break;
         case 1656240056:  // jacobianMatrix
-          this.jacobianMatrix = (DoubleMatrix2D) newValue;
+          this.jacobianMatrix = (DoubleMatrix) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

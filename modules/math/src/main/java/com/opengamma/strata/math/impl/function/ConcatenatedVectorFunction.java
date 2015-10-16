@@ -6,8 +6,8 @@
 package com.opengamma.strata.math.impl.function;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * For the set of $k$ vector functions $f_i: \mathbb{R}^{m_i} \to \mathbb{R}^{n_i} \quad x_i \mapsto f_i(x_i) = y_i$ 
@@ -51,7 +51,7 @@ public class ConcatenatedVectorFunction extends VectorFunction {
 
   //-------------------------------------------------------------------------
   @Override
-  public DoubleMatrix2D calculateJacobian(DoubleMatrix1D x) {
+  public DoubleMatrix calculateJacobian(DoubleArray x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(
         x.size() == getLengthOfDomain(),
@@ -64,8 +64,8 @@ public class ConcatenatedVectorFunction extends VectorFunction {
     for (int i = 0; i < _nPartitions; i++) {
       int nRows = _yPartition[i];
       int nCols = _xPartition[i];
-      DoubleMatrix1D sub = x.subArray(posInput, posInput + nCols);
-      DoubleMatrix2D subJac = _functions[i].calculateJacobian(sub);
+      DoubleArray sub = x.subArray(posInput, posInput + nCols);
+      DoubleMatrix subJac = _functions[i].calculateJacobian(sub);
       if (nCols > 0) {
         for (int r = 0; r < nRows; r++) {
           System.arraycopy(subJac.toArrayUnsafe()[r], 0, jac[pos1++], pos2, nCols);
@@ -76,11 +76,11 @@ public class ConcatenatedVectorFunction extends VectorFunction {
       }
       posInput += nCols;
     }
-    return DoubleMatrix2D.copyOf(jac);
+    return DoubleMatrix.copyOf(jac);
   }
 
   @Override
-  public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+  public DoubleArray evaluate(DoubleArray x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(
         x.size() == getLengthOfDomain(),
@@ -91,13 +91,13 @@ public class ConcatenatedVectorFunction extends VectorFunction {
     //evaluate each function (with the appropriate sub vector) and concatenate the results 
     for (int i = 0; i < _nPartitions; i++) {
       int length = _xPartition[i];
-      DoubleMatrix1D sub = x.subArray(posInput, posInput + length);
-      DoubleMatrix1D eval = _functions[i].evaluate(sub);
+      DoubleArray sub = x.subArray(posInput, posInput + length);
+      DoubleArray eval = _functions[i].evaluate(sub);
       eval.copyInto(y, posOutput);
       posInput += length;
       posOutput += eval.size();
     }
-    return DoubleMatrix1D.copyOf(y);
+    return DoubleArray.copyOf(y);
   }
 
   @Override

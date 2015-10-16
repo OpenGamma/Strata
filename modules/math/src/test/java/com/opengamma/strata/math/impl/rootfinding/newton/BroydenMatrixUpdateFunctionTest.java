@@ -8,8 +8,8 @@ package com.opengamma.strata.math.impl.rootfinding.newton;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Test.
@@ -17,11 +17,11 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 @Test
 public class BroydenMatrixUpdateFunctionTest {
   private static final BroydenMatrixUpdateFunction UPDATE = new BroydenMatrixUpdateFunction();
-  private static final DoubleMatrix1D V = DoubleMatrix1D.of(1, 2);
-  private static final DoubleMatrix2D M = DoubleMatrix2D.copyOf(new double[][] { {3, 4}, {5, 6}});
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> J = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+  private static final DoubleArray V = DoubleArray.of(1, 2);
+  private static final DoubleMatrix M = DoubleMatrix.copyOf(new double[][] { {3, 4}, {5, 6}});
+  private static final Function1D<DoubleArray, DoubleMatrix> J = new Function1D<DoubleArray, DoubleMatrix>() {
     @Override
-    public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
+    public DoubleMatrix evaluate(final DoubleArray x) {
       return M;
     }
   };

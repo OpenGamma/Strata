@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.value.ValueAdjustment;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test {@link ConstantNodalCurve}.
@@ -75,7 +75,7 @@ public class ConstantNodalCurveTest {
   //-------------------------------------------------------------------------
   public void test_withYValues() {
     ConstantNodalCurve base = ConstantNodalCurve.of(CURVE_NAME, VALUE);
-    ConstantNodalCurve test = base.withYValues(DoubleMatrix1D.of(4d));
+    ConstantNodalCurve test = base.withYValues(DoubleArray.of(4d));
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
@@ -85,8 +85,8 @@ public class ConstantNodalCurveTest {
 
   public void test_withYValues_badSize() {
     ConstantNodalCurve base = ConstantNodalCurve.of(CURVE_NAME, VALUE);
-    assertThrowsIllegalArg(() -> base.withYValues(DoubleMatrix1D.EMPTY));
-    assertThrowsIllegalArg(() -> base.withYValues(DoubleMatrix1D.of(4d, 6d)));
+    assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.EMPTY));
+    assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.of(4d, 6d)));
   }
 
   public void test_shiftedBy_operator() {

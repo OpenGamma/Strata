@@ -8,8 +8,8 @@ package com.opengamma.strata.pricer.impl.credit.isda;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionResult;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  *
@@ -184,12 +184,12 @@ public class AnalyticSpreadSensitivityCalculator {
     ArgChecker.notNull(yieldCurve, "yieldCurve");
     LUDecompositionCommons decomp = new LUDecompositionCommons();
     int n = bucketCDSs.length;
-    DoubleMatrix1D vLambda = DoubleMatrix1D.of(n,
+    DoubleArray vLambda = DoubleArray.of(n,
         i -> _pricer.pvCreditSensitivity(cds, yieldCurve, creditCurve, cdsCoupon, i));
-    DoubleMatrix2D jacT = DoubleMatrix2D.of(n, n,
+    DoubleMatrix jacT = DoubleMatrix.of(n, n,
         (i, j) -> _pricer.parSpreadCreditSensitivity(bucketCDSs[j], yieldCurve, creditCurve, i));
     LUDecompositionResult luRes = decomp.evaluate(jacT);
-    DoubleMatrix1D vS = luRes.solve(vLambda);
+    DoubleArray vS = luRes.solve(vLambda);
     return vS.toArray();
   }
 
@@ -209,7 +209,7 @@ public class AnalyticSpreadSensitivityCalculator {
     ArgChecker.isTrue(m == cdsCoupon.length, m + " CDSs but " + cdsCoupon.length + " coupons");
     LUDecompositionCommons decomp = new LUDecompositionCommons();
     int n = bucketCDSs.length;
-    DoubleMatrix2D jacT = DoubleMatrix2D.of(n, n,
+    DoubleMatrix jacT = DoubleMatrix.of(n, n,
         (i, j) -> _pricer.parSpreadCreditSensitivity(bucketCDSs[j], yieldCurve, creditCurve, i));
 
     double[] vLambda = new double[n];

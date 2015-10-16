@@ -13,8 +13,8 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.FuzzyEquals;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Tests the QR decomposition result
@@ -61,13 +61,13 @@ public class QRDecompositionCommonsResultTest {
     double[] expectedRaw = new double[] {0.0090821107573878, -0.0038563963265099, -0.0016307897061976, 0.1428043882617839 };
     assertTrue(FuzzyEquals.ArrayFuzzyEquals(result.solve(rawRHSvect), expectedRaw));
 
-    assertTrue(FuzzyEquals.ArrayFuzzyEquals(result.solve(DoubleMatrix1D.copyOf(rawRHSvect)).toArray(), expectedRaw));
+    assertTrue(FuzzyEquals.ArrayFuzzyEquals(result.solve(DoubleArray.copyOf(rawRHSvect)).toArray(), expectedRaw));
   }
 
   public void testSolveForMatrix() {
     double[][] expectedRaw = new double[][] { {0.0103938059732010, 0.0181642215147756 }, {-0.0147149030138629, -0.0077127926530197 }, {-0.0171480759531631, -0.0032615794123952 },
       {0.2645342893362958, 0.2856087765235678 } };
 
-    assertTrue(FuzzyEquals.ArrayFuzzyEquals(result.solve(DoubleMatrix2D.copyOf(rawRHSmat)).toArray(), expectedRaw));
+    assertTrue(FuzzyEquals.ArrayFuzzyEquals(result.solve(DoubleMatrix.copyOf(rawRHSmat)).toArray(), expectedRaw));
   }
 }

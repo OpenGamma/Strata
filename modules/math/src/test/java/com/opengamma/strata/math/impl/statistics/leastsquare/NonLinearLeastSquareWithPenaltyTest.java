@@ -13,8 +13,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 
 /**
@@ -36,24 +36,24 @@ public class NonLinearLeastSquareWithPenaltyTest {
     int nWeights = 20;
     int diffOrder = 2;
     double lambda = 100.0;
-    DoubleMatrix2D penalty = (DoubleMatrix2D) MA.scale(getPenaltyMatrix(nWeights, diffOrder), lambda);
+    DoubleMatrix penalty = (DoubleMatrix) MA.scale(getPenaltyMatrix(nWeights, diffOrder), lambda);
     int[] onIndex = new int[] {1, 4, 11, 12, 15, 17};
     double[] obs = new double[] {0, 1.0, 1.0, 1.0, 0.0, 0.0};
     int n = onIndex.length;
 
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+    Function1D<DoubleArray, DoubleArray> func = new Function1D<DoubleArray, DoubleArray>() {
 
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-        return DoubleMatrix1D.of(n, i -> x.get(onIndex[i]));
+      public DoubleArray evaluate(DoubleArray x) {
+        return DoubleArray.of(n, i -> x.get(onIndex[i]));
       }
     };
 
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+    Function1D<DoubleArray, DoubleMatrix> jac = new Function1D<DoubleArray, DoubleMatrix>() {
 
       @Override
-      public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
-        return DoubleMatrix2D.of(
+      public DoubleMatrix evaluate(DoubleArray x) {
+        return DoubleMatrix.of(
             n,
             nWeights,
             (i, j) -> j == onIndex[i] ? 1d : 0d);
@@ -61,11 +61,11 @@ public class NonLinearLeastSquareWithPenaltyTest {
     };
 
     Well44497b random = new Well44497b(0L);
-    DoubleMatrix1D start = DoubleMatrix1D.of(nWeights, i -> random.nextDouble());
+    DoubleArray start = DoubleArray.of(nWeights, i -> random.nextDouble());
 
     LeastSquareWithPenaltyResults lsRes = NLLSWP.solve(
-        DoubleMatrix1D.copyOf(obs),
-        DoubleMatrix1D.filled(n, 0.01),
+        DoubleArray.copyOf(obs),
+        DoubleArray.filled(n, 0.01),
         func,
         jac,
         start,

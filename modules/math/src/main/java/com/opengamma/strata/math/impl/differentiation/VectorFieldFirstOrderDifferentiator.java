@@ -8,8 +8,8 @@ package com.opengamma.strata.math.impl.differentiation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Differentiates a vector field (i.e. there is a vector value for every point
@@ -22,7 +22,7 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
  * $\mathbf{J}$ is the $m \times n$ matrix $\frac{dy_i}{dx_j}$
  */
 public class VectorFieldFirstOrderDifferentiator
-    implements Differentiator<DoubleMatrix1D, DoubleMatrix1D, DoubleMatrix2D> {
+    implements Differentiator<DoubleArray, DoubleArray, DoubleMatrix> {
 
   private static final double DEFAULT_EPS = 1e-5;
 
@@ -78,68 +78,68 @@ public class VectorFieldFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<DoubleMatrix1D, DoubleMatrix2D> differentiate(Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
+  public Function1D<DoubleArray, DoubleMatrix> differentiate(Function1D<DoubleArray, DoubleArray> function) {
     ArgChecker.notNull(function, "function");
     switch (differenceType) {
       case FORWARD:
-        return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+        return new Function1D<DoubleArray, DoubleMatrix>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
+          public DoubleMatrix evaluate(DoubleArray x) {
             ArgChecker.notNull(x, "x");
-            DoubleMatrix1D y = function.evaluate(x);
+            DoubleArray y = function.evaluate(x);
             int n = x.size();
             int m = y.size();
             double[][] res = new double[m][n];
             for (int j = 0; j < n; j++) {
               double xj = x.get(j);
-              DoubleMatrix1D up = function.evaluate(x.with(j, xj + eps));
+              DoubleArray up = function.evaluate(x.with(j, xj + eps));
               for (int i = 0; i < m; i++) {
                 res[i][j] = (up.get(i) - y.get(i)) / eps;
               }
             }
-            return DoubleMatrix2D.copyOf(res);
+            return DoubleMatrix.copyOf(res);
           }
         };
       case CENTRAL:
-        return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+        return new Function1D<DoubleArray, DoubleMatrix>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
+          public DoubleMatrix evaluate(DoubleArray x) {
             ArgChecker.notNull(x, "x");
-            DoubleMatrix1D y = function.evaluate(x); // need this unused evaluation to get size of y
+            DoubleArray y = function.evaluate(x); // need this unused evaluation to get size of y
             int n = x.size();
             int m = y.size();
             double[][] res = new double[m][n];
             for (int j = 0; j < n; j++) {
               double xj = x.get(j);
-              DoubleMatrix1D up = function.evaluate(x.with(j, xj + eps));
-              DoubleMatrix1D down = function.evaluate(x.with(j, xj - eps));
+              DoubleArray up = function.evaluate(x.with(j, xj + eps));
+              DoubleArray down = function.evaluate(x.with(j, xj - eps));
               for (int i = 0; i < m; i++) {
                 res[i][j] = (up.get(i) - down.get(i)) / twoEps;
               }
             }
-            return DoubleMatrix2D.copyOf(res);
+            return DoubleMatrix.copyOf(res);
           }
         };
       case BACKWARD:
-        return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+        return new Function1D<DoubleArray, DoubleMatrix>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
+          public DoubleMatrix evaluate(DoubleArray x) {
             ArgChecker.notNull(x, "x");
-            DoubleMatrix1D y = function.evaluate(x);
+            DoubleArray y = function.evaluate(x);
             int n = x.size();
             int m = y.size();
             double[][] res = new double[m][n];
             for (int j = 0; j < n; j++) {
               double xj = x.get(j);
-              DoubleMatrix1D down = function.evaluate(x.with(j, xj - eps));
+              DoubleArray down = function.evaluate(x.with(j, xj - eps));
               for (int i = 0; i < m; i++) {
                 res[i][j] = (y.get(i) - down.get(i)) / eps;
               }
             }
-            return DoubleMatrix2D.copyOf(res);
+            return DoubleMatrix.copyOf(res);
           }
         };
       default:
@@ -149,9 +149,9 @@ public class VectorFieldFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<DoubleMatrix1D, DoubleMatrix2D> differentiate(
-      Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
-      Function1D<DoubleMatrix1D, Boolean> domain) {
+  public Function1D<DoubleArray, DoubleMatrix> differentiate(
+      Function1D<DoubleArray, DoubleArray> function,
+      Function1D<DoubleArray, Boolean> domain) {
 
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(domain, "domain");
@@ -159,26 +159,26 @@ public class VectorFieldFirstOrderDifferentiator
     double[] wCent = new double[] {-1., 0., 1.};
     double[] wBack = new double[] {1., -4., 3.};
 
-    return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+    return new Function1D<DoubleArray, DoubleMatrix>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
+      public DoubleMatrix evaluate(DoubleArray x) {
         ArgChecker.notNull(x, "x");
         ArgChecker.isTrue(domain.evaluate(x), "point {} is not in the function domain", x.toString());
 
-        DoubleMatrix1D mid = function.evaluate(x); // need this unused evaluation to get size of y
+        DoubleArray mid = function.evaluate(x); // need this unused evaluation to get size of y
         int n = x.size();
         int m = mid.size();
         double[][] res = new double[m][n];
-        DoubleMatrix1D[] y = new DoubleMatrix1D[3];
+        DoubleArray[] y = new DoubleArray[3];
         double[] w;
 
         for (int j = 0; j < n; j++) {
           double xj = x.get(j);
-          DoubleMatrix1D xPlusOneEps = x.with(j, xj + eps);
-          DoubleMatrix1D xMinusOneEps = x.with(j, xj - eps);
+          DoubleArray xPlusOneEps = x.with(j, xj + eps);
+          DoubleArray xMinusOneEps = x.with(j, xj - eps);
           if (!domain.evaluate(xPlusOneEps)) {
-            DoubleMatrix1D xMinusTwoEps = x.with(j, xj - twoEps);
+            DoubleArray xMinusTwoEps = x.with(j, xj - twoEps);
             if (!domain.evaluate(xMinusTwoEps)) {
               throw new MathException("cannot get derivative at point " + x.toString() + " in direction " + j);
             }
@@ -210,7 +210,7 @@ public class VectorFieldFirstOrderDifferentiator
             res[i][j] = sum / twoEps;
           }
         }
-        return DoubleMatrix2D.copyOf(res);
+        return DoubleMatrix.copyOf(res);
       }
     };
   }

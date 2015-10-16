@@ -37,7 +37,7 @@ import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.OvernightIndexRates;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.PricingException;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
@@ -968,8 +968,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
   /** Test parameter sensitivity with fd calculator. No cutoff. */
   public void rateNoCutOffForwardParameterSensitivity() { // publication=1, cutoff=0, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
-    DoubleMatrix1D time_usd = DoubleMatrix1D.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
-    DoubleMatrix1D rate_usd = DoubleMatrix1D.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
+    DoubleArray time_usd = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
+    DoubleArray rate_usd = DoubleArray.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
     OvernightCompoundedRateObservation ro =
         OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
 
@@ -995,8 +995,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
   /** Test parameter sensitivity with fd calculator. Two days cutoff. */
   public void rate2CutOffForwardParameterSensitivity() { // publication=1, cutoff=2, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
-    DoubleMatrix1D time_usd = DoubleMatrix1D.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
-    DoubleMatrix1D rate_usd = DoubleMatrix1D.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
+    DoubleArray time_usd = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
+    DoubleArray rate_usd = DoubleArray.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
     OvernightCompoundedRateObservation ro =
         OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
 

@@ -10,8 +10,8 @@ import java.util.List;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.market.curve.definition.CurveParameterSize;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -22,7 +22,7 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
  * The value will typically be par spread or converted present value.
  */
 class CalibrationDerivative
-    extends Function1D<DoubleMatrix1D, DoubleMatrix2D> {
+    extends Function1D<DoubleArray, DoubleMatrix> {
 
   /**
    * The trades.
@@ -64,12 +64,12 @@ class CalibrationDerivative
 
   //-------------------------------------------------------------------------
   @Override
-  public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
+  public DoubleMatrix evaluate(DoubleArray x) {
     // create child provider from matrix
     ImmutableRatesProvider provider = providerGenerator.generate(x);
     // calculate derivative for each trade using the child provider
     int size = trades.size();
-    return DoubleMatrix2D.ofArrayObjects(size, size, i -> measures.derivative(trades.get(i), provider, curveOrder));
+    return DoubleMatrix.ofArrayObjects(size, size, i -> measures.derivative(trades.get(i), provider, curveOrder));
   }
 
 }

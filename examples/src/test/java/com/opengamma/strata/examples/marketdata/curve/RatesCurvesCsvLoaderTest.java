@@ -30,7 +30,7 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.RateCurveId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test {@link RatesCurvesCsvLoader}.
@@ -270,7 +270,7 @@ public class RatesCurvesCsvLoaderTest {
       assertEquals(nodeMetadata.getLabel(), labels[i]);
     }
 
-    DoubleMatrix1D expectedYValues = DoubleMatrix1D.of(
+    DoubleArray expectedYValues = DoubleArray.of(
         0.001763775,
         0.002187884,
         0.004437206,
@@ -307,7 +307,7 @@ public class RatesCurvesCsvLoaderTest {
       assertEquals(nodeMetadata.getLabel(), labels[i]);
     }
 
-    DoubleMatrix1D expectedYValues = DoubleMatrix1D.of(
+    DoubleArray expectedYValues = DoubleArray.of(
         0.007596889,
         0.008091541,
         0.015244398,

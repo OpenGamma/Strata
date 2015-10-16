@@ -11,7 +11,7 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Test.
@@ -84,7 +84,7 @@ public class NonnegativityPreservingCubicSplineInterpolatorTest {
     int nData = xValues.length;
     for (int j = 0; j < dim; ++j) {
       for (int i = 1; i < nData - 2; ++i) {
-        DoubleMatrix2D coefMatrix = resultPos.getCoefMatrix();
+        DoubleMatrix coefMatrix = resultPos.getCoefMatrix();
         double tau = Math.signum(coefMatrix.get(dim * i + j, 3));
         assertTrue(coefMatrix.get(dim * i + j, 2) * tau >= -3. * yValues[j][i + 1] * tau / (xValues[i + 1] - xValues[i]));
         assertTrue(coefMatrix.get(dim * i + j, 2) * tau <= 3. * yValues[j][i + 1] * tau / (xValues[i] - xValues[i - 1]));
@@ -154,7 +154,7 @@ public class NonnegativityPreservingCubicSplineInterpolatorTest {
     int nData = xValues.length;
     for (int j = 0; j < dim; ++j) {
       for (int i = 1; i < nData - 2; ++i) {
-        DoubleMatrix2D coefMatrix = resultPos.getCoefMatrix();
+        DoubleMatrix coefMatrix = resultPos.getCoefMatrix();
         double tau = Math.signum(coefMatrix.get(dim * i + j, 3));
         assertTrue(coefMatrix.get(dim * i + j, 2) * tau >= -3. * yValues[j][i] * tau / (xValues[i + 1] - xValues[i]));
         assertTrue(coefMatrix.get(dim * i + j, 2) * tau <= 3. * yValues[j][i] * tau / (xValues[i] - xValues[i - 1]));

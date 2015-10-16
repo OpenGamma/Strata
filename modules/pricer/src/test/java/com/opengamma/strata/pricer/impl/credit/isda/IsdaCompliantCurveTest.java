@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test {@link IsdaCompliantCurve}.
@@ -293,7 +293,7 @@ public class IsdaCompliantCurveTest {
         }
       }
       for (int j = 0; j < n; j++) {
-        DoubleMatrix1D rTexpectedi = curve.getNodeSensitivity(ti);
+        DoubleArray rTexpectedi = curve.getNodeSensitivity(ti);
         assertEquals("Time: " + ti, rTexpectedi.get(j), rTCalculatedi[j], 1e-10);
       }
 
@@ -310,7 +310,7 @@ public class IsdaCompliantCurveTest {
     int iterationMax = 10000;
     for (int i = 1; i < iterationMax; i++) {
       ti = ti + i / iterationMax * 100;
-      DoubleMatrix1D sensi = curve.getNodeSensitivity(ti);
+      DoubleArray sensi = curve.getNodeSensitivity(ti);
       for (int j = 0; j < n; j++) {
         r[j] = r[j] + 10e-6;
         curve = new IsdaCompliantCurve(t, r);
@@ -489,7 +489,7 @@ public class IsdaCompliantCurveTest {
     for (int jj = 0; jj < nExamples; jj++) {
       double time = jj * 11.0 / (nExamples - 1);
       double[] fd = fdSense(curve, time);
-      DoubleMatrix1D anal = curve.getNodeSensitivity(time);
+      DoubleArray anal = curve.getNodeSensitivity(time);
       for (int i = 0; i < n; i++) {
         double anal2 = curve.getSingleNodeSensitivity(time, i);
         assertEquals("test1 - Time: " + time, fd[i], anal.get(i), 1e-10);
@@ -499,7 +499,7 @@ public class IsdaCompliantCurveTest {
 
     // check nodes
     for (int jj = 0; jj < n; jj++) {
-      DoubleMatrix1D anal = curve.getNodeSensitivity(t[jj]);
+      DoubleArray anal = curve.getNodeSensitivity(t[jj]);
       for (int i = 0; i < n; i++) {
         double anal2 = curve.getSingleNodeSensitivity(t[jj], i);
         double expected = i == jj ? 1.0 : 0.0;

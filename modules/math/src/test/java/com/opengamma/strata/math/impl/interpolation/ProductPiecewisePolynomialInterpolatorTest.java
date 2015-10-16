@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivityFunction1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * 
@@ -179,7 +179,7 @@ public class ProductPiecewisePolynomialInterpolatorTest {
         InterpolatorTestUtil.assertRelative("linearExtrapolationTest", values[j - 1] - values[j - 2], values[j - 1] -
             values[j - 2], EPS);
       }
-      DoubleMatrix1D[] sense = FUNC.nodeSensitivity(result, keys);
+      DoubleArray[] sense = FUNC.nodeSensitivity(result, keys);
       for (int k = 0; k < nData; ++k) {
         double[] yValuesUp = Arrays.copyOf(yValues, nData);
         double[] yValuesDw = Arrays.copyOf(yValues, nData);
@@ -237,7 +237,7 @@ public class ProductPiecewisePolynomialInterpolatorTest {
         InterpolatorTestUtil.assertRelative("linearExtrapolationTest", values[j - 1] - values[j - 2], values[j - 1] -
             values[j - 2], EPS);
       }
-      DoubleMatrix1D[] sense = FUNC.nodeSensitivity(result, keys);
+      DoubleArray[] sense = FUNC.nodeSensitivity(result, keys);
       for (int k = 0; k < nData; ++k) {
         double[] yValuesUp = Arrays.copyOf(yValues, nData);
         double[] yValuesDw = Arrays.copyOf(yValues, nData);

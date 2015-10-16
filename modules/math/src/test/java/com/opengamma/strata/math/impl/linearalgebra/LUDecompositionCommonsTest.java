@@ -11,7 +11,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 
 /**
@@ -21,13 +21,13 @@ import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 public class LUDecompositionCommonsTest {
   private static final MatrixAlgebra ALGEBRA = new CommonsMatrixAlgebra();
   private static final Decomposition<LUDecompositionResult> LU = new LUDecompositionCommons();
-  private static final DoubleMatrix2D A = DoubleMatrix2D.copyOf(
+  private static final DoubleMatrix A = DoubleMatrix.copyOf(
       new double[][] { {1, 2, -1}, {4, 3, 1}, {2, 2, 3}});
   private static final double EPS = 1e-9;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullObjectMatrix() {
-    LU.evaluate((DoubleMatrix2D) null);
+    LU.evaluate((DoubleMatrix) null);
   }
 
   @Test
@@ -35,11 +35,11 @@ public class LUDecompositionCommonsTest {
     final DecompositionResult result = LU.evaluate(A);
     assertTrue(result instanceof LUDecompositionResult);
     final LUDecompositionResult lu = (LUDecompositionResult) result;
-    final DoubleMatrix2D a = (DoubleMatrix2D) ALGEBRA.multiply(lu.getL(), lu.getU());
-    checkEquals((DoubleMatrix2D) ALGEBRA.multiply(lu.getP(), A), a);
+    final DoubleMatrix a = (DoubleMatrix) ALGEBRA.multiply(lu.getL(), lu.getU());
+    checkEquals((DoubleMatrix) ALGEBRA.multiply(lu.getP(), A), a);
   }
 
-  private void checkEquals(final DoubleMatrix2D x, final DoubleMatrix2D y) {
+  private void checkEquals(final DoubleMatrix x, final DoubleMatrix y) {
     final int n = x.rowCount();
     final int m = x.columnCount();
     assertEquals(n, y.rowCount());

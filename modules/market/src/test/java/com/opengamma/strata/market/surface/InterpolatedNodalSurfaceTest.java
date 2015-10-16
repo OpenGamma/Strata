@@ -23,7 +23,7 @@ import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Test {@link InterpolatedNodalSurface}.
@@ -40,12 +40,12 @@ public class InterpolatedNodalSurfaceTest {
       .dayCount(ACT_365F)
       .parameterMetadata(SurfaceParameterMetadata.listOfEmpty(SIZE))
       .build();
-  private static final DoubleMatrix1D XVALUES = DoubleMatrix1D.of(0d, 0d, 0d, 2d, 2d, 2d, 4d, 4d, 4d);
-  private static final DoubleMatrix1D XVALUES2 = DoubleMatrix1D.of(0d, 2d, 3d, 0d, 2d, 3d, 0d, 2d, 3d);
-  private static final DoubleMatrix1D YVALUES = DoubleMatrix1D.of(0d, 3d, 4d, 0d, 3d, 4d, 0d, 3d, 4d);
-  private static final DoubleMatrix1D YVALUES2 = DoubleMatrix1D.of(3d, 4d, 5d, 3d, 4d, 5d, 3d, 4d, 5d);
-  private static final DoubleMatrix1D ZVALUES = DoubleMatrix1D.of(5d, 7d, 8d, 6d, 7d, 8d, 8d, 7d, 8d);
-  private static final DoubleMatrix1D ZVALUES_BUMPED = DoubleMatrix1D.of(3d, 5d, 6d, 4d, 5d, 6d, 6d, 5d, 6d);
+  private static final DoubleArray XVALUES = DoubleArray.of(0d, 0d, 0d, 2d, 2d, 2d, 4d, 4d, 4d);
+  private static final DoubleArray XVALUES2 = DoubleArray.of(0d, 2d, 3d, 0d, 2d, 3d, 0d, 2d, 3d);
+  private static final DoubleArray YVALUES = DoubleArray.of(0d, 3d, 4d, 0d, 3d, 4d, 0d, 3d, 4d);
+  private static final DoubleArray YVALUES2 = DoubleArray.of(3d, 4d, 5d, 3d, 4d, 5d, 3d, 4d, 5d);
+  private static final DoubleArray ZVALUES = DoubleArray.of(5d, 7d, 8d, 6d, 7d, 8d, 8d, 7d, 8d);
+  private static final DoubleArray ZVALUES_BUMPED = DoubleArray.of(3d, 5d, 6d, 4d, 5d, 6d, 6d, 5d, 6d);
   private static final Map<DoublesPair, Double> DATA = ImmutableMap.<DoublesPair, Double>builder()
       .put(DoublesPair.of(0d, 0d), 5d)
       .put(DoublesPair.of(0d, 3d), 7d)
@@ -75,16 +75,16 @@ public class InterpolatedNodalSurfaceTest {
   public void test_of_invalid() {
     // not enough nodes
     assertThrowsIllegalArg(() -> InterpolatedNodalSurface.of(
-        METADATA, DoubleMatrix1D.of(1d), DoubleMatrix1D.of(2d), DoubleMatrix1D.of(3d), INTERPOLATOR));
+        METADATA, DoubleArray.of(1d), DoubleArray.of(2d), DoubleArray.of(3d), INTERPOLATOR));
     // x node size != y node size
     assertThrowsIllegalArg(() -> InterpolatedNodalSurface.of(
-        METADATA, XVALUES, DoubleMatrix1D.of(1d, 3d), ZVALUES, INTERPOLATOR));
+        METADATA, XVALUES, DoubleArray.of(1d, 3d), ZVALUES, INTERPOLATOR));
     // x node size != z node size
     assertThrowsIllegalArg(() -> InterpolatedNodalSurface.of(
-        METADATA, XVALUES, YVALUES, DoubleMatrix1D.of(1d, 3d), INTERPOLATOR));
+        METADATA, XVALUES, YVALUES, DoubleArray.of(1d, 3d), INTERPOLATOR));
     // parameter metadata size != node size
     assertThrowsIllegalArg(() -> InterpolatedNodalSurface.of(
-        METADATA_ENTRIES, DoubleMatrix1D.of(1d, 3d), DoubleMatrix1D.of(1d, 3d), DoubleMatrix1D.of(1d, 3d), INTERPOLATOR));
+        METADATA_ENTRIES, DoubleArray.of(1d, 3d), DoubleArray.of(1d, 3d), DoubleArray.of(1d, 3d), INTERPOLATOR));
   }
 
   //-------------------------------------------------------------------------
@@ -130,8 +130,8 @@ public class InterpolatedNodalSurfaceTest {
 
   public void test_withZValues_badSize() {
     InterpolatedNodalSurface base = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
-    assertThrowsIllegalArg(() -> base.withZValues(DoubleMatrix1D.EMPTY));
-    assertThrowsIllegalArg(() -> base.withZValues(DoubleMatrix1D.of(4d, 6d)));
+    assertThrowsIllegalArg(() -> base.withZValues(DoubleArray.EMPTY));
+    assertThrowsIllegalArg(() -> base.withZValues(DoubleArray.of(4d, 6d)));
   }
 
   //-------------------------------------------------------------------------
@@ -193,7 +193,7 @@ public class InterpolatedNodalSurfaceTest {
     InterpolatedNodalSurface base = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
     ImmutableList<ValueAdjustment> adjustments = ImmutableList.of(
         ValueAdjustment.ofReplace(3d));
-    DoubleMatrix1D bumped = DoubleMatrix1D.of(3d, 7d, 8d, 6d, 7d, 8d, 8d, 7d, 8d);
+    DoubleArray bumped = DoubleArray.of(3d, 7d, 8d, 6d, 7d, 8d, 8d, 7d, 8d);
     InterpolatedNodalSurface test = base.shiftedBy(adjustments);
     assertThat(test.getName()).isEqualTo(SURFACE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);

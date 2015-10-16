@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivityFunction1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 
@@ -107,10 +107,10 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
     for (int example = 0; example < nExamples; example++) {
       PiecewisePolynomialResultsWithSensitivity pp = PCHIP_S.interpolateWithSensitivity(X, Y[example]);
 
-      DoubleMatrix1D[] fdRes = fdSenseCal(Y[example], XX);
+      DoubleArray[] fdRes = fdSenseCal(Y[example], XX);
 
       for (int i = 0; i < n; i++) {
-        DoubleMatrix1D res = PPVAL_S.nodeSensitivity(pp, XX[i]);
+        DoubleArray res = PPVAL_S.nodeSensitivity(pp, XX[i]);
         for (int j = 0; j < nData; j++) {
           assertEquals("example: " + example + ", sample: " + i + ", node: " + j, fdRes[j].get(i), res.get(j), 1e-4);
         }
@@ -118,23 +118,23 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
     }
   }
 
-  private DoubleMatrix1D[] fdSenseCal(final double[] yValues, final double[] xx) {
+  private DoubleArray[] fdSenseCal(final double[] yValues, final double[] xx) {
     final int nData = yValues.length;
 
     final double eps = 1e-6;
     final double scale = 0.5 / eps;
-    final DoubleMatrix1D[] res = new DoubleMatrix1D[nData];
+    final DoubleArray[] res = new DoubleArray[nData];
     double[] temp = new double[nData];
     PiecewisePolynomialResult pp;
     for (int i = 0; i < nData; i++) {
       System.arraycopy(yValues, 0, temp, 0, nData);
       temp[i] += eps;
       pp = PCHIP.interpolate(X, temp);
-      final DoubleMatrix1D yUp = PPVAL.evaluate(pp, xx).row(0);
+      final DoubleArray yUp = PPVAL.evaluate(pp, xx).row(0);
       temp[i] -= 2 * eps;
       pp = PCHIP.interpolate(X, temp);
-      final DoubleMatrix1D yDown = PPVAL.evaluate(pp, xx).row(0);
-      res[i] = (DoubleMatrix1D) MA.scale(MA.subtract(yUp, yDown), scale);
+      final DoubleArray yDown = PPVAL.evaluate(pp, xx).row(0);
+      res[i] = (DoubleArray) MA.scale(MA.subtract(yUp, yDown), scale);
     }
     return res;
   }

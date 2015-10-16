@@ -10,8 +10,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Test.
@@ -19,35 +19,35 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 @Test
 public class VectorFieldFirstOrderDifferentiatorTest {
 
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> F = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  private static final Function1D<DoubleArray, DoubleArray> F = new Function1D<DoubleArray, DoubleArray>() {
 
     @Override
-    public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+    public DoubleArray evaluate(final DoubleArray x) {
       double x1 = x.get(0);
       double x2 = x.get(1);
-      return DoubleMatrix1D.of(
+      return DoubleArray.of(
           x1 * x1 + 2 * x2 * x2 - x1 * x2 + x1 * Math.cos(x2) - x2 * Math.sin(x1),
           2 * x1 * x2 * Math.cos(x1 * x2) - x1 * Math.sin(x1) - x2 * Math.cos(x2));
     }
   };
 
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> F2 = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  private static final Function1D<DoubleArray, DoubleArray> F2 = new Function1D<DoubleArray, DoubleArray>() {
 
     @Override
-    public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+    public DoubleArray evaluate(final DoubleArray x) {
       double x1 = x.get(0);
       double x2 = x.get(1);
-      return DoubleMatrix1D.of(
+      return DoubleArray.of(
           x1 * x1 + 2 * x2 * x2 - x1 * x2 + x1 * Math.cos(x2) - x2 * Math.sin(x1),
           2 * x1 * x2 * Math.cos(x1 * x2) - x1 * Math.sin(x1) - x2 * Math.cos(x2),
           x1 - x2);
     }
   };
 
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> G = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+  private static final Function1D<DoubleArray, DoubleMatrix> G = new Function1D<DoubleArray, DoubleMatrix>() {
 
     @Override
-    public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
+    public DoubleMatrix evaluate(final DoubleArray x) {
       final double x1 = x.get(0);
       final double x2 = x.get(1);
       final double[][] jac = new double[2][2];
@@ -55,14 +55,14 @@ public class VectorFieldFirstOrderDifferentiatorTest {
       jac[0][1] = 4 * x2 - x1 - x1 * Math.sin(x2) - Math.sin(x1);
       jac[1][0] = 2 * x2 * Math.cos(x1 * x2) - 2 * x1 * x2 * x2 * Math.sin(x1 * x2) - Math.sin(x1) - x1 * Math.cos(x1);
       jac[1][1] = 2 * x1 * Math.cos(x1 * x2) - 2 * x1 * x1 * x2 * Math.sin(x1 * x2) - Math.cos(x2) + x2 * Math.sin(x2);
-      return DoubleMatrix2D.copyOf(jac);
+      return DoubleMatrix.copyOf(jac);
     }
   };
 
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> G2 = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+  private static final Function1D<DoubleArray, DoubleMatrix> G2 = new Function1D<DoubleArray, DoubleMatrix>() {
 
     @Override
-    public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
+    public DoubleMatrix evaluate(final DoubleArray x) {
       final double x1 = x.get(0);
       final double x2 = x.get(1);
       final double[][] jac = new double[3][2];
@@ -72,14 +72,14 @@ public class VectorFieldFirstOrderDifferentiatorTest {
       jac[1][1] = 2 * x1 * Math.cos(x1 * x2) - 2 * x1 * x1 * x2 * Math.sin(x1 * x2) - Math.cos(x2) + x2 * Math.sin(x2);
       jac[2][0] = 1;
       jac[2][1] = -1;
-      return DoubleMatrix2D.copyOf(jac);
+      return DoubleMatrix.copyOf(jac);
     }
   };
 
-  private static final Function1D<DoubleMatrix1D, Boolean> DOMAIN = new Function1D<DoubleMatrix1D, Boolean>() {
+  private static final Function1D<DoubleArray, Boolean> DOMAIN = new Function1D<DoubleArray, Boolean>() {
 
     @Override
-    public Boolean evaluate(final DoubleMatrix1D x) {
+    public Boolean evaluate(final DoubleArray x) {
       final double x1 = x.get(0);
       final double x2 = x.get(1);
       if (x1 < 0 || x1 > Math.PI || x2 < 0 || x2 > Math.PI) {
@@ -102,16 +102,16 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
-    CENTRAL.differentiate((Function1D<DoubleMatrix1D, DoubleMatrix1D>) null);
+    CENTRAL.differentiate((Function1D<DoubleArray, DoubleArray>) null);
   }
 
   @Test
   public void test() {
-    final DoubleMatrix1D x = DoubleMatrix1D.of(.2245, -1.2344);
-    final DoubleMatrix2D anJac = G.evaluate(x);
-    final DoubleMatrix2D fdFwdJac = FORWARD.differentiate(F).evaluate(x);
-    final DoubleMatrix2D fdCentGrad = CENTRAL.differentiate(F).evaluate(x);
-    final DoubleMatrix2D fdBackGrad = BACKWARD.differentiate(F).evaluate(x);
+    final DoubleArray x = DoubleArray.of(.2245, -1.2344);
+    final DoubleMatrix anJac = G.evaluate(x);
+    final DoubleMatrix fdFwdJac = FORWARD.differentiate(F).evaluate(x);
+    final DoubleMatrix fdCentGrad = CENTRAL.differentiate(F).evaluate(x);
+    final DoubleMatrix fdBackGrad = BACKWARD.differentiate(F).evaluate(x);
 
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
@@ -124,11 +124,11 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
   @Test
   public void test2() {
-    final DoubleMatrix1D x = DoubleMatrix1D.of(1.3423, 0.235);
-    final DoubleMatrix2D anJac = G2.evaluate(x);
-    final DoubleMatrix2D fdFwdJac = FORWARD.differentiate(F2).evaluate(x);
-    final DoubleMatrix2D fdCentGrad = CENTRAL.differentiate(F2).evaluate(x);
-    final DoubleMatrix2D fdBackGrad = BACKWARD.differentiate(F2).evaluate(x);
+    final DoubleArray x = DoubleArray.of(1.3423, 0.235);
+    final DoubleMatrix anJac = G2.evaluate(x);
+    final DoubleMatrix fdFwdJac = FORWARD.differentiate(F2).evaluate(x);
+    final DoubleMatrix fdCentGrad = CENTRAL.differentiate(F2).evaluate(x);
+    final DoubleMatrix fdBackGrad = BACKWARD.differentiate(F2).evaluate(x);
 
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 2; j++) {
@@ -141,27 +141,27 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void outsideDomainTest() {
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> fdJacFunc = CENTRAL.differentiate(F2, DOMAIN);
-    fdJacFunc.evaluate(DoubleMatrix1D.of(2.3, 3.2));
+    final Function1D<DoubleArray, DoubleMatrix> fdJacFunc = CENTRAL.differentiate(F2, DOMAIN);
+    fdJacFunc.evaluate(DoubleArray.of(2.3, 3.2));
   }
 
   @Test
   public void testDomain() {
-    final DoubleMatrix1D[] x = new DoubleMatrix1D[7];
+    final DoubleArray[] x = new DoubleArray[7];
 
-    x[0] = DoubleMatrix1D.of(1.3423, 0.235);
-    x[1] = DoubleMatrix1D.of(0.0, 1.235);
-    x[2] = DoubleMatrix1D.of(Math.PI, 3.1);
-    x[3] = DoubleMatrix1D.of(2.3, 0.0);
-    x[4] = DoubleMatrix1D.of(2.3, Math.PI);
-    x[5] = DoubleMatrix1D.of(0.0, 0.0);
-    x[6] = DoubleMatrix1D.of(Math.PI, Math.PI);
+    x[0] = DoubleArray.of(1.3423, 0.235);
+    x[1] = DoubleArray.of(0.0, 1.235);
+    x[2] = DoubleArray.of(Math.PI, 3.1);
+    x[3] = DoubleArray.of(2.3, 0.0);
+    x[4] = DoubleArray.of(2.3, Math.PI);
+    x[5] = DoubleArray.of(0.0, 0.0);
+    x[6] = DoubleArray.of(Math.PI, Math.PI);
 
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> fdJacFunc = CENTRAL.differentiate(F2, DOMAIN);
+    final Function1D<DoubleArray, DoubleMatrix> fdJacFunc = CENTRAL.differentiate(F2, DOMAIN);
 
     for (int k = 0; k < 7; k++) {
-      final DoubleMatrix2D anJac = G2.evaluate(x[k]);
-      final DoubleMatrix2D fdJac = fdJacFunc.evaluate(x[k]);
+      final DoubleMatrix anJac = G2.evaluate(x[k]);
+      final DoubleMatrix fdJac = fdJacFunc.evaluate(x[k]);
 
       for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 2; j++) {

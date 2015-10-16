@@ -11,7 +11,7 @@ import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivit
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DPiecewisePoynomialDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Piecewise Cubic Hermite Interpolating Polynomial (PCHIP)
@@ -30,7 +30,7 @@ public class PCHIPInterpolator1D extends Interpolator1D {
     ArgChecker.notNull(data, "data bundle");
     ArgChecker.isTrue(data instanceof Interpolator1DPiecewisePoynomialDataBundle);
     final Interpolator1DPiecewisePoynomialDataBundle polyData = (Interpolator1DPiecewisePoynomialDataBundle) data;
-    final DoubleMatrix1D res = FUNC.evaluate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value);
+    final DoubleArray res = FUNC.evaluate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value);
     return res.get(0);
   }
 
@@ -40,7 +40,7 @@ public class PCHIPInterpolator1D extends Interpolator1D {
     ArgChecker.notNull(data, "data bundle");
     ArgChecker.isTrue(data instanceof Interpolator1DPiecewisePoynomialDataBundle);
     final Interpolator1DPiecewisePoynomialDataBundle polyData = (Interpolator1DPiecewisePoynomialDataBundle) data;
-    final DoubleMatrix1D res = FUNC.differentiate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value);
+    final DoubleArray res = FUNC.differentiate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value);
     return res.get(0);
   }
 

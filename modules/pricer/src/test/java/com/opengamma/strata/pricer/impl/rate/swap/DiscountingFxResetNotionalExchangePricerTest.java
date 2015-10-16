@@ -38,7 +38,7 @@ import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
@@ -59,12 +59,12 @@ public class DiscountingFxResetNotionalExchangePricerTest {
   private static final Curve DISCOUNT_CURVE_GBP;
   private static final Curve DISCOUNT_CURVE_USD;
   static {
-    DoubleMatrix1D time_gbp = DoubleMatrix1D.of(0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0);
-    DoubleMatrix1D rate_gbp = DoubleMatrix1D.of(0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210);
+    DoubleArray time_gbp = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0);
+    DoubleArray rate_gbp = DoubleArray.of(0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210);
     DISCOUNT_CURVE_GBP = InterpolatedNodalCurve.of(
         Curves.zeroRates("GBP-Discount", ACT_ACT_ISDA), time_gbp, rate_gbp, INTERPOLATOR);
-    DoubleMatrix1D time_usd = DoubleMatrix1D.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
-    DoubleMatrix1D rate_usd = DoubleMatrix1D.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
+    DoubleArray time_usd = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
+    DoubleArray rate_usd = DoubleArray.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
     DISCOUNT_CURVE_USD = InterpolatedNodalCurve.of(
         Curves.zeroRates("USD-Discount", ACT_ACT_ISDA), time_usd, rate_usd, INTERPOLATOR);
   }

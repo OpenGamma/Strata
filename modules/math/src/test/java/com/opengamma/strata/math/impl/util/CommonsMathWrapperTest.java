@@ -21,8 +21,8 @@ import com.opengamma.strata.math.impl.ComplexNumber;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.FunctionND;
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Test {@link CommonsMathWrapper}.
@@ -30,8 +30,8 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 @Test
 public class CommonsMathWrapperTest {
 
-  private static final DoubleMatrix1D OG_VECTOR = DoubleMatrix1D.of(1, 2, 3);
-  private static final DoubleMatrix2D OG_MATRIX = DoubleMatrix2D.copyOf(
+  private static final DoubleArray OG_VECTOR = DoubleArray.of(1, 2, 3);
+  private static final DoubleMatrix OG_MATRIX = DoubleMatrix.copyOf(
       new double[][] { {1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
   private static final Function1D<Double, Double> OG_FUNCTION_1D = new Function1D<Double, Double>() {
     @Override
@@ -53,7 +53,7 @@ public class CommonsMathWrapperTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1DMatrix() {
-    CommonsMathWrapper.wrap((DoubleMatrix1D) null);
+    CommonsMathWrapper.wrap((DoubleArray) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -73,7 +73,7 @@ public class CommonsMathWrapperTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMatrix() {
-    CommonsMathWrapper.wrap((DoubleMatrix2D) null);
+    CommonsMathWrapper.wrap((DoubleMatrix) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

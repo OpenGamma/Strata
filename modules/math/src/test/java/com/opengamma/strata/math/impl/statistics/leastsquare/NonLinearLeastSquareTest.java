@@ -17,8 +17,8 @@ import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.ParameterizedFunction;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionResult;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
@@ -30,9 +30,9 @@ import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution
 @Test
 public class NonLinearLeastSquareTest {
   private static final NormalDistribution NORMAL = new NormalDistribution(0, 1.0, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
-  private static final DoubleMatrix1D X;
-  private static final DoubleMatrix1D Y;
-  private static final DoubleMatrix1D SIGMA;
+  private static final DoubleArray X;
+  private static final DoubleArray Y;
+  private static final DoubleArray SIGMA;
   private static final NonLinearLeastSquare LS;
 
   private static final Function1D<Double, Double> TARGET = new Function1D<Double, Double>() {
@@ -43,25 +43,25 @@ public class NonLinearLeastSquareTest {
     }
   };
 
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FUNCTION = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  private static final Function1D<DoubleArray, DoubleArray> FUNCTION = new Function1D<DoubleArray, DoubleArray>() {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public DoubleMatrix1D evaluate(final DoubleMatrix1D a) {
+    public DoubleArray evaluate(final DoubleArray a) {
       ArgChecker.isTrue(a.size() == 4, "four parameters");
       final int n = X.size();
       final double[] res = new double[n];
       for (int i = 0; i < n; i++) {
         res[i] = a.get(0) * Math.sin(a.get(1) * X.get(i) + a.get(2)) + a.get(3);
       }
-      return DoubleMatrix1D.copyOf(res);
+      return DoubleArray.copyOf(res);
     }
   };
 
-  private static final ParameterizedFunction<Double, DoubleMatrix1D, Double> PARAM_FUNCTION = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
+  private static final ParameterizedFunction<Double, DoubleArray, Double> PARAM_FUNCTION = new ParameterizedFunction<Double, DoubleArray, Double>() {
 
     @Override
-    public Double evaluate(final Double x, final DoubleMatrix1D a) {
+    public Double evaluate(final Double x, final DoubleArray a) {
       ArgChecker.isTrue(a.size() == getNumberOfParameters(), "four parameters");
       return a.get(0) * Math.sin(a.get(1) * x + a.get(2)) + a.get(3);
     }
@@ -72,10 +72,10 @@ public class NonLinearLeastSquareTest {
     }
   };
 
-  private static final ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D> PARAM_GRAD = new ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D>() {
+  private static final ParameterizedFunction<Double, DoubleArray, DoubleArray> PARAM_GRAD = new ParameterizedFunction<Double, DoubleArray, DoubleArray>() {
 
     @Override
-    public DoubleMatrix1D evaluate(final Double x, final DoubleMatrix1D a) {
+    public DoubleArray evaluate(final Double x, final DoubleArray a) {
       ArgChecker.isTrue(a.size() == getNumberOfParameters(), "four parameters");
       final double temp1 = Math.sin(a.get(1) * x + a.get(2));
       final double temp2 = Math.cos(a.get(1) * x + a.get(2));
@@ -84,7 +84,7 @@ public class NonLinearLeastSquareTest {
           res[2] = a.get(0) * temp2;
           res[1] = x * res[2];
           res[3] = 1.0;
-          return DoubleMatrix1D.copyOf(res);
+          return DoubleArray.copyOf(res);
     }
 
     @Override
@@ -93,34 +93,34 @@ public class NonLinearLeastSquareTest {
     }
   };
 
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> GRAD = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+  private static final Function1D<DoubleArray, DoubleMatrix> GRAD = new Function1D<DoubleArray, DoubleMatrix>() {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public DoubleMatrix2D evaluate(final DoubleMatrix1D a) {
+    public DoubleMatrix evaluate(final DoubleArray a) {
       final int n = X.size();
       final int m = a.size();
       final double[][] res = new double[n][m];
       for (int i = 0; i < n; i++) {
-        final DoubleMatrix1D temp = PARAM_GRAD.evaluate(X.get(i), a);
+        final DoubleArray temp = PARAM_GRAD.evaluate(X.get(i), a);
         ArgChecker.isTrue(m == temp.size());
         for (int j = 0; j < m; j++) {
           res[i][j] = temp.get(j);
         }
       }
-      return DoubleMatrix2D.copyOf(res);
+      return DoubleMatrix.copyOf(res);
     }
   };
 
   static {
-    X = DoubleMatrix1D.of(20, i -> -Math.PI + i * Math.PI / 10);
-    Y = DoubleMatrix1D.of(20, i -> TARGET.evaluate(X.get(i)));
-    SIGMA = DoubleMatrix1D.of(20, i -> 0.1 * Math.exp(Math.abs(X.get(i)) / Math.PI));
+    X = DoubleArray.of(20, i -> -Math.PI + i * Math.PI / 10);
+    Y = DoubleArray.of(20, i -> TARGET.evaluate(X.get(i)));
+    SIGMA = DoubleArray.of(20, i -> 0.1 * Math.exp(Math.abs(X.get(i)) / Math.PI));
     LS = new NonLinearLeastSquare();
   }
 
   public void solveExactTest() {
-    final DoubleMatrix1D start = DoubleMatrix1D.of(1.2, 0.8, -0.2, -0.3);
+    final DoubleArray start = DoubleArray.of(1.2, 0.8, -0.2, -0.3);
     LeastSquareResults result = LS.solve(X, Y, SIGMA, PARAM_FUNCTION, PARAM_GRAD, start);
     assertEquals(0.0, result.getChiSq(), 1e-8);
     assertEquals(1.0, result.getFitParameters().get(0), 1e-8);
@@ -142,7 +142,7 @@ public class NonLinearLeastSquareTest {
   }
 
   public void solveExactTest2() {
-    final DoubleMatrix1D start = DoubleMatrix1D.of(0.2, 1.8, 0.2, 0.3);
+    final DoubleArray start = DoubleArray.of(0.2, 1.8, 0.2, 0.3);
     final LeastSquareResults result = LS.solve(Y, SIGMA, FUNCTION, start);
     assertEquals(0.0, result.getChiSq(), 1e-8);
     assertEquals(1.0, result.getFitParameters().get(0), 1e-8);
@@ -153,7 +153,7 @@ public class NonLinearLeastSquareTest {
 
   public void solveExactWithoutGradientTest() {
 
-    final DoubleMatrix1D start = DoubleMatrix1D.of(1.2, 0.8, -0.2, -0.3);
+    final DoubleArray start = DoubleArray.of(1.2, 0.8, -0.2, -0.3);
 
     final NonLinearLeastSquare ls = new NonLinearLeastSquare();
     final LeastSquareResults result = ls.solve(X, Y, SIGMA, PARAM_FUNCTION, start);
@@ -170,20 +170,20 @@ public class NonLinearLeastSquareTest {
     for (int i = 0; i < 20; i++) {
       y[i] = Y.get(i) + SIGMA.get(i) * NORMAL.nextRandom();
     }
-    final DoubleMatrix1D start = DoubleMatrix1D.of(0.7, 1.4, 0.2, -0.3);
+    final DoubleArray start = DoubleArray.of(0.7, 1.4, 0.2, -0.3);
     final NonLinearLeastSquare ls = new NonLinearLeastSquare();
-    final LeastSquareResults res = ls.solve(X, DoubleMatrix1D.copyOf(y), SIGMA, PARAM_FUNCTION, PARAM_GRAD, start);
+    final LeastSquareResults res = ls.solve(X, DoubleArray.copyOf(y), SIGMA, PARAM_FUNCTION, PARAM_GRAD, start);
 
     final double chiSqDoF = res.getChiSq() / 16;
     assertTrue(chiSqDoF > 0.25);
     assertTrue(chiSqDoF < 3.0);
 
-    final DoubleMatrix1D trueValues = DoubleMatrix1D.of(1, 1, 0, 0);
-    final DoubleMatrix1D delta = (DoubleMatrix1D) ma.subtract(res.getFitParameters(), trueValues);
+    final DoubleArray trueValues = DoubleArray.of(1, 1, 0, 0);
+    final DoubleArray delta = (DoubleArray) ma.subtract(res.getFitParameters(), trueValues);
 
     final LUDecompositionCommons decmp = new LUDecompositionCommons();
     final LUDecompositionResult decmpRes = decmp.evaluate(res.getCovariance());
-    final DoubleMatrix2D invCovariance = decmpRes.solve(DoubleMatrixUtils.getIdentityMatrix2D(4));
+    final DoubleMatrix invCovariance = decmpRes.solve(DoubleMatrixUtils.getIdentityMatrix2D(4));
 
     double z = ma.getInnerProduct(delta, ma.multiply(invCovariance, delta));
     z = Math.sqrt(z);
@@ -198,17 +198,17 @@ public class NonLinearLeastSquareTest {
     for (int i = 0; i < 20; i++) {
       dy[i] = 0.1 * SIGMA.get(i) * NORMAL.nextRandom();
     }
-    final DoubleMatrix1D deltaY = DoubleMatrix1D.copyOf(dy);
-    final DoubleMatrix1D solution = DoubleMatrix1D.of(1.0, 1.0, 0.0, 0.0);
+    final DoubleArray deltaY = DoubleArray.copyOf(dy);
+    final DoubleArray solution = DoubleArray.of(1.0, 1.0, 0.0, 0.0);
     final NonLinearLeastSquare ls = new NonLinearLeastSquare();
-    final DoubleMatrix2D res = ls.calInverseJacobian(SIGMA, FUNCTION, GRAD, solution);
+    final DoubleMatrix res = ls.calInverseJacobian(SIGMA, FUNCTION, GRAD, solution);
 
-    final DoubleMatrix1D deltaParms = (DoubleMatrix1D) ma.multiply(res, deltaY);
+    final DoubleArray deltaParms = (DoubleArray) ma.multiply(res, deltaY);
 
-    final DoubleMatrix1D y = (DoubleMatrix1D) ma.add(Y, deltaY);
+    final DoubleArray y = (DoubleArray) ma.add(Y, deltaY);
 
     final LeastSquareResults lsRes = ls.solve(X, y, SIGMA, PARAM_FUNCTION, PARAM_GRAD, solution);
-    final DoubleMatrix1D trueDeltaParms = (DoubleMatrix1D) ma.subtract(lsRes.getFitParameters(), solution);
+    final DoubleArray trueDeltaParms = (DoubleArray) ma.subtract(lsRes.getFitParameters(), solution);
 
     assertEquals(trueDeltaParms.get(0), deltaParms.get(0), 5e-5);
     assertEquals(trueDeltaParms.get(1), deltaParms.get(1), 5e-5);

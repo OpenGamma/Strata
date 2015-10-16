@@ -12,12 +12,12 @@ import java.util.Map;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * 
  */
-public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleMatrix1D, LinkedHashMap<String, Interpolator1DDataBundle>> {
+public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleArray, LinkedHashMap<String, Interpolator1DDataBundle>> {
 
   private final LinkedHashMap<String, double[]> _knotPoints;
   private final LinkedHashMap<String, Interpolator1D> _interpolators;
@@ -38,7 +38,7 @@ public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleMa
   }
 
   @Override
-  public LinkedHashMap<String, Interpolator1DDataBundle> evaluate(final DoubleMatrix1D x) {
+  public LinkedHashMap<String, Interpolator1DDataBundle> evaluate(final DoubleArray x) {
     ArgChecker.notNull(x, "null data x");
     ArgChecker.isTrue(_nNodes == x.size(), "x wrong length");
 

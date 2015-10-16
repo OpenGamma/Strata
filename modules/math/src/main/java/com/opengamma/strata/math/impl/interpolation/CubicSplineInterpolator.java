@@ -10,7 +10,7 @@ import java.util.Arrays;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * C2 cubic spline interpolator with Clamped/Not-A-Knot endpoint conditions
@@ -67,7 +67,7 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
     }
     DoubleArrayMath.sortPairs(xValuesSrt, yValuesSrt);
 
-    final DoubleMatrix2D coefMatrix = _solver.solve(xValuesSrt, yValuesSrt);
+    final DoubleMatrix coefMatrix = _solver.solve(xValuesSrt, yValuesSrt);
     final int nCoefs = coefMatrix.columnCount();
 
     for (int i = 0; i < _solver.getKnotsMat1D(xValuesSrt).size() - 1; ++i) {
@@ -151,7 +151,7 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    DoubleMatrix2D[] coefMatrix = _solver.solveMultiDim(xValuesSrt, DoubleMatrix2D.copyOf(yValuesMatrixSrt));
+    DoubleMatrix[] coefMatrix = _solver.solveMultiDim(xValuesSrt, DoubleMatrix.copyOf(yValuesMatrixSrt));
 
     final int nIntervals = coefMatrix[0].rowCount();
     final int nCoefs = coefMatrix[0].columnCount();
@@ -170,7 +170,7 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    return new PiecewisePolynomialResult(_solver.getKnotsMat1D(xValuesSrt), DoubleMatrix2D.copyOf(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(_solver.getKnotsMat1D(xValuesSrt), DoubleMatrix.copyOf(resMatrix), nCoefs, dim);
   }
 
   @Override
@@ -209,10 +209,10 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
       yValuesSrt = Arrays.copyOf(yValues, nDataPts);
     }
 
-    final DoubleMatrix2D[] resMatrix = _solver.solveWithSensitivity(xValues, yValuesSrt);
+    final DoubleMatrix[] resMatrix = _solver.solveWithSensitivity(xValues, yValuesSrt);
     final int len = resMatrix.length;
     for (int k = 0; k < len; k++) {
-      DoubleMatrix2D m = resMatrix[k];
+      DoubleMatrix m = resMatrix[k];
       final int rows = m.rowCount();
       final int cols = m.columnCount();
       for (int i = 0; i < rows; ++i) {
@@ -222,8 +222,8 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    final DoubleMatrix2D coefMatrix = resMatrix[0];
-    final DoubleMatrix2D[] coefSenseMatrix = new DoubleMatrix2D[len - 1];
+    final DoubleMatrix coefMatrix = resMatrix[0];
+    final DoubleMatrix[] coefSenseMatrix = new DoubleMatrix[len - 1];
     System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, len - 1);
     final int nCoefs = coefMatrix.columnCount();
 

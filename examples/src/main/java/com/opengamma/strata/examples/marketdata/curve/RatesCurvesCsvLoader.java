@@ -41,7 +41,7 @@ import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.RateCurveId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
 import com.opengamma.strata.market.value.ValueType;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 
 /**
  * Loads a set of rates curves into memory by reading from CSV resources.
@@ -331,8 +331,8 @@ public final class RatesCurvesCsvLoader {
         .build();
     return InterpolatedNodalCurve.builder()
         .metadata(curveMetadata)
-        .xValues(DoubleMatrix1D.copyOf(xValues))
-        .yValues(DoubleMatrix1D.copyOf(yValues))
+        .xValues(DoubleArray.copyOf(xValues))
+        .yValues(DoubleArray.copyOf(yValues))
         .interpolator(curveSettings.getInterpolator())
         .extrapolatorLeft(curveSettings.getLeftExtrapolator())
         .extrapolatorRight(curveSettings.getRightExtrapolator())

@@ -9,8 +9,8 @@ import java.util.Arrays;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * Interpolate consecutive two points by a straight line
@@ -49,7 +49,7 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
     double[] yValuesSrt = Arrays.copyOf(yValues, nDataPts);
     DoubleArrayMath.sortPairs(xValuesSrt, yValuesSrt);
 
-    final DoubleMatrix2D coefMatrix = solve(xValuesSrt, yValuesSrt);
+    final DoubleMatrix coefMatrix = solve(xValuesSrt, yValuesSrt);
 
     for (int i = 0; i < coefMatrix.rowCount(); ++i) {
       for (int j = 0; j < coefMatrix.columnCount(); ++j) {
@@ -67,7 +67,7 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
       ArgChecker.isTrue(Math.abs(ref - yValuesSrt[i + 1]) < ERROR * bound, "Input is too large/small or data are not distinct enough");
     }
 
-    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), coefMatrix, coefMatrix.columnCount(), 1);
+    return new PiecewisePolynomialResult(DoubleArray.copyOf(xValuesSrt), coefMatrix, coefMatrix.columnCount(), 1);
   }
 
   @Override
@@ -100,7 +100,7 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
     }
 
     double[] xValuesSrt = new double[nDataPts];
-    DoubleMatrix2D[] coefMatrix = new DoubleMatrix2D[dim];
+    DoubleMatrix[] coefMatrix = new DoubleMatrix[dim];
 
     for (int i = 0; i < dim; ++i) {
       xValuesSrt = Arrays.copyOf(xValues, nDataPts);
@@ -132,7 +132,7 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    return new PiecewisePolynomialResult(DoubleMatrix1D.copyOf(xValuesSrt), DoubleMatrix2D.copyOf(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(DoubleArray.copyOf(xValuesSrt), DoubleMatrix.copyOf(resMatrix), nCoefs, dim);
   }
 
   @Override
@@ -145,7 +145,7 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
    * @param yValues Y values of data
    * @return Coefficient matrix whose i-th row vector is {a1, a0} of f(x) = a1 * (x-x_i) + a0 for the i-th interval
    */
-  private DoubleMatrix2D solve(final double[] xValues, final double[] yValues) {
+  private DoubleMatrix solve(final double[] xValues, final double[] yValues) {
 
     final int nDataPts = xValues.length;
 
@@ -156,7 +156,7 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
       res[i][0] = (yValues[i + 1] - yValues[i]) / (xValues[i + 1] - xValues[i]);
     }
 
-    return DoubleMatrix2D.copyOf(res);
+    return DoubleMatrix.copyOf(res);
   }
 
 }

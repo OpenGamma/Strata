@@ -8,8 +8,8 @@ package com.opengamma.strata.math.impl.function;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
+import com.opengamma.strata.math.impl.matrix.DoubleMatrix;
 
 /**
  * If we sample an interpolated curve at a fix set of points (the sample points),
@@ -44,18 +44,18 @@ public class InterpolatedCurveVectorFunction extends VectorFunction {
 
   //-------------------------------------------------------------------------
   @Override
-  public DoubleMatrix2D calculateJacobian(DoubleMatrix1D x) {
+  public DoubleMatrix calculateJacobian(DoubleArray x) {
     Interpolator1DDataBundle db = _interpolator.getDataBundleFromSortedArrays(_knots, x.toArray());
-    return DoubleMatrix2D.ofArrays(
+    return DoubleMatrix.ofArrays(
         _samplePoints.length,
         _knots.length,
         i -> _interpolator.getNodeSensitivitiesForValue(db, _samplePoints[i]));
   }
 
   @Override
-  public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+  public DoubleArray evaluate(DoubleArray x) {
     Interpolator1DDataBundle db = _interpolator.getDataBundleFromSortedArrays(_knots, x.toArray());
-    return DoubleMatrix1D.of(_samplePoints.length, i -> _interpolator.interpolate(db, _samplePoints[i]));
+    return DoubleArray.of(_samplePoints.length, i -> _interpolator.interpolate(db, _samplePoints[i]));
   }
 
   @Override

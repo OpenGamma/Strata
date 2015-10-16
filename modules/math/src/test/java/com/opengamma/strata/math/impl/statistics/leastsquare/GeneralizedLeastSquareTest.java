@@ -27,7 +27,7 @@ import com.opengamma.strata.math.impl.interpolation.FlatExtrapolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.PSplineFitter;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.math.impl.matrix.DoubleArray;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 
 /**
@@ -44,7 +44,7 @@ public class GeneralizedLeastSquareTest {
   private static final Double[] X;
   private static final double[] Y;
   private static final double[] SIGMA;
-  private static final List<DoubleMatrix1D> X_TRIG;
+  private static final List<DoubleArray> X_TRIG;
   private static final List<Double> Y_TRIG;
   private static final List<Double> SIGMA_TRIG;
   private static final List<Double> SIGMA_COS_EXP;
@@ -56,8 +56,8 @@ public class GeneralizedLeastSquareTest {
   private static final List<Function1D<double[], Double>> BASIS_FUNCTIONS_2D;
   private static Function1D<double[], Double> SIN_EXP_FUNCTION;
 
-  private static final List<Function1D<DoubleMatrix1D, Double>> VECTOR_TRIG_FUNCTIONS;
-  private static final Function1D<DoubleMatrix1D, Double> VECTOR_TEST_FUNCTION;
+  private static final List<Function1D<DoubleArray, Double>> VECTOR_TRIG_FUNCTIONS;
+  private static final Function1D<DoubleArray, Double> VECTOR_TEST_FUNCTION;
 
   static {
     SIN_FUNCTIONS = new ArrayList<>();
@@ -77,9 +77,9 @@ public class GeneralizedLeastSquareTest {
     VECTOR_TRIG_FUNCTIONS = new ArrayList<>();
     for (int i = 0; i < WEIGHTS.length; i++) {
       final int k = i;
-      final Function1D<DoubleMatrix1D, Double> func = new Function1D<DoubleMatrix1D, Double>() {
+      final Function1D<DoubleArray, Double> func = new Function1D<DoubleArray, Double>() {
         @Override
-        public Double evaluate(final DoubleMatrix1D x) {
+        public Double evaluate(final DoubleArray x) {
           ArgChecker.isTrue(x.size() == 2);
           return Math.sin((2 * k + 1) * x.get(0)) * Math.cos((2 * k + 1) * x.get(1));
         }
@@ -110,7 +110,7 @@ public class GeneralizedLeastSquareTest {
       final double[] temp = new double[2];
       temp[0] = 2.0 * RANDOM.nextDouble();
       temp[1] = 2.0 * RANDOM.nextDouble();
-      X_TRIG.add(DoubleMatrix1D.copyOf(temp));
+      X_TRIG.add(DoubleArray.copyOf(temp));
       Y_TRIG.add(VECTOR_TEST_FUNCTION.evaluate(X_TRIG.get(i)));
       SIGMA[i] = 0.01;
       SIGMA_TRIG.add(0.01);
@@ -138,7 +138,7 @@ public class GeneralizedLeastSquareTest {
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
     final LeastSquareResults results = gls.solve(X, Y, SIGMA, SIN_FUNCTIONS);
     assertEquals(0.0, results.getChiSq(), 1e-8);
-    final DoubleMatrix1D w = results.getFitParameters();
+    final DoubleArray w = results.getFitParameters();
     for (int i = 0; i < WEIGHTS.length; i++) {
       assertEquals(WEIGHTS[i], w.get(i), 1e-8);
     }
@@ -148,7 +148,7 @@ public class GeneralizedLeastSquareTest {
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
     final LeastSquareResults results = gls.solve(X_TRIG, Y_TRIG, SIGMA_TRIG, VECTOR_TRIG_FUNCTIONS);
     assertEquals(0.0, results.getChiSq(), 1e-8);
-    final DoubleMatrix1D w = results.getFitParameters();
+    final DoubleArray w = results.getFitParameters();
     for (int i = 0; i < WEIGHTS.length; i++) {
       assertEquals(WEIGHTS[i], w.get(i), 1e-8);
     }
