@@ -24,7 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.finance.Trade;
+import com.opengamma.strata.basics.Trade;
 
 /**
  * Represents a portfolio of trades.

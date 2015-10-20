@@ -8,8 +8,8 @@ package com.opengamma.strata.pricer.calibration;
 import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
 
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 import com.opengamma.strata.finance.rate.fra.FraTrade;

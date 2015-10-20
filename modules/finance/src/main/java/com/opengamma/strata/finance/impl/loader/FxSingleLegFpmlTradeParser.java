@@ -12,6 +12,7 @@ import java.time.LocalTime;
 import java.util.Optional;
 
 import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -21,7 +22,6 @@ import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.collect.io.XmlElement;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.fx.FxNdf;
 import com.opengamma.strata.finance.fx.FxNdfTrade;

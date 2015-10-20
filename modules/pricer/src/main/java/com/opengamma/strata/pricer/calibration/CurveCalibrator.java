@@ -11,13 +11,13 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;

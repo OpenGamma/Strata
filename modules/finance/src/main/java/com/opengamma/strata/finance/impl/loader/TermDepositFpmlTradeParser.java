@@ -7,9 +7,9 @@ package com.opengamma.strata.finance.impl.loader;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.io.XmlElement;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.loader.FpmlDocument;
 import com.opengamma.strata.finance.loader.FpmlTradeParser;

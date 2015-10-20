@@ -25,6 +25,7 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
@@ -36,7 +37,6 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapTemplate;

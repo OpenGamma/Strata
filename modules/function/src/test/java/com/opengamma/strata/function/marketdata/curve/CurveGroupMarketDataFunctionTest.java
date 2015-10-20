@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -35,7 +36,6 @@ import com.opengamma.strata.engine.calculation.DefaultSingleCalculationMarketDat
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.interpolator.CurveExtrapolators;

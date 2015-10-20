@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.ImmutableObservableValues;
@@ -44,7 +45,6 @@ import com.opengamma.strata.engine.marketdata.function.ObservableMarketDataFunct
 import com.opengamma.strata.engine.marketdata.function.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.examples.marketdata.LoaderUtils;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.CurveGroupName;

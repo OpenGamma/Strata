@@ -7,11 +7,11 @@ package com.opengamma.strata.finance.impl.loader;
 
 import java.util.List;
 
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.io.XmlElement;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.loader.FpmlDocument;
 import com.opengamma.strata.finance.loader.FpmlParseException;
