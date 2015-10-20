@@ -6,7 +6,7 @@
 package com.opengamma.strata.math.impl.interpolation;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Contains the result of a least squares regression for polynomial.
@@ -14,7 +14,7 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 public class PolynomialsLeastSquaresFitterResult {
 
   private double[] _coefficients;
-  private DoubleMatrix2D _rMatrix;
+  private DoubleMatrix _rMatrix;
   private int _dof;
   private double _diffNorm;
   private double[] _meanAndStd;
@@ -25,7 +25,7 @@ public class PolynomialsLeastSquaresFitterResult {
    * @param dof Degrees of freedom = Number of data points - (degrees of Polynomial + 1) 
    * @param diffNorm Square norm of the vector, "residuals," whose components are yData_i - f(xData_i)
    */
-  public PolynomialsLeastSquaresFitterResult(final double[] coefficients, final DoubleMatrix2D rMatrix, final int dof, final double diffNorm) {
+  public PolynomialsLeastSquaresFitterResult(final double[] coefficients, final DoubleMatrix rMatrix, final int dof, final double diffNorm) {
 
     _coefficients = coefficients;
     _rMatrix = rMatrix;
@@ -42,7 +42,7 @@ public class PolynomialsLeastSquaresFitterResult {
    * @param diffNorm Norm of the vector, "residuals," whose components are yData_i - f(xData_i)
    * @param meanAndStd Vector (mean , standard deviation) used in normalization 
    */
-  public PolynomialsLeastSquaresFitterResult(final double[] coefficients, final DoubleMatrix2D rMatrix, final int dof, final double diffNorm, final double[] meanAndStd) {
+  public PolynomialsLeastSquaresFitterResult(final double[] coefficients, final DoubleMatrix rMatrix, final int dof, final double diffNorm, final double[] meanAndStd) {
 
     _coefficients = coefficients;
     _rMatrix = rMatrix;
@@ -62,7 +62,7 @@ public class PolynomialsLeastSquaresFitterResult {
   /**
    * @return R Matrix of QR decomposition
    */
-  public DoubleMatrix2D getRMat() {
+  public DoubleMatrix getRMat() {
     return _rMatrix;
   }
 

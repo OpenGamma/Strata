@@ -211,12 +211,23 @@ public final class SwapDummyData {
   /**
    * RatePaymentPeriod (fixed - receiver).
    */
-  public static final RatePaymentPeriod FIXED_RATE_PAYMENT_PERIOD_CMP_REC_USD = RatePaymentPeriod.builder()
+  public static final RatePaymentPeriod FIXED_RATE_PAYMENT_PERIOD_CMP_NONE_REC_GBP = RatePaymentPeriod.builder()
       .paymentDate(date(2015, 1, 2))
       .accrualPeriods(FIXED_RATE_ACCRUAL_PERIOD, FIXED_RATE_ACCRUAL_PERIOD_2)
       .dayCount(ACT_365F)
       .currency(Currency.GBP)
       .compoundingMethod(CompoundingMethod.NONE)
+      .notional(NOTIONAL)
+      .build();
+  /**
+   * RatePaymentPeriod (fixed - receiver).
+   */
+  public static final RatePaymentPeriod FIXED_RATE_PAYMENT_PERIOD_CMP_FLAT_REC_GBP = RatePaymentPeriod.builder()
+      .paymentDate(date(2015, 1, 2))
+      .accrualPeriods(FIXED_RATE_ACCRUAL_PERIOD, FIXED_RATE_ACCRUAL_PERIOD_2)
+      .dayCount(ACT_365F)
+      .currency(Currency.GBP)
+      .compoundingMethod(CompoundingMethod.FLAT)
       .notional(NOTIONAL)
       .build();
   /**
@@ -315,12 +326,20 @@ public final class SwapDummyData {
       .paymentEvents(FX_RESET_NOTIONAL_EXCHANGE_REC_USD)
       .build();
   /**
-   * ExpandedSwapLeg  (USD - fixed - receiver - compounding).
+   * ExpandedSwapLeg  (GBP - fixed - receiver - compounding).
    */
-  public static final ExpandedSwapLeg FIXED_CMP_EXPANDED_SWAP_LEG_PAY_USD = ExpandedSwapLeg.builder()
+  public static final ExpandedSwapLeg FIXED_CMP_NONE_EXPANDED_SWAP_LEG_PAY_GBP = ExpandedSwapLeg.builder()
       .type(FIXED)
       .payReceive(PAY)
-      .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_CMP_REC_USD)
+      .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_CMP_NONE_REC_GBP)
+      .build();
+  /**
+   * ExpandedSwapLeg  (GBP - fixed - receiver - compounding).
+   */
+  public static final ExpandedSwapLeg FIXED_CMP_FLAT_EXPANDED_SWAP_LEG_PAY_GBP = ExpandedSwapLeg.builder()
+      .type(FIXED)
+      .payReceive(PAY)
+      .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_CMP_FLAT_REC_GBP)
       .build();
   /**
    * RateCalculationSwapLeg (fixed).

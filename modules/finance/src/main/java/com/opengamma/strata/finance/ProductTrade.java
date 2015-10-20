@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.finance;
 
+import com.opengamma.strata.basics.Trade;
+
 /**
  * A trade that is directly based on a product.
  * <p>
@@ -16,7 +18,7 @@ package com.opengamma.strata.finance;
  * @param <P>  the type of the product
  */
 public interface ProductTrade<P extends Product>
-    extends Trade {
+    extends FinanceTrade {
 
   /**
    * Gets the underlying product that was agreed when the trade occurred.

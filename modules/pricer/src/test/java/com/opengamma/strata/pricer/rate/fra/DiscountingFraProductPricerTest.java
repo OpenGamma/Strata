@@ -28,6 +28,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.finance.rate.IborRateObservation;
 import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
@@ -478,12 +479,12 @@ public class DiscountingFraProductPricerTest {
   private static final ImmutableRatesProvider IMM_PROV;
   static {
     CurveInterpolator interp = Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE;
-    double[] time_gbp = new double[] {0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 2.0};
-    double[] rate_gbp = new double[] {0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.014};
+    DoubleArray time_gbp = DoubleArray.of(0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 2.0);
+    DoubleArray rate_gbp = DoubleArray.of(0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.014);
     InterpolatedNodalCurve dscCurve =
         InterpolatedNodalCurve.of(Curves.zeroRates("GBP-Discount", DAY_COUNT), time_gbp, rate_gbp, interp);
-    double[] time_index = new double[] {0.0, 0.25, 0.5, 1.0};
-    double[] rate_index = new double[] {0.0180, 0.0180, 0.0175, 0.0165};
+    DoubleArray time_index = DoubleArray.of(0.0, 0.25, 0.5, 1.0);
+    DoubleArray rate_index = DoubleArray.of(0.0180, 0.0180, 0.0175, 0.0165);
     InterpolatedNodalCurve indexCurve =
         InterpolatedNodalCurve.of(Curves.zeroRates("GBP-GBPIBOR3M", DAY_COUNT), time_index, rate_index, interp);
     IMM_PROV = ImmutableRatesProvider.builder()

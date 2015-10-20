@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
@@ -45,7 +46,7 @@ public class StandardDataSets {
   // Group 1
   // Discounting, Overnight, Libor 1/3/6
   //-------------------------------------------------------------------------
-  private static final double[] GROUP1_USD_DSC_TIMES = new double[] {
+  private static final DoubleArray GROUP1_USD_DSC_TIMES = DoubleArray.of(
       0.0027397260273972603d,
       0.005479452054794521d,
       0.0958904109589041d,
@@ -62,8 +63,8 @@ public class StandardDataSets {
       7.013698630136986d,
       8.01095890410959d,
       9.01095890410959d,
-      10.010771764353619d};
-  private static final double[] GROUP1_USD_DSC_VALUES = new double[] {
+      10.010771764353619d);
+  private static final DoubleArray GROUP1_USD_DSC_VALUES = DoubleArray.of(
       0.001774301243044416d,
       0.0016475657039787027d,
       8.009449792765705e-4d,
@@ -80,7 +81,7 @@ public class StandardDataSets {
       0.020265668368085216d,
       0.02272069332675378d,
       0.02478235199041099d,
-      0.026505391310201267};
+      0.026505391310201267);
   public static final InterpolatedNodalCurve GROUP1_USD_DSC = InterpolatedNodalCurve.builder()
       .metadata(Curves.zeroRates("USD-DSCON-OIS", ACT_ACT_ISDA))
       .xValues(GROUP1_USD_DSC_TIMES)
@@ -92,7 +93,7 @@ public class StandardDataSets {
   public static final InterpolatedNodalCurve GROUP1_USD_ON = GROUP1_USD_DSC;
 
   //-------------------------------------------------------------------------
-  private static final double[] GROUP1_USD_L1M_TIMES = new double[] {
+  private static final DoubleArray GROUP1_USD_L1M_TIMES = DoubleArray.of(
       0.09041095890410959d,
       0.5013698630136987d,
       0.7534246575342466d,
@@ -107,8 +108,8 @@ public class StandardDataSets {
       15.01095890410959d,
       20.01095890410959d,
       25.008219178082193d,
-      30.016236245227937d};
-  private static final double[] GROUP1_USD_L1M_VALUES = new double[] {
+      30.016236245227937d);
+  private static final DoubleArray GROUP1_USD_L1M_VALUES = DoubleArray.of(
       0.001561285369284162d,
       0.001677637032983316d,
       0.0017963184917998965d,
@@ -123,7 +124,7 @@ public class StandardDataSets {
       0.03428973495769252d,
       0.03649965088741946d,
       0.0373988585367752d,
-      0.037751996205357616d};
+      0.037751996205357616d);
   public static final InterpolatedNodalCurve GROUP1_USD_L1M = InterpolatedNodalCurve.builder()
       .metadata(Curves.zeroRates("USD-LIBOR1M-FRABS", ACT_ACT_ISDA))
       .xValues(GROUP1_USD_L1M_TIMES)
@@ -134,7 +135,7 @@ public class StandardDataSets {
       .build();
 
   //-------------------------------------------------------------------------
-  private static final double[] GROUP1_USD_L3M_TIMES = new double[] {
+  private static final DoubleArray GROUP1_USD_L3M_TIMES = DoubleArray.of(
       0.25205479452054796d,
       0.5013698630136987d,
       0.7534246575342466d,
@@ -149,8 +150,8 @@ public class StandardDataSets {
       15.005479452054795d,
       20.005479452054793d,
       25.008219178082193d,
-      30.01077176435362d};
-  private static final double[] GROUP1_USD_L3M_VALUES = new double[] {
+      30.01077176435362d);
+  private static final DoubleArray GROUP1_USD_L3M_VALUES = DoubleArray.of(
       0.0023773794390540754d,
       0.002418692953929592d,
       0.002500627386941208d,
@@ -165,7 +166,7 @@ public class StandardDataSets {
       0.03475307015968327d,
       0.03689179443401797d,
       0.03776622232525567d,
-      0.03810645431268752d};
+      0.03810645431268752d);
   public static final InterpolatedNodalCurve GROUP1_USD_L3M = InterpolatedNodalCurve.builder()
       .metadata(Curves.zeroRates("USD-LIBOR3M-FRAIRS", ACT_ACT_ISDA))
       .xValues(GROUP1_USD_L3M_TIMES)
@@ -176,7 +177,7 @@ public class StandardDataSets {
       .build();
 
   //-------------------------------------------------------------------------
-  private static final double[] GROUP1_USD_L6M_TIMES = new double[] {
+  private static final DoubleArray GROUP1_USD_L6M_TIMES = DoubleArray.of(
       0.5013698630136987d,
       0.7534246575342466d,
       1.0136986301369864d,
@@ -190,8 +191,8 @@ public class StandardDataSets {
       15.005479452054795d,
       20.008219178082193d,
       25.01095890410959d,
-      30.01077176435362d};
-  private static final double[] GROUP1_USD_L6M_VALUES = new double[] {
+      30.01077176435362d);
+  private static final DoubleArray GROUP1_USD_L6M_VALUES = DoubleArray.of(
       0.003340024121442567d,
       0.0034093794939005517d,
       0.0035662655276726372d,
@@ -205,7 +206,7 @@ public class StandardDataSets {
       0.03581566678731747d,
       0.03793869351638767d,
       0.038810658906253376d,
-      0.03914178215349321d};
+      0.03914178215349321d);
   public static final InterpolatedNodalCurve GROUP1_USD_L6M = InterpolatedNodalCurve.builder()
       .metadata(Curves.zeroRates("USD-LIBOR6M-FRABS", ACT_ACT_ISDA))
       .xValues(GROUP1_USD_L6M_TIMES)
@@ -220,7 +221,7 @@ public class StandardDataSets {
   // curve group with two curves (ONDSC-OIS/LIBOR3M-FRAIRS). 
   // ONDSC-OIS was calibrated on OIS up to 10Y and LIBOR3M-FRAIRS was calibrated on FRA and IRS up to 30Y
   //-------------------------------------------------------------------------
-  private static final double[] GROUP2_USD_DSC_TIMES = new double[] {
+  private static final DoubleArray GROUP2_USD_DSC_TIMES = DoubleArray.of(
       0.0027397260273972603d,
       0.005479452054794521d,
       0.0958904109589041d,
@@ -237,8 +238,8 @@ public class StandardDataSets {
       7.013698630136986d,
       8.01095890410959d,
       9.01095890410959d,
-      10.010771764353619d};
-  private static final double[] GROUP2_USD_DSC_VALUES = new double[] {
+      10.010771764353619d);
+  private static final DoubleArray GROUP2_USD_DSC_VALUES = DoubleArray.of(
       0.0016222186172986405d,
       0.00162221861730832d,
       7.299773709349916E-4d,
@@ -255,7 +256,7 @@ public class StandardDataSets {
       0.021785532652164402d,
       0.024156440792908775d,
       0.026125713163116404d,
-      0.027830307875488028d};
+      0.027830307875488028d);
   public static final InterpolatedNodalCurve GROUP2_USD_DSC = InterpolatedNodalCurve.builder()
       .metadata(Curves.zeroRates("USD-DSCON-OIS", ACT_ACT_ISDA))
       .xValues(GROUP2_USD_DSC_TIMES)
@@ -267,7 +268,7 @@ public class StandardDataSets {
   public static final InterpolatedNodalCurve GROUP2_USD_ON = GROUP2_USD_DSC;
 
   //-------------------------------------------------------------------------
-  private static final double[] GROUP2_USD_L3M_TIMES = new double[] {
+  private static final DoubleArray GROUP2_USD_L3M_TIMES = DoubleArray.of(
       0.25205479452054796d,
       0.5013698630136987d,
       0.7534246575342466d,
@@ -282,8 +283,8 @@ public class StandardDataSets {
       15.005479452054795d,
       20.005479452054793d,
       25.008219178082193d,
-      30.01077176435362d};
-  private static final double[] GROUP2_USD_L3M_VALUES = new double[] {
+      30.01077176435362d);
+  private static final DoubleArray GROUP2_USD_L3M_VALUES = DoubleArray.of(
       0.0023981519275776695d,
       0.0025072335113249054d,
       0.002672247938415502d,
@@ -298,7 +299,7 @@ public class StandardDataSets {
       0.03565652765470901d,
       0.03766720986914944d,
       0.038414911035240557d,
-      0.03867657324723196d};
+      0.03867657324723196d);
   public static final InterpolatedNodalCurve GROUP2_USD_L3M = InterpolatedNodalCurve.builder()
       .metadata(Curves.zeroRates("USD-LIBOR3M-FRAIRS", ACT_ACT_ISDA))
       .xValues(GROUP2_USD_L3M_TIMES)
@@ -309,7 +310,7 @@ public class StandardDataSets {
       .build();
 
   //-------------------------------------------------------------------------
-  private static final double[] GROUP2_EUR_DSC_TIMES = new double[] {
+  private static final DoubleArray GROUP2_EUR_DSC_TIMES = DoubleArray.of(
       0.0027397260273972603d,
       0.005479452054794521d,
       0.08493150684931507d,
@@ -325,8 +326,8 @@ public class StandardDataSets {
       7.013698630136986d,
       10.007837412980013d,
       12.013698630136986d,
-      15.008219178082191d};
-  private static final double[] GROUP2_EUR_DSC_VALUES = new double[] {
+      15.008219178082191d);
+  private static final DoubleArray GROUP2_EUR_DSC_VALUES = DoubleArray.of(
       9.88540328028829E-4d,
       0.0016348915995835695d,
       0.0016862448998847426d,
@@ -342,7 +343,7 @@ public class StandardDataSets {
       0.01063335354910032d,
       0.016080880989322904d,
       0.018609566754615454d,
-      0.021475823757363427d};
+      0.021475823757363427d);
   public static final InterpolatedNodalCurve GROUP2_EUR_DSC = InterpolatedNodalCurve.builder()
       .metadata(Curves.zeroRates("EUR-DSCON-OIS", ACT_ACT_ISDA))
       .xValues(GROUP2_EUR_DSC_TIMES)
@@ -354,7 +355,7 @@ public class StandardDataSets {
   public static final InterpolatedNodalCurve GROUP2_EUR_ON = GROUP2_EUR_DSC;
 
   //-------------------------------------------------------------------------
-  private static final double[] GROUP2_EUR_L3M_TIMES = new double[] {
+  private static final DoubleArray GROUP2_EUR_L3M_TIMES = DoubleArray.of(
       0.2493150684931507d,
       0.5013698630136987d,
       0.7534246575342466d,
@@ -371,8 +372,8 @@ public class StandardDataSets {
       12.005479452054795d,
       15.005479452054795d,
       20.008219178082193d,
-      30.01056965341717d};
-  private static final double[] GROUP2_EUR_L3M_VALUES = new double[] {
+      30.01056965341717d);
+  private static final DoubleArray GROUP2_EUR_L3M_VALUES = DoubleArray.of(
       0.002908829285511484d,
       0.002679595161474885d,
       0.002610519134119294d,
@@ -389,7 +390,7 @@ public class StandardDataSets {
       0.020470246422656945d,
       0.023099261079406665d,
       0.024998109586262342d,
-      0.02549542298737718d};
+      0.02549542298737718d);
   public static final InterpolatedNodalCurve GROUP2_EUR_L3M = InterpolatedNodalCurve.builder()
       .metadata(Curves.zeroRates("EUR-EURIBOR3M-FRAIRS", ACT_ACT_ISDA))
       .xValues(GROUP2_EUR_L3M_TIMES)

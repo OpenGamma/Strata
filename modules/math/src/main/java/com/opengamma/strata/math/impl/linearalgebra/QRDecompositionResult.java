@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.math.impl.linearalgebra;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Contains the results of QR matrix decomposition.
@@ -18,7 +18,7 @@ public interface QRDecompositionResult extends DecompositionResult {
    * $\mathbf{R}$ is an upper-triangular matrix.
    * @return the $\mathbf{R}$ matrix
    */
-  DoubleMatrix2D getR();
+  DoubleMatrix getR();
 
   /**
    * Returns the matrix $\mathbf{Q}$ of the decomposition.
@@ -26,7 +26,7 @@ public interface QRDecompositionResult extends DecompositionResult {
    * $\mathbf{Q}$ is an orthogonal matrix.
    * @return the $\mathbf{Q}$ matrix
    */
-  DoubleMatrix2D getQ();
+  DoubleMatrix getQ();
 
   /**
    * Returns the transpose of the matrix $\mathbf{Q}$ of the decomposition.
@@ -34,6 +34,6 @@ public interface QRDecompositionResult extends DecompositionResult {
    * $\mathbf{Q}$ is an orthogonal matrix.
    * @return the $\mathbf{Q}$ matrix
    */
-  DoubleMatrix2D getQT();
+  DoubleMatrix getQT();
 
 }

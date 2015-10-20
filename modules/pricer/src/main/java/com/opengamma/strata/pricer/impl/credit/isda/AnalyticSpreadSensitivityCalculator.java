@@ -6,10 +6,10 @@
 package com.opengamma.strata.pricer.impl.credit.isda;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionResult;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
  *
@@ -184,19 +184,13 @@ public class AnalyticSpreadSensitivityCalculator {
     ArgChecker.notNull(yieldCurve, "yieldCurve");
     LUDecompositionCommons decomp = new LUDecompositionCommons();
     int n = bucketCDSs.length;
-    double[] temp = new double[n];
-    double[][] res = new double[n][n];
-    for (int i = 0; i < n; i++) {
-      temp[i] = _pricer.pvCreditSensitivity(cds, yieldCurve, creditCurve, cdsCoupon, i);
-      for (int j = 0; j < n; j++) {
-        res[j][i] = _pricer.parSpreadCreditSensitivity(bucketCDSs[i], yieldCurve, creditCurve, j);
-      }
-    }
-    DoubleMatrix1D vLambda = new DoubleMatrix1D(temp);
-    DoubleMatrix2D jacT = new DoubleMatrix2D(res);
+    DoubleArray vLambda = DoubleArray.of(n,
+        i -> _pricer.pvCreditSensitivity(cds, yieldCurve, creditCurve, cdsCoupon, i));
+    DoubleMatrix jacT = DoubleMatrix.of(n, n,
+        (i, j) -> _pricer.parSpreadCreditSensitivity(bucketCDSs[j], yieldCurve, creditCurve, i));
     LUDecompositionResult luRes = decomp.evaluate(jacT);
-    DoubleMatrix1D vS = luRes.solve(vLambda);
-    return vS.getData();
+    DoubleArray vS = luRes.solve(vLambda);
+    return vS.toArray();
   }
 
   public double[][] bucketedCS01FromCreditCurve(
@@ -215,12 +209,8 @@ public class AnalyticSpreadSensitivityCalculator {
     ArgChecker.isTrue(m == cdsCoupon.length, m + " CDSs but " + cdsCoupon.length + " coupons");
     LUDecompositionCommons decomp = new LUDecompositionCommons();
     int n = bucketCDSs.length;
-    DoubleMatrix2D jacT = DoubleMatrix2D.filled(n, n);
-    for (int i = 0; i < n; i++) {
-      for (int j = 0; j < n; j++) {
-        jacT.getData()[j][i] = _pricer.parSpreadCreditSensitivity(bucketCDSs[i], yieldCurve, creditCurve, j);
-      }
-    }
+    DoubleMatrix jacT = DoubleMatrix.of(n, n,
+        (i, j) -> _pricer.parSpreadCreditSensitivity(bucketCDSs[j], yieldCurve, creditCurve, i));
 
     double[] vLambda = new double[n];
     double[][] res = new double[m][];

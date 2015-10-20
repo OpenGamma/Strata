@@ -10,10 +10,10 @@ import static com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory.OG_ALGE
 import java.util.Objects;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.linearalgebra.InverseTridiagonalMatrixCalculator;
 import com.opengamma.strata.math.impl.linearalgebra.TridiagonalMatrix;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
  * 
@@ -76,9 +76,9 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
       oneOverDeltaX[i] = 1.0 / deltaX[i];
       deltaYOverDeltaX[i] = (y[i + 1] - y[i]) * oneOverDeltaX[i];
     }
-    final DoubleMatrix2D inverseTriDiag = getInverseTridiagonalMatrix(deltaX);
-    final DoubleMatrix1D rhsVector = getRHSVector(deltaYOverDeltaX);
-    return ((DoubleMatrix1D) OG_ALGEBRA.multiply(inverseTriDiag, rhsVector)).getData();
+    final DoubleMatrix inverseTriDiag = getInverseTridiagonalMatrix(deltaX);
+    final DoubleArray rhsVector = getRHSVector(deltaYOverDeltaX);
+    return ((DoubleArray) OG_ALGEBRA.multiply(inverseTriDiag, rhsVector)).toArray();
   }
 
   @Override
@@ -174,14 +174,14 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
         deltaYOverDeltaX[i] = (y[i + 1] - y[i]) * oneOverDeltaX[i];
       }
 
-      final DoubleMatrix2D inverseTriDiag = getInverseTridiagonalMatrix(deltaX);
-      final DoubleMatrix2D rhsMatrix = getRHSMatrix(oneOverDeltaX);
-      _secondDerivativesSensitivities = ((DoubleMatrix2D) OG_ALGEBRA.multiply(inverseTriDiag, rhsMatrix)).getData();
+      final DoubleMatrix inverseTriDiag = getInverseTridiagonalMatrix(deltaX);
+      final DoubleMatrix rhsMatrix = getRHSMatrix(oneOverDeltaX);
+      _secondDerivativesSensitivities = ((DoubleMatrix) OG_ALGEBRA.multiply(inverseTriDiag, rhsMatrix)).toArray();
     }
     return _secondDerivativesSensitivities;
   }
 
-  private DoubleMatrix2D getRHSMatrix(final double[] oneOverDeltaX) {
+  private DoubleMatrix getRHSMatrix(final double[] oneOverDeltaX) {
     final int n = oneOverDeltaX.length + 1;
 
     final double[][] res = new double[n][n];
@@ -199,10 +199,10 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
       res[n - 1][n - 1] = -oneOverDeltaX[n - 2];
       res[n - 2][n - 2] = oneOverDeltaX[n - 2];
     }
-    return new DoubleMatrix2D(res);
+    return DoubleMatrix.copyOf(res);
   }
 
-  private DoubleMatrix1D getRHSVector(final double[] deltaYOverDeltaX) {
+  private DoubleArray getRHSVector(final double[] deltaYOverDeltaX) {
     final int n = deltaYOverDeltaX.length + 1;
     final double[] res = new double[n];
 
@@ -216,10 +216,10 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
     if (!_rightNatural) {
       res[n - 1] = _rightFirstDev - deltaYOverDeltaX[n - 2];
     }
-    return new DoubleMatrix1D(res);
+    return DoubleArray.copyOf(res);
   }
 
-  private DoubleMatrix2D getInverseTridiagonalMatrix(final double[] deltaX) {
+  private DoubleMatrix getInverseTridiagonalMatrix(final double[] deltaX) {
     final InverseTridiagonalMatrixCalculator invertor = new InverseTridiagonalMatrixCalculator();
     final int n = deltaX.length + 1;
     final double[] a = new double[n];

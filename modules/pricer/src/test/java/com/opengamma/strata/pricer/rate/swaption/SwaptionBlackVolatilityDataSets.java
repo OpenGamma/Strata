@@ -20,6 +20,7 @@ import java.time.ZoneId;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.finance.rate.swap.type.FixedRateSwapLegConvention;
 import com.opengamma.strata.finance.rate.swap.type.IborRateSwapLegConvention;
@@ -47,15 +48,15 @@ public class SwaptionBlackVolatilityDataSets {
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
 
   //     =====     Standard figures for testing     =====
-  private static final double[] TIMES =
-      new double[] {0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0,
-          0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0};
-  private static final double[] TENOR =
-      new double[] {1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0,
-          5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0, 30.0, 30.0, 30.0, 30.0};
-  private static final double[] BLACK_VOL =
-      new double[] {0.45, 0.425, 0.4, 0.375, 0.425, 0.4, 0.375, 0.35, 0.4, 0.375, 0.35, 0.325, 0.375, 0.35, 0.325, 0.3,
-          0.35, 0.325, 0.3, 0.275};
+  private static final DoubleArray TIMES =
+      DoubleArray.of(0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0,
+          0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0);
+  private static final DoubleArray TENOR =
+      DoubleArray.of(1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0,
+          5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0, 30.0, 30.0, 30.0, 30.0);
+  private static final DoubleArray BLACK_VOL =
+      DoubleArray.of(0.45, 0.425, 0.4, 0.375, 0.425, 0.4, 0.375, 0.35, 0.4, 0.375, 0.35, 0.325, 0.375, 0.35, 0.325, 0.3,
+          0.35, 0.325, 0.3, 0.275);
   private static final SurfaceMetadata METADATA = DefaultSurfaceMetadata.builder()
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.YEAR_FRACTION)

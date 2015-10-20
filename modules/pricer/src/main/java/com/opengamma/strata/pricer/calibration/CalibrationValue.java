@@ -7,9 +7,9 @@ package com.opengamma.strata.pricer.calibration;
 
 import java.util.List;
 
-import com.opengamma.strata.finance.Trade;
+import com.opengamma.strata.basics.Trade;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -20,7 +20,7 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
  * The value will typically be par spread or converted present value.
  */
 class CalibrationValue
-    extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
+    extends Function1D<DoubleArray, DoubleArray> {
 
   /**
    * The trades.
@@ -54,17 +54,11 @@ class CalibrationValue
 
   //-------------------------------------------------------------------------
   @Override
-  public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+  public DoubleArray evaluate(DoubleArray x) {
     // create child provider from matrix
-    double[] data = x.getData();
-    ImmutableRatesProvider childProvider = providerGenerator.generate(data);
+    ImmutableRatesProvider childProvider = providerGenerator.generate(x);
     // calculate value for each trade using the child provider
-    int size = trades.size();
-    double[] measure = new double[size];
-    for (int i = 0; i < size; i++) {
-      measure[i] = measures.value(trades.get(i), childProvider);
-    }
-    return new DoubleMatrix1D(measure);
+    return DoubleArray.of(trades.size(), i -> measures.value(trades.get(i), childProvider));
   }
 
 }

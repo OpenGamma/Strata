@@ -40,6 +40,7 @@ import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
 import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
 import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
@@ -87,13 +88,13 @@ public class BlackSwaptionCashParYieldProductPricerTest {
   private static final LocalDate VALUATION = LocalDate.of(2012, 1, 10);
   // curve
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
-  private static final double[] DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
-  private static final double[] DSC_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150 };
+  private static final DoubleArray DSC_TIME = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
+  private static final DoubleArray DSC_RATE = DoubleArray.of(0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150);
   private static final CurveName DSC_NAME = CurveName.of("EUR Dsc");
   private static final CurveMetadata META_DSC = Curves.zeroRates(DSC_NAME, ACT_ACT_ISDA);
   private static final InterpolatedNodalCurve DSC_CURVE = InterpolatedNodalCurve.of(META_DSC, DSC_TIME, DSC_RATE, INTERPOLATOR); 
-  private static final double[] FWD6_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
-  private static final double[] FWD6_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150 };
+  private static final DoubleArray FWD6_TIME = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
+  private static final DoubleArray FWD6_RATE = DoubleArray.of(0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150);
   private static final CurveName FWD6_NAME = CurveName.of("EUR EURIBOR 6M");
   private static final CurveMetadata META_FWD6 = Curves.zeroRates(FWD6_NAME, ACT_ACT_ISDA);
   private static final InterpolatedNodalCurve FWD6_CURVE = InterpolatedNodalCurve.of(META_FWD6, FWD6_TIME, FWD6_RATE, INTERPOLATOR); 
@@ -109,9 +110,9 @@ public class BlackSwaptionCashParYieldProductPricerTest {
       Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
-  private static final double[] EXPIRY = new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0 };
-  private static final double[] TENOR = new double[] {2, 2, 2, 10, 10, 10 };
-  private static final double[] VOL = new double[] {0.35, 0.34, 0.25, 0.30, 0.25, 0.20 };
+  private static final DoubleArray EXPIRY = DoubleArray.of(0.5, 1.0, 5.0, 0.5, 1.0, 5.0);
+  private static final DoubleArray TENOR = DoubleArray.of(2, 2, 2, 10, 10, 10);
+  private static final DoubleArray VOL = DoubleArray.of(0.35, 0.34, 0.25, 0.30, 0.25, 0.20);
   private static final SurfaceMetadata METADATA = DefaultSurfaceMetadata.builder()
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.YEAR_FRACTION)
@@ -562,8 +563,10 @@ public class BlackSwaptionCashParYieldProductPricerTest {
     PointSensitivityBuilder point = PRICER.presentValueSensitivityStickyStrike(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
     CurveCurrencyParameterSensitivities computed = RATE_PROVIDER.curveParameterSensitivity(point.build());
     computed.getSensitivity(DSC_NAME, EUR).getSensitivity();
-    double[] dscSensi = new double[] {0.0, 0.0, 0.0, -7143525.908886078, -1749520.4110068753, -719115.4683096837 }; // 2.x
-    double[] fwdSensi = new double[] {0d, 0d, 0d, 1.7943318714062232E8, -3.4987983718159467E8, -2.6516758066404995E8 }; // 2.x
+    DoubleArray dscSensi = DoubleArray.of(
+        0.0, 0.0, 0.0, -7143525.908886078, -1749520.4110068753, -719115.4683096837); // 2.x
+    DoubleArray fwdSensi = DoubleArray.of(
+        0d, 0d, 0d, 1.7943318714062232E8, -3.4987983718159467E8, -2.6516758066404995E8); // 2.x
     CurveCurrencyParameterSensitivity dsc = CurveCurrencyParameterSensitivity.of(META_DSC, EUR, dscSensi);
     CurveCurrencyParameterSensitivity fwd = CurveCurrencyParameterSensitivity.of(META_FWD6, EUR, fwdSensi);
     CurveCurrencyParameterSensitivities expected = CurveCurrencyParameterSensitivities.of(ImmutableList.of(dsc, fwd));

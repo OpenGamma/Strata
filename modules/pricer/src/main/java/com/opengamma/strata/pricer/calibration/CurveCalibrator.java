@@ -6,29 +6,27 @@
 package com.opengamma.strata.pricer.calibration;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.primitives.Doubles;
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ObservableValues;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
 import com.opengamma.strata.market.curve.definition.CurveNode;
-import com.opengamma.strata.market.curve.definition.NodalCurveDefinition;
+import com.opengamma.strata.market.curve.definition.CurveParameterSize;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -49,7 +47,7 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
  * Once calibrated, the curves are then available for use.
  * Each node in the curve definition becomes a parameter in the matching output curve.
  */
-public class CurveCalibrator {
+public final class CurveCalibrator {
 
   /**
    * The default curve calibrator.
@@ -122,7 +120,7 @@ public class CurveCalibrator {
    * @param fxMatrix  the FX matrix
    * @return the rates provider resulting from the calibration
    */
-  public Pair<ImmutableRatesProvider, CurveBuildingBlockBundle> calibrate(
+  public ImmutableRatesProvider calibrate(
       CurveGroupDefinition curveGroupDefn,
       LocalDate valuationDate,
       ObservableValues marketData,
@@ -143,188 +141,196 @@ public class CurveCalibrator {
    * <p>
    * The calibration is defined using a list of {@link CurveGroupDefinition}.
    * Observable market data and existing known data are also needed to complete the calibration.
+   * <p>
+   * A curve must only exist in one group.
    * 
    * @param allGroupsDefn  the curve group definitions
    * @param knownData  the starting data for the calibration
    * @param marketData  the market data required to build a trade for the instrument
    * @return the rates provider resulting from the calibration
    */
-  public Pair<ImmutableRatesProvider, CurveBuildingBlockBundle> calibrate(
+  public ImmutableRatesProvider calibrate(
       List<CurveGroupDefinition> allGroupsDefn,
       ImmutableRatesProvider knownData,
       ObservableValues marketData) {
 
     // perform calibration one group at a time, building up the result by mutating these variables
-    ImmutableRatesProvider combinedProvider = knownData;
-    CurveBuildingBlock combinedOrder = CurveBuildingBlock.empty();
-    CurveBuildingBlockBundleBuilder blockBundleBuilder = CurveBuildingBlockBundle.builder();
+    ImmutableRatesProvider providerCombined = knownData;
+    ImmutableList<CurveParameterSize> orderPrev = ImmutableList.of();
+    ImmutableMap<CurveName, JacobianCalibrationMatrix> jacobians = ImmutableMap.of();
     for (CurveGroupDefinition groupDefn : allGroupsDefn) {
       // combine all data in the group into flat lists
-      List<Trade> trades = groupDefn.trades(knownData.getValuationDate(), marketData);
-      List<Double> initialGuesses = groupDefn.initialGuesses(knownData.getValuationDate(), marketData);
-      CurveBuildingBlock order = toBlock(groupDefn);
+      ImmutableList<Trade> trades = groupDefn.trades(knownData.getValuationDate(), marketData);
+      ImmutableList<Double> initialGuesses = groupDefn.initialGuesses(knownData.getValuationDate(), marketData);
+      ImmutableList<CurveParameterSize> orderGroup = toOrder(groupDefn);
+      ImmutableList<CurveParameterSize> orderPrevAndGroup = ImmutableList.<CurveParameterSize>builder()
+          .addAll(orderPrev)
+          .addAll(orderGroup)
+          .build();
 
       // calibrate
-      RatesProviderGenerator providerGenerator = ImmutableRatesProviderGenerator.of(combinedProvider, groupDefn);
-      combinedProvider = calibrateGroup(trades, initialGuesses, providerGenerator, order);
-      combinedOrder = updateBlockBundleForGroup(trades, combinedProvider, order, combinedOrder, blockBundleBuilder);
+      RatesProviderGenerator providerGenerator = ImmutableRatesProviderGenerator.of(providerCombined, groupDefn);
+      DoubleArray calibratedGroupParams = calibrateGroup(providerGenerator, trades, initialGuesses, orderGroup);
+      ImmutableRatesProvider calibratedProvider = providerGenerator.generate(calibratedGroupParams);
+
+      // use calibration to build Jacobian matrices
+      jacobians = updateJacobiansForGroup(
+          calibratedProvider, trades, orderGroup, orderPrev, orderPrevAndGroup, jacobians);
+      orderPrev = orderPrevAndGroup;
+
+      // use Jacobians to build output curves
+      providerCombined = providerGenerator.generate(calibratedGroupParams, jacobians);
     }
-    // create the final block bundle and return
-    return Pair.of(combinedProvider, blockBundleBuilder.build());
+    // return the calibrated provider
+    return providerCombined;
   }
 
-  // converts a definition to a block
-  private static CurveBuildingBlock toBlock(CurveGroupDefinition groupDefn) {
+  // converts a definition to the curve order list
+  private static ImmutableList<CurveParameterSize> toOrder(CurveGroupDefinition groupDefn) {
     ImmutableList.Builder<CurveParameterSize> builder = ImmutableList.builder();
     for (CurveGroupEntry entry : groupDefn.getEntries()) {
-      NodalCurveDefinition defn = entry.getCurveDefinition();
-      builder.add(CurveParameterSize.of(defn.getName(), defn.getParameterCount()));
+      builder.add(entry.getCurveDefinition().toCurveParameterSize());
     }
-    return CurveBuildingBlock.of(builder.build());
+    return builder.build();
   }
 
   //-------------------------------------------------------------------------
   // calibrates a single group
-  private ImmutableRatesProvider calibrateGroup(
-      List<Trade> trades,
-      List<Double> initialGuesses,
+  private DoubleArray calibrateGroup(
       RatesProviderGenerator providerGenerator,
-      CurveBuildingBlock curveOrder) {
+      ImmutableList<Trade> trades,
+      ImmutableList<Double> initialGuesses,
+      ImmutableList<CurveParameterSize> curveOrder) {
 
     // setup for calibration
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> valueCalculator =
+    Function1D<DoubleArray, DoubleArray> valueCalculator =
         new CalibrationValue(trades, measures, providerGenerator);
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> derivativeCalculator =
-        new CalibrationDerivative(trades, measures, providerGenerator, curveOrder.getData());
+    Function1D<DoubleArray, DoubleMatrix> derivativeCalculator =
+        new CalibrationDerivative(trades, measures, providerGenerator, curveOrder);
 
     // calibrate
-    DoubleMatrix1D initGuessMatrix = new DoubleMatrix1D(Doubles.toArray(initialGuesses));
-    double[] calibratedParams = rootFinder.getRoot(valueCalculator, derivativeCalculator, initGuessMatrix).getData();
-    return providerGenerator.generate(calibratedParams);
+    DoubleArray initGuessMatrix = DoubleArray.copyOf(initialGuesses);
+    return rootFinder.getRoot(valueCalculator, derivativeCalculator, initGuessMatrix);
   }
 
   //-------------------------------------------------------------------------
   // calculates the Jacobian and builds the result, called once per group
-  private CurveBuildingBlock updateBlockBundleForGroup(
-      List<Trade> trades,
+  // this uses, but does not alter, data from previous groups
+  private ImmutableMap<CurveName, JacobianCalibrationMatrix> updateJacobiansForGroup(
       ImmutableRatesProvider provider,
-      CurveBuildingBlock orderGroup,
-      CurveBuildingBlock orderPrevious,
-      CurveBuildingBlockBundleBuilder blockBundleBuilder) {
-
-    // combine the block information
-    List<CurveParameterSize> orderAll = new ArrayList<CurveParameterSize>();
-    orderAll.addAll(orderPrevious.getData());
-    orderAll.addAll(orderGroup.getData());
-    CurveBuildingBlock blockOut = CurveBuildingBlock.of(orderAll);
-    int totalParamsGroup = orderGroup.getTotalParameterCount();
+      ImmutableList<Trade> trades,
+      ImmutableList<CurveParameterSize> orderGroup,
+      ImmutableList<CurveParameterSize> orderPrev,
+      ImmutableList<CurveParameterSize> orderAll,
+      ImmutableMap<CurveName, JacobianCalibrationMatrix> jacobians) {
 
     // sensitivity to all parameters in the stated order
-    int nbTrades = trades.size();
-    double[][] res = derivatives(trades, provider, orderAll, nbTrades, totalParamsGroup);
-    int totalParamsAll = res[0].length;
+    int totalParamsAll = orderAll.stream().mapToInt(e -> e.getParameterCount()).sum();
+    DoubleMatrix res = derivatives(trades, provider, orderAll, totalParamsAll);
 
     // jacobian direct
+    int nbTrades = trades.size();
+    int totalParamsGroup = orderGroup.stream().mapToInt(e -> e.getParameterCount()).sum();
     int totalParamsPrevious = totalParamsAll - totalParamsGroup;
-    DoubleMatrix2D pDmCurrentMatrix = jacobianDirect(res, nbTrades, totalParamsGroup, totalParamsPrevious);
+    DoubleMatrix pDmCurrentMatrix = jacobianDirect(res, nbTrades, totalParamsGroup, totalParamsPrevious);
 
     // jacobian indirect: when totalParamsPrevious > 0
-    double[][] pDmPreviousArray = jacobianIndirect(
-        res, pDmCurrentMatrix, nbTrades, totalParamsGroup, totalParamsPrevious, orderPrevious, blockBundleBuilder);
+    DoubleMatrix pDmPrevious = jacobianIndirect(
+        res, pDmCurrentMatrix, nbTrades, totalParamsGroup, totalParamsPrevious, orderPrev, jacobians);
 
-    // add to the mutable block bundle, one entry for each curve in this group
-    double[][] pDmCurrentArray = pDmCurrentMatrix.getData();
+    // add to the map of jacobians, one entry for each curve in this group
+    ImmutableMap.Builder<CurveName, JacobianCalibrationMatrix> jacobianBuilder = ImmutableMap.builder();
+    jacobianBuilder.putAll(jacobians);
     int startIndex = 0;
-    for (CurveParameterSize order : orderGroup.getData()) {
+    for (CurveParameterSize order : orderGroup) {
       int paramCount = order.getParameterCount();
       double[][] pDmCurveArray = new double[paramCount][totalParamsAll];
       // copy data for previous groups
       if (totalParamsPrevious > 0) {
         for (int p = 0; p < paramCount; p++) {
-          System.arraycopy(pDmPreviousArray[startIndex + p], 0, pDmCurveArray[p], 0, totalParamsPrevious);
+          System.arraycopy(pDmPrevious.rowArray(startIndex + p), 0, pDmCurveArray[p], 0, totalParamsPrevious);
         }
       }
       // copy data for this group
       for (int p = 0; p < paramCount; p++) {
-        System.arraycopy(pDmCurrentArray[startIndex + p], 0, pDmCurveArray[p], totalParamsPrevious, totalParamsGroup);
+        System.arraycopy(pDmCurrentMatrix.rowArray(startIndex + p), 0, pDmCurveArray[p], totalParamsPrevious, totalParamsGroup);
       }
       // build final Jacobian matrix
-      DoubleMatrix2D pDmCurveMatrix = new DoubleMatrix2D(pDmCurveArray);
-      blockBundleBuilder.put(order.getName(), blockOut, pDmCurveMatrix);
+      DoubleMatrix pDmCurveMatrix = DoubleMatrix.ofUnsafe(pDmCurveArray);
+      jacobianBuilder.put(order.getName(), JacobianCalibrationMatrix.of(orderAll, pDmCurveMatrix));
       startIndex += paramCount;
     }
-    return blockOut;
+    return jacobianBuilder.build();
   }
 
   // calculate the derivatives
-  private double[][] derivatives(
-      List<Trade> trades,
+  private DoubleMatrix derivatives(
+      ImmutableList<Trade> trades,
       ImmutableRatesProvider provider,
-      List<CurveParameterSize> orderAll,
-      int nbTrades,
-      int totalParamsGroup) {
+      ImmutableList<CurveParameterSize> orderAll,
+      int totalParamsAll) {
 
-    double[][] res = new double[totalParamsGroup][];
-    for (int i = 0; i < nbTrades; i++) {
-      res[i] = measures.derivative(trades.get(i), provider, orderAll);
-    }
-    return res;
+    return DoubleMatrix.ofArrayObjects(
+        trades.size(),
+        totalParamsAll,
+        i -> measures.derivative(trades.get(i), provider, orderAll));
   }
 
   // jacobian direct, for the current group
-  private DoubleMatrix2D jacobianDirect(double[][] res, int nbTrades, int totalParamsGroup, int totalParamsPrevious) {
+  private static DoubleMatrix jacobianDirect(
+      DoubleMatrix res,
+      int nbTrades,
+      int totalParamsGroup,
+      int totalParamsPrevious) {
+
     double[][] direct = new double[totalParamsGroup][totalParamsGroup];
     for (int i = 0; i < nbTrades; i++) {
-      System.arraycopy(res[i], totalParamsPrevious, direct[i], 0, totalParamsGroup);
+      System.arraycopy(res.rowArray(i), totalParamsPrevious, direct[i], 0, totalParamsGroup);
     }
-    return MATRIX_ALGEBRA.getInverse(new DoubleMatrix2D(direct));
+    return MATRIX_ALGEBRA.getInverse(DoubleMatrix.copyOf(direct));
   }
 
   // jacobian indirect, merging groups
-  private double[][] jacobianIndirect(
-      double[][] res,
-      DoubleMatrix2D pDmCurrentMatrix,
+  private static DoubleMatrix jacobianIndirect(
+      DoubleMatrix res,
+      DoubleMatrix pDmCurrentMatrix,
       int nbTrades,
       int totalParamsGroup,
       int totalParamsPrevious,
-      CurveBuildingBlock orderPrevious,
-      CurveBuildingBlockBundleBuilder blockBundleBuilder) {
+      ImmutableList<CurveParameterSize> orderPrevious,
+      ImmutableMap<CurveName, JacobianCalibrationMatrix> jacobiansPrevious) {
 
-    double[][] pDmPreviousArray = new double[0][0];
-    if (totalParamsPrevious > 0) {
-      double[][] nonDirect = new double[totalParamsGroup][totalParamsPrevious];
-      for (int i = 0; i < nbTrades; i++) {
-        System.arraycopy(res[i], 0, nonDirect[i], 0, totalParamsPrevious);
-      }
-      DoubleMatrix2D pDpPreviousMatrix = (DoubleMatrix2D) MATRIX_ALGEBRA.scale(
-          MATRIX_ALGEBRA.multiply(pDmCurrentMatrix, new DoubleMatrix2D(nonDirect)), -1d);
-      // transition Matrix: all curves from previous groups
-      double[][] transition = new double[totalParamsPrevious][totalParamsPrevious];
-      int startIndexOuter = 0;
-      for (CurveParameterSize order : orderPrevious.getData()) {  // l
-        int paramCountOuter = order.getParameterCount();
-        Pair<CurveBuildingBlock, DoubleMatrix2D> thisPair = blockBundleBuilder.get(order.getName());
-        CurveBuildingBlock thisBlock = thisPair.getFirst();
-        Set<CurveName> thisBlockCurves = thisBlock.getAllNames();
-        double[][] thisMatrix = thisPair.getSecond().getData();
-        int startIndexInner = 0;
-        for (CurveParameterSize order2 : orderPrevious.getData()) {  // k
-          int paramCountInner = order2.getParameterCount();
-          if (thisBlockCurves.contains(order2.getName())) { // If not, the matrix stay with 0
-            for (int p = 0; p < paramCountOuter; p++) {
-              System.arraycopy(
-                  thisMatrix[p], startIndexOuter, transition[startIndexOuter + p], startIndexInner, paramCountInner);
-            }
-          }
-          startIndexInner += paramCountInner;
-        }
-        startIndexOuter += paramCountOuter;
-      }
-      DoubleMatrix2D transitionMatrix = new DoubleMatrix2D(transition);
-      DoubleMatrix2D pDmPreviousMatrix = (DoubleMatrix2D) MATRIX_ALGEBRA.multiply(pDpPreviousMatrix, transitionMatrix);
-      pDmPreviousArray = pDmPreviousMatrix.getData();
+    if (totalParamsPrevious == 0) {
+      return DoubleMatrix.EMPTY;
     }
-    return pDmPreviousArray;
+    double[][] nonDirect = new double[totalParamsGroup][totalParamsPrevious];
+    for (int i = 0; i < nbTrades; i++) {
+      System.arraycopy(res.rowArray(i), 0, nonDirect[i], 0, totalParamsPrevious);
+    }
+    DoubleMatrix pDpPreviousMatrix = (DoubleMatrix) MATRIX_ALGEBRA.scale(
+        MATRIX_ALGEBRA.multiply(pDmCurrentMatrix, DoubleMatrix.copyOf(nonDirect)), -1d);
+    // transition Matrix: all curves from previous groups
+    double[][] transition = new double[totalParamsPrevious][totalParamsPrevious];
+    int startIndexOuter = 0;
+    for (CurveParameterSize order : orderPrevious) {  // l
+      int paramCountOuter = order.getParameterCount();
+      JacobianCalibrationMatrix thisInfo = jacobiansPrevious.get(order.getName());
+      DoubleMatrix thisMatrix = thisInfo.getJacobianMatrix();
+      int startIndexInner = 0;
+      for (CurveParameterSize order2 : orderPrevious) {  // k
+        int paramCountInner = order2.getParameterCount();
+        if (thisInfo.containsCurve(order2.getName())) { // If not, the matrix stay with 0
+          for (int p = 0; p < paramCountOuter; p++) {
+            System.arraycopy(
+                thisMatrix.rowArray(p), startIndexOuter, transition[startIndexOuter + p], startIndexInner, paramCountInner);
+          }
+        }
+        startIndexInner += paramCountInner;
+      }
+      startIndexOuter += paramCountOuter;
+    }
+    DoubleMatrix transitionMatrix = DoubleMatrix.copyOf(transition);
+    return (DoubleMatrix) MATRIX_ALGEBRA.multiply(pDpPreviousMatrix, transitionMatrix);
   }
 
 }

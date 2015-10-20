@@ -8,13 +8,13 @@ package com.opengamma.strata.pricer.sensitivity;
 import java.util.function.Function;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
  * Computes the cross-gamma and related figures to the rate curves parameters for rates provider.
@@ -66,12 +66,8 @@ public class CurveGammaCalculator {
       Function<NodalCurve, CurveCurrencyParameterSensitivity> sensitivitiesFn) {
 
     Delta deltaShift = new Delta(curve, sensitivitiesFn);
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> gammaFn = fd.differentiate(deltaShift);
-    double[][] gamma2 = gammaFn.evaluate(new DoubleMatrix1D(new double[1])).getData();
-    double[] gamma = new double[gamma2.length];
-    for (int i = 0; i < gamma2.length; i++) {
-      gamma[i] = gamma2[i][0];
-    }
+    Function1D<DoubleArray, DoubleMatrix> gammaFn = fd.differentiate(deltaShift);
+    DoubleArray gamma = gammaFn.evaluate(DoubleArray.filled(1)).column(0);
     return CurveCurrencyParameterSensitivity.of(curve.getMetadata(), curveCurrency, gamma);
   }
 
@@ -79,7 +75,7 @@ public class CurveGammaCalculator {
   /**
    * Inner class to compute the delta for a given parallel shift of the curve.
    */
-  static class Delta extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
+  static class Delta extends Function1D<DoubleArray, DoubleArray> {
     private final NodalCurve curve;
     private final Function<NodalCurve, CurveCurrencyParameterSensitivity> sensitivitiesFn;
 
@@ -89,15 +85,12 @@ public class CurveGammaCalculator {
     }
 
     @Override
-    public DoubleMatrix1D evaluate(DoubleMatrix1D s) {
+    public DoubleArray evaluate(DoubleArray s) {
       double shift = s.get(0);
-      double[] yieldBumped = curve.getYValues();
-      for (int loopnode = 0; loopnode < curve.getParameterCount(); loopnode++) {
-        yieldBumped[loopnode] += shift;
-      }
+      DoubleArray yieldBumped = curve.getYValues().map(v -> v + shift);
       NodalCurve curveBumped = curve.withYValues(yieldBumped);
       CurveCurrencyParameterSensitivity pts = sensitivitiesFn.apply(curveBumped);
-      return new DoubleMatrix1D(pts.getSensitivity());
+      return pts.getSensitivity();
     }
   }
 

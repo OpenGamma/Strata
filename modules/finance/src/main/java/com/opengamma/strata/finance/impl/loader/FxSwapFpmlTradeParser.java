@@ -8,9 +8,9 @@ package com.opengamma.strata.finance.impl.loader;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.io.XmlElement;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.fx.FxSingle;
 import com.opengamma.strata.finance.fx.FxSwap;

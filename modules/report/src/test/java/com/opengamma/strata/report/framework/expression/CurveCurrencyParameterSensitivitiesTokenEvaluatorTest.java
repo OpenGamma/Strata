@@ -6,6 +6,7 @@
 package com.opengamma.strata.report.framework.expression;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 
@@ -14,6 +15,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
@@ -26,10 +28,10 @@ public class CurveCurrencyParameterSensitivitiesTokenEvaluatorTest {
 
   public void tokens() {
     CurveCurrencyParameterSensitivity sensitivity1 =
-        CurveCurrencyParameterSensitivity.of(DefaultCurveMetadata.of("Curve1"), Currency.AUD, new double[0]);
+        CurveCurrencyParameterSensitivity.of(DefaultCurveMetadata.of("Curve1"), Currency.AUD, DoubleArray.EMPTY);
 
     CurveCurrencyParameterSensitivity sensitivity2 =
-        CurveCurrencyParameterSensitivity.of(DefaultCurveMetadata.of("Curve2"), Currency.CHF, new double[0]);
+        CurveCurrencyParameterSensitivity.of(DefaultCurveMetadata.of("Curve2"), Currency.CHF, DoubleArray.EMPTY);
 
     CurveCurrencyParameterSensitivities sensitivities = CurveCurrencyParameterSensitivities.of(sensitivity1, sensitivity2);
 
@@ -40,13 +42,13 @@ public class CurveCurrencyParameterSensitivitiesTokenEvaluatorTest {
 
   public void evaluate() {
     CurveCurrencyParameterSensitivity sensitivity1 =
-        CurveCurrencyParameterSensitivity.of(DefaultCurveMetadata.of("Curve1"), Currency.AUD, new double[0]);
+        CurveCurrencyParameterSensitivity.of(DefaultCurveMetadata.of("Curve1"), Currency.AUD, DoubleArray.EMPTY);
 
     CurveCurrencyParameterSensitivity sensitivity2 =
-        CurveCurrencyParameterSensitivity.of(DefaultCurveMetadata.of("Curve2"), Currency.CHF, new double[0]);
+        CurveCurrencyParameterSensitivity.of(DefaultCurveMetadata.of("Curve2"), Currency.CHF, DoubleArray.EMPTY);
 
     CurveCurrencyParameterSensitivity sensitivity3 =
-        CurveCurrencyParameterSensitivity.of(DefaultCurveMetadata.of("Curve2"), Currency.AUD, new double[0]);
+        CurveCurrencyParameterSensitivity.of(DefaultCurveMetadata.of("Curve2"), Currency.AUD, DoubleArray.EMPTY);
 
     CurveCurrencyParameterSensitivities sensitivities =
         CurveCurrencyParameterSensitivities.of(sensitivity1, sensitivity2, sensitivity3);

@@ -9,13 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 
 /**
@@ -27,16 +26,16 @@ public class InverseJacobianEstimateInitializationFunctionTest {
   private static final MatrixAlgebra ALGEBRA = new CommonsMatrixAlgebra();
   private static final Decomposition<?> SV = DecompositionFactory.SV_COMMONS;
   private static final InverseJacobianEstimateInitializationFunction ESTIMATE = new InverseJacobianEstimateInitializationFunction(SV);
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> J = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+  private static final Function1D<DoubleArray, DoubleMatrix> J = new Function1D<DoubleArray, DoubleMatrix>() {
 
     @Override
-    public DoubleMatrix2D evaluate(DoubleMatrix1D v) {
-      double[] x = v.getData();
-      return new DoubleMatrix2D(new double[][] { {x[0] * x[0], x[0] * x[1] }, {x[0] - x[1], x[1] * x[1] } });
+    public DoubleMatrix evaluate(DoubleArray v) {
+      double[] x = v.toArray();
+      return DoubleMatrix.copyOf(new double[][] { {x[0] * x[0], x[0] * x[1]}, {x[0] - x[1], x[1] * x[1]}});
     }
 
   };
-  private static final DoubleMatrix1D X = new DoubleMatrix1D(new double[] {3, 4 });
+  private static final DoubleArray X = DoubleArray.of(3, 4);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDecomposition() {
@@ -54,10 +53,10 @@ public class InverseJacobianEstimateInitializationFunctionTest {
   }
 
   public void test() {
-    DoubleMatrix2D m1 = ESTIMATE.getInitializedMatrix(J, X);
-    DoubleMatrix2D m2 = J.evaluate(X);
-    DoubleMatrix2D m3 = (DoubleMatrix2D) (ALGEBRA.multiply(m1, m2));
-    DoubleMatrix2D identity = DoubleMatrixUtils.getIdentityMatrix2D(2);
+    DoubleMatrix m1 = ESTIMATE.getInitializedMatrix(J, X);
+    DoubleMatrix m2 = J.evaluate(X);
+    DoubleMatrix m3 = (DoubleMatrix) (ALGEBRA.multiply(m1, m2));
+    DoubleMatrix identity = DoubleMatrix.identity(2);
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
         assertEquals(m3.get(i, j), identity.get(i, j), 1e-6);

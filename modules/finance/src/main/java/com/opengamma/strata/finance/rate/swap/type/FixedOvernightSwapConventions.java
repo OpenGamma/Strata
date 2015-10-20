@@ -22,13 +22,14 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.StubConvention;
 
 /**
- * Factory methods for market standard conventions
+ * Market standard Fixed-Overnight swap conventions.
  * <p>
  * http://www.opengamma.com/sites/default/files/interest-rate-instruments-and-market-conventions.pdf
  */
-public class FixedOvernightSwapConventions {
+public final class FixedOvernightSwapConventions {
 
   /**
    * USD fixed vs Fed Fund OIS swap for terms less than or equal to one year.
@@ -125,6 +126,7 @@ public class FixedOvernightSwapConventions {
             .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, calendar))
             .paymentFrequency(frequency)
             .paymentDateOffset(paymentDateOffset)
+            .stubConvention(StubConvention.SHORT_INITIAL)
             .build(),
         OvernightRateSwapLegConvention.builder()
             .index(index)
@@ -132,6 +134,7 @@ public class FixedOvernightSwapConventions {
             .accrualFrequency(frequency)
             .paymentFrequency(frequency)
             .paymentDateOffset(paymentDateOffset)
+            .stubConvention(StubConvention.SHORT_INITIAL)
             .build(),
         spotDateOffset);
   }

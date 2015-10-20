@@ -18,6 +18,7 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -37,6 +38,7 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
 import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
 import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
@@ -100,20 +102,19 @@ public class CurveGammaCalculatorTest {
     ImmutableRatesProvider provider = SINGLE;
     NodalCurve curve = Iterables.getOnlyElement(provider.getDiscountCurves().values()).toNodalCurve();
     Currency curveCurrency = SINGLE_CURRENCY;
-    double[] y = curve.getYValues();
-    int nbNode = y.length;
-    double[] gammaExpected = new double[nbNode];
-    for (int i = 0; i < nbNode; i++) {
+    DoubleArray y = curve.getYValues();
+    int nbNode = y.size();
+    DoubleArray gammaExpected = DoubleArray.of(nbNode, i -> {
       double[][][] yBumped = new double[2][2][nbNode];
       double[][] pv = new double[2][2];
       for (int pmi = 0; pmi < 2; pmi++) {
         for (int pmP = 0; pmP < 2; pmP++) {
-          yBumped[pmi][pmP] = y.clone();
+          yBumped[pmi][pmP] = y.toArray();
           yBumped[pmi][pmP][i] += (pmi == 0 ? 1.0 : -1.0) * FD_SHIFT;
           for (int j = 0; j < nbNode; j++) {
             yBumped[pmi][pmP][j] += (pmP == 0 ? 1.0 : -1.0) * FD_SHIFT;
           }
-          Curve curveBumped = curve.withYValues(yBumped[pmi][pmP]);
+          Curve curveBumped = curve.withYValues(DoubleArray.copyOf(yBumped[pmi][pmP]));
           ImmutableRatesProvider providerBumped = provider.toBuilder()
               .discountCurves(provider.getDiscountCurves().keySet().stream()
                   .collect(toImmutableMap(Function.identity(), k -> curveBumped)))
@@ -123,17 +124,15 @@ public class CurveGammaCalculatorTest {
           pv[pmi][pmP] = PRICER_SWAP.presentValue(SWAP, providerBumped).getAmount(USD).getAmount();
         }
       }
-      gammaExpected[i] = (pv[1][1] - pv[1][0] - pv[0][1] + pv[0][0]) / (4 * FD_SHIFT * FD_SHIFT);
-    }
+      return (pv[1][1] - pv[1][0] - pv[0][1] + pv[0][0]) / (4 * FD_SHIFT * FD_SHIFT);
+    });
     CurveCurrencyParameterSensitivity sensitivityComputed = GAMMA_CAL.calculateSemiParallelGamma(
         curve,
         curveCurrency,
         c -> buildSensitivities(c, provider));
     assertEquals(sensitivityComputed.getMetadata(), curve.getMetadata());
-    double[] gammaComputed = sensitivityComputed.getSensitivity();
-    for (int i = 0; i < nbNode; i++) {
-      assertEquals(gammaComputed[i], gammaExpected[i], TOLERANCE_GAMMA);
-    }
+    DoubleArray gammaComputed = sensitivityComputed.getSensitivity();
+    assertTrue(gammaComputed.equalWithTolerance(gammaExpected, TOLERANCE_GAMMA));
   }
 
   // Checks that different finite difference types and shifts give similar results.
@@ -145,24 +144,20 @@ public class CurveGammaCalculatorTest {
     CurveGammaCalculator calculatorForward5 = new CurveGammaCalculator(FiniteDifferenceType.FORWARD, FD_SHIFT);
     CurveGammaCalculator calculatorBackward5 = new CurveGammaCalculator(FiniteDifferenceType.BACKWARD, FD_SHIFT);
     CurveGammaCalculator calculatorCentral4 = new CurveGammaCalculator(FiniteDifferenceType.CENTRAL, 1.0E-4);
-    double[] gammaCentral5 = GAMMA_CAL.calculateSemiParallelGamma(
+    DoubleArray gammaCentral5 = GAMMA_CAL.calculateSemiParallelGamma(
         curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
-    int nbNode = gammaCentral5.length;
-    double[] gammaForward5 = calculatorForward5.calculateSemiParallelGamma(
+
+    DoubleArray gammaForward5 = calculatorForward5.calculateSemiParallelGamma(
         curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
-    for (int i = 0; i < nbNode; i++) {
-      assertEquals(gammaForward5[i], gammaCentral5[i], toleranceCoherency);
-    }
-    double[] gammaBackward5 = calculatorBackward5.calculateSemiParallelGamma(
+    assertTrue(gammaForward5.equalWithTolerance(gammaCentral5, toleranceCoherency));
+
+    DoubleArray gammaBackward5 = calculatorBackward5.calculateSemiParallelGamma(
         curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
-    for (int i = 0; i < nbNode; i++) {
-      assertEquals(gammaForward5[i], gammaBackward5[i], toleranceCoherency);
-    }
-    double[] gammaCentral4 = calculatorCentral4.calculateSemiParallelGamma(
+    assertTrue(gammaForward5.equalWithTolerance(gammaBackward5, toleranceCoherency));
+
+    DoubleArray gammaCentral4 = calculatorCentral4.calculateSemiParallelGamma(
         curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
-    for (int i = 0; i < nbNode; i++) {
-      assertEquals(gammaForward5[i], gammaCentral4[i], toleranceCoherency);
-    }
+    assertTrue(gammaForward5.equalWithTolerance(gammaCentral4, toleranceCoherency));
   }
 
   //-------------------------------------------------------------------------

@@ -10,9 +10,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.differentiation.ScalarFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.differentiation.ScalarFirstOrderDifferentiator;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Test.
@@ -40,10 +40,10 @@ public class ParameterizedFunctionTest {
     }
   };
 
-  private static ParameterizedFunction<Double, DoubleMatrix1D, Double> VECTOR_PARAMS = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
+  private static ParameterizedFunction<Double, DoubleArray, Double> VECTOR_PARAMS = new ParameterizedFunction<Double, DoubleArray, Double>() {
 
     @Override
-    public Double evaluate(final Double x, final DoubleMatrix1D a) {
+    public Double evaluate(final Double x, final DoubleArray a) {
       ArgChecker.notNull(a, "parameters");
       if (a.size() != 2) {
         throw new IllegalArgumentException("wrong number of parameters");
@@ -71,7 +71,7 @@ public class ParameterizedFunctionTest {
 
   @Test
   public void testSin() {
-    final DoubleMatrix1D parms = new DoubleMatrix1D(new double[] {-1.0, 0.5 });
+    final DoubleArray parms = DoubleArray.of(-1.0, 0.5);
     assertEquals(-Math.sin(1.0), VECTOR_PARAMS.evaluate(2.0, parms), 0.0);
 
     final Function1D<Double, Double> func = VECTOR_PARAMS.asFunctionOfArguments(parms);
@@ -81,10 +81,10 @@ public class ParameterizedFunctionTest {
     final Function1D<Double, Double> grad = diff.differentiate(func);
     assertEquals(-0.5, grad.evaluate(0.0), 1e-8);
 
-    final Function1D<DoubleMatrix1D, Double> params_func = VECTOR_PARAMS.asFunctionOfParameters(1.0);
+    final Function1D<DoubleArray, Double> params_func = VECTOR_PARAMS.asFunctionOfParameters(1.0);
     final ScalarFieldFirstOrderDifferentiator vdiff = new ScalarFieldFirstOrderDifferentiator();
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> vgrad = vdiff.differentiate(params_func);
-    final DoubleMatrix1D res = vgrad.evaluate(new DoubleMatrix1D(new double[] {Math.PI, 0 }));
+    final Function1D<DoubleArray, DoubleArray> vgrad = vdiff.differentiate(params_func);
+    final DoubleArray res = vgrad.evaluate(DoubleArray.of(Math.PI, 0));
     assertEquals(0.0, res.get(0), 1e-8);
     assertEquals(Math.PI, res.get(1), 1e-8);
   }

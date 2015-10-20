@@ -32,9 +32,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.value.ValueType;

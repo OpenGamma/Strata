@@ -7,8 +7,8 @@ package com.opengamma.strata.math.impl.interpolation;
 
 import java.util.Arrays;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Hermite interpolation is determined if one specifies first derivatives for a cubic interpolant and first and second derivatives for a quintic interpolant
@@ -23,9 +23,9 @@ public class HermiteCoefficientsProvider {
    * @return Coefficient matrix whose i-th row vector is { a_n, a_{n-1}, ...} for the i-th interval,
    * where a_n, a_{n-1},... are coefficients of f(x) = a_n (x-x_i)^n + a_{n-1} (x-x_i)^{n-1} + .... with n=3
    */
-  public double[][] solve(final double[] values, final double[] intervals, final double[] slopes, final double[] first) {
-    final int nInt = intervals.length;
-    final double[][] res = new double[nInt][4];
+  public double[][] solve(double[] values, double[] intervals, double[] slopes, double[] first) {
+    int nInt = intervals.length;
+    double[][] res = new double[nInt][4];
     for (int i = 0; i < nInt; ++i) {
       Arrays.fill(res[i], 0.);
     }
@@ -48,24 +48,34 @@ public class HermiteCoefficientsProvider {
    * @param firstWithSensitivity First derivative values at xValues_i and their yValues dependencies
    * @return Coefficient matrix and its node dependencies
    */
-  public DoubleMatrix2D[] solveWithSensitivity(final double[] values, final double[] intervals, final double[] slopes, final double[][] slopeSensitivity, final DoubleMatrix1D[] firstWithSensitivity) {
-    final int nData = values.length;
-    final double[] first = firstWithSensitivity[0].getData();
-    final DoubleMatrix2D[] res = new DoubleMatrix2D[nData];
+  public DoubleMatrix[] solveWithSensitivity(
+      double[] values,
+      double[] intervals,
+      double[] slopes,
+      double[][] slopeSensitivity,
+      DoubleArray[] firstWithSensitivity) {
 
-    final double[][] coef = solve(values, intervals, slopes, first);
-    res[0] = new DoubleMatrix2D(coef);
+    int nData = values.length;
+    double[] first = firstWithSensitivity[0].toArray();
+    DoubleMatrix[] res = new DoubleMatrix[nData];
+
+    double[][] coef = solve(values, intervals, slopes, first);
+    res[0] = DoubleMatrix.copyOf(coef);
 
     for (int i = 0; i < nData - 1; ++i) {
-      final double[][] coefSense = new double[4][nData];
+      double[][] coefSense = new double[4][nData];
       Arrays.fill(coefSense[3], 0.);
       coefSense[3][i] = 1.;
       for (int k = 0; k < nData; ++k) {
-        coefSense[0][k] = -(2. * slopeSensitivity[i][k] - firstWithSensitivity[i + 2].getData()[k] - firstWithSensitivity[i + 1].getData()[k]) / intervals[i] / intervals[i];
-        coefSense[1][k] = (3. * slopeSensitivity[i][k] - firstWithSensitivity[i + 2].getData()[k] - 2. * firstWithSensitivity[i + 1].getData()[k]) / intervals[i];
-        coefSense[2][k] = firstWithSensitivity[i + 1].getData()[k];
+        coefSense[0][k] =
+            -(2. * slopeSensitivity[i][k] - firstWithSensitivity[i + 2].get(k) - firstWithSensitivity[i + 1].get(k)) /
+                intervals[i] / intervals[i];
+        coefSense[1][k] =
+            (3. * slopeSensitivity[i][k] - firstWithSensitivity[i + 2].get(k) - 2. * firstWithSensitivity[i + 1].get(k)) /
+                intervals[i];
+        coefSense[2][k] = firstWithSensitivity[i + 1].get(k);
       }
-      res[i + 1] = new DoubleMatrix2D(coefSense);
+      res[i + 1] = DoubleMatrix.copyOf(coefSense);
     }
 
     return res;
@@ -80,9 +90,9 @@ public class HermiteCoefficientsProvider {
    * @return Coefficient matrix whose i-th row vector is { a_n, a_{n-1}, ...} for the i-th interval,
    * where a_n, a_{n-1},... are coefficients of f(x) = a_n (x-x_i)^n + a_{n-1} (x-x_i)^{n-1} + .... with n=5
    */
-  public double[][] solve(final double[] values, final double[] intervals, final double[] slopes, final double[] first, final double[] second) {
-    final int nInt = intervals.length;
-    final double[][] res = new double[nInt][6];
+  public double[][] solve(double[] values, double[] intervals, double[] slopes, double[] first, double[] second) {
+    int nInt = intervals.length;
+    double[][] res = new double[nInt][6];
     for (int i = 0; i < nInt; ++i) {
       Arrays.fill(res[i], 0.);
     }
@@ -110,31 +120,45 @@ public class HermiteCoefficientsProvider {
    * @param secondWithSensitivity Second derivative values at xValues_i and their yValues dependencies
    * @return Coefficient matrix and its node dependencies
    */
-  public DoubleMatrix2D[] solveWithSensitivity(final double[] values, final double[] intervals, final double[] slopes, final double[][] slopeSensitivity, final DoubleMatrix1D[] firstWithSensitivity,
-      final DoubleMatrix1D[] secondWithSensitivity) {
-    final int nData = values.length;
-    final double[] first = firstWithSensitivity[0].getData();
-    final double[] second = secondWithSensitivity[0].getData();
-    final DoubleMatrix2D[] res = new DoubleMatrix2D[nData];
+  public DoubleMatrix[] solveWithSensitivity(
+      double[] values,
+      double[] intervals,
+      double[] slopes,
+      double[][] slopeSensitivity,
+      DoubleArray[] firstWithSensitivity,
+      DoubleArray[] secondWithSensitivity) {
 
-    final double[][] coef = solve(values, intervals, slopes, first, second);
-    res[0] = new DoubleMatrix2D(coef);
+    int nData = values.length;
+    double[] first = firstWithSensitivity[0].toArray();
+    double[] second = secondWithSensitivity[0].toArray();
+    DoubleMatrix[] res = new DoubleMatrix[nData];
+
+    double[][] coef = solve(values, intervals, slopes, first, second);
+    res[0] = DoubleMatrix.copyOf(coef);
 
     for (int i = 0; i < nData - 1; ++i) {
-      final double[][] coefSense = new double[6][nData];
+      double interval = intervals[i];
+      double[][] coefSense = new double[6][nData];
       Arrays.fill(coefSense[5], 0.);
       coefSense[5][i] = 1.;
       for (int k = 0; k < nData; ++k) {
-        coefSense[0][k] = 0.5 * (secondWithSensitivity[i + 2].getData()[k] - secondWithSensitivity[i + 1].getData()[k]) / intervals[i] / intervals[i] / intervals[i] + 3. *
-            (2. * slopeSensitivity[i][k] - firstWithSensitivity[i + 2].getData()[k] - firstWithSensitivity[i + 1].getData()[k]) / intervals[i] / intervals[i] / intervals[i] / intervals[i];
-        coefSense[1][k] = 0.5 * (3. * secondWithSensitivity[i + 1].getData()[k] - 2. * secondWithSensitivity[i + 2].getData()[k]) / intervals[i] / intervals[i] +
-            (8. * firstWithSensitivity[i + 1].getData()[k] + 7. * firstWithSensitivity[i + 2].getData()[k] - 15. * slopeSensitivity[i][k]) / intervals[i] / intervals[i] / intervals[i];
-        coefSense[2][k] = 0.5 * (secondWithSensitivity[i + 2].getData()[k] - 3. * secondWithSensitivity[i + 1].getData()[k]) / intervals[i] + 2. *
-            (5. * slopeSensitivity[i][k] - 3. * firstWithSensitivity[i + 1].getData()[k] - 2. * firstWithSensitivity[i + 2].getData()[k]) / intervals[i] / intervals[i];
-        coefSense[3][k] = 0.5 * secondWithSensitivity[i + 1].getData()[k];
-        coefSense[4][k] = firstWithSensitivity[i + 1].getData()[k];
+        double cs0b = 2d * slopeSensitivity[i][k] - firstWithSensitivity[i + 2].get(k) - firstWithSensitivity[i + 1].get(k);
+        double cs0a = secondWithSensitivity[i + 2].get(k) - secondWithSensitivity[i + 1].get(k);
+        coefSense[0][k] = 0.5 * cs0a / interval / interval / interval + 3d * cs0b / interval / interval / interval / interval;
+
+        double cs1a = 3d * secondWithSensitivity[i + 1].get(k) - 2d * secondWithSensitivity[i + 2].get(k);
+        double cs1b =
+            8d * firstWithSensitivity[i + 1].get(k) + 7d * firstWithSensitivity[i + 2].get(k) - 15d * slopeSensitivity[i][k];
+        coefSense[1][k] = 0.5 * cs1a / interval / interval + cs1b / interval / interval / interval;
+
+        double cs2a = secondWithSensitivity[i + 2].get(k) - 3d * secondWithSensitivity[i + 1].get(k);
+        double cs2b = 5d * slopeSensitivity[i][k] - 3d * firstWithSensitivity[i + 1].get(k) - 2d * firstWithSensitivity[i + 2].get(k);
+        coefSense[2][k] = 0.5 * cs2a / interval + 2. * cs2b / interval / interval;
+
+        coefSense[3][k] = 0.5 * secondWithSensitivity[i + 1].get(k);
+        coefSense[4][k] = firstWithSensitivity[i + 1].get(k);
       }
-      res[i + 1] = new DoubleMatrix2D(coefSense);
+      res[i + 1] = DoubleMatrix.copyOf(coefSense);
     }
 
     return res;
@@ -144,10 +168,10 @@ public class HermiteCoefficientsProvider {
    * @param xValues The x values
    * @return Intervals of xValues, ( xValues_{i+1} - xValues_i )
    */
-  public double[] intervalsCalculator(final double[] xValues) {
+  public double[] intervalsCalculator(double[] xValues) {
 
-    final int nDataPts = xValues.length;
-    final double[] intervals = new double[nDataPts - 1];
+    int nDataPts = xValues.length;
+    double[] intervals = new double[nDataPts - 1];
 
     for (int i = 0; i < nDataPts - 1; ++i) {
       intervals[i] = xValues[i + 1] - xValues[i];
@@ -161,10 +185,10 @@ public class HermiteCoefficientsProvider {
    * @param intervals Intervals of x data
    * @return ( yValues_{i+1} - yValues_i )/( xValues_{i+1} - xValues_i )
    */
-  public double[] slopesCalculator(final double[] yValues, final double[] intervals) {
+  public double[] slopesCalculator(double[] yValues, double[] intervals) {
 
-    final int nDataPts = yValues.length;
-    final double[] slopes = new double[nDataPts - 1];
+    int nDataPts = yValues.length;
+    double[] slopes = new double[nDataPts - 1];
 
     for (int i = 0; i < nDataPts - 1; ++i) {
       slopes[i] = (yValues[i + 1] - yValues[i]) / intervals[i];
@@ -178,9 +202,9 @@ public class HermiteCoefficientsProvider {
    * @param intervals Intervals of x data
    * @return The matrix s_{ij}
    */
-  public double[][] slopeSensitivityCalculator(final double[] intervals) {
-    final int nDataPts = intervals.length + 1;
-    final double[][] res = new double[nDataPts - 1][nDataPts];
+  public double[][] slopeSensitivityCalculator(double[] intervals) {
+    int nDataPts = intervals.length + 1;
+    double[][] res = new double[nDataPts - 1][nDataPts];
 
     for (int i = 0; i < nDataPts - 1; ++i) {
       Arrays.fill(res[i], 0.);
@@ -197,8 +221,8 @@ public class HermiteCoefficientsProvider {
    * @param slope2 The second gradient
    * @return Value of derivative at each endpoint
    */
-  public double endpointDerivatives(final double ints1, final double ints2, final double slope1, final double slope2) {
-    final double val = (2. * ints1 + ints2) * slope1 / (ints1 + ints2) - ints1 * slope2 / (ints1 + ints2);
+  public double endpointDerivatives(double ints1, double ints2, double slope1, double slope2) {
+    double val = (2. * ints1 + ints2) * slope1 / (ints1 + ints2) - ints1 * slope2 / (ints1 + ints2);
 
     if (Math.signum(val) != Math.signum(slope1)) {
       return 0.;

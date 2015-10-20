@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -44,7 +45,6 @@ import com.opengamma.strata.engine.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.engine.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
 import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
@@ -174,8 +174,8 @@ public class HistoricalScenarioExample {
         // build up the shifts to apply to each node
         // these are calculated as the actual change in the zero rate at that node between the two scenario dates
         for (int curveNodeIdx = 0; curveNodeIdx < curve.getParameterCount(); curveNodeIdx++) {
-          double zeroRate = curve.getYValues()[curveNodeIdx];
-          double previousZeroRate = previousCurve.getYValues()[curveNodeIdx];
+          double zeroRate = curve.getYValues().get(curveNodeIdx);
+          double previousZeroRate = previousCurve.getYValues().get(curveNodeIdx);
           double shift = (zeroRate - previousZeroRate);
           shiftBuilder.addShift(curveNodeMetadata.get(curveNodeIdx).getIdentifier(), shift);
         }

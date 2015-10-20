@@ -13,6 +13,7 @@ import java.util.function.Function;
 import org.joda.beans.MetaProperty;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
@@ -83,15 +84,14 @@ public class RatesFiniteDifferenceSensitivityCalculator {
     CurveCurrencyParameterSensitivities result = CurveCurrencyParameterSensitivities.empty();
     for (Entry<T, Curve> entry : baseCurves.entrySet()) {
       NodalCurve curveInt = entry.getValue().toNodalCurve();
-      int nbNodePoint = curveInt.getXValues().length;
-      double[] sensitivity = new double[nbNodePoint];
-      for (int i = 0; i < nbNodePoint; i++) {
+      int nbNodePoint = curveInt.getXValues().size();
+      DoubleArray sensitivity = DoubleArray.of(nbNodePoint, i -> {
         Curve dscBumped = bumpedCurve(curveInt, i);
         Map<T, Curve> mapBumped = new HashMap<>(baseCurves);
         mapBumped.put(entry.getKey(), dscBumped);
         ImmutableRatesProvider providerDscBumped = provider.toBuilder().set(metaProperty, mapBumped).build();
-        sensitivity[i] = (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
-      }
+        return (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
+      });
       CurveMetadata metadata = entry.getValue().getMetadata();
       result = result.combinedWith(CurveCurrencyParameterSensitivity.of(metadata, valueInit.getCurrency(), sensitivity));
     }
@@ -100,9 +100,8 @@ public class RatesFiniteDifferenceSensitivityCalculator {
 
   // create new curve by bumping the existing curve at a given parameter
   private NodalCurve bumpedCurve(NodalCurve curveInt, int loopnode) {
-    double[] yieldBumped = curveInt.getYValues();
-    yieldBumped[loopnode] += shift;
-    return curveInt.withYValues(yieldBumped);
+    DoubleArray yValues = curveInt.getYValues();
+    return curveInt.withYValues(yValues.with(loopnode, yValues.get(loopnode) + shift));
   }
 
 }

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.math.impl.matrix;
+package com.opengamma.strata.collect.array;
 
 import static com.opengamma.strata.collect.DoubleArrayMath.EMPTY_DOUBLE_ARRAY;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
@@ -22,94 +22,96 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * Test {@link DoubleMatrix1D}.
+ * Test {@link DoubleArray}.
  */
 @Test
-public class DoubleMatrix1DTest {
+public class DoubleArrayTest {
 
   public void test_EMPTY() {
-    assertMatrix(DoubleMatrix1D.EMPTY);
+    assertMatrix(DoubleArray.EMPTY);
   }
 
   public void test_of() {
-    assertMatrix(DoubleMatrix1D.of());
-    assertMatrix(DoubleMatrix1D.of(1d), 1d);
-    assertMatrix(DoubleMatrix1D.of(1d, 2d), 1d, 2d);
-    assertMatrix(DoubleMatrix1D.of(1d, 2d, 3d), 1d, 2d, 3d);
-    assertMatrix(DoubleMatrix1D.of(1d, 2d, 3d, 4d), 1d, 2d, 3d, 4d);
-    assertMatrix(DoubleMatrix1D.of(1d, 2d, 3d, 4d, 5d), 1d, 2d, 3d, 4d, 5d);
-    assertMatrix(DoubleMatrix1D.of(1d, 2d, 3d, 4d, 5d, 6d), 1d, 2d, 3d, 4d, 5d, 6d);
-    assertMatrix(DoubleMatrix1D.of(1d, 2d, 3d, 4d, 5d, 6d, 7d), 1d, 2d, 3d, 4d, 5d, 6d, 7d);
-    assertMatrix(DoubleMatrix1D.of(1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d), 1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d);
+    assertMatrix(DoubleArray.of());
+    assertMatrix(DoubleArray.of(1d), 1d);
+    assertMatrix(DoubleArray.of(1d, 2d), 1d, 2d);
+    assertMatrix(DoubleArray.of(1d, 2d, 3d), 1d, 2d, 3d);
+    assertMatrix(DoubleArray.of(1d, 2d, 3d, 4d), 1d, 2d, 3d, 4d);
+    assertMatrix(DoubleArray.of(1d, 2d, 3d, 4d, 5d), 1d, 2d, 3d, 4d, 5d);
+    assertMatrix(DoubleArray.of(1d, 2d, 3d, 4d, 5d, 6d), 1d, 2d, 3d, 4d, 5d, 6d);
+    assertMatrix(DoubleArray.of(1d, 2d, 3d, 4d, 5d, 6d, 7d), 1d, 2d, 3d, 4d, 5d, 6d, 7d);
+    assertMatrix(DoubleArray.of(1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d), 1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d);
+    assertMatrix(DoubleArray.of(1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d, 9d), 1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d, 9d);
   }
 
   public void test_of_lambda() {
-    assertMatrix(DoubleMatrix1D.of(0, i -> {
+    assertMatrix(DoubleArray.of(0, i -> {
       throw new AssertionError();
     }));
     AtomicInteger counter = new AtomicInteger(2);
-    assertMatrix(DoubleMatrix1D.of(1, i -> counter.getAndIncrement()), 2d);
-    assertMatrix(DoubleMatrix1D.of(2, i -> counter.getAndIncrement()), 3d, 4d);
+    assertMatrix(DoubleArray.of(1, i -> counter.getAndIncrement()), 2d);
+    assertMatrix(DoubleArray.of(2, i -> counter.getAndIncrement()), 3d, 4d);
   }
 
   public void test_ofUnsafe() {
     double[] base = {1d, 2d, 3d};
-    DoubleMatrix1D test = DoubleMatrix1D.ofUnsafe(base);
+    DoubleArray test = DoubleArray.ofUnsafe(base);
     assertMatrix(test, 1d, 2d, 3d);
     base[0] = 4d;
     // internal state of object mutated - don't do this in application code!
     assertMatrix(test, 4d, 2d, 3d);
     // empty
-    assertMatrix(DoubleMatrix1D.ofUnsafe(EMPTY_DOUBLE_ARRAY));
+    assertMatrix(DoubleArray.ofUnsafe(EMPTY_DOUBLE_ARRAY));
   }
 
   public void test_copyOf_List() {
-    assertMatrix(DoubleMatrix1D.copyOf(ImmutableList.of(1d, 2d, 3d)), 1d, 2d, 3d);
-    assertMatrix(DoubleMatrix1D.copyOf(ImmutableList.of()));
+    assertMatrix(DoubleArray.copyOf(ImmutableList.of(1d, 2d, 3d)), 1d, 2d, 3d);
+    assertMatrix(DoubleArray.copyOf(ImmutableList.of()));
   }
 
   public void test_copyOf_array() {
     double[] base = new double[] {1d, 2d, 3d};
-    DoubleMatrix1D test = DoubleMatrix1D.copyOf(base);
+    DoubleArray test = DoubleArray.copyOf(base);
     assertMatrix(test, 1d, 2d, 3d);
     base[0] = 4d;
     // internal state of object is not mutated
     assertMatrix(test, 1d, 2d, 3d);
     // empty
-    assertMatrix(DoubleMatrix1D.copyOf(EMPTY_DOUBLE_ARRAY));
+    assertMatrix(DoubleArray.copyOf(EMPTY_DOUBLE_ARRAY));
   }
 
   public void test_copyOf_array_fromIndex() {
-    assertMatrix(DoubleMatrix1D.copyOf(new double[] {1d, 2d, 3d}, 0), 1d, 2d, 3d);
-    assertMatrix(DoubleMatrix1D.copyOf(new double[] {1d, 2d, 3d}, 1), 2d, 3d);
-    assertMatrix(DoubleMatrix1D.copyOf(new double[] {1d, 2d, 3d}, 3));
-    assertThrows(() -> DoubleMatrix1D.copyOf(new double[] {1d, 2d, 3d}, -1), IndexOutOfBoundsException.class);
-    assertThrows(() -> DoubleMatrix1D.copyOf(new double[] {1d, 2d, 3d}, 4), IndexOutOfBoundsException.class);
+    assertMatrix(DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 0), 1d, 2d, 3d);
+    assertMatrix(DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 1), 2d, 3d);
+    assertMatrix(DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 3));
+    assertThrows(() -> DoubleArray.copyOf(new double[] {1d, 2d, 3d}, -1), IndexOutOfBoundsException.class);
+    assertThrows(() -> DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 4), IndexOutOfBoundsException.class);
   }
 
   public void test_copyOf_array_fromToIndex() {
-    assertMatrix(DoubleMatrix1D.copyOf(new double[] {1d, 2d, 3d}, 0, 3), 1d, 2d, 3d);
-    assertMatrix(DoubleMatrix1D.copyOf(new double[] {1d, 2d, 3d}, 1, 2), 2d);
-    assertMatrix(DoubleMatrix1D.copyOf(new double[] {1d, 2d, 3d}, 1, 1));
-    assertThrows(() -> DoubleMatrix1D.copyOf(new double[] {1d, 2d, 3d}, -1, 3), IndexOutOfBoundsException.class);
-    assertThrows(() -> DoubleMatrix1D.copyOf(new double[] {1d, 2d, 3d}, 0, 5), IndexOutOfBoundsException.class);
+    assertMatrix(DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 0, 3), 1d, 2d, 3d);
+    assertMatrix(DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 1, 2), 2d);
+    assertMatrix(DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 1, 1));
+    assertThrows(() -> DoubleArray.copyOf(new double[] {1d, 2d, 3d}, -1, 3), IndexOutOfBoundsException.class);
+    assertThrows(() -> DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 0, 5), IndexOutOfBoundsException.class);
   }
 
   public void test_filled() {
-    assertMatrix(DoubleMatrix1D.filled(0));
-    assertMatrix(DoubleMatrix1D.filled(3), 0d, 0d, 0d);
+    assertMatrix(DoubleArray.filled(0));
+    assertMatrix(DoubleArray.filled(3), 0d, 0d, 0d);
   }
 
   public void test_filled_withValue() {
-    assertMatrix(DoubleMatrix1D.filled(0, 1.5));
-    assertMatrix(DoubleMatrix1D.filled(3, 1.5), 1.5, 1.5, 1.5);
+    assertMatrix(DoubleArray.filled(0, 1.5));
+    assertMatrix(DoubleArray.filled(3, 1.5), 1.5, 1.5, 1.5);
   }
 
   //-------------------------------------------------------------------------
   public void test_get() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d, 3d, 3d, 4d);
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d, 3d, 4d);
     assertEquals(test.get(0), 1d);
     assertEquals(test.get(4), 4d);
     assertThrows(() -> test.get(-1), IndexOutOfBoundsException.class);
@@ -117,32 +119,32 @@ public class DoubleMatrix1DTest {
   }
 
   public void test_contains() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d, 3d, 3d, 4d);
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d, 3d, 4d);
     assertEquals(test.contains(1d), true);
     assertEquals(test.contains(3d), true);
     assertEquals(test.contains(5d), false);
-    assertEquals(DoubleMatrix1D.EMPTY.contains(5d), false);
+    assertEquals(DoubleArray.EMPTY.contains(5d), false);
   }
 
   public void test_indexOf() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d, 3d, 3d, 4d);
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d, 3d, 4d);
     assertEquals(test.indexOf(2d), 1);
     assertEquals(test.indexOf(3d), 2);
     assertEquals(test.indexOf(5d), -1);
-    assertEquals(DoubleMatrix1D.EMPTY.indexOf(5d), -1);
+    assertEquals(DoubleArray.EMPTY.indexOf(5d), -1);
   }
 
   public void test_lastIndexOf() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d, 3d, 3d, 4d);
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d, 3d, 4d);
     assertEquals(test.lastIndexOf(2d), 1);
     assertEquals(test.lastIndexOf(3d), 3);
     assertEquals(test.lastIndexOf(5d), -1);
-    assertEquals(DoubleMatrix1D.EMPTY.lastIndexOf(5d), -1);
+    assertEquals(DoubleArray.EMPTY.lastIndexOf(5d), -1);
   }
 
   //-------------------------------------------------------------------------
   public void test_copyInto() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d, 3d);
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     double[] dest = new double[4];
     test.copyInto(dest, 0);
     assertTrue(Arrays.equals(dest, new double[] {1d, 2d, 3d, 0d}));
@@ -158,7 +160,7 @@ public class DoubleMatrix1DTest {
 
   //-------------------------------------------------------------------------
   public void test_subArray_from() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d, 3d);
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     assertMatrix(test.subArray(0), 1d, 2d, 3d);
     assertMatrix(test.subArray(1), 2d, 3d);
     assertMatrix(test.subArray(2), 3d);
@@ -168,7 +170,7 @@ public class DoubleMatrix1DTest {
   }
 
   public void test_subArray_fromTo() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d, 3d);
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     assertMatrix(test.subArray(0, 3), 1d, 2d, 3d);
     assertMatrix(test.subArray(1, 3), 2d, 3d);
     assertMatrix(test.subArray(2, 3), 3d);
@@ -180,9 +182,9 @@ public class DoubleMatrix1DTest {
 
   //-------------------------------------------------------------------------
   public void test_toList() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d, 3d);
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     List<Double> list = test.toList();
-    assertMatrix(DoubleMatrix1D.copyOf(list), 1d, 2d, 3d);
+    assertMatrix(DoubleArray.copyOf(list), 1d, 2d, 3d);
     assertEquals(list.size(), 3);
     assertEquals(list.isEmpty(), false);
     assertEquals(list.get(0), 1d);
@@ -202,7 +204,7 @@ public class DoubleMatrix1DTest {
   }
 
   public void test_toList_iterator() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d, 3d);
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     List<Double> list = test.toList();
     Iterator<Double> it = list.iterator();
     assertEquals(it.hasNext(), true);
@@ -217,7 +219,7 @@ public class DoubleMatrix1DTest {
   }
 
   public void test_toList_listIterator() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d, 3d);
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     List<Double> list = test.toList();
     ListIterator<Double> lit = list.listIterator();
     assertEquals(lit.nextIndex(), 0);
@@ -258,14 +260,14 @@ public class DoubleMatrix1DTest {
 
   //-------------------------------------------------------------------------
   public void test_stream() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d, 3d);
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     double[] streamed = test.stream().toArray();
     assertTrue(Arrays.equals(streamed, new double[] {1d, 2d, 3d}));
   }
 
   //-------------------------------------------------------------------------
   public void test_forEach() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d, 3d);
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     double[] extracted = new double[3];
     test.forEach((i, v) -> extracted[i] = v);
     assertTrue(Arrays.equals(extracted, new double[] {1d, 2d, 3d}));
@@ -273,7 +275,7 @@ public class DoubleMatrix1DTest {
 
   //-------------------------------------------------------------------------
   public void test_with() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d, 3d);
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     assertMatrix(test.with(0, 2.6d), 2.6d, 2d, 3d);
     assertMatrix(test.with(0, 1d), 1d, 2d, 3d);
     assertThrows(() -> test.with(-1, 2d), IndexOutOfBoundsException.class);
@@ -282,105 +284,127 @@ public class DoubleMatrix1DTest {
 
   //-------------------------------------------------------------------------
   public void test_multipliedBy() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d, 3d);
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     assertMatrix(test.multipliedBy(5), 5d, 10d, 15d);
     assertMatrix(test.multipliedBy(1), 1d, 2d, 3d);
   }
 
   public void test_map() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d, 3d);
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     assertMatrix(test.map(v -> 1 / v), 1d, 1d / 2d, 1d / 3d);
   }
 
   public void test_mapWithIndex() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d, 3d);
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     assertMatrix(test.mapWithIndex((i, v) -> i * v), 0d, 2d, 6d);
   }
 
   //-------------------------------------------------------------------------
   public void test_plus() {
-    DoubleMatrix1D test1 = DoubleMatrix1D.of(1d, 2d, 3d);
-    DoubleMatrix1D test2 = DoubleMatrix1D.of(0.5d, 0.6d, 0.7d);
+    DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
+    DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
     assertMatrix(test1.plus(test2), 1.5d, 2.6d, 3.7d);
-    assertThrows(() -> test1.plus(DoubleMatrix1D.EMPTY), IllegalArgumentException.class);
+    assertThrows(() -> test1.plus(DoubleArray.EMPTY), IllegalArgumentException.class);
   }
 
   public void test_minus() {
-    DoubleMatrix1D test1 = DoubleMatrix1D.of(1d, 2d, 3d);
-    DoubleMatrix1D test2 = DoubleMatrix1D.of(0.5d, 0.6d, 0.7d);
+    DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
+    DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
     assertMatrix(test1.minus(test2), 0.5d, 1.4d, 2.3d);
-    assertThrows(() -> test1.minus(DoubleMatrix1D.EMPTY), IllegalArgumentException.class);
+    assertThrows(() -> test1.minus(DoubleArray.EMPTY), IllegalArgumentException.class);
   }
 
   public void test_combine() {
-    DoubleMatrix1D test1 = DoubleMatrix1D.of(1d, 2d, 3d);
-    DoubleMatrix1D test2 = DoubleMatrix1D.of(0.5d, 0.6d, 0.7d);
+    DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
+    DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
     assertMatrix(test1.combine(test2, (a, b) -> a * b), 0.5d, 2d * 0.6d, 3d * 0.7d);
-    assertThrows(() -> test1.combine(DoubleMatrix1D.EMPTY, (a, b) -> a * b), IllegalArgumentException.class);
+    assertThrows(() -> test1.combine(DoubleArray.EMPTY, (a, b) -> a * b), IllegalArgumentException.class);
   }
 
   public void test_combineReduce() {
-    DoubleMatrix1D test1 = DoubleMatrix1D.of(1d, 2d, 3d);
-    DoubleMatrix1D test2 = DoubleMatrix1D.of(0.5d, 0.6d, 0.7d);
+    DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
+    DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
     assertEquals(test1.combineReduce(test2, (r, a, b) -> r + a * b), 0.5d + 2d * 0.6d + 3d * 0.7d);
-    assertThrows(() -> test1.combineReduce(DoubleMatrix1D.EMPTY, (r, a, b) -> r + a * b), IllegalArgumentException.class);
+    assertThrows(() -> test1.combineReduce(DoubleArray.EMPTY, (r, a, b) -> r + a * b), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
   public void test_sorted() {
-    assertMatrix(DoubleMatrix1D.of().sorted());
-    assertMatrix(DoubleMatrix1D.of(2d).sorted(), 2d);
-    assertMatrix(DoubleMatrix1D.of(2d, 1d, 3d, 0d).sorted(), 0d, 1d, 2d, 3d);
+    assertMatrix(DoubleArray.of().sorted());
+    assertMatrix(DoubleArray.of(2d).sorted(), 2d);
+    assertMatrix(DoubleArray.of(2d, 1d, 3d, 0d).sorted(), 0d, 1d, 2d, 3d);
   }
 
   //-------------------------------------------------------------------------
   public void test_min() {
-    assertEquals(DoubleMatrix1D.of(2d).min(), 2d);
-    assertEquals(DoubleMatrix1D.of(2d, 1d, 3d).min(), 1d);
-    assertThrows(() -> DoubleMatrix1D.EMPTY.min(), IllegalStateException.class);
+    assertEquals(DoubleArray.of(2d).min(), 2d);
+    assertEquals(DoubleArray.of(2d, 1d, 3d).min(), 1d);
+    assertThrows(() -> DoubleArray.EMPTY.min(), IllegalStateException.class);
   }
 
   public void test_max() {
-    assertEquals(DoubleMatrix1D.of(2d).max(), 2d);
-    assertEquals(DoubleMatrix1D.of(2d, 1d, 3d).max(), 3d);
-    assertThrows(() -> DoubleMatrix1D.EMPTY.max(), IllegalStateException.class);
+    assertEquals(DoubleArray.of(2d).max(), 2d);
+    assertEquals(DoubleArray.of(2d, 1d, 3d).max(), 3d);
+    assertThrows(() -> DoubleArray.EMPTY.max(), IllegalStateException.class);
   }
 
   public void test_total() {
-    assertEquals(DoubleMatrix1D.EMPTY.total(), 0d);
-    assertEquals(DoubleMatrix1D.of(2d).total(), 2d);
-    assertEquals(DoubleMatrix1D.of(2d, 1d, 3d).total(), 6d);
+    assertEquals(DoubleArray.EMPTY.total(), 0d);
+    assertEquals(DoubleArray.of(2d).total(), 2d);
+    assertEquals(DoubleArray.of(2d, 1d, 3d).total(), 6d);
   }
 
   public void test_reduce() {
-    assertEquals(DoubleMatrix1D.EMPTY.reduce(2d, (r, v) -> {
+    assertEquals(DoubleArray.EMPTY.reduce(2d, (r, v) -> {
       throw new AssertionError();
     }), 2d);
-    assertEquals(DoubleMatrix1D.of(2d).reduce(1d, (r, v) -> r * v), 2d);
-    assertEquals(DoubleMatrix1D.of(2d, 1d, 3d).reduce(1d, (r, v) -> r * v), 6d);
+    assertEquals(DoubleArray.of(2d).reduce(1d, (r, v) -> r * v), 2d);
+    assertEquals(DoubleArray.of(2d, 1d, 3d).reduce(1d, (r, v) -> r * v), 6d);
   }
 
   //-------------------------------------------------------------------------
   public void test_concat_array() {
-    DoubleMatrix1D test1 = DoubleMatrix1D.of(1d, 2d, 3d);
+    DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
     assertMatrix(test1.concat(new double[] {0.5d, 0.6d, 0.7d}), 1d, 2d, 3d, 0.5d, 0.6d, 0.7d);
     assertMatrix(test1.concat(EMPTY_DOUBLE_ARRAY), 1d, 2d, 3d);
-    assertMatrix(DoubleMatrix1D.EMPTY.concat(new double[] {1d, 2d, 3d}), 1d, 2d, 3d);
+    assertMatrix(DoubleArray.EMPTY.concat(new double[] {1d, 2d, 3d}), 1d, 2d, 3d);
   }
 
   public void test_concat_object() {
-    DoubleMatrix1D test1 = DoubleMatrix1D.of(1d, 2d, 3d);
-    DoubleMatrix1D test2 = DoubleMatrix1D.of(0.5d, 0.6d, 0.7d);
+    DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
+    DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
     assertMatrix(test1.concat(test2), 1d, 2d, 3d, 0.5d, 0.6d, 0.7d);
-    assertMatrix(test1.concat(DoubleMatrix1D.EMPTY), 1d, 2d, 3d);
-    assertMatrix(DoubleMatrix1D.EMPTY.concat(test1), 1d, 2d, 3d);
+    assertMatrix(test1.concat(DoubleArray.EMPTY), 1d, 2d, 3d);
+    assertMatrix(DoubleArray.EMPTY.concat(test1), 1d, 2d, 3d);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_equalWithTolerance() {
+    DoubleArray a1 = DoubleArray.of(1d, 2d);
+    DoubleArray a2 = DoubleArray.of(1d, 2.02d);
+    DoubleArray a3 = DoubleArray.of(1d, 2.009d);
+    DoubleArray b = DoubleArray.of(1d, 2d, 3d);
+    assertEquals(a1.equalWithTolerance(a2, 0.01d), false);
+    assertEquals(a1.equalWithTolerance(a3, 0.01d), true);
+    assertEquals(a1.equalWithTolerance(b, 0.01d), false);
+  }
+
+  public void test_equalZeroWithTolerance() {
+    DoubleArray a1 = DoubleArray.of(0d, 0d);
+    DoubleArray a2 = DoubleArray.of(0d, 0.02d);
+    DoubleArray a3 = DoubleArray.of(0d, 0.009d);
+    DoubleArray b = DoubleArray.of(1d, 2d, 3d);
+    assertEquals(a1.equalZeroWithTolerance(0.01d), true);
+    assertEquals(a2.equalZeroWithTolerance(0.01d), false);
+    assertEquals(a3.equalZeroWithTolerance(0.01d), true);
+    assertEquals(b.equalZeroWithTolerance(0.01d), false);
   }
 
   //-------------------------------------------------------------------------
   public void test_equalsHashCode() {
-    DoubleMatrix1D a1 = DoubleMatrix1D.of(1d, 2d);
-    DoubleMatrix1D a2 = DoubleMatrix1D.of(1d, 2d);
-    DoubleMatrix1D b = DoubleMatrix1D.of(1d, 2d, 3d);
+    DoubleArray a1 = DoubleArray.of(1d, 2d);
+    DoubleArray a2 = DoubleArray.of(1d, 2d);
+    DoubleArray b = DoubleArray.of(1d, 2d, 3d);
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
@@ -390,22 +414,22 @@ public class DoubleMatrix1DTest {
   }
 
   public void test_toString() {
-    DoubleMatrix1D test = DoubleMatrix1D.of(1d, 2d);
+    DoubleArray test = DoubleArray.of(1d, 2d);
     assertEquals(test.toString(), "[1.0, 2.0]");
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverImmutableBean(DoubleMatrix1D.of(1d, 2d, 3d));
-    DoubleMatrix1D.of(1d, 2d, 3d).metaBean().metaProperty("array").metaBean();
-    DoubleMatrix1D.of(1d, 2d, 3d).metaBean().metaProperty("array").propertyGenericType();
-    DoubleMatrix1D.of(1d, 2d, 3d).metaBean().metaProperty("array").annotations();
+    coverImmutableBean(DoubleArray.of(1d, 2d, 3d));
+    DoubleArray.of(1d, 2d, 3d).metaBean().metaProperty("array").metaBean();
+    DoubleArray.of(1d, 2d, 3d).metaBean().metaProperty("array").propertyGenericType();
+    DoubleArray.of(1d, 2d, 3d).metaBean().metaProperty("array").annotations();
   }
 
   //-------------------------------------------------------------------------
-  private void assertMatrix(DoubleMatrix1D array, double... expected) {
+  private void assertMatrix(DoubleArray array, double... expected) {
     if (expected.length == 0) {
-      assertSame(array, DoubleMatrix1D.EMPTY);
+      assertSame(array, DoubleArray.EMPTY);
       assertEquals(array.isEmpty(), true);
     } else {
       assertEquals(array.size(), expected.length);

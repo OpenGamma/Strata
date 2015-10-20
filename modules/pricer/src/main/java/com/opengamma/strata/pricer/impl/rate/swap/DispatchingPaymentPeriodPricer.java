@@ -105,6 +105,31 @@ public class DispatchingPaymentPeriodPricer
 
   //-------------------------------------------------------------------------
   @Override
+  public double pvbp(PaymentPeriod paymentPeriod, RatesProvider provider) {
+    // dispatch by runtime type
+    if (paymentPeriod instanceof RatePaymentPeriod) {
+      return ratePaymentPeriodPricer.pvbp((RatePaymentPeriod) paymentPeriod, provider);
+    } else if (paymentPeriod instanceof KnownAmountPaymentPeriod) {
+      return knownAmountPaymentPeriodPricer.pvbp((KnownAmountPaymentPeriod) paymentPeriod, provider);
+    } else {
+      throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
+    }
+  }
+
+  @Override
+  public PointSensitivityBuilder pvbpSensitivity(PaymentPeriod paymentPeriod, RatesProvider provider) {
+    // dispatch by runtime type
+    if (paymentPeriod instanceof RatePaymentPeriod) {
+      return ratePaymentPeriodPricer.pvbpSensitivity((RatePaymentPeriod) paymentPeriod, provider);
+    } else if (paymentPeriod instanceof KnownAmountPaymentPeriod) {
+      return knownAmountPaymentPeriodPricer.pvbpSensitivity((KnownAmountPaymentPeriod) paymentPeriod, provider);
+    } else {
+      throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public double accruedInterest(PaymentPeriod paymentPeriod, RatesProvider provider) {
     // dispatch by runtime type
     if (paymentPeriod instanceof RatePaymentPeriod) {

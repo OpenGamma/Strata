@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.examples.marketdata.LoaderUtils;
@@ -330,8 +331,8 @@ public final class RatesCurvesCsvLoader {
         .build();
     return InterpolatedNodalCurve.builder()
         .metadata(curveMetadata)
-        .xValues(xValues)
-        .yValues(yValues)
+        .xValues(DoubleArray.copyOf(xValues))
+        .yValues(DoubleArray.copyOf(yValues))
         .interpolator(curveSettings.getInterpolator())
         .extrapolatorLeft(curveSettings.getLeftExtrapolator())
         .extrapolatorRight(curveSettings.getRightExtrapolator())

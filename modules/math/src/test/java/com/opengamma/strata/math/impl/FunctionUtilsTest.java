@@ -9,6 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
+
 /**
  * Test.
  */
@@ -97,39 +99,39 @@ public class FunctionUtilsTest {
 
   @Test
   public void getLowerBoundIndexTest() {
-    int i = FunctionUtils.getLowerBoundIndex(new double[] {-2., -1. }, -0.);
+    int i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-2., -1.), -0.);
     assertEquals(i, 1);
-    i = FunctionUtils.getLowerBoundIndex(new double[] {1., 2. }, -0.);
+    i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(1., 2.), -0.);
     assertEquals(i, 0);
-    i = FunctionUtils.getLowerBoundIndex(new double[] {1., 2., 3. }, 2.5);
+    i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(1., 2., 3.), 2.5);
     assertEquals(i, 1);
-    i = FunctionUtils.getLowerBoundIndex(new double[] {1., 2., 3. }, 2.);
+    i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(1., 2., 3.), 2.);
     assertEquals(i, 1);
-    i = FunctionUtils.getLowerBoundIndex(new double[] {1., 2., 3. }, -2.);
+    i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(1., 2., 3.), -2.);
     assertEquals(i, 0);
-    i = FunctionUtils.getLowerBoundIndex(new double[] {-2., -1., 0. }, -0.);
+    i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-2., -1., 0.), -0.);
     assertEquals(i, 2);
-    i = FunctionUtils.getLowerBoundIndex(new double[] {-2., -1., 0. }, 0.);
+    i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-2., -1., 0.), 0.);
     assertEquals(i, 2);
-    i = FunctionUtils.getLowerBoundIndex(new double[] {-2., -1., 0. }, -0.);
+    i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-2., -1., 0.), -0.);
     assertEquals(i, 2);
-    i = FunctionUtils.getLowerBoundIndex(new double[] {-2., -1., -0. }, -0.);
+    i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-2., -1., -0.), -0.);
     assertEquals(i, 2);
-    i = FunctionUtils.getLowerBoundIndex(new double[] {-1., 0., 1. }, -0.);
+    i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-1., 0., 1.), -0.);
     assertEquals(i, 1);
-    i = FunctionUtils.getLowerBoundIndex(new double[] {-1., 0., 1. }, 0.);
+    i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-1., 0., 1.), 0.);
     assertEquals(i, 1);
-    i = FunctionUtils.getLowerBoundIndex(new double[] {-1., -0., 1. }, 0.);
+    i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-1., -0., 1.), 0.);
     assertEquals(i, 1);
-    i = FunctionUtils.getLowerBoundIndex(new double[] {-1., -0., 1. }, -0.);
+    i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-1., -0., 1.), -0.);
     assertEquals(i, 1);
-    i = FunctionUtils.getLowerBoundIndex(new double[] {0., 1., 2. }, -0.);
+    i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(0., 1., 2.), -0.);
     assertEquals(i, 0);
-    i = FunctionUtils.getLowerBoundIndex(new double[] {0., 1., 2. }, 0.);
+    i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(0., 1., 2.), 0.);
     assertEquals(i, 0);
-    i = FunctionUtils.getLowerBoundIndex(new double[] {-0., 1., 2. }, 0.);
+    i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-0., 1., 2.), 0.);
     assertEquals(i, 0);
-    i = FunctionUtils.getLowerBoundIndex(new double[] {-0., 1., 2. }, -0.);
+    i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-0., 1., 2.), -0.);
     assertEquals(i, 0);
   }
 }

@@ -21,6 +21,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -209,17 +210,13 @@ public class RatesCurvesCsvLoaderTest {
     Curve usdDisc = curves3.get(discountCurveId);
     InterpolatedNodalCurve usdDiscNodal = (InterpolatedNodalCurve) usdDisc;
     assertEquals(usdDiscNodal.getMetadata().getCurveName(), CurveName.of("USD-Disc"));
-    for (double yValue : usdDiscNodal.getYValues()) {
-      assertEquals(yValue, 0d);
-    }
+    assertTrue(usdDiscNodal.getYValues().equalZeroWithTolerance(0d));
     
     RateIndexCurveId libor3mCurveId = RateIndexCurveId.of(IborIndices.USD_LIBOR_3M, CurveGroupName.of("Default"));
     Curve usd3ml = curves3.get(libor3mCurveId);
     InterpolatedNodalCurve usd3mlNodal = (InterpolatedNodalCurve) usd3ml;
     assertEquals(usd3mlNodal.getMetadata().getCurveName(), CurveName.of("USD-3ML"));
-    for (double yValue : usd3mlNodal.getYValues()) {
-      assertEquals(yValue, 0d);
-    }
+    assertTrue(usd3mlNodal.getYValues().equalZeroWithTolerance(0d));
   }
   
   public void test_load_curves_date_filtering() {
@@ -263,9 +260,9 @@ public class RatesCurvesCsvLoaderTest {
     };
     String[] labels = new String[] {"3M", "6M", "1Y", "2Y", "3Y", "5Y", "10Y"};
 
-    for (int i = 0; i < nodalCurve.getXValues().length; i++) {
+    for (int i = 0; i < nodalCurve.getXValues().size(); i++) {
       LocalDate nodeDate = nodeDates[i];
-      double actualYearFraction = nodalCurve.getXValues()[i];
+      double actualYearFraction = nodalCurve.getXValues().get(i);
       double expectedYearFraction = getYearFraction(valuationDate, nodeDate);
       assertThat(actualYearFraction).isCloseTo(expectedYearFraction, offset(TOLERANCE));
 
@@ -273,15 +270,14 @@ public class RatesCurvesCsvLoaderTest {
       assertEquals(nodeMetadata.getLabel(), labels[i]);
     }
 
-    double[] expectedYValues = new double[] {
+    DoubleArray expectedYValues = DoubleArray.of(
         0.001763775,
         0.002187884,
         0.004437206,
         0.011476741,
         0.017859057,
         0.026257102,
-        0.035521988
-    };
+        0.035521988);
     assertEquals(nodalCurve.getYValues(), expectedYValues);
   }
 
@@ -301,9 +297,9 @@ public class RatesCurvesCsvLoaderTest {
     };
     String[] labels = new String[] {"3M", "1Y", "2Y", "3Y", "5Y", "10Y"};
 
-    for (int i = 0; i < nodalCurve.getXValues().length; i++) {
+    for (int i = 0; i < nodalCurve.getXValues().size(); i++) {
       LocalDate nodeDate = nodeDates[i];
-      double actualYearFraction = nodalCurve.getXValues()[i];
+      double actualYearFraction = nodalCurve.getXValues().get(i);
       double expectedYearFraction = getYearFraction(valuationDate, nodeDate);
       assertThat(actualYearFraction).isCloseTo(expectedYearFraction, offset(TOLERANCE));
 
@@ -311,14 +307,13 @@ public class RatesCurvesCsvLoaderTest {
       assertEquals(nodeMetadata.getLabel(), labels[i]);
     }
 
-    double[] expectedYValues = new double[] {
+    DoubleArray expectedYValues = DoubleArray.of(
         0.007596889,
         0.008091541,
         0.015244398,
         0.021598026,
         0.029984216,
-        0.039245812
-    };
+        0.039245812);
     assertEquals(nodalCurve.getYValues(), expectedYValues);
   }
 

@@ -12,12 +12,12 @@ import cern.jet.random.engine.MersenneTwister;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.linearalgebra.CholeskyDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.CholeskyDecompositionResult;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
@@ -40,14 +40,14 @@ public class CalibrationTimingTest extends IsdaBaseTest {
   private static final double[] YC_MARKET_RATES = new double[] {0.00340055550701297, 0.00636929056400781, 0.0102617798438113, 0.0135851258907251, 0.0162809551414651, 0.020583125112332,
     0.0227369218210212, 0.0251978805237614, 0.0273223815467694, 0.0310882447627048, 0.0358397743454067, 0.036047665095421, 0.0415916567616181, 0.044066373237682, 0.046708518178509,
     0.0491196954851753, 0.0529297239911766, 0.0562025436376854, 0.0589772202773522, 0.0607471217692999 };
-  private static final DoubleMatrix2D YC_COVAR;
-  private static final DoubleMatrix2D YC_COVAR_SQR;
+  private static final DoubleMatrix YC_COVAR;
+  private static final DoubleMatrix YC_COVAR_SQR;
 
   private static final int NUM_CREDIT_CURVE_POINTS = 11;
   private static final LocalDate[] CC_DATES = new LocalDate[] {LocalDate.of(2013, 9, 20), LocalDate.of(2013, 12, 20), LocalDate.of(2014, 3, 20), LocalDate.of(2014, 6, 20), LocalDate.of(2014, 9, 20),
     LocalDate.of(2015, 9, 20), LocalDate.of(2016, 9, 20), LocalDate.of(2017, 9, 20), LocalDate.of(2018, 9, 20), LocalDate.of(2020, 9, 20), LocalDate.of(2023, 9, 20) };
-  private static final DoubleMatrix2D CC_COVAR;
-  private static final DoubleMatrix2D CC_COVAR_SQR;
+  private static final DoubleMatrix CC_COVAR;
+  private static final DoubleMatrix CC_COVAR_SQR;
 
   private static final LocalDate TODAY = LocalDate.of(2013, 6, 4);
   private static final LocalDate STEPIN_DATE = TODAY.plusDays(1); // aka effective date
@@ -101,7 +101,7 @@ public class CalibrationTimingTest extends IsdaBaseTest {
         temp[i][j] = temp[j][i];
       }
     }
-    YC_COVAR = new DoubleMatrix2D(temp);
+    YC_COVAR = DoubleMatrix.copyOf(temp);
     CholeskyDecompositionResult res = CHOLESKY.evaluate(YC_COVAR);
     YC_COVAR_SQR = res.getL();
 
@@ -133,7 +133,7 @@ public class CalibrationTimingTest extends IsdaBaseTest {
         temp[i][j] = temp[j][i];
       }
     }
-    CC_COVAR = new DoubleMatrix2D(temp);
+    CC_COVAR = DoubleMatrix.copyOf(temp);
     res = CHOLESKY.evaluate(CC_COVAR);
     CC_COVAR_SQR = res.getL();
 
@@ -143,7 +143,7 @@ public class CalibrationTimingTest extends IsdaBaseTest {
   public void yieldCurvePeturbTest() {
     System.out.println("CalibrationTimingTest - set enabled=false before push");
 
-    final DoubleMatrix1D base = new DoubleMatrix1D(YC_MARKET_RATES);
+    final DoubleArray base = DoubleArray.copyOf(YC_MARKET_RATES);
     final int nSims = 10000;
     final IsdaCompliantYieldCurveBuild ycBuilder = new IsdaCompliantYieldCurveBuild(SPOTDATE, YC_INST_TYPES, YC_INST_TENOR, ACT360, D30360, SWAP_INTERVAL, MOD_FOLLOWING);
 
@@ -151,17 +151,13 @@ public class CalibrationTimingTest extends IsdaBaseTest {
     int failed = 0;
     for (int count = 0; count < nSims; count++) {
 
-      final double[] temp = new double[NUM_YIELD_CURVE_POINTS];
-      for (int i = 0; i < NUM_YIELD_CURVE_POINTS; i++) {
-        temp[i] = NORMAL.nextRandom();
-      }
-      final DoubleMatrix1D z = new DoubleMatrix1D(temp);
-      final DoubleMatrix1D w = (DoubleMatrix1D) MA.multiply(YC_COVAR_SQR, z);
-      final DoubleMatrix1D peturbedRates = (DoubleMatrix1D) MA.add(base, w);
+      final DoubleArray z = DoubleArray.of(NUM_YIELD_CURVE_POINTS, i -> NORMAL.nextRandom());
+      final DoubleArray w = (DoubleArray) MA.multiply(YC_COVAR_SQR, z);
+      final DoubleArray peturbedRates = (DoubleArray) MA.add(base, w);
 
       try {
         @SuppressWarnings("unused")
-        final IsdaCompliantCurve yieldCurve = ycBuilder.build(peturbedRates.getData());
+        final IsdaCompliantCurve yieldCurve = ycBuilder.build(peturbedRates.toArray());
       } catch (final MathException e) {
         failed++;
       }
@@ -187,24 +183,21 @@ public class CalibrationTimingTest extends IsdaBaseTest {
       coupons[i] = MARKET_CREDIT_SPREADS[i] / 10000.0;
     }
 
-    final DoubleMatrix1D base = new DoubleMatrix1D(coupons);
+    final DoubleArray base = DoubleArray.copyOf(coupons);
     final int nSims = 10000;
 
     final long startTime = System.nanoTime();
     int failed = 0;
     for (int count = 0; count < nSims; count++) {
 
-      final double[] temp = new double[NUM_CREDIT_CURVE_POINTS];
-      for (int i = 0; i < NUM_CREDIT_CURVE_POINTS; i++) {
-        temp[i] = NORMAL.nextRandom();
-      }
-      final DoubleMatrix1D z = new DoubleMatrix1D(temp);
-      final DoubleMatrix1D w = (DoubleMatrix1D) MA.multiply(CC_COVAR_SQR, z);
-      final DoubleMatrix1D peturbedSpreads = (DoubleMatrix1D) MA.add(base, w);
+      final DoubleArray z = DoubleArray.of(NUM_CREDIT_CURVE_POINTS, i -> NORMAL.nextRandom());
+      final DoubleArray w = (DoubleArray) MA.multiply(CC_COVAR_SQR, z);
+      final DoubleArray peturbedSpreads = (DoubleArray) MA.add(base, w);
 
       try {
         @SuppressWarnings("unused")
-        final IsdaCompliantCreditCurve creditCurve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(cds, peturbedSpreads.getData(), yieldCurve);
+        final IsdaCompliantCreditCurve creditCurve =
+            CREDIT_CURVE_BUILDER.calibrateCreditCurve(cds, peturbedSpreads.toArray(), yieldCurve);
       } catch (final MathException e) {
         failed++;
       }

@@ -15,6 +15,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * An ISDA compliant credit curve.
@@ -26,11 +27,19 @@ public class IsdaCompliantCreditCurve extends IsdaCompliantCurve {
     return new IsdaCompliantCreditCurve(IsdaCompliantCurve.makeFromForwardRates(t, fwd));
   }
 
+  public static IsdaCompliantCreditCurve makeFromForwardRates(DoubleArray t, DoubleArray fwd) {
+    return makeFromForwardRates(t.toArray(), fwd.toArray());
+  }
+
   public static IsdaCompliantCreditCurve makeFromRT(double[] t, double[] ht) {
     ArgChecker.notEmpty(t, "t");
     ArgChecker.notEmpty(ht, "ht");
     ArgChecker.isTrue(t.length == ht.length, "length of t not equal to length of rt");
     return new IsdaCompliantCreditCurve(new IsdaCompliantCurve(new double[][] {t, ht}));
+  }
+
+  public static IsdaCompliantCreditCurve makeFromRT(DoubleArray t, DoubleArray rt) {
+    return makeFromRT(t.toArray(), rt.toArray());
   }
 
   /**

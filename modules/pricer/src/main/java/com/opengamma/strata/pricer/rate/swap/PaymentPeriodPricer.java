@@ -91,6 +91,33 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates the present value of a basis point of a period.
+   * <p>
+   * This calculate the amount by which, to the first order, the period present value
+   * changes for a change of the rate defining the payment period. For known amount
+   * payments for which there is rate, the value is 0. In absence of compounding on
+   * the period, this measure is equivalent to the traditional PVBP.
+   * 
+   * @param period  the period to price
+   * @param provider  the rates provider
+   * @return the present value of a basis point
+   */
+  public abstract double pvbp(T period, RatesProvider provider);
+
+  /**
+   * Calculates the present value of a basis point sensitivity of a single payment period.
+   * <p>
+   * This calculate the sensitivity of the present value of a basis point (pvbp) quantity
+   * to the underlying curves.
+   * 
+   * @param period  the period to price
+   * @param provider  the rates provider
+   * @return the present value of a basis point sensitivity
+   */
+  public abstract PointSensitivityBuilder pvbpSensitivity(T period, RatesProvider provider);
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the accrued interest since the last payment.
    * <p>
    * This calculates the interest that has accrued between the start of the period

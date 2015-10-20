@@ -5,16 +5,16 @@
  */
 package com.opengamma.strata.math.impl.function;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.math.impl.differentiation.ScalarFieldFirstOrderDifferentiator;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * A parameterised surface that gives the both the surface (the function z=f(xy) where xy is
  * a 2D point and z is a scalar) and the surface sensitivity
  * (dz/dp where p is one of the parameters) for given parameters.
  */
-public abstract class ParameterizedSurface extends ParameterizedFunction<DoublesPair, DoubleMatrix1D, Double> {
+public abstract class ParameterizedSurface extends ParameterizedFunction<DoublesPair, DoubleArray, Double> {
 
   private static final ScalarFieldFirstOrderDifferentiator FIRST_ORDER_DIFF = new ScalarFieldFirstOrderDifferentiator();
 
@@ -28,13 +28,13 @@ public abstract class ParameterizedSurface extends ParameterizedFunction<Doubles
    * @param params The value of the parameters ($\boldsymbol{\theta}$) at which the sensitivity is calculated 
    * @return The sensitivity as a function with a DoublesPair (x,y) as its single argument and a vector as its return value
    */
-  public Function1D<DoublesPair, DoubleMatrix1D> getZParameterSensitivity(DoubleMatrix1D params) {
+  public Function1D<DoublesPair, DoubleArray> getZParameterSensitivity(DoubleArray params) {
 
-    return new Function1D<DoublesPair, DoubleMatrix1D>() {
+    return new Function1D<DoublesPair, DoubleArray>() {
       @Override
-      public DoubleMatrix1D evaluate(DoublesPair xy) {
-        Function1D<DoubleMatrix1D, Double> f = asFunctionOfParameters(xy);
-        Function1D<DoubleMatrix1D, DoubleMatrix1D> g = FIRST_ORDER_DIFF.differentiate(f);
+      public DoubleArray evaluate(DoublesPair xy) {
+        Function1D<DoubleArray, Double> f = asFunctionOfParameters(xy);
+        Function1D<DoubleArray, DoubleArray> g = FIRST_ORDER_DIFF.differentiate(f);
         return g.evaluate(params);
       }
     };

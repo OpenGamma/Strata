@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.math.impl.linearalgebra;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Contains the results of matrix decomposition. The decomposed matrices (e.g. the L and U matrices for LU decomposition) are stored in this class.
@@ -19,7 +19,7 @@ public interface DecompositionResult {
    * @param b a vector, not null
    * @return the vector x
    */
-  DoubleMatrix1D solve(DoubleMatrix1D b);
+  DoubleArray solve(DoubleArray b);
 
   /**
    * Solves $\mathbf{A}x = b$ where $\mathbf{A}$ is a (decomposed) matrix and $b$ is a vector. 
@@ -33,6 +33,6 @@ public interface DecompositionResult {
    * @param b matrix, not null
    * @return the matrix x
    */
-  DoubleMatrix2D solve(DoubleMatrix2D b);
+  DoubleMatrix solve(DoubleMatrix b);
 
 }

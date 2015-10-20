@@ -8,8 +8,8 @@ package com.opengamma.strata.math.impl.function;
 import java.util.Arrays;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * This is simply a {@link VectorFunction} backed by a {@link ParameterizedCurve}
@@ -34,14 +34,12 @@ public class ParameterizedCurveVectorFunction extends VectorFunction {
 
   //-------------------------------------------------------------------------
   @Override
-  public DoubleMatrix2D calculateJacobian(DoubleMatrix1D x) {
-    Function1D<Double, DoubleMatrix1D> sense = _curve.getYParameterSensitivity(x);
-    int n = getLengthOfRange();
-    DoubleMatrix2D jac = DoubleMatrix2D.filled(n, getLengthOfDomain());
-    for (int i = 0; i < n; i++) {
-      jac.getData()[i] = sense.evaluate(_samplePoints[i]).toArray();
-    }
-    return jac;
+  public DoubleMatrix calculateJacobian(DoubleArray x) {
+    Function1D<Double, DoubleArray> sense = _curve.getYParameterSensitivity(x);
+    return DoubleMatrix.ofArrayObjects(
+        getLengthOfRange(),
+        getLengthOfDomain(),
+        i -> sense.evaluate(_samplePoints[i]));
   }
 
   @Override
@@ -61,14 +59,9 @@ public class ParameterizedCurveVectorFunction extends VectorFunction {
    * @return the curve value at the sample points 
    */
   @Override
-  public DoubleMatrix1D evaluate(DoubleMatrix1D curveParameters) {
+  public DoubleArray evaluate(DoubleArray curveParameters) {
     Function1D<Double, Double> func = _curve.asFunctionOfArguments(curveParameters);
-    int n = _samplePoints.length;
-    double[] y = new double[n];
-    for (int i = 0; i < n; i++) {
-      y[i] = func.evaluate(_samplePoints[i]);
-    }
-    return new DoubleMatrix1D(y);
+    return DoubleArray.of(_samplePoints.length, i -> func.evaluate(_samplePoints[i]));
   }
 
 }

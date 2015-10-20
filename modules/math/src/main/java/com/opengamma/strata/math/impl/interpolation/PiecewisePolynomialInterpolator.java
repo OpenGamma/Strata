@@ -6,8 +6,8 @@
 package com.opengamma.strata.math.impl.interpolation;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Abstract class for interpolations based on piecewise polynomial functions 
@@ -40,24 +40,24 @@ public abstract class PiecewisePolynomialInterpolator {
     ArgChecker.isFalse(Double.isInfinite(xKey), "xKey containing Infinity");
 
     final PiecewisePolynomialResult result = this.interpolate(xValues, yValues);
-    final double[] knots = result.getKnots().getData();
-    final int nKnots = knots.length;
-    final DoubleMatrix2D coefMatrix = result.getCoefMatrix();
+    final DoubleArray knots = result.getKnots();
+    final int nKnots = knots.size();
+    final DoubleMatrix coefMatrix = result.getCoefMatrix();
 
     double res = 0.;
 
     int indicator = 0;
-    if (xKey < knots[1]) {
+    if (xKey < knots.get(1)) {
       indicator = 0;
     } else {
       for (int i = 1; i < nKnots - 1; ++i) {
-        if (knots[i] <= xKey) {
+        if (knots.get(i) <= xKey) {
           indicator = i;
         }
       }
     }
-    final double[] coefs = coefMatrix.row(indicator).getData();
-    res = getValue(coefs, xKey, knots[indicator]);
+    final DoubleArray coefs = coefMatrix.row(indicator);
+    res = getValue(coefs, xKey, knots.get(indicator));
     ArgChecker.isFalse(Double.isInfinite(res), "Too large input");
     ArgChecker.isFalse(Double.isNaN(res), "Too large input");
 
@@ -70,7 +70,7 @@ public abstract class PiecewisePolynomialInterpolator {
    * @param xKeys  the keys
    * @return Values of the underlying cubic spline function at the values of x
    */
-  public DoubleMatrix1D interpolate(final double[] xValues, final double[] yValues, final double[] xKeys) {
+  public DoubleArray interpolate(final double[] xValues, final double[] yValues, final double[] xKeys) {
     ArgChecker.notNull(xKeys, "xKeys");
 
     final int keyLength = xKeys.length;
@@ -80,30 +80,30 @@ public abstract class PiecewisePolynomialInterpolator {
     }
 
     final PiecewisePolynomialResult result = this.interpolate(xValues, yValues);
-    final double[] knots = result.getKnots().getData();
-    final int nKnots = knots.length;
-    final DoubleMatrix2D coefMatrix = result.getCoefMatrix();
+    final DoubleArray knots = result.getKnots();
+    final int nKnots = knots.size();
+    final DoubleMatrix coefMatrix = result.getCoefMatrix();
 
     double[] res = new double[keyLength];
 
     for (int j = 0; j < keyLength; ++j) {
       int indicator = 0;
-      if (xKeys[j] < knots[1]) {
+      if (xKeys[j] < knots.get(1)) {
         indicator = 0;
       } else {
         for (int i = 1; i < nKnots - 1; ++i) {
-          if (knots[i] <= xKeys[j]) {
+          if (knots.get(i) <= xKeys[j]) {
             indicator = i;
           }
         }
       }
-      final double[] coefs = coefMatrix.row(indicator).getData();
-      res[j] = getValue(coefs, xKeys[j], knots[indicator]);
+      final DoubleArray coefs = coefMatrix.row(indicator);
+      res[j] = getValue(coefs, xKeys[j], knots.get(indicator));
       ArgChecker.isFalse(Double.isInfinite(res[j]), "Too large input");
       ArgChecker.isFalse(Double.isNaN(res[j]), "Too large input");
     }
 
-    return new DoubleMatrix1D(res);
+    return DoubleArray.copyOf(res);
   }
 
   /**
@@ -112,24 +112,14 @@ public abstract class PiecewisePolynomialInterpolator {
    * @param xMatrix  the matrix
    * @return Values of the underlying cubic spline function at the values of x
    */
-  public DoubleMatrix2D interpolate(final double[] xValues, final double[] yValues, final double[][] xMatrix) {
-
+  public DoubleMatrix interpolate(final double[] xValues, final double[] yValues, final double[][] xMatrix) {
     ArgChecker.notNull(xMatrix, "xMatrix");
 
-    final int keyLength = xMatrix[0].length;
-    final int keyDim = xMatrix.length;
-
-    final DoubleMatrix2D matrix = new DoubleMatrix2D(xMatrix);
-
-    double[][] res = new double[keyDim][keyLength];
-
-    for (int i = 0; i < keyDim; ++i) {
-      for (int j = 0; j < keyLength; ++j) {
-        res[i][j] = interpolate(xValues, yValues, matrix.row(i).getData()).getData()[j];
-      }
-    }
-
-    return new DoubleMatrix2D(res);
+    DoubleMatrix matrix = DoubleMatrix.copyOf(xMatrix);
+    return DoubleMatrix.ofArrayObjects(
+        xMatrix.length,
+        xMatrix[0].length,
+        i -> interpolate(xValues, yValues, matrix.rowArray(i)));
 
   }
 
@@ -139,18 +129,9 @@ public abstract class PiecewisePolynomialInterpolator {
    * @param x  the x
    * @return Values of the underlying cubic spline functions interpolating {yValuesMatrix.RowVectors} at the value of x
    */
-  public DoubleMatrix1D interpolate(final double[] xValues, final double[][] yValuesMatrix, final double x) {
-
-    final DoubleMatrix2D matrix = new DoubleMatrix2D(yValuesMatrix);
-    final int dim = matrix.rowCount();
-
-    double[] res = new double[dim];
-
-    for (int i = 0; i < dim; ++i) {
-      res[i] = interpolate(xValues, matrix.row(i).getData(), x);
-    }
-
-    return new DoubleMatrix1D(res);
+  public DoubleArray interpolate(final double[] xValues, final double[][] yValuesMatrix, final double x) {
+    DoubleMatrix matrix = DoubleMatrix.copyOf(yValuesMatrix);
+    return DoubleArray.of(matrix.rowCount(), i -> interpolate(xValues, matrix.rowArray(i), x));
   }
 
   /**
@@ -159,21 +140,14 @@ public abstract class PiecewisePolynomialInterpolator {
    * @param x  the s
    * @return Values of the underlying cubic spline functions interpolating {yValuesMatrix.RowVectors} at the values of x
    */
-  public DoubleMatrix2D interpolate(final double[] xValues, final double[][] yValuesMatrix, final double[] x) {
+  public DoubleMatrix interpolate(final double[] xValues, final double[][] yValuesMatrix, final double[] x) {
     ArgChecker.notNull(x, "x");
 
-    final int dim = yValuesMatrix.length;
-    final int keyLength = x.length;
-
-    final DoubleMatrix2D matrix = new DoubleMatrix2D(yValuesMatrix);
-
-    double[][] res = new double[dim][keyLength];
-
-    for (int i = 0; i < dim; ++i) {
-      res[i] = interpolate(xValues, matrix.row(i).getData(), x).getData();
-    }
-
-    return new DoubleMatrix2D(res);
+    final DoubleMatrix matrix = DoubleMatrix.copyOf(yValuesMatrix);
+    return DoubleMatrix.ofArrayObjects(
+        yValuesMatrix.length,
+        x.length,
+        i -> interpolate(xValues, matrix.rowArray(i), x));
   }
 
   /**
@@ -182,17 +156,17 @@ public abstract class PiecewisePolynomialInterpolator {
    * @param xMatrix  the matrix
    * @return Values of the underlying cubic spline functions interpolating {yValuesMatrix.RowVectors} at the values of xMatrix
    */
-  public DoubleMatrix2D[] interpolate(final double[] xValues, final double[][] yValuesMatrix, final double[][] xMatrix) {
+  public DoubleMatrix[] interpolate(final double[] xValues, final double[][] yValuesMatrix, final double[][] xMatrix) {
     ArgChecker.notNull(xMatrix, "xMatrix");
 
     final int keyColumn = xMatrix[0].length;
 
-    final DoubleMatrix2D matrix = new DoubleMatrix2D(xMatrix);
+    final DoubleMatrix matrix = DoubleMatrix.copyOf(xMatrix);
 
-    DoubleMatrix2D[] resMatrix2D = new DoubleMatrix2D[keyColumn];
+    DoubleMatrix[] resMatrix2D = new DoubleMatrix[keyColumn];
 
     for (int i = 0; i < keyColumn; ++i) {
-      resMatrix2D[i] = interpolate(xValues, yValuesMatrix, matrix.column(i).getData());
+      resMatrix2D[i] = interpolate(xValues, yValuesMatrix, matrix.columnArray(i));
     }
 
     return resMatrix2D;
@@ -214,23 +188,33 @@ public abstract class PiecewisePolynomialInterpolator {
     return this;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @param coefs {a_n,a_{n-1},...} of f(x) = a_n x^{n} + a_{n-1} x^{n-1} + ....
+   * @param coefs  {a_n,a_{n-1},...} of f(x) = a_n x^{n} + a_{n-1} x^{n-1} + ....
    * @param x  the x
-   * @param leftknot Knot specifying underlying interpolation function
-   * @return Value of the underlying interpolation function at the value of x
+   * @param leftknot  the knot specifying underlying interpolation function
+   * @return the value of the underlying interpolation function at the value of x
    */
-  protected double getValue(final double[] coefs, final double x, final double leftknot) {
+  protected double getValue(DoubleArray coefs, double x, double leftknot) {
+    // needs to delegate as method is protected
+    return getValue(coefs.toArrayUnsafe(), x, leftknot);
+  }
 
-    final int nCoefs = coefs.length;
-
-    final double s = x - leftknot;
+  /**
+   * @param coefs  {a_n,a_{n-1},...} of f(x) = a_n x^{n} + a_{n-1} x^{n-1} + ....
+   * @param x  the x
+   * @param leftknot  the knot specifying underlying interpolation function
+   * @return the value of the underlying interpolation function at the value of x
+   */
+  protected double getValue(double[] coefs, double x, double leftknot) {
+    int nCoefs = coefs.length;
+    double s = x - leftknot;
     double res = coefs[0];
     for (int i = 1; i < nCoefs; i++) {
       res *= s;
       res += coefs[i];
     }
-
     return res;
   }
+
 }

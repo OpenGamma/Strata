@@ -6,8 +6,8 @@
 package com.opengamma.strata.math.impl.statistics.leastsquare;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Hold for results of {@link NonLinearLeastSquareWithPenalty}
@@ -25,8 +25,8 @@ public class LeastSquareWithPenaltyResults extends LeastSquareResults {
    * @param parameters The value of  $\mathbf{x}$ 
    * @param covariance The covariance matrix for  $\mathbf{x}$ 
    */
-  public LeastSquareWithPenaltyResults(double chiSqr, double penalty, DoubleMatrix1D parameters,
-      DoubleMatrix2D covariance) {
+  public LeastSquareWithPenaltyResults(double chiSqr, double penalty, DoubleArray parameters,
+      DoubleMatrix covariance) {
     super(chiSqr, parameters, covariance);
     //other arguments checked in super class 
     ArgChecker.notNegative(penalty, "penalty");
@@ -43,8 +43,8 @@ public class LeastSquareWithPenaltyResults extends LeastSquareResults {
    * @param covariance The covariance matrix for  $\mathbf{x}$ 
    * @param inverseJacobian The inverse Jacobian - this is the sensitivities of the model parameters to the 'observed' values 
    */
-  public LeastSquareWithPenaltyResults(double chiSqr, double penalty, DoubleMatrix1D parameters,
-      DoubleMatrix2D covariance, DoubleMatrix2D inverseJacobian) {
+  public LeastSquareWithPenaltyResults(double chiSqr, double penalty, DoubleArray parameters,
+      DoubleMatrix covariance, DoubleMatrix inverseJacobian) {
     super(chiSqr, parameters, covariance, inverseJacobian);
     //other arguments checked in super class 
     ArgChecker.notNegative(penalty, "penalty");

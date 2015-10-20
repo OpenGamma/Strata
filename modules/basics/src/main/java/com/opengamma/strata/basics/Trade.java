@@ -3,9 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance;
-
-import com.opengamma.strata.basics.CalculationTarget;
+package com.opengamma.strata.basics;
 
 /**
  * A single trade.
@@ -18,14 +16,5 @@ import com.opengamma.strata.basics.CalculationTarget;
  */
 public interface Trade
     extends CalculationTarget {
-
-  /**
-   * The additional trade information.
-   * <p>
-   * This allows additional information to be attached to the trade.
-   * 
-   * @return the additional trade info
-   */
-  public abstract TradeInfo getTradeInfo();
 
 }

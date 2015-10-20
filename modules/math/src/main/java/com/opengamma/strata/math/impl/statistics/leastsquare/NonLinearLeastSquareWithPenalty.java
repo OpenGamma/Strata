@@ -6,15 +6,14 @@
 package com.opengamma.strata.math.impl.statistics.leastsquare;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
@@ -41,9 +40,9 @@ public class NonLinearLeastSquareWithPenalty {
   /**
    * Unconstrained allowed function - always returns true
    */
-  public static final Function1D<DoubleMatrix1D, Boolean> UNCONSTRAINED = new Function1D<DoubleMatrix1D, Boolean>() {
+  public static final Function1D<DoubleArray, Boolean> UNCONSTRAINED = new Function1D<DoubleArray, Boolean>() {
     @Override
-    public Boolean evaluate(DoubleMatrix1D x) {
+    public Boolean evaluate(DoubleArray x) {
       return true;
     }
   };
@@ -118,14 +117,14 @@ public class NonLinearLeastSquareWithPenalty {
    * @return value of the fitted parameters
    */
   public LeastSquareWithPenaltyResults solve(
-      DoubleMatrix1D observedValues,
-      Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
-      DoubleMatrix1D startPos,
-      DoubleMatrix2D penalty) {
+      DoubleArray observedValues,
+      Function1D<DoubleArray, DoubleArray> func,
+      DoubleArray startPos,
+      DoubleMatrix penalty) {
 
     int n = observedValues.size();
     VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
-    return solve(observedValues, DoubleMatrix1D.filled(n, 1.0), func, jac.differentiate(func), startPos, penalty);
+    return solve(observedValues, DoubleArray.filled(n, 1.0), func, jac.differentiate(func), startPos, penalty);
   }
 
   /**
@@ -140,11 +139,11 @@ public class NonLinearLeastSquareWithPenalty {
    * @return value of the fitted parameters
    */
   public LeastSquareWithPenaltyResults solve(
-      DoubleMatrix1D observedValues,
-      DoubleMatrix1D sigma,
-      Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
-      DoubleMatrix1D startPos,
-      DoubleMatrix2D penalty) {
+      DoubleArray observedValues,
+      DoubleArray sigma,
+      Function1D<DoubleArray, DoubleArray> func,
+      DoubleArray startPos,
+      DoubleMatrix penalty) {
 
     VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
     return solve(observedValues, sigma, func, jac.differentiate(func), startPos, penalty);
@@ -166,12 +165,12 @@ public class NonLinearLeastSquareWithPenalty {
    * @return value of the fitted parameters
    */
   public LeastSquareWithPenaltyResults solve(
-      DoubleMatrix1D observedValues,
-      DoubleMatrix1D sigma,
-      Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
-      DoubleMatrix1D startPos,
-      DoubleMatrix2D penalty,
-      Function1D<DoubleMatrix1D, Boolean> allowedValue) {
+      DoubleArray observedValues,
+      DoubleArray sigma,
+      Function1D<DoubleArray, DoubleArray> func,
+      DoubleArray startPos,
+      DoubleMatrix penalty,
+      Function1D<DoubleArray, Boolean> allowedValue) {
 
     VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
     return solve(observedValues, sigma, func, jac.differentiate(func), startPos, penalty, allowedValue);
@@ -190,11 +189,11 @@ public class NonLinearLeastSquareWithPenalty {
    * @return the least-square results
    */
   public LeastSquareWithPenaltyResults solve(
-      DoubleMatrix1D observedValues,
-      DoubleMatrix1D sigma,
-      Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
-      Function1D<DoubleMatrix1D, DoubleMatrix2D> jac,
-      DoubleMatrix1D startPos, DoubleMatrix2D penalty) {
+      DoubleArray observedValues,
+      DoubleArray sigma,
+      Function1D<DoubleArray, DoubleArray> func,
+      Function1D<DoubleArray, DoubleMatrix> jac,
+      DoubleArray startPos, DoubleMatrix penalty) {
 
     return solve(observedValues, sigma, func, jac, startPos, penalty, UNCONSTRAINED);
   }
@@ -216,14 +215,14 @@ public class NonLinearLeastSquareWithPenalty {
    * @return the least-square results
    */
   public LeastSquareWithPenaltyResults solve(
-      DoubleMatrix1D observedValues,
-      DoubleMatrix1D sigma,
-      Function1D<DoubleMatrix1D,
-      DoubleMatrix1D> func,
-      Function1D<DoubleMatrix1D, DoubleMatrix2D> jac,
-      DoubleMatrix1D startPos,
-      DoubleMatrix2D penalty,
-      Function1D<DoubleMatrix1D, Boolean> allowedValue) {
+      DoubleArray observedValues,
+      DoubleArray sigma,
+      Function1D<DoubleArray,
+      DoubleArray> func,
+      Function1D<DoubleArray, DoubleMatrix> jac,
+      DoubleArray startPos,
+      DoubleMatrix penalty,
+      Function1D<DoubleArray, Boolean> allowedValue) {
 
     ArgChecker.notNull(observedValues, "observedValues");
     ArgChecker.notNull(sigma, " sigma");
@@ -235,29 +234,29 @@ public class NonLinearLeastSquareWithPenalty {
     ArgChecker.isTrue(allowedValue.evaluate(startPos),
         "The start position {} is not valid for this model. Please choose a valid start position", startPos);
 
-    DoubleMatrix2D alpha;
+    DoubleMatrix alpha;
     DecompositionResult decmp;
-    DoubleMatrix1D theta = startPos;
+    DoubleArray theta = startPos;
 
     double lambda = 0.0; // TODO debug if the model is linear, it will be solved in 1 step
     double newChiSqr, oldChiSqr;
-    DoubleMatrix1D error = getError(func, observedValues, sigma, theta);
+    DoubleArray error = getError(func, observedValues, sigma, theta);
 
-    DoubleMatrix1D newError;
-    DoubleMatrix2D jacobian = getJacobian(jac, sigma, theta);
+    DoubleArray newError;
+    DoubleMatrix jacobian = getJacobian(jac, sigma, theta);
 
     oldChiSqr = getChiSqr(error);
     double p = getANorm(penalty, theta);
     oldChiSqr += p;
 
-    DoubleMatrix1D beta = getChiSqrGrad(error, jacobian);
-    DoubleMatrix1D temp = (DoubleMatrix1D) _algebra.multiply(penalty, theta);
-    beta = (DoubleMatrix1D) _algebra.subtract(beta, temp);
+    DoubleArray beta = getChiSqrGrad(error, jacobian);
+    DoubleArray temp = (DoubleArray) _algebra.multiply(penalty, theta);
+    beta = (DoubleArray) _algebra.subtract(beta, temp);
 
     for (int count = 0; count < MAX_ATTEMPTS; count++) {
 
       alpha = getModifiedCurvatureMatrix(jacobian, lambda, penalty);
-      DoubleMatrix1D deltaTheta;
+      DoubleArray deltaTheta;
 
       try {
         decmp = _decomposition.evaluate(alpha);
@@ -266,7 +265,7 @@ public class NonLinearLeastSquareWithPenalty {
         throw new MathException(e);
       }
 
-      DoubleMatrix1D trialTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
+      DoubleArray trialTheta = (DoubleArray) _algebra.add(theta, deltaTheta);
 
       if (!allowedValue.evaluate(trialTheta)) {
         lambda = increaseLambda(lambda);
@@ -281,7 +280,7 @@ public class NonLinearLeastSquareWithPenalty {
       // Check for convergence when no improvement in chiSqr occurs
       if (Math.abs(newChiSqr - oldChiSqr) / (1 + oldChiSqr) < _eps) {
 
-        DoubleMatrix2D alpha0 = lambda == 0.0 ? alpha : getModifiedCurvatureMatrix(jacobian, 0.0, penalty);
+        DoubleMatrix alpha0 = lambda == 0.0 ? alpha : getModifiedCurvatureMatrix(jacobian, 0.0, penalty);
 
         if (lambda > 0.0) {
           decmp = _decomposition.evaluate(alpha0);
@@ -295,8 +294,8 @@ public class NonLinearLeastSquareWithPenalty {
         error = newError;
         jacobian = getJacobian(jac, sigma, trialTheta);
         beta = getChiSqrGrad(error, jacobian);
-        temp = (DoubleMatrix1D) _algebra.multiply(penalty, theta);
-        beta = (DoubleMatrix1D) _algebra.subtract(beta, temp);
+        temp = (DoubleArray) _algebra.multiply(penalty, theta);
+        beta = (DoubleArray) _algebra.subtract(beta, temp);
 
         oldChiSqr = newChiSqr;
       } else {
@@ -318,59 +317,51 @@ public class NonLinearLeastSquareWithPenalty {
   }
 
   private LeastSquareWithPenaltyResults finish(
-      DoubleMatrix2D alpha,
+      DoubleMatrix alpha,
       DecompositionResult decmp,
       double chiSqr,
       double penalty,
-      DoubleMatrix2D jacobian,
-      DoubleMatrix1D newTheta,
-      DoubleMatrix1D sigma) {
+      DoubleMatrix jacobian,
+      DoubleArray newTheta,
+      DoubleArray sigma) {
 
-    DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.rowCount()));
-    DoubleMatrix2D bT = getBTranspose(jacobian, sigma);
-    DoubleMatrix2D inverseJacobian = decmp.solve(bT);
+    DoubleMatrix covariance = decmp.solve(DoubleMatrix.identity(alpha.rowCount()));
+    DoubleMatrix bT = getBTranspose(jacobian, sigma);
+    DoubleMatrix inverseJacobian = decmp.solve(bT);
     return new LeastSquareWithPenaltyResults(chiSqr, penalty, newTheta, covariance, inverseJacobian);
   }
 
-  private DoubleMatrix1D getError(
-      Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
-      DoubleMatrix1D observedValues,
-      DoubleMatrix1D sigma,
-      DoubleMatrix1D theta) {
+  private DoubleArray getError(
+      Function1D<DoubleArray, DoubleArray> func,
+      DoubleArray observedValues,
+      DoubleArray sigma,
+      DoubleArray theta) {
 
     int n = observedValues.size();
-    DoubleMatrix1D modelValues = func.evaluate(theta);
+    DoubleArray modelValues = func.evaluate(theta);
     ArgChecker.isTrue(n == modelValues.size(),
-        "Number of data points different between model (" + modelValues.size() +
-            ") and observed (" + n + ")");
-    double[] res = new double[n];
-    for (int i = 0; i < n; i++) {
-      res[i] = (observedValues.get(i) - modelValues.get(i)) / sigma.get(i);
-    }
-
-    return new DoubleMatrix1D(res);
+        "Number of data points different between model (" + modelValues.size() + ") and observed (" + n + ")");
+    return DoubleArray.of(n, i -> (observedValues.get(i) - modelValues.get(i)) / sigma.get(i));
   }
 
-  private DoubleMatrix2D getBTranspose(DoubleMatrix2D jacobian, DoubleMatrix1D sigma) {
+  private DoubleMatrix getBTranspose(DoubleMatrix jacobian, DoubleArray sigma) {
     int n = jacobian.rowCount();
     int m = jacobian.columnCount();
 
-    DoubleMatrix2D res = DoubleMatrix2D.filled(m, n);
-    double[][] data = res.getData();
-    double[][] jacData = jacobian.getData();
-
+    DoubleMatrix res = DoubleMatrix.filled(m, n);
+    double[][] data = res.toArray();
     for (int i = 0; i < n; i++) {
       double sigmaInv = 1.0 / sigma.get(i);
       for (int k = 0; k < m; k++) {
-        data[k][i] = jacData[i][k] * sigmaInv;
+        data[k][i] = jacobian.get(i, k) * sigmaInv;
       }
     }
-    return res;
+    return DoubleMatrix.ofUnsafe(data);
   }
 
-  private DoubleMatrix2D getJacobian(Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, DoubleMatrix1D sigma, DoubleMatrix1D theta) {
-    DoubleMatrix2D res = jac.evaluate(theta);
-    double[][] data = res.getData();
+  private DoubleMatrix getJacobian(Function1D<DoubleArray, DoubleMatrix> jac, DoubleArray sigma, DoubleArray theta) {
+    DoubleMatrix res = jac.evaluate(theta);
+    double[][] data = res.toArray();
     int n = res.rowCount();
     int m = res.columnCount();
     ArgChecker.isTrue(theta.size() == m, "Jacobian is wrong size");
@@ -382,37 +373,35 @@ public class NonLinearLeastSquareWithPenalty {
         data[i][j] *= sigmaInv;
       }
     }
-    return res;
+    return DoubleMatrix.ofUnsafe(data);
   }
 
-  private double getChiSqr(DoubleMatrix1D error) {
+  private double getChiSqr(DoubleArray error) {
     return _algebra.getInnerProduct(error, error);
   }
 
-  private DoubleMatrix1D getChiSqrGrad(DoubleMatrix1D error, DoubleMatrix2D jacobian) {
-    return (DoubleMatrix1D) _algebra.multiply(error, jacobian);
+  private DoubleArray getChiSqrGrad(DoubleArray error, DoubleMatrix jacobian) {
+    return (DoubleArray) _algebra.multiply(error, jacobian);
   }
 
-  private DoubleMatrix2D getModifiedCurvatureMatrix(DoubleMatrix2D jacobian, double lambda, DoubleMatrix2D penalty) {
+  private DoubleMatrix getModifiedCurvatureMatrix(DoubleMatrix jacobian, double lambda, DoubleMatrix penalty) {
     double onePLambda = 1.0 + lambda;
     int m = jacobian.columnCount();
-    DoubleMatrix2D alpha = (DoubleMatrix2D) MA.add(MA.matrixTransposeMultiplyMatrix(jacobian), penalty);
+    DoubleMatrix alpha = (DoubleMatrix) MA.add(MA.matrixTransposeMultiplyMatrix(jacobian), penalty);
     // scale the diagonal
-    double[][] data = alpha.getData();
+    double[][] data = alpha.toArray();
     for (int i = 0; i < m; i++) {
       data[i][i] *= onePLambda;
     }
-    return alpha;
+    return DoubleMatrix.ofUnsafe(data);
   }
 
-  private double getANorm(DoubleMatrix2D aM, DoubleMatrix1D xV) {
-    double[][] a = aM.getData();
-    double[] x = xV.getData();
-    int n = x.length;
+  private double getANorm(DoubleMatrix a, DoubleArray x) {
+    int n = x.size();
     double sum = 0.0;
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
-        sum += a[i][j] * x[i] * x[j];
+        sum += a.get(i, j) * x.get(i) * x.get(j);
       }
     }
     return sum;

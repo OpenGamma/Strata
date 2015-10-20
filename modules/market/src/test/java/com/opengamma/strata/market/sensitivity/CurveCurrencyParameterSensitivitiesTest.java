@@ -7,7 +7,6 @@ package com.opengamma.strata.market.sensitivity;
 
 import static com.opengamma.strata.basics.BasicProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static com.opengamma.strata.collect.DoubleArrayMath.sum;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -20,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
@@ -31,13 +31,13 @@ import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 public class CurveCurrencyParameterSensitivitiesTest {
 
   private static final double FACTOR1 = 3.14;
-  private static final double[] VECTOR_USD1 = new double[] {100, 200, 300, 123};
-  private static final double[] VECTOR_USD2 = new double[] {1000, 250, 321, 123};
-  private static final double[] VECTOR_USD2_IN_EUR = new double[] {1000 / 1.6, 250 / 1.6, 321 / 1.6, 123 / 1.6};
-  private static final double[] VECTOR_ZERO = new double[] {0, 0, 0, 0};
-  private static final double[] TOTAL_USD = new double[] {1100, 450, 621, 246};
-  private static final double[] VECTOR_EUR1 = new double[] {1000, 250, 321, 123, 321};
-  private static final double[] VECTOR_EUR1_IN_USD = new double[] {1000 * 1.6, 250 * 1.6, 321 * 1.6, 123 * 1.6, 321 * 1.6};
+  private static final DoubleArray VECTOR_USD1 = DoubleArray.of(100, 200, 300, 123);
+  private static final DoubleArray VECTOR_USD2 = DoubleArray.of(1000, 250, 321, 123);
+  private static final DoubleArray VECTOR_USD2_IN_EUR = DoubleArray.of(1000 / 1.6, 250 / 1.6, 321 / 1.6, 123 / 1.6);
+  private static final DoubleArray VECTOR_ZERO = DoubleArray.of(0, 0, 0, 0);
+  private static final DoubleArray TOTAL_USD = DoubleArray.of(1100, 450, 621, 246);
+  private static final DoubleArray VECTOR_EUR1 = DoubleArray.of(1000, 250, 321, 123, 321);
+  private static final DoubleArray VECTOR_EUR1_IN_USD = DoubleArray.of(1000 * 1.6, 250 * 1.6, 321 * 1.6, 123 * 1.6, 321 * 1.6);
   private static final Currency USD = Currency.USD;
   private static final Currency EUR = Currency.EUR;
   private static final FxRate FX_RATE = FxRate.of(EUR, USD, 1.6d);
@@ -57,7 +57,7 @@ public class CurveCurrencyParameterSensitivitiesTest {
   private static final CurveCurrencyParameterSensitivity ENTRY_USD_TOTAL =
       CurveCurrencyParameterSensitivity.of(METADATA1, USD, TOTAL_USD);
   private static final CurveCurrencyParameterSensitivity ENTRY_USD_SMALL =
-      CurveCurrencyParameterSensitivity.of(METADATA1, USD, new double[] {100d});
+      CurveCurrencyParameterSensitivity.of(METADATA1, USD, DoubleArray.of(100d));
   private static final CurveCurrencyParameterSensitivity ENTRY_USD2_IN_EUR =
       CurveCurrencyParameterSensitivity.of(METADATA1, EUR, VECTOR_USD2_IN_EUR);
   private static final CurveCurrencyParameterSensitivity ENTRY_EUR =
@@ -174,39 +174,39 @@ public class CurveCurrencyParameterSensitivitiesTest {
   //-------------------------------------------------------------------------
   public void test_total_singleCurrency() {
     assertThat(SENSI_1.total(USD, FxMatrix.empty()))
-        .hasAmount(sum(VECTOR_USD1), within(1E-8));
+        .hasAmount(VECTOR_USD1.total(), within(1E-8));
   }
 
   public void test_total_multipleCurrency() {
     assertThat(SENSI_2.total(USD, FX_RATE))
-        .hasAmount(sum(VECTOR_USD2) + sum(VECTOR_EUR1) * 1.6d, within(1E-8));
+        .hasAmount(VECTOR_USD2.total() + VECTOR_EUR1.total() * 1.6d, within(1E-8));
   }
 
   public void test_totalMulti_singleCurrency() {
     assertThat(SENSI_1.total().size()).isEqualTo(1);
-    assertThat(SENSI_1.total().getAmount(USD).getAmount()).isCloseTo(sum(VECTOR_USD1), within(1E-8));
+    assertThat(SENSI_1.total().getAmount(USD).getAmount()).isCloseTo(VECTOR_USD1.total(), within(1E-8));
   }
 
   public void test_totalMulti_multipleCurrency() {
     assertThat(SENSI_2.total().size()).isEqualTo(2);
-    assertThat(SENSI_2.total().getAmount(USD).getAmount()).isCloseTo(sum(VECTOR_USD2), within(1E-8));
-    assertThat(SENSI_2.total().getAmount(EUR).getAmount()).isCloseTo(sum(VECTOR_EUR1), within(1E-8));
+    assertThat(SENSI_2.total().getAmount(USD).getAmount()).isCloseTo(VECTOR_USD2.total(), within(1E-8));
+    assertThat(SENSI_2.total().getAmount(EUR).getAmount()).isCloseTo(VECTOR_EUR1.total(), within(1E-8));
   }
 
   //-------------------------------------------------------------------------
   public void test_multipliedBy() {
     CurveCurrencyParameterSensitivities multiplied = SENSI_1.multipliedBy(FACTOR1);
-    double[] test = multiplied.getSensitivities().get(0).getSensitivity();
-    for (int i = 0; i < VECTOR_USD1.length; i++) {
-      assertThat(test[i]).isEqualTo(VECTOR_USD1[i] * FACTOR1);
+    DoubleArray test = multiplied.getSensitivities().get(0).getSensitivity();
+    for (int i = 0; i < VECTOR_USD1.size(); i++) {
+      assertThat(test.get(i)).isEqualTo(VECTOR_USD1.get(i) * FACTOR1);
     }
   }
 
   public void test_mapSensitivities() {
     CurveCurrencyParameterSensitivities multiplied = SENSI_1.mapSensitivities(a -> 1 / a);
-    double[] test = multiplied.getSensitivities().get(0).getSensitivity();
-    for (int i = 0; i < VECTOR_USD1.length; i++) {
-      assertThat(test[i]).isEqualTo(1 / VECTOR_USD1[i]);
+    DoubleArray test = multiplied.getSensitivities().get(0).getSensitivity();
+    for (int i = 0; i < VECTOR_USD1.size(); i++) {
+      assertThat(test.get(i)).isEqualTo(1 / VECTOR_USD1.get(i));
     }
   }
 

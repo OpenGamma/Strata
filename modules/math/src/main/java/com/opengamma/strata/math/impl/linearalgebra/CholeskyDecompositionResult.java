@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.math.impl.linearalgebra;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Contains the results of Cholesky matrix decomposition.
@@ -18,7 +18,7 @@ public interface CholeskyDecompositionResult extends DecompositionResult {
    * $\mathbf{L}$ is a lower-triangular matrix.
    * @return the $\mathbf{L}$ matrix
    */
-  DoubleMatrix2D getL();
+  DoubleMatrix getL();
 
   /**
    * Returns the transpose of the matrix $\mathbf{L}$ of the decomposition.
@@ -26,7 +26,7 @@ public interface CholeskyDecompositionResult extends DecompositionResult {
    * $\mathbf{L}^T$ is a upper-triangular matrix.
    * @return the $\mathbf{L}^T$ matrix
    */
-  DoubleMatrix2D getLT();
+  DoubleMatrix getLT();
 
   /**
    * Return the determinant of the matrix.

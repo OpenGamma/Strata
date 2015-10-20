@@ -16,6 +16,7 @@
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.strata.collect"/>
+<listEntry value="com.opengamma.strata.collect.array"/>
 <listEntry value="com.opengamma.strata.collect.function"/>
 <listEntry value="com.opengamma.strata.collect.id"/>
 <listEntry value="com.opengamma.strata.collect.io"/>

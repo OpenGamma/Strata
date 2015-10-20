@@ -34,6 +34,7 @@ import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.Security;
 import com.opengamma.strata.finance.SecurityLink;
@@ -66,14 +67,14 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
   // curves
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final LocalDate VALUATION = LocalDate.of(2013, 3, 28);
-  private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
-  private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140};
+  private static final DoubleArray USD_DSC_TIME = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
+  private static final DoubleArray USD_DSC_RATE = DoubleArray.of(0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140);
   private static final CurveName USD_DSC_NAME = CurveName.of("USD Dsc");
   private static final CurveMetadata USD_DSC_METADATA = Curves.zeroRates(USD_DSC_NAME, ACT_ACT_ISDA);
   private static final InterpolatedNodalCurve USD_DSC =
       InterpolatedNodalCurve.of(USD_DSC_METADATA, USD_DSC_TIME, USD_DSC_RATE, INTERPOLATOR);
-  private static final double[] USD_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
-  private static final double[] USD_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150};
+  private static final DoubleArray USD_FWD3_TIME = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
+  private static final DoubleArray USD_FWD3_RATE = DoubleArray.of(0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150);
   private static final CurveName USD_FWD3_NAME = CurveName.of("USD LIBOR 3M");
   private static final CurveMetadata USD_FWD3_METADATA = Curves.zeroRates(USD_FWD3_NAME, ACT_ACT_ISDA);
   private static final InterpolatedNodalCurve USD_FWD3 =
@@ -201,22 +202,17 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
   public void regression() {
     CurrencyAmount pv = TRADE_PRICER.presentValue(FUTURE_TRADE, PROVIDER, TRADE_PRICE);
     assertEquals(pv.getAmount(), 4022633.290539182, NOTIONAL * QUANTITY * TOL);
-    double[] dscExp = new double[] {347963.1427498563, 240275.26230191416, 123908.37739051704, -1302968.1341957184,
-        -8402797.591029292, -9024590.733895564};
-    double[] fwdExp = new double[] {1.5288758221797276E7, 1.2510651813905597E7, -1535786.53682933, -9496881.09854053,
-        -3.583343769759877E7, -1.1342379328462188E9};
+    DoubleArray dscExp = DoubleArray.of(
+        347963.1427498563, 240275.26230191416, 123908.37739051704,
+        -1302968.1341957184, -8402797.591029292, -9024590.733895564);
+    DoubleArray fwdExp =DoubleArray.of(
+        1.5288758221797276E7, 1.2510651813905597E7, -1535786.53682933,
+        -9496881.09854053, -3.583343769759877E7, -1.1342379328462188E9);
     PointSensitivities point = TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE, PROVIDER);
     CurveCurrencyParameterSensitivities sensi = PROVIDER.curveParameterSensitivity(point);
-    assertEqualsArray(sensi.getSensitivity(USD_DSC_NAME, USD).getSensitivity(), dscExp);
-    assertEqualsArray(sensi.getSensitivity(USD_FWD3_NAME, USD).getSensitivity(), fwdExp);
-  }
-
-  private void assertEqualsArray(double[] computed, double[] expected) {
-    int n = expected.length;
-    assertEquals(computed.length, n);
-    for (int i = 0; i < n; ++i) {
-      assertEquals(computed[i], expected[i], NOTIONAL * QUANTITY * EPS);
-    }
+    double tolerance = NOTIONAL * QUANTITY * EPS;
+    assertTrue(sensi.getSensitivity(USD_DSC_NAME, USD).getSensitivity().equalWithTolerance(dscExp, tolerance));
+    assertTrue(sensi.getSensitivity(USD_FWD3_NAME, USD).getSensitivity().equalWithTolerance(fwdExp, tolerance));
   }
 
 }

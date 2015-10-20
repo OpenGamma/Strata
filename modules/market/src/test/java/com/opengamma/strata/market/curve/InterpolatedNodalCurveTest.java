@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.FlatExtrapolator1D;
@@ -43,10 +44,10 @@ public class InterpolatedNodalCurveTest {
   private static final CurveMetadata METADATA = Curves.zeroRates(CURVE_NAME, ACT_365F);
   private static final CurveMetadata METADATA_ENTRIES =
       Curves.zeroRates(CURVE_NAME, ACT_365F, CurveParameterMetadata.listOfEmpty(SIZE));
-  private static final double[] XVALUES = {1d, 2d, 3d};
-  private static final double[] XVALUES2 = {0d, 2d, 3d};
-  private static final double[] YVALUES = {5d, 7d, 8d};
-  private static final double[] YVALUES_BUMPED = {3d, 5d, 6d};
+  private static final DoubleArray XVALUES = DoubleArray.of(1d, 2d, 3d);
+  private static final DoubleArray XVALUES2 = DoubleArray.of(0d, 2d, 3d);
+  private static final DoubleArray YVALUES = DoubleArray.of(5d, 7d, 8d);
+  private static final DoubleArray YVALUES_BUMPED = DoubleArray.of(3d, 5d, 6d);
   private static final CurveInterpolator INTERPOLATOR = new LogLinearInterpolator1D();
   private static final CurveExtrapolator FLAT_EXTRAPOLATOR = new FlatExtrapolator1D();
   private static final Interpolator1D COMBINED =
@@ -61,53 +62,52 @@ public class InterpolatedNodalCurveTest {
     assertThat(test.getInterpolator().getName()).isEqualTo(INTERPOLATOR.getName());
     assertThat(test.getExtrapolatorRight().getName()).isEqualTo(FLAT_EXTRAPOLATOR.getName());
     assertThat(test.getMetadata()).isEqualTo(METADATA_ENTRIES);
-    assertThat(test.getXValues()).containsExactly(XVALUES);
-    assertThat(test.getYValues()).containsExactly(YVALUES);
+    assertThat(test.getXValues()).isEqualTo(XVALUES);
+    assertThat(test.getYValues()).isEqualTo(YVALUES);
   }
 
   public void test_of_invalid() {
     // not enough nodes
-    assertThrowsIllegalArg(() -> InterpolatedNodalCurve.of(METADATA, new double[] {1d}, new double[] {1d}, INTERPOLATOR));
+    assertThrowsIllegalArg(() -> InterpolatedNodalCurve.of(
+        METADATA, DoubleArray.of(1d), DoubleArray.of(1d), INTERPOLATOR));
     // x node size != y node size
-    assertThrowsIllegalArg(() -> InterpolatedNodalCurve.of(METADATA, XVALUES, new double[] {1d, 3d}, INTERPOLATOR));
+    assertThrowsIllegalArg(() -> InterpolatedNodalCurve.of(
+        METADATA, XVALUES, DoubleArray.of(1d, 3d), INTERPOLATOR));
     // parameter metadata size != node size
     assertThrowsIllegalArg(() -> InterpolatedNodalCurve.of(
-        METADATA_ENTRIES, new double[] {1d, 3d}, new double[] {1d, 3d}, INTERPOLATOR));
+        METADATA_ENTRIES, DoubleArray.of(1d, 3d), DoubleArray.of(1d, 3d), INTERPOLATOR));
   }
 
   //-------------------------------------------------------------------------
   public void test_lookup() {
     InterpolatedNodalCurve test = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    Interpolator1DDataBundle bundle = COMBINED.getDataBundle(XVALUES, YVALUES);
-    assertThat(test.yValue(XVALUES[0])).isEqualTo(YVALUES[0]);
-    assertThat(test.yValue(XVALUES[1])).isEqualTo(YVALUES[1]);
-    assertThat(test.yValue(XVALUES[2])).isEqualTo(YVALUES[2]);
+    Interpolator1DDataBundle bundle = COMBINED.getDataBundle(XVALUES.toArray(), YVALUES.toArray());
+    assertThat(test.yValue(XVALUES.get(0))).isEqualTo(YVALUES.get(0));
+    assertThat(test.yValue(XVALUES.get(1))).isEqualTo(YVALUES.get(1));
+    assertThat(test.yValue(XVALUES.get(2))).isEqualTo(YVALUES.get(2));
     assertThat(test.yValue(10d)).isEqualTo(COMBINED.interpolate(bundle, 10d));
 
     assertThat(test.yValueParameterSensitivity(10d)).isEqualTo(
-        CurveUnitParameterSensitivity.of(METADATA, COMBINED.getNodeSensitivitiesForValue(bundle, 10d)));
+        CurveUnitParameterSensitivity.of(METADATA, DoubleArray.copyOf(COMBINED.getNodeSensitivitiesForValue(bundle, 10d))));
 
     assertThat(test.firstDerivative(10d)).isEqualTo(COMBINED.firstDerivative(bundle, 10d));
   }
 
   //-------------------------------------------------------------------------
   public void test_withYValues() {
-    double[] yBumped = YVALUES_BUMPED.clone();
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    InterpolatedNodalCurve test = base.withYValues(yBumped);
+    InterpolatedNodalCurve test = base.withYValues(YVALUES_BUMPED);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(XVALUES);
-    assertThat(test.getYValues()).containsExactly(YVALUES_BUMPED);
-    yBumped[0] = -110d;
-    assertThat(test.getYValues()).containsExactly(YVALUES_BUMPED);
+    assertThat(test.getXValues()).isEqualTo(XVALUES);
+    assertThat(test.getYValues()).isEqualTo(YVALUES_BUMPED);
   }
 
   public void test_withYValues_badSize() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    assertThrowsIllegalArg(() -> base.withYValues(new double[0]));
-    assertThrowsIllegalArg(() -> base.withYValues(new double[] {4d, 6d}));
+    assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.EMPTY));
+    assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.of(4d, 6d)));
   }
 
   //-------------------------------------------------------------------------
@@ -117,8 +117,8 @@ public class InterpolatedNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(XVALUES);
-    assertThat(test.getYValues()).containsExactly(YVALUES_BUMPED);
+    assertThat(test.getXValues()).isEqualTo(XVALUES);
+    assertThat(test.getYValues()).isEqualTo(YVALUES_BUMPED);
   }
 
   public void test_shiftedBy_adjustment() {
@@ -129,8 +129,8 @@ public class InterpolatedNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(XVALUES);
-    assertThat(test.getYValues()).containsExactly(YVALUES_BUMPED);
+    assertThat(test.getXValues()).isEqualTo(XVALUES);
+    assertThat(test.getYValues()).isEqualTo(YVALUES_BUMPED);
   }
 
   public void test_shiftedBy_adjustment_longList() {
@@ -144,54 +144,54 @@ public class InterpolatedNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(XVALUES);
-    assertThat(test.getYValues()).containsExactly(YVALUES_BUMPED);
+    assertThat(test.getXValues()).isEqualTo(XVALUES);
+    assertThat(test.getYValues()).isEqualTo(YVALUES_BUMPED);
   }
 
   public void test_shiftedBy_adjustment_shortList() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
     ImmutableList<ValueAdjustment> adjustments = ImmutableList.of(
         ValueAdjustment.ofReplace(3d));
-    double[] bumped = new double[] {3d, 7d, 8d};
+    DoubleArray bumped = DoubleArray.of(3d, 7d, 8d);
     InterpolatedNodalCurve test = base.shiftedBy(adjustments);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(XVALUES);
-    assertThat(test.getYValues()).containsExactly(bumped);
+    assertThat(test.getXValues()).isEqualTo(XVALUES);
+    assertThat(test.getYValues()).isEqualTo(bumped);
   }
 
   //-------------------------------------------------------------------------
   public void test_withNode_atStart_noMetadata() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA_ENTRIES, XVALUES, YVALUES, INTERPOLATOR);
     InterpolatedNodalCurve test = base.withNode(0, 0.5d, 4d);
-    double[] x = {0.5d, 1d, 2d, 3d};
-    double[] y = {4d, 5d, 7d, 8d};
+    DoubleArray x = DoubleArray.of(0.5d, 1d, 2d, 3d);
+    DoubleArray y = DoubleArray.of(4d, 5d, 7d, 8d);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE + 1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(x);
-    assertThat(test.getYValues()).containsExactly(y);
+    assertThat(test.getXValues()).isEqualTo(x);
+    assertThat(test.getYValues()).isEqualTo(y);
   }
 
   public void test_withNode_atEnd_noMetadata() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA_ENTRIES, XVALUES, YVALUES, INTERPOLATOR);
     InterpolatedNodalCurve test = base.withNode(SIZE, 4d, 9d);
-    double[] x = {1d, 2d, 3d, 4d};
-    double[] y = {5d, 7d, 8d, 9d};
+    DoubleArray x = DoubleArray.of(1d, 2d, 3d, 4d);
+    DoubleArray y = DoubleArray.of(5d, 7d, 8d, 9d);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE + 1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(x);
-    assertThat(test.getYValues()).containsExactly(y);
+    assertThat(test.getXValues()).isEqualTo(x);
+    assertThat(test.getYValues()).isEqualTo(y);
   }
 
   public void test_withNode_atStart_metadata() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA_ENTRIES, XVALUES, YVALUES, INTERPOLATOR);
     TenorCurveNodeMetadata item = TenorCurveNodeMetadata.of(date(2015, 6, 30), TENOR_1Y);
     InterpolatedNodalCurve test = base.withNode(0, item, 0.5d, 4d);
-    double[] x = {0.5d, 1d, 2d, 3d};
-    double[] y = {4d, 5d, 7d, 8d};
+    DoubleArray x = DoubleArray.of(0.5d, 1d, 2d, 3d);
+    DoubleArray y = DoubleArray.of(4d, 5d, 7d, 8d);
     List<CurveParameterMetadata> list = new ArrayList<>();
     list.add(item);
     list.addAll(CurveParameterMetadata.listOfEmpty(SIZE));
@@ -199,21 +199,21 @@ public class InterpolatedNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE + 1);
     assertThat(test.getMetadata()).isEqualTo(expectedMetadata);
-    assertThat(test.getXValues()).containsExactly(x);
-    assertThat(test.getYValues()).containsExactly(y);
+    assertThat(test.getXValues()).isEqualTo(x);
+    assertThat(test.getYValues()).isEqualTo(y);
   }
 
   public void test_withNode_atEnd_metadata_onCurveWithoutMetadata() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
     TenorCurveNodeMetadata item = TenorCurveNodeMetadata.of(date(2015, 6, 30), TENOR_1Y);
     InterpolatedNodalCurve test = base.withNode(0, item, 0.5d, 4d);
-    double[] x = {0.5d, 1d, 2d, 3d};
-    double[] y = {4d, 5d, 7d, 8d};
+    DoubleArray x = DoubleArray.of(0.5d, 1d, 2d, 3d);
+    DoubleArray y = DoubleArray.of(4d, 5d, 7d, 8d);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE + 1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(x);
-    assertThat(test.getYValues()).containsExactly(y);
+    assertThat(test.getXValues()).isEqualTo(x);
+    assertThat(test.getYValues()).isEqualTo(y);
   }
 
   //-------------------------------------------------------------------------

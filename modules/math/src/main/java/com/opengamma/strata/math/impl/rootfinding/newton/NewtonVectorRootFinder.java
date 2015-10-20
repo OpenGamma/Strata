@@ -10,11 +10,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.math.impl.rootfinding.VectorRootFinder;
@@ -55,7 +55,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
   }
 
   @Override
-  public DoubleMatrix1D getRoot(Function1D<DoubleMatrix1D, DoubleMatrix1D> function, DoubleMatrix1D startPosition) {
+  public DoubleArray getRoot(Function1D<DoubleArray, DoubleArray> function, DoubleArray startPosition) {
     VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
     return getRoot(function, jac.differentiate(function), startPosition);
   }
@@ -69,16 +69,16 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
    */
 
   @SuppressWarnings("synthetic-access")
-  public DoubleMatrix1D getRoot(Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
-      Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction, DoubleMatrix1D startPosition) {
+  public DoubleArray getRoot(Function1D<DoubleArray, DoubleArray> function,
+      Function1D<DoubleArray, DoubleMatrix> jacobianFunction, DoubleArray startPosition) {
     checkInputs(function, startPosition);
 
     DataBundle data = new DataBundle();
-    DoubleMatrix1D y = function.evaluate(startPosition);
+    DoubleArray y = function.evaluate(startPosition);
     data.setX(startPosition);
     data.setY(y);
     data.setG0(_algebra.getInnerProduct(y, y));
-    DoubleMatrix2D estimate = _initializationFunction.getInitializedMatrix(jacobianFunction, startPosition);
+    DoubleMatrix estimate = _initializationFunction.getInitializedMatrix(jacobianFunction, startPosition);
 
     if (!getNextPosition(function, estimate, data)) {
       if (isConverged(data)) {
@@ -124,17 +124,17 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     return data.getX();
   }
 
-  private String getErrorMessage(DataBundle data, Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction) {
+  private String getErrorMessage(DataBundle data, Function1D<DoubleArray, DoubleMatrix> jacobianFunction) {
     return "Final position:" + data.getX() + "\nlast deltaX:" + data.getDeltaX() + "\n function value:" +
         data.getY() + "\nJacobian: \n" + jacobianFunction.evaluate(data.getX());
   }
 
   private boolean getNextPosition(
-      Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
-      DoubleMatrix2D estimate,
+      Function1D<DoubleArray, DoubleArray> function,
+      DoubleMatrix estimate,
       DataBundle data) {
 
-    DoubleMatrix1D p = _directionFunction.getDirection(estimate, data.getY());
+    DoubleArray p = _directionFunction.getDirection(estimate, data.getY());
     if (data.getLambda0() < 1.0) {
       data.setLambda0(1.0);
     } else {
@@ -156,26 +156,26 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
         count++;
       }
     }
-    DoubleMatrix1D deltaX = data.getDeltaX();
-    DoubleMatrix1D deltaY = data.getDeltaY();
+    DoubleArray deltaX = data.getDeltaX();
+    DoubleArray deltaY = data.getDeltaY();
     data.setG0(data.getG1());
-    data.setX((DoubleMatrix1D) _algebra.add(data.getX(), deltaX));
-    data.setY((DoubleMatrix1D) _algebra.add(data.getY(), deltaY));
+    data.setX((DoubleArray) _algebra.add(data.getX(), deltaX));
+    data.setY((DoubleArray) _algebra.add(data.getY(), deltaY));
     return true;
   }
 
-  protected void updatePosition(DoubleMatrix1D p, Function1D<DoubleMatrix1D, DoubleMatrix1D> function, DataBundle data) {
+  protected void updatePosition(DoubleArray p, Function1D<DoubleArray, DoubleArray> function, DataBundle data) {
     double lambda0 = data.getLambda0();
-    DoubleMatrix1D deltaX = (DoubleMatrix1D) _algebra.scale(p, -lambda0);
-    DoubleMatrix1D xNew = (DoubleMatrix1D) _algebra.add(data.getX(), deltaX);
-    DoubleMatrix1D yNew = function.evaluate(xNew);
+    DoubleArray deltaX = (DoubleArray) _algebra.scale(p, -lambda0);
+    DoubleArray xNew = (DoubleArray) _algebra.add(data.getX(), deltaX);
+    DoubleArray yNew = function.evaluate(xNew);
     data.setDeltaX(deltaX);
-    data.setDeltaY((DoubleMatrix1D) _algebra.subtract(yNew, data.getY()));
+    data.setDeltaY((DoubleArray) _algebra.subtract(yNew, data.getY()));
     data.setG2(data.getG1());
     data.setG1(_algebra.getInnerProduct(yNew, yNew));
   }
 
-  private void bisectBacktrack(DoubleMatrix1D p, Function1D<DoubleMatrix1D, DoubleMatrix1D> function, DataBundle data) {
+  private void bisectBacktrack(DoubleArray p, Function1D<DoubleArray, DoubleArray> function, DataBundle data) {
     do {
       data.setLambda0(data.getLambda0() * 0.1);
       updatePosition(p, function, data);
@@ -189,8 +189,8 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
   }
 
   private void quadraticBacktrack(
-      DoubleMatrix1D p,
-      Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
+      DoubleArray p,
+      Function1D<DoubleArray, DoubleArray> function,
       DataBundle data) {
 
     double lambda0 = data.getLambda0();
@@ -200,7 +200,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     updatePosition(p, function, data);
   }
 
-  private void cubicBacktrack(DoubleMatrix1D p, Function1D<DoubleMatrix1D, DoubleMatrix1D> function, DataBundle data) {
+  private void cubicBacktrack(DoubleArray p, Function1D<DoubleArray, DoubleArray> function, DataBundle data) {
     double temp1, temp2, temp3, temp4, temp5;
     double lambda0 = data.getLambda0();
     double lambda1 = data.getLambda1();
@@ -219,8 +219,8 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
   }
 
   private boolean isConverged(DataBundle data) {
-    DoubleMatrix1D deltaX = data.getDeltaX();
-    DoubleMatrix1D x = data.getX();
+    DoubleArray deltaX = data.getDeltaX();
+    DoubleArray x = data.getX();
     int n = deltaX.size();
     double diff, scale;
     for (int i = 0; i < n; i++) {
@@ -239,10 +239,10 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     private double _g2;
     private double _lambda0;
     private double _lambda1;
-    private DoubleMatrix1D _deltaY;
-    private DoubleMatrix1D _y;
-    private DoubleMatrix1D _deltaX;
-    private DoubleMatrix1D _x;
+    private DoubleArray _deltaY;
+    private DoubleArray _y;
+    private DoubleArray _deltaX;
+    private DoubleArray _x;
 
     public double getG0() {
       return _g0;
@@ -264,19 +264,19 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
       return _lambda1;
     }
 
-    public DoubleMatrix1D getDeltaY() {
+    public DoubleArray getDeltaY() {
       return _deltaY;
     }
 
-    public DoubleMatrix1D getY() {
+    public DoubleArray getY() {
       return _y;
     }
 
-    public DoubleMatrix1D getDeltaX() {
+    public DoubleArray getDeltaX() {
       return _deltaX;
     }
 
-    public DoubleMatrix1D getX() {
+    public DoubleArray getX() {
       return _x;
     }
 
@@ -296,19 +296,19 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
       _lambda0 = lambda0;
     }
 
-    public void setDeltaY(DoubleMatrix1D deltaY) {
+    public void setDeltaY(DoubleArray deltaY) {
       _deltaY = deltaY;
     }
 
-    public void setY(DoubleMatrix1D y) {
+    public void setY(DoubleArray y) {
       _y = y;
     }
 
-    public void setDeltaX(DoubleMatrix1D deltaX) {
+    public void setDeltaX(DoubleArray deltaX) {
       _deltaX = deltaX;
     }
 
-    public void setX(DoubleMatrix1D x) {
+    public void setX(DoubleArray x) {
       _x = x;
     }
 

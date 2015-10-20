@@ -6,10 +6,10 @@
 package com.opengamma.strata.math.impl.function;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
  * If we sample an interpolated curve at a fix set of points (the sample points),
@@ -44,28 +44,18 @@ public class InterpolatedCurveVectorFunction extends VectorFunction {
 
   //-------------------------------------------------------------------------
   @Override
-  public DoubleMatrix2D calculateJacobian(DoubleMatrix1D x) {
+  public DoubleMatrix calculateJacobian(DoubleArray x) {
     Interpolator1DDataBundle db = _interpolator.getDataBundleFromSortedArrays(_knots, x.toArray());
-    int n = _samplePoints.length;
-    int nKnots = _knots.length;
-    DoubleMatrix2D res = DoubleMatrix2D.filled(n, nKnots);
-    double[][] data = res.getData(); //direct access to matrix data
-    for (int i = 0; i < n; i++) {
-      data[i] = _interpolator.getNodeSensitivitiesForValue(db, _samplePoints[i]);
-    }
-    return res;
+    return DoubleMatrix.ofArrays(
+        _samplePoints.length,
+        _knots.length,
+        i -> _interpolator.getNodeSensitivitiesForValue(db, _samplePoints[i]));
   }
 
   @Override
-  public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+  public DoubleArray evaluate(DoubleArray x) {
     Interpolator1DDataBundle db = _interpolator.getDataBundleFromSortedArrays(_knots, x.toArray());
-    int n = _samplePoints.length;
-    DoubleMatrix1D res = DoubleMatrix1D.filled(n);
-    double[] data = res.getData(); //direct access to vector data
-    for (int i = 0; i < n; i++) {
-      data[i] = _interpolator.interpolate(db, _samplePoints[i]);
-    }
-    return res;
+    return DoubleArray.of(_samplePoints.length, i -> _interpolator.interpolate(db, _samplePoints[i]));
   }
 
   @Override

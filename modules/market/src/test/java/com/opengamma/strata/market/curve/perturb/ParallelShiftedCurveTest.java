@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.offset;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -67,8 +68,8 @@ public class ParallelShiftedCurveTest {
   public void test_yValueParameterSensitivity() {
     InterpolatedNodalCurve curve = InterpolatedNodalCurve.of(
         METADATA,
-        new double[] {0, 1},
-        new double[] {2, 2.5},
+        DoubleArray.of(0, 1),
+        DoubleArray.of(2, 2.5),
         Interpolator1DFactory.LINEAR_INSTANCE); // TODO Use CurveInterpolators.LINEAR when #261 is fixed
 
     Curve absoluteShiftedCurve = ParallelShiftedCurve.absolute(curve, 1);
@@ -82,8 +83,8 @@ public class ParallelShiftedCurveTest {
   public void test_firstDerivative() {
     InterpolatedNodalCurve curve = InterpolatedNodalCurve.of(
         METADATA,
-        new double[] {0, 1},
-        new double[] {2, 2.5},
+        DoubleArray.of(0, 1),
+        DoubleArray.of(2, 2.5),
         Interpolator1DFactory.LINEAR_INSTANCE); // TODO Use CurveInterpolators.LINEAR when #261 is fixed
 
     Curve absoluteShiftedCurve = ParallelShiftedCurve.absolute(curve, 1);

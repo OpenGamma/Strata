@@ -8,8 +8,8 @@ package com.opengamma.strata.math.impl.linearalgebra;
 import java.util.Arrays;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
-import com.opengamma.strata.math.impl.matrix.Matrix;
+import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.collect.array.Matrix;
 
 /**
  * Class representing a tridiagonal matrix:
@@ -30,7 +30,7 @@ public class TridiagonalMatrix implements Matrix {
   private final double[] _a;
   private final double[] _b;
   private final double[] _c;
-  private DoubleMatrix2D _matrix;
+  private DoubleMatrix _matrix;
 
   /**
    * @param a An array containing the diagonal values of the matrix, not null
@@ -97,9 +97,9 @@ public class TridiagonalMatrix implements Matrix {
   }
 
   /**
-   * @return Returns the tridiagonal matrix as a {@link DoubleMatrix2D}
+   * @return Returns the tridiagonal matrix as a {@link DoubleMatrix}
    */
-  public DoubleMatrix2D toDoubleMatrix2D() {
+  public DoubleMatrix toDoubleMatrix() {
     if (_matrix == null) {
       calMatrix();
     }
@@ -118,7 +118,7 @@ public class TridiagonalMatrix implements Matrix {
     for (int i = 1; i < n; i++) {
       data[i][i - 1] = _c[i - 1];
     }
-    _matrix = new DoubleMatrix2D(data);
+    _matrix = DoubleMatrix.copyOf(data);
   }
 
   @Override

@@ -17,12 +17,12 @@ import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.ComplexNumber;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.FunctionND;
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
  * Test {@link CommonsMathWrapper}.
@@ -30,9 +30,9 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 @Test
 public class CommonsMathWrapperTest {
 
-  private static final DoubleMatrix1D OG_VECTOR = new DoubleMatrix1D(new double[] {1, 2, 3});
-  private static final DoubleMatrix2D OG_MATRIX = new DoubleMatrix2D(
-      new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9}});
+  private static final DoubleArray OG_VECTOR = DoubleArray.of(1, 2, 3);
+  private static final DoubleMatrix OG_MATRIX = DoubleMatrix.copyOf(
+      new double[][] { {1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
   private static final Function1D<Double, Double> OG_FUNCTION_1D = new Function1D<Double, Double>() {
     @Override
     public Double evaluate(final Double x) {
@@ -53,7 +53,7 @@ public class CommonsMathWrapperTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1DMatrix() {
-    CommonsMathWrapper.wrap((DoubleMatrix1D) null);
+    CommonsMathWrapper.wrap((DoubleArray) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -73,7 +73,7 @@ public class CommonsMathWrapperTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMatrix() {
-    CommonsMathWrapper.wrap((DoubleMatrix2D) null);
+    CommonsMathWrapper.wrap((DoubleMatrix) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -135,8 +135,8 @@ public class CommonsMathWrapperTest {
   @Test
   public void testMatrix() {
     RealMatrix commons = CommonsMathWrapper.wrap(OG_MATRIX);
-    double[][] unwrapped = CommonsMathWrapper.unwrap(commons).getData();
-    double[][] ogData = OG_MATRIX.getData();
+    double[][] unwrapped = CommonsMathWrapper.unwrap(commons).toArray();
+    double[][] ogData = OG_MATRIX.toArray();
     int n = unwrapped.length;
     assertEquals(n, ogData.length);
     for (int i = 0; i < n; i++) {

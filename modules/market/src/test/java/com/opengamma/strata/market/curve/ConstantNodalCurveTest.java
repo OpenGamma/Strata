@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * Test {@link ConstantNodalCurve}.
@@ -33,8 +34,8 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(VALUE);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(VALUE);
   }
 
   public void test_of_CurveName() {
@@ -42,8 +43,8 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(VALUE);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(VALUE);
   }
 
   public void test_of_CurveMetadata() {
@@ -51,8 +52,8 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(VALUE);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(VALUE);
   }
 
   //-------------------------------------------------------------------------
@@ -62,9 +63,9 @@ public class ConstantNodalCurveTest {
     assertThat(test.yValue(-10d)).isEqualTo(VALUE);
     assertThat(test.yValue(100d)).isEqualTo(VALUE);
 
-    assertThat(test.yValueParameterSensitivity(0d).getSensitivity()).containsExactly(1d);
-    assertThat(test.yValueParameterSensitivity(-10d).getSensitivity()).containsExactly(1d);
-    assertThat(test.yValueParameterSensitivity(100d).getSensitivity()).containsExactly(1d);
+    assertThat(test.yValueParameterSensitivity(0d).getSensitivity().toArray()).containsExactly(1d);
+    assertThat(test.yValueParameterSensitivity(-10d).getSensitivity().toArray()).containsExactly(1d);
+    assertThat(test.yValueParameterSensitivity(100d).getSensitivity().toArray()).containsExactly(1d);
 
     assertThat(test.firstDerivative(0d)).isEqualTo(0d);
     assertThat(test.firstDerivative(-10d)).isEqualTo(0d);
@@ -74,18 +75,18 @@ public class ConstantNodalCurveTest {
   //-------------------------------------------------------------------------
   public void test_withYValues() {
     ConstantNodalCurve base = ConstantNodalCurve.of(CURVE_NAME, VALUE);
-    ConstantNodalCurve test = base.withYValues(new double[] {4d});
+    ConstantNodalCurve test = base.withYValues(DoubleArray.of(4d));
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(4d);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(4d);
   }
 
   public void test_withYValues_badSize() {
     ConstantNodalCurve base = ConstantNodalCurve.of(CURVE_NAME, VALUE);
-    assertThrowsIllegalArg(() -> base.withYValues(new double[0]));
-    assertThrowsIllegalArg(() -> base.withYValues(new double[] {4d, 6d}));
+    assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.EMPTY));
+    assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.of(4d, 6d)));
   }
 
   public void test_shiftedBy_operator() {
@@ -94,8 +95,8 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(4d);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(4d);
   }
 
   public void test_shiftedBy_adjustment() {
@@ -104,8 +105,8 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(4d);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(4d);
   }
 
   //-------------------------------------------------------------------------

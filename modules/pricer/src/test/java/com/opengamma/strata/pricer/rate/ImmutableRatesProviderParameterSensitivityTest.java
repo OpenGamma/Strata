@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -183,8 +184,8 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     double eps = 1.0e-13;
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
     YearMonth valuationMonth = YearMonth.of(2014, 1);
-    double[] x = new double[] {0.5, 1.0, 2.0};
-    double[] y = new double[] {224.2, 262.6, 277.5};
+    DoubleArray x = DoubleArray.of(0.5, 1.0, 2.0);
+    DoubleArray y = DoubleArray.of(224.2, 262.6, 277.5);
     NaturalCubicSplineInterpolator1D interp = Interpolator1DFactory.NATURAL_CUBIC_SPLINE_INSTANCE;
     String curveName = "GB_RPI_CURVE";
     InterpolatedNodalCurve interpCurve = InterpolatedNodalCurve.of(Curves.prices(curveName), x, y, interp);
@@ -202,13 +203,10 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     YearMonth refMonth = YearMonth.from(valuationDate.plusMonths(9));
     InflationRateSensitivity pointSensi = InflationRateSensitivity.of(GB_RPI, refMonth, pointSensiValue);
     CurveCurrencyParameterSensitivities computed = provider.curveParameterSensitivity(pointSensi.build());
-    double[] sensiComputed = computed.getSensitivities().get(0).getSensitivity();
-    double[] sensiExpectedUnit =
+    DoubleArray sensiComputed = computed.getSensitivities().get(0).getSensitivity();
+    DoubleArray sensiExpectedUnit =
         provider.priceIndexValues(GB_RPI).unitParameterSensitivity(refMonth).getSensitivities().get(0).getSensitivity();
-    assertEquals(sensiComputed.length, sensiExpectedUnit.length);
-    for (int i = 0; i < sensiComputed.length; ++i) {
-      assertEquals(sensiComputed[i], sensiExpectedUnit[i] * pointSensiValue, eps);
-    }
+    assertTrue(sensiComputed.equalWithTolerance(sensiExpectedUnit.multipliedBy(pointSensiValue), eps));
   }
 
   //-------------------------------------------------------------------------
@@ -240,7 +238,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
 
     @Override
     public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
-      return CurveUnitParameterSensitivity.of(metadata, new double[] {1d});
+      return CurveUnitParameterSensitivity.of(metadata, DoubleArray.of(1d));
     }
 
     @Override

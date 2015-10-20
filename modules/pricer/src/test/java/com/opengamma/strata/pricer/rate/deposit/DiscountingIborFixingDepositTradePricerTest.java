@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDeposit;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
@@ -54,17 +55,17 @@ public class DiscountingIborFixingDepositTradePricerTest {
       .fixedRate(RATE)
       .build();
   private static final IborFixingDepositTrade DEPOSIT_TRADE = 
-      IborFixingDepositTrade.builder().product(DEPOSIT_PRODUCT).tradeInfo(TradeInfo.EMPTY).build();  
+      IborFixingDepositTrade.builder().product(DEPOSIT_PRODUCT).tradeInfo(TradeInfo.EMPTY).build();
   
   private static final ImmutableRatesProvider IMM_PROV;
   static {
     CurveInterpolator interp = Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE;
-    double[] time_eur = new double[] {0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 2.0};
-    double[] rate_eur = new double[] {0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.014};
+    DoubleArray time_eur = DoubleArray.of(0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 2.0);
+    DoubleArray rate_eur = DoubleArray.of(0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.014);
     InterpolatedNodalCurve dscCurve =
         InterpolatedNodalCurve.of(Curves.zeroRates("EUR-Discount", ACT_ACT_ISDA), time_eur, rate_eur, interp);
-    double[] time_index = new double[] {0.0, 0.25, 0.5, 1.0};
-    double[] rate_index = new double[] {0.0180, 0.0180, 0.0175, 0.0165};
+    DoubleArray time_index = DoubleArray.of(0.0, 0.25, 0.5, 1.0);
+    DoubleArray rate_index = DoubleArray.of(0.0180, 0.0180, 0.0175, 0.0165);
     InterpolatedNodalCurve indexCurve =
         InterpolatedNodalCurve.of(Curves.zeroRates("EUR-EURIBOR6M", ACT_ACT_ISDA), time_index, rate_index, interp);
     IMM_PROV = ImmutableRatesProvider.builder()

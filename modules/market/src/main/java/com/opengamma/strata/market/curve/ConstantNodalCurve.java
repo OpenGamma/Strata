@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 
 /**
@@ -42,6 +43,15 @@ import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 @BeanDefinition(builderScope = "private")
 public final class ConstantNodalCurve
     implements NodalCurve, ImmutableBean, Serializable {
+
+  /**
+   * X-values does not vary.
+   */
+  private static final DoubleArray X_VALUES = DoubleArray.of(0d);
+  /**
+   * Sensitivity does not vary.
+   */
+  private static final DoubleArray SENSITIVITY = DoubleArray.of(1d);
 
   /**
    * The curve metadata.
@@ -103,13 +113,13 @@ public final class ConstantNodalCurve
   }
 
   @Override
-  public double[] getXValues() {
-    return new double[] {0d};
+  public DoubleArray getXValues() {
+    return X_VALUES;
   }
 
   @Override
-  public double[] getYValues() {
-    return new double[] {yValue};
+  public DoubleArray getYValues() {
+    return DoubleArray.of(yValue);
   }
 
   //-------------------------------------------------------------------------
@@ -120,7 +130,7 @@ public final class ConstantNodalCurve
 
   @Override
   public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
-    return CurveUnitParameterSensitivity.of(metadata, new double[] {1d});
+    return CurveUnitParameterSensitivity.of(metadata, SENSITIVITY);
   }
 
   @Override
@@ -130,9 +140,9 @@ public final class ConstantNodalCurve
 
   //-------------------------------------------------------------------------
   @Override
-  public ConstantNodalCurve withYValues(double[] yValues) {
-    ArgChecker.isTrue(yValues.length == 1, "YValues array must be size one");
-    return new ConstantNodalCurve(metadata, yValues[0]);
+  public ConstantNodalCurve withYValues(DoubleArray yValues) {
+    ArgChecker.isTrue(yValues.size() == 1, "YValues array must be size one");
+    return new ConstantNodalCurve(metadata, yValues.get(0));
   }
 
   @Override

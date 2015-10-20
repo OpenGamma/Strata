@@ -13,15 +13,14 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
 import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionCommons;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrixUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 
 /**
@@ -39,7 +38,7 @@ public class GeneralizedLeastSquare {
 
   /**
    * 
-   * @param <T> The type of the independent variables (e.g. Double, double[], DoubleMatrix1D etc)
+   * @param <T> The type of the independent variables (e.g. Double, double[], DoubleArray etc)
    * @param x independent variables
    * @param y dependent (scalar) variables
    * @param sigma (Gaussian) measurement error on dependent variables
@@ -53,7 +52,7 @@ public class GeneralizedLeastSquare {
 
   /**
    * Generalised least square with penalty on (higher-order) finite differences of weights
-   * @param <T> The type of the independent variables (e.g. Double, double[], DoubleMatrix1D etc)
+   * @param <T> The type of the independent variables (e.g. Double, double[], DoubleArray etc)
    * @param x independent variables
    * @param y dependent (scalar) variables
    * @param sigma (Gaussian) measurement error on dependent variables
@@ -92,7 +91,7 @@ public class GeneralizedLeastSquare {
 
   /**
    * 
-   * @param <T> The type of the independent variables (e.g. Double, double[], DoubleMatrix1D etc)
+   * @param <T> The type of the independent variables (e.g. Double, double[], DoubleArray etc)
    * @param x independent variables
    * @param y dependent (scalar) variables
    * @param sigma (Gaussian) measurement error on dependent variables
@@ -106,7 +105,7 @@ public class GeneralizedLeastSquare {
 
   /**
    * Generalised least square with penalty on (higher-order) finite differences of weights
-   * @param <T> The type of the independent variables (e.g. Double, double[], DoubleMatrix1D etc)
+   * @param <T> The type of the independent variables (e.g. Double, double[], DoubleArray etc)
    * @param x independent variables
    * @param y dependent (scalar) variables
    * @param sigma (Gaussian) measurement error on dependent variables
@@ -136,7 +135,7 @@ public class GeneralizedLeastSquare {
   /**
    * Specialist method used mainly for solving multidimensional P-spline problems where the basis functions (B-splines) span a N-dimension space, and the weights sit on an N-dimension
    *  grid and are treated as a N-order tensor rather than a vector, so k-order differencing is done for each tensor index while varying the other indices.
-   * @param <T> The type of the independent variables (e.g. Double, double[], DoubleMatrix1D etc)
+   * @param <T> The type of the independent variables (e.g. Double, double[], DoubleArray etc)
    * @param x independent variables
    * @param y dependent (scalar) variables
    * @param sigma (Gaussian) measurement error on dependent variables
@@ -208,17 +207,17 @@ public class GeneralizedLeastSquare {
 
     }
 
-    DoubleMatrix1D mb = new DoubleMatrix1D(b);
-    DoubleMatrix2D ma = getAMatrix(f, invSigmaSqr);
+    DoubleArray mb = DoubleArray.copyOf(b);
+    DoubleMatrix ma = getAMatrix(f, invSigmaSqr);
 
     if (lambda > 0.0) {
-      DoubleMatrix2D d = getDiffMatrix(m, differenceOrder);
-      ma = (DoubleMatrix2D) _algebra.add(ma, _algebra.scale(d, lambda));
+      DoubleMatrix d = getDiffMatrix(m, differenceOrder);
+      ma = (DoubleMatrix) _algebra.add(ma, _algebra.scale(d, lambda));
     }
 
     DecompositionResult decmp = _decomposition.evaluate(ma);
-    DoubleMatrix1D w = decmp.solve(mb);
-    DoubleMatrix2D covar = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(m));
+    DoubleArray w = decmp.solve(mb);
+    DoubleMatrix covar = decmp.solve(DoubleMatrix.identity(m));
 
     double chiSq = 0;
     for (i = 0; i < n; i++) {
@@ -270,19 +269,19 @@ public class GeneralizedLeastSquare {
 
     }
 
-    DoubleMatrix1D mb = new DoubleMatrix1D(b);
-    DoubleMatrix2D ma = getAMatrix(f, invSigmaSqr);
+    DoubleArray mb = DoubleArray.copyOf(b);
+    DoubleMatrix ma = getAMatrix(f, invSigmaSqr);
 
     for (i = 0; i < dim; i++) {
       if (lambda[i] > 0.0) {
-        DoubleMatrix2D d = getDiffMatrix(sizes, differenceOrder[i], i);
-        ma = (DoubleMatrix2D) _algebra.add(ma, _algebra.scale(d, lambda[i]));
+        DoubleMatrix d = getDiffMatrix(sizes, differenceOrder[i], i);
+        ma = (DoubleMatrix) _algebra.add(ma, _algebra.scale(d, lambda[i]));
       }
     }
 
     DecompositionResult decmp = _decomposition.evaluate(ma);
-    DoubleMatrix1D w = decmp.solve(mb);
-    DoubleMatrix2D covar = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(m));
+    DoubleArray w = decmp.solve(mb);
+    DoubleMatrix covar = decmp.solve(DoubleMatrix.identity(m));
 
     double chiSq = 0;
     for (i = 0; i < n; i++) {
@@ -296,7 +295,7 @@ public class GeneralizedLeastSquare {
     return new GeneralizedLeastSquareResults<>(basisFunctions, chiSq, w, covar);
   }
 
-  private DoubleMatrix2D getAMatrix(double[][] funcMatrix, double[] invSigmaSqr) {
+  private DoubleMatrix getAMatrix(double[][] funcMatrix, double[] invSigmaSqr) {
     int m = funcMatrix.length;
     int n = funcMatrix[0].length;
     double[][] a = new double[m][m];
@@ -316,10 +315,10 @@ public class GeneralizedLeastSquare {
       }
     }
 
-    return new DoubleMatrix2D(a);
+    return DoubleMatrix.copyOf(a);
   }
 
-  private DoubleMatrix2D getDiffMatrix(int m, int k) {
+  private DoubleMatrix getDiffMatrix(int m, int k) {
     ArgChecker.isTrue(k < m, "difference order too high");
 
     double[][] data = new double[m][m];
@@ -327,7 +326,7 @@ public class GeneralizedLeastSquare {
       for (int i = 0; i < m; i++) {
         data[i][i] = 1.0;
       }
-      return new DoubleMatrix2D(data);
+      return DoubleMatrix.copyOf(data);
     }
 
     int[] coeff = new int[k + 1];
@@ -343,16 +342,16 @@ public class GeneralizedLeastSquare {
         data[i][j + i - k] = coeff[j];
       }
     }
-    DoubleMatrix2D d = new DoubleMatrix2D(data);
+    DoubleMatrix d = DoubleMatrix.copyOf(data);
 
-    DoubleMatrix2D dt = _algebra.getTranspose(d);
-    return (DoubleMatrix2D) _algebra.multiply(dt, d);
+    DoubleMatrix dt = _algebra.getTranspose(d);
+    return (DoubleMatrix) _algebra.multiply(dt, d);
   }
 
-  private DoubleMatrix2D getDiffMatrix(int[] size, int k, int indices) {
+  private DoubleMatrix getDiffMatrix(int[] size, int k, int indices) {
     int dim = size.length;
 
-    DoubleMatrix2D d = getDiffMatrix(size[indices], k);
+    DoubleMatrix d = getDiffMatrix(size[indices], k);
 
     int preProduct = 1;
     int postProduct = 1;
@@ -362,12 +361,12 @@ public class GeneralizedLeastSquare {
     for (int j = 0; j < indices; j++) {
       postProduct *= size[j];
     }
-    DoubleMatrix2D temp = d;
+    DoubleMatrix temp = d;
     if (preProduct != 1) {
-      temp = (DoubleMatrix2D) _algebra.kroneckerProduct(DoubleMatrixUtils.getIdentityMatrix2D(preProduct), temp);
+      temp = (DoubleMatrix) _algebra.kroneckerProduct(DoubleMatrix.identity(preProduct), temp);
     }
     if (postProduct != 1) {
-      temp = (DoubleMatrix2D) _algebra.kroneckerProduct(temp, DoubleMatrixUtils.getIdentityMatrix2D(postProduct));
+      temp = (DoubleMatrix) _algebra.kroneckerProduct(temp, DoubleMatrix.identity(postProduct));
     }
 
     return temp;

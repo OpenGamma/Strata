@@ -12,6 +12,7 @@ import java.util.Collections;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
@@ -105,7 +106,7 @@ public class ExponentialInterpolator1DTest {
   public void piecewiseExponentialFunctionTest() {
     /* positive */
     double[] a1 = new double[] {2.5, 2.2, 2.7, 5.6, 0.7 };
-    double[] xData1 = new double[] {-2.2, -3.0 / 11.0, 0.2, 1.1, 3.0, 9.5 };
+    double[] xData1 = new double[] {-2.2, -3.0 / 11.0, 0.2, 1.1, 3.0, 9.5};
     int nIntervals = a1.length;
     double[] b1 = new double[nIntervals];
     double[] yData1 = new double[nIntervals + 1];
@@ -125,13 +126,13 @@ public class ExponentialInterpolator1DTest {
     int keySize1 = keys1.length;
     double[] expectedValues1 = new double[keySize1];
     for (int i = 0; i < keySize1; ++i) {
-      int index = FunctionUtils.getLowerBoundIndex(xData1, keys1[i]);
+      int index = FunctionUtils.getLowerBoundIndex(DoubleArray.copyOf(xData1), keys1[i]);
       expectedValues1[i] = func1[index].evaluate(keys1[i]);
     }
     testInterpolation(xData1, yData1, keys1, expectedValues1, false);
     /* negative */
     double[] a2 = new double[] {-2.5, -2.1, -2.2, -5.6, -1.7 };
-    double[] xData2 = new double[] {-2.2, -3.0 / 22.0, 0.2, 1.2, 3.0, 9.5 };
+    double[] xData2 = new double[] {-2.2, -3.0 / 22.0, 0.2, 1.2, 3.0, 9.5};
     nIntervals = a2.length;
     double[] b2 = new double[nIntervals];
     double[] yData2 = new double[nIntervals + 1];
@@ -151,7 +152,7 @@ public class ExponentialInterpolator1DTest {
     int keySize2 = keys2.length;
     double[] expectedValues2 = new double[keySize2];
     for (int i = 0; i < keySize2; ++i) {
-      int index = FunctionUtils.getLowerBoundIndex(xData2, keys2[i]);
+      int index = FunctionUtils.getLowerBoundIndex(DoubleArray.copyOf(xData2), keys2[i]);
       expectedValues2[i] = func2[index].evaluate(keys2[i]);
     }
     testInterpolation(xData2, yData2, keys2, expectedValues2, false);

@@ -10,8 +10,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 
 /**
@@ -21,12 +21,13 @@ import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 public class QRDecompositionCommonsTest {
   private static final MatrixAlgebra ALGEBRA = new CommonsMatrixAlgebra();
   private static final Decomposition<QRDecompositionResult> QR = new QRDecompositionCommons();
-  private static final DoubleMatrix2D A = new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3 }, new double[] {4, 5, 6 }, new double[] {7, 8, 9 } });
+  private static final DoubleMatrix A = DoubleMatrix.copyOf(
+      new double[][] { {1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
   private static final double EPS = 1e-9;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullObjectMatrix() {
-    QR.evaluate((DoubleMatrix2D) null);
+    QR.evaluate((DoubleMatrix) null);
   }
 
   @Test
@@ -34,13 +35,13 @@ public class QRDecompositionCommonsTest {
     final DecompositionResult result = QR.evaluate(A);
     assertTrue(result instanceof QRDecompositionResult);
     final QRDecompositionResult qr = (QRDecompositionResult) result;
-    final DoubleMatrix2D q = qr.getQ();
-    final DoubleMatrix2D r = qr.getR();
-    final DoubleMatrix2D a = (DoubleMatrix2D) ALGEBRA.multiply(q, r);
+    final DoubleMatrix q = qr.getQ();
+    final DoubleMatrix r = qr.getR();
+    final DoubleMatrix a = (DoubleMatrix) ALGEBRA.multiply(q, r);
     checkEquals(A, a);
   }
 
-  private void checkEquals(final DoubleMatrix2D x, final DoubleMatrix2D y) {
+  private void checkEquals(final DoubleMatrix x, final DoubleMatrix y) {
     final int n = x.rowCount();
     final int m = x.columnCount();
     assertEquals(n, y.rowCount());

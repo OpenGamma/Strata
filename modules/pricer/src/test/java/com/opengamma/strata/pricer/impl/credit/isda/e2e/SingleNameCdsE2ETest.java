@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalytic;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalyticFactory;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsPriceType;
@@ -163,7 +163,7 @@ public class SingleNameCdsE2ETest extends IsdaBaseTest {
     double recovery01 = RISK_CAL.recoveryRateSensitivity(pricingCDS, YIELD_CURVE, CREDIT_CURVE) * NOTIONAL; // Analytic
     double[] bucketCDSCoupons = new double[PILLAR_CDSS.length];
     Arrays.fill(bucketCDSCoupons, COUPON);
-    DoubleMatrix1D hedgeRatio = HEDGE_CAL.getHedgeRatios(pricingCDS, COUPON, HEDGE_CDSS, HEDGE_COUPON,
+    DoubleArray hedgeRatio = HEDGE_CAL.getHedgeRatios(pricingCDS, COUPON, HEDGE_CDSS, HEDGE_COUPON,
         CREDIT_CURVE, YIELD_CURVE);
 
     double[] expectedBIR01 = new double[] {-3.554654175175198E-4, -0.011674986050841385, 0.027624587315561167,
@@ -188,7 +188,7 @@ public class SingleNameCdsE2ETest extends IsdaBaseTest {
     assertDoubleArray("bucketed CS01", expectedBCS01, bucketedCS01, TOL);
     assertEqualsRelativeTol("value on default", 596646.5456374668, valueOnDefault, TOL);
     assertEqualsRelativeTol("recovery01", -42466.90028665213, recovery01, TOL);
-    assertDoubleArray("hedge ratio", expectedRatio, hedgeRatio.getData(), TOL);
+    assertDoubleArray("hedge ratio", expectedRatio, hedgeRatio.toArray(), TOL);
   }
 
   /**
@@ -227,7 +227,7 @@ public class SingleNameCdsE2ETest extends IsdaBaseTest {
     double recovery01 = RISK_CAL.recoveryRateSensitivity(pricingCDS, YIELD_CURVE, CREDIT_CURVE) * NOTIONAL;
     double[] bucketCDSCoupons = new double[PILLAR_CDSS.length];
     Arrays.fill(bucketCDSCoupons, COUPON);
-    DoubleMatrix1D hedgeRatio = HEDGE_CAL.getHedgeRatios(pricingCDS, COUPON, HEDGE_CDSS, HEDGE_COUPON,
+    DoubleArray hedgeRatio = HEDGE_CAL.getHedgeRatios(pricingCDS, COUPON, HEDGE_CDSS, HEDGE_COUPON,
         CREDIT_CURVE, YIELD_CURVE);
 
     double[] expectedBIR01 = new double[] {0.10195891236852717, -0.011674986061249726, 0.027624587339847295,
@@ -256,7 +256,7 @@ public class SingleNameCdsE2ETest extends IsdaBaseTest {
     assertDoubleArray("bucketed CS01", expectedBCS01, bucketedCS01, TOL);
     assertEqualsRelativeTol("value on default", 472164.1037851431, valueOnDefault, TOL);
     assertEqualsRelativeTol("recovery01", -386575.79968012485, recovery01, TOL);
-    assertDoubleArray("hedge ratio", expectedRatio, hedgeRatio.getData(), TOL);
+    assertDoubleArray("hedge ratio", expectedRatio, hedgeRatio.toArray(), TOL);
   }
 
   /**
@@ -296,7 +296,7 @@ public class SingleNameCdsE2ETest extends IsdaBaseTest {
     double recovery01 = RISK_CAL.recoveryRateSensitivity(pricingCDS, YIELD_CURVE, CREDIT_CURVE) * NOTIONAL;
     double[] bucketCDSCoupons = new double[PILLAR_CDSS.length];
     Arrays.fill(bucketCDSCoupons, COUPON);
-    DoubleMatrix1D hedgeRatio = HEDGE_CAL.getHedgeRatios(pricingCDS, coupon, HEDGE_CDSS, HEDGE_COUPON,
+    DoubleArray hedgeRatio = HEDGE_CAL.getHedgeRatios(pricingCDS, coupon, HEDGE_CDSS, HEDGE_COUPON,
         CREDIT_CURVE, YIELD_CURVE);
 
     double[] expectedBIR01 = new double[] {-0.006036998789760162, -0.00868633129313956, 0.09937045325481009,
@@ -323,7 +323,7 @@ public class SingleNameCdsE2ETest extends IsdaBaseTest {
     assertDoubleArray("bucketed CS01", expectedBCS01, bucketedCS01, TOL);
     assertEqualsRelativeTol("value on default", 600000.0, valueOnDefault, TOL); // zero PV, no accrued
     assertEqualsRelativeTol("recovery01", -267669.60396132956, recovery01, TOL);
-    assertDoubleArray("hedge ratio", expectedRatio, hedgeRatio.getData(), TOL);
+    assertDoubleArray("hedge ratio", expectedRatio, hedgeRatio.toArray(), TOL);
   }
 
   private void assertEqualsRelativeTol(String message, double expected, double result, double relTol) {

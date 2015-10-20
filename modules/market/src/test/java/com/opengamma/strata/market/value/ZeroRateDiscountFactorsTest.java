@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.market.Perturbation;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
@@ -44,9 +45,9 @@ public class ZeroRateDiscountFactorsTest {
   private static final CurveMetadata METADATA = Curves.zeroRates(NAME, ACT_365F);
 
   private static final InterpolatedNodalCurve CURVE =
-      InterpolatedNodalCurve.of(METADATA, new double[] {0, 10}, new double[] {1, 2}, INTERPOLATOR);
+      InterpolatedNodalCurve.of(METADATA, DoubleArray.of(0, 10), DoubleArray.of(1, 2), INTERPOLATOR);
   private static final InterpolatedNodalCurve CURVE2 =
-      InterpolatedNodalCurve.of(METADATA, new double[] {0, 10}, new double[] {2, 3}, INTERPOLATOR);
+      InterpolatedNodalCurve.of(METADATA, DoubleArray.of(0, 10), DoubleArray.of(2, 3), INTERPOLATOR);
 
   private static final double SPREAD = 0.05;
   private static final double TOL = 1.0e-12;
@@ -64,16 +65,16 @@ public class ZeroRateDiscountFactorsTest {
 
   public void test_of_badCurve() {
     InterpolatedNodalCurve notYearFraction = InterpolatedNodalCurve.of(
-        Curves.prices(NAME), new double[] {0, 10}, new double[] {1, 2}, INTERPOLATOR);
+        Curves.prices(NAME), DoubleArray.of(0, 10), DoubleArray.of(1, 2), INTERPOLATOR);
     InterpolatedNodalCurve notZeroRate = InterpolatedNodalCurve.of(
-        Curves.discountFactors(NAME, ACT_365F), new double[] {0, 10}, new double[] {1, 2}, INTERPOLATOR);
+        Curves.discountFactors(NAME, ACT_365F), DoubleArray.of(0, 10), DoubleArray.of(1, 2), INTERPOLATOR);
     CurveMetadata noDayCountMetadata = DefaultCurveMetadata.builder()
         .curveName(NAME)
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.DISCOUNT_FACTOR)
         .build();
     InterpolatedNodalCurve notDayCount = InterpolatedNodalCurve.of(
-        noDayCountMetadata, new double[] {0, 10}, new double[] {1, 2}, INTERPOLATOR);
+        noDayCountMetadata, DoubleArray.of(0, 10), DoubleArray.of(1, 2), INTERPOLATOR);
     assertThrowsIllegalArg(() -> ZeroRateDiscountFactors.of(GBP, DATE_VAL, notYearFraction));
     assertThrowsIllegalArg(() -> ZeroRateDiscountFactors.of(GBP, DATE_VAL, notZeroRate));
     assertThrowsIllegalArg(() -> ZeroRateDiscountFactors.of(GBP, DATE_VAL, notDayCount));

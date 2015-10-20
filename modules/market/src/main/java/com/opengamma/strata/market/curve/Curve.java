@@ -105,7 +105,7 @@ public interface Curve {
 
   //-------------------------------------------------------------------------
   /**
-   * Concerts this curve to a nodal curve.
+   * Converts this curve to a nodal curve.
    * <p>
    * A nodal curve is based on specific x-y values, typically with interpolation.
    * See {@link InterpolatedNodalCurve} for more details.

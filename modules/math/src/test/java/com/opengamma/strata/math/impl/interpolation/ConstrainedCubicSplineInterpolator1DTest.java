@@ -61,9 +61,9 @@ public class ConstrainedCubicSplineInterpolator1DTest {
       xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
     }
 
-    final double[] resPrim1 = INTERP.interpolate(xValues, yValues1, xKeys).getData();
-    final double[] resPrim2 = INTERP.interpolate(xValues, yValues2, xKeys).getData();
-    final double[] resPrim3 = INTERP.interpolate(xValues, yValues3, xKeys).getData();
+    final double[] resPrim1 = INTERP.interpolate(xValues, yValues1, xKeys).toArray();
+    final double[] resPrim2 = INTERP.interpolate(xValues, yValues2, xKeys).toArray();
+    final double[] resPrim3 = INTERP.interpolate(xValues, yValues3, xKeys).toArray();
 
     Interpolator1DDataBundle dataBund1 = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1);
     Interpolator1DDataBundle dataBund2 = INTERP1D.getDataBundle(xValues, yValues2);

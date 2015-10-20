@@ -8,10 +8,10 @@ package com.opengamma.strata.math.impl.statistics.leastsquare;
 import java.util.List;
 import java.util.Objects;
 
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.BasisFunctionAggregation;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
  * 
@@ -32,12 +32,12 @@ public class GeneralizedLeastSquareResults<T> extends LeastSquareResults {
   public GeneralizedLeastSquareResults(
       List<Function1D<T, Double>> basisFunctions,
       double chiSq,
-      DoubleMatrix1D parameters,
-      DoubleMatrix2D covariance) {
+      DoubleArray parameters,
+      DoubleMatrix covariance) {
 
     super(chiSq, parameters, covariance, null);
 
-    _function = new BasisFunctionAggregation<>(basisFunctions, parameters.getData());
+    _function = new BasisFunctionAggregation<>(basisFunctions, parameters.toArray());
   }
 
   //-------------------------------------------------------------------------

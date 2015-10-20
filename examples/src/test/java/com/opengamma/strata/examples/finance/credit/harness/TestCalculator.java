@@ -13,6 +13,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.CalculationEngine;
 import com.opengamma.strata.engine.CalculationRules;
@@ -47,7 +48,7 @@ public class TestCalculator implements Calculator {
   }
 
   @Override
-  public double[] calculateVectorValue(
+  public DoubleArray calculateVectorValue(
       LocalDate valuationDate, TradeSource tradeSource, Measure measure) {
 
     Result<?> result = calculateResults(valuationDate, tradeSource, ImmutableList.of(measure)).getItems().get(0);

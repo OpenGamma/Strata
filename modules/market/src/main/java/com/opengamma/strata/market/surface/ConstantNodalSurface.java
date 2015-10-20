@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.function.DoubleTenaryOperator;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 
@@ -44,6 +45,11 @@ import com.opengamma.strata.collect.tuple.DoublesPair;
 @BeanDefinition(builderScope = "private")
 public final class ConstantNodalSurface
     implements NodalSurface, ImmutableBean, Serializable {
+
+  /**
+   * X-values and y-values do not vary.
+   */
+  private static final DoubleArray VALUES = DoubleArray.of(0d);
 
   /**
    * The surface metadata.
@@ -105,18 +111,18 @@ public final class ConstantNodalSurface
   }
 
   @Override
-  public double[] getXValues() {
-    return new double[] {0d};
+  public DoubleArray getXValues() {
+    return VALUES;
   }
 
   @Override
-  public double[] getYValues() {
-    return new double[] {0d};
+  public DoubleArray getYValues() {
+    return VALUES;
   }
 
   @Override
-  public double[] getZValues() {
-    return new double[] {zValue};
+  public DoubleArray getZValues() {
+    return DoubleArray.of(zValue);
   }
 
   //-------------------------------------------------------------------------
@@ -132,9 +138,9 @@ public final class ConstantNodalSurface
 
   //-------------------------------------------------------------------------
   @Override
-  public ConstantNodalSurface withZValues(double[] zValues) {
-    ArgChecker.isTrue(zValues.length == 1, "ZValues array must be size one");
-    return new ConstantNodalSurface(metadata, zValues[0]);
+  public ConstantNodalSurface withZValues(DoubleArray zValues) {
+    ArgChecker.isTrue(zValues.size() == 1, "ZValues array must be size one");
+    return new ConstantNodalSurface(metadata, zValues.get(0));
   }
 
   @Override

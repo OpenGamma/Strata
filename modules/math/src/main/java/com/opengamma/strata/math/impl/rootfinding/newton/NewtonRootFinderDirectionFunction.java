@@ -5,14 +5,14 @@
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * 
  */
 public interface NewtonRootFinderDirectionFunction {
 
-  DoubleMatrix1D getDirection(DoubleMatrix2D estimate, DoubleMatrix1D y);
+  DoubleArray getDirection(DoubleMatrix estimate, DoubleArray y);
 
 }

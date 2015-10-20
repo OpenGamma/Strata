@@ -6,9 +6,9 @@
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 
 /**
@@ -24,25 +24,25 @@ public class ShermanMorrisonMatrixUpdateFunction implements NewtonRootFinderMatr
   }
 
   @Override
-  public DoubleMatrix2D getUpdatedMatrix(
-      Function1D<DoubleMatrix1D, DoubleMatrix2D> g,
-      DoubleMatrix1D x,
-      DoubleMatrix1D deltaX,
-      DoubleMatrix1D deltaY,
-      DoubleMatrix2D matrix) {
+  public DoubleMatrix getUpdatedMatrix(
+      Function1D<DoubleArray, DoubleMatrix> g,
+      DoubleArray x,
+      DoubleArray deltaX,
+      DoubleArray deltaY,
+      DoubleMatrix matrix) {
 
     ArgChecker.notNull(deltaX, "deltaX");
     ArgChecker.notNull(deltaY, "deltaY");
     ArgChecker.notNull(matrix, "matrix");
-    DoubleMatrix1D v1 = (DoubleMatrix1D) _algebra.multiply(deltaX, matrix);
+    DoubleArray v1 = (DoubleArray) _algebra.multiply(deltaX, matrix);
     double length = _algebra.getInnerProduct(v1, deltaY);
     if (length == 0) {
       return matrix;
     }
-    v1 = (DoubleMatrix1D) _algebra.scale(v1, 1. / length);
-    DoubleMatrix1D v2 = (DoubleMatrix1D) _algebra.subtract(deltaX, _algebra.multiply(matrix, deltaY));
-    DoubleMatrix2D m = _algebra.getOuterProduct(v2, v1);
-    return (DoubleMatrix2D) _algebra.add(matrix, m);
+    v1 = (DoubleArray) _algebra.scale(v1, 1. / length);
+    DoubleArray v2 = (DoubleArray) _algebra.subtract(deltaX, _algebra.multiply(matrix, deltaY));
+    DoubleMatrix m = _algebra.getOuterProduct(v2, v1);
+    return (DoubleMatrix) _algebra.add(matrix, m);
   }
 
 }

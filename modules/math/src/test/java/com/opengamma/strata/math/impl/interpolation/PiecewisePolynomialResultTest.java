@@ -9,8 +9,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Test for {@link PiecewisePolynomialResult} and subclasses
@@ -30,12 +30,18 @@ public class PiecewisePolynomialResultTest {
     final int dim1 = 2;
     final int dim2 = 1;
 
-    final PiecewisePolynomialResult res1 = new PiecewisePolynomialResult(new DoubleMatrix1D(knots1), new DoubleMatrix2D(matrix1), order, dim1);
-    final PiecewisePolynomialResult res2 = new PiecewisePolynomialResult(new DoubleMatrix1D(knots1), new DoubleMatrix2D(matrix1), order, dim1);
-    final PiecewisePolynomialResult res3 = new PiecewisePolynomialResult(new DoubleMatrix1D(knots2), new DoubleMatrix2D(matrix2), order, dim2);
-    final PiecewisePolynomialResult res4 = new PiecewisePolynomialResult(new DoubleMatrix1D(knots1), new DoubleMatrix2D(matrix1), 2, dim1);
-    final PiecewisePolynomialResult res5 = new PiecewisePolynomialResult(new DoubleMatrix1D(knots1), new DoubleMatrix2D(matrix1), order, dim1 - 1);
-    final PiecewisePolynomialResult res6 = new PiecewisePolynomialResult(new DoubleMatrix1D(new double[] {1., 2., 3., 5. }), new DoubleMatrix2D(matrix1), order, dim1);
+    final PiecewisePolynomialResult res1 =
+        new PiecewisePolynomialResult(DoubleArray.copyOf(knots1), DoubleMatrix.copyOf(matrix1), order, dim1);
+    final PiecewisePolynomialResult res2 =
+        new PiecewisePolynomialResult(DoubleArray.copyOf(knots1), DoubleMatrix.copyOf(matrix1), order, dim1);
+    final PiecewisePolynomialResult res3 =
+        new PiecewisePolynomialResult(DoubleArray.copyOf(knots2), DoubleMatrix.copyOf(matrix2), order, dim2);
+    final PiecewisePolynomialResult res4 =
+        new PiecewisePolynomialResult(DoubleArray.copyOf(knots1), DoubleMatrix.copyOf(matrix1), 2, dim1);
+    final PiecewisePolynomialResult res5 =
+        new PiecewisePolynomialResult(DoubleArray.copyOf(knots1), DoubleMatrix.copyOf(matrix1), order, dim1 - 1);
+    final PiecewisePolynomialResult res6 =
+        new PiecewisePolynomialResult(DoubleArray.of(1., 2., 3., 5.), DoubleMatrix.copyOf(matrix1), order, dim1);
 
     assertTrue(res1.equals(res1));
 
@@ -60,17 +66,24 @@ public class PiecewisePolynomialResultTest {
     assertTrue(!(res6.equals(res1)));
 
     assertTrue(!(res1.equals(null)));
-    assertTrue(!(res1.equals(new DoubleMatrix1D(knots1))));
+    assertTrue(!(res1.equals(DoubleArray.copyOf(knots1))));
 
-    final DoubleMatrix2D[] sense1 = new DoubleMatrix2D[] {new DoubleMatrix2D(matrix1), new DoubleMatrix2D(matrix1) };
-    final DoubleMatrix2D[] sense2 = new DoubleMatrix2D[] {new DoubleMatrix2D(matrix1), new DoubleMatrix2D(matrix1), new DoubleMatrix2D(matrix1) };
+    final DoubleMatrix[] sense1 = new DoubleMatrix[] {DoubleMatrix.copyOf(matrix1), DoubleMatrix.copyOf(matrix1)};
+    final DoubleMatrix[] sense2 =
+        new DoubleMatrix[] {DoubleMatrix.copyOf(matrix1), DoubleMatrix.copyOf(matrix1), DoubleMatrix.copyOf(matrix1)};
 
-    final PiecewisePolynomialResultsWithSensitivity resSen1 = new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(knots1), new DoubleMatrix2D(matrix1), order, 1, sense1);
-    final PiecewisePolynomialResultsWithSensitivity resSen2 = new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(knots1), new DoubleMatrix2D(matrix1), order, 1, sense1);
-    final PiecewisePolynomialResultsWithSensitivity resSen3 = new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(knots1), new DoubleMatrix2D(matrix1), order, 1, sense2);
+    final PiecewisePolynomialResultsWithSensitivity resSen1 =
+        new PiecewisePolynomialResultsWithSensitivity(
+            DoubleArray.copyOf(knots1), DoubleMatrix.copyOf(matrix1), order, 1, sense1);
+    final PiecewisePolynomialResultsWithSensitivity resSen2 =
+        new PiecewisePolynomialResultsWithSensitivity(
+            DoubleArray.copyOf(knots1), DoubleMatrix.copyOf(matrix1), order, 1, sense1);
+    final PiecewisePolynomialResultsWithSensitivity resSen3 =
+        new PiecewisePolynomialResultsWithSensitivity(
+            DoubleArray.copyOf(knots1), DoubleMatrix.copyOf(matrix1), order, 1, sense2);
     assertTrue(resSen1.equals(resSen1));
 
-    assertTrue(!(resSen1.equals(new DoubleMatrix1D(knots1))));
+    assertTrue(!(resSen1.equals(DoubleArray.copyOf(knots1))));
 
     assertTrue(!(resSen1.equals(res5)));
 
@@ -84,7 +97,9 @@ public class PiecewisePolynomialResultTest {
 
     try {
       @SuppressWarnings("unused")
-      final PiecewisePolynomialResultsWithSensitivity resSen0 = new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(knots1), new DoubleMatrix2D(matrix1), order, 2, sense1);
+      final PiecewisePolynomialResultsWithSensitivity resSen0 =
+          new PiecewisePolynomialResultsWithSensitivity(
+              DoubleArray.copyOf(knots1), DoubleMatrix.copyOf(matrix1), order, 2, sense1);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof UnsupportedOperationException);

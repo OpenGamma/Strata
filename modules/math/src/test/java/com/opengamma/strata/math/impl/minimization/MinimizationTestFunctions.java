@@ -5,37 +5,36 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * 
  */
 public abstract class MinimizationTestFunctions {
-  public static final Function1D<DoubleMatrix1D, Double> ROSENBROCK = new Function1D<DoubleMatrix1D, Double>() {
+  public static final Function1D<DoubleArray, Double> ROSENBROCK = new Function1D<DoubleArray, Double>() {
 
     @Override
-    public Double evaluate(DoubleMatrix1D x) {
+    public Double evaluate(DoubleArray x) {
       return FunctionUtils.square(1 - x.get(0)) + 100 * FunctionUtils.square(x.get(1) - FunctionUtils.square(x.get(0)));
     }
   };
 
-  public static final Function1D<DoubleMatrix1D, DoubleMatrix1D> ROSENBROCK_GRAD = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  public static final Function1D<DoubleArray, DoubleArray> ROSENBROCK_GRAD =
+      new Function1D<DoubleArray, DoubleArray>() {
+        @Override
+        public DoubleArray evaluate(DoubleArray x) {
+          return DoubleArray.of(
+              2 * (x.get(0) - 1) + 400 * x.get(0) * (FunctionUtils.square(x.get(0)) - x.get(1)),
+              200 * (x.get(1) - FunctionUtils.square(x.get(0))));
+        }
+      };
+
+  public static final Function1D<DoubleArray, Double> UNCOUPLED_ROSENBROCK = new Function1D<DoubleArray, Double>() {
 
     @Override
-    public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-      double[] temp = new double[2];
-      temp[0] = 2 * (x.get(0) - 1) + 400 * x.get(0) * (FunctionUtils.square(x.get(0)) - x.get(1));
-      temp[1] = 200 * (x.get(1) - FunctionUtils.square(x.get(0)));
-      return new DoubleMatrix1D(temp);
-    }
-  };
-
-  public static final Function1D<DoubleMatrix1D, Double> UNCOUPLED_ROSENBROCK = new Function1D<DoubleMatrix1D, Double>() {
-
-    @Override
-    public Double evaluate(final DoubleMatrix1D x) {
+    public Double evaluate(final DoubleArray x) {
       final int n = x.size();
       if (n % 2 != 0) {
         throw new IllegalArgumentException("vector length must be even");
@@ -48,10 +47,10 @@ public abstract class MinimizationTestFunctions {
     }
   };
 
-  public static final Function1D<DoubleMatrix1D, Double> COUPLED_ROSENBROCK = new Function1D<DoubleMatrix1D, Double>() {
+  public static final Function1D<DoubleArray, Double> COUPLED_ROSENBROCK = new Function1D<DoubleArray, Double>() {
 
     @Override
-    public Double evaluate(DoubleMatrix1D x) {
+    public Double evaluate(DoubleArray x) {
       int n = x.size();
 
       double sum = 0;
@@ -62,10 +61,10 @@ public abstract class MinimizationTestFunctions {
     }
   };
 
-  public static final Function1D<DoubleMatrix1D, DoubleMatrix1D> COUPLED_ROSENBROCK_GRAD = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  public static final Function1D<DoubleArray, DoubleArray> COUPLED_ROSENBROCK_GRAD = new Function1D<DoubleArray, DoubleArray>() {
 
     @Override
-    public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+    public DoubleArray evaluate(DoubleArray x) {
       int n = x.size();
 
       double[] res = new double[n];
@@ -75,7 +74,7 @@ public abstract class MinimizationTestFunctions {
         res[i] = 2 * (x.get(i) - 1) + 400 * x.get(i) * (FunctionUtils.square(x.get(i)) - x.get(i + 1)) + 200
             * (x.get(i) - FunctionUtils.square(x.get(i - 1)));
       }
-      return new DoubleMatrix1D(res);
+          return DoubleArray.copyOf(res);
     }
   };
 }

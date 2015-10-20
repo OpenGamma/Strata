@@ -8,6 +8,7 @@ package com.opengamma.strata.math.impl;
 import java.util.Arrays;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * A collection of basic useful maths functions.
@@ -136,15 +137,15 @@ public final class FunctionUtils {
    * @param value  the value to search for
    * @return the index in the array
    */
-  public static int getLowerBoundIndex(double[] set, double value) {
-    int n = set.length;
-    if (value < set[0]) {
+  public static int getLowerBoundIndex(DoubleArray set, double value) {
+    int n = set.size();
+    if (value < set.get(0)) {
       return 0;
     }
-    if (value > set[n - 1]) {
+    if (value > set.get(n - 1)) {
       return n - 1;
     }
-    int index = Arrays.binarySearch(set, value);
+    int index = Arrays.binarySearch(set.toArrayUnsafe(), value);
     if (index >= 0) {
       // Fast break out if it's an exact match.
       return index;
@@ -153,7 +154,7 @@ public final class FunctionUtils {
       index = -(index + 1);
       index--;
     }
-    if (value == -0. && index < n - 1 && set[index + 1] == 0.) {
+    if (value == -0. && index < n - 1 && set.get(index + 1) == 0.) {
       ++index;
     }
     return index;

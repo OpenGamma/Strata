@@ -9,9 +9,9 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResult;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
  * Test.
@@ -21,14 +21,15 @@ public class PiecewisePolynomialFunction1DTest {
 
   private static final double EPS = 1e-14;
   private static final double INF = 1. / 0.;
+  private static final DoubleArray X_VALUES = DoubleArray.of(1, 2, 3, 4);
 
   /**
    * 
    */
   @Test
   public void evaluateAllTest() {
-    final double[] xValues = new double[] {1, 2, 3, 4 };
-    final DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    final DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     final double[][] xKeys = new double[][] { {-2, 1, 2, 2.5 }, {1.5, 7. / 3., 29. / 7., 5. } };
     final double[][][] valuesExp = new double[][][] { { {-64., -1., 0., 1. / 8. }, {-1. / 8., 1. / 27., 3375. / 7. / 7. / 7., 27. } },
@@ -38,37 +39,37 @@ public class PiecewisePolynomialFunction1DTest {
     final int keyLength = xKeys[0].length;
     final int keyDim = xKeys.length;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
-    final DoubleMatrix2D[] valuesResMat = function.evaluate(pp, xKeys);
+    final DoubleMatrix[] valuesResMat = function.evaluate(pp, xKeys);
     for (int i = 0; i < dim; ++i) {
       for (int k = 0; k < keyDim; ++k) {
         for (int j = 0; j < keyLength; ++j) {
           final double ref = valuesExp[i][k][j] == 0. ? 1. : Math.abs(valuesExp[i][k][j]);
-          assertEquals(valuesResMat[i].getData()[k][j], valuesExp[i][k][j], ref * EPS);
+          assertEquals(valuesResMat[i].get(k, j), valuesExp[i][k][j], ref * EPS);
         }
       }
     }
 
-    final double[][] valuesRes = function.evaluate(pp, xKeys[0]).getData();
+    final DoubleMatrix valuesRes = function.evaluate(pp, xKeys[0]);
     for (int i = 0; i < dim; ++i) {
       for (int j = 0; j < keyLength; ++j) {
         final double ref = valuesExp[i][0][j] == 0. ? 1. : Math.abs(valuesExp[i][0][j]);
-        assertEquals(valuesRes[i][j], valuesExp[i][0][j], ref * EPS);
+        assertEquals(valuesRes.get(i, j), valuesExp[i][0][j], ref * EPS);
       }
     }
 
-    double[] valuesResVec = function.evaluate(pp, xKeys[0][0]).getData();
+    DoubleArray valuesResVec = function.evaluate(pp, xKeys[0][0]);
     for (int i = 0; i < dim; ++i) {
       final double ref = valuesExp[i][0][0] == 0. ? 1. : Math.abs(valuesExp[i][0][0]);
-      assertEquals(valuesResVec[i], valuesExp[i][0][0], ref * EPS);
+      assertEquals(valuesResVec.get(i), valuesExp[i][0][0], ref * EPS);
     }
 
-    valuesResVec = function.evaluate(pp, xKeys[0][3]).getData();
+    valuesResVec = function.evaluate(pp, xKeys[0][3]);
     for (int i = 0; i < dim; ++i) {
       final double ref = valuesExp[i][0][3] == 0. ? 1. : Math.abs(valuesExp[i][0][3]);
-      assertEquals(valuesResVec[i], valuesExp[i][0][3], ref * EPS);
+      assertEquals(valuesResVec.get(i), valuesExp[i][0][3], ref * EPS);
     }
 
   }
@@ -79,8 +80,8 @@ public class PiecewisePolynomialFunction1DTest {
   @Test
   public void linearAllTest() {
 
-    final double[] knots = new double[] {1., 4. };
-    final DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    final DoubleArray knots = DoubleArray.of(1d, 4d);
+    final DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] {{0., 1., 1. } });
     final double[] xKeys = new double[] {-2, 1., 2.5, 4. };
     final double[] initials = new double[] {-0.5, 1., 2.5, 5. };
@@ -96,26 +97,26 @@ public class PiecewisePolynomialFunction1DTest {
     }
     final double[] differentiateExp = new double[] {1., 1., 1., 1. };
 
-    PiecewisePolynomialResult result = new PiecewisePolynomialResult(new DoubleMatrix1D(knots), coefsMatrix, 3, 1);
+    PiecewisePolynomialResult result = new PiecewisePolynomialResult(knots, coefsMatrix, 3, 1);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
-    final double[] values = function.evaluate(result, xKeys).getData()[0];
-    final double[] differentiate = function.differentiate(result, xKeys).getData()[0];
+    final DoubleArray values = function.evaluate(result, xKeys).row(0);
+    final DoubleArray differentiate = function.differentiate(result, xKeys).row(0);
     final double[][] integrate = new double[nInit][nKeys];
     for (int i = 0; i < nInit; ++i) {
       for (int j = 0; j < nKeys; ++j) {
-        integrate[i][j] = function.integrate(result, initials[i], xKeys).getData()[j];
+        integrate[i][j] = function.integrate(result, initials[i], xKeys).get(j);
       }
     }
 
     for (int i = 0; i < nKeys; ++i) {
       final double ref = valuesExp[i] == 0. ? 1. : Math.abs(valuesExp[i]);
-      assertEquals(values[i], valuesExp[i], ref * EPS);
+      assertEquals(values.get(i), valuesExp[i], ref * EPS);
     }
 
     for (int i = 0; i < nKeys; ++i) {
       final double ref = differentiateExp[i] == 0. ? 1. : Math.abs(differentiateExp[i]);
-      assertEquals(differentiate[i], differentiateExp[i], ref * EPS);
+      assertEquals(differentiate.get(i), differentiateExp[i], ref * EPS);
     }
 
     for (int j = 0; j < nInit; ++j) {
@@ -132,8 +133,8 @@ public class PiecewisePolynomialFunction1DTest {
   @Test
   public void quadraticAllTest() {
 
-    final double[] knots = new double[] {1., 3. };
-    final DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    final DoubleArray knots = DoubleArray.of(1d, 3d);
+    final DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] {{-1., 2., 1. } });
     final double[] xKeys = new double[] {-2, 1, 2.5, 4. };
     final double[] initials = new double[] {-0.5, 1., 2.5, 5. };
@@ -156,37 +157,37 @@ public class PiecewisePolynomialFunction1DTest {
       differentiateTwiceExp[j] = -2.;
     }
 
-    PiecewisePolynomialResult result = new PiecewisePolynomialResult(new DoubleMatrix1D(knots), coefsMatrix, 3, 1);
+    PiecewisePolynomialResult result = new PiecewisePolynomialResult(knots, coefsMatrix, 3, 1);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
-    final double[] values = function.evaluate(result, xKeys).getData()[0];
-    final double[] differentiate = function.differentiate(result, xKeys).getData()[0];
-    final double[] differentiateTwice = function.differentiateTwice(result, xKeys).getData()[0];
+    final DoubleArray values = function.evaluate(result, xKeys).row(0);
+    final DoubleArray differentiate = function.differentiate(result, xKeys).row(0);
+    final DoubleArray differentiateTwice = function.differentiateTwice(result, xKeys).row(0);
     final double[][] integrate = new double[nInit][nKeys];
     for (int i = 0; i < nInit; ++i) {
       for (int j = 0; j < nKeys; ++j) {
-        integrate[i][j] = function.integrate(result, initials[i], xKeys).getData()[j];
+        integrate[i][j] = function.integrate(result, initials[i], xKeys).get(j);
       }
     }
 
     for (int i = 0; i < nKeys; ++i) {
       final double ref = valuesExp[i] == 0. ? 1. : Math.abs(valuesExp[i]);
-      assertEquals(values[i], valuesExp[i], ref * EPS);
+      assertEquals(values.get(i), valuesExp[i], ref * EPS);
     }
 
     for (int i = 0; i < nKeys; ++i) {
       final double ref = differentiateExp[i] == 0. ? 1. : Math.abs(differentiateExp[i]);
-      assertEquals(differentiate[i], differentiateExp[i], ref * EPS);
+      assertEquals(differentiate.get(i), differentiateExp[i], ref * EPS);
     }
 
     for (int i = 0; i < nKeys; ++i) {
       final double ref = differentiateTwiceExp[i] == 0. ? 1. : Math.abs(differentiateTwiceExp[i]);
-      assertEquals(differentiateTwice[i], differentiateTwiceExp[i], ref * EPS);
+      assertEquals(differentiateTwice.get(i), differentiateTwiceExp[i], ref * EPS);
     }
 
     {
       final double ref = differentiateTwiceExp[1] == 0. ? 1. : Math.abs(differentiateTwiceExp[1]);
-      assertEquals(differentiateTwice[1], differentiateTwiceExp[1], ref * EPS);
+      assertEquals(differentiateTwice.get(1), differentiateTwiceExp[1], ref * EPS);
     }
 
     for (int j = 0; j < nInit; ++j) {
@@ -203,7 +204,6 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test
   public void GeneralIntegrateDifferentiateTest() {
-    final double[] knots = new double[] {1., 2., 3., 4 };
     final double[][] coefMat = new double[][] { {1., 0., 0., 0., 0. },
       {1., 4., 6., 4., 1. },
       {1., 8., 24., 32., 16. } };
@@ -225,24 +225,25 @@ public class PiecewisePolynomialFunction1DTest {
     }
 
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
-    PiecewisePolynomialResult result = new PiecewisePolynomialResult(new DoubleMatrix1D(knots), new DoubleMatrix2D(coefMat), 5, 1);
+    PiecewisePolynomialResult result =
+        new PiecewisePolynomialResult(X_VALUES, DoubleMatrix.copyOf(coefMat), 5, 1);
 
-    final double[] differentiate = function.differentiate(result, xKeys).getData()[0];
-    final double[] differentiateTwice = function.differentiateTwice(result, xKeys).getData()[0];
+    final DoubleArray differentiate = function.differentiate(result, xKeys).row(0);
+    final DoubleArray differentiateTwice = function.differentiateTwice(result, xKeys).row(0);
     final double[][] integrate = new double[nInit][nKeys];
     for (int i = 0; i < nInit; ++i) {
       for (int j = 0; j < nKeys; ++j) {
-        integrate[i][j] = function.integrate(result, initials[i], xKeys).getData()[j];
+        integrate[i][j] = function.integrate(result, initials[i], xKeys).get(j);
       }
     }
 
     for (int i = 0; i < nKeys; ++i) {
       final double ref = differentiateExp[i] == 0. ? 1. : Math.abs(differentiateExp[i]);
-      assertEquals(differentiate[i], differentiateExp[i], ref * EPS);
+      assertEquals(differentiate.get(i), differentiateExp[i], ref * EPS);
     }
     for (int i = 0; i < nKeys; ++i) {
       final double ref = differentiateTwiceExp[i] == 0. ? 1. : Math.abs(differentiateTwiceExp[i]);
-      assertEquals(differentiateTwice[i], differentiateTwiceExp[i], ref * EPS);
+      assertEquals(differentiateTwice.get(i), differentiateTwiceExp[i], ref * EPS);
     }
 
     for (int j = 0; j < nInit; ++j) {
@@ -254,19 +255,19 @@ public class PiecewisePolynomialFunction1DTest {
 
     {
       final double ref = differentiateExp[0] == 0. ? 1. : Math.abs(differentiateExp[0]);
-      assertEquals(function.differentiate(result, xKeys[0]).getData()[0], differentiateExp[0], ref * EPS);
+      assertEquals(function.differentiate(result, xKeys[0]).get(0), differentiateExp[0], ref * EPS);
     }
     {
       final double ref = differentiateExp[3] == 0. ? 1. : Math.abs(differentiateExp[3]);
-      assertEquals(function.differentiate(result, xKeys[3]).getData()[0], differentiateExp[3], ref * EPS);
+      assertEquals(function.differentiate(result, xKeys[3]).get(0), differentiateExp[3], ref * EPS);
     }
     {
       final double ref = differentiateTwiceExp[0] == 0. ? 1. : Math.abs(differentiateTwiceExp[0]);
-      assertEquals(function.differentiateTwice(result, xKeys[0]).getData()[0], differentiateTwiceExp[0], ref * EPS);
+      assertEquals(function.differentiateTwice(result, xKeys[0]).get(0), differentiateTwiceExp[0], ref * EPS);
     }
     {
       final double ref = differentiateTwiceExp[3] == 0. ? 1. : Math.abs(differentiateTwiceExp[3]);
-      assertEquals(function.differentiateTwice(result, xKeys[3]).getData()[0], differentiateTwiceExp[3], ref * EPS);
+      assertEquals(function.differentiateTwice(result, xKeys[3]).get(0), differentiateTwiceExp[3], ref * EPS);
     }
     {
       final double ref = integrateExp[0][0] == 0. ? 1. : Math.abs(integrateExp[0][0]);
@@ -291,14 +292,14 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullpEvaluateTest() {
-    final double[] xValues = new double[] {1, 2, 3, 4 };
-    final DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    final DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     final double[][] xKeys = new double[][] { {-2, 1, 2, 2.5 }, {1.5, 7. / 3., 29. / 7., 5. } };
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     pp = null;
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -310,14 +311,14 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullpEvaluateMultiTest() {
-    final double[] xValues = new double[] {1, 2, 3, 4 };
-    final DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    final DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     final double[][] xKeys = new double[][] { {-2, 1, 2, 2.5 }, {1.5, 7. / 3., 29. / 7., 5. } };
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     pp = null;
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -329,14 +330,14 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullpEvaluateMatrixTest() {
-    final double[] xValues = new double[] {1, 2, 3, 4 };
-    final DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    final DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     final double[][] xKeys = new double[][] { {-2, 1, 2, 2.5 }, {1.5, 7. / 3., 29. / 7., 5. } };
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     pp = null;
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -348,14 +349,13 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullpIntegrateTest() {
-    final double[] xValues = new double[] {1, 2, 3, 4 };
-    final DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    final DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {1., 0., 0., 0. }, {1., 3., 3., 1. } });
     final double[][] xKeys = new double[][] { {-2, 1, 2, 2.5 }, {1.5, 7. / 3., 29. / 7., 5. } };
     final int dim = 1;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     pp = null;
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -367,14 +367,13 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullpIntegrateMultiTest() {
-    final double[] xValues = new double[] {1, 2, 3, 4 };
-    final DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    final DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {1., 0., 0., 0. }, {1., 3., 3., 1. } });
     final double[][] xKeys = new double[][] { {-2, 1, 2, 2.5 }, {1.5, 7. / 3., 29. / 7., 5. } };
     final int dim = 1;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     pp = null;
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -386,14 +385,14 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullpDifferentiateTest() {
-    final double[] xValues = new double[] {1, 2, 3, 4 };
-    final DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    final DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     final double[][] xKeys = new double[][] { {-2, 1, 2, 2.5 }, {1.5, 7. / 3., 29. / 7., 5. } };
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     pp = null;
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -405,14 +404,14 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullpDifferentiateMultiTest() {
-    final double[] xValues = new double[] {1, 2, 3, 4 };
-    final DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    final DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     final double[][] xKeys = new double[][] { {-2, 1, 2, 2.5 }, {1.5, 7. / 3., 29. / 7., 5. } };
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     pp = null;
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -424,8 +423,8 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullxEvaluateTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     double[] xKeys = new double[] {-2, 1, 2, 2.5 };
     final int dim = 2;
@@ -433,7 +432,7 @@ public class PiecewisePolynomialFunction1DTest {
 
     xKeys = null;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.evaluate(pp, xKeys);
@@ -444,8 +443,8 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullxEvaluateMatrixTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     double[][] xKeys = new double[][] { {-2, 1, 2, 2.5 }, {1.5, 7. / 3., 29. / 7., 5. } };
     final int dim = 2;
@@ -453,7 +452,7 @@ public class PiecewisePolynomialFunction1DTest {
 
     xKeys = null;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.evaluate(pp, xKeys);
@@ -464,8 +463,7 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullxIntTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {1., 0., 0., 0. }, {1., 3., 3., 1. } });
     double[] xKeys = new double[] {-2, 1, 2, 2.5 };
     final int dim = 1;
@@ -473,7 +471,7 @@ public class PiecewisePolynomialFunction1DTest {
 
     xKeys = null;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.integrate(pp, 1., xKeys);
@@ -484,8 +482,8 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullxDiffTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     double[] xKeys = new double[] {-2, 1, 2, 2.5 };
     final int dim = 2;
@@ -493,7 +491,7 @@ public class PiecewisePolynomialFunction1DTest {
 
     xKeys = null;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.differentiate(pp, xKeys);
@@ -504,14 +502,14 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void infxEvaluateTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     double[][] xKeys = new double[][] { {INF, 1, 2, 2.5 }, {1.5, 7. / 3., 29. / 7., 5. } };
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.evaluate(pp, xKeys[0][0]);
@@ -522,14 +520,14 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void infxEvaluateMultiTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     double[][] xKeys = new double[][] { {-2, 1, INF, 2.5 }, {1.5, 7. / 3., 29. / 7., 5. } };
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.evaluate(pp, xKeys[0]);
@@ -540,14 +538,14 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void infxEvaluateMatrixTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     double[][] xKeys = new double[][] { {-2, 1, 2, 2.5 }, {1.5, 7. / 3., 29. / 7., INF } };
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.evaluate(pp, xKeys);
@@ -558,14 +556,13 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void infxIntTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {1., 0., 0., 0. }, {1., 3., 3., 1. } });
     double[][] xKeys = new double[][] { {INF, 1, 2, 2.5 }, {1.5, 7. / 3., 29. / 7., 5. } };
     final int dim = 1;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.integrate(pp, 1., xKeys[0][0]);
@@ -576,14 +573,13 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void infxIntMultiTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {1., 0., 0., 0. }, {1., 3., 3., 1. } });
     double[] xKeys = new double[] {1.5, 7. / 3., 29. / 7., INF };
     final int dim = 1;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.integrate(pp, 1., xKeys);
@@ -594,14 +590,14 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void NaNxEvaluateTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     double[][] xKeys = new double[][] { {Double.NaN, 1, 2, 2.5 }, {1.5, 7. / 3., 29. / 7., 5. } };
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.evaluate(pp, xKeys[0][0]);
@@ -612,14 +608,14 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void NaNxEvaluateMultiTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     double[][] xKeys = new double[][] { {-2, 1, Double.NaN, 2.5 }, {1.5, 7. / 3., 29. / 7., 5. } };
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.evaluate(pp, xKeys[0]);
@@ -630,14 +626,14 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void NaNxEvaluateMatrixTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     double[][] xKeys = new double[][] { {-2, 1, 2, 2.5 }, {1.5, 7. / 3., 29. / 7., Double.NaN } };
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.evaluate(pp, xKeys);
@@ -648,14 +644,13 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void NaNxIntTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {1., 0., 0., 0. }, {1., 3., 3., 1. } });
     double[][] xKeys = new double[][] { {Double.NaN, 1, 2, 2.5 }, {1.5, 7. / 3., 29. / 7., 5. } };
     final int dim = 1;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.integrate(pp, 1., xKeys[0][0]);
@@ -666,14 +661,13 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void NaNxIntMultiTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {1., 0., 0., 0. }, {1., 3., 3., 1. } });
     double[] xKeys = new double[] {1.5, 7. / 3., 29. / 7., Double.NaN };
     final int dim = 1;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.integrate(pp, 1., xKeys);
@@ -684,14 +678,14 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullDimIntTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     double[] xKeys = new double[] {-2, 1, 2, 2.5 };
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.integrate(pp, 1., xKeys[0]);
@@ -702,14 +696,14 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullDimIntMultiTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix =
+        DoubleMatrix.copyOf(
         new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 }, {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
     double[] xKeys = new double[] {-2, 1, 2, 2.5 };
     final int dim = 2;
     final int nCoefs = 4;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.integrate(pp, 1., xKeys);
@@ -720,14 +714,13 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void constFuncDiffTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] { {-1 }, {20 }, {0. }, {5 }, {1. }, {0. } });
     double[] xKeys = new double[] {-2, 1, 2, 2.5 };
     final int dim = 2;
     final int nCoefs = 1;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.differentiate(pp, xKeys[0]);
@@ -738,14 +731,13 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void constFuncDiffMultiTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] { {-1 }, {20 }, {0. }, {5 }, {1. }, {0. } });
     double[] xKeys = new double[] {-2, 1, 2, 2.5 };
     final int dim = 2;
     final int nCoefs = 1;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.differentiate(pp, xKeys);
@@ -756,14 +748,13 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void linearFuncDiffTwiceTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] { {1., -3. }, {0., 5. }, {1., 0. }, {0., 5. }, {1., 3. }, {0., 5. } });
     double[] xKeys = new double[] {-2, 1, 2, 2.5 };
     final int dim = 2;
     final int nCoefs = 2;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.differentiateTwice(pp, xKeys[0]);
@@ -774,14 +765,13 @@ public class PiecewisePolynomialFunction1DTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void linearFuncDiffTwiceMultiTest() {
-    double[] xValues = new double[] {1, 2, 3, 4 };
-    DoubleMatrix2D coefsMatrix = new DoubleMatrix2D(
+    DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] { {1., -3. }, {0., 5. }, {1., 0. }, {0., 5. }, {1., 3. }, {0., 5. } });
     double[] xKeys = new double[] {-2, 1, 2, 2.5 };
     final int dim = 2;
     final int nCoefs = 2;
 
-    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(new DoubleMatrix1D(xValues), coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
     function.differentiateTwice(pp, xKeys);

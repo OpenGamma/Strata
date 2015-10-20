@@ -25,6 +25,7 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
@@ -36,8 +37,6 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapTemplate;
@@ -56,6 +55,10 @@ import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 
+/**
+ * Test curve calibration
+ */
+@Test
 public class CalibrationDiscountingSimpleEurStdTenorsTest {
 
   private static final LocalDate VALUATION_DATE = LocalDate.of(2015, 7, 24);
@@ -210,11 +213,9 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
           .addForwardCurve(FWD3_CURVE_DEFN, EUR_EURIBOR_3M)
           .addForwardCurve(FWD6_CURVE_DEFN, EUR_EURIBOR_6M).build();
 
-  @SuppressWarnings("unused")
-  @Test
+  //-------------------------------------------------------------------------
   public void calibration_present_value() {
-
-    Pair<ImmutableRatesProvider, CurveBuildingBlockBundle> result =
+    ImmutableRatesProvider result =
         CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, ALL_QUOTES, TS, FxMatrix.empty());
 
     ImmutableList<CurveGroupEntry> entries = CURVE_GROUP_CONFIG.getEntries();
@@ -227,7 +228,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
     // OIS
     for (int i = 0; i < DSC_NB_OIS_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) dscTrades.get(i)).getProduct(), result.getFirst());
+          .presentValue(((SwapTrade) dscTrades.get(i)).getProduct(), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd3
@@ -239,7 +240,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
     // IRS
     for (int i = 0; i < FWD3_NB_IRS_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) fwd3Trades.get(i)).getProduct(), result.getFirst());
+          .presentValue(((SwapTrade) fwd3Trades.get(i)).getProduct(), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd6
@@ -251,7 +252,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
     // IRS
     for (int i = 0; i < FWD6_NB_IRS_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) fwd6Trades.get(i)).getProduct(), result.getFirst());
+          .presentValue(((SwapTrade) fwd6Trades.get(i)).getProduct(), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
   }

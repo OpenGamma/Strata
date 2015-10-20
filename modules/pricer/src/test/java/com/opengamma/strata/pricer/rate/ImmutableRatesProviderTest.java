@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
@@ -65,7 +66,8 @@ public class ImmutableRatesProviderTest {
       GB_RPI,
       VAL_MONTH,
       LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 252),
-      InterpolatedNodalCurve.of(Curves.prices("GB-RPI"), new double[] {1d, 10d}, new double[] {252d, 252d}, INTERPOLATOR));
+      InterpolatedNodalCurve.of(
+          Curves.prices("GB-RPI"), DoubleArray.of(1d, 10d), DoubleArray.of(252d, 252d), INTERPOLATOR));
 
   //-------------------------------------------------------------------------
   public void test_builder() {

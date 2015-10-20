@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceName;
@@ -26,12 +27,12 @@ import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 public class SurfaceCurrencyParameterSensitivityTest {
 
   private static final double FACTOR1 = 3.14;
-  private static final double[] VECTOR_USD1 = new double[] {100, 200, 300, 123};
-  private static final double[] VECTOR_USD_FACTOR =
-      new double[] {100 * FACTOR1, 200 * FACTOR1, 300 * FACTOR1, 123 * FACTOR1};
-  private static final double[] VECTOR_EUR1 = new double[] {1000, 250, 321, 123, 321};
-  private static final double[] VECTOR_EUR1_IN_USD =
-      new double[] {1000 * 1.5, 250 * 1.5, 321 * 1.5, 123 * 1.5, 321 * 1.5};
+  private static final DoubleArray VECTOR_USD1 = DoubleArray.of(100, 200, 300, 123);
+  private static final DoubleArray VECTOR_USD_FACTOR =
+      DoubleArray.of(100 * FACTOR1, 200 * FACTOR1, 300 * FACTOR1, 123 * FACTOR1);
+  private static final DoubleArray VECTOR_EUR1 = DoubleArray.of(1000, 250, 321, 123, 321);
+  private static final DoubleArray VECTOR_EUR1_IN_USD =
+      DoubleArray.of(1000 * 1.5, 250 * 1.5, 321 * 1.5, 123 * 1.5, 321 * 1.5);
   private static final Currency USD = Currency.USD;
   private static final Currency EUR = Currency.EUR;
   private static final FxRate FX_RATE = FxRate.of(EUR, USD, 1.5d);
@@ -46,14 +47,14 @@ public class SurfaceCurrencyParameterSensitivityTest {
     assertThat(test.getMetadata()).isEqualTo(METADATA1);
     assertThat(test.getCurrency()).isEqualTo(USD);
     assertThat(test.getSurfaceName()).isEqualTo(NAME1);
-    assertThat(test.getParameterCount()).isEqualTo(VECTOR_USD1.length);
+    assertThat(test.getParameterCount()).isEqualTo(VECTOR_USD1.size());
     assertThat(test.getSensitivity()).isEqualTo(VECTOR_USD1);
   }
 
   public void test_of_metadata_badMetadata() {
     DefaultSurfaceMetadata metadata = DefaultSurfaceMetadata.builder()
         .surfaceName(NAME1)
-        .parameterMetadata(SurfaceParameterMetadata.listOfEmpty(VECTOR_USD1.length + 1))
+        .parameterMetadata(SurfaceParameterMetadata.listOfEmpty(VECTOR_USD1.size() + 1))
         .build();
     assertThrowsIllegalArg(() -> SurfaceCurrencyParameterSensitivity.of(metadata, USD, VECTOR_USD1));
   }
@@ -77,7 +78,7 @@ public class SurfaceCurrencyParameterSensitivityTest {
     SurfaceCurrencyParameterSensitivity base = SurfaceCurrencyParameterSensitivity.of(METADATA1, USD, VECTOR_USD1);
     SurfaceCurrencyParameterSensitivity test = base.withSensitivity(VECTOR_USD_FACTOR);
     assertThat(test).isEqualTo(SurfaceCurrencyParameterSensitivity.of(METADATA1, USD, VECTOR_USD_FACTOR));
-    assertThrowsIllegalArg(() -> base.withSensitivity(new double[] {1d}));
+    assertThrowsIllegalArg(() -> base.withSensitivity(DoubleArray.of(1d)));
   }
 
   //-------------------------------------------------------------------------
@@ -85,7 +86,8 @@ public class SurfaceCurrencyParameterSensitivityTest {
     SurfaceCurrencyParameterSensitivity base = SurfaceCurrencyParameterSensitivity.of(METADATA1, USD, VECTOR_USD1);
     CurrencyAmount test = base.total();
     assertThat(test.getCurrency()).isEqualTo(USD);
-    assertThat(test.getAmount()).isEqualTo(VECTOR_USD1[0] + VECTOR_USD1[1] + VECTOR_USD1[2] + VECTOR_USD1[3]);
+    Object expected = VECTOR_USD1.get(0) + VECTOR_USD1.get(1) + VECTOR_USD1.get(2) + VECTOR_USD1.get(3);
+    assertThat(test.getAmount()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------

@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 
 /**
@@ -35,9 +36,9 @@ public class ConstantNodalSurfaceTest {
     assertThat(test.getName()).isEqualTo(SURFACE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(0d);
-    assertThat(test.getZValues()).containsExactly(VALUE);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(0d);
+    assertThat(test.getZValues().toArray()).containsExactly(VALUE);
   }
 
   public void test_of_SurfaceName() {
@@ -45,9 +46,9 @@ public class ConstantNodalSurfaceTest {
     assertThat(test.getName()).isEqualTo(SURFACE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(0d);
-    assertThat(test.getZValues()).containsExactly(VALUE);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(0d);
+    assertThat(test.getZValues().toArray()).containsExactly(VALUE);
   }
 
   public void test_of_SurfaceMetadata() {
@@ -55,9 +56,9 @@ public class ConstantNodalSurfaceTest {
     assertThat(test.getName()).isEqualTo(SURFACE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(0d);
-    assertThat(test.getZValues()).containsExactly(VALUE);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(0d);
+    assertThat(test.getZValues().toArray()).containsExactly(VALUE);
   }
 
   //-------------------------------------------------------------------------
@@ -88,19 +89,19 @@ public class ConstantNodalSurfaceTest {
   //-------------------------------------------------------------------------
   public void test_withZValues() {
     ConstantNodalSurface base = ConstantNodalSurface.of(SURFACE_NAME, VALUE);
-    ConstantNodalSurface test = base.withZValues(new double[] {4d});
+    ConstantNodalSurface test = base.withZValues(DoubleArray.of(4d));
     assertThat(test.getName()).isEqualTo(SURFACE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(0d);
-    assertThat(test.getZValues()).containsExactly(4d);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(0d);
+    assertThat(test.getZValues().toArray()).containsExactly(4d);
   }
 
   public void test_withZValues_badSize() {
     ConstantNodalSurface base = ConstantNodalSurface.of(SURFACE_NAME, VALUE);
-    assertThrowsIllegalArg(() -> base.withZValues(new double[0]));
-    assertThrowsIllegalArg(() -> base.withZValues(new double[] {4d, 6d}));
+    assertThrowsIllegalArg(() -> base.withZValues(DoubleArray.EMPTY));
+    assertThrowsIllegalArg(() -> base.withZValues(DoubleArray.of(4d, 6d)));
   }
 
   public void test_shiftedBy_operator() {
@@ -109,9 +110,9 @@ public class ConstantNodalSurfaceTest {
     assertThat(test.getName()).isEqualTo(SURFACE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(0d);
-    assertThat(test.getZValues()).containsExactly(4d);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(0d);
+    assertThat(test.getZValues().toArray()).containsExactly(4d);
   }
 
   public void test_shiftedBy_adjustment() {
@@ -120,9 +121,9 @@ public class ConstantNodalSurfaceTest {
     assertThat(test.getName()).isEqualTo(SURFACE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).containsExactly(0d);
-    assertThat(test.getYValues()).containsExactly(0d);
-    assertThat(test.getZValues()).containsExactly(4d);
+    assertThat(test.getXValues().toArray()).containsExactly(0d);
+    assertThat(test.getYValues().toArray()).containsExactly(0d);
+    assertThat(test.getZValues().toArray()).containsExactly(4d);
   }
 
   //-------------------------------------------------------------------------

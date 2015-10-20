@@ -6,10 +6,10 @@
 package com.opengamma.strata.math.impl.differentiation;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 
@@ -17,7 +17,7 @@ import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
  * Matrix field first order differentiator.
  */
 public class MatrixFieldFirstOrderDifferentiator
-    implements Differentiator<DoubleMatrix1D, DoubleMatrix2D, DoubleMatrix2D[]> {
+    implements Differentiator<DoubleArray, DoubleMatrix, DoubleMatrix[]> {
 
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
   private static final double DEFAULT_EPS = 1e-5;
@@ -49,27 +49,23 @@ public class MatrixFieldFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<DoubleMatrix1D, DoubleMatrix2D[]> differentiate(
-      Function1D<DoubleMatrix1D, DoubleMatrix2D> function) {
+  public Function1D<DoubleArray, DoubleMatrix[]> differentiate(
+      Function1D<DoubleArray, DoubleMatrix> function) {
 
     ArgChecker.notNull(function, "function");
-    return new Function1D<DoubleMatrix1D, DoubleMatrix2D[]>() {
+    return new Function1D<DoubleArray, DoubleMatrix[]>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix2D[] evaluate(DoubleMatrix1D x) {
+      public DoubleMatrix[] evaluate(DoubleArray x) {
         ArgChecker.notNull(x, "x");
         int n = x.size();
 
-        DoubleMatrix2D[] res = new DoubleMatrix2D[n];
-        double[] xData = x.getData();
+        DoubleMatrix[] res = new DoubleMatrix[n];
         for (int i = 0; i < n; i++) {
-          double oldValue = xData[i];
-          xData[i] += eps;
-          DoubleMatrix2D up = function.evaluate(x);
-          xData[i] -= twoEps;
-          DoubleMatrix2D down = function.evaluate(x);
-          res[i] = (DoubleMatrix2D) MA.scale(MA.subtract(up, down), oneOverTwpEps); //TODO have this in one operation
-          xData[i] = oldValue;
+          double xi = x.get(i);
+          DoubleMatrix up = function.evaluate(x.with(i, xi + eps));
+          DoubleMatrix down = function.evaluate(x.with(i, xi - eps));
+          res[i] = (DoubleMatrix) MA.scale(MA.subtract(up, down), oneOverTwpEps); //TODO have this in one operation
         }
         return res;
       }
@@ -78,9 +74,9 @@ public class MatrixFieldFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<DoubleMatrix1D, DoubleMatrix2D[]> differentiate(
-      Function1D<DoubleMatrix1D, DoubleMatrix2D> function,
-      Function1D<DoubleMatrix1D, Boolean> domain) {
+  public Function1D<DoubleArray, DoubleMatrix[]> differentiate(
+      Function1D<DoubleArray, DoubleMatrix> function,
+      Function1D<DoubleArray, Boolean> domain) {
 
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(domain, "domain");
@@ -89,55 +85,46 @@ public class MatrixFieldFirstOrderDifferentiator
     double[] wCent = new double[] {-1. / twoEps, 0., 1. / twoEps};
     double[] wBack = new double[] {1. / twoEps, -4. / twoEps, 3. / twoEps};
 
-    return new Function1D<DoubleMatrix1D, DoubleMatrix2D[]>() {
+    return new Function1D<DoubleArray, DoubleMatrix[]>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix2D[] evaluate(DoubleMatrix1D x) {
+      public DoubleMatrix[] evaluate(DoubleArray x) {
         ArgChecker.notNull(x, "x");
         ArgChecker.isTrue(domain.evaluate(x), "point {} is not in the function domain", x.toString());
 
         int n = x.size();
-        double[] xData = x.getData();
-        double oldValue;
-        DoubleMatrix2D[] y = new DoubleMatrix2D[3];
-        DoubleMatrix2D[] res = new DoubleMatrix2D[n];
+        DoubleMatrix[] y = new DoubleMatrix[3];
+        DoubleMatrix[] res = new DoubleMatrix[n];
         double[] w;
         for (int i = 0; i < n; i++) {
-          oldValue = xData[i];
-          xData[i] += eps;
-          if (!domain.evaluate(x)) {
-            xData[i] = oldValue - twoEps;
-            if (!domain.evaluate(x)) {
+          double xi = x.get(i);
+          DoubleArray xPlusOneEps = x.with(i, xi + eps);
+          DoubleArray xMinusOneEps = x.with(i, xi - eps);
+          if (!domain.evaluate(xPlusOneEps)) {
+            DoubleArray xMinusTwoEps = x.with(i, xi - twoEps);
+            if (!domain.evaluate(xMinusTwoEps)) {
               throw new MathException("cannot get derivative at point " + x.toString() + " in direction " + i);
             }
-            y[0] = function.evaluate(x);
-            xData[i] = oldValue;
+            y[0] = function.evaluate(xMinusTwoEps);
             y[2] = function.evaluate(x);
-            xData[i] = oldValue - eps;
-            y[1] = function.evaluate(x);
+            y[1] = function.evaluate(xMinusOneEps);
             w = wBack;
           } else {
-            DoubleMatrix2D temp = function.evaluate(x);
-            xData[i] = oldValue - eps;
-            if (!domain.evaluate(x)) {
-              y[1] = temp;
-              xData[i] = oldValue;
+            if (!domain.evaluate(xMinusOneEps)) {
+              y[1] = function.evaluate(xPlusOneEps);
               y[0] = function.evaluate(x);
-              xData[i] = oldValue + twoEps;
-              y[2] = function.evaluate(x);
+              y[2] = function.evaluate(x.with(i, xi + twoEps));
               w = wFwd;
             } else {
-              y[2] = temp;
-              xData[i] = oldValue - eps;
-              y[0] = function.evaluate(x);
+              y[2] = function.evaluate(xPlusOneEps);
+              y[0] = function.evaluate(xMinusOneEps);
               w = wCent;
             }
           }
-          res[i] = (DoubleMatrix2D) MA.add(MA.scale(y[0], w[0]), MA.scale(y[2], w[2]));
+          res[i] = (DoubleMatrix) MA.add(MA.scale(y[0], w[0]), MA.scale(y[2], w[2]));
           if (w[1] != 0) {
-            res[i] = (DoubleMatrix2D) MA.add(res[i], MA.scale(y[1], w[1]));
+            res[i] = (DoubleMatrix) MA.add(res[i], MA.scale(y[1], w[1]));
           }
-          xData[i] = oldValue;
         }
         return res;
       }

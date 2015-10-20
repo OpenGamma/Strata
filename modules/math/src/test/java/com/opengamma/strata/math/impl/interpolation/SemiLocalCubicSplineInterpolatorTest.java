@@ -47,7 +47,7 @@ public class SemiLocalCubicSplineInterpolatorTest {
     for (int i = 0; i < result.getNumberOfIntervals(); ++i) {
       for (int j = 0; j < result.getOrder(); ++j) {
         final double ref = Math.abs(coefsMatExp[i][j]) == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsMatExp[i][j], ref * EPS);
+        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
 
@@ -55,7 +55,7 @@ public class SemiLocalCubicSplineInterpolatorTest {
     for (int i = 0; i < nKeys; ++i) {
       final double key = 1. + 5. / (nKeys - 1) * i;
       final double ref = key / 7. + 1 / 11.;
-      assertEquals(function.evaluate(result, key).getData()[0], ref, ref * EPS);
+      assertEquals(function.evaluate(result, key).get(0), ref, ref * EPS);
     }
   }
 
@@ -87,7 +87,7 @@ public class SemiLocalCubicSplineInterpolatorTest {
     for (int i = 0; i < result.getNumberOfIntervals(); ++i) {
       for (int j = 0; j < result.getOrder(); ++j) {
         final double ref = Math.abs(coefsMatExp[i][j]) == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsMatExp[i][j], ref * EPS);
+        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
 
@@ -95,7 +95,7 @@ public class SemiLocalCubicSplineInterpolatorTest {
     for (int i = 0; i < nKeys; ++i) {
       final double key = 1. + 5. / (nKeys - 1) * i;
       final double ref = key * key / 7. + key / 13. + 1 / 11.;
-      assertEquals(function.evaluate(result, key).getData()[0], ref, ref * EPS);
+      assertEquals(function.evaluate(result, key).get(0), ref, ref * EPS);
 
     }
   }
@@ -132,7 +132,7 @@ public class SemiLocalCubicSplineInterpolatorTest {
     for (int i = 0; i < result.getNumberOfIntervals() * 2; ++i) {
       for (int j = 0; j < result.getOrder(); ++j) {
         final double ref = Math.abs(coefsMatExp[i][j]) == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsMatExp[i][j], ref * EPS);
+        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
 
@@ -140,7 +140,7 @@ public class SemiLocalCubicSplineInterpolatorTest {
     for (int i = 0; i < nKeys; ++i) {
       final double key = 1. + 5. / (nKeys - 1) * i;
       final double ref = key * key / 7. + key / 13. + 1 / 11.;
-      assertEquals(function.evaluate(result, key).getData()[0], ref, ref * EPS);
+      assertEquals(function.evaluate(result, key).get(0), ref, ref * EPS);
 
     }
   }
@@ -166,7 +166,7 @@ public class SemiLocalCubicSplineInterpolatorTest {
     for (int i = 0; i < 5; ++i) {
       for (int j = 0; j < 4; ++j) {
         final double ref = Math.abs(coefsMatPartExp[i][j]) == 0. ? 1. : Math.abs(coefsMatPartExp[i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsMatPartExp[i][j], ref * EPS);
+        assertEquals(result.getCoefMatrix().get(i, j), coefsMatPartExp[i][j], ref * EPS);
       }
     }
 
@@ -174,14 +174,14 @@ public class SemiLocalCubicSplineInterpolatorTest {
     double key0 = 5.;
     for (int i = 1; i < nKeys; ++i) {
       final double key = 5. + 5. / (nKeys - 1) * i;
-      assertTrue(function.evaluate(result, key).getData()[0] - function.evaluate(result, key0).getData()[0] >= 0.);
+      assertTrue(function.evaluate(result, key).get(0) - function.evaluate(result, key0).get(0) >= 0.);
       key0 = 5. + 5. / (nKeys - 1) * i;
     }
 
     key0 = 0.;
     for (int i = 1; i < nKeys; ++i) {
       final double key = 0. + 5. / (nKeys - 1) * i;
-      assertTrue(function.evaluate(result, key).getData()[0] - function.evaluate(result, key0).getData()[0] == 0.);
+      assertTrue(function.evaluate(result, key).get(0) - function.evaluate(result, key0).get(0) == 0.);
       key0 = 0. + 5. / (nKeys - 1) * i;
     }
 

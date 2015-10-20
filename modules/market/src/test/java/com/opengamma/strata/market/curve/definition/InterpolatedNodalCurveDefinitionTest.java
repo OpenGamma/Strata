@@ -21,6 +21,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.market.curve.CurveName;
@@ -113,13 +114,28 @@ public class InterpolatedNodalCurveDefinitionTest {
         .build();
     InterpolatedNodalCurve expected = InterpolatedNodalCurve.builder()
         .metadata(metadata)
-        .xValues(new double[] {ACT_365F.yearFraction(VAL_DATE, DATE1), ACT_365F.yearFraction(VAL_DATE, DATE2)})
-        .yValues(new double[] {1d, 1.5d})
+        .xValues(DoubleArray.of(ACT_365F.yearFraction(VAL_DATE, DATE1), ACT_365F.yearFraction(VAL_DATE, DATE2)))
+        .yValues(DoubleArray.of(1d, 1.5d))
         .interpolator(Interpolator1DFactory.LINEAR_INSTANCE)
         .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
         .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
         .build();
-    assertEquals(test.curve(VAL_DATE, new double[] {1d, 1.5d}), expected);
+    assertEquals(test.curve(VAL_DATE, DoubleArray.of(1d, 1.5d)), expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_toCurveParameterSize() {
+    InterpolatedNodalCurveDefinition test = InterpolatedNodalCurveDefinition.builder()
+        .name(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.ZERO_RATE)
+        .dayCount(ACT_365F)
+        .nodes(NODES)
+        .interpolator(Interpolator1DFactory.LINEAR_INSTANCE)
+        .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
+        .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
+        .build();
+    assertEquals(test.toCurveParameterSize(), CurveParameterSize.of(CURVE_NAME, NODES.size()));
   }
 
   //-------------------------------------------------------------------------

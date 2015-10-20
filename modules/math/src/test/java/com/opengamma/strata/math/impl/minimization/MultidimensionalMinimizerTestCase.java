@@ -13,8 +13,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Abstract test.
@@ -22,16 +22,16 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 @Test
 public abstract class MultidimensionalMinimizerTestCase {
 
-  private static final Function1D<DoubleMatrix1D, Double> F_2D = new Function1D<DoubleMatrix1D, Double>() {
+  private static final Function1D<DoubleArray, Double> F_2D = new Function1D<DoubleArray, Double>() {
     @Override
-    public Double evaluate(final DoubleMatrix1D x) {
+    public Double evaluate(final DoubleArray x) {
       return (x.get(0) + 3.4) * (x.get(0) + 3.4) + (x.get(1) - 1) * (x.get(1) - 1);
     }
   };
 
-  protected void assertInputs(final Minimizer<Function1D<DoubleMatrix1D, Double>, DoubleMatrix1D> minimizer) {
+  protected void assertInputs(final Minimizer<Function1D<DoubleArray, Double>, DoubleArray> minimizer) {
     try {
-      minimizer.minimize(null, new DoubleMatrix1D(new double[] {2., 3. }));
+      minimizer.minimize(null, DoubleArray.of(2d, 3d));
       Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -44,33 +44,33 @@ public abstract class MultidimensionalMinimizerTestCase {
     }
   }
 
-  protected void assertMinimizer(final Minimizer<Function1D<DoubleMatrix1D, Double>, DoubleMatrix1D> minimizer, final double tol) {
-    DoubleMatrix1D r = minimizer.minimize(F_2D, new DoubleMatrix1D(new double[] {10., 10. }));
+  protected void assertMinimizer(final Minimizer<Function1D<DoubleArray, Double>, DoubleArray> minimizer, final double tol) {
+    DoubleArray r = minimizer.minimize(F_2D, DoubleArray.of(10d, 10d));
     assertEquals(r.get(0), -3.4, tol);
     assertEquals(r.get(1), 1, tol);
-    r = (minimizer.minimize(ROSENBROCK, new DoubleMatrix1D(new double[] {10, -5 })));
+    r = (minimizer.minimize(ROSENBROCK, DoubleArray.of(10d, -5d)));
     assertEquals(r.get(0), 1, tol);
     assertEquals(r.get(1), 1, tol);
   }
 
-  protected void assertSolvingRosenbrock(final Minimizer<Function1D<DoubleMatrix1D, Double>, DoubleMatrix1D> minimizer, final double tol) {
-    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0 });
-    final DoubleMatrix1D solution = minimizer.minimize(ROSENBROCK, start);
+  protected void assertSolvingRosenbrock(final Minimizer<Function1D<DoubleArray, Double>, DoubleArray> minimizer, final double tol) {
+    final DoubleArray start = DoubleArray.of(-1d, 1d);
+    final DoubleArray solution = minimizer.minimize(ROSENBROCK, start);
     assertEquals(1.0, solution.get(0), tol);
     assertEquals(1.0, solution.get(1), tol);
   }
 
-  protected void assertSolvingUncoupledRosenbrock(final Minimizer<Function1D<DoubleMatrix1D, Double>, DoubleMatrix1D> minimizer, final double tol) {
-    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0 });
-    final DoubleMatrix1D solution = minimizer.minimize(UNCOUPLED_ROSENBROCK, start);
+  protected void assertSolvingUncoupledRosenbrock(final Minimizer<Function1D<DoubleArray, Double>, DoubleArray> minimizer, final double tol) {
+    final DoubleArray start = DoubleArray.of(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    final DoubleArray solution = minimizer.minimize(UNCOUPLED_ROSENBROCK, start);
     for (int i = 0; i < solution.size(); i++) {
       assertEquals(1.0, solution.get(i), tol);
     }
   }
 
-  protected void assertSolvingCoupledRosenbrock(final Minimizer<Function1D<DoubleMatrix1D, Double>, DoubleMatrix1D> minimizer, final double tol) {
-    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, 1.0 });
-    final DoubleMatrix1D solution = minimizer.minimize(COUPLED_ROSENBROCK, start);
+  protected void assertSolvingCoupledRosenbrock(final Minimizer<Function1D<DoubleArray, Double>, DoubleArray> minimizer, final double tol) {
+    final DoubleArray start = DoubleArray.of(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, 1.0);
+    final DoubleArray solution = minimizer.minimize(COUPLED_ROSENBROCK, start);
     for (int i = 0; i < solution.size(); i++) {
       assertEquals(1.0, solution.get(i), tol);
     }

@@ -9,8 +9,8 @@ import java.util.Arrays;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * C1 cubic interpolation preserving monotonicity based on 
@@ -47,16 +47,16 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
       ArgChecker.isFalse(xValuesSrt[i - 1] == xValuesSrt[i], "xValues should be distinct");
     }
 
-    final DoubleMatrix2D coefMatrix = solve(xValuesSrt, yValuesSrt);
+    final DoubleMatrix coefMatrix = solve(xValuesSrt, yValuesSrt);
 
     for (int i = 0; i < coefMatrix.rowCount(); ++i) {
       for (int j = 0; j < coefMatrix.columnCount(); ++j) {
-        ArgChecker.isFalse(Double.isNaN(coefMatrix.getData()[i][j]), "Too large input");
-        ArgChecker.isFalse(Double.isInfinite(coefMatrix.getData()[i][j]), "Too large input");
+        ArgChecker.isFalse(Double.isNaN(coefMatrix.get(i, j)), "Too large input");
+        ArgChecker.isFalse(Double.isInfinite(coefMatrix.get(i, j)), "Too large input");
       }
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), coefMatrix, coefMatrix.columnCount(), 1);
+    return new PiecewisePolynomialResult(DoubleArray.copyOf(xValuesSrt), coefMatrix, coefMatrix.columnCount(), 1);
   }
 
   @Override
@@ -87,7 +87,7 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
     }
 
     double[] xValuesSrt = new double[nDataPts];
-    DoubleMatrix2D[] coefMatrix = new DoubleMatrix2D[dim];
+    DoubleMatrix[] coefMatrix = new DoubleMatrix[dim];
 
     for (int i = 0; i < dim; ++i) {
       xValuesSrt = Arrays.copyOf(xValues, nDataPts);
@@ -103,7 +103,7 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
 
     for (int i = 0; i < nIntervals; ++i) {
       for (int j = 0; j < dim; ++j) {
-        resMatrix[dim * i + j] = coefMatrix[j].row(i).getData();
+        resMatrix[dim * i + j] = coefMatrix[j].row(i).toArray();
       }
     }
 
@@ -114,7 +114,7 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
       }
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(DoubleArray.copyOf(xValuesSrt), DoubleMatrix.copyOf(resMatrix), nCoefs, dim);
   }
 
   @Override
@@ -128,7 +128,7 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
    * @param yValues Y values of data
    * @return Coefficient matrix whose i-th row vector is {a3, a2, a1, a0} of f(x) = a3 * (x-x_i)^3 + a2 * (x-x_i)^2 +... for the i-th interval
    */
-  private DoubleMatrix2D solve(final double[] xValues, final double[] yValues) {
+  private DoubleMatrix solve(final double[] xValues, final double[] yValues) {
 
     final int nDataPts = xValues.length;
 
@@ -153,7 +153,7 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
         res[i][3] = yValues[i];
       }
     }
-    return new DoubleMatrix2D(res);
+    return DoubleMatrix.copyOf(res);
   }
 
   /**

@@ -32,9 +32,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveName;
 
 /**
@@ -50,7 +50,7 @@ import com.opengamma.strata.market.curve.CurveName;
  * For example, par rate sensitivity would be expressed using this class as there is no associated currency.
  * <p>
  * One way of viewing this class is as a {@code Map} from a specific sensitivity key to
- * {@code double[]} sensitivity values. However, instead or being structured as a {@code Map},
+ * {@code DoubleArray} sensitivity values. However, instead or being structured as a {@code Map},
  * the data is structured as a {@code List}, with the key and value in each entry.
  */
 @BeanDefinition(builderScope = "private")
@@ -200,7 +200,7 @@ public final class CurveUnitParameterSensitivities
         mutable, addition, CurveUnitParameterSensitivity::compareKey);
     if (index >= 0) {
       CurveUnitParameterSensitivity base = mutable.get(index);
-      double[] combined = DoubleArrayMath.combineByAddition(base.getSensitivity(), addition.getSensitivity());
+      DoubleArray combined = base.getSensitivity().plus(addition.getSensitivity());
       mutable.set(index, base.withSensitivity(combined));
     } else {
       int insertionPoint = -(index + 1);
@@ -285,20 +285,20 @@ public final class CurveUnitParameterSensitivities
       if (index >= 0) {
         // matched, so must be equal
         CurveUnitParameterSensitivity sens2 = mutable.get(index);
-        if (!DoubleArrayMath.fuzzyEquals(sens1.getSensitivity(), sens2.getSensitivity(), tolerance)) {
+        if (!sens1.getSensitivity().equalWithTolerance(sens2.getSensitivity(), tolerance)) {
           return false;
         }
         mutable.remove(index);
       } else {
         // did not match, so must be zero
-        if (!DoubleArrayMath.fuzzyEqualsZero(sens1.getSensitivity(), tolerance)) {
+        if (!sens1.getSensitivity().equalZeroWithTolerance(tolerance)) {
           return false;
         }
       }
     }
     // all that remain from other instance must be zero
     for (CurveUnitParameterSensitivity sens2 : mutable) {
-      if (!DoubleArrayMath.fuzzyEqualsZero(sens2.getSensitivity(), tolerance)) {
+      if (!sens2.getSensitivity().equalZeroWithTolerance(tolerance)) {
         return false;
       }
     }

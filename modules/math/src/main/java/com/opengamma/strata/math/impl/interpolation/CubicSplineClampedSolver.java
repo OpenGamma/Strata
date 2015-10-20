@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Solves cubic spline problem with clamped endpoint conditions, where the first derivative is specified at endpoints
@@ -40,7 +40,7 @@ public class CubicSplineClampedSolver extends CubicSplineSolver {
   }
 
   @Override
-  public DoubleMatrix2D solve(final double[] xValues, final double[] yValues) {
+  public DoubleMatrix solve(final double[] xValues, final double[] yValues) {
 
     final double[] intervals = getDiffs(xValues);
 
@@ -48,7 +48,7 @@ public class CubicSplineClampedSolver extends CubicSplineSolver {
   }
 
   @Override
-  public DoubleMatrix2D[] solveWithSensitivity(final double[] xValues, final double[] yValues) {
+  public DoubleMatrix[] solveWithSensitivity(final double[] xValues, final double[] yValues) {
     final double[] intervals = getDiffs(xValues);
     final double[][] toBeInv = getMatrix(intervals);
     final double[] vector = getVector(yValues, intervals);
@@ -58,13 +58,13 @@ public class CubicSplineClampedSolver extends CubicSplineSolver {
   }
 
   @Override
-  public DoubleMatrix2D[] solveMultiDim(final double[] xValues, final DoubleMatrix2D yValuesMatrix) {
+  public DoubleMatrix[] solveMultiDim(final double[] xValues, final DoubleMatrix yValuesMatrix) {
     final int dim = yValuesMatrix.rowCount();
-    DoubleMatrix2D[] coefMatrix = new DoubleMatrix2D[dim];
+    DoubleMatrix[] coefMatrix = new DoubleMatrix[dim];
 
     for (int i = 0; i < dim; ++i) {
       resetConds(i);
-      coefMatrix[i] = solve(xValues, yValuesMatrix.row(i).getData());
+      coefMatrix[i] = solve(xValues, yValuesMatrix.row(i).toArray());
     }
 
     return coefMatrix;

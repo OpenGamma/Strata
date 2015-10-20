@@ -17,6 +17,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -73,7 +74,7 @@ public final class OvernightRateSwapLegConvention
   @PropertyDefinition(validate = "notNull")
   private final OvernightIndex index;
   /**
-   * The method of accruing overnight interest.
+   * The method of accruing overnight interest, defaulted to 'Compounded'.
    * <p>
    * Two methods of accrual are supported - 'Compounded' and 'Averaged'.
    * Averaging is primarily related to the 'USD-FED-FUND' index.
@@ -225,7 +226,9 @@ public final class OvernightRateSwapLegConvention
   /**
    * Creates a convention based on the specified index, using the 'Compounded' accrual method.
    * <p>
-   * The standard market convention for an Overnight rate leg is based exclusively on the index.
+   * The standard market convention for an Overnight rate leg is based on the index,
+   * frequency and payment offset, with the accrual method set to 'Compounded' and the
+   * stub convention set to 'ShortInitial'.
    * Use the {@linkplain #builder() builder} for unusual conventions.
    * 
    * @param index  the index, the market convention values are extracted from the index
@@ -244,7 +247,8 @@ public final class OvernightRateSwapLegConvention
   /**
    * Creates a convention based on the specified index, specifying the accrual method.
    * <p>
-   * The standard market convention for an Overnight rate leg is based exclusively on the index.
+   * The standard market convention for an Overnight rate leg is based on the index,
+   * frequency, payment offset and accrual type, with the stub convention set to 'ShortInitial'.
    * Use the {@linkplain #builder() builder} for unusual conventions.
    * <p>
    * The accrual method is usually 'Compounded'.
@@ -268,7 +272,13 @@ public final class OvernightRateSwapLegConvention
         .accrualFrequency(frequency)
         .paymentFrequency(frequency)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(paymentOffsetDays, index.getFixingCalendar()))
+        .stubConvention(StubConvention.SHORT_INITIAL)
         .build();
+  }
+
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.accrualMethod = OvernightAccrualMethod.COMPOUNDED;
   }
 
   @ImmutableValidator
@@ -674,7 +684,7 @@ public final class OvernightRateSwapLegConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the method of accruing overnight interest.
+   * Gets the method of accruing overnight interest, defaulted to 'Compounded'.
    * <p>
    * Two methods of accrual are supported - 'Compounded' and 'Averaged'.
    * Averaging is primarily related to the 'USD-FED-FUND' index.
@@ -1101,6 +1111,7 @@ public final class OvernightRateSwapLegConvention
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -1271,7 +1282,7 @@ public final class OvernightRateSwapLegConvention
     }
 
     /**
-     * Sets the method of accruing overnight interest.
+     * Sets the method of accruing overnight interest, defaulted to 'Compounded'.
      * <p>
      * Two methods of accrual are supported - 'Compounded' and 'Averaged'.
      * Averaging is primarily related to the 'USD-FED-FUND' index.

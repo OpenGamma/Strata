@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.math.impl.linearalgebra;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Contains the results of SV matrix decomposition.
@@ -18,7 +18,7 @@ public interface SVDecompositionResult extends DecompositionResult {
    * $\mathbf{U}$ is an orthogonal matrix, i.e. its transpose is also its inverse.
    * @return the $\mathbf{U}$ matrix
    */
-  DoubleMatrix2D getU();
+  DoubleMatrix getU();
 
   /**
    * Returns the transpose of the matrix $\mathbf{U}$ of the decomposition.
@@ -26,7 +26,7 @@ public interface SVDecompositionResult extends DecompositionResult {
    * $\mathbf{U}$ is an orthogonal matrix, i.e. its transpose is also its inverse.
    * @return the U matrix (or null if decomposed matrix is singular)
    */
-  DoubleMatrix2D getUT();
+  DoubleMatrix getUT();
 
   /**
    * Returns the diagonal matrix $\mathbf{\Sigma}$ of the decomposition.
@@ -35,7 +35,7 @@ public interface SVDecompositionResult extends DecompositionResult {
    * non-increasing order.
    * @return the $\mathbf{\Sigma}$ matrix
    */
-  DoubleMatrix2D getS();
+  DoubleMatrix getS();
 
   /**
    * Returns the diagonal elements of the matrix $\mathbf{\Sigma}$ of the decomposition.
@@ -51,7 +51,7 @@ public interface SVDecompositionResult extends DecompositionResult {
    * $\mathbf{V}$ is an orthogonal matrix, i.e. its transpose is also its inverse.
    * @return the $\mathbf{V}$ matrix
    */
-  DoubleMatrix2D getV();
+  DoubleMatrix getV();
 
   /**
    * Returns the transpose of the matrix $\mathbf{V}$ of the decomposition.
@@ -59,7 +59,7 @@ public interface SVDecompositionResult extends DecompositionResult {
    * $\mathbf{V}$ is an orthogonal matrix, i.e. its transpose is also its inverse.
    * @return the $\mathbf{V}$ matrix
    */
-  DoubleMatrix2D getVT();
+  DoubleMatrix getVT();
 
   /**
    * Returns the $L_2$ norm of the matrix.

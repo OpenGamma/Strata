@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * For a set of N-1 "fit" parameters, produces N "model" parameters that sum to one
@@ -68,8 +68,8 @@ public class SumToOne {
    * @param fitParms The N-1 "fit" parameters
    * @return The N "model" parameters
    */
-  public DoubleMatrix1D transform(DoubleMatrix1D fitParms) {
-    return new DoubleMatrix1D(transform(fitParms.getData()));
+  public DoubleArray transform(DoubleArray fitParms) {
+    return DoubleArray.copyOf(transform(fitParms.toArray()));
   }
 
   /**
@@ -107,8 +107,8 @@ public class SumToOne {
    * @param modelParms The N "model" parameters. <b>These must sum to one</b>
    * @return The N-1 "fit" parameters
    */
-  public DoubleMatrix1D inverseTransform(DoubleMatrix1D modelParms) {
-    return new DoubleMatrix1D(inverseTransform(modelParms.getData()));
+  public DoubleArray inverseTransform(DoubleArray modelParms) {
+    return DoubleArray.copyOf(inverseTransform(modelParms.toArray()));
   }
 
   /**
@@ -156,8 +156,8 @@ public class SumToOne {
    * @param fitParms  The N-1 "fit" parameters
    * @return The N by N-1 Jacobian matrix
    */
-  public DoubleMatrix2D jacobian(DoubleMatrix1D fitParms) {
-    return new DoubleMatrix2D(jacobian(fitParms.getData()));
+  public DoubleMatrix jacobian(DoubleArray fitParms) {
+    return DoubleMatrix.copyOf(jacobian(fitParms.toArray()));
   }
 
   private void cal(double[] cum, double factor, int d, int n, int p1, double[] res) {

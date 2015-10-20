@@ -7,8 +7,8 @@ package com.opengamma.strata.math.impl.interpolation;
 
 import java.util.Arrays;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Solves cubic spline problem with Not-A-Knot endpoint conditions, where the third derivative at the endpoints is the same as that of their adjacent points
@@ -16,7 +16,7 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 public class CubicSplineNakSolver extends CubicSplineSolver {
 
   @Override
-  public DoubleMatrix2D solve(final double[] xValues, final double[] yValues) {
+  public DoubleMatrix solve(final double[] xValues, final double[] yValues) {
 
     final double[] intervals = getDiffs(xValues);
 
@@ -24,7 +24,7 @@ public class CubicSplineNakSolver extends CubicSplineSolver {
   }
 
   @Override
-  public DoubleMatrix2D[] solveWithSensitivity(final double[] xValues, final double[] yValues) {
+  public DoubleMatrix[] solveWithSensitivity(final double[] xValues, final double[] yValues) {
     final double[] intervals = getDiffs(xValues);
     final double[][] toBeInv = getMatrix(intervals);
     final double[] vector = getVector(yValues, intervals);
@@ -34,27 +34,27 @@ public class CubicSplineNakSolver extends CubicSplineSolver {
   }
 
   @Override
-  public DoubleMatrix2D[] solveMultiDim(final double[] xValues, final DoubleMatrix2D yValuesMatrix) {
+  public DoubleMatrix[] solveMultiDim(final double[] xValues, final DoubleMatrix yValuesMatrix) {
     final int dim = yValuesMatrix.rowCount();
-    final DoubleMatrix2D[] coefMatrix = new DoubleMatrix2D[dim];
+    final DoubleMatrix[] coefMatrix = new DoubleMatrix[dim];
 
     for (int i = 0; i < dim; ++i) {
-      coefMatrix[i] = solve(xValues, yValuesMatrix.row(i).getData());
+      coefMatrix[i] = solve(xValues, yValuesMatrix.row(i).toArray());
     }
 
     return coefMatrix;
   }
 
   @Override
-  public DoubleMatrix1D getKnotsMat1D(final double[] xValues) {
+  public DoubleArray getKnotsMat1D(final double[] xValues) {
     final int nData = xValues.length;
     if (nData == 2) {
-      return new DoubleMatrix1D(new double[] {xValues[0], xValues[nData - 1] });
+      return DoubleArray.of(xValues[0], xValues[nData - 1]);
     }
     if (nData == 3) {
-      return new DoubleMatrix1D(new double[] {xValues[0], xValues[nData - 1] });
+      return DoubleArray.of(xValues[0], xValues[nData - 1]);
     }
-    return new DoubleMatrix1D(xValues);
+    return DoubleArray.copyOf(xValues);
   }
 
   /**
@@ -64,59 +64,56 @@ public class CubicSplineNakSolver extends CubicSplineSolver {
    * @param solnVector Values of second derivative at knots
    * @return Coefficient matrix whose i-th row vector is (a_0,a_1,...) for i-th intervals, where a_0,a_1,... are coefficients of f(x) = a_0 + a_1 x^1 + ....
    */
-  private DoubleMatrix2D getSplineCoeffs(final double[] xValues, final double[] yValues, final double[] intervals, final double[] solnVector) {
+  private DoubleMatrix getSplineCoeffs(final double[] xValues, final double[] yValues, final double[] intervals, final double[] solnVector) {
     final int nData = xValues.length;
 
     if (nData == 2) {
       final double[][] res = new double[][] {{
         yValues[1] / intervals[0] - yValues[0] / intervals[0] - intervals[0] * solnVector[0] / 2. - intervals[0] * solnVector[1] / 6. + intervals[0] * solnVector[0] / 6., yValues[0] } };
-      return new DoubleMatrix2D(res);
+      return DoubleMatrix.copyOf(res);
     }
     if (nData == 3) {
       final double[][] res = new double[][] {{solnVector[0] / 2., yValues[1] / intervals[0] - yValues[0] / intervals[0] - intervals[0] * solnVector[0] / 2., yValues[0] } };
-      return new DoubleMatrix2D(res);
+      return DoubleMatrix.copyOf(res);
     }
     return getCommonSplineCoeffs(xValues, yValues, intervals, solnVector);
   }
 
-  private DoubleMatrix2D[] getSplineCoeffsWithSensitivity(final double[] xValues, final double[] yValues, final double[] intervals, final double[][] toBeInv, final double[] vector,
+  private DoubleMatrix[] getSplineCoeffsWithSensitivity(final double[] xValues, final double[] yValues, final double[] intervals, final double[][] toBeInv, final double[] vector,
       final double[][] vecSensitivity) {
     final int nData = xValues.length;
 
     if (nData == 2) {
-      final DoubleMatrix2D[] res = new DoubleMatrix2D[nData];
-      final double[][] coef = new double[][] {{yValues[1] / intervals[0] - yValues[0] / intervals[0], yValues[0] } };
-      res[0] = new DoubleMatrix2D(coef);
-      final double[][] coefSense = new double[2][];
-      coefSense[0] = new double[] {-1. / intervals[0], 1. / intervals[0] };
-      coefSense[1] = new double[] {1., 0. };
-      res[1] = new DoubleMatrix2D(coefSense);
+      final DoubleMatrix[] res = new DoubleMatrix[nData];
+      res[0] = DoubleMatrix.of(1, 1, yValues[1] / intervals[0] - yValues[0] / intervals[0], yValues[0]);
+      res[1] = DoubleMatrix.of(2, 2, -1d / intervals[0], 1d / intervals[0], 1d, 0d);
       return res;
     }
     if (nData == 3) {
-      final DoubleMatrix2D[] res = new DoubleMatrix2D[2];
-      final DoubleMatrix1D[] soln = combinedMatrixEqnSolver(toBeInv, vector, vecSensitivity);
-      final double[][] coef = new double[][] {{soln[0].getData()[0] / 2.,
-        yValues[1] / intervals[0] - yValues[0] / intervals[0] - intervals[0] * soln[0].getData()[0] / 2., yValues[0] } };
-      res[0] = new DoubleMatrix2D(coef);
+      final DoubleMatrix[] res = new DoubleMatrix[2];
+      final DoubleArray[] soln = combinedMatrixEqnSolver(toBeInv, vector, vecSensitivity);
+      final double[][] coef = new double[][] {{soln[0].get(0) / 2.,
+          yValues[1] / intervals[0] - yValues[0] / intervals[0] - intervals[0] * soln[0].get(0) / 2., yValues[0]}};
+      res[0] = DoubleMatrix.copyOf(coef);
       final double[][] coefSense = new double[3][0];
-      coefSense[0] = new double[] {soln[1].getData()[0] / 2., soln[2].getData()[0] / 2., soln[3].getData()[0] / 2. };
+      coefSense[0] = new double[] {soln[1].get(0) / 2., soln[2].get(0) / 2., soln[3].get(0) / 2.};
       coefSense[1] = new double[]
-      {-1. / intervals[0] - intervals[0] * soln[1].getData()[0] / 2., 1. / intervals[0] - intervals[0] * soln[2].getData()[0] / 2., -intervals[0] * soln[3].getData()[0] / 2. };
+          {-1. / intervals[0] - intervals[0] * soln[1].get(0) / 2., 1. / intervals[0] - intervals[0] * soln[2].get(0) / 2.,
+              -intervals[0] * soln[3].get(0) / 2.};
       coefSense[2] = new double[] {1., 0., 0. };
-      res[1] = new DoubleMatrix2D(coefSense);
+      res[1] = DoubleMatrix.copyOf(coefSense);
       return res;
     }
-    final DoubleMatrix2D[] res = new DoubleMatrix2D[nData];
-    final DoubleMatrix1D[] soln = combinedMatrixEqnSolver(toBeInv, vector, vecSensitivity);
-    res[0] = getCommonSplineCoeffs(xValues, yValues, intervals, soln[0].getData());
+    final DoubleMatrix[] res = new DoubleMatrix[nData];
+    final DoubleArray[] soln = combinedMatrixEqnSolver(toBeInv, vector, vecSensitivity);
+    res[0] = getCommonSplineCoeffs(xValues, yValues, intervals, soln[0].toArray());
     final double[][] solnMatrix = new double[nData][nData];
     for (int i = 0; i < nData; ++i) {
       for (int j = 0; j < nData; ++j) {
-        solnMatrix[i][j] = soln[j + 1].getData()[i];
+        solnMatrix[i][j] = soln[j + 1].get(i);
       }
     }
-    final DoubleMatrix2D[] tmp = getCommonSensitivityCoeffs(intervals, solnMatrix);
+    final DoubleMatrix[] tmp = getCommonSensitivityCoeffs(intervals, solnMatrix);
     System.arraycopy(tmp, 0, res, 1, nData - 1);
     return res;
   }

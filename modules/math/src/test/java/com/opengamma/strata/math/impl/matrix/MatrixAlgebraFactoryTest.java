@@ -10,6 +10,9 @@ import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.collect.array.Matrix;
+
 /**
  * Test.
  */
@@ -40,7 +43,7 @@ public class MatrixAlgebraFactoryTest {
       }
 
       @Override
-      public DoubleMatrix2D getInverse(Matrix m) {
+      public DoubleMatrix getInverse(Matrix m) {
         return null;
       }
 
@@ -60,17 +63,17 @@ public class MatrixAlgebraFactoryTest {
       }
 
       @Override
-      public DoubleMatrix2D getOuterProduct(Matrix m1, Matrix m2) {
+      public DoubleMatrix getOuterProduct(Matrix m1, Matrix m2) {
         return null;
       }
 
       @Override
-      public DoubleMatrix2D getPower(Matrix m, int p) {
+      public DoubleMatrix getPower(Matrix m, int p) {
         return null;
       }
 
       @Override
-      public DoubleMatrix2D getPower(Matrix m, double p) {
+      public DoubleMatrix getPower(Matrix m, double p) {
         return null;
       }
 
@@ -80,7 +83,7 @@ public class MatrixAlgebraFactoryTest {
       }
 
       @Override
-      public DoubleMatrix2D getTranspose(Matrix m) {
+      public DoubleMatrix getTranspose(Matrix m) {
         return null;
       }
 

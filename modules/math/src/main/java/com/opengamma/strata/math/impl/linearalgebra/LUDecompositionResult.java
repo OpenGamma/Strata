@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.math.impl.linearalgebra;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Contains the results of LU matrix decomposition.
@@ -18,7 +18,7 @@ public interface LUDecompositionResult extends DecompositionResult {
    * $\mathbf{L}$ is a lower-triangular matrix.
    * @return the $\mathbf{L}$ matrix
    */
-  DoubleMatrix2D getL();
+  DoubleMatrix getL();
 
   /**
    * Returns the $\mathbf{U}$ matrix of the decomposition.
@@ -26,7 +26,7 @@ public interface LUDecompositionResult extends DecompositionResult {
    * $\mathbf{U}$ is an upper-triangular matrix.
    * @return the U matrix
    */
-  DoubleMatrix2D getU();
+  DoubleMatrix getU();
 
   /**
    * Returns the rows permutation matrix, $\mathbf{P}$.
@@ -39,7 +39,7 @@ public interface LUDecompositionResult extends DecompositionResult {
    * @return the $\mathbf{P}$ rows permutation matrix
    * @see #getPivot()
    */
-  DoubleMatrix2D getP();
+  DoubleMatrix getP();
 
   /**
    * Returns the pivot permutation vector.

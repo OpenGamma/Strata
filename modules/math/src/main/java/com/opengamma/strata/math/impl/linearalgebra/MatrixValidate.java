@@ -5,15 +5,15 @@
  */
 package com.opengamma.strata.math.impl.linearalgebra;
 
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
  * 
  */
 public abstract class MatrixValidate {
 
-  public static void notNaNOrInfinite(DoubleMatrix2D x) {
+  public static void notNaNOrInfinite(DoubleMatrix x) {
     int rows = x.rowCount();
     int cols = x.columnCount();
     for (int i = 0; i < rows; i++) {

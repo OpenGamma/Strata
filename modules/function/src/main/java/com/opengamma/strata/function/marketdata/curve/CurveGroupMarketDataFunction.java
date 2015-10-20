@@ -19,7 +19,6 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
@@ -33,7 +32,6 @@ import com.opengamma.strata.market.curve.definition.NodalCurveDefinition;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.ParRatesId;
 import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
-import com.opengamma.strata.pricer.calibration.CurveBuildingBlockBundle;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
@@ -127,16 +125,14 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     }
 
     // perform the calibration
-    Pair<ImmutableRatesProvider, CurveBuildingBlockBundle> calibratedCurves =
-        curveCalibrator.calibrate(
-            groupDefn,
-            marketData.getValuationDate(),
-            ObservableValues.of(parRateValuesByKey),
-            ImmutableMap.of(),
-            FxMatrix.empty());
+    ImmutableRatesProvider calibratedProvider = curveCalibrator.calibrate(
+        groupDefn,
+        marketData.getValuationDate(),
+        ObservableValues.of(parRateValuesByKey),
+        ImmutableMap.of(),
+        FxMatrix.empty());
 
     // extract the result
-    ImmutableRatesProvider calibratedProvider = calibratedCurves.getFirst();
     CurveGroup curveGroup = CurveGroup.of(
         groupDefn.getName(),
         calibratedProvider.getDiscountCurves(),

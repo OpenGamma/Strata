@@ -9,7 +9,7 @@
  * <p>
  * The trade model has three basic concepts, trades, securities and products.
  * <p>
- * A {@link com.opengamma.strata.finance.Trade Trade} is the basic element of finance,
+ * A {@link com.opengamma.strata.basics.Trade Trade} is the basic element of finance,
  * a transaction between two organizations, known as counterparties.
  * Most trades represented in the system will be contracts that have been agreed on a date in the past.
  * The trade model also allows trades with a date in the future, or without any date.

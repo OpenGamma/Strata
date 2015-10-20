@@ -10,14 +10,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * 
  */
-public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleMatrix1D, LinkedHashMap<String, Interpolator1DDataBundle>> {
+public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleArray, LinkedHashMap<String, Interpolator1DDataBundle>> {
 
   private final LinkedHashMap<String, double[]> _knotPoints;
   private final LinkedHashMap<String, Interpolator1D> _interpolators;
@@ -38,7 +38,7 @@ public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleMa
   }
 
   @Override
-  public LinkedHashMap<String, Interpolator1DDataBundle> evaluate(final DoubleMatrix1D x) {
+  public LinkedHashMap<String, Interpolator1DDataBundle> evaluate(final DoubleArray x) {
     ArgChecker.notNull(x, "null data x");
     ArgChecker.isTrue(_nNodes == x.size(), "x wrong length");
 
@@ -48,7 +48,7 @@ public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleMa
     for (final String name : _interpolators.keySet()) {
       final Interpolator1D interpolator = _interpolators.get(name);
       final double[] nodes = _knotPoints.get(name);
-      final double[] values = Arrays.copyOfRange(x.getData(), index, index + nodes.length);
+      final double[] values = Arrays.copyOfRange(x.toArray(), index, index + nodes.length);
       index += nodes.length;
       final Interpolator1DDataBundle db = interpolator.getDataBundleFromSortedArrays(nodes, values);
       res.put(name, db);

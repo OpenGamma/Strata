@@ -14,6 +14,7 @@ import java.util.Arrays;
 import org.joda.beans.BeanBuilder;
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 
@@ -292,8 +293,8 @@ public class IsdaCompliantCurveTest {
         }
       }
       for (int j = 0; j < n; j++) {
-        double[] rTexpectedi = curve.getNodeSensitivity(ti);
-        assertEquals("Time: " + ti, rTexpectedi[j], rTCalculatedi[j], 1e-10);
+        DoubleArray rTexpectedi = curve.getNodeSensitivity(ti);
+        assertEquals("Time: " + ti, rTexpectedi.get(j), rTCalculatedi[j], 1e-10);
       }
 
     }
@@ -309,7 +310,7 @@ public class IsdaCompliantCurveTest {
     int iterationMax = 10000;
     for (int i = 1; i < iterationMax; i++) {
       ti = ti + i / iterationMax * 100;
-      double[] sensi = curve.getNodeSensitivity(ti);
+      DoubleArray sensi = curve.getNodeSensitivity(ti);
       for (int j = 0; j < n; j++) {
         r[j] = r[j] + 10e-6;
         curve = new IsdaCompliantCurve(t, r);
@@ -320,7 +321,7 @@ public class IsdaCompliantCurveTest {
         sensii = sensii / (2 * 10e-6);
         r[j] = r[j] + 10e-6;
         curve = new IsdaCompliantCurve(t, r);
-        assertEquals("node: " + j, sensi[j], sensii, 1e-5);
+        assertEquals("node: " + j, sensi.get(j), sensii, 1e-5);
       }
     }
   }
@@ -339,7 +340,7 @@ public class IsdaCompliantCurveTest {
 
       for (int j = 0; j < t.length; j++) {
         sensitivityExpectedi = curve.getSingleNodeSensitivity(ti, j);
-        sensitivityCalculatedi = curve.getNodeSensitivity(ti)[j];
+        sensitivityCalculatedi = curve.getNodeSensitivity(ti).get(j);
         assertEquals("Time: " + ti, sensitivityExpectedi, sensitivityCalculatedi, EPS);
       }
     }
@@ -488,21 +489,21 @@ public class IsdaCompliantCurveTest {
     for (int jj = 0; jj < nExamples; jj++) {
       double time = jj * 11.0 / (nExamples - 1);
       double[] fd = fdSense(curve, time);
-      double[] anal = curve.getNodeSensitivity(time);
+      DoubleArray anal = curve.getNodeSensitivity(time);
       for (int i = 0; i < n; i++) {
         double anal2 = curve.getSingleNodeSensitivity(time, i);
-        assertEquals("test1 - Time: " + time, fd[i], anal[i], 1e-10);
-        assertEquals("test2 - Time: " + time, anal[i], anal2, 0.0);
+        assertEquals("test1 - Time: " + time, fd[i], anal.get(i), 1e-10);
+        assertEquals("test2 - Time: " + time, anal.get(i), anal2, 0.0);
       }
     }
 
     // check nodes
     for (int jj = 0; jj < n; jj++) {
-      double[] anal = curve.getNodeSensitivity(t[jj]);
+      DoubleArray anal = curve.getNodeSensitivity(t[jj]);
       for (int i = 0; i < n; i++) {
         double anal2 = curve.getSingleNodeSensitivity(t[jj], i);
         double expected = i == jj ? 1.0 : 0.0;
-        assertEquals(expected, anal[i], 0.0);
+        assertEquals(expected, anal.get(i), 0.0);
         assertEquals(expected, anal2, 0.0);
       }
     }
@@ -590,8 +591,8 @@ public class IsdaCompliantCurveTest {
 
     rt[0] = forward[0] * time[0];
     r[0] = forward[0];
-    double[] xData = cv1.getXValues();
-    double[] yData = cv1.getYValues();
+    double[] xData = cv1.getXValues().toArray();
+    double[] yData = cv1.getYValues().toArray();
     for (int i = 1; i < num; ++i) {
       rt[i] = rt[i - 1] + forward[i] * (time[i] - time[i - 1]);
       r[i] = rt[i] / time[i];
@@ -635,7 +636,7 @@ public class IsdaCompliantCurveTest {
 
     CurveUnitParameterSensitivity rtSense = cv1.yValueParameterSensitivity(0.33);
     for (int i = 0; i < num; ++i) {
-      assertEquals(cv1.getSingleNodeSensitivity(0.33, i), rtSense.getSensitivity()[i]);
+      assertEquals(cv1.getSingleNodeSensitivity(0.33, i), rtSense.getSensitivity().get(i));
     }
 
     double[] refs = new double[] {0.04, 0.74, 2.};

@@ -8,6 +8,7 @@ package com.opengamma.strata.examples.finance.credit.harness;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.engine.calculation.Results;
 import com.opengamma.strata.engine.config.Measure;
 
@@ -18,7 +19,7 @@ public interface Calculator {
       TradeSource tradeSource,
       Measure measure);
 
-  double[] calculateVectorValue(
+  DoubleArray calculateVectorValue(
       LocalDate valuationDate,
       TradeSource tradeSource,
       Measure measure);

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.function.DoubleBinaryOperator;
 
 import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * A curve based on {@code double} nodal points.
@@ -29,36 +30,30 @@ public interface NodalCurve
    * <p>
    * This method returns the fixed x-values used to define the curve.
    * This will be of the same size as the y-values.
-   * <p>
-   * The implementation will clone any internal data, thus the result may be mutated.
    * 
    * @return the x-values
    */
-  public abstract double[] getXValues();
+  public abstract DoubleArray getXValues();
 
   /**
    * Gets the known y-values of the curve.
    * <p>
    * This method returns the fixed y-values used to define the curve.
    * This will be of the same size as the x-values.
-   * <p>
-   * The implementation will clone any internal data, thus the result may be mutated.
    * 
    * @return the y-values
    */
-  public abstract double[] getYValues();
+  public abstract DoubleArray getYValues();
 
   /**
    * Returns a new curve with the specified values.
    * <p>
    * This allows the y-values of the curve to be changed while retaining the same x-values.
-   * <p>
-   * The implementation will clone the input array.
    * 
    * @param values  the new y-values for the curve
    * @return the new curve
    */
-  public abstract NodalCurve withYValues(double[] values);
+  public abstract NodalCurve withYValues(DoubleArray values);
 
   //-------------------------------------------------------------------------
   /**
@@ -74,13 +69,9 @@ public interface NodalCurve
    * @return the new curve
    */
   public default NodalCurve shiftedBy(DoubleBinaryOperator operator) {
-    double[] xValues = getXValues();
-    double[] yValues = getYValues();
-    double[] shifted = new double[yValues.length];
-    for (int i = 0; i < yValues.length; i++) {
-      shifted[i] = operator.applyAsDouble(xValues[i], yValues[i]);
-    }
-    return withYValues(shifted);
+    DoubleArray xValues = getXValues();
+    DoubleArray yValues = getYValues();
+    return withYValues(yValues.mapWithIndex((i, v) -> operator.applyAsDouble(xValues.get(i), v)));
   }
 
   /**
@@ -95,12 +86,8 @@ public interface NodalCurve
    * @return the new curve
    */
   public default NodalCurve shiftedBy(List<ValueAdjustment> adjustments) {
-    double[] shifted = getYValues();
-    int minSize = Math.min(shifted.length, adjustments.size());
-    for (int i = 0; i < minSize; i++) {
-      shifted[i] = adjustments.get(i).adjust(shifted[i]);
-    }
-    return withYValues(shifted);
+    DoubleArray yValues = getYValues();
+    return withYValues(yValues.mapWithIndex((i, v) -> i < adjustments.size() ? adjustments.get(i).adjust(v) : v));
   }
 
   //-------------------------------------------------------------------------

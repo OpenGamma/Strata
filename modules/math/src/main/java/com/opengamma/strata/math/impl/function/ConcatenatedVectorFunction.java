@@ -6,8 +6,8 @@
 package com.opengamma.strata.math.impl.function;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * For the set of $k$ vector functions $f_i: \mathbb{R}^{m_i} \to \mathbb{R}^{n_i} \quad x_i \mapsto f_i(x_i) = y_i$ 
@@ -51,68 +51,53 @@ public class ConcatenatedVectorFunction extends VectorFunction {
 
   //-------------------------------------------------------------------------
   @Override
-  public DoubleMatrix2D calculateJacobian(DoubleMatrix1D x) {
+  public DoubleMatrix calculateJacobian(DoubleArray x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(
         x.size() == getLengthOfDomain(),
         "Incorrect length of x. Is {} but should be {}", x.size(), getLengthOfDomain());
+    double[][] jac = new double[getLengthOfRange()][getLengthOfDomain()];
 
-    DoubleMatrix1D[] subX = partition(x);
-    DoubleMatrix2D jac = DoubleMatrix2D.filled(getLengthOfRange(), getLengthOfDomain());
-
+    int posInput = 0;
     int pos1 = 0;
     int pos2 = 0;
     for (int i = 0; i < _nPartitions; i++) {
-      DoubleMatrix2D subJac = _functions[i].calculateJacobian(subX[i]);
       int nRows = _yPartition[i];
       int nCols = _xPartition[i];
+      DoubleArray sub = x.subArray(posInput, posInput + nCols);
+      DoubleMatrix subJac = _functions[i].calculateJacobian(sub);
       if (nCols > 0) {
         for (int r = 0; r < nRows; r++) {
-          System.arraycopy(subJac.getData()[r], 0, jac.getData()[pos1++], pos2, nCols);
+          System.arraycopy(subJac.toArrayUnsafe()[r], 0, jac[pos1++], pos2, nCols);
         }
         pos2 += nCols;
       } else {
         pos1 += nRows;
       }
+      posInput += nCols;
     }
-    return jac;
+    return DoubleMatrix.copyOf(jac);
   }
 
   @Override
-  public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+  public DoubleArray evaluate(DoubleArray x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(
         x.size() == getLengthOfDomain(),
         "Incorrect length of x. Is {} but should be {}", x.size(), getLengthOfDomain());
-    DoubleMatrix1D[] subX = partition(x);
     double[] y = new double[getLengthOfRange()];
-    int pos = 0;
+    int posInput = 0;
+    int posOutput = 0;
     //evaluate each function (with the appropriate sub vector) and concatenate the results 
     for (int i = 0; i < _nPartitions; i++) {
-      double[] subY = _functions[i].evaluate(subX[i]).getData();
-      int length = subY.length;
-      System.arraycopy(subY, 0, y, pos, length);
-      pos += length;
-    }
-    return new DoubleMatrix1D(y);
-  }
-
-  /**
-   * This splits a vectors into a number of sub vectors with lengths given by _xPartition.
-   * 
-   * @param x  the vector to be spit 
-   * @return a set of sub vectors 
-   */
-  private DoubleMatrix1D[] partition(DoubleMatrix1D x) {
-    DoubleMatrix1D[] res = new DoubleMatrix1D[_nPartitions];
-    int pos = 0;
-    for (int i = 0; i < _nPartitions; i++) {
       int length = _xPartition[i];
-      res[i] = DoubleMatrix1D.filled(length);
-      System.arraycopy(x.getData(), pos, res[i].getData(), 0, length);
-      pos += length;
+      DoubleArray sub = x.subArray(posInput, posInput + length);
+      DoubleArray eval = _functions[i].evaluate(sub);
+      eval.copyInto(y, posOutput);
+      posInput += length;
+      posOutput += eval.size();
     }
-    return res;
+    return DoubleArray.copyOf(y);
   }
 
   @Override

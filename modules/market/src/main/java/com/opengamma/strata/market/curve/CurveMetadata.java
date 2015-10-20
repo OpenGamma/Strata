@@ -8,7 +8,6 @@ package com.opengamma.strata.market.curve;
 import java.util.List;
 import java.util.Optional;
 
-import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.market.value.ValueType;
 
@@ -39,6 +38,9 @@ public interface CurveMetadata {
    * <p>
    * This type provides meaning to the x-values. For example, the x-value might
    * represent a year fraction, as represented using {@link ValueType#YEAR_FRACTION}.
+   * <p>
+   * Note that if the x-value of the curve represents time as a year fraction, the day
+   * count should be specified in the info map to define how the year fraction is calculated.
    * 
    * @return the x-value type
    */
@@ -55,14 +57,34 @@ public interface CurveMetadata {
   public abstract ValueType getYValueType();
 
   /**
-   * Gets the day count, optional.
+   * Gets curve information of a specific type.
    * <p>
-   * If the x-value of the curve represents time as a year fraction, the day count
-   * can be specified to define how the year fraction is calculated.
+   * This method supplies whatever additional information is available for the curve.
+   * <p>
+   * The most common information is the {@linkplain CurveInfoType#DAY_COUNT day count}
+   * and {@linkplain CurveInfoType#JACOBIAN curve calibration information}.
    * 
-   * @return the day count
+   * @param type  the type to find
+   * @return the curve information
+   * @throws IllegalArgumentException if the information is not found
    */
-  public abstract Optional<DayCount> getDayCount();
+  public default <T> T getInfo(CurveInfoType<T> type) {
+    return findInfo(type).orElseThrow(() -> new IllegalArgumentException(
+        "Unable to find curve information of type " + type));
+  }
+
+  /**
+   * Finds curve information of a specific type.
+   * <p>
+   * The most common information is the {@linkplain CurveInfoType#DAY_COUNT day count}
+   * and {@linkplain CurveInfoType#JACOBIAN curve calibration information}.
+   * <p>
+   * If the info is not found, optional empty is returned.
+   * 
+   * @param type  the type to find
+   * @return the curve information
+   */
+  public abstract <T> Optional<T> findInfo(CurveInfoType<T> type);
 
   /**
    * Gets metadata about each parameter underlying the curve, optional.

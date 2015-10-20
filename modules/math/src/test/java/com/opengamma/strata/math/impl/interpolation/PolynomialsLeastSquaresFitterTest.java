@@ -9,6 +9,7 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
@@ -157,26 +158,30 @@ public class PolynomialsLeastSquaresFitterTest {
     final PolynomialsLeastSquaresFitter regObj1 = new PolynomialsLeastSquaresFitter();
     final double[] xValues = new double[] {-1., 0, 1. };
     final double[] yValues = new double[] {1., 0, 1. };
-    final double[][] rMatrix = new double[][] { {-Math.sqrt(3.), 0., -2. / Math.sqrt(3.) }, {0., -Math.sqrt(2.), 0. }, {0., 0., -Math.sqrt(2. / 3.) } };
+    final double[][] rMatrix = new double[][] {
+        {-Math.sqrt(3.), 0., -2. / Math.sqrt(3.)},
+        {0., -Math.sqrt(2.), 0.},
+        {0., 0., -Math.sqrt(2. / 3.)}
+    };
 
     final int degree = 2;
 
     PolynomialsLeastSquaresFitterResult resultVer = regObj1.regressVerbose(xValues, yValues, degree, false);
-    double[][] rMatResult = resultVer.getRMat().getData();
+    DoubleMatrix rMatResult = resultVer.getRMat();
 
     for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 3; ++j) {
-        assertEquals(rMatrix[i][j], rMatResult[i][j], EPS);
+        assertEquals(rMatrix[i][j], rMatResult.get(i, j), EPS);
       }
     }
 
     final PolynomialsLeastSquaresFitter regObj2 = new PolynomialsLeastSquaresFitter();
     PolynomialsLeastSquaresFitterResult resultNorm = regObj2.regressVerbose(xValues, yValues, degree, true);
-    rMatResult = resultNorm.getRMat().getData();
+    rMatResult = resultNorm.getRMat();
 
     for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 3; ++j) {
-        assertEquals(rMatrix[i][j], rMatResult[i][j], EPS);
+        assertEquals(rMatrix[i][j], rMatResult.get(i, j), EPS);
       }
     }
 

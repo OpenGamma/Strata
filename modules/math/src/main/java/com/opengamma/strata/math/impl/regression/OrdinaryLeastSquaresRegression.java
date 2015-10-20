@@ -9,9 +9,9 @@ import org.apache.commons.math3.distribution.TDistribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
  * 
@@ -36,12 +36,12 @@ public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
     for (int i = 0; i < y.length; i++) {
       dep[i] = y[i];
     }
-    DoubleMatrix2D matrix = new DoubleMatrix2D(indep);
-    DoubleMatrix1D vector = new DoubleMatrix1D(dep);
-    DoubleMatrix2D transpose = _algebra.getTranspose(matrix);
-    DoubleMatrix2D betasVector = (DoubleMatrix2D) _algebra.multiply(
+    DoubleMatrix matrix = DoubleMatrix.copyOf(indep);
+    DoubleArray vector = DoubleArray.copyOf(dep);
+    DoubleMatrix transpose = _algebra.getTranspose(matrix);
+    DoubleMatrix betasVector = (DoubleMatrix) _algebra.multiply(
         _algebra.multiply(_algebra.getInverse(_algebra.multiply(transpose, matrix)), transpose), vector);
-    double[] yModel = super.writeArrayAsVector(((DoubleMatrix2D) _algebra.multiply(matrix, betasVector)).toArray());
+    double[] yModel = super.writeArrayAsVector(((DoubleMatrix) _algebra.multiply(matrix, betasVector)).toArray());
     double[] betas = super.writeArrayAsVector(betasVector.toArray());
     return getResultWithStatistics(x, y, betas, yModel, transpose, matrix, useIntercept);
   }
@@ -51,8 +51,8 @@ public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
       double[] y,
       double[] betas,
       double[] yModel,
-      DoubleMatrix2D transpose,
-      DoubleMatrix2D matrix,
+      DoubleMatrix transpose,
+      DoubleMatrix matrix,
       boolean useIntercept) {
 
     double yMean = 0.;

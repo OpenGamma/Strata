@@ -17,11 +17,11 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.ObservableValues;
-import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.finance.Trade;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
@@ -37,6 +37,10 @@ import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 
+/**
+ * Test curve calibration
+ */
+@Test
 public class CalibrationDiscountingSimpleEur3Test {
 
   private static final LocalDate VALUATION_DATE = LocalDate.of(2015, 7, 24);
@@ -83,10 +87,9 @@ public class CalibrationDiscountingSimpleEur3Test {
   private static final double TOLERANCE_PV = 1.0E-6;
   private static final double TOLERANCE_DELTA = 1.0E-10;
 
-  @Test
+  //-------------------------------------------------------------------------
   public void calibration_present_value() {
-
-    Pair<ImmutableRatesProvider, CurveBuildingBlockBundle> result =
+    ImmutableRatesProvider result =
         CalibrationEurStandard.calibrateEurStandard(VALUATION_DATE,
             DSC_MARKET_QUOTES, DSC_OIS_TENORS,
             FWD3_FIXING_QUOTE, FWD3_FRA_QUOTES, FWD3_IRS_QUOTES, FWD3_FRA_TENORS, FWD3_IRS_TENORS,
@@ -122,7 +125,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     // OIS
     for (int i = 0; i < DSC_MARKET_QUOTES.length; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) dscTrades.get(i)).getProduct(), result.getFirst());
+          .presentValue(((SwapTrade) dscTrades.get(i)).getProduct(), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd3
@@ -134,13 +137,13 @@ public class CalibrationDiscountingSimpleEur3Test {
     // FRA
     for (int i = 0; i < FWD3_FRA_QUOTES.length; i++) {
       CurrencyAmount pvFra = PRICER_FRA
-          .presentValue(((FraTrade) fwd3Trades.get(i + 1)).getProduct(), result.getFirst());
+          .presentValue(((FraTrade) fwd3Trades.get(i + 1)).getProduct(), result);
       assertEquals(pvFra.getAmount(), 0.0, TOLERANCE_PV);
     }
     // IRS
     for (int i = 0; i < FWD3_IRS_QUOTES.length; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) fwd3Trades.get(i + 1 + FWD3_FRA_QUOTES.length)).getProduct(), result.getFirst());
+          .presentValue(((SwapTrade) fwd3Trades.get(i + 1 + FWD3_FRA_QUOTES.length)).getProduct(), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd6
@@ -152,21 +155,18 @@ public class CalibrationDiscountingSimpleEur3Test {
     // IRS
     for (int i = 0; i < FWD6_IRS_QUOTES.length; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) fwd6Trades.get(i + 1 + FWD6_FRA_QUOTES.length)).getProduct(), result.getFirst());
+          .presentValue(((SwapTrade) fwd6Trades.get(i + 1 + FWD6_FRA_QUOTES.length)).getProduct(), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
   }
 
-  @Test
+  //-------------------------------------------------------------------------
   public void calibration_transition_coherence_par_rate() {
-
-    Pair<ImmutableRatesProvider, CurveBuildingBlockBundle> result =
+    ImmutableRatesProvider provider =
         CalibrationEurStandard.calibrateEurStandard(VALUATION_DATE,
             DSC_MARKET_QUOTES, DSC_OIS_TENORS,
             FWD3_FIXING_QUOTE, FWD3_FRA_QUOTES, FWD3_IRS_QUOTES, FWD3_FRA_TENORS, FWD3_IRS_TENORS,
             FWD6_FIXING_QUOTE, FWD6_FRA_QUOTES, FWD6_IRS_QUOTES, FWD6_FRA_TENORS, FWD6_IRS_TENORS);
-    ImmutableRatesProvider provider = result.getFirst();
-    CurveBuildingBlockBundle blocks = result.getSecond();
 
     /* Curve Discounting/EUR-EONIA */
     String[] dscIdValues = CalibrationEurStandard.dscIdValues(DSC_OIS_TENORS);
@@ -200,15 +200,15 @@ public class CalibrationDiscountingSimpleEur3Test {
       PointSensitivities pts = SWAP_PRICER
           .parRateSensitivity(((SwapTrade) dscTrades.get(loopnode)).getProduct(), provider).build();
       CurveCurrencyParameterSensitivities ps = provider.curveParameterSensitivity(pts);
-      CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, blocks);
+      CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);
       assertEquals(mqs.size(), 3); // Calibration of all curves simultaneously
       CurveCurrencyParameterSensitivity mqsDsc = mqs.getSensitivity(CalibrationEurStandard.DSCON_CURVE_NAME, EUR);
       assertTrue(mqsDsc.getCurveName().equals(CalibrationEurStandard.DSCON_CURVE_NAME));
       assertTrue(mqsDsc.getCurrency().equals(EUR));
-      double[] mqsData = mqsDsc.getSensitivity();
-      assertEquals(mqsData.length, DSC_MARKET_QUOTES.length);
-      for (int i = 0; i < mqsData.length; i++) {
-        assertEquals(mqsData[i], (i == loopnode) ? 1.0 : 0.0, TOLERANCE_DELTA);
+      DoubleArray mqsData = mqsDsc.getSensitivity();
+      assertEquals(mqsData.size(), DSC_MARKET_QUOTES.length);
+      for (int i = 0; i < mqsData.size(); i++) {
+        assertEquals(mqsData.get(i), (i == loopnode) ? 1.0 : 0.0, TOLERANCE_DELTA);
       }
     }
     // Test PV Fwd3
@@ -232,19 +232,19 @@ public class CalibrationDiscountingSimpleEur3Test {
             .parSpreadSensitivity(((SwapTrade) fwd3Trades.get(loopnode)).getProduct(), provider).build();
       }
       CurveCurrencyParameterSensitivities ps = provider.curveParameterSensitivity(pts);
-      CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, blocks);
+      CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);
       assertEquals(mqs.size(), 3);  // Calibration of all curves simultaneously
       CurveCurrencyParameterSensitivity mqsDsc = mqs.getSensitivity(CalibrationEurStandard.DSCON_CURVE_NAME, EUR);
       CurveCurrencyParameterSensitivity mqsFwd3 = mqs.getSensitivity(CalibrationEurStandard.FWD3_CURVE_NAME, EUR);
-      double[] mqsDscData = mqsDsc.getSensitivity();
-      assertEquals(mqsDscData.length, DSC_MARKET_QUOTES.length);
-      for (int i = 0; i < mqsDscData.length; i++) {
-        assertEquals(mqsDscData[i], 0.0, TOLERANCE_DELTA);
+      DoubleArray mqsDscData = mqsDsc.getSensitivity();
+      assertEquals(mqsDscData.size(), DSC_MARKET_QUOTES.length);
+      for (int i = 0; i < mqsDscData.size(); i++) {
+        assertEquals(mqsDscData.get(i), 0.0, TOLERANCE_DELTA);
       }
-      double[] mqsFwd3Data = mqsFwd3.getSensitivity();
-      assertEquals(mqsFwd3Data.length, fwd3MarketQuotes.length);
-      for (int i = 0; i < mqsFwd3Data.length; i++) {
-        assertEquals(mqsFwd3Data[i], (i == loopnode) ? 1.0 : 0.0, TOLERANCE_DELTA);
+      DoubleArray mqsFwd3Data = mqsFwd3.getSensitivity();
+      assertEquals(mqsFwd3Data.size(), fwd3MarketQuotes.length);
+      for (int i = 0; i < mqsFwd3Data.size(); i++) {
+        assertEquals(mqsFwd3Data.get(i), (i == loopnode) ? 1.0 : 0.0, TOLERANCE_DELTA);
       }
     }
     // Test PV Fwd6
@@ -268,25 +268,25 @@ public class CalibrationDiscountingSimpleEur3Test {
             .parSpreadSensitivity(((SwapTrade) fwd6Trades.get(loopnode)).getProduct(), provider).build();
       }
       CurveCurrencyParameterSensitivities ps = provider.curveParameterSensitivity(pts);
-      CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, blocks);
+      CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);
       assertEquals(mqs.size(), 3);
       CurveCurrencyParameterSensitivity mqsDsc = mqs.getSensitivity(CalibrationEurStandard.DSCON_CURVE_NAME, EUR);
       CurveCurrencyParameterSensitivity mqsFwd3 = mqs.getSensitivity(CalibrationEurStandard.FWD3_CURVE_NAME, EUR);
       CurveCurrencyParameterSensitivity mqsFwd6 = mqs.getSensitivity(CalibrationEurStandard.FWD6_CURVE_NAME, EUR);
-      double[] mqsDscData = mqsDsc.getSensitivity();
-      assertEquals(mqsDscData.length, DSC_MARKET_QUOTES.length);
-      for (int i = 0; i < mqsDscData.length; i++) {
-        assertEquals(mqsDscData[i], 0.0, TOLERANCE_DELTA);
+      DoubleArray mqsDscData = mqsDsc.getSensitivity();
+      assertEquals(mqsDscData.size(), DSC_MARKET_QUOTES.length);
+      for (int i = 0; i < mqsDscData.size(); i++) {
+        assertEquals(mqsDscData.get(i), 0.0, TOLERANCE_DELTA);
       }
-      double[] mqsFwd3Data = mqsFwd3.getSensitivity();
-      assertEquals(mqsFwd3Data.length, fwd3MarketQuotes.length);
-      for (int i = 0; i < mqsFwd3Data.length; i++) {
-        assertEquals(mqsFwd3Data[i], 0.0, TOLERANCE_DELTA);
+      DoubleArray mqsFwd3Data = mqsFwd3.getSensitivity();
+      assertEquals(mqsFwd3Data.size(), fwd3MarketQuotes.length);
+      for (int i = 0; i < mqsFwd3Data.size(); i++) {
+        assertEquals(mqsFwd3Data.get(i), 0.0, TOLERANCE_DELTA);
       }
-      double[] mqsFwd6Data = mqsFwd6.getSensitivity();
-      assertEquals(mqsFwd6Data.length, fwd6MarketQuotes.length);
-      for (int i = 0; i < mqsFwd6Data.length; i++) {
-        assertEquals(mqsFwd6Data[i], (i == loopnode) ? 1.0 : 0.0, TOLERANCE_DELTA);
+      DoubleArray mqsFwd6Data = mqsFwd6.getSensitivity();
+      assertEquals(mqsFwd6Data.size(), fwd6MarketQuotes.length);
+      for (int i = 0; i < mqsFwd6Data.size(); i++) {
+        assertEquals(mqsFwd6Data.get(i), (i == loopnode) ? 1.0 : 0.0, TOLERANCE_DELTA);
       }
     }
 

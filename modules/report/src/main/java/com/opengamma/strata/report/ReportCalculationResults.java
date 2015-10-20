@@ -24,9 +24,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculation.Results;
-import com.opengamma.strata.finance.Trade;
 
 /**
  * Stores a set of engine calculation results along with the context required to run reports.

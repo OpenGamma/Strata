@@ -8,9 +8,9 @@ package com.opengamma.strata.market.curve.definition;
 import java.time.LocalDate;
 import java.util.Set;
 
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.value.ValueType;
 

@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.finance;
 
+import com.opengamma.strata.basics.Trade;
+
 /**
  * A financial product that can be traded.
  * <p>

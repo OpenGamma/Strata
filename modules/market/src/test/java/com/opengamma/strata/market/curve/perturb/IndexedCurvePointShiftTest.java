@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
@@ -36,16 +37,16 @@ public class IndexedCurvePointShiftTest {
 
     Curve curve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F),
-        new double[] {1, 2, 3},
-        new double[] {5, 6, 7},
+        DoubleArray.of(1, 2, 3),
+        DoubleArray.of(5, 6, 7),
         INTERPOLATOR);
 
     Curve shiftedCurve = shift.applyTo(curve);
 
     Curve expectedCurve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F),
-        new double[] {1, 2, 3},
-        new double[] {5.1, 6, 7},
+        DoubleArray.of(1, 2, 3),
+        DoubleArray.of(5.1, 6, 7),
         INTERPOLATOR);
 
     // Check every point from 0 to 4 in steps of 0.1 is the same on the bumped curve and the expected curve
@@ -60,16 +61,16 @@ public class IndexedCurvePointShiftTest {
 
     Curve curve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F),
-        new double[] {1, 2, 3},
-        new double[] {5, 6, 7},
+        DoubleArray.of(1, 2, 3),
+        DoubleArray.of(5, 6, 7),
         INTERPOLATOR);
 
     Curve shiftedCurve = shift.applyTo(curve);
 
     Curve expectedCurve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F),
-        new double[] {1, 2, 3},
-        new double[] {5.5, 6, 7},
+        DoubleArray.of(1, 2, 3),
+        DoubleArray.of(5.5, 6, 7),
         INTERPOLATOR);
 
     // Check every point from 0 to 4 in steps of 0.1 is the same on the bumped curve and the expected curve

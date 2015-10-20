@@ -6,18 +6,18 @@
 package com.opengamma.strata.math.impl.linearalgebra;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 
 /**
  * Direct inversion of a tridiagonal matrix using the method from
  * "R. Usmani, Inversion of a tridiagonal Jacobi matrix, Linear Algebra Appl. 212/213 (1994) 413-414."
  */
-public class InverseTridiagonalMatrixCalculator extends Function1D<TridiagonalMatrix, DoubleMatrix2D> {
+public class InverseTridiagonalMatrixCalculator extends Function1D<TridiagonalMatrix, DoubleMatrix> {
 
   @Override
-  public DoubleMatrix2D evaluate(TridiagonalMatrix x) {
+  public DoubleMatrix evaluate(TridiagonalMatrix x) {
     ArgChecker.notNull(x, "x");
     double[] a = x.getDiagonalData();
     double[] b = x.getUpperSubDiagonalData();
@@ -62,7 +62,7 @@ public class InverseTridiagonalMatrixCalculator extends Function1D<TridiagonalMa
         res[i][j] = ((i + j) % 2 == 0 ? 1 : -1) * product * theta[j] * phi[i] / theta[n];
       }
     }
-    return new DoubleMatrix2D(res);
+    return DoubleMatrix.copyOf(res);
   }
 
 }

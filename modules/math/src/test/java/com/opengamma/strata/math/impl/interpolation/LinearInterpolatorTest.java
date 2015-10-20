@@ -9,8 +9,8 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Test.
@@ -44,12 +44,12 @@ public class LinearInterpolatorTest {
     for (int i = 0; i < nIntervalsExp; ++i) {
       for (int j = 0; j < orderExp; ++j) {
         final double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsMatExp[i][j], ref * EPS);
+        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().getData()[j], xValues[j]);
+      assertEquals(result.getKnots().get(j), xValues[j]);
     }
   }
 
@@ -76,12 +76,12 @@ public class LinearInterpolatorTest {
     for (int i = 0; i < nIntervalsExp; ++i) {
       for (int j = 0; j < orderExp; ++j) {
         final double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsMatExp[i][j], ref * EPS);
+        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().getData()[j], xValues[j]);
+      assertEquals(result.getKnots().get(j), xValues[j]);
     }
   }
 
@@ -229,12 +229,12 @@ public class LinearInterpolatorTest {
     for (int i = 0; i < nIntervalsExp * dimExp; ++i) {
       for (int j = 0; j < orderExp; ++j) {
         final double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsMatExp[i][j], ref * EPS);
+        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().getData()[j], xValues[j]);
+      assertEquals(result.getKnots().get(j), xValues[j]);
     }
   }
 
@@ -261,12 +261,12 @@ public class LinearInterpolatorTest {
     for (int i = 0; i < nIntervalsExp * dimExp; ++i) {
       for (int j = 0; j < orderExp; ++j) {
         final double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().getData()[i][j], coefsMatExp[i][j], ref * EPS);
+        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().getData()[j], xValues[j]);
+      assertEquals(result.getKnots().get(j), xValues[j]);
     }
   }
 
@@ -414,40 +414,40 @@ public class LinearInterpolatorTest {
       assertEquals(value, resultValuesExpected[0][0][0], ref * EPS);
     }
 
-    DoubleMatrix1D valuesVec1 = interp.interpolate(xValues, yValues, xKey[0][0]);
+    DoubleArray valuesVec1 = interp.interpolate(xValues, yValues, xKey[0][0]);
     for (int i = 0; i < yDim; ++i) {
       final double ref = resultValuesExpected[0][i][0] == 0. ? 1. : Math.abs(resultValuesExpected[0][i][0]);
-      assertEquals(valuesVec1.getData()[i], resultValuesExpected[0][i][0], ref * EPS);
+      assertEquals(valuesVec1.get(i), resultValuesExpected[0][i][0], ref * EPS);
     }
 
-    DoubleMatrix1D valuesVec2 = interp.interpolate(xValues, yValues[0], xKey[0]);
+    DoubleArray valuesVec2 = interp.interpolate(xValues, yValues[0], xKey[0]);
     for (int k = 0; k < keyLength; ++k) {
       final double ref = resultValuesExpected[k][0][0] == 0. ? 1. : Math.abs(resultValuesExpected[k][0][0]);
-      assertEquals(valuesVec2.getData()[k], resultValuesExpected[k][0][0], ref * EPS);
+      assertEquals(valuesVec2.get(k), resultValuesExpected[k][0][0], ref * EPS);
     }
 
-    DoubleMatrix2D valuesMat1 = interp.interpolate(xValues, yValues[0], xKey);
+    DoubleMatrix valuesMat1 = interp.interpolate(xValues, yValues[0], xKey);
     for (int j = 0; j < keyDim; ++j) {
       for (int k = 0; k < keyLength; ++k) {
         final double ref = resultValuesExpected[k][0][j] == 0. ? 1. : Math.abs(resultValuesExpected[k][0][j]);
-        assertEquals(valuesMat1.getData()[j][k], resultValuesExpected[k][0][j], ref * EPS);
+        assertEquals(valuesMat1.get(j, k), resultValuesExpected[k][0][j], ref * EPS);
       }
     }
 
-    DoubleMatrix2D valuesMat2 = interp.interpolate(xValues, yValues, xKey[0]);
+    DoubleMatrix valuesMat2 = interp.interpolate(xValues, yValues, xKey[0]);
     for (int i = 0; i < yDim; ++i) {
       for (int k = 0; k < keyLength; ++k) {
         final double ref = resultValuesExpected[k][i][0] == 0. ? 1. : Math.abs(resultValuesExpected[k][i][0]);
-        assertEquals(valuesMat2.getData()[i][k], resultValuesExpected[k][i][0], ref * EPS);
+        assertEquals(valuesMat2.get(i, k), resultValuesExpected[k][i][0], ref * EPS);
       }
     }
 
-    DoubleMatrix2D[] valuesMat3 = interp.interpolate(xValues, yValues, xKey);
+    DoubleMatrix[] valuesMat3 = interp.interpolate(xValues, yValues, xKey);
     for (int i = 0; i < yDim; ++i) {
       for (int j = 0; j < keyDim; ++j) {
         for (int k = 0; k < keyLength; ++k) {
           final double ref = resultValuesExpected[k][i][j] == 0. ? 1. : Math.abs(resultValuesExpected[k][i][j]);
-          assertEquals(valuesMat3[k].getData()[i][j], resultValuesExpected[k][i][j], ref * EPS);
+          assertEquals(valuesMat3[k].get(i, j), resultValuesExpected[k][i][j], ref * EPS);
         }
       }
     }

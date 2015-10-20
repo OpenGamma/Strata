@@ -91,6 +91,26 @@ public class OvernightRateSwapLegConventionTest {
     assertEquals(test.getCompoundingMethod(), CompoundingMethod.NONE);
   }
 
+  public void test_builder() {
+    OvernightRateSwapLegConvention test = OvernightRateSwapLegConvention.builder()
+        .index(GBP_SONIA)
+        .build();
+    assertEquals(test.getIndex(), GBP_SONIA);
+    assertEquals(test.getAccrualMethod(), COMPOUNDED);
+    assertEquals(test.getRateCutOffDays(), 0);
+    assertEquals(test.getCurrency(), GBP);
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getAccrualFrequency(), TERM);
+    assertEquals(test.getAccrualBusinessDayAdjustment(), BDA_MOD_FOLLOW);
+    assertEquals(test.getStartDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
+    assertEquals(test.getEndDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
+    assertEquals(test.getStubConvention(), StubConvention.SHORT_INITIAL);
+    assertEquals(test.getRollConvention(), RollConventions.NONE);
+    assertEquals(test.getPaymentFrequency(), TERM);
+    assertEquals(test.getPaymentDateOffset(), DaysAdjustment.NONE);
+    assertEquals(test.getCompoundingMethod(), CompoundingMethod.NONE);
+  }
+
   //-------------------------------------------------------------------------
   public void test_builder_notEnoughData() {
     assertThrowsIllegalArg(() -> OvernightRateSwapLegConvention.builder().build());
@@ -150,10 +170,7 @@ public class OvernightRateSwapLegConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_toLeg() {
-    OvernightRateSwapLegConvention base = OvernightRateSwapLegConvention.builder()
-        .index(GBP_SONIA)
-        .accrualMethod(COMPOUNDED)
-        .build();
+    OvernightRateSwapLegConvention base = OvernightRateSwapLegConvention.of(GBP_SONIA, TERM, 2);
     LocalDate startDate = LocalDate.of(2015, 5, 5);
     LocalDate endDate = LocalDate.of(2020, 5, 5);
     RateCalculationSwapLeg test = base.toLeg(startDate, endDate, PAY, NOTIONAL_2M);
@@ -164,10 +181,11 @@ public class OvernightRateSwapLegConventionTest {
             .startDate(startDate)
             .endDate(endDate)
             .businessDayAdjustment(BDA_MOD_FOLLOW)
+            .stubConvention(StubConvention.SHORT_INITIAL)
             .build())
         .paymentSchedule(PaymentSchedule.builder()
             .paymentFrequency(TERM)
-            .paymentDateOffset(DaysAdjustment.NONE)
+            .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBP_SONIA.getFixingCalendar()))
             .build())
         .notionalSchedule(NotionalSchedule.of(GBP, NOTIONAL_2M))
         .calculation(OvernightRateCalculation.of(GBP_SONIA))

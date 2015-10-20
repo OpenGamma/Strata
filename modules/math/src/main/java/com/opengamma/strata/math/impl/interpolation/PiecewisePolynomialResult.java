@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Result of interpolation by piecewise polynomial containing
@@ -19,8 +19,8 @@ import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
  */
 public class PiecewisePolynomialResult {
 
-  private DoubleMatrix1D _knots;
-  private DoubleMatrix2D _coefMatrix;
+  private DoubleArray _knots;
+  private DoubleMatrix _coefMatrix;
   private int _nIntervals;
   private int _order;
   private int _dim;
@@ -32,7 +32,7 @@ public class PiecewisePolynomialResult {
    * @param order  the order
    * @param dim  the dim
    */
-  public PiecewisePolynomialResult(final DoubleMatrix1D knots, final DoubleMatrix2D coefMatrix, final int order, final int dim) {
+  public PiecewisePolynomialResult(final DoubleArray knots, final DoubleMatrix coefMatrix, final int order, final int dim) {
 
     _knots = knots;
     _coefMatrix = coefMatrix;
@@ -44,9 +44,9 @@ public class PiecewisePolynomialResult {
 
   /**
    * Access _knots
-   * @return Knots as DoubleMatrix1D
+   * @return the knots
    */
-  public DoubleMatrix1D getKnots() {
+  public DoubleArray getKnots() {
     return _knots;
   }
 
@@ -54,7 +54,7 @@ public class PiecewisePolynomialResult {
    * Access _coefMatrix
    * @return Coefficient Matrix
    */
-  public DoubleMatrix2D getCoefMatrix() {
+  public DoubleMatrix getCoefMatrix() {
     return _coefMatrix;
   }
 

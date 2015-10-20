@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
@@ -72,9 +73,9 @@ public class NonnegativityPreservingCubicSplineInterpolator1DTest {
     final int nMethods = bareInterp.length;
 
     for (int k = 0; k < nMethods; ++k) {
-      final double[] resPrim1 = bareInterp[k].interpolate(xValues, yValues1, xKeys).getData();
-      final double[] resPrim2 = bareInterp[k].interpolate(xValues, yValues2, xKeys).getData();
-      final double[] resPrim3 = bareInterp[k].interpolate(xValues, yValues3, xKeys).getData();
+      final double[] resPrim1 = bareInterp[k].interpolate(xValues, yValues1, xKeys).toArray();
+      final double[] resPrim2 = bareInterp[k].interpolate(xValues, yValues2, xKeys).toArray();
+      final double[] resPrim3 = bareInterp[k].interpolate(xValues, yValues3, xKeys).toArray();
 
       Interpolator1DDataBundle dataBund1 = wrappedInterp[k].getDataBundle(xValues, yValues1);
       Interpolator1DDataBundle dataBund2 = wrappedInterp[k].getDataBundle(xValues, yValues2);
@@ -158,9 +159,9 @@ public class NonnegativityPreservingCubicSplineInterpolator1DTest {
     final int nMethods = bareInterp.length;
 
     for (int k = 0; k < nMethods; ++k) {
-      final double[] resPrim1 = bareInterp[k].interpolate(xValues, yValues1, xKeys).getData();
-      final double[] resPrim2 = bareInterp[k].interpolate(xValues, yValues2, xKeys).getData();
-      final double[] resPrim3 = bareInterp[k].interpolate(xValues, yValues3, xKeys).getData();
+      final double[] resPrim1 = bareInterp[k].interpolate(xValues, yValues1, xKeys).toArray();
+      final double[] resPrim2 = bareInterp[k].interpolate(xValues, yValues2, xKeys).toArray();
+      final double[] resPrim3 = bareInterp[k].interpolate(xValues, yValues3, xKeys).toArray();
 
       Interpolator1DDataBundle dataBund1 = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues1);
       Interpolator1DDataBundle dataBund2 = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues2);
@@ -323,11 +324,11 @@ public class NonnegativityPreservingCubicSplineInterpolator1DTest {
         yValues5Clamped[0] = bdConds[l];
         yValues5Clamped[nData + 1] = bdConds[m];
 
-        final double[] resPrim1 = bare.interpolate(xValues, yValues1Clamped, xKeys).getData();
-        final double[] resPrim2 = bare.interpolate(xValues, yValues2Clamped, xKeys).getData();
-        final double[] resPrim3 = bare.interpolate(xValues, yValues3Clamped, xKeys).getData();
-        final double[] resPrim4 = bare.interpolate(xValues, yValues4Clamped, xKeys).getData();
-        final double[] resPrim5 = bare.interpolate(xValues, yValues5Clamped, xKeys).getData();
+        final double[] resPrim1 = bare.interpolate(xValues, yValues1Clamped, xKeys).toArray();
+        final double[] resPrim2 = bare.interpolate(xValues, yValues2Clamped, xKeys).toArray();
+        final double[] resPrim3 = bare.interpolate(xValues, yValues3Clamped, xKeys).toArray();
+        final double[] resPrim4 = bare.interpolate(xValues, yValues4Clamped, xKeys).toArray();
+        final double[] resPrim5 = bare.interpolate(xValues, yValues5Clamped, xKeys).toArray();
 
         Interpolator1DDataBundle dataBund1 = wrap.getDataBundleFromSortedArrays(xValues, yValues1, bdConds[l], bdConds[m]);
         Interpolator1DDataBundle dataBund2 = wrap.getDataBundleFromSortedArrays(xValues, yValues2, bdConds[l], bdConds[m]);
@@ -426,10 +427,10 @@ public class NonnegativityPreservingCubicSplineInterpolator1DTest {
 
       final NonnegativityPreservingCubicSplineInterpolator bare = new NonnegativityPreservingCubicSplineInterpolator(new CubicSplineInterpolator());
       final NonnegativityPreservingCubicSplineInterpolator1D wrap = new NonnegativityPreservingCubicSplineInterpolator1D(new CubicSplineInterpolator());
-      final double[] resPrim1 = bare.interpolate(xValues, yValues1[k], xKeys).getData();
+      final DoubleArray resPrim1 = bare.interpolate(xValues, yValues1[k], xKeys);
       Interpolator1DDataBundle dataBund1 = wrap.getDataBundleFromSortedArrays(xValues, yValues1[k]);
       for (int i = 0; i < 10 * nData; ++i) {
-        final double ref1 = resPrim1[i];
+        final double ref1 = resPrim1.get(i);
         assertEquals(ref1, wrap.interpolate(dataBund1, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref1), 1.));
       }
 

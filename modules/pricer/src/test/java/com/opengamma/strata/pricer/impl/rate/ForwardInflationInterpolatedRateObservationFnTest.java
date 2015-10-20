@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.InflationInterpolatedRateObservation;
 import com.opengamma.strata.market.curve.Curves;
@@ -147,8 +148,8 @@ public class ForwardInflationInterpolatedRateObservationFnTest {
     LocalDateDoubleTimeSeries timeSeries = LocalDateDoubleTimeSeries.of(VAL_MONTH.atEndOfMonth(), 300);
     InterpolatedNodalCurve curve = InterpolatedNodalCurve.of(
         Curves.prices("GB-RPIX"),
-        new double[] {4, 5, 16, 17},
-        new double[] {rateStart, rateStartInterp, rateEnd, rateEndInterp},
+        DoubleArray.of(4, 5, 16, 17),
+        DoubleArray.of(rateStart, rateStartInterp, rateEnd, rateEndInterp),
         INTERPOLATOR);
     ForwardPriceIndexValues values = ForwardPriceIndexValues.of(GB_RPIX, VAL_MONTH, timeSeries, curve);
     return ImmutableRatesProvider.builder()

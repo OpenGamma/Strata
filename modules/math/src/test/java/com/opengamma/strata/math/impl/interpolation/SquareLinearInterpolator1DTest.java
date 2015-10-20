@@ -10,13 +10,13 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
 
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.math.impl.differentiation.ScalarFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.data.InterpolationBoundedValues;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
 
 /**
  * Test SquareLinearInterpolator1D
@@ -54,7 +54,7 @@ public class SquareLinearInterpolator1DTest {
       Interpolator1D linInterp = new LinearInterpolator1D();
       Interpolator1DDataBundle bundleLin = linInterp.getDataBundle(xData, ySq);
       Interpolator1DDataBundle bundleSqr = INTERP.getDataBundleFromSortedArrays(xData, yData);
-      Function1D<DoubleMatrix1D, Double> interpFunc = getInterpolationFunction(INTERP, bundleSqr);
+      Function1D<DoubleArray, Double> interpFunc = getInterpolationFunction(INTERP, bundleSqr);
 
       int nKeys = 100;
       double interval = (xData[nData - 1] - xData[0]) / (nKeys - 1);
@@ -72,9 +72,9 @@ public class SquareLinearInterpolator1DTest {
         int index = boundedValues.getLowerBoundIndex();
         double min = index == nData - 1 ? xData[nData - 2] : boundedValues.getLowerBoundKey();
         double max = index == nData - 1 ? xData[nData - 1] : boundedValues.getHigherBoundKey();
-        Function1D<DoubleMatrix1D, Boolean> domain = getDomainFunction(min, max);
-        Function1D<DoubleMatrix1D, DoubleMatrix1D> diffFunc = DIFF.differentiate(interpFunc, domain);
-        double finiteFirst = diffFunc.evaluate(new DoubleMatrix1D(new double[] {key })).get(0);
+        Function1D<DoubleArray, Boolean> domain = getDomainFunction(min, max);
+        Function1D<DoubleArray, DoubleArray> diffFunc = DIFF.differentiate(interpFunc, domain);
+        double finiteFirst = diffFunc.evaluate(DoubleArray.of(key)).get(0);
         InterpolatorTestUtil.assertRelative("linearInterpolationConsistencyTest, firstDerivative", expectedFirst,
             computedFirst, TOL);
         InterpolatorTestUtil.assertRelative("linearInterpolationConsistencyTest, firstDerivative", finiteFirst,
@@ -99,8 +99,8 @@ public class SquareLinearInterpolator1DTest {
    */
   @Test
   public void recoveryTest() {
-    final double[] xData = new double[] {1.0, 2.0, 3.5, 4.0 };
-    final int nData = xData.length;
+    final DoubleArray xData = DoubleArray.of(1.0, 2.0, 3.5, 4.0);
+    final int nData = xData.size();
     final double[] aValue = new double[] {1.5, 2.0, -2.0 };
     final double[] bValue = new double[] {2.0, 1.0, 15.0 };
     Function1D<Double, Double> valFunc = new Function1D<Double, Double>() {
@@ -119,14 +119,14 @@ public class SquareLinearInterpolator1DTest {
     };
     double[] yData = new double[nData];
     for (int i = 0; i < nData; ++i) {
-      yData[i] = valFunc.evaluate(xData[i]);
+      yData[i] = valFunc.evaluate(xData.get(i));
     }
 
-    Interpolator1DDataBundle bundle = INTERP.getDataBundle(xData, yData);
+    Interpolator1DDataBundle bundle = INTERP.getDataBundle(xData.toArray(), yData);
     int nKeys = 100;
-    double interval = (xData[nData - 1] - xData[0]) / (nKeys - 1);
+    double interval = (xData.get(nData - 1) - xData.get(0)) / (nKeys - 1);
     for (int i = 0; i < nKeys; ++i) {
-      double key = xData[0] + interval * i;
+      double key = xData.get(0) + interval * i;
       /* value */
       double computed = INTERP.interpolate(bundle, key);
       double expected = valFunc.evaluate(key);
@@ -163,21 +163,21 @@ public class SquareLinearInterpolator1DTest {
     INTERP.getDataBundleFromSortedArrays(xData, yData);
   }
 
-  private Function1D<DoubleMatrix1D, Boolean> getDomainFunction(final double min, final double max) {
-    return new Function1D<DoubleMatrix1D, Boolean>() {
+  private Function1D<DoubleArray, Boolean> getDomainFunction(final double min, final double max) {
+    return new Function1D<DoubleArray, Boolean>() {
       @Override
-      public Boolean evaluate(DoubleMatrix1D x) {
+      public Boolean evaluate(DoubleArray x) {
         double x1 = x.get(0);
         return x1 >= min && x1 <= max;
       }
     };
   }
 
-  private Function1D<DoubleMatrix1D, Double> getInterpolationFunction(final Interpolator1D interp,
+  private Function1D<DoubleArray, Double> getInterpolationFunction(final Interpolator1D interp,
       final Interpolator1DDataBundle bundle) {
-    return new Function1D<DoubleMatrix1D, Double>() {
+    return new Function1D<DoubleArray, Double>() {
       @Override
-      public Double evaluate(DoubleMatrix1D x) {
+      public Double evaluate(DoubleArray x) {
         double x1 = x.get(0);
         return interp.interpolate(bundle, x1);
       }

@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Describes the transformation (and its inverse) from  a set of n variables (e.g. model parameters) to a set of m variables
@@ -29,27 +29,27 @@ public interface NonLinearParameterTransforms {
    * @param modelParameters   the model parameters
    * @return The fitting parameters
    */
-  DoubleMatrix1D transform(DoubleMatrix1D modelParameters);
+  DoubleArray transform(DoubleArray modelParameters);
 
   /**
    * Transforms from a set of unconstrained fitting parameters to a (possibly larger) set of function parameters 
    * @param fittingParameters The fitting parameters
    * @return The model parameters
    */
-  DoubleMatrix1D inverseTransform(DoubleMatrix1D fittingParameters);
+  DoubleArray inverseTransform(DoubleArray fittingParameters);
 
   /**
    * Calculates the Jacobian - the rate of change of the fitting parameters WRT the model parameters 
    * @param modelParameters The model parameters 
    * @return The Jacobian 
    */
-  DoubleMatrix2D jacobian(DoubleMatrix1D modelParameters);
+  DoubleMatrix jacobian(DoubleArray modelParameters);
 
   /**
    * Calculates the inverse Jacobian  - the rate of change of the model parameters WRT the fitting parameters 
    * @param fittingParameters The fitting parameters
    * @return the inverse Jacobian 
    */
-  DoubleMatrix2D inverseJacobian(DoubleMatrix1D fittingParameters);
+  DoubleMatrix inverseJacobian(DoubleArray fittingParameters);
 
 }
