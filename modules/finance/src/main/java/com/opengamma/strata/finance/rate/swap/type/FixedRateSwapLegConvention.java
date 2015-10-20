@@ -165,10 +165,9 @@ public final class FixedRateSwapLegConvention
   /**
    * Creates a convention based on the specified parameters.
    * <p>
-   * The standard market convention for a fixed rate leg is based exclusively on these parameters.
+   * The standard market convention for a fixed rate leg is based on these parameters,
+   * with the stub convention set to 'ShortInitial'.
    * Use the {@linkplain #builder() builder} for unusual conventions.
-   * <p>
-   * The default stub convention is SHORT_INITIAL.
    * 
    * @param currency  the currency of the leg
    * @param dayCount  the day count

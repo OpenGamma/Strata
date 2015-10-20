@@ -215,10 +215,9 @@ public final class IborRateSwapLegConvention
   /**
    * Creates a convention based on the specified index.
    * <p>
-   * The standard market convention for an Ibor rate leg is based exclusively on the index.
+   * The standard market convention for an Ibor rate leg is based on the index,
+   * with the stub convention set to 'ShortInitial'.
    * Use the {@linkplain #builder() builder} for unusual conventions.
-   * <p>
-   * The default stub convention is SHORT_INITIAL.
    * 
    * @param index  the index, the market convention values are extracted from the index
    * @return the convention
