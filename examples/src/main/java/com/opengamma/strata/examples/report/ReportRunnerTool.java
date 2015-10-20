@@ -15,6 +15,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.base.Strings;
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.CalculationEngine;
 import com.opengamma.strata.engine.CalculationRules;
@@ -25,7 +26,7 @@ import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
-import com.opengamma.strata.finance.Trade;
+import com.opengamma.strata.finance.FinanceTrade;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.report.Report;
 import com.opengamma.strata.report.ReportCalculationResults;
@@ -169,6 +170,8 @@ public class ReportRunnerTool {
       trades = portfolio.getTrades();
     } else {
       trades = portfolio.getTrades().stream()
+          .filter(t -> t instanceof FinanceTrade)
+          .map(t -> (FinanceTrade) t)
           .filter(t -> t.getTradeInfo().getId().isPresent())
           .filter(t -> t.getTradeInfo().getId().get().getValue().equals(idSearch))
           .collect(toImmutableList());

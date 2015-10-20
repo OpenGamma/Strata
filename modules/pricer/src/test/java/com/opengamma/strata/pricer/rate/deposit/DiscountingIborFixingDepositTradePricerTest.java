@@ -55,7 +55,7 @@ public class DiscountingIborFixingDepositTradePricerTest {
       .fixedRate(RATE)
       .build();
   private static final IborFixingDepositTrade DEPOSIT_TRADE = 
-      IborFixingDepositTrade.builder().product(DEPOSIT_PRODUCT).tradeInfo(TradeInfo.EMPTY).build();  
+      IborFixingDepositTrade.builder().product(DEPOSIT_PRODUCT).tradeInfo(TradeInfo.EMPTY).build();
   
   private static final ImmutableRatesProvider IMM_PROV;
   static {

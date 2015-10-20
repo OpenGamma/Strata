@@ -15,11 +15,11 @@ import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
+import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.collect.io.XmlFile;
 import com.opengamma.strata.collect.named.ExtendedEnum;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
 
 /**

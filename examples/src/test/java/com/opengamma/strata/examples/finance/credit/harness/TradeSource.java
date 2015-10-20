@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.examples.finance.credit.harness;
 
-import com.opengamma.strata.finance.Trade;
+import com.opengamma.strata.basics.Trade;
 
 public interface TradeSource {
   Trade apply();
