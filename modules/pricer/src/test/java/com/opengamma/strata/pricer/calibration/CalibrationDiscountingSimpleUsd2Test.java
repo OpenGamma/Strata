@@ -161,12 +161,12 @@ public class CalibrationDiscountingSimpleUsd2Test {
         QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[0])));
     for (int i = 0; i < FWD3_NB_FRA_NODES; i++) {
       FWD3_NODES[i + 1] = FraCurveNode.of(FraTemplate.of(FWD3_FRA_TENORS[i], USD_LIBOR_3M),
-          QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[1])));
+          QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i + 1])));
     }
     for (int i = 0; i < FWD3_NB_IRS_NODES; i++) {
       FWD3_NODES[i + 1 + FWD3_NB_FRA_NODES] = FixedIborSwapCurveNode.of(
           FixedIborSwapTemplate.of(Period.ZERO, Tenor.of(FWD3_IRS_TENORS[i]), USD_FIXED_6M_LIBOR_3M),
-          QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i])));
+          QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i + 1 + FWD3_NB_FRA_NODES])));
     }
   }
 
