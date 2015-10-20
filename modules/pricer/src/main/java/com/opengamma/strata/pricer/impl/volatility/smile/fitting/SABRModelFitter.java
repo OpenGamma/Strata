@@ -2,7 +2,7 @@ package com.opengamma.strata.pricer.impl.volatility.smile.fitting;
 
 import java.util.BitSet;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.minimization.DoubleRangeLimitTransform;
 import com.opengamma.strata.math.impl.minimization.NonLinearParameterTransforms;
 import com.opengamma.strata.math.impl.minimization.ParameterLimitsTransform;
@@ -49,23 +49,23 @@ public final class SABRModelFitter extends SmileModelFitter<SABRFormulaData> {
   }
 
   @Override
-  public SABRFormulaData toSmileModelData(DoubleMatrix1D modelParameters) {
-    return SABRFormulaData.of(modelParameters.getData());
+  public SABRFormulaData toSmileModelData(DoubleArray modelParameters) {
+    return SABRFormulaData.of(modelParameters.toArray());
   }
 
   @Override
-  protected NonLinearParameterTransforms getTransform(DoubleMatrix1D start) {
+  protected NonLinearParameterTransforms getTransform(DoubleArray start) {
     final BitSet fixed = new BitSet();
     return new UncoupledParameterTransforms(start, DEFAULT_TRANSFORMS, fixed);
   }
 
   @Override
-  protected NonLinearParameterTransforms getTransform(final DoubleMatrix1D start, final BitSet fixed) {
+  protected NonLinearParameterTransforms getTransform(DoubleArray start, BitSet fixed) {
     return new UncoupledParameterTransforms(start, DEFAULT_TRANSFORMS, fixed);
   }
 
   @Override
-  protected DoubleMatrix1D getMaximumStep() {
+  protected DoubleArray getMaximumStep() {
     return null;
   }
 

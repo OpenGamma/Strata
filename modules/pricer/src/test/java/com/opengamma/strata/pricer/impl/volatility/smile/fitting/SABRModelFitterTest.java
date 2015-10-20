@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.minimization.NonLinearParameterTransforms;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SABRFormulaData;
@@ -79,8 +79,8 @@ public class SABRModelFitterTest extends SmileModelFitterTest<SABRFormulaData> {
 
   public void testExactFitOddStart() {
     double[] start = new double[] {0.01, 0.99, 0.9, 0.4 };
-    LeastSquareResultsWithTransform results = _fitter.solve(new DoubleMatrix1D(start));
-    double[] res = results.getModelParameters().getData();
+    LeastSquareResultsWithTransform results = _fitter.solve(DoubleArray.copyOf(start));
+    double[] res = results.getModelParameters().toArray();
     double eps = 1e-6;
     assertEquals(ALPHA, res[0], eps);
     assertEquals(BETA, res[1], eps);
@@ -91,9 +91,9 @@ public class SABRModelFitterTest extends SmileModelFitterTest<SABRFormulaData> {
 
   public void testExactFitWithTransform() {
     double[] start = new double[] {0.01, 0.99, 0.9, 0.4 };
-    NonLinearParameterTransforms transf = _fitter.getTransform(new DoubleMatrix1D(start));
-    LeastSquareResultsWithTransform results = _fitter.solve(new DoubleMatrix1D(start), transf);
-    double[] res = results.getModelParameters().getData();
+    NonLinearParameterTransforms transf = _fitter.getTransform(DoubleArray.copyOf(start));
+    LeastSquareResultsWithTransform results = _fitter.solve(DoubleArray.copyOf(start), transf);
+    double[] res = results.getModelParameters().toArray();
     double eps = 1e-6;
     assertEquals(ALPHA, res[0], eps);
     assertEquals(BETA, res[1], eps);
@@ -107,8 +107,8 @@ public class SABRModelFitterTest extends SmileModelFitterTest<SABRFormulaData> {
     double[] start = new double[] {0.1, 0.5, 0.0, 0.3 };
     BitSet fixed = new BitSet();
     fixed.set(1);
-    LeastSquareResultsWithTransform results = _fitter.solve(new DoubleMatrix1D(start), fixed);
-    double[] res = results.getModelParameters().getData();
+    LeastSquareResultsWithTransform results = _fitter.solve(DoubleArray.copyOf(start), fixed);
+    double[] res = results.getModelParameters().toArray();
     double eps = 1e-6;
     assertEquals(ALPHA, res[0], eps);
     assertEquals(BETA, res[1], eps);

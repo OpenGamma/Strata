@@ -13,6 +13,7 @@ import static org.testng.Assert.assertFalse;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.PutCall;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.surface.ConstantNodalSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
@@ -35,13 +36,13 @@ public class SABRInterestRateParametersTest {
   private static final GridInterpolator2D GRID = new GridInterpolator2D(LINEAR, LINEAR);
   private static final SurfaceMetadata METADATA = DefaultSurfaceMetadata.of("surface");
   private static final InterpolatedNodalSurface ALPHA_SURFACE = InterpolatedNodalSurface.of(METADATA,
-      new double[] {0.0, 10, 0.0, 10 }, new double[] {0, 0, 10, 10 }, new double[] {0.2, 0.2, 0.2, 0.2 }, GRID);
+      DoubleArray.of(0.0, 10, 0.0, 10), DoubleArray.of(0, 0, 10, 10), DoubleArray.of(0.2, 0.2, 0.2, 0.2), GRID);
   private static final InterpolatedNodalSurface BETA_SURFACE = InterpolatedNodalSurface.of(METADATA,
-      new double[] {0.0, 10, 0.0, 10 }, new double[] {0, 0, 10, 10 }, new double[] {1, 1, 1, 1 }, GRID);
+      DoubleArray.of(0.0, 10, 0.0, 10), DoubleArray.of(0, 0, 10, 10), DoubleArray.of(1, 1, 1, 1), GRID);
   private static final InterpolatedNodalSurface RHO_SURFACE = InterpolatedNodalSurface.of(METADATA,
-      new double[] {0.0, 10, 0.0, 10 }, new double[] {0, 0, 10, 10 }, new double[] {-0.5, -0.5, -0.5, -0.5 }, GRID);
+      DoubleArray.of(0.0, 10, 0.0, 10), DoubleArray.of(0, 0, 10, 10), DoubleArray.of(-0.5, -0.5, -0.5, -0.5), GRID);
   private static final InterpolatedNodalSurface NU_SURFACE = InterpolatedNodalSurface.of(METADATA,
-      new double[] {0.0, 10, 0.0, 10 }, new double[] {0, 0, 10, 10 }, new double[] {0.5, 0.5, 0.5, 0.5 }, GRID);
+      DoubleArray.of(0.0, 10, 0.0, 10), DoubleArray.of(0, 0, 10, 10), DoubleArray.of(0.5, 0.5, 0.5, 0.5), GRID);
   private static final SABRHaganVolatilityFunctionProvider FUNCTION = SABRHaganVolatilityFunctionProvider.DEFAULT;
   private static final SABRInterestRateParameters PARAMETERS =
       SABRInterestRateParameters.of(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, FUNCTION);
@@ -173,7 +174,7 @@ public class SABRInterestRateParametersTest {
   public void coverage() {
     coverImmutableBean(PARAMETERS);
     InterpolatedNodalSurface surface = InterpolatedNodalSurface.of(METADATA,
-        new double[] {0.0, 5, 0.0, 5 }, new double[] {0, 0, 8, 8 }, new double[] {0.2, 0.3, 0.2, 0.3 }, GRID);
+        DoubleArray.of(0.0, 5, 0.0, 5), DoubleArray.of(0, 0, 8, 8), DoubleArray.of(0.2, 0.3, 0.2, 0.3), GRID);
     SABRInterestRateParameters other = SABRInterestRateParameters.of(surface, surface, surface, surface, FUNCTION, surface);
     coverBeanEquals(PARAMETERS, other);
   }

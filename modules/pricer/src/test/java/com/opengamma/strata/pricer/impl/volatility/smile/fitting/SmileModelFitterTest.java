@@ -14,10 +14,10 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
@@ -78,8 +78,8 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     int nStartPoints = start.length;
     ArgChecker.isTrue(fixed.length == nStartPoints);
     for (int trys = 0; trys < nStartPoints; trys++) {
-      LeastSquareResultsWithTransform results = _fitter.solve(new DoubleMatrix1D(start[trys]), fixed[trys]);
-      DoubleMatrix1D res = results.getModelParameters();
+      LeastSquareResultsWithTransform results = _fitter.solve(DoubleArray.copyOf(start[trys]), fixed[trys]);
+      DoubleArray res = results.getModelParameters();
 
       //debug
       T fittedModel = _fitter.toSmileModelData(res);
@@ -101,8 +101,8 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     int nStartPoints = start.length;
     ArgChecker.isTrue(fixed.length == nStartPoints);
     for (int trys = 0; trys < nStartPoints; trys++) {
-      LeastSquareResultsWithTransform results = _fitter.solve(new DoubleMatrix1D(start[trys]), fixed[trys]);
-      DoubleMatrix1D res = results.getModelParameters();
+      LeastSquareResultsWithTransform results = _fitter.solve(DoubleArray.copyOf(start[trys]), fixed[trys]);
+      DoubleArray res = results.getModelParameters();
       double eps = 1e-2;
       assertTrue(results.getChiSq() < 7);
       int n = res.size();
@@ -156,7 +156,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
       double[] start = getRandomStartValues();
 
       //   int nStartPoints = start.length;
-      LeastSquareResults lsRes = fitter.solve(new DoubleMatrix1D(start), fixed);
+      LeastSquareResults lsRes = fitter.solve(DoubleArray.copyOf(start), fixed);
       if (best == null) {
         best = lsRes;
       } else {
@@ -177,7 +177,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     for (int i = 0; i < n; i++) {
       temp[i] = data.getParameter(i);
     }
-    DoubleMatrix1D x = new DoubleMatrix1D(temp);
+    DoubleArray x = DoubleArray.copyOf(temp);
 
     testJacobian(x);
   }
@@ -187,7 +187,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
   public void testRandomJacobian() {
     for (int i = 0; i < 10; i++) {
       double[] temp = getRandomStartValues();
-      DoubleMatrix1D x = new DoubleMatrix1D(temp);
+      DoubleArray x = DoubleArray.copyOf(temp);
       try {
         testJacobian(x);
       } catch (AssertionError e) {
@@ -197,14 +197,14 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     }
   }
 
-  private void testJacobian(DoubleMatrix1D x) {
+  private void testJacobian(DoubleArray x) {
     int n = x.size();
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> func = _fitter.getModelValueFunction();
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc = _fitter.getModelJacobianFunction();
+    Function1D<DoubleArray, DoubleArray> func = _fitter.getModelValueFunction();
+    Function1D<DoubleArray, DoubleMatrix> jacFunc = _fitter.getModelJacobianFunction();
     VectorFieldFirstOrderDifferentiator differ = new VectorFieldFirstOrderDifferentiator();
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFuncFD = differ.differentiate(func);
-    DoubleMatrix2D jac = jacFunc.evaluate(x);
-    DoubleMatrix2D jacFD = jacFuncFD.evaluate(x);
+    Function1D<DoubleArray, DoubleMatrix> jacFuncFD = differ.differentiate(func);
+    DoubleMatrix jac = jacFunc.evaluate(x);
+    DoubleMatrix jacFD = jacFuncFD.evaluate(x);
     int rows = jacFD.rowCount();
     int cols = jacFD.columnCount();
 

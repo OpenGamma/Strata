@@ -4,10 +4,10 @@ import java.util.BitSet;
 
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix1D;
-import com.opengamma.strata.math.impl.matrix.DoubleMatrix2D;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.math.impl.minimization.NonLinearParameterTransforms;
@@ -32,9 +32,9 @@ import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunc
 public abstract class SmileModelFitter<T extends SmileModelData> {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
   private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare(DecompositionFactory.SV_COMMONS, MA, 1e-12);
-  private static final Function1D<DoubleMatrix1D, Boolean> UNCONSTRAINED = new Function1D<DoubleMatrix1D, Boolean>() {
+  private static final Function1D<DoubleArray, Boolean> UNCONSTRAINED = new Function1D<DoubleArray, Boolean>() {
     @Override
-    public Boolean evaluate(final DoubleMatrix1D x) {
+    public Boolean evaluate(DoubleArray x) {
       return true;
     }
   };
@@ -42,8 +42,8 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   private final VolatilityFunctionProvider<T> _model;
   private final Function1D<T, double[]> _volFunc;
   private final Function1D<T, double[][]> _volAdjointFunc;
-  private final DoubleMatrix1D _marketValues;
-  private final DoubleMatrix1D _errors;
+  private final DoubleArray _marketValues;
+  private final DoubleArray _errors;
 
   /**
    * Constructs smile model fitter from forward, strikes, time to expiry, implied volatilities and error values. 
@@ -72,8 +72,8 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
     ArgChecker.isTrue(n == impliedVols.length, "vols not the same length as strikes");
     ArgChecker.isTrue(n == error.length, "errors not the same length as strikes");
 
-    _marketValues = new DoubleMatrix1D(impliedVols);
-    _errors = new DoubleMatrix1D(error);
+    _marketValues = DoubleArray.copyOf(impliedVols);
+    _errors = DoubleArray.copyOf(error);
     _model = model;
     
     EuropeanVanillaOption[] option = new EuropeanVanillaOption[n];
@@ -111,7 +111,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @param start  the first guess at the parameter values
    * @return the calibration results
    */
-  public LeastSquareResultsWithTransform solve(DoubleMatrix1D start) {
+  public LeastSquareResultsWithTransform solve(DoubleArray start) {
     return solve(start, new BitSet());
   }
 
@@ -125,7 +125,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @param fixed  the parameters are fixed
    * @return the calibration results
    */
-  public LeastSquareResultsWithTransform solve(DoubleMatrix1D start, BitSet fixed) {
+  public LeastSquareResultsWithTransform solve(DoubleArray start, BitSet fixed) {
     NonLinearParameterTransforms transform = getTransform(start, fixed);
     return solve(start, transform);
   }
@@ -139,7 +139,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @param transform  transform from model parameters to fitting parameters, and vice versa
    * @return the calibration results
    */
-  public LeastSquareResultsWithTransform solve(DoubleMatrix1D start, NonLinearParameterTransforms transform) {
+  public LeastSquareResultsWithTransform solve(DoubleArray start, NonLinearParameterTransforms transform) {
     NonLinearTransformFunction transFunc = new NonLinearTransformFunction(getModelValueFunction(),
         getModelJacobianFunction(), transform);
 
@@ -155,15 +155,15 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * 
    * @return the function
    */
-  protected Function1D<DoubleMatrix1D, DoubleMatrix1D> getModelValueFunction() {
+  protected Function1D<DoubleArray, DoubleArray> getModelValueFunction() {
 
-    return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+    return new Function1D<DoubleArray, DoubleArray>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+      public DoubleArray evaluate(DoubleArray x) {
         final T data = toSmileModelData(x);
         final double[] res = _volFunc.evaluate(data);
-        return new DoubleMatrix1D(res);
+        return DoubleArray.copyOf(res);
       }
     };
   }
@@ -175,16 +175,16 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * 
    * @return the function
    */
-  protected Function1D<DoubleMatrix1D, DoubleMatrix2D> getModelJacobianFunction() {
+  protected Function1D<DoubleArray, DoubleMatrix> getModelJacobianFunction() {
 
-    return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+    return new Function1D<DoubleArray, DoubleMatrix>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
+      public DoubleMatrix evaluate(final DoubleArray x) {
         final T data = toSmileModelData(x);
         //this thing will be (#strikes/vols) x (# model Params)
         final double[][] volAdjoint = _volAdjointFunc.evaluate(data);
-        return new DoubleMatrix2D(volAdjoint);
+        return DoubleMatrix.copyOf(volAdjoint);
       }
     };
   }
@@ -194,7 +194,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * 
    * @return  the maximum number. 
    */
-  protected abstract DoubleMatrix1D getMaximumStep();
+  protected abstract DoubleArray getMaximumStep();
 
   /**
    * Obtains the nonlinear transformation of parameters from the initial values. 
@@ -202,7 +202,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @param start  the initial values
    * @return  the nonlinear transformation
    */
-  protected abstract NonLinearParameterTransforms getTransform(final DoubleMatrix1D start);
+  protected abstract NonLinearParameterTransforms getTransform(DoubleArray start);
 
   /**
    * Obtains the nonlinear transformation of parameters from the initial values with some parameters fixed. 
@@ -211,7 +211,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @param fixed  the parameters are fixed
    * @return  the nonlinear transformation
    */
-  protected abstract NonLinearParameterTransforms getTransform(final DoubleMatrix1D start, final BitSet fixed);
+  protected abstract NonLinearParameterTransforms getTransform(DoubleArray start, BitSet fixed);
 
   /**
    * Obtains {@code SmileModelData} instance from the model parameters. 
@@ -219,7 +219,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @param modelParameters  the model parameters
    * @return the smile model data
    */
-  public abstract T toSmileModelData(final DoubleMatrix1D modelParameters);
+  public abstract T toSmileModelData(DoubleArray modelParameters);
 
   /**
    * Obtains the constraint function. 
@@ -229,7 +229,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @param t  the nonlinear transformation
    * @return the constraint function
    */
-  protected Function1D<DoubleMatrix1D, Boolean> getConstraintFunction(
+  protected Function1D<DoubleArray, Boolean> getConstraintFunction(
       @SuppressWarnings("unused") final NonLinearParameterTransforms t) {
     return UNCONSTRAINED;
   }
