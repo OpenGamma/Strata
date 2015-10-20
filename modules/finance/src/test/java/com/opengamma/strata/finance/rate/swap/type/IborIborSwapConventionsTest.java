@@ -7,16 +7,24 @@ package com.opengamma.strata.finance.rate.swap.type;
 
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+
+import java.time.LocalDate;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
+import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
+import com.opengamma.strata.finance.rate.swap.SwapTrade;
 
 /**
  * Test {@link FixedIborSwapConventions}.
@@ -108,6 +116,24 @@ public class IborIborSwapConventionsTest {
   @Test(dataProvider = "dayConvention")
   public void test_day_convention(IborIborSwapConvention convention, BusinessDayConvention dayConvention) {
     assertEquals(convention.getSpreadLeg().getAccrualBusinessDayAdjustment().getConvention(), dayConvention);
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "stubIbor")
+  static Object[][] data_stub_ibor() {
+    return new Object[][] {
+        {IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M, Tenor.TENOR_8M}
+    };
+  }
+  
+  @Test(dataProvider = "stubIbor")
+  public void test_stub_ibor(IborIborSwapConvention convention, Tenor tenor) {
+    LocalDate tradeDate = LocalDate.of(2015, 10, 20);
+    SwapTrade swap = convention.toTrade(tradeDate, tenor, BuySell.BUY, 1, 0.01);
+    ExpandedSwap swapExpanded = swap.getProduct().expand();
+    LocalDate endDate = swapExpanded.getLeg(PayReceive.PAY).get().getEndDate();
+    assertTrue(endDate.isAfter(tradeDate.plus(tenor).minusMonths(1)));
+    assertTrue(endDate.isBefore(tradeDate.plus(tenor).plusMonths(1)));
   }
 
   public void coverage() {

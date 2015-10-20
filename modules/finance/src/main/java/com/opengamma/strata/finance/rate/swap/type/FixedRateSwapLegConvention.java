@@ -163,9 +163,10 @@ public final class FixedRateSwapLegConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a convention based on the specified index.
+   * Creates a convention based on the specified parameters.
    * <p>
-   * The standard market convention for a fixed rate leg is based exclusively on these parameters.
+   * The standard market convention for a fixed rate leg is based on these parameters,
+   * with the stub convention set to 'ShortInitial'.
    * Use the {@linkplain #builder() builder} for unusual conventions.
    * 
    * @param currency  the currency of the leg
@@ -185,6 +186,7 @@ public final class FixedRateSwapLegConvention
         .dayCount(dayCount)
         .accrualFrequency(accrualFrequency)
         .accrualBusinessDayAdjustment(accrualBusinessDayAdjustment)
+        .stubConvention(StubConvention.SHORT_INITIAL)
         .build();
   }
 
