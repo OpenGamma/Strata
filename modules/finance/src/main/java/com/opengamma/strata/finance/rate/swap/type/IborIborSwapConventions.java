@@ -7,6 +7,7 @@ package com.opengamma.strata.finance.rate.swap.type;
 
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
 
 /**
@@ -27,6 +28,7 @@ public final class IborIborSwapConventions {
               .index(IborIndices.USD_LIBOR_3M)
               .paymentFrequency(Frequency.P6M)
               .compoundingMethod(CompoundingMethod.FLAT)
+              .stubConvention(StubConvention.SHORT_INITIAL)
               .build(),
           IborRateSwapLegConvention.of(IborIndices.USD_LIBOR_6M));
 
@@ -41,6 +43,7 @@ public final class IborIborSwapConventions {
               .index(IborIndices.USD_LIBOR_1M)
               .paymentFrequency(Frequency.P3M)
               .compoundingMethod(CompoundingMethod.FLAT)
+              .stubConvention(StubConvention.SHORT_INITIAL)
               .build(),
           IborRateSwapLegConvention.of(IborIndices.USD_LIBOR_3M));
 

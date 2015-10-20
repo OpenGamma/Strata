@@ -125,6 +125,7 @@ public class FixedRateSwapLegConventionTest {
             .startDate(startDate)
             .endDate(endDate)
             .businessDayAdjustment(BDA_MOD_FOLLOW)
+            .stubConvention(StubConvention.SHORT_INITIAL)
             .build())
         .paymentSchedule(PaymentSchedule.builder()
             .paymentFrequency(P3M)

@@ -107,19 +107,19 @@ public class CalibrationDiscountingSimpleUsd2Test {
   /* Market values */
   private static final double[] DSC_MARKET_QUOTES = new double[] {
       0.00072000, 0.00082000, 0.00093000, 0.00090000, 0.00105000,
-      0.00118500, 0.00318650, 0.00704000, 0.01121500, 0.01515000,
+      0.00118500, 0.00318650, 0.00318650, 0.00704000, 0.01121500, 0.01515000,
       0.01845500, 0.02111000, 0.02332000, 0.02513500, 0.02668500};
   private static final int DSC_NB_NODES = DSC_MARKET_QUOTES.length;
   private static final String[] DSC_ID_VALUE = new String[] {
       "OIS1M", "OIS2M", "OIS3M", "OIS6M", "OIS9M",
-      "OIS1Y", "OIS2Y", "OIS3Y", "OIS4Y", "OIS5Y",
+      "OIS1Y", "OIS18M", "OIS2Y", "OIS3Y", "OIS4Y", "OIS5Y",
       "OIS6Y", "OIS7Y", "OIS8Y", "OIS9Y", "OIS10Y"};
   /* Nodes */
   private static final CurveNode[] DSC_NODES = new CurveNode[DSC_NB_NODES];
   /* Tenors */
   private static final Period[] DSC_OIS_TENORS = new Period[] {
       Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
-      Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
+      Period.ofYears(1), Period.ofMonths(18), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
       Period.ofYears(6), Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10)};
   private static final int DSC_NB_OIS_NODES = DSC_OIS_TENORS.length;
   static {

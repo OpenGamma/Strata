@@ -217,6 +217,8 @@ public final class IborRateSwapLegConvention
    * <p>
    * The standard market convention for an Ibor rate leg is based exclusively on the index.
    * Use the {@linkplain #builder() builder} for unusual conventions.
+   * <p>
+   * The default stub convention is SHORT_INITIAL.
    * 
    * @param index  the index, the market convention values are extracted from the index
    * @return the convention
@@ -224,6 +226,7 @@ public final class IborRateSwapLegConvention
   public static IborRateSwapLegConvention of(IborIndex index) {
     return IborRateSwapLegConvention.builder()
         .index(index)
+        .stubConvention(StubConvention.SHORT_INITIAL)
         .build();
   }
 
