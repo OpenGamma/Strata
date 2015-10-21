@@ -45,7 +45,8 @@ public class SABRModelFitterTest extends SmileModelFitterTest<SABRFormulaData> {
   @Override
   SmileModelFitter<SABRFormulaData> getFitter(double forward, double[] strikes, double timeToExpiry,
       double[] impliedVols, double[] error, VolatilityFunctionProvider<SABRFormulaData> model) {
-    return new SABRModelFitter(forward, strikes, timeToExpiry, impliedVols, error, model);
+    return new SABRModelFitter(forward, DoubleArray.copyOf(strikes), timeToExpiry, DoubleArray.copyOf(impliedVols),
+        DoubleArray.copyOf(error), model);
   }
 
   @Override

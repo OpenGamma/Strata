@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
 
@@ -130,7 +131,7 @@ public final class SABRHaganVolatilityFunctionProvider
    * @return the sensitivities
    */
   @Override
-  public double[] getVolatilityModelAdjoint(EuropeanVanillaOption option, double forward, SABRFormulaData data) {
+  public DoubleArray getVolatilityModelAdjoint(EuropeanVanillaOption option, double forward, SABRFormulaData data) {
     ArgChecker.notNull(option, "option");
     ArgChecker.isTrue(forward >= 0.0, "forward must be greater than zero");
     ArgChecker.notNull(data, "data");
@@ -159,7 +160,7 @@ public final class SABRHaganVolatilityFunctionProvider
         // so we return an arbitrary large number
         volatilityAdjoint[3] = 1e7;
       }
-      return volatilityAdjoint;
+      return DoubleArray.ofUnsafe(volatilityAdjoint);
     }
 
     // Implementation note: Forward sweep.
@@ -205,7 +206,7 @@ public final class SABRHaganVolatilityFunctionProvider
     volatilityAdjoint[2] = rhoBar;
     volatilityAdjoint[3] = nuBar;
 
-    return volatilityAdjoint;
+    return DoubleArray.ofUnsafe(volatilityAdjoint);
   }
 
   /**
@@ -221,7 +222,7 @@ public final class SABRHaganVolatilityFunctionProvider
    * @return the volatility and sensitivities
    */
   @Override
-  public double[] getVolatilityAdjoint(EuropeanVanillaOption option, double forward, SABRFormulaData data) {
+  public DoubleArray getVolatilityAdjoint(EuropeanVanillaOption option, double forward, SABRFormulaData data) {
     /**
      * The array storing the price and derivatives.
      */
@@ -255,7 +256,7 @@ public final class SABRHaganVolatilityFunctionProvider
         // so we return an arbitrary large number
         volatilityAdjoint[3] = 1e7;
       }
-      return volatilityAdjoint;
+      return DoubleArray.ofUnsafe(volatilityAdjoint);
     }
 
     // Implementation note: Forward sweep.
@@ -382,7 +383,7 @@ public final class SABRHaganVolatilityFunctionProvider
     volatilityAdjoint[5] = rhoBar;
     volatilityAdjoint[6] = nuBar;
 
-    return volatilityAdjoint;
+    return DoubleArray.ofUnsafe(volatilityAdjoint);
   }
 
   /**

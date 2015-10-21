@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.surface.ConstantNodalSurface;
 import com.opengamma.strata.market.surface.NodalSurface;
@@ -222,7 +223,7 @@ public final class SABRInterestRateParameters
    * @param forward  the forward
    * @return the sensitivities
    */
-  public double[] getVolatilityModelAdjoint(double expiryTime, double tenor, double strike, double forward) {
+  public DoubleArray getVolatilityModelAdjoint(double expiryTime, double tenor, double strike, double forward) {
     DoublesPair expirytTenor = DoublesPair.of(expiryTime, tenor);
     SABRFormulaData data = SABRFormulaData.of(
         getAlpha(expirytTenor), getBeta(expirytTenor), getRho(expirytTenor), getNu(expirytTenor));
@@ -244,7 +245,7 @@ public final class SABRInterestRateParameters
    * @param forward  the forward
    * @return the sensitivities
    */
-  public double[] getVolatilityAdjoint(double expiryTime, double tenor, double strike, double forward) {
+  public DoubleArray getVolatilityAdjoint(double expiryTime, double tenor, double strike, double forward) {
     DoublesPair expirytTenor = DoublesPair.of(expiryTime, tenor);
     SABRFormulaData data = SABRFormulaData.of(
         getAlpha(expirytTenor), getBeta(expirytTenor), getRho(expirytTenor), getNu(expirytTenor));

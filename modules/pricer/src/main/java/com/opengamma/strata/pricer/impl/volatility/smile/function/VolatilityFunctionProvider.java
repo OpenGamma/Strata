@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.impl.volatility.smile.function;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
 
@@ -38,11 +39,11 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
    * @param data  the model data
    * @return the sensitivities
    */
-  public double[] getVolatilityModelAdjoint(EuropeanVanillaOption option, double forward, T data) {
+  public DoubleArray getVolatilityModelAdjoint(EuropeanVanillaOption option, double forward, T data) {
     ArgChecker.notNull(option, "option");
     ArgChecker.isTrue(forward >= 0.0, "forward must be greater than zero");
     Function1D<T, Double> func = getVolatilityFunction(option, forward);
-    return paramBar(func, data);
+    return DoubleArray.ofUnsafe(paramBar(func, data));
   }
 
   /**
@@ -55,7 +56,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
    * @param data  the model data
    * @return the sensitivities
    */
-  public double[] getVolatilityAdjoint(EuropeanVanillaOption option, double forward, T data) {
+  public DoubleArray getVolatilityAdjoint(EuropeanVanillaOption option, double forward, T data) {
     ArgChecker.notNull(option, "option");
     ArgChecker.isTrue(forward >= 0.0, "forward must be greater than zero");
 
@@ -63,9 +64,9 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
     res[0] = getVolatility(option, forward, data);
     res[1] = forwardBar(option, forward, data);
     res[2] = strikeBar(option, forward, data);
-    double[] modelAdjoint = getVolatilityModelAdjoint(option, forward, data);
-    System.arraycopy(modelAdjoint, 0, res, 3, data.getNumberOfParameters());
-    return res;
+    DoubleArray modelAdjoint = getVolatilityModelAdjoint(option, forward, data);
+    System.arraycopy(modelAdjoint.toArray(), 0, res, 3, data.getNumberOfParameters());
+    return DoubleArray.ofUnsafe(res);
   }
 
   //-------------------------------------------------------------------------

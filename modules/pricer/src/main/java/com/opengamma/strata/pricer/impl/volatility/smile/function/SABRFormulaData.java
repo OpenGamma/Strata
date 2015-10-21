@@ -137,7 +137,7 @@ public final class SABRFormulaData
    * @param beta  the new beta
    * @return the new bundle
    */
-  public SABRFormulaData withBeta(final double beta) {
+  public SABRFormulaData withBeta(double beta) {
     return of(getAlpha(), beta, getRho(), getNu());
   }
 
@@ -147,7 +147,7 @@ public final class SABRFormulaData
    * @param rho  the new rho
    * @return the new bundle
    */
-  public SABRFormulaData withRho(final double rho) {
+  public SABRFormulaData withRho(double rho) {
     return of(getAlpha(), getBeta(), rho, getNu());
   }
 
@@ -157,7 +157,7 @@ public final class SABRFormulaData
    * @param nu  the new nu
    * @return the new bundle
    */
-  public SABRFormulaData withNu(final double nu) {
+  public SABRFormulaData withNu(double nu) {
     return of(getAlpha(), getBeta(), getRho(), nu);
   }
 

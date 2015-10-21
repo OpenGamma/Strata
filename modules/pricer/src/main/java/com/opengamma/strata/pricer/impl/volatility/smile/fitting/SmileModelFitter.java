@@ -40,8 +40,8 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   };
 
   private final VolatilityFunctionProvider<T> _model;
-  private final Function1D<T, double[]> _volFunc;
-  private final Function1D<T, double[][]> _volAdjointFunc;
+  private final Function1D<DoubleArray, DoubleArray> _volFunc;
+  private final Function1D<DoubleArray, DoubleMatrix> _volAdjointFunc;
   private final DoubleArray _marketValues;
   private final DoubleArray _errors;
 
@@ -59,46 +59,48 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    */
   public SmileModelFitter(
       double forward,
-      double[] strikes,
+      DoubleArray strikes,
       double timeToExpiry,
-      double[] impliedVols,
-      double[] error,
+      DoubleArray impliedVols,
+      DoubleArray error,
       VolatilityFunctionProvider<T> model) {
     ArgChecker.notNull(strikes, "strikes");
     ArgChecker.notNull(impliedVols, "implied vols");
     ArgChecker.notNull(error, "errors");
     ArgChecker.notNull(model, "model");
-    int n = strikes.length;
-    ArgChecker.isTrue(n == impliedVols.length, "vols not the same length as strikes");
-    ArgChecker.isTrue(n == error.length, "errors not the same length as strikes");
+    int n = strikes.size();
+    ArgChecker.isTrue(n == impliedVols.size(), "vols not the same length as strikes");
+    ArgChecker.isTrue(n == error.size(), "errors not the same length as strikes");
 
-    _marketValues = DoubleArray.copyOf(impliedVols);
-    _errors = DoubleArray.copyOf(error);
+    _marketValues = impliedVols;
+    _errors = error;
     _model = model;
     
     EuropeanVanillaOption[] option = new EuropeanVanillaOption[n];
     for (int i = 0; i < n; i++) {
-      PutCall putCall = strikes[i] >= forward ? PutCall.CALL : PutCall.PUT;
-      option[i] = EuropeanVanillaOption.of(strikes[i], timeToExpiry, putCall);
+      PutCall putCall = strikes.get(i) >= forward ? PutCall.CALL : PutCall.PUT;
+      option[i] = EuropeanVanillaOption.of(strikes.get(i), timeToExpiry, putCall);
     }
-    _volFunc = new Function1D<T, double[]>() {
+    _volFunc = new Function1D<DoubleArray, DoubleArray>() {
       @Override
-      public double[] evaluate(T data) {
+      public DoubleArray evaluate(DoubleArray x) {
+        final T data = toSmileModelData(x);
         double[] res = new double[n];
         for (int i = 0; i < n; ++i) {
           res[i] = _model.getVolatility(option[i], forward, data);
         }
-        return res;
+        return DoubleArray.copyOf(res);
       }
     };
-    _volAdjointFunc = new Function1D<T, double[][]>() {
+    _volAdjointFunc = new Function1D<DoubleArray, DoubleMatrix>() {
       @Override
-      public double[][] evaluate(T data) {
+      public DoubleMatrix evaluate(DoubleArray x) {
+        final T data = toSmileModelData(x);
         double[][] resAdj = new double[n][];
         for (int i = 0; i < n; ++i) {
-          resAdj[i] = _model.getVolatilityModelAdjoint(option[i], forward, data);
+          resAdj[i] = _model.getVolatilityModelAdjoint(option[i], forward, data).toArray();
         }
-        return resAdj;
+        return DoubleMatrix.copyOf(resAdj);
       }
     };
   }
@@ -140,9 +142,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @return the calibration results
    */
   public LeastSquareResultsWithTransform solve(DoubleArray start, NonLinearParameterTransforms transform) {
-    NonLinearTransformFunction transFunc = new NonLinearTransformFunction(getModelValueFunction(),
-        getModelJacobianFunction(), transform);
-
+    NonLinearTransformFunction transFunc = new NonLinearTransformFunction(_volFunc, _volAdjointFunc, transform);
     LeastSquareResults solRes = SOLVER.solve(_marketValues, _errors, transFunc.getFittingFunction(),
         transFunc.getFittingJacobian(), transform.transform(start), getConstraintFunction(transform), getMaximumStep());
     return new LeastSquareResultsWithTransform(solRes, transform);
@@ -156,16 +156,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @return the function
    */
   protected Function1D<DoubleArray, DoubleArray> getModelValueFunction() {
-
-    return new Function1D<DoubleArray, DoubleArray>() {
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public DoubleArray evaluate(DoubleArray x) {
-        final T data = toSmileModelData(x);
-        final double[] res = _volFunc.evaluate(data);
-        return DoubleArray.copyOf(res);
-      }
-    };
+    return _volFunc;
   }
 
   /**
@@ -176,17 +167,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @return the function
    */
   protected Function1D<DoubleArray, DoubleMatrix> getModelJacobianFunction() {
-
-    return new Function1D<DoubleArray, DoubleMatrix>() {
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public DoubleMatrix evaluate(final DoubleArray x) {
-        final T data = toSmileModelData(x);
-        //this thing will be (#strikes/vols) x (# model Params)
-        final double[][] volAdjoint = _volAdjointFunc.evaluate(data);
-        return DoubleMatrix.copyOf(volAdjoint);
-      }
-    };
+    return _volAdjointFunc;
   }
 
   /**

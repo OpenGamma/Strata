@@ -43,8 +43,8 @@ public final class SABRModelFitter extends SmileModelFitter<SABRFormulaData> {
    * @param error  the 'measurement' error to apply to the market volatility of a particular option
    * @param model  the volatility function provider
    */
-  public SABRModelFitter(double forward, double[] strikes, double timeToExpiry, double[] impliedVols, double[] error,
-      VolatilityFunctionProvider<SABRFormulaData> model) {
+  public SABRModelFitter(double forward, DoubleArray strikes, double timeToExpiry, DoubleArray impliedVols,
+      DoubleArray error, VolatilityFunctionProvider<SABRFormulaData> model) {
     super(forward, strikes, timeToExpiry, impliedVols, error, model);
   }
 
