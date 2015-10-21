@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.date.Tenor.TENOR_1Y;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -39,6 +38,8 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
 public class InterpolatedNodalCurveTest {
 
   private static final int SIZE = 3;
+  private static final String TNR_1Y = "1Y";
+
   private static final String NAME = "TestCurve";
   private static final CurveName CURVE_NAME = CurveName.of(NAME);
   private static final CurveMetadata METADATA = Curves.zeroRates(CURVE_NAME, ACT_365F);
@@ -188,7 +189,7 @@ public class InterpolatedNodalCurveTest {
 
   public void test_withNode_atStart_metadata() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA_ENTRIES, XVALUES, YVALUES, INTERPOLATOR);
-    TenorCurveNodeMetadata item = TenorCurveNodeMetadata.of(date(2015, 6, 30), TENOR_1Y);
+    SimpleCurveNodeMetadata item = SimpleCurveNodeMetadata.of(date(2015, 6, 30), TNR_1Y);
     InterpolatedNodalCurve test = base.withNode(0, item, 0.5d, 4d);
     DoubleArray x = DoubleArray.of(0.5d, 1d, 2d, 3d);
     DoubleArray y = DoubleArray.of(4d, 5d, 7d, 8d);
@@ -205,7 +206,7 @@ public class InterpolatedNodalCurveTest {
 
   public void test_withNode_atEnd_metadata_onCurveWithoutMetadata() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    TenorCurveNodeMetadata item = TenorCurveNodeMetadata.of(date(2015, 6, 30), TENOR_1Y);
+    SimpleCurveNodeMetadata item = SimpleCurveNodeMetadata.of(date(2015, 6, 30), TNR_1Y);
     InterpolatedNodalCurve test = base.withNode(0, item, 0.5d, 4d);
     DoubleArray x = DoubleArray.of(0.5d, 1d, 2d, 3d);
     DoubleArray y = DoubleArray.of(4d, 5d, 7d, 8d);

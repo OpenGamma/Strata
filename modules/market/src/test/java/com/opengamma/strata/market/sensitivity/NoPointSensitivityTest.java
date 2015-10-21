@@ -7,7 +7,6 @@ package com.opengamma.strata.market.sensitivity;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
@@ -50,7 +49,7 @@ public class NoPointSensitivityTest {
   //-------------------------------------------------------------------------
   public void test_combinedWith() {
     PointSensitivityBuilder base = PointSensitivityBuilder.none();
-    PointSensitivityBuilder ibor = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 6, 30), 2.0d);
+    PointSensitivityBuilder ibor = DummyPointSensitivity.of(GBP, date(2015, 6, 30), 2.0d);
     assertSame(base.combinedWith(ibor), ibor);  // returns other
   }
 

@@ -28,11 +28,11 @@ import com.opengamma.strata.basics.currency.FxMatrix;
 @Test
 public class PointSensitivitiesTest {
 
-  private static final PointSensitivity CS1 = ZeroRateSensitivity.of(GBP, date(2015, 6, 30), 12d);
-  private static final PointSensitivity CS2 = ZeroRateSensitivity.of(GBP, date(2015, 7, 30), 22d);
-  private static final PointSensitivity CS3 = ZeroRateSensitivity.of(GBP, date(2015, 8, 30), 32d);
-  private static final PointSensitivity CS3B = ZeroRateSensitivity.of(GBP, date(2015, 8, 30), 3d);
-  private static final PointSensitivity CS4 = ZeroRateSensitivity.of(GBP, date(2015, 8, 30), USD, 4d);
+  private static final PointSensitivity CS1 = DummyPointSensitivity.of(GBP, date(2015, 6, 30), 12d);
+  private static final PointSensitivity CS2 = DummyPointSensitivity.of(GBP, date(2015, 7, 30), 22d);
+  private static final PointSensitivity CS3 = DummyPointSensitivity.of(GBP, date(2015, 8, 30), 32d);
+  private static final PointSensitivity CS3B = DummyPointSensitivity.of(GBP, date(2015, 8, 30), 3d);
+  private static final PointSensitivity CS4 = DummyPointSensitivity.of(GBP, date(2015, 8, 30), USD, 4d);
 
   public void test_of_array() {
     PointSensitivities test = PointSensitivities.of(CS1, CS2);
@@ -103,7 +103,7 @@ public class PointSensitivitiesTest {
   }
 
   public void test_equalWithTolerance_true() {
-    PointSensitivity cs1b = ZeroRateSensitivity.of(GBP, date(2015, 6, 30), 12.1d);
+    PointSensitivity cs1b = DummyPointSensitivity.of(GBP, date(2015, 6, 30), 12.1d);
     PointSensitivities test1 = PointSensitivities.of(Lists.newArrayList(CS3, CS1)).normalized();
     PointSensitivities test2 = PointSensitivities.of(Lists.newArrayList(CS3, cs1b)).normalized();
     assertTrue(test1.equalWithTolerance(test2, 1.0E-1));

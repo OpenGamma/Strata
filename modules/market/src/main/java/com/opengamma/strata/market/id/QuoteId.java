@@ -35,11 +35,10 @@ import com.opengamma.strata.market.key.QuoteKey;
  * <p>
  * A quote ID identifies a piece of data in an external data provider.
  * <p>
- * Quote IDs should not normally to be used by calculation code. Higher level IDs are
- * preferred, for example {@link IndexRateId}. Higher level market data IDs allow the system to
- * associate the market data with metadata when applying scenario definitions.
- * If quote IDs are used directly, the system has no way to perturb the market data using
- * higher level rules that rely on metadata.
+ * Where possible, applications should use higher level IDs, instead of this class.
+ * Higher level market data keys allow the system to associate the market data with metadata when
+ * applying scenario definitions. If quote IDs are used directly, the system has no way to
+ * perturb the market data using higher level rules that rely on metadata.
  * <p>
  * The {@link StandardId} in a quote ID is typically the ID from an underlying data provider (e.g.
  * Bloomberg or Reuters). However the field name is a generic name which is mapped to the field name

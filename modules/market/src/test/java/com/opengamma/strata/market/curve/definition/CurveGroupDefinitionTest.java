@@ -26,7 +26,6 @@ import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.key.QuoteKey;
@@ -41,8 +40,8 @@ public class CurveGroupDefinitionTest {
 
   private static final ObservableKey GBP_LIBOR_1M_ID = QuoteKey.of(StandardId.of("OG", "Ticker1"));
   private static final ObservableKey GBP_LIBOR_3M_ID = QuoteKey.of(StandardId.of("OG", "Ticker3"));
-  private static final FraCurveNode NODE1 = FraCurveNode.of(FraTemplate.of(Period.ofMonths(1), GBP_LIBOR_1M), GBP_LIBOR_1M_ID);
-  private static final FraCurveNode NODE2 = FraCurveNode.of(FraTemplate.of(Period.ofMonths(3), GBP_LIBOR_3M), GBP_LIBOR_3M_ID);
+  private static final DummyFraCurveNode NODE1 = DummyFraCurveNode.of(Period.ofMonths(1), GBP_LIBOR_1M, GBP_LIBOR_1M_ID);
+  private static final DummyFraCurveNode NODE2 = DummyFraCurveNode.of(Period.ofMonths(3), GBP_LIBOR_3M, GBP_LIBOR_3M_ID);
   private static final InterpolatedNodalCurveDefinition CURVE_DEFN = InterpolatedNodalCurveDefinition.builder()
       .name(CurveName.of("Test"))
       .xValueType(ValueType.YEAR_FRACTION)

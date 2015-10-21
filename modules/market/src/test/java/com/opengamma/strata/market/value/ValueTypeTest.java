@@ -10,8 +10,12 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
+
 import org.testng.annotations.Test;
 
+/**
+ * Test {@link ValueType}.
+ */
 @Test
 public class ValueTypeTest {
 

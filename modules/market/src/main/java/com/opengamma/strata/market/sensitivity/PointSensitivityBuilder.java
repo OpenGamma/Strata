@@ -17,9 +17,6 @@ import com.opengamma.strata.basics.currency.Currency;
  * <p>
  * Implementations may be mutable, however the methods are intended to be used in an immutable style.
  * Once a method is called, code should refer and use only the result, not the original instance.
- * <p>
- * See {@link IborRateSensitivity}, {@link OvernightRateSensitivity}, {@link ZeroRateSensitivity}
- * and {@link MutablePointSensitivities}.
  */
 public interface PointSensitivityBuilder {
 
