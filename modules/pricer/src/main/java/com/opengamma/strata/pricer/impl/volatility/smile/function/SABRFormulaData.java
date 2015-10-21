@@ -6,7 +6,6 @@
 package com.opengamma.strata.pricer.impl.volatility.smile.function;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -26,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * The data bundle for SABR formula. 
@@ -47,7 +47,7 @@ public final class SABRFormulaData
    * The constraints for the parameters are defined in {@link #isAllowed(int, double)}.
    */
   @PropertyDefinition(validate = "notNull")
-  private final double[] parameters;
+  private final DoubleArray parameters;
 
   //-------------------------------------------------------------------------
   /**
@@ -60,7 +60,7 @@ public final class SABRFormulaData
    * @return the instance
    */
   public static SABRFormulaData of(double alpha, double beta, double rho, double nu) {
-    return new SABRFormulaData(new double[] {alpha, beta, rho, nu });
+    return new SABRFormulaData(DoubleArray.of(alpha, beta, rho, nu));
   }
 
   /**
@@ -73,14 +73,14 @@ public final class SABRFormulaData
    */
   public static SABRFormulaData of(double[] parameters) {
     ArgChecker.notNull(parameters, "parameters");
-    ArgChecker.isTrue(parameters.length == 4, "the number of parameters should be 4");
-    return new SABRFormulaData(Arrays.copyOf(parameters, NUM_PARAMETERS));
+    ArgChecker.isTrue(parameters.length == NUM_PARAMETERS, "the number of parameters should be 4");
+    return new SABRFormulaData(DoubleArray.copyOf(parameters));
   }
 
   @ImmutableValidator
   private void validate() {
     for (int i = 0; i < 4; ++i) {
-      ArgChecker.isTrue(isAllowed(i, parameters[i]), "the {}-th parameter is not allowed", i);
+      ArgChecker.isTrue(isAllowed(i, parameters.get(i)), "the {}-th parameter is not allowed", i);
     }
   }
 
@@ -91,7 +91,7 @@ public final class SABRFormulaData
    * @return the alpha parameter
    */
   public double getAlpha() {
-    return parameters[0];
+    return parameters.get(0);
   }
 
   /**
@@ -100,7 +100,7 @@ public final class SABRFormulaData
    * @return the beta parameter
    */
   public double getBeta() {
-    return parameters[1];
+    return parameters.get(1);
   }
 
   /**
@@ -109,7 +109,7 @@ public final class SABRFormulaData
    * @return the rho parameter
    */
   public double getRho() {
-    return parameters[2];
+    return parameters.get(2);
   }
 
   /**
@@ -118,7 +118,7 @@ public final class SABRFormulaData
    * @return the nu parameter
    */
   public double getNu() {
-    return parameters[3];
+    return parameters.get(3);
   }
 
   /**
@@ -170,7 +170,7 @@ public final class SABRFormulaData
   @Override
   public double getParameter(int index) {
     ArgChecker.inRangeExclusive(index, -1, NUM_PARAMETERS, "index");
-    return parameters[index];
+    return parameters.get(index);
   }
 
   @Override
@@ -190,7 +190,7 @@ public final class SABRFormulaData
   @Override
   public SABRFormulaData with(int index, double value) {
     ArgChecker.inRangeExclusive(index, -1, NUM_PARAMETERS, "index");
-    double[] paramsCp = Arrays.copyOf(parameters, NUM_PARAMETERS);
+    double[] paramsCp = parameters.toArray();
     paramsCp[index] = value;
     return of(paramsCp);
   }
@@ -215,9 +215,9 @@ public final class SABRFormulaData
   private static final long serialVersionUID = 1L;
 
   private SABRFormulaData(
-      double[] parameters) {
+      DoubleArray parameters) {
     JodaBeanUtils.notNull(parameters, "parameters");
-    this.parameters = parameters.clone();
+    this.parameters = parameters;
     validate();
   }
 
@@ -245,8 +245,8 @@ public final class SABRFormulaData
    * The constraints for the parameters are defined in {@link #isAllowed(int, double)}.
    * @return the value of the property, not null
    */
-  public double[] getParameters() {
-    return (parameters != null ? parameters.clone() : null);
+  public DoubleArray getParameters() {
+    return parameters;
   }
 
   //-----------------------------------------------------------------------
@@ -291,8 +291,8 @@ public final class SABRFormulaData
     /**
      * The meta-property for the {@code parameters} property.
      */
-    private final MetaProperty<double[]> parameters = DirectMetaProperty.ofImmutable(
-        this, "parameters", SABRFormulaData.class, double[].class);
+    private final MetaProperty<DoubleArray> parameters = DirectMetaProperty.ofImmutable(
+        this, "parameters", SABRFormulaData.class, DoubleArray.class);
     /**
      * The meta-properties.
      */
@@ -335,7 +335,7 @@ public final class SABRFormulaData
      * The meta-property for the {@code parameters} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<double[]> parameters() {
+    public MetaProperty<DoubleArray> parameters() {
       return parameters;
     }
 
@@ -366,7 +366,7 @@ public final class SABRFormulaData
    */
   private static final class Builder extends DirectFieldsBeanBuilder<SABRFormulaData> {
 
-    private double[] parameters;
+    private DoubleArray parameters;
 
     /**
      * Restricted constructor.
@@ -389,7 +389,7 @@ public final class SABRFormulaData
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 458736106:  // parameters
-          this.parameters = (double[]) newValue;
+          this.parameters = (DoubleArray) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

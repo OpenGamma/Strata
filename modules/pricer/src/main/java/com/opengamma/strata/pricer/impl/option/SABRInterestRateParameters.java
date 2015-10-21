@@ -43,7 +43,7 @@ import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunc
  */
 @BeanDefinition(builderScope = "private")
 public final class SABRInterestRateParameters
-    implements VolatilityModel<double[]>, ImmutableBean {
+    implements VolatilityModel<DoubleArray>, ImmutableBean {
 
   /**
    * The alpha (volatility level) surface. 
@@ -140,7 +140,7 @@ public final class SABRInterestRateParameters
    * @param expirytenor The expiry/tenor pair
    * @return The alpha parameter
    */
-  public double getAlpha(final DoublesPair expirytenor) {
+  public double getAlpha(DoublesPair expirytenor) {
     return alphaSurface.zValue(expirytenor);
   }
 
@@ -150,7 +150,7 @@ public final class SABRInterestRateParameters
    * @param expirytenor The expiry/tenor pair
    * @return The beta parameter
    */
-  public double getBeta(final DoublesPair expirytenor) {
+  public double getBeta(DoublesPair expirytenor) {
     return betaSurface.zValue(expirytenor);
   }
 
@@ -160,7 +160,7 @@ public final class SABRInterestRateParameters
    * @param expirytenor The expiry/tenor pair
    * @return The rho parameter
    */
-  public double getRho(final DoublesPair expirytenor) {
+  public double getRho(DoublesPair expirytenor) {
     return rhoSurface.zValue(expirytenor);
   }
 
@@ -170,7 +170,7 @@ public final class SABRInterestRateParameters
    * @param expirytenor The expiry/tenor pair
    * @return The nu parameter
    */
-  public double getNu(final DoublesPair expirytenor) {
+  public double getNu(DoublesPair expirytenor) {
     return nuSurface.zValue(expirytenor);
   }
 
@@ -180,16 +180,16 @@ public final class SABRInterestRateParameters
    * @param expirytenor The expiry/tenor pair
    * @return The nu parameter
    */
-  public double getShift(final DoublesPair expirytenor) {
+  public double getShift(DoublesPair expirytenor) {
     return shiftSurface.zValue(expirytenor);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double getVolatility(double[] t) {
+  public double getVolatility(DoubleArray t) {
     ArgChecker.notNull(t, "data");
-    ArgChecker.isTrue(t.length == 4, "data should have four components (expiry time, tenor, strike and forward");
-    return getVolatility(t[0], t[1], t[2], t[3]);
+    ArgChecker.isTrue(t.size() == 4, "data should have four components (expiry time, tenor, strike and forward");
+    return getVolatility(t.get(0), t.get(1), t.get(2), t.get(3));
   }
 
   /**

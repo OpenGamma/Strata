@@ -90,7 +90,7 @@ public class SABRInterestRateParametersTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongData() {
-    PARAMETERS.getVolatility(new double[] {1, 2, 3 });
+    PARAMETERS.getVolatility(DoubleArray.of(1, 2, 3));
   }
 
   @Test
@@ -114,7 +114,7 @@ public class SABRInterestRateParametersTest {
     SABRFormulaData data = SABRFormulaData.of(
         ALPHA_SURFACE.zValue(sample), BETA_SURFACE.zValue(sample), RHO_SURFACE.zValue(sample), NU_SURFACE.zValue(sample));
     assertEquals(PARAMETERS.getVolatility(expiry, tenor, strike, forward), FUNCTION.getVolatility(option, forward, data));
-    assertEquals(PARAMETERS.getVolatility(new double[] {expiry, tenor, strike, forward }),
+    assertEquals(PARAMETERS.getVolatility(DoubleArray.of(expiry, tenor, strike, forward)),
         FUNCTION.getVolatility(option, forward, data));
     double[] modelAdjCmp = PARAMETERS.getVolatilityModelAdjoint(expiry, tenor, strike, forward).toArray();
     double[] modelAdjExp = FUNCTION.getVolatilityModelAdjoint(option, forward, data).toArray();
@@ -161,7 +161,7 @@ public class SABRInterestRateParametersTest {
         ALPHA_SURFACE.zValue(sample), BETA_SURFACE.zValue(sample), RHO_SURFACE.zValue(sample), NU_SURFACE.zValue(sample));
     assertEquals(params.getVolatility(expiry, tenor, strike, forward),
         FUNCTION.getVolatility(option, forward + shift, data));
-    assertEquals(params.getVolatility(new double[] {expiry, tenor, strike, forward }),
+    assertEquals(params.getVolatility(DoubleArray.of(expiry, tenor, strike, forward)),
         FUNCTION.getVolatility(option, forward + shift, data));
     double[] adjCmp = params.getVolatilityModelAdjoint(expiry, tenor, strike, forward).toArray();
     double[] adjExp = FUNCTION.getVolatilityModelAdjoint(option, forward + shift, data).toArray();
