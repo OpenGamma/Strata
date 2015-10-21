@@ -28,6 +28,7 @@
 <listEntry value="com.opengamma.strata.finance.rate.deposit"/>
 <listEntry value="com.opengamma.strata.finance.rate.fra"/>
 <listEntry value="com.opengamma.strata.finance.rate.future"/>
+<listEntry value="com.opengamma.strata.finance.rate.future.type"/>
 <listEntry value="com.opengamma.strata.finance.rate.swap"/>
 <listEntry value="com.opengamma.strata.finance.rate.swap.type"/>
 </listAttribute>
