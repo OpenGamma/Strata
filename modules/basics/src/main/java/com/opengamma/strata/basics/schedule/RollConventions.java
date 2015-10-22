@@ -10,7 +10,6 @@ import java.time.DayOfWeek;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.schedule.DayRollConventions.Dom;
 import com.opengamma.strata.basics.schedule.DayRollConventions.Dow;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
@@ -413,18 +412,6 @@ public final class RollConventions {
    * This convention is intended for use with periods that are a multiple of weeks.
    */
   public static final RollConvention DAY_SUN = Dow.of(DayOfWeek.SUNDAY);
-
-  //-------------------------------------------------------------------------
-  /**
-   * Obtains a {@code BusinessDayConvention} from a unique name.
-   * 
-   * @param uniqueName  the unique name of the calendar
-   * @return the holiday calendar
-   */
-  static RollConvention of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
-    return ENUM_LOOKUP.lookup(uniqueName);
-  }
 
   //-------------------------------------------------------------------------
   /**

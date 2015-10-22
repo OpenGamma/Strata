@@ -81,7 +81,7 @@ public final class IborIborSwapTemplate
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a template based on the specified period, tenor and convention.
+   * Obtains a template based on the specified period, tenor and convention.
    * <p>
    * The period from the spot date to the start date is specified.
    * The tenor from the start date to the end date is also specified.

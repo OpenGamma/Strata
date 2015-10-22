@@ -46,7 +46,7 @@ public interface RollConvention
   @FromString
   public static RollConvention of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
-    return RollConventions.of(uniqueName);
+    return extendedEnum().lookup(uniqueName);
   }
 
   /**

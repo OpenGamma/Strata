@@ -213,7 +213,7 @@ public final class IborRateSwapLegConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a convention based on the specified index.
+   * Obtains a convention based on the specified index.
    * <p>
    * The standard market convention for an Ibor rate leg is based on the index,
    * with the stub convention set to 'ShortInitial'.

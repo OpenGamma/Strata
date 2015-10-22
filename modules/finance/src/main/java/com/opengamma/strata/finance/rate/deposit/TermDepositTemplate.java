@@ -69,7 +69,7 @@ public final class TermDepositTemplate
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a template based on the specified period and convention.
+   * Obtains a template based on the specified period and convention.
    * 
    * @param depositPeriod  the period between the start date and the end date
    * @param convention  the market convention

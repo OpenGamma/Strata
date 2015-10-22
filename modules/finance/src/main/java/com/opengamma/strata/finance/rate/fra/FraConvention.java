@@ -65,7 +65,7 @@ public final class FraConvention
     implements Convention, ImmutableBean, Serializable {
 
   /**
-   * The IBOR-like index.
+   * The Ibor index.
    * <p>
    * The floating rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -461,7 +461,7 @@ public final class FraConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the IBOR-like index.
+   * Gets the Ibor index.
    * <p>
    * The floating rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -870,7 +870,7 @@ public final class FraConvention
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the IBOR-like index.
+     * Sets the Ibor index.
      * <p>
      * The floating rate to be paid is based on this index
      * It will be a well known market index such as 'GBP-LIBOR-3M'.

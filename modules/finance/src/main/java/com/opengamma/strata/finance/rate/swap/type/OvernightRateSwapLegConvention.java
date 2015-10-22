@@ -224,7 +224,7 @@ public final class OvernightRateSwapLegConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a convention based on the specified index, using the 'Compounded' accrual method.
+   * Obtains a convention based on the specified index, using the 'Compounded' accrual method.
    * <p>
    * The standard market convention for an Overnight rate leg is based on the index,
    * frequency and payment offset, with the accrual method set to 'Compounded' and the

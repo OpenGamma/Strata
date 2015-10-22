@@ -21,7 +21,7 @@ import com.opengamma.strata.collect.named.ExtendedEnum;
  * The holiday calendar data provided here has been identified through direct research and is not
  * derived from a vendor of holiday calendar data.
  * This data may or may not be sufficient for your production needs.
- * To change the implementation, see {@code HolidayCalendar.properties}.
+ * To change the implementation, see {@code HolidayCalendar.ini}.
  */
 public final class HolidayCalendars {
   // constants are indirected via ENUM_LOOKUP to allow them to be replaced by config
@@ -65,7 +65,7 @@ public final class HolidayCalendars {
    * <p>
    * The default implementation is based on original research and covers 1950 to 2099.
    * Future dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.properties}.
+   * To change the implementation, see {@code HolidayCalendar.ini}.
    */
   public static final HolidayCalendar GBLO = HolidayCalendar.of(GlobalHolidayCalendars.GBLO.getName());
   /**
@@ -75,7 +75,7 @@ public final class HolidayCalendars {
    * <p>
    * The default implementation is based on original research and covers 1950 to 2099.
    * Future and past dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.properties}.
+   * To change the implementation, see {@code HolidayCalendar.ini}.
    */
   public static final HolidayCalendar FRPA = HolidayCalendar.of(GlobalHolidayCalendars.FRPA.getName());
   /**
@@ -85,7 +85,7 @@ public final class HolidayCalendars {
    * <p>
    * The default implementation is based on original research and covers 1950 to 2099.
    * Future and past dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.properties}.
+   * To change the implementation, see {@code HolidayCalendar.ini}.
    */
   public static final HolidayCalendar CHZU = HolidayCalendar.of(GlobalHolidayCalendars.CHZU.getName());
   /**
@@ -95,7 +95,7 @@ public final class HolidayCalendars {
    * <p>
    * The default implementation is based on original research and covers 1997 to 2099.
    * Future dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.properties}.
+   * To change the implementation, see {@code HolidayCalendar.ini}.
    * <p>
    * Referenced by the 2006 ISDA definitions 1.8.
    */
@@ -107,7 +107,7 @@ public final class HolidayCalendars {
    * <p>
    * The default implementation is based on original research and covers 1950 to 2099.
    * Future and past dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.properties}.
+   * To change the implementation, see {@code HolidayCalendar.ini}.
    * <p>
    * Referenced by the 2006 ISDA definitions 1.11.
    */
@@ -119,7 +119,7 @@ public final class HolidayCalendars {
    * <p>
    * The default implementation is based on original research and covers 1950 to 2099.
    * Future and past dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.properties}.
+   * To change the implementation, see {@code HolidayCalendar.ini}.
    */
   public static final HolidayCalendar USNY = HolidayCalendar.of(GlobalHolidayCalendars.USNY.getName());
   /**
@@ -129,7 +129,7 @@ public final class HolidayCalendars {
    * <p>
    * The default implementation is based on original research and covers 1950 to 2099.
    * Future and past dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.properties}.
+   * To change the implementation, see {@code HolidayCalendar.ini}.
    * <p>
    * Referenced by the 2006 ISDA definitions 1.9.
    */
@@ -141,7 +141,7 @@ public final class HolidayCalendars {
    * <p>
    * The default implementation is based on original research and covers 1950 to 2099.
    * Future and past dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.properties}.
+   * To change the implementation, see {@code HolidayCalendar.ini}.
    * <p>
    * Referenced by the 2006 ISDA definitions 1.10.
    */
@@ -153,7 +153,7 @@ public final class HolidayCalendars {
    * <p>
    * The default implementation is based on original research and covers 1950 to 2099.
    * Future and past dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.properties}.
+   * To change the implementation, see {@code HolidayCalendar.ini}.
    */
   public static final HolidayCalendar JPTO = HolidayCalendar.of(GlobalHolidayCalendars.JPTO.getName());
 

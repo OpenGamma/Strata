@@ -82,7 +82,7 @@ public final class IborFixingDepositTemplate
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a template based on the specified index.
+   * Obtains a template based on the specified index.
    * <p>
    * The period from the start date to the end date will be the tenor of the index.
    * The convention will be created based on the index. 
@@ -95,7 +95,7 @@ public final class IborFixingDepositTemplate
   }
 
   /**
-   * Creates a template based on the specified period and index.
+   * Obtains a template based on the specified period and index.
    * <p>
    * The period from the start date to the end is specified.
    * The convention will be created based on the index. 
@@ -109,7 +109,7 @@ public final class IborFixingDepositTemplate
   }
 
   /**
-   * Creates a template based on the specified periods and convention.
+   * Obtains a template based on the specified periods and convention.
    * 
    * @param depositPeriod  the period between the start date and the end date
    * @param convention  the market convention

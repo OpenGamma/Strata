@@ -69,7 +69,7 @@ public final class FixedIborSwapConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a convention based on the specified conventions.
+   * Obtains a convention based on the specified conventions.
    * <p>
    * The spot date offset is set to be the effective date offset of the index.
    * 

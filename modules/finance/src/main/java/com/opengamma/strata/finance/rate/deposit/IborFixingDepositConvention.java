@@ -125,7 +125,7 @@ public final class IborFixingDepositConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a convention based on the specified index.
+   * Obtains a convention based on the specified index.
    * <p>
    * The standard convention for an Ibor fixing deposit is based exclusively on the index.
    * Use the {@linkplain #builder() builder} for unusual conventions.

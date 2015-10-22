@@ -96,7 +96,7 @@ public final class FraTemplate
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a template based on the specified period and index.
+   * Obtains a template based on the specified period and index.
    * <p>
    * The period from the spot date to the start date is specified.
    * The period from the spot date to the end date will be the period to start
@@ -115,7 +115,7 @@ public final class FraTemplate
   }
 
   /**
-   * Creates a template based on the specified periods and convention.
+   * Obtains a template based on the specified periods and convention.
    * <p>
    * The periods from the spot date to the start date and to the end date are specified.
    * <p>

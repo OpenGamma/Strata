@@ -77,7 +77,6 @@ public class FraCurveNodeTest {
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
-
   }
 
   public void test_requirements() {

@@ -163,7 +163,7 @@ public final class FixedRateSwapLegConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a convention based on the specified parameters.
+   * Obtains a convention based on the specified parameters.
    * <p>
    * The standard market convention for a fixed rate leg is based on these parameters,
    * with the stub convention set to 'ShortInitial'.

@@ -81,7 +81,7 @@ public final class FixedIborSwapTemplate
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a template based on the specified tenor and convention.
+   * Obtains a template based on the specified tenor and convention.
    * <p>
    * The swap will start on the spot date.
    * 

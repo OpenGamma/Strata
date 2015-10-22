@@ -81,7 +81,7 @@ public final class FixedOvernightSwapTemplate
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a template based on the specified tenor and convention.
+   * Obtains a template based on the specified tenor and convention.
    * <p>
    * The swap will start on the spot date.
    * 
@@ -94,7 +94,7 @@ public final class FixedOvernightSwapTemplate
   }
 
   /**
-   * Creates a template based on the specified period, tenor and convention.
+   * Obtains a template based on the specified period, tenor and convention.
    * <p>
    * The period from the spot date to the start date is specified.
    * 

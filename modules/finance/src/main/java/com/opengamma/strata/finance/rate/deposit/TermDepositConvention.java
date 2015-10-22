@@ -84,8 +84,8 @@ public final class TermDepositConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Creates a convention based on the specified currency, business day adjustment, day count convention 
-   * and spot date offset.
+   * Obtains a convention based on the specified currency, business day adjustment,
+   * day count convention and spot date offset.
    * 
    * @param currency  the currency, in which the payments are made
    * @param businessDayAdjustment the business day adjustment to apply to the start and end date
