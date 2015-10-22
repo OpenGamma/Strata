@@ -23,7 +23,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
@@ -41,13 +40,9 @@ public class InterpolatedNodalCurveDefinitionTest {
   private static final LocalDate DATE1 = GBLO.nextOrSame(VAL_DATE.plusMonths(2));
   private static final LocalDate DATE2 = GBLO.nextOrSame(VAL_DATE.plusMonths(4));
   private static final CurveName CURVE_NAME = CurveName.of("Test");
-  private static final ImmutableList<FraCurveNode> NODES = ImmutableList.of(
-      FraCurveNode.of(
-          FraTemplate.of(Period.ofMonths(1), GBP_LIBOR_1M),
-          QuoteKey.of(StandardId.of("OG", "Ticker"))),
-      FraCurveNode.of(
-          FraTemplate.of(Period.ofMonths(3), GBP_LIBOR_1M),
-          QuoteKey.of(StandardId.of("OG", "Ticker"))));
+  private static final ImmutableList<DummyFraCurveNode> NODES = ImmutableList.of(
+      DummyFraCurveNode.of(Period.ofMonths(1), GBP_LIBOR_1M, QuoteKey.of(StandardId.of("OG", "Ticker"))),
+      DummyFraCurveNode.of(Period.ofMonths(3), GBP_LIBOR_1M, QuoteKey.of(StandardId.of("OG", "Ticker"))));
 
   public void test_builder() {
     InterpolatedNodalCurveDefinition test = InterpolatedNodalCurveDefinition.builder()

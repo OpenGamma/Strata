@@ -15,9 +15,6 @@ package com.opengamma.strata.market.curve;
  * The most common IDs contain tenors or a futures expiry (a year and a month) but users are free to define
  * their own node IDs. The system makes no assumptions about the contents of a node ID. The only requirement is
  * that implementations have a sensible {@code hashCode()} and {@code equals()} implementation.
- * <p>
- * The standard implementations are {@link FuturesExpiryCurveNodeId} for futures nodes
- * and {@link TenorCurveNodeId} for all other nodes.
  */
 public interface CurveNodeId {
 

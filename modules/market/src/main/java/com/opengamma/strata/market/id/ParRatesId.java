@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -31,8 +32,9 @@ import com.opengamma.strata.market.curve.ParRates;
 /**
  * Market data ID for a set of par rates used when calibrating a curve.
  */
-@BeanDefinition
-public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean, Serializable {
+@BeanDefinition(builderScope = "private")
+public final class ParRatesId
+    implements MarketDataId<ParRates>, ImmutableBean, Serializable {
 
   /** The name of the curve group containing the curve. */
   @PropertyDefinition(validate = "notNull")
@@ -81,14 +83,6 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean, 
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static ParRatesId.Builder builder() {
-    return new ParRatesId.Builder();
-  }
 
   private ParRatesId(
       CurveGroupName curveGroupName,
@@ -145,14 +139,6 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean, 
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -241,7 +227,7 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean, 
     }
 
     @Override
-    public ParRatesId.Builder builder() {
+    public BeanBuilder<? extends ParRatesId> builder() {
       return new ParRatesId.Builder();
     }
 
@@ -309,7 +295,7 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean, 
   /**
    * The bean-builder for {@code ParRatesId}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<ParRatesId> {
+  private static final class Builder extends DirectFieldsBeanBuilder<ParRatesId> {
 
     private CurveGroupName curveGroupName;
     private CurveName curveName;
@@ -319,16 +305,6 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean, 
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(ParRatesId beanToCopy) {
-      this.curveGroupName = beanToCopy.getCurveGroupName();
-      this.curveName = beanToCopy.getCurveName();
-      this.marketDataFeed = beanToCopy.getMarketDataFeed();
     }
 
     //-----------------------------------------------------------------------
@@ -394,40 +370,6 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean, 
           curveGroupName,
           curveName,
           marketDataFeed);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the name of the curve group containing the curve.
-     * @param curveGroupName  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder curveGroupName(CurveGroupName curveGroupName) {
-      JodaBeanUtils.notNull(curveGroupName, "curveGroupName");
-      this.curveGroupName = curveGroupName;
-      return this;
-    }
-
-    /**
-     * Sets the name of the curve.
-     * @param curveName  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder curveName(CurveName curveName) {
-      JodaBeanUtils.notNull(curveName, "curveName");
-      this.curveName = curveName;
-      return this;
-    }
-
-    /**
-     * Sets the market data feed providing the market quotes.
-     * @param marketDataFeed  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder marketDataFeed(MarketDataFeed marketDataFeed) {
-      JodaBeanUtils.notNull(marketDataFeed, "marketDataFeed");
-      this.marketDataFeed = marketDataFeed;
-      return this;
     }
 
     //-----------------------------------------------------------------------

@@ -24,10 +24,10 @@ import com.google.common.collect.Lists;
 @Test
 public class MutablePointSensitivitiesTest {
 
-  private static final PointSensitivity CS1 = ZeroRateSensitivity.of(GBP, date(2015, 6, 30), 12d);
-  private static final PointSensitivity CS2 = ZeroRateSensitivity.of(GBP, date(2015, 7, 30), 22d);
-  private static final PointSensitivity CS3 = ZeroRateSensitivity.of(GBP, date(2015, 8, 30), 32d);
-  private static final PointSensitivity CS3B = ZeroRateSensitivity.of(GBP, date(2015, 8, 30), 3d);
+  private static final PointSensitivity CS1 = DummyPointSensitivity.of(GBP, date(2015, 6, 30), 12d);
+  private static final PointSensitivity CS2 = DummyPointSensitivity.of(GBP, date(2015, 7, 30), 22d);
+  private static final PointSensitivity CS3 = DummyPointSensitivity.of(GBP, date(2015, 8, 30), 32d);
+  private static final PointSensitivity CS3B = DummyPointSensitivity.of(GBP, date(2015, 8, 30), 3d);
 
   //-------------------------------------------------------------------------
   public void test_size_add_getSensitivities() {

@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
@@ -41,9 +40,7 @@ public class CurveGroupEntryTest {
           .yValueType(ValueType.ZERO_RATE)
           .dayCount(ACT_365F)
           .nodes(ImmutableList.of(
-              FraCurveNode.of(
-                  FraTemplate.of(Period.ofMonths(1), GBP_LIBOR_1M),
-                  QuoteKey.of(StandardId.of("OG", "Ticker")))))
+              DummyFraCurveNode.of(Period.ofMonths(1), GBP_LIBOR_1M, QuoteKey.of(StandardId.of("OG", "Ticker")))))
           .interpolator(Interpolator1DFactory.LINEAR_INSTANCE)
           .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
           .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)

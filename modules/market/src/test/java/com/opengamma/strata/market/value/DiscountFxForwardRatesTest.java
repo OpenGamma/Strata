@@ -92,7 +92,7 @@ public class DiscountFxForwardRatesTest {
 
   //-------------------------------------------------------------------------
   public void test_rate() {
-    DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR,  FX_RATE, DFCURVE_GBP, DFCURVE_USD);
+    DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
     double dfCcyBaseAtMaturity = DFCURVE_GBP.discountFactor(DATE_REF);
     double dfCcyCounterAtMaturity = DFCURVE_USD.discountFactor(DATE_REF);
     double expected = FX_RATE.fxRate(GBP, USD) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);

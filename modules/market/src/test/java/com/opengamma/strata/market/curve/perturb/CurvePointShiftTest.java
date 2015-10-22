@@ -27,7 +27,7 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
+import com.opengamma.strata.market.curve.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.TestingCurve;
 import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
 
@@ -37,18 +37,22 @@ import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
 @Test
 public class CurvePointShiftTest {
 
+  private static final String TNR_1W = "1W";
+  private static final String TNR_1M = "1M";
+  private static final String TNR_3M = "3M";
+  private static final String TNR_6M = "6M";
   private static final CurveInterpolator INTERPOLATOR = new LogLinearInterpolator1D();
 
   public void absolute() {
-    List<TenorCurveNodeMetadata> nodeMetadata = ImmutableList.of(
-        TenorCurveNodeMetadata.of(date(2011, 3, 8), Tenor.TENOR_1M),
-        TenorCurveNodeMetadata.of(date(2011, 5, 8), Tenor.TENOR_3M),
-        TenorCurveNodeMetadata.of(date(2011, 8, 8), Tenor.TENOR_6M));
+    List<SimpleCurveNodeMetadata> nodeMetadata = ImmutableList.of(
+        SimpleCurveNodeMetadata.of(date(2011, 3, 8), TNR_1M),
+        SimpleCurveNodeMetadata.of(date(2011, 5, 8), TNR_3M),
+        SimpleCurveNodeMetadata.of(date(2011, 8, 8), TNR_6M));
 
     CurvePointShift shift = CurvePointShift.builder(ShiftType.ABSOLUTE)
-        .addShift(Tenor.TENOR_1W, 0.1) // Tenor not in the curve, should be ignored
-        .addShift(Tenor.TENOR_1M, 0.2) // shift based on identifier
-        .addShift("3M", 0.3) // shift based on label
+        .addShift(TNR_1W, 0.1) // Tenor not in the curve, should be ignored
+        .addShift(TNR_1M, 0.2) // shift based on identifier
+        .addShift(TNR_3M, 0.3) // shift based on label
         .build();
 
     Curve curve = InterpolatedNodalCurve.of(
@@ -73,15 +77,15 @@ public class CurvePointShiftTest {
   }
 
   public void relative() {
-    List<TenorCurveNodeMetadata> nodeMetadata = ImmutableList.of(
-        TenorCurveNodeMetadata.of(date(2011, 3, 8), Tenor.TENOR_1M),
-        TenorCurveNodeMetadata.of(date(2011, 5, 8), Tenor.TENOR_3M),
-        TenorCurveNodeMetadata.of(date(2011, 8, 8), Tenor.TENOR_6M));
+    List<SimpleCurveNodeMetadata> nodeMetadata = ImmutableList.of(
+        SimpleCurveNodeMetadata.of(date(2011, 3, 8), TNR_1M),
+        SimpleCurveNodeMetadata.of(date(2011, 5, 8), TNR_3M),
+        SimpleCurveNodeMetadata.of(date(2011, 8, 8), TNR_6M));
 
     CurvePointShift shift = CurvePointShift.builder(ShiftType.RELATIVE)
-        .addShift(Tenor.TENOR_1W, 0.1) // Tenor not in the curve, should be ignored
-        .addShift(Tenor.TENOR_1M, 0.2)
-        .addShift(Tenor.TENOR_3M, 0.3)
+        .addShift(TNR_1W, 0.1) // Tenor not in the curve, should be ignored
+        .addShift(TNR_1M, 0.2)
+        .addShift(TNR_3M, 0.3)
         .build();
 
     Curve curve = InterpolatedNodalCurve.of(
