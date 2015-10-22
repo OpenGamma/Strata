@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.SecurityLink;
@@ -60,6 +61,16 @@ public final class FixedCouponBondTrade
    */
   @PropertyDefinition
   private final long quantity;
+  /**
+   * The upfront fee payment of the bond trade.
+   * <p>
+   * The payment sign should be compatible with the product quantity, 
+   * thus the payment is negative for positive quantity and positive for negative quantity.
+   * <p>
+   * Typically the date of this payment is the same as the settlement date in {@code tradeInfo}.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Payment payment;
 
   //-------------------------------------------------------------------------
   @SuppressWarnings({"rawtypes", "unchecked"})
@@ -104,11 +115,14 @@ public final class FixedCouponBondTrade
   private FixedCouponBondTrade(
       TradeInfo tradeInfo,
       SecurityLink<FixedCouponBond> securityLink,
-      long quantity) {
+      long quantity,
+      Payment payment) {
     JodaBeanUtils.notNull(securityLink, "securityLink");
+    JodaBeanUtils.notNull(payment, "payment");
     this.tradeInfo = tradeInfo;
     this.securityLink = securityLink;
     this.quantity = quantity;
+    this.payment = payment;
   }
 
   @Override
@@ -164,6 +178,20 @@ public final class FixedCouponBondTrade
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the upfront fee payment of the bond trade.
+   * <p>
+   * The payment sign should be compatible with the product quantity,
+   * thus the payment is negative for positive quantity and positive for negative quantity.
+   * <p>
+   * Typically the date of this payment is the same as the settlement date in {@code tradeInfo}.
+   * @return the value of the property, not null
+   */
+  public Payment getPayment() {
+    return payment;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -180,7 +208,8 @@ public final class FixedCouponBondTrade
       FixedCouponBondTrade other = (FixedCouponBondTrade) obj;
       return JodaBeanUtils.equal(getTradeInfo(), other.getTradeInfo()) &&
           JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
-          (getQuantity() == other.getQuantity());
+          (getQuantity() == other.getQuantity()) &&
+          JodaBeanUtils.equal(getPayment(), other.getPayment());
     }
     return false;
   }
@@ -191,16 +220,18 @@ public final class FixedCouponBondTrade
     hash = hash * 31 + JodaBeanUtils.hashCode(getTradeInfo());
     hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
     hash = hash * 31 + JodaBeanUtils.hashCode(getQuantity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayment());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("FixedCouponBondTrade{");
     buf.append("tradeInfo").append('=').append(getTradeInfo()).append(',').append(' ');
     buf.append("securityLink").append('=').append(getSecurityLink()).append(',').append(' ');
-    buf.append("quantity").append('=').append(JodaBeanUtils.toString(getQuantity()));
+    buf.append("quantity").append('=').append(getQuantity()).append(',').append(' ');
+    buf.append("payment").append('=').append(JodaBeanUtils.toString(getPayment()));
     buf.append('}');
     return buf.toString();
   }
@@ -232,13 +263,19 @@ public final class FixedCouponBondTrade
     private final MetaProperty<Long> quantity = DirectMetaProperty.ofImmutable(
         this, "quantity", FixedCouponBondTrade.class, Long.TYPE);
     /**
+     * The meta-property for the {@code payment} property.
+     */
+    private final MetaProperty<Payment> payment = DirectMetaProperty.ofImmutable(
+        this, "payment", FixedCouponBondTrade.class, Payment.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "tradeInfo",
         "securityLink",
-        "quantity");
+        "quantity",
+        "payment");
 
     /**
      * Restricted constructor.
@@ -255,6 +292,8 @@ public final class FixedCouponBondTrade
           return securityLink;
         case -1285004149:  // quantity
           return quantity;
+        case -786681338:  // payment
+          return payment;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -299,6 +338,14 @@ public final class FixedCouponBondTrade
       return quantity;
     }
 
+    /**
+     * The meta-property for the {@code payment} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Payment> payment() {
+      return payment;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -309,6 +356,8 @@ public final class FixedCouponBondTrade
           return ((FixedCouponBondTrade) bean).getSecurityLink();
         case -1285004149:  // quantity
           return ((FixedCouponBondTrade) bean).getQuantity();
+        case -786681338:  // payment
+          return ((FixedCouponBondTrade) bean).getPayment();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -333,6 +382,7 @@ public final class FixedCouponBondTrade
     private TradeInfo tradeInfo;
     private SecurityLink<FixedCouponBond> securityLink;
     private long quantity;
+    private Payment payment;
 
     /**
      * Restricted constructor.
@@ -349,6 +399,7 @@ public final class FixedCouponBondTrade
       this.tradeInfo = beanToCopy.getTradeInfo();
       this.securityLink = beanToCopy.getSecurityLink();
       this.quantity = beanToCopy.getQuantity();
+      this.payment = beanToCopy.getPayment();
     }
 
     //-----------------------------------------------------------------------
@@ -361,6 +412,8 @@ public final class FixedCouponBondTrade
           return securityLink;
         case -1285004149:  // quantity
           return quantity;
+        case -786681338:  // payment
+          return payment;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -378,6 +431,9 @@ public final class FixedCouponBondTrade
           break;
         case -1285004149:  // quantity
           this.quantity = (Long) newValue;
+          break;
+        case -786681338:  // payment
+          this.payment = (Payment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -414,7 +470,8 @@ public final class FixedCouponBondTrade
       return new FixedCouponBondTrade(
           tradeInfo,
           securityLink,
-          quantity);
+          quantity,
+          payment);
     }
 
     //-----------------------------------------------------------------------
@@ -456,14 +513,31 @@ public final class FixedCouponBondTrade
       return this;
     }
 
+    /**
+     * Sets the upfront fee payment of the bond trade.
+     * <p>
+     * The payment sign should be compatible with the product quantity,
+     * thus the payment is negative for positive quantity and positive for negative quantity.
+     * <p>
+     * Typically the date of this payment is the same as the settlement date in {@code tradeInfo}.
+     * @param payment  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder payment(Payment payment) {
+      JodaBeanUtils.notNull(payment, "payment");
+      this.payment = payment;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("FixedCouponBondTrade.Builder{");
       buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
       buf.append("securityLink").append('=').append(JodaBeanUtils.toString(securityLink)).append(',').append(' ');
-      buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity));
+      buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
+      buf.append("payment").append('=').append(JodaBeanUtils.toString(payment));
       buf.append('}');
       return buf.toString();
     }

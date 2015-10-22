@@ -10,7 +10,6 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -18,6 +17,8 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.reflect.TypeToken;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
@@ -43,9 +44,11 @@ import com.opengamma.strata.finance.UnitSecurity;
 public class FixedCouponBondTradeTest {
 
   private static final StandardId SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BOND1");
+  private static final LocalDate TRADE_DATE = LocalDate.of(2015, 3, 25);
+  private static final LocalDate SETTLEMENT_DATE = LocalDate.of(2015, 3, 30);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder()
-      .tradeDate(date(2015, 3, 25))
-      .settlementDate(date(2015, 3, 30))
+      .tradeDate(TRADE_DATE)
+      .settlementDate(SETTLEMENT_DATE)
       .build();
   private static final long QUANTITY = 10;
 
@@ -74,6 +77,8 @@ public class FixedCouponBondTradeTest {
       .build();
   private static final Security<FixedCouponBond> BOND_SECURITY =
       UnitSecurity.builder(PRODUCT).standardId(SECURITY_ID).build();
+  private static final Payment UPFRONT_PAYMENT = Payment.of(
+      CurrencyAmount.of(EUR, -NOTIONAL * QUANTITY * 0.99), SETTLEMENT_DATE);
 
   private static final SecurityLink<FixedCouponBond> SECURITY_LINK_RESOLVED = SecurityLink.resolved(BOND_SECURITY);
   private static final SecurityLink<FixedCouponBond> SECURITY_LINK_RESOLVABLE =
@@ -94,12 +99,14 @@ public class FixedCouponBondTradeTest {
         .securityLink(SECURITY_LINK_RESOLVED)
         .tradeInfo(TRADE_INFO)
         .quantity(QUANTITY)
+        .payment(UPFRONT_PAYMENT)
         .build();
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getTradeInfo(), TRADE_INFO);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getSecurity(), BOND_SECURITY);
     assertEquals(test.getSecurityLink(), SECURITY_LINK_RESOLVED);
+    assertEquals(test.getPayment(), UPFRONT_PAYMENT);
   }
 
   public void test_builder_resolvable() {
@@ -107,6 +114,7 @@ public class FixedCouponBondTradeTest {
         .securityLink(SECURITY_LINK_RESOLVABLE)
         .tradeInfo(TRADE_INFO)
         .quantity(QUANTITY)
+        .payment(UPFRONT_PAYMENT)
         .build();
     assertEquals(test.getTradeInfo(), TRADE_INFO);
     assertEquals(test.getQuantity(), QUANTITY);
@@ -121,6 +129,7 @@ public class FixedCouponBondTradeTest {
         .securityLink(SECURITY_LINK_RESOLVED)
         .tradeInfo(TRADE_INFO)
         .quantity(QUANTITY)
+        .payment(UPFRONT_PAYMENT)
         .build();
     assertEquals(base.resolveLinks(RESOLVER), base);
   }
@@ -130,11 +139,13 @@ public class FixedCouponBondTradeTest {
         .securityLink(SECURITY_LINK_RESOLVABLE)
         .tradeInfo(TRADE_INFO)
         .quantity(QUANTITY)
+        .payment(UPFRONT_PAYMENT)
         .build();
     FixedCouponBondTrade expected = FixedCouponBondTrade.builder()
         .securityLink(SECURITY_LINK_RESOLVED)
         .tradeInfo(TRADE_INFO)
         .quantity(QUANTITY)
+        .payment(UPFRONT_PAYMENT)
         .build();
     assertEquals(base.resolveLinks(RESOLVER), expected);
   }
@@ -145,6 +156,7 @@ public class FixedCouponBondTradeTest {
         .securityLink(SECURITY_LINK_RESOLVED)
         .tradeInfo(TRADE_INFO)
         .quantity(QUANTITY)
+        .payment(UPFRONT_PAYMENT)
         .build();
     coverImmutableBean(test1);
     FixedCouponBondTrade test2 = FixedCouponBondTrade.builder()
@@ -152,6 +164,7 @@ public class FixedCouponBondTradeTest {
             .standardId(StandardId.of("Ticker", "GOV1-BND1"))
             .build()))
         .quantity(100L)
+        .payment(Payment.of(CurrencyAmount.of(EUR, -NOTIONAL * QUANTITY * 0.99), SETTLEMENT_DATE))
         .build();
     coverBeanEquals(test1, test2);
   }
@@ -161,6 +174,7 @@ public class FixedCouponBondTradeTest {
         .securityLink(SECURITY_LINK_RESOLVED)
         .tradeInfo(TRADE_INFO)
         .quantity(QUANTITY)
+        .payment(UPFRONT_PAYMENT)
         .build();
     assertSerialization(test);
   }
