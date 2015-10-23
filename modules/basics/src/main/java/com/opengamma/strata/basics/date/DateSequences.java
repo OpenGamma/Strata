@@ -12,7 +12,7 @@ import com.opengamma.strata.collect.named.ExtendedEnum;
  * <p>
  * This class provides instances of {@link DateSequence} representing standard financial industry
  * sequences of dates. The most common are the quarterly IMM dates, which are on the third
- * Wednesday of the March, June, September and December.
+ * Wednesday of March, June, September and December.
  * <p>
  * Additional date sequences may be registered by name using {@code DateSequence.ini}.
  */

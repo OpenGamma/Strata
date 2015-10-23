@@ -20,13 +20,13 @@ import com.opengamma.strata.collect.named.Named;
  * A series of dates identified by name.
  * <p>
  * This interface encapsulates a sequence of dates as used in standard financial instruments.
- * The most common are the quarterly IMM dates, which are on the third Wednesday of the March,
+ * The most common are the quarterly IMM dates, which are on the third Wednesday of March,
  * June, September and December.
  * <p>
  * The most common implementations are provided in {@link DateSequences}.
  * <p>
  * Note that the dates produced by the sequence may not be business days.
- * The application of a holiday calendar is typically the callers responsibility.
+ * The application of a holiday calendar is typically the responsibility of the caller.
  * <p>
  * All implementations of this interface must be immutable and thread-safe.
  */
@@ -60,7 +60,7 @@ public interface DateSequence
 
   //-------------------------------------------------------------------------
   /**
-   * Finds the next date in the sequence, always returning a later date.
+   * Finds the next date in the sequence, always returning a date later than the input date.
    * <p>
    * Given an input date, this method returns the next date after it from the sequence.
    * 
@@ -79,7 +79,7 @@ public interface DateSequence
    * <p>
    * Given an input date, this method returns a date from the sequence.
    * If the input date is in the sequence, it is returned.
-   * Otherwise, the next date in the sequence is returned.
+   * Otherwise, the next date in the sequence after the input date is returned.
    * 
    * @param date  the input date
    * @return the input date if it is a sequence date, otherwise the next sequence date
@@ -89,10 +89,11 @@ public interface DateSequence
 
   //-------------------------------------------------------------------------
   /**
-   * Finds the nth date in the sequence, always returning a later date.
+   * Finds the nth date in the sequence after the input date,
+   * always returning a date later than the input date.
    * <p>
    * Given an input date, this method returns a date from the sequence.
-   * If the sequence number is 1, then the next date will be returned.
+   * If the sequence number is 1, then the first date in the sequence after the input date is returned.
    * <p>
    * If the sequence number is 2 or larger, then the date referred to by sequence number 1
    * is calculated, and the nth matching sequence date after that date returned.
@@ -112,10 +113,12 @@ public interface DateSequence
   }
 
   /**
-   * Finds the nth date in the sequence, returning the input date if it is a date in the sequence.
+   * Finds the nth date in the sequence on or after the input date,
+   * returning the input date if it is a date in the sequence.
    * <p>
    * Given an input date, this method returns a date from the sequence.
-   * If the sequence number is 1, then either the input date or the next date will be returned.
+   * If the sequence number is 1, then either the input date or the first date
+   * in the sequence after the input date is returned.
    * <p>
    * If the sequence number is 2 or larger, then the date referred to by sequence number 1
    * is calculated, and the nth matching sequence date after that date returned.
