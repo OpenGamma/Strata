@@ -15,6 +15,7 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS;
 import static com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
+import static com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS;
 import static com.opengamma.strata.finance.rate.swap.type.IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M;
 import static org.testng.Assert.assertEquals;
 
@@ -53,8 +54,8 @@ import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.finance.rate.deposit.TermDepositConvention;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTemplate;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
-import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
+import com.opengamma.strata.finance.rate.fra.type.FraTemplate;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapTemplate;

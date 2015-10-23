@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.rate.fra;
+package com.opengamma.strata.finance.rate.fra.type;
 
 import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
@@ -25,6 +25,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.finance.rate.fra.Fra;
+import com.opengamma.strata.finance.rate.fra.FraTrade;
 
 /**
  * Test {@link FraTemplate}.
@@ -86,7 +88,9 @@ public class FraTemplateTest {
   }
 
   public void test_toTrade_paymentOffset() {
-    FraConvention convention = FRA_GBP_LIBOR_3M.toBuilder().paymentDateOffset(PLUS_TWO_DAYS).build();
+    FraConvention convention = ((ImmutableFraConvention) FRA_GBP_LIBOR_3M).toBuilder()
+        .paymentDateOffset(PLUS_TWO_DAYS)
+        .build();
     FraTemplate base = FraTemplate.of(Period.ofMonths(3), Period.ofMonths(6), convention);
     LocalDate tradeDate = LocalDate.of(2015, 5, 4); // trade date is a holiday!
     FraTrade test = base.toTrade(tradeDate, BUY, NOTIONAL_2M, 0.25d);

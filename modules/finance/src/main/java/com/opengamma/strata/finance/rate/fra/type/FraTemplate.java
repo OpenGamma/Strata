@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.rate.fra;
+package com.opengamma.strata.finance.rate.fra.type;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -30,6 +30,8 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.Template;
+import com.opengamma.strata.finance.rate.fra.Fra;
+import com.opengamma.strata.finance.rate.fra.FraTrade;
 
 /**
  * A template for creating a forward rate agreement (FRA) trade.
@@ -104,7 +106,7 @@ public final class FraTemplate
    * <p>
    * For example, a '2 x 5' FRA has a period to the start date of 2 months.
    * The index will be a 3 month index, such as 'USD-LIBOR-3M'.
-   * The period to the end date will be the 
+   * The period to the end date will be the period to the start date plus the index tenor.
    * 
    * @param periodToStart  the period between the spot date and the start date
    * @param index  the index that defines the market convention
@@ -120,7 +122,7 @@ public final class FraTemplate
    * The periods from the spot date to the start date and to the end date are specified.
    * <p>
    * For example, a '2 x 5' FRA has a period to the start date of 2 months and
-   * a period to the end date of 5 months
+   * a period to the end date of 5 months.
    * 
    * @param periodToStart  the period between the spot date and the start date
    * @param periodToEnd  the period between the spot date and the end date

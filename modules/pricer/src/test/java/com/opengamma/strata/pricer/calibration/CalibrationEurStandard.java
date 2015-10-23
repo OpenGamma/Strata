@@ -33,7 +33,7 @@ import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTemplate;
-import com.opengamma.strata.finance.rate.fra.FraTemplate;
+import com.opengamma.strata.finance.rate.fra.type.FraTemplate;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapTemplate;
 import com.opengamma.strata.market.curve.CurveGroupName;
