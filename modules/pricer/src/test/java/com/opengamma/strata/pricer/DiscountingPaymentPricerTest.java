@@ -19,6 +19,7 @@ import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
+import com.opengamma.strata.market.value.CompoundedRateType;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.fx.RatesProviderFxDataSets;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
@@ -73,14 +74,16 @@ public class DiscountingPaymentPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValue_df_spread_continuous() {
-    CurrencyAmount computed = PRICER.presentValue(PAYMENT, DISCOUNT_FACTORS, Z_SPREAD, false, 0);
+    CurrencyAmount computed = PRICER
+        .presentValue(PAYMENT, DISCOUNT_FACTORS, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0);
     double relativeYearFraction = ACT_365F.relativeYearFraction(VAL_DATE_2014_01_22, PAYMENT_DATE);
     double expected = NOTIONAL_USD * DF * Math.exp(-Z_SPREAD * relativeYearFraction);
     assertEquals(computed.getAmount(), expected, NOTIONAL_USD * TOL);
   }
 
   public void test_presentValue_df_spread_periodic() {
-    CurrencyAmount computed = PRICER.presentValue(PAYMENT, DISCOUNT_FACTORS, Z_SPREAD, true, PERIOD_PER_YEAR);
+    CurrencyAmount computed = PRICER.presentValue(
+        PAYMENT, DISCOUNT_FACTORS, Z_SPREAD, CompoundedRateType.PERIODIC, PERIOD_PER_YEAR);
     double relativeYearFraction = ACT_365F.relativeYearFraction(VAL_DATE_2014_01_22, PAYMENT_DATE);
     double rate = (Math.pow(DF, -1d / PERIOD_PER_YEAR / relativeYearFraction) - 1d) * PERIOD_PER_YEAR;
     double expected = NOTIONAL_USD *
@@ -89,7 +92,7 @@ public class DiscountingPaymentPricerTest {
   }
 
   public void test_presentValue_df_ended_spread() {
-    CurrencyAmount computed = PRICER.presentValue(PAYMENT_PAST, DISCOUNT_FACTORS, Z_SPREAD, true, 3);
+    CurrencyAmount computed = PRICER.presentValue(PAYMENT_PAST, DISCOUNT_FACTORS, Z_SPREAD, CompoundedRateType.PERIODIC, 3);
     assertEquals(computed, CurrencyAmount.zero(USD));
   }
 
@@ -133,7 +136,8 @@ public class DiscountingPaymentPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity_df_spread_continuous() {
-    PointSensitivities point = PRICER.presentValueSensitivity(PAYMENT, DISCOUNT_FACTORS, Z_SPREAD, false, 0).build();
+    PointSensitivities point = PRICER.presentValueSensitivity(
+        PAYMENT, DISCOUNT_FACTORS, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0).build();
     double relativeYearFraction = ACT_365F.relativeYearFraction(VAL_DATE_2014_01_22, PAYMENT_DATE);
     double expected = -DF * relativeYearFraction * NOTIONAL_USD * Math.exp(-Z_SPREAD * relativeYearFraction);
     ZeroRateSensitivity actual = (ZeroRateSensitivity) point.getSensitivities().get(0);
@@ -144,8 +148,8 @@ public class DiscountingPaymentPricerTest {
   }
 
   public void test_presentValueSensitivity_df_spread_periodic() {
-    PointSensitivities point =
-        PRICER.presentValueSensitivity(PAYMENT, DISCOUNT_FACTORS, Z_SPREAD, true, PERIOD_PER_YEAR).build();
+    PointSensitivities point = PRICER.presentValueSensitivity(
+        PAYMENT, DISCOUNT_FACTORS, Z_SPREAD, CompoundedRateType.PERIODIC, PERIOD_PER_YEAR).build();
     double relativeYearFraction = ACT_365F.relativeYearFraction(VAL_DATE_2014_01_22, PAYMENT_DATE);
     double discountFactorUp = DF * Math.exp(-EPS * relativeYearFraction);
     double discountFactorDw = DF * Math.exp(EPS * relativeYearFraction);
@@ -163,7 +167,7 @@ public class DiscountingPaymentPricerTest {
 
   public void test_presentValueSensitivity_df_spread_ended() {
     PointSensitivities computed =
-        PRICER.presentValueSensitivity(PAYMENT_PAST, DISCOUNT_FACTORS, Z_SPREAD, true, 3).build();
+        PRICER.presentValueSensitivity(PAYMENT_PAST, DISCOUNT_FACTORS, Z_SPREAD, CompoundedRateType.PERIODIC, 3).build();
     assertEquals(computed, PointSensitivities.empty());
   }
 
