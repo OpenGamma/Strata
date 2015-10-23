@@ -24,7 +24,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
-import com.opengamma.strata.finance.Convention;
+import com.opengamma.strata.finance.TradeConvention;
 import com.opengamma.strata.finance.credit.Cds;
 import com.opengamma.strata.finance.credit.CdsDatesLogic;
 import com.opengamma.strata.finance.credit.CdsTrade;
@@ -44,7 +44,7 @@ import com.opengamma.strata.finance.credit.SinglePayment;
  * All implementations of this interface must be immutable and thread-safe.
  */
 public interface CdsConvention
-    extends Convention, Named {
+    extends TradeConvention, Named {
 
   /**
    * Obtains a {@code CdsConvention} from a unique name.
@@ -62,7 +62,7 @@ public interface CdsConvention
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code CdsConvention} to be lookup up.
+   * This helper allows instances of the convention to be looked up.
    * It also provides the complete set of available instances.
    * 
    * @return the extended enum helper

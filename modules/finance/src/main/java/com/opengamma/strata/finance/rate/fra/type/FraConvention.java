@@ -16,7 +16,7 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
-import com.opengamma.strata.finance.Convention;
+import com.opengamma.strata.finance.TradeConvention;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 
 /**
@@ -30,7 +30,7 @@ import com.opengamma.strata.finance.rate.fra.FraTrade;
  * To register a specific convention, see {@code FraConvention.ini}.
  */
 public interface FraConvention
-    extends Convention, Named {
+    extends TradeConvention, Named {
 
   /**
    * Obtains a convention from a unique name.

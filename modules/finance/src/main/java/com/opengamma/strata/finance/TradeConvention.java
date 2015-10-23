@@ -6,13 +6,13 @@
 package com.opengamma.strata.finance;
 
 /**
- * A market convention.
+ * A market convention for trades.
  * <p>
  * A convention contains key information that is commonly used in the market.
  * For example, a USD LIBOR forward rate agreement (FRA) will have a day count convention
  * of 'Act/360', spot date offset of T+2 and ISDA discounting.
  * <p>
- * A convention is typically combined with additional information to form a {@link Template},
+ * A convention is typically combined with additional information to form a {@link TradeTemplate},
  * however this is not required. It is often possible to get a market price for a trade
  * based on the template, however it is not possible to obtain a market price for a convention.
  * <p>
@@ -23,6 +23,6 @@ package com.opengamma.strata.finance;
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
-public interface Convention {
+public interface TradeConvention {
 
 }

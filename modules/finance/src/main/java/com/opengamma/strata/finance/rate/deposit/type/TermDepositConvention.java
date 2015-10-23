@@ -16,7 +16,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
-import com.opengamma.strata.finance.Convention;
+import com.opengamma.strata.finance.TradeConvention;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 
 /**
@@ -28,7 +28,7 @@ import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
  * To register a specific convention, see {@code TermDepositConvention.ini}.
  */
 public interface TermDepositConvention
-    extends Convention, Named {
+    extends TradeConvention, Named {
 
   /**
    * Obtains a convention from a unique name.

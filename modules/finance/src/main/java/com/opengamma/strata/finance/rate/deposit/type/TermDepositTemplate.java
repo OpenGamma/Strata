@@ -27,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.Template;
+import com.opengamma.strata.finance.TradeTemplate;
 import com.opengamma.strata.finance.rate.deposit.TermDeposit;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 
@@ -48,7 +48,7 @@ import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
  */
 @BeanDefinition
 public final class TermDepositTemplate
-    implements Template, ImmutableBean, Serializable {
+    implements TradeTemplate, ImmutableBean, Serializable {
 
   /**
    * The period between the start date and the end date.

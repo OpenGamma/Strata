@@ -29,7 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.Template;
+import com.opengamma.strata.finance.TradeTemplate;
 import com.opengamma.strata.finance.rate.fra.Fra;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 
@@ -54,7 +54,7 @@ import com.opengamma.strata.finance.rate.fra.FraTrade;
  */
 @BeanDefinition
 public final class FraTemplate
-    implements Template, ImmutableBean, Serializable {
+    implements TradeTemplate, ImmutableBean, Serializable {
 
   /**
    * The period between the spot value date and the start date.

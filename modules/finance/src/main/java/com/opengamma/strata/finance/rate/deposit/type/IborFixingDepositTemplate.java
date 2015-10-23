@@ -29,7 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.Template;
+import com.opengamma.strata.finance.TradeTemplate;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDeposit;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
 
@@ -51,7 +51,7 @@ import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
  */
 @BeanDefinition
 public final class IborFixingDepositTemplate
-    implements Template, ImmutableBean, Serializable {
+    implements TradeTemplate, ImmutableBean, Serializable {
 
   /**
    * The period between the start date and the end date.

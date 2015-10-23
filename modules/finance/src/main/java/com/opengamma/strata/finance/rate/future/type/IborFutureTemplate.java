@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.Template;
+import com.opengamma.strata.finance.TradeTemplate;
 import com.opengamma.strata.finance.rate.future.IborFutureTrade;
 
 /**
@@ -33,7 +33,7 @@ import com.opengamma.strata.finance.rate.future.IborFutureTrade;
  */
 @BeanDefinition
 public final class IborFutureTemplate
-    implements Template, ImmutableBean, Serializable {
+    implements TradeTemplate, ImmutableBean, Serializable {
 
   /**
    * The minimum period between the value date and the first future.

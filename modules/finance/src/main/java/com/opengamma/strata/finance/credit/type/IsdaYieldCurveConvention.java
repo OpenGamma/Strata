@@ -51,9 +51,12 @@ public interface IsdaYieldCurveConvention
   }
 
   /**
-   * Gets the extended enum lookup from name to instance.
+   * Gets the extended enum helper.
+   * <p>
+   * This helper allows instances of the convention to be looked up.
+   * It also provides the complete set of available instances.
    * 
-   * @return the extended enum lookup
+   * @return the extended enum helper
    */
   public static ExtendedEnum<IsdaYieldCurveConvention> extendedEnum() {
     return IsdaYieldCurveConventions.ENUM_LOOKUP;

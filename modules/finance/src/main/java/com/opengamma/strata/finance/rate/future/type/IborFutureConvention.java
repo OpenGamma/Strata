@@ -31,7 +31,7 @@ import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DateSequence;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.Convention;
+import com.opengamma.strata.finance.TradeConvention;
 import com.opengamma.strata.finance.Security;
 import com.opengamma.strata.finance.SecurityLink;
 import com.opengamma.strata.finance.TradeInfo;
@@ -47,7 +47,7 @@ import com.opengamma.strata.finance.rate.future.IborFutureTrade;
  */
 @BeanDefinition
 public final class IborFutureConvention
-    implements Convention, ImmutableBean, Serializable {
+    implements TradeConvention, ImmutableBean, Serializable {
 
   /**
    * The Ibor index.
