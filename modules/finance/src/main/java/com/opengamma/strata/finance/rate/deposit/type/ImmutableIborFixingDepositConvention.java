@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.rate.deposit;
+package com.opengamma.strata.finance.rate.deposit.type;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 
@@ -34,8 +34,9 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.Convention;
 import com.opengamma.strata.finance.TradeInfo;
+import com.opengamma.strata.finance.rate.deposit.IborFixingDeposit;
+import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
 
 /**
  * A convention for Ibor fixing deposit trades.
@@ -43,6 +44,7 @@ import com.opengamma.strata.finance.TradeInfo;
  * This defines the convention for an Ibor fixing deposit against a particular index.
  * In most cases, the index contains sufficient information to fully define the convention.
  * As such, no other fields need to be specified when creating an instance.
+ * The name of the convention is the same as the name of the index by default.
  * The getters will default any missing information on the fly, avoiding both null and {@link Optional}.
  * <p>
  * The convention is defined by four dates.
@@ -56,8 +58,8 @@ import com.opengamma.strata.finance.TradeInfo;
  * not by this convention. However, the period is typically equal to the tenor of the index. 
  */
 @BeanDefinition
-public final class IborFixingDepositConvention
-    implements Convention, ImmutableBean, Serializable {
+public final class ImmutableIborFixingDepositConvention
+    implements IborFixingDepositConvention, ImmutableBean, Serializable {
 
   /**
    * The Ibor index.
@@ -65,8 +67,15 @@ public final class IborFixingDepositConvention
    * The floating rate to be paid or received is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final IborIndex index;
+  /**
+   * The convention name, such as 'GBP-LIBOR-3M', optional with defaulting getter.
+   * <p>
+   * This will default to the name of the index if not specified.
+   */
+  @PropertyDefinition(get = "field")
+  private final String name;
   /**
    * The primary currency, optional with defaulting getter.
    * <p>
@@ -128,18 +137,34 @@ public final class IborFixingDepositConvention
    * Obtains a convention based on the specified index.
    * <p>
    * The standard convention for an Ibor fixing deposit is based exclusively on the index.
+   * This creates an instance that contains the index.
+   * The instance is not dereferenced using the {@code FraConvention} name, as such
+   * the result of this method and {@link IborFixingDepositConvention#of(IborIndex)} can differ.
+   * <p>
    * Use the {@linkplain #builder() builder} for unusual conventions.
    * 
-   * @param index  the index, the standard convention values are extracted from the index
+   * @param index  the index, the convention values are extracted from the index
    * @return the convention
    */
-  public static IborFixingDepositConvention of(IborIndex index) {
-    return IborFixingDepositConvention.builder()
+  public static ImmutableIborFixingDepositConvention of(IborIndex index) {
+    return ImmutableIborFixingDepositConvention.builder()
         .index(index)
         .build();
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the convention name, such as 'GBP-LIBOR-3M'.
+   * <p>
+   * This will default to the name of the index if not specified.
+   * 
+   * @return the convention name
+   */
+  @Override
+  public String getName() {
+    return name != null ? name : index.getName();
+  }
+
   /**
    * Gets the primary currency,
    * providing a default result if no override specified.
@@ -228,9 +253,10 @@ public final class IborFixingDepositConvention
    * 
    * @return the expanded convention
    */
-  public IborFixingDepositConvention expand() {
-    return IborFixingDepositConvention.builder()
+  public ImmutableIborFixingDepositConvention expand() {
+    return ImmutableIborFixingDepositConvention.builder()
         .index(index)
+        .name(getName())
         .currency(getCurrency())
         .spotDateOffset(getSpotDateOffset())
         .businessDayAdjustment(getBusinessDayAdjustment())
@@ -240,48 +266,7 @@ public final class IborFixingDepositConvention
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Creates a template based on this convention.
-   * <p>
-   * This returns a template based on this convention.
-   * The period from the start date to the end date will be the tenor of the index.
-   * 
-   * @return the template
-   */
-  public IborFixingDepositTemplate toTemplate() {
-    return toTemplate(index.getTenor().getPeriod());
-  }
-
-  /**
-   * Creates a template based on this convention, specifying the period from start to end.
-   * <p>
-   * This returns a template based on this convention.
-   * The period from the start date to the end date is specified.
-   * 
-   * @param depositPeriod  the period from the start date to the end date
-   * @return the template
-   */
-  public IborFixingDepositTemplate toTemplate(Period depositPeriod) {
-    return IborFixingDepositTemplate.of(depositPeriod, this);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Creates a trade based on this convention.
-   * <p>
-   * This returns a trade based on the specified deposit period.
-   * <p>
-   * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the Ibor fixing deposit, the floating rate is paid from the counterparty, with the fixed rate being received.
-   * If selling the Ibor fixing deposit, the floating received is paid to the counterparty, with the fixed rate being paid.
-   * 
-   * @param tradeDate  the date of the trade
-   * @param depositPeriod  the period between the start date and the end date
-   * @param buySell  the buy/sell flag
-   * @param notional  the notional amount, in the payment currency of the template
-   * @param fixedRate  the fixed rate, typically derived from the market
-   * @return the trade
-   */
+  @Override
   public IborFixingDepositTrade toTrade(
       LocalDate tradeDate,
       Period depositPeriod,
@@ -294,22 +279,7 @@ public final class IborFixingDepositConvention
     return toTrade(tradeDate, startDate, endDate, buySell, notional, fixedRate);
   }
 
-  /**
-   * Creates a trade based on this convention.
-   * <p>
-   * This returns a trade based on the specified dates.
-   * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the Ibor fixing deposit, the floating rate is paid from the counterparty, with the fixed rate being received.
-   * If selling the Ibor fixing deposit, the floating received is paid to the counterparty, with the fixed rate being paid.
-   * 
-   * @param tradeDate  the date of the trade
-   * @param startDate  the start date
-   * @param endDate  the end date
-   * @param buySell  the buy/sell flag
-   * @param notional  the notional amount, in the payment currency of the template
-   * @param fixedRate  the fixed rate, typically derived from the market
-   * @return the trade
-   */
+  @Override
   public IborFixingDepositTrade toTrade(
       LocalDate tradeDate,
       LocalDate startDate,
@@ -338,18 +308,23 @@ public final class IborFixingDepositConvention
         .build();
   }
 
+  @Override
+  public String toString() {
+    return getName();
+  }
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code IborFixingDepositConvention}.
+   * The meta-bean for {@code ImmutableIborFixingDepositConvention}.
    * @return the meta-bean, not null
    */
-  public static IborFixingDepositConvention.Meta meta() {
-    return IborFixingDepositConvention.Meta.INSTANCE;
+  public static ImmutableIborFixingDepositConvention.Meta meta() {
+    return ImmutableIborFixingDepositConvention.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(IborFixingDepositConvention.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ImmutableIborFixingDepositConvention.Meta.INSTANCE);
   }
 
   /**
@@ -361,12 +336,13 @@ public final class IborFixingDepositConvention
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static IborFixingDepositConvention.Builder builder() {
-    return new IborFixingDepositConvention.Builder();
+  public static ImmutableIborFixingDepositConvention.Builder builder() {
+    return new ImmutableIborFixingDepositConvention.Builder();
   }
 
-  private IborFixingDepositConvention(
+  private ImmutableIborFixingDepositConvention(
       IborIndex index,
+      String name,
       Currency currency,
       DayCount dayCount,
       DaysAdjustment spotDateOffset,
@@ -374,6 +350,7 @@ public final class IborFixingDepositConvention
       DaysAdjustment fixingDateOffset) {
     JodaBeanUtils.notNull(index, "index");
     this.index = index;
+    this.name = name;
     this.currency = currency;
     this.dayCount = dayCount;
     this.spotDateOffset = spotDateOffset;
@@ -382,8 +359,8 @@ public final class IborFixingDepositConvention
   }
 
   @Override
-  public IborFixingDepositConvention.Meta metaBean() {
-    return IborFixingDepositConvention.Meta.INSTANCE;
+  public ImmutableIborFixingDepositConvention.Meta metaBean() {
+    return ImmutableIborFixingDepositConvention.Meta.INSTANCE;
   }
 
   @Override
@@ -404,6 +381,7 @@ public final class IborFixingDepositConvention
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
    * @return the value of the property, not null
    */
+  @Override
   public IborIndex getIndex() {
     return index;
   }
@@ -423,8 +401,9 @@ public final class IborFixingDepositConvention
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      IborFixingDepositConvention other = (IborFixingDepositConvention) obj;
+      ImmutableIborFixingDepositConvention other = (ImmutableIborFixingDepositConvention) obj;
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
+          JodaBeanUtils.equal(name, other.name) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(spotDateOffset, other.spotDateOffset) &&
@@ -438,6 +417,7 @@ public final class IborFixingDepositConvention
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(spotDateOffset);
@@ -446,23 +426,9 @@ public final class IborFixingDepositConvention
     return hash;
   }
 
-  @Override
-  public String toString() {
-    StringBuilder buf = new StringBuilder(224);
-    buf.append("IborFixingDepositConvention{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("spotDateOffset").append('=').append(spotDateOffset).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
-    buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(fixingDateOffset));
-    buf.append('}');
-    return buf.toString();
-  }
-
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code IborFixingDepositConvention}.
+   * The meta-bean for {@code ImmutableIborFixingDepositConvention}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -474,38 +440,44 @@ public final class IborFixingDepositConvention
      * The meta-property for the {@code index} property.
      */
     private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", IborFixingDepositConvention.class, IborIndex.class);
+        this, "index", ImmutableIborFixingDepositConvention.class, IborIndex.class);
+    /**
+     * The meta-property for the {@code name} property.
+     */
+    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
+        this, "name", ImmutableIborFixingDepositConvention.class, String.class);
     /**
      * The meta-property for the {@code currency} property.
      */
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", IborFixingDepositConvention.class, Currency.class);
+        this, "currency", ImmutableIborFixingDepositConvention.class, Currency.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
-        this, "dayCount", IborFixingDepositConvention.class, DayCount.class);
+        this, "dayCount", ImmutableIborFixingDepositConvention.class, DayCount.class);
     /**
      * The meta-property for the {@code spotDateOffset} property.
      */
     private final MetaProperty<DaysAdjustment> spotDateOffset = DirectMetaProperty.ofImmutable(
-        this, "spotDateOffset", IborFixingDepositConvention.class, DaysAdjustment.class);
+        this, "spotDateOffset", ImmutableIborFixingDepositConvention.class, DaysAdjustment.class);
     /**
      * The meta-property for the {@code businessDayAdjustment} property.
      */
     private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
-        this, "businessDayAdjustment", IborFixingDepositConvention.class, BusinessDayAdjustment.class);
+        this, "businessDayAdjustment", ImmutableIborFixingDepositConvention.class, BusinessDayAdjustment.class);
     /**
      * The meta-property for the {@code fixingDateOffset} property.
      */
     private final MetaProperty<DaysAdjustment> fixingDateOffset = DirectMetaProperty.ofImmutable(
-        this, "fixingDateOffset", IborFixingDepositConvention.class, DaysAdjustment.class);
+        this, "fixingDateOffset", ImmutableIborFixingDepositConvention.class, DaysAdjustment.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "index",
+        "name",
         "currency",
         "dayCount",
         "spotDateOffset",
@@ -523,6 +495,8 @@ public final class IborFixingDepositConvention
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
+        case 3373707:  // name
+          return name;
         case 575402001:  // currency
           return currency;
         case 1905311443:  // dayCount
@@ -538,13 +512,13 @@ public final class IborFixingDepositConvention
     }
 
     @Override
-    public IborFixingDepositConvention.Builder builder() {
-      return new IborFixingDepositConvention.Builder();
+    public ImmutableIborFixingDepositConvention.Builder builder() {
+      return new ImmutableIborFixingDepositConvention.Builder();
     }
 
     @Override
-    public Class<? extends IborFixingDepositConvention> beanType() {
-      return IborFixingDepositConvention.class;
+    public Class<? extends ImmutableIborFixingDepositConvention> beanType() {
+      return ImmutableIborFixingDepositConvention.class;
     }
 
     @Override
@@ -559,6 +533,14 @@ public final class IborFixingDepositConvention
      */
     public MetaProperty<IborIndex> index() {
       return index;
+    }
+
+    /**
+     * The meta-property for the {@code name} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> name() {
+      return name;
     }
 
     /**
@@ -606,17 +588,19 @@ public final class IborFixingDepositConvention
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 100346066:  // index
-          return ((IborFixingDepositConvention) bean).getIndex();
+          return ((ImmutableIborFixingDepositConvention) bean).getIndex();
+        case 3373707:  // name
+          return ((ImmutableIborFixingDepositConvention) bean).name;
         case 575402001:  // currency
-          return ((IborFixingDepositConvention) bean).currency;
+          return ((ImmutableIborFixingDepositConvention) bean).currency;
         case 1905311443:  // dayCount
-          return ((IborFixingDepositConvention) bean).dayCount;
+          return ((ImmutableIborFixingDepositConvention) bean).dayCount;
         case 746995843:  // spotDateOffset
-          return ((IborFixingDepositConvention) bean).spotDateOffset;
+          return ((ImmutableIborFixingDepositConvention) bean).spotDateOffset;
         case -1065319863:  // businessDayAdjustment
-          return ((IborFixingDepositConvention) bean).businessDayAdjustment;
+          return ((ImmutableIborFixingDepositConvention) bean).businessDayAdjustment;
         case 873743726:  // fixingDateOffset
-          return ((IborFixingDepositConvention) bean).fixingDateOffset;
+          return ((ImmutableIborFixingDepositConvention) bean).fixingDateOffset;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -634,11 +618,12 @@ public final class IborFixingDepositConvention
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code IborFixingDepositConvention}.
+   * The bean-builder for {@code ImmutableIborFixingDepositConvention}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<IborFixingDepositConvention> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ImmutableIborFixingDepositConvention> {
 
     private IborIndex index;
+    private String name;
     private Currency currency;
     private DayCount dayCount;
     private DaysAdjustment spotDateOffset;
@@ -655,8 +640,9 @@ public final class IborFixingDepositConvention
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(IborFixingDepositConvention beanToCopy) {
+    private Builder(ImmutableIborFixingDepositConvention beanToCopy) {
       this.index = beanToCopy.getIndex();
+      this.name = beanToCopy.name;
       this.currency = beanToCopy.currency;
       this.dayCount = beanToCopy.dayCount;
       this.spotDateOffset = beanToCopy.spotDateOffset;
@@ -670,6 +656,8 @@ public final class IborFixingDepositConvention
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
+        case 3373707:  // name
+          return name;
         case 575402001:  // currency
           return currency;
         case 1905311443:  // dayCount
@@ -690,6 +678,9 @@ public final class IborFixingDepositConvention
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           this.index = (IborIndex) newValue;
+          break;
+        case 3373707:  // name
+          this.name = (String) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
@@ -737,9 +728,10 @@ public final class IborFixingDepositConvention
     }
 
     @Override
-    public IborFixingDepositConvention build() {
-      return new IborFixingDepositConvention(
+    public ImmutableIborFixingDepositConvention build() {
+      return new ImmutableIborFixingDepositConvention(
           index,
+          name,
           currency,
           dayCount,
           spotDateOffset,
@@ -759,6 +751,18 @@ public final class IborFixingDepositConvention
     public Builder index(IborIndex index) {
       JodaBeanUtils.notNull(index, "index");
       this.index = index;
+      return this;
+    }
+
+    /**
+     * Sets the convention name, such as 'GBP-LIBOR-3M', optional with defaulting getter.
+     * <p>
+     * This will default to the name of the index if not specified.
+     * @param name  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder name(String name) {
+      this.name = name;
       return this;
     }
 
@@ -845,9 +849,10 @@ public final class IborFixingDepositConvention
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
-      buf.append("IborFixingDepositConvention.Builder{");
+      StringBuilder buf = new StringBuilder(256);
+      buf.append("ImmutableIborFixingDepositConvention.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+      buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("spotDateOffset").append('=').append(JodaBeanUtils.toString(spotDateOffset)).append(',').append(' ');

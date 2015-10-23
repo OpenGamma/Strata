@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.rate.deposit;
+package com.opengamma.strata.finance.rate.deposit.type;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -15,6 +15,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -26,42 +27,56 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.Template;
+import com.opengamma.strata.finance.rate.deposit.IborFixingDeposit;
+import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
 
 /**
- * A template for creating a term deposit trade.
+ * A template for creating an Ibor fixing deposit trade.
  * <p>
- * This defines almost all the data necessary to create a {@link TermDeposit}.
+ * This defines almost all the data necessary to create a {@link IborFixingDepositTrade}.
  * The trade date, notional and fixed rate are required to complete the template and create the trade.
  * As such, it is often possible to get a market price for a trade based on the template.
- * The market price is typically quoted as a bid/ask on the fixed rate.
  * <p>
- * The template is defined by three dates.
+ * The convention is defined by four dates.
  * <ul>
  * <li>Trade date, the date that the trade is agreed
  * <li>Start date or spot date, the date on which the deposit starts, typically 2 business days after the trade date
- * <li>End date, the date on which the implied deposit ends, typically a number of months after the start date
+ * <li>End date, the date on which deposit ends, typically a number of months after the start date
+ * <li>Fixing date, the date on which the index is to be observed, typically 2 business days before the start date
  * </ul>
+ * Some of these dates are specified by the convention embedded within this template.
  */
 @BeanDefinition
-public final class TermDepositTemplate
+public final class IborFixingDepositTemplate
     implements Template, ImmutableBean, Serializable {
 
   /**
    * The period between the start date and the end date.
+   * <p>
+   * The difference between the start date and the end date typically matches the tenor of the index,
+   * however this is not validated.
    */
   @PropertyDefinition(validate = "notNull")
   private final Period depositPeriod;
   /**
-   * The underlying term deposit convention.
+   * The underlying Ibor fixing deposit convention.
    * <p>
-   * This specifies the standard convention of the term deposit to be created.
+   * This specifies the standard convention of the Ibor fixing deposit to be created.
    */
   @PropertyDefinition(validate = "notNull")
-  private final TermDepositConvention convention;
+  private final IborFixingDepositConvention convention;
 
   //-------------------------------------------------------------------------
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.depositPeriod == null && builder.convention != null) {
+      builder.depositPeriod = builder.convention.getIndex().getTenor().getPeriod();
+    }
+  }
+
   @ImmutableValidator
   private void validate() {
     ArgChecker.isFalse(depositPeriod.isNegative(), "Deposit Period must not be negative");
@@ -69,16 +84,43 @@ public final class TermDepositTemplate
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a template based on the specified period and convention.
+   * Obtains a template based on the specified index.
+   * <p>
+   * The period from the start date to the end date will be the tenor of the index.
+   * The convention will be created based on the index. 
+   * 
+   * @param index  the index that defines the market convention
+   * @return the template
+   */
+  public static IborFixingDepositTemplate of(IborIndex index) {
+    return of(index.getTenor().getPeriod(), IborFixingDepositConvention.of(index));
+  }
+
+  /**
+   * Obtains a template based on the specified period and index.
+   * <p>
+   * The period from the start date to the end is specified.
+   * The convention will be created based on the index. 
+   * 
+   * @param depositPeriod  the period between the start date and the end date
+   * @param index  the index that defines the market convention
+   * @return the template
+   */
+  public static IborFixingDepositTemplate of(Period depositPeriod, IborIndex index) {
+    return of(depositPeriod, IborFixingDepositConvention.of(index));
+  }
+
+  /**
+   * Obtains a template based on the specified periods and convention.
    * 
    * @param depositPeriod  the period between the start date and the end date
    * @param convention  the market convention
    * @return the template
    */
-  public static TermDepositTemplate of(Period depositPeriod, TermDepositConvention convention) {
+  public static IborFixingDepositTemplate of(Period depositPeriod, IborFixingDepositConvention convention) {
     ArgChecker.notNull(depositPeriod, "depositPeriod");
     ArgChecker.notNull(convention, "convention");
-    return TermDepositTemplate.builder()
+    return IborFixingDepositTemplate.builder()
         .depositPeriod(depositPeriod)
         .convention(convention)
         .build();
@@ -90,33 +132,31 @@ public final class TermDepositTemplate
    * <p>
    * This returns a trade based on the specified date.
    * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the term deposit, the principal is paid at the start date and the
-   * principal plus interest is received at the end date.
-   * If selling the term deposit, the principal is received at the start date and the
-   * principal plus interest is paid at the end date.
+   * If buying the Ibor fixing deposit, the floating rate is paid from the counterparty, with the fixed rate being received.
+   * If selling the Ibor fixing deposit, the floating received is paid to the counterparty, with the fixed rate being paid.
    * 
    * @param tradeDate  the date of the trade
-   * @param buySell  the buy/sell flag, see {@link TermDeposit#getBuySell()}
+   * @param buySell  the buy/sell flag, see {@link IborFixingDeposit#getBuySell()}
    * @param notional  the notional amount, in the payment currency of the template
-   * @param rate  the fixed rate, typically derived from the market
+   * @param fixedRate  the fixed rate, typically derived from the market
    * @return the trade
    */
-  public TermDepositTrade toTrade(LocalDate tradeDate, BuySell buySell, double notional, double rate) {
-    return convention.toTrade(tradeDate, depositPeriod, buySell, notional, rate);
+  public IborFixingDepositTrade toTrade(LocalDate tradeDate, BuySell buySell, double notional, double fixedRate) {
+    return convention.toTrade(tradeDate, depositPeriod, buySell, notional, fixedRate);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code TermDepositTemplate}.
+   * The meta-bean for {@code IborFixingDepositTemplate}.
    * @return the meta-bean, not null
    */
-  public static TermDepositTemplate.Meta meta() {
-    return TermDepositTemplate.Meta.INSTANCE;
+  public static IborFixingDepositTemplate.Meta meta() {
+    return IborFixingDepositTemplate.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(TermDepositTemplate.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(IborFixingDepositTemplate.Meta.INSTANCE);
   }
 
   /**
@@ -128,13 +168,13 @@ public final class TermDepositTemplate
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static TermDepositTemplate.Builder builder() {
-    return new TermDepositTemplate.Builder();
+  public static IborFixingDepositTemplate.Builder builder() {
+    return new IborFixingDepositTemplate.Builder();
   }
 
-  private TermDepositTemplate(
+  private IborFixingDepositTemplate(
       Period depositPeriod,
-      TermDepositConvention convention) {
+      IborFixingDepositConvention convention) {
     JodaBeanUtils.notNull(depositPeriod, "depositPeriod");
     JodaBeanUtils.notNull(convention, "convention");
     this.depositPeriod = depositPeriod;
@@ -143,8 +183,8 @@ public final class TermDepositTemplate
   }
 
   @Override
-  public TermDepositTemplate.Meta metaBean() {
-    return TermDepositTemplate.Meta.INSTANCE;
+  public IborFixingDepositTemplate.Meta metaBean() {
+    return IborFixingDepositTemplate.Meta.INSTANCE;
   }
 
   @Override
@@ -160,6 +200,9 @@ public final class TermDepositTemplate
   //-----------------------------------------------------------------------
   /**
    * Gets the period between the start date and the end date.
+   * <p>
+   * The difference between the start date and the end date typically matches the tenor of the index,
+   * however this is not validated.
    * @return the value of the property, not null
    */
   public Period getDepositPeriod() {
@@ -168,12 +211,12 @@ public final class TermDepositTemplate
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying term deposit convention.
+   * Gets the underlying Ibor fixing deposit convention.
    * <p>
-   * This specifies the standard convention of the term deposit to be created.
+   * This specifies the standard convention of the Ibor fixing deposit to be created.
    * @return the value of the property, not null
    */
-  public TermDepositConvention getConvention() {
+  public IborFixingDepositConvention getConvention() {
     return convention;
   }
 
@@ -192,7 +235,7 @@ public final class TermDepositTemplate
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      TermDepositTemplate other = (TermDepositTemplate) obj;
+      IborFixingDepositTemplate other = (IborFixingDepositTemplate) obj;
       return JodaBeanUtils.equal(getDepositPeriod(), other.getDepositPeriod()) &&
           JodaBeanUtils.equal(getConvention(), other.getConvention());
     }
@@ -210,7 +253,7 @@ public final class TermDepositTemplate
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
-    buf.append("TermDepositTemplate{");
+    buf.append("IborFixingDepositTemplate{");
     buf.append("depositPeriod").append('=').append(getDepositPeriod()).append(',').append(' ');
     buf.append("convention").append('=').append(JodaBeanUtils.toString(getConvention()));
     buf.append('}');
@@ -219,7 +262,7 @@ public final class TermDepositTemplate
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code TermDepositTemplate}.
+   * The meta-bean for {@code IborFixingDepositTemplate}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -231,12 +274,12 @@ public final class TermDepositTemplate
      * The meta-property for the {@code depositPeriod} property.
      */
     private final MetaProperty<Period> depositPeriod = DirectMetaProperty.ofImmutable(
-        this, "depositPeriod", TermDepositTemplate.class, Period.class);
+        this, "depositPeriod", IborFixingDepositTemplate.class, Period.class);
     /**
      * The meta-property for the {@code convention} property.
      */
-    private final MetaProperty<TermDepositConvention> convention = DirectMetaProperty.ofImmutable(
-        this, "convention", TermDepositTemplate.class, TermDepositConvention.class);
+    private final MetaProperty<IborFixingDepositConvention> convention = DirectMetaProperty.ofImmutable(
+        this, "convention", IborFixingDepositTemplate.class, IborFixingDepositConvention.class);
     /**
      * The meta-properties.
      */
@@ -263,13 +306,13 @@ public final class TermDepositTemplate
     }
 
     @Override
-    public TermDepositTemplate.Builder builder() {
-      return new TermDepositTemplate.Builder();
+    public IborFixingDepositTemplate.Builder builder() {
+      return new IborFixingDepositTemplate.Builder();
     }
 
     @Override
-    public Class<? extends TermDepositTemplate> beanType() {
-      return TermDepositTemplate.class;
+    public Class<? extends IborFixingDepositTemplate> beanType() {
+      return IborFixingDepositTemplate.class;
     }
 
     @Override
@@ -290,7 +333,7 @@ public final class TermDepositTemplate
      * The meta-property for the {@code convention} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<TermDepositConvention> convention() {
+    public MetaProperty<IborFixingDepositConvention> convention() {
       return convention;
     }
 
@@ -299,9 +342,9 @@ public final class TermDepositTemplate
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 14649855:  // depositPeriod
-          return ((TermDepositTemplate) bean).getDepositPeriod();
+          return ((IborFixingDepositTemplate) bean).getDepositPeriod();
         case 2039569265:  // convention
-          return ((TermDepositTemplate) bean).getConvention();
+          return ((IborFixingDepositTemplate) bean).getConvention();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -319,12 +362,12 @@ public final class TermDepositTemplate
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code TermDepositTemplate}.
+   * The bean-builder for {@code IborFixingDepositTemplate}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<TermDepositTemplate> {
+  public static final class Builder extends DirectFieldsBeanBuilder<IborFixingDepositTemplate> {
 
     private Period depositPeriod;
-    private TermDepositConvention convention;
+    private IborFixingDepositConvention convention;
 
     /**
      * Restricted constructor.
@@ -336,7 +379,7 @@ public final class TermDepositTemplate
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(TermDepositTemplate beanToCopy) {
+    private Builder(IborFixingDepositTemplate beanToCopy) {
       this.depositPeriod = beanToCopy.getDepositPeriod();
       this.convention = beanToCopy.getConvention();
     }
@@ -361,7 +404,7 @@ public final class TermDepositTemplate
           this.depositPeriod = (Period) newValue;
           break;
         case 2039569265:  // convention
-          this.convention = (TermDepositConvention) newValue;
+          this.convention = (IborFixingDepositConvention) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -394,8 +437,9 @@ public final class TermDepositTemplate
     }
 
     @Override
-    public TermDepositTemplate build() {
-      return new TermDepositTemplate(
+    public IborFixingDepositTemplate build() {
+      preBuild(this);
+      return new IborFixingDepositTemplate(
           depositPeriod,
           convention);
     }
@@ -403,6 +447,9 @@ public final class TermDepositTemplate
     //-----------------------------------------------------------------------
     /**
      * Sets the period between the start date and the end date.
+     * <p>
+     * The difference between the start date and the end date typically matches the tenor of the index,
+     * however this is not validated.
      * @param depositPeriod  the new value, not null
      * @return this, for chaining, not null
      */
@@ -413,13 +460,13 @@ public final class TermDepositTemplate
     }
 
     /**
-     * Sets the underlying term deposit convention.
+     * Sets the underlying Ibor fixing deposit convention.
      * <p>
-     * This specifies the standard convention of the term deposit to be created.
+     * This specifies the standard convention of the Ibor fixing deposit to be created.
      * @param convention  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder convention(TermDepositConvention convention) {
+    public Builder convention(IborFixingDepositConvention convention) {
       JodaBeanUtils.notNull(convention, "convention");
       this.convention = convention;
       return this;
@@ -429,7 +476,7 @@ public final class TermDepositTemplate
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
-      buf.append("TermDepositTemplate.Builder{");
+      buf.append("IborFixingDepositTemplate.Builder{");
       buf.append("depositPeriod").append('=').append(JodaBeanUtils.toString(depositPeriod)).append(',').append(' ');
       buf.append("convention").append('=').append(JodaBeanUtils.toString(convention));
       buf.append('}');

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.rate.deposit;
+package com.opengamma.strata.finance.rate.deposit.type;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
@@ -15,6 +15,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -26,17 +27,20 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.finance.TradeInfo;
+import com.opengamma.strata.finance.rate.deposit.TermDeposit;
+import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 
 /**
  * Test {@link TermDepositConvention}.
  */
 @Test
 public class TermDepositConventionTest {
+
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA);
 
   public void test_builder_full() {
-    TermDepositConvention test = TermDepositConvention.builder()
+    ImmutableTermDepositConvention test = ImmutableTermDepositConvention.builder()
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .currency(EUR)
         .dayCount(ACT_360)
@@ -49,7 +53,7 @@ public class TermDepositConventionTest {
   }
 
   public void test_of() {
-    TermDepositConvention test = TermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
+    ImmutableTermDepositConvention test = ImmutableTermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
     assertEquals(test.getBusinessDayAdjustment(), BDA_MOD_FOLLOW);
     assertEquals(test.getCurrency(), EUR);
     assertEquals(test.getDayCount(), ACT_360);
@@ -57,7 +61,7 @@ public class TermDepositConventionTest {
   }
 
   public void test_toTemplate() {
-    TermDepositConvention convention = TermDepositConvention.builder()
+    TermDepositConvention convention = ImmutableTermDepositConvention.builder()
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .currency(EUR)
         .dayCount(ACT_360)
@@ -70,7 +74,7 @@ public class TermDepositConventionTest {
   }
 
   public void test_toTrade() {
-    TermDepositConvention convention = TermDepositConvention.builder()
+    TermDepositConvention convention = ImmutableTermDepositConvention.builder()
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .currency(EUR)
         .dayCount(ACT_360)
@@ -101,15 +105,18 @@ public class TermDepositConventionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    TermDepositConvention test1 = TermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
+    ImmutableTermDepositConvention test1 = ImmutableTermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
     coverImmutableBean(test1);
-    TermDepositConvention test2 =
-        TermDepositConvention.of(GBP, BDA_MOD_FOLLOW, ACT_365F, DaysAdjustment.ofBusinessDays(0, GBLO));
+    ImmutableTermDepositConvention test2 =
+        ImmutableTermDepositConvention.of(GBP, BDA_MOD_FOLLOW, ACT_365F, DaysAdjustment.ofBusinessDays(0, GBLO));
     coverBeanEquals(test1, test2);
+
+    coverPrivateConstructor(TermDepositConventions.class);
+    coverPrivateConstructor(StandardTermDepositConventions.class);
   }
 
   public void test_serialization() {
-    TermDepositConvention test = TermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
+    ImmutableTermDepositConvention test = ImmutableTermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
     assertSerialization(test);
   }
 

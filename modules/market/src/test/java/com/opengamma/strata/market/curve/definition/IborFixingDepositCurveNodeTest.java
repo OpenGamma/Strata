@@ -29,8 +29,9 @@ import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDeposit;
-import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTemplate;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
+import com.opengamma.strata.finance.rate.deposit.type.IborFixingDepositTemplate;
+import com.opengamma.strata.finance.rate.deposit.type.ImmutableIborFixingDepositConvention;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
@@ -84,7 +85,8 @@ public class IborFixingDepositCurveNodeTest {
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     IborFixingDepositTrade trade = node.trade(valuationDate, ObservableValues.of(QUOTE_KEY, rate));
-    LocalDate startDateExpected = TEMPLATE.getConvention().getSpotDateOffset().adjust(valuationDate);
+    ImmutableIborFixingDepositConvention conv = (ImmutableIborFixingDepositConvention) TEMPLATE.getConvention();
+    LocalDate startDateExpected = conv.getSpotDateOffset().adjust(valuationDate);
     LocalDate endDateExpected = startDateExpected.plus(TEMPLATE.getDepositPeriod());
     IborFixingDeposit depositExpected = IborFixingDeposit.builder()
         .buySell(BuySell.BUY)

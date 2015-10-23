@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.rate.deposit;
+package com.opengamma.strata.finance.rate.deposit.type;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -30,8 +30,9 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.Convention;
 import com.opengamma.strata.finance.TradeInfo;
+import com.opengamma.strata.finance.rate.deposit.TermDeposit;
+import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 
 /**
  * A market convention for term deposit trades.
@@ -48,16 +49,23 @@ import com.opengamma.strata.finance.TradeInfo;
  * not by this convention.
  */
 @BeanDefinition
-public final class TermDepositConvention
-    implements Convention, ImmutableBean, Serializable {
+public final class ImmutableTermDepositConvention
+    implements TermDepositConvention, ImmutableBean, Serializable {
 
   /**
    * The primary currency.
    * <p>
    * This is the currency of the term deposit and the currency that payment is made in.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
+  /**
+   * The convention name, such as 'GBP-Deposit'.
+   * <p>
+   * This will default to the currency code suffixed by '-Deposit' if not specified.
+   */
+  @PropertyDefinition(get = "field")
+  private final String name;
   /**
    * The business day adjustment to apply to the start and end date.
    * <p>
@@ -93,13 +101,13 @@ public final class TermDepositConvention
    * @param spotDateOffset the offset of the spot value date from the trade date
    * @return the convention
    */
-  public static TermDepositConvention of(
+  public static ImmutableTermDepositConvention of(
       Currency currency,
       BusinessDayAdjustment businessDayAdjustment,
       DayCount dayCount,
       DaysAdjustment spotDateOffset) {
-    
-    return TermDepositConvention.builder()
+
+    return ImmutableTermDepositConvention.builder()
         .currency(currency)
         .businessDayAdjustment(businessDayAdjustment)
         .dayCount(dayCount)
@@ -109,37 +117,31 @@ public final class TermDepositConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a template based on this convention, specifying the period from start to end.
+   * Gets the convention name, such as 'GBP-Deposit'.
    * <p>
-   * This returns a template based on this convention.
-   * The period from the start date to the end date is specified.
+   * This will default to the currency code suffixed by '-Deposit' if not specified.
    * 
-   * @param depositPeriod  the period from the start date to the end date
-   * @return the template
+   * @return the convention name
    */
-  public TermDepositTemplate toTemplate(Period depositPeriod) {
-    return TermDepositTemplate.of(depositPeriod, this);
+  @Override
+  public String getName() {
+    return name != null ? name : currency.getCode() + "-Deposit";
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a trade based on this convention.
+   * Expands this convention, returning an instance where all the optional fields are present.
    * <p>
-   * This returns a trade based on the specified deposit period.
-   * <p>
-   * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the term deposit, the principal is paid at the start date and the
-   * principal plus interest is received at the end date.
-   * If selling the term deposit, the principal is received at the start date and the
-   * principal plus interest is paid at the end date.
+   * This returns an equivalent instance where any empty optional have been filled in.
    * 
-   * @param tradeDate  the date of the trade
-   * @param depositPeriod  the period between the start date and the end date
-   * @param buySell  the buy/sell flag
-   * @param notional  the notional amount, in the payment currency of the template
-   * @param rate  the fixed rate, typically derived from the market
-   * @return the trade
+   * @return the expanded convention
    */
+  public ImmutableTermDepositConvention expand() {
+    return toBuilder().name(getName()).build();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public TermDepositTrade toTrade(
       LocalDate tradeDate,
       Period depositPeriod,
@@ -152,24 +154,7 @@ public final class TermDepositConvention
     return toTrade(tradeDate, startDate, endDate, buySell, notional, rate);
   }
 
-  /**
-   * Creates a trade based on this convention.
-   * <p>
-   * This returns a trade based on the specified dates.
-   * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the term deposit, the principal is paid at the start date and the
-   * principal plus interest is received at the end date.
-   * If selling the term deposit, the principal is received at the start date and the
-   * principal plus interest is paid at the end date.
-   * 
-   * @param tradeDate  the date of the trade
-   * @param startDate  the start date
-   * @param endDate  the end date
-   * @param buySell  the buy/sell flag
-   * @param notional  the notional amount, in the payment currency of the template
-   * @param rate  the fixed rate, typically derived from the market
-   * @return the trade
-   */
+  @Override
   public TermDepositTrade toTrade(
       LocalDate tradeDate,
       LocalDate startDate,
@@ -196,18 +181,23 @@ public final class TermDepositConvention
         .build();
   }
 
+  @Override
+  public String toString() {
+    return getName();
+  }
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code TermDepositConvention}.
+   * The meta-bean for {@code ImmutableTermDepositConvention}.
    * @return the meta-bean, not null
    */
-  public static TermDepositConvention.Meta meta() {
-    return TermDepositConvention.Meta.INSTANCE;
+  public static ImmutableTermDepositConvention.Meta meta() {
+    return ImmutableTermDepositConvention.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(TermDepositConvention.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ImmutableTermDepositConvention.Meta.INSTANCE);
   }
 
   /**
@@ -219,12 +209,13 @@ public final class TermDepositConvention
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static TermDepositConvention.Builder builder() {
-    return new TermDepositConvention.Builder();
+  public static ImmutableTermDepositConvention.Builder builder() {
+    return new ImmutableTermDepositConvention.Builder();
   }
 
-  private TermDepositConvention(
+  private ImmutableTermDepositConvention(
       Currency currency,
+      String name,
       BusinessDayAdjustment businessDayAdjustment,
       DayCount dayCount,
       DaysAdjustment spotDateOffset) {
@@ -233,14 +224,15 @@ public final class TermDepositConvention
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(spotDateOffset, "spotDateOffset");
     this.currency = currency;
+    this.name = name;
     this.businessDayAdjustment = businessDayAdjustment;
     this.dayCount = dayCount;
     this.spotDateOffset = spotDateOffset;
   }
 
   @Override
-  public TermDepositConvention.Meta metaBean() {
-    return TermDepositConvention.Meta.INSTANCE;
+  public ImmutableTermDepositConvention.Meta metaBean() {
+    return ImmutableTermDepositConvention.Meta.INSTANCE;
   }
 
   @Override
@@ -260,6 +252,7 @@ public final class TermDepositConvention
    * This is the currency of the term deposit and the currency that payment is made in.
    * @return the value of the property, not null
    */
+  @Override
   public Currency getCurrency() {
     return currency;
   }
@@ -314,8 +307,9 @@ public final class TermDepositConvention
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      TermDepositConvention other = (TermDepositConvention) obj;
+      ImmutableTermDepositConvention other = (ImmutableTermDepositConvention) obj;
       return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(name, other.name) &&
           JodaBeanUtils.equal(getBusinessDayAdjustment(), other.getBusinessDayAdjustment()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getSpotDateOffset(), other.getSpotDateOffset());
@@ -327,27 +321,16 @@ public final class TermDepositConvention
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
     hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayAdjustment());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getSpotDateOffset());
     return hash;
   }
 
-  @Override
-  public String toString() {
-    StringBuilder buf = new StringBuilder(160);
-    buf.append("TermDepositConvention{");
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(getBusinessDayAdjustment()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("spotDateOffset").append('=').append(JodaBeanUtils.toString(getSpotDateOffset()));
-    buf.append('}');
-    return buf.toString();
-  }
-
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code TermDepositConvention}.
+   * The meta-bean for {@code ImmutableTermDepositConvention}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -359,28 +342,34 @@ public final class TermDepositConvention
      * The meta-property for the {@code currency} property.
      */
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", TermDepositConvention.class, Currency.class);
+        this, "currency", ImmutableTermDepositConvention.class, Currency.class);
+    /**
+     * The meta-property for the {@code name} property.
+     */
+    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
+        this, "name", ImmutableTermDepositConvention.class, String.class);
     /**
      * The meta-property for the {@code businessDayAdjustment} property.
      */
     private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
-        this, "businessDayAdjustment", TermDepositConvention.class, BusinessDayAdjustment.class);
+        this, "businessDayAdjustment", ImmutableTermDepositConvention.class, BusinessDayAdjustment.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
-        this, "dayCount", TermDepositConvention.class, DayCount.class);
+        this, "dayCount", ImmutableTermDepositConvention.class, DayCount.class);
     /**
      * The meta-property for the {@code spotDateOffset} property.
      */
     private final MetaProperty<DaysAdjustment> spotDateOffset = DirectMetaProperty.ofImmutable(
-        this, "spotDateOffset", TermDepositConvention.class, DaysAdjustment.class);
+        this, "spotDateOffset", ImmutableTermDepositConvention.class, DaysAdjustment.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "currency",
+        "name",
         "businessDayAdjustment",
         "dayCount",
         "spotDateOffset");
@@ -396,6 +385,8 @@ public final class TermDepositConvention
       switch (propertyName.hashCode()) {
         case 575402001:  // currency
           return currency;
+        case 3373707:  // name
+          return name;
         case -1065319863:  // businessDayAdjustment
           return businessDayAdjustment;
         case 1905311443:  // dayCount
@@ -407,13 +398,13 @@ public final class TermDepositConvention
     }
 
     @Override
-    public TermDepositConvention.Builder builder() {
-      return new TermDepositConvention.Builder();
+    public ImmutableTermDepositConvention.Builder builder() {
+      return new ImmutableTermDepositConvention.Builder();
     }
 
     @Override
-    public Class<? extends TermDepositConvention> beanType() {
-      return TermDepositConvention.class;
+    public Class<? extends ImmutableTermDepositConvention> beanType() {
+      return ImmutableTermDepositConvention.class;
     }
 
     @Override
@@ -428,6 +419,14 @@ public final class TermDepositConvention
      */
     public MetaProperty<Currency> currency() {
       return currency;
+    }
+
+    /**
+     * The meta-property for the {@code name} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> name() {
+      return name;
     }
 
     /**
@@ -459,13 +458,15 @@ public final class TermDepositConvention
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 575402001:  // currency
-          return ((TermDepositConvention) bean).getCurrency();
+          return ((ImmutableTermDepositConvention) bean).getCurrency();
+        case 3373707:  // name
+          return ((ImmutableTermDepositConvention) bean).name;
         case -1065319863:  // businessDayAdjustment
-          return ((TermDepositConvention) bean).getBusinessDayAdjustment();
+          return ((ImmutableTermDepositConvention) bean).getBusinessDayAdjustment();
         case 1905311443:  // dayCount
-          return ((TermDepositConvention) bean).getDayCount();
+          return ((ImmutableTermDepositConvention) bean).getDayCount();
         case 746995843:  // spotDateOffset
-          return ((TermDepositConvention) bean).getSpotDateOffset();
+          return ((ImmutableTermDepositConvention) bean).getSpotDateOffset();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -483,11 +484,12 @@ public final class TermDepositConvention
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code TermDepositConvention}.
+   * The bean-builder for {@code ImmutableTermDepositConvention}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<TermDepositConvention> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ImmutableTermDepositConvention> {
 
     private Currency currency;
+    private String name;
     private BusinessDayAdjustment businessDayAdjustment;
     private DayCount dayCount;
     private DaysAdjustment spotDateOffset;
@@ -502,8 +504,9 @@ public final class TermDepositConvention
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(TermDepositConvention beanToCopy) {
+    private Builder(ImmutableTermDepositConvention beanToCopy) {
       this.currency = beanToCopy.getCurrency();
+      this.name = beanToCopy.name;
       this.businessDayAdjustment = beanToCopy.getBusinessDayAdjustment();
       this.dayCount = beanToCopy.getDayCount();
       this.spotDateOffset = beanToCopy.getSpotDateOffset();
@@ -515,6 +518,8 @@ public final class TermDepositConvention
       switch (propertyName.hashCode()) {
         case 575402001:  // currency
           return currency;
+        case 3373707:  // name
+          return name;
         case -1065319863:  // businessDayAdjustment
           return businessDayAdjustment;
         case 1905311443:  // dayCount
@@ -531,6 +536,9 @@ public final class TermDepositConvention
       switch (propertyName.hashCode()) {
         case 575402001:  // currency
           this.currency = (Currency) newValue;
+          break;
+        case 3373707:  // name
+          this.name = (String) newValue;
           break;
         case -1065319863:  // businessDayAdjustment
           this.businessDayAdjustment = (BusinessDayAdjustment) newValue;
@@ -572,9 +580,10 @@ public final class TermDepositConvention
     }
 
     @Override
-    public TermDepositConvention build() {
-      return new TermDepositConvention(
+    public ImmutableTermDepositConvention build() {
+      return new ImmutableTermDepositConvention(
           currency,
+          name,
           businessDayAdjustment,
           dayCount,
           spotDateOffset);
@@ -591,6 +600,18 @@ public final class TermDepositConvention
     public Builder currency(Currency currency) {
       JodaBeanUtils.notNull(currency, "currency");
       this.currency = currency;
+      return this;
+    }
+
+    /**
+     * Sets the convention name, such as 'GBP-Deposit'.
+     * <p>
+     * This will default to the currency code suffixed by '-Deposit' if not specified.
+     * @param name  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder name(String name) {
+      this.name = name;
       return this;
     }
 
@@ -638,9 +659,10 @@ public final class TermDepositConvention
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
-      buf.append("TermDepositConvention.Builder{");
+      StringBuilder buf = new StringBuilder(192);
+      buf.append("ImmutableTermDepositConvention.Builder{");
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+      buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("spotDateOffset").append('=').append(JodaBeanUtils.toString(spotDateOffset));
