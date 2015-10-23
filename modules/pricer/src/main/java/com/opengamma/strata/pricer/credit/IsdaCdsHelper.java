@@ -168,10 +168,10 @@ public class IsdaCdsHelper {
       // model does not use floating leg of underlying IRS
       IsdaYieldCurveConvention curveConvention = yieldCurve.getCurveConvention();
       Period swapInterval = curveConvention.getFixedPaymentFrequency().getPeriod();
-      DayCount mmDayCount = curveConvention.getMmDayCount();
+      DayCount mmDayCount = curveConvention.getMoneyMarketDayCount();
       DayCount swapDayCount = curveConvention.getFixedDayCount();
 
-      BusinessDayConvention convention = curveConvention.getBadDayConvention();
+      BusinessDayConvention convention = curveConvention.getBusinessDayConvention();
       HolidayCalendar holidayCalendar = curveConvention.getHolidayCalendar();
 
       LocalDate spotDate = curveConvention.getSpotDateAsOf(valuationDate);

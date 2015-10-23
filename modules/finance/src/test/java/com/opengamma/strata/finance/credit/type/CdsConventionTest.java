@@ -35,9 +35,9 @@ public class CdsConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    CdsConvention sut = CdsConventions.NORTH_AMERICAN_USD;
-    assertEquals(sut, CdsConvention.of("NorthAmericanUsd"));
-    assertEquals(sut.getName(), "NorthAmericanUsd");
+    CdsConvention sut = CdsConventions.USD_NORTH_AMERICAN;
+    assertEquals(sut, CdsConvention.of("USD-NorthAmerican"));
+    assertEquals(sut.getName(), "USD-NorthAmerican");
     assertEquals(sut.getCurrency(), USD);
     assertEquals(sut.getDayCount(), ACT_360);
     assertEquals(sut.getBusinessDayAdjustment(), BusinessDayAdjustment.of(FOLLOWING, USNY));
@@ -45,13 +45,13 @@ public class CdsConventionTest {
     assertEquals(sut.getRollConvention(), DAY_20);
     assertTrue(sut.getPayAccruedOnDefault());
     assertEquals(sut.getStubConvention(), SHORT_INITIAL);
-    assertEquals(sut.getStepIn(), 1);
-    assertEquals(sut.getSettleLag(), 3);
+    assertEquals(sut.getStepInDays(), 1);
+    assertEquals(sut.getSettleLagDays(), 3);
   }
 
   //-------------------------------------------------------------------------
   public void test_unadjusted_maturity_date_from_valuation_date() {
-    CdsConvention sut = CdsConventions.NORTH_AMERICAN_USD;
+    CdsConvention sut = CdsConventions.USD_NORTH_AMERICAN;
     assertEquals(sut.getUnadjustedMaturityDateFromValuationDate(date(2014, 9, 19), Period.ofYears(5)), date(2019, 9, 20));
     assertEquals(sut.getUnadjustedMaturityDateFromValuationDate(date(2014, 9, 20), Period.ofYears(5)), date(2019, 9, 20));
     assertEquals(sut.getUnadjustedMaturityDateFromValuationDate(date(2014, 9, 21), Period.ofYears(5)), date(2019, 12, 20));
@@ -74,7 +74,7 @@ public class CdsConventionTest {
   }
 
   public void test_adjusted_start_date() {
-    CdsConvention sut = CdsConventions.NORTH_AMERICAN_USD;
+    CdsConvention sut = CdsConventions.USD_NORTH_AMERICAN;
     assertEquals(sut.getAdjustedStartDate(date(2014, 9, 19)), date(2014, 6, 20));
     assertEquals(sut.getAdjustedStartDate(date(2014, 9, 20)), date(2014, 6, 20));
     assertEquals(sut.getAdjustedStartDate(date(2014, 9, 21)), date(2014, 9, 22));
@@ -82,7 +82,7 @@ public class CdsConventionTest {
   }
 
   public void test_adjusted_settle_date() {
-    CdsConvention sut = CdsConventions.NORTH_AMERICAN_USD;
+    CdsConvention sut = CdsConventions.USD_NORTH_AMERICAN;
     assertEquals(sut.getAdjustedSettleDate(date(2014, 9, 19)), date(2014, 9, 24));
     assertEquals(sut.getAdjustedSettleDate(date(2014, 9, 20)), date(2014, 9, 24));
     assertEquals(sut.getAdjustedSettleDate(date(2014, 9, 21)), date(2014, 9, 24));
@@ -91,7 +91,7 @@ public class CdsConventionTest {
   }
 
   public void test_unadjusted_step_in_date() {
-    CdsConvention sut = CdsConventions.NORTH_AMERICAN_USD;
+    CdsConvention sut = CdsConventions.USD_NORTH_AMERICAN;
     assertEquals(sut.getUnadjustedStepInDate(date(2014, 9, 19)), date(2014, 9, 20));
     assertEquals(sut.getUnadjustedStepInDate(date(2014, 9, 20)), date(2014, 9, 21));
     assertEquals(sut.getUnadjustedStepInDate(date(2014, 9, 21)), date(2014, 9, 22));
@@ -100,7 +100,7 @@ public class CdsConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_single_name() {
-    CdsConvention sut = CdsConventions.NORTH_AMERICAN_USD;
+    CdsConvention sut = CdsConventions.USD_NORTH_AMERICAN;
     assertEquals(
         sut.toSingleNameTrade(
             date(2014, 3, 20),
@@ -117,7 +117,7 @@ public class CdsConventionTest {
   }
 
   public void test_index() {
-    CdsConvention sut = CdsConventions.NORTH_AMERICAN_USD;
+    CdsConvention sut = CdsConventions.USD_NORTH_AMERICAN;
     assertEquals(
         sut.toIndexTrade(
             date(2014, 3, 20),

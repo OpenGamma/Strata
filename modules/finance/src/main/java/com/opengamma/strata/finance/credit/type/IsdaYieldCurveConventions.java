@@ -19,30 +19,30 @@ public final class IsdaYieldCurveConventions {
   static final ExtendedEnum<IsdaYieldCurveConvention> ENUM_LOOKUP = ExtendedEnum.of(IsdaYieldCurveConvention.class);
 
   /**
-   * The ISDA USD curve.
+   * The 'USD-ISDA' curve.
    */
-  public static final IsdaYieldCurveConvention ISDA_USD =
-      IsdaYieldCurveConvention.of(StandardIsdaYieldCurveConventions.ISDA_USD.getName());
+  public static final IsdaYieldCurveConvention USD_ISDA =
+      IsdaYieldCurveConvention.of(StandardIsdaYieldCurveConventions.USD_ISDA.getName());
   /**
-   * The ISDA EUR curve.
+   * The 'EUR-ISDA' curve.
    */
-  public static final IsdaYieldCurveConvention ISDA_EUR =
-      IsdaYieldCurveConvention.of(StandardIsdaYieldCurveConventions.ISDA_EUR.getName());
+  public static final IsdaYieldCurveConvention EUR_ISDA =
+      IsdaYieldCurveConvention.of(StandardIsdaYieldCurveConventions.EUR_ISDA.getName());
   /**
-   * The ISDA GBP curve.
+   * The 'GBP-ISDA' curve.
    */
-  public static final IsdaYieldCurveConvention ISDA_GBP =
-      IsdaYieldCurveConvention.of(StandardIsdaYieldCurveConventions.ISDA_GBP.getName());
+  public static final IsdaYieldCurveConvention GBP_ISDA =
+      IsdaYieldCurveConvention.of(StandardIsdaYieldCurveConventions.GBP_ISDA.getName());
   /**
-   * The ISDA CHF curve.
+   * The 'CHF-ISDA' curve.
    */
-  public static final IsdaYieldCurveConvention ISDA_CHF =
-      IsdaYieldCurveConvention.of(StandardIsdaYieldCurveConventions.ISDA_CHF.getName());
+  public static final IsdaYieldCurveConvention CHF_ISDA =
+      IsdaYieldCurveConvention.of(StandardIsdaYieldCurveConventions.CHF_ISDA.getName());
   /**
-   * The ISDA JPY curve.
+   * The 'JPY-ISDA' curve.
    */
-  public static final IsdaYieldCurveConvention ISDA_JPY =
-      IsdaYieldCurveConvention.of(StandardIsdaYieldCurveConventions.ISDA_JPY.getName());
+  public static final IsdaYieldCurveConvention JPY_ISDA =
+      IsdaYieldCurveConvention.of(StandardIsdaYieldCurveConventions.JPY_ISDA.getName());
 
   //-------------------------------------------------------------------------
   /**

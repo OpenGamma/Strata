@@ -25,8 +25,8 @@ enum StandardIsdaYieldCurveConventions
   /**
    * The ISDA USD curve.
    */
-  ISDA_USD(
-      "ISDA_USD",
+  USD_ISDA(
+      "USD-ISDA",
       Currency.USD,
       DayCounts.ACT_360,
       DayCounts.THIRTY_E_360,
@@ -37,8 +37,8 @@ enum StandardIsdaYieldCurveConventions
   /**
    * The ISDA EUR curve.
    */
-  ISDA_EUR(
-      "ISDA_EUR",
+  EUR_ISDA(
+      "EUR-ISDA",
       Currency.EUR,
       DayCounts.ACT_360,
       DayCounts.THIRTY_E_360,
@@ -49,8 +49,8 @@ enum StandardIsdaYieldCurveConventions
   /**
    * The ISDA GBP curve.
    */
-  ISDA_GBP(
-      "ISDA_GBP",
+  GBP_ISDA(
+      "GBP-ISDA",
       Currency.GBP,
       DayCounts.ACT_365F,
       DayCounts.ACT_365F,
@@ -61,8 +61,8 @@ enum StandardIsdaYieldCurveConventions
   /**
    * The ISDA CHF curve.
    */
-  ISDA_CHF(
-      "ISDA_CHF",
+  CHF_ISDA(
+      "CHF-ISDA",
       Currency.CHF,
       DayCounts.ACT_360,
       DayCounts.THIRTY_360_ISDA,
@@ -73,8 +73,8 @@ enum StandardIsdaYieldCurveConventions
   /**
    * The ISDA JPY curve.
    */
-  ISDA_JPY(
-      "ISDA_JPY",
+  JPY_ISDA(
+      "JPY-ISDA",
       Currency.JPY,
       DayCounts.ACT_360,
       DayCounts.THIRTY_E_360,
@@ -118,7 +118,7 @@ enum StandardIsdaYieldCurveConventions
   }
 
   @Override
-  public DayCount getMmDayCount() {
+  public DayCount getMoneyMarketDayCount() {
     return mmDayCount;
   }
 
@@ -138,7 +138,7 @@ enum StandardIsdaYieldCurveConventions
   }
 
   @Override
-  public BusinessDayConvention getBadDayConvention() {
+  public BusinessDayConvention getBusinessDayConvention() {
     return badDayConvention;
   }
 
