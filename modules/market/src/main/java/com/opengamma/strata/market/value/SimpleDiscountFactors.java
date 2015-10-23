@@ -132,13 +132,18 @@ public final class SimpleDiscountFactors
   }
 
   @Override
-  public double discountFactorWithSpread(LocalDate date, double zSpread, boolean periodic, int periodPerYear) {
+  public double discountFactorWithSpread(
+      LocalDate date,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodPerYear) {
+
     double yearFraction = relativeYearFraction(date);
     if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
       return 1d;
     }
     double df = discountFactor(date);
-    if (periodic) {
+    if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
       ArgChecker.notNegativeOrZero(periodPerYear, "periodPerYear");
       double ratePeriodicAnnualPlusOne =
           Math.pow(df, -1.0 / periodPerYear / yearFraction) + zSpread / periodPerYear;
@@ -172,7 +177,7 @@ public final class SimpleDiscountFactors
       LocalDate date,
       Currency sensitivityCurrency,
       double zSpread,
-      boolean periodic,
+      CompoundedRateType compoundedRateType,
       int periodPerYear) {
 
     double yearFraction = relativeYearFraction(date);
@@ -181,7 +186,7 @@ public final class SimpleDiscountFactors
       return sensi;
     }
     double factor;
-    if (periodic) {
+    if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
       double df = discountFactor(date);
       double dfRoot = Math.pow(df, -1d / periodPerYear / yearFraction);
       factor = dfRoot / df / Math.pow(dfRoot + zSpread / periodPerYear, periodPerYear * yearFraction + 1d);
