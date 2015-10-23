@@ -138,6 +138,7 @@ public final class ZeroRateDiscountFactors
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
+
     double yearFraction = relativeYearFraction(date);
     if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
       return 1d;

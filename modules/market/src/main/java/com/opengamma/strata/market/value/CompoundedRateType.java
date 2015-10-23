@@ -25,7 +25,6 @@ public enum CompoundedRateType {
    * In this case the number of periods par year should be specified in addition.
    */
   PERIODIC,
-
   /**
    * Continuous compounding.
    * <p>
