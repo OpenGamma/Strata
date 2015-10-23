@@ -8,6 +8,7 @@ package com.opengamma.strata.collect.named;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,6 +34,8 @@ public class ExtendedEnumTest {
             "Another1", SampleNamedInstanceLookup1.ANOTHER1,
             "Another2", SampleNamedInstanceLookup2.ANOTHER2));
     assertEquals(test.alternateNames(), ImmutableMap.of("Alternate", "Standard"));
+    assertEquals(test.find("Standard"), Optional.of(SampleNameds.STANDARD));
+    assertEquals(test.find("Rubbish"), Optional.empty());
     assertEquals(test.lookup("Standard"), SampleNameds.STANDARD);
     assertEquals(test.lookup("Alternate"), SampleNameds.STANDARD);
     assertEquals(test.lookup("More"), MoreSampleNameds.MORE);
