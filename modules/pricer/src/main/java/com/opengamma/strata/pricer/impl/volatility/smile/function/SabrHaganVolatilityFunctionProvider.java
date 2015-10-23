@@ -26,7 +26,6 @@ import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.MathException;
 
 /**
  * The Hagan SABR volatility function provider.
@@ -548,107 +547,6 @@ public final class SabrHaganVolatilityFunctionProvider
 
     double chi = Math.log(arg) - Math.log(rhoStar);
     return z / chi;
-  }
-
-  private double[] zOverChiWithDev(double rho, double z) {
-    double[] res = new double[3];
-    if (DoubleMath.fuzzyEquals(z, 0.0, SMALL_Z)) {
-      res[0] = 1 - rho * z / 2;
-      res[1] = -z / 2;
-      res[2] = -rho / 2;
-      return res;
-    }
-    double rhoStar = 1 - rho;
-    if (DoubleMath.fuzzyEquals(rhoStar, 0.0, RHO_EPS)) {
-      if (z > 1) {
-        if (rhoStar == 0) {
-          res[0] = 0.0;
-          res[1] = Double.NEGATIVE_INFINITY;
-          res[2] = 0;
-        } else {
-          double temp = Math.log(2 * (z - 1)) - Math.log(rhoStar);
-          res[0] = z / temp;
-          res[1] = -z / temp / temp * (1.0 / rhoStar + (0.5 - z) / Math.pow(z - 1.0, 2));
-          res[2] = 1 / temp - z / temp / temp / Math.sqrt(1.0 - 2.0 * rho * z + z * z);
-        }
-      } else if (z < 1) {
-        double temp = -Math.log(1 - z) - 0.5 * Math.pow(z / (z - 1.0), 2) * rhoStar;
-        res[0] = z / temp;
-        res[1] = -z /
-            temp /
-            temp *
-            (0.5 * Math.pow(z / (z - 1.0), 2) + (0.25 * z - 1.0) * Math.pow(z / (z - 1.0), 3) /
-                (z - 1.0) * rhoStar);
-        res[2] = 1 / temp - z / temp / temp / Math.sqrt(1.0 - 2.0 * rho * z + z * z);
-      } else {
-        throw new MathException("can't handle z=1, rho=1");
-      }
-      return res;
-    }
-    double rhoHat = 1 + rho;
-    if (DoubleMath.fuzzyEquals(rhoHat, 0.0, RHO_EPS_NEGATIVE)) {
-      if (z > -1) {
-        double temp = Math.log(1 + z);
-        double temp2 = temp * temp;
-        res[0] = z / temp;
-        res[1] = ((2 * z + 1) / 2 / Math.pow(1 + z, 2) - 1 / rhoStar) * z / temp2;
-        res[2] = 1 / temp - z / (1 + z) / temp2;
-      } else if (z < -1) {
-        if (rhoHat == 0) {
-          res[0] = 0;
-          double chi = Math.log(RHO_EPS_NEGATIVE) - Math.log(-(1 + z) / rhoStar);
-          double chiRho = 1 / RHO_EPS_NEGATIVE + 1 / rhoStar - Math.pow(z / (1 + z), 2);
-          res[1] = -chiRho * z / chi / chi; //should be +infinity
-          res[2] = 0.0;
-        } else {
-          double chi = Math.log(rhoHat) - Math.log(-(1 + z) / rhoStar);
-          res[0] = z / chi;
-          double chiRho = 1 / rhoHat + 1 / rhoStar - Math.pow(z / (1 + z), 2);
-          res[1] = -chiRho * z / chi / chi;
-          res[2] = 1 / chi + z / chi / chi / (1 + z);
-        }
-      } else {
-        throw new MathException("can't handle z=-1, rho=-1");
-      }
-      return res;
-    }
-
-    //now the non-edge case
-    double root = 0;
-    double arg;
-    double argRho;
-    double argZ;
-    if (z < LARGE_NEG_Z) {
-      root = -z + rho - 1 / 2 / z;
-      arg = (rho * rho - 1) / 2 / z; //get rounding errors due to fine balanced cancellation for very large negative z
-      argRho = rho / z;
-      argZ = -arg / z;
-    } else if (z > LARGE_POS_Z) {
-      root = z - rho + 1 / 2 / z;
-      arg = root + z - rho;
-      argRho = -2;
-      argZ = 2 - 1 / 2 / z / z;
-    } else {
-      root = Math.sqrt(1 - 2 * rho * z + z * z);
-      arg = root + z - rho;
-      argRho = -(z / root + 1);
-      argZ = (z - rho) / root + 1;
-    }
-    if (arg <= 0.0) { //Mathematically this cannot be less than zero, but you know what computers are like.
-      res[0] = 0.0;
-      res[1] = 0.0;
-      res[2] = 0.0;
-    } else {
-      double chi = Math.log(arg / (1 - rho));
-      res[0] = z / chi;
-      double chiRho = argRho / arg + 1 / rhoStar;
-      double zChi2 = z / chi / chi;
-      res[1] = -chiRho * zChi2;
-      double chiZ = argZ / arg;
-      res[2] = 1 / chi - zChi2 * chiZ;
-    }
-
-    return res;
   }
 
   @Override
