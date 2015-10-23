@@ -14,7 +14,7 @@ import com.opengamma.strata.math.impl.minimization.ParameterLimitsTransform;
 import com.opengamma.strata.math.impl.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.strata.math.impl.minimization.SingleRangeLimitTransform;
 import com.opengamma.strata.math.impl.minimization.UncoupledParameterTransforms;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.SABRFormulaData;
+import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrFormulaData;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 
 /**
@@ -25,7 +25,7 @@ import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunc
  * <p>
  * All the options must be for the same expiry and (implicitly) on the same underlying.
  */
-public final class SABRModelFitter extends SmileModelFitter<SABRFormulaData> {
+public final class SabrModelFitter extends SmileModelFitter<SabrFormulaData> {
 
   private static final ParameterLimitsTransform[] DEFAULT_TRANSFORMS;
   static {
@@ -48,14 +48,14 @@ public final class SABRModelFitter extends SmileModelFitter<SABRFormulaData> {
    * @param error  the 'measurement' error to apply to the market volatility of a particular option
    * @param model  the volatility function provider
    */
-  public SABRModelFitter(double forward, DoubleArray strikes, double timeToExpiry, DoubleArray impliedVols,
-      DoubleArray error, VolatilityFunctionProvider<SABRFormulaData> model) {
+  public SabrModelFitter(double forward, DoubleArray strikes, double timeToExpiry, DoubleArray impliedVols,
+      DoubleArray error, VolatilityFunctionProvider<SabrFormulaData> model) {
     super(forward, strikes, timeToExpiry, impliedVols, error, model);
   }
 
   @Override
-  public SABRFormulaData toSmileModelData(DoubleArray modelParameters) {
-    return SABRFormulaData.of(modelParameters.toArray());
+  public SabrFormulaData toSmileModelData(DoubleArray modelParameters) {
+    return SabrFormulaData.of(modelParameters.toArray());
   }
 
   @Override

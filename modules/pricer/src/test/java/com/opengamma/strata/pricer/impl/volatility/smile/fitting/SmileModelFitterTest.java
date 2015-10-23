@@ -25,7 +25,6 @@ import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDiffe
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
-import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SmileModelData;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 
@@ -69,8 +68,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     Arrays.fill(_errors, 1e-4);
     for (int i = 0; i < n; i++) {
       PutCall putCall = strikes[i] >= F ? PutCall.CALL : PutCall.PUT;
-      EuropeanVanillaOption option = EuropeanVanillaOption.of(strikes[i], TIME_TO_EXPIRY, putCall);
-      _cleanVols[i] = model.getVolatility(option, F, data);
+      _cleanVols[i] = model.getVolatility(F, strikes[i], TIME_TO_EXPIRY, data);
       _noisyVols[i] = _cleanVols[i] + UNIFORM.nextDouble() * _errors[i];
     }
     _fitter = getFitter(F, strikes, TIME_TO_EXPIRY, _cleanVols, _errors, model);

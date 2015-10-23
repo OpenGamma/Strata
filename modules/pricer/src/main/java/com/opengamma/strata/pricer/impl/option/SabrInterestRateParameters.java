@@ -22,14 +22,14 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.PutCall;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.surface.ConstantNodalSurface;
 import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.pricer.impl.volatility.VolatilityModel;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.SABRFormulaData;
+import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrFormulaData;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 
 /**
@@ -42,7 +42,7 @@ import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunc
  * The shift parameter is also {@link NodalSurface} spanned by expiration and tenor.
  */
 @BeanDefinition(builderScope = "private")
-public final class SABRInterestRateParameters
+public final class SabrInterestRateParameters
     implements VolatilityModel<DoubleArray>, ImmutableBean {
 
   /**
@@ -79,7 +79,7 @@ public final class SABRInterestRateParameters
    * This returns functions containing the SABR volatility formula. 
    */
   @PropertyDefinition(validate = "notNull")
-  private final VolatilityFunctionProvider<SABRFormulaData> sabrFunctionProvider;
+  private final VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider;
   /**
    * The shift parameter of shifted SABR model.
    * <p>
@@ -100,14 +100,14 @@ public final class SABRInterestRateParameters
    * @param sabrFunctionProvider  the SABR surface
    * @return {@code SABRInterestRateParameters}
    */
-  public static SABRInterestRateParameters of(
+  public static SabrInterestRateParameters of(
       NodalSurface alphaSurface,
       NodalSurface betaSurface,
       NodalSurface rhoSurface,
       NodalSurface nuSurface,
-      VolatilityFunctionProvider<SABRFormulaData> sabrFunctionProvider) {
+      VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider) {
     NodalSurface shiftSurface = ConstantNodalSurface.of("zero shift", 0d);
-    return new SABRInterestRateParameters(
+    return new SabrInterestRateParameters(
         alphaSurface, betaSurface, rhoSurface, nuSurface, sabrFunctionProvider, shiftSurface);
   }
 
@@ -122,14 +122,14 @@ public final class SABRInterestRateParameters
    * @param shiftSurface  the shift surface
    * @return {@code SABRInterestRateParameters}
    */
-  public static SABRInterestRateParameters of(
+  public static SabrInterestRateParameters of(
       NodalSurface alphaSurface,
       NodalSurface betaSurface,
       NodalSurface rhoSurface,
       NodalSurface nuSurface,
-      VolatilityFunctionProvider<SABRFormulaData> sabrFunctionProvider,
+      VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider,
       NodalSurface shiftSurface) {
-    return new SABRInterestRateParameters(
+    return new SabrInterestRateParameters(
         alphaSurface, betaSurface, rhoSurface, nuSurface, sabrFunctionProvider, shiftSurface);
   }
 
@@ -202,42 +202,19 @@ public final class SABRInterestRateParameters
    * @return the volatility
    */
   public double getVolatility(double expiryTime, double tenor, double strike, double forward) {
-    DoublesPair expirytTenor = DoublesPair.of(expiryTime, tenor);
-    SABRFormulaData data = SABRFormulaData.of(
-        getAlpha(expirytTenor), getBeta(expirytTenor), getRho(expirytTenor), getNu(expirytTenor));
-    double shift = getShift(expirytTenor);
-    EuropeanVanillaOption option = EuropeanVanillaOption.of(strike + shift, expiryTime, PutCall.CALL);
-    return sabrFunctionProvider.getVolatility(option, forward + shift, data);
-  }
-
-  /**
-   * Returns the volatility sensitivity to the SABR parameters for given expiry, tenor, strike and forward rate.
-   * <p>
-   * This returns an array with alpha, beta, rho and nu sensitivities:
-   * [0] the derivative w.r.t. to alpha, [1] the derivative w.r.t. to beta, [2] the derivative w.r.t. to rho, and 
-   * [3] the derivative w.r.t. to nu.
-   * 
-   * @param expiryTime  time to expiry
-   * @param tenor  tenor
-   * @param strike  the strike
-   * @param forward  the forward
-   * @return the sensitivities
-   */
-  public DoubleArray getVolatilityModelAdjoint(double expiryTime, double tenor, double strike, double forward) {
-    DoublesPair expirytTenor = DoublesPair.of(expiryTime, tenor);
-    SABRFormulaData data = SABRFormulaData.of(
-        getAlpha(expirytTenor), getBeta(expirytTenor), getRho(expirytTenor), getNu(expirytTenor));
-    double shift = getShift(expirytTenor);
-    EuropeanVanillaOption option = EuropeanVanillaOption.of(strike + shift, expiryTime, PutCall.CALL);
-    return sabrFunctionProvider.getVolatilityModelAdjoint(option, forward + shift, data);
+    DoublesPair expiryTenor = DoublesPair.of(expiryTime, tenor);
+    SabrFormulaData data = SabrFormulaData.of(
+        getAlpha(expiryTenor), getBeta(expiryTenor), getRho(expiryTenor), getNu(expiryTenor));
+    double shift = getShift(expiryTenor);
+    return sabrFunctionProvider.getVolatility(forward + shift, strike + shift, expiryTime, data);
   }
 
   /**
    * Returns the volatility sensitivity to forward, strike and the SABR model parameters.
    * <p>
-   * This returns an array with [0] the volatility, [1] Derivative w.r.t the forward, [2] the derivative w.r.t the strike, 
-   * [3] the derivative w.r.t. to alpha, [4] the derivative w.r.t. to beta, [5] the derivative w.r.t. to rho, and 
-   * [6] the derivative w.r.t. to nu.
+   * The derivatives are stored in an array with [0] Derivative w.r.t the forward, [1] the derivative w.r.t the strike, 
+   * [2] the derivative w.r.t. to alpha, [3] the derivative w.r.t. to beta, [4] the derivative w.r.t. to rho, and 
+   * [5] the derivative w.r.t. to nu.
    * 
    * @param expiryTime  time to expiry
    * @param tenor  tenor
@@ -245,35 +222,34 @@ public final class SABRInterestRateParameters
    * @param forward  the forward
    * @return the sensitivities
    */
-  public DoubleArray getVolatilityAdjoint(double expiryTime, double tenor, double strike, double forward) {
+  public ValueDerivatives getVolatilityAdjoint(double expiryTime, double tenor, double strike, double forward) {
     DoublesPair expirytTenor = DoublesPair.of(expiryTime, tenor);
-    SABRFormulaData data = SABRFormulaData.of(
+    SabrFormulaData data = SabrFormulaData.of(
         getAlpha(expirytTenor), getBeta(expirytTenor), getRho(expirytTenor), getNu(expirytTenor));
     double shift = getShift(expirytTenor);
-    EuropeanVanillaOption option = EuropeanVanillaOption.of(strike + shift, expiryTime, PutCall.CALL);
-    return sabrFunctionProvider.getVolatilityAdjoint(option, forward + shift, data);
+    return sabrFunctionProvider.getVolatilityAdjoint(forward + shift, strike + shift, expiryTime, data);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code SABRInterestRateParameters}.
+   * The meta-bean for {@code SabrInterestRateParameters}.
    * @return the meta-bean, not null
    */
-  public static SABRInterestRateParameters.Meta meta() {
-    return SABRInterestRateParameters.Meta.INSTANCE;
+  public static SabrInterestRateParameters.Meta meta() {
+    return SabrInterestRateParameters.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(SABRInterestRateParameters.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(SabrInterestRateParameters.Meta.INSTANCE);
   }
 
-  private SABRInterestRateParameters(
+  private SabrInterestRateParameters(
       NodalSurface alphaSurface,
       NodalSurface betaSurface,
       NodalSurface rhoSurface,
       NodalSurface nuSurface,
-      VolatilityFunctionProvider<SABRFormulaData> sabrFunctionProvider,
+      VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider,
       NodalSurface shiftSurface) {
     JodaBeanUtils.notNull(alphaSurface, "alphaSurface");
     JodaBeanUtils.notNull(betaSurface, "betaSurface");
@@ -290,8 +266,8 @@ public final class SABRInterestRateParameters
   }
 
   @Override
-  public SABRInterestRateParameters.Meta metaBean() {
-    return SABRInterestRateParameters.Meta.INSTANCE;
+  public SabrInterestRateParameters.Meta metaBean() {
+    return SabrInterestRateParameters.Meta.INSTANCE;
   }
 
   @Override
@@ -355,7 +331,7 @@ public final class SABRInterestRateParameters
    * This returns functions containing the SABR volatility formula.
    * @return the value of the property, not null
    */
-  public VolatilityFunctionProvider<SABRFormulaData> getSabrFunctionProvider() {
+  public VolatilityFunctionProvider<SabrFormulaData> getSabrFunctionProvider() {
     return sabrFunctionProvider;
   }
 
@@ -378,7 +354,7 @@ public final class SABRInterestRateParameters
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      SABRInterestRateParameters other = (SABRInterestRateParameters) obj;
+      SabrInterestRateParameters other = (SabrInterestRateParameters) obj;
       return JodaBeanUtils.equal(getAlphaSurface(), other.getAlphaSurface()) &&
           JodaBeanUtils.equal(getBetaSurface(), other.getBetaSurface()) &&
           JodaBeanUtils.equal(getRhoSurface(), other.getRhoSurface()) &&
@@ -404,7 +380,7 @@ public final class SABRInterestRateParameters
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
-    buf.append("SABRInterestRateParameters{");
+    buf.append("SabrInterestRateParameters{");
     buf.append("alphaSurface").append('=').append(getAlphaSurface()).append(',').append(' ');
     buf.append("betaSurface").append('=').append(getBetaSurface()).append(',').append(' ');
     buf.append("rhoSurface").append('=').append(getRhoSurface()).append(',').append(' ');
@@ -417,7 +393,7 @@ public final class SABRInterestRateParameters
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code SABRInterestRateParameters}.
+   * The meta-bean for {@code SabrInterestRateParameters}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -429,33 +405,33 @@ public final class SABRInterestRateParameters
      * The meta-property for the {@code alphaSurface} property.
      */
     private final MetaProperty<NodalSurface> alphaSurface = DirectMetaProperty.ofImmutable(
-        this, "alphaSurface", SABRInterestRateParameters.class, NodalSurface.class);
+        this, "alphaSurface", SabrInterestRateParameters.class, NodalSurface.class);
     /**
      * The meta-property for the {@code betaSurface} property.
      */
     private final MetaProperty<NodalSurface> betaSurface = DirectMetaProperty.ofImmutable(
-        this, "betaSurface", SABRInterestRateParameters.class, NodalSurface.class);
+        this, "betaSurface", SabrInterestRateParameters.class, NodalSurface.class);
     /**
      * The meta-property for the {@code rhoSurface} property.
      */
     private final MetaProperty<NodalSurface> rhoSurface = DirectMetaProperty.ofImmutable(
-        this, "rhoSurface", SABRInterestRateParameters.class, NodalSurface.class);
+        this, "rhoSurface", SabrInterestRateParameters.class, NodalSurface.class);
     /**
      * The meta-property for the {@code nuSurface} property.
      */
     private final MetaProperty<NodalSurface> nuSurface = DirectMetaProperty.ofImmutable(
-        this, "nuSurface", SABRInterestRateParameters.class, NodalSurface.class);
+        this, "nuSurface", SabrInterestRateParameters.class, NodalSurface.class);
     /**
      * The meta-property for the {@code sabrFunctionProvider} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<VolatilityFunctionProvider<SABRFormulaData>> sabrFunctionProvider = DirectMetaProperty.ofImmutable(
-        this, "sabrFunctionProvider", SABRInterestRateParameters.class, (Class) VolatilityFunctionProvider.class);
+    private final MetaProperty<VolatilityFunctionProvider<SabrFormulaData>> sabrFunctionProvider = DirectMetaProperty.ofImmutable(
+        this, "sabrFunctionProvider", SabrInterestRateParameters.class, (Class) VolatilityFunctionProvider.class);
     /**
      * The meta-property for the {@code shiftSurface} property.
      */
     private final MetaProperty<NodalSurface> shiftSurface = DirectMetaProperty.ofImmutable(
-        this, "shiftSurface", SABRInterestRateParameters.class, NodalSurface.class);
+        this, "shiftSurface", SabrInterestRateParameters.class, NodalSurface.class);
     /**
      * The meta-properties.
      */
@@ -494,13 +470,13 @@ public final class SABRInterestRateParameters
     }
 
     @Override
-    public BeanBuilder<? extends SABRInterestRateParameters> builder() {
-      return new SABRInterestRateParameters.Builder();
+    public BeanBuilder<? extends SabrInterestRateParameters> builder() {
+      return new SabrInterestRateParameters.Builder();
     }
 
     @Override
-    public Class<? extends SABRInterestRateParameters> beanType() {
-      return SABRInterestRateParameters.class;
+    public Class<? extends SabrInterestRateParameters> beanType() {
+      return SabrInterestRateParameters.class;
     }
 
     @Override
@@ -545,7 +521,7 @@ public final class SABRInterestRateParameters
      * The meta-property for the {@code sabrFunctionProvider} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<VolatilityFunctionProvider<SABRFormulaData>> sabrFunctionProvider() {
+    public MetaProperty<VolatilityFunctionProvider<SabrFormulaData>> sabrFunctionProvider() {
       return sabrFunctionProvider;
     }
 
@@ -562,17 +538,17 @@ public final class SABRInterestRateParameters
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 667823471:  // alphaSurface
-          return ((SABRInterestRateParameters) bean).getAlphaSurface();
+          return ((SabrInterestRateParameters) bean).getAlphaSurface();
         case -526589795:  // betaSurface
-          return ((SABRInterestRateParameters) bean).getBetaSurface();
+          return ((SabrInterestRateParameters) bean).getBetaSurface();
         case 65433972:  // rhoSurface
-          return ((SABRInterestRateParameters) bean).getRhoSurface();
+          return ((SabrInterestRateParameters) bean).getRhoSurface();
         case 605272294:  // nuSurface
-          return ((SABRInterestRateParameters) bean).getNuSurface();
+          return ((SabrInterestRateParameters) bean).getNuSurface();
         case 678202663:  // sabrFunctionProvider
-          return ((SABRInterestRateParameters) bean).getSabrFunctionProvider();
+          return ((SabrInterestRateParameters) bean).getSabrFunctionProvider();
         case 1038377419:  // shiftSurface
-          return ((SABRInterestRateParameters) bean).getShiftSurface();
+          return ((SabrInterestRateParameters) bean).getShiftSurface();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -590,15 +566,15 @@ public final class SABRInterestRateParameters
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code SABRInterestRateParameters}.
+   * The bean-builder for {@code SabrInterestRateParameters}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<SABRInterestRateParameters> {
+  private static final class Builder extends DirectFieldsBeanBuilder<SabrInterestRateParameters> {
 
     private NodalSurface alphaSurface;
     private NodalSurface betaSurface;
     private NodalSurface rhoSurface;
     private NodalSurface nuSurface;
-    private VolatilityFunctionProvider<SABRFormulaData> sabrFunctionProvider;
+    private VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider;
     private NodalSurface shiftSurface;
 
     /**
@@ -645,7 +621,7 @@ public final class SABRInterestRateParameters
           this.nuSurface = (NodalSurface) newValue;
           break;
         case 678202663:  // sabrFunctionProvider
-          this.sabrFunctionProvider = (VolatilityFunctionProvider<SABRFormulaData>) newValue;
+          this.sabrFunctionProvider = (VolatilityFunctionProvider<SabrFormulaData>) newValue;
           break;
         case 1038377419:  // shiftSurface
           this.shiftSurface = (NodalSurface) newValue;
@@ -681,8 +657,8 @@ public final class SABRInterestRateParameters
     }
 
     @Override
-    public SABRInterestRateParameters build() {
-      return new SABRInterestRateParameters(
+    public SabrInterestRateParameters build() {
+      return new SabrInterestRateParameters(
           alphaSurface,
           betaSurface,
           rhoSurface,
@@ -695,7 +671,7 @@ public final class SABRInterestRateParameters
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(224);
-      buf.append("SABRInterestRateParameters.Builder{");
+      buf.append("SabrInterestRateParameters.Builder{");
       buf.append("alphaSurface").append('=').append(JodaBeanUtils.toString(alphaSurface)).append(',').append(' ');
       buf.append("betaSurface").append('=').append(JodaBeanUtils.toString(betaSurface)).append(',').append(' ');
       buf.append("rhoSurface").append('=').append(JodaBeanUtils.toString(rhoSurface)).append(',').append(' ');

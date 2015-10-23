@@ -14,18 +14,16 @@ import static org.testng.Assert.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.pricer.impl.volatility.smile.function.SABRFormulaData;
-
 /**
- * Test {@link SABRFormulaData}.
+ * Test {@link SabrFormulaData}.
  */
 @Test
-public class SABRFormulaDataTest {
+public class SabrFormulaDataTest {
   private static final double NU = 0.8;
   private static final double RHO = -0.65;
   private static final double BETA = 0.76;
   private static final double ALPHA = 1.4;
-  private static final SABRFormulaData DATA = SABRFormulaData.of(ALPHA, BETA, RHO, NU);
+  private static final SabrFormulaData DATA = SabrFormulaData.of(ALPHA, BETA, RHO, NU);
 
   @Test
   public void test() {
@@ -38,39 +36,39 @@ public class SABRFormulaDataTest {
     assertEquals(DATA.getParameter(2), RHO, 0);
     assertEquals(DATA.getParameter(3), NU, 0);
     assertEquals(DATA.getNumberOfParameters(), 4);
-    SABRFormulaData other = SABRFormulaData.of(new double[] {ALPHA, BETA, RHO, NU });
+    SabrFormulaData other = SabrFormulaData.of(new double[] {ALPHA, BETA, RHO, NU });
     assertEquals(other, DATA);
     assertEquals(other.hashCode(), DATA.hashCode());
 
     other = other.with(0, ALPHA - 0.01);
     assertFalse(other.equals(DATA));
-    other = SABRFormulaData.of(ALPHA, BETA * 0.5, RHO, NU);
+    other = SabrFormulaData.of(ALPHA, BETA * 0.5, RHO, NU);
     assertFalse(other.equals(DATA));
-    other = SABRFormulaData.of(ALPHA, BETA, RHO, NU * 0.5);
+    other = SabrFormulaData.of(ALPHA, BETA, RHO, NU * 0.5);
     assertFalse(other.equals(DATA));
-    other = SABRFormulaData.of(ALPHA, BETA, RHO * 0.5, NU);
+    other = SabrFormulaData.of(ALPHA, BETA, RHO * 0.5, NU);
     assertFalse(other.equals(DATA));
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void testNegativeBETA() {
-    assertThrowsIllegalArg(() -> SABRFormulaData.of(ALPHA, -BETA, RHO, NU));
+    assertThrowsIllegalArg(() -> SabrFormulaData.of(ALPHA, -BETA, RHO, NU));
   }
 
   @Test
   public void testNegativeNu() {
-    assertThrowsIllegalArg(() -> SABRFormulaData.of(ALPHA, BETA, RHO, -NU));
+    assertThrowsIllegalArg(() -> SabrFormulaData.of(ALPHA, BETA, RHO, -NU));
   }
 
   @Test
   public void testLowRho() {
-    assertThrowsIllegalArg(() -> SABRFormulaData.of(ALPHA, BETA, RHO - 10, NU));
+    assertThrowsIllegalArg(() -> SabrFormulaData.of(ALPHA, BETA, RHO - 10, NU));
   }
 
   @Test
   public void testHighRho() {
-    assertThrowsIllegalArg(() -> SABRFormulaData.of(ALPHA, BETA, RHO + 10, NU));
+    assertThrowsIllegalArg(() -> SabrFormulaData.of(ALPHA, BETA, RHO + 10, NU));
   }
 
   @Test
@@ -80,13 +78,13 @@ public class SABRFormulaDataTest {
 
   @Test
   public void testWrongParameterLength() {
-    assertThrowsIllegalArg(() -> SABRFormulaData.of(new double[] {ALPHA, BETA, RHO, NU, 0.1 }));
+    assertThrowsIllegalArg(() -> SabrFormulaData.of(new double[] {ALPHA, BETA, RHO, NU, 0.1 }));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(DATA);
-    SABRFormulaData another = SABRFormulaData.of(1.2, 0.4, 0.0, 0.2);
+    SabrFormulaData another = SabrFormulaData.of(1.2, 0.4, 0.0, 0.2);
     coverBeanEquals(DATA, another);
   }
 

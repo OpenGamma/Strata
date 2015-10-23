@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.pricer.impl.volatility.smile.fitting;
 
+import java.util.Arrays;
 import java.util.BitSet;
 
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -20,7 +20,6 @@ import com.opengamma.strata.math.impl.minimization.NonLinearTransformFunction;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.strata.math.impl.statistics.leastsquare.NonLinearLeastSquare;
-import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SmileModelData;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 
@@ -80,19 +79,13 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
     _marketValues = impliedVols;
     _errors = error;
     _model = model;
-    
-    EuropeanVanillaOption[] option = new EuropeanVanillaOption[n];
-    for (int i = 0; i < n; i++) {
-      PutCall putCall = strikes.get(i) >= forward ? PutCall.CALL : PutCall.PUT;
-      option[i] = EuropeanVanillaOption.of(strikes.get(i), timeToExpiry, putCall);
-    }
     _volFunc = new Function1D<DoubleArray, DoubleArray>() {
       @Override
       public DoubleArray evaluate(DoubleArray x) {
         final T data = toSmileModelData(x);
         double[] res = new double[n];
         for (int i = 0; i < n; ++i) {
-          res[i] = _model.getVolatility(option[i], forward, data);
+          res[i] = _model.getVolatility(forward, strikes.get(i), timeToExpiry, data);
         }
         return DoubleArray.copyOf(res);
       }
@@ -103,7 +96,8 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
         final T data = toSmileModelData(x);
         double[][] resAdj = new double[n][];
         for (int i = 0; i < n; ++i) {
-          resAdj[i] = _model.getVolatilityModelAdjoint(option[i], forward, data).toArray();
+          double[] deriv = _model.getVolatilityAdjoint(forward, strikes.get(i), timeToExpiry, data).getDerivatives();
+          resAdj[i] = Arrays.copyOfRange(deriv, 2, deriv.length);
         }
         return DoubleMatrix.copyOf(resAdj);
       }

@@ -19,38 +19,41 @@ import cern.jet.random.engine.RandomEngine;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.minimization.NonLinearParameterTransforms;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.SABRFormulaData;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.SABRHaganVolatilityFunctionProvider;
+import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrFormulaData;
+import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrHaganVolatilityFunctionProvider;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 
+/**
+ * Test {@link SabrModelFitter}.
+ */
 @Test
-public class SABRModelFitterTest extends SmileModelFitterTest<SABRFormulaData> {
+public class SabrModelFitterTest extends SmileModelFitterTest<SabrFormulaData> {
 
   private static double ALPHA = 0.05;
   private static double BETA = 0.5;
   private static double RHO = -0.3;
   private static double NU = 0.2;
-  private static Logger LOGGER = LoggerFactory.getLogger(SABRModelFitterTest.class);
+  private static Logger LOGGER = LoggerFactory.getLogger(SabrModelFitterTest.class);
   private static RandomEngine RANDOM = new MersenneTwister();
 
-  public SABRModelFitterTest() {
+  SabrModelFitterTest() {
     _chiSqEps = 1e-4;
   }
 
   @Override
-  VolatilityFunctionProvider<SABRFormulaData> getModel() {
-    return SABRHaganVolatilityFunctionProvider.DEFAULT;
+  VolatilityFunctionProvider<SabrFormulaData> getModel() {
+    return SabrHaganVolatilityFunctionProvider.DEFAULT;
   }
 
   @Override
-  SABRFormulaData getModelData() {
-    return SABRFormulaData.of(ALPHA, BETA, RHO, NU);
+  SabrFormulaData getModelData() {
+    return SabrFormulaData.of(ALPHA, BETA, RHO, NU);
   }
 
   @Override
-  SmileModelFitter<SABRFormulaData> getFitter(double forward, double[] strikes, double timeToExpiry,
-      double[] impliedVols, double[] error, VolatilityFunctionProvider<SABRFormulaData> model) {
-    return new SABRModelFitter(forward, DoubleArray.copyOf(strikes), timeToExpiry, DoubleArray.copyOf(impliedVols),
+  SmileModelFitter<SabrFormulaData> getFitter(double forward, double[] strikes, double timeToExpiry,
+      double[] impliedVols, double[] error, VolatilityFunctionProvider<SabrFormulaData> model) {
+    return new SabrModelFitter(forward, DoubleArray.copyOf(strikes), timeToExpiry, DoubleArray.copyOf(impliedVols),
         DoubleArray.copyOf(error), model);
   }
 
@@ -108,7 +111,6 @@ public class SABRModelFitterTest extends SmileModelFitterTest<SABRFormulaData> {
     assertEquals(0.0, results.getChiSq(), eps);
   }
 
-  @Test
   public void testExactFitWithFixedBeta() {
     double[] start = new double[] {0.1, 0.5, 0.0, 0.3 };
     BitSet fixed = new BitSet();

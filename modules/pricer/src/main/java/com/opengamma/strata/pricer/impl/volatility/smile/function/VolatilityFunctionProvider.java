@@ -5,10 +5,9 @@
  */
 package com.opengamma.strata.pricer.impl.volatility.smile.function;
 
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
 
 /**
  * Provides functions that return volatility and its sensitivity to volatility model parameters. 
@@ -22,76 +21,58 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
   /**
    * Computes the volatility. 
    * 
-   * @param option  the option
    * @param forward  the forward value of the underlying
+   * @param strike  the strike value of the option
+   * @param timeToExpiry  the time to expiry of the option
    * @param data  the model data
    * @return the volatility
    */
-  public abstract double getVolatility(EuropeanVanillaOption option, double forward, T data);
-
-  /**
-   * Computes the volatility sensitivity to the model parameters by means of central finite difference. 
-   * <p>
-   * This should be overridden where possible. 
-   * 
-   * @param option  the option
-   * @param forward  the forward value of the underlying
-   * @param data  the model data
-   * @return the sensitivities
-   */
-  public DoubleArray getVolatilityModelAdjoint(EuropeanVanillaOption option, double forward, T data) {
-    ArgChecker.notNull(option, "option");
-    ArgChecker.isTrue(forward >= 0.0, "forward must be greater than zero");
-    Function1D<T, Double> func = getVolatilityFunction(option, forward);
-    return DoubleArray.ofUnsafe(paramBar(func, data));
-  }
+  public abstract double getVolatility(double forward, double strike, double timeToExpiry, T data);
 
   /**
    * Computes volatility and the adjoint (volatility sensitivity to forward, strike and model parameters). 
    * <p>
-   * This should be overridden where possible. 
+   * By default the derivatives are computed by central finite difference approximation. 
+   * This should be overridden in each subclass. 
    * 
-   * @param option  the option, not null
    * @param forward  the forward value of the underlying
+   * @param strike  the strike value of the option
+   * @param timeToExpiry  the time to expiry of the option
    * @param data  the model data
    * @return the sensitivities
    */
-  public DoubleArray getVolatilityAdjoint(EuropeanVanillaOption option, double forward, T data) {
-    ArgChecker.notNull(option, "option");
+  public ValueDerivatives getVolatilityAdjoint(double forward, double strike, double timeToExpiry, T data) {
     ArgChecker.isTrue(forward >= 0.0, "forward must be greater than zero");
 
-    double[] res = new double[3 + data.getNumberOfParameters()]; //vol, fwd, strike, the model parameters
-    res[0] = getVolatility(option, forward, data);
-    res[1] = forwardBar(option, forward, data);
-    res[2] = strikeBar(option, forward, data);
-    DoubleArray modelAdjoint = getVolatilityModelAdjoint(option, forward, data);
-    System.arraycopy(modelAdjoint.toArray(), 0, res, 3, data.getNumberOfParameters());
-    return DoubleArray.ofUnsafe(res);
+    double[] res = new double[2 + data.getNumberOfParameters()]; // fwd, strike, the model parameters
+    double volatility = getVolatility(forward, strike, timeToExpiry, data);
+    res[0] = forwardBar(forward, strike, timeToExpiry, data);
+    res[1] = strikeBar(forward, strike, timeToExpiry, data);
+    Function1D<T, Double> func = getVolatilityFunction(forward, strike, timeToExpiry);
+    double[] modelAdjoint = paramBar(func, data);
+    System.arraycopy(modelAdjoint, 0, res, 2, data.getNumberOfParameters());
+    return ValueDerivatives.of(volatility, res);
   }
 
   //-------------------------------------------------------------------------
-  private double forwardBar(EuropeanVanillaOption option, double forward, T data) {
-    double volUp = getVolatility(option, forward + EPS, data);
-    double volDown = getVolatility(option, forward - EPS, data);
+  private double forwardBar(double forward, double strike, double timeToExpiry, T data) {
+    double volUp = getVolatility(forward + EPS, strike, timeToExpiry, data);
+    double volDown = getVolatility(forward - EPS, strike, timeToExpiry, data);
     return 0.5 * (volUp - volDown) / EPS;
   }
 
-  private double strikeBar(EuropeanVanillaOption option, double forward, T data) {
-    EuropeanVanillaOption optionUp =
-        EuropeanVanillaOption.of(option.getStrike() + EPS, option.getTimeToExpiry(), option.getPutCall());
-    EuropeanVanillaOption optionDw =
-        EuropeanVanillaOption.of(option.getStrike() - EPS, option.getTimeToExpiry(), option.getPutCall());
-    double volUp = getVolatility(optionUp, forward, data);
-    double volDown = getVolatility(optionDw, forward, data);
+  private double strikeBar(double forward, double strike, double timeToExpiry, T data) {
+    double volUp = getVolatility(forward, strike + EPS, timeToExpiry, data);
+    double volDown = getVolatility(forward, strike - EPS, timeToExpiry, data);
     return 0.5 * (volUp - volDown) / EPS;
   }
 
-  private Function1D<T, Double> getVolatilityFunction(EuropeanVanillaOption option, double forward) {
+  private Function1D<T, Double> getVolatilityFunction(double forward, double strike, double timeToExpiry) {
     return new Function1D<T, Double>() {
       @Override
       public Double evaluate(T data) {
         ArgChecker.notNull(data, "data");
-        return getVolatility(option, forward, data);
+        return getVolatility(forward, strike, timeToExpiry, data);
       }
     };
   }
