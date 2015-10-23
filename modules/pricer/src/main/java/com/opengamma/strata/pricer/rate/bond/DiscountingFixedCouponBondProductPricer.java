@@ -127,7 +127,7 @@ public class DiscountingFixedCouponBondProductPricer {
    * @param product  the product to price
    * @param provider  the rates provider
    * @param zSpread  the z-spread
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @return the present value of the fixed coupon bond product
    */
@@ -213,7 +213,7 @@ public class DiscountingFixedCouponBondProductPricer {
    * @param security  the security to price
    * @param provider  the rates provider
    * @param zSpread  the z-spread
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @return the dirty price of the fixed coupon bond security
    */
@@ -240,7 +240,7 @@ public class DiscountingFixedCouponBondProductPricer {
    * @param security  the security to price
    * @param provider  the rates provider
    * @param zSpread  the z-spread
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @param settlementDate  the settlement date
    * @return the dirty price of the fixed coupon bond security
@@ -303,7 +303,7 @@ public class DiscountingFixedCouponBondProductPricer {
    * @param security  the security to price
    * @param provider  the rates provider
    * @param dirtyPrice  the dirtyPrice
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @return the z-spread of the fixed coupon bond security
    */
@@ -368,7 +368,7 @@ public class DiscountingFixedCouponBondProductPricer {
    * @param product  the product to price
    * @param provider  the rates provider
    * @param zSpread  the z-spread
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @return the present value curve sensitivity of the product
    */
@@ -445,7 +445,7 @@ public class DiscountingFixedCouponBondProductPricer {
    * @param security  the security to price
    * @param provider  the rates provider
    * @param zSpread  the z-spread
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @return the dirty price curve sensitivity of the security
    */

@@ -77,7 +77,7 @@ public class DiscountingFixedCouponBondPaymentPeriodPricer {
    * @param period  the period to price
    * @param discountFactors  the discount factor provider
    * @param zSpread  the z-spread
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @return the present value of the period
    */
@@ -154,7 +154,7 @@ public class DiscountingFixedCouponBondPaymentPeriodPricer {
    * @param period  the period to price
    * @param discountFactors  the discount factor provider
    * @param zSpread  the z-spread
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @return the present value curve sensitivity of the period
    */
@@ -234,7 +234,7 @@ public class DiscountingFixedCouponBondPaymentPeriodPricer {
    * @param period  the period to price
    * @param discountFactors  the discount factor provider
    * @param zSpread  the z-spread
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @param builder  the builder to populate
    */

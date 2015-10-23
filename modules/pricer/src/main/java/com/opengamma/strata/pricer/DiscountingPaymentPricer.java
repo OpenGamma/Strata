@@ -62,7 +62,7 @@ public class DiscountingPaymentPricer {
    * @param payment  the payment to price
    * @param discountFactors  the discount factors to price against
    * @param zSpread  the z-spread
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @return the present value
    */
@@ -134,7 +134,7 @@ public class DiscountingPaymentPricer {
    * @param payment  the payment to price
    * @param discountFactors  the discount factors to price against
    * @param zSpread  the z-spread
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @return the point sensitivity of the present value
    */

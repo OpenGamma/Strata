@@ -95,7 +95,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * @param trade  the trade to price
    * @param provider  the rates provider
    * @param zSpread  the z-spread
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @return the present value of the fixed coupon bond trade
    */
@@ -184,7 +184,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * @param provider  the rates provider
    * @param cleanPrice  the clean price
    * @param zSpread  the z-spread
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @return the present value of the fixed coupon bond trade
    */
@@ -262,7 +262,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * @param trade  the trade to price
    * @param provider  the rates provider
    * @param zSpread  the z-spread
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @return the present value curve sensitivity of the trade
    */

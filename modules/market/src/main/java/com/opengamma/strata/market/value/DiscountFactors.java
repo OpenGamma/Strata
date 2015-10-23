@@ -85,7 +85,7 @@ public interface DiscountFactors {
    * 
    * @param date  the date to discount to
    * @param zSpread  the z-spread
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @return the discount factor
    * @throws RuntimeException if the value cannot be obtained
@@ -124,7 +124,7 @@ public interface DiscountFactors {
    * 
    * @param date  the date to discount to
    * @param zSpread  the z-spread
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodPerYear  the number of periods per year
    * @return the point sensitivity of the zero rate
    * @throws RuntimeException if the result cannot be calculated
@@ -170,7 +170,7 @@ public interface DiscountFactors {
    * @param date  the date to discount to
    * @param sensitivityCurrency  the currency of the sensitivity
    * @param zSpread  the z-spread
-   * @param compoundedRateType  compounded rate type
+   * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @return the point sensitivity of the zero rate
    * @throws RuntimeException if the result cannot be calculated
