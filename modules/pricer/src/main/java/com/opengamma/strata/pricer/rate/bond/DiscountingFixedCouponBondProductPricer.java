@@ -135,6 +135,7 @@ public class DiscountingFixedCouponBondProductPricer {
       FixedCouponBond product,
       LegalEntityDiscountingProvider provider,
       double zSpread,
+
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
@@ -420,15 +421,25 @@ public class DiscountingFixedCouponBondProductPricer {
 
     FixedCouponBond product = security.getProduct();
     LocalDate settlementDate = product.getSettlementDateOffset().adjust(provider.getValuationDate());
+    return dirtyPriceSensitivity(security, provider, settlementDate);
+  }
+
+  // calculate the dirty price sensitivity
+  PointSensitivityBuilder dirtyPriceSensitivity(
+      Security<FixedCouponBond> security,
+      LegalEntityDiscountingProvider provider,
+      LocalDate referenceDate) {
+    
+    FixedCouponBond product = security.getProduct();
     StandardId securityId = security.getStandardId();
     StandardId legalEntityId = product.getLegalEntityId();
     RepoCurveDiscountFactors discountFactors =
         provider.repoCurveDiscountFactors(securityId, legalEntityId, product.getCurrency());
-    double df = discountFactors.discountFactor(settlementDate);
+    double df = discountFactors.discountFactor(referenceDate);
     CurrencyAmount pv = presentValue(product, provider);
     double notional = product.getNotional();
     PointSensitivityBuilder pvSensi = presentValueSensitivity(product, provider).multipliedBy(1d / df / notional);
-    RepoCurveZeroRateSensitivity dfSensi = discountFactors.zeroRatePointSensitivity(settlementDate)
+    RepoCurveZeroRateSensitivity dfSensi = discountFactors.zeroRatePointSensitivity(referenceDate)
         .multipliedBy(-pv.getAmount() / df / df / notional);
     return pvSensi.combinedWith(dfSensi);
   }
@@ -455,19 +466,30 @@ public class DiscountingFixedCouponBondProductPricer {
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
-
     FixedCouponBond product = security.getProduct();
     LocalDate settlementDate = product.getSettlementDateOffset().adjust(provider.getValuationDate());
+    return dirtyPriceSensitivityWithZspread(security, provider, zSpread, compoundedRateType, periodsPerYear, settlementDate);
+  }
+
+  // calculate the dirty price sensitivity
+  PointSensitivityBuilder dirtyPriceSensitivityWithZspread(
+      Security<FixedCouponBond> security,
+      LegalEntityDiscountingProvider provider,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodsPerYear,
+      LocalDate referenceDate) {
+    FixedCouponBond product = security.getProduct();
     StandardId securityId = security.getStandardId();
     StandardId legalEntityId = product.getLegalEntityId();
     RepoCurveDiscountFactors discountFactors =
         provider.repoCurveDiscountFactors(securityId, legalEntityId, product.getCurrency());
-    double df = discountFactors.discountFactor(settlementDate);
+    double df = discountFactors.discountFactor(referenceDate);
     CurrencyAmount pv = presentValueWithZSpread(product, provider, zSpread, compoundedRateType, periodsPerYear);
     double notional = product.getNotional();
     PointSensitivityBuilder pvSensi = presentValueSensitivityWithZSpread(
         product, provider, zSpread, compoundedRateType, periodsPerYear).multipliedBy(1d / df / notional);
-    RepoCurveZeroRateSensitivity dfSensi = discountFactors.zeroRatePointSensitivity(settlementDate)
+    RepoCurveZeroRateSensitivity dfSensi = discountFactors.zeroRatePointSensitivity(referenceDate)
         .multipliedBy(-pv.getAmount() / df / df / notional);
     return pvSensi.combinedWith(dfSensi);
   }
