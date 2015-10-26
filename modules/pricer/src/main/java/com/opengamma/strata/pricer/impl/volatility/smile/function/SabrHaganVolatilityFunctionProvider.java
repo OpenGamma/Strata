@@ -58,7 +58,7 @@ public final class SabrHaganVolatilityFunctionProvider
   public double getVolatility(double forward, double strike, double timeToExpiry, SabrFormulaData data) {
     ArgChecker.isTrue(forward > 0.0, "forward must be greater than zero");
     ArgChecker.isTrue(strike > 0.0, "strike must be greater than zero");
-    ArgChecker.isTrue(timeToExpiry > 0.0, "forward must be greater than zero");
+    ArgChecker.isTrue(timeToExpiry >= 0.0, "timeToExpiry must be greater than zero");
     ArgChecker.notNull(data, "data");
 
     double alpha = data.getAlpha();
@@ -134,7 +134,7 @@ public final class SabrHaganVolatilityFunctionProvider
   public ValueDerivatives getVolatilityAdjoint(double forward, double strike, double timeToExpiry, SabrFormulaData data) {
     ArgChecker.isTrue(forward > 0.0, "forward must be greater than zero");
     ArgChecker.isTrue(strike > 0.0, "strike must be greater than zero");
-    ArgChecker.isTrue(timeToExpiry > 0.0, "forward must be greater than zero");
+    ArgChecker.isTrue(timeToExpiry >= 0.0, "timeToExpiry must be greater than zero");
     /**
      * The array storing the derivatives.
      */

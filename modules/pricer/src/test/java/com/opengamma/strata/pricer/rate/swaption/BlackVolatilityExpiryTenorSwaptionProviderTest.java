@@ -37,7 +37,7 @@ import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
-import com.opengamma.strata.market.surface.SwaptionVolatilitySurfaceExpiryTenorNodeMetadata;
+import com.opengamma.strata.market.surface.SwaptionSurfaceExpiryTenorNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
@@ -63,12 +63,12 @@ public class BlackVolatilityExpiryTenorSwaptionProviderTest {
   private static final SurfaceMetadata METADATA_WITH_PARAM;
   private static final SurfaceMetadata METADATA;
   static {
-    List<SwaptionVolatilitySurfaceExpiryTenorNodeMetadata> list =
-        new ArrayList<SwaptionVolatilitySurfaceExpiryTenorNodeMetadata>();
+    List<SwaptionSurfaceExpiryTenorNodeMetadata> list =
+        new ArrayList<SwaptionSurfaceExpiryTenorNodeMetadata>();
     int nData = TIME.size();
     for (int i = 0; i < nData; ++i) {
-      SwaptionVolatilitySurfaceExpiryTenorNodeMetadata parameterMetadata =
-          SwaptionVolatilitySurfaceExpiryTenorNodeMetadata.of(TIME.get(i), TENOR.get(i));
+      SwaptionSurfaceExpiryTenorNodeMetadata parameterMetadata =
+          SwaptionSurfaceExpiryTenorNodeMetadata.of(TIME.get(i), TENOR.get(i));
       list.add(parameterMetadata);
     }
     METADATA_WITH_PARAM = DefaultSurfaceMetadata.builder()
@@ -178,8 +178,8 @@ public class BlackVolatilityExpiryTenorSwaptionProviderTest {
       DoubleArray computed = sensi.getSensitivity();
       assertEquals(computed.size(), nData);
       for (int j = 0; j < list.size(); ++j) {
-        SwaptionVolatilitySurfaceExpiryTenorNodeMetadata metadata =
-            (SwaptionVolatilitySurfaceExpiryTenorNodeMetadata) list.get(i);
+        SwaptionSurfaceExpiryTenorNodeMetadata metadata =
+            (SwaptionSurfaceExpiryTenorNodeMetadata) list.get(i);
         double expected = map.get(DoublesPair.of(metadata.getYearFraction(), metadata.getTenor()));
         assertEquals(computed.get(i), expected, eps);
         assertTrue(sensiFromNoMetadata.getMetadata().getParameterMetadata().get().contains(metadata));
