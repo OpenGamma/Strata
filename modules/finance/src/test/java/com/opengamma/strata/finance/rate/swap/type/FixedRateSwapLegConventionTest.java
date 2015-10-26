@@ -64,6 +64,26 @@ public class FixedRateSwapLegConventionTest {
     assertEquals(test.getCompoundingMethod(), CompoundingMethod.NONE);
   }
 
+  public void test_builder() {
+    FixedRateSwapLegConvention test = FixedRateSwapLegConvention.builder()
+        .currency(GBP)
+        .dayCount(ACT_365F)
+        .accrualFrequency(P3M)
+        .accrualBusinessDayAdjustment(BDA_MOD_FOLLOW)
+        .build();
+    assertEquals(test.getCurrency(), GBP);
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getAccrualFrequency(), P3M);
+    assertEquals(test.getAccrualBusinessDayAdjustment(), BDA_MOD_FOLLOW);
+    assertEquals(test.getStartDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
+    assertEquals(test.getEndDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
+    assertEquals(test.getStubConvention(), StubConvention.SHORT_INITIAL);
+    assertEquals(test.getRollConvention(), RollConventions.NONE);
+    assertEquals(test.getPaymentFrequency(), P3M);
+    assertEquals(test.getPaymentDateOffset(), DaysAdjustment.NONE);
+    assertEquals(test.getCompoundingMethod(), CompoundingMethod.NONE);
+  }
+
   //-------------------------------------------------------------------------
   public void test_builder_notEnoughData() {
     assertThrowsIllegalArg(() -> FixedRateSwapLegConvention.builder().build());

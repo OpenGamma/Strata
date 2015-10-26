@@ -54,8 +54,8 @@ public class FixedIborSwapTemplateTest {
       FixedRateSwapLegConvention.of(GBP, ACT_365F, P3M, BDA_MOD_FOLLOW);
   private static final IborRateSwapLegConvention IBOR = IborRateSwapLegConvention.of(USD_LIBOR_3M);
   private static final IborRateSwapLegConvention IBOR2 = IborRateSwapLegConvention.of(GBP_LIBOR_3M);
-  private static final FixedIborSwapConvention CONV = FixedIborSwapConvention.of(FIXED, IBOR);
-  private static final FixedIborSwapConvention CONV2 = FixedIborSwapConvention.of(FIXED2, IBOR2);
+  private static final FixedIborSwapConvention CONV = ImmutableFixedIborSwapConvention.of("USD-Swap", FIXED, IBOR);
+  private static final FixedIborSwapConvention CONV2 = ImmutableFixedIborSwapConvention.of("GBP-Swap", FIXED2, IBOR2);
 
   //-------------------------------------------------------------------------
   public void test_of() {

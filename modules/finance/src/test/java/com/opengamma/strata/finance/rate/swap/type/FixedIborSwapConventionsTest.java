@@ -53,7 +53,7 @@ public class FixedIborSwapConventionsTest {
   }
 
   @Test(dataProvider = "spotLag")
-  public void test_spot_lag(FixedIborSwapConvention convention, int lag) {
+  public void test_spot_lag(ImmutableFixedIborSwapConvention convention, int lag) {
     assertEquals(convention.getSpotDateOffset().getDays(), lag);
   }
 
@@ -181,6 +181,7 @@ public class FixedIborSwapConventionsTest {
 
   public void coverage() {
     coverPrivateConstructor(FixedIborSwapConventions.class);
+    coverPrivateConstructor(StandardFixedIborSwapConventions.class);
   }
 
 }

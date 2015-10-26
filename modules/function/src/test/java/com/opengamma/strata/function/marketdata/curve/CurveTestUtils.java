@@ -25,6 +25,7 @@ import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.finance.rate.swap.type.FixedRateSwapLegConvention;
 import com.opengamma.strata.finance.rate.swap.type.IborRateSwapLegConvention;
+import com.opengamma.strata.finance.rate.swap.type.ImmutableFixedIborSwapConvention;
 import com.opengamma.strata.function.interpolator.CurveExtrapolators;
 import com.opengamma.strata.function.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.curve.CurveName;
@@ -54,7 +55,7 @@ final class CurveTestUtils {
       FixedRateSwapLegConvention.of(Currency.USD, DayCounts.ACT_360, Frequency.P6M, BDA_FOLLOW);
 
   private static final FixedIborSwapConvention SWAP_CONVENTION =
-      FixedIborSwapConvention.of(FIXED_CONVENTION, FLOATING_CONVENTION);
+      ImmutableFixedIborSwapConvention.of("USD-Swap", FIXED_CONVENTION, FLOATING_CONVENTION);
 
   private CurveTestUtils() {
   }
