@@ -30,6 +30,7 @@ import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLegType;
 import com.opengamma.strata.finance.rate.swap.type.IborIborSwapConvention;
+import com.opengamma.strata.finance.rate.swap.type.ImmutableIborIborSwapConvention;
 import com.opengamma.strata.finance.rate.swaption.CashSettlement;
 import com.opengamma.strata.finance.rate.swaption.CashSettlementMethod;
 import com.opengamma.strata.finance.rate.swaption.PhysicalSettlement;
@@ -71,8 +72,9 @@ public class BlackSwaptionPhysicalProductPricerTest {
       .toTrade(VALUATION_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, SELL, NOTIONAL, STRIKE).getProduct();
   private static final Swap SWAP_PAY = USD_FIXED_6M_LIBOR_3M
       .toTrade(VALUATION_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, BUY, NOTIONAL, STRIKE).getProduct();
-  private static final IborIborSwapConvention USD_LIBOR_3M_LIBOR_3M = // Only for ArgChecker, not real convention
-      IborIborSwapConvention.of(USD_FIXED_6M_LIBOR_3M.getFloatingLeg(), USD_FIXED_6M_LIBOR_3M.getFloatingLeg());
+  //Only for ArgChecker, not real convention
+  private static final IborIborSwapConvention USD_LIBOR_3M_LIBOR_3M = ImmutableIborIborSwapConvention.of(
+      "USD-Swap", USD_FIXED_6M_LIBOR_3M.getFloatingLeg(), USD_FIXED_6M_LIBOR_3M.getFloatingLeg());
   private static final Swap SWAP_BASIS = USD_LIBOR_3M_LIBOR_3M
       .toTrade(VALUATION_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, BUY, NOTIONAL, STRIKE).getProduct();
   private static final Swap SWAP_PAST = USD_FIXED_6M_LIBOR_3M // Only for checks; no actual computation on that swap

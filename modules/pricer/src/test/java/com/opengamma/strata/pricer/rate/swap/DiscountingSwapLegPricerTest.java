@@ -197,7 +197,7 @@ public class DiscountingSwapLegPricerTest {
 
   public void test_pvbp_compounding_flat_ibor() {
     LocalDate tradeDate = RATES_USD.getValuationDate();
-    LocalDate effectiveDate = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.getSpotDateOffset().adjust(tradeDate);
+    LocalDate effectiveDate = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.calculateSpotDateFromTradeDate(tradeDate);
     LocalDate endDate = effectiveDate.plus(TENOR_10Y);
     double spread = 0.0015;
     double shift = 1.0E-6;
@@ -423,7 +423,7 @@ public class DiscountingSwapLegPricerTest {
 
   public void test_pvbpSensitivity_compounding_flat_ibor() {
     LocalDate tradeDate = RATES_USD.getValuationDate();
-    LocalDate effectiveDate = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.getSpotDateOffset().adjust(tradeDate);
+    LocalDate effectiveDate = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.calculateSpotDateFromTradeDate(tradeDate);
     LocalDate endDate = effectiveDate.plus(TENOR_10Y);
     double spread = 0.0015;
     RateCalculationSwapLeg leg = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.getSpreadLeg()

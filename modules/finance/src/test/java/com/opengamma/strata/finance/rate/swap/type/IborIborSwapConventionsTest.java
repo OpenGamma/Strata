@@ -27,7 +27,7 @@ import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 
 /**
- * Test {@link FixedIborSwapConventions}.
+ * Test {@link IborIborSwapConventions}.
  * <p>
  * These tests  match the table 18.1 in the following guide:
  * http://www.opengamma.com/sites/default/files/interest-rate-instruments-and-market-conventions.pdf
@@ -44,7 +44,7 @@ public class IborIborSwapConventionsTest {
   }
 
   @Test(dataProvider = "spotLag")
-  public void test_spot_lag(IborIborSwapConvention convention, int lag) {
+  public void test_spot_lag(ImmutableIborIborSwapConvention convention, int lag) {
     assertEquals(convention.getSpotDateOffset().getDays(), lag);
   }
 
@@ -136,8 +136,10 @@ public class IborIborSwapConventionsTest {
     assertTrue(endDate.isBefore(tradeDate.plus(tenor).plusMonths(1)));
   }
 
+  //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(FixedIborSwapConventions.class);
+    coverPrivateConstructor(IborIborSwapConventions.class);
+    coverPrivateConstructor(StandardIborIborSwapConventions.class);
   }
 
 }

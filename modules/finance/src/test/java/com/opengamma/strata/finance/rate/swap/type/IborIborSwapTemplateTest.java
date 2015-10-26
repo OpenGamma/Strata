@@ -40,8 +40,8 @@ public class IborIborSwapTemplateTest {
   private static final IborRateSwapLegConvention IBOR1M = IborRateSwapLegConvention.of(USD_LIBOR_1M);
   private static final IborRateSwapLegConvention IBOR3M = IborRateSwapLegConvention.of(USD_LIBOR_3M);
   private static final IborRateSwapLegConvention IBOR6M = IborRateSwapLegConvention.of(USD_LIBOR_6M);
-  private static final IborIborSwapConvention CONV = IborIborSwapConvention.of(IBOR3M, IBOR6M);
-  private static final IborIborSwapConvention CONV2 = IborIborSwapConvention.of(IBOR1M, IBOR3M);
+  private static final IborIborSwapConvention CONV = ImmutableIborIborSwapConvention.of("USD-Swap", IBOR3M, IBOR6M);
+  private static final IborIborSwapConvention CONV2 = ImmutableIborIborSwapConvention.of("USD-Swap2", IBOR1M, IBOR3M);
 
   //-------------------------------------------------------------------------
   public void test_of() {
