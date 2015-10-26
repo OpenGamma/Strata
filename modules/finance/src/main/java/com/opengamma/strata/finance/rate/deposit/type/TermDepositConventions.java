@@ -8,7 +8,7 @@ package com.opengamma.strata.finance.rate.deposit.type;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
- * Helper for conventions.
+ * Market standard term deposit conventions.
  */
 public final class TermDepositConventions {
 

@@ -46,11 +46,12 @@ import com.opengamma.strata.basics.market.ImmutableObservableValues;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTemplate;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
-import com.opengamma.strata.finance.rate.deposit.TermDepositConvention;
-import com.opengamma.strata.finance.rate.deposit.TermDepositTemplate;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
+import com.opengamma.strata.finance.rate.deposit.type.IborFixingDepositTemplate;
+import com.opengamma.strata.finance.rate.deposit.type.ImmutableTermDepositConvention;
+import com.opengamma.strata.finance.rate.deposit.type.TermDepositConvention;
+import com.opengamma.strata.finance.rate.deposit.type.TermDepositTemplate;
 import com.opengamma.strata.finance.rate.future.IborFutureTrade;
 import com.opengamma.strata.finance.rate.future.type.IborFutureConvention;
 import com.opengamma.strata.finance.rate.future.type.IborFutureTemplate;
@@ -144,7 +145,7 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
     for(int i = 0; i < DSC_NB_DEPO_NODES; i++) {
       BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, USNY);
       TermDepositConvention convention = 
-          TermDepositConvention.of(USD, bda, ACT_360, DaysAdjustment.ofBusinessDays(DSC_DEPO_OFFSET[i], USNY));
+          ImmutableTermDepositConvention.of(USD, bda, ACT_360, DaysAdjustment.ofBusinessDays(DSC_DEPO_OFFSET[i], USNY));
       DSC_NODES[i] = TermDepositCurveNode.of(TermDepositTemplate.of(Period.ofDays(1), convention), 
           QuoteKey.of(StandardId.of(SCHEME, DSC_ID_VALUE[i])));
     }
