@@ -6,6 +6,7 @@
 package com.opengamma.strata.finance.rate.bond;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -20,7 +21,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -41,6 +41,7 @@ import com.opengamma.strata.finance.UnitSecurity;
 @SuppressWarnings("unchecked")
 @Test
 public class BondFutureTest {
+
   // Underlying bonds
   private static final StandardId SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BONDS"); // same repo curve for all bonds
   private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT1");
@@ -49,19 +50,20 @@ public class BondFutureTest {
   private static final HolidayCalendar CALENDAR = HolidayCalendars.SAT_SUN;
   private static final DaysAdjustment SETTLEMENT_DAYS = DaysAdjustment.ofBusinessDays(1, CALENDAR);
   private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ICMA;
-  private static final BusinessDayAdjustment BUSINESS_ADJUST =
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR);
+  private static final BusinessDayAdjustment BUSINESS_ADJUST = BusinessDayAdjustment.of(FOLLOWING, CALENDAR);
   private static final DaysAdjustment EX_COUPON = DaysAdjustment.NONE;
   private static final int NB_BOND = 7;
-  private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175 };
-  private static final LocalDate[] START_DATE = new LocalDate[] {LocalDate.of(2010, 11, 30),
-    LocalDate.of(2010, 12, 31), LocalDate.of(2011, 1, 31), LocalDate.of(2008, 2, 29), LocalDate.of(2011, 3, 31),
-    LocalDate.of(2011, 4, 30), LocalDate.of(2011, 5, 31) };
-  private static final Period[] BOND_TENOR = new Period[] {Period.ofYears(5), Period.ofYears(5), Period.ofYears(5),
-    Period.ofYears(8), Period.ofYears(5), Period.ofYears(5), Period.ofYears(5) };
+  private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175};
+  private static final LocalDate[] START_DATE = new LocalDate[] {
+      LocalDate.of(2010, 11, 30), LocalDate.of(2010, 12, 31), LocalDate.of(2011, 1, 31), LocalDate.of(2008, 2, 29),
+      LocalDate.of(2011, 3, 31), LocalDate.of(2011, 4, 30), LocalDate.of(2011, 5, 31)};
+  private static final Period[] BOND_TENOR = new Period[] {
+      Period.ofYears(5), Period.ofYears(5), Period.ofYears(5), Period.ofYears(8),
+      Period.ofYears(5), Period.ofYears(5), Period.ofYears(5)};
   @SuppressWarnings("unchecked")
   private static final SecurityLink<FixedCouponBond>[] SECURITY_LINK = new SecurityLink[NB_BOND];
   private static final FixedCouponBond[] BOND_PRODUCT = new FixedCouponBond[NB_BOND];
+
   static {
     for (int i = 0; i < NB_BOND; ++i) {
       LocalDate endDate = START_DATE[i].plus(BOND_TENOR[i]);
@@ -83,8 +85,9 @@ public class BondFutureTest {
       SECURITY_LINK[i] = SecurityLink.resolved(bondSecurity);
     }
   }
+
   // future specification
-  private static final Double[] CONVERSION_FACTOR = new Double[] {.8317, .8565, .8493, .8516, .8540, .8417, .8292 };
+  private static final Double[] CONVERSION_FACTOR = new Double[] {.8317, .8565, .8493, .8516, .8540, .8417, .8292};
   private static final LocalDate LAST_TRADING_DATE = LocalDate.of(2011, 9, 30);
   private static final LocalDate FIRST_NOTICE_DATE = LocalDate.of(2011, 8, 31);
   private static final LocalDate LAST_NOTICE_DATE = LocalDate.of(2011, 10, 4);

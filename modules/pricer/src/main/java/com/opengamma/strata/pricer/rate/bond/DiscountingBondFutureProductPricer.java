@@ -26,8 +26,8 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
   /**
    * Default implementation.
    */
-  public static final DiscountingBondFutureProductPricer DEFAULT =
-      new DiscountingBondFutureProductPricer(DiscountingFixedCouponBondProductPricer.DEFAULT);
+  public static final DiscountingBondFutureProductPricer DEFAULT = new DiscountingBondFutureProductPricer(
+      DiscountingFixedCouponBondProductPricer.DEFAULT);
   /**
    * Underlying pricer.
    */
@@ -62,8 +62,7 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
       priceBonds[i] = bondPricer.cleanPriceFromDirtyPrice(
           bond.getProduct(), future.getLastDeliveryDate(), dirtyPrice) / future.getConversionFactor().get(i);
     }
-    final double priceFuture = Doubles.min(priceBonds);
-    return priceFuture;
+    return Doubles.min(priceBonds);
   }
 
   /**
@@ -87,6 +86,7 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
+
     ImmutableList<Security<FixedCouponBond>> bondSecurity = future.getBondSecurityBasket();
     int size = bondSecurity.size();
     double[] priceBonds = new double[size];
@@ -97,10 +97,10 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
       priceBonds[i] = bondPricer.cleanPriceFromDirtyPrice(
           bond.getProduct(), future.getLastDeliveryDate(), dirtyPrice) / future.getConversionFactor().get(i);
     }
-    double priceFuture = Doubles.min(priceBonds);
-    return priceFuture;
+    return Doubles.min(priceBonds);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the price sensitivity of the bond future product.
    * <p>
@@ -156,6 +156,7 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
+
     ImmutableList<Security<FixedCouponBond>> bondSecurity = future.getBondSecurityBasket();
     int size = bondSecurity.size();
     double[] priceBonds = new double[size];
@@ -176,4 +177,5 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
         bondSecurity.get(indexCTD), provider, zSpread, compoundedRateType, periodPerYear, future.getLastDeliveryDate());
     return pointSensi.multipliedBy(1d / future.getConversionFactor().get(indexCTD)).build();
   }
+
 }

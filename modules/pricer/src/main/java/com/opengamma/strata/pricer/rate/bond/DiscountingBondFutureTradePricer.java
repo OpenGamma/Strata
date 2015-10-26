@@ -23,8 +23,8 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
   /**
    * Default implementation.
    */
-  public static final DiscountingBondFutureTradePricer DEFAULT =
-      new DiscountingBondFutureTradePricer(DiscountingBondFutureProductPricer.DEFAULT);
+  public static final DiscountingBondFutureTradePricer DEFAULT = new DiscountingBondFutureTradePricer(
+      DiscountingBondFutureProductPricer.DEFAULT);
 
   /**
    * Underlying pricer.
@@ -81,9 +81,11 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
+
     return productPricer.priceWithZSpread(trade.getSecurity().getProduct(), provider, zSpread, compoundedRateType, periodPerYear);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the present value of the bond future trade.
    * <p>
@@ -95,8 +97,11 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
    *   the trade date before any margining has taken place and the price used for the last margining otherwise.
    * @return the present value
    */
-  public CurrencyAmount presentValue(BondFutureTrade trade, LegalEntityDiscountingProvider provider,
+  public CurrencyAmount presentValue(
+      BondFutureTrade trade,
+      LegalEntityDiscountingProvider provider,
       double referencePrice) {
+
     double price = price(trade, provider);
     return presentValue(trade, price, referencePrice);
   }
@@ -125,10 +130,12 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
+
     double price = priceWithZSpread(trade, provider, zSpread, compoundedRateType, periodPerYear);
     return presentValue(trade, price, referencePrice);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the present value sensitivity of the bond future trade.
    * <p>
@@ -168,6 +175,7 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
+
     BondFuture product = trade.getSecurity().getProduct();
     PointSensitivities priceSensi =
         productPricer.priceSensitivityWithZSpread(product, provider, zSpread, compoundedRateType, periodPerYear);
@@ -217,9 +225,11 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
+
     return priceWithZSpread(trade, provider, zSpread, compoundedRateType, periodPerYear) - referencePrice;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the par spread sensitivity of the bond future trade.
    * <p>
@@ -256,6 +266,7 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
+
     return productPricer.priceSensitivityWithZSpread(
         trade.getSecurity().getProduct(), provider, zSpread, compoundedRateType, periodPerYear);
   }

@@ -13,15 +13,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.RandomEngine;
-
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.minimization.NonLinearParameterTransforms;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrFormulaData;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrHaganVolatilityFunctionProvider;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
+
+import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.RandomEngine;
 
 /**
  * Test {@link SabrModelFitter}.
@@ -59,7 +59,7 @@ public class SabrModelFitterTest extends SmileModelFitterTest<SabrFormulaData> {
 
   @Override
   double[][] getStartValues() {
-    return new double[][] { {0.1, 0.7, 0.0, 0.3 }, {0.01, 0.95, 0.9, 0.4 }, {0.01, 0.5, -0.7, 0.6 } };
+    return new double[][] { {0.1, 0.7, 0.0, 0.3}, {0.01, 0.95, 0.9, 0.4}, {0.01, 0.5, -0.7, 0.6}};
   }
 
   @Override
@@ -83,11 +83,11 @@ public class SabrModelFitterTest extends SmileModelFitterTest<SabrFormulaData> {
     double beta = RANDOM.nextDouble();
     double rho = 2 * RANDOM.nextDouble() - 1;
     double nu = 1.5 * RANDOM.nextDouble();
-    return new double[] {alpha, beta, rho, nu };
+    return new double[] {alpha, beta, rho, nu};
   }
 
   public void testExactFitOddStart() {
-    double[] start = new double[] {0.01, 0.99, 0.9, 0.4 };
+    double[] start = new double[] {0.01, 0.99, 0.9, 0.4};
     LeastSquareResultsWithTransform results = _fitter.solve(DoubleArray.copyOf(start));
     double[] res = results.getModelParameters().toArray();
     double eps = 1e-6;
@@ -99,7 +99,7 @@ public class SabrModelFitterTest extends SmileModelFitterTest<SabrFormulaData> {
   }
 
   public void testExactFitWithTransform() {
-    double[] start = new double[] {0.01, 0.99, 0.9, 0.4 };
+    double[] start = new double[] {0.01, 0.99, 0.9, 0.4};
     NonLinearParameterTransforms transf = _fitter.getTransform(DoubleArray.copyOf(start));
     LeastSquareResultsWithTransform results = _fitter.solve(DoubleArray.copyOf(start), transf);
     double[] res = results.getModelParameters().toArray();
@@ -112,7 +112,7 @@ public class SabrModelFitterTest extends SmileModelFitterTest<SabrFormulaData> {
   }
 
   public void testExactFitWithFixedBeta() {
-    double[] start = new double[] {0.1, 0.5, 0.0, 0.3 };
+    double[] start = new double[] {0.1, 0.5, 0.0, 0.3};
     BitSet fixed = new BitSet();
     fixed.set(1);
     LeastSquareResultsWithTransform results = _fitter.solve(DoubleArray.copyOf(start), fixed);

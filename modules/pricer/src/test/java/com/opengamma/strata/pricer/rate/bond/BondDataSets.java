@@ -6,12 +6,12 @@
 package com.opengamma.strata.pricer.rate.bond;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 
 import java.time.LocalDate;
 import java.time.Period;
 
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -34,6 +34,7 @@ import com.opengamma.strata.finance.rate.bond.YieldConvention;
  * Bond and bond future data sets for testing. 
  */
 public final class BondDataSets {
+
   //      =====     Fixed coupon bonds, bond future, USD   =====      
   // Fixed coupon bonds
   private static final StandardId BOND_SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BONDS"); // same repo curve for all bonds
@@ -44,20 +45,21 @@ public final class BondDataSets {
   private static final HolidayCalendar CALENDAR = HolidayCalendars.SAT_SUN;
   private static final DaysAdjustment SETTLEMENT_DAYS = DaysAdjustment.ofBusinessDays(1, CALENDAR);
   private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ICMA;
-  private static final BusinessDayAdjustment BUSINESS_ADJUST =
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR);
+  private static final BusinessDayAdjustment BUSINESS_ADJUST = BusinessDayAdjustment.of(FOLLOWING, CALENDAR);
   private static final DaysAdjustment EX_COUPON = DaysAdjustment.NONE;
   private static final int NB_BOND = 7;
-  private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175 };
-  private static final LocalDate[] START_DATE = new LocalDate[] {LocalDate.of(2010, 11, 30),
-    LocalDate.of(2010, 12, 31), LocalDate.of(2011, 1, 31), LocalDate.of(2008, 2, 29), LocalDate.of(2011, 3, 31),
-    LocalDate.of(2011, 4, 30), LocalDate.of(2011, 5, 31) };
-  private static final Period[] BOND_TENOR = new Period[] {Period.ofYears(5), Period.ofYears(5), Period.ofYears(5),
-    Period.ofYears(8), Period.ofYears(5), Period.ofYears(5), Period.ofYears(5) };
+  private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175};
+  private static final LocalDate[] START_DATE = new LocalDate[] {
+      LocalDate.of(2010, 11, 30), LocalDate.of(2010, 12, 31), LocalDate.of(2011, 1, 31), LocalDate.of(2008, 2, 29),
+      LocalDate.of(2011, 3, 31), LocalDate.of(2011, 4, 30), LocalDate.of(2011, 5, 31)};
+  private static final Period[] BOND_TENOR = new Period[] {
+      Period.ofYears(5), Period.ofYears(5), Period.ofYears(5), Period.ofYears(8),
+      Period.ofYears(5), Period.ofYears(5), Period.ofYears(5)};
   /** Security link of underlying bond */
   @SuppressWarnings("unchecked")
   public static final SecurityLink<FixedCouponBond>[] BOND_SECURITY_LINK = new SecurityLink[NB_BOND];
   private static final FixedCouponBond[] BOND_PRODUCT = new FixedCouponBond[NB_BOND];
+
   static {
     for (int i = 0; i < NB_BOND; ++i) {
       LocalDate endDate = START_DATE[i].plus(BOND_TENOR[i]);
@@ -79,9 +81,10 @@ public final class BondDataSets {
       BOND_SECURITY_LINK[i] = SecurityLink.resolved(bondSecurity);
     }
   }
+
   // Bond future 
   /** Conversion factors */
-  public static final Double[] CONVERSION_FACTOR = new Double[] {.8317, .8565, .8493, .8516, .8540, .8417, .8292 };
+  public static final Double[] CONVERSION_FACTOR = new Double[] {.8317, .8565, .8493, .8516, .8540, .8417, .8292};
   private static final LocalDate LAST_TRADING_DATE = LocalDate.of(2011, 9, 30);
   private static final LocalDate FIRST_NOTICE_DATE = LocalDate.of(2011, 8, 31);
   private static final LocalDate LAST_NOTICE_DATE = LocalDate.of(2011, 10, 4);
@@ -97,8 +100,7 @@ public final class BondDataSets {
   public static final LocalDate TRADE_DATE = LocalDate.of(2011, 6, 20);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(TRADE_DATE).build();
   private static final StandardId FUTURE_SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BOND-FUT");
-  private static final Security<BondFuture> FUTURE_SECURITY =
-      UnitSecurity.builder(FUTURE_PRODUCT).standardId(FUTURE_SECURITY_ID).build();
+  private static final Security<BondFuture> FUTURE_SECURITY = UnitSecurity.builder(FUTURE_PRODUCT).standardId(FUTURE_SECURITY_ID).build();
   private static final SecurityLink<BondFuture> FUTURE_SECURITY_LINK = SecurityLink.resolved(FUTURE_SECURITY);
   /** Quantity of bond future trade */
   public static final long QUANTITY = 1234l;

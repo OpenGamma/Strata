@@ -135,7 +135,6 @@ public class DiscountingFixedCouponBondProductPricer {
       FixedCouponBond product,
       LegalEntityDiscountingProvider provider,
       double zSpread,
-
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
@@ -339,6 +338,7 @@ public class DiscountingFixedCouponBondProductPricer {
   public PointSensitivityBuilder presentValueSensitivity(
       FixedCouponBond product,
       LegalEntityDiscountingProvider provider) {
+
     return presentValueSensitivity(product, provider, provider.getValuationDate());
   }
 
@@ -429,7 +429,7 @@ public class DiscountingFixedCouponBondProductPricer {
       Security<FixedCouponBond> security,
       LegalEntityDiscountingProvider provider,
       LocalDate referenceDate) {
-    
+
     FixedCouponBond product = security.getProduct();
     StandardId securityId = security.getStandardId();
     StandardId legalEntityId = product.getLegalEntityId();
@@ -466,6 +466,7 @@ public class DiscountingFixedCouponBondProductPricer {
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
+
     FixedCouponBond product = security.getProduct();
     LocalDate settlementDate = product.getSettlementDateOffset().adjust(provider.getValuationDate());
     return dirtyPriceSensitivityWithZspread(security, provider, zSpread, compoundedRateType, periodsPerYear, settlementDate);
@@ -479,6 +480,7 @@ public class DiscountingFixedCouponBondProductPricer {
       CompoundedRateType compoundedRateType,
       int periodsPerYear,
       LocalDate referenceDate) {
+
     FixedCouponBond product = security.getProduct();
     StandardId securityId = security.getStandardId();
     StandardId legalEntityId = product.getLegalEntityId();
@@ -569,8 +571,12 @@ public class DiscountingFixedCouponBondProductPricer {
     throw new UnsupportedOperationException("The convention " + yieldConvention.name() + " is not supported.");
   }
 
-  private double dirtyPriceFromYieldStandard(FixedCouponBond product, ExpandedFixedCouponBond expanded,
-      LocalDate settlementDate, double yield) {
+  private double dirtyPriceFromYieldStandard(
+      FixedCouponBond product,
+      ExpandedFixedCouponBond expanded,
+      LocalDate settlementDate,
+      double yield) {
+
     int nbCoupon = expanded.getPeriodicPayments().size();
     double factorOnPeriod = 1 + yield / ((double) product.getPeriodicSchedule().getFrequency().eventsPerYear());
     double fixedRate = product.getFixedRate();
@@ -774,8 +780,12 @@ public class DiscountingFixedCouponBondProductPricer {
   }
 
   // assumes notional and coupon rate are constant across the payments. 
-  private double convexityFromYieldStandard(FixedCouponBond product, ExpandedFixedCouponBond expanded,
-      LocalDate settlementDate, double yield) {
+  private double convexityFromYieldStandard(
+      FixedCouponBond product,
+      ExpandedFixedCouponBond expanded,
+      LocalDate settlementDate,
+      double yield) {
+
     int nbCoupon = expanded.getPeriodicPayments().size();
     double couponPerYear = product.getPeriodicSchedule().getFrequency().eventsPerYear();
     double factorToNextCoupon = factorToNextCoupon(product, expanded, settlementDate);
@@ -846,6 +856,7 @@ public class DiscountingFixedCouponBondProductPricer {
       IssuerCurveDiscountFactors discountFactors,
       LocalDate referenceDate,
       boolean exCoupon) {
+
     double total = 0d;
     for (FixedCouponBondPaymentPeriod period : product.getPeriodicPayments()) {
       if ((exCoupon && period.getDetachmentDate().isAfter(referenceDate)) ||
@@ -864,6 +875,7 @@ public class DiscountingFixedCouponBondProductPricer {
       int periodsPerYear,
       LocalDate referenceDate,
       boolean exCoupon) {
+
     double total = 0d;
     for (FixedCouponBondPaymentPeriod period : product.getPeriodicPayments()) {
       if ((exCoupon && period.getDetachmentDate().isAfter(referenceDate)) ||
@@ -880,6 +892,7 @@ public class DiscountingFixedCouponBondProductPricer {
       IssuerCurveDiscountFactors discountFactors,
       LocalDate referenceDate,
       boolean exCoupon) {
+
     PointSensitivityBuilder builder = PointSensitivityBuilder.none();
     for (FixedCouponBondPaymentPeriod period : product.getPeriodicPayments()) {
       if ((exCoupon && period.getDetachmentDate().isAfter(referenceDate)) ||
@@ -898,6 +911,7 @@ public class DiscountingFixedCouponBondProductPricer {
       int periodsPerYear,
       LocalDate referenceDate,
       boolean exCoupon) {
+
     PointSensitivityBuilder builder = PointSensitivityBuilder.none();
     for (FixedCouponBondPaymentPeriod period : product.getPeriodicPayments()) {
       if ((exCoupon && period.getDetachmentDate().isAfter(referenceDate)) ||
@@ -912,6 +926,7 @@ public class DiscountingFixedCouponBondProductPricer {
   private PointSensitivityBuilder presentValueSensitivityNominal(
       ExpandedFixedCouponBond product,
       IssuerCurveDiscountFactors discountFactors) {
+
     Payment nominal = product.getNominalPayment();
     PointSensitivityBuilder pt = nominalPricer.presentValueSensitivity(nominal, discountFactors.getDiscountFactors());
     if (pt instanceof ZeroRateSensitivity) {
@@ -926,6 +941,7 @@ public class DiscountingFixedCouponBondProductPricer {
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
+
     Payment nominal = product.getNominalPayment();
     PointSensitivityBuilder pt = nominalPricer.presentValueSensitivity(
         nominal, discountFactors.getDiscountFactors(), zSpread, compoundedRateType, periodsPerYear);
@@ -943,6 +959,7 @@ public class DiscountingFixedCouponBondProductPricer {
       LocalDate referenceDate1,
       LocalDate referenceDate2,
       boolean exCoupon) {
+
     double pvDiff = 0d;
     for (FixedCouponBondPaymentPeriod period : product.getPeriodicPayments()) {
       if ((exCoupon && period.getDetachmentDate().isAfter(referenceDate1) && !period.getDetachmentDate().isAfter(referenceDate2)) ||
@@ -963,6 +980,7 @@ public class DiscountingFixedCouponBondProductPricer {
       CompoundedRateType compoundedRateType,
       int periodsPerYear,
       boolean exCoupon) {
+
     double pvDiff = 0d;
     for (FixedCouponBondPaymentPeriod period : expanded.getPeriodicPayments()) {
       if ((exCoupon && period.getDetachmentDate().isAfter(referenceDate1) && !period.getDetachmentDate().isAfter(referenceDate2)) ||
@@ -972,4 +990,5 @@ public class DiscountingFixedCouponBondProductPricer {
     }
     return pvDiff;
   }
+
 }

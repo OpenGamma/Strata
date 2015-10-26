@@ -30,6 +30,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
  */
 @Test
 public class DiscountingBondFutureTradetPricerTest {
+
   // product and trade
   private static final BondFuture FUTURE_PRODUCT = BondDataSets.FUTURE_PRODUCT;
   private static final BondFutureTrade FUTURE_TRADE = BondDataSets.FUTURE_TRADE;
@@ -135,7 +136,7 @@ public class DiscountingBondFutureTradetPricerTest {
   public void test_parSpreadWithZSpread_periodic() {
     double computed = TRADE_PRICER.parSpreadWithZSpread(
         FUTURE_TRADE, PROVIDER, REFERENCE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    double expected = 
+    double expected =
         PRODUCT_PRICER.priceWithZSpread(FUTURE_PRODUCT, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR) - REFERENCE_PRICE;
     assertEquals(computed, expected, TOL);
   }
@@ -162,7 +163,7 @@ public class DiscountingBondFutureTradetPricerTest {
         FUTURE_TRADE, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, (p) -> CurrencyAmount.of(USD,
-            TRADE_PRICER.parSpreadWithZSpread(FUTURE_TRADE, (p), REFERENCE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR)));
+        TRADE_PRICER.parSpreadWithZSpread(FUTURE_TRADE, (p), REFERENCE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR)));
     assertTrue(computed.equalWithTolerance(expected, 10.0 * EPS * NOTIONAL * QUANTITY));
   }
 

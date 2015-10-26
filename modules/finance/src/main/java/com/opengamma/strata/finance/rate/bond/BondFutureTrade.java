@@ -13,6 +13,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -32,6 +33,10 @@ import com.opengamma.strata.finance.TradeInfo;
  * A trade representing a futures contract based on a fixed coupon bond.
  * <p>
  * A trade in an underlying {@link BondFuture}.
+ * <p>
+ * A future is a financial instrument that is based on the future value of an underlying.
+ * The buyer is typically required to purchase the underlying at a price fixed in advance.
+ * This class represents the structure of a single futures contract.
  */
 @BeanDefinition
 public final class BondFutureTrade
@@ -45,7 +50,7 @@ public final class BondFutureTrade
   @PropertyDefinition(overrideGet = true)
   private final TradeInfo tradeInfo;
   /**
-   * The link to the fixed coupon bond that was traded.
+   * The link to the future that was traded.
    * <p>
    * This property returns a link to the security via a {@link StandardId}.
    * See {@link #getSecurity()} and {@link SecurityLink} for more details.
@@ -53,7 +58,7 @@ public final class BondFutureTrade
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final SecurityLink<BondFuture> securityLink;
   /**
-   * The quantity, indicating the number of bond contracts in the trade.
+   * The quantity, indicating the number of contracts in the trade.
    * <p>
    * This will be positive if buying and negative if selling.
    */
@@ -63,11 +68,15 @@ public final class BondFutureTrade
    * The initial price of the future, represented in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
-   * This must be represented in decimal form, {@code (1.0 - decimalRate)}. 
-   * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
    */
   @PropertyDefinition
   private final double initialPrice;
+
+  //-------------------------------------------------------------------------
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.tradeInfo = TradeInfo.EMPTY;
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -143,7 +152,7 @@ public final class BondFutureTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the link to the fixed coupon bond that was traded.
+   * Gets the link to the future that was traded.
    * <p>
    * This property returns a link to the security via a {@link StandardId}.
    * See {@link #getSecurity()} and {@link SecurityLink} for more details.
@@ -156,7 +165,7 @@ public final class BondFutureTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the quantity, indicating the number of bond contracts in the trade.
+   * Gets the quantity, indicating the number of contracts in the trade.
    * <p>
    * This will be positive if buying and negative if selling.
    * @return the value of the property
@@ -170,8 +179,6 @@ public final class BondFutureTrade
    * Gets the initial price of the future, represented in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
-   * This must be represented in decimal form, {@code (1.0 - decimalRate)}.
-   * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
    * @return the value of the property
    */
   public double getInitialPrice() {
@@ -376,6 +383,7 @@ public final class BondFutureTrade
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -475,7 +483,7 @@ public final class BondFutureTrade
     }
 
     /**
-     * Sets the link to the fixed coupon bond that was traded.
+     * Sets the link to the future that was traded.
      * <p>
      * This property returns a link to the security via a {@link StandardId}.
      * See {@link #getSecurity()} and {@link SecurityLink} for more details.
@@ -489,7 +497,7 @@ public final class BondFutureTrade
     }
 
     /**
-     * Sets the quantity, indicating the number of bond contracts in the trade.
+     * Sets the quantity, indicating the number of contracts in the trade.
      * <p>
      * This will be positive if buying and negative if selling.
      * @param quantity  the new value
@@ -504,8 +512,6 @@ public final class BondFutureTrade
      * Sets the initial price of the future, represented in decimal form.
      * <p>
      * This is the price agreed when the trade occurred.
-     * This must be represented in decimal form, {@code (1.0 - decimalRate)}.
-     * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
      * @param initialPrice  the new value
      * @return this, for chaining, not null
      */

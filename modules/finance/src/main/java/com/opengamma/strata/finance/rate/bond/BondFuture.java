@@ -5,9 +5,10 @@
  */
 package com.opengamma.strata.finance.rate.bond;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -32,6 +33,9 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.id.LinkResolutionException;
+import com.opengamma.strata.collect.id.LinkResolver;
+import com.opengamma.strata.collect.id.Resolvable;
 import com.opengamma.strata.finance.Product;
 import com.opengamma.strata.finance.Security;
 import com.opengamma.strata.finance.SecurityLink;
@@ -46,12 +50,15 @@ import com.opengamma.strata.finance.SecurityLink;
 @SuppressWarnings("unchecked")
 @BeanDefinition
 public final class BondFuture
-    implements Product, ImmutableBean, Serializable {
+    implements Product, Resolvable<BondFuture>, ImmutableBean, Serializable {
+
   /**
    * The basket of deliverable bonds.
    * <p>
-   * The underling which will be delivered in the future time is chosen from a basket of underling securities. 
-   * This must not be empty. 
+   * The underling which will be delivered in the future time is chosen from
+   * a basket of underling securities. This must not be empty.
+   * <p>
+   * All of the underlying bonds must have the same notional and currency.
    */
   @PropertyDefinition(validate = "notEmpty")
   private final ImmutableList<SecurityLink<FixedCouponBond>> deliveryBasket;
@@ -90,8 +97,8 @@ public final class BondFuture
    * The first delivery date.
    * <p>
    * The first date on which the underlying is delivered. 
-   * If not specified, this is computed from {@code firstNoticeDate} by using {@code settlementDateOffset} in the first 
-   * element of the delivery basket.
+   * If not specified, this is computed from {@code firstNoticeDate} by using
+   * {@code settlementDateOffset} in the first  element of the delivery basket.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate firstDeliveryDate;
@@ -99,12 +106,11 @@ public final class BondFuture
    * The last notice date.
    * <p>
    * The last date on which the underlying is delivered. 
-   * If not specified, this is computed from {@code lastNoticeDate} by using {@code settlementDateOffset} in the first 
-   * element of the delivery basket.
+   * If not specified, this is computed from {@code lastNoticeDate} by using
+   * {@code settlementDateOffset} in the first element of the delivery basket.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate lastDeliveryDate;
-
   /**
    * The definition of how to round the futures price, defaulted to no rounding.
    * <p>
@@ -156,11 +162,31 @@ public final class BondFuture
     }
   }
 
+  /**
+   * Returns a future where all links to underlying bonds have been resolved.
+   * <p>
+   * This method examines the future and resolves any links.
+   * The result is fully resolved with all data available for use.
+   * <p>
+   * An exception is thrown if a link cannot be resolved.
+   * 
+   * @param resolver  the resolver to use
+   * @return the fully resolved trade
+   * @throws LinkResolutionException if a link cannot be resolved
+   */
+  @Override
+  public BondFuture resolveLinks(LinkResolver resolver) {
+    ImmutableList<SecurityLink<FixedCouponBond>> resolved = deliveryBasket.stream()
+        .map(link -> link.resolveLinks(resolver))
+        .collect(toImmutableList());
+    return toBuilder().deliveryBasket(resolved).build();
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Obtains the notional of underlying fixed coupon bonds. 
    * <p>
-   * All of the bonds in the delivery basket have the same notional, see {@code validate()}.
+   * All of the bonds in the delivery basket have the same notional.
    * 
    * @return the notional
    */
@@ -171,7 +197,7 @@ public final class BondFuture
   /**
    * Obtains the currency of the underlying fixed coupon bonds. 
    * <p>
-   * All of the bonds in the delivery basket have the same currency, see {@code validate()}.
+   * All of the bonds in the delivery basket have the same currency.
    * 
    * @return the currency
    */
@@ -185,11 +211,9 @@ public final class BondFuture
    * @return the bond products
    */
   public ImmutableList<FixedCouponBond> getBondProductBasket() {
-    List<FixedCouponBond> list = new ArrayList<FixedCouponBond>();
-    for (SecurityLink<FixedCouponBond> securityLink : deliveryBasket) {
-      list.add(securityLink.resolvedTarget().getProduct());
-    }
-    return ImmutableList.copyOf(list);
+    return deliveryBasket.stream()
+        .map(link -> link.resolvedTarget().getProduct())
+        .collect(toImmutableList());
   }
 
   /**
@@ -198,11 +222,9 @@ public final class BondFuture
    * @return the bond securities
    */
   public ImmutableList<Security<FixedCouponBond>> getBondSecurityBasket() {
-    List<Security<FixedCouponBond>> list = new ArrayList<Security<FixedCouponBond>>();
-    for (SecurityLink<FixedCouponBond> securityLink : deliveryBasket) {
-      list.add(securityLink.resolvedTarget());
-    }
-    return ImmutableList.copyOf(list);
+    return deliveryBasket.stream()
+        .map(link -> link.resolvedTarget())
+        .collect(toImmutableList());
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -279,8 +301,10 @@ public final class BondFuture
   /**
    * Gets the basket of deliverable bonds.
    * <p>
-   * The underling which will be delivered in the future time is chosen from a basket of underling securities.
-   * This must not be empty.
+   * The underling which will be delivered in the future time is chosen from
+   * a basket of underling securities. This must not be empty.
+   * <p>
+   * All of the underlying bonds must have the same notional and currency.
    * @return the value of the property, not empty
    */
   public ImmutableList<SecurityLink<FixedCouponBond>> getDeliveryBasket() {
@@ -339,8 +363,8 @@ public final class BondFuture
    * Gets the first delivery date.
    * <p>
    * The first date on which the underlying is delivered.
-   * If not specified, this is computed from {@code firstNoticeDate} by using {@code settlementDateOffset} in the first
-   * element of the delivery basket.
+   * If not specified, this is computed from {@code firstNoticeDate} by using
+   * {@code settlementDateOffset} in the first  element of the delivery basket.
    * @return the value of the property, not null
    */
   public LocalDate getFirstDeliveryDate() {
@@ -352,8 +376,8 @@ public final class BondFuture
    * Gets the last notice date.
    * <p>
    * The last date on which the underlying is delivered.
-   * If not specified, this is computed from {@code lastNoticeDate} by using {@code settlementDateOffset} in the first
-   * element of the delivery basket.
+   * If not specified, this is computed from {@code lastNoticeDate} by using
+   * {@code settlementDateOffset} in the first element of the delivery basket.
    * @return the value of the property, not null
    */
   public LocalDate getLastDeliveryDate() {
@@ -780,8 +804,10 @@ public final class BondFuture
     /**
      * Sets the basket of deliverable bonds.
      * <p>
-     * The underling which will be delivered in the future time is chosen from a basket of underling securities.
-     * This must not be empty.
+     * The underling which will be delivered in the future time is chosen from
+     * a basket of underling securities. This must not be empty.
+     * <p>
+     * All of the underlying bonds must have the same notional and currency.
      * @param deliveryBasket  the new value, not empty
      * @return this, for chaining, not null
      */
@@ -870,8 +896,8 @@ public final class BondFuture
      * Sets the first delivery date.
      * <p>
      * The first date on which the underlying is delivered.
-     * If not specified, this is computed from {@code firstNoticeDate} by using {@code settlementDateOffset} in the first
-     * element of the delivery basket.
+     * If not specified, this is computed from {@code firstNoticeDate} by using
+     * {@code settlementDateOffset} in the first  element of the delivery basket.
      * @param firstDeliveryDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -885,8 +911,8 @@ public final class BondFuture
      * Sets the last notice date.
      * <p>
      * The last date on which the underlying is delivered.
-     * If not specified, this is computed from {@code lastNoticeDate} by using {@code settlementDateOffset} in the first
-     * element of the delivery basket.
+     * If not specified, this is computed from {@code lastNoticeDate} by using
+     * {@code settlementDateOffset} in the first element of the delivery basket.
      * @param lastDeliveryDate  the new value, not null
      * @return this, for chaining, not null
      */

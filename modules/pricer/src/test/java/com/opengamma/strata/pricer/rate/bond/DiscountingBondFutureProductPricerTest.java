@@ -31,6 +31,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
  */
 @Test
 public class DiscountingBondFutureProductPricerTest {
+
   // product 
   private static final BondFuture FUTURE_PRODUCT = BondDataSets.FUTURE_PRODUCT;
   private static final SecurityLink<FixedCouponBond>[] BOND_SECURITY_LINK = BondDataSets.BOND_SECURITY_LINK.clone();

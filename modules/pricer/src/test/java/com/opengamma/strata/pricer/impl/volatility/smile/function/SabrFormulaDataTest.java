@@ -19,6 +19,7 @@ import org.testng.annotations.Test;
  */
 @Test
 public class SabrFormulaDataTest {
+
   private static final double NU = 0.8;
   private static final double RHO = -0.65;
   private static final double BETA = 0.76;
@@ -36,7 +37,7 @@ public class SabrFormulaDataTest {
     assertEquals(DATA.getParameter(2), RHO, 0);
     assertEquals(DATA.getParameter(3), NU, 0);
     assertEquals(DATA.getNumberOfParameters(), 4);
-    SabrFormulaData other = SabrFormulaData.of(new double[] {ALPHA, BETA, RHO, NU });
+    SabrFormulaData other = SabrFormulaData.of(new double[] {ALPHA, BETA, RHO, NU});
     assertEquals(other, DATA);
     assertEquals(other.hashCode(), DATA.hashCode());
 
@@ -78,7 +79,7 @@ public class SabrFormulaDataTest {
 
   @Test
   public void testWrongParameterLength() {
-    assertThrowsIllegalArg(() -> SabrFormulaData.of(new double[] {ALPHA, BETA, RHO, NU, 0.1 }));
+    assertThrowsIllegalArg(() -> SabrFormulaData.of(new double[] {ALPHA, BETA, RHO, NU, 0.1}));
   }
 
   //-------------------------------------------------------------------------
@@ -91,4 +92,5 @@ public class SabrFormulaDataTest {
   public void test_serialization() {
     assertSerialization(DATA);
   }
+
 }
