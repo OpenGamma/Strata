@@ -25,14 +25,16 @@ public final class DateSequences {
   static final ExtendedEnum<DateSequence> ENUM_LOOKUP = ExtendedEnum.of(DateSequence.class);
 
   /**
-   * An instance defining the sequence of quarterly IMM dates.
+   * The 'Quarterly-IMM' date sequence.
    * <p>
+   * An instance defining the sequence of quarterly IMM dates.
    * The quarterly IMM dates are the third Wednesday of March, June, September and December.
    */
   public static final DateSequence QUARTERLY_IMM = DateSequence.of(StandardDateSequences.QUARTERLY_IMM.getName());
   /**
-   * An instance defining the sequence of monthly IMM dates.
+   * The 'Monthly-IMM' date sequence.
    * <p>
+   * An instance defining the sequence of monthly IMM dates.
    * The monthly IMM dates are the third Wednesday of each month.
    */
   public static final DateSequence MONTHLY_IMM = DateSequence.of(StandardDateSequences.MONTHLY_IMM.getName());

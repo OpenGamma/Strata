@@ -20,7 +20,7 @@ import com.opengamma.strata.collect.ArgChecker;
 enum StandardDateSequences implements DateSequence {
 
   // IMM in Mar/Jun/Sep/Dec
-  QUARTERLY_IMM("QuarterlyImm") {
+  QUARTERLY_IMM("Quarterly-IMM") {
     @Override
     public LocalDate next(LocalDate date) {
       return nth(date, 1);
@@ -59,7 +59,7 @@ enum StandardDateSequences implements DateSequence {
   },
 
   // Third Wednesday
-  MONTHLY_IMM("MonthlyImm") {
+  MONTHLY_IMM("Monthly-IMM") {
     @Override
     public LocalDate next(LocalDate date) {
       return nth(date, 1);

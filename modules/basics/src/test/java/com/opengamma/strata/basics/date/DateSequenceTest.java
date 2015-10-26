@@ -25,12 +25,12 @@ public class DateSequenceTest {
 
   public void test_QUARTERLY_IMM() {
     DateSequence test = DateSequences.QUARTERLY_IMM;
-    assertEquals(test.getName(), "QuarterlyImm");
-    assertEquals(test.toString(), "QuarterlyImm");
+    assertEquals(test.getName(), "Quarterly-IMM");
+    assertEquals(test.toString(), "Quarterly-IMM");
   }
 
   public void test_QUARTERLY_IMM_of() {
-    DateSequence test = DateSequence.of("QuarterlyImm");
+    DateSequence test = DateSequence.of("Quarterly-IMM");
     assertEquals(test, DateSequences.QUARTERLY_IMM);
   }
 
@@ -144,7 +144,7 @@ public class DateSequenceTest {
 
   //-------------------------------------------------------------------------
   public void test_extendedEnum() {
-    assertEquals(DateSequence.extendedEnum().lookupAll().get("QuarterlyImm"), DateSequences.QUARTERLY_IMM);
+    assertEquals(DateSequence.extendedEnum().lookupAll().get("Quarterly-IMM"), DateSequences.QUARTERLY_IMM);
   }
 
   //-------------------------------------------------------------------------
