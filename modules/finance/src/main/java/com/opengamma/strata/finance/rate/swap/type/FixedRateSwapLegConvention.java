@@ -50,7 +50,7 @@ import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
  */
 @BeanDefinition
 public final class FixedRateSwapLegConvention
-    implements ImmutableBean, Serializable {
+    implements SwapLegConvention, ImmutableBean, Serializable {
 
   /**
    * The leg currency.
