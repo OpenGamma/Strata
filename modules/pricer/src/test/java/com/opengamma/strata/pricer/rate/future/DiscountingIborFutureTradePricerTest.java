@@ -31,11 +31,6 @@ public class DiscountingIborFutureTradePricerTest {
   private static final IborFuture FUTURE_PRODUCT = FUTURE_TRADE.getSecurity().getProduct();
 
   private static final double RATE = 0.045;
-//  private static final RatesProvider MOCK_PROV = mock(RatesProvider.class);
-//  static {
-//    when(MOCK_PROV.iborIndexRate(FUTURE_TRADE.getSecurity().getProduct().getIndex(),
-//        FUTURE_TRADE.getSecurity().getProduct().getFixingDate())).thenReturn(RATE);
-//  }
 
   private static final double TOLERANCE_PRICE = 1.0e-9;
   private static final double TOLERANCE_PRICE_DELTA = 1.0e-9;
@@ -53,29 +48,60 @@ public class DiscountingIborFutureTradePricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_parSpread() {
+  public void test_parSpread_after_trade_date() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
+    prov.setValuationDate(FUTURE_TRADE.getTradeInfo().getTradeDate().get().plusDays(1));
+    when(mockIbor.rate(FUTURE_PRODUCT.getFixingDate())).thenReturn(RATE);
+    double lastClosingPrice = 0.99;
+    double parSpreadExpected = PRICER_TRADE.price(FUTURE_TRADE, prov) - lastClosingPrice;
+    double parSpreadComputed = PRICER_TRADE.parSpread(FUTURE_TRADE, prov, lastClosingPrice);
+    assertEquals(parSpreadComputed, parSpreadExpected, TOLERANCE_PRICE);
+  }
+  
+  public void test_parSpread_on_trade_date() {
+    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    SimpleRatesProvider prov = new SimpleRatesProvider();
+    prov.setIborRates(mockIbor);
+    prov.setValuationDate(FUTURE_TRADE.getTradeInfo().getTradeDate().get());
     when(mockIbor.rate(FUTURE_PRODUCT.getFixingDate())).thenReturn(RATE);
 
-    double referencePrice = 0.99;
-    double parSpreadExpected = PRICER_TRADE.price(FUTURE_TRADE, prov) - referencePrice;
-    double parSpreadComputed = PRICER_TRADE.parSpread(FUTURE_TRADE, prov, referencePrice);
+    double lastClosingPrice = 0.99;
+    double parSpreadExpected = PRICER_TRADE.price(FUTURE_TRADE, prov) - FUTURE_TRADE.getInitialPrice();
+    double parSpreadComputed = PRICER_TRADE.parSpread(FUTURE_TRADE, prov, lastClosingPrice);
     assertEquals(parSpreadComputed, parSpreadExpected, TOLERANCE_PRICE);
   }
 
   //------------------------------------------------------------------------- 
-  public void test_presentValue() {
+  public void test_presentValue_after_trade_date() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
+    prov.setValuationDate(FUTURE_TRADE.getTradeInfo().getTradeDate().get().plusDays(1));
     when(mockIbor.rate(FUTURE_PRODUCT.getFixingDate())).thenReturn(RATE);
 
     double lastClosingPrice = 1.025;
     IborFuture future = FUTURE_TRADE.getSecurity().getProduct();
     DiscountingIborFutureTradePricer pricerFn = DiscountingIborFutureTradePricer.DEFAULT;
     double expected = ((1.0 - RATE) - lastClosingPrice) *
+        future.getAccrualFactor() * future.getNotional() * FUTURE_TRADE.getQuantity();
+    CurrencyAmount computed = pricerFn.presentValue(FUTURE_TRADE, prov, lastClosingPrice);
+    assertEquals(computed.getAmount(), expected, TOLERANCE_PV);
+    assertEquals(computed.getCurrency(), future.getCurrency());
+  }
+
+  public void test_presentValue_on_trade_date() {
+    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    SimpleRatesProvider prov = new SimpleRatesProvider();
+    prov.setIborRates(mockIbor);
+    prov.setValuationDate(FUTURE_TRADE.getTradeInfo().getTradeDate().get());
+    when(mockIbor.rate(FUTURE_PRODUCT.getFixingDate())).thenReturn(RATE);
+
+    double lastClosingPrice = 1.025;
+    IborFuture future = FUTURE_TRADE.getSecurity().getProduct();
+    DiscountingIborFutureTradePricer pricerFn = DiscountingIborFutureTradePricer.DEFAULT;
+    double expected = ((1.0 - RATE) - FUTURE_TRADE.getInitialPrice()) *
         future.getAccrualFactor() * future.getNotional() * FUTURE_TRADE.getQuantity();
     CurrencyAmount computed = pricerFn.presentValue(FUTURE_TRADE, prov, lastClosingPrice);
     assertEquals(computed.getAmount(), expected, TOLERANCE_PV);
