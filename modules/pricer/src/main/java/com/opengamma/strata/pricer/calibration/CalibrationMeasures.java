@@ -31,13 +31,14 @@ public final class CalibrationMeasures {
 
   /**
    * The default instance.
-   * This computes par spread for IborFixingDeposit, Fra and Swap by discounting.
+   * This computes par spread for Term Deposits, IborFixingDeposit, Fra, Ibor Futures and Swap by discounting.
    */
   public static final CalibrationMeasures DEFAULT = CalibrationMeasures.of(
-      TradeCalibrationMeasure.FRA_PAR_SPREAD,
+      TradeCalibrationMeasure.TERM_DEPOSIT_PAR_SPREAD,
       TradeCalibrationMeasure.IBOR_FIXING_DEPOSIT_PAR_SPREAD,
-      TradeCalibrationMeasure.SWAP_PAR_SPREAD,
-      TradeCalibrationMeasure.TERM_DEPOSIT_PAR_SPREAD);
+      TradeCalibrationMeasure.FRA_PAR_SPREAD,
+      TradeCalibrationMeasure.IBOR_FUT_PAR_SPREAD,
+      TradeCalibrationMeasure.SWAP_PAR_SPREAD);
 
   /**
    * The calibration measure providers keyed by type.

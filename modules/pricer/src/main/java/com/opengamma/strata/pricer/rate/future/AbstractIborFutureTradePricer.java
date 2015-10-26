@@ -5,7 +5,11 @@
  */
 package com.opengamma.strata.pricer.rate.future;
 
+import java.time.LocalDate;
+import java.util.Optional;
+
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.future.IborFuture;
 import com.opengamma.strata.finance.rate.future.IborFutureTrade;
 
@@ -37,8 +41,7 @@ public abstract class AbstractIborFutureTradePricer {
    * 
    * @param trade  the trade to price
    * @param currentPrice  the price on the valuation date
-   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
+   * @param referencePrice  the price with respect to which the margining should be done. 
    * @return the present value
    */
   public CurrencyAmount presentValue(IborFutureTrade trade, double currentPrice, double referencePrice) {
@@ -47,6 +50,27 @@ public abstract class AbstractIborFutureTradePricer {
     double referenceIndex = getProductPricer().marginIndex(future, referencePrice);
     double pv = (priceIndex - referenceIndex) * trade.getQuantity();
     return CurrencyAmount.of(future.getCurrency(), pv);
+  }
+  
+  /**
+   * Calculates the reference price for a futures trade. The reference price is the trade price before any margining 
+   * has taken place and the price used for the last margining otherwise.
+   * 
+   * @param trade  the trade to price
+   * @param valuationDate  the date for which the reference price should be calculated
+   * @param lastMarginPrice  the last price used in the margining 
+   * @return the reference price
+   */
+  public double referencePrice(IborFutureTrade trade, LocalDate valuationDate, double lastMarginPrice) {
+    Optional<LocalDate> tradeDate = trade.getTradeInfo().getTradeDate();
+    ArgChecker.isTrue(tradeDate.isPresent(), "trade date should be populated");
+    double referencePrice;
+    if (tradeDate.get().equals(valuationDate)) {
+      referencePrice = trade.getInitialPrice();
+    } else {
+      referencePrice = lastMarginPrice;
+    }
+    return referencePrice;
   }
 
 }

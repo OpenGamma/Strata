@@ -13,6 +13,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
+import com.opengamma.strata.finance.rate.future.IborFutureTrade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -20,6 +21,7 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.rate.deposit.DiscountingTermDepositProductPricer;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
+import com.opengamma.strata.pricer.rate.future.DiscountingIborFutureTradePricer;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 
 /**
@@ -41,6 +43,16 @@ public class TradeCalibrationMeasure<T extends Trade>
           FraTrade.class,
           (trade, p) -> DiscountingFraProductPricer.DEFAULT.parSpread(trade.getProduct(), p),
           (trade, p) -> DiscountingFraProductPricer.DEFAULT.parSpreadSensitivity(trade.getProduct(), p));
+
+  /**
+   * The calibrator for {@link IborFutureTrade} using par spread discounting.
+   */
+  public static final TradeCalibrationMeasure<IborFutureTrade> IBOR_FUT_PAR_SPREAD =
+      TradeCalibrationMeasure.of(
+          "IborFutureParSpreadDiscounting",
+          IborFutureTrade.class,
+          (trade, p) -> DiscountingIborFutureTradePricer.DEFAULT.parSpread(trade, p, 0.0),
+          (trade, p) -> DiscountingIborFutureTradePricer.DEFAULT.parSpreadSensitivity(trade, p));
 
   /**
    * The calibrator for {@link SwapTrade} using par spread discounting.

@@ -7,7 +7,6 @@ package com.opengamma.strata.pricer.rate.future;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.future.IborFuture;
 import com.opengamma.strata.finance.rate.future.IborFutureTrade;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -16,7 +15,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 /**
  * Pricer implementation for Ibor future trades.
  * <p>
- * This function provides the ability to price a {@link FraTrade}.
+ * This function provides the ability to price a {@link IborFutureTrade}.
  */
 public class DiscountingIborFutureTradePricer
     extends AbstractIborFutureTradePricer {
@@ -69,11 +68,12 @@ public class DiscountingIborFutureTradePricer
    * 
    * @param trade  the trade to price
    * @param provider  the rates provider
-   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
+   * @param lastMarginPrice  the last price used in margining. If the valuation is done on the trade date, the trade 
+   * price will be used as a reference price; if not, the last margin price will be used.
    * @return the present value
    */
-  public CurrencyAmount presentValue(IborFutureTrade trade, RatesProvider provider, double referencePrice) {
+  public CurrencyAmount presentValue(IborFutureTrade trade, RatesProvider provider, double lastMarginPrice) {
+    double referencePrice = referencePrice(trade, provider.getValuationDate(), lastMarginPrice);
     double price = price(trade, provider);
     return presentValue(trade, price, referencePrice);
   }
@@ -104,11 +104,12 @@ public class DiscountingIborFutureTradePricer
    * 
    * @param trade  the trade to price
    * @param provider  the rates provider
-   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
+   * @param lastMarginPrice  the last price used in margining. If the valuation is done on the trade date, the trade 
+   * price will be used as a reference price; if not, the last margin price will be used.
    * @return the par spread.
    */
-  public double parSpread(IborFutureTrade trade, RatesProvider provider, double referencePrice) {
+  public double parSpread(IborFutureTrade trade, RatesProvider provider, double lastMarginPrice) {
+    double referencePrice = referencePrice(trade, provider.getValuationDate(), lastMarginPrice);
     return price(trade, provider) - referencePrice;
   }
 
@@ -122,7 +123,7 @@ public class DiscountingIborFutureTradePricer
    * @param provider  the rates provider
    * @return the par spread curve sensitivity of the trade
    */
-  protected PointSensitivities parSpreadSensitivity(IborFutureTrade trade, RatesProvider provider) {
+  public PointSensitivities parSpreadSensitivity(IborFutureTrade trade, RatesProvider provider) {
     return productPricer.priceSensitivity(trade.getSecurity().getProduct(), provider);
   }
 
