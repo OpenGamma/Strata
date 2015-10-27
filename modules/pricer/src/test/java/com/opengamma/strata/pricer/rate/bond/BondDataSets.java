@@ -37,7 +37,6 @@ public final class BondDataSets {
 
   //      =====     Fixed coupon bonds, bond future, USD   =====      
   // Fixed coupon bonds
-  private static final StandardId BOND_SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BONDS"); // same repo curve for all bonds
   private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT1");
   private static final YieldConvention YIELD_CONVENTION = YieldConvention.US_STREET;
   /** Notional of underlying bond */
@@ -49,12 +48,15 @@ public final class BondDataSets {
   private static final DaysAdjustment EX_COUPON = DaysAdjustment.NONE;
   private static final int NB_BOND = 7;
   private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175};
-  private static final LocalDate[] START_DATE = new LocalDate[] {
-      LocalDate.of(2010, 11, 30), LocalDate.of(2010, 12, 31), LocalDate.of(2011, 1, 31), LocalDate.of(2008, 2, 29),
-      LocalDate.of(2011, 3, 31), LocalDate.of(2011, 4, 30), LocalDate.of(2011, 5, 31)};
-  private static final Period[] BOND_TENOR = new Period[] {
-      Period.ofYears(5), Period.ofYears(5), Period.ofYears(5), Period.ofYears(8),
-      Period.ofYears(5), Period.ofYears(5), Period.ofYears(5)};
+  private static final LocalDate[] START_DATE = new LocalDate[] {LocalDate.of(2010, 11, 30),
+    LocalDate.of(2010, 12, 31), LocalDate.of(2011, 1, 31), LocalDate.of(2008, 2, 29), LocalDate.of(2011, 3, 31),
+    LocalDate.of(2011, 4, 30), LocalDate.of(2011, 5, 31) };
+  private static final Period[] BOND_TENOR = new Period[] {Period.ofYears(5), Period.ofYears(5), Period.ofYears(5),
+    Period.ofYears(8), Period.ofYears(5), Period.ofYears(5), Period.ofYears(5) };
+  private static final StandardId[] BOND_SECURITY_ID = new StandardId[] {StandardId.of("OG-Ticker", "GOVT1-BOND1"),
+    StandardId.of("OG-Ticker", "GOVT1-BOND2"), StandardId.of("OG-Ticker", "GOVT1-BOND3"),
+    StandardId.of("OG-Ticker", "GOVT1-BOND4"), StandardId.of("OG-Ticker", "GOVT1-BOND5"),
+    StandardId.of("OG-Ticker", "GOVT1-BOND6"), StandardId.of("OG-Ticker", "GOVT1-BOND7") };
   /** Security link of underlying bond */
   @SuppressWarnings("unchecked")
   public static final SecurityLink<FixedCouponBond>[] BOND_SECURITY_LINK = new SecurityLink[NB_BOND];
@@ -77,7 +79,7 @@ public final class BondDataSets {
           .exCouponPeriod(EX_COUPON)
           .build();
       BOND_PRODUCT[i] = product;
-      Security<FixedCouponBond> bondSecurity = UnitSecurity.builder(product).standardId(BOND_SECURITY_ID).build();
+      Security<FixedCouponBond> bondSecurity = UnitSecurity.builder(product).standardId(BOND_SECURITY_ID[i]).build();
       BOND_SECURITY_LINK[i] = SecurityLink.resolved(bondSecurity);
     }
   }
