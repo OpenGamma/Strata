@@ -93,8 +93,8 @@ public class GenericFuturePricingExample {
   private static Trade createFutureTrade1() {
     GenericFuture product = GenericFuture.builder()
         .productId(StandardId.of("Eurex", "FGBL"))
-        .expirationMonth(YearMonth.of(2014, 3))
-        .expirationDate(LocalDate.of(2014, 3, 13))
+        .expiryMonth(YearMonth.of(2014, 3))
+        .expiryDate(LocalDate.of(2014, 3, 13))
         .tickSize(0.01)
         .tickValue(CurrencyAmount.of(EUR, 10))
         .build();
@@ -117,8 +117,8 @@ public class GenericFuturePricingExample {
   private static Trade createFutureTrade2() {
     GenericFuture product = GenericFuture.builder()
         .productId(StandardId.of("CME", "ED"))
-        .expirationMonth(YearMonth.of(2014, 3))
-        .expirationDate(LocalDate.of(2014, 3, 10))
+        .expiryMonth(YearMonth.of(2014, 3))
+        .expiryDate(LocalDate.of(2014, 3, 10))
         .tickSize(0.005)
         .tickValue(CurrencyAmount.of(USD, 12.5))
         .build();
@@ -141,16 +141,16 @@ public class GenericFuturePricingExample {
   private static Trade createOptionTrade1() {
     GenericFuture future = GenericFuture.builder()
         .productId(StandardId.of("Eurex", "FGBL"))
-        .expirationMonth(YearMonth.of(2014, 3))
-        .expirationDate(LocalDate.of(2014, 3, 13))
+        .expiryMonth(YearMonth.of(2014, 3))
+        .expiryDate(LocalDate.of(2014, 3, 13))
         .tickSize(0.01)
         .tickValue(CurrencyAmount.of(EUR, 10))
         .build();
 
     GenericFutureOption product = GenericFutureOption.builder()
         .productId(StandardId.of("Eurex", "OGBL"))
-        .expirationMonth(YearMonth.of(2014, 3))
-        .expirationDate(LocalDate.of(2014, 3, 10))
+        .expiryMonth(YearMonth.of(2014, 3))
+        .expiryDate(LocalDate.of(2014, 3, 10))
         .tickSize(0.01)
         .tickValue(CurrencyAmount.of(EUR, 10))
         .underlyingLink(SecurityLink.resolved(UnitSecurity.builder(future)

@@ -107,7 +107,7 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
     double strike = futureOption.getStrikePrice();
     IborFuture future = futureOption.getUnderlying();
     double volatility = volatilityProvider.getVolatility(
-        futureOption.getExpiration(), future.getLastTradeDate(), strike, futurePrice);
+        futureOption.getExpiry(), future.getLastTradeDate(), strike, futurePrice);
 
     NormalFunctionData normalPoint = NormalFunctionData.of(futurePrice, 1.0, volatility);
     return NORMAL_FUNCTION.getPriceFunction(option).evaluate(normalPoint);
@@ -172,7 +172,7 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
     EuropeanVanillaOption option = createOption(futureOption, volatilityProvider);
     double strike = futureOption.getStrikePrice();
     IborFuture future = futureOption.getUnderlying();
-    double volatility = volatilityProvider.getVolatility(futureOption.getExpiration(),
+    double volatility = volatilityProvider.getVolatility(futureOption.getExpiry(),
         future.getLastTradeDate(), strike, futurePrice);
 
     NormalFunctionData normalPoint = NormalFunctionData.of(futurePrice, 1.0, volatility);
@@ -288,11 +288,11 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
     EuropeanVanillaOption option = createOption(futureOption, volatilityProvider);
     double strike = futureOption.getStrikePrice();
     IborFuture future = futureOption.getUnderlying();
-    double volatility = volatilityProvider.getVolatility(futureOption.getExpiration(),
+    double volatility = volatilityProvider.getVolatility(futureOption.getExpiry(),
         future.getLastTradeDate(), strike, futurePrice);
 
     NormalFunctionData normalPoint = NormalFunctionData.of(futurePrice, 1.0, volatility);
-    return IborFutureOptionSensitivity.of(future.getIndex(), futureOption.getExpiration(),
+    return IborFutureOptionSensitivity.of(future.getIndex(), futureOption.getExpiry(),
         future.getLastTradeDate(), strike, futurePrice, NORMAL_FUNCTION.getVega(option, normalPoint));
   }
 
@@ -308,8 +308,8 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
       IborFutureOption futureOption,
       NormalVolatilityIborFutureProvider volatilityProvider) {
 
-    double timeToExpiration = volatilityProvider.relativeTime(futureOption.getExpiration());
-    return EuropeanVanillaOption.of(futureOption.getStrikePrice(), timeToExpiration, futureOption.getPutCall());
+    double timeToExpiry = volatilityProvider.relativeTime(futureOption.getExpiry());
+    return EuropeanVanillaOption.of(futureOption.getStrikePrice(), timeToExpiry, futureOption.getPutCall());
   }
 
 }

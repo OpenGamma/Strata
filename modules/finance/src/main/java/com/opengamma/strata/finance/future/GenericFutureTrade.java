@@ -30,7 +30,7 @@ import com.opengamma.strata.finance.SecurityTrade;
 import com.opengamma.strata.finance.TradeInfo;
 
 /**
- * A trade in a generic futures contract based on an expiration month.
+ * A trade in a generic futures contract based on an expiry month.
  * <p>
  * A trade in an underlying {@link GenericFuture}.
  * <p>

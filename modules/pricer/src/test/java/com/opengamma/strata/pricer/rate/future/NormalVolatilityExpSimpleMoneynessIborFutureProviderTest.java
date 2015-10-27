@@ -91,8 +91,8 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
 
   public void volatility_price() {
     for (int i = 0; i < NB_TEST; i++) {
-      double expirationTime = VOL_SIMPLE_MONEY_RATE.relativeTime(TEST_EXPIRY[i]);
-      double volExpected = PARAMETERS_PRICE.zValue(expirationTime, TEST_STRIKE_PRICE[i] - TEST_FUTURE_PRICE[i]);
+      double expiryTime = VOL_SIMPLE_MONEY_RATE.relativeTime(TEST_EXPIRY[i]);
+      double volExpected = PARAMETERS_PRICE.zValue(expiryTime, TEST_STRIKE_PRICE[i] - TEST_FUTURE_PRICE[i]);
       double volComputed = VOL_SIMPLE_MONEY_PRICE.getVolatility(
           TEST_EXPIRY[i], TEST_FIXING[i], TEST_STRIKE_PRICE[i], TEST_FUTURE_PRICE[i]);
       assertEquals(volComputed, volExpected, TOLERANCE_VOL);
@@ -101,8 +101,8 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
 
   public void volatility_rate() {
     for (int i = 0; i < NB_TEST; i++) {
-      double expirationTime = VOL_SIMPLE_MONEY_RATE.relativeTime(TEST_EXPIRY[i]);
-      double volExpected = PARAMETERS_RATE.zValue(expirationTime, TEST_FUTURE_PRICE[i] - TEST_STRIKE_PRICE[i]);
+      double expiryTime = VOL_SIMPLE_MONEY_RATE.relativeTime(TEST_EXPIRY[i]);
+      double volExpected = PARAMETERS_RATE.zValue(expiryTime, TEST_FUTURE_PRICE[i] - TEST_STRIKE_PRICE[i]);
       double volComputed = VOL_SIMPLE_MONEY_RATE.getVolatility(
           TEST_EXPIRY[i], TEST_FIXING[i], TEST_STRIKE_PRICE[i], TEST_FUTURE_PRICE[i]);
       assertEquals(volComputed, volExpected, TOLERANCE_VOL);

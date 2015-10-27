@@ -35,8 +35,8 @@ import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 /**
  * Data provider of volatility for Ibor future options in the normal or Bachelier model. 
  * <p>
- * The volatility is represented by a surface on the expiration and simple moneyness. 
- * The expiration is measured in number of days (not time) according to a day-count convention.
+ * The volatility is represented by a surface on the expiry and simple moneyness. 
+ * The expiry is measured in number of days (not time) according to a day-count convention.
  * The simple moneyness can be on the price or on the rate (1-price).
  */
 @BeanDefinition
@@ -45,7 +45,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
 
   /**
    * The normal volatility surface.
-   * The order of the dimensions is expiration/simple moneyness.
+   * The order of the dimensions is expiry/simple moneyness.
    */
   @PropertyDefinition(validate = "notNull")
   private final InterpolatedNodalSurface parameters;
@@ -95,10 +95,10 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double getVolatility(ZonedDateTime expiration, LocalDate fixingDate, double strikePrice, double futurePrice) {
+  public double getVolatility(ZonedDateTime expiry, LocalDate fixingDate, double strikePrice, double futurePrice) {
     double simpleMoneyness = isMoneynessOnPrice ? strikePrice - futurePrice : futurePrice - strikePrice;
-    double expirationTime = relativeTime(expiration);
-    return parameters.zValue(expirationTime, simpleMoneyness);
+    double expiryTime = relativeTime(expiry);
+    return parameters.zValue(expiryTime, simpleMoneyness);
   }
 
   @Override
@@ -123,8 +123,8 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
   public Map<DoublesPair, Double> nodeSensitivity(IborFutureOptionSensitivity point) {
     double simpleMoneyness = isMoneynessOnPrice ?
         point.getStrikePrice() - point.getFuturePrice() : point.getFuturePrice() - point.getStrikePrice();
-    double expirationTime = relativeTime(point.getExpiration());
-    Map<DoublesPair, Double> ns = parameters.zValueParameterSensitivity(expirationTime, simpleMoneyness);
+    double expiryTime = relativeTime(point.getExpiry());
+    Map<DoublesPair, Double> ns = parameters.zValueParameterSensitivity(expiryTime, simpleMoneyness);
     Map<DoublesPair, Double> result = new HashMap<>();
     for (Entry<DoublesPair, Double> entry : ns.entrySet()) {
       result.put(entry.getKey(), entry.getValue() * point.getSensitivity());
@@ -189,7 +189,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
   //-----------------------------------------------------------------------
   /**
    * Gets the normal volatility surface.
-   * The order of the dimensions is expiration/simple moneyness.
+   * The order of the dimensions is expiry/simple moneyness.
    * @return the value of the property, not null
    */
   public InterpolatedNodalSurface getParameters() {
@@ -547,7 +547,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
     //-----------------------------------------------------------------------
     /**
      * Sets the normal volatility surface.
-     * The order of the dimensions is expiration/simple moneyness.
+     * The order of the dimensions is expiry/simple moneyness.
      * @param parameters  the new value, not null
      * @return this, for chaining, not null
      */

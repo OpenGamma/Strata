@@ -42,8 +42,8 @@ public class GenericFutureTradeTest {
 
   private static final GenericFuture PRODUCT = GenericFuture.builder()
       .productId(StandardId.of("Exchange", "Sym01"))
-      .expirationMonth(YearMonth.of(2015, 6))
-      .expirationDate(date(2015, 6, 15))
+      .expiryMonth(YearMonth.of(2015, 6))
+      .expiryDate(date(2015, 6, 15))
       .tickSize(0.0001)
       .tickValue(CurrencyAmount.of(USD, 10))
       .build();
