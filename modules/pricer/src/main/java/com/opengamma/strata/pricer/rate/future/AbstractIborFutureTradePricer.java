@@ -6,7 +6,6 @@
 package com.opengamma.strata.pricer.rate.future;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
