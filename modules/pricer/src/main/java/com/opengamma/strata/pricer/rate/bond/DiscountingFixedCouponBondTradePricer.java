@@ -245,7 +245,7 @@ public class DiscountingFixedCouponBondTradePricer {
     LocalDate settlementDate = trade.getTradeInfo().getSettlementDate().get();
     PointSensitivityBuilder sensiProduct = productPricer.presentValueSensitivity(
         trade.getProduct(), provider, settlementDate);
-    return presnetValueSensitivityFromProductPresentValueSensitivity(trade, provider, sensiProduct);
+    return presentValueSensitivityFromProductPresentValueSensitivity(trade, provider, sensiProduct);
   }
 
   /**
@@ -276,10 +276,10 @@ public class DiscountingFixedCouponBondTradePricer {
     LocalDate settlementDate = trade.getTradeInfo().getSettlementDate().get();
     PointSensitivityBuilder sensiProduct = productPricer.presentValueSensitivityWithZSpread(
         trade.getProduct(), provider, zSpread, compoundedRateType, periodsPerYear, settlementDate);
-    return presnetValueSensitivityFromProductPresentValueSensitivity(trade, provider, sensiProduct);
+    return presentValueSensitivityFromProductPresentValueSensitivity(trade, provider, sensiProduct);
   }
 
-  private PointSensitivityBuilder presnetValueSensitivityFromProductPresentValueSensitivity(
+  private PointSensitivityBuilder presentValueSensitivityFromProductPresentValueSensitivity(
       FixedCouponBondTrade trade,
       LegalEntityDiscountingProvider provider,
       PointSensitivityBuilder productPresnetValueSensitivity) {

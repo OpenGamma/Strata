@@ -13,9 +13,6 @@ import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
-import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.MersenneTwister64;
-
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
@@ -25,6 +22,9 @@ import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
+
+import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.MersenneTwister64;
 
 /**
  * Test {@link SabrHaganVolatilityFunctionProvider}.
@@ -598,4 +598,5 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
   private EuropeanVanillaOption withStrike(EuropeanVanillaOption option, double strike) {
     return EuropeanVanillaOption.of(strike, option.getTimeToExpiry(), option.getPutCall());
   }
+
 }

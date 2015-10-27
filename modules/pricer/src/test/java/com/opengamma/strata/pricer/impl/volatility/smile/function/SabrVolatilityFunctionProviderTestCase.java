@@ -17,6 +17,7 @@ import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
  */
 @Test
 public abstract class SabrVolatilityFunctionProviderTestCase {
+
   private static final double K = 105;
   private static final double T = 1.5;
   protected static final double FORWARD = 103;
