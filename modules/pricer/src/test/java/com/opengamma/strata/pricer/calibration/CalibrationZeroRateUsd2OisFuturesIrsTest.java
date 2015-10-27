@@ -95,7 +95,6 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
   private static final CurveInterpolator INTERPOLATOR_LINEAR = new LinearInterpolator1D();
   private static final CurveExtrapolator EXTRAPOLATOR_FLAT = new FlatExtrapolator1D();
   private static final DayCount CURVE_DC = ACT_365F;
-  private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
 
   private static final String SCHEME = "CALIBRATION";
 
@@ -116,8 +115,6 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
     Set<Index> usdLibor3Set = new HashSet<>();
     usdLibor3Set.add(USD_LIBOR_3M);
     IDX_NAMES.put(FWD3_CURVE_NAME, usdLibor3Set);
-    TS.put(USD_FED_FUND, TS_EMTPY);
-    TS.put(USD_LIBOR_3M, TS_EMTPY);
   }
 
   /** Data for USD-DSCON curve */
@@ -296,8 +293,8 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
       double shift) {
     double notional = 100_000_000.0;
     double spread = 0.0050;
-    SwapTrade trade = FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M.toTrade(VALUATION_DATE, Period.ofMonths(8),
-        Tenor.TENOR_7Y, BuySell.BUY, notional, spread);
+    SwapTrade trade = FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M
+        .toTrade(VALUATION_DATE, Period.ofMonths(8), Tenor.TENOR_7Y, BuySell.BUY, notional, spread);
     ImmutableRatesProvider result = calibrator.apply(ALL_QUOTES);
     PointSensitivityBuilder pts = SWAP_PRICER.presentValueSensitivity(trade.getProduct(), result);
     CurveCurrencyParameterSensitivities ps = result.curveParameterSensitivity(pts.build());

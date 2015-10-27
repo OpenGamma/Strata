@@ -37,7 +37,7 @@ public final class CalibrationMeasures {
       TradeCalibrationMeasure.TERM_DEPOSIT_PAR_SPREAD,
       TradeCalibrationMeasure.IBOR_FIXING_DEPOSIT_PAR_SPREAD,
       TradeCalibrationMeasure.FRA_PAR_SPREAD,
-      TradeCalibrationMeasure.IBOR_FUT_PAR_SPREAD,
+      TradeCalibrationMeasure.IBOR_FUTURE_PAR_SPREAD,
       TradeCalibrationMeasure.SWAP_PAR_SPREAD);
 
   /**

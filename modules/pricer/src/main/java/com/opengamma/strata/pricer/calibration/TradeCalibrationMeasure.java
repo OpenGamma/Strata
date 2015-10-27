@@ -47,7 +47,7 @@ public class TradeCalibrationMeasure<T extends Trade>
   /**
    * The calibrator for {@link IborFutureTrade} using par spread discounting.
    */
-  public static final TradeCalibrationMeasure<IborFutureTrade> IBOR_FUT_PAR_SPREAD =
+  public static final TradeCalibrationMeasure<IborFutureTrade> IBOR_FUTURE_PAR_SPREAD =
       TradeCalibrationMeasure.of(
           "IborFutureParSpreadDiscounting",
           IborFutureTrade.class,
