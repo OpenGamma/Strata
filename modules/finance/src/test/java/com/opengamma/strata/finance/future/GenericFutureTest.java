@@ -41,14 +41,14 @@ public class GenericFutureTest {
   public void test_builder() {
     GenericFuture test = GenericFuture.builder()
         .productId(SYMBOL)
-        .expirationMonth(YM_2015_06)
-        .expirationDate(DATE_2015_06)
+        .expiryMonth(YM_2015_06)
+        .expiryDate(DATE_2015_06)
         .tickSize(0.0001)
         .tickValue(USD_10)
         .build();
     assertEquals(test.getProductId(), SYMBOL);
-    assertEquals(test.getExpirationMonth(), YM_2015_06);
-    assertEquals(test.getExpirationDate(), Optional.of(DATE_2015_06));
+    assertEquals(test.getExpiryMonth(), YM_2015_06);
+    assertEquals(test.getExpiryDate(), Optional.of(DATE_2015_06));
     assertEquals(test.getTickSize(), 0.0001);
     assertEquals(test.getTickValue(), USD_10);
     assertEquals(test.getCurrency(), USD);
@@ -58,16 +58,16 @@ public class GenericFutureTest {
   public void coverage() {
     GenericFuture test = GenericFuture.builder()
         .productId(SYMBOL)
-        .expirationMonth(YM_2015_06)
-        .expirationDate(DATE_2015_06)
+        .expiryMonth(YM_2015_06)
+        .expiryDate(DATE_2015_06)
         .tickSize(0.0001)
         .tickValue(USD_10)
         .build();
     coverImmutableBean(test);
     GenericFuture test2 = GenericFuture.builder()
         .productId(SYMBOL2)
-        .expirationMonth(YM_2015_09)
-        .expirationDate(DATE_2015_09)
+        .expiryMonth(YM_2015_09)
+        .expiryDate(DATE_2015_09)
         .tickSize(0.0002)
         .tickValue(GBP_20)
         .build();
@@ -77,8 +77,8 @@ public class GenericFutureTest {
   public void test_serialization() {
     GenericFuture test = GenericFuture.builder()
         .productId(SYMBOL)
-        .expirationMonth(YM_2015_06)
-        .expirationDate(DATE_2015_06)
+        .expiryMonth(YM_2015_06)
+        .expiryDate(DATE_2015_06)
         .tickSize(0.0001)
         .tickValue(USD_10)
         .build();

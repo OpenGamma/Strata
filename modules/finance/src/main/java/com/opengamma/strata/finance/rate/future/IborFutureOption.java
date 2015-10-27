@@ -73,27 +73,27 @@ public class IborFutureOption
   @PropertyDefinition
   private final double strikePrice;
   /**
-   * The expiration date of the option.  
+   * The expiry date of the option.  
    * <p>
-   * The expiration date is related to the expiration time and time-zone.
+   * The expiry date is related to the expiry time and time-zone.
    * The date must not be after last trade date of the underlying future. 
    */
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate expirationDate;
+  private final LocalDate expiryDate;
   /**
-   * The expiration time of the option.  
+   * The expiry time of the option.  
    * <p>
-   * The expiration time is related to the expiration date and time-zone.
+   * The expiry time is related to the expiry date and time-zone.
    */
   @PropertyDefinition(validate = "notNull")
-  private final LocalTime expirationTime;
+  private final LocalTime expiryTime;
   /**
-   * The time-zone of the expiration time.  
+   * The time-zone of the expiry time.  
    * <p>
-   * The expiration time-zone is related to the expiration date and time.
+   * The expiry time-zone is related to the expiry date and time.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ZoneId expirationZone;
+  private final ZoneId expiryZone;
   /**
    * The style of the option premium.
    * <p>
@@ -125,7 +125,7 @@ public class IborFutureOption
   private void validate() {
     if (underlyingLink.isResolved()) {
       LocalDate lastTradeDate = underlyingLink.resolve(null).getProduct().getLastTradeDate();
-      ArgChecker.inOrderOrEqual(expirationDate, lastTradeDate, "expirationDate", "lastTradeDate");
+      ArgChecker.inOrderOrEqual(expiryDate, lastTradeDate, "expiryDate", "lastTradeDate");
     }
   }
 
@@ -136,16 +136,16 @@ public class IborFutureOption
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the expiration date-time.
+   * Gets the expiry date-time.
    * <p>
    * The option expires at this date and time.
    * <p>
-   * The result is returned by combining the expiration date, time and time-zone.
+   * The result is returned by combining the expiry date, time and time-zone.
    * 
-   * @return the expiration date and time
+   * @return the expiry date and time
    */
-  public ZonedDateTime getExpiration() {
-    return expirationDate.atTime(expirationTime).atZone(expirationZone);
+  public ZonedDateTime getExpiry() {
+    return expiryDate.atTime(expiryTime).atZone(expiryZone);
   }
 
   //-------------------------------------------------------------------------
@@ -232,17 +232,17 @@ public class IborFutureOption
    * @param builder  the builder to copy from, not null
    */
   protected IborFutureOption(IborFutureOption.Builder builder) {
-    JodaBeanUtils.notNull(builder.expirationDate, "expirationDate");
-    JodaBeanUtils.notNull(builder.expirationTime, "expirationTime");
-    JodaBeanUtils.notNull(builder.expirationZone, "expirationZone");
+    JodaBeanUtils.notNull(builder.expiryDate, "expiryDate");
+    JodaBeanUtils.notNull(builder.expiryTime, "expiryTime");
+    JodaBeanUtils.notNull(builder.expiryZone, "expiryZone");
     JodaBeanUtils.notNull(builder.premiumStyle, "premiumStyle");
     JodaBeanUtils.notNull(builder.rounding, "rounding");
     JodaBeanUtils.notNull(builder.underlyingLink, "underlyingLink");
     this.putCall = builder.putCall;
     this.strikePrice = builder.strikePrice;
-    this.expirationDate = builder.expirationDate;
-    this.expirationTime = builder.expirationTime;
-    this.expirationZone = builder.expirationZone;
+    this.expiryDate = builder.expiryDate;
+    this.expiryTime = builder.expiryTime;
+    this.expiryZone = builder.expiryZone;
     this.premiumStyle = builder.premiumStyle;
     this.rounding = builder.rounding;
     this.underlyingLink = builder.underlyingLink;
@@ -292,36 +292,36 @@ public class IborFutureOption
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiration date of the option.
+   * Gets the expiry date of the option.
    * <p>
-   * The expiration date is related to the expiration time and time-zone.
+   * The expiry date is related to the expiry time and time-zone.
    * The date must not be after last trade date of the underlying future.
    * @return the value of the property, not null
    */
-  public LocalDate getExpirationDate() {
-    return expirationDate;
+  public LocalDate getExpiryDate() {
+    return expiryDate;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiration time of the option.
+   * Gets the expiry time of the option.
    * <p>
-   * The expiration time is related to the expiration date and time-zone.
+   * The expiry time is related to the expiry date and time-zone.
    * @return the value of the property, not null
    */
-  public LocalTime getExpirationTime() {
-    return expirationTime;
+  public LocalTime getExpiryTime() {
+    return expiryTime;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the time-zone of the expiration time.
+   * Gets the time-zone of the expiry time.
    * <p>
-   * The expiration time-zone is related to the expiration date and time.
+   * The expiry time-zone is related to the expiry date and time.
    * @return the value of the property, not null
    */
-  public ZoneId getExpirationZone() {
-    return expirationZone;
+  public ZoneId getExpiryZone() {
+    return expiryZone;
   }
 
   //-----------------------------------------------------------------------
@@ -379,9 +379,9 @@ public class IborFutureOption
       IborFutureOption other = (IborFutureOption) obj;
       return JodaBeanUtils.equal(getPutCall(), other.getPutCall()) &&
           JodaBeanUtils.equal(getStrikePrice(), other.getStrikePrice()) &&
-          JodaBeanUtils.equal(getExpirationDate(), other.getExpirationDate()) &&
-          JodaBeanUtils.equal(getExpirationTime(), other.getExpirationTime()) &&
-          JodaBeanUtils.equal(getExpirationZone(), other.getExpirationZone()) &&
+          JodaBeanUtils.equal(getExpiryDate(), other.getExpiryDate()) &&
+          JodaBeanUtils.equal(getExpiryTime(), other.getExpiryTime()) &&
+          JodaBeanUtils.equal(getExpiryZone(), other.getExpiryZone()) &&
           JodaBeanUtils.equal(getPremiumStyle(), other.getPremiumStyle()) &&
           JodaBeanUtils.equal(getRounding(), other.getRounding()) &&
           JodaBeanUtils.equal(getUnderlyingLink(), other.getUnderlyingLink());
@@ -394,9 +394,9 @@ public class IborFutureOption
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getPutCall());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStrikePrice());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpirationDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpirationTime());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpirationZone());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryZone());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumStyle());
     hash = hash * 31 + JodaBeanUtils.hashCode(getRounding());
     hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingLink());
@@ -419,9 +419,9 @@ public class IborFutureOption
   protected void toString(StringBuilder buf) {
     buf.append("putCall").append('=').append(JodaBeanUtils.toString(getPutCall())).append(',').append(' ');
     buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(getStrikePrice())).append(',').append(' ');
-    buf.append("expirationDate").append('=').append(JodaBeanUtils.toString(getExpirationDate())).append(',').append(' ');
-    buf.append("expirationTime").append('=').append(JodaBeanUtils.toString(getExpirationTime())).append(',').append(' ');
-    buf.append("expirationZone").append('=').append(JodaBeanUtils.toString(getExpirationZone())).append(',').append(' ');
+    buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(getExpiryDate())).append(',').append(' ');
+    buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(getExpiryTime())).append(',').append(' ');
+    buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(getExpiryZone())).append(',').append(' ');
     buf.append("premiumStyle").append('=').append(JodaBeanUtils.toString(getPremiumStyle())).append(',').append(' ');
     buf.append("rounding").append('=').append(JodaBeanUtils.toString(getRounding())).append(',').append(' ');
     buf.append("underlyingLink").append('=').append(JodaBeanUtils.toString(getUnderlyingLink())).append(',').append(' ');
@@ -448,20 +448,20 @@ public class IborFutureOption
     private final MetaProperty<Double> strikePrice = DirectMetaProperty.ofImmutable(
         this, "strikePrice", IborFutureOption.class, Double.TYPE);
     /**
-     * The meta-property for the {@code expirationDate} property.
+     * The meta-property for the {@code expiryDate} property.
      */
-    private final MetaProperty<LocalDate> expirationDate = DirectMetaProperty.ofImmutable(
-        this, "expirationDate", IborFutureOption.class, LocalDate.class);
+    private final MetaProperty<LocalDate> expiryDate = DirectMetaProperty.ofImmutable(
+        this, "expiryDate", IborFutureOption.class, LocalDate.class);
     /**
-     * The meta-property for the {@code expirationTime} property.
+     * The meta-property for the {@code expiryTime} property.
      */
-    private final MetaProperty<LocalTime> expirationTime = DirectMetaProperty.ofImmutable(
-        this, "expirationTime", IborFutureOption.class, LocalTime.class);
+    private final MetaProperty<LocalTime> expiryTime = DirectMetaProperty.ofImmutable(
+        this, "expiryTime", IborFutureOption.class, LocalTime.class);
     /**
-     * The meta-property for the {@code expirationZone} property.
+     * The meta-property for the {@code expiryZone} property.
      */
-    private final MetaProperty<ZoneId> expirationZone = DirectMetaProperty.ofImmutable(
-        this, "expirationZone", IborFutureOption.class, ZoneId.class);
+    private final MetaProperty<ZoneId> expiryZone = DirectMetaProperty.ofImmutable(
+        this, "expiryZone", IborFutureOption.class, ZoneId.class);
     /**
      * The meta-property for the {@code premiumStyle} property.
      */
@@ -485,9 +485,9 @@ public class IborFutureOption
         this, null,
         "putCall",
         "strikePrice",
-        "expirationDate",
-        "expirationTime",
-        "expirationZone",
+        "expiryDate",
+        "expiryTime",
+        "expiryZone",
         "premiumStyle",
         "rounding",
         "underlyingLink");
@@ -505,12 +505,12 @@ public class IborFutureOption
           return putCall;
         case 50946231:  // strikePrice
           return strikePrice;
-        case -668811523:  // expirationDate
-          return expirationDate;
-        case -668327396:  // expirationTime
-          return expirationTime;
-        case -668142853:  // expirationZone
-          return expirationZone;
+        case -816738431:  // expiryDate
+          return expiryDate;
+        case -816254304:  // expiryTime
+          return expiryTime;
+        case -816069761:  // expiryZone
+          return expiryZone;
         case -1257652838:  // premiumStyle
           return premiumStyle;
         case -142444:  // rounding
@@ -554,27 +554,27 @@ public class IborFutureOption
     }
 
     /**
-     * The meta-property for the {@code expirationDate} property.
+     * The meta-property for the {@code expiryDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> expirationDate() {
-      return expirationDate;
+    public final MetaProperty<LocalDate> expiryDate() {
+      return expiryDate;
     }
 
     /**
-     * The meta-property for the {@code expirationTime} property.
+     * The meta-property for the {@code expiryTime} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalTime> expirationTime() {
-      return expirationTime;
+    public final MetaProperty<LocalTime> expiryTime() {
+      return expiryTime;
     }
 
     /**
-     * The meta-property for the {@code expirationZone} property.
+     * The meta-property for the {@code expiryZone} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ZoneId> expirationZone() {
-      return expirationZone;
+    public final MetaProperty<ZoneId> expiryZone() {
+      return expiryZone;
     }
 
     /**
@@ -609,12 +609,12 @@ public class IborFutureOption
           return ((IborFutureOption) bean).getPutCall();
         case 50946231:  // strikePrice
           return ((IborFutureOption) bean).getStrikePrice();
-        case -668811523:  // expirationDate
-          return ((IborFutureOption) bean).getExpirationDate();
-        case -668327396:  // expirationTime
-          return ((IborFutureOption) bean).getExpirationTime();
-        case -668142853:  // expirationZone
-          return ((IborFutureOption) bean).getExpirationZone();
+        case -816738431:  // expiryDate
+          return ((IborFutureOption) bean).getExpiryDate();
+        case -816254304:  // expiryTime
+          return ((IborFutureOption) bean).getExpiryTime();
+        case -816069761:  // expiryZone
+          return ((IborFutureOption) bean).getExpiryZone();
         case -1257652838:  // premiumStyle
           return ((IborFutureOption) bean).getPremiumStyle();
         case -142444:  // rounding
@@ -644,9 +644,9 @@ public class IborFutureOption
 
     private PutCall putCall;
     private double strikePrice;
-    private LocalDate expirationDate;
-    private LocalTime expirationTime;
-    private ZoneId expirationZone;
+    private LocalDate expiryDate;
+    private LocalTime expiryTime;
+    private ZoneId expiryZone;
     private FutureOptionPremiumStyle premiumStyle;
     private Rounding rounding;
     private SecurityLink<IborFuture> underlyingLink;
@@ -665,9 +665,9 @@ public class IborFutureOption
     protected Builder(IborFutureOption beanToCopy) {
       this.putCall = beanToCopy.getPutCall();
       this.strikePrice = beanToCopy.getStrikePrice();
-      this.expirationDate = beanToCopy.getExpirationDate();
-      this.expirationTime = beanToCopy.getExpirationTime();
-      this.expirationZone = beanToCopy.getExpirationZone();
+      this.expiryDate = beanToCopy.getExpiryDate();
+      this.expiryTime = beanToCopy.getExpiryTime();
+      this.expiryZone = beanToCopy.getExpiryZone();
       this.premiumStyle = beanToCopy.getPremiumStyle();
       this.rounding = beanToCopy.getRounding();
       this.underlyingLink = beanToCopy.getUnderlyingLink();
@@ -681,12 +681,12 @@ public class IborFutureOption
           return putCall;
         case 50946231:  // strikePrice
           return strikePrice;
-        case -668811523:  // expirationDate
-          return expirationDate;
-        case -668327396:  // expirationTime
-          return expirationTime;
-        case -668142853:  // expirationZone
-          return expirationZone;
+        case -816738431:  // expiryDate
+          return expiryDate;
+        case -816254304:  // expiryTime
+          return expiryTime;
+        case -816069761:  // expiryZone
+          return expiryZone;
         case -1257652838:  // premiumStyle
           return premiumStyle;
         case -142444:  // rounding
@@ -708,14 +708,14 @@ public class IborFutureOption
         case 50946231:  // strikePrice
           this.strikePrice = (Double) newValue;
           break;
-        case -668811523:  // expirationDate
-          this.expirationDate = (LocalDate) newValue;
+        case -816738431:  // expiryDate
+          this.expiryDate = (LocalDate) newValue;
           break;
-        case -668327396:  // expirationTime
-          this.expirationTime = (LocalTime) newValue;
+        case -816254304:  // expiryTime
+          this.expiryTime = (LocalTime) newValue;
           break;
-        case -668142853:  // expirationZone
-          this.expirationZone = (ZoneId) newValue;
+        case -816069761:  // expiryZone
+          this.expiryZone = (ZoneId) newValue;
           break;
         case -1257652838:  // premiumStyle
           this.premiumStyle = (FutureOptionPremiumStyle) newValue;
@@ -791,42 +791,42 @@ public class IborFutureOption
     }
 
     /**
-     * Sets the expiration date of the option.
+     * Sets the expiry date of the option.
      * <p>
-     * The expiration date is related to the expiration time and time-zone.
+     * The expiry date is related to the expiry time and time-zone.
      * The date must not be after last trade date of the underlying future.
-     * @param expirationDate  the new value, not null
+     * @param expiryDate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder expirationDate(LocalDate expirationDate) {
-      JodaBeanUtils.notNull(expirationDate, "expirationDate");
-      this.expirationDate = expirationDate;
+    public Builder expiryDate(LocalDate expiryDate) {
+      JodaBeanUtils.notNull(expiryDate, "expiryDate");
+      this.expiryDate = expiryDate;
       return this;
     }
 
     /**
-     * Sets the expiration time of the option.
+     * Sets the expiry time of the option.
      * <p>
-     * The expiration time is related to the expiration date and time-zone.
-     * @param expirationTime  the new value, not null
+     * The expiry time is related to the expiry date and time-zone.
+     * @param expiryTime  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder expirationTime(LocalTime expirationTime) {
-      JodaBeanUtils.notNull(expirationTime, "expirationTime");
-      this.expirationTime = expirationTime;
+    public Builder expiryTime(LocalTime expiryTime) {
+      JodaBeanUtils.notNull(expiryTime, "expiryTime");
+      this.expiryTime = expiryTime;
       return this;
     }
 
     /**
-     * Sets the time-zone of the expiration time.
+     * Sets the time-zone of the expiry time.
      * <p>
-     * The expiration time-zone is related to the expiration date and time.
-     * @param expirationZone  the new value, not null
+     * The expiry time-zone is related to the expiry date and time.
+     * @param expiryZone  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder expirationZone(ZoneId expirationZone) {
-      JodaBeanUtils.notNull(expirationZone, "expirationZone");
-      this.expirationZone = expirationZone;
+    public Builder expiryZone(ZoneId expiryZone) {
+      JodaBeanUtils.notNull(expiryZone, "expiryZone");
+      this.expiryZone = expiryZone;
       return this;
     }
 
@@ -890,9 +890,9 @@ public class IborFutureOption
     protected void toString(StringBuilder buf) {
       buf.append("putCall").append('=').append(JodaBeanUtils.toString(putCall)).append(',').append(' ');
       buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(strikePrice)).append(',').append(' ');
-      buf.append("expirationDate").append('=').append(JodaBeanUtils.toString(expirationDate)).append(',').append(' ');
-      buf.append("expirationTime").append('=').append(JodaBeanUtils.toString(expirationTime)).append(',').append(' ');
-      buf.append("expirationZone").append('=').append(JodaBeanUtils.toString(expirationZone)).append(',').append(' ');
+      buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
+      buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(expiryTime)).append(',').append(' ');
+      buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(expiryZone)).append(',').append(' ');
       buf.append("premiumStyle").append('=').append(JodaBeanUtils.toString(premiumStyle)).append(',').append(' ');
       buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding)).append(',').append(' ');
       buf.append("underlyingLink").append('=').append(JodaBeanUtils.toString(underlyingLink)).append(',').append(' ');

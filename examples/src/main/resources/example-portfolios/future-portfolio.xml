@@ -16,8 +16,8 @@
      <name></name>
      <product type="com.opengamma.strata.finance.future.GenericFuture">
       <productId>Eurex~FGBL</productId>
-      <expirationMonth>2014-03</expirationMonth>
-      <expirationDate>2014-03-13</expirationDate>
+      <expiryMonth>2014-03</expiryMonth>
+      <expiryDate>2014-03-13</expiryDate>
       <tickSize>0.01</tickSize>
       <tickValue>EUR 10</tickValue>
      </product>
@@ -41,8 +41,8 @@
      <name></name>
      <product type="GenericFuture">
       <productId>CME~ED</productId>
-      <expirationMonth>2014-03</expirationMonth>
-      <expirationDate>2014-03-10</expirationDate>
+      <expiryMonth>2014-03</expiryMonth>
+      <expiryDate>2014-03-10</expiryDate>
       <tickSize>0.005</tickSize>
       <tickValue>USD 12.5</tickValue>
      </product>
@@ -66,9 +66,9 @@
      <name></name>
      <product type="com.opengamma.strata.finance.future.GenericFutureOption">
       <productId>Eurex~OGBL</productId>
-      <expirationMonth>2014-03</expirationMonth>
+      <expiryMonth>2014-03</expiryMonth>
       <strikePrice>0.0</strikePrice>
-      <expirationDate>2014-03-10</expirationDate>
+      <expiryDate>2014-03-10</expiryDate>
       <tickSize>0.01</tickSize>
       <tickValue>EUR 10</tickValue>
       <underlyingQuantity>1</underlyingQuantity>
@@ -79,8 +79,8 @@
         <name></name>
         <product type="GenericFuture">
          <productId>Eurex~FGBL</productId>
-         <expirationMonth>2014-03</expirationMonth>
-         <expirationDate>2014-03-13</expirationDate>
+         <expiryMonth>2014-03</expiryMonth>
+         <expiryDate>2014-03-13</expiryDate>
          <tickSize>0.01</tickSize>
          <tickValue>EUR 10</tickValue>
         </product>

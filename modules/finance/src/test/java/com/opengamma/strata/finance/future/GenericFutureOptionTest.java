@@ -50,8 +50,8 @@ public class GenericFutureOptionTest {
 
   private static final GenericFuture PRODUCT = GenericFuture.builder()
       .productId(StandardId.of("Exchange", "Sym01"))
-      .expirationMonth(YearMonth.of(2015, 6))
-      .expirationDate(date(2015, 6, 15))
+      .expiryMonth(YearMonth.of(2015, 6))
+      .expiryDate(date(2015, 6, 15))
       .tickSize(0.0001)
       .tickValue(CurrencyAmount.of(USD, 10))
       .build();
@@ -69,17 +69,17 @@ public class GenericFutureOptionTest {
         .productId(SYMBOL)
         .putCall(CALL)
         .strikePrice(1.51)
-        .expirationMonth(YM_2015_06)
-        .expirationDate(DATE_2015_06)
+        .expiryMonth(YM_2015_06)
+        .expiryDate(DATE_2015_06)
         .tickSize(0.0001)
         .tickValue(USD_10)
         .underlyingLink(RESOLVABLE_LINK)
         .build();
     assertEquals(test.getProductId(), SYMBOL);
-    assertEquals(test.getExpirationMonth(), YM_2015_06);
+    assertEquals(test.getExpiryMonth(), YM_2015_06);
     assertEquals(test.getPutCall(), CALL);
     assertEquals(test.getStrikePrice(), 1.51d);
-    assertEquals(test.getExpirationDate(), Optional.of(DATE_2015_06));
+    assertEquals(test.getExpiryDate(), Optional.of(DATE_2015_06));
     assertEquals(test.getTickSize(), 0.0001);
     assertEquals(test.getTickValue(), USD_10);
     assertEquals(test.getCurrency(), USD);
@@ -94,17 +94,17 @@ public class GenericFutureOptionTest {
         .productId(SYMBOL)
         .putCall(CALL)
         .strikePrice(1.51)
-        .expirationMonth(YM_2015_06)
-        .expirationDate(DATE_2015_06)
+        .expiryMonth(YM_2015_06)
+        .expiryDate(DATE_2015_06)
         .tickSize(0.0001)
         .tickValue(USD_10)
         .underlyingLink(RESOLVED_LINK)
         .build();
     assertEquals(test.getProductId(), SYMBOL);
-    assertEquals(test.getExpirationMonth(), YM_2015_06);
+    assertEquals(test.getExpiryMonth(), YM_2015_06);
     assertEquals(test.getPutCall(), CALL);
     assertEquals(test.getStrikePrice(), 1.51d);
-    assertEquals(test.getExpirationDate(), Optional.of(DATE_2015_06));
+    assertEquals(test.getExpiryDate(), Optional.of(DATE_2015_06));
     assertEquals(test.getTickSize(), 0.0001);
     assertEquals(test.getTickValue(), USD_10);
     assertEquals(test.getCurrency(), USD);
@@ -119,16 +119,16 @@ public class GenericFutureOptionTest {
         .productId(SYMBOL)
         .putCall(CALL)
         .strikePrice(1.51)
-        .expirationMonth(YM_2015_06)
-        .expirationDate(DATE_2015_06)
+        .expiryMonth(YM_2015_06)
+        .expiryDate(DATE_2015_06)
         .tickSize(0.0001)
         .tickValue(USD_10)
         .build();
     assertEquals(test.getProductId(), SYMBOL);
-    assertEquals(test.getExpirationMonth(), YM_2015_06);
+    assertEquals(test.getExpiryMonth(), YM_2015_06);
     assertEquals(test.getPutCall(), CALL);
     assertEquals(test.getStrikePrice(), 1.51d);
-    assertEquals(test.getExpirationDate(), Optional.of(DATE_2015_06));
+    assertEquals(test.getExpiryDate(), Optional.of(DATE_2015_06));
     assertEquals(test.getTickSize(), 0.0001);
     assertEquals(test.getTickValue(), USD_10);
     assertEquals(test.getCurrency(), USD);
@@ -144,8 +144,8 @@ public class GenericFutureOptionTest {
         .productId(SYMBOL)
         .putCall(CALL)
         .strikePrice(1.51)
-        .expirationMonth(YM_2015_06)
-        .expirationDate(DATE_2015_06)
+        .expiryMonth(YM_2015_06)
+        .expiryDate(DATE_2015_06)
         .tickSize(0.0001)
         .tickValue(USD_10)
         .underlyingLink(RESOLVABLE_LINK)
@@ -154,8 +154,8 @@ public class GenericFutureOptionTest {
         .productId(SYMBOL)
         .putCall(CALL)
         .strikePrice(1.51)
-        .expirationMonth(YM_2015_06)
-        .expirationDate(DATE_2015_06)
+        .expiryMonth(YM_2015_06)
+        .expiryDate(DATE_2015_06)
         .tickSize(0.0001)
         .tickValue(USD_10)
         .underlyingLink(RESOLVED_LINK)
@@ -176,8 +176,8 @@ public class GenericFutureOptionTest {
         .productId(SYMBOL)
         .putCall(CALL)
         .strikePrice(1.51)
-        .expirationMonth(YM_2015_06)
-        .expirationDate(DATE_2015_06)
+        .expiryMonth(YM_2015_06)
+        .expiryDate(DATE_2015_06)
         .tickSize(0.0001)
         .tickValue(USD_10)
         .underlyingLink(RESOLVED_LINK)
@@ -197,8 +197,8 @@ public class GenericFutureOptionTest {
         .productId(SYMBOL)
         .putCall(CALL)
         .strikePrice(1.51)
-        .expirationMonth(YM_2015_06)
-        .expirationDate(DATE_2015_06)
+        .expiryMonth(YM_2015_06)
+        .expiryDate(DATE_2015_06)
         .tickSize(0.0001)
         .tickValue(USD_10)
         .build();
@@ -218,8 +218,8 @@ public class GenericFutureOptionTest {
         .productId(SYMBOL)
         .putCall(CALL)
         .strikePrice(1.51)
-        .expirationMonth(YM_2015_06)
-        .expirationDate(DATE_2015_06)
+        .expiryMonth(YM_2015_06)
+        .expiryDate(DATE_2015_06)
         .tickSize(0.0001)
         .tickValue(USD_10)
         .underlyingQuantity(1)
@@ -230,8 +230,8 @@ public class GenericFutureOptionTest {
         .productId(SYMBOL2)
         .putCall(PUT)
         .strikePrice(1.52)
-        .expirationMonth(YM_2015_09)
-        .expirationDate(DATE_2015_09)
+        .expiryMonth(YM_2015_09)
+        .expiryDate(DATE_2015_09)
         .tickSize(0.0002)
         .tickValue(GBP_20)
         .underlyingQuantity(20)
@@ -245,8 +245,8 @@ public class GenericFutureOptionTest {
         .productId(SYMBOL)
         .putCall(CALL)
         .strikePrice(1.51)
-        .expirationMonth(YM_2015_06)
-        .expirationDate(DATE_2015_06)
+        .expiryMonth(YM_2015_06)
+        .expiryDate(DATE_2015_06)
         .tickSize(0.0001)
         .tickValue(USD_10)
         .underlyingLink(RESOLVED_LINK)

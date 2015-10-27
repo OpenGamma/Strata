@@ -38,7 +38,7 @@ import com.opengamma.strata.finance.Security;
 import com.opengamma.strata.finance.SecurityLink;
 
 /**
- * A generic futures option contract based on an expiration month.
+ * A generic futures option contract based on an expiry month.
  * <p>
  * A futures option is a financial instrument that is based on the future value of an underlying.
  * The buyer of a call option has the right, but not the obligation, to purchase the underlying
@@ -58,23 +58,23 @@ public final class GenericFutureOption
    * The identifier that is used for the base product, also known as the symbol.
    * A future option typically expires monthly or quarterly, thus the product referred to here
    * is the base product of a series of contracts. A unique identifier for the contract is formed
-   * by combining the base product, put/call, strike and expiration month.
+   * by combining the base product, put/call, strike and expiry month.
    * For example, 'Eurex~OGBL' could be used to refer to the Euro-Bund option base product at Eurex.
    */
   @PropertyDefinition(validate = "notNull")
   private final StandardId productId;
   /**
-   * The expiration month.
+   * The expiry month.
    * <p>
-   * The month used to identify the expiration of the option.
+   * The month used to identify the expiry of the option.
    * When the option expires, trading stops.
    * <p>
    * Options expire on a specific date, but as there is typically only one contract per month,
-   * the month is used to refer to the future. Note that it is possible for the expiration
+   * the month is used to refer to the future. Note that it is possible for the expiry
    * date to be in a different calendar month to that used to refer to the option.
    */
   @PropertyDefinition(validate = "notNull")
-  private final YearMonth expirationMonth;
+  private final YearMonth expiryMonth;
   /**
    * Whether the option is put or call.
    * <p>
@@ -95,15 +95,15 @@ public final class GenericFutureOption
   @PropertyDefinition
   private final double strikePrice;
   /**
-   * The expiration date, optional.
+   * The expiry date, optional.
    * <p>
    * This is the date that the option expires.
    * A generic future option is intended to be used for future options that expire monthly or quarterly.
-   * As such, the {@code expirationMonth} field is used to identify the contract and this
+   * As such, the {@code expiryMonth} field is used to identify the contract and this
    * date is primarily for information.
    */
   @PropertyDefinition(get = "optional")
-  private final LocalDate expirationDate;
+  private final LocalDate expiryDate;
   /**
    * The size of each tick.
    * <p>
@@ -234,22 +234,22 @@ public final class GenericFutureOption
 
   private GenericFutureOption(
       StandardId productId,
-      YearMonth expirationMonth,
+      YearMonth expiryMonth,
       PutCall putCall,
       double strikePrice,
-      LocalDate expirationDate,
+      LocalDate expiryDate,
       double tickSize,
       CurrencyAmount tickValue,
       long underlyingQuantity,
       SecurityLink<GenericFuture> underlyingLink) {
     JodaBeanUtils.notNull(productId, "productId");
-    JodaBeanUtils.notNull(expirationMonth, "expirationMonth");
+    JodaBeanUtils.notNull(expiryMonth, "expiryMonth");
     JodaBeanUtils.notNull(tickValue, "tickValue");
     this.productId = productId;
-    this.expirationMonth = expirationMonth;
+    this.expiryMonth = expiryMonth;
     this.putCall = putCall;
     this.strikePrice = strikePrice;
-    this.expirationDate = expirationDate;
+    this.expiryDate = expiryDate;
     this.tickSize = tickSize;
     this.tickValue = tickValue;
     this.underlyingQuantity = underlyingQuantity;
@@ -278,7 +278,7 @@ public final class GenericFutureOption
    * The identifier that is used for the base product, also known as the symbol.
    * A future option typically expires monthly or quarterly, thus the product referred to here
    * is the base product of a series of contracts. A unique identifier for the contract is formed
-   * by combining the base product, put/call, strike and expiration month.
+   * by combining the base product, put/call, strike and expiry month.
    * For example, 'Eurex~OGBL' could be used to refer to the Euro-Bund option base product at Eurex.
    * @return the value of the property, not null
    */
@@ -288,18 +288,18 @@ public final class GenericFutureOption
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiration month.
+   * Gets the expiry month.
    * <p>
-   * The month used to identify the expiration of the option.
+   * The month used to identify the expiry of the option.
    * When the option expires, trading stops.
    * <p>
    * Options expire on a specific date, but as there is typically only one contract per month,
-   * the month is used to refer to the future. Note that it is possible for the expiration
+   * the month is used to refer to the future. Note that it is possible for the expiry
    * date to be in a different calendar month to that used to refer to the option.
    * @return the value of the property, not null
    */
-  public YearMonth getExpirationMonth() {
-    return expirationMonth;
+  public YearMonth getExpiryMonth() {
+    return expiryMonth;
   }
 
   //-----------------------------------------------------------------------
@@ -331,16 +331,16 @@ public final class GenericFutureOption
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiration date, optional.
+   * Gets the expiry date, optional.
    * <p>
    * This is the date that the option expires.
    * A generic future option is intended to be used for future options that expire monthly or quarterly.
-   * As such, the {@code expirationMonth} field is used to identify the contract and this
+   * As such, the {@code expiryMonth} field is used to identify the contract and this
    * date is primarily for information.
    * @return the optional value of the property, not null
    */
-  public Optional<LocalDate> getExpirationDate() {
-    return Optional.ofNullable(expirationDate);
+  public Optional<LocalDate> getExpiryDate() {
+    return Optional.ofNullable(expiryDate);
   }
 
   //-----------------------------------------------------------------------
@@ -406,10 +406,10 @@ public final class GenericFutureOption
     if (obj != null && obj.getClass() == this.getClass()) {
       GenericFutureOption other = (GenericFutureOption) obj;
       return JodaBeanUtils.equal(getProductId(), other.getProductId()) &&
-          JodaBeanUtils.equal(getExpirationMonth(), other.getExpirationMonth()) &&
+          JodaBeanUtils.equal(getExpiryMonth(), other.getExpiryMonth()) &&
           JodaBeanUtils.equal(getPutCall(), other.getPutCall()) &&
           JodaBeanUtils.equal(getStrikePrice(), other.getStrikePrice()) &&
-          JodaBeanUtils.equal(expirationDate, other.expirationDate) &&
+          JodaBeanUtils.equal(expiryDate, other.expiryDate) &&
           JodaBeanUtils.equal(getTickSize(), other.getTickSize()) &&
           JodaBeanUtils.equal(getTickValue(), other.getTickValue()) &&
           (getUnderlyingQuantity() == other.getUnderlyingQuantity()) &&
@@ -422,10 +422,10 @@ public final class GenericFutureOption
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getProductId());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpirationMonth());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryMonth());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPutCall());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStrikePrice());
-    hash = hash * 31 + JodaBeanUtils.hashCode(expirationDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(getTickSize());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTickValue());
     hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingQuantity());
@@ -438,10 +438,10 @@ public final class GenericFutureOption
     StringBuilder buf = new StringBuilder(320);
     buf.append("GenericFutureOption{");
     buf.append("productId").append('=').append(getProductId()).append(',').append(' ');
-    buf.append("expirationMonth").append('=').append(getExpirationMonth()).append(',').append(' ');
+    buf.append("expiryMonth").append('=').append(getExpiryMonth()).append(',').append(' ');
     buf.append("putCall").append('=').append(getPutCall()).append(',').append(' ');
     buf.append("strikePrice").append('=').append(getStrikePrice()).append(',').append(' ');
-    buf.append("expirationDate").append('=').append(expirationDate).append(',').append(' ');
+    buf.append("expiryDate").append('=').append(expiryDate).append(',').append(' ');
     buf.append("tickSize").append('=').append(getTickSize()).append(',').append(' ');
     buf.append("tickValue").append('=').append(getTickValue()).append(',').append(' ');
     buf.append("underlyingQuantity").append('=').append(getUnderlyingQuantity()).append(',').append(' ');
@@ -466,10 +466,10 @@ public final class GenericFutureOption
     private final MetaProperty<StandardId> productId = DirectMetaProperty.ofImmutable(
         this, "productId", GenericFutureOption.class, StandardId.class);
     /**
-     * The meta-property for the {@code expirationMonth} property.
+     * The meta-property for the {@code expiryMonth} property.
      */
-    private final MetaProperty<YearMonth> expirationMonth = DirectMetaProperty.ofImmutable(
-        this, "expirationMonth", GenericFutureOption.class, YearMonth.class);
+    private final MetaProperty<YearMonth> expiryMonth = DirectMetaProperty.ofImmutable(
+        this, "expiryMonth", GenericFutureOption.class, YearMonth.class);
     /**
      * The meta-property for the {@code putCall} property.
      */
@@ -481,10 +481,10 @@ public final class GenericFutureOption
     private final MetaProperty<Double> strikePrice = DirectMetaProperty.ofImmutable(
         this, "strikePrice", GenericFutureOption.class, Double.TYPE);
     /**
-     * The meta-property for the {@code expirationDate} property.
+     * The meta-property for the {@code expiryDate} property.
      */
-    private final MetaProperty<LocalDate> expirationDate = DirectMetaProperty.ofImmutable(
-        this, "expirationDate", GenericFutureOption.class, LocalDate.class);
+    private final MetaProperty<LocalDate> expiryDate = DirectMetaProperty.ofImmutable(
+        this, "expiryDate", GenericFutureOption.class, LocalDate.class);
     /**
      * The meta-property for the {@code tickSize} property.
      */
@@ -512,10 +512,10 @@ public final class GenericFutureOption
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "productId",
-        "expirationMonth",
+        "expiryMonth",
         "putCall",
         "strikePrice",
-        "expirationDate",
+        "expiryDate",
         "tickSize",
         "tickValue",
         "underlyingQuantity",
@@ -532,14 +532,14 @@ public final class GenericFutureOption
       switch (propertyName.hashCode()) {
         case -1051830678:  // productId
           return productId;
-        case 750402833:  // expirationMonth
-          return expirationMonth;
+        case 459635981:  // expiryMonth
+          return expiryMonth;
         case -219971059:  // putCall
           return putCall;
         case 50946231:  // strikePrice
           return strikePrice;
-        case -668811523:  // expirationDate
-          return expirationDate;
+        case -816738431:  // expiryDate
+          return expiryDate;
         case 1936822078:  // tickSize
           return tickSize;
         case -85538348:  // tickValue
@@ -577,11 +577,11 @@ public final class GenericFutureOption
     }
 
     /**
-     * The meta-property for the {@code expirationMonth} property.
+     * The meta-property for the {@code expiryMonth} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<YearMonth> expirationMonth() {
-      return expirationMonth;
+    public MetaProperty<YearMonth> expiryMonth() {
+      return expiryMonth;
     }
 
     /**
@@ -601,11 +601,11 @@ public final class GenericFutureOption
     }
 
     /**
-     * The meta-property for the {@code expirationDate} property.
+     * The meta-property for the {@code expiryDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> expirationDate() {
-      return expirationDate;
+    public MetaProperty<LocalDate> expiryDate() {
+      return expiryDate;
     }
 
     /**
@@ -646,14 +646,14 @@ public final class GenericFutureOption
       switch (propertyName.hashCode()) {
         case -1051830678:  // productId
           return ((GenericFutureOption) bean).getProductId();
-        case 750402833:  // expirationMonth
-          return ((GenericFutureOption) bean).getExpirationMonth();
+        case 459635981:  // expiryMonth
+          return ((GenericFutureOption) bean).getExpiryMonth();
         case -219971059:  // putCall
           return ((GenericFutureOption) bean).getPutCall();
         case 50946231:  // strikePrice
           return ((GenericFutureOption) bean).getStrikePrice();
-        case -668811523:  // expirationDate
-          return ((GenericFutureOption) bean).expirationDate;
+        case -816738431:  // expiryDate
+          return ((GenericFutureOption) bean).expiryDate;
         case 1936822078:  // tickSize
           return ((GenericFutureOption) bean).getTickSize();
         case -85538348:  // tickValue
@@ -684,10 +684,10 @@ public final class GenericFutureOption
   public static final class Builder extends DirectFieldsBeanBuilder<GenericFutureOption> {
 
     private StandardId productId;
-    private YearMonth expirationMonth;
+    private YearMonth expiryMonth;
     private PutCall putCall;
     private double strikePrice;
-    private LocalDate expirationDate;
+    private LocalDate expiryDate;
     private double tickSize;
     private CurrencyAmount tickValue;
     private long underlyingQuantity;
@@ -705,10 +705,10 @@ public final class GenericFutureOption
      */
     private Builder(GenericFutureOption beanToCopy) {
       this.productId = beanToCopy.getProductId();
-      this.expirationMonth = beanToCopy.getExpirationMonth();
+      this.expiryMonth = beanToCopy.getExpiryMonth();
       this.putCall = beanToCopy.getPutCall();
       this.strikePrice = beanToCopy.getStrikePrice();
-      this.expirationDate = beanToCopy.expirationDate;
+      this.expiryDate = beanToCopy.expiryDate;
       this.tickSize = beanToCopy.getTickSize();
       this.tickValue = beanToCopy.getTickValue();
       this.underlyingQuantity = beanToCopy.getUnderlyingQuantity();
@@ -721,14 +721,14 @@ public final class GenericFutureOption
       switch (propertyName.hashCode()) {
         case -1051830678:  // productId
           return productId;
-        case 750402833:  // expirationMonth
-          return expirationMonth;
+        case 459635981:  // expiryMonth
+          return expiryMonth;
         case -219971059:  // putCall
           return putCall;
         case 50946231:  // strikePrice
           return strikePrice;
-        case -668811523:  // expirationDate
-          return expirationDate;
+        case -816738431:  // expiryDate
+          return expiryDate;
         case 1936822078:  // tickSize
           return tickSize;
         case -85538348:  // tickValue
@@ -749,8 +749,8 @@ public final class GenericFutureOption
         case -1051830678:  // productId
           this.productId = (StandardId) newValue;
           break;
-        case 750402833:  // expirationMonth
-          this.expirationMonth = (YearMonth) newValue;
+        case 459635981:  // expiryMonth
+          this.expiryMonth = (YearMonth) newValue;
           break;
         case -219971059:  // putCall
           this.putCall = (PutCall) newValue;
@@ -758,8 +758,8 @@ public final class GenericFutureOption
         case 50946231:  // strikePrice
           this.strikePrice = (Double) newValue;
           break;
-        case -668811523:  // expirationDate
-          this.expirationDate = (LocalDate) newValue;
+        case -816738431:  // expiryDate
+          this.expiryDate = (LocalDate) newValue;
           break;
         case 1936822078:  // tickSize
           this.tickSize = (Double) newValue;
@@ -808,10 +808,10 @@ public final class GenericFutureOption
       preBuild(this);
       return new GenericFutureOption(
           productId,
-          expirationMonth,
+          expiryMonth,
           putCall,
           strikePrice,
-          expirationDate,
+          expiryDate,
           tickSize,
           tickValue,
           underlyingQuantity,
@@ -825,7 +825,7 @@ public final class GenericFutureOption
      * The identifier that is used for the base product, also known as the symbol.
      * A future option typically expires monthly or quarterly, thus the product referred to here
      * is the base product of a series of contracts. A unique identifier for the contract is formed
-     * by combining the base product, put/call, strike and expiration month.
+     * by combining the base product, put/call, strike and expiry month.
      * For example, 'Eurex~OGBL' could be used to refer to the Euro-Bund option base product at Eurex.
      * @param productId  the new value, not null
      * @return this, for chaining, not null
@@ -837,20 +837,20 @@ public final class GenericFutureOption
     }
 
     /**
-     * Sets the expiration month.
+     * Sets the expiry month.
      * <p>
-     * The month used to identify the expiration of the option.
+     * The month used to identify the expiry of the option.
      * When the option expires, trading stops.
      * <p>
      * Options expire on a specific date, but as there is typically only one contract per month,
-     * the month is used to refer to the future. Note that it is possible for the expiration
+     * the month is used to refer to the future. Note that it is possible for the expiry
      * date to be in a different calendar month to that used to refer to the option.
-     * @param expirationMonth  the new value, not null
+     * @param expiryMonth  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder expirationMonth(YearMonth expirationMonth) {
-      JodaBeanUtils.notNull(expirationMonth, "expirationMonth");
-      this.expirationMonth = expirationMonth;
+    public Builder expiryMonth(YearMonth expiryMonth) {
+      JodaBeanUtils.notNull(expiryMonth, "expiryMonth");
+      this.expiryMonth = expiryMonth;
       return this;
     }
 
@@ -884,17 +884,17 @@ public final class GenericFutureOption
     }
 
     /**
-     * Sets the expiration date, optional.
+     * Sets the expiry date, optional.
      * <p>
      * This is the date that the option expires.
      * A generic future option is intended to be used for future options that expire monthly or quarterly.
-     * As such, the {@code expirationMonth} field is used to identify the contract and this
+     * As such, the {@code expiryMonth} field is used to identify the contract and this
      * date is primarily for information.
-     * @param expirationDate  the new value
+     * @param expiryDate  the new value
      * @return this, for chaining, not null
      */
-    public Builder expirationDate(LocalDate expirationDate) {
-      this.expirationDate = expirationDate;
+    public Builder expiryDate(LocalDate expiryDate) {
+      this.expiryDate = expiryDate;
       return this;
     }
 
@@ -955,10 +955,10 @@ public final class GenericFutureOption
       StringBuilder buf = new StringBuilder(320);
       buf.append("GenericFutureOption.Builder{");
       buf.append("productId").append('=').append(JodaBeanUtils.toString(productId)).append(',').append(' ');
-      buf.append("expirationMonth").append('=').append(JodaBeanUtils.toString(expirationMonth)).append(',').append(' ');
+      buf.append("expiryMonth").append('=').append(JodaBeanUtils.toString(expiryMonth)).append(',').append(' ');
       buf.append("putCall").append('=').append(JodaBeanUtils.toString(putCall)).append(',').append(' ');
       buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(strikePrice)).append(',').append(' ');
-      buf.append("expirationDate").append('=').append(JodaBeanUtils.toString(expirationDate)).append(',').append(' ');
+      buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
       buf.append("tickSize").append('=').append(JodaBeanUtils.toString(tickSize)).append(',').append(' ');
       buf.append("tickValue").append('=').append(JodaBeanUtils.toString(tickValue)).append(',').append(' ');
       buf.append("underlyingQuantity").append('=').append(JodaBeanUtils.toString(underlyingQuantity)).append(',').append(' ');

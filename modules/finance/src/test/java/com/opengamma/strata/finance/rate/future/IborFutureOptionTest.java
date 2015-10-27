@@ -68,19 +68,19 @@ public class IborFutureOptionTest {
     IborFutureOption test = IborFutureOption.builder()
         .putCall(CALL)
         .strikePrice(STRIKE_PRICE)
-        .expirationDate(EXPIRY_DATE)
-        .expirationTime(EXPIRY_TIME)
-        .expirationZone(EXPIRY_ZONE)
+        .expiryDate(EXPIRY_DATE)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(EXPIRY_ZONE)
         .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
         .rounding(ROUNDING)
         .underlyingLink(SecurityLink.resolvable(ID_1, IborFuture.class))
         .build();
     assertEquals(test.getPutCall(), CALL);
     assertEquals(test.getStrikePrice(), STRIKE_PRICE);
-    assertEquals(test.getExpirationDate(), EXPIRY_DATE);
-    assertEquals(test.getExpirationTime(), EXPIRY_TIME);
-    assertEquals(test.getExpirationZone(), EXPIRY_ZONE);
-    assertEquals(test.getExpiration(), ZonedDateTime.of(EXPIRY_DATE, EXPIRY_TIME, EXPIRY_ZONE));
+    assertEquals(test.getExpiryDate(), EXPIRY_DATE);
+    assertEquals(test.getExpiryTime(), EXPIRY_TIME);
+    assertEquals(test.getExpiryZone(), EXPIRY_ZONE);
+    assertEquals(test.getExpiry(), ZonedDateTime.of(EXPIRY_DATE, EXPIRY_TIME, EXPIRY_ZONE));
     assertEquals(test.getRounding(), ROUNDING);
     assertEquals(test.getUnderlyingLink(), SecurityLink.resolvable(ID_1, IborFuture.class));
     assertThrows(() -> test.getUnderlyingSecurity(), IllegalStateException.class);
@@ -91,18 +91,18 @@ public class IborFutureOptionTest {
     IborFutureOption test = IborFutureOption.builder()
         .putCall(CALL)
         .strikePrice(STRIKE_PRICE)
-        .expirationDate(EXPIRY_DATE)
-        .expirationTime(EXPIRY_TIME)
-        .expirationZone(EXPIRY_ZONE)
+        .expiryDate(EXPIRY_DATE)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(EXPIRY_ZONE)
         .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
         .underlyingLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY_1))
         .build();
     assertEquals(test.getPutCall(), CALL);
     assertEquals(test.getStrikePrice(), STRIKE_PRICE);
-    assertEquals(test.getExpirationDate(), EXPIRY_DATE);
-    assertEquals(test.getExpirationTime(), EXPIRY_TIME);
-    assertEquals(test.getExpirationZone(), EXPIRY_ZONE);
-    assertEquals(test.getExpiration(), ZonedDateTime.of(EXPIRY_DATE, EXPIRY_TIME, EXPIRY_ZONE));
+    assertEquals(test.getExpiryDate(), EXPIRY_DATE);
+    assertEquals(test.getExpiryTime(), EXPIRY_TIME);
+    assertEquals(test.getExpiryZone(), EXPIRY_ZONE);
+    assertEquals(test.getExpiry(), ZonedDateTime.of(EXPIRY_DATE, EXPIRY_TIME, EXPIRY_ZONE));
     assertEquals(test.getRounding(), Rounding.none());
     assertEquals(test.getUnderlyingLink(), SecurityLink.resolved(IBOR_FUTURE_SECURITY_1));
     assertEquals(test.getUnderlyingSecurity(), IBOR_FUTURE_SECURITY_1);
@@ -112,9 +112,9 @@ public class IborFutureOptionTest {
   public void test_builder_expiryNotAfterTradeDate() {
     assertThrowsIllegalArg(() -> IborFutureOption.builder()
         .putCall(CALL)
-        .expirationDate(LAST_TRADE_DATE_2)
-        .expirationTime(EXPIRY_TIME)
-        .expirationZone(EXPIRY_ZONE)
+        .expiryDate(LAST_TRADE_DATE_2)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(EXPIRY_ZONE)
         .strikePrice(STRIKE_PRICE)
         .underlyingLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY_1))
         .build());
@@ -125,18 +125,18 @@ public class IborFutureOptionTest {
     IborFutureOption test = IborFutureOption.builder()
         .putCall(CALL)
         .strikePrice(STRIKE_PRICE)
-        .expirationDate(EXPIRY_DATE)
-        .expirationTime(EXPIRY_TIME)
-        .expirationZone(EXPIRY_ZONE)
+        .expiryDate(EXPIRY_DATE)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(EXPIRY_ZONE)
         .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
         .underlyingLink(SecurityLink.resolvable(ID_1, IborFuture.class))
         .build();
     IborFutureOption expected = IborFutureOption.builder()
         .putCall(CALL)
         .strikePrice(STRIKE_PRICE)
-        .expirationDate(EXPIRY_DATE)
-        .expirationTime(EXPIRY_TIME)
-        .expirationZone(EXPIRY_ZONE)
+        .expiryDate(EXPIRY_DATE)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(EXPIRY_ZONE)
         .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
         .underlyingLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY_1))
         .build();
@@ -155,9 +155,9 @@ public class IborFutureOptionTest {
     IborFutureOption test = IborFutureOption.builder()
         .putCall(CALL)
         .strikePrice(STRIKE_PRICE)
-        .expirationDate(EXPIRY_DATE)
-        .expirationTime(EXPIRY_TIME)
-        .expirationZone(EXPIRY_ZONE)
+        .expiryDate(EXPIRY_DATE)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(EXPIRY_ZONE)
         .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
         .underlyingLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY_1))
         .build();
@@ -176,9 +176,9 @@ public class IborFutureOptionTest {
     IborFutureOption test = IborFutureOption.builder()
         .putCall(CALL)
         .strikePrice(STRIKE_PRICE)
-        .expirationDate(EXPIRY_DATE)
-        .expirationTime(EXPIRY_TIME)
-        .expirationZone(EXPIRY_ZONE)
+        .expiryDate(EXPIRY_DATE)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(EXPIRY_ZONE)
         .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
         .underlyingLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY_1))
         .build();
@@ -186,9 +186,9 @@ public class IborFutureOptionTest {
     IborFutureOption test2 = IborFutureOption.builder()
         .putCall(PUT)
         .strikePrice(STRIKE_PRICE + 1)
-        .expirationDate(LAST_TRADE_DATE_1)
-        .expirationTime(LocalTime.of(12, 0))
-        .expirationZone(ZoneId.of("Europe/Paris"))
+        .expiryDate(LAST_TRADE_DATE_1)
+        .expiryTime(LocalTime.of(12, 0))
+        .expiryZone(ZoneId.of("Europe/Paris"))
         .premiumStyle(FutureOptionPremiumStyle.UPFRONT_PREMIUM)
         .rounding(ROUNDING)
         .underlyingLink(SecurityLink.resolvable(ID_1, IborFuture.class))
@@ -200,9 +200,9 @@ public class IborFutureOptionTest {
     IborFutureOption test = IborFutureOption.builder()
         .putCall(CALL)
         .strikePrice(STRIKE_PRICE)
-        .expirationDate(EXPIRY_DATE)
-        .expirationTime(EXPIRY_TIME)
-        .expirationZone(EXPIRY_ZONE)
+        .expiryDate(EXPIRY_DATE)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(EXPIRY_ZONE)
         .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
         .underlyingLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY_1))
         .build();

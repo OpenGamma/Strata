@@ -31,7 +31,7 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.Product;
 
 /**
- * A generic futures contract based on an expiration month.
+ * A generic futures contract based on an expiry month.
  * <p>
  * A future is a financial instrument that is based on the future value of an underlying.
  * The buyer is typically required to purchase the underlying at a price fixed in advance.
@@ -51,33 +51,33 @@ public final class GenericFuture
    * The identifier that is used for the base product, also known as the symbol.
    * A future typically expires monthly or quarterly, thus the product referred to here
    * is the base product of a series of contracts. A unique identifier for the contract is formed
-   * by combining the base product and the expiration month.
+   * by combining the base product and the expiry month.
    * For example, 'Eurex~FGBL' could be used to refer to the Euro-Bund base product at Eurex.
    */
   @PropertyDefinition(validate = "notNull")
   private final StandardId productId;
   /**
-   * The expiration month.
+   * The expiry month.
    * <p>
-   * The month used to identify the expiration of the future.
+   * The month used to identify the expiry of the future.
    * When the future expires, trading stops.
    * <p>
    * Futures expire on a specific date, but as there is typically only one contract per month,
-   * the month is used to refer to the future. Note that it is possible for the expiration
+   * the month is used to refer to the future. Note that it is possible for the expiry
    * date to be in a different calendar month to that used to refer to the future.
    */
   @PropertyDefinition(validate = "notNull")
-  private final YearMonth expirationMonth;
+  private final YearMonth expiryMonth;
   /**
-   * The expiration date, optional.
+   * The expiry date, optional.
    * <p>
    * This is the date that the future expires.
    * A generic future is intended to be used for futures that expire monthly or quarterly.
-   * As such, the {@code expirationMonth} field is used to identify the contract and this
+   * As such, the {@code expiryMonth} field is used to identify the contract and this
    * date is primarily for information.
    */
   @PropertyDefinition(get = "optional")
-  private final LocalDate expirationDate;
+  private final LocalDate expiryDate;
   /**
    * The size of each tick.
    * <p>
@@ -135,16 +135,16 @@ public final class GenericFuture
 
   private GenericFuture(
       StandardId productId,
-      YearMonth expirationMonth,
-      LocalDate expirationDate,
+      YearMonth expiryMonth,
+      LocalDate expiryDate,
       double tickSize,
       CurrencyAmount tickValue) {
     JodaBeanUtils.notNull(productId, "productId");
-    JodaBeanUtils.notNull(expirationMonth, "expirationMonth");
+    JodaBeanUtils.notNull(expiryMonth, "expiryMonth");
     JodaBeanUtils.notNull(tickValue, "tickValue");
     this.productId = productId;
-    this.expirationMonth = expirationMonth;
-    this.expirationDate = expirationDate;
+    this.expiryMonth = expiryMonth;
+    this.expiryDate = expiryDate;
     this.tickSize = tickSize;
     this.tickValue = tickValue;
   }
@@ -171,7 +171,7 @@ public final class GenericFuture
    * The identifier that is used for the base product, also known as the symbol.
    * A future typically expires monthly or quarterly, thus the product referred to here
    * is the base product of a series of contracts. A unique identifier for the contract is formed
-   * by combining the base product and the expiration month.
+   * by combining the base product and the expiry month.
    * For example, 'Eurex~FGBL' could be used to refer to the Euro-Bund base product at Eurex.
    * @return the value of the property, not null
    */
@@ -181,32 +181,32 @@ public final class GenericFuture
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiration month.
+   * Gets the expiry month.
    * <p>
-   * The month used to identify the expiration of the future.
+   * The month used to identify the expiry of the future.
    * When the future expires, trading stops.
    * <p>
    * Futures expire on a specific date, but as there is typically only one contract per month,
-   * the month is used to refer to the future. Note that it is possible for the expiration
+   * the month is used to refer to the future. Note that it is possible for the expiry
    * date to be in a different calendar month to that used to refer to the future.
    * @return the value of the property, not null
    */
-  public YearMonth getExpirationMonth() {
-    return expirationMonth;
+  public YearMonth getExpiryMonth() {
+    return expiryMonth;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiration date, optional.
+   * Gets the expiry date, optional.
    * <p>
    * This is the date that the future expires.
    * A generic future is intended to be used for futures that expire monthly or quarterly.
-   * As such, the {@code expirationMonth} field is used to identify the contract and this
+   * As such, the {@code expiryMonth} field is used to identify the contract and this
    * date is primarily for information.
    * @return the optional value of the property, not null
    */
-  public Optional<LocalDate> getExpirationDate() {
-    return Optional.ofNullable(expirationDate);
+  public Optional<LocalDate> getExpiryDate() {
+    return Optional.ofNullable(expiryDate);
   }
 
   //-----------------------------------------------------------------------
@@ -249,8 +249,8 @@ public final class GenericFuture
     if (obj != null && obj.getClass() == this.getClass()) {
       GenericFuture other = (GenericFuture) obj;
       return JodaBeanUtils.equal(getProductId(), other.getProductId()) &&
-          JodaBeanUtils.equal(getExpirationMonth(), other.getExpirationMonth()) &&
-          JodaBeanUtils.equal(expirationDate, other.expirationDate) &&
+          JodaBeanUtils.equal(getExpiryMonth(), other.getExpiryMonth()) &&
+          JodaBeanUtils.equal(expiryDate, other.expiryDate) &&
           JodaBeanUtils.equal(getTickSize(), other.getTickSize()) &&
           JodaBeanUtils.equal(getTickValue(), other.getTickValue());
     }
@@ -261,8 +261,8 @@ public final class GenericFuture
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getProductId());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpirationMonth());
-    hash = hash * 31 + JodaBeanUtils.hashCode(expirationDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryMonth());
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(getTickSize());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTickValue());
     return hash;
@@ -273,8 +273,8 @@ public final class GenericFuture
     StringBuilder buf = new StringBuilder(192);
     buf.append("GenericFuture{");
     buf.append("productId").append('=').append(getProductId()).append(',').append(' ');
-    buf.append("expirationMonth").append('=').append(getExpirationMonth()).append(',').append(' ');
-    buf.append("expirationDate").append('=').append(expirationDate).append(',').append(' ');
+    buf.append("expiryMonth").append('=').append(getExpiryMonth()).append(',').append(' ');
+    buf.append("expiryDate").append('=').append(expiryDate).append(',').append(' ');
     buf.append("tickSize").append('=').append(getTickSize()).append(',').append(' ');
     buf.append("tickValue").append('=').append(JodaBeanUtils.toString(getTickValue()));
     buf.append('}');
@@ -297,15 +297,15 @@ public final class GenericFuture
     private final MetaProperty<StandardId> productId = DirectMetaProperty.ofImmutable(
         this, "productId", GenericFuture.class, StandardId.class);
     /**
-     * The meta-property for the {@code expirationMonth} property.
+     * The meta-property for the {@code expiryMonth} property.
      */
-    private final MetaProperty<YearMonth> expirationMonth = DirectMetaProperty.ofImmutable(
-        this, "expirationMonth", GenericFuture.class, YearMonth.class);
+    private final MetaProperty<YearMonth> expiryMonth = DirectMetaProperty.ofImmutable(
+        this, "expiryMonth", GenericFuture.class, YearMonth.class);
     /**
-     * The meta-property for the {@code expirationDate} property.
+     * The meta-property for the {@code expiryDate} property.
      */
-    private final MetaProperty<LocalDate> expirationDate = DirectMetaProperty.ofImmutable(
-        this, "expirationDate", GenericFuture.class, LocalDate.class);
+    private final MetaProperty<LocalDate> expiryDate = DirectMetaProperty.ofImmutable(
+        this, "expiryDate", GenericFuture.class, LocalDate.class);
     /**
      * The meta-property for the {@code tickSize} property.
      */
@@ -322,8 +322,8 @@ public final class GenericFuture
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "productId",
-        "expirationMonth",
-        "expirationDate",
+        "expiryMonth",
+        "expiryDate",
         "tickSize",
         "tickValue");
 
@@ -338,10 +338,10 @@ public final class GenericFuture
       switch (propertyName.hashCode()) {
         case -1051830678:  // productId
           return productId;
-        case 750402833:  // expirationMonth
-          return expirationMonth;
-        case -668811523:  // expirationDate
-          return expirationDate;
+        case 459635981:  // expiryMonth
+          return expiryMonth;
+        case -816738431:  // expiryDate
+          return expiryDate;
         case 1936822078:  // tickSize
           return tickSize;
         case -85538348:  // tickValue
@@ -375,19 +375,19 @@ public final class GenericFuture
     }
 
     /**
-     * The meta-property for the {@code expirationMonth} property.
+     * The meta-property for the {@code expiryMonth} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<YearMonth> expirationMonth() {
-      return expirationMonth;
+    public MetaProperty<YearMonth> expiryMonth() {
+      return expiryMonth;
     }
 
     /**
-     * The meta-property for the {@code expirationDate} property.
+     * The meta-property for the {@code expiryDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> expirationDate() {
-      return expirationDate;
+    public MetaProperty<LocalDate> expiryDate() {
+      return expiryDate;
     }
 
     /**
@@ -412,10 +412,10 @@ public final class GenericFuture
       switch (propertyName.hashCode()) {
         case -1051830678:  // productId
           return ((GenericFuture) bean).getProductId();
-        case 750402833:  // expirationMonth
-          return ((GenericFuture) bean).getExpirationMonth();
-        case -668811523:  // expirationDate
-          return ((GenericFuture) bean).expirationDate;
+        case 459635981:  // expiryMonth
+          return ((GenericFuture) bean).getExpiryMonth();
+        case -816738431:  // expiryDate
+          return ((GenericFuture) bean).expiryDate;
         case 1936822078:  // tickSize
           return ((GenericFuture) bean).getTickSize();
         case -85538348:  // tickValue
@@ -442,8 +442,8 @@ public final class GenericFuture
   public static final class Builder extends DirectFieldsBeanBuilder<GenericFuture> {
 
     private StandardId productId;
-    private YearMonth expirationMonth;
-    private LocalDate expirationDate;
+    private YearMonth expiryMonth;
+    private LocalDate expiryDate;
     private double tickSize;
     private CurrencyAmount tickValue;
 
@@ -459,8 +459,8 @@ public final class GenericFuture
      */
     private Builder(GenericFuture beanToCopy) {
       this.productId = beanToCopy.getProductId();
-      this.expirationMonth = beanToCopy.getExpirationMonth();
-      this.expirationDate = beanToCopy.expirationDate;
+      this.expiryMonth = beanToCopy.getExpiryMonth();
+      this.expiryDate = beanToCopy.expiryDate;
       this.tickSize = beanToCopy.getTickSize();
       this.tickValue = beanToCopy.getTickValue();
     }
@@ -471,10 +471,10 @@ public final class GenericFuture
       switch (propertyName.hashCode()) {
         case -1051830678:  // productId
           return productId;
-        case 750402833:  // expirationMonth
-          return expirationMonth;
-        case -668811523:  // expirationDate
-          return expirationDate;
+        case 459635981:  // expiryMonth
+          return expiryMonth;
+        case -816738431:  // expiryDate
+          return expiryDate;
         case 1936822078:  // tickSize
           return tickSize;
         case -85538348:  // tickValue
@@ -490,11 +490,11 @@ public final class GenericFuture
         case -1051830678:  // productId
           this.productId = (StandardId) newValue;
           break;
-        case 750402833:  // expirationMonth
-          this.expirationMonth = (YearMonth) newValue;
+        case 459635981:  // expiryMonth
+          this.expiryMonth = (YearMonth) newValue;
           break;
-        case -668811523:  // expirationDate
-          this.expirationDate = (LocalDate) newValue;
+        case -816738431:  // expiryDate
+          this.expiryDate = (LocalDate) newValue;
           break;
         case 1936822078:  // tickSize
           this.tickSize = (Double) newValue;
@@ -536,8 +536,8 @@ public final class GenericFuture
     public GenericFuture build() {
       return new GenericFuture(
           productId,
-          expirationMonth,
-          expirationDate,
+          expiryMonth,
+          expiryDate,
           tickSize,
           tickValue);
     }
@@ -549,7 +549,7 @@ public final class GenericFuture
      * The identifier that is used for the base product, also known as the symbol.
      * A future typically expires monthly or quarterly, thus the product referred to here
      * is the base product of a series of contracts. A unique identifier for the contract is formed
-     * by combining the base product and the expiration month.
+     * by combining the base product and the expiry month.
      * For example, 'Eurex~FGBL' could be used to refer to the Euro-Bund base product at Eurex.
      * @param productId  the new value, not null
      * @return this, for chaining, not null
@@ -561,35 +561,35 @@ public final class GenericFuture
     }
 
     /**
-     * Sets the expiration month.
+     * Sets the expiry month.
      * <p>
-     * The month used to identify the expiration of the future.
+     * The month used to identify the expiry of the future.
      * When the future expires, trading stops.
      * <p>
      * Futures expire on a specific date, but as there is typically only one contract per month,
-     * the month is used to refer to the future. Note that it is possible for the expiration
+     * the month is used to refer to the future. Note that it is possible for the expiry
      * date to be in a different calendar month to that used to refer to the future.
-     * @param expirationMonth  the new value, not null
+     * @param expiryMonth  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder expirationMonth(YearMonth expirationMonth) {
-      JodaBeanUtils.notNull(expirationMonth, "expirationMonth");
-      this.expirationMonth = expirationMonth;
+    public Builder expiryMonth(YearMonth expiryMonth) {
+      JodaBeanUtils.notNull(expiryMonth, "expiryMonth");
+      this.expiryMonth = expiryMonth;
       return this;
     }
 
     /**
-     * Sets the expiration date, optional.
+     * Sets the expiry date, optional.
      * <p>
      * This is the date that the future expires.
      * A generic future is intended to be used for futures that expire monthly or quarterly.
-     * As such, the {@code expirationMonth} field is used to identify the contract and this
+     * As such, the {@code expiryMonth} field is used to identify the contract and this
      * date is primarily for information.
-     * @param expirationDate  the new value
+     * @param expiryDate  the new value
      * @return this, for chaining, not null
      */
-    public Builder expirationDate(LocalDate expirationDate) {
-      this.expirationDate = expirationDate;
+    public Builder expiryDate(LocalDate expiryDate) {
+      this.expiryDate = expiryDate;
       return this;
     }
 
@@ -625,8 +625,8 @@ public final class GenericFuture
       StringBuilder buf = new StringBuilder(192);
       buf.append("GenericFuture.Builder{");
       buf.append("productId").append('=').append(JodaBeanUtils.toString(productId)).append(',').append(' ');
-      buf.append("expirationMonth").append('=').append(JodaBeanUtils.toString(expirationMonth)).append(',').append(' ');
-      buf.append("expirationDate").append('=').append(JodaBeanUtils.toString(expirationDate)).append(',').append(' ');
+      buf.append("expiryMonth").append('=').append(JodaBeanUtils.toString(expiryMonth)).append(',').append(' ');
+      buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
       buf.append("tickSize").append('=').append(JodaBeanUtils.toString(tickSize)).append(',').append(' ');
       buf.append("tickValue").append('=').append(JodaBeanUtils.toString(tickValue));
       buf.append('}');
