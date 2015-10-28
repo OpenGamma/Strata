@@ -365,11 +365,11 @@ public class SabrSwaptionPhysicalProductPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_presentValueSensitivityBlackVolatility() {
+  public void test_presentValueSensitivitySabrParameter() {
     SwaptionSabrSensitivity sensiRec =
-        SWAPTION_PRICER.presentValueSabrParameterSensitivity(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+        SWAPTION_PRICER.presentValueSensitivitySabrParameter(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
     SwaptionSabrSensitivity sensiPay =
-        SWAPTION_PRICER.presentValueSabrParameterSensitivity(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+        SWAPTION_PRICER.presentValueSensitivitySabrParameter(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
     double forward = SWAP_PRICER.parRate(SWAP_REC, RATE_PROVIDER);
     double pvbp = SWAP_PRICER.getLegPricer().pvbp(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), RATE_PROVIDER);
     double volatility = VOL_PROVIDER.getVolatility(SWAPTION_REC_LONG.getExpiryDateTime(),
@@ -403,14 +403,14 @@ public class SabrSwaptionPhysicalProductPricerTest {
     assertEquals(sensiPay.getForward(), forward, TOL);
   }
 
-  public void test_presentValueSensitivityBlackVolatility_atMaturity() {
-    SwaptionSabrSensitivity sensiRec = SWAPTION_PRICER.presentValueSabrParameterSensitivity(
+  public void test_presentValueSensitivitySabrParameter_atMaturity() {
+    SwaptionSabrSensitivity sensiRec = SWAPTION_PRICER.presentValueSensitivitySabrParameter(
         SWAPTION_REC_LONG, RATE_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
     assertEquals(sensiRec.getAlphaSensitivity(), 0d, NOTIONAL * TOL);
     assertEquals(sensiRec.getBetaSensitivity(), 0d, NOTIONAL * TOL);
     assertEquals(sensiRec.getRhoSensitivity(), 0d, NOTIONAL * TOL);
     assertEquals(sensiRec.getNuSensitivity(), 0d, NOTIONAL * TOL);
-    SwaptionSabrSensitivity sensiPay = SWAPTION_PRICER.presentValueSabrParameterSensitivity(
+    SwaptionSabrSensitivity sensiPay = SWAPTION_PRICER.presentValueSensitivitySabrParameter(
         SWAPTION_PAY_SHORT, RATE_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
     assertEquals(sensiPay.getAlphaSensitivity(), 0d, NOTIONAL * TOL);
     assertEquals(sensiRec.getBetaSensitivity(), 0d, NOTIONAL * TOL);
@@ -418,14 +418,14 @@ public class SabrSwaptionPhysicalProductPricerTest {
     assertEquals(sensiRec.getNuSensitivity(), 0d, NOTIONAL * TOL);
   }
 
-  public void test_presentValueSensitivityBlackVolatility_afterMaturity() {
-    SwaptionSabrSensitivity sensiRec = SWAPTION_PRICER.presentValueSabrParameterSensitivity(
+  public void test_presentValueSensitivitySabrParameter_afterMaturity() {
+    SwaptionSabrSensitivity sensiRec = SWAPTION_PRICER.presentValueSensitivitySabrParameter(
         SWAPTION_REC_LONG, RATE_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
     assertEquals(sensiRec.getAlphaSensitivity(), 0d, NOTIONAL * TOL);
     assertEquals(sensiRec.getBetaSensitivity(), 0d, NOTIONAL * TOL);
     assertEquals(sensiRec.getRhoSensitivity(), 0d, NOTIONAL * TOL);
     assertEquals(sensiRec.getNuSensitivity(), 0d, NOTIONAL * TOL);
-    SwaptionSabrSensitivity sensiPay = SWAPTION_PRICER.presentValueSabrParameterSensitivity(
+    SwaptionSabrSensitivity sensiPay = SWAPTION_PRICER.presentValueSensitivitySabrParameter(
         SWAPTION_PAY_SHORT, RATE_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
     assertEquals(sensiPay.getAlphaSensitivity(), 0d, NOTIONAL * TOL);
     assertEquals(sensiRec.getBetaSensitivity(), 0d, NOTIONAL * TOL);
@@ -433,15 +433,15 @@ public class SabrSwaptionPhysicalProductPricerTest {
     assertEquals(sensiRec.getNuSensitivity(), 0d, NOTIONAL * TOL);
   }
 
-  public void test_presentValueSensitivityBlackVolatility_parity() {
+  public void test_presentValueSensitivitySabrParameter_parity() {
     SwaptionSabrSensitivity pvSensiRecLong =
-        SWAPTION_PRICER.presentValueSabrParameterSensitivity(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+        SWAPTION_PRICER.presentValueSensitivitySabrParameter(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
     SwaptionSabrSensitivity pvSensiRecShort =
-        SWAPTION_PRICER.presentValueSabrParameterSensitivity(SWAPTION_REC_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+        SWAPTION_PRICER.presentValueSensitivitySabrParameter(SWAPTION_REC_SHORT, RATE_PROVIDER, VOL_PROVIDER);
     SwaptionSabrSensitivity pvSensiPayLong =
-        SWAPTION_PRICER.presentValueSabrParameterSensitivity(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER);
+        SWAPTION_PRICER.presentValueSensitivitySabrParameter(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER);
     SwaptionSabrSensitivity pvSensiPayShort =
-        SWAPTION_PRICER.presentValueSabrParameterSensitivity(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+        SWAPTION_PRICER.presentValueSensitivitySabrParameter(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
     assertEquals(pvSensiRecLong.getAlphaSensitivity(), -pvSensiRecShort.getAlphaSensitivity(), NOTIONAL * TOL);
     assertEquals(pvSensiPayLong.getAlphaSensitivity(), -pvSensiPayShort.getAlphaSensitivity(), NOTIONAL * TOL);
     assertEquals(pvSensiRecLong.getAlphaSensitivity(), pvSensiPayLong.getAlphaSensitivity(), NOTIONAL * TOL);
@@ -483,7 +483,7 @@ public class SabrSwaptionPhysicalProductPricerTest {
 
   public void regressionPvSurfaceSensi() {
     SwaptionSabrSensitivity pointComputed =
-        SWAPTION_PRICER.presentValueSabrParameterSensitivity(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER_REGRESSION);
+        SWAPTION_PRICER.presentValueSensitivitySabrParameter(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER_REGRESSION);
     assertEquals(pointComputed.getAlphaSensitivity(), 6.5786313367554754E7, REGRESSION_TOL * NOTIONAL);
     assertEquals(pointComputed.getBetaSensitivity(), -1.2044275797229866E7, REGRESSION_TOL * NOTIONAL);
     assertEquals(pointComputed.getRhoSensitivity(), 266223.51118849067, REGRESSION_TOL * NOTIONAL);
