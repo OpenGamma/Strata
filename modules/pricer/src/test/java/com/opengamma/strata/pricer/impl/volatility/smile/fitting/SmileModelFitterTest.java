@@ -14,7 +14,6 @@ import java.util.BitSet;
 import org.slf4j.Logger;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -79,7 +78,6 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     _cleanVols = new double[n];
     Arrays.fill(_errors, 1e-4);
     for (int i = 0; i < n; i++) {
-      PutCall putCall = strikes[i] >= F ? PutCall.CALL : PutCall.PUT;
       _cleanVols[i] = model.getVolatility(F, strikes[i], TIME_TO_EXPIRY, data);
       _noisyVols[i] = _cleanVols[i] + UNIFORM.nextDouble() * _errors[i];
     }

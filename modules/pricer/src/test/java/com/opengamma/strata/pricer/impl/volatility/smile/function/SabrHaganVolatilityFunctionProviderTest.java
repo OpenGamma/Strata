@@ -61,7 +61,6 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
    */
   public void testATMSmoothness() {
     double timeToExpiry = 1;
-    EuropeanVanillaOption option;
     double alpha = 0.05;
     double beta = 0.5;
     double nu = 0.50;
@@ -378,10 +377,6 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
   }
 
   //-------------------------------------------------------------------------
-  private double getZ(double forward, double strike, double alpha, double beta, double nu) {
-    return nu / alpha * Math.pow(forward * strike, (1 - beta) / 2) * Math.log(forward / strike);
-  }
-
   private enum SabrParameter {
     Forward, Strike, Alpha, Beta, Nu, Rho
   }
