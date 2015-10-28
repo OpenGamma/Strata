@@ -203,7 +203,7 @@ public class SabrSwaptionPhysicalProductPricer {
    * @param volatilityProvider  the Black volatility provider
    * @return the sensitivity to the SABR model parameters 
    */
-  public SwaptionSabrSensitivity presentValueSabrParameterSensitivity(
+  public SwaptionSabrSensitivity presentValueSensitivitySabrParameter(
       SwaptionProduct swaption,
       RatesProvider ratesProvider,
       SabrVolatilitySwaptionProvider volatilityProvider) {

@@ -135,7 +135,7 @@ public class SabrSwaptionPhysicalTradePricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value sensitivity to the implied volatility of the swaption trade.
+   * Calculates the present value sensitivity to the SABR model parameters of the swaption trade.
    * <p>
    * The sensitivity of the present value to the SABR model parameters, alpha, beta, rho and nu.
    * 
@@ -144,13 +144,13 @@ public class SabrSwaptionPhysicalTradePricer {
    * @param volatilityProvider  the Black volatility provider
    * @return the sensitivity to the SABR model parameters 
    */
-  public SwaptionSabrSensitivity presentValueSabrParameterSensitivity(
+  public SwaptionSabrSensitivity presentValueSensitivitySabrParameter(
       SwaptionTrade trade,
       RatesProvider ratesProvider,
       SabrVolatilitySwaptionProvider volatilityProvider) {
 
     Swaption product = trade.getProduct();
-    return PRICER_PRODUCT.presentValueSabrParameterSensitivity(product, ratesProvider, volatilityProvider);
+    return PRICER_PRODUCT.presentValueSensitivitySabrParameter(product, ratesProvider, volatilityProvider);
   }
 
 }
