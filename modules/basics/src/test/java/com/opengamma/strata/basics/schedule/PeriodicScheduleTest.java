@@ -362,6 +362,17 @@ public class PeriodicScheduleTest {
         {date(2014, 9, 17), date(2014, 10, 1), Frequency.ofDays(2), STUB_NONE, IMM, null, null,
             ImmutableList.of(date(2014, 9, 17), date(2014, 10, 1)),
             ImmutableList.of(date(2014, 9, 17), date(2014, 10, 1))},
+
+        // Day30 rolling with February
+        {date(2015, 1, 30), date(2015, 4, 30), P1M, STUB_NONE, RollConvention.ofDayOfMonth(30), null, null,
+            ImmutableList.of(date(2015, 1, 30), date(2015, 2, 28), date(2015, 3, 30), date(2015, 4, 30)),
+            ImmutableList.of(date(2015, 1, 30), date(2015, 2, 27), date(2015, 3, 30), date(2015, 4, 30))},
+        {date(2015, 2, 28), date(2015, 4, 30), P1M, STUB_NONE, RollConvention.ofDayOfMonth(30), null, null,
+            ImmutableList.of(date(2015, 2, 28), date(2015, 3, 30), date(2015, 4, 30)),
+            ImmutableList.of(date(2015, 2, 27), date(2015, 3, 30), date(2015, 4, 30))},
+        {date(2015, 2, 28), date(2015, 4, 30), P1M, SHORT_INITIAL, RollConvention.ofDayOfMonth(30), null, null,
+            ImmutableList.of(date(2015, 2, 28), date(2015, 3, 30), date(2015, 4, 30)),
+            ImmutableList.of(date(2015, 2, 27), date(2015, 3, 30), date(2015, 4, 30))},
     };
   }
 

@@ -370,17 +370,38 @@ public class RollConventionTest {
     assertThrowsIllegalArg(() -> RollConvention.ofDayOfMonth(32));
   }
 
-  public void test_ofDayOfMonth_adjust() {
-    assertEquals(RollConvention.ofDayOfMonth(30).adjust(date(2014, FEBRUARY, 2)), date(2014, FEBRUARY, 28));
-    assertEquals(RollConvention.ofDayOfMonth(30).adjust(date(2016, FEBRUARY, 2)), date(2016, FEBRUARY, 29));
+  public void test_ofDayOfMonth_adjust_Day29() {
     assertEquals(RollConvention.ofDayOfMonth(29).adjust(date(2014, FEBRUARY, 2)), date(2014, FEBRUARY, 28));
     assertEquals(RollConvention.ofDayOfMonth(29).adjust(date(2016, FEBRUARY, 2)), date(2016, FEBRUARY, 29));
   }
 
-  public void test_ofDayOfMonth_matches() {
+  public void test_ofDayOfMonth_adjust_Day30() {
+    assertEquals(RollConvention.ofDayOfMonth(30).adjust(date(2014, FEBRUARY, 2)), date(2014, FEBRUARY, 28));
+    assertEquals(RollConvention.ofDayOfMonth(30).adjust(date(2016, FEBRUARY, 2)), date(2016, FEBRUARY, 29));
+  }
+
+  public void test_ofDayOfMonth_matches_Day29() {
+    assertEquals(RollConvention.ofDayOfMonth(29).matches(date(2016, JANUARY, 30)), false);
+    assertEquals(RollConvention.ofDayOfMonth(29).matches(date(2016, JANUARY, 29)), true);
+    assertEquals(RollConvention.ofDayOfMonth(29).matches(date(2016, JANUARY, 30)), false);
+
+    assertEquals(RollConvention.ofDayOfMonth(29).matches(date(2016, FEBRUARY, 28)), false);
+    assertEquals(RollConvention.ofDayOfMonth(29).matches(date(2016, FEBRUARY, 29)), true);
+
+    assertEquals(RollConvention.ofDayOfMonth(29).matches(date(2015, FEBRUARY, 27)), false);
+    assertEquals(RollConvention.ofDayOfMonth(29).matches(date(2015, FEBRUARY, 28)), true);
+  }
+
+  public void test_ofDayOfMonth_matches_Day30() {
     assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2016, JANUARY, 29)), false);
     assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2016, JANUARY, 30)), true);
     assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2016, JANUARY, 31)), false);
+
+    assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2016, FEBRUARY, 28)), false);
+    assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2016, FEBRUARY, 29)), true);
+
+    assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2015, FEBRUARY, 27)), false);
+    assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2015, FEBRUARY, 28)), true);
   }
 
   public void test_ofDayOfMonth_next_oneMonth() {
