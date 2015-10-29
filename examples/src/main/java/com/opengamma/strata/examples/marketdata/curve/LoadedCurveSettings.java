@@ -32,7 +32,8 @@ import com.opengamma.strata.market.value.ValueType;
  * This contains settings that apply across all instances of a particular curve.
  */
 @BeanDefinition
-public final class LoadedCurveSettings implements ImmutableBean {
+final class LoadedCurveSettings
+    implements ImmutableBean {
 
   /**
    * The day count convention.

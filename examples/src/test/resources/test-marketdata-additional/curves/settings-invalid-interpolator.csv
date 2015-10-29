@@ -1,2 +1,2 @@
-Group Name,Curve Name,Day Count,Interpolator,Left Extrapolator,Right Extrapolator,Value Type
-Default,USD-Disc,Act/Act ISDA,Wacky,Flat,Flat,Zero
+Curve Name,Day Count,Interpolator,Left Extrapolator,Right Extrapolator,Value Type
+USD-Disc,Act/Act ISDA,Wacky,Flat,Flat,Zero
