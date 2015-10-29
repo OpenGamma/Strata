@@ -14,7 +14,8 @@ package com.opengamma.strata.math.impl.statistics.descriptive;
  * <p> 
  * Reference: Value-At-Risk, OpenGamma Documentation 31, Version 0.1, April 2015.
  */
-public final class NearestIndexQuantileMethod extends DiscreteQuantileMethod {
+public final class NearestIndexQuantileMethod
+    extends DiscreteQuantileMethod {
 
   /** Default implementation. */
   public static final NearestIndexQuantileMethod DEFAULT = new NearestIndexQuantileMethod();

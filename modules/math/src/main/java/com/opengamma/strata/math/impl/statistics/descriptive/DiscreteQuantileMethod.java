@@ -15,7 +15,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * <p> 
  * Reference: Value-At-Risk, OpenGamma Documentation 31, Version 0.1, April 2015.
  */
-public abstract class DiscreteQuantileMethod extends QuantileCalculationMethod {
+public abstract class DiscreteQuantileMethod
+    extends QuantileCalculationMethod {
 
   @Override
   public double quantileFromSorted(double level, DoubleArray sortedSample) {

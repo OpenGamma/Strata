@@ -13,7 +13,8 @@ package com.opengamma.strata.math.impl.statistics.descriptive;
  * <p> 
  * Reference: Value-At-Risk, OpenGamma Documentation 31, Version 0.1, April 2015.
  */
-public final class IndexAboveQuantileMethod extends DiscreteQuantileMethod {
+public final class IndexAboveQuantileMethod
+    extends DiscreteQuantileMethod {
 
   /** Default implementation. */
   public static final IndexAboveQuantileMethod DEFAULT = new IndexAboveQuantileMethod();

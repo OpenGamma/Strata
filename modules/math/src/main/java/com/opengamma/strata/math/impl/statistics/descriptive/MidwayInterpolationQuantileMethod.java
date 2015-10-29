@@ -16,7 +16,8 @@ package com.opengamma.strata.math.impl.statistics.descriptive;
  * <p> 
  * Reference: Value-At-Risk, OpenGamma Documentation 31, Version 0.1, April 2015.
  */
-public final class MidwayInterpolationQuantileMethod extends InterpolationQuantileMethod {
+public final class MidwayInterpolationQuantileMethod
+    extends InterpolationQuantileMethod {
 
   /** Default implementation. */
   public static final MidwayInterpolationQuantileMethod DEFAULT = new MidwayInterpolationQuantileMethod();

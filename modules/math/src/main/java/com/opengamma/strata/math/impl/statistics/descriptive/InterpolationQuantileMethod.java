@@ -18,7 +18,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * <p>
  * Reference: Value-At-Risk, OpenGamma Documentation 31, Version 0.1, April 2015.
  */
-public abstract class InterpolationQuantileMethod extends QuantileCalculationMethod {
+public abstract class InterpolationQuantileMethod
+    extends QuantileCalculationMethod {
 
   @Override
   public double quantileFromSorted(double level, DoubleArray sortedSample) {
@@ -32,7 +33,7 @@ public abstract class InterpolationQuantileMethod extends QuantileCalculationMet
     ArgChecker.isTrue(
         upperIndex <= sortedSample.size(), "Quantile can not be computed above the highest probability level.");
     double lowerWeight = upperIndex - adjustedLevel;
-    double upperWeight = 1.0d - lowerWeight;
+    double upperWeight = 1d - lowerWeight;
     return lowerWeight * sortedSample.get(lowerIndex - 1) + upperWeight * sortedSample.get(upperIndex - 1);
   }
 
@@ -46,6 +47,7 @@ public abstract class InterpolationQuantileMethod extends QuantileCalculationMet
   /**
    * Internal method returning the sample size correction for the specific implementation.
    * 
+   * @param sampleSize  the sample size
    * @return the correction
    */
   abstract int sampleCorrection(int sampleSize);

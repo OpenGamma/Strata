@@ -16,14 +16,15 @@ package com.opengamma.strata.math.impl.statistics.descriptive;
  * <p> 
  * Reference: Value-At-Risk, OpenGamma Documentation 31, Version 0.1, April 2015.
  */
-public final class SamplePlusOneInterpolationQuantileMethod extends InterpolationQuantileMethod {
+public final class SamplePlusOneInterpolationQuantileMethod
+    extends InterpolationQuantileMethod {
 
   /** Default implementation. */
   public static final SamplePlusOneInterpolationQuantileMethod DEFAULT = new SamplePlusOneInterpolationQuantileMethod();
 
   @Override
   protected double indexCorrection() {
-    return 0.0d;
+    return 0d;
   }
 
   @Override
