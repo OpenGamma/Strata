@@ -47,7 +47,8 @@ public final class LoaderUtils {
   /**
    * Attempts to locate a rate index by reference name.
    * <p>
-   * This utility searches both {@link IborIndex} and {@link OvernightIndex}.
+   * This utility searches {@link IborIndex}, {@link OvernightIndex}, {@link FxIndex}
+   * and {@link PriceIndex}.
    * 
    * @param reference  the reference name
    * @return the resolved rate index
