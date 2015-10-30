@@ -17,6 +17,7 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.pricer.impl.credit.isda.AnalyticCdsPricer;
 import com.opengamma.strata.pricer.impl.credit.isda.AnalyticSpreadSensitivityCalculator;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalytic;
@@ -25,7 +26,6 @@ import com.opengamma.strata.pricer.impl.credit.isda.CdsParSpread;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsPriceType;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsQuoteConvention;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsQuotedSpread;
-import com.opengamma.strata.pricer.impl.credit.isda.CdsStubType;
 import com.opengamma.strata.pricer.impl.credit.isda.FastCreditCurveBuilder;
 import com.opengamma.strata.pricer.impl.credit.isda.FiniteDifferenceSpreadSensitivityCalculator;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaBaseTest;
@@ -145,7 +145,7 @@ public class CdsAnalyticsDemo extends IsdaBaseTest {
 
     final boolean payAccOnDefault = true;
     final Period paymentInterval = Period.ofMonths(3);
-    final CdsStubType stub = CdsStubType.FRONTSHORT; //Irrelevant for SNAC where accrual start is previous IMM date 
+    final StubConvention stub = StubConvention.SHORT_INITIAL; //Irrelevant for SNAC where accrual start is previous IMM date 
     final boolean protectionStart = true;
 
     final CdsAnalytic cds2 = new CdsAnalytic(

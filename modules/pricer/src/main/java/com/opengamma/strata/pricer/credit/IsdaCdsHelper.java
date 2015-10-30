@@ -16,7 +16,6 @@ import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.finance.credit.type.CdsConvention;
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
@@ -29,7 +28,6 @@ import com.opengamma.strata.pricer.impl.credit.isda.AccrualOnDefaultFormulae;
 import com.opengamma.strata.pricer.impl.credit.isda.AnalyticCdsPricer;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalytic;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsPriceType;
-import com.opengamma.strata.pricer.impl.credit.isda.CdsStubType;
 import com.opengamma.strata.pricer.impl.credit.isda.FastCreditCurveBuilder;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurveBuilder;
@@ -220,7 +218,7 @@ public class IsdaCdsHelper {
           curveCurve.getParRates(),
           cdsConvention.isPayAccruedOnDefault(),
           cdsConvention.getPaymentFrequency().getPeriod(),
-          translateStubType(cdsConvention.getStubConvention()),
+          cdsConvention.getStubConvention(),
           PROTECT_START,
           yieldCurve,
           recoveryRate);
@@ -253,7 +251,7 @@ public class IsdaCdsHelper {
           curveCurve.getParRates(),
           cdsConvention.isPayAccruedOnDefault(),
           cdsConvention.getPaymentFrequency().getPeriod(),
-          translateStubType(cdsConvention.getStubConvention()),
+          cdsConvention.getStubConvention(),
           PROTECT_START,
           yieldCurveAnalytics,
           recoveryRate);
@@ -274,7 +272,7 @@ public class IsdaCdsHelper {
           product.getEndDate(),
           product.isPayAccruedOnDefault(),
           product.getPaymentInterval(),
-          translateStubType(product.getStubConvention()),
+          product.getStubConvention(),
           PROTECT_START,
           recoveryRate,
           product.getBusinessDayAdjustment().getConvention(),
@@ -297,22 +295,6 @@ public class IsdaCdsHelper {
         return IsdaInstrumentTypes.SWAP;
       default:
         throw new IllegalStateException("Unexpected underlying type: " + input);
-    }
-  }
-
-  // Converts stub type to corresponding analytics value.
-  private static CdsStubType translateStubType(StubConvention from) {
-    switch (from) {
-      case SHORT_INITIAL:
-        return CdsStubType.FRONTSHORT;
-      case LONG_INITIAL:
-        return CdsStubType.FRONTLONG;
-      case SHORT_FINAL:
-        return CdsStubType.BACKSHORT;
-      case LONG_FINAL:
-        return CdsStubType.BACKLONG;
-      default:
-        throw new IllegalStateException("Unknown stub convention: " + from);
     }
   }
 

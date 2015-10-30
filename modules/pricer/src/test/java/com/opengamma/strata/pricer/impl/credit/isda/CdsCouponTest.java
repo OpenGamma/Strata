@@ -19,6 +19,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.schedule.StubConvention;
 
 /**
  * 
@@ -67,7 +68,7 @@ public class CdsCouponTest {
       assertEquals(cp, cpFromArrayWithDcc);
 
       final LocalDate mat = accStart.plusYears(5);
-      final IsdaPremiumLegSchedule sch = new IsdaPremiumLegSchedule(accStart, mat, Period.ofMonths(3), CdsStubType.FRONTSHORT, following, calender, protectStart);
+      final IsdaPremiumLegSchedule sch = new IsdaPremiumLegSchedule(accStart, mat, Period.ofMonths(3), StubConvention.SHORT_INITIAL, following, calender, protectStart);
       final CdsCoupon[] coupons = CdsCoupon.makeCoupons(tradeDate, sch, protectStart, accrDcc, curveDcc);
       assertEquals(cp.getEffStart(), coupons[0].getEffStart());
       assertEquals(cp.getEffEnd(), coupons[0].getEffEnd());

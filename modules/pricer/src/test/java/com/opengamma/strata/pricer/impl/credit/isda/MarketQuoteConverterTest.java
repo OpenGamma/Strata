@@ -20,6 +20,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -85,7 +86,7 @@ public class MarketQuoteConverterTest {
   public void SingleCDSTest() {
     final Period tenor = Period.ofMonths(3);
     final boolean payAccOnDefault = true;
-    final CdsStubType stubType = CdsStubType.FRONTSHORT;
+    final StubConvention stubType = StubConvention.SHORT_INITIAL;
     final boolean protectionStart = true;
 
     final double pointsUpFront = 0.007;
@@ -104,7 +105,7 @@ public class MarketQuoteConverterTest {
   public void SingleCDSTest2() {
     final Period tenor = Period.ofMonths(6);
     final boolean payAccOnDefault = true;
-    final CdsStubType stubType = CdsStubType.FRONTLONG;
+    final StubConvention stubType = StubConvention.LONG_INITIAL;
     final boolean protectionStart = true;
 
     final double parSpread = 143.4 / 10000;
@@ -123,7 +124,7 @@ public class MarketQuoteConverterTest {
   public void MultiCDSTest() {
     final Period tenor = Period.ofMonths(3);
     final boolean payAccOnDefault = true;
-    final CdsStubType stubType = CdsStubType.FRONTSHORT;
+    final StubConvention stubType = StubConvention.SHORT_INITIAL;
     final boolean protectionStart = true;
     final double permium = 100. / 10000;
     final double recovery = 0.4;
@@ -169,7 +170,7 @@ public class MarketQuoteConverterTest {
 
     final Period tenor = Period.ofMonths(3);
     final boolean payAccOnDefault = true;
-    final CdsStubType stubType = CdsStubType.FRONTLONG;
+    final StubConvention stubType = StubConvention.LONG_INITIAL;
     final boolean protectionStart = true;
     final double recovery = 0.4;
     final double recovery1 = 0.25;

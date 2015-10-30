@@ -8,9 +8,9 @@ package com.opengamma.strata.pricer.impl.credit.isda;
 import java.time.LocalDate;
 import java.time.Period;
 
-import cern.jet.random.engine.MersenneTwister;
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -22,6 +22,8 @@ import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
+
+import cern.jet.random.engine.MersenneTwister;
 
 /**
  * This tests the time to calibrate the yield and credit curves. By default the tests are disabled.  
@@ -171,7 +173,7 @@ public class CalibrationTimingTest extends IsdaBaseTest {
     System.out.println("CalibrationTimingTest - set enabled=false before push");
     final IsdaCompliantYieldCurve yieldCurve = IsdaCompliantYieldCurveBuild.build(SPOTDATE, YC_INST_TYPES, YC_INST_TENOR, YC_MARKET_RATES, ACT360, D30360, SWAP_INTERVAL, MOD_FOLLOWING);
     final Period tenor = Period.ofMonths(3);
-    final CdsStubType stubType = CdsStubType.FRONTSHORT;
+    final StubConvention stubType = StubConvention.SHORT_INITIAL;
     final boolean payAccOndefault = true;
     final boolean protectionStart = true;
     final double recovery = 0.4;

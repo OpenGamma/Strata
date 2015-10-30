@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
@@ -69,7 +70,7 @@ public class AnalyticBondPricerTest extends IsdaBaseTest {
     final double recoveryRate = 0.27;
 
     final Period couponPeriod = Period.ofMonths(6);
-    final CdsStubType stub = CdsStubType.FRONTSHORT;
+    final StubConvention stub = StubConvention.SHORT_INITIAL;
     final BusinessDayConvention bd = FOLLOWING;
     final HolidayCalendar cal = DEFAULT_CALENDAR;
     final CdsAnalyticFactory factory = new CdsAnalyticFactory(0.0).with(couponPeriod).withPayAccOnDefault(false);
@@ -116,7 +117,7 @@ public class AnalyticBondPricerTest extends IsdaBaseTest {
     final LocalDate endDate = LocalDate.of(2018, 12, 20);
 
     final Period couponPrd = Period.ofMonths(6);
-    final CdsStubType stubTp = CdsStubType.FRONTSHORT;
+    final StubConvention stubTp = StubConvention.SHORT_INITIAL;
     final BusinessDayConvention bdConv = MOD_FOLLOWING;
     final HolidayCalendar cal = DEFAULT_CALENDAR;
     boolean ProtStart = false;
@@ -167,7 +168,7 @@ public class AnalyticBondPricerTest extends IsdaBaseTest {
     final double coupon = 0.11;
     double rr = 0.3;
     final Period couponPrd = Period.ofMonths(6);
-    final CdsStubType stubTp = CdsStubType.FRONTSHORT;
+    final StubConvention stubTp = StubConvention.SHORT_INITIAL;
     final BusinessDayConvention bdConv = MOD_FOLLOWING;
     final HolidayCalendar cal = DEFAULT_CALENDAR;
     final boolean ProtStart = true;
@@ -222,7 +223,7 @@ public class AnalyticBondPricerTest extends IsdaBaseTest {
     final double coupon = 0.11;
     double rr = 0.3;
     final Period couponPrd = Period.ofMonths(6);
-    final CdsStubType stubTp = CdsStubType.FRONTSHORT;
+    final StubConvention stubTp = StubConvention.SHORT_INITIAL;
     final BusinessDayConvention bdConv = MOD_FOLLOWING;
     final HolidayCalendar cal = DEFAULT_CALENDAR;
     final boolean ProtStart = true;
