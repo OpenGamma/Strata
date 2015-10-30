@@ -13,7 +13,6 @@ import static com.opengamma.strata.finance.rate.fra.FraDiscountingMethod.ISDA;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -333,21 +332,6 @@ public final class ImmutableFraConvention
   @Override
   public FraTrade toTrade(
       LocalDate tradeDate,
-      Period periodToStart,
-      Period periodToEnd,
-      BuySell buySell,
-      double notional,
-      double fixedRate) {
-
-    LocalDate spotValue = getSpotDateOffset().adjust(tradeDate);
-    LocalDate startDate = spotValue.plus(periodToStart);
-    LocalDate endDate = spotValue.plus(periodToEnd);
-    return toTrade(tradeDate, startDate, endDate, buySell, notional, fixedRate);
-  }
-
-  @Override
-  public FraTrade toTrade(
-      LocalDate tradeDate,
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,
@@ -374,6 +358,11 @@ public final class ImmutableFraConvention
             .discounting(getDiscounting())
             .build())
         .build();
+  }
+
+  @Override
+  public LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate) {
+    return getSpotDateOffset().adjust(tradeDate);
   }
 
   @Override

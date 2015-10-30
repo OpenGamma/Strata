@@ -27,8 +27,8 @@ import com.opengamma.strata.finance.rate.future.IborFutureTrade;
 @Test
 public class IborFutureTemplateTest {
 
-  private static final IborFutureConvention CONVENTION = IborFutureConvention.of(USD_LIBOR_3M, QUARTERLY_IMM);
-  private static final IborFutureConvention CONVENTION2 = IborFutureConvention.of(USD_LIBOR_6M, QUARTERLY_IMM);
+  private static final IborFutureConvention CONVENTION = ImmutableIborFutureConvention.of(USD_LIBOR_3M, QUARTERLY_IMM);
+  private static final IborFutureConvention CONVENTION2 = ImmutableIborFutureConvention.of(USD_LIBOR_6M, QUARTERLY_IMM);
   private static final Period MIN_PERIOD = Period.ofMonths(2);
   private static final int NUMBER = 2;
 

@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.market.curve.definition;
 
-import static com.opengamma.strata.basics.date.DateSequences.QUARTERLY_IMM;
-import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -28,6 +26,7 @@ import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.rate.future.IborFutureTrade;
 import com.opengamma.strata.finance.rate.future.type.IborFutureConvention;
+import com.opengamma.strata.finance.rate.future.type.IborFutureConventions;
 import com.opengamma.strata.finance.rate.future.type.IborFutureTemplate;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.YearMonthCurveNodeMetadata;
@@ -40,7 +39,7 @@ import com.opengamma.strata.market.value.ValueType;
 @Test
 public class IborFutureCurveNodeTest {
 
-  private static final IborFutureConvention CONVENTION = IborFutureConvention.of(USD_LIBOR_3M, QUARTERLY_IMM);
+  private static final IborFutureConvention CONVENTION = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM;
   private static final Period PERIOD_TO_START = Period.ofMonths(2);
   private static final int NUMBER = 2;
   private static final IborFutureTemplate TEMPLATE = IborFutureTemplate.of(PERIOD_TO_START, NUMBER, CONVENTION);
