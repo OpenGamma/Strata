@@ -63,6 +63,7 @@
     <module>source</module>
     <module>finance</module>
     <module>function</module>
+    <module>loader</module>
     <module>market</module>
     <module>math</module>
     <module>pricer</module>
