@@ -54,17 +54,16 @@ import com.opengamma.strata.market.value.ValueType;
  *      
  * <li> Settings - contains the settings that apply to each named curve across all valuation
  *      dates. This must contain the following header row:
- *      Group Name, Curve Name, Day Count, Interpolator, Left Extrapolator, Right Extrapolator, Value Type
+ *      Curve Name, Value Type, Day Count, Interpolator, Left Extrapolator, Right Extrapolator
  * </ul>
  * There may be one or more curves files with the following header row:
- * Valuation Date, Group Name, Curve Name, Date, Value, Label
+ * Valuation Date, Curve Name, Date, Value, Label
  * <p>
  * Each curve must be contained entirely within a single file, but each file may contain more than
  * one curve. The curve points do not need to be ordered.
  */
 public final class RatesCurvesCsvLoader {
 
-  private static final String SETTINGS_GROUP_NAME = "Group Name";
   private static final String SETTINGS_CURVE_NAME = "Curve Name";
   private static final String SETTINGS_VALUE_TYPE = "Value Type";
   private static final String SETTINGS_DAY_COUNT = "Day Count";
@@ -78,7 +77,6 @@ public final class RatesCurvesCsvLoader {
   private static final String GROUPS_CURVE_NAME = "Curve Name";
 
   private static final String CURVE_DATE = "Valuation Date";
-  private static final String CURVE_GROUP_NAME = "Group Name";
   private static final String CURVE_NAME = "Curve Name";
   private static final String CURVE_POINT_DATE = "Date";
   private static final String CURVE_POINT_VALUE = "Value";
@@ -138,7 +136,7 @@ public final class RatesCurvesCsvLoader {
       LocalDate curveDate) {
     
     // load curves
-    Map<LoadedCurveName, LoadedCurveSettings> settingsMap = loadCurveSettings(settingsResource);
+    Map<CurveName, LoadedCurveSettings> settingsMap = loadCurveSettings(settingsResource);
     ImmutableMap.Builder<LoadedCurveKey, Curve> curvesBuilder = new ImmutableMap.Builder<>();
     for (ResourceLocator curvesResource : curvesResources) {
       // builder ensures keys can only be seen once
@@ -147,21 +145,21 @@ public final class RatesCurvesCsvLoader {
     ImmutableMap<LoadedCurveKey, Curve> curves = curvesBuilder.build();
 
     // load curve groups
-    Map<LoadedCurveName, Set<RateCurveId>> curveGroups = loadCurveGroups(groupsResource);
+    Map<CurveName, Set<RateCurveId>> curveGroups = loadCurveGroups(groupsResource);
 
     return mapCurves(curveGroups, curves);
   }
   
   // uses the curve groups to form the resolved map of curve id to curve
   private static ImmutableSortedMap<LocalDate, Map<RateCurveId, Curve>> mapCurves(
-      Map<LoadedCurveName, Set<RateCurveId>> curveGroupMappings,
+      Map<CurveName, Set<RateCurveId>> curveGroupMappings,
       Map<LoadedCurveKey, Curve> curves) {
     
     Map<LocalDate, ImmutableMap.Builder<RateCurveId, Curve>> resultBuilder = new HashMap<>();
     
     for (Map.Entry<LoadedCurveKey, Curve> curveEntry : curves.entrySet()) {
       LoadedCurveKey key = curveEntry.getKey();
-      Set<RateCurveId> curveUses = curveGroupMappings.get(key.toName());
+      Set<RateCurveId> curveUses = curveGroupMappings.get(key.getCurveName());
       if (curveUses == null) {
         // Curve not mapped in any group
         continue;
@@ -182,19 +180,17 @@ public final class RatesCurvesCsvLoader {
   }
 
   // loads the curve settings CSV file
-  private static Map<LoadedCurveName, LoadedCurveSettings> loadCurveSettings(ResourceLocator settingsResource) {
-    Map<LoadedCurveName, LoadedCurveSettings> settingsMap = new HashMap<>();
+  private static Map<CurveName, LoadedCurveSettings> loadCurveSettings(ResourceLocator settingsResource) {
+    Map<CurveName, LoadedCurveSettings> settingsMap = new HashMap<>();
     CsvFile csv = CsvFile.of(settingsResource.getCharSource(), true);
     for (int i = 0; i < csv.rowCount(); i++) {
-      String curveGroupName = csv.field(i, SETTINGS_GROUP_NAME);
       String curveName = csv.field(i, SETTINGS_CURVE_NAME);
+      String valueTypeName = csv.field(i, SETTINGS_VALUE_TYPE);
       String dayCountName = csv.field(i, SETTINGS_DAY_COUNT);
       String interpolatorName = csv.field(i, SETTINGS_INTERPOLATOR);
       String leftExtrapolatorName = csv.field(i, SETTINGS_LEFT_EXTRAPOLATOR);
       String rightExtrapolatorName = csv.field(i, SETTINGS_RIGHT_EXTRAPOLATOR);
-      String valueTypeName = csv.field(i, SETTINGS_VALUE_TYPE);
 
-      LoadedCurveName curveKey = LoadedCurveName.of(curveGroupName, curveName);
       DayCount dayCount = DayCount.of(dayCountName);
       CurveInterpolator interpolator = CurveInterpolator.of(interpolatorName);
       CurveExtrapolator leftExtrapolator = CurveExtrapolator.of(leftExtrapolatorName);
@@ -212,23 +208,23 @@ public final class RatesCurvesCsvLoader {
           .leftExtrapolator(leftExtrapolator)
           .rightExtrapolator(rightExtrapolator)
           .build();
-      settingsMap.put(curveKey, settings);
+      settingsMap.put(CurveName.of(curveName), settings);
     }
     return settingsMap;
   }
 
   // loads the curve groups CSV file
-  private static Map<LoadedCurveName, Set<RateCurveId>> loadCurveGroups(ResourceLocator groupsResource) {
-    Map<LoadedCurveName, Set<RateCurveId>> curveGroups = new HashMap<>();
+  private static Map<CurveName, Set<RateCurveId>> loadCurveGroups(ResourceLocator groupsResource) {
+    Map<CurveName, Set<RateCurveId>> curveGroups = new HashMap<>();
     CsvFile csv = CsvFile.of(groupsResource.getCharSource(), true);
     for (int i = 0; i < csv.rowCount(); i++) {
-      String curveGroupText = csv.field(i, GROUPS_NAME);
+      String curveGroupStr = csv.field(i, GROUPS_NAME);
       String curveType = csv.field(i, GROUPS_CURVE_TYPE);
       String reference = csv.field(i, GROUPS_REFERENCE);
-      String curveName = csv.field(i, GROUPS_CURVE_NAME);
+      String curveNameStr = csv.field(i, GROUPS_CURVE_NAME);
 
       // discount and forward curves are supported
-      CurveGroupName curveGroup = CurveGroupName.of(curveGroupText);
+      CurveGroupName curveGroup = CurveGroupName.of(curveGroupStr);
       // TODO: split this to have "ibor" and "overnight" in csv file
       RateCurveId curveId;
       if ("forward".equals(curveType.toLowerCase())) {
@@ -241,11 +237,11 @@ public final class RatesCurvesCsvLoader {
         throw new IllegalArgumentException(Messages.format("Unsupported curve type: {}", curveType));
       }
 
-      LoadedCurveName curveKey = LoadedCurveName.of(curveGroup, CurveName.of(curveName));
-      Set<RateCurveId> curveUses = curveGroups.get(curveKey);
+      CurveName curveName = CurveName.of(curveNameStr);
+      Set<RateCurveId> curveUses = curveGroups.get(curveName);
       if (curveUses == null) {
         curveUses = new HashSet<RateCurveId>();
-        curveGroups.put(curveKey, curveUses);
+        curveGroups.put(curveName, curveUses);
       }
       curveUses.add(curveId);
     }
@@ -255,7 +251,7 @@ public final class RatesCurvesCsvLoader {
   // loads a single curves CSV file
   private static Map<LoadedCurveKey, Curve> loadCurvesFile(
       ResourceLocator curvesResource,
-      Map<LoadedCurveName, LoadedCurveSettings> settingsMap,
+      Map<CurveName, LoadedCurveSettings> settingsMap,
       LocalDate curveDate) {
 
     // parse the curve nodes
@@ -263,7 +259,6 @@ public final class RatesCurvesCsvLoader {
     Map<LoadedCurveKey, List<LoadedCurveNode>> builders = new HashMap<>();
     for (int i = 0; i < csv.rowCount(); i++) {
       String valuationDateText = csv.field(i, CURVE_DATE);
-      String curveGroup = csv.field(i, CURVE_GROUP_NAME);
       String curveName = csv.field(i, CURVE_NAME);
       String pointDateText = csv.field(i, CURVE_POINT_DATE);
       String pointValueText = csv.field(i, CURVE_POINT_VALUE);
@@ -277,7 +272,7 @@ public final class RatesCurvesCsvLoader {
       LocalDate pointDate = LocalDate.parse(pointDateText);
       double pointValue = Double.valueOf(pointValueText);
 
-      LoadedCurveKey key = LoadedCurveKey.of(valuationDate, curveGroup, curveName);
+      LoadedCurveKey key = LoadedCurveKey.of(valuationDate, curveName);
       List<LoadedCurveNode> curveNodes = builders.get(key);
       if (curveNodes == null) {
         curveNodes = new ArrayList<LoadedCurveNode>();
@@ -291,7 +286,7 @@ public final class RatesCurvesCsvLoader {
     ImmutableMap.Builder<LoadedCurveKey, Curve> results = ImmutableMap.builder();
     for (Map.Entry<LoadedCurveKey, List<LoadedCurveNode>> builderEntry : builders.entrySet()) {
       LoadedCurveKey key = builderEntry.getKey();
-      LoadedCurveSettings settings = settingsMap.get(key.toName());
+      LoadedCurveSettings settings = settingsMap.get(key.getCurveName());
       if (settings == null) {
         throw new IllegalArgumentException(Messages.format("Missing settings for curve: {}", key));
       }
