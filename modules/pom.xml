@@ -213,6 +213,11 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-loader</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-pricer</artifactId>
         <version>${project.version}</version>
       </dependency>
