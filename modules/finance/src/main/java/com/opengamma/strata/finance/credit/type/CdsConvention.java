@@ -13,7 +13,6 @@ import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -21,36 +20,31 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.finance.TradeConvention;
-import com.opengamma.strata.finance.credit.Cds;
 import com.opengamma.strata.finance.credit.CdsDatesLogic;
 import com.opengamma.strata.finance.credit.CdsTrade;
-import com.opengamma.strata.finance.credit.FeeLeg;
 import com.opengamma.strata.finance.credit.IndexReferenceInformation;
-import com.opengamma.strata.finance.credit.PeriodicPayments;
 import com.opengamma.strata.finance.credit.ReferenceInformation;
-import com.opengamma.strata.finance.credit.RestructuringClause;
-import com.opengamma.strata.finance.credit.SeniorityLevel;
 import com.opengamma.strata.finance.credit.SingleNameReferenceInformation;
-import com.opengamma.strata.finance.credit.SinglePayment;
 
 /**
- * A market convention for how credit default swap (CDS) trades are structured
- * in different regions and currencies.
+ * A market convention for credit default swap (CDS) trades.
  * <p>
- * All implementations of this interface must be immutable and thread-safe.
+ * This defines the market convention for CDS trades in different regions and currencies.
+ * <p>
+ * To manually create a convention, see {@link ImmutableCdsConvention}.
+ * To register a specific convention, see {@code CdsConvention.ini}.
  */
 public interface CdsConvention
     extends TradeConvention, Named {
 
   /**
-   * Obtains a {@code CdsConvention} from a unique name.
+   * Obtains a convention from a unique name.
    * 
    * @param uniqueName  the unique name
-   * @return the resolved convention
+   * @return the convention
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
@@ -112,7 +106,7 @@ public interface CdsConvention
    * 
    * @return whether the accrued premium is paid in the event of a default
    */
-  public abstract boolean getPayAccruedOnDefault();
+  public abstract boolean isPayAccruedOnDefault();
 
   /**
    * Gets the stub convention.
@@ -124,7 +118,7 @@ public interface CdsConvention
   /**
    * Gets the number of step-in days.
    * <p>
-   * This is the date from which the issuer is deemed to be risky.
+   * This is the date from which the issuer is deemed to be on risk.
    * 
    * @return the number of step-in days
    */
@@ -139,101 +133,12 @@ public interface CdsConvention
    */
   public abstract int getSettleLagDays();
 
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the name that uniquely identifies this convention.
-   * <p>
-   * This name is used in serialization and can be parsed using {@link #of(String)}.
-   * 
-   * @return the unique name
-   */
-  @ToString
-  @Override
-  public abstract String getName();
-
-  //-------------------------------------------------------------------------
-  /**
-   * Creates a single-name CDS trade from the convention.
-   * 
-   * @param startDate  the date that the CDS starts
-   * @param endDate  the date that the CDS ends
-   * @param buySell  whether protection is being bought or sold
-   * @param notional  the notional amount
-   * @param coupon  the coupon amount
-   * @param referenceEntityId  the identifier of the reference entity
-   * @param seniorityLevel  the seniority level
-   * @param restructuringClause  the restructuring clause
-   * @param upfrontFeeAmount  the amount of the upfront fee
-   * @param upfrontFeePaymentDate  the payment date of the upfront fee
-   * @return the single-name CDS
-   */
-  public default CdsTrade toSingleNameTrade(
-      LocalDate startDate,
-      LocalDate endDate,
-      BuySell buySell,
-      double notional,
-      double coupon,
-      StandardId referenceEntityId,
-      SeniorityLevel seniorityLevel,
-      RestructuringClause restructuringClause,
-      double upfrontFeeAmount,
-      LocalDate upfrontFeePaymentDate) {
-
-    return toTrade(
-        startDate,
-        endDate,
-        buySell,
-        notional,
-        coupon,
-        SingleNameReferenceInformation.of(
-            referenceEntityId,
-            seniorityLevel,
-            getCurrency(),
-            restructuringClause),
-        upfrontFeeAmount,
-        upfrontFeePaymentDate);
-  }
-
-  /**
-   * Creates an index CDS from the convention.
-   * 
-   * @param startDate  the date that the CDS starts
-   * @param endDate  the date that the CDS ends
-   * @param buySell  whether protection is being bought or sold
-   * @param notional  the notional amount
-   * @param coupon  the coupon amount
-   * @param indexId  the identifier of the index
-   * @param indexSeries  the index series
-   * @param indexAnnexVersion  the index annex version
-   * @param upfrontFeeAmount  the amount of the upfront fee
-   * @param upfrontFeePaymentDate  the payment date of the upfront fee
-   * @return the index CDS trade
-   */
-  public default CdsTrade toIndexTrade(
-      LocalDate startDate,
-      LocalDate endDate,
-      BuySell buySell,
-      double notional,
-      double coupon,
-      StandardId indexId,
-      int indexSeries,
-      int indexAnnexVersion,
-      double upfrontFeeAmount,
-      LocalDate upfrontFeePaymentDate) {
-
-    return toTrade(
-        startDate,
-        endDate,
-        buySell,
-        notional,
-        coupon,
-        IndexReferenceInformation.of(indexId, indexSeries, indexAnnexVersion),
-        upfrontFeeAmount,
-        upfrontFeePaymentDate);
-  }
-
+  //-----------------------------------------------------------------------
   /**
    * Creates a CDS from the convention.
+   * <p>
+   * A single name CDS can be specified using {@link SingleNameReferenceInformation}.
+   * An index CDS can be specified using {@link IndexReferenceInformation}.
    * 
    * @param startDate  the date that the CDS starts
    * @param endDate  the date that the CDS ends
@@ -245,7 +150,7 @@ public interface CdsConvention
    * @param upfrontFeePaymentDate  the payment date of the upfront fee
    * @return the CDS trade
    */
-  public default CdsTrade toTrade(
+  public abstract CdsTrade toTrade(
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,
@@ -253,35 +158,9 @@ public interface CdsConvention
       double coupon,
       ReferenceInformation referenceInformation,
       double upfrontFeeAmount,
-      LocalDate upfrontFeePaymentDate) {
-
-    return CdsTrade.builder()
-        .product(Cds.builder()
-            .startDate(startDate)
-            .endDate(endDate)
-            .buySellProtection(buySell)
-            .businessDayAdjustment(getBusinessDayAdjustment())
-            .referenceInformation(referenceInformation)
-            .feeLeg(
-                FeeLeg.of(
-                    SinglePayment.of(
-                        getCurrency(),
-                        upfrontFeeAmount,
-                        upfrontFeePaymentDate),
-                    PeriodicPayments.of(
-                        CurrencyAmount.of(getCurrency(), notional),
-                        coupon,
-                        getDayCount(),
-                        getPaymentFrequency(),
-                        getStubConvention(),
-                        getRollConvention())))
-            .payAccruedOnDefault(true)
-            .build())
-        .build();
-  }
+      LocalDate upfrontFeePaymentDate);
 
   //-------------------------------------------------------------------------
-  // TODO: move these static methods elsewhere
   /**
    * Used in curve point calculation.
    *
@@ -289,8 +168,8 @@ public interface CdsConvention
    * @param period  the term for this point
    * @return unadjusted maturity date
    */
-  public default LocalDate getUnadjustedMaturityDateFromValuationDate(LocalDate valuationDate, Period period) {
-    return getUnadjustedMaturityDate(valuationDate, getPaymentFrequency(), period);
+  public default LocalDate calculateUnadjustedMaturityDateFromValuationDate(LocalDate valuationDate, Period period) {
+    return calculateUnadjustedMaturityDate(valuationDate, getPaymentFrequency(), period);
   }
 
   /**
@@ -304,12 +183,12 @@ public interface CdsConvention
    * @param period  the term for this point
    * @return unadjusted accrual maturity date
    */
-  public static LocalDate getUnadjustedMaturityDate(
+  public static LocalDate calculateUnadjustedMaturityDate(
       LocalDate valuationDate,
       Frequency paymentFrequency,
       Period period) {
 
-    return getUnadjustedAccrualStartDate(valuationDate)
+    return calculateUnadjustedAccrualStartDate(valuationDate)
         .plus(period)
         .plus(paymentFrequency.getPeriod());
   }
@@ -320,7 +199,7 @@ public interface CdsConvention
    * @param valuationDate  the valuation date
    * @return unadjusted accrual start date
    */
-  public static LocalDate getUnadjustedAccrualStartDate(LocalDate valuationDate) {
+  public static LocalDate calculateUnadjustedAccrualStartDate(LocalDate valuationDate) {
     return CdsDatesLogic.getPrevCdsDate(valuationDate);
   }
 
@@ -330,9 +209,9 @@ public interface CdsConvention
    * @param valuationDate  the valuation date
    * @return adjusted start date
    */
-  public default LocalDate getAdjustedStartDate(LocalDate valuationDate) {
+  public default LocalDate calculateAdjustedStartDate(LocalDate valuationDate) {
     return getBusinessDayAdjustment().adjust(
-        getUnadjustedAccrualStartDate(valuationDate));
+        calculateUnadjustedAccrualStartDate(valuationDate));
   }
 
   /**
@@ -341,7 +220,7 @@ public interface CdsConvention
    * @param valuationDate  the valuation date
    * @return unadjusted settle date
    */
-  public default LocalDate getAdjustedSettleDate(LocalDate valuationDate) {
+  public default LocalDate calculateAdjustedSettleDate(LocalDate valuationDate) {
     DaysAdjustment daysAdjustment = DaysAdjustment.ofBusinessDays(
         getSettleLagDays(), getBusinessDayAdjustment().getCalendar(), getBusinessDayAdjustment());
     return daysAdjustment.adjust(valuationDate);
@@ -353,8 +232,20 @@ public interface CdsConvention
    * @param valuationDate  the valuation date
    * @return unadjusted step in date
    */
-  public default LocalDate getUnadjustedStepInDate(LocalDate valuationDate) {
+  public default LocalDate calculateUnadjustedStepInDate(LocalDate valuationDate) {
     return valuationDate.plusDays(getStepInDays());
   }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the name that uniquely identifies this convention.
+   * <p>
+   * This name is used in serialization and can be parsed using {@link #of(String)}.
+   * 
+   * @return the unique name
+   */
+  @ToString
+  @Override
+  public abstract String getName();
 
 }

@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.schedule.StubConvention;
 
 /**
  * Test.
@@ -62,7 +63,7 @@ public class IsdaCompliantCurveCalibratorTest {
     }
 
     final Period tenor = Period.ofMonths(3);
-    final CdsStubType stubType = CdsStubType.FRONTSHORT;
+    final StubConvention stubType = StubConvention.SHORT_INITIAL;
     final boolean payAccOndefault = true;
     final boolean protectionStart = true;
     final double recovery = 0.4;

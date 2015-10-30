@@ -14,6 +14,7 @@ import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -56,8 +57,7 @@ public class MultiCdsAnalytic {
    * payment interval, would require 2, 4, and 8 as the indices    
    * @param payAccOnDefault Is the accrued premium paid in the event of a default
    * @param paymentInterval The nominal step between premium payments (e.g. 3 months, 6 months).
-   * @param stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
-   *  - <b>Note</b> in this code NONE is not allowed
+   * @param stubType the stub convention
    * @param protectStart If protectStart = true, then protections starts at the beginning of the day, otherwise it is at the end.
    * @param recoveryRate The recovery rate
    * @param businessdayAdjustmentConvention How are adjustments for non-business days made
@@ -74,7 +74,7 @@ public class MultiCdsAnalytic {
       int[] maturityIndexes,
       boolean payAccOnDefault,
       Tenor paymentInterval,
-      CdsStubType stubType,
+      StubConvention stubType,
       boolean protectStart,
       double recoveryRate,
       BusinessDayConvention businessdayAdjustmentConvention,

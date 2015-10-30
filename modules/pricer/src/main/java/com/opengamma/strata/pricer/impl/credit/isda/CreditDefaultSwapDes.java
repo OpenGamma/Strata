@@ -11,6 +11,7 @@ import java.time.Period;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -28,7 +29,7 @@ public class CreditDefaultSwapDes {
       LocalDate protectionEndDate,
       boolean payAccOnDefault,
       Period paymentInterval,
-      CdsStubType stubType,
+      StubConvention stubType,
       boolean isProtectStart,
       BusinessDayConvention businessdayAdjustmentConvention,
       HolidayCalendar calendar, DayCount accrualDayCount) {

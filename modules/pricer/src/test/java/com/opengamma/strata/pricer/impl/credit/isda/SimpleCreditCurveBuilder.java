@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.impl.credit.isda;
 import java.time.LocalDate;
 import java.time.Period;
 
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
@@ -102,7 +103,7 @@ public class SimpleCreditCurveBuilder extends IsdaCompliantCreditCurveBuilder {
    */
   @Override
   public IsdaCompliantCreditCurve calibrateCreditCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate,
-      final double fractionalParSpread, final boolean payAccOnDefault, final Period tenor, final CdsStubType stubType, final boolean protectStart, final IsdaCompliantYieldCurve yieldCurve,
+      final double fractionalParSpread, final boolean payAccOnDefault, final Period tenor, final StubConvention stubType, final boolean protectStart, final IsdaCompliantYieldCurve yieldCurve,
       final double recoveryRate) {
     return calibrateCreditCurve(today, stepinDate, valueDate, startDate, new LocalDate[] {endDate }, new double[] {fractionalParSpread }, payAccOnDefault, tenor, stubType, protectStart, yieldCurve,
         recoveryRate);
@@ -113,7 +114,7 @@ public class SimpleCreditCurveBuilder extends IsdaCompliantCreditCurveBuilder {
    */
   @Override
   public IsdaCompliantCreditCurve calibrateCreditCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate[] endDates,
-      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, final CdsStubType stubType, final boolean protectStart, final IsdaCompliantYieldCurve yieldCurve,
+      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, final StubConvention stubType, final boolean protectStart, final IsdaCompliantYieldCurve yieldCurve,
       final double recoveryRate) {
 
     ArgChecker.notNull(today, "null today");

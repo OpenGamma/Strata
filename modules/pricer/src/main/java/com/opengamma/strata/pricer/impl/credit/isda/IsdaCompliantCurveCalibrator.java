@@ -10,6 +10,7 @@ import java.time.Period;
 
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
@@ -39,7 +40,7 @@ public class IsdaCompliantCurveCalibrator {
       double[] couponRates,
       boolean payAccOnDefault,
       Period tenor,
-      CdsStubType stubType,
+      StubConvention stubType,
       boolean protectStart,
       IsdaCompliantDateYieldCurve yieldCurve,
       double recoveryRate) {
@@ -95,7 +96,7 @@ public class IsdaCompliantCurveCalibrator {
 
     private final boolean _payAccOnDefault;
     private final Period _tenor;
-    private final CdsStubType _stubType;
+    private final StubConvention _stubType;
     private final double _rr;
 
     private IsdaCompliantDateYieldCurve _yieldCurve;
@@ -112,7 +113,7 @@ public class IsdaCompliantCurveCalibrator {
         boolean protectStart,
         boolean payAccOnDefault,
         Period tenor,
-        CdsStubType stubType,
+        StubConvention stubType,
         double rr,
         IsdaCompliantDateYieldCurve yieldCurve,
         IsdaCompliantDateCreditCurve hazardCurve) {

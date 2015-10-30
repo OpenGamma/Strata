@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.impl.credit.isda;
 import java.time.LocalDate;
 import java.time.Period;
 
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -183,8 +184,7 @@ public abstract class IsdaCompliantCreditCurveBuilder {
    * @param fractionalParSpread - the (fractional) coupon that makes the CDS worth par (i.e. zero clean price)
    * @param payAccOnDefault Is the accrued premium paid in the event of a default
    * @param tenor The nominal step between premium payments (e.g. 3 months, 6 months).
-   * @param stubType stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
-   *  - <b>Note</b> in this code NONE is not allowed
+   * @param stubType the stub convention
    * @param protectStart Does protection start at the beginning of the day
    * @param yieldCurve Curve from which payments are discounted
    * @param recoveryRate the recovery rate 
@@ -199,7 +199,7 @@ public abstract class IsdaCompliantCreditCurveBuilder {
       double fractionalParSpread,
       boolean payAccOnDefault,
       Period tenor,
-      CdsStubType stubType,
+      StubConvention stubType,
       boolean protectStart,
       IsdaCompliantYieldCurve yieldCurve,
       double recoveryRate) {
@@ -222,8 +222,7 @@ public abstract class IsdaCompliantCreditCurveBuilder {
    * @param fractionalParSpreads - the (fractional) coupon that makes each CDS worth par (i.e. zero clean price)
    * @param payAccOnDefault Is the accrued premium paid in the event of a default
    * @param tenor The nominal step between premium payments (e.g. 3 months, 6 months).
-   * @param stubType stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
-   *  - <b>Note</b> in this code NONE is not allowed
+   * @param stubType the stub convention
    * @param protectStart Does protection start at the beginning of the day
    * @param yieldCurve Curve from which payments are discounted
    * @param recoveryRate the recovery rate 
@@ -238,7 +237,7 @@ public abstract class IsdaCompliantCreditCurveBuilder {
       double[] fractionalParSpreads,
       boolean payAccOnDefault,
       Period tenor,
-      CdsStubType stubType,
+      StubConvention stubType,
       boolean protectStart,
       IsdaCompliantYieldCurve yieldCurve,
       double recoveryRate) {

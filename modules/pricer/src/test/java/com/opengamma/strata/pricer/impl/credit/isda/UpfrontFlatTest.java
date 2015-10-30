@@ -19,6 +19,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -80,7 +81,7 @@ public class UpfrontFlatTest {
   public void Test() {
     final Period tenor = Period.ofMonths(3);
     final boolean payAccOnDefault = true;
-    final CdsStubType stubType = CdsStubType.FRONTSHORT;
+    final StubConvention stubType = StubConvention.SHORT_INITIAL;
     final boolean protectionStart = true;
 
     final double quotedSpread = 550. / 10000;

@@ -17,6 +17,7 @@ import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.schedule.StubConvention;
 
 /**
  * 
@@ -72,7 +73,7 @@ public class AnnuityForSpreadFunctionTest {
         ImmDateLogic.getNextIMMDate(TRADE_DATE).plus(TENOR),
         true,
         interval,
-        CdsStubType.FRONTSHORT,
+        StubConvention.SHORT_INITIAL,
         true,
         0.4);
     final AnnuityForSpreadContPemiumApproxFunction contPrem = new AnnuityForSpreadContPemiumApproxFunction(cds, YIELD_CURVE);
@@ -105,7 +106,7 @@ public class AnnuityForSpreadFunctionTest {
         ImmDateLogic.getNextIMMDate(TRADE_DATE).plus(tenor),
         true,
         interval,
-        CdsStubType.FRONTSHORT,
+        StubConvention.SHORT_INITIAL,
         true,
         0.4);
     final AnnuityForSpreadContPemiumApproxFunction contPrem = new AnnuityForSpreadContPemiumApproxFunction(cds, YIELD_CURVE);

@@ -12,6 +12,7 @@ import java.time.Period;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.market.curve.perturb.ShiftType;
 
 /**
@@ -50,7 +51,7 @@ public class AnalyticSpreadSensitivityTest extends IsdaBaseTest {
 
     final boolean payAccOndefault = true;
     final Period tenor = Period.ofMonths(3);
-    final CdsStubType stubType = CdsStubType.FRONTSHORT;
+    final StubConvention stubType = StubConvention.SHORT_INITIAL;
     final boolean protectionStart = true;
 
     CDS = new CdsAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, PROTECTION_STATE_DATE, PROTECTION_END_DATE, payAccOndefault, tenor, stubType, protectionStart, RECOVERY_RATE);

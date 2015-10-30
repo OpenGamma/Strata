@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.market.curve.perturb.ShiftType;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 
@@ -58,7 +59,7 @@ public class SpreadSensitivityTest {
 
     final boolean payAccOndefault = true;
     final Period tenor = Period.ofMonths(3);
-    final CdsStubType stubType = CdsStubType.FRONTSHORT;
+    final StubConvention stubType = StubConvention.SHORT_INITIAL;
     final boolean protectionStart = true;
 
     CDS = new CdsAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, PROTECTION_STATE_DATE, PROTECTION_END_DATE, payAccOndefault, tenor, stubType, protectionStart, RECOVERY_RATE);
@@ -213,7 +214,7 @@ public class SpreadSensitivityTest {
     final CdsQuoteConvention[] pillar_quotes_bumped = new CdsQuoteConvention[nPillars];
     final double[] pillar_qSpreads = new double[nPillars];
 
-    pillarCDSs[0] = new CdsAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, startDate, pillarDates[0], true, Period.ofMonths(3), CdsStubType.FRONTSHORT, true, 0.4);
+    pillarCDSs[0] = new CdsAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, startDate, pillarDates[0], true, Period.ofMonths(3), StubConvention.SHORT_INITIAL, true, 0.4);
     pillar_qSpreads[0] = pillarSpreads[0] * basisPt;
     final double puf = conv.quotedSpreadToPUF(pillarCDSs[0], coupon, YIELD_CURVE, pillar_qSpreads[0]);
     final double pufBumped = conv.quotedSpreadToPUF(pillarCDSs[0], coupon, YIELD_CURVE, pillar_qSpreads[0] + basisPt);
@@ -221,7 +222,7 @@ public class SpreadSensitivityTest {
     pillar_quotes_bumped[0] = new PointsUpFront(coupon, pufBumped);
 
     for (int i = 1; i < nPillars; i++) {
-      pillarCDSs[i] = new CdsAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, startDate, pillarDates[i], true, Period.ofMonths(3), CdsStubType.FRONTSHORT, true, 0.4);
+      pillarCDSs[i] = new CdsAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, startDate, pillarDates[i], true, Period.ofMonths(3), StubConvention.SHORT_INITIAL, true, 0.4);
       pillar_qSpreads[i] = pillarSpreads[i] * basisPt;
       if (ImmDateLogic.isIMMDate(pillarDates[i])) {
         pillar_quotes[i] = new CdsQuotedSpread(coupon, pillar_qSpreads[i]);
@@ -284,7 +285,7 @@ public class SpreadSensitivityTest {
     final LocalDate[] pSpDates = new LocalDate[] {LocalDate.of(2013, 9, 20), LocalDate.of(2014, 6, 20), LocalDate.of(2016, 9, 20), LocalDate.of(2018, 6, 20), LocalDate.of(2023, 9, 20) };
     final CdsAnalytic[] bucketCDSs = new CdsAnalytic[pSpDates.length];
     for (int i = 0; i < pSpDates.length; i++) {
-      bucketCDSs[i] = new CdsAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, TODAY, pSpDates[i], true, Period.ofMonths(3), CdsStubType.FRONTSHORT, true, RECOVERY_RATE);
+      bucketCDSs[i] = new CdsAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, TODAY, pSpDates[i], true, Period.ofMonths(3), StubConvention.SHORT_INITIAL, true, RECOVERY_RATE);
     }
     final double[] bucketed2 = localCal.bucketedCS01FromParSpreads(CDS, coupon, bucketCDSs, YIELD_CURVE, pillarCDSs, pillar_qSpreads, basisPt);
     final double[] impSps = new double[pSpDates.length];
@@ -355,7 +356,7 @@ public class SpreadSensitivityTest {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
-      pillarCDSs[2] = new CdsAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, startDate, pillarDates[2].plusYears(10), true, Period.ofMonths(3), CdsStubType.FRONTSHORT, true, 0.4);
+      pillarCDSs[2] = new CdsAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, startDate, pillarDates[2].plusYears(10), true, Period.ofMonths(3), StubConvention.SHORT_INITIAL, true, 0.4);
       localCal.bucketedCS01FromCreditCurve(CDS, coupon, pillarCDSs, YIELD_CURVE, curve, basisPt);
       throw new RuntimeException();
     } catch (Exception e) {

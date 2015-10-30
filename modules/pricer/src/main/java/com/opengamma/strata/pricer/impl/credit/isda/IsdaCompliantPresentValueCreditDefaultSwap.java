@@ -17,6 +17,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
 
@@ -60,8 +61,7 @@ public class IsdaCompliantPresentValueCreditDefaultSwap {
    * @param endDate The protection end date (the protection ends at end of day)
    * @param payAccOnDefault Is the accrued premium paid in the event of a default
    * @param tenor The nominal step between premium payments (e.g. 3 months, 6 months).
-   * @param stubType stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
-   *  - <b>Note</b> in this code NONE is not allowed
+   * @param stubType the stub convention
    * @param yieldCurve Curve from which payments are discounted
    * @param hazardRateCurve Curve giving survival probability
    * @param protectStart Does protection start at the beginning of the day
@@ -76,7 +76,7 @@ public class IsdaCompliantPresentValueCreditDefaultSwap {
       LocalDate endDate,
       boolean payAccOnDefault,
       Period tenor,
-      CdsStubType stubType,
+      StubConvention stubType,
       IsdaCompliantDateYieldCurve yieldCurve,
       IsdaCompliantDateCreditCurve hazardRateCurve,
       boolean protectStart,

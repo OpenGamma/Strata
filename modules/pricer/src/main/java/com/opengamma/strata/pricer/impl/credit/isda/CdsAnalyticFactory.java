@@ -15,6 +15,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -26,7 +27,7 @@ public class CdsAnalyticFactory {
   private static final int DEFAULT_CASH_SETTLE = 3;
   private static final boolean DEFAULT_PAY_ACC = true;
   private static final Period DEFAULT_COUPON_INT = Period.ofMonths(3);
-  private static final CdsStubType DEFAULT_STUB_TYPE = CdsStubType.FRONTSHORT;
+  private static final StubConvention DEFAULT_STUB_TYPE = StubConvention.SHORT_INITIAL;
   private static final boolean PROT_START = true;
   private static final double DEFAULT_RR = 0.4;
   private static final HolidayCalendar DEFAULT_CALENDAR = HolidayCalendars.SAT_SUN;
@@ -40,7 +41,7 @@ public class CdsAnalyticFactory {
   private final boolean _payAccOnDefault;
   private final Period _couponInterval;
   private final Tenor _couponIntervalTenor;
-  private final CdsStubType _stubType;
+  private final StubConvention _stubType;
   private final boolean _protectStart;
   private final double _recoveryRate;
   private final BusinessDayConvention _businessdayAdjustmentConvention;
@@ -192,7 +193,7 @@ public class CdsAnalyticFactory {
       int cashSettle,
       boolean payAccOnDefault,
       Period couponInterval,
-      CdsStubType stubType,
+      StubConvention stubType,
       boolean protectStart,
       double recoveryRate,
       BusinessDayConvention businessdayAdjustmentConvention,
@@ -266,12 +267,11 @@ public class CdsAnalyticFactory {
   }
 
   /**
-   * stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE (default is FRONTSHORT)
-   *  - <b>Note</b> in this code NONE is not allowed
+   * Sets the stub convention.
    * @param stubType The stub type 
    * @return  A new factory with the stub-type interval set
    */
-  public CdsAnalyticFactory with(CdsStubType stubType) {
+  public CdsAnalyticFactory with(StubConvention stubType) {
     return new CdsAnalyticFactory(
         _stepIn, _cashSettle, _payAccOnDefault, _couponInterval, stubType, _protectStart, _recoveryRate,
         _businessdayAdjustmentConvention, _calendar, _accrualDayCount, _curveDayCount);
