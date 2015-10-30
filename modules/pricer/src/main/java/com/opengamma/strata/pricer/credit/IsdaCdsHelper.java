@@ -213,12 +213,12 @@ public class IsdaCdsHelper {
           AccrualOnDefaultFormulae.ORIGINAL_ISDA, IsdaCompliantCreditCurveBuilder.ArbitrageHandling.Fail);
       return builder.calibrateCreditCurve(
           valuationDate,
-          cdsConvention.getUnadjustedStepInDate(valuationDate),
-          cdsConvention.getAdjustedSettleDate(valuationDate),
-          cdsConvention.getAdjustedStartDate(valuationDate),
+          cdsConvention.calculateUnadjustedStepInDate(valuationDate),
+          cdsConvention.calculateAdjustedSettleDate(valuationDate),
+          cdsConvention.calculateAdjustedStartDate(valuationDate),
           curveCurve.getEndDatePoints(),
           curveCurve.getParRates(),
-          cdsConvention.getPayAccruedOnDefault(),
+          cdsConvention.isPayAccruedOnDefault(),
           cdsConvention.getPaymentFrequency().getPeriod(),
           translateStubType(cdsConvention.getStubConvention()),
           PROTECT_START,
@@ -246,12 +246,12 @@ public class IsdaCdsHelper {
           AccrualOnDefaultFormulae.ORIGINAL_ISDA, IsdaCompliantCreditCurveBuilder.ArbitrageHandling.Fail);
       return builder.calibrateCreditCurve(
           valuationDate,
-          cdsConvention.getUnadjustedStepInDate(valuationDate),
-          cdsConvention.getAdjustedSettleDate(valuationDate),
-          cdsConvention.getAdjustedStartDate(valuationDate),
+          cdsConvention.calculateUnadjustedStepInDate(valuationDate),
+          cdsConvention.calculateAdjustedSettleDate(valuationDate),
+          cdsConvention.calculateAdjustedStartDate(valuationDate),
           curveCurve.getEndDatePoints(),
           curveCurve.getParRates(),
-          cdsConvention.getPayAccruedOnDefault(),
+          cdsConvention.isPayAccruedOnDefault(),
           cdsConvention.getPaymentFrequency().getPeriod(),
           translateStubType(cdsConvention.getStubConvention()),
           PROTECT_START,

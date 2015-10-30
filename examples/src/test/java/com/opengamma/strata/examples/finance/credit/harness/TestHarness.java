@@ -13,11 +13,14 @@ import org.testng.Assert;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.Trade;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
+import com.opengamma.strata.finance.credit.IndexReferenceInformation;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
+import com.opengamma.strata.finance.credit.SingleNameReferenceInformation;
 import com.opengamma.strata.finance.credit.type.CdsConventions;
 
 public class TestHarness {
@@ -42,15 +45,17 @@ public class TestHarness {
     public static TradeFactory withCompany01(BuySell buySell, double feeAmount, LocalDate cashSettleDate) {
       TradeSource tradeSource = () ->
           CdsConventions.USD_NORTH_AMERICAN
-              .toSingleNameTrade(
+              .toTrade(
                   LocalDate.of(2014, 9, 22),
                   LocalDate.of(2019, 12, 20),
                   buySell,
                   100_000_000D,
                   0.0100,
-                  MarkitRedCode.id("COMP01"),
-                  SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-                  RestructuringClause.NO_RESTRUCTURING_2014,
+                  SingleNameReferenceInformation.of(
+                      MarkitRedCode.id("COMP01"),
+                      SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
+                      Currency.USD,
+                      RestructuringClause.NO_RESTRUCTURING_2014),
                   feeAmount,
                   cashSettleDate);
       return new TradeFactory(tradeSource);
@@ -59,15 +64,17 @@ public class TestHarness {
     public static TradeFactory withCompany02() {
       TradeSource tradeSource = () ->
           CdsConventions.USD_NORTH_AMERICAN
-              .toSingleNameTrade(
+              .toTrade(
                   LocalDate.of(2014, 9, 22),
                   LocalDate.of(2019, 12, 20),
                   BuySell.BUY,
                   100_000_000D,
                   0.0500,
-                  MarkitRedCode.id("COMP02"),
-                  SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-                  RestructuringClause.NO_RESTRUCTURING_2014,
+                  SingleNameReferenceInformation.of(
+                      MarkitRedCode.id("COMP02"),
+                      SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
+                      Currency.USD,
+                      RestructuringClause.NO_RESTRUCTURING_2014),
                   -1_370_582.00D,
                   LocalDate.of(2014, 10, 21));
       return new TradeFactory(tradeSource);
@@ -76,15 +83,13 @@ public class TestHarness {
     public static TradeFactory withIndex0001() {
       TradeSource tradeSource = () ->
           CdsConventions.USD_NORTH_AMERICAN
-              .toIndexTrade(
+              .toTrade(
                   LocalDate.of(2014, 3, 20),
                   LocalDate.of(2019, 6, 20),
                   BuySell.BUY,
                   100_000_000D,
                   0.0500,
-                  MarkitRedCode.id("INDEX0001"),
-                  22,
-                  4,
+                  IndexReferenceInformation.of(MarkitRedCode.id("INDEX0001"), 22, 4),
                   2_000_000D,
                   LocalDate.of(2014, 10, 21));
       return new TradeFactory(tradeSource);

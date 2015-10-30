@@ -147,7 +147,7 @@ public class MarkitSingleNameCreditCurveDataParser {
         LocalDate[] endDates = Lists
             .newArrayList(periods)
             .stream()
-            .map(p -> cdsConvention.getUnadjustedMaturityDateFromValuationDate(valuationDate, p))
+            .map(p -> cdsConvention.calculateUnadjustedMaturityDateFromValuationDate(valuationDate, p))
             .toArray(LocalDate[]::new);
 
         double[] rates = ratesList.stream().mapToDouble(s -> s).toArray();

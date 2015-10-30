@@ -13,186 +13,96 @@ import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 
 /**
- * Enumerates the standard CDS market conventions.
+ * Market standard CDS conventions.
  * <p>
  * See ISDA CDS documentation for more details.
  */
-enum StandardCdsConventions
-    implements CdsConvention {
+final class StandardCdsConventions {
 
   /**
    * The North-American USD convention.
    */
-  USD_NORTH_AMERICAN(
-      "USD-NorthAmerican",
-      Currency.USD,
-      DayCounts.ACT_360,
-      BusinessDayAdjustment.of(FOLLOWING, USNY),
-      Frequency.P3M,
-      RollConventions.DAY_20,
-      true,
-      StubConvention.SHORT_INITIAL,
-      1,
-      3),
+  public static final CdsConvention USD_NORTH_AMERICAN = ImmutableCdsConvention.builder()
+      .name("USD-NorthAmerican")
+      .currency(Currency.USD)
+      .dayCount(DayCounts.ACT_360)
+      .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, USNY))
+      .paymentFrequency(Frequency.P3M)
+      .rollConvention(RollConventions.DAY_20)
+      .payAccruedOnDefault(true)
+      .stubConvention(StubConvention.SHORT_INITIAL)
+      .stepInDays(1)
+      .settleLagDays(3)
+      .build();
 
   /**
    * The European EUR convention.
    */
-  EUR_EUROPEAN(
-      "EUR-European",
-      Currency.EUR,
-      DayCounts.ACT_360,
-      BusinessDayAdjustment.of(FOLLOWING, EUTA),
-      Frequency.P3M,
-      RollConventions.DAY_20,
-      true,
-      StubConvention.SHORT_INITIAL,
-      1,
-      3),
+  public static final CdsConvention EUR_EUROPEAN = ImmutableCdsConvention.builder()
+      .name("EUR-European")
+      .currency(Currency.EUR)
+      .dayCount(DayCounts.ACT_360)
+      .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, EUTA))
+      .paymentFrequency(Frequency.P3M)
+      .rollConvention(RollConventions.DAY_20)
+      .payAccruedOnDefault(true)
+      .stubConvention(StubConvention.SHORT_INITIAL)
+      .stepInDays(1)
+      .settleLagDays(3)
+      .build();
 
   /**
    * The European GBP convention.
    */
-  GBP_EUROPEAN(
-      "GBP-European",
-      Currency.GBP,
-      DayCounts.ACT_360,
-      BusinessDayAdjustment.of(FOLLOWING, GBLO),
-      Frequency.P3M,
-      RollConventions.DAY_20,
-      true,
-      StubConvention.SHORT_INITIAL,
-      1,
-      3),
+  public static final CdsConvention GBP_EUROPEAN = ImmutableCdsConvention.builder()
+      .name("GBP-European")
+      .currency(Currency.GBP)
+      .dayCount(DayCounts.ACT_360)
+      .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+      .paymentFrequency(Frequency.P3M)
+      .rollConvention(RollConventions.DAY_20)
+      .payAccruedOnDefault(true)
+      .stubConvention(StubConvention.SHORT_INITIAL)
+      .stepInDays(1)
+      .settleLagDays(3)
+      .build();
 
   /**
    * The European CHF convention.
    */
-  CHF_EUROPEAN(
-      "CHF-European",
-      Currency.CHF,
-      DayCounts.ACT_360,
-      BusinessDayAdjustment.of(FOLLOWING, GBLO.combineWith(CHZU)),
-      Frequency.P3M,
-      RollConventions.DAY_20,
-      true,
-      StubConvention.SHORT_INITIAL,
-      1,
-      3),
+  public static final CdsConvention CHF_EUROPEAN = ImmutableCdsConvention.builder()
+      .name("CHF-European")
+      .currency(Currency.CHF)
+      .dayCount(DayCounts.ACT_360)
+      .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, CHZU))
+      .paymentFrequency(Frequency.P3M)
+      .rollConvention(RollConventions.DAY_20)
+      .payAccruedOnDefault(true)
+      .stubConvention(StubConvention.SHORT_INITIAL)
+      .stepInDays(1)
+      .settleLagDays(3)
+      .build();
 
   /**
    * The European USD convention.
    */
-  USD_EUROPEAN(
-      "USD-European",
-      Currency.USD,
-      DayCounts.ACT_360,
-      BusinessDayAdjustment.of(FOLLOWING, GBLO.combineWith(USNY)),
-      Frequency.P3M,
-      RollConventions.DAY_20,
-      true,
-      StubConvention.SHORT_INITIAL,
-      1,
-      3);
-
-  //-------------------------------------------------------------------------
-  private final String name;
-  private final Currency currency;
-  private final DayCount dayCount;
-  private final BusinessDayAdjustment businessDayAdjustment;
-  private final Frequency paymentFrequency;
-  private final RollConvention rollConvention;
-  private final boolean payAccruedOnDefault;
-  private final StubConvention stubConvention;
-  private final int stepIn;
-  private final int settleLag;
-
-  // creates an instance
-  private StandardCdsConventions(
-      String name,
-      Currency currency,
-      DayCount dayCount,
-      BusinessDayAdjustment businessDayAdjustment,
-      Frequency paymentFrequency,
-      RollConvention rollConvention,
-      boolean payAccruedOnDefault,
-      StubConvention stubConvention,
-      int stepIn,
-      int settleLag) {
-
-    this.name = name;
-    this.currency = currency;
-    this.dayCount = dayCount;
-    this.businessDayAdjustment = businessDayAdjustment;
-    this.paymentFrequency = paymentFrequency;
-    this.rollConvention = rollConvention;
-    this.payAccruedOnDefault = payAccruedOnDefault;
-    this.stubConvention = stubConvention;
-    this.stepIn = stepIn;
-    this.settleLag = settleLag;
-  }
-
-  @Override
-  public Currency getCurrency() {
-    return currency;
-  }
-
-  @Override
-  public DayCount getDayCount() {
-    return dayCount;
-  }
-
-  @Override
-  public BusinessDayAdjustment getBusinessDayAdjustment() {
-    return businessDayAdjustment;
-  }
-
-  @Override
-  public Frequency getPaymentFrequency() {
-    return paymentFrequency;
-  }
-
-  @Override
-  public RollConvention getRollConvention() {
-    return rollConvention;
-  }
-
-  @Override
-  public boolean getPayAccruedOnDefault() {
-    return payAccruedOnDefault;
-  }
-
-  @Override
-  public StubConvention getStubConvention() {
-    return stubConvention;
-  }
-
-  @Override
-  public int getStepInDays() {
-    return stepIn;
-  }
-
-  @Override
-  public int getSettleLagDays() {
-    return settleLag;
-  }
-
-  @Override
-  public String getName() {
-    return name;
-  }
-
-  @Override
-  public String toString() {
-    return name;
-  }
+  public static final CdsConvention USD_EUROPEAN = ImmutableCdsConvention.builder()
+      .name("USD-European")
+      .currency(Currency.USD)
+      .dayCount(DayCounts.ACT_360)
+      .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO.combineWith(USNY)))
+      .paymentFrequency(Frequency.P3M)
+      .rollConvention(RollConventions.DAY_20)
+      .payAccruedOnDefault(true)
+      .stubConvention(StubConvention.SHORT_INITIAL)
+      .stepInDays(1)
+      .settleLagDays(3)
+      .build();
 
 }
