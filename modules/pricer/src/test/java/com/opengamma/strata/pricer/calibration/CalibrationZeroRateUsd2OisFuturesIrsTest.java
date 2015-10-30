@@ -55,6 +55,7 @@ import com.opengamma.strata.finance.rate.deposit.type.TermDepositTemplate;
 import com.opengamma.strata.finance.rate.future.IborFutureTrade;
 import com.opengamma.strata.finance.rate.future.type.IborFutureConvention;
 import com.opengamma.strata.finance.rate.future.type.IborFutureTemplate;
+import com.opengamma.strata.finance.rate.future.type.ImmutableIborFutureConvention;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
@@ -181,7 +182,7 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
   static {
     FWD3_NODES[0] = IborFixingDepositCurveNode.of(IborFixingDepositTemplate.of(USD_LIBOR_3M),
         QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[0])));
-    IborFutureConvention convention = IborFutureConvention.of(USD_LIBOR_3M, DateSequences.QUARTERLY_IMM);
+    IborFutureConvention convention = ImmutableIborFutureConvention.of(USD_LIBOR_3M, DateSequences.QUARTERLY_IMM);
     for (int i = 0; i < FWD3_NB_FUT_NODES; i++) {
       IborFutureTemplate template = IborFutureTemplate.of(Period.ofDays(7), FWD3_FUT_SEQ[i], convention);
       FWD3_NODES[i + 1] = IborFutureCurveNode.of(template, 
