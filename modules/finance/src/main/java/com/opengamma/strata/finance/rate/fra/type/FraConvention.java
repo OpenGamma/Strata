@@ -120,13 +120,19 @@ public interface FraConvention
    * @param fixedRate  the fixed rate, typically derived from the market
    * @return the trade
    */
-  public abstract FraTrade toTrade(
+  public default FraTrade toTrade(
       LocalDate tradeDate,
       Period periodToStart,
       Period periodToEnd,
       BuySell buySell,
       double notional,
-      double fixedRate);
+      double fixedRate) {
+
+    LocalDate spotValue = calculateSpotDateFromTradeDate(tradeDate);
+    LocalDate startDate = spotValue.plus(periodToStart);
+    LocalDate endDate = spotValue.plus(periodToEnd);
+    return toTrade(tradeDate, startDate, endDate, buySell, notional, fixedRate);
+  }
 
   /**
    * Creates a trade based on this convention.
@@ -151,6 +157,15 @@ public interface FraConvention
       BuySell buySell,
       double notional,
       double fixedRate);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the spot date from the trade date.
+   * 
+   * @param tradeDate  the trade date
+   * @return the spot date
+   */
+  public abstract LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate);
 
   //-------------------------------------------------------------------------
   /**
