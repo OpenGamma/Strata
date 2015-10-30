@@ -29,7 +29,7 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.ResourceLocator;
-import com.opengamma.strata.examples.marketdata.LoaderUtils;
+import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -228,7 +228,7 @@ public final class RatesCurvesCsvLoader {
       // TODO: split this to have "ibor" and "overnight" in csv file
       RateCurveId curveId;
       if ("forward".equals(curveType.toLowerCase())) {
-        RateIndex index = LoaderUtils.findIndex(reference);
+        RateIndex index = (RateIndex) LoaderUtils.findIndex(reference);
         curveId = RateIndexCurveId.of(index, curveGroup);
       } else if ("discount".equals(curveType.toLowerCase())) {
         Currency ccy = Currency.of(reference);

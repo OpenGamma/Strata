@@ -8,11 +8,15 @@ package com.opengamma.strata.examples.finance;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 
+import java.io.FileInputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import org.joda.beans.Bean;
+import org.joda.beans.ser.JodaBeanSer;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.Trade;
@@ -22,6 +26,7 @@ import com.opengamma.strata.basics.market.ImmutableObservableValues;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Unchecked;
 import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -44,7 +49,6 @@ import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.function.ObservableMarketDataFunction;
 import com.opengamma.strata.engine.marketdata.function.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
-import com.opengamma.strata.examples.marketdata.LoaderUtils;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -160,8 +164,7 @@ public class CalibrationCheckExample {
   // Compute the PV results for the instruments used in calibration from the config
   private static Pair<List<Trade>, Results> getResults() {
     // load quotes
-    ImmutableObservableValues marketQuotes =
-        LoaderUtils.loadXmlBean(MARKET_QUOTES_FILE_NAME, ImmutableObservableValues.class);
+    ImmutableObservableValues marketQuotes = loadXmlBean(MARKET_QUOTES_FILE_NAME, ImmutableObservableValues.class);
 
     // create the market data builder and populate with known data
     MarketEnvironmentBuilder snapshotBuilder =
@@ -174,8 +177,7 @@ public class CalibrationCheckExample {
     MarketEnvironment snapshot = snapshotBuilder.build();
 
     // load the curve definition
-    CurveGroupDefinition curveGroupDefinition =
-        LoaderUtils.loadXmlBean(CURVE_GROUP_CONFIG_FILE_NAME, CurveGroupDefinition.class);
+    CurveGroupDefinition curveGroupDefinition = loadXmlBean(CURVE_GROUP_CONFIG_FILE_NAME, CurveGroupDefinition.class);
 
     // extract the trades used for calibration
     List<Trade> trades = new ArrayList<>();
@@ -243,6 +245,11 @@ public class CalibrationCheckExample {
       return t;
     });
     return executor;
+  }
+
+  // loads a bean
+  private static <T extends Bean> T loadXmlBean(String fileName, Class<T> type) {
+    return Unchecked.wrap(() -> JodaBeanSer.PRETTY.xmlReader().read(new FileInputStream(fileName), type));
   }
 
 }

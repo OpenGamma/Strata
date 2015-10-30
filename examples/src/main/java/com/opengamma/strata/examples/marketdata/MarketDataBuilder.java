@@ -36,8 +36,8 @@ import com.opengamma.strata.examples.marketdata.credit.markit.MarkitIndexCreditC
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitSingleNameCreditCurveDataParser;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitYieldCurveDataParser;
 import com.opengamma.strata.examples.marketdata.curve.RatesCurvesCsvLoader;
-import com.opengamma.strata.examples.marketdata.timeseries.FixingSeriesCsvLoader;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
+import com.opengamma.strata.loader.csv.FixingSeriesCsvLoader;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;

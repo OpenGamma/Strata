@@ -67,6 +67,10 @@
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-report</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-loader</artifactId>
+    </dependency>
     
     <!-- External dependencies -->
     <dependency>
