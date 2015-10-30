@@ -57,7 +57,7 @@ import com.opengamma.strata.market.value.ValueType;
  *      Curve Name, Value Type, Day Count, Interpolator, Left Extrapolator, Right Extrapolator
  * </ul>
  * There may be one or more curves files with the following header row:
- * Valuation Date, Group Name, Curve Name, Date, Value, Label
+ * Valuation Date, Curve Name, Date, Value, Label
  * <p>
  * Each curve must be contained entirely within a single file, but each file may contain more than
  * one curve. The curve points do not need to be ordered.
