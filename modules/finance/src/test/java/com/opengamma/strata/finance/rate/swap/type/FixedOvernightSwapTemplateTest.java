@@ -61,8 +61,10 @@ public class FixedOvernightSwapTemplateTest {
       OvernightRateSwapLegConvention.of(USD_FED_FUND, P12M, 2);
   private static final OvernightRateSwapLegConvention FFUND_LEG2 =
       OvernightRateSwapLegConvention.of(GBP_SONIA, P12M, 0);
-  private static final FixedOvernightSwapConvention CONV = FixedOvernightSwapConvention.of(FIXED, FFUND_LEG, PLUS_TWO_DAYS);
-  private static final FixedOvernightSwapConvention CONV2 = FixedOvernightSwapConvention.of(FIXED2, FFUND_LEG2, PLUS_ONE_DAY);
+  private static final FixedOvernightSwapConvention CONV = ImmutableFixedOvernightSwapConvention.of(
+      "USD-Swap", FIXED, FFUND_LEG, PLUS_TWO_DAYS);
+  private static final FixedOvernightSwapConvention CONV2 = ImmutableFixedOvernightSwapConvention.of(
+      "GBP-Swap", FIXED2, FFUND_LEG2, PLUS_ONE_DAY);
 
   //-------------------------------------------------------------------------
   public void test_of() {

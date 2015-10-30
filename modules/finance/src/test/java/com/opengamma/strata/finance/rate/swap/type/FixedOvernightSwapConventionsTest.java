@@ -51,7 +51,7 @@ public class FixedOvernightSwapConventionsTest {
   }
 
   @Test(dataProvider = "spotLag")
-  public void test_spot_lag(FixedOvernightSwapConvention convention, int lag) {
+  public void test_spot_lag(ImmutableFixedOvernightSwapConvention convention, int lag) {
     assertEquals(convention.getSpotDateOffset().getDays(), lag);
   }
 
@@ -140,10 +140,6 @@ public class FixedOvernightSwapConventionsTest {
     assertEquals(convention.getFixedLeg().getAccrualBusinessDayAdjustment().getConvention(), dayConvention);
   }
 
-  public void coverage() {
-    coverPrivateConstructor(FixedOvernightSwapConventions.class);
-  }
-
   //-------------------------------------------------------------------------
   @DataProvider(name = "stubOn")
   static Object[][] data_stub_on() {
@@ -163,6 +159,12 @@ public class FixedOvernightSwapConventionsTest {
     LocalDate endDate = swapExpanded.getLeg(PayReceive.PAY).get().getEndDate();
     assertTrue(endDate.isAfter(tradeDate.plus(tenor).minusMonths(1)));
     assertTrue(endDate.isBefore(tradeDate.plus(tenor).plusMonths(1)));
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverPrivateConstructor(FixedOvernightSwapConventions.class);
+    coverPrivateConstructor(StandardFixedOvernightSwapConventions.class);
   }
 
 }

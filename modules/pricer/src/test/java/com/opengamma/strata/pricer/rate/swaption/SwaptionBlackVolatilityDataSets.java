@@ -24,6 +24,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.finance.rate.swap.type.FixedRateSwapLegConvention;
 import com.opengamma.strata.finance.rate.swap.type.IborRateSwapLegConvention;
+import com.opengamma.strata.finance.rate.swap.type.ImmutableFixedIborSwapConvention;
 import com.opengamma.strata.market.surface.ConstantNodalSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
@@ -76,7 +77,7 @@ public class SwaptionBlackVolatilityDataSets {
       IborRateSwapLegConvention.of(USD_LIBOR_3M);
   /** swap convention */
   public static final FixedIborSwapConvention USD_1Y_LIBOR3M =
-      FixedIborSwapConvention.of(USD_FIXED_1Y_30U360, USD_IBOR_LIBOR3M);
+      ImmutableFixedIborSwapConvention.of("USD-Swap", USD_FIXED_1Y_30U360, USD_IBOR_LIBOR3M);
   /** Black volatility provider */
   public static final BlackVolatilityExpiryTenorSwaptionProvider BLACK_VOL_SWAPTION_PROVIDER_USD_STD =
       BlackVolatilityExpiryTenorSwaptionProvider.of(SURFACE_STD, USD_1Y_LIBOR3M, DayCounts.ACT_365F,

@@ -81,6 +81,7 @@ import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.finance.rate.swap.type.IborIborSwapConvention;
 import com.opengamma.strata.finance.rate.swap.type.IborIborSwapTemplate;
 import com.opengamma.strata.finance.rate.swap.type.IborRateSwapLegConvention;
+import com.opengamma.strata.finance.rate.swap.type.ImmutableIborIborSwapConvention;
 import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.Curves;
@@ -137,8 +138,9 @@ public class DiscountingSwapProductPricerTest {
           INTERPOLATOR));
   
 
-  private static final IborIborSwapConvention CONV_USD_LIBOR3M_LIBOR6M = // No compounding
-      IborIborSwapConvention.of(IborRateSwapLegConvention.of(USD_LIBOR_3M), IborRateSwapLegConvention.of(USD_LIBOR_6M));
+  // non compounding
+  private static final IborIborSwapConvention CONV_USD_LIBOR3M_LIBOR6M = ImmutableIborIborSwapConvention.of(
+      "USD-Swap", IborRateSwapLegConvention.of(USD_LIBOR_3M), IborRateSwapLegConvention.of(USD_LIBOR_6M));
   private static final double FIXED_RATE = 0.01;
   private static final double SPREAD = 0.0015;
   private static final double NOTIONAL_SWAP = 100_000_000;
