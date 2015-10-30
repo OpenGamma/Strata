@@ -50,10 +50,12 @@ public abstract class AbstractIborFutureTradePricer {
     double pv = (priceIndex - referenceIndex) * trade.getQuantity();
     return CurrencyAmount.of(future.getCurrency(), pv);
   }
-  
+
   /**
-   * Calculates the reference price for a futures trade. The reference price is the trade price before any margining 
-   * has taken place and the price used for the last margining otherwise.
+   * Calculates the reference price for a futures trade.
+   * <p>
+   * The reference price is the trade price before any margining has taken place,
+   * and the price used for the last margining otherwise.
    * 
    * @param trade  the trade to price
    * @param valuationDate  the date for which the reference price should be calculated
@@ -64,11 +66,7 @@ public abstract class AbstractIborFutureTradePricer {
     ArgChecker.notNull(valuationDate, "valuation date");
     LocalDate tradeDate = trade.getTradeInfo().getTradeDate()
         .orElseThrow(() -> new IllegalArgumentException("Trade date should be populated"));
-    if (tradeDate.equals(valuationDate)) {
-      return trade.getInitialPrice();
-    } else {
-      return lastMarginPrice;
-    }
+    return (tradeDate.equals(valuationDate) ? trade.getInitialPrice() : lastMarginPrice);
   }
 
 }
