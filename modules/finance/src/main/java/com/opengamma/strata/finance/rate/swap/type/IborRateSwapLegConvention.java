@@ -38,7 +38,6 @@ import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
-import com.opengamma.strata.finance.Convention;
 import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
 import com.opengamma.strata.finance.rate.swap.FixingRelativeTo;
 import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
@@ -57,7 +56,7 @@ import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
  */
 @BeanDefinition
 public final class IborRateSwapLegConvention
-    implements Convention, ImmutableBean, Serializable {
+    implements SwapLegConvention, ImmutableBean, Serializable {
 
   /**
    * The IBOR-like index.

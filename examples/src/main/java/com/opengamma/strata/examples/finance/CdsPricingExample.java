@@ -103,7 +103,7 @@ public class CdsPricingExample {
   //-----------------------------------------------------------------------  
   // create a single name CDS with 100 bps coupon
   private static Trade createCompany01Cds() {
-    return CdsConventions.NORTH_AMERICAN_USD
+    return CdsConventions.USD_NORTH_AMERICAN
         .toSingleNameTrade(
             LocalDate.of(2014, 9, 22),
             LocalDate.of(2019, 12, 20),
@@ -119,7 +119,7 @@ public class CdsPricingExample {
 
   // create a single name CDS with 500 bps coupon
   private static Trade createCompany02Cds() {
-    return CdsConventions.NORTH_AMERICAN_USD
+    return CdsConventions.USD_NORTH_AMERICAN
         .toSingleNameTrade(
             LocalDate.of(2014, 9, 22),
             LocalDate.of(2019, 12, 20),
@@ -135,7 +135,7 @@ public class CdsPricingExample {
 
   // create a index CDS on with 500 bps coupon
   private static Trade createIndex0001() {
-    return CdsConventions.NORTH_AMERICAN_USD
+    return CdsConventions.USD_NORTH_AMERICAN
         .toIndexTrade(
             LocalDate.of(2014, 3, 20),
             LocalDate.of(2019, 6, 20),

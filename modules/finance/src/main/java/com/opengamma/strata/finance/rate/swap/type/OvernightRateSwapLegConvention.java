@@ -41,7 +41,6 @@ import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.Convention;
 import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
 import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
 import com.opengamma.strata.finance.rate.swap.OvernightAccrualMethod;
@@ -63,7 +62,7 @@ import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
  */
 @BeanDefinition
 public final class OvernightRateSwapLegConvention
-    implements Convention, ImmutableBean, Serializable {
+    implements SwapLegConvention, ImmutableBean, Serializable {
 
   /**
    * The Overnight index.

@@ -27,7 +27,7 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.finance.rate.fra.FraTemplate;
+import com.opengamma.strata.finance.rate.fra.type.FraTemplate;
 import com.opengamma.strata.function.interpolator.CurveExtrapolators;
 import com.opengamma.strata.function.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.curve.CurveGroupName;

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.rate.fra;
+package com.opengamma.strata.finance.rate.fra.type;
 
 import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.currency.Currency.AUD;
@@ -18,10 +18,12 @@ import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendars.SAT_SUN;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.finance.rate.fra.FraDiscountingMethod.AFMA;
 import static com.opengamma.strata.finance.rate.fra.FraDiscountingMethod.ISDA;
@@ -31,12 +33,17 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.TenorAdjustment;
 import com.opengamma.strata.basics.index.ImmutableIborIndex;
+import com.opengamma.strata.finance.rate.fra.Fra;
+import com.opengamma.strata.finance.rate.fra.FraDiscountingMethod;
+import com.opengamma.strata.finance.rate.fra.FraTrade;
 
 /**
  * Test {@link FraConvention}.
@@ -73,8 +80,9 @@ public class FraConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_of_index() {
-    FraConvention test = FraConvention.of(GBP_LIBOR_3M);
+    ImmutableFraConvention test = ImmutableFraConvention.of(GBP_LIBOR_3M);
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
+    assertEquals(test.getName(), GBP_LIBOR_3M.getName());
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getSpotDateOffset(), GBP_LIBOR_3M.getEffectiveDateOffset());
     assertEquals(test.getBusinessDayAdjustment(), BDA_MOD_FOLLOW);
@@ -86,15 +94,16 @@ public class FraConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_builder_noIndex() {
-    assertThrowsIllegalArg(() -> FraConvention.builder()
+    assertThrowsIllegalArg(() -> ImmutableFraConvention.builder()
         .spotDateOffset(NEXT_SAME_BUS_DAY)
         .build());
   }
 
   //-------------------------------------------------------------------------
   public void test_expand() {
-    FraConvention test = FraConvention.of(GBP_LIBOR_3M).expand();
+    ImmutableFraConvention test = ImmutableFraConvention.of(GBP_LIBOR_3M).expand();
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
+    assertEquals(test.getName(), GBP_LIBOR_3M.getName());
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getSpotDateOffset(), GBP_LIBOR_3M.getEffectiveDateOffset());
     assertEquals(test.getBusinessDayAdjustment(), BDA_MOD_FOLLOW);
@@ -105,7 +114,7 @@ public class FraConventionTest {
   }
 
   public void test_expandAllSpecified() {
-    FraConvention test = FraConvention.builder()
+    ImmutableFraConvention test = ImmutableFraConvention.builder()
         .index(GBP_LIBOR_3M)
         .currency(GBP)
         .spotDateOffset(PLUS_ONE_DAY)
@@ -127,7 +136,7 @@ public class FraConventionTest {
   }
 
   public void test_expand_AUD() {
-    FraConvention test = FraConvention.of(AUD_INDEX).expand();
+    ImmutableFraConvention test = ImmutableFraConvention.of(AUD_INDEX).expand();
     assertEquals(test.getCurrency(), AUD);
     assertEquals(test.getSpotDateOffset(), PLUS_TWO_DAYS);
     assertEquals(test.getBusinessDayAdjustment(), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN));
@@ -138,7 +147,7 @@ public class FraConventionTest {
   }
 
   public void test_expand_NZD() {
-    FraConvention test = FraConvention.of(NZD_INDEX).expand();
+    ImmutableFraConvention test = ImmutableFraConvention.of(NZD_INDEX).expand();
     assertEquals(test.getCurrency(), NZD);
     assertEquals(test.getSpotDateOffset(), PLUS_TWO_DAYS);
     assertEquals(test.getBusinessDayAdjustment(), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN));
@@ -150,7 +159,7 @@ public class FraConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_toTemplate() {
-    FraConvention base = FraConvention.builder()
+    FraConvention base = ImmutableFraConvention.builder()
         .index(GBP_LIBOR_3M)
         .spotDateOffset(NEXT_SAME_BUS_DAY)
         .build();
@@ -166,7 +175,7 @@ public class FraConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_toTrade_periods() {
-    FraConvention base = FraConvention.builder()
+    FraConvention base = ImmutableFraConvention.builder()
         .index(GBP_LIBOR_3M)
         .spotDateOffset(NEXT_SAME_BUS_DAY)
         .build();
@@ -186,7 +195,7 @@ public class FraConventionTest {
   }
 
   public void test_toTrade_dates() {
-    FraConvention base = FraConvention.builder()
+    FraConvention base = ImmutableFraConvention.builder()
         .index(GBP_LIBOR_3M)
         .spotDateOffset(NEXT_SAME_BUS_DAY)
         .build();
@@ -208,7 +217,7 @@ public class FraConventionTest {
   }
 
   public void test_toTrade_dates_paymentOffset() {
-    FraConvention base = FraConvention.builder()
+    FraConvention base = ImmutableFraConvention.builder()
         .index(GBP_LIBOR_3M)
         .spotDateOffset(NEXT_SAME_BUS_DAY)
         .paymentDateOffset(PLUS_TWO_DAYS)
@@ -240,13 +249,53 @@ public class FraConventionTest {
   }
 
   //-------------------------------------------------------------------------
+  @DataProvider(name = "name")
+  static Object[][] data_name() {
+    return new Object[][] {
+        {ImmutableFraConvention.of(GBP_LIBOR_3M), "GBP-LIBOR-3M"},
+        {ImmutableFraConvention.of(USD_LIBOR_3M), "USD-LIBOR-3M"},
+    };
+  }
+
+  @Test(dataProvider = "name")
+  public void test_name(FraConvention convention, String name) {
+    assertEquals(convention.getName(), name);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_toString(FraConvention convention, String name) {
+    assertEquals(convention.toString(), name);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookup(FraConvention convention, String name) {
+    assertEquals(FraConvention.of(name), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_extendedEnum(FraConvention convention, String name) {
+    FraConvention.of(name);  // ensures map is populated
+    ImmutableMap<String, FraConvention> map = FraConvention.extendedEnum().lookupAll();
+    assertEquals(map.get(name), convention);
+  }
+
+  public void test_of_lookup_notFound() {
+    assertThrowsIllegalArg(() -> FraConvention.of("Rubbish"));
+  }
+
+  public void test_of_lookup_null() {
+    assertThrowsIllegalArg(() -> FraConvention.of((String) null));
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
-    FraConvention test = FraConvention.builder()
+    ImmutableFraConvention test = ImmutableFraConvention.builder()
         .index(GBP_LIBOR_3M)
         .build();
     coverImmutableBean(test);
-    FraConvention test2 = FraConvention.builder()
+    ImmutableFraConvention test2 = ImmutableFraConvention.builder()
         .index(GBP_LIBOR_3M)
+        .name("Test")
         .currency(USD)
         .spotDateOffset(PLUS_ONE_DAY)
         .businessDayAdjustment(BDA_FOLLOW)
@@ -256,10 +305,13 @@ public class FraConventionTest {
         .discounting(FraDiscountingMethod.NONE)
         .build();
     coverBeanEquals(test, test2);
+
+    coverPrivateConstructor(FraConventions.class);
+    coverPrivateConstructor(FraConventionLookup.class);
   }
 
   public void test_serialization() {
-    FraConvention test = FraConvention.builder()
+    ImmutableFraConvention test = ImmutableFraConvention.builder()
         .index(GBP_LIBOR_3M)
         .build();
     assertSerialization(test);

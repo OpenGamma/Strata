@@ -30,7 +30,7 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.Convention;
+import com.opengamma.strata.finance.TradeConvention;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
@@ -55,7 +55,7 @@ import com.opengamma.strata.finance.rate.swap.SwapTrade;
  */
 @BeanDefinition
 public final class IborIborSwapConvention
-    implements Convention, ImmutableBean, Serializable {
+    implements TradeConvention, ImmutableBean, Serializable {
 
   /**
    * The market convention of the floating leg that has the spread applied.

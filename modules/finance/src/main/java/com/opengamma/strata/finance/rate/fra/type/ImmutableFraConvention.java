@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.rate.fra;
+package com.opengamma.strata.finance.rate.fra.type;
 
 import static com.opengamma.strata.basics.currency.Currency.AUD;
 import static com.opengamma.strata.basics.currency.Currency.NZD;
@@ -38,8 +38,10 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.Convention;
 import com.opengamma.strata.finance.TradeInfo;
+import com.opengamma.strata.finance.rate.fra.Fra;
+import com.opengamma.strata.finance.rate.fra.FraDiscountingMethod;
+import com.opengamma.strata.finance.rate.fra.FraTrade;
 
 /**
  * A market convention for forward rate agreement (FRA) trades.
@@ -47,6 +49,7 @@ import com.opengamma.strata.finance.TradeInfo;
  * This defines the market convention for a FRA against a particular index.
  * In most cases, the index contains sufficient information to fully define the convention.
  * As such, no other fields need to be specified when creating an instance.
+ * The name of the convention is the same as the name of the index by default.
  * The getters will default any missing information on the fly, avoiding both null and {@link Optional}.
  * <p>
  * The convention is defined by six dates.
@@ -61,8 +64,8 @@ import com.opengamma.strata.finance.TradeInfo;
  * The period between the spot date and the start/end date is specified by {@link FraTemplate}, not by this convention.
  */
 @BeanDefinition
-public final class FraConvention
-    implements Convention, ImmutableBean, Serializable {
+public final class ImmutableFraConvention
+    implements FraConvention, ImmutableBean, Serializable {
 
   /**
    * The Ibor index.
@@ -70,8 +73,15 @@ public final class FraConvention
    * The floating rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final IborIndex index;
+  /**
+   * The convention name, such as 'GBP-LIBOR-3M', optional with defaulting getter.
+   * <p>
+   * This will default to the name of the index if not specified.
+   */
+  @PropertyDefinition(get = "field")
+  private final String name;
   /**
    * The primary currency, optional with defaulting getter.
    * <p>
@@ -150,21 +160,38 @@ public final class FraConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a convention based on the specified index.
+   * Obtains a convention based on the specified index.
    * <p>
    * The standard market convention for a FRA is based exclusively on the index.
+   * This creates an instance that contains the index.
+   * The instance is not dereferenced using the {@code FraConvention} name, as such
+   * the result of this method and {@link FraConvention#of(IborIndex)} can differ.
+   * <p>
    * Use the {@linkplain #builder() builder} for unusual conventions.
    * 
    * @param index  the index, the market convention values are extracted from the index
    * @return the convention
    */
-  public static FraConvention of(IborIndex index) {
-    return FraConvention.builder()
+  public static ImmutableFraConvention of(IborIndex index) {
+    return ImmutableFraConvention.builder()
         .index(index)
         .build();
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the convention name, such as 'GBP-LIBOR-3M'.
+   * This is the same as the name of the index by default.
+   * <p>
+   * This will default to the name of the index if not specified.
+   * 
+   * @return the convention name
+   */
+  @Override
+  public String getName() {
+    return name != null ? name : index.getName();
+  }
+
   /**
    * Gets the primary currency,
    * providing a default result if no override specified.
@@ -288,9 +315,10 @@ public final class FraConvention
    * 
    * @return the expanded convention
    */
-  public FraConvention expand() {
-    return FraConvention.builder()
+  public ImmutableFraConvention expand() {
+    return ImmutableFraConvention.builder()
         .index(index)
+        .name(getName())
         .currency(getCurrency())
         .spotDateOffset(getSpotDateOffset())
         .businessDayAdjustment(getBusinessDayAdjustment())
@@ -302,41 +330,7 @@ public final class FraConvention
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Creates a template based on this convention, specifying the period to start.
-   * <p>
-   * This returns a template based on this convention.
-   * The period from the spot date to the start date is specified.
-   * The period from the spot date to the end date will be the period to start
-   * plus the tenor of the index.
-   * 
-   * @param periodToStart  the period from the spot date to the start date
-   * @return the template
-   */
-  public FraTemplate toTemplate(Period periodToStart) {
-    return FraTemplate.of(periodToStart, periodToStart.plus(index.getTenor().getPeriod()), this);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Creates a trade based on this convention.
-   * <p>
-   * This returns a trade based on the specified periods.
-   * For example, a '2 x 5' FRA has a period to the start date of 2 months and
-   * a period to the end date of 5 months
-   * <p>
-   * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the FRA, the floating rate is received from the counterparty, with the fixed rate being paid.
-   * If selling the FRA, the floating rate is paid to the counterparty, with the fixed rate being received.
-   * 
-   * @param tradeDate  the date of the trade
-   * @param periodToStart  the period between the spot date and the start date
-   * @param periodToEnd  the period between the spot date and the end date
-   * @param buySell  the buy/sell flag
-   * @param notional  the notional amount, in the payment currency of the template
-   * @param fixedRate  the fixed rate, typically derived from the market
-   * @return the trade
-   */
+  @Override
   public FraTrade toTrade(
       LocalDate tradeDate,
       Period periodToStart,
@@ -351,22 +345,7 @@ public final class FraConvention
     return toTrade(tradeDate, startDate, endDate, buySell, notional, fixedRate);
   }
 
-  /**
-   * Creates a trade based on this convention.
-   * <p>
-   * This returns a trade based on the specified dates.
-   * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the FRA, the floating rate is received from the counterparty, with the fixed rate being paid.
-   * If selling the FRA, the floating rate is paid to the counterparty, with the fixed rate being received.
-   * 
-   * @param tradeDate  the date of the trade
-   * @param startDate  the start date
-   * @param endDate  the end date
-   * @param buySell  the buy/sell flag
-   * @param notional  the notional amount, in the payment currency of the template
-   * @param fixedRate  the fixed rate, typically derived from the market
-   * @return the trade
-   */
+  @Override
   public FraTrade toTrade(
       LocalDate tradeDate,
       LocalDate startDate,
@@ -397,18 +376,23 @@ public final class FraConvention
         .build();
   }
 
+  @Override
+  public String toString() {
+    return getName();
+  }
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code FraConvention}.
+   * The meta-bean for {@code ImmutableFraConvention}.
    * @return the meta-bean, not null
    */
-  public static FraConvention.Meta meta() {
-    return FraConvention.Meta.INSTANCE;
+  public static ImmutableFraConvention.Meta meta() {
+    return ImmutableFraConvention.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(FraConvention.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ImmutableFraConvention.Meta.INSTANCE);
   }
 
   /**
@@ -420,12 +404,13 @@ public final class FraConvention
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static FraConvention.Builder builder() {
-    return new FraConvention.Builder();
+  public static ImmutableFraConvention.Builder builder() {
+    return new ImmutableFraConvention.Builder();
   }
 
-  private FraConvention(
+  private ImmutableFraConvention(
       IborIndex index,
+      String name,
       Currency currency,
       DayCount dayCount,
       DaysAdjustment spotDateOffset,
@@ -435,6 +420,7 @@ public final class FraConvention
       FraDiscountingMethod discounting) {
     JodaBeanUtils.notNull(index, "index");
     this.index = index;
+    this.name = name;
     this.currency = currency;
     this.dayCount = dayCount;
     this.spotDateOffset = spotDateOffset;
@@ -445,8 +431,8 @@ public final class FraConvention
   }
 
   @Override
-  public FraConvention.Meta metaBean() {
-    return FraConvention.Meta.INSTANCE;
+  public ImmutableFraConvention.Meta metaBean() {
+    return ImmutableFraConvention.Meta.INSTANCE;
   }
 
   @Override
@@ -467,6 +453,7 @@ public final class FraConvention
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
    * @return the value of the property, not null
    */
+  @Override
   public IborIndex getIndex() {
     return index;
   }
@@ -486,8 +473,9 @@ public final class FraConvention
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      FraConvention other = (FraConvention) obj;
+      ImmutableFraConvention other = (ImmutableFraConvention) obj;
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
+          JodaBeanUtils.equal(name, other.name) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(spotDateOffset, other.spotDateOffset) &&
@@ -503,6 +491,7 @@ public final class FraConvention
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(spotDateOffset);
@@ -513,25 +502,9 @@ public final class FraConvention
     return hash;
   }
 
-  @Override
-  public String toString() {
-    StringBuilder buf = new StringBuilder(288);
-    buf.append("FraConvention{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("spotDateOffset").append('=').append(spotDateOffset).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
-    buf.append("fixingDateOffset").append('=').append(fixingDateOffset).append(',').append(' ');
-    buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
-    buf.append("discounting").append('=').append(JodaBeanUtils.toString(discounting));
-    buf.append('}');
-    return buf.toString();
-  }
-
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code FraConvention}.
+   * The meta-bean for {@code ImmutableFraConvention}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -543,48 +516,54 @@ public final class FraConvention
      * The meta-property for the {@code index} property.
      */
     private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", FraConvention.class, IborIndex.class);
+        this, "index", ImmutableFraConvention.class, IborIndex.class);
+    /**
+     * The meta-property for the {@code name} property.
+     */
+    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
+        this, "name", ImmutableFraConvention.class, String.class);
     /**
      * The meta-property for the {@code currency} property.
      */
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", FraConvention.class, Currency.class);
+        this, "currency", ImmutableFraConvention.class, Currency.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
-        this, "dayCount", FraConvention.class, DayCount.class);
+        this, "dayCount", ImmutableFraConvention.class, DayCount.class);
     /**
      * The meta-property for the {@code spotDateOffset} property.
      */
     private final MetaProperty<DaysAdjustment> spotDateOffset = DirectMetaProperty.ofImmutable(
-        this, "spotDateOffset", FraConvention.class, DaysAdjustment.class);
+        this, "spotDateOffset", ImmutableFraConvention.class, DaysAdjustment.class);
     /**
      * The meta-property for the {@code businessDayAdjustment} property.
      */
     private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
-        this, "businessDayAdjustment", FraConvention.class, BusinessDayAdjustment.class);
+        this, "businessDayAdjustment", ImmutableFraConvention.class, BusinessDayAdjustment.class);
     /**
      * The meta-property for the {@code fixingDateOffset} property.
      */
     private final MetaProperty<DaysAdjustment> fixingDateOffset = DirectMetaProperty.ofImmutable(
-        this, "fixingDateOffset", FraConvention.class, DaysAdjustment.class);
+        this, "fixingDateOffset", ImmutableFraConvention.class, DaysAdjustment.class);
     /**
      * The meta-property for the {@code paymentDateOffset} property.
      */
     private final MetaProperty<DaysAdjustment> paymentDateOffset = DirectMetaProperty.ofImmutable(
-        this, "paymentDateOffset", FraConvention.class, DaysAdjustment.class);
+        this, "paymentDateOffset", ImmutableFraConvention.class, DaysAdjustment.class);
     /**
      * The meta-property for the {@code discounting} property.
      */
     private final MetaProperty<FraDiscountingMethod> discounting = DirectMetaProperty.ofImmutable(
-        this, "discounting", FraConvention.class, FraDiscountingMethod.class);
+        this, "discounting", ImmutableFraConvention.class, FraDiscountingMethod.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "index",
+        "name",
         "currency",
         "dayCount",
         "spotDateOffset",
@@ -604,6 +583,8 @@ public final class FraConvention
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
+        case 3373707:  // name
+          return name;
         case 575402001:  // currency
           return currency;
         case 1905311443:  // dayCount
@@ -623,13 +604,13 @@ public final class FraConvention
     }
 
     @Override
-    public FraConvention.Builder builder() {
-      return new FraConvention.Builder();
+    public ImmutableFraConvention.Builder builder() {
+      return new ImmutableFraConvention.Builder();
     }
 
     @Override
-    public Class<? extends FraConvention> beanType() {
-      return FraConvention.class;
+    public Class<? extends ImmutableFraConvention> beanType() {
+      return ImmutableFraConvention.class;
     }
 
     @Override
@@ -644,6 +625,14 @@ public final class FraConvention
      */
     public MetaProperty<IborIndex> index() {
       return index;
+    }
+
+    /**
+     * The meta-property for the {@code name} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> name() {
+      return name;
     }
 
     /**
@@ -707,21 +696,23 @@ public final class FraConvention
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 100346066:  // index
-          return ((FraConvention) bean).getIndex();
+          return ((ImmutableFraConvention) bean).getIndex();
+        case 3373707:  // name
+          return ((ImmutableFraConvention) bean).name;
         case 575402001:  // currency
-          return ((FraConvention) bean).currency;
+          return ((ImmutableFraConvention) bean).currency;
         case 1905311443:  // dayCount
-          return ((FraConvention) bean).dayCount;
+          return ((ImmutableFraConvention) bean).dayCount;
         case 746995843:  // spotDateOffset
-          return ((FraConvention) bean).spotDateOffset;
+          return ((ImmutableFraConvention) bean).spotDateOffset;
         case -1065319863:  // businessDayAdjustment
-          return ((FraConvention) bean).businessDayAdjustment;
+          return ((ImmutableFraConvention) bean).businessDayAdjustment;
         case 873743726:  // fixingDateOffset
-          return ((FraConvention) bean).fixingDateOffset;
+          return ((ImmutableFraConvention) bean).fixingDateOffset;
         case -716438393:  // paymentDateOffset
-          return ((FraConvention) bean).paymentDateOffset;
+          return ((ImmutableFraConvention) bean).paymentDateOffset;
         case -536441087:  // discounting
-          return ((FraConvention) bean).discounting;
+          return ((ImmutableFraConvention) bean).discounting;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -739,11 +730,12 @@ public final class FraConvention
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code FraConvention}.
+   * The bean-builder for {@code ImmutableFraConvention}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<FraConvention> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ImmutableFraConvention> {
 
     private IborIndex index;
+    private String name;
     private Currency currency;
     private DayCount dayCount;
     private DaysAdjustment spotDateOffset;
@@ -762,8 +754,9 @@ public final class FraConvention
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(FraConvention beanToCopy) {
+    private Builder(ImmutableFraConvention beanToCopy) {
       this.index = beanToCopy.getIndex();
+      this.name = beanToCopy.name;
       this.currency = beanToCopy.currency;
       this.dayCount = beanToCopy.dayCount;
       this.spotDateOffset = beanToCopy.spotDateOffset;
@@ -779,6 +772,8 @@ public final class FraConvention
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
+        case 3373707:  // name
+          return name;
         case 575402001:  // currency
           return currency;
         case 1905311443:  // dayCount
@@ -803,6 +798,9 @@ public final class FraConvention
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           this.index = (IborIndex) newValue;
+          break;
+        case 3373707:  // name
+          this.name = (String) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
@@ -856,9 +854,10 @@ public final class FraConvention
     }
 
     @Override
-    public FraConvention build() {
-      return new FraConvention(
+    public ImmutableFraConvention build() {
+      return new ImmutableFraConvention(
           index,
+          name,
           currency,
           dayCount,
           spotDateOffset,
@@ -880,6 +879,18 @@ public final class FraConvention
     public Builder index(IborIndex index) {
       JodaBeanUtils.notNull(index, "index");
       this.index = index;
+      return this;
+    }
+
+    /**
+     * Sets the convention name, such as 'GBP-LIBOR-3M', optional with defaulting getter.
+     * <p>
+     * This will default to the name of the index if not specified.
+     * @param name  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder name(String name) {
+      this.name = name;
       return this;
     }
 
@@ -996,9 +1007,10 @@ public final class FraConvention
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(288);
-      buf.append("FraConvention.Builder{");
+      StringBuilder buf = new StringBuilder(320);
+      buf.append("ImmutableFraConvention.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+      buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("spotDateOffset").append('=').append(JodaBeanUtils.toString(spotDateOffset)).append(',').append(' ');

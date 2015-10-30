@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.rate.deposit;
+package com.opengamma.strata.finance.rate.deposit.type;
 
 import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_LIBOR_3M;
@@ -20,12 +20,15 @@ import java.time.Period;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.finance.TradeInfo;
+import com.opengamma.strata.finance.rate.deposit.IborFixingDeposit;
+import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
 
 /**
  * Test {@link IborFixingDepositTemplate}.
  */
 @Test
 public class IborFixingDepositTemplateTest {
+
   private static final IborFixingDepositConvention CONVENTION = IborFixingDepositConvention.of(EUR_LIBOR_3M);
 
   public void test_builder() {
@@ -70,10 +73,11 @@ public class IborFixingDepositTemplateTest {
     double fixedRate = 0.045;
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     IborFixingDepositTrade trade = template.toTrade(tradeDate, BUY, notional, fixedRate);
-    LocalDate startExpected = template.getConvention().getSpotDateOffset().adjust(tradeDate);
+    ImmutableIborFixingDepositConvention conv = (ImmutableIborFixingDepositConvention) template.getConvention();
+    LocalDate startExpected = conv.getSpotDateOffset().adjust(tradeDate);
     LocalDate endExpected = startExpected.plus(template.getDepositPeriod());
     IborFixingDeposit productExpected = IborFixingDeposit.builder()
-        .businessDayAdjustment(template.getConvention().getBusinessDayAdjustment())
+        .businessDayAdjustment(conv.getBusinessDayAdjustment())
         .buySell(BUY)
         .startDate(startExpected)
         .endDate(endExpected)

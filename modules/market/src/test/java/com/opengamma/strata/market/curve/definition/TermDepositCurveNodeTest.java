@@ -32,9 +32,10 @@ import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.deposit.TermDeposit;
-import com.opengamma.strata.finance.rate.deposit.TermDepositConvention;
-import com.opengamma.strata.finance.rate.deposit.TermDepositTemplate;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
+import com.opengamma.strata.finance.rate.deposit.type.TermDepositConvention;
+import com.opengamma.strata.finance.rate.deposit.type.TermDepositConventions;
+import com.opengamma.strata.finance.rate.deposit.type.TermDepositTemplate;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
@@ -48,8 +49,7 @@ public class TermDepositCurveNodeTest {
 
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA);
-  private static final TermDepositConvention CONVENTION =
-      TermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
+  private static final TermDepositConvention CONVENTION = TermDepositConventions.EUR_DEPOSIT;
   private static final Period DEPOSIT_PERIOD = Period.ofMonths(3);
   private static final TermDepositTemplate TEMPLATE = TermDepositTemplate.of(DEPOSIT_PERIOD, CONVENTION);
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit1"));

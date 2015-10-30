@@ -45,17 +45,20 @@ public interface IsdaYieldCurveConvention
    * @return the resolved convention
    */
   @FromString
-  static IsdaYieldCurveConvention of(String uniqueName) {
+  public static IsdaYieldCurveConvention of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return extendedEnum().lookup(uniqueName);
   }
 
   /**
-   * Gets the extended enum lookup from name to instance.
+   * Gets the extended enum helper.
+   * <p>
+   * This helper allows instances of the convention to be looked up.
+   * It also provides the complete set of available instances.
    * 
-   * @return the extended enum lookup
+   * @return the extended enum helper
    */
-  static ExtendedEnum<IsdaYieldCurveConvention> extendedEnum() {
+  public static ExtendedEnum<IsdaYieldCurveConvention> extendedEnum() {
     return IsdaYieldCurveConventions.ENUM_LOOKUP;
   }
 
@@ -65,49 +68,49 @@ public interface IsdaYieldCurveConvention
    * 
    * @return the currency
    */
-  Currency getCurrency();
+  public abstract Currency getCurrency();
 
   /**
    * Gets the day count convention for underlying money market instrument points on the curve.
    * 
    * @return the day count convention
    */
-  DayCount getMmDayCount();
+  public abstract DayCount getMoneyMarketDayCount();
 
   /**
    * Gets the fixed leg day count convention for underlying swap instrument points on the curve.
    * 
    * @return the fixed day count convention
    */
-  DayCount getFixedDayCount();
+  public abstract DayCount getFixedDayCount();
 
   /**
    * Gets the spot day settlement lag for any underlying swap instruments.
    * 
    * @return the number of spot days
    */
-  int getSpotDays();
+  public abstract int getSpotDays();
 
   /**
    * Gets the payment periodic frequency for the fixed leg of any underlying swap instruments.
    * 
    * @return the frequency
    */
-  Frequency getFixedPaymentFrequency();
+  public abstract Frequency getFixedPaymentFrequency();
 
   /**
    * Gets the applicable business day convention for any underlying instruments.
    * 
    * @return the business day convention
    */
-  BusinessDayConvention getBadDayConvention();
+  public abstract BusinessDayConvention getBusinessDayConvention();
 
   /**
    * Gets the applicable holiday calendar for any instruments.
    * 
    * @return the holiday calendar
    */
-  HolidayCalendar getHolidayCalendar();
+  public abstract HolidayCalendar getHolidayCalendar();
 
   //-------------------------------------------------------------------------
   /**
@@ -116,17 +119,17 @@ public interface IsdaYieldCurveConvention
    * @param asOfDate  the base date to adjust
    * @return the adjusted spot date
    */
-  default LocalDate getSpotDateAsOf(LocalDate asOfDate) {
+  public default LocalDate getSpotDateAsOf(LocalDate asOfDate) {
     DaysAdjustment adjustment = DaysAdjustment.ofBusinessDays(
         getSpotDays(),
         getHolidayCalendar(),
-        BusinessDayAdjustment.of(getBadDayConvention(), getHolidayCalendar()));
+        BusinessDayAdjustment.of(getBusinessDayConvention(), getHolidayCalendar()));
 
     return adjustment.adjust(asOfDate);
   }
 
   @ToString
   @Override
-  String getName();
+  public abstract String getName();
 
 }

@@ -24,21 +24,21 @@ public class IsdaYieldCurveConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    IsdaYieldCurveConvention sut = IsdaYieldCurveConventions.ISDA_USD;
-    assertEquals(sut, IsdaYieldCurveConvention.of("ISDA_USD"));
-    assertEquals(sut.getName(), "ISDA_USD");
+    IsdaYieldCurveConvention sut = IsdaYieldCurveConventions.USD_ISDA;
+    assertEquals(sut, IsdaYieldCurveConvention.of("USD-ISDA"));
+    assertEquals(sut.getName(), "USD-ISDA");
     assertEquals(sut.getCurrency(), USD);
-    assertEquals(sut.getMmDayCount(), ACT_360);
+    assertEquals(sut.getMoneyMarketDayCount(), ACT_360);
     assertEquals(sut.getFixedDayCount(), THIRTY_E_360);
     assertEquals(sut.getSpotDays(), 2);
     assertEquals(sut.getFixedPaymentFrequency(), P6M);
-    assertEquals(sut.getBadDayConvention(), MODIFIED_FOLLOWING);
+    assertEquals(sut.getBusinessDayConvention(), MODIFIED_FOLLOWING);
     assertEquals(sut.getHolidayCalendar(), SAT_SUN);
   }
 
   //-------------------------------------------------------------------------
   public void test_spot_date_from_valuation_date() {
-    IsdaYieldCurveConvention sut = IsdaYieldCurveConventions.ISDA_USD;
+    IsdaYieldCurveConvention sut = IsdaYieldCurveConventions.USD_ISDA;
     assertEquals(sut.getSpotDateAsOf(date(2014, 9, 19)), date(2014, 9, 23));
   }
 

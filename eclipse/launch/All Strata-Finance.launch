@@ -26,11 +26,14 @@
 <listEntry value="com.opengamma.strata.finance.rate"/>
 <listEntry value="com.opengamma.strata.finance.rate.bond"/>
 <listEntry value="com.opengamma.strata.finance.rate.deposit"/>
+<listEntry value="com.opengamma.strata.finance.rate.deposit.type"/>
 <listEntry value="com.opengamma.strata.finance.rate.fra"/>
+<listEntry value="com.opengamma.strata.finance.rate.fra.type"/>
 <listEntry value="com.opengamma.strata.finance.rate.future"/>
 <listEntry value="com.opengamma.strata.finance.rate.future.type"/>
 <listEntry value="com.opengamma.strata.finance.rate.swap"/>
 <listEntry value="com.opengamma.strata.finance.rate.swap.type"/>
+<listEntry value="com.opengamma.strata.finance.rate.swaption"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <stringAttribute key="org.testng.eclipse.PRE_DEFINED_LISTENERS" value=""/>

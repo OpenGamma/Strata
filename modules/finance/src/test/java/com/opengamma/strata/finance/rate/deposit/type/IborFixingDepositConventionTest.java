@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.rate.deposit;
+package com.opengamma.strata.finance.rate.deposit.type;
 
 import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
@@ -13,34 +13,42 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_LIBOR_3M;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
+import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Period;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.finance.TradeInfo;
+import com.opengamma.strata.finance.rate.deposit.IborFixingDeposit;
+import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
 
 /**
  * Test {@link IborFixingDepositConvention}.
  */
 @Test
 public class IborFixingDepositConventionTest {
+
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
   private static final DaysAdjustment SPOT_ADJ = DaysAdjustment.ofBusinessDays(2, EUTA);
   private static final DaysAdjustment FIXING_ADJ =
       DaysAdjustment.ofBusinessDays(-2, EUTA, BusinessDayAdjustment.of(PRECEDING, GBLO));
 
   public void test_builder_full() {
-    IborFixingDepositConvention test = IborFixingDepositConvention.builder()
+    ImmutableIborFixingDepositConvention test = ImmutableIborFixingDepositConvention.builder()
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .currency(EUR)
         .dayCount(ACT_365F)
@@ -53,11 +61,12 @@ public class IborFixingDepositConventionTest {
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getFixingDateOffset(), FIXING_ADJ);
     assertEquals(test.getIndex(), EUR_LIBOR_3M);
+    assertEquals(test.getName(), EUR_LIBOR_3M.getName());
     assertEquals(test.getSpotDateOffset(), SPOT_ADJ);
   }
 
   public void test_builder_indexOnly() {
-    IborFixingDepositConvention test = IborFixingDepositConvention.builder()
+    ImmutableIborFixingDepositConvention test = ImmutableIborFixingDepositConvention.builder()
         .index(GBP_LIBOR_6M)
         .build();
     assertEquals(test.getBusinessDayAdjustment(),
@@ -70,7 +79,7 @@ public class IborFixingDepositConventionTest {
   }
 
   public void test_of_indexOnly() {
-    IborFixingDepositConvention test = IborFixingDepositConvention.of(GBP_LIBOR_6M);
+    ImmutableIborFixingDepositConvention test = ImmutableIborFixingDepositConvention.of(GBP_LIBOR_6M);
     assertEquals(test.getBusinessDayAdjustment(),
         BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBP_LIBOR_6M.getFixingCalendar()));
     assertEquals(test.getCurrency(), GBP_LIBOR_6M.getCurrency());
@@ -81,17 +90,19 @@ public class IborFixingDepositConventionTest {
   }
 
   public void test_expand() {
-    IborFixingDepositConvention base = IborFixingDepositConvention.of(EUR_LIBOR_3M);
+    ImmutableIborFixingDepositConvention base = ImmutableIborFixingDepositConvention.of(EUR_LIBOR_3M);
     IborFixingDepositConvention test = base.expand();
-    IborFixingDepositConvention expected = IborFixingDepositConvention.builder()
+    IborFixingDepositConvention expected = ImmutableIborFixingDepositConvention.builder()
         .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUR_LIBOR_3M.getFixingCalendar()))
         .currency(EUR_LIBOR_3M.getCurrency())
         .dayCount(EUR_LIBOR_3M.getDayCount())
         .fixingDateOffset(EUR_LIBOR_3M.getFixingDateOffset())
         .index(EUR_LIBOR_3M)
+        .name(EUR_LIBOR_3M.getName())
         .spotDateOffset(EUR_LIBOR_3M.getEffectiveDateOffset())
         .build();
-    assertTrue(test.equals(expected));
+    assertEquals(test.getName(), EUR_LIBOR_3M.getName());
+    assertEquals(test, expected);
   }
 
   public void test_toTemplate() {
@@ -102,7 +113,7 @@ public class IborFixingDepositConventionTest {
   }
 
   public void test_toTrade() {
-    IborFixingDepositConvention convention = IborFixingDepositConvention.builder()
+    IborFixingDepositConvention convention = ImmutableIborFixingDepositConvention.builder()
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .currency(EUR)
         .dayCount(ACT_365F)
@@ -137,15 +148,60 @@ public class IborFixingDepositConventionTest {
   }
 
   //-------------------------------------------------------------------------
+  @DataProvider(name = "name")
+  static Object[][] data_name() {
+    return new Object[][] {
+        {ImmutableIborFixingDepositConvention.of(GBP_LIBOR_3M), "GBP-LIBOR-3M"},
+        {ImmutableIborFixingDepositConvention.of(USD_LIBOR_3M), "USD-LIBOR-3M"},
+    };
+  }
+
+  @Test(dataProvider = "name")
+  public void test_name(IborFixingDepositConvention convention, String name) {
+    assertEquals(convention.getName(), name);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_toString(IborFixingDepositConvention convention, String name) {
+    assertEquals(convention.toString(), name);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookup(IborFixingDepositConvention convention, String name) {
+    assertEquals(IborFixingDepositConvention.of(name), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_extendedEnum(IborFixingDepositConvention convention, String name) {
+    IborFixingDepositConvention.of(name);  // ensures map is populated
+    ImmutableMap<String, IborFixingDepositConvention> map = IborFixingDepositConvention.extendedEnum().lookupAll();
+    assertEquals(map.get(name), convention);
+  }
+
+  public void test_of_lookup_notFound() {
+    assertThrowsIllegalArg(() -> IborFixingDepositConvention.of("Rubbish"));
+  }
+
+  public void test_of_lookup_null() {
+    assertThrowsIllegalArg(() -> IborFixingDepositConvention.of((String) null));
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
-    IborFixingDepositConvention test1 = IborFixingDepositConvention.of(GBP_LIBOR_6M);
+    ImmutableIborFixingDepositConvention test1 = ImmutableIborFixingDepositConvention.of(GBP_LIBOR_6M);
     coverImmutableBean(test1);
-    IborFixingDepositConvention test2 = IborFixingDepositConvention.of(EUR_LIBOR_3M);
+    ImmutableIborFixingDepositConvention test2 = ImmutableIborFixingDepositConvention.of(EUR_LIBOR_3M)
+        .toBuilder()
+        .name("Foo")
+        .build();
     coverBeanEquals(test1, test2);
+    
+    coverPrivateConstructor(IborFixingDepositConventions.class);
+    coverPrivateConstructor(IborFixingDepositConventionLookup.class);
   }
 
   public void test_serialization() {
-    IborFixingDepositConvention test = IborFixingDepositConvention.of(GBP_LIBOR_6M);
+    ImmutableIborFixingDepositConvention test = ImmutableIborFixingDepositConvention.of(GBP_LIBOR_6M);
     assertSerialization(test);
   }
 

@@ -11,6 +11,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.joda.convert.RenameHandler;
@@ -270,6 +271,27 @@ public final class ExtendedEnum<T extends Named> {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Finds an instance by name.
+   * <p>
+   * This finds the instance matching the specified name.
+   * Instances may have alternate names (aliases), thus the returned instance
+   * may have a name other than that requested.
+   * 
+   * @param name  the enum name to return
+   * @return the named enum
+   */
+  public Optional<T> find(String name) {
+    String standardName = alternateNames.getOrDefault(name, name);
+    for (NamedLookup<T> lookup : lookups) {
+      T instance = lookup.lookup(standardName);
+      if (instance != null) {
+        return Optional.of(instance);
+      }
+    }
+    return Optional.empty();
+  }
+
   /**
    * Looks up an instance by name.
    * <p>

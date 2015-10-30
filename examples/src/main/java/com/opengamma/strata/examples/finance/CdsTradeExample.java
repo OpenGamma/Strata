@@ -72,7 +72,7 @@ public class CdsTradeExample {
   }
 
   public static CdsTrade comp01 =
-      CdsConventions.NORTH_AMERICAN_USD
+      CdsConventions.USD_NORTH_AMERICAN
           .toSingleNameTrade(
               LocalDate.of(2014, 9, 22),
               LocalDate.of(2019, 12, 20),
@@ -86,7 +86,7 @@ public class CdsTradeExample {
               LocalDate.of(2014, 10, 21));
 
   public static CdsTrade comp02 =
-      CdsConventions.NORTH_AMERICAN_USD
+      CdsConventions.USD_NORTH_AMERICAN
           .toSingleNameTrade(
               LocalDate.of(2014, 9, 22),
               LocalDate.of(2019, 12, 20),
@@ -100,7 +100,7 @@ public class CdsTradeExample {
               LocalDate.of(2014, 10, 21));
 
   public static CdsTrade index0001 =
-      CdsConventions.NORTH_AMERICAN_USD
+      CdsConventions.USD_NORTH_AMERICAN
           .toIndexTrade(
               LocalDate.of(2014, 3, 20),
               LocalDate.of(2019, 6, 20),

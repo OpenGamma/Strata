@@ -25,15 +25,14 @@ import com.opengamma.strata.basics.schedule.StubConvention;
  * <p>
  * See ISDA CDS documentation for more details.
  */
-public enum StandardCdsConventions
+enum StandardCdsConventions
     implements CdsConvention {
-  // TODO: constants using upper case currencies
 
   /**
    * The North-American USD convention.
    */
-  NORTH_AMERICAN_USD(
-      "NorthAmericanUsd",
+  USD_NORTH_AMERICAN(
+      "USD-NorthAmerican",
       Currency.USD,
       DayCounts.ACT_360,
       BusinessDayAdjustment.of(FOLLOWING, USNY),
@@ -47,8 +46,8 @@ public enum StandardCdsConventions
   /**
    * The European EUR convention.
    */
-  EUROPEAN_EUR(
-      "EuropeanEur",
+  EUR_EUROPEAN(
+      "EUR-European",
       Currency.EUR,
       DayCounts.ACT_360,
       BusinessDayAdjustment.of(FOLLOWING, EUTA),
@@ -62,8 +61,8 @@ public enum StandardCdsConventions
   /**
    * The European GBP convention.
    */
-  EUROPEAN_GBP(
-      "EuropeanGbp",
+  GBP_EUROPEAN(
+      "GBP-European",
       Currency.GBP,
       DayCounts.ACT_360,
       BusinessDayAdjustment.of(FOLLOWING, GBLO),
@@ -77,8 +76,8 @@ public enum StandardCdsConventions
   /**
    * The European CHF convention.
    */
-  EUROPEAN_CHF(
-      "EuropeanChf",
+  CHF_EUROPEAN(
+      "CHF-European",
       Currency.CHF,
       DayCounts.ACT_360,
       BusinessDayAdjustment.of(FOLLOWING, GBLO.combineWith(CHZU)),
@@ -92,8 +91,8 @@ public enum StandardCdsConventions
   /**
    * The European USD convention.
    */
-  EUROPEAN_USD(
-      "EuropeanUsd",
+  USD_EUROPEAN(
+      "USD-European",
       Currency.USD,
       DayCounts.ACT_360,
       BusinessDayAdjustment.of(FOLLOWING, GBLO.combineWith(USNY)),
@@ -177,12 +176,12 @@ public enum StandardCdsConventions
   }
 
   @Override
-  public int getStepIn() {
+  public int getStepInDays() {
     return stepIn;
   }
 
   @Override
-  public int getSettleLag() {
+  public int getSettleLagDays() {
     return settleLag;
   }
 

@@ -24,6 +24,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
+import com.opengamma.strata.finance.TradeConvention;
 import com.opengamma.strata.finance.credit.Cds;
 import com.opengamma.strata.finance.credit.CdsDatesLogic;
 import com.opengamma.strata.finance.credit.CdsTrade;
@@ -37,29 +38,36 @@ import com.opengamma.strata.finance.credit.SingleNameReferenceInformation;
 import com.opengamma.strata.finance.credit.SinglePayment;
 
 /**
- * A market convention for how CDS trades are structured in different regions and currencies.
+ * A market convention for how credit default swap (CDS) trades are structured
+ * in different regions and currencies.
+ * <p>
+ * All implementations of this interface must be immutable and thread-safe.
  */
 public interface CdsConvention
-    extends Named {
+    extends TradeConvention, Named {
 
   /**
-   * Looks up the convention corresponding to a given name.
+   * Obtains a {@code CdsConvention} from a unique name.
    * 
-   * @param uniqueName  the unique name of the convention
+   * @param uniqueName  the unique name
    * @return the resolved convention
+   * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  static CdsConvention of(String uniqueName) {
+  public static CdsConvention of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return extendedEnum().lookup(uniqueName);
   }
 
   /**
-   * Gets the extended enum lookup from name to instance.
+   * Gets the extended enum helper.
+   * <p>
+   * This helper allows instances of the convention to be looked up.
+   * It also provides the complete set of available instances.
    * 
-   * @return the extended enum lookup
+   * @return the extended enum helper
    */
-  static ExtendedEnum<CdsConvention> extendedEnum() {
+  public static ExtendedEnum<CdsConvention> extendedEnum() {
     return CdsConventions.ENUM_LOOKUP;
   }
 
@@ -69,49 +77,49 @@ public interface CdsConvention
    * 
    * @return the currency
    */
-  Currency getCurrency();
+  public abstract Currency getCurrency();
 
   /**
    * Gets the day count convention.
    * 
    * @return the day count convention
    */
-  DayCount getDayCount();
+  public abstract DayCount getDayCount();
 
   /**
    * Gets the business day adjustment.
    * 
    * @return the business day adjustment
    */
-  BusinessDayAdjustment getBusinessDayAdjustment();
+  public abstract BusinessDayAdjustment getBusinessDayAdjustment();
 
   /**
    * Gets the payment frequency.
    * 
    * @return the payment frequency
    */
-  Frequency getPaymentFrequency();
+  public abstract Frequency getPaymentFrequency();
 
   /**
    * Gets the roll convention.
    * 
    * @return the roll convention
    */
-  RollConvention getRollConvention();
+  public abstract RollConvention getRollConvention();
 
   /**
    * Gets whether the accrued premium is paid in the event of a default.
    * 
    * @return whether the accrued premium is paid in the event of a default
    */
-  boolean getPayAccruedOnDefault();
+  public abstract boolean getPayAccruedOnDefault();
 
   /**
    * Gets the stub convention.
    * 
    * @return the stub convention
    */
-  StubConvention getStubConvention();
+  public abstract StubConvention getStubConvention();
 
   /**
    * Gets the number of step-in days.
@@ -120,7 +128,7 @@ public interface CdsConvention
    * 
    * @return the number of step-in days
    */
-  int getStepIn();
+  public abstract int getStepInDays();
 
   /**
    * Gets the settlement lag in days.
@@ -129,12 +137,19 @@ public interface CdsConvention
    * 
    * @return the settlement lag in days
    */
-  int getSettleLag();
+  public abstract int getSettleLagDays();
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the name that uniquely identifies this convention.
+   * <p>
+   * This name is used in serialization and can be parsed using {@link #of(String)}.
+   * 
+   * @return the unique name
+   */
   @ToString
   @Override
-  String getName();
+  public abstract String getName();
 
   //-------------------------------------------------------------------------
   /**
@@ -152,7 +167,7 @@ public interface CdsConvention
    * @param upfrontFeePaymentDate  the payment date of the upfront fee
    * @return the single-name CDS
    */
-  default CdsTrade toSingleNameTrade(
+  public default CdsTrade toSingleNameTrade(
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,
@@ -194,7 +209,7 @@ public interface CdsConvention
    * @param upfrontFeePaymentDate  the payment date of the upfront fee
    * @return the index CDS trade
    */
-  default CdsTrade toIndexTrade(
+  public default CdsTrade toIndexTrade(
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,
@@ -230,7 +245,7 @@ public interface CdsConvention
    * @param upfrontFeePaymentDate  the payment date of the upfront fee
    * @return the CDS trade
    */
-  default CdsTrade toTrade(
+  public default CdsTrade toTrade(
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,
@@ -274,7 +289,7 @@ public interface CdsConvention
    * @param period  the term for this point
    * @return unadjusted maturity date
    */
-  default LocalDate getUnadjustedMaturityDateFromValuationDate(LocalDate valuationDate, Period period) {
+  public default LocalDate getUnadjustedMaturityDateFromValuationDate(LocalDate valuationDate, Period period) {
     return getUnadjustedMaturityDate(valuationDate, getPaymentFrequency(), period);
   }
 
@@ -289,7 +304,7 @@ public interface CdsConvention
    * @param period  the term for this point
    * @return unadjusted accrual maturity date
    */
-  static LocalDate getUnadjustedMaturityDate(
+  public static LocalDate getUnadjustedMaturityDate(
       LocalDate valuationDate,
       Frequency paymentFrequency,
       Period period) {
@@ -305,7 +320,7 @@ public interface CdsConvention
    * @param valuationDate  the valuation date
    * @return unadjusted accrual start date
    */
-  static LocalDate getUnadjustedAccrualStartDate(LocalDate valuationDate) {
+  public static LocalDate getUnadjustedAccrualStartDate(LocalDate valuationDate) {
     return CdsDatesLogic.getPrevCdsDate(valuationDate);
   }
 
@@ -315,7 +330,7 @@ public interface CdsConvention
    * @param valuationDate  the valuation date
    * @return adjusted start date
    */
-  default LocalDate getAdjustedStartDate(LocalDate valuationDate) {
+  public default LocalDate getAdjustedStartDate(LocalDate valuationDate) {
     return getBusinessDayAdjustment().adjust(
         getUnadjustedAccrualStartDate(valuationDate));
   }
@@ -326,9 +341,9 @@ public interface CdsConvention
    * @param valuationDate  the valuation date
    * @return unadjusted settle date
    */
-  default LocalDate getAdjustedSettleDate(LocalDate valuationDate) {
+  public default LocalDate getAdjustedSettleDate(LocalDate valuationDate) {
     DaysAdjustment daysAdjustment = DaysAdjustment.ofBusinessDays(
-        getSettleLag(), getBusinessDayAdjustment().getCalendar(), getBusinessDayAdjustment());
+        getSettleLagDays(), getBusinessDayAdjustment().getCalendar(), getBusinessDayAdjustment());
     return daysAdjustment.adjust(valuationDate);
   }
 
@@ -338,8 +353,8 @@ public interface CdsConvention
    * @param valuationDate  the valuation date
    * @return unadjusted step in date
    */
-  default LocalDate getUnadjustedStepInDate(LocalDate valuationDate) {
-    return valuationDate.plusDays(getStepIn());
+  public default LocalDate getUnadjustedStepInDate(LocalDate valuationDate) {
+    return valuationDate.plusDays(getStepInDays());
   }
 
 }

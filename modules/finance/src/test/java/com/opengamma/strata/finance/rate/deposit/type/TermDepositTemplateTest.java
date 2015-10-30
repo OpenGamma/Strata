@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.rate.deposit;
+package com.opengamma.strata.finance.rate.deposit.type;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
@@ -27,6 +27,8 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.finance.TradeInfo;
+import com.opengamma.strata.finance.rate.deposit.TermDeposit;
+import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 
 /**
  * Test {@link TermDepositTemplate}.
@@ -36,8 +38,7 @@ public class TermDepositTemplateTest {
 
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA);
-  private static final TermDepositConvention CONVENTION =
-      TermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
+  private static final TermDepositConvention CONVENTION = TermDepositConventions.EUR_DEPOSIT;
   private static final Period DEPOSIT_PERIOD = Period.ofMonths(3);
 
   public void test_builder() {
@@ -91,7 +92,7 @@ public class TermDepositTemplateTest {
     TermDepositTemplate test1 = TermDepositTemplate.of(DEPOSIT_PERIOD, CONVENTION);
     coverImmutableBean(test1);
     TermDepositTemplate test2 = TermDepositTemplate.of(Period.ofMonths(6),
-        TermDepositConvention.of(GBP, BDA_MOD_FOLLOW, ACT_365F, DaysAdjustment.ofBusinessDays(2, GBLO)));
+        ImmutableTermDepositConvention.of(GBP, BDA_MOD_FOLLOW, ACT_365F, DaysAdjustment.ofBusinessDays(2, GBLO)));
     coverBeanEquals(test1, test2);
   }
 

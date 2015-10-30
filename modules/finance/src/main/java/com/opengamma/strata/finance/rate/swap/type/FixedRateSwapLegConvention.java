@@ -34,7 +34,6 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
-import com.opengamma.strata.finance.Convention;
 import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
 import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
@@ -51,7 +50,7 @@ import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
  */
 @BeanDefinition
 public final class FixedRateSwapLegConvention
-    implements Convention, ImmutableBean, Serializable {
+    implements SwapLegConvention, ImmutableBean, Serializable {
 
   /**
    * The leg currency.

@@ -13,8 +13,8 @@ import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
-import static com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS;
 import static com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
+import static com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS;
 import static com.opengamma.strata.finance.rate.swap.type.IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M;
 import static org.testng.Assert.assertEquals;
 
@@ -48,13 +48,14 @@ import com.opengamma.strata.basics.market.ImmutableObservableValues;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTemplate;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
-import com.opengamma.strata.finance.rate.deposit.TermDepositConvention;
-import com.opengamma.strata.finance.rate.deposit.TermDepositTemplate;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
-import com.opengamma.strata.finance.rate.fra.FraTemplate;
+import com.opengamma.strata.finance.rate.deposit.type.IborFixingDepositTemplate;
+import com.opengamma.strata.finance.rate.deposit.type.ImmutableTermDepositConvention;
+import com.opengamma.strata.finance.rate.deposit.type.TermDepositConvention;
+import com.opengamma.strata.finance.rate.deposit.type.TermDepositTemplate;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
+import com.opengamma.strata.finance.rate.fra.type.FraTemplate;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapTemplate;
@@ -156,7 +157,7 @@ public class CalibrationZeroRateUsd3OisIrsBsTest {
     for(int i = 0; i < DSC_NB_DEPO_NODES; i++) {
       BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, USNY);
       TermDepositConvention convention = 
-          TermDepositConvention.of(USD, bda, ACT_360, DaysAdjustment.ofBusinessDays(DSC_DEPO_OFFSET[i], USNY));
+          ImmutableTermDepositConvention.of(USD, bda, ACT_360, DaysAdjustment.ofBusinessDays(DSC_DEPO_OFFSET[i], USNY));
       DSC_NODES[i] = TermDepositCurveNode.of(TermDepositTemplate.of(Period.ofDays(1), convention), 
           QuoteKey.of(StandardId.of(SCHEME, DSC_ID_VALUE[i])));
     }

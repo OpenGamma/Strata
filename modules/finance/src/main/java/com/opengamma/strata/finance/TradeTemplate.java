@@ -12,13 +12,13 @@ package com.opengamma.strata.finance;
  * The missing elements are likely to include the trade date and market price.
  * As such, it is often possible to get a market price for a trade based on the template.
  * <p>
- * A template is typically built on an underlying {@link Convention}, however this is not required.
+ * A template is typically built on an underlying {@link TradeConvention}, however this is not required.
  * <p>
  * Each implementation should provide a method with the name {@code toTrade} with
  * whatever arguments are necessary to complete the trade.
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
-public interface Template {
+public interface TradeTemplate {
 
 }

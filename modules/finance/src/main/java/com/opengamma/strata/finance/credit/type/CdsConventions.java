@@ -21,30 +21,30 @@ public final class CdsConventions {
   static final ExtendedEnum<CdsConvention> ENUM_LOOKUP = ExtendedEnum.of(CdsConvention.class);
 
   /**
-   * The North American USD CDS convention.
+   * The 'USD-NorthAmerican' CDS convention.
    */
-  public static final CdsConvention NORTH_AMERICAN_USD =
-      CdsConvention.of(StandardCdsConventions.NORTH_AMERICAN_USD.getName());
+  public static final CdsConvention USD_NORTH_AMERICAN =
+      CdsConvention.of(StandardCdsConventions.USD_NORTH_AMERICAN.getName());
   /**
-   * The European EUR CDS convention.
+   * The 'EUR-European' CDS convention.
    */
-  public static final CdsConvention EUROPEAN_EUR =
-      CdsConvention.of(StandardCdsConventions.EUROPEAN_EUR.getName());
+  public static final CdsConvention EUR_EUROPEAN =
+      CdsConvention.of(StandardCdsConventions.EUR_EUROPEAN.getName());
   /**
-   * The European GBP CDS convention.
+   * The 'GBP-European' CDS convention.
    */
-  public static final CdsConvention EUROPEAN_GBP =
-      CdsConvention.of(StandardCdsConventions.EUROPEAN_GBP.getName());
+  public static final CdsConvention GBP_EUROPEAN =
+      CdsConvention.of(StandardCdsConventions.GBP_EUROPEAN.getName());
   /**
-   * The European CHF CDS convention.
+   * The 'CHF-European' CDS convention.
    */
-  public static final CdsConvention EUROPEAN_CHF =
-      CdsConvention.of(StandardCdsConventions.EUROPEAN_CHF.getName());
+  public static final CdsConvention CHF_EUROPEAN =
+      CdsConvention.of(StandardCdsConventions.CHF_EUROPEAN.getName());
   /**
-   * The European USD CDS convention.
+   * The 'USD-European' CDS convention.
    */
-  public static final CdsConvention EUROPEAN_USD =
-      CdsConvention.of(StandardCdsConventions.EUROPEAN_USD.getName());
+  public static final CdsConvention USD_EUROPEAN =
+      CdsConvention.of(StandardCdsConventions.USD_EUROPEAN.getName());
 
   //-------------------------------------------------------------------------
   /**

@@ -20,7 +20,7 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.rate.fra.FraTemplate;
+import com.opengamma.strata.finance.rate.fra.type.FraTemplate;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.finance.rate.swap.type.FixedRateSwapLegConvention;

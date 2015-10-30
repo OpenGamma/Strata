@@ -41,7 +41,7 @@ public class TestHarness {
 
     public static TradeFactory withCompany01(BuySell buySell, double feeAmount, LocalDate cashSettleDate) {
       TradeSource tradeSource = () ->
-          CdsConventions.NORTH_AMERICAN_USD
+          CdsConventions.USD_NORTH_AMERICAN
               .toSingleNameTrade(
                   LocalDate.of(2014, 9, 22),
                   LocalDate.of(2019, 12, 20),
@@ -58,7 +58,7 @@ public class TestHarness {
 
     public static TradeFactory withCompany02() {
       TradeSource tradeSource = () ->
-          CdsConventions.NORTH_AMERICAN_USD
+          CdsConventions.USD_NORTH_AMERICAN
               .toSingleNameTrade(
                   LocalDate.of(2014, 9, 22),
                   LocalDate.of(2019, 12, 20),
@@ -75,7 +75,7 @@ public class TestHarness {
 
     public static TradeFactory withIndex0001() {
       TradeSource tradeSource = () ->
-          CdsConventions.NORTH_AMERICAN_USD
+          CdsConventions.USD_NORTH_AMERICAN
               .toIndexTrade(
                   LocalDate.of(2014, 3, 20),
                   LocalDate.of(2019, 6, 20),
