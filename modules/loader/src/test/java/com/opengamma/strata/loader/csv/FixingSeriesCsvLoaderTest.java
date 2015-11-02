@@ -42,7 +42,7 @@ public class FixingSeriesCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_single_series_single_file() {
-    Map<ObservableId, LocalDateDoubleTimeSeries> ts = FixingSeriesCsvLoader.loadFixingSeries(
+    Map<ObservableId, LocalDateDoubleTimeSeries> ts = FixingSeriesCsvLoader.load(
         ImmutableList.of(FIXING_SERIES_1));
 
     assertEquals(ts.size(), 1);
@@ -51,27 +51,27 @@ public class FixingSeriesCsvLoaderTest {
   }
 
   public void test_multiple_series_single_file() {
-    Map<ObservableId, LocalDateDoubleTimeSeries> ts = FixingSeriesCsvLoader.loadFixingSeries(
+    Map<ObservableId, LocalDateDoubleTimeSeries> ts = FixingSeriesCsvLoader.load(
         ImmutableList.of(FIXING_SERIES_1_AND_2));
     assertLibor3m6mSeries(ts);
   }
 
   public void test_multiple_series_multiple_files() {
-    Map<ObservableId, LocalDateDoubleTimeSeries> ts = FixingSeriesCsvLoader.loadFixingSeries(
+    Map<ObservableId, LocalDateDoubleTimeSeries> ts = FixingSeriesCsvLoader.load(
         FIXING_SERIES_1, FIXING_SERIES_2);
     assertLibor3m6mSeries(ts);
   }
 
   public void test_single_series_multiple_files() {
     assertThrows(
-        () -> FixingSeriesCsvLoader.loadFixingSeries(FIXING_SERIES_1, FIXING_SERIES_1),
+        () -> FixingSeriesCsvLoader.load(FIXING_SERIES_1, FIXING_SERIES_1),
         IllegalArgumentException.class,
         "Multiple entries with same key: .*");
   }
 
   public void test_invalidDate() {
     assertThrows(
-        () -> FixingSeriesCsvLoader.loadFixingSeries(FIXING_SERIES_INVALID_DATE),
+        () -> FixingSeriesCsvLoader.load(FIXING_SERIES_INVALID_DATE),
         IllegalArgumentException.class,
         "Error processing resource as CSV file: .*");
   }

@@ -228,7 +228,7 @@ public abstract class MarketDataBuilder {
     }
     try {
       Collection<ResourceLocator> fixingSeriesResources = getAllResources(HISTORICAL_FIXINGS_DIR);
-      Map<ObservableId, LocalDateDoubleTimeSeries> fixingSeries = FixingSeriesCsvLoader.loadFixingSeries(fixingSeriesResources);
+      Map<ObservableId, LocalDateDoubleTimeSeries> fixingSeries = FixingSeriesCsvLoader.load(fixingSeriesResources);
       builder.addAllTimeSeries(fixingSeries);
     } catch (Exception e) {
       log.error("Error loading fixing series", e);

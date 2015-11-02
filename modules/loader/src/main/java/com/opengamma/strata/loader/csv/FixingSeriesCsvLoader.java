@@ -29,23 +29,25 @@ import com.opengamma.strata.market.id.IndexRateId;
  * <p>
  * The resources are expected to be in a CSV format, with the following header row:<br />
  * {@code Reference, Date, Value}.
- * <p>
- * The 'Reference' column is the name of the index that the data is for, such as 'USD-LIBOR-3M'.
- * The 'Date' column is the date that the fixing was taken.
- * The 'Value' column is the fixed value.
+ * <ul>
+ * <li>The 'Reference' column is the name of the index that the data is for, such as 'USD-LIBOR-3M'.
+ * <li>The 'Date' column is the date that the fixing was taken.
+ * <li>The 'Value' column is the fixed value.
+ * </ul>
  * <p>
  * Each fixing series must be contained entirely within a single resource, but each resource may
  * contain more than one series. The fixing series points do not need to be ordered.
  * <p>
  * For example:
  * <pre>
- * Reference,Date,Value
- * USD-LIBOR-3M,1971-01-04,0.065
- * USD-LIBOR-3M,1971-01-05,0.0638
- * USD-LIBOR-3M,1971-01-06,0.0638
+ * Reference, Date, Value
+ * USD-LIBOR-3M, 1971-01-04, 0.065
+ * USD-LIBOR-3M, 1971-01-05, 0.0638
+ * USD-LIBOR-3M, 1971-01-06, 0.0638
  * </pre>
+ * Note that Microsoft Excel prefers the CSV file to have no space after the comma.
  */
-public class FixingSeriesCsvLoader {
+public final class FixingSeriesCsvLoader {
 
   // CSV column headers
   private static final String REFERENCE_FIELD = "Reference";
@@ -54,40 +56,42 @@ public class FixingSeriesCsvLoader {
 
   //-------------------------------------------------------------------------
   /**
-   * Loads one or more historical fixing series into memory from CSV resources.
+   * Loads one or more CSV format fixing series files.
+   * <p>
+   * If the files contain a duplicate entry an exception will be thrown.
    * 
-   * @param fixingSeriesResources  the fixing series CSV resources
+   * @param resources  the fixing series CSV resources
    * @return the loaded fixing series, mapped by {@linkplain ObservableId observable ID}
+   * @throws IllegalArgumentException if the files contain a duplicate entry
    */
-  public static ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> loadFixingSeries(
-      ResourceLocator... fixingSeriesResources) {
-
-    return loadFixingSeries(Arrays.asList(fixingSeriesResources));
+  public static ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> load(ResourceLocator... resources) {
+    return load(Arrays.asList(resources));
   }
 
   /**
-   * Loads a set of historical fixing series into memory from CSV resources.
+   * Loads one or more CSV format fixing series files.
+   * <p>
+   * If the files contain a duplicate entry an exception will be thrown.
    * 
-   * @param fixingSeriesResources  the fixing series CSV resources
+   * @param resources  the fixing series CSV resources
    * @return the loaded fixing series, mapped by {@linkplain ObservableId observable ID}
+   * @throws IllegalArgumentException if the files contain a duplicate entry
    */
-  public static ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> loadFixingSeries(
-      Collection<ResourceLocator> fixingSeriesResources) {
-
+  public static ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> load(Collection<ResourceLocator> resources) {
+    // builder ensures keys can only be seen once
     ImmutableMap.Builder<ObservableId, LocalDateDoubleTimeSeries> builder = ImmutableMap.builder();
-    for (ResourceLocator timeSeriesResource : fixingSeriesResources) {
-      // builder ensures keys can only be seen once
-      builder.putAll(loadFixingSeries(timeSeriesResource));
+    for (ResourceLocator timeSeriesResource : resources) {
+      builder.putAll(loadSingle(timeSeriesResource));
     }
     return builder.build();
   }
 
   //-------------------------------------------------------------------------
   // loads a single fixing series CSV file
-  private static ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> loadFixingSeries(ResourceLocator resourceLocator) {
+  private static ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> loadSingle(ResourceLocator resource) {
     Map<ObservableId, LocalDateDoubleTimeSeriesBuilder> builders = new HashMap<>();
     try {
-      CsvFile csv = CsvFile.of(resourceLocator.getCharSource(), true);
+      CsvFile csv = CsvFile.of(resource.getCharSource(), true);
       for (int i = 0; i < csv.rowCount(); i++) {
         String referenceStr = csv.field(i, REFERENCE_FIELD);
         String dateStr = csv.field(i, DATE_FIELD);
@@ -103,7 +107,7 @@ public class FixingSeriesCsvLoader {
       }
     } catch (RuntimeException ex) {
       throw new IllegalArgumentException(
-          Messages.format("Error processing resource as CSV file: {}", resourceLocator), ex);
+          Messages.format("Error processing resource as CSV file: {}", resource), ex);
     }
 
     return builders.entrySet().stream()
