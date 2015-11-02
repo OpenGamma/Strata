@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.examples.marketdata.curve;
+package com.opengamma.strata.loader.csv;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
@@ -23,6 +23,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
@@ -38,24 +39,32 @@ import com.opengamma.strata.market.id.RateIndexCurveId;
 @Test
 public class RatesCurvesCsvLoaderTest {
 
-  private static final String GROUPS_1 = "classpath:test-marketdata-complete/curves/groups.csv";
-  private static final String SETTINGS_1 = "classpath:test-marketdata-complete/curves/settings.csv";
-  private static final String CURVES_1 = "classpath:test-marketdata-complete/curves/curves-1.csv";
-  private static final String CURVES_2 = "classpath:test-marketdata-complete/curves/curves-2.csv";
-  private static final String CURVES_3 = "classpath:test-marketdata-complete/curves/curves-3.csv";
-  private static final String CURVES_1_AND_2 = "classpath:test-marketdata-additional/curves/curves-1-and-2.csv";
+  private static final String GROUPS_1 = "classpath:com/opengamma/strata/loader/csv/groups.csv";
+  private static final String SETTINGS_1 = "classpath:com/opengamma/strata/loader/csv/settings.csv";
+  private static final String CURVES_1 = "classpath:com/opengamma/strata/loader/csv/curves-1.csv";
+  private static final String CURVES_2 = "classpath:com/opengamma/strata/loader/csv/curves-2.csv";
+  private static final String CURVES_3 = "classpath:com/opengamma/strata/loader/csv/curves-3.csv";
+  private static final String CURVES_1_AND_2 = "classpath:com/opengamma/strata/loader/csv/curves-1-and-2.csv";
 
-  private static final String SETTINGS_INVALID_DAY_COUNT = "classpath:test-marketdata-additional/curves/settings-invalid-day-count.csv";
-  private static final String SETTINGS_INVALID_INTERPOLATOR = "classpath:test-marketdata-additional/curves/settings-invalid-interpolator.csv";
-  private static final String SETTINGS_INVALID_LEFT_EXTRAPOLATOR = "classpath:test-marketdata-additional/curves/settings-invalid-left-extrapolator.csv";
-  private static final String SETTINGS_INVALID_RIGHT_EXTRAPOLATOR = "classpath:test-marketdata-additional/curves/settings-invalid-right-extrapolator.csv";
-  private static final String SETTINGS_INVALID_MISSING_COLUMN = "classpath:test-marketdata-additional/curves/settings-invalid-missing-column.csv";
-  private static final String SETTINGS_INVALID_VALUE_TYPE = "classpath:test-marketdata-additional/curves/settings-invalid-value-type.csv";
+  private static final String SETTINGS_INVALID_DAY_COUNT =
+      "classpath:com/opengamma/strata/loader/csv/settings-invalid-day-count.csv";
+  private static final String SETTINGS_INVALID_INTERPOLATOR =
+      "classpath:com/opengamma/strata/loader/csv/settings-invalid-interpolator.csv";
+  private static final String SETTINGS_INVALID_LEFT_EXTRAPOLATOR =
+      "classpath:com/opengamma/strata/loader/csv/settings-invalid-left-extrapolator.csv";
+  private static final String SETTINGS_INVALID_RIGHT_EXTRAPOLATOR =
+      "classpath:com/opengamma/strata/loader/csv/settings-invalid-right-extrapolator.csv";
+  private static final String SETTINGS_INVALID_MISSING_COLUMN =
+      "classpath:com/opengamma/strata/loader/csv/settings-invalid-missing-column.csv";
+  private static final String SETTINGS_INVALID_VALUE_TYPE =
+      "classpath:com/opengamma/strata/loader/csv/settings-invalid-value-type.csv";
 
-  private static final String GROUPS_INVALID_CURVE_TYPE = "classpath:test-marketdata-additional/curves/groups-invalid-curve-type.csv";
-  private static final String GROUPS_INVALID_REFERENCE_INDEX = "classpath:test-marketdata-additional/curves/groups-invalid-reference-index.csv";
-
-  private static final String CURVES_INVALID_DUPLICATE_POINTS = "classpath:test-marketdata-additional/curves/curves-invalid-duplicate-points.csv";
+  private static final String GROUPS_INVALID_CURVE_TYPE =
+      "classpath:com/opengamma/strata/loader/csv/groups-invalid-curve-type.csv";
+  private static final String GROUPS_INVALID_REFERENCE_INDEX =
+      "classpath:com/opengamma/strata/loader/csv/groups-invalid-reference-index.csv";
+  private static final String CURVES_INVALID_DUPLICATE_POINTS =
+      "classpath:com/opengamma/strata/loader/csv/curves-invalid-duplicate-points.csv";
 
   // curve date used in the test data
   private static final LocalDate CURVE_DATE = LocalDate.of(2009, 7, 31);
@@ -63,6 +72,11 @@ public class RatesCurvesCsvLoaderTest {
 
   // tolerance
   private static final double TOLERANCE = 1.0E-4;
+
+  static {
+    LoaderUtils.findIndex("USD-LIBOR-3M");
+//    Reflection.initialize(LoaderUtils.class);
+  }
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -107,11 +121,11 @@ public class RatesCurvesCsvLoaderTest {
   }
 
   private void testSettings(String settingsResource) {
-    RatesCurvesCsvLoader.loadCurves(
+    RatesCurvesCsvLoader.load(
+        CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(settingsResource),
-        ImmutableList.of(ResourceLocator.of(CURVES_1)),
-        CURVE_DATE);
+        ImmutableList.of(ResourceLocator.of(CURVES_1)));
   }
 
   //-------------------------------------------------------------------------
@@ -131,20 +145,20 @@ public class RatesCurvesCsvLoaderTest {
   }
 
   private void testGroups(String groupsResource) {
-    RatesCurvesCsvLoader.loadCurves(
+    RatesCurvesCsvLoader.load(
+        CURVE_DATE,
         ResourceLocator.of(groupsResource),
         ResourceLocator.of(SETTINGS_1),
-        ImmutableList.of(ResourceLocator.of(CURVES_1)),
-        CURVE_DATE);
+        ImmutableList.of(ResourceLocator.of(CURVES_1)));
   }
 
   //-------------------------------------------------------------------------
   public void test_single_curve_single_file() {
-    Map<RateCurveId, Curve> curves = RatesCurvesCsvLoader.loadCurves(
+    Map<RateCurveId, Curve> curves = RatesCurvesCsvLoader.load(
+        CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
-        ImmutableList.of(ResourceLocator.of(CURVES_1)),
-        CURVE_DATE);
+        ImmutableList.of(ResourceLocator.of(CURVES_1)));
 
     assertEquals(curves.size(), 1);
 
@@ -154,30 +168,30 @@ public class RatesCurvesCsvLoaderTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Multiple entries with same key: .*")
   public void test_single_curve_multiple_Files() {
-    RatesCurvesCsvLoader.loadCurves(
+    RatesCurvesCsvLoader.load(
+        CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
-        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_1)),
-        CURVE_DATE);
+        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_1)));
   }
 
   public void test_multiple_curves_single_file() {
-    Map<RateCurveId, Curve> curves = RatesCurvesCsvLoader.loadCurves(
+    Map<RateCurveId, Curve> curves = RatesCurvesCsvLoader.load(
+        CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
-        ImmutableList.of(ResourceLocator.of(CURVES_1_AND_2)),
-        CURVE_DATE);
+        ImmutableList.of(ResourceLocator.of(CURVES_1_AND_2)));
 
     assertEquals(curves.size(), 2);
     assertCurves(curves);
   }
 
   public void test_multiple_curves_multiple_files() {
-    Map<RateCurveId, Curve> curves = RatesCurvesCsvLoader.loadCurves(
+    Map<RateCurveId, Curve> curves = RatesCurvesCsvLoader.load(
+        CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
-        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)),
-        CURVE_DATE);
+        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
 
     assertEquals(curves.size(), 2);
     assertCurves(curves);
@@ -185,16 +199,16 @@ public class RatesCurvesCsvLoaderTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_invalid_curve_duplicate_points() {
-    RatesCurvesCsvLoader.loadCurves(
+    RatesCurvesCsvLoader.load(
+        CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
-        ImmutableList.of(ResourceLocator.of(CURVES_INVALID_DUPLICATE_POINTS)),
-        CURVE_DATE);
+        ImmutableList.of(ResourceLocator.of(CURVES_INVALID_DUPLICATE_POINTS)));
   }
   
   //-------------------------------------------------------------------------
   public void test_load_all_curves() {
-    Map<LocalDate, Map<RateCurveId, Curve>> allCurves = RatesCurvesCsvLoader.loadAllCurves(
+    Map<LocalDate, Map<RateCurveId, Curve>> allCurves = RatesCurvesCsvLoader.loadAllDates(
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
         ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2), ResourceLocator.of(CURVES_3)));
@@ -220,11 +234,11 @@ public class RatesCurvesCsvLoaderTest {
   }
   
   public void test_load_curves_date_filtering() {
-    Map<RateCurveId, Curve> curves = RatesCurvesCsvLoader.loadCurves(
+    Map<RateCurveId, Curve> curves = RatesCurvesCsvLoader.load(
+        CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
-        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2), ResourceLocator.of(CURVES_3)),
-        CURVE_DATE);
+        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2), ResourceLocator.of(CURVES_3)));
 
     assertEquals(curves.size(), 2);
     assertCurves(curves);

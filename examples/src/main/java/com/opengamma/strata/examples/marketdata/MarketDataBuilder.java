@@ -35,10 +35,10 @@ import com.opengamma.strata.engine.marketdata.MarketEnvironmentBuilder;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitIndexCreditCurveDataParser;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitSingleNameCreditCurveDataParser;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitYieldCurveDataParser;
-import com.opengamma.strata.examples.marketdata.curve.RatesCurvesCsvLoader;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.loader.csv.FixingSeriesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
+import com.opengamma.strata.loader.csv.RatesCurvesCsvLoader;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
@@ -218,7 +218,7 @@ public abstract class MarketDataBuilder {
       throw new IllegalArgumentException(Messages.format(
           "Unable to load rates curves: curve settings file not found at {}/{}", CURVES_DIR, CURVES_SETTINGS_FILE));
     }
-    return RatesCurvesCsvLoader.loadAllCurves(curveGroupsResource, curveSettingsResource, getRatesCurvesResources());
+    return RatesCurvesCsvLoader.loadAllDates(curveGroupsResource, curveSettingsResource, getRatesCurvesResources());
   }
 
   //-------------------------------------------------------------------------
@@ -257,7 +257,7 @@ public abstract class MarketDataBuilder {
     try {
       Collection<ResourceLocator> curvesResources = getRatesCurvesResources();
       Map<RateCurveId, Curve> ratesCurves =
-          RatesCurvesCsvLoader.loadCurves(curveGroupsResource, curveSettingsResource, curvesResources, marketDataDate);
+          RatesCurvesCsvLoader.load(marketDataDate, curveGroupsResource, curveSettingsResource, curvesResources);
       builder.addAllValues(ratesCurves);
     } catch (Exception e) {
       log.error("Error loading rates curves", e);

@@ -1,0 +1,3 @@
+Value Type,Day Count,Interpolator,Left Extrapolator,Right Extrapolator
+Zero,Act/Act ISDA,Linear,Flat,Flat
+Zero,Act/Act ISDA,Linear,Flat,Flat

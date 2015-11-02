@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.examples.marketdata.curve;
+package com.opengamma.strata.loader.csv;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -37,17 +37,6 @@ final class LoadedCurveKey
   private final CurveName curveName;
 
   //-------------------------------------------------------------------------
-  /**
-   * Obtains an instance.
-   * 
-   * @param curveDate  the curve date
-   * @param curveName  the curve name
-   * @return the curve key
-   */
-  static LoadedCurveKey of(LocalDate curveDate, String curveName) {
-    return of(curveDate, CurveName.of(curveName));
-  }
-
   /**
    * Obtains an instance from typed strings where applicable.
    * 
