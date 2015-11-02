@@ -38,6 +38,7 @@ import com.opengamma.strata.examples.marketdata.credit.markit.MarkitYieldCurveDa
 import com.opengamma.strata.examples.marketdata.curve.RatesCurvesCsvLoader;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.loader.csv.FixingSeriesCsvLoader;
+import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
@@ -277,7 +278,7 @@ public abstract class MarketDataBuilder {
     }
 
     try {
-      Map<QuoteId, Double> quotes = QuotesCsvLoader.loadQuotes(quotesResource, marketDataDate);
+      Map<QuoteId, Double> quotes = QuotesCsvLoader.load(marketDataDate, quotesResource);
       builder.addAllValues(quotes);
 
     } catch (Exception ex) {
