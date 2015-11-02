@@ -20,12 +20,12 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.value.BondGroup;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.LegalEntityGroup;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 
 /**
@@ -33,7 +33,7 @@ import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
  */
 public class LegalEntityDiscountingProviderDataSets {
   //      =====     issuer curve + repo curve      =====        
-  private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
+  private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final LocalDate VALUATION = LocalDate.of(2011, 6, 20);
   private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT1");
   private static final CurveName NAME_REPO = CurveName.of("TestRepoCurve");

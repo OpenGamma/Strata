@@ -23,9 +23,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 
 /**
  * Test {@link CurveGroupEntry}.
@@ -41,9 +42,9 @@ public class CurveGroupEntryTest {
           .dayCount(ACT_365F)
           .nodes(ImmutableList.of(
               DummyFraCurveNode.of(Period.ofMonths(1), GBP_LIBOR_1M, QuoteKey.of(StandardId.of("OG", "Ticker")))))
-          .interpolator(Interpolator1DFactory.LINEAR_INSTANCE)
-          .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
-          .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
+          .interpolator(CurveInterpolators.LINEAR)
+          .extrapolatorLeft(CurveExtrapolators.FLAT)
+          .extrapolatorRight(CurveExtrapolators.FLAT)
           .build();
   private static final InterpolatedNodalCurveDefinition CURVE_DEFN2 = CURVE_DEFN.toBuilder()
       .name(CurveName.of("Test2"))

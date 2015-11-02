@@ -28,10 +28,10 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.finance.rate.deposit.TermDeposit;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.value.DiscountFactors;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
@@ -66,7 +66,7 @@ public class DiscountingTermDepositProductPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
   private static final ImmutableRatesProvider IMM_PROV;
   static {
-    CurveInterpolator interp = Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE;
+    CurveInterpolator interp = CurveInterpolators.DOUBLE_QUADRATIC;
     DoubleArray time_eur = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0);
     DoubleArray rate_eur = DoubleArray.of(0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210);
     InterpolatedNodalCurve dscCurve =

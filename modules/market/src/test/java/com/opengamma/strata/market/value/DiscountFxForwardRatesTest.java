@@ -26,8 +26,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.FxForwardSensitivity;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 
 /**
  * Test {@link DiscountFxForwardRates}.
@@ -40,7 +40,7 @@ public class DiscountFxForwardRatesTest {
   private static final FxRate FX_RATE = FxRate.of(GBP, USD, 1.5d);
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(GBP, USD);
 
-  private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
+  private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final CurveMetadata METADATA1 = Curves.zeroRates("TestCurve", ACT_365F);
   private static final CurveMetadata METADATA2 = Curves.zeroRates("TestCurveUSD", ACT_365F);
   private static final InterpolatedNodalCurve CURVE1 =

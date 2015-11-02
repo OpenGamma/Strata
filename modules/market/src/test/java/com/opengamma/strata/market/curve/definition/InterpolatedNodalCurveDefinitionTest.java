@@ -26,9 +26,10 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 
 /**
  * Test {@link InterpolatedNodalCurveDefinition}.
@@ -51,18 +52,18 @@ public class InterpolatedNodalCurveDefinitionTest {
         .yValueType(ValueType.ZERO_RATE)
         .dayCount(ACT_365F)
         .nodes(NODES)
-        .interpolator(Interpolator1DFactory.LINEAR_INSTANCE)
-        .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
-        .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
+        .interpolator(CurveInterpolators.LINEAR)
+        .extrapolatorLeft(CurveExtrapolators.FLAT)
+        .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
     assertEquals(test.getName(), CURVE_NAME);
     assertEquals(test.getXValueType(), ValueType.YEAR_FRACTION);
     assertEquals(test.getYValueType(), ValueType.ZERO_RATE);
     assertEquals(test.getDayCount(), Optional.of(ACT_365F));
     assertEquals(test.getNodes(), NODES);
-    assertEquals(test.getInterpolator(), Interpolator1DFactory.LINEAR_INSTANCE);
-    assertEquals(test.getExtrapolatorLeft(), Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE);
-    assertEquals(test.getExtrapolatorRight(), Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE);
+    assertEquals(test.getInterpolator(), CurveInterpolators.LINEAR);
+    assertEquals(test.getExtrapolatorLeft(), CurveExtrapolators.FLAT);
+    assertEquals(test.getExtrapolatorRight(), CurveExtrapolators.FLAT);
     assertEquals(test.getParameterCount(), 2);
   }
 
@@ -74,9 +75,9 @@ public class InterpolatedNodalCurveDefinitionTest {
         .yValueType(ValueType.ZERO_RATE)
         .dayCount(ACT_365F)
         .nodes(NODES)
-        .interpolator(Interpolator1DFactory.LINEAR_INSTANCE)
-        .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
-        .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
+        .interpolator(CurveInterpolators.LINEAR)
+        .extrapolatorLeft(CurveExtrapolators.FLAT)
+        .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
     DefaultCurveMetadata expected = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME)
@@ -96,9 +97,9 @@ public class InterpolatedNodalCurveDefinitionTest {
         .yValueType(ValueType.ZERO_RATE)
         .dayCount(ACT_365F)
         .nodes(NODES)
-        .interpolator(Interpolator1DFactory.LINEAR_INSTANCE)
-        .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
-        .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
+        .interpolator(CurveInterpolators.LINEAR)
+        .extrapolatorLeft(CurveExtrapolators.FLAT)
+        .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
     DefaultCurveMetadata metadata = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME)
@@ -111,9 +112,9 @@ public class InterpolatedNodalCurveDefinitionTest {
         .metadata(metadata)
         .xValues(DoubleArray.of(ACT_365F.yearFraction(VAL_DATE, DATE1), ACT_365F.yearFraction(VAL_DATE, DATE2)))
         .yValues(DoubleArray.of(1d, 1.5d))
-        .interpolator(Interpolator1DFactory.LINEAR_INSTANCE)
-        .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
-        .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
+        .interpolator(CurveInterpolators.LINEAR)
+        .extrapolatorLeft(CurveExtrapolators.FLAT)
+        .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
     assertEquals(test.curve(VAL_DATE, DoubleArray.of(1d, 1.5d)), expected);
   }
@@ -126,9 +127,9 @@ public class InterpolatedNodalCurveDefinitionTest {
         .yValueType(ValueType.ZERO_RATE)
         .dayCount(ACT_365F)
         .nodes(NODES)
-        .interpolator(Interpolator1DFactory.LINEAR_INSTANCE)
-        .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
-        .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
+        .interpolator(CurveInterpolators.LINEAR)
+        .extrapolatorLeft(CurveExtrapolators.FLAT)
+        .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
     assertEquals(test.toCurveParameterSize(), CurveParameterSize.of(CURVE_NAME, NODES.size()));
   }
@@ -141,17 +142,17 @@ public class InterpolatedNodalCurveDefinitionTest {
         .yValueType(ValueType.ZERO_RATE)
         .dayCount(ACT_365F)
         .nodes(NODES)
-        .interpolator(Interpolator1DFactory.LINEAR_INSTANCE)
-        .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
-        .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
+        .interpolator(CurveInterpolators.LINEAR)
+        .extrapolatorLeft(CurveExtrapolators.FLAT)
+        .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
     coverImmutableBean(test);
     InterpolatedNodalCurveDefinition test2 = InterpolatedNodalCurveDefinition.builder()
         .name(CurveName.of("Foo"))
         .nodes(NODES.get(0))
-        .interpolator(Interpolator1DFactory.LOG_LINEAR_INSTANCE)
-        .extrapolatorLeft(Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR_INSTANCE)
-        .extrapolatorRight(Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR_INSTANCE)
+        .interpolator(CurveInterpolators.LOG_LINEAR)
+        .extrapolatorLeft(CurveExtrapolators.LOG_LINEAR)
+        .extrapolatorRight(CurveExtrapolators.LOG_LINEAR)
         .build();
     coverBeanEquals(test, test2);
   }
@@ -163,9 +164,9 @@ public class InterpolatedNodalCurveDefinitionTest {
         .yValueType(ValueType.ZERO_RATE)
         .dayCount(ACT_365F)
         .nodes(NODES)
-        .interpolator(Interpolator1DFactory.LINEAR_INSTANCE)
-        .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
-        .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
+        .interpolator(CurveInterpolators.LINEAR)
+        .extrapolatorLeft(CurveExtrapolators.FLAT)
+        .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
     assertSerialization(test);
   }

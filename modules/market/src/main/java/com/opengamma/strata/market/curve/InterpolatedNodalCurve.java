@@ -31,10 +31,10 @@ import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
@@ -170,8 +170,8 @@ public final class InterpolatedNodalCurve
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.extrapolatorLeft = Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE;
-    builder.extrapolatorRight = Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE;
+    builder.extrapolatorLeft = CurveExtrapolators.FLAT;
+    builder.extrapolatorRight = CurveExtrapolators.FLAT;
   }
 
   // ensure standard constructor is invoked

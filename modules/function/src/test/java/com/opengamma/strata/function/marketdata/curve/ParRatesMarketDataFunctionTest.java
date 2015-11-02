@@ -28,8 +28,6 @@ import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.finance.rate.fra.type.FraTemplate;
-import com.opengamma.strata.function.interpolator.CurveExtrapolators;
-import com.opengamma.strata.function.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
@@ -40,6 +38,8 @@ import com.opengamma.strata.market.curve.definition.InterpolatedNodalCurveDefini
 import com.opengamma.strata.market.curve.definition.NodalCurveDefinition;
 import com.opengamma.strata.market.id.ParRatesId;
 import com.opengamma.strata.market.id.QuoteId;
+import com.opengamma.strata.market.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
 

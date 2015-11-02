@@ -20,8 +20,8 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 
 @Test
 public class ParallelShiftedCurveTest {
@@ -70,7 +70,7 @@ public class ParallelShiftedCurveTest {
         METADATA,
         DoubleArray.of(0, 1),
         DoubleArray.of(2, 2.5),
-        Interpolator1DFactory.LINEAR_INSTANCE); // TODO Use CurveInterpolators.LINEAR when #261 is fixed
+        CurveInterpolators.LINEAR); // TODO Use CurveInterpolators.LINEAR when #261 is fixed
 
     Curve absoluteShiftedCurve = ParallelShiftedCurve.absolute(curve, 1);
     Curve relativeShiftedCurve = ParallelShiftedCurve.relative(curve, 0.2);
@@ -85,7 +85,7 @@ public class ParallelShiftedCurveTest {
         METADATA,
         DoubleArray.of(0, 1),
         DoubleArray.of(2, 2.5),
-        Interpolator1DFactory.LINEAR_INSTANCE); // TODO Use CurveInterpolators.LINEAR when #261 is fixed
+        CurveInterpolators.LINEAR); // TODO Use CurveInterpolators.LINEAR when #261 is fixed
 
     Curve absoluteShiftedCurve = ParallelShiftedCurve.absolute(curve, 1);
     Curve relativeShiftedCurve = ParallelShiftedCurve.relative(curve, 0.2);

@@ -28,9 +28,10 @@ import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 
 /**
  * Test {@link CurveGroupDefinition}.
@@ -48,9 +49,9 @@ public class CurveGroupDefinitionTest {
       .yValueType(ValueType.ZERO_RATE)
       .dayCount(ACT_365F)
       .nodes(ImmutableList.of(NODE1, NODE2))
-      .interpolator(Interpolator1DFactory.LINEAR_INSTANCE)
-      .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
-      .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
+      .interpolator(CurveInterpolators.LINEAR)
+      .extrapolatorLeft(CurveExtrapolators.FLAT)
+      .extrapolatorRight(CurveExtrapolators.FLAT)
       .build();
   private static final InterpolatedNodalCurveDefinition CURVE_CONFIG2 = CURVE_DEFN.toBuilder()
       .name(CurveName.of("Test2"))

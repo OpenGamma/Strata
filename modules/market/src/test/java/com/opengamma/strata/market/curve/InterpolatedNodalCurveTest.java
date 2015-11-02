@@ -23,11 +23,12 @@ import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.FlatExtrapolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
@@ -239,9 +240,9 @@ public class InterpolatedNodalCurveTest {
         .metadata(METADATA_ENTRIES)
         .xValues(XVALUES2)
         .yValues(YVALUES_BUMPED)
-        .extrapolatorLeft(Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR_INSTANCE)
-        .interpolator(Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE)
-        .extrapolatorRight(Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR_INSTANCE)
+        .extrapolatorLeft(CurveExtrapolators.LOG_LINEAR)
+        .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
+        .extrapolatorRight(CurveExtrapolators.LOG_LINEAR)
         .build();
     coverBeanEquals(test, test2);
   }

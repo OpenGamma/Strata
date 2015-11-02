@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
-import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.util.AssertMatrix;
@@ -29,8 +29,10 @@ public class InterpolatedCurveVectorFunctionTest {
 
   public void test() {
     final double[] knots = new double[] {-1, 0, 0.5, 1.5, 3.0};
-    Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-        Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    Interpolator1D interpolator = CombinedInterpolatorExtrapolator.of(
+        Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR_INSTANCE,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR_INSTANCE);
 
     //sample at the knots 
     InterpolatedCurveVectorFunction vf = new InterpolatedCurveVectorFunction(knots, interpolator, knots);
@@ -53,8 +55,10 @@ public class InterpolatedCurveVectorFunctionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void badKnotsTest() {
     double[] knots = new double[] {-1, 0, -0.5, 1.5, 3.0};
-    Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-        Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    Interpolator1D interpolator = CombinedInterpolatorExtrapolator.of(
+        Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR_INSTANCE,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR_INSTANCE);
     @SuppressWarnings("unused")
     InterpolatedCurveVectorFunction vf = new InterpolatedCurveVectorFunction(knots, interpolator, knots);
   }
@@ -62,16 +66,20 @@ public class InterpolatedCurveVectorFunctionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void badKnotsInterpolatedVectorFunctionProviderTest() {
     double[] knots = new double[] {-1, 0, -0.5, 1.5, 3.0};
-    Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-        Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    Interpolator1D interpolator = CombinedInterpolatorExtrapolator.of(
+        Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR_INSTANCE,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR_INSTANCE);
     @SuppressWarnings("unused")
     InterpolatedVectorFunctionProvider pro = new InterpolatedVectorFunctionProvider(interpolator, knots);
   }
 
   public void providerTest() {
     double[] knots = new double[] {-1, 0, 0.5, 1.5, 3.0};
-    Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-        Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    Interpolator1D interpolator = CombinedInterpolatorExtrapolator.of(
+        Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR_INSTANCE,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR_INSTANCE);
 
     InterpolatedVectorFunctionProvider pro = new InterpolatedVectorFunctionProvider(interpolator, knots);
     double[] samplePoints = new double[] {-3, -0.5, 0.5, 1.3, 2.7};
@@ -95,10 +103,14 @@ public class InterpolatedCurveVectorFunctionTest {
   public void concatTest() {
     double[] samplePoints = new double[] {-2, -1, 0.7, 1, 2, 3, 4};
     double[] knots1 = new double[] {-1, 0, 0.5, 1.5, 3.0};
-    Interpolator1D interpolator1 = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-        Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-    Interpolator1D interpolator2 = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-        Interpolator1DFactory.LINEAR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    Interpolator1D interpolator1 = CombinedInterpolatorExtrapolator.of(
+        Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR_INSTANCE,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR_INSTANCE);
+    Interpolator1D interpolator2 = CombinedInterpolatorExtrapolator.of(
+        Interpolator1DFactory.LINEAR_INSTANCE,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR_INSTANCE,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR_INSTANCE);
     double[] knots2 = new double[] {1, 2.1, 3, 4};
     VectorFunction vf1 = new InterpolatedCurveVectorFunction(samplePoints, interpolator1, knots1);
     VectorFunction vf2 = new InterpolatedCurveVectorFunction(samplePoints, interpolator2, knots2);
