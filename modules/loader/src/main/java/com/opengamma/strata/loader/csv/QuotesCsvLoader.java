@@ -23,7 +23,7 @@ import com.opengamma.strata.market.id.QuoteId;
  * Loads a set of quotes into memory from CSV resources.
  * <p>
  * The quotes are expected to be in a CSV format, with the following header row:<br />
- * {@code Date, Scheme, Ticker, Value}.
+ * {@code Valuation Date, Symbology, Ticker, Value}.
  * <ul>
  * <li>The 'Valuation Date' column provides the valuation date, allowing data from different
  *  days to be stored in the same file
@@ -105,13 +105,13 @@ public final class QuotesCsvLoader {
         String dateText = csv.field(i, DATE_FIELD);
         LocalDate date = LocalDate.parse(dateText);
         if (date.equals(marketDataDate)) {
-          String schemeStr = csv.field(i, SYMBOLOGY_FIELD);
+          String symbologyStr = csv.field(i, SYMBOLOGY_FIELD);
           String tickerStr = csv.field(i, TICKER_FIELD);
           String fieldNameStr = csv.field(i, FIELD_NAME_FIELD);
           String valueStr = csv.field(i, VALUE_FIELD);
 
           double value = Double.valueOf(valueStr);
-          StandardId id = StandardId.of(schemeStr, tickerStr);
+          StandardId id = StandardId.of(symbologyStr, tickerStr);
           FieldName fieldName = fieldNameStr.isEmpty() ? FieldName.MARKET_VALUE : FieldName.of(fieldNameStr);
 
           builder.put(QuoteId.of(id, MarketDataFeed.NONE, fieldName), value);
