@@ -1,5 +1,4 @@
 Valuation Date,Symbology,Ticker,Field Name,Value
 ,,,,,
 2014-01-22,OG-Future,Eurex-FGBL-Mar14,MarketValue,150.43
-2014-01-22,OG-FutOpt,Eurex-OGBL-Mar14-C150,MarketValue,1.5
-2014-01-22,OG-Future,CME-ED-Mar14,MarketValue,99.620
+2014-01-22,OG-Future,Eurex-FGBL-Mar14,MarketValue,150.50
