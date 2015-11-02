@@ -31,7 +31,7 @@ public final class FixedOvernightSwapConventions {
       FixedOvernightSwapConvention.of(StandardFixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS.getName());
 
   /**
-   * The 'USD-FIXED-TERM-FED-FUND-OIS' swap convention.
+   * The 'USD-FIXED-1Y-FED-FUND-OIS' swap convention.
    * <p>
    * USD fixed vs Fed Fund OIS swap for terms greater than one year.
    * Both legs pay annually and use day count 'Act/360'.
