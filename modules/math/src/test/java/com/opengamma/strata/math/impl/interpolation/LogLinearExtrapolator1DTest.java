@@ -42,8 +42,10 @@ public class LogLinearExtrapolator1DTest {
     final Interpolator1D interp = Interpolator1DFactory.getInterpolator(Interpolator1DFactory.LOG_NATURAL_CUBIC_MONOTONE);
     final Extrapolator1D extrap = new LogLinearExtrapolator1D();
     final CombinedInterpolatorExtrapolator combined1 = new CombinedInterpolatorExtrapolator(interp, extrap, extrap);
-    final CombinedInterpolatorExtrapolator combined2 = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_NATURAL_CUBIC_MONOTONE,
-        Interpolator1DFactory.LOG_LINEAR_EXTRAPOLATOR, Interpolator1DFactory.LOG_LINEAR_EXTRAPOLATOR);
+    final CombinedInterpolatorExtrapolator combined2 = CombinedInterpolatorExtrapolator.of(
+        Interpolator1DFactory.LOG_NATURAL_CUBIC_MONOTONE_INSTANCE,
+        Interpolator1DFactory.LOG_LINEAR_EXTRAPOLATOR_INSTANCE,
+        Interpolator1DFactory.LOG_LINEAR_EXTRAPOLATOR_INSTANCE);
 
     final int yDim = yValues.length;
     for (int k = 0; k < yDim; ++k) {
@@ -150,8 +152,10 @@ public class LogLinearExtrapolator1DTest {
     final Interpolator1D interp = Interpolator1DFactory.getInterpolator(Interpolator1DFactory.LOG_NATURAL_CUBIC_MONOTONE);
     final Extrapolator1D extrap = new LogLinearExtrapolator1D(1.e-8);
     final CombinedInterpolatorExtrapolator combined1 = new CombinedInterpolatorExtrapolator(interp, extrap, extrap);
-    final CombinedInterpolatorExtrapolator combined2 = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_NATURAL_CUBIC_MONOTONE,
-        Interpolator1DFactory.LOG_LINEAR_EXTRAPOLATOR, Interpolator1DFactory.LOG_LINEAR_EXTRAPOLATOR);
+    final CombinedInterpolatorExtrapolator combined2 = CombinedInterpolatorExtrapolator.of(
+        Interpolator1DFactory.LOG_NATURAL_CUBIC_MONOTONE_INSTANCE,
+        Interpolator1DFactory.LOG_LINEAR_EXTRAPOLATOR_INSTANCE,
+        Interpolator1DFactory.LOG_LINEAR_EXTRAPOLATOR_INSTANCE);
 
     final int yDim = yValues.length;
     for (int k = 0; k < yDim; ++k) {

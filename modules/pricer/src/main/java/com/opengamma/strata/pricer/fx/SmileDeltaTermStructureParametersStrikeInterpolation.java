@@ -9,9 +9,10 @@ import java.util.Objects;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.Triple;
-import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.strata.market.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
@@ -33,11 +34,10 @@ class SmileDeltaTermStructureParametersStrikeInterpolation
   /**
    * The default interpolator: linear with flat extrapolation.
    */
-  private static final Interpolator1D DEFAULT_INTERPOLATOR_STRIKE =
-      CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-          Interpolator1DFactory.LINEAR,
-          Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-          Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D DEFAULT_INTERPOLATOR_STRIKE = CombinedInterpolatorExtrapolator.of(
+      CurveInterpolators.LINEAR,
+      CurveExtrapolators.FLAT,
+      CurveExtrapolators.FLAT);
 
   /**
    * Constructor from volatility term structure. 

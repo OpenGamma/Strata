@@ -83,6 +83,7 @@ import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
@@ -91,7 +92,6 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.ForwardPriceIndexValues;
 import com.opengamma.strata.market.value.PriceIndexValues;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
 import com.opengamma.strata.pricer.impl.rate.ForwardInflationInterpolatedRateObservationFn;
@@ -514,7 +514,7 @@ public class DiscountingSwapLegPricerTest {
   private static final LocalDate VAL_DATE_INFLATION = LocalDate.of(2014, 7, 8);
   private static final YearMonth VAL_MONTH_INFLATION = YearMonth.from(VAL_DATE_INFLATION);
 
-  private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
+  private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final double CONSTANT_INDEX = 242.0;
   private static final PriceIndexValues GBPRI_CURVE_FLAT = ForwardPriceIndexValues.of(
       GB_RPI,
@@ -526,7 +526,7 @@ public class DiscountingSwapLegPricerTest {
           DoubleArray.of(CONSTANT_INDEX, CONSTANT_INDEX),
           INTERPOLATOR));
 
-  private static final CurveInterpolator INTERP_SPLINE = Interpolator1DFactory.NATURAL_CUBIC_SPLINE_INSTANCE;
+  private static final CurveInterpolator INTERP_SPLINE = CurveInterpolators.NATURAL_CUBIC_SPLINE;
   private static final PriceIndexValues GBPRI_CURVE = ForwardPriceIndexValues.of(
       GB_RPI,
       VAL_MONTH_INFLATION,

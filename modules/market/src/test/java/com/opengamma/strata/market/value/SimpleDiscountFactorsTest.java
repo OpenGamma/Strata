@@ -29,9 +29,9 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 
 /**
  * Test {@link SimpleDiscountFactors}.
@@ -42,7 +42,7 @@ public class SimpleDiscountFactorsTest {
   private static final LocalDate DATE_VAL = date(2015, 6, 4);
   private static final LocalDate DATE_AFTER = date(2015, 7, 30);
 
-  private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
+  private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final CurveName NAME = CurveName.of("TestCurve");
   private static final CurveMetadata METADATA = Curves.discountFactors(NAME, ACT_365F);
 

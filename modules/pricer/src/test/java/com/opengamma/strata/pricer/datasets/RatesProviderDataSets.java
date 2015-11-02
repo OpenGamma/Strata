@@ -30,7 +30,7 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -67,7 +67,7 @@ public class RatesProviderDataSets {
       0.0240, 0.0250, 0.0260, 0.0270, 0.0280, 0.0290, 0.0300, 0.0310);
 
   //-------------------------------------------------------------------------
-  public static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
+  public static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
 
   //-------------------------------------------------------------------------
   //     =====     USD     =====     

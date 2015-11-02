@@ -29,11 +29,11 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.FxVolatilitySurfaceYearFractionNodeMetadata;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 
 /**
  * Test {@link BlackVolatilityFlatFxProvider}.
@@ -41,7 +41,7 @@ import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 @Test
 public class BlackVolatilityFlatFxProviderTest {
 
-  private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
+  private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final DoubleArray TIMES = DoubleArray.of(0.5, 1.0, 3.0);
   private static final DoubleArray VOLS = DoubleArray.of(0.05, 0.09, 0.16);
   private static final CurveMetadata METADATA = DefaultCurveMetadata.of("TestCurve");

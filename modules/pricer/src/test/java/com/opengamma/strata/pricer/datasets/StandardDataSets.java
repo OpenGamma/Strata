@@ -24,7 +24,8 @@ import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.market.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -39,8 +40,8 @@ public class StandardDataSets {
   public static final FxMatrix FX_MATRIX = FxMatrix.empty();
   public static final FxMatrix FX_MATRIX_EUR_USD = FxMatrix.of(EUR, USD, 1.20);
 
-  private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
-  private static final CurveExtrapolator EXTRAPOLATOR = Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE;
+  private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
+  private static final CurveExtrapolator EXTRAPOLATOR = CurveExtrapolators.FLAT;
 
   //-------------------------------------------------------------------------
   // Group 1

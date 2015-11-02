@@ -26,14 +26,14 @@ import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.finance.rate.swap.type.FixedRateSwapLegConvention;
 import com.opengamma.strata.finance.rate.swap.type.IborRateSwapLegConvention;
 import com.opengamma.strata.finance.rate.swap.type.ImmutableFixedIborSwapConvention;
-import com.opengamma.strata.function.interpolator.CurveExtrapolators;
-import com.opengamma.strata.function.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.definition.CurveNode;
 import com.opengamma.strata.market.curve.definition.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.definition.FraCurveNode;
 import com.opengamma.strata.market.curve.definition.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.id.QuoteId;
+import com.opengamma.strata.market.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
 

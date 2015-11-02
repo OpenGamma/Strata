@@ -12,9 +12,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.strata.market.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
@@ -50,8 +51,10 @@ class SmileDeltaTermStructureParameters {
   /**
    * The default interpolator: time square (total variance) with flat extrapolation.
    */
-  private static final Interpolator1D DEFAULT_INTERPOLATOR_EXPIRY = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.TIME_SQUARE, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D DEFAULT_INTERPOLATOR_EXPIRY = CombinedInterpolatorExtrapolator.of(
+      CurveInterpolators.TIME_SQUARE,
+      CurveExtrapolators.FLAT,
+      CurveExtrapolators.FLAT);
 
   /**
    * Constructor from volatility term structure.
@@ -182,11 +185,11 @@ class SmileDeltaTermStructureParameters {
    * @param riskReversal  the risk reversal figures
    * @param strangle  the strangle figure
    */
-  public SmileDeltaTermStructureParameters( 
-      double[] timeToExpiration,  
-      double[] delta, 
-      double[] atm,  
-      double[][] riskReversal,  
+  public SmileDeltaTermStructureParameters(
+      double[] timeToExpiration,
+      double[] delta,
+      double[] atm,
+      double[][] riskReversal,
       double[][] strangle) {
     this(Long.toString(ATOMIC.getAndIncrement()), timeToExpiration, delta, atm, riskReversal, strangle);
   }
@@ -212,10 +215,10 @@ class SmileDeltaTermStructureParameters {
    */
   public SmileDeltaTermStructureParameters(
       String name,
-      double[] timeToExpiration, 
-      double[] delta, 
-      double[] atm, 
-      double[][] riskReversal,  
+      double[] timeToExpiration,
+      double[] delta,
+      double[] atm,
+      double[][] riskReversal,
       double[][] strangle) {
     this(name, timeToExpiration, delta, atm, riskReversal, strangle, DEFAULT_INTERPOLATOR_EXPIRY);
   }

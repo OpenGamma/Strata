@@ -89,6 +89,10 @@ public final class Interpolator1DFactory {
   public static final TimeSquareInterpolator1D TIME_SQUARE_INSTANCE = new TimeSquareInterpolator1D();
   /** Flat extrapolator instance */
   public static final FlatExtrapolator1D FLAT_EXTRAPOLATOR_INSTANCE = new FlatExtrapolator1D();
+  /** Linear extrapolator instance */
+  public static final LinearExtrapolator1D LINEAR_EXTRAPOLATOR_INSTANCE = new LinearExtrapolator1D();
+  /** Log linear extrapolator instance */
+  public static final LogLinearExtrapolator1D LOG_LINEAR_EXTRAPOLATOR_INSTANCE = new LogLinearExtrapolator1D();
   /** Exponential extrapolator instance */
   public static final ExponentialExtrapolator1D EXPONENTIAL_EXTRAPOLATOR_INSTANCE = new ExponentialExtrapolator1D();
 

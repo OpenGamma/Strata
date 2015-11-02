@@ -26,12 +26,14 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
@@ -43,8 +45,6 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.ForwardPriceIndexValues;
 import com.opengamma.strata.market.value.PriceIndexValues;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
 
 /**
@@ -186,7 +186,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     YearMonth valuationMonth = YearMonth.of(2014, 1);
     DoubleArray x = DoubleArray.of(0.5, 1.0, 2.0);
     DoubleArray y = DoubleArray.of(224.2, 262.6, 277.5);
-    NaturalCubicSplineInterpolator1D interp = Interpolator1DFactory.NATURAL_CUBIC_SPLINE_INSTANCE;
+    CurveInterpolator interp = CurveInterpolators.NATURAL_CUBIC_SPLINE;
     String curveName = "GB_RPI_CURVE";
     InterpolatedNodalCurve interpCurve = InterpolatedNodalCurve.of(Curves.prices(curveName), x, y, interp);
     PriceIndexValues values = ForwardPriceIndexValues.of(
