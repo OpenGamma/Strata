@@ -81,7 +81,7 @@ final class LoadedCurveSettings
    * @param interpolator  the interpolator
    * @param extrapolatorLeft  the left extrapolator
    * @param extrapolatorRight  the right extrapolator
-   * @return the curve node
+   * @return the curve settings
    */
   static LoadedCurveSettings of(
       CurveName curveName,

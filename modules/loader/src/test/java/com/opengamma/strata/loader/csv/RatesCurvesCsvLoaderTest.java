@@ -74,8 +74,8 @@ public class RatesCurvesCsvLoaderTest {
   private static final double TOLERANCE = 1.0E-4;
 
   static {
+    // TODO: remove when Joda-Beans issue fixed
     LoaderUtils.findIndex("USD-LIBOR-3M");
-//    Reflection.initialize(LoaderUtils.class);
   }
 
   //-------------------------------------------------------------------------

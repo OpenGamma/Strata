@@ -97,7 +97,17 @@ public final class RatesCurvesCsvLoader {
   private static final String CURVE_POINT_VALUE = "Value";
   private static final String CURVE_POINT_LABEL = "Label";
 
-  // map value type codes
+  /**
+   * Name used in CSV file for discount curves.
+   */
+  private static final String DISCOUNT = "discount";
+  /**
+   * Name used in CSV file for forward curves.
+   */
+  private static final String FORWARD = "forward";
+  /**
+   * Names used in CSV file for value types.
+   */
   private static final Map<String, ValueType> VALUE_TYPE_MAP = ImmutableMap.of(
       "zero", ValueType.ZERO_RATE,
       "df", ValueType.DISCOUNT_FACTOR);
@@ -110,10 +120,10 @@ public final class RatesCurvesCsvLoader {
    * <p>
    * If the files contain a duplicate entry an exception will be thrown.
    * 
+   * @param marketDataDate  the curve date to load
    * @param groupsResource  the curve groups CSV resource
    * @param settingsResource  the curve settings CSV resource
    * @param curvesResources  the CSV resources for curves
-   * @param marketDataDate  the curve date to load
    * @return the loaded curves, mapped by an identifying key
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
@@ -246,11 +256,11 @@ public final class RatesCurvesCsvLoader {
   // parses the identifier
   private static RateCurveId createRateCurveId(CurveGroupName curveGroup, String curveTypeStr, String referenceStr) {
     // discount and forward curves are supported
-    if ("forward".equals(curveTypeStr.toLowerCase())) {
+    if (FORWARD.equals(curveTypeStr.toLowerCase())) {
       RateIndex index = (RateIndex) LoaderUtils.findIndex(referenceStr);
       return RateIndexCurveId.of(index, curveGroup);
 
-    } else if ("discount".equals(curveTypeStr.toLowerCase())) {
+    } else if (DISCOUNT.equals(curveTypeStr.toLowerCase())) {
       Currency ccy = Currency.of(referenceStr);
       return DiscountCurveId.of(ccy, curveGroup);
 
@@ -261,6 +271,7 @@ public final class RatesCurvesCsvLoader {
 
   //-------------------------------------------------------------------------
   // loads a single curves CSV file
+  // requestedDate can be null, meaning load all dates
   private static Map<LoadedCurveKey, Curve> loadSingle(
       ResourceLocator curvesResource,
       Map<CurveName, LoadedCurveSettings> settingsMap,

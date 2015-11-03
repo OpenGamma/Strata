@@ -20,7 +20,6 @@ import org.joda.beans.ser.JodaBeanSer;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.reflect.Reflection;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -73,8 +72,13 @@ import com.opengamma.strata.market.id.QuoteId;
  */
 public class CalibrationCheckExample {
 
+  /**
+   * The valuation date.
+   */
   private static final LocalDate VALUATION_DATE = LocalDate.of(2015, 7, 21);
-
+  /**
+   * The empty time-series.
+   */
   private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
 
   /**
@@ -105,7 +109,8 @@ public class CalibrationCheckExample {
       ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "quotes/quotes.csv");
 
   static {
-    Reflection.initialize(LoaderUtils.class);
+    // TODO: remove when Joda-Beans issue fixed
+    LoaderUtils.findIndex("USD-LIBOR-3M");
   }
 
   //-------------------------------------------------------------------------
