@@ -19,14 +19,28 @@ public abstract class DiscreteQuantileMethod
     extends QuantileCalculationMethod {
 
   @Override
-  public double quantileFromSorted(double level, DoubleArray sortedSample) {
+  protected double quantile(double level, DoubleArray sortedSample, boolean isExtrapolated) {
     ArgChecker.isTrue(level > 0, "Quantile should be above 0.");
     ArgChecker.isTrue(level < 1, "Quantile should be below 1.");
-    int sampleSize = sortedSample.size();
-    int index = index(level * sampleSize);
+    int sampleSize = sampleCorrection(sortedSample.size());
+    int index = (int) checkIndex(index(level * sampleSize), sortedSample.size(), isExtrapolated);
     return sortedSample.get(index - 1);
   }
 
+  @Override
+  protected double expectedShortfall(double level, DoubleArray sortedSample, boolean isExtrapolated) {
+    ArgChecker.isTrue(level > 0, "Quantile should be above 0.");
+    ArgChecker.isTrue(level < 1, "Quantile should be below 1.");
+    int sampleSize = sampleCorrection(sortedSample.size());
+    int index = (int) checkIndex(index(level * sampleSize), sortedSample.size(), isExtrapolated);
+    double losses = 0d;
+    for (int i = 0; i < index; i++) {
+      losses += sortedSample.get(i);
+    }
+    return losses / (double) index;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Internal method computing the index for a give quantile multiply by sample size.
    * <p>
@@ -37,4 +51,11 @@ public abstract class DiscreteQuantileMethod
    */
   abstract int index(double quantileSize);
 
+  /**
+   * Internal method returning the sample size correction for the specific implementation.
+   * 
+   * @param sampleSize  the sample size
+   * @return the correction
+   */
+  abstract int sampleCorrection(int sampleSize);
 }

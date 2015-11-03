@@ -22,21 +22,40 @@ public abstract class InterpolationQuantileMethod
     extends QuantileCalculationMethod {
 
   @Override
-  public double quantileFromSorted(double level, DoubleArray sortedSample) {
+  protected double quantile(double level, DoubleArray sortedSample, boolean isExtrapolated) {
     ArgChecker.isTrue(level > 0, "Quantile should be above 0.");
     ArgChecker.isTrue(level < 1, "Quantile should be below 1.");
     int sampleSize = sortedSample.size();
-    double adjustedLevel = level * sampleCorrection(sampleSize) + indexCorrection();
+    double adjustedLevel =
+        checkIndex(level * sampleCorrection(sampleSize) + indexCorrection(), sortedSample.size(), isExtrapolated);
     int lowerIndex = (int) Math.floor(adjustedLevel);
-    ArgChecker.isTrue(lowerIndex >= 1, "Quantile can not be computed below the lowest probability level.");
     int upperIndex = (int) Math.ceil(adjustedLevel);
-    ArgChecker.isTrue(
-        upperIndex <= sortedSample.size(), "Quantile can not be computed above the highest probability level.");
     double lowerWeight = upperIndex - adjustedLevel;
     double upperWeight = 1d - lowerWeight;
     return lowerWeight * sortedSample.get(lowerIndex - 1) + upperWeight * sortedSample.get(upperIndex - 1);
   }
 
+  @Override
+  protected double expectedShortfall(double level, DoubleArray sortedSample, boolean isExtrapolated) {
+    ArgChecker.isTrue(level > 0, "Quantile should be above 0.");
+    ArgChecker.isTrue(level < 1, "Quantile should be below 1.");
+    int sampleSize = sortedSample.size();
+    double adjustedLevel =
+        checkIndex(level * sampleCorrection(sampleSize) + indexCorrection(), sortedSample.size(), isExtrapolated);
+    int lowerIndex = (int) Math.floor(adjustedLevel);
+    int upperIndex = (int) Math.ceil(adjustedLevel);
+    double losses = 0d;
+    for (int i = 0; i < lowerIndex; i++) {
+      losses += sortedSample.get(i);
+    }
+    if (lowerIndex != upperIndex) {
+      double upperWeight = adjustedLevel - lowerIndex;
+      losses += upperWeight * sortedSample.get(upperIndex - 1);
+    }
+    return losses / adjustedLevel;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Internal method returning the index correction for the specific implementation.
    * 
