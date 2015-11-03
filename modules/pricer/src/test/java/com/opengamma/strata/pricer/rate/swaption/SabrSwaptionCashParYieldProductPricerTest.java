@@ -54,6 +54,7 @@ import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapLegType;
 import com.opengamma.strata.finance.rate.swap.type.IborIborSwapConvention;
 import com.opengamma.strata.finance.rate.swap.type.IborRateSwapLegConvention;
+import com.opengamma.strata.finance.rate.swap.type.ImmutableIborIborSwapConvention;
 import com.opengamma.strata.finance.rate.swaption.CashSettlement;
 import com.opengamma.strata.finance.rate.swaption.CashSettlementMethod;
 import com.opengamma.strata.finance.rate.swaption.PhysicalSettlement;
@@ -198,8 +199,10 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       .swaptionSettlement(PhysicalSettlement.DEFAULT)
       .underlying(SWAP_REC)
       .build();
-  private static final IborIborSwapConvention SWAP_BASIS_CONV = IborIborSwapConvention.of(
-      IborRateSwapLegConvention.of(IborIndices.EUR_LIBOR_3M), IborRateSwapLegConvention.of(IborIndices.EUR_LIBOR_6M));
+  private static final IborIborSwapConvention SWAP_BASIS_CONV = ImmutableIborIborSwapConvention.of(
+      "Test",
+      IborRateSwapLegConvention.of(IborIndices.EUR_LIBOR_3M),
+      IborRateSwapLegConvention.of(IborIndices.EUR_LIBOR_6M));
   private static final Swap SWAP_BASIS = SWAP_BASIS_CONV.toTrade(
       MATURITY.toLocalDate(), Tenor.ofYears(TENOR_YEAR), BuySell.BUY, NOTIONAL, 0d).getProduct();
   private static final Swaption SWAPTION_BASIS = Swaption.builder()
