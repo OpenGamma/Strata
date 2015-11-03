@@ -205,7 +205,7 @@ public final class RatesCurvesCsvLoader {
 
   //-------------------------------------------------------------------------
   // loads the curve settings CSV file
-  private static Map<CurveName, LoadedCurveSettings> loadCurveSettings(ResourceLocator settingsResource) {
+  static Map<CurveName, LoadedCurveSettings> loadCurveSettings(ResourceLocator settingsResource) {
     ImmutableMap.Builder<CurveName, LoadedCurveSettings> builder = ImmutableMap.builder();
     CsvFile csv = CsvFile.of(settingsResource.getCharSource(), true);
     for (int i = 0; i < csv.rowCount(); i++) {
@@ -236,7 +236,7 @@ public final class RatesCurvesCsvLoader {
   }
 
   // loads the curve groups CSV file
-  private static Map<CurveName, Set<RateCurveId>> loadCurveGroups(ResourceLocator groupsResource) {
+  static Map<CurveName, Set<RateCurveId>> loadCurveGroups(ResourceLocator groupsResource) {
     Map<CurveName, Set<RateCurveId>> curveGroups = new HashMap<>();
     CsvFile csv = CsvFile.of(groupsResource.getCharSource(), true);
     for (int i = 0; i < csv.rowCount(); i++) {
