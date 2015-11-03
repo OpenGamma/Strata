@@ -19,15 +19,15 @@ import org.joda.beans.Bean;
 import org.joda.beans.ser.JodaBeanSer;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.market.ImmutableObservableValues;
-import com.opengamma.strata.basics.market.MarketDataFeed;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Unchecked;
 import com.opengamma.strata.collect.id.LinkResolver;
+import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -51,12 +51,15 @@ import com.opengamma.strata.engine.marketdata.function.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
+import com.opengamma.strata.loader.LoaderUtils;
+import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
 import com.opengamma.strata.market.curve.definition.CurveNode;
 import com.opengamma.strata.market.curve.definition.IborFixingDepositCurveNode;
 import com.opengamma.strata.market.id.IndexRateId;
+import com.opengamma.strata.market.id.QuoteId;
 
 /**
  * Test for curve calibration with 2 curves in USD. 
@@ -69,8 +72,13 @@ import com.opengamma.strata.market.id.IndexRateId;
  */
 public class CalibrationCheckExample {
 
+  /**
+   * The valuation date.
+   */
   private static final LocalDate VALUATION_DATE = LocalDate.of(2015, 7, 21);
-
+  /**
+   * The empty time-series.
+   */
   private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
 
   /**
@@ -89,15 +97,21 @@ public class CalibrationCheckExample {
   /**
    * The location of the data files.
    */
-  private static final String PATH_CONFIG = "src/main/resources/example-marketdata/quotes/";
+  private static final String PATH_CONFIG = "src/main/resources/example-calibration/";
   /**
    * The location of the curve definition.
    */
-  private static final String CURVE_GROUP_CONFIG_FILE_NAME = PATH_CONFIG + "USD-DSCON-LIBOR3M.xml";
+  private static final String CURVE_GROUP_CONFIG_FILE_NAME = PATH_CONFIG + "curves/USD-DSCON-LIBOR3M.xml";
   /**
    * The location of the market quotes file.
    */
-  private static final String MARKET_QUOTES_FILE_NAME = PATH_CONFIG + "market_quotes_usd.xml";
+  private static final ResourceLocator QUOTES_RESOURCE =
+      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "quotes/quotes.csv");
+
+  static {
+    // TODO: remove when Joda-Beans issue fixed
+    LoaderUtils.findIndex("USD-LIBOR-3M");
+  }
 
   //-------------------------------------------------------------------------
   /** 
@@ -164,16 +178,14 @@ public class CalibrationCheckExample {
   // Compute the PV results for the instruments used in calibration from the config
   private static Pair<List<Trade>, Results> getResults() {
     // load quotes
-    ImmutableObservableValues marketQuotes = loadXmlBean(MARKET_QUOTES_FILE_NAME, ImmutableObservableValues.class);
+    ImmutableMap<QuoteId, Double> quotes = QuotesCsvLoader.load(VALUATION_DATE, QUOTES_RESOURCE);
 
     // create the market data builder and populate with known data
     MarketEnvironmentBuilder snapshotBuilder =
         MarketEnvironment.builder(VALUATION_DATE)
             .addTimeSeries(IndexRateId.of(USD_LIBOR_3M), TS_EMTPY)
-            .addTimeSeries(IndexRateId.of(USD_FED_FUND), TS_EMTPY);
-    for (ObservableKey k : marketQuotes.getValues().keySet()) {
-      snapshotBuilder.addValue(k.toObservableId(MarketDataFeed.NONE), marketQuotes.getValue(k));
-    }
+            .addTimeSeries(IndexRateId.of(USD_FED_FUND), TS_EMTPY)
+            .addAllValues(quotes);
     MarketEnvironment snapshot = snapshotBuilder.build();
 
     // load the curve definition
@@ -187,7 +199,7 @@ public class CalibrationCheckExample {
       for (CurveNode node : nodes) {
         if (!(node instanceof IborFixingDepositCurveNode)) {
           // IborFixingDeposit is not a real trade, so there is no appropriate comparison
-          trades.add(node.trade(VALUATION_DATE, marketQuotes));
+          trades.add(node.trade(VALUATION_DATE, ObservableValues.ofIdMap(quotes)));
         }
       }
     }

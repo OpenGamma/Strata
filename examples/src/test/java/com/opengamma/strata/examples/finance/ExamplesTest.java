@@ -108,4 +108,12 @@ public class ExamplesTest {
     }
   }
 
+  //-------------------------------------------------------------------------
+  public void test_calibration() throws Exception {
+    String captured = caputureSystemOut(() -> CalibrationCheckExample.main(NO_ARGS));
+    assertTrue(captured.contains("Checked PV for all instruments used in the calibration set are near to zero"));
+    assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("Exception"));
+  }
+
 }

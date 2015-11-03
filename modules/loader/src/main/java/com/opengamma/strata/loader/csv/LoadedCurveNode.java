@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.examples.marketdata.curve;
+package com.opengamma.strata.loader.csv;
 
 import java.time.LocalDate;
 import java.util.Set;
