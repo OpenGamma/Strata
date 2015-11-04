@@ -12,6 +12,7 @@ import com.opengamma.strata.finance.fx.ExpandedFxSwap;
 import com.opengamma.strata.finance.fx.FxSingleProduct;
 import com.opengamma.strata.finance.fx.FxSwapProduct;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -91,7 +92,9 @@ public class DiscountingFxSwapProductPricer {
   }
 
   /**
-   * Calculates the par spread is the spread that should be added to the FX forward points to have a zero value.
+   * Calculates the par spread. 
+   * <p>
+   * The par spread is the spread that should be added to the FX forward points to have a zero value.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
@@ -105,6 +108,35 @@ public class DiscountingFxSwapProductPricer {
     double dfEnd = provider.discountFactor(counterPaymentNear.getCurrency(), fx.getFarLeg().getPaymentDate());
     double notionalBaseCcy = fx.getNearLeg().getBaseCurrencyPayment().getAmount();
     return -pvCounterCcy / (notionalBaseCcy * dfEnd);
+  }
+
+  /**
+   * Calculates the par spread sensitivity to the curves. 
+   * <p>
+   * The sensitivity is reported in the counter currency of the product, but is actually dimensionless.
+   * 
+   * @param product  the product to price
+   * @param provider  the rates provider
+   * @return the spread curve sensitivity
+   */
+  public PointSensitivities parSpreadSensitivity(FxSwapProduct product, RatesProvider provider) {
+    ExpandedFxSwap fx = product.expand();
+    Payment counterPaymentNear = fx.getNearLeg().getCounterCurrencyPayment();
+    MultiCurrencyAmount pv = presentValue(fx, provider);
+    double pvCounterCcy = pv.convertedTo(counterPaymentNear.getCurrency(), provider).getAmount();
+    double dfEnd = provider.discountFactor(counterPaymentNear.getCurrency(), fx.getFarLeg().getPaymentDate());
+    double notionalBaseCcy = fx.getNearLeg().getBaseCurrencyPayment().getAmount();
+    double ps = -pvCounterCcy / (notionalBaseCcy * dfEnd);
+    // backward sweep
+    double psBar = 1d;
+    double pvCounterCcyBar = -1d / (notionalBaseCcy * dfEnd) * psBar;
+    double dfEndBar = - ps / dfEnd * psBar;
+    ZeroRateSensitivity ddfEnddr = provider.discountFactors(counterPaymentNear.getCurrency())
+        .zeroRatePointSensitivity(fx.getFarLeg().getPaymentDate());
+    PointSensitivities result = ddfEnddr.multipliedBy(dfEndBar).build();
+    PointSensitivities dpvdr = presentValueSensitivity(fx, provider);
+    PointSensitivities dpvdrConverted = dpvdr.convertedTo(counterPaymentNear.getCurrency(), provider);    
+    return  result.combinedWith(dpvdrConverted.multipliedBy(pvCounterCcyBar));
   }
 
 }
