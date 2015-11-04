@@ -81,6 +81,19 @@ public final class IborIborSwapTemplate
 
   //-------------------------------------------------------------------------
   /**
+   * Obtains a template based on the specified tenor and convention.
+   * <p>
+   * The swap will start on the spot date.
+   * 
+   * @param tenor  the tenor of the swap
+   * @param convention  the market convention
+   * @return the template
+   */
+  public static IborIborSwapTemplate of(Tenor tenor, IborIborSwapConvention convention) {
+    return of(Period.ZERO, tenor, convention);
+  }
+
+  /**
    * Obtains a template based on the specified period, tenor and convention.
    * <p>
    * The period from the spot date to the start date is specified.

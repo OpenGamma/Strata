@@ -8,15 +8,11 @@ package com.opengamma.strata.examples.finance;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 
-import java.io.FileInputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.joda.beans.Bean;
-import org.joda.beans.ser.JodaBeanSer;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -25,7 +21,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Unchecked;
 import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.result.Result;
@@ -53,6 +48,7 @@ import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
+import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
@@ -92,16 +88,27 @@ public class CalibrationCheckExample {
   /**
    * The curve group name.
    */
-  private static final String CURVE_GROUP_NAME = "USD-DSCON-LIBOR3M";
+  private static final CurveGroupName CURVE_GROUP_NAME = CurveGroupName.of("USD-DSCON-LIBOR3M");
 
   /**
    * The location of the data files.
    */
   private static final String PATH_CONFIG = "src/main/resources/example-calibration/";
   /**
-   * The location of the curve definition.
+   * The location of the curve calibration groups file.
    */
-  private static final String CURVE_GROUP_CONFIG_FILE_NAME = PATH_CONFIG + "curves/USD-DSCON-LIBOR3M.xml";
+  private static final ResourceLocator GROUPS_RESOURCE =
+      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "curves/groups.csv");
+  /**
+   * The location of the curve calibration settings file.
+   */
+  private static final ResourceLocator SETTINGS_RESOURCE =
+      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "curves/settings.csv");
+  /**
+   * The location of the curve calibration nodes file.
+   */
+  private static final ResourceLocator CALIBRATION_RESOURCE =
+      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "curves/calibrations.csv");
   /**
    * The location of the market quotes file.
    */
@@ -189,8 +196,10 @@ public class CalibrationCheckExample {
     MarketEnvironment snapshot = snapshotBuilder.build();
 
     // load the curve definition
-    CurveGroupDefinition curveGroupDefinition = loadXmlBean(CURVE_GROUP_CONFIG_FILE_NAME, CurveGroupDefinition.class);
-
+    ImmutableMap<CurveGroupName, CurveGroupDefinition> defns =
+        RatesCalibrationCsvLoader.load(GROUPS_RESOURCE, SETTINGS_RESOURCE, CALIBRATION_RESOURCE);
+    CurveGroupDefinition curveGroupDefinition = defns.get(CURVE_GROUP_NAME);
+    
     // extract the trades used for calibration
     List<Trade> trades = new ArrayList<>();
     ImmutableList<CurveGroupEntry> curveGroups = curveGroupDefinition.getEntries();
@@ -210,13 +219,13 @@ public class CalibrationCheckExample {
 
     // the configuration that defines how to create the curves when a curve group is requested
     MarketDataConfig marketDataConfig = MarketDataConfig.builder()
-        .add(CurveGroupName.of(CURVE_GROUP_NAME), curveGroupDefinition)
+        .add(CURVE_GROUP_NAME, curveGroupDefinition)
         .build();
 
     // the configuration defining the curve group to use when finding a curve
     MarketDataRules marketDataRules = MarketDataRules.of(
         MarketDataRule.anyTarget(MarketDataMappingsBuilder.create()
-            .curveGroup(CurveGroupName.of(CURVE_GROUP_NAME))
+            .curveGroup(CURVE_GROUP_NAME)
             .build()));
 
     // the complete set of rules for calculating measures
@@ -257,11 +266,6 @@ public class CalibrationCheckExample {
       return t;
     });
     return executor;
-  }
-
-  // loads a bean
-  private static <T extends Bean> T loadXmlBean(String fileName, Class<T> type) {
-    return Unchecked.wrap(() -> JodaBeanSer.PRETTY.xmlReader().read(new FileInputStream(fileName), type));
   }
 
 }
