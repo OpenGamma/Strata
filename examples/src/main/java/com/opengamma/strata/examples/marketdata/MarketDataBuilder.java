@@ -176,7 +176,7 @@ public abstract class MarketDataBuilder {
    * @return the snapshot
    */
   public MarketEnvironment buildSnapshot(LocalDate marketDataDate) {
-    MarketEnvironmentBuilder builder = MarketEnvironment.builder(marketDataDate);
+    MarketEnvironmentBuilder builder = MarketEnvironment.builder().valuationDate(marketDataDate);
     loadFixingSeries(builder);
     loadRatesCurves(builder, marketDataDate);
     loadQuotes(builder, marketDataDate);
@@ -230,7 +230,7 @@ public abstract class MarketDataBuilder {
     try {
       Collection<ResourceLocator> fixingSeriesResources = getAllResources(HISTORICAL_FIXINGS_DIR);
       Map<ObservableId, LocalDateDoubleTimeSeries> fixingSeries = FixingSeriesCsvLoader.load(fixingSeriesResources);
-      builder.addAllTimeSeries(fixingSeries);
+      builder.addTimeSeries(fixingSeries);
     } catch (Exception e) {
       log.error("Error loading fixing series", e);
     }
@@ -258,7 +258,7 @@ public abstract class MarketDataBuilder {
       Collection<ResourceLocator> curvesResources = getRatesCurvesResources();
       Map<RateCurveId, Curve> ratesCurves =
           RatesCurvesCsvLoader.load(marketDataDate, curveGroupsResource, curveSettingsResource, curvesResources);
-      builder.addAllValues(ratesCurves);
+      builder.addValues(ratesCurves);
     } catch (Exception e) {
       log.error("Error loading rates curves", e);
     }
@@ -279,7 +279,7 @@ public abstract class MarketDataBuilder {
 
     try {
       Map<QuoteId, Double> quotes = QuotesCsvLoader.load(marketDataDate, quotesResource);
-      builder.addAllValues(quotes);
+      builder.addValues(quotes);
 
     } catch (Exception ex) {
       log.error("Error loading quotes", ex);

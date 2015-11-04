@@ -95,30 +95,38 @@ public abstract class AbstractCdsFunction<T>
         IsdaYieldCurveParRatesKey.of(notionalCurrency),
         IsdaYieldCurveParRatesKey.of(feeCurrency));
 
+    Set<Currency> currencies = ImmutableSet.of(notionalCurrency, feeCurrency);
     ReferenceInformation referenceInformation = cds.getReferenceInformation();
     ReferenceInformationType cdsType = referenceInformation.getType();
     // TODO the only real difference between single name and index trades is how the credit curves are keyed and the
     // TODO application of an index factor. We have two switch statements currently to handle this
     // TODO we should be able to handle that a bit more gracefully, but there seems little point in duplicating
     // TODO all of the calculation functions and the entire trade model when the vast majority of behavior is common
-    Set<MarketDataKey<?>> spreadCurveKey;
-    switch (cdsType) {
-      case SINGLE_NAME:
-        SingleNameReferenceInformation singleNameReferenceInformation = (SingleNameReferenceInformation) referenceInformation;
-        spreadCurveKey = ImmutableSet.of(IsdaSingleNameCreditCurveParRatesKey.of(singleNameReferenceInformation));
-        break;
-      case INDEX:
-        IndexReferenceInformation indexReferenceInformation = (IndexReferenceInformation) referenceInformation;
-        spreadCurveKey = ImmutableSet.of(IsdaIndexCreditCurveParRatesKey.of(indexReferenceInformation));
-        break;
-      default:
-        throw new IllegalStateException("unknown reference information type: " + cdsType);
+    if (cdsType == ReferenceInformationType.SINGLE_NAME) {
+      SingleNameReferenceInformation singleNameReferenceInformation = (SingleNameReferenceInformation) referenceInformation;
+
+      Set<MarketDataKey<?>> keys = ImmutableSet.of(
+          IsdaSingleNameCreditCurveParRatesKey.of(singleNameReferenceInformation),
+          IsdaSingleNameRecoveryRateKey.of(singleNameReferenceInformation));
+
+      return FunctionRequirements.builder()
+          .singleValueRequirements(Sets.union(rateCurveKeys, keys))
+          .outputCurrencies(currencies)
+          .build();
+    } else if (cdsType == ReferenceInformationType.INDEX) {
+      IndexReferenceInformation indexReferenceInformation = (IndexReferenceInformation) referenceInformation;
+
+      Set<MarketDataKey<?>> keys = ImmutableSet.of(
+          IsdaIndexCreditCurveParRatesKey.of(indexReferenceInformation),
+          IsdaIndexRecoveryRateKey.of(indexReferenceInformation));
+
+      return FunctionRequirements.builder()
+          .singleValueRequirements(Sets.union(rateCurveKeys, keys))
+          .outputCurrencies(currencies)
+          .build();
+    } else {
+      throw new IllegalArgumentException("Unknown ReferenceInformationType " + cdsType);
     }
-    // TODO index factor as static data behind a resolvable link
-    return FunctionRequirements.builder()
-        .singleValueRequirements(Sets.union(rateCurveKeys, spreadCurveKey))
-        .outputCurrencies(ImmutableSet.of(notionalCurrency, feeCurrency))
-        .build();
   }
 
   @Override

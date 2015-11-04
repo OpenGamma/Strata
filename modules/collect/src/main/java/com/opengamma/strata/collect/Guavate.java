@@ -119,7 +119,7 @@ public final class Guavate {
    * @param stream2  the first stream
    * @return a stream of pairs, one from each stream
    */
-  public static <A, B> Stream<Pair<A, B>> zipPairs(Stream<A> stream1, Stream<B> stream2) {
+  public static <A, B> Stream<Pair<A, B>> zip(Stream<A> stream1, Stream<B> stream2) {
     return zip(stream1, stream2, (a, b) -> Pair.of(a, b));
   }
 

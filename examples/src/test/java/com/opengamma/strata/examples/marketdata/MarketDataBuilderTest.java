@@ -231,7 +231,7 @@ public class MarketDataBuilderTest {
   private void assertBuilder(MarketDataBuilder builder) {
     MarketEnvironment snapshot = builder.buildSnapshot(MARKET_DATA_DATE);
 
-    assertEquals(MARKET_DATA_DATE, snapshot.getValuationDate());
+    assertEquals(MARKET_DATA_DATE, snapshot.getValuationDate().getSingleValue());
 
     for (ObservableId id : TIME_SERIES) {
       assertTrue(snapshot.containsTimeSeries(id), "Time-series not found: " + id);

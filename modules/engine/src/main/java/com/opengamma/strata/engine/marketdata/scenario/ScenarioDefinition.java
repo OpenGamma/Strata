@@ -7,7 +7,6 @@ package com.opengamma.strata.engine.marketdata.scenario;
 
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static com.opengamma.strata.collect.Guavate.zipWithIndex;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
 
@@ -51,12 +50,24 @@ import com.opengamma.strata.collect.ArgChecker;
 public final class ScenarioDefinition implements ImmutableBean {
 
   /** The market data filters and perturbations that define the scenarios. */
-  @PropertyDefinition(validate = "notEmpty", builderType = "List<? extends PerturbationMapping<?>>")
+  @PropertyDefinition(validate = "notNull", builderType = "List<? extends PerturbationMapping<?>>")
   private final ImmutableList<PerturbationMapping<?>> mappings;
 
   /** The names of the scenarios. */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<String> scenarioNames;
+
+  /** An empty scenario definition. */
+  private static final ScenarioDefinition EMPTY = ScenarioDefinition.builder().build();
+
+  /**
+   * Returns an empty scenario definition.
+   *
+   * @return an empty scenario definition
+   */
+  public static ScenarioDefinition empty() {
+    return EMPTY;
+  }
 
   /**
    * Returns a scenario definition containing the perturbations in {@code mappings}.
@@ -89,24 +100,24 @@ public final class ScenarioDefinition implements ImmutableBean {
    * | Scenario 3 |     +10bp  |     -5%      |
    * </pre>
    *
-   * @param mappings  the filters and perturbations that define the scenario. Each mapping must contain the same
+   * @param mapping  the filters and perturbations that define the scenario. Each mapping must contain the same
    *   number of perturbations
    * @return a scenario definition containing the perturbations in the mappings
    */
-  public static ScenarioDefinition ofMappings(List<? extends PerturbationMapping<?>> mappings) {
-    ArgChecker.notEmpty(mappings, "mappings");
+  public static ScenarioDefinition ofMappings(List<? extends PerturbationMapping<?>> mapping) {
+    ArgChecker.notEmpty(mapping, "mappings");
 
-    int numScenarios = countScenarios(mappings, false);
+    int numScenarios = countScenarios(mapping, false);
 
-    for (int i = 1; i < mappings.size(); i++) {
-      if (mappings.get(i).getPerturbationCount() != numScenarios) {
+    for (int i = 1; i < mapping.size(); i++) {
+      if (mapping.get(i).getScenarioCount() != numScenarios) {
         throw new IllegalArgumentException(
             "All mappings must have the same number of perturbations. First mapping" +
                 " has " + numScenarios + " perturbations, mapping " + i + " has " +
-                mappings.get(i).getPerturbations().size());
+                mapping.get(i).getScenarioCount());
       }
     }
-    return new ScenarioDefinition(createMappings(mappings, false), generateNames(numScenarios));
+    return new ScenarioDefinition(createMappings(mapping, false), generateNames(numScenarios));
   }
 
   /**
@@ -196,184 +207,14 @@ public final class ScenarioDefinition implements ImmutableBean {
     int numScenarios = scenarioNames.size();
 
     for (int i = 0; i < mappings.size(); i++) {
-      if (mappings.get(i).getPerturbationCount() != numScenarios) {
+      if (mappings.get(i).getScenarioCount() != numScenarios) {
         throw new IllegalArgumentException(
-            "Each mapping must contain the same number of perturbations as there are scenarios. There are " +
-                numScenarios + " scenarios, mapping " + i + " has " + mappings.get(i).getPerturbations().size() +
-                " perturbations.");
+            "Each mapping must contain the same number of scenarios as the definition. There are " +
+                numScenarios + " scenarios in the definition, mapping " + i + " has " +
+                mappings.get(i).getScenarioCount() + " scenarios.");
       }
     }
     return new ScenarioDefinition(createMappings(mappings, false), scenarioNames);
-  }
-
-  /**
-   * Returns a scenario definition created from all possible combinations of the mappings.
-   * <p>
-   * The mappings can have any number of perturbations, they do not need to have the same number as each other.
-   * Each scenario contain one perturbation from each mapping. One scenario is created for each
-   * possible combination of perturbations formed by taking one from each mapping.
-   * <p>
-   * The number of scenarios in the definition will be equal to the product of the number of perturbations
-   * in the mappings.
-   * <p>
-   * Given three mappings, A, B and C, each containing two perturbations, 1 and 2, there will be eight
-   * scenarios generated:
-   * <pre>
-   * |            |   A  |   B  |   C  |
-   * |------------|------|------|------|
-   * | Scenario 1 | A[1] | B[1] | C[1] |
-   * | Scenario 2 | A[1] | B[1] | C[2] |
-   * | Scenario 3 | A[1] | B[2] | C[1] |
-   * | Scenario 4 | A[1] | B[2] | C[2] |
-   * | Scenario 5 | A[2] | B[1] | C[1] |
-   * | Scenario 6 | A[2] | B[1] | C[2] |
-   * | Scenario 7 | A[2] | B[2] | C[1] |
-   * | Scenario 8 | A[2] | B[2] | C[2] |
-   * </pre>
-   * For example, consider the following perturbation mappings:
-   * <ul>
-   *   <li>Filter: USD Curves, Shocks: [-10bp, 0, +10bp]</li>
-   *   <li>Filter: EUR/USD Rate, Shocks: [+5%, 0, -5%]</li>
-   * </ul>
-   * The scenario definition would contain the following nine scenarios:
-   * <pre>
-   * |            | USD Curves | EUR/USD Rate |
-   * |------------|------------|--------------|
-   * | Scenario 1 |     -10bp  |     +5%      |
-   * | Scenario 2 |     -10bp  |      0       |
-   * | Scenario 3 |     -10bp  |     -5%      |
-   * | Scenario 4 |       0    |     +5%      |
-   * | Scenario 5 |       0    |      0       |
-   * | Scenario 6 |       0    |     -5%      |
-   * | Scenario 7 |     +10bp  |     +5%      |
-   * | Scenario 8 |     +10bp  |      0       |
-   * | Scenario 9 |     +10bp  |     -5%      |
-   *
-   * @param mappings  the filters and perturbations that define the scenarios. They can contain any number
-   *   of perturbations, and they do not need to have the same number of perturbations
-   * @return a scenario definition containing the perturbations in the mappings
-   */
-  public static ScenarioDefinition ofAllCombinations(List<? extends PerturbationMapping<?>> mappings) {
-    int numScenarios = countScenarios(mappings, true);
-    return new ScenarioDefinition(createMappings(mappings, true), generateNames(numScenarios));
-  }
-
-  /**
-   * Returns a scenario definition created from all possible combinations of the mappings.
-   * <p>
-   * The mappings can have any number of perturbations, they do not need to have the same number as each other.
-   * Each scenario contain one perturbation from each mapping. One scenario is created for each
-   * possible combination of perturbations formed by taking one from each mapping.
-   * <p>
-   * The number of scenarios in the definition will be equal to the product of the number of perturbations
-   * in the mappings.
-   * <p>
-   * Given three mappings, A, B and C, each containing two perturbations, 1 and 2, there will be eight
-   * scenarios generated:
-   * <pre>
-   * |            |   A  |   B  |   C  |
-   * |------------|------|------|------|
-   * | Scenario 1 | A[1] | B[1] | C[1] |
-   * | Scenario 2 | A[1] | B[1] | C[2] |
-   * | Scenario 3 | A[1] | B[2] | C[1] |
-   * | Scenario 4 | A[1] | B[2] | C[2] |
-   * | Scenario 5 | A[2] | B[1] | C[1] |
-   * | Scenario 6 | A[2] | B[1] | C[2] |
-   * | Scenario 7 | A[2] | B[2] | C[1] |
-   * | Scenario 8 | A[2] | B[2] | C[2] |
-   * </pre>
-   * For example, consider the following perturbation mappings:
-   * <ul>
-   *   <li>Filter: USD Curves, Shocks: [-10bp, 0, +10bp]</li>
-   *   <li>Filter: EUR/USD Rate, Shocks: [+5%, 0, -5%]</li>
-   * </ul>
-   * The scenario definition would contain the following nine scenarios:
-   * <pre>
-   * |            | USD Curves | EUR/USD Rate |
-   * |------------|------------|--------------|
-   * | Scenario 1 |     -10bp  |     +5%      |
-   * | Scenario 2 |     -10bp  |      0       |
-   * | Scenario 3 |     -10bp  |     -5%      |
-   * | Scenario 4 |       0    |     +5%      |
-   * | Scenario 5 |       0    |      0       |
-   * | Scenario 6 |       0    |     -5%      |
-   * | Scenario 7 |     +10bp  |     +5%      |
-   * | Scenario 8 |     +10bp  |      0       |
-   * | Scenario 9 |     +10bp  |     -5%      |
-   *
-   * @param mappings  the filters and perturbations that define the scenarios. They can contain any number
-   *   of perturbations, and they do not need to have the same number of perturbations
-   * @return a scenario definition containing the perturbations in the mappings
-   */
-  public static ScenarioDefinition ofAllCombinations(PerturbationMapping<?>... mappings) {
-    return ofAllCombinations(Arrays.asList(mappings));
-  }
-
-  /**
-   * Returns a scenario definition created from all possible combinations of the mappings.
-   * <p>
-   * The mappings can have any number of perturbations, they do not need to have the same number as each other.
-   * Each scenario contain one perturbation from each mapping. One scenario is created for each
-   * possible combination of perturbations formed by taking one from each mapping.
-   * <p>
-   * The number of scenarios in the definition will be equal to the product of the number of perturbations
-   * in the mappings.
-   * <p>
-   * Given three mappings, A, B and C, each containing two perturbations, 1 and 2, there will be eight
-   * scenarios generated:
-   * <pre>
-   * |            |   A  |   B  |   C  |
-   * |------------|------|------|------|
-   * | Scenario 1 | A[1] | B[1] | C[1] |
-   * | Scenario 2 | A[1] | B[1] | C[2] |
-   * | Scenario 3 | A[1] | B[2] | C[1] |
-   * | Scenario 4 | A[1] | B[2] | C[2] |
-   * | Scenario 5 | A[2] | B[1] | C[1] |
-   * | Scenario 6 | A[2] | B[1] | C[2] |
-   * | Scenario 7 | A[2] | B[2] | C[1] |
-   * | Scenario 8 | A[2] | B[2] | C[2] |
-   * </pre>
-   * For example, consider the following perturbation mappings:
-   * <ul>
-   *   <li>Filter: USD Curves, Shocks: [-10bp, 0, +10bp]</li>
-   *   <li>Filter: EUR/USD Rate, Shocks: [+5%, 0, -5%]</li>
-   * </ul>
-   * The scenario definition would contain the following nine scenarios:
-   * <pre>
-   * |            | USD Curves | EUR/USD Rate |
-   * |------------|------------|--------------|
-   * | Scenario 1 |     -10bp  |     +5%      |
-   * | Scenario 2 |     -10bp  |      0       |
-   * | Scenario 3 |     -10bp  |     -5%      |
-   * | Scenario 4 |       0    |     +5%      |
-   * | Scenario 5 |       0    |      0       |
-   * | Scenario 6 |       0    |     -5%      |
-   * | Scenario 7 |     +10bp  |     +5%      |
-   * | Scenario 8 |     +10bp  |      0       |
-   * | Scenario 9 |     +10bp  |     -5%      |
-   *
-   * @param mappings  the filters and perturbations that define the scenarios. They can contain any number
-   *   of perturbations, and they do not need to have the same number of perturbations
-   * @param scenarioNames  the names of the scenarios. The number of names must be the product of the number
-   *   of perturbations in all the mappings. The names must be unique
-   * @return a scenario definition containing the perturbations in the mappings
-   * @throws IllegalArgumentException if there are any duplicate scenario names
-   */
-  public static ScenarioDefinition ofAllCombinations(
-      List<? extends PerturbationMapping<?>> mappings,
-      List<String> scenarioNames) {
-
-    ArgChecker.notEmpty(scenarioNames, "scenarioNames");
-    ArgChecker.notEmpty(mappings, "mappings");
-
-    int numScenarios = countScenarios(mappings, true);
-
-    if (numScenarios != scenarioNames.size()) {
-      throw new IllegalArgumentException(
-          "The number of scenario names provided is " + scenarioNames.size() + " but " +
-              "the number of scenarios is " + numScenarios);
-    }
-    return new ScenarioDefinition(createMappings(mappings, true), scenarioNames);
   }
 
   /**
@@ -389,10 +230,10 @@ public final class ScenarioDefinition implements ImmutableBean {
 
     if (allCombinations) {
       return mappings.stream()
-          .mapToInt(PerturbationMapping::getPerturbationCount)
+          .mapToInt(PerturbationMapping::getScenarioCount)
           .reduce(1, (s1, s2) -> s1 * s2);
     } else {
-      return mappings.get(0).getPerturbationCount();
+      return mappings.get(0).getScenarioCount();
     }
   }
 
@@ -406,70 +247,12 @@ public final class ScenarioDefinition implements ImmutableBean {
       List<? extends PerturbationMapping<?>> mappings,
       boolean allCombinations) {
 
-    return allCombinations ?
-        createMappingsForAllCombinations(mappings) :
-        mappings;
-  }
-
-  /**
-   * Creates definitions for each individual scenario. Each scenario contains one perturbation from each
-   * perturbation mapping. A scenario is created for all possible combinations of mappings.
-   *
-   * @param mappings  the mappings. The outer list contains an element for each perturbation mapping.
-   *   The inner list contains an element for each perturbation in the perturbation mapping. The inners lists
-   *   do not have to have the same size
-   * @return definitions for the individual scenarios
-   */
-  private static List<? extends PerturbationMapping<?>> createMappingsForAllCombinations(
-      List<? extends PerturbationMapping<?>> mappings) {
-
-    int count = countScenarios(mappings, true);
-
-    return zipWithIndex(mappings.stream())
-        .map(tp -> multiplyPerturbations(tp.getFirst(), count, tp.getSecond()))
-        .collect(toImmutableList());
-  }
-
-  /**
-   * Returns a new perturbation mapping with the same filter as the input mapping and the input perturbations
-   * repeated so there is one for each scenario.
-   *
-   * @param mapping  a perturbation mapping
-   * @param scenarioCount  the number of scenarios
-   * @param index  the index of the mapping in the list of mappings
-   * @param <T>  the type of market data affected by the mapping
-   * @return a new perturbation mapping with the same filter as the input mapping and the input perturbations
-   *   repeated so there is one for each scenario
-   */
-  private static <T> PerturbationMapping<T> multiplyPerturbations(
-      PerturbationMapping<T> mapping,
-      int scenarioCount,
-      int index) {
-
-    // The perturbations are repeated in a pattern identical to binary digits. Given 3 mappings with 2 perturbations
-    // each (#1 and #2), the pattern is:
-    //
-    // index | 0 | 1 | 2
-    // ------|---|---|---
-    //       | 1 | 1 | 1
-    //       | 2 | 1 | 1
-    //       | 1 | 2 | 1
-    //       | 2 | 2 | 1
-    //       | 1 | 1 | 2
-    //       | 2 | 1 | 2
-    //       | 1 | 2 | 2
-    //       | 2 | 2 | 2
-    //
-    // The group size is the number of times a perturbation of the same number is repeated. Mapping index 0
-    // has the pattern 1, 2, 1, 2 and therefore has a group size of 1. Mapping index 1 has the
-    // pattern 1, 1, 2, 2 and has a group size of 2. Mapping index 3 has the pattern 1, 1, 1, 1, 2, 2, 2, 2
-    // and a group size of 4. From this it is obvious the group size is 2^index.
-    int groupSize = 1 << index;
-
-    return PerturbationMapping.of(
-        mapping.getMarketDataType(),
-        mapping.getFilter(),
-        repeatItems(mapping.getPerturbations(), scenarioCount, groupSize));
+    if (allCombinations) {
+      // TODO Tidy up and remove references to allCombinations
+      throw new UnsupportedOperationException();
+    } else {
+      return mappings;
+    }
   }
 
   /**
@@ -507,7 +290,7 @@ public final class ScenarioDefinition implements ImmutableBean {
         .collect(toImmutableList());
   }
 
-  // validtes that there are no duplicate scenario names
+  // validates that there are no duplicate scenario names
   @ImmutableValidator
   private void validate() {
     Map<String, List<String>> nameMap = scenarioNames.stream().collect(groupingBy(name -> name));
@@ -556,7 +339,7 @@ public final class ScenarioDefinition implements ImmutableBean {
   private ScenarioDefinition(
       List<? extends PerturbationMapping<?>> mappings,
       List<String> scenarioNames) {
-    JodaBeanUtils.notEmpty(mappings, "mappings");
+    JodaBeanUtils.notNull(mappings, "mappings");
     JodaBeanUtils.notNull(scenarioNames, "scenarioNames");
     this.mappings = ImmutableList.copyOf(mappings);
     this.scenarioNames = ImmutableList.copyOf(scenarioNames);
@@ -581,7 +364,7 @@ public final class ScenarioDefinition implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the market data filters and perturbations that define the scenarios.
-   * @return the value of the property, not empty
+   * @return the value of the property, not null
    */
   public ImmutableList<PerturbationMapping<?>> getMappings() {
     return mappings;
@@ -825,11 +608,11 @@ public final class ScenarioDefinition implements ImmutableBean {
     //-----------------------------------------------------------------------
     /**
      * Sets the market data filters and perturbations that define the scenarios.
-     * @param mappings  the new value, not empty
+     * @param mappings  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder mappings(List<? extends PerturbationMapping<?>> mappings) {
-      JodaBeanUtils.notEmpty(mappings, "mappings");
+      JodaBeanUtils.notNull(mappings, "mappings");
       this.mappings = mappings;
       return this;
     }
@@ -837,7 +620,7 @@ public final class ScenarioDefinition implements ImmutableBean {
     /**
      * Sets the {@code mappings} property in the builder
      * from an array of objects.
-     * @param mappings  the new value, not empty
+     * @param mappings  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder mappings(PerturbationMapping<?>... mappings) {

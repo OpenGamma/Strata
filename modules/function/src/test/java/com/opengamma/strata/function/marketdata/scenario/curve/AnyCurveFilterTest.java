@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.id.CurveId;
@@ -25,7 +26,7 @@ public class AnyCurveFilterTest {
     assertThat(test.getMarketDataIdType()).isEqualTo(CurveId.class);
     CurveId id = new CurveId() {};
     Curve curve = ConstantNodalCurve.of("curveName", 1);
-    assertThat(test.matches(id, curve)).isTrue();
+    assertThat(test.matches(id, MarketDataBox.ofSingleValue(curve))).isTrue();
   }
 
   //-------------------------------------------------------------------------

@@ -15,6 +15,7 @@ import static org.testng.Assert.assertTrue;
 import java.time.LocalDate;
 
 import org.testng.annotations.Test;
+
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;

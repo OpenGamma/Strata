@@ -23,7 +23,6 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.basics.market.Perturbation;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.collect.id.StandardId;
@@ -50,9 +49,9 @@ import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.StandardComponents;
+import com.opengamma.strata.function.marketdata.curve.CurveParallelShifts;
 import com.opengamma.strata.function.marketdata.scenario.curve.AnyCurveFilter;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.perturb.CurveParallelShift;
 
 /**
  * Example to illustrate using the scenario framework to apply shifts to calibrated curves.
@@ -95,17 +94,13 @@ public class CurveScenarioExample {
         .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
         .build();
 
-    // two perturbations that can be applied to curves
-    List<Perturbation<Curve>> curvePerturbations = ImmutableList.of(
-        Perturbation.none(),                  // no shift for the base scenario
-        CurveParallelShift.absolute(ONE_BP)); // 1bp absolute shift to calibrated curves (zeros)
-
     // mappings that select which market data to apply perturbations to
     // this applies the perturbations above to all curves
     PerturbationMapping<Curve> mapping = PerturbationMapping.of(
         Curve.class,
         AnyCurveFilter.INSTANCE,
-        curvePerturbations);
+        // no shift for the base scenario, 1bp absolute shift to calibrated curves (zeros)
+        CurveParallelShifts.absolute(0, ONE_BP));
 
     // create a scenario definition containing the single mapping above
     // this creates two scenarios - one for each perturbation in the mapping

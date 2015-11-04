@@ -13,6 +13,7 @@ import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.function.MarketDataFunction;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.id.CurveGroupId;
@@ -36,13 +37,21 @@ public final class RateIndexCurveMarketDataFunction implements MarketDataFunctio
   }
 
   @Override
-  public Result<Curve> build(RateIndexCurveId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+  public Result<MarketDataBox<Curve>> build(
+      RateIndexCurveId id,
+      MarketDataLookup marketData,
+      MarketDataConfig marketDataConfig) {
+
     CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
 
     if (!marketData.containsValue(curveGroupId)) {
       return Result.failure(FailureReason.MISSING_DATA, "No curve group found with name {}", id.getCurveGroupName());
     }
-    CurveGroup curveGroup = marketData.getValue(curveGroupId);
+    MarketDataBox<CurveGroup> curveGroupBox = marketData.getValue(curveGroupId);
+    return curveGroupBox.apply(curveGroup -> buildCurve(id, curveGroup));
+  }
+
+  private Result<Curve> buildCurve(RateIndexCurveId id, CurveGroup curveGroup) {
     Optional<Curve> optionalForwardCurve = curveGroup.findForwardCurve(id.getIndex());
 
     if (optionalForwardCurve.isPresent()) {

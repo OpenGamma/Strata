@@ -23,12 +23,12 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.calculation.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.calculation.function.CurrencyConvertible;
 import com.opengamma.strata.engine.config.ReportingRules;
+import com.opengamma.strata.engine.marketdata.CalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.CalculationRequirementsBuilder;
 import com.opengamma.strata.engine.marketdata.DefaultCalculationMarketData;
 import com.opengamma.strata.engine.marketdata.FunctionRequirements;
-import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 
 /**
@@ -141,7 +141,7 @@ public class CalculationTask {
    * @param scenarioData  the market data used in the calculation
    * @return results of the calculation, one for every scenario in the market data
    */
-  public CalculationResult execute(ScenarioCalculationEnvironment scenarioData) {
+  public CalculationResult execute(CalculationEnvironment scenarioData) {
     CalculationMarketData calculationData = new DefaultCalculationMarketData(scenarioData, marketDataMappings);
     Result<?> result;
 

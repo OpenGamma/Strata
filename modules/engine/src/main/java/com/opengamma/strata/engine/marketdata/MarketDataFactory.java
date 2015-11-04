@@ -26,13 +26,12 @@ public interface MarketDataFactory {
    * <p>
    * It is anticipated that {@link MarketEnvironment} will be exposed directly to users.
    * <p>
-   * The market data used in calculations is provided by {@link CalculationEnvironment} or
-   * {@link ScenarioCalculationEnvironment}. These contains the same data as {@link MarketEnvironment} plus
+   * The market data used in calculations is provided by {@link CalculationEnvironment}. This
+   * contains the same data as {@link MarketEnvironment} plus
    * additional derived values used by the calculations and scenario framework.
    * <p>
-   * {@link CalculationEnvironment} and {@link ScenarioCalculationEnvironment} can be built from a
-   * {@link MarketEnvironment} using {@link #buildCalculationEnvironment} and
-   * {@link #buildScenarioCalculationEnvironment}.
+   * {@link CalculationEnvironment} can be built from a {@link MarketEnvironment} using
+   * {@link #buildCalculationEnvironment}
    *
    * @param requirements  the market data required
    * @param suppliedData  the market data supplied by the caller
@@ -73,7 +72,7 @@ public interface MarketDataFactory {
    * If the calculations require any data not provided in the {@code suppliedData} it is built by the
    * engine before applying the scenario definition.
    * <p>
-   * {@link ScenarioCalculationEnvironment} contains the same data as {@link MarketEnvironment} plus
+   * {@link CalculationEnvironment} contains the same data as {@link MarketEnvironment} plus
    * additional derived values used by the calculations and scenario framework.
    * <p>
    * If the scenario definition contains perturbations that apply to the inputs used to build market data,
@@ -85,13 +84,13 @@ public interface MarketDataFactory {
    *
    * @param requirements  the market data required for the calculations
    * @param suppliedData  the base market data used to derive the data for each scenario
-   * @param scenarioDefinition  defines how the market data for each scenario is derived from the base data
    * @param marketDataConfig  configuration needed to build non-observable market data, for example curves or surfaces
+   * @param scenarioDefinition  defines how the market data for each scenario is derived from the base data
    * @return the market data required by the calculations
    */
-  public abstract ScenarioCalculationEnvironment buildScenarioCalculationEnvironment(
+  public abstract CalculationEnvironment buildCalculationEnvironment(
       CalculationRequirements requirements,
       MarketEnvironment suppliedData,
-      ScenarioDefinition scenarioDefinition,
-      MarketDataConfig marketDataConfig);
+      MarketDataConfig marketDataConfig,
+      ScenarioDefinition scenarioDefinition);
 }

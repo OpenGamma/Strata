@@ -7,10 +7,6 @@ package com.opengamma.strata.basics.market;
 
 import java.util.Objects;
 
-import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.MarketDataFeed;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 
 /**
@@ -89,5 +85,4 @@ public class TestObservableId implements ObservableId {
   public String toString() {
     return "TestObservableId [id=" + id + ", feed=" + feed + "]";
   }
-
 }

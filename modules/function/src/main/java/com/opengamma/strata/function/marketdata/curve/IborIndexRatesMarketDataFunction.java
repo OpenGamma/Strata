@@ -15,6 +15,7 @@ import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.function.MarketDataFunction;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -52,42 +53,47 @@ public class IborIndexRatesMarketDataFunction
   }
 
   @Override
-  public Result<IborIndexRates> build(IborIndexRatesId id, MarketDataLookup marketData, MarketDataConfig config) {
+  public Result<MarketDataBox<IborIndexRates>> build(
+      IborIndexRatesId id,
+      MarketDataLookup marketData,
+      MarketDataConfig config) {
+
     // find time-series
-    IndexRateId timeSeriesId = IndexRateId.of(id.getIndex(), id.getMarketDataFeed());
+    IborIndex index = id.getIndex();
+    IndexRateId timeSeriesId = IndexRateId.of(index, id.getMarketDataFeed());
     if (!marketData.containsTimeSeries(timeSeriesId)) {
       return Result.failure(
           FailureReason.MISSING_DATA,
           "No time-series found: Index: {}, Feed: {}",
-          id.getIndex(),
+          index,
           id.getMarketDataFeed());
     }
     LocalDateDoubleTimeSeries timeSeries = marketData.getTimeSeries(timeSeriesId);
 
     // find curve
-    RateIndexCurveId curveId = RateIndexCurveId.of(id.getIndex(), id.getCurveGroupName(), id.getMarketDataFeed());
+    RateIndexCurveId curveId = RateIndexCurveId.of(index, id.getCurveGroupName(), id.getMarketDataFeed());
     if (!marketData.containsValue(curveId)) {
       return Result.failure(
           FailureReason.MISSING_DATA,
           "No curve found: Index: {}, Group: {}, Feed: {}",
-          id.getIndex(),
+          index,
           id.getCurveGroupName(),
           id.getMarketDataFeed());
     }
-    Curve curve = marketData.getValue(curveId);
-
-    // create Ibor rates
-    return Result.wrap(() -> createIborIndexRates(id.getIndex(), marketData.getValuationDate(), timeSeries, curve));
+    MarketDataBox<Curve> curveBox = marketData.getValue(curveId);
+    MarketDataBox<LocalDate> valDateBox = marketData.getValuationDate();
+    return curveBox.combineWith(valDateBox, (curve, valDate) -> createRates(index, valDate, timeSeries, curve));
   }
 
   // create the instance of IborIndexRates
-  private Result<IborIndexRates> createIborIndexRates(
+  private Result<IborIndexRates> createRates(
       IborIndex index,
       LocalDate valuationDate,
       LocalDateDoubleTimeSeries timeSeries,
       Curve curve) {
 
     ValueType yValueType = curve.getMetadata().getYValueType();
+
     if (ValueType.ZERO_RATE.equals(yValueType)) {
       ZeroRateDiscountFactors df = ZeroRateDiscountFactors.of(index.getCurrency(), valuationDate, curve);
       return Result.success(DiscountIborIndexRates.of(index, timeSeries, df));

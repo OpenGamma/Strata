@@ -3,10 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.basics.market;
+package com.opengamma.strata.engine.marketdata.scenario;
 
 /**
- * Describes a perturbation applied to a single piece of data as part of a scenario.
+ * Describes a perturbation applied to a market data box to create market data for use in one or more scenarios.
  * <p>
  * A perturbation is used to change market data in some way.
  * It applies to a single piece of data, such as a discount curve or volatility surface.
@@ -16,7 +16,7 @@ package com.opengamma.strata.basics.market;
  *
  * @param <T>  the type of the market data handled by the perturbation
  */
-public interface Perturbation<T> {
+public interface ScenarioPerturbation<T> {
 
   /**
    * Returns a perturbation that returns its input unchanged.
@@ -25,19 +25,28 @@ public interface Perturbation<T> {
    *
    * @return a perturbation that returns its input unchanged
    */
-  public static <T> Perturbation<T> none() {
-    return marketData -> marketData;
+  @SuppressWarnings("unchecked")
+  public static <T> ScenarioPerturbation<T> none() {
+    // It is safe to cast this to any type because it returns it input with no changes
+    return (ScenarioPerturbation<T>) NoOpScenarioPerturbation.INSTANCE;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Applies this perturbation to the specified market data, returning a new, modified instance.
+   * Applies this perturbation to the market data in a box, returning a box containing new, modified data.
    * <p>
    * The original market data must not be altered.
    * Instead a perturbed copy must be returned.
    *
-   * @param marketData  the single piece of market data to perturb
-   * @return a new item of market data derived by applying the perturbation to the input data
+   * @param marketData  the market data to perturb
+   * @return new market data derived by applying the perturbation to the input data
    */
-  public abstract T applyTo(T marketData);
+  public abstract MarketDataBox<T> applyTo(MarketDataBox<T> marketData);
+
+  /**
+   * Returns the number of scenarios for which this perturbation generates data.
+   *
+   * @return the number of scenarios for which this perturbation generates data
+   */
+  public abstract int getScenarioCount();
 }

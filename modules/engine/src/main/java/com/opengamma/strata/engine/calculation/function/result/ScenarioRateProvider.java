@@ -5,14 +5,13 @@
  */
 package com.opengamma.strata.engine.calculation.function.result;
 
-import java.util.List;
-
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 
 /**
  * A provider of FX rates which takes its data from one scenario in a set of data for multiple scenarios.
@@ -43,7 +42,7 @@ class ScenarioRateProvider implements FxRateProvider {
     if (marketData.getScenarioCount() <= scenarioIndex) {
       throw new IllegalArgumentException(
           Messages.format(
-              "The number of values is greater than the number of rates ({})",
+              "The number of scenarios is greater than the number of rates ({})",
               marketData.getScenarioCount()));
     }
   }
@@ -53,7 +52,7 @@ class ScenarioRateProvider implements FxRateProvider {
     if (baseCurrency.equals(counterCurrency)) {
       return 1;
     }
-    List<FxRate> rates = marketData.getValues(FxRateKey.of(baseCurrency, counterCurrency));
-    return rates.get(scenarioIndex).fxRate(baseCurrency, counterCurrency);
+    MarketDataBox<FxRate> rates = marketData.getValue(FxRateKey.of(baseCurrency, counterCurrency));
+    return rates.getValue(scenarioIndex).fxRate(baseCurrency, counterCurrency);
   }
 }

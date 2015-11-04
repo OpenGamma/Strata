@@ -7,42 +7,52 @@ package com.opengamma.strata.engine.marketdata;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Failure;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 
 /**
  * A mutable builder for building up {@link CalculationEnvironment} instances.
  */
 public final class CalculationEnvironmentBuilder {
 
+  /**
+   * The number of scenarios in the data in the environment. If the market data boxes have a single value they
+   * can be used with any number of scenarios (the same value is used in every scenario). Therefore this field
+   * is not updated when single value boxes are added.
+   * <p>
+   * It is set when the first multi-value box is added and each time another multi-value box is added the number
+   * of scenarios must match the existing count.
+   */
+  private int scenarioCount;
+
   /** The valuation date associated with the market data. */
-  private LocalDate valuationDate;
+  private MarketDataBox<LocalDate> valuationDate = MarketDataBox.empty();
 
   /** The single value market data items, keyed by ID. */
-  private final Map<MarketDataId<?>, Object> values = new HashMap<>();
+  private final Map<MarketDataId<?>, MarketDataBox<?>> values = new HashMap<>();
 
   /** Time series of observable market data values, keyed by ID. */
   private final Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = new HashMap<>();
 
   /** Details of failures when building single market data values. */
-  private final Map<MarketDataId<?>, Failure> singleValueFailures = new HashMap<>();
+  private final Map<MarketDataId<?>, Failure> valueFailures = new HashMap<>();
 
   /** Details of failures when building time series of market data values. */
   private final Map<MarketDataId<?>, Failure> timeSeriesFailures = new HashMap<>();
 
   /**
-   * Creates a builder with a valuation date but no market data.
-   *
-   * @param valuationDate  the valuation date associated with the market data
+   * Creates an empty builder.
    */
-  CalculationEnvironmentBuilder(LocalDate valuationDate) {
-    this.valuationDate = valuationDate;
+  CalculationEnvironmentBuilder() {
   }
 
   /**
@@ -51,20 +61,20 @@ public final class CalculationEnvironmentBuilder {
    * @param valuationDate  the valuation date associated with the market data
    * @param values  the single value market data items, keyed by ID
    * @param timeSeries  time series of observable market data values, keyed by ID
-   * @param singleValueFailures  details of failures encountered when building market data values
+   * @param valueFailures  details of failures encountered when building market data values
    * @param timeSeriesFailures  details of failures encountered when building time series
    */
   CalculationEnvironmentBuilder(
-      LocalDate valuationDate,
-      Map<? extends MarketDataId<?>, Object> values,
+      MarketDataBox<LocalDate> valuationDate,
+      Map<? extends MarketDataId<?>, MarketDataBox<?>> values,
       Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries,
-      Map<MarketDataId<?>, Failure> singleValueFailures,
+      Map<MarketDataId<?>, Failure> valueFailures,
       Map<MarketDataId<?>, Failure> timeSeriesFailures) {
 
     this.valuationDate = ArgChecker.notNull(valuationDate, "valuationDate");
     this.values.putAll(values);
     this.timeSeries.putAll(timeSeries);
-    this.singleValueFailures.putAll(singleValueFailures);
+    this.valueFailures.putAll(valueFailures);
     this.timeSeriesFailures.putAll(timeSeriesFailures);
   }
 
@@ -76,11 +86,30 @@ public final class CalculationEnvironmentBuilder {
    * @param <T>  the type of the market data value
    * @return this builder
    */
-  public <T> CalculationEnvironmentBuilder addValue(MarketDataId<T> id, T value) {
+  public <T> CalculationEnvironmentBuilder addValue(MarketDataId<T> id, MarketDataBox<T> value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
+    updateScenarioCount(value);
     values.put(id, value);
-    singleValueFailures.remove(id);
+    valueFailures.remove(id);
+    return this;
+  }
+
+  /**
+   * Adds multiple values for an item of market data, one for each scenario.
+   *
+   * @param id  the ID of the market data
+   * @param values  the market data values, one for each scenario
+   * @param <T>  the type of the market data values
+   * @return this builder
+   */
+  public <T> CalculationEnvironmentBuilder addValue(MarketDataId<T> id, List<T> values) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(values, "values");
+    MarketDataBox<T> box = MarketDataBox.ofScenarioValues(values);
+    updateScenarioCount(box);
+    this.values.put(id, box);
+    valueFailures.remove(id);
     return this;
   }
 
@@ -92,16 +121,17 @@ public final class CalculationEnvironmentBuilder {
    * @param <T>  the type of the market data value
    * @return this builder
    */
-  public <T> CalculationEnvironmentBuilder addResult(MarketDataId<T> id, Result<T> result) {
+  public <T> CalculationEnvironmentBuilder addResult(MarketDataId<T> id, Result<MarketDataBox<T>> result) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(result, "result");
 
     if (result.isSuccess()) {
-      // TODO Check the type of the value is compatible with the market data type of the ID
-      values.put(id, result.getValue());
-      singleValueFailures.remove(id);
+      MarketDataBox<T> box = result.getValue();
+      updateScenarioCount(box);
+      values.put(id, box);
+      valueFailures.remove(id);
     } else {
-      singleValueFailures.put(id, result.getFailure());
+      valueFailures.put(id, result.getFailure());
       values.remove(id);
     }
     return this;
@@ -115,42 +145,19 @@ public final class CalculationEnvironmentBuilder {
    * @param <T>  the type of the market data value
    * @return this builder
    */
-  public <T> CalculationEnvironmentBuilder addResultUnsafe(MarketDataId<T> id, Result<?> result) {
+  public <T> CalculationEnvironmentBuilder addResultUnsafe(MarketDataId<T> id, Result<MarketDataBox<?>> result) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(result, "result");
 
     if (result.isSuccess()) {
-      // TODO Check the type of the value is compatible with the market data type of the ID
-      Object value = result.getValue();
-      values.put(id, value);
-      singleValueFailures.remove(id);
+      MarketDataBox<?> box = result.getValue();
+      checkType(id, box);
+      updateScenarioCount(box);
+      values.put(id, box);
+      valueFailures.remove(id);
     } else {
-      singleValueFailures.put(id, result.getFailure());
+      valueFailures.put(id, result.getFailure());
       values.remove(id);
-    }
-    return this;
-  }
-
-  /**
-   * Adds results for multiple items of market data, replacing any existing value with the same IDs.
-   *
-   * @param results  results containing market data values or details of why they could not be provided, keyed by ID
-   * @return this builder
-   */
-  public CalculationEnvironmentBuilder addResults(Map<? extends MarketDataId<?>, ? extends Result<?>> results) {
-    ArgChecker.notNull(results, "results");
-
-    for (Map.Entry<? extends MarketDataId<?>, ? extends Result<?>> entry : results.entrySet()) {
-      MarketDataId<?> id = entry.getKey();
-      Result<?> result = entry.getValue();
-
-      if (result.isSuccess()) {
-        values.put(id, result.getValue());
-        singleValueFailures.remove(id);
-      } else {
-        singleValueFailures.put(id, result.getFailure());
-        values.remove(id);
-      }
     }
     return this;
   }
@@ -162,25 +169,14 @@ public final class CalculationEnvironmentBuilder {
    *
    * @param id  the ID of the market data
    * @param value  the market data value
-   * @param <T>  the type of the market data value
    * @return this builder
    */
-  <T> CalculationEnvironmentBuilder addValueUnsafe(MarketDataId<T> id, Object value) {
+  CalculationEnvironmentBuilder addValueUnsafe(MarketDataId<?> id, MarketDataBox<?> value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
-    values.put(id, id.getMarketDataType().cast(value));
-    return this;
-  }
-
-  /**
-   * Adds multiple items of market data, replacing any existing values with the same IDs.
-   *
-   * @param values  the items of market data, keyed by ID
-   * @return this builder
-   */
-  public CalculationEnvironmentBuilder addAllValues(Map<? extends MarketDataId<?>, ?> values) {
-    ArgChecker.notNull(values, "values");
-    this.values.putAll(values);
+    updateScenarioCount(value);
+    checkType(id, value);
+    values.put(id, value);
     return this;
   }
 
@@ -220,14 +216,15 @@ public final class CalculationEnvironmentBuilder {
   }
 
   /**
-   * Adds multiple time series of observable market data, replacing any existing time series with the same IDs.
+   * Sets the valuation date associated with the market data, replacing the existing valuation date.
    *
-   * @param series  the time series of market data, keyed by ID
+   * @param valuationDate  the valuation date associated with the market data
    * @return this builder
    */
-  public CalculationEnvironmentBuilder addAllTimeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> series) {
-    ArgChecker.notNull(series, "series");
-    timeSeries.putAll(series);
+  public CalculationEnvironmentBuilder valuationDate(LocalDate valuationDate) {
+    ArgChecker.notNull(valuationDate, "valuationDate");
+    this.valuationDate = MarketDataBox.ofSingleValue(valuationDate);
+    updateScenarioCount(this.valuationDate);
     return this;
   }
 
@@ -237,8 +234,13 @@ public final class CalculationEnvironmentBuilder {
    * @param valuationDate  the valuation date associated with the market data
    * @return this builder
    */
-  public CalculationEnvironmentBuilder valuationDate(LocalDate valuationDate) {
+  public CalculationEnvironmentBuilder valuationDate(MarketDataBox<LocalDate> valuationDate) {
     ArgChecker.notNull(valuationDate, "valuationDate");
+    updateScenarioCount(valuationDate);
+
+    if (valuationDate.getScenarioCount() == 0) {
+      throw new IllegalArgumentException("Valuation date must not be empty");
+    }
     this.valuationDate = valuationDate;
     return this;
   }
@@ -252,6 +254,42 @@ public final class CalculationEnvironmentBuilder {
    * @return a set of market data from the data in this builder
    */
   public CalculationEnvironment build() {
-    return new CalculationEnvironment(valuationDate, values, timeSeries, singleValueFailures, timeSeriesFailures);
+    return new CalculationEnvironment(valuationDate, scenarioCount, values, timeSeries, valueFailures, timeSeriesFailures);
+  }
+
+  private void updateScenarioCount(MarketDataBox<?> box) {
+    // If the box has a single value then it can be used with any number of scenarios - the same value is used
+    // for all scenarios.
+    if (box.isSingleValue()) {
+      if (scenarioCount == 0) {
+        scenarioCount = 1;
+      }
+      return;
+    }
+    int scenarioCount = box.getScenarioCount();
+
+    if (this.scenarioCount == 0 || this.scenarioCount == 1) {
+      this.scenarioCount = scenarioCount;
+      return;
+    }
+    if (scenarioCount != this.scenarioCount) {
+      throw new IllegalArgumentException(
+          Messages.format(
+              "Cannot add value {} with {} scenarios to an environment with {} scenarios",
+              box,
+              scenarioCount,
+              this.scenarioCount));
+    }
+  }
+
+  private static void checkType(MarketDataId<?> id, MarketDataBox<?> box) {
+    if (!id.getMarketDataType().isAssignableFrom(box.getMarketDataType())) {
+      throw new IllegalArgumentException(
+          Messages.format(
+              "Market data type {} of value {} is not compatible with the market data type of the ID {}",
+              box.getMarketDataType().getName(),
+              box,
+              id.getMarketDataType().getName()));
+    }
   }
 }

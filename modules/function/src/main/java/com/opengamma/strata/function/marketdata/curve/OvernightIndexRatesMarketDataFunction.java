@@ -15,6 +15,7 @@ import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.function.MarketDataFunction;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -52,7 +53,11 @@ public class OvernightIndexRatesMarketDataFunction
   }
 
   @Override
-  public Result<OvernightIndexRates> build(OvernightIndexRatesId id, MarketDataLookup marketData, MarketDataConfig config) {
+  public Result<MarketDataBox<OvernightIndexRates>> build(
+      OvernightIndexRatesId id,
+      MarketDataLookup marketData,
+      MarketDataConfig config) {
+
     // find time-series
     IndexRateId timeSeriesId = IndexRateId.of(id.getIndex(), id.getMarketDataFeed());
     if (!marketData.containsTimeSeries(timeSeriesId)) {
@@ -66,6 +71,7 @@ public class OvernightIndexRatesMarketDataFunction
 
     // find curve
     RateIndexCurveId curveId = RateIndexCurveId.of(id.getIndex(), id.getCurveGroupName(), id.getMarketDataFeed());
+
     if (!marketData.containsValue(curveId)) {
       return Result.failure(
           FailureReason.MISSING_DATA,
@@ -74,14 +80,13 @@ public class OvernightIndexRatesMarketDataFunction
           id.getCurveGroupName(),
           id.getMarketDataFeed());
     }
-    Curve curve = marketData.getValue(curveId);
-
-    // create Overnight rates
-    return Result.wrap(() -> createOvernightIndexRates(id.getIndex(), marketData.getValuationDate(), timeSeries, curve));
+    MarketDataBox<Curve> curveBox = marketData.getValue(curveId);
+    MarketDataBox<LocalDate> valDateBox = marketData.getValuationDate();
+    return curveBox.combineWith(valDateBox, (c, valDate) -> createRates(id.getIndex(), valDate, timeSeries, c));
   }
 
   // create the instance of OvernightIndexRates
-  private Result<OvernightIndexRates> createOvernightIndexRates(
+  private Result<OvernightIndexRates> createRates(
       OvernightIndex index,
       LocalDate valuationDate,
       LocalDateDoubleTimeSeries timeSeries,

@@ -11,6 +11,7 @@ import com.opengamma.strata.engine.calculation.MissingMappingId;
 import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 
 /**
  * Market data function that creates failures with helpful error messages when there is no
@@ -31,7 +32,11 @@ public final class MissingMappingMarketDataFunction implements MarketDataFunctio
   }
 
   @Override
-  public Result<Void> build(MissingMappingId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+  public Result<MarketDataBox<Void>> build(
+      MissingMappingId id,
+      MarketDataLookup marketData,
+      MarketDataConfig marketDataConfig) {
+
     return Result.failure(
         FailureReason.MISSING_DATA,
         "No market data mapping found for market data key {}",

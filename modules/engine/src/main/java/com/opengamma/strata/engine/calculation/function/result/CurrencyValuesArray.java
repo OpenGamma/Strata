@@ -5,13 +5,11 @@
  */
 package com.opengamma.strata.engine.calculation.function.result;
 
-import static com.opengamma.strata.collect.Guavate.zipPairs;
-
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
@@ -34,6 +32,7 @@ import com.opengamma.strata.engine.calculation.function.CalculationMultiFunction
 import com.opengamma.strata.engine.calculation.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.calculation.function.CurrencyConvertible;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 
 /**
  * An array of currency values in one currency representing the result of the same calculation
@@ -72,22 +71,20 @@ public final class CurrencyValuesArray
     if (currency.equals(reportingCurrency)) {
       return this;
     }
-    List<FxRate> rates = marketData.getValues(FxRateKey.of(currency, reportingCurrency));
-    checkNumberOfRates(rates);
-    double[] convertedValues = zipPairs(Arrays.stream(values).boxed(), rates.stream())
-        .map(tp -> tp.getSecond().convert(tp.getFirst(), currency, reportingCurrency))
-        .mapToDouble(d -> d)
+    MarketDataBox<FxRate> rates = marketData.getValue(FxRateKey.of(currency, reportingCurrency));
+    checkNumberOfRates(rates.getScenarioCount());
+    double[] convertedValues = IntStream.range(0, values.length)
+        .mapToDouble(i -> rates.getValue(i).convert(values[i], currency, reportingCurrency))
         .toArray();
-
     return new CurrencyValuesArray(reportingCurrency, convertedValues);
   }
 
-  private void checkNumberOfRates(List<FxRate> rates) {
-    if (values.length != rates.size()) {
+  private void checkNumberOfRates(int rateCount) {
+    if (rateCount != 1 && values.length != rateCount) {
       throw new IllegalArgumentException(
           Messages.format(
-              "Number of rates ({}) must be the same as the number of values ({})",
-              rates.size(),
+              "Number of rates ({}) must be 1 or the same as the number of values ({})",
+              rateCount,
               values.length));
     }
   }

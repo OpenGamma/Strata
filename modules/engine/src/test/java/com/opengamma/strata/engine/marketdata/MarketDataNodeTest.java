@@ -25,6 +25,7 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.function.MarketDataFunction;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 
 @Test
 public class MarketDataNodeTest {
@@ -151,7 +152,7 @@ public class MarketDataNodeTest {
     MarketDataNode root =
         MarketDataNode.buildDependencyTree(
             CalculationRequirements.of(requirements),
-            MarketEnvironment.empty(date(2011, 3, 8)),
+            MarketEnvironment.empty(),
             MarketDataConfig.empty(),
             functions);
 
@@ -200,14 +201,15 @@ public class MarketDataNodeTest {
     MarketDataNode root1 =
         MarketDataNode.buildDependencyTree(
             CalculationRequirements.of(requirements),
-            MarketEnvironment.empty(date(2011, 3, 8)),
+            MarketEnvironment.empty(),
             MarketDataConfig.empty(),
             functions);
 
     assertThat(root1).isEqualTo(expected1);
 
     MarketEnvironment suppliedData =
-        MarketEnvironment.builder(date(2011, 3, 8))
+        MarketEnvironment.builder()
+            .valuationDate(date(2011, 3, 8))
             .addValue(new TestIdB("1"), new TestMarketDataB())
             .addValue(new TestIdB("3"), new TestMarketDataB())
             .build();
@@ -254,31 +256,11 @@ public class MarketDataNodeTest {
     MarketDataNode root =
         MarketDataNode.buildDependencyTree(
             CalculationRequirements.of(requirements),
-            MarketEnvironment.empty(date(2011, 8, 3)),
+            MarketEnvironment.empty(),
             MarketDataConfig.empty(),
             functions);
 
     assertThat(root).isEqualTo(expected);
-  }
-
-  public void nodeMap() {
-    MarketDataNode a1 = observableNode(new TestIdA("1"));
-    MarketDataNode b3 = valueNode(new TestIdB("3"));
-    MarketDataNode a4 = observableNode(new TestIdA("4"));
-    MarketDataNode a6 = timeSeriesNode(new TestIdA("6"));
-    MarketDataNode b5 = valueNode(new TestIdB("5"), a6);
-    MarketDataNode b2 = valueNode(new TestIdB("2"), b3, a4, b5);
-    MarketDataNode b7 = valueNode(new TestIdB("7"));
-    MarketDataNode root = rootNode(a1, b2, b7);
-
-    Map<MarketDataId<?>, MarketDataNode> nodeMap = root.nodeMap();
-    assertThat(nodeMap.get(new TestIdA("1"))).isEqualTo(a1);
-    assertThat(nodeMap.get(new TestIdB("3"))).isEqualTo(b3);
-    assertThat(nodeMap.get(new TestIdA("4"))).isEqualTo(a4);
-    assertThat(nodeMap.get(new TestIdA("6"))).isEqualTo(a6);
-    assertThat(nodeMap.get(new TestIdB("5"))).isEqualTo(b5);
-    assertThat(nodeMap.get(new TestIdB("2"))).isEqualTo(b2);
-    assertThat(nodeMap.get(new TestIdB("7"))).isEqualTo(b7);
   }
 
   //------------------------------------------------------------------------------------------
@@ -320,11 +302,6 @@ public class MarketDataNodeTest {
     @Override
     public MarketDataFeed getMarketDataFeed() {
       return MarketDataFeed.NONE;
-    }
-
-    @Override
-    public Class<Double> getMarketDataType() {
-      return Double.class;
     }
 
     @Override
@@ -436,7 +413,7 @@ public class MarketDataNodeTest {
     }
 
     @Override
-    public Result<Double> build(TestIdA id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+    public Result<MarketDataBox<Double>> build(TestIdA id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
       throw new UnsupportedOperationException("build not implemented");
     }
 
@@ -462,7 +439,11 @@ public class MarketDataNodeTest {
     }
 
     @Override
-    public Result<TestMarketDataB> build(TestIdB id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+    public Result<MarketDataBox<TestMarketDataB>> build(
+        TestIdB id,
+        MarketDataLookup marketData,
+        MarketDataConfig marketDataConfig) {
+
       throw new UnsupportedOperationException("build not implemented");
     }
 

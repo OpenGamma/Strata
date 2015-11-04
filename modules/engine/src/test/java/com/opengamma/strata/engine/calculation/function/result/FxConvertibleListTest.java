@@ -21,9 +21,10 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.engine.marketdata.CalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.DefaultCalculationMarketData;
-import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 
 @Test
 public class FxConvertibleListTest {
@@ -40,8 +41,9 @@ public class FxConvertibleListTest {
     List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
-    ScenarioCalculationEnvironment marketData = ScenarioCalculationEnvironment.builder(3, date(2011, 3, 8))
-        .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)
+    CalculationEnvironment marketData = CalculationEnvironment.builder()
+        .valuationDate(date(2011, 3, 8))
+        .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
@@ -79,9 +81,10 @@ public class FxConvertibleListTest {
     List<FxRate> eurRates = ImmutableList.of(1.07, 1.08, 1.09).stream()
         .map(rate -> FxRate.of(Currency.EUR, Currency.USD, rate))
         .collect(toImmutableList());
-    ScenarioCalculationEnvironment marketData = ScenarioCalculationEnvironment.builder(3, date(2011, 3, 8))
-        .addValues(FxRateId.of(Currency.GBP, Currency.USD), usdRates)
-        .addValues(FxRateId.of(Currency.EUR, Currency.USD), eurRates)
+    CalculationEnvironment marketData = CalculationEnvironment.builder()
+        .valuationDate(date(2011, 3, 8))
+        .addValue(FxRateId.of(Currency.GBP, Currency.USD), usdRates)
+        .addValue(FxRateId.of(Currency.EUR, Currency.USD), eurRates)
         .build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
@@ -104,7 +107,9 @@ public class FxConvertibleListTest {
         CurrencyAmount.of(Currency.GBP, 2),
         CurrencyAmount.of(Currency.GBP, 3));
     FxConvertibleList list = FxConvertibleList.of(values);
-    ScenarioCalculationEnvironment marketData = ScenarioCalculationEnvironment.builder(3, date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = CalculationEnvironment.builder()
+        .valuationDate(MarketDataBox.ofScenarioValues(date(2011, 3, 8), date(2011, 3, 9), date(2011, 3, 10)))
+        .build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
@@ -122,7 +127,8 @@ public class FxConvertibleListTest {
         CurrencyAmount.of(Currency.GBP, 2),
         CurrencyAmount.of(Currency.GBP, 3));
     FxConvertibleList list = FxConvertibleList.of(values);
-    ScenarioCalculationEnvironment marketData = ScenarioCalculationEnvironment.builder(3, date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = CalculationEnvironment.builder()
+        .valuationDate(date(2011, 3, 8)).build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
@@ -144,8 +150,9 @@ public class FxConvertibleListTest {
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
     FxConvertibleList list = FxConvertibleList.of(values);
-    ScenarioCalculationEnvironment marketData = ScenarioCalculationEnvironment.builder(2, date(2011, 3, 8))
-        .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)
+    CalculationEnvironment marketData = CalculationEnvironment.builder()
+        .valuationDate(date(2011, 3, 8))
+        .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
@@ -153,7 +160,7 @@ public class FxConvertibleListTest {
     assertThrows(
         () -> list.convertedTo(Currency.USD, calculationMarketData),
         IllegalArgumentException.class,
-        "The number of values is greater than the number of rates .*");
+        "The number of scenarios is greater than the number of rates .*");
   }
 
 }

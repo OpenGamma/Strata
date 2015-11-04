@@ -10,13 +10,13 @@ import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
 import com.opengamma.strata.collect.id.StandardId;
-import org.joda.beans.JodaBeanUtils;
 
 /**
  * ObservableKey implementation used in tests.
@@ -27,6 +27,7 @@ public final class TestObservableKey
 
   @PropertyDefinition(overrideGet = true)
   private final StandardId standardId;
+
   @PropertyDefinition(overrideGet = true)
   private final FieldName fieldName;
 
