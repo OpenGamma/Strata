@@ -125,7 +125,9 @@ public class FraCurveNodeTest {
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     assertEquals(node.initialGuess(valuationDate, ObservableValues.of(QUOTE_KEY, rate), ValueType.ZERO_RATE), rate);
-    assertEquals(node.initialGuess(valuationDate, ObservableValues.of(QUOTE_KEY, rate), ValueType.DISCOUNT_FACTOR), 0d);
+    double approximateMaturity = TEMPLATE.getPeriodToEnd().toTotalMonths() / 12.0d;
+    double df =  Math.exp(-approximateMaturity * rate);
+    assertEquals(node.initialGuess(valuationDate, ObservableValues.of(QUOTE_KEY, rate), ValueType.DISCOUNT_FACTOR), df);
   }
 
   public void test_metadata() {

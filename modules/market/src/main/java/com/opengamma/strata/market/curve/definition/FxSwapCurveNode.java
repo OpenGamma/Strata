@@ -28,87 +28,76 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
-import com.opengamma.strata.finance.rate.fra.ExpandedFra;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
-import com.opengamma.strata.finance.rate.fra.type.FraTemplate;
+import com.opengamma.strata.finance.fx.FxSwapTrade;
+import com.opengamma.strata.finance.fx.type.FxSwapTemplate;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
 
 /**
- * A curve node whose instrument is a Forward Rate Agreement (FRA).
+ * A curve node whose instrument is an FX Swap.
  */
 @BeanDefinition
-public final class FraCurveNode
+public final class FxSwapCurveNode
     implements CurveNode, ImmutableBean, Serializable {
 
   /**
-   * The template for the FRA associated with this node.
+   * The template for the FX Swap associated with this node.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FraTemplate template;
+  private final FxSwapTemplate template;
   /**
-   * The key identifying the market data value which provides the rate.
+   * The key identifying the market data value which provides the FX near (spot) date rate.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ObservableKey rateKey;
+  private final ObservableKey fxNearKey;
   /**
-   * The spread added to the rate.
+   * The key identifying the market data value which provides the FX forward points.
    */
-  @PropertyDefinition
-  private final double spread;
+  @PropertyDefinition(validate = "notNull")
+  private final ObservableKey fxPtsKey;
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a curve node for a FRA using the specified instrument template and rate key.
+   * Returns a curve node for an FX Swap using the specified instrument template and keys.
    *
    * @param template  the template used for building the instrument for the node
-   * @param rateKey  the key identifying the market rate used when building the instrument for the node
+   * @param fxNearKey  the key identifying the FX rate for the near date used when building the instrument for the node
+   * @param fxPtsKey  the key identifying the FX points between the near date and the far date
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static FraCurveNode of(FraTemplate template, ObservableKey rateKey) {
-    return new FraCurveNode(template, rateKey, 0);
-  }
-
-  /**
-   * Returns a curve node for a FRA using the specified instrument template, rate key and spread.
-   *
-   * @param template  the template defining the node instrument
-   * @param rateKey  the key identifying the market data providing the rate for the node instrument
-   * @param spread  the spread amount added to the rate
-   * @return a node whose instrument is built from the template using a market rate
-   */
-  public static FraCurveNode of(FraTemplate template, ObservableKey rateKey, double spread) {
-    return new FraCurveNode(template, rateKey, spread);
+  public static FxSwapCurveNode of(FxSwapTemplate template, ObservableKey fxNearKey, ObservableKey fxPtsKey) {
+    return FxSwapCurveNode.builder()
+        .template(template)
+        .fxNearKey(fxNearKey)
+        .fxPtsKey(fxPtsKey)
+        .build();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public Set<ObservableKey> requirements() {
-    return ImmutableSet.of(rateKey);
+    return ImmutableSet.of(fxNearKey, fxPtsKey);
   }
 
   @Override
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
-    FraTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1);
-    ExpandedFra expandedFra = trade.getProduct().expand();
-    return TenorCurveNodeMetadata.of(expandedFra.getEndDate(), Tenor.of(template.getPeriodToEnd()));
+    FxSwapTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1, 0);
+    LocalDate farDate = trade.getProduct().getFarLeg().getPaymentDate();
+    return TenorCurveNodeMetadata.of(farDate, Tenor.of(template.getPeriodToFar()));
   }
 
   @Override
-  public FraTrade trade(LocalDate valuationDate, ObservableValues marketData) {
-    double fixedRate = marketData.getValue(rateKey) + spread;
-    return template.toTrade(valuationDate, BuySell.BUY, 1d, fixedRate);
+  public FxSwapTrade trade(LocalDate valuationDate, ObservableValues marketData) {
+    double fxNearRate = marketData.getValue(fxNearKey);
+    double fxPts = marketData.getValue(fxPtsKey);
+    return template.toTrade(valuationDate, BuySell.BUY, 1d, fxNearRate, fxPts);
   }
 
   @Override
   public double initialGuess(LocalDate valuationDate, ObservableValues marketData, ValueType valueType) {
-    if (ValueType.ZERO_RATE.equals(valueType)) {
-      return marketData.getValue(rateKey);
-    }
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
-      double approximateMaturity = template.getPeriodToEnd().toTotalMonths() / 12.0d;
-      return Math.exp(-approximateMaturity * marketData.getValue(rateKey));
+      return 1d;
     }
     return 0d;
   }
@@ -116,15 +105,15 @@ public final class FraCurveNode
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code FraCurveNode}.
+   * The meta-bean for {@code FxSwapCurveNode}.
    * @return the meta-bean, not null
    */
-  public static FraCurveNode.Meta meta() {
-    return FraCurveNode.Meta.INSTANCE;
+  public static FxSwapCurveNode.Meta meta() {
+    return FxSwapCurveNode.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(FraCurveNode.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(FxSwapCurveNode.Meta.INSTANCE);
   }
 
   /**
@@ -136,24 +125,25 @@ public final class FraCurveNode
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static FraCurveNode.Builder builder() {
-    return new FraCurveNode.Builder();
+  public static FxSwapCurveNode.Builder builder() {
+    return new FxSwapCurveNode.Builder();
   }
 
-  private FraCurveNode(
-      FraTemplate template,
-      ObservableKey rateKey,
-      double spread) {
+  private FxSwapCurveNode(
+      FxSwapTemplate template,
+      ObservableKey fxNearKey,
+      ObservableKey fxPtsKey) {
     JodaBeanUtils.notNull(template, "template");
-    JodaBeanUtils.notNull(rateKey, "rateKey");
+    JodaBeanUtils.notNull(fxNearKey, "fxNearKey");
+    JodaBeanUtils.notNull(fxPtsKey, "fxPtsKey");
     this.template = template;
-    this.rateKey = rateKey;
-    this.spread = spread;
+    this.fxNearKey = fxNearKey;
+    this.fxPtsKey = fxPtsKey;
   }
 
   @Override
-  public FraCurveNode.Meta metaBean() {
-    return FraCurveNode.Meta.INSTANCE;
+  public FxSwapCurveNode.Meta metaBean() {
+    return FxSwapCurveNode.Meta.INSTANCE;
   }
 
   @Override
@@ -168,29 +158,29 @@ public final class FraCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the template for the FRA associated with this node.
+   * Gets the template for the FX Swap associated with this node.
    * @return the value of the property, not null
    */
-  public FraTemplate getTemplate() {
+  public FxSwapTemplate getTemplate() {
     return template;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the key identifying the market data value which provides the rate.
+   * Gets the key identifying the market data value which provides the FX near (spot) date rate.
    * @return the value of the property, not null
    */
-  public ObservableKey getRateKey() {
-    return rateKey;
+  public ObservableKey getFxNearKey() {
+    return fxNearKey;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the spread added to the rate.
-   * @return the value of the property
+   * Gets the key identifying the market data value which provides the FX forward points.
+   * @return the value of the property, not null
    */
-  public double getSpread() {
-    return spread;
+  public ObservableKey getFxPtsKey() {
+    return fxPtsKey;
   }
 
   //-----------------------------------------------------------------------
@@ -208,10 +198,10 @@ public final class FraCurveNode
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      FraCurveNode other = (FraCurveNode) obj;
+      FxSwapCurveNode other = (FxSwapCurveNode) obj;
       return JodaBeanUtils.equal(getTemplate(), other.getTemplate()) &&
-          JodaBeanUtils.equal(getRateKey(), other.getRateKey()) &&
-          JodaBeanUtils.equal(getSpread(), other.getSpread());
+          JodaBeanUtils.equal(getFxNearKey(), other.getFxNearKey()) &&
+          JodaBeanUtils.equal(getFxPtsKey(), other.getFxPtsKey());
     }
     return false;
   }
@@ -220,25 +210,25 @@ public final class FraCurveNode
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getTemplate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRateKey());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSpread());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFxNearKey());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFxPtsKey());
     return hash;
   }
 
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
-    buf.append("FraCurveNode{");
+    buf.append("FxSwapCurveNode{");
     buf.append("template").append('=').append(getTemplate()).append(',').append(' ');
-    buf.append("rateKey").append('=').append(getRateKey()).append(',').append(' ');
-    buf.append("spread").append('=').append(JodaBeanUtils.toString(getSpread()));
+    buf.append("fxNearKey").append('=').append(getFxNearKey()).append(',').append(' ');
+    buf.append("fxPtsKey").append('=').append(JodaBeanUtils.toString(getFxPtsKey()));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code FraCurveNode}.
+   * The meta-bean for {@code FxSwapCurveNode}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -249,26 +239,26 @@ public final class FraCurveNode
     /**
      * The meta-property for the {@code template} property.
      */
-    private final MetaProperty<FraTemplate> template = DirectMetaProperty.ofImmutable(
-        this, "template", FraCurveNode.class, FraTemplate.class);
+    private final MetaProperty<FxSwapTemplate> template = DirectMetaProperty.ofImmutable(
+        this, "template", FxSwapCurveNode.class, FxSwapTemplate.class);
     /**
-     * The meta-property for the {@code rateKey} property.
+     * The meta-property for the {@code fxNearKey} property.
      */
-    private final MetaProperty<ObservableKey> rateKey = DirectMetaProperty.ofImmutable(
-        this, "rateKey", FraCurveNode.class, ObservableKey.class);
+    private final MetaProperty<ObservableKey> fxNearKey = DirectMetaProperty.ofImmutable(
+        this, "fxNearKey", FxSwapCurveNode.class, ObservableKey.class);
     /**
-     * The meta-property for the {@code spread} property.
+     * The meta-property for the {@code fxPtsKey} property.
      */
-    private final MetaProperty<Double> spread = DirectMetaProperty.ofImmutable(
-        this, "spread", FraCurveNode.class, Double.TYPE);
+    private final MetaProperty<ObservableKey> fxPtsKey = DirectMetaProperty.ofImmutable(
+        this, "fxPtsKey", FxSwapCurveNode.class, ObservableKey.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "template",
-        "rateKey",
-        "spread");
+        "fxNearKey",
+        "fxPtsKey");
 
     /**
      * Restricted constructor.
@@ -281,22 +271,22 @@ public final class FraCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case 983444831:  // rateKey
-          return rateKey;
-        case -895684237:  // spread
-          return spread;
+        case -1797478427:  // fxNearKey
+          return fxNearKey;
+        case -1094751134:  // fxPtsKey
+          return fxPtsKey;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public FraCurveNode.Builder builder() {
-      return new FraCurveNode.Builder();
+    public FxSwapCurveNode.Builder builder() {
+      return new FxSwapCurveNode.Builder();
     }
 
     @Override
-    public Class<? extends FraCurveNode> beanType() {
-      return FraCurveNode.class;
+    public Class<? extends FxSwapCurveNode> beanType() {
+      return FxSwapCurveNode.class;
     }
 
     @Override
@@ -309,24 +299,24 @@ public final class FraCurveNode
      * The meta-property for the {@code template} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FraTemplate> template() {
+    public MetaProperty<FxSwapTemplate> template() {
       return template;
     }
 
     /**
-     * The meta-property for the {@code rateKey} property.
+     * The meta-property for the {@code fxNearKey} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ObservableKey> rateKey() {
-      return rateKey;
+    public MetaProperty<ObservableKey> fxNearKey() {
+      return fxNearKey;
     }
 
     /**
-     * The meta-property for the {@code spread} property.
+     * The meta-property for the {@code fxPtsKey} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> spread() {
-      return spread;
+    public MetaProperty<ObservableKey> fxPtsKey() {
+      return fxPtsKey;
     }
 
     //-----------------------------------------------------------------------
@@ -334,11 +324,11 @@ public final class FraCurveNode
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          return ((FraCurveNode) bean).getTemplate();
-        case 983444831:  // rateKey
-          return ((FraCurveNode) bean).getRateKey();
-        case -895684237:  // spread
-          return ((FraCurveNode) bean).getSpread();
+          return ((FxSwapCurveNode) bean).getTemplate();
+        case -1797478427:  // fxNearKey
+          return ((FxSwapCurveNode) bean).getFxNearKey();
+        case -1094751134:  // fxPtsKey
+          return ((FxSwapCurveNode) bean).getFxPtsKey();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -356,13 +346,13 @@ public final class FraCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code FraCurveNode}.
+   * The bean-builder for {@code FxSwapCurveNode}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<FraCurveNode> {
+  public static final class Builder extends DirectFieldsBeanBuilder<FxSwapCurveNode> {
 
-    private FraTemplate template;
-    private ObservableKey rateKey;
-    private double spread;
+    private FxSwapTemplate template;
+    private ObservableKey fxNearKey;
+    private ObservableKey fxPtsKey;
 
     /**
      * Restricted constructor.
@@ -374,10 +364,10 @@ public final class FraCurveNode
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(FraCurveNode beanToCopy) {
+    private Builder(FxSwapCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
-      this.rateKey = beanToCopy.getRateKey();
-      this.spread = beanToCopy.getSpread();
+      this.fxNearKey = beanToCopy.getFxNearKey();
+      this.fxPtsKey = beanToCopy.getFxPtsKey();
     }
 
     //-----------------------------------------------------------------------
@@ -386,10 +376,10 @@ public final class FraCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case 983444831:  // rateKey
-          return rateKey;
-        case -895684237:  // spread
-          return spread;
+        case -1797478427:  // fxNearKey
+          return fxNearKey;
+        case -1094751134:  // fxPtsKey
+          return fxPtsKey;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -399,13 +389,13 @@ public final class FraCurveNode
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          this.template = (FraTemplate) newValue;
+          this.template = (FxSwapTemplate) newValue;
           break;
-        case 983444831:  // rateKey
-          this.rateKey = (ObservableKey) newValue;
+        case -1797478427:  // fxNearKey
+          this.fxNearKey = (ObservableKey) newValue;
           break;
-        case -895684237:  // spread
-          this.spread = (Double) newValue;
+        case -1094751134:  // fxPtsKey
+          this.fxPtsKey = (ObservableKey) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -438,43 +428,44 @@ public final class FraCurveNode
     }
 
     @Override
-    public FraCurveNode build() {
-      return new FraCurveNode(
+    public FxSwapCurveNode build() {
+      return new FxSwapCurveNode(
           template,
-          rateKey,
-          spread);
+          fxNearKey,
+          fxPtsKey);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the template for the FRA associated with this node.
+     * Sets the template for the FX Swap associated with this node.
      * @param template  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder template(FraTemplate template) {
+    public Builder template(FxSwapTemplate template) {
       JodaBeanUtils.notNull(template, "template");
       this.template = template;
       return this;
     }
 
     /**
-     * Sets the key identifying the market data value which provides the rate.
-     * @param rateKey  the new value, not null
+     * Sets the key identifying the market data value which provides the FX near (spot) date rate.
+     * @param fxNearKey  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder rateKey(ObservableKey rateKey) {
-      JodaBeanUtils.notNull(rateKey, "rateKey");
-      this.rateKey = rateKey;
+    public Builder fxNearKey(ObservableKey fxNearKey) {
+      JodaBeanUtils.notNull(fxNearKey, "fxNearKey");
+      this.fxNearKey = fxNearKey;
       return this;
     }
 
     /**
-     * Sets the spread added to the rate.
-     * @param spread  the new value
+     * Sets the key identifying the market data value which provides the FX forward points.
+     * @param fxPtsKey  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder spread(double spread) {
-      this.spread = spread;
+    public Builder fxPtsKey(ObservableKey fxPtsKey) {
+      JodaBeanUtils.notNull(fxPtsKey, "fxPtsKey");
+      this.fxPtsKey = fxPtsKey;
       return this;
     }
 
@@ -482,10 +473,10 @@ public final class FraCurveNode
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
-      buf.append("FraCurveNode.Builder{");
+      buf.append("FxSwapCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
-      buf.append("rateKey").append('=').append(JodaBeanUtils.toString(rateKey)).append(',').append(' ');
-      buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
+      buf.append("fxNearKey").append('=').append(JodaBeanUtils.toString(fxNearKey)).append(',').append(' ');
+      buf.append("fxPtsKey").append('=').append(JodaBeanUtils.toString(fxPtsKey));
       buf.append('}');
       return buf.toString();
     }
