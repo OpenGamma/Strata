@@ -72,7 +72,7 @@ public final class CurveGroupEntry
 
   //-------------------------------------------------------------------------
   /**
-   * Merges the specified entry with this entry.
+   * Merges the specified entry with this entry, returning a new entry.
    * <p>
    * The two entries must have the same curve definition.
    * 
