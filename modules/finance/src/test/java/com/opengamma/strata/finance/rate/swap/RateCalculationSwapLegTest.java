@@ -14,7 +14,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_GBP;
+import static com.opengamma.strata.basics.index.FxIndices.EUR_GBP_ECB;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
@@ -163,7 +163,7 @@ public class RateCalculationSwapLegTest {
             .amount(ValueSchedule.of(1000d))
             .fxReset(FxResetCalculation.builder()
                 .referenceCurrency(EUR)
-                .index(ECB_EUR_GBP)
+                .index(EUR_GBP_ECB)
                 .fixingDateOffset(MINUS_TWO_DAYS)
                 .build())
             .build())
@@ -175,8 +175,8 @@ public class RateCalculationSwapLegTest {
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M, ECB_EUR_GBP));
-    assertEquals(test.allIndices(), ImmutableSet.of(GBP_LIBOR_3M, ECB_EUR_GBP));
+    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M, EUR_GBP_ECB));
+    assertEquals(test.allIndices(), ImmutableSet.of(GBP_LIBOR_3M, EUR_GBP_ECB));
   }
 
   //-------------------------------------------------------------------------
@@ -425,7 +425,7 @@ public class RateCalculationSwapLegTest {
             .amount(ValueSchedule.of(1000d))
             .fxReset(FxResetCalculation.builder()
                 .referenceCurrency(EUR)
-                .index(ECB_EUR_GBP)
+                .index(EUR_GBP_ECB)
                 .fixingDateOffset(MINUS_TWO_DAYS)
                 .build())
             .build())
@@ -447,7 +447,7 @@ public class RateCalculationSwapLegTest {
         .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1000d)
-        .fxReset(FxReset.of(ECB_EUR_GBP, EUR, DATE_01_02))
+        .fxReset(FxReset.of(EUR_GBP_ECB, EUR, DATE_01_02))
         .build();
     RatePaymentPeriod rpp2 = RatePaymentPeriod.builder()
         .paymentDate(DATE_03_07)
@@ -460,7 +460,7 @@ public class RateCalculationSwapLegTest {
         .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1000d)
-        .fxReset(FxReset.of(ECB_EUR_GBP, EUR, DATE_02_03))
+        .fxReset(FxReset.of(EUR_GBP_ECB, EUR, DATE_02_03))
         .build();
     RatePaymentPeriod rpp3 = RatePaymentPeriod.builder()
         .paymentDate(DATE_04_09)
@@ -474,47 +474,47 @@ public class RateCalculationSwapLegTest {
         .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1000d)
-        .fxReset(FxReset.of(ECB_EUR_GBP, EUR, DATE_03_03))
+        .fxReset(FxReset.of(EUR_GBP_ECB, EUR, DATE_03_03))
         .build();
     FxResetNotionalExchange ne1a = FxResetNotionalExchange.builder()
         .paymentDate(DATE_01_06)
         .referenceCurrency(EUR)
-        .index(ECB_EUR_GBP)
+        .index(EUR_GBP_ECB)
         .notional(1000d)
         .fixingDate(DATE_01_02)
         .build();
     FxResetNotionalExchange ne1b = FxResetNotionalExchange.builder()
         .paymentDate(DATE_02_07)
         .referenceCurrency(EUR)
-        .index(ECB_EUR_GBP)
+        .index(EUR_GBP_ECB)
         .notional(-1000d)
         .fixingDate(DATE_01_02)
         .build();
     FxResetNotionalExchange ne2a = FxResetNotionalExchange.builder()
         .paymentDate(DATE_02_07)
         .referenceCurrency(EUR)
-        .index(ECB_EUR_GBP)
+        .index(EUR_GBP_ECB)
         .notional(1000d)
         .fixingDate(DATE_02_03)
         .build();
     FxResetNotionalExchange ne2b = FxResetNotionalExchange.builder()
         .paymentDate(DATE_03_07)
         .referenceCurrency(EUR)
-        .index(ECB_EUR_GBP)
+        .index(EUR_GBP_ECB)
         .notional(-1000d)
         .fixingDate(DATE_02_03)
         .build();
     FxResetNotionalExchange ne3a = FxResetNotionalExchange.builder()
         .paymentDate(DATE_03_07)
         .referenceCurrency(EUR)
-        .index(ECB_EUR_GBP)
+        .index(EUR_GBP_ECB)
         .notional(1000d)
         .fixingDate(DATE_03_03)
         .build();
     FxResetNotionalExchange ne3b = FxResetNotionalExchange.builder()
         .paymentDate(DATE_04_09)
         .referenceCurrency(EUR)
-        .index(ECB_EUR_GBP)
+        .index(EUR_GBP_ECB)
         .notional(-1000d)
         .fixingDate(DATE_03_03)
         .build();

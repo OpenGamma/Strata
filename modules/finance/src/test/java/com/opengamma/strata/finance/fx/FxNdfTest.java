@@ -8,7 +8,7 @@ package com.opengamma.strata.finance.fx;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
+import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -36,12 +36,12 @@ public class FxNdfTest {
   public void test_builder() {
     FxNdf test = FxNdf.builder()
         .agreedFxRate(FX_RATE)
-        .index(WM_GBP_USD)
+        .index(GBP_USD_WM)
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
         .paymentDate(PAYMENT_DATE)
         .build();
     assertEquals(test.getAgreedFxRate(), FX_RATE);
-    assertEquals(test.getIndex(), WM_GBP_USD);
+    assertEquals(test.getIndex(), GBP_USD_WM);
     assertEquals(test.getNonDeliverableCurrency(), USD);
     assertEquals(test.getSettlementCurrencyNotional(), CURRENCY_NOTIONAL);
     assertEquals(test.getPaymentDate(), PAYMENT_DATE);
@@ -53,11 +53,11 @@ public class FxNdfTest {
     FxNdf test = FxNdf.builder()
         .agreedFxRate(fxRate)
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
-        .index(WM_GBP_USD)
+        .index(GBP_USD_WM)
         .paymentDate(PAYMENT_DATE)
         .build();
     assertEquals(test.getAgreedFxRate(), fxRate);
-    assertEquals(test.getIndex(), WM_GBP_USD);
+    assertEquals(test.getIndex(), GBP_USD_WM);
     assertEquals(test.getNonDeliverableCurrency(), USD);
     assertEquals(test.getSettlementCurrencyNotional(), CURRENCY_NOTIONAL);
     assertEquals(test.getPaymentDate(), PAYMENT_DATE);
@@ -69,7 +69,7 @@ public class FxNdfTest {
     assertThrowsIllegalArg(() -> FxNdf.builder()
         .agreedFxRate(fxRate)
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
-        .index(WM_GBP_USD)
+        .index(GBP_USD_WM)
         .paymentDate(PAYMENT_DATE)
         .build());
   }
@@ -78,7 +78,7 @@ public class FxNdfTest {
     assertThrowsIllegalArg(() -> FxNdf.builder()
         .agreedFxRate(FX_RATE)
         .settlementCurrencyNotional(CurrencyAmount.of(EUR, NOTIONAL))
-        .index(WM_GBP_USD)
+        .index(GBP_USD_WM)
         .paymentDate(PAYMENT_DATE)
         .build());
   }
@@ -87,12 +87,12 @@ public class FxNdfTest {
     FxNdf base = FxNdf.builder()
         .agreedFxRate(FX_RATE)
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
-        .index(WM_GBP_USD)
+        .index(GBP_USD_WM)
         .paymentDate(PAYMENT_DATE)
         .build();
     ExpandedFxNdf expanded = base.expand();
     assertEquals(expanded.getAgreedFxRate(), FX_RATE);
-    assertEquals(expanded.getIndex(), WM_GBP_USD);
+    assertEquals(expanded.getIndex(), GBP_USD_WM);
     assertEquals(expanded.getNonDeliverableCurrency(), USD);
     assertEquals(expanded.getPaymentDate(), PAYMENT_DATE);
     assertEquals(expanded.getSettlementCurrency(), GBP);
@@ -104,14 +104,14 @@ public class FxNdfTest {
     FxNdf test1 = FxNdf.builder()
         .agreedFxRate(FX_RATE)
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
-        .index(WM_GBP_USD)
+        .index(GBP_USD_WM)
         .paymentDate(PAYMENT_DATE)
         .build();
     coverImmutableBean(test1);
     FxNdf test2 = FxNdf.builder()
         .agreedFxRate(FX_RATE)
         .settlementCurrencyNotional(CurrencyAmount.of(USD, -NOTIONAL))
-        .index(WM_GBP_USD)
+        .index(GBP_USD_WM)
         .paymentDate(PAYMENT_DATE)
         .build();
     coverBeanEquals(test1, test2);
@@ -121,7 +121,7 @@ public class FxNdfTest {
     FxNdf test = FxNdf.builder()
         .agreedFxRate(FX_RATE)
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
-        .index(WM_GBP_USD)
+        .index(GBP_USD_WM)
         .paymentDate(PAYMENT_DATE)
         .build();
     assertSerialization(test);

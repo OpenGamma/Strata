@@ -48,7 +48,7 @@ public class SwapCrossCurrencyEnd2EndTest {
 
   private static final IborIndex EUR_EURIBOR_3M = IborIndices.EUR_EURIBOR_3M;
   private static final IborIndex USD_LIBOR_3M = IborIndices.USD_LIBOR_3M;
-  private static final FxIndex WM_EUR_USD = FxIndices.WM_EUR_USD;
+  private static final FxIndex EUR_USD_WM = FxIndices.EUR_USD_WM;
   private static final double NOTIONAL_USD = 120_000_000;
   private static final double NOTIONAL_EUR = 100_000_000;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CalendarUSD.NYC);
@@ -170,7 +170,7 @@ public class SwapCrossCurrencyEnd2EndTest {
             .fxReset(FxResetCalculation.builder()
                 .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
                 .referenceCurrency(EUR)
-                .index(WM_EUR_USD)
+                .index(EUR_USD_WM)
                 .build())
             .build())
         .calculation(IborRateCalculation.builder()

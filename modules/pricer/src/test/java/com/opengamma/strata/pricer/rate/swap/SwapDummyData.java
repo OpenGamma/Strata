@@ -85,7 +85,7 @@ public final class SwapDummyData {
       .paymentDate(date(2014, 7, 1))
       .referenceCurrency(Currency.USD)
       .notional(NOTIONAL)
-      .index(FxIndices.WM_GBP_USD)
+      .index(FxIndices.GBP_USD_WM)
       .fixingDate(date(2014, 7, 1))
       .build();
 
@@ -93,7 +93,7 @@ public final class SwapDummyData {
       .paymentDate(date(2014, 7, 1))
       .referenceCurrency(Currency.GBP)
       .notional(-NOTIONAL)
-      .index(FxIndices.WM_GBP_USD)
+      .index(FxIndices.GBP_USD_WM)
       .fixingDate(date(2014, 7, 1))
       .build();
 
@@ -249,7 +249,7 @@ public final class SwapDummyData {
       .dayCount(ACT_365F)
       .currency(Currency.GBP)
       .notional(-NOTIONAL)
-      .fxReset(FxReset.of(FxIndices.WM_GBP_USD, Currency.USD, date(2014, 7, 2)))
+      .fxReset(FxReset.of(FxIndices.GBP_USD_WM, Currency.USD, date(2014, 7, 2)))
       .build();
   /**
    * ExpandedSwapLeg (GBP - fixed - receiver).

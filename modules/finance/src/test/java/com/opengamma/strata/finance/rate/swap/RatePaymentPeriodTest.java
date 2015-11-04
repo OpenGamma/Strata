@@ -10,7 +10,7 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
+import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -43,7 +43,7 @@ public class RatePaymentPeriodTest {
   private static final LocalDate DATE_2014_10_01 = date(2014, 10, 1);
   private static final IborRateObservation GBP_LIBOR_3M_2014_03_28 = IborRateObservation.of(GBP_LIBOR_3M, date(2014, 3, 28));
   private static final IborRateObservation GBP_LIBOR_3M_2014_06_28 = IborRateObservation.of(GBP_LIBOR_3M, date(2014, 6, 28));
-  private static final FxReset FX_RESET_USD = FxReset.of(WM_GBP_USD, USD, date(2014, 3, 28));
+  private static final FxReset FX_RESET_USD = FxReset.of(GBP_USD_WM, USD, date(2014, 3, 28));
   private static final RateAccrualPeriod RAP1 = RateAccrualPeriod.builder()
       .startDate(DATE_2014_03_30)
       .endDate(DATE_2014_06_30)
@@ -188,7 +188,7 @@ public class RatePaymentPeriodTest {
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M, WM_GBP_USD));
+    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M, GBP_USD_WM));
   }
 
   //-------------------------------------------------------------------------
