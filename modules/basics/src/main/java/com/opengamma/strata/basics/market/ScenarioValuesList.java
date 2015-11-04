@@ -27,6 +27,8 @@ import com.google.common.collect.ImmutableList;
 /**
  * A simple {@link ScenarioMarketDataValue} implementation containing a list of single market data values, one
  * for each scenario.
+ *
+ * @param <T> the type of the market data value used in each scenario
  */
 @BeanDefinition
 public final class ScenarioValuesList<T> implements ScenarioMarketDataValue<T>, ImmutableBean {

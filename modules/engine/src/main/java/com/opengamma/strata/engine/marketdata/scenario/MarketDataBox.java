@@ -118,6 +118,7 @@ public interface MarketDataBox<T> {
    * or {@link #isScenarioValue()} return {@code true}.
    *
    * @return the market data value containing data for multiple scenarios
+   * @throws UnsupportedOperationException if this box contains data for a single scenario
    */
   public abstract ScenarioMarketDataValue<T> getScenarioValue();
 

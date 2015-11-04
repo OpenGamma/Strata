@@ -160,7 +160,7 @@ public class FxConvertibleListTest {
     assertThrows(
         () -> list.convertedTo(Currency.USD, calculationMarketData),
         IllegalArgumentException.class,
-        "The number of values is greater than the number of rates .*");
+        "The number of scenarios is greater than the number of rates .*");
   }
 
 }

@@ -42,7 +42,7 @@ class ScenarioRateProvider implements FxRateProvider {
     if (marketData.getScenarioCount() <= scenarioIndex) {
       throw new IllegalArgumentException(
           Messages.format(
-              "The number of values is greater than the number of rates ({})",
+              "The number of scenarios is greater than the number of rates ({})",
               marketData.getScenarioCount()));
     }
   }

@@ -156,9 +156,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig) {
 
-    // TODO Should this be on ScenarioDefinition?
-    ScenarioDefinition emptyScenarioDefinition = ScenarioDefinition.builder().build();
-    return buildCalculationEnvironment(requirements, suppliedData, marketDataConfig, emptyScenarioDefinition);
+    return buildCalculationEnvironment(requirements, suppliedData, marketDataConfig, ScenarioDefinition.empty());
   }
 
   @Override

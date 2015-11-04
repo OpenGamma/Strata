@@ -32,7 +32,7 @@ public final class CalculationEnvironmentBuilder {
    * It is set when the first multi-value box is added and each time another multi-value box is added the number
    * of scenarios must match the existing count.
    */
-  private Integer scenarioCount;
+  private int scenarioCount;
 
   /** The valuation date associated with the market data. */
   private MarketDataBox<LocalDate> valuationDate = MarketDataBox.empty();
@@ -169,7 +169,6 @@ public final class CalculationEnvironmentBuilder {
    *
    * @param id  the ID of the market data
    * @param value  the market data value
-   * @param <T>  the type of the market data value
    * @return this builder
    */
   CalculationEnvironmentBuilder addValueUnsafe(MarketDataId<?> id, MarketDataBox<?> value) {
@@ -225,6 +224,7 @@ public final class CalculationEnvironmentBuilder {
   public CalculationEnvironmentBuilder valuationDate(LocalDate valuationDate) {
     ArgChecker.notNull(valuationDate, "valuationDate");
     this.valuationDate = MarketDataBox.ofSingleValue(valuationDate);
+    updateScenarioCount(this.valuationDate);
     return this;
   }
 
@@ -254,10 +254,6 @@ public final class CalculationEnvironmentBuilder {
    * @return a set of market data from the data in this builder
    */
   public CalculationEnvironment build() {
-    // If scenarioCount is null it means all market data boxes have single values.
-    if (scenarioCount == null) {
-      scenarioCount = 1;
-    }
     return new CalculationEnvironment(valuationDate, scenarioCount, values, timeSeries, valueFailures, timeSeriesFailures);
   }
 
@@ -265,11 +261,14 @@ public final class CalculationEnvironmentBuilder {
     // If the box has a single value then it can be used with any number of scenarios - the same value is used
     // for all scenarios.
     if (box.isSingleValue()) {
+      if (scenarioCount == 0) {
+        scenarioCount = 1;
+      }
       return;
     }
     int scenarioCount = box.getScenarioCount();
 
-    if (this.scenarioCount == null || this.scenarioCount == 1) {
+    if (this.scenarioCount == 0 || this.scenarioCount == 1) {
       this.scenarioCount = scenarioCount;
       return;
     }

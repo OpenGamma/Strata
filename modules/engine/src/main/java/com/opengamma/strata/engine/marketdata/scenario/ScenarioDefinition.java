@@ -57,6 +57,18 @@ public final class ScenarioDefinition implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<String> scenarioNames;
 
+  /** An empty scenario definition. */
+  private static final ScenarioDefinition EMPTY = ScenarioDefinition.builder().build();
+
+  /**
+   * Returns an empty scenario definition.
+   *
+   * @return an empty scenario definition
+   */
+  public static ScenarioDefinition empty() {
+    return EMPTY;
+  }
+
   /**
    * Returns a scenario definition containing the perturbations in {@code mappings}.
    * <p>

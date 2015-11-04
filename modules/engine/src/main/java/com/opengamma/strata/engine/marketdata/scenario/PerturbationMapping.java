@@ -26,7 +26,7 @@ import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.collect.Messages;
 
 /**
- * Contains a market data perturbations and a filter that decides what market data it applies to.
+ * Contains a market data perturbation and a filter that decides what market data it applies to.
  *
  * @param <T>  the type of the market data handled by the mapping
  */
@@ -90,7 +90,6 @@ public final class PerturbationMapping<T> implements ImmutableBean {
    */
   @SuppressWarnings("unchecked")
   public MarketDataBox<T> applyPerturbation(MarketDataBox<T> marketData) {
-    // Check that T and U are the same type
     if (!marketDataType.isAssignableFrom(marketData.getMarketDataType())) {
       throw new IllegalArgumentException(
           Messages.format(
@@ -98,7 +97,6 @@ public final class PerturbationMapping<T> implements ImmutableBean {
               marketData,
               marketDataType.getName()));
     }
-    // T and U are the same type so the casts are safe
     return perturbation.applyTo(marketData);
   }
 

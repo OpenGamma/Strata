@@ -27,7 +27,7 @@ public final class MarketEnvironmentBuilder {
   private MarketDataBox<LocalDate> valuationDate = MarketDataBox.empty();
 
   /** The number of scenarios for which this builder contains market data. */
-  private Integer scenarioCount;
+  private int scenarioCount;
 
   /** The single value market data items, keyed by ID. */
   private final Map<MarketDataId<?>, MarketDataBox<?>> values = new HashMap<>();
@@ -142,6 +142,7 @@ public final class MarketEnvironmentBuilder {
   public MarketEnvironmentBuilder valuationDate(LocalDate valuationDate) {
     ArgChecker.notNull(valuationDate, "valuationDate");
     this.valuationDate = MarketDataBox.ofSingleValue(valuationDate);
+    updateScenarioCount(this.valuationDate);
     return this;
   }
 
@@ -171,10 +172,6 @@ public final class MarketEnvironmentBuilder {
    * @return a set of market data from the data in this builder
    */
   public MarketEnvironment build() {
-    // If scenarioCount is null it means all market data boxes have single values.
-    if (scenarioCount == null) {
-      scenarioCount = 1;
-    }
     return new MarketEnvironment(valuationDate, scenarioCount, values, timeSeries);
   }
 
@@ -204,11 +201,14 @@ public final class MarketEnvironmentBuilder {
     // If the box has a single value then it can be used with any number of scenarios - the same value is used
     // for all scenarios.
     if (box.isSingleValue()) {
+      if (scenarioCount == 0) {
+        scenarioCount = 1;
+      }
       return;
     }
     int scenarioCount = box.getScenarioCount();
 
-    if (this.scenarioCount == null || this.scenarioCount == 1) {
+    if (this.scenarioCount == 0 || this.scenarioCount == 1) {
       this.scenarioCount = scenarioCount;
       return;
     }

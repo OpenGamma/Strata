@@ -50,6 +50,19 @@ public interface CalculationMarketData {
 
   /**
    * Returns an object containing market data for multiple scenarios.
+   * <p>
+   * There are many possible ways to store scenario market data for a data type. For example, if the single
+   * values are doubles, the scenario value might simply be a {@code List<Double>} or it might be a wrapper
+   * class that stores the values more efficiently in a {@code double[]}.
+   * <p>
+   * If the market data contains a single value for the key or a scenario value of the wrong type,
+   * a value of the required type is created by invoking {@link ScenarioMarketDataKey#createScenarioValue}.
+   * <p>
+   * Normally this should not be necessary. It is assumed the required scenario values will be created by the
+   * perturbations that create scenario data. However there is no mechanism in the market data system to guarantee
+   * that scenario values of a particular type are available. If they are not they are created on demand.
+   * <p>
+   * Values returned from this method might be cached for efficiency.
    *
    * @param key  identifies the market data required
    * @param <T>  the type of the individual market data values used when performing calculations for one scenario

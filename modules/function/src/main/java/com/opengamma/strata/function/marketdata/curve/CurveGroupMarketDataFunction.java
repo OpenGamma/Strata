@@ -16,6 +16,7 @@ import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.market.ImmutableObservableValues;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
@@ -155,7 +156,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
 
     for (int i = 0; i < scenarioCount; i++) {
       List<ParRates> parRatesList = parRatesForScenario(parRateBoxes, i);
-      Map<ObservableKey, Double> ratesByKey = ratesByKey(parRatesList);
+      ObservableValues ratesByKey = ratesByKey(parRatesList);
       LocalDate valuationDate = valuationDateBox.getValue(scenarioCount);
       builder.add(buildGroup(groupDefn, valuationDate, ratesByKey));
     }
@@ -183,7 +184,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       List<MarketDataBox<ParRates>> parRateBoxes) {
 
     List<ParRates> parRates = parRateBoxes.stream().map(MarketDataBox::getSingleValue).collect(toImmutableList());
-    Map<ObservableKey, Double> parRateValuesByKey = ratesByKey(parRates);
+    ObservableValues parRateValuesByKey = ratesByKey(parRates);
     Result<CurveGroup> result = buildGroup(groupDefn, valuationDate.getSingleValue(), parRateValuesByKey);
 
     return result.isFailure() ?
@@ -197,22 +198,23 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * @param parRates  par rates objects
    * @return the underlying quotes from the par rates
    */
-  private static Map<ObservableKey, Double> ratesByKey(List<ParRates> parRates) {
-    return parRates.stream()
+  private static ObservableValues ratesByKey(List<ParRates> parRates) {
+    Map<ObservableKey, Double> valueMap = parRates.stream()
         .flatMap(pr -> pr.toRatesByKey().entrySet().stream())
         .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+    return ImmutableObservableValues.of(valueMap);
   }
 
   private Result<CurveGroup> buildGroup(
       CurveGroupDefinition groupDefn,
       LocalDate valuationDate,
-      Map<ObservableKey, Double> parRateValuesByKey) {
+      ObservableValues parRateValuesByKey) {
 
     // perform the calibration
     ImmutableRatesProvider calibratedProvider = curveCalibrator.calibrate(
         groupDefn,
         valuationDate,
-        ObservableValues.of(parRateValuesByKey),
+        parRateValuesByKey,
         ImmutableMap.of(),
         FxMatrix.empty());
 

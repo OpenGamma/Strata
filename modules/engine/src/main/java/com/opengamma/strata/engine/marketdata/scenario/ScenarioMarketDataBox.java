@@ -152,6 +152,7 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
     return value.getValue(0).getClass();
   }
 
+  @Override
   public <R> MarketDataBox<R> apply(int scenarioCount, ObjIntFunction<T, R> fn) {
     if (scenarioCount != getScenarioCount()) {
       throw new IllegalArgumentException(
