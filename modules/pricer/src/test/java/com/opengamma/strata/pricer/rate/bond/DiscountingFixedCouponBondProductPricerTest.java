@@ -308,8 +308,8 @@ public class DiscountingFixedCouponBondProductPricerTest {
   }
 
   public void test_presentValueSensitivityWithZSpread_continuous() {
-    PointSensitivityBuilder point = PRICER.presentValueSensitivityWithZSpread(
-        PRODUCT, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
+    PointSensitivityBuilder point = PRICER.presentValueSensitivityWithZSpread(PRODUCT, PROVIDER, Z_SPREAD, CONTINUOUS,
+        0);
     CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point.build());
     CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(
         PROVIDER, (p) -> PRICER.presentValueWithZSpread(PRODUCT, (p), Z_SPREAD, CONTINUOUS, 0));
@@ -360,8 +360,8 @@ public class DiscountingFixedCouponBondProductPricerTest {
   }
 
   public void test_dirtyPriceSensitivityWithZspread_continuous() {
-    PointSensitivityBuilder point = PRICER.dirtyPriceSensitivityWithZspread(
-        BOND_SECURITY, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
+    PointSensitivityBuilder point =
+        PRICER.dirtyPriceSensitivityWithZspread(BOND_SECURITY, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
     CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point.build());
     CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, (p) ->
         CurrencyAmount.of(EUR, PRICER.dirtyPriceFromCurvesWithZSpread(BOND_SECURITY, (p), Z_SPREAD, CONTINUOUS, 0)));
