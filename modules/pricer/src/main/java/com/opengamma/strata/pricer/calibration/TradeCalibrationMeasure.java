@@ -10,6 +10,7 @@ import java.util.function.ToDoubleBiFunction;
 
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.finance.fx.FxSwapTrade;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
@@ -23,6 +24,7 @@ import com.opengamma.strata.pricer.rate.deposit.DiscountingTermDepositProductPri
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.rate.future.DiscountingIborFutureTradePricer;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricer;
 
 /**
  * Provides calibration measures for a single type of trade based on functions.
@@ -83,6 +85,16 @@ public class TradeCalibrationMeasure<T extends Trade>
           TermDepositTrade.class,
           (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parSpread(trade.getProduct(), p),
           (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parSpreadSensitivity(trade.getProduct(), p));
+
+  /**
+   * The calibrator for {@link FxSwapTrade} using par spread discounting.
+   */
+  public static final TradeCalibrationMeasure<FxSwapTrade> FX_SWAP_PAR_SPREAD =
+      TradeCalibrationMeasure.of(
+          "FxSwapParSpreadDiscounting",
+          FxSwapTrade.class,
+          (trade, p) -> DiscountingFxSwapProductPricer.DEFAULT.parSpread(trade.getProduct(), p),
+          (trade, p) -> DiscountingFxSwapProductPricer.DEFAULT.parSpreadSensitivity(trade.getProduct(), p));
 
   //-------------------------------------------------------------------------
   /**

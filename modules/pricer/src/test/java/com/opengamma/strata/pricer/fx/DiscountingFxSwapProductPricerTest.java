@@ -43,6 +43,7 @@ public class DiscountingFxSwapProductPricerTest {
   private static final DiscountingFxSwapProductPricer PRICER = DiscountingFxSwapProductPricer.DEFAULT;
   private static final double TOL = 1.0e-12;
   private static final double EPS_FD = 1E-7;
+  private static final double TOLERANCE_SPREAD_DELTA = 1.0e-4;
   private static final RatesFiniteDifferenceSensitivityCalculator CAL_FD =
       new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
 
@@ -141,6 +142,33 @@ public class DiscountingFxSwapProductPricerTest {
         CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_LONG_PAST, PAYMENT_DATE_PAST);
     PointSensitivities computed = PRICER.presentValueSensitivity(product, PROVIDER);
     assertEquals(computed, PointSensitivities.empty());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_parSpreadSensitivity_beforeStart() {
+    PointSensitivities pts = PRICER.parSpreadSensitivity(SWAP_PRODUCT, PROVIDER);
+    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(pts);
+    CurveCurrencyParameterSensitivities expected = CAL_FD.sensitivity(
+        (ImmutableRatesProvider) PROVIDER, (p) -> CurrencyAmount.of(KRW, PRICER.parSpread(SWAP_PRODUCT, p)));
+    assertTrue(computed.equalWithTolerance(expected, TOLERANCE_SPREAD_DELTA));
+  }
+
+  public void test_parSpreadSensitivity_started() {
+    FxSwap product = FxSwap.ofForwardPoints(
+        CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_PAST, PAYMENT_DATE_NEAR);
+    PointSensitivities pts = PRICER.parSpreadSensitivity(product, PROVIDER);
+    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(pts);
+    CurveCurrencyParameterSensitivities expected = CAL_FD.sensitivity(
+        (ImmutableRatesProvider) PROVIDER, (p) -> CurrencyAmount.of(KRW, PRICER.parSpread(product, p)));
+    assertTrue(computed.equalWithTolerance(expected, TOLERANCE_SPREAD_DELTA));
+  }
+
+  public void test_parSpreadSensitivity_ended() {
+    FxSwap product = FxSwap.ofForwardPoints(
+        CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_LONG_PAST, PAYMENT_DATE_PAST);
+    PointSensitivities pts = PRICER.parSpreadSensitivity(product, PROVIDER);
+    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(pts);
+    assertTrue(computed.equalWithTolerance(CurveCurrencyParameterSensitivities.empty(), TOLERANCE_SPREAD_DELTA));
   }
 
 }
