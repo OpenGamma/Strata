@@ -23,34 +23,34 @@ import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
 public final class DefaultSingleCalculationMarketData implements SingleCalculationMarketData {
 
   /** The set of market data for all scenarios. */
-  private final CalculationMarketData scenarioMarketData;
+  private final CalculationMarketData marketData;
 
-  /** The index of the scenario in {@link #scenarioMarketData} from which data is returned. */
+  /** The index of the scenario in {@link #marketData} from which data is returned. */
   private final int scenarioIndex;
 
   /**
    * Creates a set of market data that uses the data of the scenario at the specified index.
    *
-   * @param scenarioMarketData  market data for multiple scenarios
+   * @param marketData  market data for multiple scenarios
    * @param scenarioIndex  the index of the scenario whose data is returned by the new slice
    */
-  public DefaultSingleCalculationMarketData(CalculationMarketData scenarioMarketData, int scenarioIndex) {
-    this.scenarioMarketData = scenarioMarketData;
+  public DefaultSingleCalculationMarketData(CalculationMarketData marketData, int scenarioIndex) {
+    this.marketData = marketData;
     this.scenarioIndex = scenarioIndex;
   }
 
   @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key) {
-    return scenarioMarketData.getTimeSeries(key);
+    return marketData.getTimeSeries(key);
   }
 
   @Override
   public LocalDate getValuationDate() {
-    return scenarioMarketData.getValuationDates().get(scenarioIndex);
+    return marketData.getValuationDate().getValue(scenarioIndex);
   }
 
   @Override
   public <T> T getValue(MarketDataKey<T> key) {
-    return scenarioMarketData.getValues(key).get(scenarioIndex);
+    return marketData.getValue(key).getValue(scenarioIndex);
   }
 }

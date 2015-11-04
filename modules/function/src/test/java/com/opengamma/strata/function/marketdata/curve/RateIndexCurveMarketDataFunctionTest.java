@@ -19,6 +19,7 @@ import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
@@ -46,11 +47,14 @@ public class RateIndexCurveMarketDataFunctionTest {
         .name(CurveGroupName.of("groupName"))
         .forwardCurves(curveMap)
         .build();
-    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).addValue(groupId, curveGroup).build();
+    MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(date(2011, 3, 8))
+        .addValue(groupId, curveGroup)
+        .build();
     RateIndexCurveMarketDataFunction builder = new RateIndexCurveMarketDataFunction();
 
-    Result<Curve> result = builder.build(curveId, marketData, MarketDataConfig.empty());
-    assertThat(result).hasValue(curve);
+    Result<MarketDataBox<Curve>> result = builder.build(curveId, marketData, MarketDataConfig.empty());
+    assertThat(result).hasValue(MarketDataBox.ofSingleValue(curve));
   }
 
   /**
@@ -69,14 +73,17 @@ public class RateIndexCurveMarketDataFunctionTest {
         .name(CurveGroupName.of("groupName"))
         .forwardCurves(curveMap)
         .build();
-    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).addValue(groupId, curveGroup).build();
+    MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(date(2011, 3, 8))
+        .addValue(groupId, curveGroup)
+        .build();
     RateIndexCurveMarketDataFunction builder = new RateIndexCurveMarketDataFunction();
 
-    Result<Curve> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
-    assertThat(result1).hasValue(curve1);
+    Result<MarketDataBox<Curve>> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
+    assertThat(result1).hasValue(MarketDataBox.ofSingleValue(curve1));
 
-    Result<Curve> result2 = builder.build(curveId2, marketData, MarketDataConfig.empty());
-    assertThat(result2).hasValue(curve2);
+    Result<MarketDataBox<Curve>> result2 = builder.build(curveId2, marketData, MarketDataConfig.empty());
+    assertThat(result2).hasValue(MarketDataBox.ofSingleValue(curve2));
   }
 
   /**
@@ -111,24 +118,25 @@ public class RateIndexCurveMarketDataFunctionTest {
         .forwardCurves(curveMap2)
         .build();
 
-    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
+    MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(date(2011, 3, 8))
         .addValue(groupId1, curveGroup1)
         .addValue(groupId2, curveGroup2)
         .build();
 
     RateIndexCurveMarketDataFunction builder = new RateIndexCurveMarketDataFunction();
 
-    Result<Curve> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
-    assertThat(result1).hasValue(curve1);
+    Result<MarketDataBox<Curve>> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
+    assertThat(result1).hasValue(MarketDataBox.ofSingleValue(curve1));
 
-    Result<Curve> result2 = builder.build(curveId2, marketData, MarketDataConfig.empty());
-    assertThat(result2).hasValue(curve2);
+    Result<MarketDataBox<Curve>> result2 = builder.build(curveId2, marketData, MarketDataConfig.empty());
+    assertThat(result2).hasValue(MarketDataBox.ofSingleValue(curve2));
 
-    Result<Curve> result3 = builder.build(curveId3, marketData, MarketDataConfig.empty());
-    assertThat(result3).hasValue(curve3);
+    Result<MarketDataBox<Curve>> result3 = builder.build(curveId3, marketData, MarketDataConfig.empty());
+    assertThat(result3).hasValue(MarketDataBox.ofSingleValue(curve3));
 
-    Result<Curve> result4 = builder.build(curveId4, marketData, MarketDataConfig.empty());
-    assertThat(result4).hasValue(curve4);
+    Result<MarketDataBox<Curve>> result4 = builder.build(curveId4, marketData, MarketDataConfig.empty());
+    assertThat(result4).hasValue(MarketDataBox.ofSingleValue(curve4));
   }
 
 }

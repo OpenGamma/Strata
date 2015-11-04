@@ -189,10 +189,11 @@ public class CalibrationCheckExample {
 
     // create the market data builder and populate with known data
     MarketEnvironmentBuilder snapshotBuilder =
-        MarketEnvironment.builder(VALUATION_DATE)
+        MarketEnvironment.builder()
+            .valuationDate(VALUATION_DATE)
             .addTimeSeries(IndexRateId.of(USD_LIBOR_3M), TS_EMTPY)
             .addTimeSeries(IndexRateId.of(USD_FED_FUND), TS_EMTPY)
-            .addAllValues(quotes);
+            .addValues(quotes);
     MarketEnvironment snapshot = snapshotBuilder.build();
 
     // load the curve definition

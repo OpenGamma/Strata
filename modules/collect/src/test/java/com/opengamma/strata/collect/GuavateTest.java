@@ -70,31 +70,31 @@ public class GuavateTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_zipPairs() {
+  public void test_zip() {
     Stream<String> base1 = Stream.of("a", "b", "c");
     Stream<Integer> base2 = Stream.of(1, 2, 3);
-    List<Pair<String, Integer>> test = Guavate.zipPairs(base1, base2).collect(Collectors.toList());
+    List<Pair<String, Integer>> test = Guavate.zip(base1, base2).collect(Collectors.toList());
     assertEquals(test, ImmutableList.of(Pair.of("a", 1), Pair.of("b", 2), Pair.of("c", 3)));
   }
 
-  public void test_zipPairs_firstLonger() {
+  public void test_zip_firstLonger() {
     Stream<String> base1 = Stream.of("a", "b", "c");
     Stream<Integer> base2 = Stream.of(1, 2);
-    List<Pair<String, Integer>> test = Guavate.zipPairs(base1, base2).collect(Collectors.toList());
+    List<Pair<String, Integer>> test = Guavate.zip(base1, base2).collect(Collectors.toList());
     assertEquals(test, ImmutableList.of(Pair.of("a", 1), Pair.of("b", 2)));
   }
 
-  public void test_zipPairs_secondLonger() {
+  public void test_zip_secondLonger() {
     Stream<String> base1 = Stream.of("a", "b");
     Stream<Integer> base2 = Stream.of(1, 2, 3);
-    List<Pair<String, Integer>> test = Guavate.zipPairs(base1, base2).collect(Collectors.toList());
+    List<Pair<String, Integer>> test = Guavate.zip(base1, base2).collect(Collectors.toList());
     assertEquals(test, ImmutableList.of(Pair.of("a", 1), Pair.of("b", 2)));
   }
 
-  public void test_zipPairs_empty() {
+  public void test_zip_empty() {
     Stream<String> base1 = Stream.of();
     Stream<Integer> base2 = Stream.of();
-    List<Pair<String, Integer>> test = Guavate.zipPairs(base1, base2).collect(Collectors.toList());
+    List<Pair<String, Integer>> test = Guavate.zip(base1, base2).collect(Collectors.toList());
     assertEquals(test, ImmutableList.of());
   }
 

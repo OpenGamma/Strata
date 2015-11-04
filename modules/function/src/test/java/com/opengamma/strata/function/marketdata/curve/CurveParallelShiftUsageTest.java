@@ -3,25 +3,24 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.marketdata;
+package com.opengamma.strata.function.marketdata.curve;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static org.mockito.Mockito.mock;
-
-import java.util.List;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.TestHelper;
+import com.opengamma.strata.engine.marketdata.CalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
-import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.function.ObservableMarketDataFunction;
 import com.opengamma.strata.engine.marketdata.function.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.engine.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.engine.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.function.marketdata.scenario.curve.CurveNameFilter;
@@ -45,11 +44,10 @@ public class CurveParallelShiftUsageTest {
     PerturbationMapping<Curve> mapping = PerturbationMapping.of(
         Curve.class,
         CurveNameFilter.of(curveName),
-        CurveParallelShift.absolute(0.1),
-        CurveParallelShift.absolute(0.2),
-        CurveParallelShift.absolute(0.3));
+        CurveParallelShifts.absolute(0.1, 0.2, 0.3));
     DiscountCurveId curveId = DiscountCurveId.of(Currency.GBP, curveGroupName);
-    MarketEnvironment marketData = MarketEnvironment.builder(TestHelper.date(2011, 3, 8))
+    MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(TestHelper.date(2011, 3, 8))
         .addValue(curveId, curve)
         .build();
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(mapping);
@@ -58,16 +56,16 @@ public class CurveParallelShiftUsageTest {
         mock(ObservableMarketDataFunction.class),
         FeedIdMapping.identity());
     CalculationRequirements requirements = CalculationRequirements.builder().addValues(curveId).build();
-    ScenarioCalculationEnvironment scenarioData = marketDataFactory.buildScenarioCalculationEnvironment(
+    CalculationEnvironment scenarioData = marketDataFactory.buildCalculationEnvironment(
         requirements,
         marketData,
-        scenarioDefinition,
-        MarketDataConfig.empty());
-    List<Curve> curves = scenarioData.getValues(curveId);
-    assertThat(curves).hasSize(3);
-    checkCurveValues(curves.get(0), 2.1);
-    checkCurveValues(curves.get(1), 2.2);
-    checkCurveValues(curves.get(2), 2.3);
+        MarketDataConfig.empty(),
+        scenarioDefinition);
+    MarketDataBox<Curve> curves = scenarioData.getValue(curveId);
+    assertThat(curves.getScenarioCount()).isEqualTo(3);
+    checkCurveValues(curves.getValue(0), 2.1);
+    checkCurveValues(curves.getValue(1), 2.2);
+    checkCurveValues(curves.getValue(2), 2.3);
   }
 
   // It's not possible to do an equality test on the curves because shifting them wraps them in a different type

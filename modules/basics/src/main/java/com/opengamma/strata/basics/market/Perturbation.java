@@ -40,5 +40,4 @@ public interface Perturbation<T> {
    * @return a new item of market data derived by applying the perturbation to the input data
    */
   public abstract T applyTo(T marketData);
-
 }

@@ -10,6 +10,7 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 
 /**
  * A market data function creates items of market data for a set of market data IDs.
@@ -40,7 +41,7 @@ public interface MarketDataFunction<T, I extends MarketDataId<? extends T>> {
    * @param marketDataConfig  configuration specifying how the market data should be built
    * @return built market data, or details of the problems that prevented building
    */
-  public abstract Result<T> build(I id, MarketDataLookup marketData, MarketDataConfig marketDataConfig);
+  public abstract Result<MarketDataBox<T>> build(I id, MarketDataLookup marketData, MarketDataConfig marketDataConfig);
 
   /**
    * Returns the type of market data ID this function can handle.

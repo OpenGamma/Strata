@@ -56,6 +56,7 @@ public final class MarketDataRequirementsBuilder {
    * @param ids  IDs of the data
    * @return this builder
    */
+  @SuppressWarnings("unchecked")
   public MarketDataRequirementsBuilder addValues(Collection<? extends MarketDataId<?>> ids) {
     ArgChecker.notNull(ids, "ids");
 

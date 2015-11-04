@@ -14,6 +14,7 @@ import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.function.MarketDataFunction;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -46,7 +47,10 @@ public class DiscountFactorsMarketDataFunction
   }
 
   @Override
-  public Result<DiscountFactors> build(DiscountFactorsId id, MarketDataLookup marketData, MarketDataConfig config) {
+  public Result<MarketDataBox<DiscountFactors>> build(
+      DiscountFactorsId id,
+      MarketDataLookup marketData,
+      MarketDataConfig config) {
 
     // find curve
     DiscountCurveId curveId = DiscountCurveId.of(id.getCurrency(), id.getCurveGroupName(), id.getMarketDataFeed());
@@ -58,10 +62,9 @@ public class DiscountFactorsMarketDataFunction
           id.getCurveGroupName(),
           id.getMarketDataFeed());
     }
-    Curve curve = marketData.getValue(curveId);
-
-    // create discount factors
-    return Result.wrap(() -> createDiscountFactors(id.getCurrency(), marketData.getValuationDate(), curve));
+    MarketDataBox<Curve> curveBox = marketData.getValue(curveId);
+    MarketDataBox<LocalDate> valDateBox = marketData.getValuationDate();
+    return curveBox.combineWith(valDateBox, (curve, valDate) -> createDiscountFactors(id.getCurrency(), valDate, curve));
   }
 
   @Override

@@ -55,7 +55,7 @@ public final class ParRates
    * @param metadata  the metadata for the curve
    * @return a {@code ParRates} instance containing the specified rates
    */
-  public static ParRates of(Map<ObservableId, Double> rates, CurveMetadata metadata) {
+  public static ParRates of(Map<? extends ObservableId, Double> rates, CurveMetadata metadata) {
     return new ParRates(rates, metadata);
   }
 

@@ -7,7 +7,6 @@ package com.opengamma.strata.function.marketdata.curve;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +26,7 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.finance.rate.fra.type.FraTemplate;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
@@ -157,7 +157,8 @@ public class ParRatesMarketDataFunctionTest {
     QuoteId idB = QuoteId.of(StandardId.of("test", "b"));
     QuoteId idC = QuoteId.of(StandardId.of("test", "c"));
 
-    MarketEnvironment marketData = MarketEnvironment.builder(VALUATION_DATE)
+    MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(VALUATION_DATE)
         .addValue(idA, 1d)
         .addValue(idB, 2d)
         .addValue(idC, 3d)
@@ -165,10 +166,10 @@ public class ParRatesMarketDataFunctionTest {
 
     ParRatesMarketDataFunction marketDataFunction = new ParRatesMarketDataFunction();
     ParRatesId parRatesId = ParRatesId.of(groupDefn.getName(), curveDefn.getName(), MarketDataFeed.NONE);
-    Result<ParRates> result = marketDataFunction.build(parRatesId, marketData, marketDataConfig);
+    Result<MarketDataBox<ParRates>> result = marketDataFunction.build(parRatesId, marketData, marketDataConfig);
 
     assertThat(result).isSuccess();
-    ParRates parRates = result.getValue();
+    ParRates parRates = result.getValue().getSingleValue();
     assertThat(parRates.getRates().get(idA)).isEqualTo(1d);
     assertThat(parRates.getRates().get(idB)).isEqualTo(2d);
     assertThat(parRates.getRates().get(idC)).isEqualTo(3d);
@@ -186,8 +187,8 @@ public class ParRatesMarketDataFunctionTest {
   public void buildMissingGroupConfig() {
     ParRatesMarketDataFunction marketDataFunction = new ParRatesMarketDataFunction();
     ParRatesId parRatesId = ParRatesId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), MarketDataFeed.NONE);
-    MarketEnvironment emptyData = MarketEnvironment.empty(VALUATION_DATE);
-    Result<ParRates> result = marketDataFunction.build(parRatesId, emptyData, MarketDataConfig.empty());
+    MarketEnvironment emptyData = MarketEnvironment.empty();
+    Result<MarketDataBox<ParRates>> result = marketDataFunction.build(parRatesId, emptyData, MarketDataConfig.empty());
     assertThat(result).hasFailureMessageMatching("No configuration found for curve group .*");
   }
 
@@ -199,8 +200,8 @@ public class ParRatesMarketDataFunctionTest {
     ParRatesId parRatesId = ParRatesId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), MarketDataFeed.NONE);
     CurveGroupDefinition groupDefn = CurveGroupDefinition.builder().name(CurveGroupName.of("curve group")).build();
     MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupDefn.getName(), groupDefn).build();
-    MarketEnvironment emptyData = MarketEnvironment.empty(VALUATION_DATE);
-    Result<ParRates> result = marketDataFunction.build(parRatesId, emptyData, marketDataConfig);
+    MarketEnvironment emptyData = MarketEnvironment.empty();
+    Result<MarketDataBox<ParRates>> result = marketDataFunction.build(parRatesId, emptyData, marketDataConfig);
     assertThat(result).hasFailureMessageMatching("No curve named .*");
   }
 
@@ -229,11 +230,11 @@ public class ParRatesMarketDataFunctionTest {
         .add(groupDefn.getName(), groupDefn)
         .build();
 
-    MarketEnvironment emptyData = MarketEnvironment.empty(VALUATION_DATE);
+    MarketEnvironment emptyData = MarketEnvironment.empty();
 
     ParRatesMarketDataFunction marketDataFunction = new ParRatesMarketDataFunction();
     ParRatesId parRatesId = ParRatesId.of(groupDefn.getName(), curve.getName(), MarketDataFeed.NONE);
-    Result<ParRates> result = marketDataFunction.build(parRatesId, emptyData, marketDataConfig);
+    Result<MarketDataBox<ParRates>> result = marketDataFunction.build(parRatesId, emptyData, marketDataConfig);
     assertThat(result).hasFailureMessageMatching("No market data available for .*");
   }
 

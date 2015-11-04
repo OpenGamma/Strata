@@ -21,6 +21,7 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -49,7 +50,8 @@ public class OvernightIndexRatesMarketDataFunctionTest {
     RateIndexCurveId curveId = RateIndexCurveId.of(USD_FED_FUND, CURVE_GROUP_NAME, FEED);
     LocalDateDoubleTimeSeries timeSeries = LocalDateDoubleTimeSeries.of(VAL_DATE.minusDays(1), 0.1);
     IndexRateId timeSeriesId = IndexRateId.of(USD_FED_FUND, FEED);
-    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
+    MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(VAL_DATE)
         .addValue(curveId, curve)
         .addTimeSeries(timeSeriesId, timeSeries)
         .build();
@@ -59,8 +61,8 @@ public class OvernightIndexRatesMarketDataFunctionTest {
         USD_FED_FUND, timeSeries, ZeroRateDiscountFactors.of(USD, VAL_DATE, curve));
 
     OvernightIndexRatesId dfId = OvernightIndexRatesId.of(USD_FED_FUND, CURVE_GROUP_NAME, FEED);
-    Result<OvernightIndexRates> result = test.build(dfId, marketData, MarketDataConfig.empty());
-    assertThat(result).hasValue(expected1);
+    Result<MarketDataBox<OvernightIndexRates>> result = test.build(dfId, marketData, MarketDataConfig.empty());
+    assertThat(result).hasValue(MarketDataBox.ofSingleValue(expected1));
   }
 
   public void test_buildOvernightIndexRates() {
@@ -68,7 +70,8 @@ public class OvernightIndexRatesMarketDataFunctionTest {
     RateIndexCurveId curveId = RateIndexCurveId.of(USD_FED_FUND, CURVE_GROUP_NAME, FEED);
     LocalDateDoubleTimeSeries timeSeries = LocalDateDoubleTimeSeries.of(VAL_DATE.minusDays(1), 0.1);
     IndexRateId timeSeriesId = IndexRateId.of(USD_FED_FUND, FEED);
-    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
+    MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(VAL_DATE)
         .addValue(curveId, curve)
         .addTimeSeries(timeSeriesId, timeSeries)
         .build();
@@ -78,33 +81,35 @@ public class OvernightIndexRatesMarketDataFunctionTest {
         USD_FED_FUND, timeSeries, SimpleDiscountFactors.of(USD, VAL_DATE, curve));
 
     OvernightIndexRatesId dfId = OvernightIndexRatesId.of(USD_FED_FUND, CURVE_GROUP_NAME, FEED);
-    Result<OvernightIndexRates> result = test.build(dfId, marketData, MarketDataConfig.empty());
-    assertThat(result).hasValue(expected1);
+    Result<MarketDataBox<OvernightIndexRates>> result = test.build(dfId, marketData, MarketDataConfig.empty());
+    assertThat(result).hasValue(MarketDataBox.ofSingleValue(expected1));
   }
 
   public void test_noCurve() {
     LocalDateDoubleTimeSeries timeSeries = LocalDateDoubleTimeSeries.of(VAL_DATE.minusDays(1), 0.1);
     IndexRateId timeSeriesId = IndexRateId.of(USD_FED_FUND, FEED);
-    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
+    MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(VAL_DATE)
         .addTimeSeries(timeSeriesId, timeSeries)
         .build();
     OvernightIndexRatesMarketDataFunction test = new OvernightIndexRatesMarketDataFunction();
 
     OvernightIndexRatesId dfId = OvernightIndexRatesId.of(USD_FED_FUND, CURVE_GROUP_NAME, FEED);
-    Result<OvernightIndexRates> result = test.build(dfId, marketData, MarketDataConfig.empty());
+    Result<MarketDataBox<OvernightIndexRates>> result = test.build(dfId, marketData, MarketDataConfig.empty());
     assertThat(result).isFailure(FailureReason.MISSING_DATA);
   }
 
   public void test_noTimeSeries() {
     Curve curve = ConstantNodalCurve.of(Curves.zeroRates("USD Discounting", ACT_ACT_ISDA), 1d);
     RateIndexCurveId curveId = RateIndexCurveId.of(USD_FED_FUND, CURVE_GROUP_NAME, FEED);
-    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
+    MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(VAL_DATE)
         .addValue(curveId, curve)
         .build();
     OvernightIndexRatesMarketDataFunction test = new OvernightIndexRatesMarketDataFunction();
 
     OvernightIndexRatesId dfId = OvernightIndexRatesId.of(USD_FED_FUND, CURVE_GROUP_NAME, FEED);
-    Result<OvernightIndexRates> result = test.build(dfId, marketData, MarketDataConfig.empty());
+    Result<MarketDataBox<OvernightIndexRates>> result = test.build(dfId, marketData, MarketDataConfig.empty());
     assertThat(result).isFailure(FailureReason.MISSING_DATA);
   }
 
@@ -113,14 +118,15 @@ public class OvernightIndexRatesMarketDataFunctionTest {
     RateIndexCurveId curveId = RateIndexCurveId.of(USD_FED_FUND, CURVE_GROUP_NAME, FEED);
     LocalDateDoubleTimeSeries timeSeries = LocalDateDoubleTimeSeries.of(VAL_DATE.minusDays(1), 0.1);
     IndexRateId timeSeriesId = IndexRateId.of(USD_FED_FUND, FEED);
-    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
+    MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(VAL_DATE)
         .addValue(curveId, curve)
         .addTimeSeries(timeSeriesId, timeSeries)
         .build();
     OvernightIndexRatesMarketDataFunction test = new OvernightIndexRatesMarketDataFunction();
 
     OvernightIndexRatesId dfId = OvernightIndexRatesId.of(USD_FED_FUND, CURVE_GROUP_NAME, FEED);
-    Result<OvernightIndexRates> result = test.build(dfId, marketData, MarketDataConfig.empty());
+    Result<MarketDataBox<OvernightIndexRates>> result = test.build(dfId, marketData, MarketDataConfig.empty());
     assertThat(result).isFailure(FailureReason.MISSING_DATA);
   }
 
