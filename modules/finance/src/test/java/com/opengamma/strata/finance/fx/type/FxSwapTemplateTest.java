@@ -29,32 +29,33 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.finance.fx.FxSwap;
 import com.opengamma.strata.finance.fx.FxSwapTrade;
-import com.opengamma.strata.finance.fx.type.FxSwapTemplate;
 
 /**
  * Test {@link FxSwapTemplate}.
  */
 @Test
 public class FxSwapTemplateTest {
-  
+
   private static final CurrencyPair EUR_USD = CurrencyPair.of(Currency.EUR, Currency.USD);
   private static final HolidayCalendar EUTA_USNY = EUTA.combineWith(USNY);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA_USNY);
+  private static final DaysAdjustment PLUS_ONE_DAY = DaysAdjustment.ofBusinessDays(1, EUTA_USNY);
   private static final ImmutableFxSwapConvention CONVENTION = ImmutableFxSwapConvention.of(EUR_USD, PLUS_TWO_DAYS);
+  private static final ImmutableFxSwapConvention CONVENTION2 = ImmutableFxSwapConvention.of(EUR_USD, PLUS_ONE_DAY);
   private static final Period NEAR_PERIOD = Period.ofMonths(3);
   private static final Period FAR_PERIOD = Period.ofMonths(6);
 
   private static final double NOTIONAL_EUR = 2_000_000d;
   private static final double FX_RATE_NEAR = 1.30d;
   private static final double FX_RATE_PTS = 0.0050d;
-  
+
   public void test_of_far() {
     FxSwapTemplate test = FxSwapTemplate.of(FAR_PERIOD, CONVENTION);
     assertEquals(test.getPeriodToNear(), Period.ZERO);
     assertEquals(test.getPeriodToFar(), FAR_PERIOD);
     assertEquals(test.getConvention(), CONVENTION);
   }
-  
+
   public void test_of_near_far() {
     FxSwapTemplate test = FxSwapTemplate.of(NEAR_PERIOD, FAR_PERIOD, CONVENTION);
     assertEquals(test.getPeriodToNear(), NEAR_PERIOD);
@@ -86,7 +87,7 @@ public class FxSwapTemplateTest {
   public void coverage() {
     FxSwapTemplate test = FxSwapTemplate.of(NEAR_PERIOD, FAR_PERIOD, CONVENTION);
     coverImmutableBean(test);
-    FxSwapTemplate test2 = FxSwapTemplate.of(Period.ofMonths(3), FAR_PERIOD, CONVENTION);
+    FxSwapTemplate test2 = FxSwapTemplate.of(Period.ofMonths(4), Period.ofMonths(7), CONVENTION2);
     coverBeanEquals(test, test2);
   }
 
@@ -94,5 +95,5 @@ public class FxSwapTemplateTest {
     FxSwapTemplate test = FxSwapTemplate.of(NEAR_PERIOD, FAR_PERIOD, CONVENTION);
     assertSerialization(test);
   }
-  
+
 }

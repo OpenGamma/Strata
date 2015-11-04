@@ -40,21 +40,23 @@ import com.opengamma.strata.finance.fx.FxSwapTrade;
  */
 @Test
 public class ImmutableFxSwapConventionTest {
-  
+
   private static final CurrencyPair EUR_USD = CurrencyPair.of(Currency.EUR, Currency.USD);
-  private static final String EUR_USD_STR = "EUR/USD";
+  private static final CurrencyPair GBP_USD = CurrencyPair.of(Currency.GBP, Currency.USD);
   private static final HolidayCalendar EUTA_USNY = EUTA.combineWith(USNY);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA_USNY);
+  private static final DaysAdjustment PLUS_ONE_DAY = DaysAdjustment.ofBusinessDays(1, EUTA_USNY);
   private static final BusinessDayAdjustment BDA_FOLLOW = BusinessDayAdjustment.of(FOLLOWING, GBLO);
+  private static final BusinessDayAdjustment BDA_MODFOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
 
   private static final double NOTIONAL_EUR = 2_000_000d;
   private static final double FX_RATE_NEAR = 1.30d;
   private static final double FX_RATE_PTS = 0.0050d;
-  
 
   //-------------------------------------------------------------------------
   public void test_of_nobda() {
     ImmutableFxSwapConvention test = ImmutableFxSwapConvention.of(EUR_USD, PLUS_TWO_DAYS);
+    assertEquals(test.getName(), EUR_USD.toString());
     assertEquals(test.getCurrencyPair(), EUR_USD);
     assertEquals(test.getSpotDateOffset(), PLUS_TWO_DAYS);
     assertEquals(test.getBusinessDayAdjustment(), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_USNY));
@@ -62,7 +64,22 @@ public class ImmutableFxSwapConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_of_bda() {
-    ImmutableFxSwapConvention test = ImmutableFxSwapConvention.of(EUR_USD_STR, EUR_USD, PLUS_TWO_DAYS, BDA_FOLLOW);
+    ImmutableFxSwapConvention test = ImmutableFxSwapConvention.of(EUR_USD, PLUS_TWO_DAYS, BDA_FOLLOW);
+    assertEquals(test.getName(), EUR_USD.toString());
+    assertEquals(test.getCurrencyPair(), EUR_USD);
+    assertEquals(test.getSpotDateOffset(), PLUS_TWO_DAYS);
+    assertEquals(test.getBusinessDayAdjustment(), BDA_FOLLOW);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_builder() {
+    ImmutableFxSwapConvention test = ImmutableFxSwapConvention.builder()
+        .currencyPair(EUR_USD)
+        .name("EUR::USD")
+        .spotDateOffset(PLUS_TWO_DAYS)
+        .businessDayAdjustment(BDA_FOLLOW)
+        .build();
+    assertEquals(test.getName(), "EUR::USD");
     assertEquals(test.getCurrencyPair(), EUR_USD);
     assertEquals(test.getSpotDateOffset(), PLUS_TWO_DAYS);
     assertEquals(test.getBusinessDayAdjustment(), BDA_FOLLOW);
@@ -70,14 +87,14 @@ public class ImmutableFxSwapConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_toTrade_periods() {
-    ImmutableFxSwapConvention base = ImmutableFxSwapConvention.of(EUR_USD_STR, EUR_USD, PLUS_TWO_DAYS, BDA_FOLLOW);
+    ImmutableFxSwapConvention base = ImmutableFxSwapConvention.of(EUR_USD, PLUS_TWO_DAYS, BDA_FOLLOW);
     Period startPeriod = Period.ofMonths(3);
     Period endPeriod = Period.ofMonths(6);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate spotDate = PLUS_TWO_DAYS.adjust(tradeDate);
     LocalDate nearDate = BDA_FOLLOW.adjust(spotDate.plus(startPeriod));
     LocalDate farDate = BDA_FOLLOW.adjust(spotDate.plus(endPeriod));
-    FxSwapTrade test = 
+    FxSwapTrade test =
         base.toTrade(tradeDate, startPeriod, endPeriod, BUY, NOTIONAL_EUR, FX_RATE_NEAR, FX_RATE_PTS);
     FxSwap expected = FxSwap
         .ofForwardPoints(CurrencyAmount.of(EUR, NOTIONAL_EUR), USD, FX_RATE_NEAR, FX_RATE_PTS, nearDate, farDate);
@@ -86,7 +103,7 @@ public class ImmutableFxSwapConventionTest {
   }
 
   public void test_toTrade_dates() {
-    ImmutableFxSwapConvention base = ImmutableFxSwapConvention.of(EUR_USD_STR, EUR_USD, PLUS_TWO_DAYS, BDA_FOLLOW);
+    ImmutableFxSwapConvention base = ImmutableFxSwapConvention.of(EUR_USD, PLUS_TWO_DAYS, BDA_FOLLOW);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate nearDate = LocalDate.of(2015, 7, 6); // Adjusted: 5 is Sunday
     LocalDate farDate = LocalDate.of(2015, 9, 7); // Adjusted: 5 is Saturday
@@ -98,7 +115,7 @@ public class ImmutableFxSwapConventionTest {
   }
 
   public void test_toTemplate_badDateOrder() {
-    ImmutableFxSwapConvention base = ImmutableFxSwapConvention.of(EUR_USD_STR, EUR_USD, PLUS_TWO_DAYS, BDA_FOLLOW);
+    ImmutableFxSwapConvention base = ImmutableFxSwapConvention.of(EUR_USD, PLUS_TWO_DAYS, BDA_FOLLOW);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate nearDate = date(2015, 4, 5);
     LocalDate farDate = date(2015, 7, 5);
@@ -107,19 +124,20 @@ public class ImmutableFxSwapConventionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ImmutableFxSwapConvention test = ImmutableFxSwapConvention.of(EUR_USD_STR, EUR_USD, PLUS_TWO_DAYS, BDA_FOLLOW);
+    ImmutableFxSwapConvention test = ImmutableFxSwapConvention.of(EUR_USD, PLUS_TWO_DAYS, BDA_FOLLOW);
     coverImmutableBean(test);
     ImmutableFxSwapConvention test2 = ImmutableFxSwapConvention.builder()
-        .currencyPair(EUR_USD)
-        .spotDateOffset(PLUS_TWO_DAYS)
-        .businessDayAdjustment(BDA_FOLLOW)
+        .name("GBP/USD")
+        .currencyPair(GBP_USD)
+        .spotDateOffset(PLUS_ONE_DAY)
+        .businessDayAdjustment(BDA_MODFOLLOW)
         .build();
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    ImmutableFxSwapConvention test = ImmutableFxSwapConvention.of(EUR_USD_STR, EUR_USD, PLUS_TWO_DAYS, BDA_FOLLOW);
+    ImmutableFxSwapConvention test = ImmutableFxSwapConvention.of(EUR_USD, PLUS_TWO_DAYS, BDA_FOLLOW);
     assertSerialization(test);
   }
-  
+
 }

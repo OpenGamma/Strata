@@ -8,47 +8,50 @@ package com.opengamma.strata.finance.fx.type;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableValidator;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.TradeTemplate;
 import com.opengamma.strata.finance.fx.FxSwapTrade;
 
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-
-import org.joda.beans.Bean;
-import org.joda.beans.ImmutableValidator;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-
 /**
- * A template for creating FX swap trades.
+ * A template for creating an FX swap trade.
  * <p>
  * This defines almost all the data necessary to create a {@link FxSwapTrade}.
+ * The trade date, notional, FX rate and forward points are required to complete the template and create the trade.
+ * As such, it is often possible to get a market price for a trade based on the template.
  * <p>
  * The convention is defined by four dates.
  * <ul>
  * <li>Trade date, the date that the trade is agreed
- * <li>Spot date, the base for date calculations, typically 2 business days in the joint calendar of both currencies after the trade date
- * <li>Near date, the date on which the near leg of the swap is exchanged, typically equal to the spot date
- * <li>Far date, the date on which the far leg of the swap is exchanged, typically a number of months or years after the spot date
+ * <li>Spot date, the base for date calculations, typically 2 business days in the
+ *  joint calendar of both currencies after the trade date
+ * <li>Near date, the date on which the near leg of the swap is exchanged,
+ *  typically equal to the spot date
+ * <li>Far date, the date on which the far leg of the swap is exchanged,
+ *  typically a number of months or years after the spot date
  * </ul>
  * Some of these dates are specified by the convention embedded within this template.
  */
 @BeanDefinition
-public final class FxSwapTemplate 
-  implements TradeTemplate, ImmutableBean, Serializable {
+public final class FxSwapTemplate
+    implements TradeTemplate, ImmutableBean, Serializable {
 
   /**
    * The period between the spot value date and the near date.
@@ -63,25 +66,18 @@ public final class FxSwapTemplate
    * For example, a '3M x 6M' FX swap has a period from spot to the far date of 6 months
    */
   @PropertyDefinition(validate = "notNull")
-  private final Period periodToFar; 
+  private final Period periodToFar;
   /**
-   * The underlying Fx Swap convention.
+   * The underlying FX Swap convention.
    * <p>
-   * This specifies the market convention of the Fx Swap to be created.
+   * This specifies the market convention of the FX Swap to be created.
    */
   @PropertyDefinition(validate = "notNull")
   private final FxSwapConvention convention;
-  
-
-  @ImmutableValidator
-  private void validate() {
-    ArgChecker.isFalse(periodToNear.isNegative(), "Period to start must not be negative");
-    ArgChecker.isFalse(periodToFar.isNegative(), "Period to end must not be negative");
-  }
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a template based on a specified period and convention.
+   * Obtains a template based on the specified period and convention.
    * <p>
    * The near date is equal to the spot date.
    * The period from the spot date to the far date is specified
@@ -98,11 +94,11 @@ public final class FxSwapTemplate
         .periodToFar(periodToFar)
         .convention(convention).build();
   }
+
   /**
    * Obtains a template based on the specified periods and convention.
    * <p>
-   * The period from the spot date to the near date is specified.
-   * The period from the spot date to the far date is specified
+   * Both the period from the spot date to the near date and far date are specified.
    * <p>
    * For example, a '3M x 6M' FX swap has a period from spot to the start date of 3 months and 
    * a period from spot to the far date of 6 months
@@ -119,14 +115,21 @@ public final class FxSwapTemplate
         .convention(convention).build();
   }
 
+  @ImmutableValidator
+  private void validate() {
+    ArgChecker.isFalse(periodToNear.isNegative(), "Period to start must not be negative");
+    ArgChecker.isFalse(periodToFar.isNegative(), "Period to end must not be negative");
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Creates a trade based on this template.
    * <p>
    * This returns a trade based on the specified date.
    * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the FX Swap, the amount in the first currency of the pair is received in the near leg and paid in the 
-   * far leg, while the second currency is paid in the near leg and received in the far leg.
+   * If buying the FX Swap, the amount in the first currency of the pair is received
+   * in the near leg and paid in the far leg, while the second currency is paid in the
+   * near leg and received in the far leg.
    * 
    * @param tradeDate  the date of the trade
    * @param buySell  the buy/sell flag
@@ -136,14 +139,14 @@ public final class FxSwapTemplate
    * @return the trade
    */
   public FxSwapTrade toTrade(
-      LocalDate tradeDate, 
-      BuySell buySell, 
-      double notional, 
-      double nearFxRate, 
+      LocalDate tradeDate,
+      BuySell buySell,
+      double notional,
+      double nearFxRate,
       double forwardPoints) {
     return convention.toTrade(tradeDate, periodToNear, periodToFar, buySell, notional, nearFxRate, forwardPoints);
   }
-  
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
@@ -223,9 +226,9 @@ public final class FxSwapTemplate
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying Fx Swap convention.
+   * Gets the underlying FX Swap convention.
    * <p>
-   * This specifies the market convention of the Fx Swap to be created.
+   * This specifies the market convention of the FX Swap to be created.
    * @return the value of the property, not null
    */
   public FxSwapConvention getConvention() {
@@ -512,9 +515,9 @@ public final class FxSwapTemplate
     }
 
     /**
-     * Sets the underlying Fx Swap convention.
+     * Sets the underlying FX Swap convention.
      * <p>
-     * This specifies the market convention of the Fx Swap to be created.
+     * This specifies the market convention of the FX Swap to be created.
      * @param convention  the new value, not null
      * @return this, for chaining, not null
      */

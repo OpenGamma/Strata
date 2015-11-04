@@ -46,7 +46,7 @@ import com.opengamma.strata.market.value.ValueType;
  */
 @Test
 public class FxSwapCurveNodeTest {
-  
+
   private static final CurrencyPair EUR_USD = CurrencyPair.of(Currency.EUR, Currency.USD);
   private static final HolidayCalendar EUTA_USNY = EUTA.combineWith(USNY);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA_USNY);
@@ -137,5 +137,5 @@ public class FxSwapCurveNodeTest {
     FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_NEAR, QUOTE_KEY_PTS);
     assertSerialization(test);
   }
-  
+
 }

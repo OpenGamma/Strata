@@ -8,7 +8,7 @@ package com.opengamma.strata.finance.fx.type;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
- * Helper for conventions.
+ * Market standard FX swap conventions.
  */
 public class FxSwapConventions {
 
@@ -19,29 +19,28 @@ public class FxSwapConventions {
 
   //-------------------------------------------------------------------------
   /**
-   * The "EUR-USD" Fx Swap convention.
+   * The "EUR/USD" FX Swap convention.
    * <p>
    * EUR/USD convention with 2 days spot date.
    */
-  public static final FxSwapConvention EUR_USD = 
+  public static final FxSwapConvention EUR_USD =
       FxSwapConvention.of(StandardFxSwapConventions.EUR_USD.getName());
-  
+
   /**
-   * The "GBP-EUR" Fx Swap convention.
+   * The "GBP/EUR" FX Swap convention.
    * <p>
    * GBP/EUR convention with 2 days spot date.
    */
-  public static final FxSwapConvention GBP_EUR = 
+  public static final FxSwapConvention GBP_EUR =
       FxSwapConvention.of(StandardFxSwapConventions.GBP_EUR.getName());
 
   /**
-   * The "GBP-USD" Fx Swap convention.
+   * The "GBP/USD" FX Swap convention.
    * <p>
    * GBP/USD convention with 2 days spot date.
    */
-  public static final FxSwapConvention GBP_USD = 
+  public static final FxSwapConvention GBP_USD =
       FxSwapConvention.of(StandardFxSwapConventions.GBP_USD.getName());
-
 
   //-------------------------------------------------------------------------
   /**

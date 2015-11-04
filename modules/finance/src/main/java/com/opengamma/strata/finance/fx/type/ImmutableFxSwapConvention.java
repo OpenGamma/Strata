@@ -9,12 +9,21 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_F
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -25,17 +34,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.fx.FxSwap;
 import com.opengamma.strata.finance.fx.FxSwapTrade;
-
-import java.util.Map;
-import java.util.NoSuchElementException;
-
-import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * A market convention for FX swap trades
@@ -54,29 +52,30 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 @BeanDefinition
 public final class ImmutableFxSwapConvention
     implements FxSwapConvention, ImmutableBean, Serializable {
-  
+
   /**
-   * The currency pair associated to the convention.
+   * The currency pair associated with the convention.
    */
   @PropertyDefinition(validate = "notNull")
-  private final CurrencyPair currencyPair;  
+  private final CurrencyPair currencyPair;
   /**
-   * The convention name, such as 'EUR-USD', optional with defaulting getter.
+   * The convention name, such as 'EUR/USD', optional with defaulting getter.
    * <p>
    * This will default to the name of the currency pair if not specified.
    */
   @PropertyDefinition(get = "field")
   private final String name;
   /**
-   * The offset of the spot value date from the trade date, optional with defaulting getter.
+   * The offset of the spot value date from the trade date.
    * <p>
-   * The offset is applied to the trade date and is typically plus 2 business days in the joint calendar of the two currencies.
+   * The offset is applied to the trade date and is typically plus 2 business days
+   * in the joint calendar of the two currencies.
    * The start and end date of the FX swap are relative to the spot date.
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment spotDateOffset;
   /**
-   * The business day adjustment to apply to the start and end date.
+   * The business day adjustment to apply to the start and end date, optional with defaulting getter.
    * <p>
    * The start and end date are typically defined as valid business days and thus
    * do not need to be adjusted. If this optional property is present, then the
@@ -89,35 +88,37 @@ public final class ImmutableFxSwapConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a convention based on the specified currency pair, offset and adjustment.=
+   * Obtains a convention based on the specified currency pair and spot date offset.
+   * <p>
+   * Use the {@linkplain #builder() builder} for unusual conventions.
    * 
    * @param currencyPair  the currency pair associated to the convention
-   * @param spotDateOffset  the spot date offset 
+   * @param spotDateOffset  the spot date offset
    * @return the convention
    */
-  public static ImmutableFxSwapConvention of(
-      CurrencyPair currencyPair, 
-      DaysAdjustment spotDateOffset) {
+  public static ImmutableFxSwapConvention of(CurrencyPair currencyPair, DaysAdjustment spotDateOffset) {
     return ImmutableFxSwapConvention.builder()
         .currencyPair(currencyPair)
         .spotDateOffset(spotDateOffset)
         .build();
   }
-  
+
   /**
-   * Creates a convention based on the specified currency pair, offset and adjustment.=
+   * Obtains a convention based on the specified currency pair, spot date offset and adjustment.
+   * <p>
+   * Use the {@linkplain #builder() builder} for unusual conventions.
    * 
    * @param currencyPair  the currency pair associated to the convention
    * @param spotDateOffset  the spot date offset 
+   * @param businessDayAdjustment  the business day adjustment to apply
    * @return the convention
    */
   public static ImmutableFxSwapConvention of(
-      String name,
-      CurrencyPair currencyPair, 
-      DaysAdjustment spotDateOffset, 
+      CurrencyPair currencyPair,
+      DaysAdjustment spotDateOffset,
       BusinessDayAdjustment businessDayAdjustment) {
+
     return ImmutableFxSwapConvention.builder()
-        .name(name)
         .currencyPair(currencyPair)
         .spotDateOffset(spotDateOffset)
         .businessDayAdjustment(businessDayAdjustment)
@@ -158,19 +159,30 @@ public final class ImmutableFxSwapConvention
       double forwardPoints) {
 
     ArgChecker.inOrderOrEqual(tradeDate, startDate, "tradeDate", "startDate");
-    double amount1 = notional * (buySell.equals(BuySell.BUY) ? 1.0 : -1.0);
+    double amount1 = BuySell.BUY.normalize(notional);
     LocalDate startDateAdjusted = getBusinessDayAdjustment().adjust(startDate);
     LocalDate endDateAdjusted = getBusinessDayAdjustment().adjust(endDate);
     return FxSwapTrade.builder()
         .tradeInfo(TradeInfo.builder()
             .tradeDate(tradeDate).build())
-        .product(FxSwap.ofForwardPoints(CurrencyAmount.of(currencyPair.getBase(), amount1),
-            currencyPair.getCounter(), nearFxRate, forwardPoints, startDateAdjusted, endDateAdjusted)).build();
+        .product(FxSwap.ofForwardPoints(
+            CurrencyAmount.of(currencyPair.getBase(), amount1),
+            currencyPair.getCounter(),
+            nearFxRate,
+            forwardPoints,
+            startDateAdjusted,
+            endDateAdjusted))
+        .build();
   }
 
   @Override
   public LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate) {
     return getSpotDateOffset().adjust(tradeDate);
+  }
+
+  @Override
+  public String toString() {
+    return getName();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -230,7 +242,7 @@ public final class ImmutableFxSwapConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency pair associated to the convention.
+   * Gets the currency pair associated with the convention.
    * @return the value of the property, not null
    */
   public CurrencyPair getCurrencyPair() {
@@ -239,9 +251,10 @@ public final class ImmutableFxSwapConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the offset of the spot value date from the trade date, optional with defaulting getter.
+   * Gets the offset of the spot value date from the trade date.
    * <p>
-   * The offset is applied to the trade date and is typically plus 2 business days in the joint calendar of the two currencies.
+   * The offset is applied to the trade date and is typically plus 2 business days
+   * in the joint calendar of the two currencies.
    * The start and end date of the FX swap are relative to the spot date.
    * @return the value of the property, not null
    */
@@ -281,18 +294,6 @@ public final class ImmutableFxSwapConvention
     hash = hash * 31 + JodaBeanUtils.hashCode(getSpotDateOffset());
     hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
     return hash;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder buf = new StringBuilder(160);
-    buf.append("ImmutableFxSwapConvention{");
-    buf.append("currencyPair").append('=').append(getCurrencyPair()).append(',').append(' ');
-    buf.append("name").append('=').append(name).append(',').append(' ');
-    buf.append("spotDateOffset").append('=').append(getSpotDateOffset()).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment));
-    buf.append('}');
-    return buf.toString();
   }
 
   //-----------------------------------------------------------------------
@@ -532,7 +533,7 @@ public final class ImmutableFxSwapConvention
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the currency pair associated to the convention.
+     * Sets the currency pair associated with the convention.
      * @param currencyPair  the new value, not null
      * @return this, for chaining, not null
      */
@@ -543,7 +544,7 @@ public final class ImmutableFxSwapConvention
     }
 
     /**
-     * Sets the convention name, such as 'EUR-USD', optional with defaulting getter.
+     * Sets the convention name, such as 'EUR/USD', optional with defaulting getter.
      * <p>
      * This will default to the name of the currency pair if not specified.
      * @param name  the new value
@@ -555,9 +556,10 @@ public final class ImmutableFxSwapConvention
     }
 
     /**
-     * Sets the offset of the spot value date from the trade date, optional with defaulting getter.
+     * Sets the offset of the spot value date from the trade date.
      * <p>
-     * The offset is applied to the trade date and is typically plus 2 business days in the joint calendar of the two currencies.
+     * The offset is applied to the trade date and is typically plus 2 business days
+     * in the joint calendar of the two currencies.
      * The start and end date of the FX swap are relative to the spot date.
      * @param spotDateOffset  the new value, not null
      * @return this, for chaining, not null
@@ -569,7 +571,7 @@ public final class ImmutableFxSwapConvention
     }
 
     /**
-     * Sets the business day adjustment to apply to the start and end date.
+     * Sets the business day adjustment to apply to the start and end date, optional with defaulting getter.
      * <p>
      * The start and end date are typically defined as valid business days and thus
      * do not need to be adjusted. If this optional property is present, then the

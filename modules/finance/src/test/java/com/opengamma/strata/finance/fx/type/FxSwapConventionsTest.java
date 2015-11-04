@@ -1,12 +1,13 @@
 package com.opengamma.strata.finance.fx.type;
 
-import static org.testng.Assert.assertEquals;
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -19,7 +20,7 @@ import com.opengamma.strata.basics.date.HolidayCalendar;
  */
 @Test
 public class FxSwapConventionsTest {
-  
+
   private static final HolidayCalendar EUTA_USNY = EUTA.combineWith(USNY);
   private static final HolidayCalendar GBLO_EUTA = GBLO.combineWith(EUTA);
   private static final HolidayCalendar GBLO_USNY = GBLO.combineWith(USNY);
@@ -66,5 +67,11 @@ public class FxSwapConventionsTest {
     assertEquals(convention.getSpotDateOffset().getCalendar(), cal);
     assertEquals(convention.getBusinessDayAdjustment().getCalendar(), cal);
   }
-  
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverPrivateConstructor(FxSwapConventions.class);
+    coverPrivateConstructor(StandardFxSwapConventions.class);
+  }
+
 }

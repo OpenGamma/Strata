@@ -18,9 +18,8 @@ import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.finance.TradeConvention;
 import com.opengamma.strata.finance.fx.FxSwapTrade;
 
-
 /**
- * A market convention for Fx Swap trades.
+ * A market convention for FX Swap trades.
  * <p>
  * This defines the market convention for a FX swap based on a particular currency pair.
  * <p>
@@ -53,7 +52,8 @@ public interface FxSwapConvention
    */
   public static ExtendedEnum<FxSwapConvention> extendedEnum() {
     return FxSwapConventions.ENUM_LOOKUP;
-  }  
+  }
+
   /**
    * Creates a trade based on this convention.
    * <p>
@@ -88,7 +88,7 @@ public interface FxSwapConvention
     LocalDate endDate = spotValue.plus(periodToFar);
     return toTrade(tradeDate, startDate, endDate, buySell, notional, nearFxRate, forwardPoints);
   }
-  
+
   /**
    * Creates a trade based on this convention.
    * <p>

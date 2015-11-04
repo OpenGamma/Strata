@@ -7,12 +7,21 @@ package com.opengamma.strata.market.curve.definition;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
@@ -25,26 +34,15 @@ import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
 
-import java.util.Map;
-import java.util.NoSuchElementException;
-
-import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-
 /**
- * A curve node whose instrument is a Forex Swap.
+ * A curve node whose instrument is an FX Swap.
  */
 @BeanDefinition
 public final class FxSwapCurveNode
-  implements CurveNode, ImmutableBean, Serializable {
+    implements CurveNode, ImmutableBean, Serializable {
 
   /**
-   * The template for the Fx Swap associated with this node.
+   * The template for the FX Swap associated with this node.
    */
   @PropertyDefinition(validate = "notNull")
   private final FxSwapTemplate template;
@@ -58,9 +56,10 @@ public final class FxSwapCurveNode
    */
   @PropertyDefinition(validate = "notNull")
   private final ObservableKey fxPtsKey;
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * Returns a curve node for a Fx Swap using the specified instrument template and keys.
+   * Returns a curve node for an FX Swap using the specified instrument template and keys.
    *
    * @param template  the template used for building the instrument for the node
    * @param fxNearKey  the key identifying the FX rate for the near date used when building the instrument for the node
@@ -74,30 +73,31 @@ public final class FxSwapCurveNode
         .fxPtsKey(fxPtsKey)
         .build();
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public Set<ObservableKey> requirements() {
     return ImmutableSet.of(fxNearKey, fxPtsKey);
   }
-  
+
   @Override
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
-    FxSwapTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1.0, 1.0, 0.0);
+    FxSwapTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1, 0);
     LocalDate farDate = trade.getProduct().getFarLeg().getPaymentDate();
     return TenorCurveNodeMetadata.of(farDate, Tenor.of(template.getPeriodToFar()));
   }
-  
+
   @Override
   public FxSwapTrade trade(LocalDate valuationDate, ObservableValues marketData) {
     double fxNearRate = marketData.getValue(fxNearKey);
     double fxPts = marketData.getValue(fxPtsKey);
     return template.toTrade(valuationDate, BuySell.BUY, 1d, fxNearRate, fxPts);
   }
-  
+
   @Override
   public double initialGuess(LocalDate valuationDate, ObservableValues marketData, ValueType valueType) {
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
-      return 1.0d;
+      return 1d;
     }
     return 0d;
   }
@@ -158,7 +158,7 @@ public final class FxSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the template for the Fx Swap associated with this node.
+   * Gets the template for the FX Swap associated with this node.
    * @return the value of the property, not null
    */
   public FxSwapTemplate getTemplate() {
@@ -437,7 +437,7 @@ public final class FxSwapCurveNode
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the template for the Fx Swap associated with this node.
+     * Sets the template for the FX Swap associated with this node.
      * @param template  the new value, not null
      * @return this, for chaining, not null
      */
