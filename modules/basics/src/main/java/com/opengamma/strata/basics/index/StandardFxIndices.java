@@ -22,30 +22,30 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 
 /**
- * Standard IBOR index implementations.
+ * Standard FX index implementations.
  * <p>
  * See {@link FxIndices} for the description of each.
  */
 final class StandardFxIndices {
 
   // Euro foreign exchange reference rates
-  public static final FxIndex ECB_EUR_CHF = ecb(EUR, CHF, EUTA, CHZU);
-  public static final FxIndex ECB_EUR_GBP = ecb(EUR, GBP, EUTA, GBLO);
-  public static final FxIndex ECB_EUR_JPY = ecb(EUR, JPY, EUTA, JPTO);
-  public static final FxIndex ECB_EUR_USD = ecb(EUR, USD, EUTA, USNY);
+  public static final FxIndex EUR_CHF_ECB = ecb(EUR, CHF, EUTA, CHZU);
+  public static final FxIndex EUR_GBP_ECB = ecb(EUR, GBP, EUTA, GBLO);
+  public static final FxIndex EUR_JPY_ECB = ecb(EUR, JPY, EUTA, JPTO);
+  public static final FxIndex EUR_USD_ECB = ecb(EUR, USD, EUTA, USNY);
 
   // WM company
-  public static final FxIndex WM_USD_CHF = wm(USD, CHF, USNY, CHZU);
-  public static final FxIndex WM_EUR_USD = wm(EUR, USD, USNY, EUTA);
-  public static final FxIndex WM_GBP_USD = wm(GBP, USD, USNY, GBLO);
-  public static final FxIndex WM_USD_JPY = wm(USD, JPY, USNY, JPTO);
+  public static final FxIndex USD_CHF_WM = wm(USD, CHF, USNY, CHZU);
+  public static final FxIndex EUR_USD_WM = wm(EUR, USD, USNY, EUTA);
+  public static final FxIndex GBP_USD_WM = wm(GBP, USD, USNY, GBLO);
+  public static final FxIndex USD_JPY_WM = wm(USD, JPY, USNY, JPTO);
 
   // ecb
   private static FxIndex ecb(
       Currency base, Currency counter, HolidayCalendar baseHoliday, HolidayCalendar counterHoliday) {
     DaysAdjustment maturity = DaysAdjustment.ofBusinessDays(2, baseHoliday.combineWith(counterHoliday));
     return ImmutableFxIndex.builder()
-        .name("ECB-" + base.getCode() + "-" + counter.getCode())
+        .name(base.getCode() + "/" + counter.getCode() + "-ECB")
         .currencyPair(CurrencyPair.of(base, counter))
         .fixingCalendar(EUTA)
         .maturityDateOffset(maturity)
@@ -57,7 +57,7 @@ final class StandardFxIndices {
       Currency base, Currency counter, HolidayCalendar baseHoliday, HolidayCalendar counterHoliday) {
     DaysAdjustment maturity = DaysAdjustment.ofBusinessDays(2, baseHoliday.combineWith(counterHoliday));
     return ImmutableFxIndex.builder()
-        .name("WM-" + base.getCode() + "-" + counter.getCode())
+        .name(base.getCode() + "/" + counter.getCode() + "-WM")
         .currencyPair(CurrencyPair.of(base, counter))
         .fixingCalendar(USNY)
         .maturityDateOffset(maturity)

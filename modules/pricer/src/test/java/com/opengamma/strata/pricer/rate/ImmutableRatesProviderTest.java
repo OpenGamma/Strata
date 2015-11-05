@@ -8,7 +8,7 @@ package com.opengamma.strata.pricer.rate;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
-import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
+import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
@@ -74,10 +74,10 @@ public class ImmutableRatesProviderTest {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(PREV_DATE, 0.62d);
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
+        .timeSeries(ImmutableMap.of(GBP_USD_WM, ts))
         .build();
     assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(ImmutableRatesProvider.meta().timeSeries().get(test), ImmutableMap.of(WM_GBP_USD, ts));
+    assertEquals(ImmutableRatesProvider.meta().timeSeries().get(test), ImmutableMap.of(GBP_USD_WM, ts));
   }
 
   //-------------------------------------------------------------------------
@@ -122,10 +122,10 @@ public class ImmutableRatesProviderTest {
         .valuationDate(VAL_DATE)
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
-        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
+        .timeSeries(ImmutableMap.of(GBP_USD_WM, ts))
         .build();
-    assertEquals(test.fxIndexRates(WM_GBP_USD).getIndex(), WM_GBP_USD);
-    assertEquals(test.fxIndexRates(WM_GBP_USD).getTimeSeries(), ts);
+    assertEquals(test.fxIndexRates(GBP_USD_WM).getIndex(), GBP_USD_WM);
+    assertEquals(test.fxIndexRates(GBP_USD_WM).getTimeSeries(), ts);
   }
 
   //-------------------------------------------------------------------------

@@ -12,7 +12,7 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
+import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -75,7 +75,7 @@ public class RatePeriodSwapLegTest {
       .accrualPeriods(RAP1)
       .dayCount(ACT_365F)
       .currency(GBP)
-      .fxReset(FxReset.of(WM_GBP_USD, USD, DATE_2014_06_28))
+      .fxReset(FxReset.of(GBP_USD_WM, USD, DATE_2014_06_28))
       .notional(8000d)
       .build();
   private static final RatePaymentPeriod RPP2 = RatePaymentPeriod.builder()
@@ -208,14 +208,14 @@ public class RatePeriodSwapLegTest {
         .paymentDate(DATE_2014_06_30)
         .referenceCurrency(USD)
         .notional(-8000d)
-        .index(WM_GBP_USD)
+        .index(GBP_USD_WM)
         .fixingDate(DATE_2014_06_28)
         .build();
     FxResetNotionalExchange ne1b = FxResetNotionalExchange.builder()
         .paymentDate(DATE_2014_10_01)
         .referenceCurrency(USD)
         .notional(8000d)
-        .index(WM_GBP_USD)
+        .index(GBP_USD_WM)
         .fixingDate(DATE_2014_06_28)
         .build();
     NotionalExchange ne2a = NotionalExchange.of(DATE_2014_10_01, CurrencyAmount.of(GBP, -6000d));

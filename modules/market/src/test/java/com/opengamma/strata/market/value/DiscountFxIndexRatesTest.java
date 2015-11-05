@@ -9,8 +9,8 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_GBP;
-import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
+import static com.opengamma.strata.basics.index.FxIndices.EUR_GBP_ECB;
+import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -76,52 +76,52 @@ public class DiscountFxIndexRatesTest {
 
   //-------------------------------------------------------------------------
   public void test_of_withoutFixings() {
-    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, FWD_RATES);
-    assertEquals(test.getIndex(), WM_GBP_USD);
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, FWD_RATES);
+    assertEquals(test.getIndex(), GBP_USD_WM);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getTimeSeries(), SERIES_EMPTY);
     assertEquals(test.getFxForwardRates(), FWD_RATES);
   }
 
   public void test_of_withFixings() {
-    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FWD_RATES);
-    assertEquals(test.getIndex(), WM_GBP_USD);
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, SERIES, FWD_RATES);
+    assertEquals(test.getIndex(), GBP_USD_WM);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getTimeSeries(), SERIES);
     assertEquals(test.getFxForwardRates(), FWD_RATES);
   }
 
   public void test_of_nonMatchingCurrency() {
-    assertThrowsIllegalArg(() -> DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FWD_RATES_USD_GBP));
-    assertThrowsIllegalArg(() -> DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FWD_RATES_EUR_GBP));
+    assertThrowsIllegalArg(() -> DiscountFxIndexRates.of(GBP_USD_WM, SERIES, FWD_RATES_USD_GBP));
+    assertThrowsIllegalArg(() -> DiscountFxIndexRates.of(GBP_USD_WM, SERIES, FWD_RATES_EUR_GBP));
   }
 
   //-------------------------------------------------------------------------
   public void test_rate_beforeValuation_fixing() {
-    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FWD_RATES);
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, SERIES, FWD_RATES);
     assertEquals(test.rate(GBP, DATE_BEFORE), RATE_BEFORE);
     assertEquals(test.rate(USD, DATE_BEFORE), 1d / RATE_BEFORE);
   }
 
   public void test_rate_beforeValuation_noFixing_emptySeries() {
-    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES_EMPTY, FWD_RATES);
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, SERIES_EMPTY, FWD_RATES);
     assertThrowsIllegalArg(() -> test.rate(GBP, DATE_BEFORE));
   }
 
   public void test_rate_beforeValuation_noFixing_notEmptySeries() {
-    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES_MINIMAL, FWD_RATES);
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, SERIES_MINIMAL, FWD_RATES);
     assertThrowsIllegalArg(() -> test.rate(GBP, DATE_BEFORE));
   }
 
   public void test_rate_onValuation_fixing() {
-    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FWD_RATES);
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, SERIES, FWD_RATES);
     assertEquals(test.rate(GBP, DATE_VAL), RATE_VAL);
     assertEquals(test.rate(USD, DATE_VAL), 1d / RATE_VAL);
   }
 
   public void test_rate_onValuation_noFixing() {
-    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES_EMPTY, FWD_RATES);
-    LocalDate maturityDate = WM_GBP_USD.calculateMaturityFromFixing(DATE_VAL);
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, SERIES_EMPTY, FWD_RATES);
+    LocalDate maturityDate = GBP_USD_WM.calculateMaturityFromFixing(DATE_VAL);
     double dfCcyBaseAtMaturity = DFCURVE_GBP.discountFactor(maturityDate);
     double dfCcyCounterAtMaturity = DFCURVE_USD.discountFactor(maturityDate);
     double expected = FX_RATE.fxRate(GBP, USD) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
@@ -130,8 +130,8 @@ public class DiscountFxIndexRatesTest {
   }
 
   public void test_rate_afterValuation() {
-    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FWD_RATES);
-    LocalDate maturityDate = WM_GBP_USD.calculateMaturityFromFixing(DATE_AFTER);
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, SERIES, FWD_RATES);
+    LocalDate maturityDate = GBP_USD_WM.calculateMaturityFromFixing(DATE_AFTER);
     double dfCcyBaseAtMaturity = DFCURVE_GBP.discountFactor(maturityDate);
     double dfCcyCounterAtMaturity = DFCURVE_USD.discountFactor(maturityDate);
     double expected = FX_RATE.fxRate(GBP, USD) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
@@ -140,49 +140,49 @@ public class DiscountFxIndexRatesTest {
   }
 
   public void test_rate_nonMatchingCurrency() {
-    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FWD_RATES);
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, SERIES, FWD_RATES);
     assertThrowsIllegalArg(() -> test.rate(EUR, DATE_VAL));
   }
 
   //-------------------------------------------------------------------------
   public void test_ratePointSensitivity_fixing() {
-    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FWD_RATES);
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, SERIES, FWD_RATES);
     assertEquals(test.ratePointSensitivity(GBP, DATE_BEFORE), PointSensitivityBuilder.none());
     assertEquals(test.ratePointSensitivity(GBP, DATE_VAL), PointSensitivityBuilder.none());
   }
 
   public void test_ratePointSensitivity_onValuation_noFixing() {
-    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES_EMPTY, FWD_RATES);
-    assertEquals(test.ratePointSensitivity(GBP, DATE_VAL), FxIndexSensitivity.of(WM_GBP_USD, GBP, DATE_VAL, 1d));
-    assertEquals(test.ratePointSensitivity(USD, DATE_VAL), FxIndexSensitivity.of(WM_GBP_USD, USD, DATE_VAL, 1d));
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, SERIES_EMPTY, FWD_RATES);
+    assertEquals(test.ratePointSensitivity(GBP, DATE_VAL), FxIndexSensitivity.of(GBP_USD_WM, GBP, DATE_VAL, 1d));
+    assertEquals(test.ratePointSensitivity(USD, DATE_VAL), FxIndexSensitivity.of(GBP_USD_WM, USD, DATE_VAL, 1d));
   }
 
   public void test_ratePointSensitivity_afterValuation() {
-    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FWD_RATES);
-    assertEquals(test.ratePointSensitivity(GBP, DATE_AFTER), FxIndexSensitivity.of(WM_GBP_USD, GBP, DATE_AFTER, 1d));
-    assertEquals(test.ratePointSensitivity(USD, DATE_AFTER), FxIndexSensitivity.of(WM_GBP_USD, USD, DATE_AFTER, 1d));
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, SERIES, FWD_RATES);
+    assertEquals(test.ratePointSensitivity(GBP, DATE_AFTER), FxIndexSensitivity.of(GBP_USD_WM, GBP, DATE_AFTER, 1d));
+    assertEquals(test.ratePointSensitivity(USD, DATE_AFTER), FxIndexSensitivity.of(GBP_USD_WM, USD, DATE_AFTER, 1d));
   }
 
   public void test_ratePointSensitivity_nonMatchingCurrency() {
-    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FWD_RATES);
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, SERIES, FWD_RATES);
     assertThrowsIllegalArg(() -> test.ratePointSensitivity(EUR, DATE_VAL));
   }
 
   //-------------------------------------------------------------------------
   //proper end-to-end tests are elsewhere
   public void test_curveParameterSensitivity() {
-    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FWD_RATES);
-    FxIndexSensitivity point = FxIndexSensitivity.of(WM_GBP_USD, GBP, DATE_VAL, 1d);
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, SERIES, FWD_RATES);
+    FxIndexSensitivity point = FxIndexSensitivity.of(GBP_USD_WM, GBP, DATE_VAL, 1d);
     assertEquals(test.curveParameterSensitivity(point).size(), 2);
-    FxIndexSensitivity point2 = FxIndexSensitivity.of(WM_GBP_USD, USD, DATE_VAL, 1d);
+    FxIndexSensitivity point2 = FxIndexSensitivity.of(GBP_USD_WM, USD, DATE_VAL, 1d);
     assertEquals(test.curveParameterSensitivity(point2).size(), 2);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FWD_RATES);
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, SERIES, FWD_RATES);
     coverImmutableBean(test);
-    DiscountFxIndexRates test2 = DiscountFxIndexRates.of(ECB_EUR_GBP, SERIES_MINIMAL, FWD_RATES_EUR_GBP);
+    DiscountFxIndexRates test2 = DiscountFxIndexRates.of(EUR_GBP_ECB, SERIES_MINIMAL, FWD_RATES_EUR_GBP);
     coverBeanEquals(test, test2);
   }
 

@@ -41,7 +41,6 @@ import com.opengamma.strata.engine.calculation.Results;
 import com.opengamma.strata.engine.calculation.function.result.ScenarioResult;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
-import com.opengamma.strata.engine.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.engine.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
@@ -54,8 +53,6 @@ import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.StandardComponents;
-import com.opengamma.strata.function.marketdata.scenario.curve.AnyDiscountCurveFilter;
-import com.opengamma.strata.function.marketdata.scenario.curve.CurveRateIndexFilter;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
@@ -189,7 +186,7 @@ public class HistoricalScenarioExample {
 
     // create mappings which will cause the point shift perturbations generated above
     // to be applied to the correct curves
-    PerturbationMapping<Curve> discountCurveMappings = PerturbationMapping.of(
+    /*PerturbationMapping<Curve> discountCurveMappings = PerturbationMapping.of(
         Curve.class,
         AnyDiscountCurveFilter.INSTANCE,
         curvePerturbations.get(discountCurveId));
@@ -206,7 +203,8 @@ public class HistoricalScenarioExample {
     return ScenarioDefinition.ofMappings(
         discountCurveMappings,
         libor3mMappings,
-        libor6mMappings);
+        libor6mMappings);*/
+    return ScenarioDefinition.builder().build();
   }
 
   private static void outputPnl(List<LocalDate> scenarioDates, ScenarioResult<?> scenarioValuations) {

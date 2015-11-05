@@ -10,7 +10,6 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -131,7 +130,8 @@ public class SwapPricingTest {
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg)).build();
 
-    MarketEnvironment suppliedData = MarketEnvironment.builder(VAL_DATE)
+    MarketEnvironment suppliedData = MarketEnvironment.builder()
+        .valuationDate(VAL_DATE)
         .addValue(CurveGroupId.of(CURVE_GROUP_NAME), CURVE_GROUP)
         .build();
 
@@ -177,7 +177,7 @@ public class SwapPricingTest {
         suppliedData,
         MarketDataConfig.empty());
 
-    Results results = calculationRunner.calculate(calculationTasks, marketData);
+    Results results = calculationRunner.calculateSingleScenario(calculationTasks, marketData);
     Result<?> result = results.get(0, 0);
     assertThat(result).isSuccess();
 

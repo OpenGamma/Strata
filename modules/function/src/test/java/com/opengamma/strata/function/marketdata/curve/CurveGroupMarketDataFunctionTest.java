@@ -9,7 +9,6 @@ import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -36,6 +35,7 @@ import com.opengamma.strata.engine.calculation.DefaultSingleCalculationMarketDat
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
@@ -108,20 +108,21 @@ public class CurveGroupMarketDataFunctionTest {
     CurveGroupMarketDataFunction function =
         new CurveGroupMarketDataFunction(RootFinderConfig.defaults(), CalibrationMeasures.DEFAULT);
     LocalDate valuationDate = date(2011, 3, 8);
-    MarketEnvironment marketData = MarketEnvironment.builder(valuationDate)
+    MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(valuationDate)
         .addValue(ParRatesId.of(groupName, curveName, MarketDataFeed.NONE), parRates)
         .build();
-    Result<CurveGroup> result = function.buildCurveGroup(groupDefn, marketData, MarketDataFeed.NONE);
+    Result<MarketDataBox<CurveGroup>> result = function.buildCurveGroup(groupDefn, marketData, MarketDataFeed.NONE);
 
     assertThat(result).isSuccess();
-    CurveGroup curveGroup = result.getValue();
-    Curve curve = curveGroup.findDiscountCurve(Currency.USD).get();
+    MarketDataBox<CurveGroup> curveGroup = result.getValue();
+    Curve curve = curveGroup.getSingleValue().findDiscountCurve(Currency.USD).get();
     DiscountFactors discountFactors = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, curve);
     IborIndexRates iborIndexRates = DiscountIborIndexRates.of(IborIndices.USD_LIBOR_3M, discountFactors);
 
     DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
     IborIndexRatesKey forwardCurveKey = IborIndexRatesKey.of(IborIndices.USD_LIBOR_3M);
-    Map<ObservableKey, Double> quotesMap = parRateData.entrySet().stream()
+    Map<ObservableKey, ?> quotesMap = parRateData.entrySet().stream()
         .collect(toImmutableMap(tp -> tp.getKey().toObservableKey(), tp -> tp.getValue()));
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
         .putAll(quotesMap)
@@ -160,20 +161,21 @@ public class CurveGroupMarketDataFunctionTest {
         .build();
 
     ParRates parRates = ParRates.of(parRateData, DefaultCurveMetadata.of(curveName));
-    MarketEnvironment marketData = MarketEnvironment.builder(valuationDate)
+    MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(valuationDate)
         .addValue(ParRatesId.of(groupName, curveName, MarketDataFeed.NONE), parRates)
         .build();
 
-    Result<CurveGroup> result = function.buildCurveGroup(groupDefn, marketData, MarketDataFeed.NONE);
+    Result<MarketDataBox<CurveGroup>> result = function.buildCurveGroup(groupDefn, marketData, MarketDataFeed.NONE);
     assertThat(result).isSuccess();
-    CurveGroup curveGroup = result.getValue();
-    Curve curve = curveGroup.findDiscountCurve(Currency.USD).get();
+    MarketDataBox<CurveGroup> curveGroup = result.getValue();
+    Curve curve = curveGroup.getSingleValue().findDiscountCurve(Currency.USD).get();
     DiscountFactors discountFactors = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, curve);
     IborIndexRates iborIndexRates = DiscountIborIndexRates.of(IborIndices.USD_LIBOR_3M, discountFactors);
 
     DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
     IborIndexRatesKey forwardCurveKey = IborIndexRatesKey.of(IborIndices.USD_LIBOR_3M);
-    Map<ObservableKey, Double> quotesMap = parRateData.entrySet().stream()
+    Map<ObservableKey, ?> quotesMap = parRateData.entrySet().stream()
         .collect(toImmutableMap(tp -> tp.getKey().toObservableKey(), tp -> tp.getValue()));
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
         .putAll(quotesMap)
@@ -254,19 +256,20 @@ public class CurveGroupMarketDataFunctionTest {
 
     LocalDate valuationDate = date(2011, 3, 8);
     ParRates fraParRates = ParRates.of(fraParRateData, fraCurveDefn.metadata(valuationDate));
-    MarketEnvironment marketData = MarketEnvironment.builder(valuationDate)
+    MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(valuationDate)
         .addValue(ParRatesId.of(groupName, fraCurveDefn.getName(), MarketDataFeed.NONE), fraParRates)
         .build();
 
     CurveGroupMarketDataFunction function =
         new CurveGroupMarketDataFunction(RootFinderConfig.defaults(), CalibrationMeasures.DEFAULT);
-    Result<CurveGroup> result = function.build(curveGroupId, marketData, marketDataConfig);
+    Result<MarketDataBox<CurveGroup>> result = function.build(curveGroupId, marketData, marketDataConfig);
 
     assertThat(result).isSuccess();
-    CurveGroup curveGroup = result.getValue();
+    MarketDataBox<CurveGroup> curveGroup = result.getValue();
 
     // Check the FRA curve identifiers are the expected tenors
-    Curve forwardCurve = curveGroup.findForwardCurve(IborIndices.USD_LIBOR_3M).get();
+    Curve forwardCurve = curveGroup.getSingleValue().findForwardCurve(IborIndices.USD_LIBOR_3M).get();
     List<CurveParameterMetadata> forwardMetadata = forwardCurve.getMetadata().getParameterMetadata().get();
 
     List<Object> forwardTenors = forwardMetadata.stream()

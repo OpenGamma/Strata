@@ -10,10 +10,12 @@ import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 
 /**
  * A interface for looking up items of market data by ID, used when building market data.
@@ -48,7 +50,7 @@ public interface MarketDataLookup {
    * @return a market data value
    * @throws IllegalArgumentException if there is no value for the specified ID
    */
-  public abstract <T> T getValue(MarketDataId<T> id);
+  public abstract <T> MarketDataBox<T> getValue(MarketDataId<T> id);
 
   /**
    * Returns a map of market data values for a set of IDs.
@@ -60,7 +62,7 @@ public interface MarketDataLookup {
    * @return a map of market data values for the IDs
    * @throws IllegalArgumentException if there is no value for any of the IDs
    */
-  public default Map<MarketDataId<?>, Object> getValues(Set<? extends MarketDataId<?>> ids) {
+  public default Map<MarketDataId<?>, MarketDataBox<?>> getValues(Set<? extends MarketDataId<?>> ids) {
     // additional type information for Eclipse
     return ids.stream().collect(toImmutableMap(id -> id, (MarketDataId<?> id) -> getValue(id)));
   }
@@ -75,8 +77,10 @@ public interface MarketDataLookup {
    * @return a map of market data values for the IDs
    * @throws IllegalArgumentException if there is no value for any of the IDs
    */
-  public default Map<ObservableId, Double> getObservableValues(Set<? extends ObservableId> ids) {
-    return ids.stream().collect(toImmutableMap(id -> id, this::getValue));
+  public default Map<ObservableId, MarketDataBox<Double>> getObservableValues(Set<? extends ObservableId> ids) {
+    Function<ObservableId, ObservableId> idMapper = id -> id;
+    Function<ObservableId, MarketDataBox<Double>> valueMapper = id -> getValue(id);
+    return ids.stream().collect(toImmutableMap(idMapper, valueMapper));
   }
 
   /**
@@ -101,5 +105,5 @@ public interface MarketDataLookup {
    *
    * @return the valuation date of the market data
    */
-  public LocalDate getValuationDate();
+  public MarketDataBox<LocalDate> getValuationDate();
 }

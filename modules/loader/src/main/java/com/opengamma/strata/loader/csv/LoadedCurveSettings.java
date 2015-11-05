@@ -29,6 +29,8 @@ import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.SimpleCurveNodeMetadata;
+import com.opengamma.strata.market.curve.definition.CurveNode;
+import com.opengamma.strata.market.curve.definition.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.value.ValueType;
 
 /**
@@ -126,6 +128,20 @@ final class LoadedCurveSettings
         .metadata(curveMetadata)
         .xValues(DoubleArray.copyOf(xValues))
         .yValues(DoubleArray.copyOf(yValues))
+        .interpolator(interpolator)
+        .extrapolatorLeft(extrapolatorLeft)
+        .extrapolatorRight(extrapolatorRight)
+        .build();
+  }
+
+  // constructs an interpolated nodal curve definition
+  InterpolatedNodalCurveDefinition createCurveDefinition(List<CurveNode> nodes) {
+    return InterpolatedNodalCurveDefinition.builder()
+        .name(curveName)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(yValueType)
+        .dayCount(dayCount)
+        .nodes(nodes)
         .interpolator(interpolator)
         .extrapolatorLeft(extrapolatorLeft)
         .extrapolatorRight(extrapolatorRight)

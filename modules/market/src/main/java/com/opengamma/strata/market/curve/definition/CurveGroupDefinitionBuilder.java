@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
@@ -68,8 +69,7 @@ public final class CurveGroupDefinitionBuilder {
         .curveDefinition(curveDefinition)
         .discountCurrencies(ImmutableSet.copyOf(Lists.asList(currency, otherCurrencies)))
         .build();
-    entries.add(entry);
-    return this;
+    return mergeEntry(entry);
   }
 
   /**
@@ -92,8 +92,7 @@ public final class CurveGroupDefinitionBuilder {
         .iborIndices(iborIndices(index, otherIndices))
         .overnightIndices(overnightIndices(index, otherIndices))
         .build();
-    entries.add(entry);
-    return this;
+    return mergeEntry(entry);
   }
 
   /**
@@ -117,7 +116,19 @@ public final class CurveGroupDefinitionBuilder {
         .iborIndices(iborIndices(index, otherIndices))
         .overnightIndices(overnightIndices(index, otherIndices))
         .build();
-    entries.add(entry);
+    return mergeEntry(entry);
+  }
+
+  // merges the specified entry with those already stored
+  private CurveGroupDefinitionBuilder mergeEntry(CurveGroupEntry newEntry) {
+    for (ListIterator<CurveGroupEntry> it = entries.listIterator(); it.hasNext();) {
+      CurveGroupEntry entry = (CurveGroupEntry) it.next();
+      if (entry.getCurveDefinition().equals(newEntry.getCurveDefinition())) {
+        it.set(entry.merge(newEntry));
+        return this;
+      }
+    }
+    entries.add(newEntry);
     return this;
   }
 

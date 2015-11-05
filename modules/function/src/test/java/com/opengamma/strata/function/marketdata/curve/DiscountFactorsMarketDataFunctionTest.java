@@ -19,6 +19,7 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -43,7 +44,8 @@ public class DiscountFactorsMarketDataFunctionTest {
   public void test_buildZeroRates() {
     Curve curve = ConstantNodalCurve.of(Curves.zeroRates("AUD Discounting", ACT_ACT_ISDA), 1d);
     DiscountCurveId curveId = DiscountCurveId.of(AUD, CURVE_GROUP_NAME, FEED);
-    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
+    MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(VAL_DATE)
         .addValue(curveId, curve)
         .build();
     DiscountFactorsMarketDataFunction test = new DiscountFactorsMarketDataFunction();
@@ -51,14 +53,15 @@ public class DiscountFactorsMarketDataFunctionTest {
     DiscountFactors expected1 = ZeroRateDiscountFactors.of(AUD, VAL_DATE, curve);
 
     DiscountFactorsId dfId = DiscountFactorsId.of(AUD, CURVE_GROUP_NAME, FEED);
-    Result<DiscountFactors> result = test.build(dfId, marketData, MarketDataConfig.empty());
-    assertThat(result).hasValue(expected1);
+    Result<MarketDataBox<DiscountFactors>> result = test.build(dfId, marketData, MarketDataConfig.empty());
+    assertThat(result).hasValue(MarketDataBox.ofSingleValue(expected1));
   }
 
   public void test_buildDiscountFactors() {
     Curve curve = ConstantNodalCurve.of(Curves.discountFactors("AUD Discounting", ACT_ACT_ISDA), 1d);
     DiscountCurveId curveId = DiscountCurveId.of(AUD, CURVE_GROUP_NAME, FEED);
-    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
+    MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(VAL_DATE)
         .addValue(curveId, curve)
         .build();
     DiscountFactorsMarketDataFunction test = new DiscountFactorsMarketDataFunction();
@@ -66,29 +69,30 @@ public class DiscountFactorsMarketDataFunctionTest {
     DiscountFactors expected1 = SimpleDiscountFactors.of(AUD, VAL_DATE, curve);
 
     DiscountFactorsId dfId = DiscountFactorsId.of(AUD, CURVE_GROUP_NAME, FEED);
-    Result<DiscountFactors> result = test.build(dfId, marketData, MarketDataConfig.empty());
-    assertThat(result).hasValue(expected1);
+    Result<MarketDataBox<DiscountFactors>> result = test.build(dfId, marketData, MarketDataConfig.empty());
+    assertThat(result).hasValue(MarketDataBox.ofSingleValue(expected1));
   }
 
   public void test_noCurve() {
-    MarketEnvironment marketData = MarketEnvironment.empty(VAL_DATE);
+    MarketEnvironment marketData = MarketEnvironment.empty();
     DiscountFactorsMarketDataFunction test = new DiscountFactorsMarketDataFunction();
 
     DiscountFactorsId dfId = DiscountFactorsId.of(AUD, CURVE_GROUP_NAME, FEED);
-    Result<DiscountFactors> result = test.build(dfId, marketData, MarketDataConfig.empty());
+    Result<MarketDataBox<DiscountFactors>> result = test.build(dfId, marketData, MarketDataConfig.empty());
     assertThat(result).isFailure(FailureReason.MISSING_DATA);
   }
 
   public void test_unknownCurve() {
     Curve curve = ConstantNodalCurve.of(Curves.prices("AUD Prices"), 1d);
     DiscountCurveId curveId = DiscountCurveId.of(AUD, CURVE_GROUP_NAME, FEED);
-    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
+    MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(VAL_DATE)
         .addValue(curveId, curve)
         .build();
     DiscountFactorsMarketDataFunction test = new DiscountFactorsMarketDataFunction();
 
     DiscountFactorsId dfId = DiscountFactorsId.of(AUD, CURVE_GROUP_NAME, FEED);
-    Result<DiscountFactors> result = test.build(dfId, marketData, MarketDataConfig.empty());
+    Result<MarketDataBox<DiscountFactors>> result = test.build(dfId, marketData, MarketDataConfig.empty());
     assertThat(result).isFailure(FailureReason.MISSING_DATA);
   }
 

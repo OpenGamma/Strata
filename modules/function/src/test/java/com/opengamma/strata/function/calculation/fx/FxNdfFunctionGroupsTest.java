@@ -8,7 +8,7 @@ package com.opengamma.strata.function.calculation.fx;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
+import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +55,7 @@ public class FxNdfFunctionGroupsTest {
   private static final FxNdf PRODUCT = FxNdf.builder()
       .agreedFxRate(FX_RATE)
       .settlementCurrencyNotional(NOTIONAL)
-      .index(WM_GBP_USD)
+      .index(GBP_USD_WM)
       .paymentDate(date(2015, 3, 19))
       .build();
   public static final FxNdfTrade TRADE = FxNdfTrade.builder()
@@ -121,7 +121,7 @@ public class FxNdfFunctionGroupsTest {
             DiscountFactorsKey.of(ccy2), df2,
             FxRateKey.of(ccy1, ccy2), fxRate),
         ImmutableMap.of(
-            IndexRateKey.of(WM_GBP_USD), LocalDateDoubleTimeSeries.of(date(2015, 3, 17), 1.45d)));
+            IndexRateKey.of(GBP_USD_WM), LocalDateDoubleTimeSeries.of(date(2015, 3, 17), 1.45d)));
 
     assertNotNull(new FxNdfBucketedPv01Function().execute(TRADE, md));
     assertNotNull(new FxNdfCurrencyExposureFunction().execute(TRADE, md));

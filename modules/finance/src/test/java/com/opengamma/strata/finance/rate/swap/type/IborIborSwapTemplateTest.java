@@ -44,6 +44,13 @@ public class IborIborSwapTemplateTest {
   private static final IborIborSwapConvention CONV2 = ImmutableIborIborSwapConvention.of("USD-Swap2", IBOR1M, IBOR3M);
 
   //-------------------------------------------------------------------------
+  public void test_of_spot() {
+    IborIborSwapTemplate test = IborIborSwapTemplate.of(TENOR_10Y, CONV);
+    assertEquals(test.getPeriodToStart(), Period.ZERO);
+    assertEquals(test.getTenor(), TENOR_10Y);
+    assertEquals(test.getConvention(), CONV);
+  }
+
   public void test_of() {
     IborIborSwapTemplate test = IborIborSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
     assertEquals(test.getPeriodToStart(), Period.ofMonths(3));

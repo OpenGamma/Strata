@@ -80,10 +80,6 @@ public final class IndexRateKey
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public Class<Double> getMarketDataType() {
-    return Double.class;
-  }
 
   @Override
   public StandardId getStandardId() {

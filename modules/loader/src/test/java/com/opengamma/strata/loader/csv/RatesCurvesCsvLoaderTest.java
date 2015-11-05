@@ -5,6 +5,9 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 import static org.testng.Assert.assertEquals;
@@ -32,6 +35,9 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.RateCurveId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
+import com.opengamma.strata.market.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.value.ValueType;
 
 /**
  * Test {@link RatesCurvesCsvLoader}.
@@ -58,6 +64,8 @@ public class RatesCurvesCsvLoaderTest {
       "classpath:com/opengamma/strata/loader/csv/settings-invalid-missing-column.csv";
   private static final String SETTINGS_INVALID_VALUE_TYPE =
       "classpath:com/opengamma/strata/loader/csv/settings-invalid-value-type.csv";
+  private static final String SETTINGS_EMPTY =
+      "classpath:com/opengamma/strata/loader/csv/settings-empty.csv";
 
   private static final String GROUPS_INVALID_CURVE_TYPE =
       "classpath:com/opengamma/strata/loader/csv/groups-invalid-curve-type.csv";
@@ -134,12 +142,14 @@ public class RatesCurvesCsvLoaderTest {
     testGroups("classpath:invalid");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Unsupported curve type: Inflation")
+  @Test(expectedExceptions = IllegalArgumentException.class,
+      expectedExceptionsMessageRegExp = "Unsupported curve type: Inflation")
   public void test_invalid_groups_curve_type_file() {
     testGroups(GROUPS_INVALID_CURVE_TYPE);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "No index found for reference: LIBOR")
+  @Test(expectedExceptions = IllegalArgumentException.class,
+      expectedExceptionsMessageRegExp = "No index found for reference: LIBOR")
   public void test_invalid_groups_reference_index_file() {
     testGroups(GROUPS_INVALID_REFERENCE_INDEX);
   }
@@ -166,7 +176,23 @@ public class RatesCurvesCsvLoaderTest {
     assertUsdDisc(curve);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Multiple entries with same key: .*")
+  @Test(expectedExceptions = IllegalArgumentException.class,
+      expectedExceptionsMessageRegExp = "Missing settings for curve: .*")
+  public void test_noSettings() {
+    Map<RateCurveId, Curve> curves = RatesCurvesCsvLoader.load(
+        CURVE_DATE,
+        ResourceLocator.of(GROUPS_1),
+        ResourceLocator.of(SETTINGS_EMPTY),
+        ImmutableList.of(ResourceLocator.of(CURVES_1)));
+
+    assertEquals(curves.size(), 1);
+
+    Curve curve = Iterables.getOnlyElement(curves.values());
+    assertUsdDisc(curve);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class,
+      expectedExceptionsMessageRegExp = "Multiple entries with same key: .*")
   public void test_single_curve_multiple_Files() {
     RatesCurvesCsvLoader.load(
         CURVE_DATE,
@@ -205,34 +231,34 @@ public class RatesCurvesCsvLoaderTest {
         ResourceLocator.of(SETTINGS_1),
         ImmutableList.of(ResourceLocator.of(CURVES_INVALID_DUPLICATE_POINTS)));
   }
-  
+
   //-------------------------------------------------------------------------
   public void test_load_all_curves() {
     Map<LocalDate, Map<RateCurveId, Curve>> allCurves = RatesCurvesCsvLoader.loadAllDates(
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
         ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2), ResourceLocator.of(CURVES_3)));
-    
+
     assertEquals(allCurves.size(), 2);
     assertCurves(allCurves.get(CURVE_DATE));
-    
+
     Map<RateCurveId, Curve> curves3 = allCurves.get(CURVE_DATE_CURVES_3);
     assertEquals(curves3.size(), 2);
-    
+
     // All curve points are set to 0 in test data to ensure these are really different curve instances
     DiscountCurveId discountCurveId = DiscountCurveId.of(Currency.USD, CurveGroupName.of("Default"));
     Curve usdDisc = curves3.get(discountCurveId);
     InterpolatedNodalCurve usdDiscNodal = (InterpolatedNodalCurve) usdDisc;
     assertEquals(usdDiscNodal.getMetadata().getCurveName(), CurveName.of("USD-Disc"));
     assertTrue(usdDiscNodal.getYValues().equalZeroWithTolerance(0d));
-    
+
     RateIndexCurveId libor3mCurveId = RateIndexCurveId.of(IborIndices.USD_LIBOR_3M, CurveGroupName.of("Default"));
     Curve usd3ml = curves3.get(libor3mCurveId);
     InterpolatedNodalCurve usd3mlNodal = (InterpolatedNodalCurve) usd3ml;
     assertEquals(usd3mlNodal.getMetadata().getCurveName(), CurveName.of("USD-3ML"));
     assertTrue(usd3mlNodal.getYValues().equalZeroWithTolerance(0d));
   }
-  
+
   public void test_load_curves_date_filtering() {
     Map<RateCurveId, Curve> curves = RatesCurvesCsvLoader.load(
         CURVE_DATE,
@@ -247,7 +273,7 @@ public class RatesCurvesCsvLoaderTest {
   //-------------------------------------------------------------------------
   private void assertCurves(Map<RateCurveId, Curve> curves) {
     assertNotNull(curves);
-    
+
     DiscountCurveId discountCurveId = DiscountCurveId.of(Currency.USD, CurveGroupName.of("Default"));
     Curve usdDisc = curves.get(discountCurveId);
     assertUsdDisc(usdDisc);
@@ -256,7 +282,7 @@ public class RatesCurvesCsvLoaderTest {
     Curve usd3ml = curves.get(libor3mCurveId);
     assertUsd3ml(usd3ml);
   }
-  
+
   private void assertUsdDisc(Curve curve) {
     assertTrue(curve instanceof InterpolatedNodalCurve);
     InterpolatedNodalCurve nodalCurve = (InterpolatedNodalCurve) curve;
@@ -333,6 +359,24 @@ public class RatesCurvesCsvLoaderTest {
 
   private double getYearFraction(LocalDate fromDate, LocalDate toDate) {
     return DayCounts.ACT_ACT_ISDA.yearFraction(fromDate, toDate);
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverPrivateConstructor(RatesCurvesCsvLoader.class);
+    LoadedCurveKey.meta();
+    coverImmutableBean(LoadedCurveKey.of(CURVE_DATE, CurveName.of("Test")));
+    LoadedCurveNode.meta();
+    coverImmutableBean(LoadedCurveNode.of(CURVE_DATE, 1d, "Test"));
+    LoadedCurveSettings.meta();
+    LoadedCurveSettings settings1 = LoadedCurveSettings.of(
+        CurveName.of("Test"), ValueType.ZERO_RATE, DayCounts.ACT_365F,
+        CurveInterpolators.LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
+    LoadedCurveSettings settings2 = LoadedCurveSettings.of(
+        CurveName.of("Test2"), ValueType.DISCOUNT_FACTOR, DayCounts.ACT_ACT_ISDA,
+        CurveInterpolators.LOG_LINEAR, CurveExtrapolators.LINEAR, CurveExtrapolators.LINEAR);
+    coverImmutableBean(settings1);
+    coverBeanEquals(settings1, settings2);
   }
 
 }

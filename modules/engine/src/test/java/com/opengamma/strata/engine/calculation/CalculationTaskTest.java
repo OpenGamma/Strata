@@ -8,7 +8,6 @@ package com.opengamma.strata.engine.calculation;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,10 +32,10 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.calculation.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.calculation.function.result.CurrencyValuesArray;
 import com.opengamma.strata.engine.config.ReportingRules;
+import com.opengamma.strata.engine.marketdata.CalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.FunctionRequirements;
-import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.TestId;
 import com.opengamma.strata.engine.marketdata.TestKey;
 import com.opengamma.strata.engine.marketdata.TestMapping;
@@ -87,14 +86,16 @@ public class CalculationTaskTest {
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
-    ScenarioCalculationEnvironment marketData = ScenarioCalculationEnvironment.builder(3, date(2011, 3, 8))
-        .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)
+    CalculationEnvironment marketData = CalculationEnvironment.builder()
+        .valuationDate(date(2011, 3, 8))
+        .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list);
     CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
 
     double[] expectedValues = {1 * 1.61, 2 * 1.62, 3 * 1.63};
     CurrencyValuesArray expectedArray = CurrencyValuesArray.of(Currency.USD, expectedValues);
+
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
     assertThat(result).hasValue(expectedArray);
@@ -110,14 +111,16 @@ public class CalculationTaskTest {
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
-    ScenarioCalculationEnvironment marketData = ScenarioCalculationEnvironment.builder(3, date(2011, 3, 8))
-        .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)
+    CalculationEnvironment marketData = CalculationEnvironment.builder()
+        .valuationDate(date(2011, 3, 8))
+        .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, Currency.USD);
     CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, ReportingRules.empty());
 
     double[] expectedValues = {1 * 1.61, 2 * 1.62, 3 * 1.63};
     CurrencyValuesArray expectedArray = CurrencyValuesArray.of(Currency.USD, expectedValues);
+
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
     assertThat(result).hasValue(expectedArray);
@@ -129,7 +132,9 @@ public class CalculationTaskTest {
   public void convertResultCurrencyFailure() {
     ConvertibleFunction fn = ConvertibleFunction.of(() -> { throw new RuntimeException("This is a failure"); });
     CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
-    CalculationResult calculationResult = task.execute(ScenarioCalculationEnvironment.builder(1, date(2011, 3, 8)).build());
+    CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+
+    CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
     assertThat(result).hasFailureMessageMatching("This is a failure");
   }
@@ -140,7 +145,9 @@ public class CalculationTaskTest {
   public void convertResultCurrencyNotConvertible() {
     TestFunction fn = new TestFunction();
     CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
-    CalculationResult calculationResult = task.execute(ScenarioCalculationEnvironment.builder(1, date(2011, 3, 8)).build());
+    CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+
+    CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
     assertThat(result).hasValue("bar");
   }
@@ -154,8 +161,9 @@ public class CalculationTaskTest {
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
-    ScenarioCalculationEnvironment marketData = ScenarioCalculationEnvironment.builder(3, date(2011, 3, 8))
-        .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)
+    CalculationEnvironment marketData = CalculationEnvironment.builder()
+        .valuationDate(date(2011, 3, 8))
+        .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list);
     ReportingRules reportingRules = ReportingRules.empty();
@@ -172,7 +180,9 @@ public class CalculationTaskTest {
   public void nonConvertibleResultReturnedWhenNoReportingCurrency() {
     TestFunction fn = new TestFunction();
     CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, ReportingRules.empty());
-    CalculationResult calculationResult = task.execute(ScenarioCalculationEnvironment.builder(1, date(2011, 3, 8)).build());
+    CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+
+    CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
     assertThat(result).hasValue("bar");
   }
@@ -184,7 +194,7 @@ public class CalculationTaskTest {
     double[] values = {1, 2, 3};
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
     // Market data doesn't include FX rates, conversion to USD will fail
-    ScenarioCalculationEnvironment marketData = ScenarioCalculationEnvironment.builder(3, date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list);
     CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
 
@@ -199,7 +209,7 @@ public class CalculationTaskTest {
   public void execute() {
     SupplierFunction<String> fn = SupplierFunction.of(() -> "foo");
     CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
-    ScenarioCalculationEnvironment marketData = ScenarioCalculationEnvironment.builder(3, date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
@@ -210,9 +220,12 @@ public class CalculationTaskTest {
    * Tests that executing a function that throws an exception wraps the exception in a failure result.
    */
   public void executeException() {
-    SupplierFunction<String> fn = SupplierFunction.of(() -> { throw new IllegalArgumentException("foo"); });
+    SupplierFunction<String> fn = SupplierFunction.of(() -> {
+      throw new IllegalArgumentException("foo");
+    });
     CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
-    ScenarioCalculationEnvironment marketData = ScenarioCalculationEnvironment.builder(3, date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = CalculationEnvironment.builder()
+        .valuationDate(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
@@ -225,7 +238,7 @@ public class CalculationTaskTest {
   public void executeSuccessResultValue() {
     SupplierFunction<Result<String>> fn = SupplierFunction.of(() -> Result.success("foo"));
     CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
-    ScenarioCalculationEnvironment marketData = ScenarioCalculationEnvironment.builder(3, date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
@@ -236,9 +249,10 @@ public class CalculationTaskTest {
    * Tests that executing a function that returns a failure result returns the underlying result without wrapping it.
    */
   public void executeFailureResultValue() {
-    SupplierFunction<Result<String>> fn = SupplierFunction.of(() -> Result.failure(FailureReason.NOT_APPLICABLE, "bar"));
+    SupplierFunction<Result<String>> fn =
+        SupplierFunction.of(() -> Result.failure(FailureReason.NOT_APPLICABLE, "bar"));
     CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
-    ScenarioCalculationEnvironment marketData = ScenarioCalculationEnvironment.builder(3, date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
@@ -260,7 +274,9 @@ public class CalculationTaskTest {
 
   //--------------------------------------------------------------------------------------------------------------------
 
-  private static class TestTarget implements CalculationTarget { }
+  private static class TestTarget implements CalculationTarget {
+
+  }
 
   /**
    * Function that returns a value that is not currency convertible.

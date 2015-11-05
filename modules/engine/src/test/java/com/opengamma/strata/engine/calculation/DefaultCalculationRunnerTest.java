@@ -7,7 +7,6 @@ package com.opengamma.strata.engine.calculation;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -43,7 +42,6 @@ import com.opengamma.strata.engine.marketdata.CalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.FunctionRequirements;
-import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.TestKey;
 import com.opengamma.strata.engine.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
@@ -54,10 +52,9 @@ public class DefaultCalculationRunnerTest {
   public void createCalculationConfig() {
     Measure measure = Measure.of("foo");
 
-    MarketDataMappings marketDataMappings =
-        DefaultMarketDataMappings.builder()
-            .marketDataFeed(MarketDataFeed.of("MarketDataFeed"))
-            .build();
+    MarketDataMappings marketDataMappings = DefaultMarketDataMappings.builder()
+        .marketDataFeed(MarketDataFeed.of("MarketDataFeed"))
+        .build();
 
     MarketDataRules marketDataRules = MarketDataRules.of(MarketDataRule.of(marketDataMappings, TestTarget.class));
 
@@ -67,11 +64,10 @@ public class DefaultCalculationRunnerTest {
             .addFunction(measure, TestFunction.class)
             .build();
 
-    PricingRule<TestTarget> pricingRule =
-        PricingRule.builder(TestTarget.class)
-            .functionGroup(functionGroup)
-            .addMeasures(measure)
-            .build();
+    PricingRule<TestTarget> pricingRule = PricingRule.builder(TestTarget.class)
+        .functionGroup(functionGroup)
+        .addMeasures(measure)
+        .build();
 
     DefaultPricingRules pricingRules = DefaultPricingRules.of(pricingRule);
 
@@ -109,17 +105,15 @@ public class DefaultCalculationRunnerTest {
     MarketDataRules marketDataRules = MarketDataRules.empty();
     Measure measure = Measure.of("foo");
 
-    DefaultFunctionGroup<TestTarget> functionGroup =
-        DefaultFunctionGroup.builder(TestTarget.class)
-            .name("DefaultGroup")
-            .addFunction(measure, TestFunction.class)
-            .build();
+    DefaultFunctionGroup<TestTarget> functionGroup = DefaultFunctionGroup.builder(TestTarget.class)
+        .name("DefaultGroup")
+        .addFunction(measure, TestFunction.class)
+        .build();
 
-    PricingRule<TestTarget> pricingRule =
-        PricingRule.builder(TestTarget.class)
-            .functionGroup(functionGroup)
-            .addMeasures(measure)
-            .build();
+    PricingRule<TestTarget> pricingRule = PricingRule.builder(TestTarget.class)
+        .functionGroup(functionGroup)
+        .addMeasures(measure)
+        .build();
 
     DefaultPricingRules pricingRules = DefaultPricingRules.of(pricingRule);
 
@@ -164,14 +158,14 @@ public class DefaultCalculationRunnerTest {
     DefaultCalculationRunner runner = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
     LocalDate valuationDate = date(2011, 3, 8);
 
-    Results results1 = runner.calculate(tasks, CalculationEnvironment.empty(valuationDate));
+    CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+    Results results1 = runner.calculateSingleScenario(tasks, marketData);
     Result<?> result1 = results1.get(0, 0);
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
-    ScenarioCalculationEnvironment
-        scenarioCalculationEnvironment = ScenarioCalculationEnvironment.builder(2, valuationDate).build();
-    Results results2 = runner.calculate(tasks, scenarioCalculationEnvironment);
+    CalculationEnvironment scenarioMarketData = CalculationEnvironment.builder().valuationDate(valuationDate).build();
+    Results results2 = runner.calculateMultipleScenarios(tasks, scenarioMarketData);
     Result<?> result2 = results2.get(0, 0);
     // Check the result contains the scenario result wrapping the string
     assertThat(result2).hasValue(scenarioResult);
@@ -191,15 +185,15 @@ public class DefaultCalculationRunnerTest {
     LocalDate valuationDate = date(2011, 3, 8);
     Listener listener = new Listener();
 
-    runner.calculateAsync(tasks, CalculationEnvironment.empty(valuationDate), listener);
+    CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+    runner.calculateSingleScenarioAsync(tasks, marketData, listener);
     CalculationResult calculationResult1 = listener.result;
     Result<?> result1 = calculationResult1.getResult();
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
-    ScenarioCalculationEnvironment
-        scenarioCalculationEnvironment = ScenarioCalculationEnvironment.builder(2, valuationDate).build();
-    runner.calculateAsync(tasks, scenarioCalculationEnvironment, listener);
+    CalculationEnvironment scenarioMarketData = CalculationEnvironment.builder().valuationDate(valuationDate).build();
+    runner.calculateMultipleScenariosAsync(tasks, scenarioMarketData, listener);
     CalculationResult calculationResult2 = listener.result;
     Result<?> result2 = calculationResult2.getResult();
     // Check the result contains the scenario result wrapping the string

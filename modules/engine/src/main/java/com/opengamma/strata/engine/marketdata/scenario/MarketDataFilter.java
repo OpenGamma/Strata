@@ -6,12 +6,11 @@
 package com.opengamma.strata.engine.marketdata.scenario;
 
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.Perturbation;
 
 /**
  * Encapsulates a rule or set of rules to decide whether a perturbation applies to a piece of market data.
  * <p>
- * A {@link Perturbation} encapsulates a specific change to a piece of market data, such as a parallel shift.
+ * A {@link ScenarioPerturbation} encapsulates a specific change to a piece of market data, such as a parallel shift.
  * An implementation of this filter interface defines when the perturbation should be used.
  * For example, a filter could apply to all yield curves whose currency is USD, or quoted prices
  * of equity securities in the energy sector.
@@ -40,6 +39,6 @@ public interface MarketDataFilter<T, I extends MarketDataId<T>> {
    * @param marketData  the market data value
    * @return true if the filter matches
    */
-  public abstract boolean matches(I marketDataId, T marketData);
+  public abstract boolean matches(I marketDataId, MarketDataBox<T> marketData);
 
 }

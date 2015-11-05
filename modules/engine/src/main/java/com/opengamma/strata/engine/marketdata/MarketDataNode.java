@@ -5,14 +5,12 @@
  */
 package com.opengamma.strata.engine.marketdata;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
@@ -175,41 +173,12 @@ class MarketDataNode {
   }
 
   /**
-   * Returns a map of market data ID to node in the tree below this node.
-   *
-   * @return a map of market data ID to node in the tree below this node
-   */
-  Map<MarketDataId<?>, MarketDataNode> nodeMap() {
-    // Use a hash map to allow values to be overwritten. ImmutableMap.Builder doesn't allow it.
-    Map<MarketDataId<?>, MarketDataNode> mutableNodeMap = new HashMap<>();
-    nodeMap(mutableNodeMap);
-    return ImmutableMap.copyOf(mutableNodeMap);
-  }
-
-  private void nodeMap(Map<MarketDataId<?>, MarketDataNode> builder) {
-    // The root node has a null ID
-    if (id != null) {
-      builder.put(id, this);
-    }
-    dependencies.stream().forEach(child -> child.nodeMap(builder));
-  }
-
-  /**
    * Returns the ID of the market data value represented by this node.
    *
    * @return the ID of the market data value represented by this node
    */
   public MarketDataId<?> getId() {
     return id;
-  }
-
-  /**
-   * Returns nodes representing the market data required to build this node's value.
-   *
-   * @return nodes representing the market data required to build this node's value
-   */
-  public List<MarketDataNode> getDependencies() {
-    return dependencies;
   }
 
   /**

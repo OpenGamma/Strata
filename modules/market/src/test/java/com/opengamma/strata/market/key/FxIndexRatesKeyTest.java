@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.market.key;
 
-import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_GBP;
-import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
+import static com.opengamma.strata.basics.index.FxIndices.EUR_GBP_ECB;
+import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -25,28 +25,28 @@ public class FxIndexRatesKeyTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    FxIndexRatesKey test = FxIndexRatesKey.of(ECB_EUR_GBP);
-    assertEquals(test.getIndex(), ECB_EUR_GBP);
+    FxIndexRatesKey test = FxIndexRatesKey.of(EUR_GBP_ECB);
+    assertEquals(test.getIndex(), EUR_GBP_ECB);
     assertEquals(test.getMarketDataType(), FxIndexRates.class);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    FxIndexRatesKey test = FxIndexRatesKey.of(ECB_EUR_GBP);
+    FxIndexRatesKey test = FxIndexRatesKey.of(EUR_GBP_ECB);
     coverImmutableBean(test);
-    FxIndexRatesKey test2 = FxIndexRatesKey.of(WM_GBP_USD);
+    FxIndexRatesKey test2 = FxIndexRatesKey.of(GBP_USD_WM);
     coverBeanEquals(test, test2);
   }
 
   public void coverage_builder() {
     Meta meta = FxIndexRatesKey.meta();
-    FxIndexRatesKey test1 = meta.builder().setString(meta.index(), "ECB-EUR-GBP").build();
-    FxIndexRatesKey test2 = meta.builder().setString(meta.index().name(), "WM-GBP-USD").build();
+    FxIndexRatesKey test1 = meta.builder().setString(meta.index(), "EUR/GBP-ECB").build();
+    FxIndexRatesKey test2 = meta.builder().setString(meta.index().name(), "GBP/USD-WM").build();
     coverBeanEquals(test1, test2);
   }
 
   public void test_serialization() {
-    FxIndexRatesKey test = FxIndexRatesKey.of(ECB_EUR_GBP);
+    FxIndexRatesKey test = FxIndexRatesKey.of(EUR_GBP_ECB);
     assertSerialization(test);
   }
 

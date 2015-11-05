@@ -19,7 +19,6 @@ import com.opengamma.strata.engine.config.CalculationTasksConfig;
 import com.opengamma.strata.engine.marketdata.CalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.MarketDataFactory;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
-import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.scenario.ScenarioDefinition;
 
 /**
@@ -100,7 +99,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
         calculationRules.getMarketDataConfig());
 
     // perform the calculations
-    return calculationRunner.calculate(tasks, calculationEnvironment);
+    return calculationRunner.calculateSingleScenario(tasks, calculationEnvironment);
   }
 
   @Override
@@ -121,14 +120,14 @@ public final class DefaultCalculationEngine implements CalculationEngine {
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
     // build any required scenarios from the base market data
-    ScenarioCalculationEnvironment scenarioMarketData = marketDataFactory.buildScenarioCalculationEnvironment(
+    CalculationEnvironment scenarioMarketData = marketDataFactory.buildCalculationEnvironment(
         tasks.getRequirements(),
         suppliedMarketData,
-        scenarioDefinition,
-        calculationRules.getMarketDataConfig());
+        calculationRules.getMarketDataConfig(),
+        scenarioDefinition);
 
     // perform the calculations
-    return calculationRunner.calculate(tasks, scenarioMarketData);
+    return calculationRunner.calculateMultipleScenarios(tasks, scenarioMarketData);
   }
 
   /**

@@ -6,15 +6,14 @@
 package com.opengamma.strata.function.marketdata.curve;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
 
 /**
  * Test implementation of {@link CalculationMarketData} backed by a map.
@@ -22,7 +21,7 @@ import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 public final class MarketDataMap
     implements CalculationMarketData, ObservableValues {
 
-  private final LocalDate valuationDate;
+  private final MarketDataBox<LocalDate> valuationDate;
 
   private final Map<MarketDataKey<?>, Object> marketData;
 
@@ -33,14 +32,14 @@ public final class MarketDataMap
       Map<MarketDataKey<?>, Object> marketData,
       Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap) {
 
-    this.valuationDate = valuationDate;
+    this.valuationDate = MarketDataBox.ofSingleValue(valuationDate);
     this.marketData = marketData;
     this.timeSeriesMap = timeSeriesMap;
   }
 
   @Override
-  public List<LocalDate> getValuationDates() {
-    return ImmutableList.of(valuationDate);
+  public MarketDataBox<LocalDate> getValuationDate() {
+    return valuationDate;
   }
 
   @Override
@@ -50,11 +49,11 @@ public final class MarketDataMap
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> List<T> getValues(MarketDataKey<T> key) {
+  public <T> MarketDataBox<T> getValue(MarketDataKey<T> key) {
     T value = (T) marketData.get(key);
 
     if (value != null) {
-      return ImmutableList.of(value);
+      return MarketDataBox.ofSingleValue(value);
     } else {
       throw new IllegalArgumentException("No market data for " + key);
     }
@@ -69,11 +68,6 @@ public final class MarketDataMap
     } else {
       throw new IllegalArgumentException("No time series for " + key);
     }
-  }
-
-  @Override
-  public <T, K extends MarketDataKey<T>> T getGlobalValue(K key) {
-    throw new UnsupportedOperationException("getGlobalValue not implemented");
   }
 
   @Override

@@ -8,7 +8,9 @@ package com.opengamma.strata.market.curve.definition;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1W;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -59,6 +61,8 @@ public class CurveGroupDefinitionTest {
   private static final CurveGroupEntry ENTRY1 = CurveGroupEntry.builder()
       .curveDefinition(CURVE_DEFN)
       .discountCurrencies(GBP)
+      .iborIndices(GBP_LIBOR_1W)
+      .overnightIndices(GBP_SONIA)
       .build();
   private static final CurveGroupEntry ENTRY2 = CurveGroupEntry.builder()
       .curveDefinition(CURVE_CONFIG2)
@@ -74,6 +78,8 @@ public class CurveGroupDefinitionTest {
     CurveGroupDefinition test = CurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addDiscountCurve(CURVE_DEFN, GBP)
+        .addForwardCurve(CURVE_DEFN, GBP_SONIA)
+        .addForwardCurve(CURVE_DEFN, GBP_LIBOR_1W)
         .addForwardCurve(CURVE_CONFIG2, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
     assertEquals(test.getName(), CurveGroupName.of("Test"));

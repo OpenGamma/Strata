@@ -8,7 +8,7 @@ package com.opengamma.strata.basics.index;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.strata.basics.index.StandardFxIndices.ECB_EUR_CHF;
+import static com.opengamma.strata.basics.index.StandardFxIndices.EUR_CHF_ECB;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -36,14 +36,14 @@ public class FxIndexTest {
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-        {FxIndices.ECB_EUR_CHF, "ECB-EUR-CHF"},
-        {FxIndices.ECB_EUR_GBP, "ECB-EUR-GBP"},
-        {FxIndices.ECB_EUR_JPY, "ECB-EUR-JPY"},
-        {FxIndices.ECB_EUR_USD, "ECB-EUR-USD"},
-        {FxIndices.WM_USD_CHF, "WM-USD-CHF"},
-        {FxIndices.WM_EUR_USD, "WM-EUR-USD"},
-        {FxIndices.WM_GBP_USD, "WM-GBP-USD"},
-        {FxIndices.WM_USD_JPY, "WM-USD-JPY"},
+        {FxIndices.EUR_CHF_ECB, "EUR/CHF-ECB"},
+        {FxIndices.EUR_GBP_ECB, "EUR/GBP-ECB"},
+        {FxIndices.EUR_JPY_ECB, "EUR/JPY-ECB"},
+        {FxIndices.EUR_USD_ECB, "EUR/USD-ECB"},
+        {FxIndices.USD_CHF_WM, "USD/CHF-WM"},
+        {FxIndices.EUR_USD_WM, "EUR/USD-WM"},
+        {FxIndices.GBP_USD_WM, "GBP/USD-WM"},
+        {FxIndices.USD_JPY_WM, "USD/JPY-WM"},
     };
   }
 
@@ -78,7 +78,7 @@ public class FxIndexTest {
 
   //-------------------------------------------------------------------------
   public void test_ecb_eur_gbp_dates() {
-    FxIndex test = FxIndices.ECB_EUR_GBP;
+    FxIndex test = FxIndices.EUR_GBP_ECB;
     assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 13)), date(2014, 10, 15));
     assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 15)), date(2014, 10, 13));
     // weekend
@@ -129,15 +129,15 @@ public class FxIndexTest {
   public void coverage() {
     coverPrivateConstructor(FxIndices.class);
     coverPrivateConstructor(StandardFxIndices.class);
-    coverImmutableBean((ImmutableBean) ECB_EUR_CHF);
+    coverImmutableBean((ImmutableBean) EUR_CHF_ECB);
   }
 
   public void test_jodaConvert() {
-    assertJodaConvert(FxIndex.class, ECB_EUR_CHF);
+    assertJodaConvert(FxIndex.class, EUR_CHF_ECB);
   }
 
   public void test_serialization() {
-    assertSerialization(ECB_EUR_CHF);
+    assertSerialization(EUR_CHF_ECB);
   }
 
 }

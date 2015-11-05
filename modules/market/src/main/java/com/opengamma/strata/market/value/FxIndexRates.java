@@ -18,7 +18,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 /**
  * Provides access to rates for an FX index.
  * <p>
- * This provides historic and forward rates for a single {@link FxIndex}, such as 'ECB-EUR-GBP'.
+ * This provides historic and forward rates for a single {@link FxIndex}, such as 'EUR/GBP-ECB'.
  * An FX rate is the conversion rate between two currencies. An FX index is the rate
  * as published by a specific organization, typically at a well-known time-of-day.
  */

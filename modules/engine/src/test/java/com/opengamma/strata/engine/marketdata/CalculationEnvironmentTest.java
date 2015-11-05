@@ -25,7 +25,7 @@ public class CalculationEnvironmentTest {
    * Tests the special handling of {@link NoMatchingRuleId}
    */
   public void handleNoMatchingRulesId() {
-    CalculationEnvironment marketData = CalculationEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
     NoMatchingRuleId id = NoMatchingRuleId.of(TestObservableKey.of("1"));
     String msgRegex = "No market data rules were available to build the market data for.*";
     assertThrows(() -> marketData.getValue(id), IllegalArgumentException.class, msgRegex);
@@ -35,7 +35,7 @@ public class CalculationEnvironmentTest {
    * Tests the special handling of {@link MissingMappingId}
    */
   public void handleMissingMappingsId() {
-    CalculationEnvironment marketData = CalculationEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
     MissingMappingId id = MissingMappingId.of(TestObservableKey.of("1"));
     String msgRegex = "No market data mapping found for.*";
     assertThrows(() -> marketData.getValue(id), IllegalArgumentException.class, msgRegex);
@@ -48,7 +48,8 @@ public class CalculationEnvironmentTest {
     TestObservableId id = TestObservableId.of("1");
     String failureMessage = "Something went wrong";
     CalculationEnvironment marketData = CalculationEnvironment
-        .builder(date(2011, 3, 8))
+        .builder()
+        .valuationDate(date(2011, 3, 8))
         .addResult(id, Result.failure(FailureReason.ERROR, failureMessage))
         .build();
 
