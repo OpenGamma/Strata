@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.impl.rate.model;
 
 import java.util.Arrays;
@@ -295,10 +300,8 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
     double denominator = 0.0;
     for (int loopperiod = 0; loopperiod < sLen; loopperiod++) {
       denominator += data.getVolatility().get(loopperiod + indexStart - 1) *
-          data.getVolatility().get(loopperiod + indexStart - 1)
-          *
-          (Math.exp(2 * data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(2 * data.getMeanReversion() *
-              s[loopperiod]));
+          data.getVolatility().get(loopperiod + indexStart - 1) *
+          (Math.exp(2 * data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(2 * data.getMeanReversion() * s[loopperiod]));
     }
     return Math.sqrt(denominator / numerator);
   }
@@ -319,7 +322,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
   public double lambda(DoubleArray discountedCashFlow, DoubleArray alpha2, DoubleArray hwH) {
     final Function1D<Double, Double> swapValue = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(final Double x) {
+      public Double evaluate(Double x) {
         double value = 0.0;
         for (int loopcf = 0; loopcf < alpha2.size(); loopcf++) {
           value += discountedCashFlow.get(loopcf) * Math.exp(-0.5 * alpha2.get(loopcf) - hwH.get(loopcf) * x);
@@ -357,43 +360,6 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
       }
     }
     return DoubleMatrix.copyOf(result);
-  }
-
-  /**
-   * Computes the expiry time dependent part of the volatility.
-   * 
-   * @param hwParameters  the model parameters
-   * @param theta0  the start expiry time
-   * @param theta1  the end expiry time
-   * @return the volatility
-   */
-  public double gamma(HullWhiteOneFactorPiecewiseConstantParameters hwParameters, double theta0, double theta1) {
-    double a = hwParameters.getMeanReversion();
-    double[] sigma = hwParameters.getVolatility().toArray();
-    int indexStart = 1; // Period in which the time startExpiry is; volatilityTime.get(i-1) <= startExpiry < volatilityTime.get(i);
-    while (theta0 > hwParameters.getVolatilityTime().get(indexStart)) {
-      indexStart++;
-    }
-    int indexEnd = indexStart; // Period in which the time endExpiry is; volatilityTime.get(i-1) <= endExpiry < volatilityTime.get(i);
-    while (theta1 > hwParameters.getVolatilityTime().get(indexEnd)) {
-      indexEnd++;
-    }
-    int sLen = indexEnd - indexStart + 2;
-    double[] s = new double[sLen];
-    s[0] = theta0;
-    System.arraycopy(hwParameters.getVolatilityTime().toArray(), indexStart, s, 1, sLen - 2);
-    s[sLen - 1] = theta1;
-
-    double gamma = 0.0;
-    double[] exp2as = new double[sLen];
-    for (int loopindex = 0; loopindex < sLen; loopindex++) {
-      exp2as[loopindex] = Math.exp(2 * a * s[loopindex]);
-    }
-    for (int loopindex = 0; loopindex < sLen - 1; loopindex++) {
-      gamma += sigma[indexStart - 1 + loopindex] * sigma[indexStart - 1 + loopindex] *
-          (exp2as[loopindex + 1] - exp2as[loopindex]);
-    }
-    return gamma;
   }
 
   //-------------------------------------------------------------------------
@@ -724,13 +690,13 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
     double g3 = g * g2;
     double g4 = g * g3;
     // Backward sweep
-    double dx2Bar = 1.0;
-    double gBar = (df2 / g2 - 2 * f * dg2 / g3 - 4 * df * dg / g3 + 6 * dg * dg * f / g4) * dx2Bar;
-    double dgBar = (2 * df / g2 - 4 * f * dg / g3) * dx2Bar;
+    double dx2Bar = 1d;
+    double gBar = (df2 / g2 - 2d * f * dg2 / g3 - 4d * df * dg / g3 + 6d * dg * dg * f / g4) * dx2Bar;
+    double dgBar = (2d * df / g2 - 4d * f * dg / g3) * dx2Bar;
     double dg2Bar = f / g2 * dx2Bar;
-    double fBar = (dg2 / g2 - 2 * dg * dg / g3) * dx2Bar;
-    double dfBar = 2 * dg / g2 * dx2Bar;
-    double df2Bar = -1.0 / g * dx2Bar;
+    double fBar = (dg2 / g2 - 2d * dg * dg / g3) * dx2Bar;
+    double dfBar = 2d * dg / g2 * dx2Bar;
+    double df2Bar = -dx2Bar / g;
 
     double[] discountedCashFlowFixedBar = new double[sizeFixed];
     double[] termFixedBar = new double[sizeFixed];
@@ -738,8 +704,8 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
       termFixedBar[loopcf] = gBar - alphaFixed.get(loopcf) * dgBar + alphaFixed.get(loopcf) * alphaFixed.get(loopcf) * dg2Bar;
       discountedCashFlowFixedBar[loopcf] = expFixed[loopcf] * termFixedBar[loopcf];
     }
-    final double[] discountedCashFlowIborBar = new double[sizeIbor];
-    final double[] termIborBar = new double[sizeIbor];
+    double[] discountedCashFlowIborBar = new double[sizeIbor];
+    double[] termIborBar = new double[sizeIbor];
     for (int loopcf = 0; loopcf < sizeIbor; loopcf++) {
       termIborBar[loopcf] = fBar - alphaIbor.get(loopcf) * dfBar + alphaIbor.get(loopcf) * alphaIbor.get(loopcf) * df2Bar;
       discountedCashFlowIborBar[loopcf] = expIbor[loopcf] * termIborBar[loopcf];
@@ -798,27 +764,27 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
     double g3 = g * g2;
     double g4 = g * g3;
     // Backward sweep
-    double dx2Bar = 1.0;
-    double gBar = (df2 / g2 - 2 * f * dg2 / g3 - 4 * df * dg / g3 + 6 * dg * dg * f / g4) * dx2Bar;
-    double dgBar = (2 * df / g2 - 4 * f * dg / g3) * dx2Bar;
+    double dx2Bar = 1d;
+    double gBar = (df2 / g2 - 2d * f * dg2 / g3 - 4d * df * dg / g3 + 6d * dg * dg * f / g4) * dx2Bar;
+    double dgBar = (2d * df / g2 - 4d * f * dg / g3) * dx2Bar;
     double dg2Bar = f / g2 * dx2Bar;
-    double fBar = (dg2 / g2 - 2 * dg * dg / g3) * dx2Bar;
-    double dfBar = 2 * dg / g2 * dx2Bar;
-    double df2Bar = -1.0 / g * dx2Bar;
+    double fBar = (dg2 / g2 - 2d * dg * dg / g3) * dx2Bar;
+    double dfBar = 2d * dg / g2 * dx2Bar;
+    double df2Bar = -dx2Bar / g;
 
     double[] alphaFixedBar = new double[sizeFixed];
     double[] termFixedBar = new double[sizeFixed];
     for (int loopcf = 0; loopcf < sizeFixed; loopcf++) {
       termFixedBar[loopcf] = gBar - alphaFixed.get(loopcf) * dgBar + alphaFixed.get(loopcf) * alphaFixed.get(loopcf) * dg2Bar;
       alphaFixedBar[loopcf] = termFixed[loopcf] * (-x - alphaFixed.get(loopcf)) * termFixedBar[loopcf] 
-          - termFixed[loopcf] * dgBar + 2 * alphaFixed.get(loopcf) * termFixed[loopcf] * dg2Bar;
+          - termFixed[loopcf] * dgBar + 2d * alphaFixed.get(loopcf) * termFixed[loopcf] * dg2Bar;
     }
     double[] alphaIborBar = new double[sizeIbor];
     double[] termIborBar = new double[sizeIbor];
     for (int loopcf = 0; loopcf < sizeIbor; loopcf++) {
       termIborBar[loopcf] = fBar - alphaIbor.get(loopcf) * dfBar + alphaIbor.get(loopcf) * alphaIbor.get(loopcf) * df2Bar;
       alphaIborBar[loopcf] = termIbor[loopcf] * (-x - alphaIbor.get(loopcf)) * termIborBar[loopcf] - termIbor[loopcf] *
-          dfBar + 2 * alphaIbor.get(loopcf) * termIbor[loopcf] * df2Bar;
+          dfBar + 2d * alphaIbor.get(loopcf) * termIbor[loopcf] * df2Bar;
     }
     return Pair.of(DoubleArray.copyOf(alphaFixedBar), DoubleArray.copyOf(alphaIborBar));
   }

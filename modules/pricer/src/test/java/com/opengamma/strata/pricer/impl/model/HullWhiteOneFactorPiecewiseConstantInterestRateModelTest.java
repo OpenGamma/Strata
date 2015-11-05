@@ -19,6 +19,7 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseConstantParameters;
@@ -242,7 +243,6 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     assertEquals(0.0, swapValue, 1.0E-1);
   }
 
-  @Test
   public void swapRate() {
     double shift = 1.0E-4;
     double x = 0.1;
@@ -301,7 +301,6 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     assertTrue(DoubleArrayMath.fuzzyEquals(ddcfiExpected, ddcfiComputed, TOLERANCE_RATE_DELTA));
   }
 
-  @Test
   public void swapRateDa() {
     double shift = 1.0E-8;
     double x = 0.0;
@@ -333,7 +332,6 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     assertTrue(DoubleArrayMath.fuzzyEquals(daiExpected, daiComputed, TOLERANCE_RATE_DELTA));
   }
 
-  @Test
   public void swapRateDx2Ddcf() {
     double shift = 1.0E-7;
     double x = 0.0;
@@ -360,7 +358,6 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     assertTrue(DoubleArrayMath.fuzzyEquals(dx2DdcfiExpected, dx2ddcfComputed.getSecond().toArray(), TOLERANCE_RATE_DELTA2));
   }
 
-  @Test
   public void swapRateDx2Da() {
     double shift = 1.0E-7;
     double x = 0.0;
@@ -387,6 +384,47 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     assertTrue(DoubleArrayMath.fuzzyEquals(dx2DaiExpected, dx2DaComputed.getSecond().toArray(), TOLERANCE_RATE_DELTA2));
   }
 
+  //-------------------------------------------------------------------------
+  // Here methods used for Bermudan swaption pricing and Monte-Carlo are test weakly by regression to 2.x. 
+  // Proper tests should be added when these pricing methodologies are available. 
+  public void test_beta() {
+    double[] theta = new double[] {0.0, 0.9930234298974474, 1.5013698630136987, 1.9917808219178081, 2.5013698630136987,
+      2.9972602739726026, 3.5013698630136987, 3.9972602739726026, 4.501220151208923, 4.998487910771765,
+      5.495890410958904 };
+    double[] expected = new double[] {0.010526360888642377, 0.008653752074472373, 0.008551601997542554,
+      0.009479708049949437, 0.009409731278859806, 0.009534948404597303, 0.009504300650429525, 0.009629338816014276,
+      0.009613195012744198, 0.010403528524805543 };
+    for (int i = 0; i < theta.length - 1; ++i) {
+      assertEquals(MODEL.beta(MODEL_PARAMETERS, theta[i], theta[i + 1]), expected[i], TOLERANCE_RATE);
+    }
+  }
+
+  public void test_lambda() {
+    DoubleArray cashFlow = DoubleArray.of(1.1342484780379178E8, 178826.75595605336, -1.1353458434950349E8);
+    DoubleArray alphaSq = DoubleArray.of(0.0059638289722142215, 0.0069253776359785415, 0.007985436623619701);
+    DoubleArray hwH = DoubleArray.of(5.357967757629822, 5.593630711441366, 5.828706853806842);
+    double computed = MODEL.lambda(cashFlow, alphaSq, hwH);
+    assertEquals(computed, -0.0034407112369635212, TOLERANCE_RATE);
+    double value = 0.0;
+    for (int loopcf = 0; loopcf < 3; loopcf++) {
+      value += cashFlow.get(loopcf) * Math.exp(-0.5 * alphaSq.get(loopcf) - hwH.get(loopcf) * computed);
+    }
+    assertEquals(value, 0d, 1.0E-7);
+  }
+
+  public void test_volatilityMaturityPart() {
+    double u = 5.001332435062505;
+    DoubleMatrix v = DoubleMatrix.copyOf(new double[][] {{5.012261396811139, 5.515068493150685, 6.010958904109589,
+      6.515068493150685, 7.010958904109589, 7.515068493150685, 8.01095890410959, 8.520458118122614, 9.017725877685455,
+      9.515068493150684, 10.013698630136986 } });
+    DoubleMatrix computed = MODEL.volatilityMaturityPart(MODEL_PARAMETERS, u, v);
+    double[] expected = new double[] {0.010395243419747402, 0.48742124221025085, 0.9555417903726049,
+      1.4290478001940943, 1.8925104710768026, 2.361305017379811, 2.8201561576361778, 3.289235677728508,
+      3.7447552766260217, 4.198083407732067, 4.650327387669373 };
+    assertTrue(DoubleArrayMath.fuzzyEquals(computed.row(0).toArray(), expected, TOLERANCE_RATE));
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Tests of performance. "enabled = false" for the standard testing.
    */
@@ -463,7 +501,6 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     @SuppressWarnings("unused")
     int t = 0;
     t++;
-
   }
 
 }
