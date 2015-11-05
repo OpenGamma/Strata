@@ -7,7 +7,7 @@ package com.opengamma.strata.finance.fx;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
+import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -35,7 +35,7 @@ public class FxNdfTradeTest {
   private static final FxNdf PRODUCT = FxNdf.builder()
       .agreedFxRate(FX_RATE)
       .settlementCurrencyNotional(CURRENCY_NOTIONAL)
-      .index(WM_GBP_USD)
+      .index(GBP_USD_WM)
       .paymentDate(PAYMENT_DATE)
       .build();
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 1, 15)).build();

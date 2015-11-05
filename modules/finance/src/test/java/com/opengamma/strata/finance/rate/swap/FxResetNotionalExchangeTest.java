@@ -8,8 +8,8 @@ package com.opengamma.strata.finance.rate.swap;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_USD;
-import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
+import static com.opengamma.strata.basics.index.FxIndices.EUR_USD_ECB;
+import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -38,12 +38,12 @@ public class FxResetNotionalExchangeTest {
         .paymentDate(DATE_2014_06_30)
         .referenceCurrency(USD)
         .notional(1000d)
-        .index(WM_GBP_USD)
+        .index(GBP_USD_WM)
         .fixingDate(DATE_2014_03_28)
         .build();
     assertEquals(test.getPaymentDate(), DATE_2014_06_30);
     assertEquals(test.getReferenceCurrency(), USD);
-    assertEquals(test.getIndex(), WM_GBP_USD);
+    assertEquals(test.getIndex(), GBP_USD_WM);
     assertEquals(test.getFixingDate(), DATE_2014_03_28);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getNotional(), 1000d);
@@ -55,7 +55,7 @@ public class FxResetNotionalExchangeTest {
         .paymentDate(DATE_2014_06_30)
         .referenceCurrency(GBP)
         .notional(1000d)
-        .index(ECB_EUR_USD)
+        .index(EUR_USD_ECB)
         .fixingDate(DATE_2014_03_28)
         .build());
   }
@@ -66,14 +66,14 @@ public class FxResetNotionalExchangeTest {
         .paymentDate(DATE_2014_06_30)
         .referenceCurrency(USD)
         .notional(1000d)
-        .index(WM_GBP_USD)
+        .index(GBP_USD_WM)
         .fixingDate(DATE_2014_03_28)
         .build();
     FxResetNotionalExchange expected = FxResetNotionalExchange.builder()
         .paymentDate(DATE_2014_06_30.plusDays(2))
         .referenceCurrency(USD)
         .notional(1000d)
-        .index(WM_GBP_USD)
+        .index(GBP_USD_WM)
         .fixingDate(DATE_2014_03_28)
         .build();
     assertEquals(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(0))), test);
@@ -86,7 +86,7 @@ public class FxResetNotionalExchangeTest {
         .paymentDate(DATE_2014_06_30)
         .referenceCurrency(USD)
         .notional(1000d)
-        .index(WM_GBP_USD)
+        .index(GBP_USD_WM)
         .fixingDate(DATE_2014_03_28)
         .build();
     coverImmutableBean(test);
@@ -94,7 +94,7 @@ public class FxResetNotionalExchangeTest {
         .paymentDate(date(2014, 9, 30))
         .referenceCurrency(EUR)
         .notional(2000d)
-        .index(ECB_EUR_USD)
+        .index(EUR_USD_ECB)
         .fixingDate(DATE_2014_06_30)
         .build();
     coverBeanEquals(test, test2);
@@ -105,7 +105,7 @@ public class FxResetNotionalExchangeTest {
         .paymentDate(DATE_2014_06_30)
         .referenceCurrency(USD)
         .notional(1000d)
-        .index(WM_GBP_USD)
+        .index(GBP_USD_WM)
         .fixingDate(DATE_2014_03_28)
         .build();
     assertSerialization(test);

@@ -26,7 +26,7 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.findIndex("GBP-LIBOR-3M"), IborIndices.GBP_LIBOR_3M);
     assertEquals(LoaderUtils.findIndex("GBP-SONIA"), OvernightIndices.GBP_SONIA);
     assertEquals(LoaderUtils.findIndex("GB-RPI"), PriceIndices.GB_RPI);
-    assertEquals(LoaderUtils.findIndex("WM-GBP-USD"), FxIndices.WM_GBP_USD);
+    assertEquals(LoaderUtils.findIndex("GBP/USD-WM"), FxIndices.GBP_USD_WM);
     assertThrowsIllegalArg(() -> LoaderUtils.findIndex("Rubbish"));
   }
 

@@ -9,7 +9,7 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
+import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -69,7 +69,7 @@ public class NotionalScheduleTest {
   public void test_builder_FxResetSetsFlags() {
     FxResetCalculation fxReset = FxResetCalculation.builder()
         .referenceCurrency(GBP)
-        .index(WM_GBP_USD)
+        .index(GBP_USD_WM)
         .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
         .build();
     NotionalSchedule test = NotionalSchedule.builder()
@@ -91,7 +91,7 @@ public class NotionalScheduleTest {
         .amount(ValueSchedule.of(2000d))
         .fxReset(FxResetCalculation.builder()
             .referenceCurrency(USD)
-            .index(WM_GBP_USD)
+            .index(GBP_USD_WM)
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
             .build())
         .build());
@@ -100,7 +100,7 @@ public class NotionalScheduleTest {
         .amount(ValueSchedule.of(2000d))
         .fxReset(FxResetCalculation.builder()
             .referenceCurrency(USD)
-            .index(WM_GBP_USD)
+            .index(GBP_USD_WM)
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
             .build())
         .build());
@@ -123,7 +123,7 @@ public class NotionalScheduleTest {
         .amount(ValueSchedule.of(2000d))
         .fxReset(FxResetCalculation.builder()
             .referenceCurrency(GBP)
-            .index(WM_GBP_USD)
+            .index(GBP_USD_WM)
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
             .build())
         .initialExchange(true)

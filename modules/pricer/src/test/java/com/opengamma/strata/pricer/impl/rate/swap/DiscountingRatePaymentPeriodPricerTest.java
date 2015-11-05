@@ -8,7 +8,7 @@ package com.opengamma.strata.pricer.impl.rate.swap;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
+import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_GBP_USD;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -138,7 +138,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
       .dayCount(ACT_365F)
       .currency(USD)
       .notional(NOTIONAL_100)
-      .fxReset(FxReset.of(WM_GBP_USD, GBP, FX_DATE_1))
+      .fxReset(FxReset.of(GBP_USD_WM, GBP, FX_DATE_1))
       .build();
   private static final RatePaymentPeriod PAYMENT_PERIOD_1_GS = RatePaymentPeriod.builder()
       .paymentDate(PAYMENT_DATE_1)
@@ -168,7 +168,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
       .dayCount(ACT_365F)
       .currency(USD)
       .notional(NOTIONAL_100)
-      .fxReset(FxReset.of(WM_GBP_USD, GBP, FX_DATE_1))
+      .fxReset(FxReset.of(GBP_USD_WM, GBP, FX_DATE_1))
       .build();
   private static final RatePaymentPeriod PAYMENT_PERIOD_FULL_GS_FX_GBP = RatePaymentPeriod.builder()
       .paymentDate(PAYMENT_DATE_3)
@@ -176,7 +176,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
       .dayCount(ACT_365F)
       .currency(GBP)
       .notional(NOTIONAL_100)
-      .fxReset(FxReset.of(WM_GBP_USD, USD, FX_DATE_1))
+      .fxReset(FxReset.of(GBP_USD_WM, USD, FX_DATE_1))
       .build();
 
   // all tests use a fixed rate to avoid excessive use of mocks

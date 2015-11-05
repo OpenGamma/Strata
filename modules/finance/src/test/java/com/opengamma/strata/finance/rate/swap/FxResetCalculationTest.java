@@ -7,8 +7,8 @@ package com.opengamma.strata.finance.rate.swap;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
-import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_GBP;
-import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_USD;
+import static com.opengamma.strata.basics.index.FxIndices.EUR_GBP_ECB;
+import static com.opengamma.strata.basics.index.FxIndices.EUR_USD_ECB;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -37,12 +37,12 @@ public class FxResetCalculationTest {
 
   public void test_builder() {
     FxResetCalculation test = FxResetCalculation.builder()
-        .index(ECB_EUR_GBP)
+        .index(EUR_GBP_ECB)
         .referenceCurrency(GBP)
         .fixingDateOffset(MINUS_TWO_DAYS)
         .fixingRelativeTo(FxResetFixingRelativeTo.PERIOD_START)
         .build();
-    assertEquals(test.getIndex(), ECB_EUR_GBP);
+    assertEquals(test.getIndex(), EUR_GBP_ECB);
     assertEquals(test.getReferenceCurrency(), GBP);
     assertEquals(test.getFixingDateOffset(), MINUS_TWO_DAYS);
     assertEquals(test.getFixingRelativeTo(), FxResetFixingRelativeTo.PERIOD_START);
@@ -50,11 +50,11 @@ public class FxResetCalculationTest {
 
   public void test_builder_defaultFixingRelativeTo() {
     FxResetCalculation test = FxResetCalculation.builder()
-        .index(ECB_EUR_GBP)
+        .index(EUR_GBP_ECB)
         .referenceCurrency(GBP)
         .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
-    assertEquals(test.getIndex(), ECB_EUR_GBP);
+    assertEquals(test.getIndex(), EUR_GBP_ECB);
     assertEquals(test.getReferenceCurrency(), GBP);
     assertEquals(test.getFixingDateOffset(), MINUS_TWO_DAYS);
     assertEquals(test.getFixingRelativeTo(), FxResetFixingRelativeTo.PERIOD_START);
@@ -62,7 +62,7 @@ public class FxResetCalculationTest {
 
   public void test_invalidCurrency() {
     assertThrowsIllegalArg(() -> FxResetCalculation.builder()
-        .index(ECB_EUR_USD)
+        .index(EUR_USD_ECB)
         .referenceCurrency(GBP)
         .fixingDateOffset(MINUS_TWO_DAYS)
         .build());
@@ -71,45 +71,45 @@ public class FxResetCalculationTest {
   //-------------------------------------------------------------------------
   public void test_applyToPeriod_beforeStart_weekend() {
     FxResetCalculation base = FxResetCalculation.builder()
-        .index(ECB_EUR_GBP)
+        .index(EUR_GBP_ECB)
         .referenceCurrency(GBP)
         .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
     FxReset test = base.applyToPeriod(SchedulePeriod.of(DATE_2014_03_31, DATE_2014_06_30));
-    assertEquals(test, FxReset.of(ECB_EUR_GBP, GBP, date(2014, 3, 27)));
+    assertEquals(test, FxReset.of(EUR_GBP_ECB, GBP, date(2014, 3, 27)));
   }
 
   public void test_applyToPeriod_beforeEnd_weekend() {
     FxResetCalculation base = FxResetCalculation.builder()
-        .index(ECB_EUR_GBP)
+        .index(EUR_GBP_ECB)
         .referenceCurrency(GBP)
         .fixingDateOffset(MINUS_TWO_DAYS)
         .fixingRelativeTo(FxResetFixingRelativeTo.PERIOD_END)
         .build();
     FxReset test = base.applyToPeriod(SchedulePeriod.of(DATE_2014_03_31, DATE_2014_06_30));
-    assertEquals(test, FxReset.of(ECB_EUR_GBP, GBP, date(2014, 6, 26)));
+    assertEquals(test, FxReset.of(EUR_GBP_ECB, GBP, date(2014, 6, 26)));
   }
 
   public void test_applyToPeriod_beforeStart_threeDays() {
     FxResetCalculation base = FxResetCalculation.builder()
-        .index(ECB_EUR_GBP)
+        .index(EUR_GBP_ECB)
         .referenceCurrency(GBP)
         .fixingDateOffset(MINUS_THREE_DAYS)
         .build();
     FxReset test = base.applyToPeriod(SchedulePeriod.of(DATE_2014_03_31, DATE_2014_06_30));
-    assertEquals(test, FxReset.of(ECB_EUR_GBP, GBP, date(2014, 3, 26)));
+    assertEquals(test, FxReset.of(EUR_GBP_ECB, GBP, date(2014, 3, 26)));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     FxResetCalculation test = FxResetCalculation.builder()
-        .index(ECB_EUR_GBP)
+        .index(EUR_GBP_ECB)
         .referenceCurrency(GBP)
         .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
     coverImmutableBean(test);
     FxResetCalculation test2 = FxResetCalculation.builder()
-        .index(ECB_EUR_USD)
+        .index(EUR_USD_ECB)
         .referenceCurrency(Currency.EUR)
         .fixingDateOffset(MINUS_THREE_DAYS)
         .fixingRelativeTo(FxResetFixingRelativeTo.PERIOD_END)
@@ -119,7 +119,7 @@ public class FxResetCalculationTest {
 
   public void test_serialization() {
     FxResetCalculation test = FxResetCalculation.builder()
-        .index(ECB_EUR_GBP)
+        .index(EUR_GBP_ECB)
         .referenceCurrency(GBP)
         .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
