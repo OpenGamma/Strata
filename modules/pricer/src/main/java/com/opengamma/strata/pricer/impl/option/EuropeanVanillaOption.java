@@ -47,12 +47,12 @@ public final class EuropeanVanillaOption
    * Obtains an instance.
    * 
    * @param strike  the strike
-   * @param timeToExpiration  the time to expiration, year fraction
+   * @param timeToExpiry  the time to expiry, year fraction
    * @param putCall  whether the option is put or call.
    * @return the option definition
    */
-  public static EuropeanVanillaOption of(double strike, double timeToExpiration, PutCall putCall) {
-    return new EuropeanVanillaOption(strike, timeToExpiration, putCall);
+  public static EuropeanVanillaOption of(double strike, double timeToExpiry, PutCall putCall) {
+    return new EuropeanVanillaOption(strike, timeToExpiry, putCall);
   }
 
   //-------------------------------------------------------------------------

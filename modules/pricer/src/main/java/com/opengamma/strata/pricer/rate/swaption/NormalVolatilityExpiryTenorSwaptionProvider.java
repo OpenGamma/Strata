@@ -46,7 +46,7 @@ import com.opengamma.strata.market.surface.SwaptionSurfaceExpiryTenorNodeMetadat
 
 /**
  * Volatility environment for swaptions in the normal or Bachelier model. 
- * The volatility is represented by a surface on the expiration and swap tenor dimensions.
+ * The volatility is represented by a surface on the expiry and swap tenor dimensions.
  */
 @BeanDefinition(builderScope = "private")
 public final class NormalVolatilityExpiryTenorSwaptionProvider
@@ -263,7 +263,7 @@ public final class NormalVolatilityExpiryTenorSwaptionProvider
   //-----------------------------------------------------------------------
   /**
    * Gets volatility environment for swaptions in the normal or Bachelier model.
-   * The volatility is represented by a surface on the expiration and swap tenor dimensions.
+   * The volatility is represented by a surface on the expiry and swap tenor dimensions.
    * /
    * @BeanDefinition(builderScope = "private")
    * public final class NormalVolatilityExpiryTenorSwaptionProvider

@@ -1111,7 +1111,7 @@ public final class BlackFormulaRepository {
    * @param delta The option delta
    * @param isCall  true for call, false for put
    * @param forward The forward.
-   * @param time The time to expiration.
+   * @param time The time to expiry.
    * @param volatility The volatility.
    * @return the strike.
    */

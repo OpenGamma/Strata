@@ -36,10 +36,10 @@ import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunc
  * The volatility surface description under SABR model.  
  * <p>
  * This is used in interest rate modeling. 
- * Each SABR parameter is {@link NodalSurface} spanned by expiration and tenor. 
+ * Each SABR parameter is {@link NodalSurface} spanned by expiry and tenor.
  * <p>
  * The implementation allows for shifted SABR model. 
- * The shift parameter is also {@link NodalSurface} spanned by expiration and tenor.
+ * The shift parameter is also {@link NodalSurface} spanned by expiry and tenor.
  */
 @BeanDefinition(builderScope = "private")
 public final class SabrInterestRateParameters
@@ -48,28 +48,28 @@ public final class SabrInterestRateParameters
   /**
    * The alpha (volatility level) surface. 
    * <p>
-   * The first dimension is the expiration and the second the tenor.
+   * The first dimension is the expiry and the second the tenor.
    */
   @PropertyDefinition(validate = "notNull")
   private final NodalSurface alphaSurface;
   /**
    * The beta (elasticity) surface. 
    * <p>
-   * The first dimension is the expiration and the second the tenor.
+   * The first dimension is the expiry and the second the tenor.
    */
   @PropertyDefinition(validate = "notNull")
   private final NodalSurface betaSurface;
   /**
    * The rho (correlation) surface. 
    * <p>
-   * The first dimension is the expiration and the second the tenor.
+   * The first dimension is the expiry and the second the tenor.
    */
   @PropertyDefinition(validate = "notNull")
   private final NodalSurface rhoSurface;
   /**
    * The nu (volatility of volatility) surface. 
    * <p>
-   * The first dimension is the expiration and the second the tenor.
+   * The first dimension is the expiry and the second the tenor.
    */
   @PropertyDefinition(validate = "notNull")
   private final NodalSurface nuSurface;
@@ -83,7 +83,7 @@ public final class SabrInterestRateParameters
   /**
    * The shift parameter of shifted SABR model.
    * <p>
-   * The first dimension is the expiration and the second the tenor.
+   * The first dimension is the expiry and the second the tenor.
    * The shift is set to be 0 unless specified.
    */
   @PropertyDefinition(validate = "notNull")
@@ -284,7 +284,7 @@ public final class SabrInterestRateParameters
   /**
    * Gets the alpha (volatility level) surface.
    * <p>
-   * The first dimension is the expiration and the second the tenor.
+   * The first dimension is the expiry and the second the tenor.
    * @return the value of the property, not null
    */
   public NodalSurface getAlphaSurface() {
@@ -295,7 +295,7 @@ public final class SabrInterestRateParameters
   /**
    * Gets the beta (elasticity) surface.
    * <p>
-   * The first dimension is the expiration and the second the tenor.
+   * The first dimension is the expiry and the second the tenor.
    * @return the value of the property, not null
    */
   public NodalSurface getBetaSurface() {
@@ -306,7 +306,7 @@ public final class SabrInterestRateParameters
   /**
    * Gets the rho (correlation) surface.
    * <p>
-   * The first dimension is the expiration and the second the tenor.
+   * The first dimension is the expiry and the second the tenor.
    * @return the value of the property, not null
    */
   public NodalSurface getRhoSurface() {
@@ -317,7 +317,7 @@ public final class SabrInterestRateParameters
   /**
    * Gets the nu (volatility of volatility) surface.
    * <p>
-   * The first dimension is the expiration and the second the tenor.
+   * The first dimension is the expiry and the second the tenor.
    * @return the value of the property, not null
    */
   public NodalSurface getNuSurface() {
@@ -339,7 +339,7 @@ public final class SabrInterestRateParameters
   /**
    * Gets the shift parameter of shifted SABR model.
    * <p>
-   * The first dimension is the expiration and the second the tenor.
+   * The first dimension is the expiry and the second the tenor.
    * The shift is set to be 0 unless specified.
    * @return the value of the property, not null
    */

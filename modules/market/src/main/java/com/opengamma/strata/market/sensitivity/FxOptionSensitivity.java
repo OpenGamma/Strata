@@ -44,7 +44,7 @@ public final class FxOptionSensitivity
   @PropertyDefinition(validate = "notNull")
   private final CurrencyPair currencyPair;
   /**
-   * The expiration zoned date time of the option.
+   * The expiry zoned date time of the option.
    */
   @PropertyDefinition(validate = "notNull")
   private final ZonedDateTime expiryDateTime;
@@ -213,7 +213,7 @@ public final class FxOptionSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiration zoned date time of the option.
+   * Gets the expiry zoned date time of the option.
    * @return the value of the property, not null
    */
   public ZonedDateTime getExpiryDateTime() {

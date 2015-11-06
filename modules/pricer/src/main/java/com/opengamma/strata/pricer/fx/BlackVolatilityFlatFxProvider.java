@@ -43,7 +43,7 @@ import com.opengamma.strata.market.value.ValueType;
 /**
  * Data provider of volatility for FX options in the lognormal or Black-Scholes model.
  * <p>
- * The volatility is represented by a curve on the expiration and the volatility
+ * The volatility is represented by a curve on the expiry and the volatility
  * is flat along the strike direction.
  */
 @BeanDefinition
