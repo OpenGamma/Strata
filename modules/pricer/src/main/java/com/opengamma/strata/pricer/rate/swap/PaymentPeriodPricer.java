@@ -63,7 +63,7 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the future value of a single payment period.
+   * Calculates the forecast value of a single payment period.
    * <p>
    * The amount is expressed in the currency of the period.
    * This returns the value of the period without discounting.
@@ -73,21 +73,21 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * 
    * @param period  the period to price
    * @param provider  the rates provider
-   * @return the future value of the period
+   * @return the forecast value of the period
    */
-  public abstract double futureValue(T period, RatesProvider provider);
+  public abstract double forecastValue(T period, RatesProvider provider);
 
   /**
-   * Calculates the future value sensitivity of a single payment period.
+   * Calculates the forecast value sensitivity of a single payment period.
    * <p>
-   * The future value sensitivity of the period is the sensitivity of the future value to
+   * The forecast value sensitivity of the period is the sensitivity of the forecast value to
    * the underlying curves.
    * 
    * @param period  the period to price
    * @param provider  the rates provider
-   * @return the future value curve sensitivity of the period
+   * @return the forecast value curve sensitivity of the period
    */
-  public abstract PointSensitivityBuilder futureValueSensitivity(T period, RatesProvider provider);
+  public abstract PointSensitivityBuilder forecastValueSensitivity(T period, RatesProvider provider);
 
   //-------------------------------------------------------------------------
   /**

@@ -60,13 +60,13 @@ public class DiscountingRatePaymentPeriodPricer
   //-------------------------------------------------------------------------
   @Override
   public double presentValue(RatePaymentPeriod period, RatesProvider provider) {
-    // futureValue * discountFactor
+    // forecastValue * discountFactor
     double df = provider.discountFactor(period.getCurrency(), period.getPaymentDate());
-    return futureValue(period, provider) * df;
+    return forecastValue(period, provider) * df;
   }
 
   @Override
-  public double futureValue(RatePaymentPeriod period, RatesProvider provider) {
+  public double forecastValue(RatePaymentPeriod period, RatesProvider provider) {
     // notional * fxRate
     // fxRate is 1 if no FX conversion
     double notional = period.getNotional() * fxRate(period, provider);
@@ -116,7 +116,7 @@ public class DiscountingRatePaymentPeriodPricer
       }
     }
     RatePaymentPeriod adjustedPaymentPeriod = period.toBuilder().accrualPeriods(truncated.build()).build();
-    return futureValue(adjustedPaymentPeriod, provider);
+    return forecastValue(adjustedPaymentPeriod, provider);
   }
 
   //-------------------------------------------------------------------------
@@ -226,16 +226,16 @@ public class DiscountingRatePaymentPeriodPricer
     DiscountFactors discountFactors = provider.discountFactors(ccy);
     LocalDate paymentDate = period.getPaymentDate();
     double df = discountFactors.discountFactor(paymentDate);
-    PointSensitivityBuilder fwdSensitivity = futureValueSensitivity(period, provider);
-    fwdSensitivity = fwdSensitivity.multipliedBy(df);
-    double futureValue = futureValue(period, provider);
+    PointSensitivityBuilder forecastSensitivity = forecastValueSensitivity(period, provider);
+    forecastSensitivity = forecastSensitivity.multipliedBy(df);
+    double forecastValue = forecastValue(period, provider);
     PointSensitivityBuilder dscSensitivity = discountFactors.zeroRatePointSensitivity(paymentDate);
-    dscSensitivity = dscSensitivity.multipliedBy(futureValue);
-    return fwdSensitivity.combinedWith(dscSensitivity);
+    dscSensitivity = dscSensitivity.multipliedBy(forecastValue);
+    return forecastSensitivity.combinedWith(dscSensitivity);
   }
 
   @Override
-  public PointSensitivityBuilder futureValueSensitivity(RatePaymentPeriod period, RatesProvider provider) {
+  public PointSensitivityBuilder forecastValueSensitivity(RatePaymentPeriod period, RatesProvider provider) {
     // historic payments have zero sensi
     if (period.getPaymentDate().isBefore(provider.getValuationDate())) {
       return PointSensitivityBuilder.none();
@@ -399,7 +399,7 @@ public class DiscountingRatePaymentPeriodPricer
     builder.put(ExplainKey.NOTIONAL, CurrencyAmount.of(currency, notional));
     builder.put(ExplainKey.TRADE_NOTIONAL, paymentPeriod.getNotionalAmount());
     if (paymentDate.isBefore(provider.getValuationDate())) {
-      builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.zero(currency));
+      builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {
       paymentPeriod.getFxReset().ifPresent(fxReset -> {
@@ -416,7 +416,7 @@ public class DiscountingRatePaymentPeriodPricer
       }
       builder.put(ExplainKey.COMPOUNDING, paymentPeriod.getCompoundingMethod());
       builder.put(ExplainKey.DISCOUNT_FACTOR, provider.discountFactor(currency, paymentDate));
-      builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.of(currency, futureValue(paymentPeriod, provider)));
+      builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.of(currency, forecastValue(paymentPeriod, provider)));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.of(currency, presentValue(paymentPeriod, provider)));
     }
   }
@@ -434,8 +434,8 @@ public class DiscountingRatePaymentPeriodPricer
     double payOffRate = rawRate * accrualPeriod.getGearing() + accrualPeriod.getSpread();
     double ua = unitNotionalAccrual(accrualPeriod, accrualPeriod.getSpread(), provider);
 
-    // Note that the future value is not published since this is potentially misleading when
-    // compounding is being applied, and when it isn't then it's the same as the future
+    // Note that the forecast value is not published since this is potentially misleading when
+    // compounding is being applied, and when it isn't then it's the same as the forecast
     // value of the payment period.
 
     builder.put(ExplainKey.ENTRY_TYPE, "AccrualPeriod");

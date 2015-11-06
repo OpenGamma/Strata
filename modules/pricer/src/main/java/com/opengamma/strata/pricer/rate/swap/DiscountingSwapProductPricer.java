@@ -74,7 +74,7 @@ public class DiscountingSwapProductPricer {
    * Calculates the present value of the swap product, converted to the specified currency.
    * <p>
    * The present value of the product is the value on the valuation date.
-   * This is the discounted future value.
+   * This is the discounted forecast value.
    * The result is converted to the specified currency.
    * 
    * @param product  the product to price
@@ -95,7 +95,7 @@ public class DiscountingSwapProductPricer {
    * Calculates the present value of the swap product.
    * <p>
    * The present value of the product is the value on the valuation date.
-   * This is the discounted future value.
+   * This is the discounted forecast value.
    * The result is expressed using the payment currency of each leg.
    * 
    * @param product  the product to price
@@ -107,21 +107,21 @@ public class DiscountingSwapProductPricer {
   }
 
   /**
-   * Calculates the future value of the swap product.
+   * Calculates the forecast value of the swap product.
    * <p>
-   * The future value of the product is the value on the valuation date without present value discounting.
+   * The forecast value of the product is the value on the valuation date without present value discounting.
    * The result is expressed using the payment currency of each leg.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
-   * @return the future value of the swap product
+   * @return the forecast value of the swap product
    */
-  public MultiCurrencyAmount futureValue(SwapProduct product, RatesProvider provider) {
-    return swapValue(provider, product.expand(), legPricer::futureValueInternal);
+  public MultiCurrencyAmount forecastValue(SwapProduct product, RatesProvider provider) {
+    return swapValue(provider, product.expand(), legPricer::forecastValueInternal);
   }
 
   //-------------------------------------------------------------------------
-  // calculate present or future value for the swap
+  // calculate present or forecast value for the swap
   private static MultiCurrencyAmount swapValue(
       RatesProvider provider,
       ExpandedSwap swap,
@@ -281,23 +281,23 @@ public class DiscountingSwapProductPricer {
   }
 
   /**
-   * Calculates the future value sensitivity of the swap product.
+   * Calculates the forecast value sensitivity of the swap product.
    * <p>
-   * The future value sensitivity of the product is the sensitivity of the future value to
+   * The forecast value sensitivity of the product is the sensitivity of the forecast value to
    * the underlying curves.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
-   * @return the future value curve sensitivity of the swap product
+   * @return the forecast value curve sensitivity of the swap product
    */
-  public PointSensitivityBuilder futureValueSensitivity(SwapProduct product, RatesProvider provider) {
+  public PointSensitivityBuilder forecastValueSensitivity(SwapProduct product, RatesProvider provider) {
     return swapValueSensitivity(
         product.expand(),
         provider,
-        legPricer::futureValueSensitivity);
+        legPricer::forecastValueSensitivity);
   }
 
-  // calculate present or future value sensitivity for the swap
+  // calculate present or forecast value sensitivity for the swap
   private static PointSensitivityBuilder swapValueSensitivity(
       ExpandedSwap swap,
       RatesProvider provider,
@@ -387,7 +387,7 @@ public class DiscountingSwapProductPricer {
    * Calculates the future cash flows of the swap product.
    * <p>
    * Each expected cash flow is added to the result.
-   * This is based on {@link #futureValue(SwapProduct, RatesProvider)}.
+   * This is based on {@link #forecastValue(SwapProduct, RatesProvider)}.
    * 
    * @param product  the swap product for which the cash flows should be computed
    * @param provider  the rates provider

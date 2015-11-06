@@ -287,24 +287,24 @@ public class DiscountingSwapLegPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_futureValue() {
+  public void test_forecastValue() {
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
-    when(mockPeriod.futureValue(IBOR_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV))
+    when(mockPeriod.forecastValue(IBOR_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV))
         .thenReturn(1000d);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
-    when(mockEvent.futureValue(NOTIONAL_EXCHANGE_REC_GBP, MOCK_PROV))
+    when(mockEvent.forecastValue(NOTIONAL_EXCHANGE_REC_GBP, MOCK_PROV))
         .thenReturn(1000d);
     DiscountingSwapLegPricer test = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     CurrencyAmount expected = CurrencyAmount.of(GBP, 2000d);
-    assertEquals(test.futureValue(IBOR_EXPANDED_SWAP_LEG_REC_GBP, MOCK_PROV), expected);
+    assertEquals(test.forecastValue(IBOR_EXPANDED_SWAP_LEG_REC_GBP, MOCK_PROV), expected);
   }
 
-  public void test_futureValue_past() {
+  public void test_forecastValue_past() {
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
     DiscountingSwapLegPricer test = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     CurrencyAmount expected = CurrencyAmount.of(GBP, 0d);
-    assertEquals(test.futureValue(IBOR_EXPANDED_SWAP_LEG_REC_GBP, MOCK_PROV_FUTURE), expected);
+    assertEquals(test.forecastValue(IBOR_EXPANDED_SWAP_LEG_REC_GBP, MOCK_PROV_FUTURE), expected);
   }
 
   //-------------------------------------------------------------------------
@@ -440,7 +440,7 @@ public class DiscountingSwapLegPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_futureValueSensitivity() {
+  public void test_forecastValueSensitivity() {
     ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC_GBP;
     IborIndex index = GBP_LIBOR_3M;
     Currency ccy = GBP_LIBOR_3M.getCurrency();
@@ -450,12 +450,12 @@ public class DiscountingSwapLegPricerTest {
 
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
-    when(mockPeriod.futureValueSensitivity(expSwapLeg.getPaymentPeriods().get(0), MOCK_PROV))
+    when(mockPeriod.forecastValueSensitivity(expSwapLeg.getPaymentPeriods().get(0), MOCK_PROV))
         .thenReturn(sensiPeriod);
-    when(mockEvent.futureValueSensitivity(expSwapLeg.getPaymentEvents().get(0), MOCK_PROV))
+    when(mockEvent.forecastValueSensitivity(expSwapLeg.getPaymentEvents().get(0), MOCK_PROV))
         .thenReturn(PointSensitivityBuilder.none());
     DiscountingSwapLegPricer test = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
-    PointSensitivities res = test.futureValueSensitivity(expSwapLeg, MOCK_PROV).build();
+    PointSensitivities res = test.forecastValueSensitivity(expSwapLeg, MOCK_PROV).build();
 
     assertTrue(res.equalWithTolerance(expected, TOLERANCE));
   }
@@ -552,8 +552,8 @@ public class DiscountingSwapLegPricerTest {
         .priceIndexValues(map)
         .discountCurves(dscCurve)
         .build();
-    // test futureValue and presentValue
-    CurrencyAmount fvComputed = pricer.futureValue(swapLeg, prov);
+    // test forecastValue and presentValue
+    CurrencyAmount fvComputed = pricer.forecastValue(swapLeg, prov);
     CurrencyAmount pvComputed = pricer.presentValue(swapLeg, prov);
     LocalDate paymentDate = swapLeg.expand().getPaymentPeriods().get(0).getPaymentDate();
     double dscFactor = prov.discountFactor(GBP, paymentDate);
@@ -563,8 +563,8 @@ public class DiscountingSwapLegPricerTest {
     double pvExpected = dscFactor * fvExpected;
     assertEquals(pvComputed.getCurrency(), GBP);
     assertEquals(pvComputed.getAmount(), pvExpected, NOTIONAL * EPS);
-    // test futureValueSensitivity and presentValueSensitivity
-    PointSensitivityBuilder fvSensiComputed = pricer.futureValueSensitivity(swapLeg, prov);
+    // test forecastValueSensitivity and presentValueSensitivity
+    PointSensitivityBuilder fvSensiComputed = pricer.forecastValueSensitivity(swapLeg, prov);
     PointSensitivityBuilder pvSensiComputed = pricer.presentValueSensitivity(swapLeg, prov);
     ForwardInflationMonthlyRateObservationFn obsFn = ForwardInflationMonthlyRateObservationFn.DEFAULT;
     RatePaymentPeriod paymentPeriod = (RatePaymentPeriod) swapLeg.expand().getPaymentPeriods().get(0);
@@ -595,8 +595,8 @@ public class DiscountingSwapLegPricerTest {
         .priceIndexValues(map)
         .discountCurves(dscCurve)
         .build();
-    // test futureValue and presentValue
-    CurrencyAmount fvComputed = pricer.futureValue(swapLeg, prov);
+    // test forecastValue and presentValue
+    CurrencyAmount fvComputed = pricer.forecastValue(swapLeg, prov);
     CurrencyAmount pvComputed = pricer.presentValue(swapLeg, prov);
     LocalDate paymentDate = swapLeg.expand().getPaymentPeriods().get(0).getPaymentDate();
     double dscFactor = prov.discountFactor(GBP, paymentDate);
@@ -611,8 +611,8 @@ public class DiscountingSwapLegPricerTest {
     double pvExpected = dscFactor * fvExpected;
     assertEquals(pvComputed.getCurrency(), GBP);
     assertEquals(pvComputed.getAmount(), pvExpected, NOTIONAL * EPS);
-    // test futureValueSensitivity and presentValueSensitivity
-    PointSensitivityBuilder fvSensiComputed = pricer.futureValueSensitivity(swapLeg, prov);
+    // test forecastValueSensitivity and presentValueSensitivity
+    PointSensitivityBuilder fvSensiComputed = pricer.forecastValueSensitivity(swapLeg, prov);
     PointSensitivityBuilder pvSensiComputed = pricer.presentValueSensitivity(swapLeg, prov);
     PointSensitivityBuilder pvSensiExpected = obsFn.rateSensitivity(obs, DATE_14_06_09, DATE_19_06_09, prov);
     pvSensiExpected = pvSensiExpected.multipliedBy(NOTIONAL);
@@ -687,8 +687,8 @@ public class DiscountingSwapLegPricerTest {
         .valuationDate(VAL_DATE_INFLATION)
         .discountCurves(dscCurve)
         .build();
-    // test futureValue and presentValue
-    CurrencyAmount fvComputed = pricer.futureValue(swapLeg, prov);
+    // test forecastValue and presentValue
+    CurrencyAmount fvComputed = pricer.forecastValue(swapLeg, prov);
     CurrencyAmount pvComputed = pricer.presentValue(swapLeg, prov);
     LocalDate paymentDate = swapLeg.expand().getPaymentPeriods().get(0).getPaymentDate();
     double dscFactor = prov.discountFactor(GBP, paymentDate);
@@ -698,8 +698,8 @@ public class DiscountingSwapLegPricerTest {
     double pvExpected = fvExpected * dscFactor;
     assertEquals(pvComputed.getCurrency(), GBP);
     assertEquals(pvComputed.getAmount(), pvExpected, NOTIONAL * EPS);
-    // test futureValueSensitivity and presentValueSensitivity
-    PointSensitivityBuilder fvSensiComputed = pricer.futureValueSensitivity(swapLeg, prov);
+    // test forecastValueSensitivity and presentValueSensitivity
+    PointSensitivityBuilder fvSensiComputed = pricer.forecastValueSensitivity(swapLeg, prov);
     PointSensitivityBuilder pvSensiComputed = pricer.presentValueSensitivity(swapLeg, prov);
     assertEquals(fvSensiComputed, PointSensitivityBuilder.none());
     PointSensitivityBuilder pvSensiExpected = prov.discountFactors(GBP).zeroRatePointSensitivity(paymentDate);
@@ -722,8 +722,8 @@ public class DiscountingSwapLegPricerTest {
     double df = 1.0d;
     double df1 = 0.98;
     double df2 = 0.93;
-    when(mockPeriod.futureValue(period1, mockProv)).thenReturn(fv1);
-    when(mockPeriod.futureValue(period2, mockProv)).thenReturn(fv2);
+    when(mockPeriod.forecastValue(period1, mockProv)).thenReturn(fv1);
+    when(mockPeriod.forecastValue(period2, mockProv)).thenReturn(fv2);
     when(mockProv.getValuationDate()).thenReturn(LocalDate.of(2014, 7, 1));
     when(mockProv.discountFactor(expSwapLeg.getCurrency(), period1.getPaymentDate())).thenReturn(df1);
     when(mockProv.discountFactor(expSwapLeg.getCurrency(), period2.getPaymentDate())).thenReturn(df2);
@@ -731,9 +731,9 @@ public class DiscountingSwapLegPricerTest {
     DiscountingSwapLegPricer pricer = new DiscountingSwapLegPricer(mockPeriod, eventPricer);
 
     CashFlows computed = pricer.cashFlows(expSwapLeg, mockProv);
-    CashFlow flow1 = CashFlow.ofFutureValue(period1.getPaymentDate(), GBP, fv1, df1);
-    CashFlow flow2 = CashFlow.ofFutureValue(period2.getPaymentDate(), GBP, fv2, df2);
-    CashFlow flow3 = CashFlow.ofFutureValue(event.getPaymentDate(), GBP, event.getPaymentAmount().getAmount(), df);
+    CashFlow flow1 = CashFlow.ofForecastValue(period1.getPaymentDate(), GBP, fv1, df1);
+    CashFlow flow2 = CashFlow.ofForecastValue(period2.getPaymentDate(), GBP, fv2, df2);
+    CashFlow flow3 = CashFlow.ofForecastValue(event.getPaymentDate(), GBP, event.getPaymentAmount().getAmount(), df);
     CashFlows expected = CashFlows.of(ImmutableList.of(flow1, flow2, flow3));
     assertEquals(computed, expected);
   }

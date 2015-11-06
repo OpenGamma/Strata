@@ -68,7 +68,7 @@ public class DiscountingSwapLegPricer {
    * Calculates the present value of the swap leg, converted to the specified currency.
    * <p>
    * The present value of the leg is the value on the valuation date.
-   * This is the discounted future value.
+   * This is the discounted forecast value.
    * The result is converted to the specified currency.
    * 
    * @param leg  the leg to price
@@ -85,7 +85,7 @@ public class DiscountingSwapLegPricer {
    * Calculates the present value of the swap leg.
    * <p>
    * The present value of the leg is the value on the valuation date.
-   * This is the discounted future value.
+   * This is the discounted forecast value.
    * The result is returned using the payment currency of the leg.
    * 
    * @param leg  the leg to price
@@ -103,23 +103,23 @@ public class DiscountingSwapLegPricer {
   }
 
   /**
-   * Calculates the future value of the swap leg.
+   * Calculates the forecast value of the swap leg.
    * <p>
-   * The future value of the leg is the value on the valuation date without present value discounting.
+   * The forecast value of the leg is the value on the valuation date without present value discounting.
    * The result is returned using the payment currency of the leg.
    * 
    * @param leg  the leg to price
    * @param provider  the rates provider
-   * @return the future value of the swap leg
+   * @return the forecast value of the swap leg
    */
-  public CurrencyAmount futureValue(SwapLeg leg, RatesProvider provider) {
-    return CurrencyAmount.of(leg.getCurrency(), futureValueInternal(leg, provider));
+  public CurrencyAmount forecastValue(SwapLeg leg, RatesProvider provider) {
+    return CurrencyAmount.of(leg.getCurrency(), forecastValueInternal(leg, provider));
   }
 
   // calculates the present value in the currency of the swap leg
-  double futureValueInternal(SwapLeg leg, RatesProvider provider) {
+  double forecastValueInternal(SwapLeg leg, RatesProvider provider) {
     ExpandedSwapLeg expanded = leg.expand();
-    return futureValuePeriodsInternal(expanded, provider) + futureValueEventsInternal(expanded, provider);
+    return forecastValuePeriodsInternal(expanded, provider) + forecastValueEventsInternal(expanded, provider);
   }
 
   //-------------------------------------------------------------------------
@@ -207,25 +207,25 @@ public class DiscountingSwapLegPricer {
   }
 
   /**
-   * Calculates the future value sensitivity of the swap leg.
+   * Calculates the forecast value sensitivity of the swap leg.
    * <p>
-   * The future value sensitivity of the leg is the sensitivity of the future value to
+   * The forecast value sensitivity of the leg is the sensitivity of the forecast value to
    * the underlying curves.
    * 
    * @param leg  the leg to price
    * @param provider  the rates provider
-   * @return the future value curve sensitivity of the swap leg
+   * @return the forecast value curve sensitivity of the swap leg
    */
-  public PointSensitivityBuilder futureValueSensitivity(SwapLeg leg, RatesProvider provider) {
+  public PointSensitivityBuilder forecastValueSensitivity(SwapLeg leg, RatesProvider provider) {
     ExpandedSwapLeg expanded = leg.expand();
     return legValueSensitivity(
         expanded,
         provider,
-        paymentPeriodPricer::futureValueSensitivity,
-        paymentEventPricer::futureValueSensitivity);
+        paymentPeriodPricer::forecastValueSensitivity,
+        paymentEventPricer::forecastValueSensitivity);
   }
 
-  // calculate present or future value sensitivity for a leg
+  // calculate present or forecast value sensitivity for a leg
   private PointSensitivityBuilder legValueSensitivity(
       ExpandedSwapLeg leg,
       RatesProvider provider,
@@ -324,7 +324,7 @@ public class DiscountingSwapLegPricer {
    * Calculates the future cash flows of the swap leg.
    * <p>
    * Each expected cash flow is added to the result.
-   * This is based on {@link #futureValue(SwapLeg, RatesProvider)}.
+   * This is based on {@link #forecastValue(SwapLeg, RatesProvider)}.
    * 
    * @param leg  the swap leg for which the cash flows should be computed
    * @param provider  the rates provider
@@ -338,23 +338,23 @@ public class DiscountingSwapLegPricer {
   }
 
   //-------------------------------------------------------------------------
-  // calculates the future value of the events composing the leg in the currency of the swap leg
-  double futureValueEventsInternal(ExpandedSwapLeg leg, RatesProvider provider) {
+  // calculates the forecast value of the events composing the leg in the currency of the swap leg
+  double forecastValueEventsInternal(ExpandedSwapLeg leg, RatesProvider provider) {
     double total = 0d;
     for (PaymentEvent event : leg.getPaymentEvents()) {
       if (!event.getPaymentDate().isBefore(provider.getValuationDate())) {
-        total += paymentEventPricer.futureValue(event, provider);
+        total += paymentEventPricer.forecastValue(event, provider);
       }
     }
     return total;
   }
 
-  // calculates the future value of the periods composing the leg in the currency of the swap leg
-  double futureValuePeriodsInternal(ExpandedSwapLeg leg, RatesProvider provider) {
+  // calculates the forecast value of the periods composing the leg in the currency of the swap leg
+  double forecastValuePeriodsInternal(ExpandedSwapLeg leg, RatesProvider provider) {
     double total = 0d;
     for (PaymentPeriod period : leg.getPaymentPeriods()) {
       if (!period.getPaymentDate().isBefore(provider.getValuationDate())) {
-        total += paymentPeriodPricer.futureValue(period, provider);
+        total += paymentPeriodPricer.forecastValue(period, provider);
       }
     }
     return total;
@@ -410,12 +410,12 @@ public class DiscountingSwapLegPricer {
     ImmutableList.Builder<CashFlow> builder = ImmutableList.builder();
     for (PaymentPeriod period : leg.getPaymentPeriods()) {
       if (!period.getPaymentDate().isBefore(provider.getValuationDate())) {
-        double futureValue = paymentPeriodPricer.futureValue(period, provider);
-        if (futureValue != 0d) {
+        double forecastValue = paymentPeriodPricer.forecastValue(period, provider);
+        if (forecastValue != 0d) {
           Currency currency = period.getCurrency();
           LocalDate paymentDate = period.getPaymentDate();
           double discountFactor = provider.discountFactor(currency, paymentDate);
-          CashFlow singleCashFlow = CashFlow.ofFutureValue(paymentDate, currency, futureValue, discountFactor);
+          CashFlow singleCashFlow = CashFlow.ofForecastValue(paymentDate, currency, forecastValue, discountFactor);
           builder.add(singleCashFlow);
         }
       }
@@ -428,12 +428,12 @@ public class DiscountingSwapLegPricer {
     ImmutableList.Builder<CashFlow> builder = ImmutableList.builder();
     for (PaymentEvent event : leg.getPaymentEvents()) {
       if (!event.getPaymentDate().isBefore(provider.getValuationDate())) {
-        double futureValue = paymentEventPricer.futureValue(event, provider);
-        if (futureValue != 0d) {
+        double forecastValue = paymentEventPricer.forecastValue(event, provider);
+        if (forecastValue != 0d) {
           Currency currency = event.getCurrency();
           LocalDate paymentDate = event.getPaymentDate();
           double discountFactor = provider.discountFactor(currency, paymentDate);
-          CashFlow singleCashFlow = CashFlow.ofFutureValue(paymentDate, currency, futureValue, discountFactor);
+          CashFlow singleCashFlow = CashFlow.ofForecastValue(paymentDate, currency, forecastValue, discountFactor);
           builder.add(singleCashFlow);
         }
       }
@@ -455,7 +455,7 @@ public class DiscountingSwapLegPricer {
       builder.addListEntry(
           ExplainKey.PAYMENT_EVENTS, child -> paymentEventPricer.explainPresentValue(event, provider, child));
     }
-    builder.put(ExplainKey.FUTURE_VALUE, futureValue(leg, provider));
+    builder.put(ExplainKey.FORECAST_VALUE, forecastValue(leg, provider));
     builder.put(ExplainKey.PRESENT_VALUE, presentValue(leg, provider));
   }
 

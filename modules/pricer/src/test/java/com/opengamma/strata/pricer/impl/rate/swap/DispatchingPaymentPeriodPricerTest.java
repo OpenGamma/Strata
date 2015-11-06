@@ -53,19 +53,19 @@ public class DispatchingPaymentPeriodPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_futureValue_RatePaymentPeriod() {
+  public void test_forecastValue_RatePaymentPeriod() {
     double expected = 0.0123d;
     PaymentPeriodPricer<RatePaymentPeriod> mockNotionalExchangeFn = mock(PaymentPeriodPricer.class);
-    when(mockNotionalExchangeFn.futureValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV))
+    when(mockNotionalExchangeFn.forecastValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV))
         .thenReturn(expected);
     DispatchingPaymentPeriodPricer test = new DispatchingPaymentPeriodPricer(mockNotionalExchangeFn, MOCK_KNOWN);
-    assertEquals(test.futureValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV), expected, 0d);
+    assertEquals(test.forecastValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV), expected, 0d);
   }
 
-  public void test_futureValue_unknownType() {
+  public void test_forecastValue_unknownType() {
     PaymentPeriod mockPaymentPeriod = mock(PaymentPeriod.class);
     DispatchingPaymentPeriodPricer test = DispatchingPaymentPeriodPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.futureValue(mockPaymentPeriod, MOCK_PROV));
+    assertThrowsIllegalArg(() -> test.forecastValue(mockPaymentPeriod, MOCK_PROV));
   }
 
   //-------------------------------------------------------------------------
@@ -76,10 +76,10 @@ public class DispatchingPaymentPeriodPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_futureValueSensitivity_unknownType() {
+  public void test_forecastValueSensitivity_unknownType() {
     PaymentPeriod mockPaymentPeriod = mock(PaymentPeriod.class);
     DispatchingPaymentPeriodPricer test = DispatchingPaymentPeriodPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.futureValueSensitivity(mockPaymentPeriod, MOCK_PROV));
+    assertThrowsIllegalArg(() -> test.forecastValueSensitivity(mockPaymentPeriod, MOCK_PROV));
   }
 
   //------------------------------------------------------------------------- 
@@ -99,9 +99,9 @@ public class DispatchingPaymentPeriodPricerTest {
     ignoreThrows(() -> test.presentValue(kapp, MOCK_PROV));
     ignoreThrows(() -> test.presentValue(mockPaymentPeriod, MOCK_PROV));
 
-    ignoreThrows(() -> test.futureValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV));
-    ignoreThrows(() -> test.futureValue(kapp, MOCK_PROV));
-    ignoreThrows(() -> test.futureValue(mockPaymentPeriod, MOCK_PROV));
+    ignoreThrows(() -> test.forecastValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV));
+    ignoreThrows(() -> test.forecastValue(kapp, MOCK_PROV));
+    ignoreThrows(() -> test.forecastValue(mockPaymentPeriod, MOCK_PROV));
 
     ignoreThrows(() -> test.pvbp(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV));
     ignoreThrows(() -> test.pvbp(kapp, MOCK_PROV));
@@ -111,9 +111,9 @@ public class DispatchingPaymentPeriodPricerTest {
     ignoreThrows(() -> test.presentValueSensitivity(kapp, MOCK_PROV));
     ignoreThrows(() -> test.presentValueSensitivity(mockPaymentPeriod, MOCK_PROV));
 
-    ignoreThrows(() -> test.futureValueSensitivity(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV));
-    ignoreThrows(() -> test.futureValueSensitivity(kapp, MOCK_PROV));
-    ignoreThrows(() -> test.futureValueSensitivity(mockPaymentPeriod, MOCK_PROV));
+    ignoreThrows(() -> test.forecastValueSensitivity(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV));
+    ignoreThrows(() -> test.forecastValueSensitivity(kapp, MOCK_PROV));
+    ignoreThrows(() -> test.forecastValueSensitivity(mockPaymentPeriod, MOCK_PROV));
 
     ignoreThrows(() -> test.pvbpSensitivity(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV));
     ignoreThrows(() -> test.pvbpSensitivity(kapp, MOCK_PROV));

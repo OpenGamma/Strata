@@ -98,7 +98,7 @@ public class DiscountingFixedCouponBondPaymentPeriodPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the future value of a single fixed coupon payment period.
+   * Calculates the forecast value of a single fixed coupon payment period.
    * <p>
    * The amount is expressed in the currency of the period.
    * This returns the value of the period with discounting.
@@ -106,13 +106,13 @@ public class DiscountingFixedCouponBondPaymentPeriodPricer {
    * The payment date of the period should not be in the past.
    * The result of this method for payment dates in the past is undefined.
    * <p>
-   * The future value is z-spread independent. 
+   * The forecast value is z-spread independent.
    * 
    * @param period  the period to price
    * @param discountFactors  the discount factor provider
    * @return the present value of the period
    */
-  public double futureValue(FixedCouponBondPaymentPeriod period, IssuerCurveDiscountFactors discountFactors) {
+  public double forecastValue(FixedCouponBondPaymentPeriod period, IssuerCurveDiscountFactors discountFactors) {
 
     if (period.getPaymentDate().isBefore(discountFactors.getValuationDate())) {
       return 0d;
@@ -177,18 +177,18 @@ public class DiscountingFixedCouponBondPaymentPeriodPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the future value sensitivity of a single fixed coupon payment period.
+   * Calculates the forecast value sensitivity of a single fixed coupon payment period.
    * <p>
-   * The future value sensitivity of the period is the sensitivity of the future value to
+   * The forecast value sensitivity of the period is the sensitivity of the forecast value to
    * the underlying curves.
    * <p>
-   * The future value sensitivity is zero and z-spread independent for the fixed payment. 
+   * The forecast value sensitivity is zero and z-spread independent for the fixed payment.
    * 
    * @param period  the period to price
    * @param discountFactors  the discount factor provider
-   * @return the future value curve sensitivity of the period
+   * @return the forecast value curve sensitivity of the period
    */
-  public PointSensitivityBuilder futureValueSensitivity(
+  public PointSensitivityBuilder forecastValueSensitivity(
       FixedCouponBondPaymentPeriod period,
       IssuerCurveDiscountFactors discountFactors) {
 
@@ -214,11 +214,11 @@ public class DiscountingFixedCouponBondPaymentPeriodPricer {
     LocalDate paymentDate = period.getPaymentDate();
     explainBasics(period, builder, currency, paymentDate);
     if (paymentDate.isBefore(discountFactors.getValuationDate())) {
-      builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.zero(currency));
+      builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {
       builder.put(ExplainKey.DISCOUNT_FACTOR, discountFactors.discountFactor(paymentDate));
-      builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.of(currency, futureValue(period, discountFactors)));
+      builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.of(currency, forecastValue(period, discountFactors)));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.of(currency, presentValue(period, discountFactors)));
     }
   }
@@ -250,12 +250,12 @@ public class DiscountingFixedCouponBondPaymentPeriodPricer {
     LocalDate paymentDate = period.getPaymentDate();
     explainBasics(period, builder, currency, paymentDate);
     if (paymentDate.isBefore(discountFactors.getValuationDate())) {
-      builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.zero(currency));
+      builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {
       builder.put(ExplainKey.DISCOUNT_FACTOR, discountFactors.getDiscountFactors()
           .discountFactorWithSpread(paymentDate, zSpread, compoundedRateType, periodsPerYear));
-      builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.of(currency, futureValue(period, discountFactors)));
+      builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.of(currency, forecastValue(period, discountFactors)));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.of(currency,
           presentValueWithSpread(period, discountFactors, zSpread, compoundedRateType, periodsPerYear)));
     }
