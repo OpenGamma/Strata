@@ -59,7 +59,7 @@ public final class Swaption
   /**
    * The expiry date of the option.  
    * <p>
-   * The option is European, and can only be exercised on the expiration date. 
+   * The option is European, and can only be exercised on the expiry date.
    * <p>
    * This date is typically set to be a valid business day.
    * However, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
@@ -69,14 +69,14 @@ public final class Swaption
   /**
    * The expiry time of the option.  
    * <p>
-   * The expiry time is related to the expiration date and time-zone.
+   * The expiry time is related to the expiry date and time-zone.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalTime expiryTime;
   /**
    * The time-zone of the expiry time.  
    * <p>
-   * The expiry time-zone is related to the expiration date and time.
+   * The expiry time-zone is related to the expiry date and time.
    */
   @PropertyDefinition(validate = "notNull")
   private final ZoneId expiryZone;
@@ -103,7 +103,7 @@ public final class Swaption
    * <p>
    * The result is returned by combining the expiry date, time and time-zone.
    * 
-   * @return the expiration date and time
+   * @return the expiry date and time
    */
   public ZonedDateTime getExpiryDateTime() {
     return expiryDate.getUnadjusted().atTime(expiryTime).atZone(expiryZone);
@@ -220,7 +220,7 @@ public final class Swaption
   /**
    * Gets the expiry date of the option.
    * <p>
-   * The option is European, and can only be exercised on the expiration date.
+   * The option is European, and can only be exercised on the expiry date.
    * <p>
    * This date is typically set to be a valid business day.
    * However, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
@@ -234,7 +234,7 @@ public final class Swaption
   /**
    * Gets the expiry time of the option.
    * <p>
-   * The expiry time is related to the expiration date and time-zone.
+   * The expiry time is related to the expiry date and time-zone.
    * @return the value of the property, not null
    */
   public LocalTime getExpiryTime() {
@@ -245,7 +245,7 @@ public final class Swaption
   /**
    * Gets the time-zone of the expiry time.
    * <p>
-   * The expiry time-zone is related to the expiration date and time.
+   * The expiry time-zone is related to the expiry date and time.
    * @return the value of the property, not null
    */
   public ZoneId getExpiryZone() {
@@ -634,7 +634,7 @@ public final class Swaption
     /**
      * Sets the expiry date of the option.
      * <p>
-     * The option is European, and can only be exercised on the expiration date.
+     * The option is European, and can only be exercised on the expiry date.
      * <p>
      * This date is typically set to be a valid business day.
      * However, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
@@ -650,7 +650,7 @@ public final class Swaption
     /**
      * Sets the expiry time of the option.
      * <p>
-     * The expiry time is related to the expiration date and time-zone.
+     * The expiry time is related to the expiry date and time-zone.
      * @param expiryTime  the new value, not null
      * @return this, for chaining, not null
      */
@@ -663,7 +663,7 @@ public final class Swaption
     /**
      * Sets the time-zone of the expiry time.
      * <p>
-     * The expiry time-zone is related to the expiration date and time.
+     * The expiry time-zone is related to the expiry date and time.
      * @param expiryZone  the new value, not null
      * @return this, for chaining, not null
      */

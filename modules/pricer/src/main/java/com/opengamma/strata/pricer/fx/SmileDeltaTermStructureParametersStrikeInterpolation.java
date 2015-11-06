@@ -45,7 +45,7 @@ class SmileDeltaTermStructureParametersStrikeInterpolation
    * The default interpolator is used to interpolate in the strike dimension. 
    * The default interpolator is linear with flat extrapolation.
    * 
-   * @param volatilityTerm  the volatility description at the different expiration.
+   * @param volatilityTerm  the volatility description at the different expiry.
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(SmileDeltaParameters[] volatilityTerm) {
     this(volatilityTerm, DEFAULT_INTERPOLATOR_STRIKE);
@@ -58,7 +58,7 @@ class SmileDeltaTermStructureParametersStrikeInterpolation
    * The default interpolator is linear with flat extrapolation.
    * 
    * @param name  the name of the smile parameter term structure
-   * @param volatilityTerm  the volatility description at the different expiration.
+   * @param volatilityTerm  the volatility description at the different expiry.
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(String name, SmileDeltaParameters[] volatilityTerm) {
     this(name, volatilityTerm, DEFAULT_INTERPOLATOR_STRIKE);
@@ -67,7 +67,7 @@ class SmileDeltaTermStructureParametersStrikeInterpolation
   /**
    * Constructor from volatility term structure and strike interpolator. 
    * 
-   * @param volatilityTerm  the volatility description at the different expiration.
+   * @param volatilityTerm  the volatility description at the different expiry.
    * @param strikeInterpolator  the interpolator used in the strike dimension.
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(
@@ -81,7 +81,7 @@ class SmileDeltaTermStructureParametersStrikeInterpolation
    * Constructor from name, volatility term structure, strike interpolator. 
    * 
    * @param name  the name of the smile parameter term structure
-   * @param volatilityTerm  the volatility description at the different expiration.
+   * @param volatilityTerm  the volatility description at the different expiry.
    * @param strikeInterpolator  the interpolator used in the strike dimension.
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(
@@ -95,7 +95,7 @@ class SmileDeltaTermStructureParametersStrikeInterpolation
   /**
    * Constructor from volatility term structure, strike interpolator and time interpolator.
    * 
-   * @param volatilityTerm  the volatility description at the different expiration.
+   * @param volatilityTerm  the volatility description at the different expiry.
    * @param strikeInterpolator  the interpolator used in the strike dimension.
    * @param timeInterpolator  the interpolator used in the time dimension.
    */
@@ -111,7 +111,7 @@ class SmileDeltaTermStructureParametersStrikeInterpolation
    * Constructor from volatility term structure, strike interpolator and time interpolator.
    * 
    * @param name  the name of the smile parameter term structure
-   * @param volatilityTerm  the volatility description at the different expiration.
+   * @param volatilityTerm  the volatility description at the different expiry.
    * @param strikeInterpolator  the interpolator used in the strike dimension.
    * @param timeInterpolator  the interpolator used in the time dimension.
    */
@@ -127,71 +127,71 @@ class SmileDeltaTermStructureParametersStrikeInterpolation
   /**
    * Constructor from market data. 
    * <p>
-   * The market date consists of time to expiration, delta and volatility.  
+   * The market date consists of time to expiry, delta and volatility.
    * The delta must be positive and sorted in ascending order.
-   * The range of delta is common to all time to expiration. 
+   * The range of delta is common to all time to expiry.
    * <p>
    * The default interpolator is used to interpolate in the strike dimension. 
    * The default interpolator is linear with flat extrapolation.
    * 
-   * @param timeToExpiration  the time to expiration of each volatility smile.
+   * @param timeToExpiry  the time to expiry of each volatility smile.
    * @param delta  the delta at which the volatilities are given. 
    * @param volatility  the volatilities at each delta.
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(
-      double[] timeToExpiration,
+      double[] timeToExpiry,
       double[] delta,
       double[][] volatility) {
-    this(timeToExpiration, delta, volatility, DEFAULT_INTERPOLATOR_STRIKE);
+    this(timeToExpiry, delta, volatility, DEFAULT_INTERPOLATOR_STRIKE);
   }
 
   /**
    * Constructor from name and market data. 
    * <p>
-   * The market date consists of time to expiration, delta and volatility.  
+   * The market date consists of time to expiry, delta and volatility.
    * The delta must be positive and sorted in ascending order.
-   * The range of delta is common to all time to expiration. 
+   * The range of delta is common to all time to expiry.
    * <p>
-   * {@code volatility} should be {@code n * (2 * m + 1)}, where {@code n} is the length of {@code timeToExpiration} 
+   * {@code volatility} should be {@code n * (2 * m + 1)}, where {@code n} is the length of {@code timeToExpiry}
    * and {@code m} is the length of {@code delta}.
    * <p>
    * The default interpolator is used to interpolate in the strike dimension. 
    * The default interpolator is linear with flat extrapolation.
    * 
    * @param name  the name of the smile parameter term structure
-   * @param timeToExpiration  the time to expiration of each volatility smile.
+   * @param timeToExpiry  the time to expiry of each volatility smile.
    * @param delta  the delta at which the volatilities are given. 
    * @param volatility  the volatilities at each delta.
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(
       String name,
-      double[] timeToExpiration,
+      double[] timeToExpiry,
       double[] delta,
       double[][] volatility) {
-    this(name, timeToExpiration, delta, volatility, DEFAULT_INTERPOLATOR_STRIKE);
+    this(name, timeToExpiry, delta, volatility, DEFAULT_INTERPOLATOR_STRIKE);
   }
 
   /**
    * Constructor from market data and strike interpolator. 
    * <p>
-   * The market date consists of time to expiration, delta and volatility.  
+   * The market date consists of time to expiry, delta and volatility.
    * The delta must be positive and sorted in ascending order.
-   * The range of delta is common to all time to expiration. 
+   * The range of delta is common to all time to expiry.
    * <p>
-   * {@code volatility} should be {@code n * (2 * m + 1)}, where {@code n} is the length of {@code timeToExpiration} 
+   * {@code volatility} should be {@code n * (2 * m + 1)}, where {@code n} is the length of {@code timeToExpiry}
    * and {@code m} is the length of {@code delta}.
    * 
-   * @param timeToExpiration  the time to expiration of each volatility smile 
+   * @param timeToExpiry  the time to expiry of each volatility smile
    * @param delta  the delta at which the volatilities are given 
    * @param volatility  the volatilities at each delta 
    * @param strikeInterpolator  the interpolator used in the strike dimension 
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(
-      double[] timeToExpiration,
+      double[] timeToExpiry,
       double[] delta,
       double[][] volatility,
       Interpolator1D strikeInterpolator) {
-    super(timeToExpiration, delta, volatility);
+    super(timeToExpiry, delta, volatility);
     ArgChecker.notNull(strikeInterpolator, "strike interpolator");
     _strikeInterpolator = ArgChecker.notNull(strikeInterpolator, "strikeInterpolator");
   }
@@ -199,171 +199,171 @@ class SmileDeltaTermStructureParametersStrikeInterpolation
   /**
    * Constructor from name, market data and strike interpolator. 
    * <p>
-   * The market date consists of time to expiration, delta and volatility.  
+   * The market date consists of time to expiry, delta and volatility.
    * The delta must be positive and sorted in ascending order.
-   * The range of delta is common to all time to expiration. 
+   * The range of delta is common to all time to expiry.
    * <p>
-   * {@code volatility} should be {@code n * (2 * m + 1)}, where {@code n} is the length of {@code timeToExpiration} 
+   * {@code volatility} should be {@code n * (2 * m + 1)}, where {@code n} is the length of {@code timeToExpiry}
    * and {@code m} is the length of {@code delta}.
    * 
    * @param name  the name of smile parameter term structure 
-   * @param timeToExpiration  the time to expiration of each volatility smile 
+   * @param timeToExpiry  the time to expiry of each volatility smile
    * @param delta  the delta at which the volatilities are given 
    * @param volatility  the volatilities at each delta 
    * @param strikeInterpolator  the interpolator used in the strike dimension 
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(
       String name,
-      double[] timeToExpiration,
+      double[] timeToExpiry,
       double[] delta,
       double[][] volatility,
       Interpolator1D strikeInterpolator) {
-    super(name, timeToExpiration, delta, volatility);
+    super(name, timeToExpiry, delta, volatility);
     _strikeInterpolator = ArgChecker.notNull(strikeInterpolator, "strikeInterpolator");
   }
 
   /**
    * Constructor from market data.
    * <p>
-   * The market data consists of time to expiration, delta, ATM volatilities, risk reversal figures and 
+   * The market data consists of time to expiry, delta, ATM volatilities, risk reversal figures and
    * strangle figures.
    * <p>
-   * The range of delta is common to all time to expiration. 
+   * The range of delta is common to all time to expiry.
    * {@code riskReversal} and {@code strangle} should be {@code n * m}, and the length of {@code atm} should {@code n}, 
-   * where {@code n} is the length of {@code timeToExpiration} and {@code m} is the length of {@code delta}. 
+   * where {@code n} is the length of {@code timeToExpiry} and {@code m} is the length of {@code delta}.
    * <p>
    * The default interpolator is used to interpolate in the strike dimension. 
    * The default interpolator is linear with flat extrapolation.
    * 
-   * @param timeToExpiration  the time to expiration of each volatility smile 
+   * @param timeToExpiry  the time to expiry of each volatility smile
    * @param delta  the delta at which the volatilities are given 
-   * @param atm  the ATM volatilities for each time to expiration
+   * @param atm  the ATM volatilities for each time to expiry
    * @param riskReversal  the risk reversal figures
    * @param strangle  the strangle figure
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(
-      double[] timeToExpiration,
+      double[] timeToExpiry,
       double[] delta, double[] atm,
       double[][] riskReversal,
       double[][] strangle) {
-    this(timeToExpiration, delta, atm, riskReversal, strangle, DEFAULT_INTERPOLATOR_STRIKE);
+    this(timeToExpiry, delta, atm, riskReversal, strangle, DEFAULT_INTERPOLATOR_STRIKE);
   }
 
   /**
    * Constructor from name and market data.
    * <p>
-   * The market data consists of time to expiration, delta, ATM volatilities, risk reversal figures and 
+   * The market data consists of time to expiry, delta, ATM volatilities, risk reversal figures and
    * strangle figures.
    * <p>
-   * The range of delta is common to all time to expiration. 
+   * The range of delta is common to all time to expiry.
    * {@code riskReversal} and {@code strangle} should be {@code n * m}, and the length of {@code atm} should {@code n}, 
-   * where {@code n} is the length of {@code timeToExpiration} and {@code m} is the length of {@code delta}. 
+   * where {@code n} is the length of {@code timeToExpiry} and {@code m} is the length of {@code delta}.
    * <p>
    * The default interpolator is used to interpolate in the strike dimension. 
    * The default interpolator is linear with flat extrapolation.
    * 
    * @param name  the name of smile parameter term structure 
-   * @param timeToExpiration  the time to expiration of each volatility smile 
+   * @param timeToExpiry  the time to expiry of each volatility smile
    * @param delta  the delta at which the volatilities are given 
-   * @param atm  the ATM volatilities for each time to expiration
+   * @param atm  the ATM volatilities for each time to expiry
    * @param riskReversal  the risk reversal figures
    * @param strangle  the strangle figure
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(
       String name,
-      double[] timeToExpiration,
+      double[] timeToExpiry,
       double[] delta,
       double[] atm,
       double[][] riskReversal,
       double[][] strangle) {
-    this(name, timeToExpiration, delta, atm, riskReversal, strangle, DEFAULT_INTERPOLATOR_STRIKE);
+    this(name, timeToExpiry, delta, atm, riskReversal, strangle, DEFAULT_INTERPOLATOR_STRIKE);
   }
 
   /**
    * Constructor from market data and strike interpolator.
    * <p>
-   * The market data consists of time to expiration, delta, ATM volatilities, risk reversal figures and 
+   * The market data consists of time to expiry, delta, ATM volatilities, risk reversal figures and
    * strangle figures.
    * <p>
-   * The range of delta is common to all time to expiration. 
+   * The range of delta is common to all time to expiry.
    * {@code riskReversal} and {@code strangle} should be {@code n * m}, and the length of {@code atm} should {@code n}, 
-   * where {@code n} is the length of {@code timeToExpiration} and {@code m} is the length of {@code delta}. 
+   * where {@code n} is the length of {@code timeToExpiry} and {@code m} is the length of {@code delta}.
    * 
-   * @param timeToExpiration  the time to expiration of each volatility smile 
+   * @param timeToExpiry  the time to expiry of each volatility smile
    * @param delta  the delta at which the volatilities are given 
-   * @param atm  the ATM volatilities for each time to expiration
+   * @param atm  the ATM volatilities for each time to expiry
    * @param riskReversal  the risk reversal figures
    * @param strangle  the strangle figure
    * @param strikeInterpolator  the interpolator to be used in the strike dimension
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(
-      double[] timeToExpiration,
+      double[] timeToExpiry,
       double[] delta,
       double[] atm,
       double[][] riskReversal,
       double[][] strangle,
       Interpolator1D strikeInterpolator) {
-    super(timeToExpiration, delta, atm, riskReversal, strangle);
+    super(timeToExpiry, delta, atm, riskReversal, strangle);
     _strikeInterpolator = ArgChecker.notNull(strikeInterpolator, "strikeInterpolator");
   }
 
   /**
    * Constructor from name, market data and strike interpolator.
    * <p>
-   * The market data consists of time to expiration, delta, ATM volatilities, risk reversal figures and 
+   * The market data consists of time to expiry, delta, ATM volatilities, risk reversal figures and
    * strangle figures.
    * <p>
-   * The range of delta is common to all time to expiration. 
+   * The range of delta is common to all time to expiry.
    * {@code riskReversal} and {@code strangle} should be {@code n * m}, and the length of {@code atm} should {@code n}, 
-   * where {@code n} is the length of {@code timeToExpiration} and {@code m} is the length of {@code delta}. 
+   * where {@code n} is the length of {@code timeToExpiry} and {@code m} is the length of {@code delta}.
    * 
    * @param name  the name of smile parameter term structure 
-   * @param timeToExpiration  the time to expiration of each volatility smile 
+   * @param timeToExpiry  the time to expiry of each volatility smile
    * @param delta  the delta at which the volatilities are given 
-   * @param atm  the ATM volatilities for each time to expiration
+   * @param atm  the ATM volatilities for each time to expiry
    * @param riskReversal  the risk reversal figures
    * @param strangle  the strangle figure
    * @param strikeInterpolator  the interpolator to be used in the strike dimension
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(
       String name,
-      double[] timeToExpiration,
+      double[] timeToExpiry,
       double[] delta,
       double[] atm,
       double[][] riskReversal,
       double[][] strangle,
       Interpolator1D strikeInterpolator) {
-    super(name, timeToExpiration, delta, atm, riskReversal, strangle);
+    super(name, timeToExpiry, delta, atm, riskReversal, strangle);
     _strikeInterpolator = ArgChecker.notNull(strikeInterpolator, "strikeInterpolator");
   }
 
   /**
    * Constructor from market data, strike interpolator and time interpolator.
    * <p>
-   * The market data consists of time to expiration, delta, ATM volatilities, risk reversal figures and 
+   * The market data consists of time to expiry, delta, ATM volatilities, risk reversal figures and
    * strangle figures.
    * <p>
-   * The range of delta is common to all time to expiration. 
+   * The range of delta is common to all time to expiry.
    * {@code riskReversal} and {@code strangle} should be {@code n * m}, and the length of {@code atm} should {@code n}, 
-   * where {@code n} is the length of {@code timeToExpiration} and {@code m} is the length of {@code delta}. 
+   * where {@code n} is the length of {@code timeToExpiry} and {@code m} is the length of {@code delta}.
    * 
-   * @param timeToExpiration  the time to expiration of each volatility smile 
+   * @param timeToExpiry  the time to expiry of each volatility smile
    * @param delta  the delta at which the volatilities are given 
-   * @param atm  the ATM volatilities for each time to expiration
+   * @param atm  the ATM volatilities for each time to expiry
    * @param riskReversal  the risk reversal figures
    * @param strangle  the strangle figure
    * @param strikeInterpolator  the interpolator to be used in the strike dimension
    * @param timeInterpolator  the interpolator to be used in the time dimension
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(
-      double[] timeToExpiration,
+      double[] timeToExpiry,
       double[] delta,
       double[] atm,
       double[][] riskReversal,
       double[][] strangle,
       Interpolator1D strikeInterpolator,
       Interpolator1D timeInterpolator) {
-    super(timeToExpiration, delta, atm, riskReversal, strangle, timeInterpolator);
+    super(timeToExpiry, delta, atm, riskReversal, strangle, timeInterpolator);
     _strikeInterpolator = ArgChecker.notNull(strikeInterpolator, "strikeInterpolator");
   }
 
@@ -373,14 +373,14 @@ class SmileDeltaTermStructureParametersStrikeInterpolation
    * The market data consists of time to expoiration, delta, ATM volatilities, risk reversal figures and 
    * strangle figures.
    * <p>
-   * The range of delta is common to all time to expiration. 
+   * The range of delta is common to all time to expiry.
    * {@code riskReversal} and {@code strangle} should be {@code n * m}, and the length of {@code atm} should {@code n}, 
-   * where {@code n} is the length of {@code timeToExpiration} and {@code m} is the length of {@code delta}. 
+   * where {@code n} is the length of {@code timeToExpiry} and {@code m} is the length of {@code delta}.
    * 
    * @param name  the name of the smile parameter term structure 
-   * @param timeToExpiration  the time to expiration of each volatility smile 
+   * @param timeToExpiry  the time to expiry of each volatility smile
    * @param delta  the delta at which the volatilities are given 
-   * @param atm  the ATM volatilities for each time to expiration
+   * @param atm  the ATM volatilities for each time to expiry
    * @param riskReversal  the risk reversal figures
    * @param strangle  the strangle figure
    * @param strikeInterpolator  the interpolator to be used in the strike dimension
@@ -388,14 +388,14 @@ class SmileDeltaTermStructureParametersStrikeInterpolation
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(
       String name,
-      double[] timeToExpiration,
+      double[] timeToExpiry,
       double[] delta,
       double[] atm,
       double[][] riskReversal,
       double[][] strangle,
       Interpolator1D strikeInterpolator,
       Interpolator1D timeInterpolator) {
-    super(name, timeToExpiration, delta, atm, riskReversal, strangle, timeInterpolator);
+    super(name, timeToExpiry, delta, atm, riskReversal, strangle, timeInterpolator);
     _strikeInterpolator = ArgChecker.notNull(strikeInterpolator, "strikeInterpolator");
   }
 
@@ -430,7 +430,7 @@ class SmileDeltaTermStructureParametersStrikeInterpolation
 
   /**
    * Computes the volatility and the volatility sensitivity with respect to the volatility data points.
-   * @param time The time to expiration.
+   * @param time The time to expiry.
    * @param strike The strike.
    * @param forward The forward.
    * After the methods, it contains the volatility sensitivity to the data points.

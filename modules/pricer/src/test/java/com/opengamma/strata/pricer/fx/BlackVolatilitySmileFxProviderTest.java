@@ -181,7 +181,7 @@ public class BlackVolatilitySmileFxProviderTest {
     double forwardMod = provider.getCurrencyPair().equals(pair) ? forward : 1.0 / forward;
 
     SmileDeltaTermStructureParametersStrikeInterpolation smileTerm = provider.getSmile();
-    double[] times = smileTerm.getTimeToExpiration();
+    double[] times = smileTerm.getTimeToExpiry();
     int nTimes = times.length;
     SmileDeltaParameters[] volTermUp = new SmileDeltaParameters[nTimes];
     SmileDeltaParameters[] volTermDw = new SmileDeltaParameters[nTimes];

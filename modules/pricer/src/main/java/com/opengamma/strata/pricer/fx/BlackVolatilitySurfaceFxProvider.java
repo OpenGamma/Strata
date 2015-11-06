@@ -42,7 +42,7 @@ import com.opengamma.strata.market.value.ValueType;
 /**
  * Data provider of volatility for FX options in the lognormal or Black-Scholes model. 
  * <p>
- * The volatility is represented by a surface on the expiration and strike value.
+ * The volatility is represented by a surface on the expiry and strike value.
  */
 @BeanDefinition
 public final class BlackVolatilitySurfaceFxProvider

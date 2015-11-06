@@ -36,11 +36,11 @@ class SmileDeltaTermStructureParameters {
    */
   private final String _name;
   /**
-   * The time to expiration in the term structure.
+   * The time to expiry in the term structure.
    */
-  private final double[] _timeToExpiration;
+  private final double[] _timeToExpiry;
   /**
-   * The smile description at the different time to expiration. All item should have the same deltas.
+   * The smile description at the different time to expiry. All item should have the same deltas.
    */
   private final SmileDeltaParameters[] _volatilityTerm;
   /**
@@ -59,7 +59,7 @@ class SmileDeltaTermStructureParameters {
   /**
    * Constructor from volatility term structure.
    * 
-   * @param volatilityTerm The volatility description at the different expiration.
+   * @param volatilityTerm The volatility description at the different expiry.
    */
   public SmileDeltaTermStructureParameters(SmileDeltaParameters[] volatilityTerm) {
     this(Long.toString(ATOMIC.getAndIncrement()), volatilityTerm, DEFAULT_INTERPOLATOR_EXPIRY);
@@ -71,7 +71,7 @@ class SmileDeltaTermStructureParameters {
    * The default interpolator is used to interpolate in the time dimension. 
    * 
    * @param name  the name of the smile parameter term structure
-   * @param volatilityTerm The volatility description at the different expiration.
+   * @param volatilityTerm The volatility description at the different expiry.
    */
   public SmileDeltaTermStructureParameters(String name, SmileDeltaParameters[] volatilityTerm) {
     this(name, volatilityTerm, DEFAULT_INTERPOLATOR_EXPIRY);
@@ -82,7 +82,7 @@ class SmileDeltaTermStructureParameters {
    * <p>
    * The default interpolator is used to interpolate in the time dimension. 
    * 
-   * @param volatilityTerm  the volatility description at the different expiration.
+   * @param volatilityTerm  the volatility description at the different expiry.
    * @param interpolator  the time interpolator
    */
   public SmileDeltaTermStructureParameters(SmileDeltaParameters[] volatilityTerm, Interpolator1D interpolator) {
@@ -93,7 +93,7 @@ class SmileDeltaTermStructureParameters {
    * Constructor from name, volatility term structure and time interpolator.
    * 
    * @param name  the name of the smile parameter term structure
-   * @param volatilityTerm  the volatility description at the different expiration
+   * @param volatilityTerm  the volatility description at the different expiry
    * @param interpolator  the time interpolator
    */
   public SmileDeltaTermStructureParameters(
@@ -104,54 +104,54 @@ class SmileDeltaTermStructureParameters {
     _volatilityTerm = ArgChecker.notNull(volatilityTerm, "volatilityTerm");
     _name = ArgChecker.notNull(name, "name");
     int nbExp = volatilityTerm.length;
-    _timeToExpiration = new double[nbExp];
+    _timeToExpiry = new double[nbExp];
     for (int loopexp = 0; loopexp < nbExp; loopexp++) {
-      _timeToExpiration[loopexp] = _volatilityTerm[loopexp].getTimeToExpiry();
+      _timeToExpiry[loopexp] = _volatilityTerm[loopexp].getTimeToExpiry();
     }
   }
 
   /**
    * Constructor from market data.
    * <p>
-   * The market date consists of time to expiration, delta and volatility.  
+   * The market date consists of time to expiry, delta and volatility.
    * <p>
-   * The range of delta is common to all time to expiration. 
-   * {@code volatility} should be {@code n * (2 * m + 1)}, where {@code n} is the length of {@code timeToExpiration} 
+   * The range of delta is common to all time to expiry.
+   * {@code volatility} should be {@code n * (2 * m + 1)}, where {@code n} is the length of {@code timeToExpiry}
    * and {@code m} is the length of {@code delta}.
    * <p>
    * The default interpolator is used to interpolate in the time dimension. 
    * 
-   * @param timeToExpiration  the time to expiration of each volatility smile 
+   * @param timeToExpiry  the time to expiry of each volatility smile
    * @param delta  the delta at which the volatilities are given 
    * @param volatility  the volatilities at each delta 
    */
-  public SmileDeltaTermStructureParameters(double[] timeToExpiration, double[] delta, double[][] volatility) {
-    this(Long.toString(ATOMIC.getAndIncrement()), timeToExpiration, delta, volatility);
+  public SmileDeltaTermStructureParameters(double[] timeToExpiry, double[] delta, double[][] volatility) {
+    this(Long.toString(ATOMIC.getAndIncrement()), timeToExpiry, delta, volatility);
   }
 
   /**
    * Constructor from name and market data.
    * <p>
-   * The market date consists of time to expiration, delta and volatility.  
+   * The market date consists of time to expiry, delta and volatility.
    * <p>
-   * The range of delta is common to all time to expiration. 
-   * {@code volatility} should be {@code n * (2 * m + 1)}, where {@code n} is the length of {@code timeToExpiration} 
+   * The range of delta is common to all time to expiry.
+   * {@code volatility} should be {@code n * (2 * m + 1)}, where {@code n} is the length of {@code timeToExpiry}
    * and {@code m} is the length of {@code delta}.
    * <p>
    * The default interpolator is used to interpolate in the time dimension. 
    * 
    * @param name  the name of smile parameter term structure 
-   * @param timeToExpiration  the time to expiration of each volatility smile 
+   * @param timeToExpiry  the time to expiry of each volatility smile
    * @param delta  the delta at which the volatilities are given
    * @param volatility  the volatilities at each delta 
    */
-  public SmileDeltaTermStructureParameters(String name, double[] timeToExpiration, double[] delta, double[][] volatility) {
-    ArgChecker.notNull(timeToExpiration, "time to expiry");
+  public SmileDeltaTermStructureParameters(String name, double[] timeToExpiry, double[] delta, double[][] volatility) {
+    ArgChecker.notNull(timeToExpiry, "time to expiry");
     ArgChecker.notNull(delta, "delta");
     ArgChecker.notNull(volatility, "volatility");
     _name = ArgChecker.notNull(name, "name");
-    _timeToExpiration = ArgChecker.notNull(timeToExpiration, "timeToExpiration");
-    int nbExp = timeToExpiration.length;
+    _timeToExpiry = ArgChecker.notNull(timeToExpiry, "timeToExpiry");
+    int nbExp = timeToExpiry.length;
     ArgChecker.isTrue(volatility.length == nbExp,
         "Volatility array length {} should be equal to the number of expiries {}", volatility.length, nbExp);
     ArgChecker.isTrue(volatility[0].length == 2 * delta.length + 1,
@@ -160,7 +160,7 @@ class SmileDeltaTermStructureParameters {
     _volatilityTerm = new SmileDeltaParameters[nbExp];
     for (int loopexp = 0; loopexp < nbExp; loopexp++) {
       _volatilityTerm[loopexp] = SmileDeltaParameters.of(
-          timeToExpiration[loopexp], DoubleArray.copyOf(delta), DoubleArray.copyOf(volatility[loopexp]));
+          timeToExpiry[loopexp], DoubleArray.copyOf(delta), DoubleArray.copyOf(volatility[loopexp]));
     }
     _timeInterpolator = DEFAULT_INTERPOLATOR_EXPIRY;
     ArgChecker.isTrue(_volatilityTerm[0].getVolatility().size() > 1,
@@ -170,84 +170,84 @@ class SmileDeltaTermStructureParameters {
   /**
    * Constructor from market data.
    * <p>
-   * The market data consists of time to expiration, delta, ATM volatilities, risk reversal figures and 
+   * The market data consists of time to expiry, delta, ATM volatilities, risk reversal figures and
    * strangle figures.
    * <p>
-   * The range of delta is common to all time to expiration. 
+   * The range of delta is common to all time to expiry.
    * {@code riskReversal} and {@code strangle} should be {@code n * m}, and the length of {@code atm} should {@code n}, 
-   * where {@code n} is the length of {@code timeToExpiration} and {@code m} is the length of {@code delta}. 
+   * where {@code n} is the length of {@code timeToExpiry} and {@code m} is the length of {@code delta}.
    * <p>
    * The default interpolator is used to interpolate in the time dimension. 
    * 
-   * @param timeToExpiration  the time to expiration of each volatility smile 
+   * @param timeToExpiry  the time to expiry of each volatility smile
    * @param delta  the delta at which the volatilities are given 
-   * @param atm  the ATM volatilities for each time to expiration
+   * @param atm  the ATM volatilities for each time to expiry
    * @param riskReversal  the risk reversal figures
    * @param strangle  the strangle figure
    */
   public SmileDeltaTermStructureParameters(
-      double[] timeToExpiration,
+      double[] timeToExpiry,
       double[] delta,
       double[] atm,
       double[][] riskReversal,
       double[][] strangle) {
-    this(Long.toString(ATOMIC.getAndIncrement()), timeToExpiration, delta, atm, riskReversal, strangle);
+    this(Long.toString(ATOMIC.getAndIncrement()), timeToExpiry, delta, atm, riskReversal, strangle);
   }
 
   /**
    * Constructor from name and market data.
    * <p>
-   * The market data consists of time to expiration, delta, ATM volatilities, risk reversal figures and 
+   * The market data consists of time to expiry, delta, ATM volatilities, risk reversal figures and
    * strangle figures.
    * <p>
-   * The range of delta is common to all time to expiration. 
+   * The range of delta is common to all time to expiry.
    * {@code riskReversal} and {@code strangle} should be {@code n * m}, and the length of {@code atm} should {@code n}, 
-   * where {@code n} is the length of {@code timeToExpiration} and {@code m} is the length of {@code delta}. 
+   * where {@code n} is the length of {@code timeToExpiry} and {@code m} is the length of {@code delta}.
    * <p>
    * The default interpolator is used to interpolate in the time dimension. 
    * 
    * @param name  the name of smile parameter term structure 
-   * @param timeToExpiration  the time to expiration of each volatility smile 
+   * @param timeToExpiry  the time to expiry of each volatility smile
    * @param delta  the delta at which the volatilities are given 
-   * @param atm  the ATM volatilities for each time to expiration
+   * @param atm  the ATM volatilities for each time to expiry
    * @param riskReversal  the risk reversal figures
    * @param strangle  the strangle figure
    */
   public SmileDeltaTermStructureParameters(
       String name,
-      double[] timeToExpiration,
+      double[] timeToExpiry,
       double[] delta,
       double[] atm,
       double[][] riskReversal,
       double[][] strangle) {
-    this(name, timeToExpiration, delta, atm, riskReversal, strangle, DEFAULT_INTERPOLATOR_EXPIRY);
+    this(name, timeToExpiry, delta, atm, riskReversal, strangle, DEFAULT_INTERPOLATOR_EXPIRY);
   }
 
   /**
    * Constructor from market data and time interpolator.
    * <p>
-   * The market data consists of time to expiration, delta, ATM volatilities, risk reversal figures and 
+   * The market data consists of time to expiry, delta, ATM volatilities, risk reversal figures and
    * strangle figures.
    * <p>
-   * The range of delta is common to all time to expiration. 
+   * The range of delta is common to all time to expiry.
    * {@code riskReversal} and {@code strangle} should be {@code n * m}, and the length of {@code atm} should {@code n}, 
-   * where {@code n} is the length of {@code timeToExpiration} and {@code m} is the length of {@code delta}. 
+   * where {@code n} is the length of {@code timeToExpiry} and {@code m} is the length of {@code delta}.
    * 
-   * @param timeToExpiration  the time to expiration of each volatility smile 
+   * @param timeToExpiry  the time to expiry of each volatility smile
    * @param delta  the delta at which the volatilities are given 
-   * @param atm  the ATM volatilities for each time to expiration
+   * @param atm  the ATM volatilities for each time to expiry
    * @param riskReversal  the risk reversal figures
    * @param strangle  the strangle figure
    * @param timeInterpolator  the interpolator to be used in the time dimension
    */
   public SmileDeltaTermStructureParameters(
-      double[] timeToExpiration,
+      double[] timeToExpiry,
       double[] delta,
       double[] atm,
       double[][] riskReversal,
       double[][] strangle,
       Interpolator1D timeInterpolator) {
-    this(Long.toString(ATOMIC.getAndIncrement()), timeToExpiration, delta, atm, riskReversal, strangle,
+    this(Long.toString(ATOMIC.getAndIncrement()), timeToExpiry, delta, atm, riskReversal, strangle,
         timeInterpolator);
   }
 
@@ -257,21 +257,21 @@ class SmileDeltaTermStructureParameters {
    * The market data consists of time to expoiration, delta, ATM volatilities, risk reversal figures and 
    * strangle figures.
    * <p>
-   * The range of delta is common to all time to expiration. 
+   * The range of delta is common to all time to expiry.
    * {@code riskReversal} and {@code strangle} should be {@code n * m}, and the length of {@code atm} should {@code n}, 
-   * where {@code n} is the length of {@code timeToExpiration} and {@code m} is the length of {@code delta}. 
+   * where {@code n} is the length of {@code timeToExpiry} and {@code m} is the length of {@code delta}.
    * 
    * @param name  the name of the smile parameter term structure 
-   * @param timeToExpiration  the time to expiration of each volatility smile 
+   * @param timeToExpiry  the time to expiry of each volatility smile
    * @param delta  the delta at which the volatilities are given 
-   * @param atm  the ATM volatilities for each time to expiration
+   * @param atm  the ATM volatilities for each time to expiry
    * @param riskReversal  the risk reversal figures
    * @param strangle  the strangle figure
    * @param timeInterpolator  the interpolator to be used in the time dimension
    */
   public SmileDeltaTermStructureParameters(
       String name,
-      double[] timeToExpiration,
+      double[] timeToExpiry,
       double[] delta,
       double[] atm,
       double[][] riskReversal,
@@ -283,19 +283,19 @@ class SmileDeltaTermStructureParameters {
     ArgChecker.notNull(strangle, "strangle");
     _timeInterpolator = ArgChecker.notNull(timeInterpolator, "timeInterpolator");
     _name = ArgChecker.notNull(name, "name");
-    _timeToExpiration = ArgChecker.notNull(timeToExpiration, "timeToExpiration");
-    int nbExp = timeToExpiration.length;
-    ArgChecker.isTrue(atm.length == nbExp, "ATM length should be coherent with time to expiration length");
+    _timeToExpiry = ArgChecker.notNull(timeToExpiry, "timeToExpiry");
+    int nbExp = timeToExpiry.length;
+    ArgChecker.isTrue(atm.length == nbExp, "ATM length should be coherent with time to expiry length");
     ArgChecker.isTrue(riskReversal.length == nbExp,
-        "Risk reversal length should be coherent with time to expiration length");
-    ArgChecker.isTrue(strangle.length == nbExp, "Strangle length should be coherent with time to expiration length");
+        "Risk reversal length should be coherent with time to expiry length");
+    ArgChecker.isTrue(strangle.length == nbExp, "Strangle length should be coherent with time to expiry length");
     ArgChecker.isTrue(riskReversal[0].length == delta.length,
         "Risk reversal size should be coherent with time to delta length");
     ArgChecker.isTrue(strangle[0].length == delta.length, "Strangle size should be coherent with time to delta length");
     _volatilityTerm = new SmileDeltaParameters[nbExp];
     for (int loopexp = 0; loopexp < nbExp; loopexp++) {
       _volatilityTerm[loopexp] = SmileDeltaParameters.of(
-          timeToExpiration[loopexp],
+          timeToExpiry[loopexp],
           atm[loopexp],
           DoubleArray.copyOf(delta),
           DoubleArray.copyOf(riskReversal[loopexp]),
@@ -316,12 +316,12 @@ class SmileDeltaTermStructureParameters {
 
   /**
    * Get smile at a given time. The smile is described by the volatilities at a given delta. The smile is obtained from the data by the given interpolator.
-   * @param time The time to expiration.
+   * @param time The time to expiry.
    * @return The smile.
    */
   public SmileDeltaParameters getSmileForTime(double time) {
     int nbVol = _volatilityTerm[0].getVolatility().size();
-    int nbTime = _timeToExpiration.length;
+    int nbTime = _timeToExpiry.length;
     ArgChecker.isTrue(nbTime > 1, "Need more than one time value to perform interpolation");
     double[] volatilityT = new double[nbVol];
     for (int loopvol = 0; loopvol < nbVol; loopvol++) {
@@ -330,7 +330,7 @@ class SmileDeltaTermStructureParameters {
         volDelta[looptime] = _volatilityTerm[looptime].getVolatility().get(loopvol);
       }
       Interpolator1DDataBundle interpData =
-          _timeInterpolator.getDataBundleFromSortedArrays(_timeToExpiration, volDelta);
+          _timeInterpolator.getDataBundleFromSortedArrays(_timeToExpiry, volDelta);
       volatilityT[loopvol] = _timeInterpolator.interpolate(interpData, time);
     }
     SmileDeltaParameters smile = SmileDeltaParameters.of(
@@ -340,7 +340,7 @@ class SmileDeltaTermStructureParameters {
 
   /**
    * Get the smile at a given time and the sensitivities with respect to the volatilities.
-   * @param time The time to expiration.
+   * @param time The time to expiry.
    * @param volatilityAtTimeSensitivity The sensitivity to the volatilities of the smile at the given time.
    * After the methods, it contains the volatility sensitivity to the data points.
    * @return The smile
@@ -349,7 +349,7 @@ class SmileDeltaTermStructureParameters {
     int nbVol = _volatilityTerm[0].getVolatility().size();
     ArgChecker.isTrue(volatilityAtTimeSensitivity.length == nbVol, "Sensitivity with incorrect size");
     ArgChecker.isTrue(nbVol > 1, "Need more than one volatility value to perform interpolation");
-    int nbTime = _timeToExpiration.length;
+    int nbTime = _timeToExpiry.length;
     ArgChecker.isTrue(nbTime > 1, "Need more than one time value to perform interpolation");
     double[] volatilityT = new double[nbVol];
     double[][] volatilitySensitivity = new double[nbTime][nbVol];
@@ -359,7 +359,7 @@ class SmileDeltaTermStructureParameters {
         volDelta[looptime] = _volatilityTerm[looptime].getVolatility().get(loopvol);
       }
       Interpolator1DDataBundle interpData =
-          _timeInterpolator.getDataBundleFromSortedArrays(_timeToExpiration, volDelta);
+          _timeInterpolator.getDataBundleFromSortedArrays(_timeToExpiry, volDelta);
       double[] volatilitySensitivityVol = _timeInterpolator.getNodeSensitivitiesForValue(interpData, time);
       for (int looptime = 0; looptime < nbTime; looptime++) {
         volatilitySensitivity[looptime][loopvol] = volatilitySensitivityVol[looptime] * volatilityAtTimeSensitivity[loopvol];
@@ -380,19 +380,19 @@ class SmileDeltaTermStructureParameters {
   }
 
   /**
-   * Gets the times to expiration.
+   * Gets the times to expiry.
    * @return The times.
    */
-  public double[] getTimeToExpiration() {
-    return _timeToExpiration;
+  public double[] getTimeToExpiry() {
+    return _timeToExpiry;
   }
 
   /**
-   * Gets the number of expirations.
-   * @return The number of expirations.
+   * Gets the number of expirys.
+   * @return The number of expirys.
    */
-  public int getNumberExpiration() {
-    return _timeToExpiration.length;
+  public int getNumberExpiry() {
+    return _timeToExpiry.length;
   }
 
   /**
@@ -420,7 +420,7 @@ class SmileDeltaTermStructureParameters {
   }
 
   /**
-   * Gets delta (common to all time to expiration).
+   * Gets delta (common to all time to expiry).
    * @return The delta.
    */
   public double[] getDelta() {
@@ -447,7 +447,7 @@ class SmileDeltaTermStructureParameters {
     int prime = 31;
     int result = 1;
     result = prime * result + _name.hashCode();
-    result = prime * result + Arrays.hashCode(_timeToExpiration);
+    result = prime * result + Arrays.hashCode(_timeToExpiry);
     result = prime * result + Arrays.hashCode(_volatilityTerm);
     result = prime * result + _timeInterpolator.hashCode();
     return result;
@@ -468,7 +468,7 @@ class SmileDeltaTermStructureParameters {
     if (!Objects.equals(_name, other._name)) {
       return false;
     }
-    if (!Arrays.equals(_timeToExpiration, other._timeToExpiration)) {
+    if (!Arrays.equals(_timeToExpiry, other._timeToExpiry)) {
       return false;
     }
     if (!Arrays.equals(_volatilityTerm, other._volatilityTerm)) {
