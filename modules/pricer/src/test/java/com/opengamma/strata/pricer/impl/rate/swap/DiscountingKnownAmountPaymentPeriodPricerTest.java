@@ -82,18 +82,18 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_futureValue() {
+  public void test_forecastValue() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double fvExpected = AMOUNT_1000;
-    double fvComputed = PRICER.futureValue(PERIOD, prov);
+    double fvComputed = PRICER.forecastValue(PERIOD, prov);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
-  public void test_futureValue_inPast() {
+  public void test_forecastValue_inPast() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
-    double fvComputed = PRICER.futureValue(PERIOD_PAST, prov);
+    double fvComputed = PRICER.forecastValue(PERIOD_PAST, prov);
     assertEquals(fvComputed, 0, TOLERANCE_PV);
   }
 
@@ -120,10 +120,10 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_futureValueSensitivity() {
+  public void test_forecastValueSensitivity() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
-    assertEquals(PRICER.futureValueSensitivity(PERIOD, prov), PointSensitivityBuilder.none());
+    assertEquals(PRICER.forecastValueSensitivity(PERIOD, prov), PointSensitivityBuilder.none());
   }
 
   //-------------------------------------------------------------------------
@@ -170,8 +170,8 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), PERIOD.getUnadjustedEndDate());
     assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get(), (Integer) daysBetween);
 
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), PERIOD.getCurrency());
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), AMOUNT_1000, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), PERIOD.getCurrency());
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), AMOUNT_1000, TOLERANCE_PV);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), PERIOD.getCurrency());
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), AMOUNT_1000 * DISCOUNT_FACTOR, TOLERANCE_PV);
   }
@@ -194,8 +194,8 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), PERIOD_PAST.getUnadjustedEndDate());
     assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get(), (Integer) daysBetween);
 
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), PERIOD_PAST.getCurrency());
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), 0, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), PERIOD_PAST.getCurrency());
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0, TOLERANCE_PV);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), PERIOD_PAST.getCurrency());
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0 * DISCOUNT_FACTOR, TOLERANCE_PV);
   }

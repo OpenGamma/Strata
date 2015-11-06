@@ -63,7 +63,7 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the future value of a single payment event.
+   * Calculates the forecast value of a single payment event.
    * <p>
    * The amount is expressed in the currency of the event.
    * This returns the value of the event without discounting.
@@ -73,21 +73,21 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    * 
    * @param event  the event to price
    * @param provider  the rates provider
-   * @return the future value of the event
+   * @return the forecast value of the event
    */
-  public abstract double futureValue(T event, RatesProvider provider);
+  public abstract double forecastValue(T event, RatesProvider provider);
 
   /**
-   * Calculates the future value sensitivity of a single payment event.
+   * Calculates the forecast value sensitivity of a single payment event.
    * <p>
-   * The future value sensitivity of the event is the sensitivity of the future value to
+   * The forecast value sensitivity of the event is the sensitivity of the forecast value to
    * the underlying curves.
    * 
    * @param event  the event to price
    * @param provider  the rates provider
-   * @return the future value curve sensitivity of the event
+   * @return the forecast value curve sensitivity of the event
    */
-  public abstract PointSensitivityBuilder futureValueSensitivity(T event, RatesProvider provider);
+  public abstract PointSensitivityBuilder forecastValueSensitivity(T event, RatesProvider provider);
 
   //-------------------------------------------------------------------------
   /**

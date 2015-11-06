@@ -51,11 +51,11 @@ public class DiscountingNotionalExchangePricerTest {
     assertEquals(calculated, NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * DISCOUNT_FACTOR, 0d);
   }
 
-  public void test_futureValue() {
+  public void test_forecastValue() {
     SimpleRatesProvider prov = createProvider(NOTIONAL_EXCHANGE_REC_GBP);
 
     DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
-    double calculated = test.futureValue(NOTIONAL_EXCHANGE_REC_GBP, prov);
+    double calculated = test.forecastValue(NOTIONAL_EXCHANGE_REC_GBP, prov);
     assertEquals(calculated, NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount(), 0d);
   }
 
@@ -73,11 +73,11 @@ public class DiscountingNotionalExchangePricerTest {
         senseExpected, NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * eps));
   }
 
-  public void test_futureValueSensitivity() {
+  public void test_forecastValueSensitivity() {
     SimpleRatesProvider prov = createProvider(NOTIONAL_EXCHANGE_REC_GBP);
 
     DiscountingNotionalExchangePricer test = DiscountingNotionalExchangePricer.DEFAULT;
-    PointSensitivities senseComputed = test.futureValueSensitivity(NOTIONAL_EXCHANGE_REC_GBP, prov).build();
+    PointSensitivities senseComputed = test.forecastValueSensitivity(NOTIONAL_EXCHANGE_REC_GBP, prov).build();
 
     double eps = 1.0e-12;
     PointSensitivities senseExpected = PointSensitivities.empty();
@@ -120,8 +120,8 @@ public class DiscountingNotionalExchangePricerTest {
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), notional.getAmount(), TOLERANCE);
     assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), notional.getAmount(), TOLERANCE);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), notional.getAmount(), TOLERANCE);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), notional.getAmount() * DISCOUNT_FACTOR, TOLERANCE);
   }
@@ -142,8 +142,8 @@ public class DiscountingNotionalExchangePricerTest {
     assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), notional.getAmount(), TOLERANCE);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), 0d, TOLERANCE);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0d, TOLERANCE);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0d * DISCOUNT_FACTOR, TOLERANCE);
   }

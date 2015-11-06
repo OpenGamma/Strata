@@ -181,7 +181,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
 
   // all tests use a fixed rate to avoid excessive use of mocks
   // rate observation is separated from this class, so nothing is missed in unit test terms
-  // most testing on futureValue as methods only differ in discountFactor
+  // most testing on forecastValue as methods only differ in discountFactor
   //-------------------------------------------------------------------------
   public void test_presentValue_single() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
@@ -192,62 +192,62 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_futureValue_single() {
+  public void test_forecastValue_single() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double fvExpected = RATE_1 * ACCRUAL_FACTOR_1 * NOTIONAL_100;
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(PAYMENT_PERIOD_1, prov);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(PAYMENT_PERIOD_1, prov);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
-  public void test_futureValue_single_fx() {
+  public void test_forecastValue_single_fx() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double fvExpected = RATE_1 * ACCRUAL_FACTOR_1 * NOTIONAL_100 * RATE_FX;
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(PAYMENT_PERIOD_1_FX, prov);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(PAYMENT_PERIOD_1_FX, prov);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
-  public void test_futureValue_single_gearingSpread() {
+  public void test_forecastValue_single_gearingSpread() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double fvExpected = (RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100;
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(PAYMENT_PERIOD_1_GS, prov);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(PAYMENT_PERIOD_1_GS, prov);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
-  public void test_futureValue_single_gearingNoNegative() {
+  public void test_forecastValue_single_gearingNoNegative() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(PAYMENT_PERIOD_1_NEG, prov);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(PAYMENT_PERIOD_1_NEG, prov);
     assertEquals(fvComputed, 0d, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
-  public void test_futureValue_compoundNone() {
+  public void test_forecastValue_compoundNone() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double fvExpected =
         ((RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100) +
             ((RATE_2 * GEARING + SPREAD) * ACCRUAL_FACTOR_2 * NOTIONAL_100) +
             ((RATE_3 * GEARING + SPREAD) * ACCRUAL_FACTOR_3 * NOTIONAL_100);
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(PAYMENT_PERIOD_FULL_GS, prov);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(PAYMENT_PERIOD_FULL_GS, prov);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
-  public void test_futureValue_compoundNone_fx() {
+  public void test_forecastValue_compoundNone_fx() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double fvExpected =
         ((RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100 * RATE_FX) +
             ((RATE_2 * GEARING + SPREAD) * ACCRUAL_FACTOR_2 * NOTIONAL_100 * RATE_FX) +
             ((RATE_3 * GEARING + SPREAD) * ACCRUAL_FACTOR_3 * NOTIONAL_100 * RATE_FX);
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(PAYMENT_PERIOD_FULL_GS_FX_USD, prov);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(PAYMENT_PERIOD_FULL_GS_FX_USD, prov);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
-  public void test_futureValue_compoundStraight() {
+  public void test_forecastValue_compoundStraight() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS.toBuilder()
@@ -256,11 +256,11 @@ public class DiscountingRatePaymentPeriodPricerTest {
     double invFactor2 = 1.0d + ACCRUAL_FACTOR_2 * (RATE_2 * GEARING + SPREAD);
     double invFactor3 = 1.0d + ACCRUAL_FACTOR_3 * (RATE_3 * GEARING + SPREAD);
     double fvExpected = NOTIONAL_100 * (invFactor1 * invFactor2 * invFactor3 - 1.0d);
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(period, prov);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(period, prov);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
-  public void test_futureValue_compoundFlat() {
+  public void test_forecastValue_compoundFlat() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS.toBuilder()
@@ -271,23 +271,23 @@ public class DiscountingRatePaymentPeriodPricerTest {
     double cpa3 = NOTIONAL_100 * ACCRUAL_FACTOR_3 * (RATE_3 * GEARING + SPREAD) +
         (cpa1 + cpa2) * ACCRUAL_FACTOR_3 * (RATE_3 * GEARING);
     double fvExpected = cpa1 + cpa2 + cpa3;
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(period, prov);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(period, prov);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
-  public void test_futureValue_compoundFlat_notional() {
+  public void test_forecastValue_compoundFlat_notional() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     RatePaymentPeriod periodNot = PAYMENT_PERIOD_FULL_GS.toBuilder()
         .compoundingMethod(CompoundingMethod.FLAT).build();
     RatePaymentPeriod period1 = PAYMENT_PERIOD_FULL_GS.toBuilder()
         .compoundingMethod(CompoundingMethod.FLAT).notional(1.0d).build();
-    double fvComputedNot = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(periodNot, prov);
-    double fvComputed1 = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(period1, prov);
+    double fvComputedNot = DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(periodNot, prov);
+    double fvComputed1 = DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(period1, prov);
     assertEquals(fvComputedNot, fvComputed1 * NOTIONAL_100, TOLERANCE_PV);
   }
 
-  public void test_futureValue_compoundSpreadExclusive() {
+  public void test_forecastValue_compoundSpreadExclusive() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS.toBuilder()
@@ -297,11 +297,11 @@ public class DiscountingRatePaymentPeriodPricerTest {
     double invFactor3 = 1.0d + ACCRUAL_FACTOR_3 * (RATE_3 * GEARING);
     double fvExpected = NOTIONAL_100 * (invFactor1 * invFactor2 * invFactor3 - 1.0d +
         (ACCRUAL_FACTOR_1 + ACCRUAL_FACTOR_2 + ACCRUAL_FACTOR_3) * SPREAD);
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(period, prov);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(period, prov);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
-  public void test_futureValue_compoundSpreadExclusive_fx() {
+  public void test_forecastValue_compoundSpreadExclusive_fx() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS_FX_USD.toBuilder()
@@ -311,7 +311,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     double invFactor3 = 1.0d + ACCRUAL_FACTOR_3 * (RATE_3 * GEARING);
     double fvExpected = NOTIONAL_100 * RATE_FX * (invFactor1 * invFactor2 * invFactor3 - 1.0d +
         (ACCRUAL_FACTOR_1 + ACCRUAL_FACTOR_2 + ACCRUAL_FACTOR_3) * SPREAD);
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(period, prov);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(period, prov);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
@@ -412,9 +412,9 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   /**
-   * test future value sensitivity for ibor, no compounding. 
+   * test forecast value sensitivity for ibor, no compounding.
    */
-  public void test_futureValueSensitivity_ibor_noCompounding() {
+  public void test_forecastValueSensitivity_ibor_noCompounding() {
     RatesProvider mockProv = mock(RatesProvider.class);
     RateObservationFn<RateObservation> obsFunc = mock(RateObservationFn.class);
 
@@ -429,7 +429,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
       when(obsFunc.rateSensitivity(observation, dates[i], dates[i + 1], mockProv)).thenReturn(iborSense);
       when(obsFunc.rate(observation, dates[i], dates[i + 1], mockProv)).thenReturn(rates[i]);
     }
-    PointSensitivities senseComputed = pricer.futureValueSensitivity(PAYMENT_PERIOD_FLOATING, mockProv).build();
+    PointSensitivities senseComputed = pricer.forecastValueSensitivity(PAYMENT_PERIOD_FLOATING, mockProv).build();
 
     double eps = 1.e-7;
     List<IborRateSensitivity> senseExpectedList = futureFwdSensitivityFD(mockProv, PAYMENT_PERIOD_FLOATING, obsFunc,
@@ -438,9 +438,9 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertTrue(senseComputed.equalWithTolerance(senseExpected, eps * PAYMENT_PERIOD_FLOATING.getNotional()));
   }
 
-  // test future value sensitivity for ibor, with straight, flat and exclusive compounding. 
+  // test forecast value sensitivity for ibor, with straight, flat and exclusive compounding.
   @DataProvider(name = "compoundingRatePaymentPeriod")
-  Object[][] data_futureValueSensitivity_ibor_compounding() {
+  Object[][] data_forecastValueSensitivity_ibor_compounding() {
     return new Object[][] {
         {PAYMENT_PERIOD_COMPOUNDING_STRAIGHT},
         {PAYMENT_PERIOD_COMPOUNDING_FLAT},
@@ -449,7 +449,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   @Test(dataProvider = "compoundingRatePaymentPeriod")
-  public void test_futureValueSensitivity_ibor_compounding(RatePaymentPeriod period) {
+  public void test_forecastValueSensitivity_ibor_compounding(RatePaymentPeriod period) {
     RatesProvider mockProv = mock(RatesProvider.class);
     RateObservationFn<RateObservation> obsFunc = mock(RateObservationFn.class);
     when(mockProv.getValuationDate()).thenReturn(VAL_DATE);
@@ -463,31 +463,31 @@ public class DiscountingRatePaymentPeriodPricerTest {
       when(obsFunc.rateSensitivity(observation, dates[i], dates[i + 1], mockProv)).thenReturn(iborSense);
       when(obsFunc.rate(observation, dates[i], dates[i + 1], mockProv)).thenReturn(rates[i]);
     }
-    PointSensitivities senseComputed = pricer.futureValueSensitivity(period, mockProv).build();
+    PointSensitivities senseComputed = pricer.forecastValueSensitivity(period, mockProv).build();
     List<IborRateSensitivity> senseExpectedList = futureFwdSensitivityFD(mockProv, period, obsFunc, EPS_FD);
     PointSensitivities senseExpected = PointSensitivities.of(senseExpectedList);
     assertTrue(senseComputed.equalWithTolerance(senseExpected, EPS_FD * period.getNotional()));
   }
 
   //-------------------------------------------------------------------------
-  public void test_futureValueSensitivity_compoundNone_fx() {
+  public void test_forecastValueSensitivity_compoundNone_fx() {
     DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
     ImmutableRatesProvider provider = MULTI_GBP_USD;
     PointSensitivityBuilder pointSensiComputedUSD =
-        pricer.futureValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_USD, provider);
+        pricer.forecastValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_USD, provider);
     CurveCurrencyParameterSensitivities sensiComputedUSD =
         provider.curveParameterSensitivity(pointSensiComputedUSD.build().normalized());
     CurveCurrencyParameterSensitivities sensiExpectedUSD = CAL_FD.sensitivity(
-        provider, (p) -> CurrencyAmount.of(USD, pricer.futureValue(PAYMENT_PERIOD_FULL_GS_FX_USD, (p))));
+        provider, (p) -> CurrencyAmount.of(USD, pricer.forecastValue(PAYMENT_PERIOD_FULL_GS_FX_USD, (p))));
     assertTrue(sensiComputedUSD.equalWithTolerance(
         sensiExpectedUSD, EPS_FD * PAYMENT_PERIOD_FULL_GS_FX_USD.getNotional()));
 
     PointSensitivityBuilder pointSensiComputedGBP =
-        pricer.futureValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider);
+        pricer.forecastValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider);
     CurveCurrencyParameterSensitivities sensiComputedGBP =
         provider.curveParameterSensitivity(pointSensiComputedGBP.build().normalized());
     CurveCurrencyParameterSensitivities sensiExpectedGBP = CAL_FD.sensitivity(
-        provider, (p) -> CurrencyAmount.of(GBP, pricer.futureValue(PAYMENT_PERIOD_FULL_GS_FX_GBP, (p))));
+        provider, (p) -> CurrencyAmount.of(GBP, pricer.forecastValue(PAYMENT_PERIOD_FULL_GS_FX_GBP, (p))));
     assertTrue(sensiComputedGBP.equalWithTolerance(
         sensiExpectedGBP, EPS_FD * PAYMENT_PERIOD_FULL_GS_FX_GBP.getNotional()));
   }
@@ -547,8 +547,8 @@ public class DiscountingRatePaymentPeriodPricerTest {
       }
       DiscountingRatePaymentPeriodPricer pricerUp = new DiscountingRatePaymentPeriodPricer(obsFuncUp);
       DiscountingRatePaymentPeriodPricer pricerDown = new DiscountingRatePaymentPeriodPricer(obsFuncDown);
-      double up = pricerUp.futureValue(payment, provNew);
-      double down = pricerDown.futureValue(payment, provNew);
+      double up = pricerUp.forecastValue(payment, provNew);
+      double down = pricerDown.forecastValue(payment, provNew);
       IborRateSensitivity fwdSense = IborRateSensitivity.of(index, fixingDate, 0.5 * (up - down) / eps);
       forwardRateSensi.add(fwdSense);
     }
@@ -655,8 +655,8 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), NOTIONAL_100, TOLERANCE_PV);
     assertEquals(explain.get(ExplainKey.COMPOUNDING).get(), PAYMENT_PERIOD_1.getCompoundingMethod());
     assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE_PV);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fv, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), fv, TOLERANCE_PV);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), fv * DISCOUNT_FACTOR, TOLERANCE_PV);
 
@@ -695,8 +695,8 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.NOTIONAL).get().getAmount(), NOTIONAL_100, TOLERANCE_PV);
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), NOTIONAL_100, TOLERANCE_PV);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), 0d, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0d, TOLERANCE_PV);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0d, TOLERANCE_PV);
   }
@@ -723,8 +723,8 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), NOTIONAL_100, TOLERANCE_PV);
     assertEquals(explain.get(ExplainKey.COMPOUNDING).get(), PAYMENT_PERIOD_1_FX.getCompoundingMethod());
     assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE_PV);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fv, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), fv, TOLERANCE_PV);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), fv * DISCOUNT_FACTOR, TOLERANCE_PV);
     assertEquals(explain.get(ExplainKey.OBSERVATIONS).get().size(), 1);
@@ -773,8 +773,8 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), NOTIONAL_100, TOLERANCE_PV);
     assertEquals(explain.get(ExplainKey.COMPOUNDING).get(), PAYMENT_PERIOD_1_GS.getCompoundingMethod());
     assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE_PV);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fv, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), fv, TOLERANCE_PV);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), fv * DISCOUNT_FACTOR, TOLERANCE_PV);
 

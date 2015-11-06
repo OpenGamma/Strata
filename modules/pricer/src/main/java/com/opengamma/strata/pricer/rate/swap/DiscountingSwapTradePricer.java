@@ -48,7 +48,7 @@ public class DiscountingSwapTradePricer {
    * Calculates the present value of the swap trade, converted to the specified currency.
    * <p>
    * The present value of the trade is the value on the valuation date.
-   * This is the discounted future value.
+   * This is the discounted forecast value.
    * The result is converted to the specified currency.
    * 
    * @param trade  the trade to price
@@ -64,7 +64,7 @@ public class DiscountingSwapTradePricer {
    * Calculates the present value of the swap trade.
    * <p>
    * The present value of the trade is the value on the valuation date.
-   * This is the discounted future value.
+   * This is the discounted forecast value.
    * The result is expressed using the payment currency of each leg.
    * 
    * @param trade  the trade to price
@@ -91,31 +91,31 @@ public class DiscountingSwapTradePricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the future value of the swap trade.
+   * Calculates the forecast value of the swap trade.
    * <p>
-   * The future value of the trade is the value on the valuation date without present value discounting.
+   * The forecast value of the trade is the value on the valuation date without present value discounting.
    * The result is expressed using the payment currency of each leg.
    * 
    * @param trade  the trade to price
    * @param provider  the rates provider
-   * @return the future value of the swap trade
+   * @return the forecast value of the swap trade
    */
-  public MultiCurrencyAmount futureValue(SwapTrade trade, RatesProvider provider) {
-    return productPricer.futureValue(trade.getProduct(), provider);
+  public MultiCurrencyAmount forecastValue(SwapTrade trade, RatesProvider provider) {
+    return productPricer.forecastValue(trade.getProduct(), provider);
   }
 
   /**
-   * Calculates the future value sensitivity of the swap trade.
+   * Calculates the forecast value sensitivity of the swap trade.
    * <p>
-   * The future value sensitivity of the trade is the sensitivity of the future value to
+   * The forecast value sensitivity of the trade is the sensitivity of the forecast value to
    * the underlying curves.
    * 
    * @param trade  the trade to price
    * @param provider  the rates provider
-   * @return the future value curve sensitivity of the swap trade
+   * @return the forecast value curve sensitivity of the swap trade
    */
-  public PointSensitivities futureValueSensitivity(SwapTrade trade, RatesProvider provider) {
-    return productPricer.futureValueSensitivity(trade.getProduct(), provider).build();
+  public PointSensitivities forecastValueSensitivity(SwapTrade trade, RatesProvider provider) {
+    return productPricer.forecastValueSensitivity(trade.getProduct(), provider).build();
   }
 
   //-------------------------------------------------------------------------
@@ -123,7 +123,7 @@ public class DiscountingSwapTradePricer {
    * Calculates the future cash flows of the swap trade.
    * <p>
    * Each expected cash flow is added to the result.
-   * This is based on {@link #futureValue(SwapTrade, RatesProvider)}.
+   * This is based on {@link #forecastValue(SwapTrade, RatesProvider)}.
    * 
    * @param trade  the trade to price
    * @param provider  the rates provider

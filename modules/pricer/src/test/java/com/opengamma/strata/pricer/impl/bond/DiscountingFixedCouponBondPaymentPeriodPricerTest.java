@@ -96,8 +96,8 @@ public class DiscountingFixedCouponBondPaymentPeriodPricerTest {
     assertEquals(computed, expected);
   }
 
-  public void test_futureValue() {
-    double computed = PRICER.futureValue(PAYMENT_PERIOD, ISSUER_CURVE);
+  public void test_forecastValue() {
+    double computed = PRICER.forecastValue(PAYMENT_PERIOD, ISSUER_CURVE);
     double expected = FIXED_RATE * NOTIONAL * YEAR_FRACTION;
     assertEquals(computed, expected);
   }
@@ -113,8 +113,8 @@ public class DiscountingFixedCouponBondPaymentPeriodPricerTest {
     assertEquals(computed, 0d);
   }
 
-  public void test_futureValue_past() {
-    double computed = PRICER.futureValue(PAYMENT_PERIOD, ISSUER_CURVE_AFTER);
+  public void test_forecastValue_past() {
+    double computed = PRICER.forecastValue(PAYMENT_PERIOD, ISSUER_CURVE_AFTER);
     assertEquals(computed, 0d);
   }
 
@@ -135,8 +135,8 @@ public class DiscountingFixedCouponBondPaymentPeriodPricerTest {
     assertEquals(computed, expected);
   }
 
-  public void test_futureValueSensitivity() {
-    PointSensitivityBuilder computed = PRICER.futureValueSensitivity(PAYMENT_PERIOD, ISSUER_CURVE);
+  public void test_forecastValueSensitivity() {
+    PointSensitivityBuilder computed = PRICER.forecastValueSensitivity(PAYMENT_PERIOD, ISSUER_CURVE);
     assertEquals(computed, PointSensitivityBuilder.none());
   }
 
@@ -166,7 +166,7 @@ public class DiscountingFixedCouponBondPaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get().intValue(),
         (int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
     assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DSC_FACTORS.discountFactor(END_ADJUSTED));
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(),
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(),
         FIXED_RATE * NOTIONAL * YEAR_FRACTION, NOTIONAL * TOL);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(),
         FIXED_RATE * NOTIONAL * YEAR_FRACTION * DSC_FACTORS.discountFactor(END_ADJUSTED), NOTIONAL * TOL);
@@ -185,7 +185,7 @@ public class DiscountingFixedCouponBondPaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), END);
     assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get().intValue(),
         (int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
   }
 
@@ -205,7 +205,7 @@ public class DiscountingFixedCouponBondPaymentPeriodPricerTest {
         (int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
     assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(),
         DSC_FACTORS.discountFactorWithSpread(END_ADJUSTED, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(),
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(),
         FIXED_RATE * NOTIONAL * YEAR_FRACTION, NOTIONAL * TOL);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), FIXED_RATE * NOTIONAL * YEAR_FRACTION *
         DSC_FACTORS.discountFactorWithSpread(END_ADJUSTED, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR),
@@ -226,7 +226,7 @@ public class DiscountingFixedCouponBondPaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), END);
     assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get().intValue(),
         (int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
   }
 

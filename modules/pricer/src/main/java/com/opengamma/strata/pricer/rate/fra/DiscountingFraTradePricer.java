@@ -47,7 +47,7 @@ public class DiscountingFraTradePricer {
    * Calculates the present value of the FRA trade.
    * <p>
    * The present value of the trade is the value on the valuation date.
-   * This is the discounted future value.
+   * This is the discounted forecast value.
    * 
    * @param trade  the trade to price
    * @param provider  the rates provider
@@ -73,30 +73,30 @@ public class DiscountingFraTradePricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the future value of the FRA trade.
+   * Calculates the forecast value of the FRA trade.
    * <p>
-   * The future value of the trade is the value on the valuation date without present value discounting.
+   * The forecast value of the trade is the value on the valuation date without present value discounting.
    * 
    * @param trade  the trade to price
    * @param provider  the rates provider
-   * @return the future value of the trade
+   * @return the forecast value of the trade
    */
-  public CurrencyAmount futureValue(FraTrade trade, RatesProvider provider) {
-    return productPricer.futureValue(trade.getProduct(), provider);
+  public CurrencyAmount forecastValue(FraTrade trade, RatesProvider provider) {
+    return productPricer.forecastValue(trade.getProduct(), provider);
   }
 
   /**
-   * Calculates the future value sensitivity of the FRA trade.
+   * Calculates the forecast value sensitivity of the FRA trade.
    * <p>
-   * The future value sensitivity of the product is the sensitivity of the future value to
+   * The forecast value sensitivity of the product is the sensitivity of the forecast value to
    * the underlying curves.
    * 
    * @param trade  the trade to price
    * @param provider  the rates provider
-   * @return the point sensitivity of the future value
+   * @return the point sensitivity of the forecast value
    */
-  public PointSensitivities futureValueSensitivity(FraTrade trade, RatesProvider provider) {
-    return productPricer.futureValueSensitivity(trade.getProduct(), provider);
+  public PointSensitivities forecastValueSensitivity(FraTrade trade, RatesProvider provider) {
+    return productPricer.forecastValueSensitivity(trade.getProduct(), provider);
   }
 
   //-------------------------------------------------------------------------
@@ -104,7 +104,7 @@ public class DiscountingFraTradePricer {
    * Calculates the future cash flow of the FRA trade.
    * <p>
    * There is only one cash flow on the payment date for the FRA trade.
-   * The expected currency amount of the cash flow is the same as {@link #futureValue(FraTrade, RatesProvider)}.
+   * The expected currency amount of the cash flow is the same as {@link #forecastValue(FraTrade, RatesProvider)}.
    * 
    * @param trade  the trade to price
    * @param provider  the rates provider

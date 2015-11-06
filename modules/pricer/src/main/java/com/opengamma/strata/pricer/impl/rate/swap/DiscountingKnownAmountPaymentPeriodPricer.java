@@ -55,7 +55,7 @@ public class DiscountingKnownAmountPaymentPeriodPricer
   }
 
   @Override
-  public double futureValue(KnownAmountPaymentPeriod period, RatesProvider provider) {
+  public double forecastValue(KnownAmountPaymentPeriod period, RatesProvider provider) {
     if (period.getPaymentDate().isBefore(provider.getValuationDate())) {
       return 0;
     }
@@ -69,7 +69,7 @@ public class DiscountingKnownAmountPaymentPeriodPricer
     if (valDate.compareTo(period.getStartDate()) <= 0 || valDate.compareTo(period.getEndDate()) > 0) {
       return 0d;
     }
-    double fv = futureValue(period, provider);
+    double fv = forecastValue(period, provider);
     double totalDays = period.getStartDate().until(period.getEndDate(), DAYS);
     double partialDays = period.getStartDate().until(valDate, DAYS);
     return fv * (partialDays / totalDays);
@@ -87,7 +87,7 @@ public class DiscountingKnownAmountPaymentPeriodPricer
   }
 
   @Override
-  public PointSensitivityBuilder futureValueSensitivity(KnownAmountPaymentPeriod period, RatesProvider provider) {
+  public PointSensitivityBuilder forecastValueSensitivity(KnownAmountPaymentPeriod period, RatesProvider provider) {
     return PointSensitivityBuilder.none();
   }
 
@@ -111,11 +111,11 @@ public class DiscountingKnownAmountPaymentPeriodPricer
     builder.put(ExplainKey.ACCRUAL_DAYS, (int) DAYS.between(period.getStartDate(), period.getEndDate()));
     builder.put(ExplainKey.UNADJUSTED_END_DATE, period.getUnadjustedEndDate());
     if (paymentDate.isBefore(provider.getValuationDate())) {
-      builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.zero(currency));
+      builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {
       builder.put(ExplainKey.DISCOUNT_FACTOR, provider.discountFactor(currency, paymentDate));
-      builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.of(currency, futureValue(period, provider)));
+      builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.of(currency, forecastValue(period, provider)));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.of(currency, presentValue(period, provider)));
     }
   }

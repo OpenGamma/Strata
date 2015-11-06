@@ -60,17 +60,17 @@ public class DiscountingFraProductPricer {
    * Calculates the present value of the FRA product.
    * <p>
    * The present value of the product is the value on the valuation date.
-   * This is the discounted future value.
+   * This is the discounted forecast value.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
    * @return the present value of the product
    */
   public CurrencyAmount presentValue(FraProduct product, RatesProvider provider) {
-    // futureValue * discountFactor
+    // forecastValue * discountFactor
     ExpandedFra fra = product.expand();
     double df = provider.discountFactor(fra.getCurrency(), fra.getPaymentDate());
-    double pv = futureValue0(fra, provider) * df;
+    double pv = forecastValue0(fra, provider) * df;
     return CurrencyAmount.of(fra.getCurrency(), pv);
   }
 
@@ -100,31 +100,31 @@ public class DiscountingFraProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the future value of the FRA product.
+   * Calculates the forecast value of the FRA product.
    * <p>
-   * The future value of the product is the value on the valuation date without present value discounting.
+   * The forecast value of the product is the value on the valuation date without present value discounting.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
-   * @return the future value of the product
+   * @return the forecast value of the product
    */
-  public CurrencyAmount futureValue(FraProduct product, RatesProvider provider) {
+  public CurrencyAmount forecastValue(FraProduct product, RatesProvider provider) {
     ExpandedFra fra = product.expand();
-    double fv = futureValue0(fra, provider);
+    double fv = forecastValue0(fra, provider);
     return CurrencyAmount.of(fra.getCurrency(), fv);
   }
 
   /**
-   * Calculates the future value sensitivity of the FRA product.
+   * Calculates the forecast value sensitivity of the FRA product.
    * <p>
-   * The future value sensitivity of the product is the sensitivity of the future value to
+   * The forecast value sensitivity of the product is the sensitivity of the forecast value to
    * the underlying curves.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
-   * @return the point sensitivity of the future value
+   * @return the point sensitivity of the forecast value
    */
-  public PointSensitivities futureValueSensitivity(FraProduct product, RatesProvider provider) {
+  public PointSensitivities forecastValueSensitivity(FraProduct product, RatesProvider provider) {
     ExpandedFra fra = product.expand();
     double notional = fra.getNotional();
     double derivative = derivative(fra, provider);
@@ -181,7 +181,7 @@ public class DiscountingFraProductPricer {
    * Calculates the future cash flow of the FRA product.
    * <p>
    * There is only one cash flow on the payment date for the FRA product.
-   * The expected currency amount of the cash flow is the same as {@link #futureValue(FraProduct, RatesProvider)}.
+   * The expected currency amount of the cash flow is the same as {@link #forecastValue(FraProduct, RatesProvider)}.
    * 
    * @param product  the FRA product for which the cash flow should be computed
    * @param provider  the rates provider
@@ -190,9 +190,9 @@ public class DiscountingFraProductPricer {
   public CashFlows cashFlows(FraProduct product, RatesProvider provider) {
     ExpandedFra fra = product.expand();
     LocalDate paymentDate = fra.getPaymentDate();
-    double futureValue = futureValue0(fra, provider);
+    double forecastValue = forecastValue0(fra, provider);
     double df = provider.discountFactor(fra.getCurrency(), paymentDate);
-    CashFlow cashFlow = CashFlow.ofFutureValue(paymentDate, fra.getCurrency(), futureValue, df);
+    CashFlow cashFlow = CashFlow.ofForecastValue(paymentDate, fra.getCurrency(), forecastValue, df);
     return CashFlows.of(cashFlow);
   }
 
@@ -221,7 +221,7 @@ public class DiscountingFraProductPricer {
     builder.put(ExplainKey.NOTIONAL, CurrencyAmount.of(currency, fra.getNotional()));
     builder.put(ExplainKey.TRADE_NOTIONAL, CurrencyAmount.of(currency, fra.getNotional()));
     if (fra.getPaymentDate().isBefore(provider.getValuationDate())) {
-      builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.zero(currency));
+      builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {
       double rate = rateObservationFn.explainRate(
@@ -230,15 +230,15 @@ public class DiscountingFraProductPricer {
       builder.put(ExplainKey.DISCOUNT_FACTOR, provider.discountFactor(currency, fra.getPaymentDate()));
       builder.put(ExplainKey.PAY_OFF_RATE, rate);
       builder.put(ExplainKey.UNIT_AMOUNT, unitAmount(fra, provider));
-      builder.put(ExplainKey.FUTURE_VALUE, futureValue(fra, provider));
+      builder.put(ExplainKey.FORECAST_VALUE, forecastValue(fra, provider));
       builder.put(ExplainKey.PRESENT_VALUE, presentValue(fra, provider));
     }
     return builder.build();
   }
 
   //-------------------------------------------------------------------------
-  // calculates the future value
-  private double futureValue0(ExpandedFra fra, RatesProvider provider) {
+  // calculates the forecast value
+  private double forecastValue0(ExpandedFra fra, RatesProvider provider) {
     if (fra.getPaymentDate().isBefore(provider.getValuationDate())) {
       return 0d;
     }

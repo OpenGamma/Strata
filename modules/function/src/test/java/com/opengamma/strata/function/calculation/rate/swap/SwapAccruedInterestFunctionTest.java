@@ -64,7 +64,7 @@ public class SwapAccruedInterestFunctionTest {
         .yearFraction(DayCounts.ACT_365F.yearFraction(rap.getStartDate(), valDate))
         .build();
     RatePaymentPeriod rpp2 = rpp.toBuilder().accrualPeriods(rap2).build();
-    CurrencyAmount expected = CurrencyAmount.of(ccy, DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(rpp2, prov));
+    CurrencyAmount expected = CurrencyAmount.of(ccy, DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(rpp2, prov));
 
     Object execute = test.execute(trade, md);
     assertThat(execute).isEqualTo(FxConvertibleList.of(ImmutableList.of(MultiCurrencyAmount.of(expected))));
