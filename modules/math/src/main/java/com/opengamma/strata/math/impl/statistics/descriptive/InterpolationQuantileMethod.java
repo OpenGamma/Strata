@@ -36,23 +36,29 @@ public abstract class InterpolationQuantileMethod
   }
 
   @Override
-  protected double expectedShortfall(double level, DoubleArray sortedSample, boolean isExtrapolated) {
+  protected double expectedShortfall(double level, DoubleArray sortedSample) {
     ArgChecker.isTrue(level > 0, "Quantile should be above 0.");
     ArgChecker.isTrue(level < 1, "Quantile should be below 1.");
-    int sampleSize = sortedSample.size();
-    double adjustedLevel =
-        checkIndex(level * sampleCorrection(sampleSize) + indexCorrection(), sortedSample.size(), isExtrapolated);
+    int sampleSize = sampleCorrection(sortedSample.size());
+    double fractionalIndex = level * sampleSize + indexCorrection();
+    double adjustedLevel = checkIndex(fractionalIndex, sortedSample.size(), true);
     int lowerIndex = (int) Math.floor(adjustedLevel);
     int upperIndex = (int) Math.ceil(adjustedLevel);
-    double losses = 0d;
-    for (int i = 0; i < lowerIndex; i++) {
-      losses += sortedSample.get(i);
+    double interval = 1d / (double) sampleSize;
+    double losses = sortedSample.get(0) * interval * (Math.min(fractionalIndex, 1d) - indexCorrection());
+    for (int i = 0; i < lowerIndex - 1; i++) {
+      losses += 0.5 * (sortedSample.get(i) + sortedSample.get(i + 1)) * interval;
     }
     if (lowerIndex != upperIndex) {
-      double upperWeight = adjustedLevel - lowerIndex;
-      losses += upperWeight * sortedSample.get(upperIndex - 1);
+      double lowerWeight = upperIndex - adjustedLevel;
+      double upperWeight = 1d - lowerWeight;
+      double quantile = lowerWeight * sortedSample.get(lowerIndex - 1) + upperWeight * sortedSample.get(upperIndex - 1);
+      losses += 0.5 * (sortedSample.get(lowerIndex - 1) + quantile) * interval * upperWeight;
     }
-    return losses / adjustedLevel;
+    if (fractionalIndex > sortedSample.size()) {
+      losses += sortedSample.get(sortedSample.size() - 1) * (fractionalIndex - sortedSample.size()) * interval;
+    }
+    return losses / level;
   }
 
   //-------------------------------------------------------------------------

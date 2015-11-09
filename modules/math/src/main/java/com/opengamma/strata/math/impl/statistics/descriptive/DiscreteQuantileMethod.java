@@ -28,16 +28,19 @@ public abstract class DiscreteQuantileMethod
   }
 
   @Override
-  protected double expectedShortfall(double level, DoubleArray sortedSample, boolean isExtrapolated) {
+  protected double expectedShortfall(double level, DoubleArray sortedSample) {
     ArgChecker.isTrue(level > 0, "Quantile should be above 0.");
     ArgChecker.isTrue(level < 1, "Quantile should be below 1.");
     int sampleSize = sampleCorrection(sortedSample.size());
-    int index = (int) checkIndex(index(level * sampleSize), sortedSample.size(), isExtrapolated);
-    double losses = 0d;
-    for (int i = 0; i < index; i++) {
-      losses += sortedSample.get(i);
+    double fractionalIndex = level * sampleSize;
+    int index = (int) checkIndex(index(level * sampleSize), sortedSample.size(), true);
+    double interval = 1d / (double) sampleSize;
+    double losses = sortedSample.get(0) * interval * indexShift();
+    for (int i = 0; i < index - 1; i++) {
+      losses += sortedSample.get(i) * interval;
     }
-    return losses / (double) index;
+    losses += sortedSample.get(index - 1) * (fractionalIndex - index + 1 - indexShift()) * interval;
+    return losses / level;
   }
 
   //-------------------------------------------------------------------------
@@ -58,4 +61,11 @@ public abstract class DiscreteQuantileMethod
    * @return the correction
    */
   abstract int sampleCorrection(int sampleSize);
+
+  /**
+   * Shift added to/subtracted from index during intermediate steps in the expected shortfall computation. 
+   * 
+   * @return the index shift
+   */
+  abstract double indexShift();
 }

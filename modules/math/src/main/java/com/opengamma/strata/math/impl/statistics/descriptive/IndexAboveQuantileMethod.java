@@ -29,4 +29,8 @@ public final class IndexAboveQuantileMethod
     return sampleSize;
   }
 
+  @Override
+  double indexShift() {
+    return 0d;
+  }
 }

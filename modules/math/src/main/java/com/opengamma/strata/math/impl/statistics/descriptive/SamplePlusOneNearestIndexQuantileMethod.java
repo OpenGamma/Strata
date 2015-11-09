@@ -30,4 +30,9 @@ public final class SamplePlusOneNearestIndexQuantileMethod
     return sampleSize + 1;
   }
 
+  @Override
+  protected double indexShift() {
+    return 0.5;
+  }
+
 }

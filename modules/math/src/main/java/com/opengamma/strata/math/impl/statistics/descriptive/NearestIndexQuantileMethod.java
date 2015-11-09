@@ -30,4 +30,9 @@ public final class NearestIndexQuantileMethod
     return sampleSize;
   }
 
+  @Override
+  protected double indexShift() {
+    return 0.5;
+  }
+
 }

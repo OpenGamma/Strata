@@ -17,7 +17,7 @@ public abstract class QuantileCalculationMethod {
    * Compute the quantile estimation.
    * <p>
    * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < quantile < 1 should be satisfied.
-   * This is equal to {@code 1 - confidence level}. 
+   * This is measured from the bottom, thus equal to {@code 1 - confidence level}. 
    * <p>
    * If index value computed from the level is outside of the sample data range, 
    * {@code IllegalArgumentException} is thrown. 
@@ -36,7 +36,7 @@ public abstract class QuantileCalculationMethod {
    * Compute the quantile estimation.
    * <p>
    * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < quantile < 1 should be satisfied.
-   * This is equal to {@code 1 - confidence level}. 
+   * This is measured from the bottom, thus equal to {@code 1 - confidence level}. 
    * <p>
    * If index value computed from the level is outside of the sample data range, 
    * {@code IllegalArgumentException} is thrown. 
@@ -55,7 +55,7 @@ public abstract class QuantileCalculationMethod {
    * Compute the quantile estimation.
    * <p>
    * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < quantile < 1 should be satisfied.
-   * This is equal to {@code 1 - confidence level}. 
+   * This is measured from the bottom, thus equal to {@code 1 - confidence level}. 
    * <p>
    * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
    * quantile is computed with flat extrapolation.  
@@ -74,7 +74,7 @@ public abstract class QuantileCalculationMethod {
    * Compute the quantile estimation.
    * <p>
    * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < quantile < 1 should be satisfied.
-   * This is equal to {@code 1 - confidence level}. 
+   * This is measured from the bottom, thus equal to {@code 1 - confidence level}. 
    * <p>
    * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
    * quantile is computed with flat extrapolation. 
@@ -94,10 +94,11 @@ public abstract class QuantileCalculationMethod {
    * Compute the expected shortfall.
    * <p>
    * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < quantile < 1 should be satisfied.
-   * This is equal to {@code 1 - confidence level}. 
+   * This is measured from the bottom, thus equal to {@code 1 - confidence level}. 
    * <p>
-   * If index value computed from the level is outside of the sample data range,
-   * {@code IllegalArgumentException} is thrown. 
+   * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
+   * expected short fall is computed with flat extrapolation.  
+   * Thus this is coherent to {@link #quantileWithExtrapolationFromSorted(double, DoubleArray)}.
    * <p> 
    * The sample obsrvations are sorted from the smallest to the largest. 
    * 
@@ -106,17 +107,18 @@ public abstract class QuantileCalculationMethod {
    * @return the quantile estimation
    */
   public double expectedShortfallFromSorted(double level, DoubleArray sortedSample) {
-    return expectedShortfall(level, sortedSample, false);
+    return expectedShortfall(level, sortedSample);
   }
 
   /**
    * Compute the expected shortfall.
    * <p>
    * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < quantile < 1 should be satisfied.
-   * This is equal to {@code 1 - confidence level}. 
+   * This is measured from the bottom, thus equal to {@code 1 - confidence level}. 
    * <p>
-   * If index value computed from the level is outside of the sample data range, 
-   * {@code IllegalArgumentException} is thrown. 
+   * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
+   * expected short fall is computed with flat extrapolation.  
+   * Thus this is coherent to {@link #quantileWithExtrapolationFromUnsorted(double, DoubleArray)}.
    * <p> 
    * The sample observations are supposed to be unsorted, the first step is to sort the data.
    * 
@@ -126,44 +128,6 @@ public abstract class QuantileCalculationMethod {
    */
   public double expectedShortfallFromUnsorted(double level, DoubleArray sample) {
     return expectedShortfallFromSorted(level, sample.sorted());
-  }
-
-  /**
-   * Compute the expected shortfall.
-   * <p>
-   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < quantile < 1 should be satisfied.
-   * This is equal to {@code 1 - confidence level}. 
-   * <p>
-   * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
-   * expected short fall is computed with flat extrapolation.  
-   * <p> 
-   * The sample obsrvations are sorted from the smallest to the largest. 
-   * 
-   * @param level  the quantile level
-   * @param sortedSample  the sample observations
-   * @return the quantile estimation
-   */
-  public double expectedShortfallWithExtrapolationFromSorted(double level, DoubleArray sortedSample) {
-    return expectedShortfall(level, sortedSample, true);
-  }
-
-  /**
-   * Compute the expected shortfall.
-   * <p>
-   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < quantile < 1 should be satisfied.
-   * This is equal to {@code 1 - confidence level}. 
-   * <p>
-   * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
-   * expected short fall is computed with flat extrapolation.  
-   * <p> 
-   * The sample observations are supposed to be unsorted, the first step is to sort the data.
-   * 
-   * @param level  the quantile level
-   * @param sample  the sample observations
-   * @return The quantile estimation
-   */
-  public double expectedShortfallWithExtrapolationFromUnsorted(double level, DoubleArray sample) {
-    return expectedShortfallWithExtrapolationFromSorted(level, sample.sorted());
   }
 
   //-------------------------------------------------------------------------
@@ -187,10 +151,9 @@ public abstract class QuantileCalculationMethod {
    * 
    * @param level  the quantile level
    * @param sortedSample  the sample observations
-   * @param isExtrapolated  extrapolated if true, not extrapolated otherwise
    * @return the expected shortfall
    */
-  protected abstract double expectedShortfall(double level, DoubleArray sortedSample, boolean isExtrapolated);
+  protected abstract double expectedShortfall(double level, DoubleArray sortedSample);
 
   /**
    * Check the index is within the sample data range. 

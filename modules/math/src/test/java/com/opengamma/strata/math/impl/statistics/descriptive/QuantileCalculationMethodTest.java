@@ -11,6 +11,8 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.math.impl.function.Function1D;
+import com.opengamma.strata.math.impl.integration.RungeKuttaIntegrator1D;
 
 /**
  * Test {@link QuantileCalculationMethod} and its implementations. 
@@ -105,19 +107,19 @@ public class QuantileCalculationMethodTest {
     assertThrowsIllegalArg(() -> QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromSorted(0.0, SORTED_100));
   }
 
-  public void interpolation_wrong_expectedShortfall_small() {
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromSorted(1.0E-4, SORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromSorted(1.0E-4, SORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromSorted(1.0E-4, SORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_NEAREST_INDEX.expectedShortfallFromSorted(1.0E-4, SORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromSorted(1.0E-4, SORTED_100));
-  }
-
-  public void interpolation_wrong_expectedShortfall_large() {
-    assertThrowsIllegalArg(() -> QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromSorted(1.0 - 1.0E-4, SORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromSorted(1.0 - 1.0E-4, SORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromSorted(1.0 - 1.0E-4, SORTED_100));
-  }
+  //  public void interpolation_wrong_expectedShortfall_small() {
+  //        assertThrowsIllegalArg(() -> QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromSorted(1.0E-4, SORTED_100));
+  //    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromSorted(1.0E-4, SORTED_100));
+  //    assertThrowsIllegalArg(() -> QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromSorted(1.0E-4, SORTED_100));
+  //    assertThrowsIllegalArg(() -> QUANTILE_NEAREST_INDEX.expectedShortfallFromSorted(1.0E-4, SORTED_100));
+  //    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromSorted(1.0E-4, SORTED_100));
+  //  }
+  //
+  //  public void interpolation_wrong_expectedShortfall_large() {
+  //    assertThrowsIllegalArg(() -> QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromSorted(1.0 - 1.0E-4, SORTED_100));
+  //    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromSorted(1.0 - 1.0E-4, SORTED_100));
+  //    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromSorted(1.0 - 1.0E-4, SORTED_100));
+  //  }
 
   //-------------------------------------------------------------------------
   public void index_above_095_100() {
@@ -288,311 +290,331 @@ public class QuantileCalculationMethodTest {
 
   //-------------------------------------------------------------------------
   public void index_above_095_100_expected_shortfall() {
-    double quantile = QUANTILE_INDEX_ABOVE.quantileFromSorted(LEVEL3, SORTED_100);
-    double expectedShortfallExpected = quantile;
-    int i = 0;
-    while (SORTED_100.get(i) < quantile) {
-      expectedShortfallExpected += SORTED_100.get(i);
-      ++i;
-    }
-    expectedShortfallExpected /= i + 1d;
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return QUANTILE_INDEX_ABOVE.quantileWithExtrapolationFromSorted(level, SORTED_100);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_INDEX_ABOVE.expectedShortfallFromSorted(LEVEL3, SORTED_100);
-    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
-    double expectedShortfallExtComputed = QUANTILE_INDEX_ABOVE
-        .expectedShortfallWithExtrapolationFromSorted(LEVEL3, SORTED_100);
-    assertEquals(expectedShortfallExtComputed, expectedShortfallComputed, TOL);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
+
+  private static final RungeKuttaIntegrator1D INTEG = new RungeKuttaIntegrator1D();
+  private static final double TOL_INTEGRAL = 1.0e-8;
 
   public void index_above_095_123_expected_shortfall() {
-    double quantile = QUANTILE_INDEX_ABOVE.quantileFromSorted(LEVEL3, SORTED_123);
-    double expectedShortfallExpected = quantile;
-    int i = 0;
-    while (SORTED_123.get(i) < quantile) {
-      expectedShortfallExpected += SORTED_123.get(i);
-      ++i;
-    }
-    expectedShortfallExpected /= i + 1d;
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return QUANTILE_INDEX_ABOVE.quantileWithExtrapolationFromSorted(level, SORTED_123);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_INDEX_ABOVE.expectedShortfallFromSorted(LEVEL3, SORTED_123);
-    assertEquals(expectedShortfallComputed, expectedShortfallExpected);
-    double expectedShortfallExtComputed = QUANTILE_INDEX_ABOVE
-        .expectedShortfallWithExtrapolationFromSorted(LEVEL3, SORTED_123);
-    assertEquals(expectedShortfallExtComputed, expectedShortfallComputed, TOL);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
-  /* On sample points, different methods match. */
+  public void index_above_0001_100_expected_shortfall() {
+    double expectedShortfallComputed = QUANTILE_INDEX_ABOVE.expectedShortfallFromSorted(LEVEL4, SORTED_100);
+    assertEquals(expectedShortfallComputed, SORTED_100.get(0), TOL_INTEGRAL);
+  }
+
+  public void index_above_9999_100_expected_shortfall() {
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return QUANTILE_INDEX_ABOVE.quantileWithExtrapolationFromSorted(level, SORTED_100);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL5) / LEVEL5;
+    double expectedShortfallComputed = QUANTILE_INDEX_ABOVE.expectedShortfallFromSorted(LEVEL5, SORTED_100);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
+  }
+
   public void index_nearest_095_100_expected_shortfall() {
-    double expectedShortfallExpected = QUANTILE_INDEX_ABOVE.expectedShortfallFromSorted(LEVEL3, SORTED_100);
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return QUANTILE_NEAREST_INDEX.quantileWithExtrapolationFromSorted(level, SORTED_100);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL3, SORTED_100);
-    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
-  public void index_nearest_0951_100_expected_shortfall() {
-    double quantile = QUANTILE_NEAREST_INDEX.quantileFromSorted(LEVEL3, SORTED_100);
-    double expectedShortfallExpected = quantile;
-    int i = 0;
-    while (SORTED_100.get(i) < quantile) {
-      expectedShortfallExpected += SORTED_100.get(i);
-      ++i;
-    }
-    expectedShortfallExpected /= i + 1d;
-    double expectedShortfallComputed = QUANTILE_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL3, SORTED_100);
-    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
-    double expectedShortfallExtComputed = QUANTILE_NEAREST_INDEX
-        .expectedShortfallWithExtrapolationFromSorted(LEVEL3, SORTED_100);
-    assertEquals(expectedShortfallExtComputed, expectedShortfallComputed, TOL);
+  public void index_nearest_095_123_expected_shortfall() {
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return QUANTILE_NEAREST_INDEX.quantileWithExtrapolationFromSorted(level, SORTED_123);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
+    double expectedShortfallComputed = QUANTILE_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL3, SORTED_123);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   public void index_nearest_0001_100_expected_shortfall() {
-    double quantile = QUANTILE_NEAREST_INDEX.quantileWithExtrapolationFromSorted(0.001, SORTED_100);
-    double expectedShortfallExpected = quantile;
-    int i = 0;
-    while (SORTED_100.get(i) < quantile) {
-      expectedShortfallExpected += SORTED_100.get(i);
-      ++i;
-    }
-    expectedShortfallExpected /= i + 1d;
     double expectedShortfallComputed =
-        QUANTILE_NEAREST_INDEX.expectedShortfallWithExtrapolationFromSorted(LEVEL4, SORTED_100);
-    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
-    double expectedShortfallExtComputed = QUANTILE_NEAREST_INDEX
-        .expectedShortfallWithExtrapolationFromSorted(LEVEL4, SORTED_100);
-    assertEquals(expectedShortfallExtComputed, expectedShortfallComputed, TOL);
+        QUANTILE_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL4, SORTED_100);
+    assertEquals(expectedShortfallComputed, SORTED_100.get(0), TOL_INTEGRAL);
+  }
+
+  public void index_nearest_9999_100_expected_shortfall() {
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return QUANTILE_NEAREST_INDEX.quantileWithExtrapolationFromSorted(level, SORTED_100);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL5) / LEVEL5;
+    double expectedShortfallComputed = QUANTILE_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL5, SORTED_100);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   public void index_nearest_one_095_100_expected_shortfall() {
-    double quantile = QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromSorted(LEVEL3, SORTED_100);
-    double expectedShortfallExpected = quantile;
-    int i = 0;
-    while (SORTED_100.get(i) < quantile) {
-      expectedShortfallExpected += SORTED_100.get(i);
-      ++i;
-    }
-    expectedShortfallExpected /= i + 1d;
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return QUANTILE_SAMPLE1_NEAREST_INDEX.quantileWithExtrapolationFromSorted(level, SORTED_100);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL3, SORTED_100);
-    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
-    double expectedShortfallExtComputed = QUANTILE_SAMPLE1_NEAREST_INDEX
-        .expectedShortfallWithExtrapolationFromSorted(LEVEL3, SORTED_100);
-    assertEquals(expectedShortfallExtComputed, expectedShortfallComputed, TOL);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   public void index_nearest_one_0001_100_expected_shortfall() {
     double expectedShortfallExpected = SORTED_100.get(0);
     double expectedShortfallComputed =
-        QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallWithExtrapolationFromSorted(LEVEL4, SORTED_100);
+        QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL4, SORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
   }
 
   public void index_nearest_one_9999_100_expected_shortfall() {
-    double expectedShortfallExpected = SORTED_100.total() / 100d;
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return QUANTILE_SAMPLE1_NEAREST_INDEX.quantileWithExtrapolationFromSorted(level, SORTED_100);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL5) / LEVEL5;
     double expectedShortfallComputed =
-        QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallWithExtrapolationFromSorted(LEVEL5, SORTED_100);
-    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
+        QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL5, SORTED_100);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
-  /* On sample points, different methods match. */
-  @Test
   public void interpolation_sample_095_100_expected_shortfall() {
-    double expectedShortfallExpected = QUANTILE_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL3, SORTED_100);
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return QUANTILE_SAMPLE_INTERPOLATION.quantileWithExtrapolationFromSorted(level, SORTED_100);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromSorted(LEVEL3, SORTED_100);
-    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   public void interpolation_sample_095_123_expected_shortfall() {
-    double quantile = QUANTILE_SAMPLE_INTERPOLATION.quantileFromSorted(LEVEL3, SORTED_123);
-    double expectedShortfallExpected = 0d;
-    int i = 0;
-    while (SORTED_123.get(i) < quantile) {
-      expectedShortfallExpected += SORTED_123.get(i);
-      ++i;
-    }
-    double pi = (double) i / (double) SAMPLE_SIZE_123;
-    double pi1 = (double) (i + 1) / (double) SAMPLE_SIZE_123;
-    expectedShortfallExpected += (LEVEL3 - pi) / (pi1 - pi) * SORTED_123.get(i);
-    expectedShortfallExpected /= LEVEL3 * SAMPLE_SIZE_123;
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return QUANTILE_SAMPLE_INTERPOLATION.quantileWithExtrapolationFromSorted(level, SORTED_123);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromSorted(LEVEL3, SORTED_123);
-    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
-    double expectedShortfallExtComputed = QUANTILE_SAMPLE_INTERPOLATION
-        .expectedShortfallWithExtrapolationFromSorted(LEVEL3, SORTED_123);
-    assertEquals(expectedShortfallExtComputed, expectedShortfallComputed, TOL);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   public void interpolation_sample_0001_100_expected_shortfall() {
     double expectedShortfallExpected = SORTED_100.get(0);
     double expectedShortfallComputed =
-        QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallWithExtrapolationFromSorted(LEVEL4, SORTED_100);
+        QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromSorted(LEVEL4, SORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
   }
 
+  public void interpolation_sample_9999_100_expected_shortfall() {
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return QUANTILE_SAMPLE_INTERPOLATION.quantileWithExtrapolationFromSorted(level, SORTED_100);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL5) / LEVEL5;
+    double expectedShortfallComputed =
+        QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromSorted(LEVEL5, SORTED_100);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
+  }
+
   public void interpolation_samplePlusOne_095_123_expected_shortfall() {
-    double quantile = QUANTILE_SAMPLE1_INTERPOLATION.quantileFromSorted(LEVEL3, SORTED_123);
-    double expectedShortfallExpected = 0d;
-    int i = 0;
-    while (SORTED_123.get(i) < quantile) {
-      expectedShortfallExpected += SORTED_123.get(i);
-      ++i;
-    }
-    double pi = (double) i / (double) (SAMPLE_SIZE_123 + 1);
-    double pi1 = (double) (i + 1) / (double) (SAMPLE_SIZE_123 + 1);
-    expectedShortfallExpected += (LEVEL3 - pi) / (pi1 - pi) * SORTED_123.get(i);
-    expectedShortfallExpected /= LEVEL3 * (SAMPLE_SIZE_123 + 1);
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromSorted(level, SORTED_123);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromSorted(LEVEL3, SORTED_123);
-    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
-    double expectedShortfallExtComputed = QUANTILE_SAMPLE1_INTERPOLATION
-        .expectedShortfallWithExtrapolationFromSorted(LEVEL3, SORTED_123);
-    assertEquals(expectedShortfallExtComputed, expectedShortfallComputed, TOL);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   public void interpolation_samplePlusOne_0001_100_expected_shortfall() {
     double expectedShortfallExpected = SORTED_100.get(0);
     double expectedShortfallComputed =
-        QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallWithExtrapolationFromSorted(LEVEL4, SORTED_100);
+        QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromSorted(LEVEL4, SORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
   }
 
   public void interpolation_samplePlusOne_9999_100_expected_shortfall() {
-    double expectedShortfallExpected = SORTED_100.total() / 100d;
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromSorted(level, SORTED_100);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL5) / LEVEL5;
     double expectedShortfallComputed =
-        QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallWithExtrapolationFromSorted(LEVEL5, SORTED_100);
-    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
+        QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromSorted(LEVEL5, SORTED_100);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
+  }
+
+  public void interpolation_midway_095_100_expected_shortfall() {
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromSorted(level, SORTED_100);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
+    double expectedShortfallComputed = QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromSorted(LEVEL3, SORTED_100);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   public void interpolation_midway_095_123_expected_shortfall() {
-    double quantile = QUANTILE_MIDWAY_INTERPOLATION.quantileFromSorted(LEVEL3, SORTED_123);
-    double expectedShortfallExpected = 0d;
-    int i = 0;
-    while (SORTED_123.get(i) < quantile) {
-      expectedShortfallExpected += SORTED_123.get(i);
-      ++i;
-    }
-    double correction = 0.5;
-    double pi = (i - correction) / (double) SAMPLE_SIZE_123;
-    double pi1 = (i + 1 - correction) / (double) SAMPLE_SIZE_123;
-    expectedShortfallExpected += (LEVEL3 - pi) / (pi1 - pi) * SORTED_123.get(i);
-    expectedShortfallExpected /= LEVEL3 * SAMPLE_SIZE_123 + correction;
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromSorted(level, SORTED_123);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromSorted(LEVEL3, SORTED_123);
-    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
-    double expectedShortfallExtComputed = QUANTILE_MIDWAY_INTERPOLATION
-        .expectedShortfallWithExtrapolationFromSorted(LEVEL3, SORTED_123);
-    assertEquals(expectedShortfallExtComputed, expectedShortfallComputed, TOL);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   public void interpolation_midway_0001_100_expected_shortfall() {
     double expectedShortfallExpected = SORTED_100.get(0);
     double expectedShortfallComputed =
-        QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallWithExtrapolationFromSorted(LEVEL4, SORTED_100);
+        QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromSorted(LEVEL4, SORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
   }
 
   public void interpolation_midway_9999_100_expected_shortfall() {
-    double expectedShortfallExpected = SORTED_100.total() / 100d;
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromSorted(level, SORTED_100);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL5) / LEVEL5;
     double expectedShortfallComputed =
-        QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallWithExtrapolationFromSorted(LEVEL5, SORTED_100);
-    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
+        QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromSorted(LEVEL5, SORTED_100);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   public void excel_expected_shortfall() {
     DoubleArray data = DoubleArray.of(1.0, 3.0, 2.0, 4.0);
     double level = 0.3;
-    double quantile = ExcelInterpolationQuantileMethod.DEFAULT.quantileFromUnsorted(level, data);
-    DoubleArray dataSorted = data.sorted();
-    double expectedShortfallExpected = 0d;
-    int i = 0;
-    while (dataSorted.get(i) < quantile) {
-      expectedShortfallExpected += dataSorted.get(i);
-      ++i;
-    }
-    double indexDouble = level * (data.size() - 1d) + 1d;
-    expectedShortfallExpected += (indexDouble - i) * dataSorted.get(i);
-    expectedShortfallExpected /= indexDouble;
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return ExcelInterpolationQuantileMethod.DEFAULT.quantileWithExtrapolationFromUnsorted(level, data);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL / 1000d, level) / level;
     double expectedShortfallComputed =
         ExcelInterpolationQuantileMethod.DEFAULT.expectedShortfallFromUnsorted(level, data);
-    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
-    double expectedShortfallExtComputed = ExcelInterpolationQuantileMethod.DEFAULT
-        .expectedShortfallWithExtrapolationFromUnsorted(level, data);
-    assertEquals(expectedShortfallExtComputed, expectedShortfallComputed, TOL);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
+  }
+
+  public void excel_expected_shortfall_0001() {
+    DoubleArray data = DoubleArray.of(1.0, 3.0, 2.0, 4.0);
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return ExcelInterpolationQuantileMethod.DEFAULT.quantileWithExtrapolationFromUnsorted(level, data);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL / 1000d, LEVEL4) / LEVEL4;
+    double expectedShortfallComputed =
+        ExcelInterpolationQuantileMethod.DEFAULT.expectedShortfallFromUnsorted(LEVEL4, data);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL * 10d); // high sensitivity to lower bound
+  }
+
+  public void excel_expected_shortfall_9999() {
+    DoubleArray data = DoubleArray.of(1.0, 3.0, 2.0, 4.0);
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double level) {
+        return ExcelInterpolationQuantileMethod.DEFAULT.quantileWithExtrapolationFromUnsorted(level, data);
+      }
+    };
+    double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL / 1000d, LEVEL5) / LEVEL5;
+    double expectedShortfallComputed =
+        ExcelInterpolationQuantileMethod.DEFAULT.expectedShortfallFromUnsorted(LEVEL5, data);
+    assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   //-------------------------------------------------------------------------
-  public void regression_test1() {
+    public void regression_test1() {
     assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromSorted(LEVEL1, SORTED_100), 0.92365, TOL);
     assertEquals(QUANTILE_NEAREST_INDEX.quantileFromSorted(LEVEL1, SORTED_100), 0.9275, TOL);
-    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromSorted(LEVEL1, SORTED_100), 0.5114133689839573, TOL);
-    assertEquals(QUANTILE_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL1, SORTED_100), 0.513626595744681, TOL);
+    assertEquals(QUANTILE_INDEX_ABOVE.expectedShortfallFromSorted(LEVEL1, SORTED_100), 0.5114133689839573, TOL);
     assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromSorted(LEVEL2, SORTED_100), 0.80356, TOL);
     assertEquals(QUANTILE_NEAREST_INDEX.quantileFromSorted(LEVEL2, SORTED_100), 0.8024, TOL);
-    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromSorted(LEVEL2, SORTED_100), 0.4333301047120419, TOL);
-    assertEquals(QUANTILE_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL2, SORTED_100), 0.43137236842105264, TOL);
+    assertEquals(QUANTILE_INDEX_ABOVE.expectedShortfallFromSorted(LEVEL2, SORTED_100), 0.4333301047120419, TOL);
     assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromSorted(LEVEL3, SORTED_100), 0.9524, TOL);
     assertEquals(QUANTILE_NEAREST_INDEX.quantileFromSorted(LEVEL3, SORTED_100), 0.9524, TOL);
-    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromSorted(LEVEL3, SORTED_100), 0.5182452631578948, TOL);
-    assertEquals(QUANTILE_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL3, SORTED_100), 0.5182452631578948, TOL);
+    assertEquals(QUANTILE_INDEX_ABOVE.expectedShortfallFromSorted(LEVEL3, SORTED_100), 0.5182452631578948, TOL);
     assertThrowsIllegalArg(() -> QUANTILE_SAMPLE_INTERPOLATION.quantileFromSorted(LEVEL4, SORTED_100));
     assertThrowsIllegalArg(() -> QUANTILE_NEAREST_INDEX.quantileFromSorted(LEVEL4, SORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromSorted(LEVEL4, SORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL4, SORTED_100));
     assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromSorted(LEVEL5, SORTED_100), 0.981218, TOL);
     assertEquals(QUANTILE_NEAREST_INDEX.quantileFromSorted(LEVEL5, SORTED_100), 0.9813, TOL);
-    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromSorted(LEVEL5, SORTED_100), 0.5407389438943896, TOL);
-    assertEquals(QUANTILE_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL5, SORTED_100), 0.540783, TOL);
-  }
+    assertEquals(QUANTILE_INDEX_ABOVE.expectedShortfallFromSorted(LEVEL5, SORTED_100), 0.5407389438943896, TOL);
+    }
 
   public void regression_test2() {
     assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileFromSorted(LEVEL1, SORTED_100), 0.9383315, TOL);
     assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromSorted(LEVEL1, SORTED_100), 0.9275, TOL);
-    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromSorted(LEVEL1, SORTED_100), 0.5156477365383598, TOL);
-    assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL1, SORTED_100), 0.513626595744681, TOL);
     assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileFromSorted(LEVEL2, SORTED_100), 0.8056608, TOL);
     assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromSorted(LEVEL2, SORTED_100), 0.8053, TOL);
-    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromSorted(LEVEL2, SORTED_100), 0.4370176507179514, TOL);
-    assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL2, SORTED_100), 0.43622857142857147, TOL);
     assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileFromSorted(LEVEL3, SORTED_100), 0.95677, TOL);
     assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromSorted(LEVEL3, SORTED_100), 0.957, TOL);
-    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromSorted(LEVEL3, SORTED_100), 0.5225893694632622, TOL);
-    assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL3, SORTED_100), 0.522815625, TOL);
     assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.quantileFromSorted(LEVEL4, SORTED_100));
     assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromSorted(LEVEL4, SORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromSorted(LEVEL4, SORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL4, SORTED_100));
     assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.quantileFromSorted(LEVEL5, SORTED_100));
     assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromSorted(LEVEL5, SORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromSorted(LEVEL5, SORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromSorted(LEVEL5, SORTED_100));
   }
 
   public void regression_test3() {
     assertEquals(QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromSorted(LEVEL1, SORTED_100), 0.9275, TOL);
-    assertEquals(QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallWithExtrapolationFromSorted(LEVEL1, SORTED_100),
-        0.513626595744681, TOL);
     assertEquals(QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromSorted(LEVEL2, SORTED_100), 0.80501, TOL);
-    assertEquals(QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallWithExtrapolationFromSorted(LEVEL2, SORTED_100),
-        0.4357486345903772, TOL);
     assertEquals(QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromSorted(LEVEL3, SORTED_100), 0.9547, TOL);
-    assertEquals(QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallWithExtrapolationFromSorted(LEVEL3, SORTED_100),
-        0.5205424083769634, TOL);
     assertEquals(QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromSorted(LEVEL4, SORTED_100), 0.0286, TOL);
-    assertEquals(QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallWithExtrapolationFromSorted(LEVEL4, SORTED_100),
-        0.0286, TOL);
     assertEquals(QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromSorted(LEVEL5, SORTED_100), 0.9813, TOL);
-    assertEquals(QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallWithExtrapolationFromSorted(LEVEL5, SORTED_100),
-        0.540783, TOL);
   }
 
   public void regression_test4() {
     assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromSorted(LEVEL1, SORTED_100), 0.9383315, TOL);
-    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallWithExtrapolationFromSorted(LEVEL1, SORTED_100),
-        0.5156477365383598, TOL);
     assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromSorted(LEVEL2, SORTED_100), 0.8056608, TOL);
-    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallWithExtrapolationFromSorted(LEVEL2, SORTED_100),
-        0.4370176507179514, TOL);
     assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromSorted(LEVEL3, SORTED_100), 0.95677, TOL);
-    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallWithExtrapolationFromSorted(LEVEL3, SORTED_100),
-        0.5225893694632622, TOL);
     assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromSorted(LEVEL4, SORTED_100), 0.0286, TOL);
-    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallWithExtrapolationFromSorted(LEVEL4, SORTED_100),
-        0.0286, TOL);
     assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromSorted(LEVEL5, SORTED_100), 0.9813, TOL);
-    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallWithExtrapolationFromSorted(LEVEL5, SORTED_100),
-        0.540783, TOL);
   }
 
 }
