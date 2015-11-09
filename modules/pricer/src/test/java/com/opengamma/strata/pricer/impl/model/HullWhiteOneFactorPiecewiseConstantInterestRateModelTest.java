@@ -36,7 +36,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
   private static final HullWhiteOneFactorPiecewiseConstantParameters MODEL_PARAMETERS =
       HullWhiteOneFactorPiecewiseConstantParameters.of(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL =
-      new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
+      HullWhiteOneFactorPiecewiseConstantInterestRateModel.DEFAULT;
   private static final DoubleArray DCF_FIXED = DoubleArray.of(0.50, 0.48);
   private static final DoubleArray ALPHA_FIXED = DoubleArray.of(0.02, 0.04);
   private static final DoubleArray DCF_IBOR = DoubleArray.of(-1.0, -0.01, 0.01, -0.01, 0.95);
@@ -423,6 +423,8 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
       3.7447552766260217, 4.198083407732067, 4.650327387669373 };
     assertTrue(DoubleArrayMath.fuzzyEquals(computed.row(0).toArray(), expected, TOLERANCE_RATE));
   }
+
+  // TODO serialise, immutable bean
 
   //-------------------------------------------------------------------------
   /**
