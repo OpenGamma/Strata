@@ -16,13 +16,14 @@ public abstract class QuantileCalculationMethod {
   /**
    * Compute the quantile estimation.
    * <p>
-   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < quantile < 1 should be satisfied.
-   * This is measured from the bottom, thus equal to {@code 1 - confidence level}. 
+   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < level < 1 should be satisfied.
+   * This is measured from the bottom, that is, Thus the quantile estimation with the level 99% corresponds to 
+   * the smallest 99% observations.
    * <p>
    * If index value computed from the level is outside of the sample data range, 
    * {@code IllegalArgumentException} is thrown. 
    * <p> 
-   * The sample obsrvations are sorted from the smallest to the largest. 
+   * The sample observations are sorted from the smallest to the largest. 
    * 
    * @param level  the quantile level
    * @param sortedSample  the sample observations
@@ -35,8 +36,9 @@ public abstract class QuantileCalculationMethod {
   /**
    * Compute the quantile estimation.
    * <p>
-   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < quantile < 1 should be satisfied.
-   * This is measured from the bottom, thus equal to {@code 1 - confidence level}. 
+   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < level < 1 should be satisfied.
+   * This is measured from the bottom, that is, Thus the quantile estimation with the level 99% corresponds to 
+   * the smallest 99% observations.
    * <p>
    * If index value computed from the level is outside of the sample data range, 
    * {@code IllegalArgumentException} is thrown. 
@@ -54,13 +56,14 @@ public abstract class QuantileCalculationMethod {
   /**
    * Compute the quantile estimation.
    * <p>
-   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < quantile < 1 should be satisfied.
-   * This is measured from the bottom, thus equal to {@code 1 - confidence level}. 
+   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < level < 1 should be satisfied.
+   * This is measured from the bottom, that is, Thus the quantile estimation with the level 99% corresponds to 
+   * the smallest 99% observations.
    * <p>
    * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
    * quantile is computed with flat extrapolation.  
    * <p> 
-   * The sample obsrvations are sorted from the smallest to the largest. 
+   * The sample observations are sorted from the smallest to the largest. 
    * 
    * @param level  the quantile level
    * @param sortedSample  the sample observations
@@ -73,8 +76,9 @@ public abstract class QuantileCalculationMethod {
   /**
    * Compute the quantile estimation.
    * <p>
-   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < quantile < 1 should be satisfied.
-   * This is measured from the bottom, thus equal to {@code 1 - confidence level}. 
+   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < level < 1 should be satisfied.
+   * This is measured from the bottom, that is, Thus the quantile estimation with the level 99% corresponds to 
+   * the smallest 99% observations.
    * <p>
    * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
    * quantile is computed with flat extrapolation. 
@@ -93,14 +97,15 @@ public abstract class QuantileCalculationMethod {
   /**
    * Compute the expected shortfall.
    * <p>
-   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < quantile < 1 should be satisfied.
-   * This is measured from the bottom, thus equal to {@code 1 - confidence level}. 
+   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < level < 1 should be satisfied.
+   * This is measured from the bottom, that is, Thus the expected shortfall with the level 99% corresponds to 
+   * the smallest 99% observations.
    * <p>
    * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
    * expected short fall is computed with flat extrapolation.  
    * Thus this is coherent to {@link #quantileWithExtrapolationFromSorted(double, DoubleArray)}.
    * <p> 
-   * The sample obsrvations are sorted from the smallest to the largest. 
+   * The sample observations are sorted from the smallest to the largest. 
    * 
    * @param level  the quantile level
    * @param sortedSample  the sample observations
@@ -113,8 +118,9 @@ public abstract class QuantileCalculationMethod {
   /**
    * Compute the expected shortfall.
    * <p>
-   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < quantile < 1 should be satisfied.
-   * This is measured from the bottom, thus equal to {@code 1 - confidence level}. 
+   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < level < 1 should be satisfied.
+   * This is measured from the bottom, that is, Thus the expected shortfall with the level 99% corresponds to 
+   * the smallest 99% observations.
    * <p>
    * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
    * expected short fall is computed with flat extrapolation.  

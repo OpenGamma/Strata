@@ -107,20 +107,6 @@ public class QuantileCalculationMethodTest {
     assertThrowsIllegalArg(() -> QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromSorted(0.0, SORTED_100));
   }
 
-  //  public void interpolation_wrong_expectedShortfall_small() {
-  //        assertThrowsIllegalArg(() -> QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromSorted(1.0E-4, SORTED_100));
-  //    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromSorted(1.0E-4, SORTED_100));
-  //    assertThrowsIllegalArg(() -> QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromSorted(1.0E-4, SORTED_100));
-  //    assertThrowsIllegalArg(() -> QUANTILE_NEAREST_INDEX.expectedShortfallFromSorted(1.0E-4, SORTED_100));
-  //    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromSorted(1.0E-4, SORTED_100));
-  //  }
-  //
-  //  public void interpolation_wrong_expectedShortfall_large() {
-  //    assertThrowsIllegalArg(() -> QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromSorted(1.0 - 1.0E-4, SORTED_100));
-  //    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromSorted(1.0 - 1.0E-4, SORTED_100));
-  //    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromSorted(1.0 - 1.0E-4, SORTED_100));
-  //  }
-
   //-------------------------------------------------------------------------
   public void index_above_095_100() {
     double indexDouble = LEVEL3 * SAMPLE_SIZE_100;
