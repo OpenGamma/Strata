@@ -46,7 +46,7 @@ import com.opengamma.strata.market.surface.SwaptionSurfaceExpiryTenorNodeMetadat
 
 /**
  * Volatility environment for swaptions in the log-normal or Black model. 
- * The volatility is represented by a surface on the expiration and swap tenor dimensions.
+ * The volatility is represented by a surface on the expiry and swap tenor dimensions.
  */
 @BeanDefinition(builderScope = "private")
 public final class BlackVolatilityExpiryTenorSwaptionProvider

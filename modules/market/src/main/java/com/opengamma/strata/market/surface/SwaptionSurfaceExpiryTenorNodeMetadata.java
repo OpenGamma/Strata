@@ -27,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.collect.tuple.Pair;
 
 /**
- * Surface node metadata for a surface node for swaptions with a specific time to expiration and underlying swap tenor.
+ * Surface node metadata for a surface node for swaptions with a specific time to expiry and underlying swap tenor.
  * <p>
  * This typically represents a node of swaption volatility surface parameterized by expiry and tenor. 
  * Alternative applications include a representation of a node on model parameter surface, e.g., SABR model parameters.
@@ -39,7 +39,7 @@ public final class SwaptionSurfaceExpiryTenorNodeMetadata
   /**
   * The year fraction of the surface node.
   * <p>
-  * This is the time to expiration that the node on the surface is defined as.
+  * This is the time to expiry that the node on the surface is defined as.
   * There is not necessarily a direct relationship with a date from an underlying instrument.
   */
   @PropertyDefinition
@@ -149,7 +149,7 @@ public final class SwaptionSurfaceExpiryTenorNodeMetadata
   /**
    * Gets the year fraction of the surface node.
    * <p>
-   * This is the time to expiration that the node on the surface is defined as.
+   * This is the time to expiry that the node on the surface is defined as.
    * There is not necessarily a direct relationship with a date from an underlying instrument.
    * @return the value of the property
    */

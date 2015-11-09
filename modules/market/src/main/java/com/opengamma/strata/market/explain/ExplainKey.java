@@ -76,9 +76,9 @@ public final class ExplainKey<T>
    */
   public static final ExplainKey<CurrencyAmount> PRESENT_VALUE = of("PresentValue");
   /**
-   * The future value.
+   * The forecast value.
    */
-  public static final ExplainKey<CurrencyAmount> FUTURE_VALUE = of("FutureValue");
+  public static final ExplainKey<CurrencyAmount> FORECAST_VALUE = of("ForecastValue");
 
   /**
    * The currency of the payment.

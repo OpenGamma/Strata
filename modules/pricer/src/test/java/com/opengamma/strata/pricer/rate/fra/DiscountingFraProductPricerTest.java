@@ -66,9 +66,9 @@ public class DiscountingFraProductPricerTest {
   private static final double FORWARD_RATE = 0.02;
 
   /**
-   * Test future value for ISDA FRA Discounting method. 
+   * Test forecast value for ISDA FRA Discounting method.
    */
-  public void test_futureValue_ISDA() {
+  public void test_forecastValue_ISDA() {
     ExpandedFra fraExp = FRA.expand();
     SimpleRatesProvider prov = createProvider(fraExp);
 
@@ -78,18 +78,18 @@ public class DiscountingFraProductPricerTest {
     double expected = notional * yearFraction * (FORWARD_RATE - fixedRate) / (1.0 + yearFraction * FORWARD_RATE);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
-    CurrencyAmount computed = test.futureValue(fraExp, prov);
+    CurrencyAmount computed = test.forecastValue(fraExp, prov);
     assertEquals(computed.getAmount(), expected, TOLERANCE);
 
     // test via FraTrade
     DiscountingFraTradePricer testTrade = new DiscountingFraTradePricer(test);
-    assertEquals(testTrade.futureValue(FRA_TRADE, prov), test.futureValue(fraExp, prov));
+    assertEquals(testTrade.forecastValue(FRA_TRADE, prov), test.forecastValue(fraExp, prov));
   }
 
   /**
-   * Test future value for NONE FRA Discounting method. 
+   * Test forecast value for NONE FRA Discounting method.
    */
-  public void test_futureValue_NONE() {
+  public void test_forecastValue_NONE() {
     ExpandedFra fraExp = FRA_NONE.expand();
     SimpleRatesProvider prov = createProvider(fraExp);
 
@@ -99,14 +99,14 @@ public class DiscountingFraProductPricerTest {
     double expected = notional * yearFraction * (FORWARD_RATE - fixedRate);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
-    CurrencyAmount computed = test.futureValue(fraExp, prov);
+    CurrencyAmount computed = test.forecastValue(fraExp, prov);
     assertEquals(computed.getAmount(), expected, TOLERANCE);
   }
 
   /**
-   * Test future value for AFMA FRA Discounting method. 
+   * Test forecast value for AFMA FRA Discounting method.
    */
-  public void test_futureValue_AFMA() {
+  public void test_forecastValue_AFMA() {
     ExpandedFra fraExp = FRA_AFMA.expand();
     SimpleRatesProvider prov = createProvider(fraExp);
 
@@ -116,19 +116,19 @@ public class DiscountingFraProductPricerTest {
     double expected = -notional * (1.0 / (1.0 + yearFraction * FORWARD_RATE) - 1.0 / (1.0 + yearFraction * fixedRate));
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
-    CurrencyAmount computed = test.futureValue(fraExp, prov);
+    CurrencyAmount computed = test.forecastValue(fraExp, prov);
     assertEquals(computed.getAmount(), expected, TOLERANCE);
   }
 
   /**
    * Test FRA paying in the past.
    */
-  public void test_futureValue_inPast() {
+  public void test_forecastValue_inPast() {
     ExpandedFra fraExp = FRA.expand().toBuilder().paymentDate(VAL_DATE.minusDays(1)).build();
     SimpleRatesProvider prov = createProvider(fraExp);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
-    CurrencyAmount computed = test.futureValue(fraExp, prov);
+    CurrencyAmount computed = test.forecastValue(fraExp, prov);
     assertEquals(computed.getAmount(), 0d, TOLERANCE);
   }
 
@@ -142,7 +142,7 @@ public class DiscountingFraProductPricerTest {
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     CurrencyAmount pvComputed = test.presentValue(fraExp, prov);
-    CurrencyAmount pvExpected = test.futureValue(fraExp, prov).multipliedBy(DISCOUNT_FACTOR);
+    CurrencyAmount pvExpected = test.forecastValue(fraExp, prov).multipliedBy(DISCOUNT_FACTOR);
     assertEquals(pvComputed.getAmount(), pvExpected.getAmount(), TOLERANCE);
 
     // test via FraTrade
@@ -159,7 +159,7 @@ public class DiscountingFraProductPricerTest {
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     CurrencyAmount pvComputed = test.presentValue(fraExp, prov);
-    CurrencyAmount pvExpected = test.futureValue(fraExp, prov).multipliedBy(DISCOUNT_FACTOR);
+    CurrencyAmount pvExpected = test.forecastValue(fraExp, prov).multipliedBy(DISCOUNT_FACTOR);
     assertEquals(pvComputed.getAmount(), pvExpected.getAmount(), TOLERANCE);
   }
 
@@ -172,7 +172,7 @@ public class DiscountingFraProductPricerTest {
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     CurrencyAmount pvComputed = test.presentValue(fraExp, prov);
-    CurrencyAmount pvExpected = test.futureValue(fraExp, prov).multipliedBy(DISCOUNT_FACTOR);
+    CurrencyAmount pvExpected = test.forecastValue(fraExp, prov).multipliedBy(DISCOUNT_FACTOR);
     assertEquals(pvComputed.getAmount(), pvExpected.getAmount(), TOLERANCE);
   }
 
@@ -190,16 +190,16 @@ public class DiscountingFraProductPricerTest {
 
   //-------------------------------------------------------------------------
   /**
-   * Test future value sensitivity for ISDA FRA discounting method. 
+   * Test forecast value sensitivity for ISDA FRA discounting method.
    */
-  public void test_futureValueSensitivity_ISDA() {
+  public void test_forecastValueSensitivity_ISDA() {
     ExpandedFra fraExp = FRA.expand();
     SimpleRatesProvider prov = createProvider(fraExp);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
-    PointSensitivities sensitivity = test.futureValueSensitivity(fraExp, prov);
+    PointSensitivities sensitivity = test.forecastValueSensitivity(fraExp, prov);
     double eps = 1.e-7;
-    double fdSense = futureValueFwdSensitivity(FRA, FORWARD_RATE, eps);
+    double fdSense = forecastValueFwdSensitivity(FRA, FORWARD_RATE, eps);
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
     assertEquals(sensitivities.size(), 1);
@@ -210,20 +210,20 @@ public class DiscountingFraProductPricerTest {
 
     // test via FraTrade
     DiscountingFraTradePricer testTrade = new DiscountingFraTradePricer(test);
-    assertEquals(testTrade.futureValueSensitivity(FRA_TRADE, prov), test.futureValueSensitivity(fraExp, prov));
+    assertEquals(testTrade.forecastValueSensitivity(FRA_TRADE, prov), test.forecastValueSensitivity(fraExp, prov));
   }
 
   /**
-   * Test future value sensitivity for NONE FRA discounting method.
+   * Test forecast value sensitivity for NONE FRA discounting method.
    */
-  public void test_futureValueSensitivity_NONE() {
+  public void test_forecastValueSensitivity_NONE() {
     ExpandedFra fraExp = FRA_NONE.expand();
     SimpleRatesProvider prov = createProvider(fraExp);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
-    PointSensitivities sensitivity = test.futureValueSensitivity(fraExp, prov);
+    PointSensitivities sensitivity = test.forecastValueSensitivity(fraExp, prov);
     double eps = 1.e-7;
-    double fdSense = futureValueFwdSensitivity(FRA_NONE, FORWARD_RATE, eps);
+    double fdSense = forecastValueFwdSensitivity(FRA_NONE, FORWARD_RATE, eps);
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
     assertEquals(sensitivities.size(), 1);
@@ -234,16 +234,16 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test future value sensitivity for AFMA FRA discounting method. 
+   * Test forecast value sensitivity for AFMA FRA discounting method.
    */
-  public void test_futureValueSensitivity_AFMA() {
+  public void test_forecastValueSensitivity_AFMA() {
     ExpandedFra fraExp = FRA_AFMA.expand();
     SimpleRatesProvider prov = createProvider(fraExp);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
-    PointSensitivities sensitivity = test.futureValueSensitivity(fraExp, prov);
+    PointSensitivities sensitivity = test.forecastValueSensitivity(fraExp, prov);
     double eps = 1.e-7;
-    double fdSense = futureValueFwdSensitivity(FRA_AFMA, FORWARD_RATE, eps);
+    double fdSense = forecastValueFwdSensitivity(FRA_AFMA, FORWARD_RATE, eps);
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
     assertEquals(sensitivities.size(), 1);
@@ -557,8 +557,8 @@ public class DiscountingFraProductPricerTest {
     assertEquals(computed.getCashFlows().size(), 1);
     assertEquals(computed.getCashFlows().size(), 1);
     assertEquals(computed.getCashFlows().get(0).getPaymentDate(), fraExp.getPaymentDate());
-    assertEquals(computed.getCashFlows().get(0).getFutureValue().getCurrency(), fraExp.getCurrency());
-    assertEquals(computed.getCashFlows().get(0).getFutureValue().getAmount(), expected, TOLERANCE);
+    assertEquals(computed.getCashFlows().get(0).getForecastValue().getCurrency(), fraExp.getCurrency());
+    assertEquals(computed.getCashFlows().get(0).getForecastValue().getAmount(), expected, TOLERANCE);
 
     // test via FraTrade
     DiscountingFraTradePricer testTrade = new DiscountingFraTradePricer(test);
@@ -574,7 +574,7 @@ public class DiscountingFraProductPricerTest {
     SimpleRatesProvider prov = createProvider(fraExp);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
-    CurrencyAmount fvExpected = test.futureValue(fraExp, prov);
+    CurrencyAmount fvExpected = test.forecastValue(fraExp, prov);
     CurrencyAmount pvExpected = test.presentValue(fraExp, prov);
 
     ExplainMap explain = test.explainPresentValue(fraExp, prov);
@@ -601,8 +601,8 @@ public class DiscountingFraProductPricerTest {
     assertEquals(explain.get(ExplainKey.PAY_OFF_RATE).get(), FORWARD_RATE, TOLERANCE);
     assertEquals(explain.get(ExplainKey.COMBINED_RATE).get(), FORWARD_RATE, TOLERANCE);
     assertEquals(explain.get(ExplainKey.UNIT_AMOUNT).get(), fvExpected.getAmount() / fraExp.getNotional(), TOLERANCE);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fvExpected.getAmount(), TOLERANCE);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), fvExpected.getAmount(), TOLERANCE);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), pvExpected.getAmount(), TOLERANCE);
   }
@@ -625,7 +625,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  private double futureValueFwdSensitivity(Fra fra, double forwardRate, double eps) {
+  private double forecastValueFwdSensitivity(Fra fra, double forwardRate, double eps) {
 
     RateObservationFn<RateObservation> obsFuncNew = mock(RateObservationFn.class);
     RatesProvider provNew = mock(RatesProvider.class);
@@ -633,10 +633,10 @@ public class DiscountingFraProductPricerTest {
     ExpandedFra fraExp = fra.expand();
     when(obsFuncNew.rate(fraExp.getFloatingRate(), fra.getStartDate(), fra.getEndDate(), provNew))
         .thenReturn(forwardRate + eps);
-    CurrencyAmount upValue = new DiscountingFraProductPricer(obsFuncNew).futureValue(fraExp, provNew);
+    CurrencyAmount upValue = new DiscountingFraProductPricer(obsFuncNew).forecastValue(fraExp, provNew);
     when(obsFuncNew.rate(fraExp.getFloatingRate(), fra.getStartDate(), fra.getEndDate(), provNew))
         .thenReturn(forwardRate - eps);
-    CurrencyAmount downValue = new DiscountingFraProductPricer(obsFuncNew).futureValue(fraExp, provNew);
+    CurrencyAmount downValue = new DiscountingFraProductPricer(obsFuncNew).forecastValue(fraExp, provNew);
     return upValue.minus(downValue).multipliedBy(0.5 / eps).getAmount();
   }
 

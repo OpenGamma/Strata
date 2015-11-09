@@ -39,9 +39,9 @@ public class DiscountingNotionalExchangePricer
   //-------------------------------------------------------------------------
   @Override
   public double presentValue(NotionalExchange event, RatesProvider provider) {
-    // futureValue * discountFactor
+    // forecastValue * discountFactor
     double df = provider.discountFactor(event.getCurrency(), event.getPaymentDate());
-    return futureValue(event, provider) * df;
+    return forecastValue(event, provider) * df;
   }
 
   @Override
@@ -53,13 +53,13 @@ public class DiscountingNotionalExchangePricer
 
   //-------------------------------------------------------------------------
   @Override
-  public double futureValue(NotionalExchange event, RatesProvider provider) {
+  public double forecastValue(NotionalExchange event, RatesProvider provider) {
     // paymentAmount
     return event.getPaymentAmount().getAmount();
   }
 
   @Override
-  public PointSensitivityBuilder futureValueSensitivity(NotionalExchange event, RatesProvider provider) {
+  public PointSensitivityBuilder forecastValueSensitivity(NotionalExchange event, RatesProvider provider) {
     return PointSensitivityBuilder.none();
   }
 
@@ -74,11 +74,11 @@ public class DiscountingNotionalExchangePricer
     builder.put(ExplainKey.PAYMENT_CURRENCY, currency);
     builder.put(ExplainKey.TRADE_NOTIONAL, event.getPaymentAmount());
     if (paymentDate.isBefore(provider.getValuationDate())) {
-      builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.zero(currency));
+      builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {
       builder.put(ExplainKey.DISCOUNT_FACTOR, provider.discountFactor(currency, paymentDate));
-      builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.of(currency, futureValue(event, provider)));
+      builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.of(currency, forecastValue(event, provider)));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.of(currency, presentValue(event, provider)));
     }
   }

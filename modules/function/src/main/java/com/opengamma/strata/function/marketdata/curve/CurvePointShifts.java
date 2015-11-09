@@ -3,7 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve.perturb;
+package com.opengamma.strata.function.marketdata.curve;
+
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
 import java.util.List;
 import java.util.Map;
@@ -26,12 +28,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.market.Perturbation;
+import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.collect.tuple.ObjIntPair;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
+import com.opengamma.strata.engine.marketdata.scenario.ScenarioPerturbation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.curve.perturb.ShiftType;
 
 /**
  * A perturbation that applies different shifts to specific points on a curve.
@@ -45,29 +52,40 @@ import com.opengamma.strata.market.curve.NodalCurve;
  * A shift is not applied if there is no point on the curve with a matching identifier.
  * <p>
  * This shift can only be applied to an instance of {@link NodalCurve} which contains parameter metadata.
- * The {@link #applyTo(Curve)} method will throw an exception for any other curves.
+ * The {@link #applyTo} method will throw an exception for any other curves.
  *
  * @see CurveParameterMetadata#getIdentifier()
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
-public final class CurvePointShift
-    implements Perturbation<Curve>, ImmutableBean {
+public final class CurvePointShifts
+    implements ScenarioPerturbation<Curve>, ImmutableBean {
 
   /** Logger. */
-  private static final Logger log = LoggerFactory.getLogger(CurvePointShift.class);
+  private static final Logger log = LoggerFactory.getLogger(CurvePointShifts.class);
 
   /**
    * The type of shift applied to the curve rates.
    */
   @PropertyDefinition(validate = "notNull")
   private final ShiftType shiftType;
+
   /**
    * The shift to apply to the rates.
+   * <p>
+   * There is one row in the matrix for each scenario and one column for each node in the curve.
+   * Node indices are found using {@link #nodeIndices}.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final DoubleMatrix shifts;
+
+  /**
+   * Indices of each curve node, keyed by an object identifying the node.
+   * <p>
    * The key is typically the node {@linkplain CurveParameterMetadata#getIdentifier() identifier}.
    * The key may also be the node {@linkplain CurveParameterMetadata#getLabel() label}.
    */
-  @PropertyDefinition(validate = "notNull", builderType = "Map<?, Double>")
-  private final ImmutableMap<Object, Double> shifts;
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableMap<Object, Integer> nodeIndices;
 
   //-------------------------------------------------------------------------
   /**
@@ -76,14 +94,37 @@ public final class CurvePointShift
    * @param shiftType  the type of shift to apply to the rates
    * @return a new mutable builder for building instances of {@code CurvePointShift}
    */
-  public static CurvePointShiftBuilder builder(ShiftType shiftType) {
-    return new CurvePointShiftBuilder(shiftType);
+  public static CurvePointShiftsBuilder builder(ShiftType shiftType) {
+    return new CurvePointShiftsBuilder(shiftType);
+  }
+
+  //--------------------------------------------------------------------------------------------------
+
+  /**
+   * Creates a new set of point shifts.
+   *
+   * @param shiftType  the type of the shift, absolute or relative
+   * @param shifts  the shifts, with one row per scenario and one column per curve node
+   * @param nodeIdentifiers  the node identifiers corresponding to the columns in the matrix of shifts
+   */
+  CurvePointShifts(ShiftType shiftType, DoubleMatrix shifts, List<Object> nodeIdentifiers) {
+    this(shiftType, shifts, buildNodeMap(nodeIdentifiers));
+  }
+
+  private static Map<Object, Integer> buildNodeMap(List<Object> nodeIdentifiers) {
+    return Guavate.zipWithIndex(nodeIdentifiers.stream())
+        .collect(toImmutableMap(ObjIntPair::getFirst, ObjIntPair::getSecond));
   }
 
   //-------------------------------------------------------------------------
+
   @Override
-  public Curve applyTo(Curve curve) {
-    log.debug("Applying {} point shift to curve '{}'", shiftType, curve.getName());
+  public MarketDataBox<Curve> applyTo(MarketDataBox<Curve> marketData) {
+    log.debug("Applying {} point shift to curve '{}'", shiftType, marketData.getValue(0).getName());
+    return marketData.apply(shifts.rowCount(), (curve, scenarioIndex) -> applyShifts(scenarioIndex, curve));
+  }
+
+  private Curve applyShifts(int scenarioIndex, Curve curve) {
     // curve parameter metadata is required, otherwise there is no way to find the nodes and apply the shifts
     List<CurveParameterMetadata> nodeMetadata = curve.getMetadata().getParameterMetadata()
         .orElseThrow(() -> new IllegalArgumentException(Messages.format(
@@ -92,49 +133,66 @@ public final class CurvePointShift
     DoubleArray yValues = nodalCurve.getYValues();
     DoubleArray shifted = yValues.mapWithIndex((i, v) -> {
       CurveParameterMetadata meta = nodeMetadata.get(i);
-      Double shiftAmount = shiftAmountForNode(meta);
-      return shiftAmount != null ? shiftType.applyShift(v, shiftAmount) : v;
+      double shift = shiftForNode(scenarioIndex, meta);
+      return shiftType.applyShift(v, shift);
     });
     return nodalCurve.withYValues(shifted);
   }
 
-  // find the shift amount applicable for the node, null if none
-  private Double shiftAmountForNode(CurveParameterMetadata meta) {
-    Double shiftAmount = shifts.get(meta.getIdentifier());
-    return shiftAmount != null ? shiftAmount : shifts.get(meta.getLabel());
+  @Override
+  public int getScenarioCount() {
+    return shifts.rowCount();
+  }
+
+  private double shiftForNode(int scenarioIndex, CurveParameterMetadata meta) {
+    Integer nodeIndex = nodeIndices.get(meta.getIdentifier());
+
+    if (nodeIndex != null) {
+      return shifts.get(scenarioIndex, nodeIndex);
+    }
+    nodeIndex = nodeIndices.get(meta.getLabel());
+
+    if (nodeIndex != null) {
+      return shifts.get(scenarioIndex, nodeIndex);
+    }
+    return 0;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code CurvePointShift}.
+   * The meta-bean for {@code CurvePointShifts}.
    * @return the meta-bean, not null
    */
-  public static CurvePointShift.Meta meta() {
-    return CurvePointShift.Meta.INSTANCE;
+  public static CurvePointShifts.Meta meta() {
+    return CurvePointShifts.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(CurvePointShift.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(CurvePointShifts.Meta.INSTANCE);
   }
 
   /**
    * Creates an instance.
    * @param shiftType  the value of the property, not null
    * @param shifts  the value of the property, not null
+   * @param nodeIndices  the value of the property, not null
    */
-  CurvePointShift(
+  CurvePointShifts(
       ShiftType shiftType,
-      Map<?, Double> shifts) {
+      DoubleMatrix shifts,
+      Map<Object, Integer> nodeIndices) {
     JodaBeanUtils.notNull(shiftType, "shiftType");
     JodaBeanUtils.notNull(shifts, "shifts");
+    JodaBeanUtils.notNull(nodeIndices, "nodeIndices");
     this.shiftType = shiftType;
-    this.shifts = ImmutableMap.copyOf(shifts);
+    this.shifts = shifts;
+    this.nodeIndices = ImmutableMap.copyOf(nodeIndices);
   }
 
   @Override
-  public CurvePointShift.Meta metaBean() {
-    return CurvePointShift.Meta.INSTANCE;
+  public CurvePointShifts.Meta metaBean() {
+    return CurvePointShifts.Meta.INSTANCE;
   }
 
   @Override
@@ -159,12 +217,25 @@ public final class CurvePointShift
   //-----------------------------------------------------------------------
   /**
    * Gets the shift to apply to the rates.
+   * <p>
+   * There is one row in the matrix for each scenario and one column for each node in the curve.
+   * Node indices are found using {@link #nodeIndices}.
+   * @return the value of the property, not null
+   */
+  public DoubleMatrix getShifts() {
+    return shifts;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets indices of each curve node, keyed by an object identifying the node.
+   * <p>
    * The key is typically the node {@linkplain CurveParameterMetadata#getIdentifier() identifier}.
    * The key may also be the node {@linkplain CurveParameterMetadata#getLabel() label}.
    * @return the value of the property, not null
    */
-  public ImmutableMap<Object, Double> getShifts() {
-    return shifts;
+  public ImmutableMap<Object, Integer> getNodeIndices() {
+    return nodeIndices;
   }
 
   //-----------------------------------------------------------------------
@@ -174,9 +245,10 @@ public final class CurvePointShift
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CurvePointShift other = (CurvePointShift) obj;
+      CurvePointShifts other = (CurvePointShifts) obj;
       return JodaBeanUtils.equal(getShiftType(), other.getShiftType()) &&
-          JodaBeanUtils.equal(getShifts(), other.getShifts());
+          JodaBeanUtils.equal(getShifts(), other.getShifts()) &&
+          JodaBeanUtils.equal(getNodeIndices(), other.getNodeIndices());
     }
     return false;
   }
@@ -186,22 +258,24 @@ public final class CurvePointShift
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getShiftType());
     hash = hash * 31 + JodaBeanUtils.hashCode(getShifts());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNodeIndices());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
-    buf.append("CurvePointShift{");
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("CurvePointShifts{");
     buf.append("shiftType").append('=').append(getShiftType()).append(',').append(' ');
-    buf.append("shifts").append('=').append(JodaBeanUtils.toString(getShifts()));
+    buf.append("shifts").append('=').append(getShifts()).append(',').append(' ');
+    buf.append("nodeIndices").append('=').append(JodaBeanUtils.toString(getNodeIndices()));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code CurvePointShift}.
+   * The meta-bean for {@code CurvePointShifts}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -213,20 +287,26 @@ public final class CurvePointShift
      * The meta-property for the {@code shiftType} property.
      */
     private final MetaProperty<ShiftType> shiftType = DirectMetaProperty.ofImmutable(
-        this, "shiftType", CurvePointShift.class, ShiftType.class);
+        this, "shiftType", CurvePointShifts.class, ShiftType.class);
     /**
      * The meta-property for the {@code shifts} property.
      */
+    private final MetaProperty<DoubleMatrix> shifts = DirectMetaProperty.ofImmutable(
+        this, "shifts", CurvePointShifts.class, DoubleMatrix.class);
+    /**
+     * The meta-property for the {@code nodeIndices} property.
+     */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<Object, Double>> shifts = DirectMetaProperty.ofImmutable(
-        this, "shifts", CurvePointShift.class, (Class) ImmutableMap.class);
+    private final MetaProperty<ImmutableMap<Object, Integer>> nodeIndices = DirectMetaProperty.ofImmutable(
+        this, "nodeIndices", CurvePointShifts.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "shiftType",
-        "shifts");
+        "shifts",
+        "nodeIndices");
 
     /**
      * Restricted constructor.
@@ -241,18 +321,20 @@ public final class CurvePointShift
           return shiftType;
         case -903338959:  // shifts
           return shifts;
+        case -1547874491:  // nodeIndices
+          return nodeIndices;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public BeanBuilder<? extends CurvePointShift> builder() {
-      return new CurvePointShift.Builder();
+    public BeanBuilder<? extends CurvePointShifts> builder() {
+      return new CurvePointShifts.Builder();
     }
 
     @Override
-    public Class<? extends CurvePointShift> beanType() {
-      return CurvePointShift.class;
+    public Class<? extends CurvePointShifts> beanType() {
+      return CurvePointShifts.class;
     }
 
     @Override
@@ -273,8 +355,16 @@ public final class CurvePointShift
      * The meta-property for the {@code shifts} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<Object, Double>> shifts() {
+    public MetaProperty<DoubleMatrix> shifts() {
       return shifts;
+    }
+
+    /**
+     * The meta-property for the {@code nodeIndices} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableMap<Object, Integer>> nodeIndices() {
+      return nodeIndices;
     }
 
     //-----------------------------------------------------------------------
@@ -282,9 +372,11 @@ public final class CurvePointShift
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 893345500:  // shiftType
-          return ((CurvePointShift) bean).getShiftType();
+          return ((CurvePointShifts) bean).getShiftType();
         case -903338959:  // shifts
-          return ((CurvePointShift) bean).getShifts();
+          return ((CurvePointShifts) bean).getShifts();
+        case -1547874491:  // nodeIndices
+          return ((CurvePointShifts) bean).getNodeIndices();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -302,12 +394,13 @@ public final class CurvePointShift
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code CurvePointShift}.
+   * The bean-builder for {@code CurvePointShifts}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<CurvePointShift> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CurvePointShifts> {
 
     private ShiftType shiftType;
-    private Map<?, Double> shifts = ImmutableMap.of();
+    private DoubleMatrix shifts;
+    private Map<Object, Integer> nodeIndices = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -323,6 +416,8 @@ public final class CurvePointShift
           return shiftType;
         case -903338959:  // shifts
           return shifts;
+        case -1547874491:  // nodeIndices
+          return nodeIndices;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -336,7 +431,10 @@ public final class CurvePointShift
           this.shiftType = (ShiftType) newValue;
           break;
         case -903338959:  // shifts
-          this.shifts = (Map<?, Double>) newValue;
+          this.shifts = (DoubleMatrix) newValue;
+          break;
+        case -1547874491:  // nodeIndices
+          this.nodeIndices = (Map<Object, Integer>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -369,19 +467,21 @@ public final class CurvePointShift
     }
 
     @Override
-    public CurvePointShift build() {
-      return new CurvePointShift(
+    public CurvePointShifts build() {
+      return new CurvePointShifts(
           shiftType,
-          shifts);
+          shifts,
+          nodeIndices);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
-      buf.append("CurvePointShift.Builder{");
+      StringBuilder buf = new StringBuilder(128);
+      buf.append("CurvePointShifts.Builder{");
       buf.append("shiftType").append('=').append(JodaBeanUtils.toString(shiftType)).append(',').append(' ');
-      buf.append("shifts").append('=').append(JodaBeanUtils.toString(shifts));
+      buf.append("shifts").append('=').append(JodaBeanUtils.toString(shifts)).append(',').append(' ');
+      buf.append("nodeIndices").append('=').append(JodaBeanUtils.toString(nodeIndices));
       buf.append('}');
       return buf.toString();
     }

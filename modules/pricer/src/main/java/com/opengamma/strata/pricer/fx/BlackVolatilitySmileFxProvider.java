@@ -43,7 +43,7 @@ import com.opengamma.strata.market.value.ValueType;
  * Data provider of volatility for FX options in the lognormal or Black-Scholes model. 
  * <p>
  * The volatility is represented by a term structure of interpolated smile, 
- * {@link SmileDeltaTermStructureParametersStrikeInterpolation}, which represents expiration dependent smile formed of
+ * {@link SmileDeltaTermStructureParametersStrikeInterpolation}, which represents expiry dependent smile formed of
  * ATM, risk reversal and strangle as used in FX market.
  */
 @BeanDefinition
@@ -54,7 +54,7 @@ final class BlackVolatilitySmileFxProvider
   /**
    * The volatility model. 
    * <p>
-   * This represents expiration dependent smile which consists of ATM, risk reversal
+   * This represents expiry dependent smile which consists of ATM, risk reversal
    * and strangle as used in FX market.
    */
   @PropertyDefinition(validate = "notNull")
@@ -120,7 +120,7 @@ final class BlackVolatilitySmileFxProvider
     double forward = currencyPair.isInverse(point.getCurrencyPair()) ? 1d / point.getForward() : point.getForward();
     double pointValue = point.getSensitivity();
     DoubleMatrix bucketedSensi = smile.getVolatilityAndSensitivities(expiryTime, strike, forward).getSensitivities();
-    double[] times = smile.getTimeToExpiration();
+    double[] times = smile.getTimeToExpiry();
     int nTimes = times.length;
     List<Double> sensiList = new ArrayList<Double>();
     List<SurfaceParameterMetadata> paramList = new ArrayList<SurfaceParameterMetadata>();
@@ -208,7 +208,7 @@ final class BlackVolatilitySmileFxProvider
   /**
    * Gets the volatility model.
    * <p>
-   * This represents expiration dependent smile which consists of ATM, risk reversal
+   * This represents expiry dependent smile which consists of ATM, risk reversal
    * and strangle as used in FX market.
    * @return the value of the property, not null
    */
@@ -531,7 +531,7 @@ final class BlackVolatilitySmileFxProvider
     /**
      * Sets the volatility model.
      * <p>
-     * This represents expiration dependent smile which consists of ATM, risk reversal
+     * This represents expiry dependent smile which consists of ATM, risk reversal
      * and strangle as used in FX market.
      * @param smile  the new value, not null
      * @return this, for chaining, not null

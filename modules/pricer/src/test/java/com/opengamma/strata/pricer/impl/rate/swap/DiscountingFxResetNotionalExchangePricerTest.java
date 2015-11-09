@@ -106,16 +106,16 @@ public class DiscountingFxResetNotionalExchangePricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_futureValue() {
+  public void test_forecastValue() {
     SimpleRatesProvider prov = createProvider(FX_RESET_NOTIONAL_EXCHANGE_REC_USD);
 
     DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
-    double calculated = test.futureValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov);
+    double calculated = test.forecastValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov);
     assertEquals(calculated, FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getNotional() * FX_RATE, 0d);
   }
 
   //-------------------------------------------------------------------------
-  public void test_futureValueSensitivity() {
+  public void test_forecastValueSensitivity() {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .fxMatrix(FX_MATRIX)
@@ -127,11 +127,11 @@ public class DiscountingFxResetNotionalExchangePricerTest {
       FxResetNotionalExchange fxReset = expanded[i];
       DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
 
-      PointSensitivityBuilder pointSensitivityComputed = test.futureValueSensitivity(expanded[i], prov);
+      PointSensitivityBuilder pointSensitivityComputed = test.forecastValueSensitivity(expanded[i], prov);
       CurveCurrencyParameterSensitivities parameterSensitivityComputed = prov.curveParameterSensitivity(
           pointSensitivityComputed.build());
       CurveCurrencyParameterSensitivities parameterSensitivityExpected = FD_CALCULATOR.sensitivity(
-          prov, (p) -> CurrencyAmount.of(fxReset.getCurrency(), test.futureValue(fxReset, (p))));
+          prov, (p) -> CurrencyAmount.of(fxReset.getCurrency(), test.forecastValue(fxReset, (p))));
       assertTrue(parameterSensitivityComputed.equalWithTolerance(
           parameterSensitivityExpected, Math.abs(expanded[i].getNotional()) * EPS_FD * 10.0));
     }
@@ -156,8 +156,8 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency(), notionalCurrency);
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), notional, TOLERANCE);
     assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), paymentCurrency);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), convertedNotional, TOLERANCE);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), paymentCurrency);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), convertedNotional, TOLERANCE);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), paymentCurrency);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), convertedNotional * DISCOUNT_FACTOR, TOLERANCE);
   }
@@ -179,8 +179,8 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), paymentCurrency);
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency(), notionalCurrency);
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), notional, TOLERANCE);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), paymentCurrency);
-    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), 0d, TOLERANCE);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), paymentCurrency);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0d, TOLERANCE);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), paymentCurrency);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0d * DISCOUNT_FACTOR, TOLERANCE);
   }

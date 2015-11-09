@@ -56,7 +56,7 @@ public final class CurvePointShiftBuilder {
    * @param shifts  the shift amounts, keyed by the identifier of the node to which they should be applied
    * @return this builder
    */
-  public CurvePointShiftBuilder addShifts(Map<? extends Object, Double> shifts) {
+  public CurvePointShiftBuilder addShifts(Map<?, Double> shifts) {
     ArgChecker.notNull(shifts, "shifts");
     this.shifts.putAll(shifts);
     return this;

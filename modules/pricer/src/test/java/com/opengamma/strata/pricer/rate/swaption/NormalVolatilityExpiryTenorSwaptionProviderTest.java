@@ -139,8 +139,8 @@ public class NormalVolatilityExpiryTenorSwaptionProviderTest {
 
   public void test_volatility() {
     for (int i = 0; i < NB_TEST; i++) {
-      double expirationTime = PROVIDER_WITH_PARAM.relativeTime(TEST_OPTION_EXPIRY[i]);
-      double volExpected = SURFACE_WITH_PARAM.zValue(expirationTime, TEST_TENOR[i]);
+      double expiryTime = PROVIDER_WITH_PARAM.relativeTime(TEST_OPTION_EXPIRY[i]);
+      double volExpected = SURFACE_WITH_PARAM.zValue(expiryTime, TEST_TENOR[i]);
       double volComputed = PROVIDER_WITH_PARAM.getVolatility(
           TEST_OPTION_EXPIRY[i], TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD);
       assertEquals(volComputed, volExpected, TOLERANCE_VOL);

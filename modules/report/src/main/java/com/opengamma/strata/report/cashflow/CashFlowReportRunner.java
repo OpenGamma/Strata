@@ -51,7 +51,7 @@ public class CashFlowReportRunner
   private static final Map<ExplainKey<?>, String> HEADER_MAP = ImmutableMap.of(
       ExplainKey.ENTRY_TYPE, "Flow Type",
       ExplainKey.ENTRY_INDEX, "Leg Number",
-      ExplainKey.FUTURE_VALUE, "Flow Amount");
+      ExplainKey.FORECAST_VALUE, "Flow Amount");
 
   private static final List<ExplainKey<?>> COLUMN_ORDER = ImmutableList.<ExplainKey<?>>builder()
       .add(ExplainKey.ENTRY_TYPE)
@@ -82,7 +82,7 @@ public class CashFlowReportRunner
       .add(ExplainKey.COMPOUNDING)
       .add(ExplainKey.UNIT_AMOUNT)
       .add(INTERIM_AMOUNT_KEY)
-      .add(ExplainKey.FUTURE_VALUE)
+      .add(ExplainKey.FORECAST_VALUE)
       .add(ExplainKey.DISCOUNT_FACTOR)
       .add(ExplainKey.PRESENT_VALUE)
       .build();
@@ -167,7 +167,7 @@ public class CashFlowReportRunner
       int level,
       List<ExplainMap> accumulator) {
 
-    boolean hasParentFlow = currentRow.containsKey(ExplainKey.FUTURE_VALUE);
+    boolean hasParentFlow = currentRow.containsKey(ExplainKey.FORECAST_VALUE);
     boolean isFlow = explainMap.get(ExplainKey.PAYMENT_DATE).isPresent();
     boolean visible = parentVisible || isFlow;
 
@@ -183,7 +183,7 @@ public class CashFlowReportRunner
       if (nestedListKeys.contains(key)) {
         continue;
       }
-      if (key.equals(ExplainKey.FUTURE_VALUE)) {
+      if (key.equals(ExplainKey.FORECAST_VALUE)) {
         if (hasParentFlow) {
           // Collapsed rows, so flow must be the same as we already have
           continue;
@@ -245,7 +245,7 @@ public class CashFlowReportRunner
   }
 
   private ExplainKey<?> mapKey(ExplainKey<?> key, boolean isFlow) {
-    if (!isFlow && key.equals(ExplainKey.FUTURE_VALUE)) {
+    if (!isFlow && key.equals(ExplainKey.FORECAST_VALUE)) {
       return INTERIM_AMOUNT_KEY;
     }
     return key;

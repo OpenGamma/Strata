@@ -27,15 +27,15 @@ public class CashFlowsTest {
 
   private static final LocalDate PAYMENT_DATE_1 = LocalDate.of(2015, 6, 22);
   private static final LocalDate PAYMENT_DATE_2 = LocalDate.of(2015, 12, 21);
-  private static final double FUTURE_VALUE_1 = 0.0132;
-  private static final double FUTURE_VALUE_2 = -0.0108;
-  private static final double FUTURE_VALUE_3 = 0.0126;
+  private static final double FORECAST_VALUE_1 = 0.0132;
+  private static final double FORECAST_VALUE_2 = -0.0108;
+  private static final double FORECAST_VALUE_3 = 0.0126;
   private static final double DISCOUNT_FACTOR_1 = 0.96d;
   private static final double DISCOUNT_FACTOR_2 = 0.9d;
 
-  private static final CashFlow CASH_FLOW_1 = CashFlow.ofFutureValue(PAYMENT_DATE_1, USD, FUTURE_VALUE_1, DISCOUNT_FACTOR_1);
-  private static final CashFlow CASH_FLOW_2 = CashFlow.ofFutureValue(PAYMENT_DATE_1, GBP, FUTURE_VALUE_2, DISCOUNT_FACTOR_1);
-  private static final CashFlow CASH_FLOW_3 = CashFlow.ofFutureValue(PAYMENT_DATE_2, USD, FUTURE_VALUE_3, DISCOUNT_FACTOR_2);
+  private static final CashFlow CASH_FLOW_1 = CashFlow.ofForecastValue(PAYMENT_DATE_1, USD, FORECAST_VALUE_1, DISCOUNT_FACTOR_1);
+  private static final CashFlow CASH_FLOW_2 = CashFlow.ofForecastValue(PAYMENT_DATE_1, GBP, FORECAST_VALUE_2, DISCOUNT_FACTOR_1);
+  private static final CashFlow CASH_FLOW_3 = CashFlow.ofForecastValue(PAYMENT_DATE_2, USD, FORECAST_VALUE_3, DISCOUNT_FACTOR_2);
 
   //-------------------------------------------------------------------------
   public void test_of_singleFlow() {
