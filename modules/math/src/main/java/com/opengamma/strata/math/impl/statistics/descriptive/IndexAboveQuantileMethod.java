@@ -24,4 +24,13 @@ public final class IndexAboveQuantileMethod
     return (int) Math.ceil(quantileSize);
   }
 
+  @Override
+  int sampleCorrection(int sampleSize) {
+    return sampleSize;
+  }
+
+  @Override
+  double indexShift() {
+    return 0d;
+  }
 }
