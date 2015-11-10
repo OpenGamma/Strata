@@ -209,6 +209,15 @@ public final class IborRateSwapLegConvention
    */
   @PropertyDefinition(get = "field")
   private final CompoundingMethod compoundingMethod;
+  /**
+   * The flag indicating whether to exchange the notional.
+   * <p>
+   * If 'true', the notional there is both an initial exchange and a final exchange of notional.
+   * <p>
+   * This will default to 'false' if not specified.
+   */
+  @PropertyDefinition
+  private final boolean notionalExchange;
 
   //-------------------------------------------------------------------------
   /**
@@ -529,7 +538,11 @@ public final class IborRateSwapLegConvention
             .paymentDateOffset(getPaymentDateOffset())
             .compoundingMethod(getCompoundingMethod())
             .build())
-        .notionalSchedule(NotionalSchedule.of(getCurrency(), notional))
+        .notionalSchedule(NotionalSchedule.builder()
+            .currency(getCurrency())
+            .finalExchange(notionalExchange)
+            .initialExchange(notionalExchange)
+            .amount(ValueSchedule.of(notional)).build())
         .calculation(IborRateCalculation.builder()
             .index(index)
             .dayCount(getDayCount())
@@ -581,7 +594,8 @@ public final class IborRateSwapLegConvention
       DaysAdjustment fixingDateOffset,
       Frequency paymentFrequency,
       DaysAdjustment paymentDateOffset,
-      CompoundingMethod compoundingMethod) {
+      CompoundingMethod compoundingMethod,
+      boolean notionalExchange) {
     JodaBeanUtils.notNull(index, "index");
     this.index = index;
     this.currency = currency;
@@ -597,6 +611,7 @@ public final class IborRateSwapLegConvention
     this.paymentFrequency = paymentFrequency;
     this.paymentDateOffset = paymentDateOffset;
     this.compoundingMethod = compoundingMethod;
+    this.notionalExchange = notionalExchange;
   }
 
   @Override
@@ -628,6 +643,19 @@ public final class IborRateSwapLegConvention
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the flag indicating whether to exchange the notional.
+   * <p>
+   * If 'true', the notional there is both an initial exchange and a final exchange of notional.
+   * <p>
+   * This will default to 'false' if not specified.
+   * @return the value of the property
+   */
+  public boolean isNotionalExchange() {
+    return notionalExchange;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -655,7 +683,8 @@ public final class IborRateSwapLegConvention
           JodaBeanUtils.equal(fixingDateOffset, other.fixingDateOffset) &&
           JodaBeanUtils.equal(paymentFrequency, other.paymentFrequency) &&
           JodaBeanUtils.equal(paymentDateOffset, other.paymentDateOffset) &&
-          JodaBeanUtils.equal(compoundingMethod, other.compoundingMethod);
+          JodaBeanUtils.equal(compoundingMethod, other.compoundingMethod) &&
+          (isNotionalExchange() == other.isNotionalExchange());
     }
     return false;
   }
@@ -677,12 +706,13 @@ public final class IborRateSwapLegConvention
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentFrequency);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(compoundingMethod);
+    hash = hash * 31 + JodaBeanUtils.hashCode(isNotionalExchange());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(480);
+    StringBuilder buf = new StringBuilder(512);
     buf.append("IborRateSwapLegConvention{");
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
@@ -697,7 +727,8 @@ public final class IborRateSwapLegConvention
     buf.append("fixingDateOffset").append('=').append(fixingDateOffset).append(',').append(' ');
     buf.append("paymentFrequency").append('=').append(paymentFrequency).append(',').append(' ');
     buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
-    buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod));
+    buf.append("compoundingMethod").append('=').append(compoundingMethod).append(',').append(' ');
+    buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(isNotionalExchange()));
     buf.append('}');
     return buf.toString();
   }
@@ -783,6 +814,11 @@ public final class IborRateSwapLegConvention
     private final MetaProperty<CompoundingMethod> compoundingMethod = DirectMetaProperty.ofImmutable(
         this, "compoundingMethod", IborRateSwapLegConvention.class, CompoundingMethod.class);
     /**
+     * The meta-property for the {@code notionalExchange} property.
+     */
+    private final MetaProperty<Boolean> notionalExchange = DirectMetaProperty.ofImmutable(
+        this, "notionalExchange", IborRateSwapLegConvention.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -800,7 +836,8 @@ public final class IborRateSwapLegConvention
         "fixingDateOffset",
         "paymentFrequency",
         "paymentDateOffset",
-        "compoundingMethod");
+        "compoundingMethod",
+        "notionalExchange");
 
     /**
      * Restricted constructor.
@@ -839,6 +876,8 @@ public final class IborRateSwapLegConvention
           return paymentDateOffset;
         case -1376171496:  // compoundingMethod
           return compoundingMethod;
+        case -159410813:  // notionalExchange
+          return notionalExchange;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -971,6 +1010,14 @@ public final class IborRateSwapLegConvention
       return compoundingMethod;
     }
 
+    /**
+     * The meta-property for the {@code notionalExchange} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Boolean> notionalExchange() {
+      return notionalExchange;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -1003,6 +1050,8 @@ public final class IborRateSwapLegConvention
           return ((IborRateSwapLegConvention) bean).paymentDateOffset;
         case -1376171496:  // compoundingMethod
           return ((IborRateSwapLegConvention) bean).compoundingMethod;
+        case -159410813:  // notionalExchange
+          return ((IborRateSwapLegConvention) bean).isNotionalExchange();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -1038,6 +1087,7 @@ public final class IborRateSwapLegConvention
     private Frequency paymentFrequency;
     private DaysAdjustment paymentDateOffset;
     private CompoundingMethod compoundingMethod;
+    private boolean notionalExchange;
 
     /**
      * Restricted constructor.
@@ -1064,6 +1114,7 @@ public final class IborRateSwapLegConvention
       this.paymentFrequency = beanToCopy.paymentFrequency;
       this.paymentDateOffset = beanToCopy.paymentDateOffset;
       this.compoundingMethod = beanToCopy.compoundingMethod;
+      this.notionalExchange = beanToCopy.isNotionalExchange();
     }
 
     //-----------------------------------------------------------------------
@@ -1098,6 +1149,8 @@ public final class IborRateSwapLegConvention
           return paymentDateOffset;
         case -1376171496:  // compoundingMethod
           return compoundingMethod;
+        case -159410813:  // notionalExchange
+          return notionalExchange;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -1148,6 +1201,9 @@ public final class IborRateSwapLegConvention
         case -1376171496:  // compoundingMethod
           this.compoundingMethod = (CompoundingMethod) newValue;
           break;
+        case -159410813:  // notionalExchange
+          this.notionalExchange = (Boolean) newValue;
+          break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -1194,7 +1250,8 @@ public final class IborRateSwapLegConvention
           fixingDateOffset,
           paymentFrequency,
           paymentDateOffset,
-          compoundingMethod);
+          compoundingMethod,
+          notionalExchange);
     }
 
     //-----------------------------------------------------------------------
@@ -1419,10 +1476,24 @@ public final class IborRateSwapLegConvention
       return this;
     }
 
+    /**
+     * Sets the flag indicating whether to exchange the notional.
+     * <p>
+     * If 'true', the notional there is both an initial exchange and a final exchange of notional.
+     * <p>
+     * This will default to 'false' if not specified.
+     * @param notionalExchange  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder notionalExchange(boolean notionalExchange) {
+      this.notionalExchange = notionalExchange;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(480);
+      StringBuilder buf = new StringBuilder(512);
       buf.append("IborRateSwapLegConvention.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
@@ -1437,7 +1508,8 @@ public final class IborRateSwapLegConvention
       buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(fixingDateOffset)).append(',').append(' ');
       buf.append("paymentFrequency").append('=').append(JodaBeanUtils.toString(paymentFrequency)).append(',').append(' ');
       buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
-      buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod));
+      buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod)).append(',').append(' ');
+      buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(notionalExchange));
       buf.append('}');
       return buf.toString();
     }

@@ -70,6 +70,7 @@ public class IborRateSwapLegConventionTest {
     assertEquals(test.getPaymentFrequency(), P3M);
     assertEquals(test.getPaymentDateOffset(), DaysAdjustment.NONE);
     assertEquals(test.getCompoundingMethod(), CompoundingMethod.NONE);
+    assertEquals(test.isNotionalExchange(), false);
   }
 
   public void test_builder() {
@@ -88,6 +89,7 @@ public class IborRateSwapLegConventionTest {
     assertEquals(test.getPaymentFrequency(), P3M);
     assertEquals(test.getPaymentDateOffset(), DaysAdjustment.NONE);
     assertEquals(test.getCompoundingMethod(), CompoundingMethod.NONE);
+    assertEquals(test.isNotionalExchange(), false);
   }
 
   //-------------------------------------------------------------------------
@@ -112,6 +114,7 @@ public class IborRateSwapLegConventionTest {
     assertEquals(test.getPaymentFrequency(), P3M);
     assertEquals(test.getPaymentDateOffset(), DaysAdjustment.NONE);
     assertEquals(test.getCompoundingMethod(), CompoundingMethod.NONE);
+    assertEquals(test.isNotionalExchange(), false);
   }
 
   public void test_expandAllSpecified() {
@@ -130,6 +133,7 @@ public class IborRateSwapLegConventionTest {
         .paymentFrequency(P6M)
         .paymentDateOffset(PLUS_TWO_DAYS)
         .compoundingMethod(CompoundingMethod.FLAT)
+        .notionalExchange(true)
         .build();
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getCurrency(), USD);
@@ -145,6 +149,7 @@ public class IborRateSwapLegConventionTest {
     assertEquals(test.getPaymentFrequency(), P6M);
     assertEquals(test.getPaymentDateOffset(), PLUS_TWO_DAYS);
     assertEquals(test.getCompoundingMethod(), CompoundingMethod.FLAT);
+    assertEquals(test.isNotionalExchange(), true);
   }
 
   //-------------------------------------------------------------------------
@@ -221,6 +226,7 @@ public class IborRateSwapLegConventionTest {
         .fixingDateOffset(MINUS_FIVE_DAYS)
         .paymentFrequency(P6M)
         .paymentDateOffset(PLUS_TWO_DAYS)
+        .notionalExchange(true)
         .build();
     coverBeanEquals(test, test2);
   }
