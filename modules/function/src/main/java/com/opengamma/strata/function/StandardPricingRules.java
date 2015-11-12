@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.function;
 
-import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
-import com.opengamma.strata.engine.config.pricing.PricingRule;
-import com.opengamma.strata.engine.config.pricing.PricingRules;
+import com.opengamma.strata.calc.config.pricing.DefaultPricingRules;
+import com.opengamma.strata.calc.config.pricing.PricingRule;
+import com.opengamma.strata.calc.config.pricing.PricingRules;
 import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.future.GenericFutureOptionTrade;
 import com.opengamma.strata.finance.future.GenericFutureTrade;

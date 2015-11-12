@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.credit;
 
-import static com.opengamma.strata.engine.runner.function.FunctionUtils.toScenarioResult;
+import static com.opengamma.strata.calc.runner.function.FunctionUtils.toScenarioResult;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -16,10 +16,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.FunctionRequirements;
-import com.opengamma.strata.engine.runner.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.runner.function.result.ScenarioResult;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.finance.credit.Cds;
 import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.credit.ExpandedCds;

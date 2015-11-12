@@ -6,7 +6,7 @@
 package com.opengamma.strata.function.calculation.future;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
+import com.opengamma.strata.calc.marketdata.SingleCalculationMarketData;
 import com.opengamma.strata.finance.future.GenericFuture;
 import com.opengamma.strata.finance.future.GenericFutureTrade;
 import com.opengamma.strata.market.key.QuoteKey;

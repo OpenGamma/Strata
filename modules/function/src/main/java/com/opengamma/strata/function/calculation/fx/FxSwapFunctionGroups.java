@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.function.calculation.fx;
 
-import com.opengamma.strata.engine.config.Measure;
-import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
-import com.opengamma.strata.engine.config.pricing.FunctionGroup;
+import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
+import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.finance.fx.FxSwapTrade;
 
 /**

@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Set;
 
 import com.opengamma.strata.basics.Trade;
+import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.type.TypedString;
-import com.opengamma.strata.engine.Column;
-import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.finance.Product;
 import com.opengamma.strata.finance.ProductTrade;
 import com.opengamma.strata.finance.SecurityTrade;

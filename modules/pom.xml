@@ -59,7 +59,7 @@
   <modules>
     <module>basics</module>
     <module>collect</module>
-    <module>engine</module>
+    <module>calc</module>
     <module>source</module>
     <module>finance</module>
     <module>function</module>
@@ -203,7 +203,7 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-engine</artifactId>
+        <artifactId>strata-calc</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -287,7 +287,7 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-engine</artifactId>
+        <artifactId>strata-calc</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>

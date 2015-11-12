@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.calc.marketdata.mapping.MarketDataMapping;
+import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.engine.marketdata.mapping.MarketDataMapping;
-import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.market.curve.CurveGroupName;
 
 /**

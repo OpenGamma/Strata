@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.engine.config.pricing.PricingRules;
+import com.opengamma.strata.calc.config.pricing.PricingRules;
 import com.opengamma.strata.function.calculation.fx.FxNdfFunctionGroupsTest;
 import com.opengamma.strata.function.calculation.fx.FxSingleFunctionGroupsTest;
 import com.opengamma.strata.function.calculation.fx.FxSwapFunctionGroupsTest;

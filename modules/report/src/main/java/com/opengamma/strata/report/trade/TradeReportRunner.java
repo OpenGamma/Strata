@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableTable;
+import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.ReportRequirements;
 import com.opengamma.strata.report.ReportRunner;

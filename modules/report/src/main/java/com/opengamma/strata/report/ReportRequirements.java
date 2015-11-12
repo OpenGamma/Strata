@@ -23,7 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.engine.Column;
+import com.opengamma.strata.calc.Column;
 
 /**
  * Describes the requirements for a report to be run in terms of trade-level measures that

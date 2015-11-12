@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.function.calculation.rate.swap;
 
+import static com.opengamma.strata.calc.runner.function.FunctionUtils.toScenarioResult;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static com.opengamma.strata.engine.runner.function.FunctionUtils.toScenarioResult;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
@@ -16,10 +16,10 @@ import java.util.stream.IntStream;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.FunctionRequirements;
-import com.opengamma.strata.engine.runner.function.result.ScenarioResult;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.NotionalPaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
