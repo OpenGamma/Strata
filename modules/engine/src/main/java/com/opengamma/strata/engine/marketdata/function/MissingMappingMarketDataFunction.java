@@ -7,11 +7,11 @@ package com.opengamma.strata.engine.marketdata.function;
 
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.calculation.MissingMappingId;
 import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
+import com.opengamma.strata.engine.runner.MissingMappingId;
 
 /**
  * Market data function that creates failures with helpful error messages when there is no

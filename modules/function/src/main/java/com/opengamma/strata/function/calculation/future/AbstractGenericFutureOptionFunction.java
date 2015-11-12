@@ -5,18 +5,18 @@
  */
 package com.opengamma.strata.function.calculation.future;
 
-import static com.opengamma.strata.engine.calculation.function.FunctionUtils.toScenarioResult;
+import static com.opengamma.strata.engine.runner.function.FunctionUtils.toScenarioResult;
 
 import java.util.Optional;
 import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.engine.calculation.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculation.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
+import com.opengamma.strata.engine.runner.DefaultSingleCalculationMarketData;
+import com.opengamma.strata.engine.runner.function.result.ScenarioResult;
 import com.opengamma.strata.finance.future.GenericFutureOptionTrade;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.market.key.QuoteKey;

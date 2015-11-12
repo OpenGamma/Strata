@@ -12,14 +12,14 @@ import java.util.List;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.engine.calculation.CalculationRunner;
-import com.opengamma.strata.engine.calculation.CalculationTasks;
-import com.opengamma.strata.engine.calculation.Results;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
 import com.opengamma.strata.engine.marketdata.CalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.MarketDataFactory;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.scenario.ScenarioDefinition;
+import com.opengamma.strata.engine.runner.CalculationRunner;
+import com.opengamma.strata.engine.runner.CalculationTasks;
+import com.opengamma.strata.engine.runner.Results;
 
 /**
  * Default implementation of a calculation engine.

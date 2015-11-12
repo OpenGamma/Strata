@@ -8,9 +8,9 @@ package com.opengamma.strata.engine;
 import java.util.List;
 
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.engine.calculation.Results;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.scenario.ScenarioDefinition;
+import com.opengamma.strata.engine.runner.Results;
 
 /**
  * The calculation engine is the main entry point for performing calculations.

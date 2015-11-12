@@ -33,9 +33,9 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Failure;
 import com.opengamma.strata.collect.result.FailureException;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.engine.calculation.MissingMappingId;
-import com.opengamma.strata.engine.calculation.NoMatchingRuleId;
 import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
+import com.opengamma.strata.engine.runner.MissingMappingId;
+import com.opengamma.strata.engine.runner.NoMatchingRuleId;
 
 /**
  * A collection of market data for a single set of calculations.

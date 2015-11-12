@@ -30,9 +30,9 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.engine.calculation.MissingMappingId;
-import com.opengamma.strata.engine.calculation.NoMatchingRuleId;
 import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
+import com.opengamma.strata.engine.runner.MissingMappingId;
+import com.opengamma.strata.engine.runner.NoMatchingRuleId;
 
 /**
  * A set of market data.

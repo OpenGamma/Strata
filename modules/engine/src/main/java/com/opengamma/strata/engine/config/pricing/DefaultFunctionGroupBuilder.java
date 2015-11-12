@@ -10,9 +10,9 @@ import java.util.Map;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.engine.calculation.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.config.FunctionConfig;
 import com.opengamma.strata.engine.config.Measure;
+import com.opengamma.strata.engine.runner.function.CalculationSingleFunction;
 
 /**
  * A mutable builder for building instances of {@link DefaultFunctionGroup}.

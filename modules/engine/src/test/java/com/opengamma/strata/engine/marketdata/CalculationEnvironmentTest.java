@@ -15,8 +15,8 @@ import com.opengamma.strata.basics.market.TestObservableKey;
 import com.opengamma.strata.collect.result.FailureException;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.calculation.MissingMappingId;
-import com.opengamma.strata.engine.calculation.NoMatchingRuleId;
+import com.opengamma.strata.engine.runner.MissingMappingId;
+import com.opengamma.strata.engine.runner.NoMatchingRuleId;
 
 @Test
 public class CalculationEnvironmentTest {
