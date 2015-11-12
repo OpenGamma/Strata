@@ -34,7 +34,16 @@ public class PaymentTest {
   private static final LocalDate DATE_2015_06_30 = date(2015, 6, 30);
 
   //-------------------------------------------------------------------------
-  public void test_of() {
+  public void test_of_3args() {
+    Payment test = Payment.of(GBP, 1000, DATE_2015_06_30);
+    assertEquals(test.getValue(), GBP_P1000);
+    assertEquals(test.getCurrency(), GBP);
+    assertEquals(test.getAmount(), 1_000, 0d);
+    assertEquals(test.getPayReceive(), PayReceive.RECEIVE);
+    assertEquals(test.getDate(), DATE_2015_06_30);
+  }
+
+  public void test_of_2args() {
     Payment test = Payment.of(GBP_P1000, DATE_2015_06_30);
     assertEquals(test.getValue(), GBP_P1000);
     assertEquals(test.getCurrency(), GBP);

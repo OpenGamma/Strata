@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -36,7 +37,6 @@ import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.credit.FeeLeg;
 import com.opengamma.strata.product.credit.PeriodicPayments;
 import com.opengamma.strata.product.credit.ReferenceInformation;
-import com.opengamma.strata.product.credit.SinglePayment;
 
 /**
  * A market convention for credit default swap (CDS) trades.
@@ -123,7 +123,7 @@ public final class ImmutableCdsConvention
             .referenceInformation(referenceInformation)
             .feeLeg(
                 FeeLeg.of(
-                    SinglePayment.of(
+                    Payment.of(
                         getCurrency(),
                         upfrontFeeAmount,
                         upfrontFeePaymentDate),

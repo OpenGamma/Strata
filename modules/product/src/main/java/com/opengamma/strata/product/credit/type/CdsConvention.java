@@ -200,7 +200,7 @@ public interface CdsConvention
    * @return unadjusted accrual start date
    */
   public static LocalDate calculateUnadjustedAccrualStartDate(LocalDate valuationDate) {
-    return CdsDatesLogic.getPrevCdsDate(valuationDate);
+    return CdsDatesLogic.getPreviousCdsDate(valuationDate);
   }
 
   /**

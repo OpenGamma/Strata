@@ -22,6 +22,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.currency.Payment;
+
 /**
  * The fee leg of a credit default swap (CDS).
  * <p>
@@ -40,7 +42,7 @@ public final class FeeLeg
    * This amount occurs on the specified date and is considered to be a fee separate from the regular payments.
    */
   @PropertyDefinition(validate = "notNull")
-  final SinglePayment upfrontFee;
+  final Payment upfrontFee;
   /**
    * The periodic schedule of payments.
    * <p>
@@ -63,7 +65,7 @@ public final class FeeLeg
    * @param periodicPayments  the payments
    * @return the leg
    */
-  public static FeeLeg of(SinglePayment upfrontFee, PeriodicPayments periodicPayments) {
+  public static FeeLeg of(Payment upfrontFee, PeriodicPayments periodicPayments) {
     return new FeeLeg(upfrontFee, periodicPayments);
   }
 
@@ -95,7 +97,7 @@ public final class FeeLeg
   }
 
   private FeeLeg(
-      SinglePayment upfrontFee,
+      Payment upfrontFee,
       PeriodicPayments periodicPayments) {
     JodaBeanUtils.notNull(upfrontFee, "upfrontFee");
     JodaBeanUtils.notNull(periodicPayments, "periodicPayments");
@@ -126,7 +128,7 @@ public final class FeeLeg
    * This amount occurs on the specified date and is considered to be a fee separate from the regular payments.
    * @return the value of the property, not null
    */
-  public SinglePayment getUpfrontFee() {
+  public Payment getUpfrontFee() {
     return upfrontFee;
   }
 
@@ -200,8 +202,8 @@ public final class FeeLeg
     /**
      * The meta-property for the {@code upfrontFee} property.
      */
-    private final MetaProperty<SinglePayment> upfrontFee = DirectMetaProperty.ofImmutable(
-        this, "upfrontFee", FeeLeg.class, SinglePayment.class);
+    private final MetaProperty<Payment> upfrontFee = DirectMetaProperty.ofImmutable(
+        this, "upfrontFee", FeeLeg.class, Payment.class);
     /**
      * The meta-property for the {@code periodicPayments} property.
      */
@@ -252,7 +254,7 @@ public final class FeeLeg
      * The meta-property for the {@code upfrontFee} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SinglePayment> upfrontFee() {
+    public MetaProperty<Payment> upfrontFee() {
       return upfrontFee;
     }
 
@@ -293,7 +295,7 @@ public final class FeeLeg
    */
   public static final class Builder extends DirectFieldsBeanBuilder<FeeLeg> {
 
-    private SinglePayment upfrontFee;
+    private Payment upfrontFee;
     private PeriodicPayments periodicPayments;
 
     /**
@@ -328,7 +330,7 @@ public final class FeeLeg
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 963468344:  // upfrontFee
-          this.upfrontFee = (SinglePayment) newValue;
+          this.upfrontFee = (Payment) newValue;
           break;
         case -367345944:  // periodicPayments
           this.periodicPayments = (PeriodicPayments) newValue;
@@ -379,7 +381,7 @@ public final class FeeLeg
      * @param upfrontFee  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder upfrontFee(SinglePayment upfrontFee) {
+    public Builder upfrontFee(Payment upfrontFee) {
       JodaBeanUtils.notNull(upfrontFee, "upfrontFee");
       this.upfrontFee = upfrontFee;
       return this;
