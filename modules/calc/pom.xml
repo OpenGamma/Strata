@@ -14,7 +14,7 @@
   <artifactId>strata-calc</artifactId>
   <packaging>jar</packaging>
   <name>Strata-Calc</name>
-  <description>Calculation runner</description>
+  <description>Provides the ability to run calculations, manage market data and create scenarios</description>
 
   <!-- ==================================================================== -->
   <dependencies>

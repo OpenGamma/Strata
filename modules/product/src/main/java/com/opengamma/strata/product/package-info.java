@@ -5,7 +5,7 @@
  */
 
 /**
- * Entity objects describing the domain of finance.
+ * Entity objects describing trades and products in financial markets.
  * <p>
  * The trade model has three basic concepts, trades, securities and products.
  * <p>

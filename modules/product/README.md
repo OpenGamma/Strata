@@ -4,7 +4,7 @@ This directory contains the `strata-product` module.
 
 ### Overview
 
-This module provides a domain model for entities in finance used by Strata:
+This module provides a domain model for trades and products in financial markets, as used by Strata:
 
 * trades
 * products

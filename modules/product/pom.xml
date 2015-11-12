@@ -14,7 +14,7 @@
   <artifactId>strata-product</artifactId>
   <packaging>jar</packaging>
   <name>Strata-Product</name>
-  <description>Entities in financial markets</description>
+  <description>Domain objects describing trades and products in financial markets</description>
 
   <!-- ==================================================================== -->
   <dependencies>
