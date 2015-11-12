@@ -36,6 +36,8 @@ import com.opengamma.strata.collect.result.Result;
 
 /**
  * A market data box containing an object which can provide market data for multiple scenarios.
+ * 
+ * @param <T>  the type of data held in the box
  */
 @BeanDefinition
 public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketDataBox<T> {

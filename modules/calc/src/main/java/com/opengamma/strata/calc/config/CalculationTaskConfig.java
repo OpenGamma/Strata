@@ -34,6 +34,7 @@ import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
  * mappings that specify the market data that is used in the calculation.
  */
 @BeanDefinition
+@SuppressWarnings("rawtypes")
 public final class CalculationTaskConfig implements ImmutableBean, Serializable {
 
   /** The target for which the value will be calculated. */
@@ -100,6 +101,7 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
    *
    * @return the function instance that performs the calculation
    */
+  @SuppressWarnings("unchecked")
   public CalculationSingleFunction<?, ?> createFunction() {
     return functionConfig.createFunction(functionArguments);
   }

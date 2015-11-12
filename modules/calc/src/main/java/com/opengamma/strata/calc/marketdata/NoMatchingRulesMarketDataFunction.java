@@ -19,6 +19,7 @@ import com.opengamma.strata.collect.result.Result;
  * This builder uses raw types because it doesn't conform to the normal {@link MarketDataFunction}
  * contract. It is only used for building failure results, never market data.
  */
+@SuppressWarnings("rawtypes")
 public final class NoMatchingRulesMarketDataFunction implements MarketDataFunction {
 
   /** The single shared instance of the class. */

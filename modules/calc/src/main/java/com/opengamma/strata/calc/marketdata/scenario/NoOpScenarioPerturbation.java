@@ -20,6 +20,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * A scenario perturbation that returns its input unchanged and has a scenario count of one.
+ * 
+ * @param <T>  the type of data held in the box
  */
 @BeanDefinition
 final class NoOpScenarioPerturbation<T> implements ScenarioPerturbation<T>, ImmutableBean {

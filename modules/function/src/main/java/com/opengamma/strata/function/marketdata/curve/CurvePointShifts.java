@@ -73,7 +73,7 @@ public final class CurvePointShifts
    * The shift to apply to the rates.
    * <p>
    * There is one row in the matrix for each scenario and one column for each node in the curve.
-   * Node indices are found using {@link #nodeIndices}.
+   * Node indices are found using {@code nodeIndices}.
    */
   @PropertyDefinition(validate = "notNull")
   private final DoubleMatrix shifts;
@@ -219,7 +219,7 @@ public final class CurvePointShifts
    * Gets the shift to apply to the rates.
    * <p>
    * There is one row in the matrix for each scenario and one column for each node in the curve.
-   * Node indices are found using {@link #nodeIndices}.
+   * Node indices are found using {@code nodeIndices}.
    * @return the value of the property, not null
    */
   public DoubleMatrix getShifts() {

@@ -37,6 +37,8 @@ import com.opengamma.strata.collect.result.Result;
  * part of the calculation is the same for all scenarios it can be done once and reused instead of recalculated
  * for each scenario. In this case a {@link ScenarioMarketDataKey} should be used to retrieve the scenario
  * value from the {@link CalculationMarketData}.
+ * 
+ * @param <T>  the type of data held in the box
  */
 public interface MarketDataBox<T> {
 

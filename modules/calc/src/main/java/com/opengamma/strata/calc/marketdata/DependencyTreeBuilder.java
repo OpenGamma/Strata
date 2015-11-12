@@ -136,6 +136,7 @@ class DependencyTreeBuilder {
       return MarketDataNode.leaf(id, dataType);
     }
     // Find the builder that can build the data identified by the ID
+    @SuppressWarnings("rawtypes")
     MarketDataFunction builder = functions.get(id.getClass());
 
     if (builder != null) {

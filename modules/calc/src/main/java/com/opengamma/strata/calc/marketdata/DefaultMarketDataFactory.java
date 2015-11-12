@@ -272,7 +272,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * @param marketDataConfig  configuration specifying how the market data should be built
    * @return a result containing the market data or details of why it wasn't built
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private Result<MarketDataBox<?>> buildNonObservableData(
       MarketDataId id,
       MarketDataLookup suppliedData,

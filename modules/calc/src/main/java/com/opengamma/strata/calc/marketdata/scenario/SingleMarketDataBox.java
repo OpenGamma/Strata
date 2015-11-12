@@ -35,6 +35,8 @@ import com.opengamma.strata.collect.result.Result;
  * A market data box containing a single value which is used in all scenarios.
  * <p>
  * A market data box containing a single value can therefore be used with any number of scenarios.
+ * 
+ * @param <T>  the type of data held in the box
  */
 @BeanDefinition
 public final class SingleMarketDataBox<T> implements ImmutableBean, MarketDataBox<T> {
@@ -43,6 +45,7 @@ public final class SingleMarketDataBox<T> implements ImmutableBean, MarketDataBo
   @PropertyDefinition(validate = "notNull")
   private final T value;
 
+  @Override
   public T getValue(int scenarioIndex) {
     return value;
   }

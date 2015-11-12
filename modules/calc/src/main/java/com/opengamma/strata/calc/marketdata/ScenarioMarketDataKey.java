@@ -18,6 +18,10 @@ import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
  * However, it may be more efficient in some cases to calculate values for all scenarios at the same time.
  * To do this efficiently it may be helpful to package the market data into a structure that is suitable for
  * bulk calculations. Implementations of this interface allow these values to be requested.
+ * 
+ * @param <T>  the type of data referred to by the key
+ * @param <U>  the type of the multi-scenario data
+
  */
 public interface ScenarioMarketDataKey<T, U extends ScenarioMarketDataValue<T>> {
 

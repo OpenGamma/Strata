@@ -95,6 +95,7 @@ public final class DefaultMarketDataMappings implements MarketDataMappings, Immu
   }
 
   @Override
+  @SuppressWarnings("rawtypes")
   public <T, K extends MarketDataKey<T>> MarketDataId<T> getIdForKey(K key) {
     if (key instanceof ObservableKey) {
       return (MarketDataId<T>) getIdForObservableKey((ObservableKey) key);
