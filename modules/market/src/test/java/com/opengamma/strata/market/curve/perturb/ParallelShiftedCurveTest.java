@@ -70,7 +70,7 @@ public class ParallelShiftedCurveTest {
         METADATA,
         DoubleArray.of(0, 1),
         DoubleArray.of(2, 2.5),
-        CurveInterpolators.LINEAR); // TODO Use CurveInterpolators.LINEAR when #261 is fixed
+        CurveInterpolators.LINEAR);
 
     Curve absoluteShiftedCurve = ParallelShiftedCurve.absolute(curve, 1);
     Curve relativeShiftedCurve = ParallelShiftedCurve.relative(curve, 0.2);
@@ -85,7 +85,7 @@ public class ParallelShiftedCurveTest {
         METADATA,
         DoubleArray.of(0, 1),
         DoubleArray.of(2, 2.5),
-        CurveInterpolators.LINEAR); // TODO Use CurveInterpolators.LINEAR when #261 is fixed
+        CurveInterpolators.LINEAR);
 
     Curve absoluteShiftedCurve = ParallelShiftedCurve.absolute(curve, 1);
     Curve relativeShiftedCurve = ParallelShiftedCurve.relative(curve, 0.2);
