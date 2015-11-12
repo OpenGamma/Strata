@@ -16,11 +16,11 @@ import com.google.common.collect.Maps;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.io.CsvFile;
-import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
 import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
+import com.opengamma.strata.product.credit.type.IsdaYieldCurveConvention;
 
 /**
  * Parser to load daily yield curve information provided by Markit.

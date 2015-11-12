@@ -59,15 +59,6 @@ import com.opengamma.strata.calc.runner.DefaultCalculationRunner;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
-import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
-import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
-import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
-import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.finance.rate.swap.Swap;
-import com.opengamma.strata.finance.rate.swap.SwapLeg;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.marketdata.curve.DiscountCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.DiscountFactorsMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.IborIndexRatesMarketDataFunction;
@@ -80,6 +71,15 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
 import com.opengamma.strata.pricer.rate.e2e.CalendarUSD;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.rate.swap.FixedRateCalculation;
+import com.opengamma.strata.product.rate.swap.IborRateCalculation;
+import com.opengamma.strata.product.rate.swap.NotionalSchedule;
+import com.opengamma.strata.product.rate.swap.PaymentSchedule;
+import com.opengamma.strata.product.rate.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.rate.swap.Swap;
+import com.opengamma.strata.product.rate.swap.SwapLeg;
+import com.opengamma.strata.product.rate.swap.SwapTrade;
 
 @Test
 public class SwapPricingTest {

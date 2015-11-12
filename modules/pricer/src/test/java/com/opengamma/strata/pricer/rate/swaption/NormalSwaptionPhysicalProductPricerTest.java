@@ -10,7 +10,7 @@ import static com.opengamma.strata.basics.BuySell.SELL;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
+import static com.opengamma.strata.product.rate.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -26,15 +26,6 @@ import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
-import com.opengamma.strata.finance.rate.swap.Swap;
-import com.opengamma.strata.finance.rate.swap.SwapLegType;
-import com.opengamma.strata.finance.rate.swap.type.IborIborSwapConvention;
-import com.opengamma.strata.finance.rate.swap.type.ImmutableIborIborSwapConvention;
-import com.opengamma.strata.finance.rate.swaption.CashSettlement;
-import com.opengamma.strata.finance.rate.swaption.CashSettlementMethod;
-import com.opengamma.strata.finance.rate.swaption.PhysicalSettlement;
-import com.opengamma.strata.finance.rate.swaption.Swaption;
-import com.opengamma.strata.finance.rate.swaption.SwaptionSettlement;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
@@ -47,6 +38,15 @@ import com.opengamma.strata.pricer.impl.option.NormalPriceFunction;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.product.rate.swap.Swap;
+import com.opengamma.strata.product.rate.swap.SwapLegType;
+import com.opengamma.strata.product.rate.swap.type.IborIborSwapConvention;
+import com.opengamma.strata.product.rate.swap.type.ImmutableIborIborSwapConvention;
+import com.opengamma.strata.product.rate.swaption.CashSettlement;
+import com.opengamma.strata.product.rate.swaption.CashSettlementMethod;
+import com.opengamma.strata.product.rate.swaption.PhysicalSettlement;
+import com.opengamma.strata.product.rate.swaption.Swaption;
+import com.opengamma.strata.product.rate.swaption.SwaptionSettlement;
 
 /**
  * Tests {@link NormalSwaptionPhysicalProductPricer}.

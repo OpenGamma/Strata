@@ -39,18 +39,18 @@
  * the object which is the source of the data in the column. The supported values are:
  * <ul>
  *   <li>Trade - the data is taken from the {@link com.opengamma.strata.basics.Trade trade} or
- *   {@link com.opengamma.strata.finance.TradeInfo trade info}</li>
+ *   {@link com.opengamma.strata.product.TradeInfo trade info}</li>
  *   <li>Measure - the data is taken from the results of the calculations</li>
- *   <li>Product - the data is taken from the {@link com.opengamma.strata.finance.Product product} associated with
+ *   <li>Product - the data is taken from the {@link com.opengamma.strata.product.Product product} associated with
  *   the trade. This is only applicable if the trade implements
- *   {@link com.opengamma.strata.finance.ProductTrade ProductTrade}</li>
+ *   {@link com.opengamma.strata.product.ProductTrade ProductTrade}</li>
  * </ul>
  * The remaining parts of the expression are evaluated against the source object to find the value to display
  * in the column. For example, if the expression is '{@code Product.index.name}' and the results contain
- * {@link com.opengamma.strata.finance.rate.fra.FraTrade FraTrade} instances
+ * {@link com.opengamma.strata.product.rate.fra.FraTrade FraTrade} instances
  * the following calls will be made for each trade in the results:
  * <ul>
- *   <li>{@code FraTrade.getProduct()} returning a {@link com.opengamma.strata.finance.rate.fra.Fra Fra}</li>
+ *   <li>{@code FraTrade.getProduct()} returning a {@link com.opengamma.strata.product.rate.fra.Fra Fra}</li>
  *   <li>{@code Fra.getIndex()} returning an {@link com.opengamma.strata.basics.index.IborIndex IborIndex}</li>
  *   <li>{@code IborIndex.getName()} returning the index name</li>
  * </ul>

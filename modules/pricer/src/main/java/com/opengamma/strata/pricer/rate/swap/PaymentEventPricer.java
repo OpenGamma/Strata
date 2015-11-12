@@ -5,11 +5,11 @@
  */
 package com.opengamma.strata.pricer.rate.swap;
 
-import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.impl.rate.swap.DispatchingPaymentEventPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.swap.PaymentEvent;
 
 /**
  * Pricer for payment events.

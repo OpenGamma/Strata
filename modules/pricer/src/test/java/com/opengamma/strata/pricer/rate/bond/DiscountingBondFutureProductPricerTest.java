@@ -15,9 +15,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.finance.SecurityLink;
-import com.opengamma.strata.finance.rate.bond.BondFuture;
-import com.opengamma.strata.finance.rate.bond.FixedCouponBond;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
@@ -25,6 +22,9 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSets;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.product.SecurityLink;
+import com.opengamma.strata.product.rate.bond.BondFuture;
+import com.opengamma.strata.product.rate.bond.FixedCouponBond;
 
 /**
  * Test {@link DiscountingBondFutureProductPricer}.

@@ -9,10 +9,10 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
-import static com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS;
-import static com.opengamma.strata.finance.rate.deposit.type.TermDepositConventions.USD_DEPOSIT_T0;
-import static com.opengamma.strata.finance.rate.deposit.type.TermDepositConventions.USD_DEPOSIT_T1;
-import static com.opengamma.strata.finance.fx.type.FxSwapConventions.EUR_USD;
+import static com.opengamma.strata.product.fx.type.FxSwapConventions.EUR_USD;
+import static com.opengamma.strata.product.rate.deposit.type.TermDepositConventions.USD_DEPOSIT_T0;
+import static com.opengamma.strata.product.rate.deposit.type.TermDepositConventions.USD_DEPOSIT_T1;
+import static com.opengamma.strata.product.rate.swap.type.FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -42,12 +42,6 @@ import com.opengamma.strata.basics.market.ImmutableObservableValues;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.finance.fx.FxSwapTrade;
-import com.opengamma.strata.finance.fx.type.FxSwapTemplate;
-import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
-import com.opengamma.strata.finance.rate.deposit.type.TermDepositTemplate;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapTemplate;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
@@ -67,6 +61,12 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.deposit.DiscountingTermDepositProductPricer;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
+import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fx.type.FxSwapTemplate;
+import com.opengamma.strata.product.rate.deposit.TermDepositTrade;
+import com.opengamma.strata.product.rate.deposit.type.TermDepositTemplate;
+import com.opengamma.strata.product.rate.swap.SwapTrade;
+import com.opengamma.strata.product.rate.swap.type.FixedOvernightSwapTemplate;
 
 /**
  * Test for curve calibration in USD and EUR.

@@ -11,11 +11,11 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.finance.fx.ExpandedFxNdf;
-import com.opengamma.strata.finance.fx.FxNdfProduct;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.fx.ExpandedFxNdf;
+import com.opengamma.strata.product.fx.FxNdfProduct;
 
 /**
  * Pricer for FX non-deliverable forward (NDF) products.

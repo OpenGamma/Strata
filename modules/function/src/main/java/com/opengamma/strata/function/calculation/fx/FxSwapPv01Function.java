@@ -6,9 +6,9 @@
 package com.opengamma.strata.function.calculation.fx;
 
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.finance.fx.ExpandedFxSwap;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.fx.ExpandedFxSwap;
 
 /**
  * Calculates PV01, the present value sensitivity of a {@code FxSwapTrade}.

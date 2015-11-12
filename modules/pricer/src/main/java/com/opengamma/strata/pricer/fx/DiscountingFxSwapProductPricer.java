@@ -8,12 +8,12 @@ package com.opengamma.strata.pricer.fx;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.fx.ExpandedFxSwap;
-import com.opengamma.strata.finance.fx.FxSingleProduct;
-import com.opengamma.strata.finance.fx.FxSwapProduct;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.fx.ExpandedFxSwap;
+import com.opengamma.strata.product.fx.FxSingleProduct;
+import com.opengamma.strata.product.fx.FxSwapProduct;
 
 /**
  * Pricer for foreign exchange swap transaction products.

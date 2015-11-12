@@ -12,13 +12,13 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
-import com.opengamma.strata.finance.rate.swap.NotionalExchange;
-import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.PaymentEventPricer;
 import com.opengamma.strata.pricer.rate.swap.SwapDummyData;
+import com.opengamma.strata.product.rate.swap.FxResetNotionalExchange;
+import com.opengamma.strata.product.rate.swap.NotionalExchange;
+import com.opengamma.strata.product.rate.swap.PaymentEvent;
 
 /**
  * Test.

@@ -28,9 +28,9 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.rate.fra.Fra;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.rate.fra.Fra;
+import com.opengamma.strata.product.rate.fra.FraTrade;
 import com.opengamma.strata.report.ReportCalculationResults;
 
 /**

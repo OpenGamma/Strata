@@ -6,8 +6,8 @@
 package com.opengamma.strata.pricer.rate.future;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.finance.rate.future.DeliverableSwapFuture;
-import com.opengamma.strata.finance.rate.future.DeliverableSwapFutureTrade;
+import com.opengamma.strata.product.rate.future.DeliverableSwapFuture;
+import com.opengamma.strata.product.rate.future.DeliverableSwapFutureTrade;
 
 /**
  * Base pricer for deliverable swap futures.

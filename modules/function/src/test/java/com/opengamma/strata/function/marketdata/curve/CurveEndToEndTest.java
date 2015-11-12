@@ -69,10 +69,6 @@ import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.finance.rate.fra.ExpandedFra;
-import com.opengamma.strata.finance.rate.fra.Fra;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.calculation.rate.swap.SwapPvFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
@@ -91,6 +87,10 @@ import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
+import com.opengamma.strata.product.rate.fra.ExpandedFra;
+import com.opengamma.strata.product.rate.fra.Fra;
+import com.opengamma.strata.product.rate.fra.FraTrade;
+import com.opengamma.strata.product.rate.swap.SwapTrade;
 
 /**
  * Test curves.

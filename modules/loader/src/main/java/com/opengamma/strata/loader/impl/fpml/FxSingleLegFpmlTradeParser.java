@@ -22,14 +22,14 @@ import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.collect.io.XmlElement;
-import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.fx.FxNdf;
-import com.opengamma.strata.finance.fx.FxNdfTrade;
-import com.opengamma.strata.finance.fx.FxSingle;
-import com.opengamma.strata.finance.fx.FxSingleTrade;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlParseException;
 import com.opengamma.strata.loader.fpml.FpmlTradeParser;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.fx.FxNdf;
+import com.opengamma.strata.product.fx.FxNdfTrade;
+import com.opengamma.strata.product.fx.FxSingle;
+import com.opengamma.strata.product.fx.FxSingleTrade;
 
 /**
  * FpML parser for single leg FX.

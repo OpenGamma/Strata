@@ -20,7 +20,7 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.finance.rate.swap.SwapLegType;
+import com.opengamma.strata.product.rate.swap.SwapLegType;
 
 /**
  * Test {@LegAmounts}.

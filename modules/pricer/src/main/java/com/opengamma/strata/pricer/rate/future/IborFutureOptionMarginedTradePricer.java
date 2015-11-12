@@ -11,11 +11,11 @@ import java.util.OptionalDouble;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.common.FutureOptionPremiumStyle;
-import com.opengamma.strata.finance.rate.future.IborFutureOption;
-import com.opengamma.strata.finance.rate.future.IborFutureOptionTrade;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
+import com.opengamma.strata.product.rate.future.IborFutureOption;
+import com.opengamma.strata.product.rate.future.IborFutureOptionTrade;
 
 /**
  * Pricer for Ibor future option trades with daily margin.

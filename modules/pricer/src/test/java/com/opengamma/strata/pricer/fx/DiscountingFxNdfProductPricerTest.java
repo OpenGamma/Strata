@@ -22,13 +22,13 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
-import com.opengamma.strata.finance.fx.FxSingle;
-import com.opengamma.strata.finance.fx.FxNdf;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.product.fx.FxNdf;
+import com.opengamma.strata.product.fx.FxSingle;
 
 /**
  * Test {@link DiscountingFxNdfProductPricer}.

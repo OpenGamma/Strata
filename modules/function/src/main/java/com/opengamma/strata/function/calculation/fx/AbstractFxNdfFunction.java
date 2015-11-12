@@ -17,14 +17,14 @@ import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
-import com.opengamma.strata.finance.fx.ExpandedFxNdf;
-import com.opengamma.strata.finance.fx.FxNdf;
-import com.opengamma.strata.finance.fx.FxNdfTrade;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.pricer.fx.DiscountingFxNdfProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.fx.ExpandedFxNdf;
+import com.opengamma.strata.product.fx.FxNdf;
+import com.opengamma.strata.product.fx.FxNdfTrade;
 
 /**
  * Perform calculations on a single {@code FxNdfTrade} for each of a set of scenarios.

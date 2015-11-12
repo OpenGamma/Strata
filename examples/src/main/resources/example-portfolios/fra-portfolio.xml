@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bean type="com.opengamma.strata.examples.report.TradePortfolio">
  <trades>
-  <item type="com.opengamma.strata.finance.rate.fra.FraTrade">
+  <item type="com.opengamma.strata.product.rate.fra.FraTrade">
    <tradeInfo>
     <id>example~1</id>
     <counterparty>mn~Dealer B</counterparty>

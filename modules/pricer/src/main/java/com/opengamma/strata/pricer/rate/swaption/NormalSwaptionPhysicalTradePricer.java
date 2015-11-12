@@ -10,12 +10,12 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
-import com.opengamma.strata.finance.rate.swaption.Swaption;
-import com.opengamma.strata.finance.rate.swaption.SwaptionTrade;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.swaption.Swaption;
+import com.opengamma.strata.product.rate.swaption.SwaptionTrade;
 
 /**
  * Pricer for swaption trade with physical settlement in a normal model on the swap rate.

@@ -32,14 +32,14 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.rate.fra.Fra;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
-import com.opengamma.strata.finance.rate.fra.type.FraTemplate;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.rate.fra.Fra;
+import com.opengamma.strata.product.rate.fra.FraTrade;
+import com.opengamma.strata.product.rate.fra.type.FraTemplate;
 
 /**
  * Test {@link FraCurveNode}.

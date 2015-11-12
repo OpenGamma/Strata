@@ -11,7 +11,6 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.finance.rate.bond.FixedCouponBondPaymentPeriod;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.IssuerCurveZeroRateSensitivity;
@@ -19,6 +18,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.CompoundedRateType;
 import com.opengamma.strata.market.value.IssuerCurveDiscountFactors;
+import com.opengamma.strata.product.rate.bond.FixedCouponBondPaymentPeriod;
 
 /**
  * Pricer implementation for bond payment periods based on a fixed coupon.

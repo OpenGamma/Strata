@@ -17,14 +17,14 @@ import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
-import com.opengamma.strata.finance.rate.deposit.ExpandedTermDeposit;
-import com.opengamma.strata.finance.rate.deposit.TermDeposit;
-import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.deposit.DiscountingTermDepositProductPricer;
+import com.opengamma.strata.product.rate.deposit.ExpandedTermDeposit;
+import com.opengamma.strata.product.rate.deposit.TermDeposit;
+import com.opengamma.strata.product.rate.deposit.TermDepositTrade;
 
 /**
  * Perform calculations on a single {@code TermDepositTrade} for each of a set of scenarios.

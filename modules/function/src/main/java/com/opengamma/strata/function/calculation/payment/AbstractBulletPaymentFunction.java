@@ -18,12 +18,12 @@ import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
-import com.opengamma.strata.finance.payment.BulletPaymentTrade;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.payment.BulletPaymentTrade;
 
 /**
  * Perform calculations on a single {@code BulletPaymentTrade} for each of a set of scenarios.

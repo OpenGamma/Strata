@@ -12,8 +12,8 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
-import static com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
-import static com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS;
+import static com.opengamma.strata.product.rate.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
+import static com.opengamma.strata.product.rate.swap.type.FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -46,20 +46,6 @@ import com.opengamma.strata.basics.market.ImmutableObservableValues;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
-import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
-import com.opengamma.strata.finance.rate.deposit.type.IborFixingDepositTemplate;
-import com.opengamma.strata.finance.rate.deposit.type.ImmutableTermDepositConvention;
-import com.opengamma.strata.finance.rate.deposit.type.TermDepositConvention;
-import com.opengamma.strata.finance.rate.deposit.type.TermDepositTemplate;
-import com.opengamma.strata.finance.rate.future.IborFutureTrade;
-import com.opengamma.strata.finance.rate.future.type.IborFutureConvention;
-import com.opengamma.strata.finance.rate.future.type.IborFutureTemplate;
-import com.opengamma.strata.finance.rate.future.type.ImmutableIborFutureConvention;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
-import com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapTemplate;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
@@ -84,6 +70,20 @@ import com.opengamma.strata.pricer.rate.deposit.DiscountingTermDepositProductPri
 import com.opengamma.strata.pricer.rate.future.DiscountingIborFutureTradePricer;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
+import com.opengamma.strata.product.rate.deposit.IborFixingDepositTrade;
+import com.opengamma.strata.product.rate.deposit.TermDepositTrade;
+import com.opengamma.strata.product.rate.deposit.type.IborFixingDepositTemplate;
+import com.opengamma.strata.product.rate.deposit.type.ImmutableTermDepositConvention;
+import com.opengamma.strata.product.rate.deposit.type.TermDepositConvention;
+import com.opengamma.strata.product.rate.deposit.type.TermDepositTemplate;
+import com.opengamma.strata.product.rate.future.IborFutureTrade;
+import com.opengamma.strata.product.rate.future.type.IborFutureConvention;
+import com.opengamma.strata.product.rate.future.type.IborFutureTemplate;
+import com.opengamma.strata.product.rate.future.type.ImmutableIborFutureConvention;
+import com.opengamma.strata.product.rate.swap.SwapTrade;
+import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConventions;
+import com.opengamma.strata.product.rate.swap.type.FixedIborSwapTemplate;
+import com.opengamma.strata.product.rate.swap.type.FixedOvernightSwapTemplate;
 
 /**
  * Test for curve calibration with 2 curves in USD.

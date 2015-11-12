@@ -8,7 +8,7 @@ package com.opengamma.strata.pricer.calibration;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
-import static com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
+import static com.opengamma.strata.product.rate.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -36,12 +36,6 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
-import com.opengamma.strata.finance.rate.deposit.type.IborFixingDepositTemplate;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
-import com.opengamma.strata.finance.rate.fra.type.FraTemplate;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
@@ -60,6 +54,12 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.rate.deposit.IborFixingDepositTrade;
+import com.opengamma.strata.product.rate.deposit.type.IborFixingDepositTemplate;
+import com.opengamma.strata.product.rate.fra.FraTrade;
+import com.opengamma.strata.product.rate.fra.type.FraTemplate;
+import com.opengamma.strata.product.rate.swap.SwapTrade;
+import com.opengamma.strata.product.rate.swap.type.FixedIborSwapTemplate;
 
 /**
  * Test curve calibration

@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.function.calculation.rate.fra;
 
-import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.fra.ExpandedFra;
 
 /**
  * Calculates the par rate of a {@code FraTrade} for each of a set of scenarios.

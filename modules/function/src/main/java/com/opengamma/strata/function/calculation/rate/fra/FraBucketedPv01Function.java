@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.function.calculation.rate.fra;
 
-import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.fra.ExpandedFra;
 
 /**
  * Calculates the bucketed PV01, the present value curve parameter sensitivity of a {@code FraTrade}.

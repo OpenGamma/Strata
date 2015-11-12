@@ -28,12 +28,12 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
-import com.opengamma.strata.finance.rate.deposit.ExpandedTermDeposit;
-import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
-import com.opengamma.strata.finance.rate.deposit.type.TermDepositTemplate;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.product.rate.deposit.ExpandedTermDeposit;
+import com.opengamma.strata.product.rate.deposit.TermDepositTrade;
+import com.opengamma.strata.product.rate.deposit.type.TermDepositTemplate;
 
 /**
  * A curve node whose instrument is a term deposit.

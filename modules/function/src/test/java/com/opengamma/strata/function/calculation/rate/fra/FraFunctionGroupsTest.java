@@ -26,7 +26,6 @@ import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.collect.CollectProjectAssertions;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.function.marketdata.curve.MarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curves;
@@ -36,6 +35,7 @@ import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.rate.fra.FraDummyData;
+import com.opengamma.strata.product.rate.fra.FraTrade;
 
 /**
  * Test {@link FraFunctionGroups}.

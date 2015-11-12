@@ -38,10 +38,6 @@ import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
-import com.opengamma.strata.finance.credit.IndexReferenceInformation;
-import com.opengamma.strata.finance.credit.RestructuringClause;
-import com.opengamma.strata.finance.credit.SeniorityLevel;
-import com.opengamma.strata.finance.credit.SingleNameReferenceInformation;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.DiscountCurveId;
@@ -53,6 +49,10 @@ import com.opengamma.strata.market.id.IsdaSingleNameRecoveryRateId;
 import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
+import com.opengamma.strata.product.credit.IndexReferenceInformation;
+import com.opengamma.strata.product.credit.RestructuringClause;
+import com.opengamma.strata.product.credit.SeniorityLevel;
+import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
 
 /**
  * Test {@link MarketDataBuilder}, {@link DirectoryMarketDataBuilder} and {@link JarMarketDataBuilder}.

@@ -40,14 +40,6 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
-import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
-import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
-import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
-import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.finance.rate.swap.Swap;
-import com.opengamma.strata.finance.rate.swap.SwapLeg;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.marketdata.curve.CurvePointShifts;
 import com.opengamma.strata.function.marketdata.curve.CurvePointShiftsBuilder;
@@ -61,6 +53,14 @@ import com.opengamma.strata.market.curve.perturb.ShiftType;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.RateCurveId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.rate.swap.IborRateCalculation;
+import com.opengamma.strata.product.rate.swap.NotionalSchedule;
+import com.opengamma.strata.product.rate.swap.PaymentSchedule;
+import com.opengamma.strata.product.rate.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.rate.swap.Swap;
+import com.opengamma.strata.product.rate.swap.SwapLeg;
+import com.opengamma.strata.product.rate.swap.SwapTrade;
 
 /**
  * Example to illustrate using the engine to run a set of historical scenarios on a single swap

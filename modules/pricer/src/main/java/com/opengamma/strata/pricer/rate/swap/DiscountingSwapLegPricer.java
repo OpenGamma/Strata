@@ -13,18 +13,18 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
-import com.opengamma.strata.finance.rate.swap.KnownAmountPaymentPeriod;
-import com.opengamma.strata.finance.rate.swap.PaymentEvent;
-import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
-import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
-import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.rate.swap.KnownAmountPaymentPeriod;
+import com.opengamma.strata.product.rate.swap.PaymentEvent;
+import com.opengamma.strata.product.rate.swap.PaymentPeriod;
+import com.opengamma.strata.product.rate.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.rate.swap.SwapLeg;
 
 /**
  * Pricer for for rate swap legs.

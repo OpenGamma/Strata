@@ -7,10 +7,10 @@ package com.opengamma.strata.pricer.rate;
 
 import java.time.LocalDate;
 
-import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.impl.rate.DispatchingRateObservationFn;
+import com.opengamma.strata.product.rate.RateObservation;
 
 /**
  * Observes a rate from an index.

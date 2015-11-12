@@ -16,9 +16,6 @@ import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.finance.credit.ExpandedCds;
-import com.opengamma.strata.finance.credit.type.CdsConvention;
-import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
@@ -34,6 +31,9 @@ import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurveBuil
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurveBuild;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaInstrumentTypes;
+import com.opengamma.strata.product.credit.ExpandedCds;
+import com.opengamma.strata.product.credit.type.CdsConvention;
+import com.opengamma.strata.product.credit.type.IsdaYieldCurveConvention;
 
 /**
  * Helper for interacting with the underlying Analytics layer for CDS pricing.

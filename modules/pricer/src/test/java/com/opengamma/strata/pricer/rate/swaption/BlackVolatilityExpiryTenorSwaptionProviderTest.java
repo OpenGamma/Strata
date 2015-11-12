@@ -28,8 +28,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.SurfaceCurrencyParameterSensitivity;
@@ -44,6 +42,8 @@ import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
+import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConventions;
 
 /**
  * Test {@link BlackVolatilityExpiryTenorSwaptionProvider}.

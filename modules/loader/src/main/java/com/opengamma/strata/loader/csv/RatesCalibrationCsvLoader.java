@@ -26,16 +26,6 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.ResourceLocator;
-import com.opengamma.strata.finance.rate.deposit.type.IborFixingDepositConvention;
-import com.opengamma.strata.finance.rate.deposit.type.IborFixingDepositTemplate;
-import com.opengamma.strata.finance.rate.fra.type.FraConvention;
-import com.opengamma.strata.finance.rate.fra.type.FraTemplate;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
-import com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapConvention;
-import com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapTemplate;
-import com.opengamma.strata.finance.rate.swap.type.IborIborSwapConvention;
-import com.opengamma.strata.finance.rate.swap.type.IborIborSwapTemplate;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
@@ -51,6 +41,16 @@ import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.RateCurveId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
 import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.product.rate.deposit.type.IborFixingDepositConvention;
+import com.opengamma.strata.product.rate.deposit.type.IborFixingDepositTemplate;
+import com.opengamma.strata.product.rate.fra.type.FraConvention;
+import com.opengamma.strata.product.rate.fra.type.FraTemplate;
+import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.rate.swap.type.FixedIborSwapTemplate;
+import com.opengamma.strata.product.rate.swap.type.FixedOvernightSwapConvention;
+import com.opengamma.strata.product.rate.swap.type.FixedOvernightSwapTemplate;
+import com.opengamma.strata.product.rate.swap.type.IborIborSwapConvention;
+import com.opengamma.strata.product.rate.swap.type.IborIborSwapTemplate;
 
 /**
  * Loads a set of definitions to calibrate rates curves by reading from CSV resources.

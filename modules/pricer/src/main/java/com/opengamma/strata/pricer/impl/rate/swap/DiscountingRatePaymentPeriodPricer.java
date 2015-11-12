@@ -13,11 +13,6 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.rate.RateObservation;
-import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
-import com.opengamma.strata.finance.rate.swap.FxReset;
-import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
-import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -26,6 +21,11 @@ import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.PaymentPeriodPricer;
+import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.swap.CompoundingMethod;
+import com.opengamma.strata.product.rate.swap.FxReset;
+import com.opengamma.strata.product.rate.swap.RateAccrualPeriod;
+import com.opengamma.strata.product.rate.swap.RatePaymentPeriod;
 
 /**
  * Pricer implementation for swap payment periods based on a rate.

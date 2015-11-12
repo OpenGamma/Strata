@@ -6,8 +6,8 @@
 package com.opengamma.strata.function.calculation.rate.deposit;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.finance.rate.deposit.ExpandedTermDeposit;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.deposit.ExpandedTermDeposit;
 
 /**
  * Calculates the present value of a {@code TermDepositTrade} for each of a set of scenarios.

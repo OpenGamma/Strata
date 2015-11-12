@@ -8,9 +8,9 @@ package com.opengamma.strata.pricer.rate.swaption;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.market.sensitivity.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
+import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConvention;
 
 /**
  * Volatility environment for swaption in the normal or Bachelier model.

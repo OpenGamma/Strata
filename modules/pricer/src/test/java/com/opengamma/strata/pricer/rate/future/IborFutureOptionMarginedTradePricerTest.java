@@ -15,12 +15,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.Security;
-import com.opengamma.strata.finance.SecurityLink;
-import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.UnitSecurity;
-import com.opengamma.strata.finance.rate.future.IborFutureOption;
-import com.opengamma.strata.finance.rate.future.IborFutureOptionTrade;
+import com.opengamma.strata.product.Security;
+import com.opengamma.strata.product.SecurityLink;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.UnitSecurity;
+import com.opengamma.strata.product.rate.future.IborFutureOption;
+import com.opengamma.strata.product.rate.future.IborFutureOptionTrade;
 
 /**
  * Tests {@link IborFutureOptionMarginedTradePricer}

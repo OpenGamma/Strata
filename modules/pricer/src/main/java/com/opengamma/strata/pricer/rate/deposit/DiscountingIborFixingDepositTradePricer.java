@@ -7,10 +7,10 @@ package com.opengamma.strata.pricer.rate.deposit;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.rate.deposit.IborFixingDepositProduct;
-import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.product.rate.deposit.IborFixingDepositProduct;
+import com.opengamma.strata.product.rate.deposit.IborFixingDepositTrade;
 
 /**
  * The methods associated to the pricing of Ibor fixing deposit trades by discounting.

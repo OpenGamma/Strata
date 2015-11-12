@@ -12,13 +12,13 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.io.XmlElement;
-import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.rate.fra.Fra;
-import com.opengamma.strata.finance.rate.fra.FraDiscountingMethod;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlParseException;
 import com.opengamma.strata.loader.fpml.FpmlTradeParser;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.rate.fra.Fra;
+import com.opengamma.strata.product.rate.fra.FraDiscountingMethod;
+import com.opengamma.strata.product.rate.fra.FraTrade;
 
 /**
  * FpML parser for FRAs.

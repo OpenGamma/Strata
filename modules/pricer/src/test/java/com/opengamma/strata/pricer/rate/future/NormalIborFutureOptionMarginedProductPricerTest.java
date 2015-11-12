@@ -20,7 +20,6 @@ import java.time.ZoneId;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.finance.rate.future.IborFutureOption;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.IborFutureOptionSensitivity;
@@ -35,6 +34,7 @@ import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
 import com.opengamma.strata.pricer.impl.option.NormalFunctionData;
 import com.opengamma.strata.pricer.impl.option.NormalPriceFunction;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
+import com.opengamma.strata.product.rate.future.IborFutureOption;
 
 /**
  * Tests {@link NormalIborFutureOptionMarginedProductPricer}

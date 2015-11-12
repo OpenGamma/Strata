@@ -20,9 +20,6 @@ import com.opengamma.strata.calc.marketdata.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
-import com.opengamma.strata.finance.rate.swap.Swap;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.calculation.rate.MarketDataUtils;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.NodalCurve;
@@ -33,6 +30,9 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.CurveGammaCalculator;
+import com.opengamma.strata.product.rate.swap.ExpandedSwap;
+import com.opengamma.strata.product.rate.swap.Swap;
+import com.opengamma.strata.product.rate.swap.SwapTrade;
 
 /**
  * Calculates Gamma PV01, the second-order present value sensitivity of a {@link SwapTrade}

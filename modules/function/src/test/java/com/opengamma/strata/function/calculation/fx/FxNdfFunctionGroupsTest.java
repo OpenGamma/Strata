@@ -33,9 +33,6 @@ import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.collect.CollectProjectAssertions;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.fx.FxNdf;
-import com.opengamma.strata.finance.fx.FxNdfTrade;
 import com.opengamma.strata.function.marketdata.curve.MarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curves;
@@ -43,6 +40,9 @@ import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.fx.FxNdf;
+import com.opengamma.strata.product.fx.FxNdfTrade;
 
 /**
  * Test {@link FxNdfFunctionGroups}.

@@ -10,13 +10,13 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.fx.ExpandedFxSingle;
-import com.opengamma.strata.finance.fx.FxSingleProduct;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.FxForwardRates;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.fx.ExpandedFxSingle;
+import com.opengamma.strata.product.fx.FxSingleProduct;
 
 /**
  * Pricer for foreign exchange transaction products.

@@ -8,13 +8,13 @@ package com.opengamma.strata.pricer.impl.rate;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.index.PriceIndex;
-import com.opengamma.strata.finance.rate.InflationMonthlyRateObservation;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.PriceIndexValues;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.InflationMonthlyRateObservation;
 
 /**
  * Rate observation implementation for a price index. 

@@ -17,7 +17,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.finance.rate.swap.KnownAmountPaymentPeriod;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
@@ -31,6 +30,7 @@ import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
+import com.opengamma.strata.product.rate.swap.KnownAmountPaymentPeriod;
 
 /**
  * Test {@link DiscountingKnownAmountPaymentPeriodPricer}

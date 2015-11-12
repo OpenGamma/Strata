@@ -7,11 +7,11 @@ package com.opengamma.strata.pricer.rate.fra;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.rate.fra.FraProduct;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.fra.FraProduct;
+import com.opengamma.strata.product.rate.fra.FraTrade;
 
 /**
  * Pricer for for forward rate agreement (FRA) trades.

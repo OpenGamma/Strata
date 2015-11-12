@@ -21,13 +21,13 @@ import com.opengamma.strata.calc.marketdata.MarketEnvironmentBuilder;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.io.CsvFile;
-import com.opengamma.strata.finance.credit.IndexReferenceInformation;
-import com.opengamma.strata.finance.credit.type.CdsConvention;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.id.IsdaIndexCreditCurveParRatesId;
 import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
 import com.opengamma.strata.market.value.CdsRecoveryRate;
+import com.opengamma.strata.product.credit.IndexReferenceInformation;
+import com.opengamma.strata.product.credit.type.CdsConvention;
 
 /**
  * Parser to load daily index curve information provided by Markit.

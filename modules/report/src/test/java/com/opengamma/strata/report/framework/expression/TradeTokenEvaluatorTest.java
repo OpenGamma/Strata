@@ -15,10 +15,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.SecurityLink;
-import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.future.GenericFuture;
-import com.opengamma.strata.finance.future.GenericFutureTrade;
+import com.opengamma.strata.product.SecurityLink;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.future.GenericFuture;
+import com.opengamma.strata.product.future.GenericFutureTrade;
 
 /**
  * Test {@link TradeTokenEvaluator}.

@@ -23,15 +23,15 @@ import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.collect.CollectProjectAssertions;
-import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
-import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
-import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
-import com.opengamma.strata.finance.rate.swap.Swap;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.function.marketdata.curve.MarketDataMap;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.pricer.impl.rate.swap.DiscountingRatePaymentPeriodPricer;
+import com.opengamma.strata.product.rate.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.rate.swap.RateAccrualPeriod;
+import com.opengamma.strata.product.rate.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.rate.swap.Swap;
+import com.opengamma.strata.product.rate.swap.SwapTrade;
 
 /**
  * Test {@link SwapAccruedInterestFunction}.

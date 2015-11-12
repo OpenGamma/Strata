@@ -11,13 +11,13 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.io.XmlElement;
-import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.fx.FxSingle;
-import com.opengamma.strata.finance.fx.FxSwap;
-import com.opengamma.strata.finance.fx.FxSwapTrade;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlParseException;
 import com.opengamma.strata.loader.fpml.FpmlTradeParser;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.fx.FxSingle;
+import com.opengamma.strata.product.fx.FxSwap;
+import com.opengamma.strata.product.fx.FxSwapTrade;
 
 /**
  * FpML parser for FX swap.

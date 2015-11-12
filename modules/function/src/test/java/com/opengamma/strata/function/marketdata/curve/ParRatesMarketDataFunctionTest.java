@@ -27,7 +27,6 @@ import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.finance.rate.fra.type.FraTemplate;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
@@ -42,6 +41,7 @@ import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.product.rate.fra.type.FraTemplate;
 
 /**
  * Test {@link ParRatesMarketDataFunction}.

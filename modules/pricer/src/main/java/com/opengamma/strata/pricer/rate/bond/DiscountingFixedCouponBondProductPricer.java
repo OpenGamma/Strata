@@ -15,11 +15,6 @@ import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.Security;
-import com.opengamma.strata.finance.rate.bond.ExpandedFixedCouponBond;
-import com.opengamma.strata.finance.rate.bond.FixedCouponBond;
-import com.opengamma.strata.finance.rate.bond.FixedCouponBondPaymentPeriod;
-import com.opengamma.strata.finance.rate.bond.YieldConvention;
 import com.opengamma.strata.market.sensitivity.IssuerCurveZeroRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.RepoCurveZeroRateSensitivity;
@@ -34,6 +29,11 @@ import com.opengamma.strata.math.impl.rootfinding.RealSingleRootFinder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.impl.bond.DiscountingFixedCouponBondPaymentPeriodPricer;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
+import com.opengamma.strata.product.Security;
+import com.opengamma.strata.product.rate.bond.ExpandedFixedCouponBond;
+import com.opengamma.strata.product.rate.bond.FixedCouponBond;
+import com.opengamma.strata.product.rate.bond.FixedCouponBondPaymentPeriod;
+import com.opengamma.strata.product.rate.bond.YieldConvention;
 
 /**
  * Pricer for for rate fixed coupon bond products.

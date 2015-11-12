@@ -34,14 +34,6 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.finance.rate.future.DeliverableSwapFuture;
-import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
-import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
-import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
-import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
-import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.finance.rate.swap.Swap;
-import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
@@ -51,6 +43,14 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitiviti
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.product.rate.future.DeliverableSwapFuture;
+import com.opengamma.strata.product.rate.swap.FixedRateCalculation;
+import com.opengamma.strata.product.rate.swap.IborRateCalculation;
+import com.opengamma.strata.product.rate.swap.NotionalSchedule;
+import com.opengamma.strata.product.rate.swap.PaymentSchedule;
+import com.opengamma.strata.product.rate.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.rate.swap.Swap;
+import com.opengamma.strata.product.rate.swap.SwapLeg;
 
 /**
  * Test {@link DiscountingDeliverableSwapFutureProductPricer}.

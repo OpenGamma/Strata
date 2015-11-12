@@ -19,7 +19,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.finance.rate.bond.FixedCouponBondPaymentPeriod;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
@@ -34,6 +33,7 @@ import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.IssuerCurveDiscountFactors;
 import com.opengamma.strata.market.value.LegalEntityGroup;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
+import com.opengamma.strata.product.rate.bond.FixedCouponBondPaymentPeriod;
 
 /**
  * Test {@link DiscountingFixedCouponBondPaymentPeriodPricer}.

@@ -26,18 +26,18 @@ import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
-import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
-import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
-import com.opengamma.strata.finance.rate.swap.FixingRelativeTo;
-import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
-import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
-import com.opengamma.strata.finance.rate.swap.PaymentRelativeTo;
-import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
-import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.finance.rate.swap.Swap;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.rate.swap.CompoundingMethod;
+import com.opengamma.strata.product.rate.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.rate.swap.FixedRateCalculation;
+import com.opengamma.strata.product.rate.swap.FixingRelativeTo;
+import com.opengamma.strata.product.rate.swap.IborRateCalculation;
+import com.opengamma.strata.product.rate.swap.NotionalSchedule;
+import com.opengamma.strata.product.rate.swap.PaymentRelativeTo;
+import com.opengamma.strata.product.rate.swap.PaymentSchedule;
+import com.opengamma.strata.product.rate.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.rate.swap.Swap;
+import com.opengamma.strata.product.rate.swap.SwapTrade;
 
 /**
  * Demonstrate use of the API for interest rate swaps.

@@ -22,16 +22,16 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.finance.rate.swap.Swap;
-import com.opengamma.strata.finance.rate.swaption.CashSettlement;
-import com.opengamma.strata.finance.rate.swaption.CashSettlementMethod;
-import com.opengamma.strata.finance.rate.swaption.Swaption;
-import com.opengamma.strata.finance.rate.swaption.SwaptionTrade;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.product.rate.swap.Swap;
+import com.opengamma.strata.product.rate.swaption.CashSettlement;
+import com.opengamma.strata.product.rate.swaption.CashSettlementMethod;
+import com.opengamma.strata.product.rate.swaption.Swaption;
+import com.opengamma.strata.product.rate.swaption.SwaptionTrade;
 
 /**
  * Test {@link SabrSwaptionCashParYieldTradePricer}.

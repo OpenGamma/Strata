@@ -8,13 +8,13 @@ package com.opengamma.strata.pricer.impl.rate;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.OvernightIndexRates;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.OvernightAveragedRateObservation;
 
 /**
 * Rate observation implementation for a rate based on a single overnight index that is arithmetically averaged.

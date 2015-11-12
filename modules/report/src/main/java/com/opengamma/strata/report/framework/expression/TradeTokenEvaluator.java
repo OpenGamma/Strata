@@ -15,8 +15,8 @@ import org.joda.beans.MetaBean;
 
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.Trade;
-import com.opengamma.strata.finance.FinanceTrade;
-import com.opengamma.strata.finance.TradeInfo;
+import com.opengamma.strata.product.FinanceTrade;
+import com.opengamma.strata.product.TradeInfo;
 
 /**
  * Evaluates a token against a trade to produce another object.

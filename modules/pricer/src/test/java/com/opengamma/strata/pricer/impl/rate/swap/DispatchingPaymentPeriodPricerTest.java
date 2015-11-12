@@ -17,15 +17,15 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
-import com.opengamma.strata.finance.rate.swap.KnownAmountPaymentPeriod;
-import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
-import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.PaymentPeriodPricer;
 import com.opengamma.strata.pricer.rate.swap.SwapDummyData;
+import com.opengamma.strata.product.rate.swap.KnownAmountPaymentPeriod;
+import com.opengamma.strata.product.rate.swap.PaymentPeriod;
+import com.opengamma.strata.product.rate.swap.RatePaymentPeriod;
 
 /**
  * Test.
