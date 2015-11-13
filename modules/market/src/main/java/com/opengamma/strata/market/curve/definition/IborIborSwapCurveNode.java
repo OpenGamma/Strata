@@ -53,33 +53,35 @@ public final class IborIborSwapCurveNode
   @PropertyDefinition(validate = "notNull")
   private final ObservableKey rateKey;
   /**
-   * The spread added to the market quote.
+   * The additional spread added to the market quote.
    */
   @PropertyDefinition
-  private final double spread;
+  private final double additionalSpread;
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a curve node for a Ibor-Ibor interest rate swap using the specified instrument template and rate.
+   * Returns a curve node for a Ibor-Ibor interest rate swap using the
+   * specified instrument template and rate.
    *
    * @param template  the template used for building the instrument for the node
    * @param rateKey  the key identifying the market rate used when building the instrument for the node
    * @return a node whose instrument is built from the template using a market rate
    */
   public static IborIborSwapCurveNode of(IborIborSwapTemplate template, ObservableKey rateKey) {
-    return IborIborSwapCurveNode.builder().template(template).rateKey(rateKey).spread(0.0d).build();
+    return of(template, rateKey, 0d);
   }
 
   /**
-   * Returns a curve node for a Ibor-Ibor interest rate swap using the specified instrument template, rate key and spread.
+   * Returns a curve node for a Ibor-Ibor interest rate swap using the
+   * specified instrument template, rate key and spread.
    *
    * @param template  the template defining the node instrument
    * @param rateKey  the key identifying the market data providing the rate for the node instrument
-   * @param spread  the spread amount added to the rate
+   * @param additionalSpread  the additional spread amount added to the market quote
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static IborIborSwapCurveNode of(IborIborSwapTemplate template, ObservableKey rateKey, double spread) {
-    return IborIborSwapCurveNode.builder().template(template).rateKey(rateKey).spread(spread).build();
+  public static IborIborSwapCurveNode of(IborIborSwapTemplate template, ObservableKey rateKey, double additionalSpread) {
+    return new IborIborSwapCurveNode(template, rateKey, additionalSpread);
   }
 
   //-------------------------------------------------------------------------
@@ -96,7 +98,7 @@ public final class IborIborSwapCurveNode
 
   @Override
   public SwapTrade trade(LocalDate valuationDate, ObservableValues marketData) {
-    double marketQuote = marketData.getValue(rateKey) + spread;
+    double marketQuote = marketData.getValue(rateKey) + additionalSpread;
     return template.toTrade(valuationDate, BuySell.BUY, 1, marketQuote);
   }
 
@@ -138,12 +140,12 @@ public final class IborIborSwapCurveNode
   private IborIborSwapCurveNode(
       IborIborSwapTemplate template,
       ObservableKey rateKey,
-      double spread) {
+      double additionalSpread) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(rateKey, "rateKey");
     this.template = template;
     this.rateKey = rateKey;
-    this.spread = spread;
+    this.additionalSpread = additionalSpread;
   }
 
   @Override
@@ -181,11 +183,11 @@ public final class IborIborSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the spread added to the market quote.
+   * Gets the additional spread added to the market quote.
    * @return the value of the property
    */
-  public double getSpread() {
-    return spread;
+  public double getAdditionalSpread() {
+    return additionalSpread;
   }
 
   //-----------------------------------------------------------------------
@@ -206,7 +208,7 @@ public final class IborIborSwapCurveNode
       IborIborSwapCurveNode other = (IborIborSwapCurveNode) obj;
       return JodaBeanUtils.equal(template, other.template) &&
           JodaBeanUtils.equal(rateKey, other.rateKey) &&
-          JodaBeanUtils.equal(spread, other.spread);
+          JodaBeanUtils.equal(additionalSpread, other.additionalSpread);
     }
     return false;
   }
@@ -216,7 +218,7 @@ public final class IborIborSwapCurveNode
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(template);
     hash = hash * 31 + JodaBeanUtils.hashCode(rateKey);
-    hash = hash * 31 + JodaBeanUtils.hashCode(spread);
+    hash = hash * 31 + JodaBeanUtils.hashCode(additionalSpread);
     return hash;
   }
 
@@ -226,7 +228,7 @@ public final class IborIborSwapCurveNode
     buf.append("IborIborSwapCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
     buf.append("rateKey").append('=').append(rateKey).append(',').append(' ');
-    buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
+    buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread));
     buf.append('}');
     return buf.toString();
   }
@@ -252,10 +254,10 @@ public final class IborIborSwapCurveNode
     private final MetaProperty<ObservableKey> rateKey = DirectMetaProperty.ofImmutable(
         this, "rateKey", IborIborSwapCurveNode.class, ObservableKey.class);
     /**
-     * The meta-property for the {@code spread} property.
+     * The meta-property for the {@code additionalSpread} property.
      */
-    private final MetaProperty<Double> spread = DirectMetaProperty.ofImmutable(
-        this, "spread", IborIborSwapCurveNode.class, Double.TYPE);
+    private final MetaProperty<Double> additionalSpread = DirectMetaProperty.ofImmutable(
+        this, "additionalSpread", IborIborSwapCurveNode.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -263,7 +265,7 @@ public final class IborIborSwapCurveNode
         this, null,
         "template",
         "rateKey",
-        "spread");
+        "additionalSpread");
 
     /**
      * Restricted constructor.
@@ -278,8 +280,8 @@ public final class IborIborSwapCurveNode
           return template;
         case 983444831:  // rateKey
           return rateKey;
-        case -895684237:  // spread
-          return spread;
+        case 291232890:  // additionalSpread
+          return additionalSpread;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -317,11 +319,11 @@ public final class IborIborSwapCurveNode
     }
 
     /**
-     * The meta-property for the {@code spread} property.
+     * The meta-property for the {@code additionalSpread} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> spread() {
-      return spread;
+    public MetaProperty<Double> additionalSpread() {
+      return additionalSpread;
     }
 
     //-----------------------------------------------------------------------
@@ -332,8 +334,8 @@ public final class IborIborSwapCurveNode
           return ((IborIborSwapCurveNode) bean).getTemplate();
         case 983444831:  // rateKey
           return ((IborIborSwapCurveNode) bean).getRateKey();
-        case -895684237:  // spread
-          return ((IborIborSwapCurveNode) bean).getSpread();
+        case 291232890:  // additionalSpread
+          return ((IborIborSwapCurveNode) bean).getAdditionalSpread();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -357,7 +359,7 @@ public final class IborIborSwapCurveNode
 
     private IborIborSwapTemplate template;
     private ObservableKey rateKey;
-    private double spread;
+    private double additionalSpread;
 
     /**
      * Restricted constructor.
@@ -372,7 +374,7 @@ public final class IborIborSwapCurveNode
     private Builder(IborIborSwapCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
       this.rateKey = beanToCopy.getRateKey();
-      this.spread = beanToCopy.getSpread();
+      this.additionalSpread = beanToCopy.getAdditionalSpread();
     }
 
     //-----------------------------------------------------------------------
@@ -383,8 +385,8 @@ public final class IborIborSwapCurveNode
           return template;
         case 983444831:  // rateKey
           return rateKey;
-        case -895684237:  // spread
-          return spread;
+        case 291232890:  // additionalSpread
+          return additionalSpread;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -399,8 +401,8 @@ public final class IborIborSwapCurveNode
         case 983444831:  // rateKey
           this.rateKey = (ObservableKey) newValue;
           break;
-        case -895684237:  // spread
-          this.spread = (Double) newValue;
+        case 291232890:  // additionalSpread
+          this.additionalSpread = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -437,7 +439,7 @@ public final class IborIborSwapCurveNode
       return new IborIborSwapCurveNode(
           template,
           rateKey,
-          spread);
+          additionalSpread);
     }
 
     //-----------------------------------------------------------------------
@@ -464,12 +466,12 @@ public final class IborIborSwapCurveNode
     }
 
     /**
-     * Sets the spread added to the market quote.
-     * @param spread  the new value
+     * Sets the additional spread added to the market quote.
+     * @param additionalSpread  the new value
      * @return this, for chaining, not null
      */
-    public Builder spread(double spread) {
-      this.spread = spread;
+    public Builder additionalSpread(double additionalSpread) {
+      this.additionalSpread = additionalSpread;
       return this;
     }
 
@@ -480,7 +482,7 @@ public final class IborIborSwapCurveNode
       buf.append("IborIborSwapCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("rateKey").append('=').append(JodaBeanUtils.toString(rateKey)).append(',').append(' ');
-      buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
+      buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread));
       buf.append('}');
       return buf.toString();
     }

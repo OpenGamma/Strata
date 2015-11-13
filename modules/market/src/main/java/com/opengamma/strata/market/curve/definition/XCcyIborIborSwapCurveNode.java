@@ -58,10 +58,10 @@ public final class XCcyIborIborSwapCurveNode
   @PropertyDefinition(validate = "notNull")
   private final ObservableKey fxKey;
   /**
-   * The spread added to the spread market quote.
+   * The additional spread added to the market quote.
    */
   @PropertyDefinition
-  private final double spread;
+  private final double additionalSpread;
 
   //-------------------------------------------------------------------------
   /**
@@ -78,8 +78,7 @@ public final class XCcyIborIborSwapCurveNode
       ObservableKey spreadKey,
       ObservableKey fxKey) {
 
-    return XCcyIborIborSwapCurveNode.builder()
-        .template(template).spreadKey(spreadKey).fxKey(fxKey).spread(0.0d).build();
+    return of(template, spreadKey, fxKey, 0d);
   }
 
   /**
@@ -89,17 +88,16 @@ public final class XCcyIborIborSwapCurveNode
    * @param template  the template defining the node instrument
    * @param spreadKey  the key identifying the market spread used when building the instrument for the node
    * @param fxKey  the key identifying the FX rate for the near date used when building the instrument for the node
-   * @param spread  the spread amount added to the rate
+   * @param additionalSpread  the additional spread amount added to the market quote
    * @return a node whose instrument is built from the template using a market rate
    */
   public static XCcyIborIborSwapCurveNode of(
       XCcyIborIborSwapTemplate template,
       ObservableKey spreadKey,
       ObservableKey fxKey,
-      double spread) {
+      double additionalSpread) {
 
-    return XCcyIborIborSwapCurveNode.builder()
-        .template(template).spreadKey(spreadKey).fxKey(fxKey).spread(spread).build();
+    return new XCcyIborIborSwapCurveNode(template, spreadKey, fxKey, additionalSpread);
   }
 
   //-------------------------------------------------------------------------
@@ -116,7 +114,7 @@ public final class XCcyIborIborSwapCurveNode
 
   @Override
   public SwapTrade trade(LocalDate valuationDate, ObservableValues marketData) {
-    double marketQuote = marketData.getValue(spreadKey) + spread;
+    double marketQuote = marketData.getValue(spreadKey) + additionalSpread;
     double fxRate = marketData.getValue(fxKey);
     return template.toTrade(valuationDate, BuySell.BUY, 1, fxRate, marketQuote);
   }
@@ -160,14 +158,14 @@ public final class XCcyIborIborSwapCurveNode
       XCcyIborIborSwapTemplate template,
       ObservableKey spreadKey,
       ObservableKey fxKey,
-      double spread) {
+      double additionalSpread) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(spreadKey, "spreadKey");
     JodaBeanUtils.notNull(fxKey, "fxKey");
     this.template = template;
     this.spreadKey = spreadKey;
     this.fxKey = fxKey;
-    this.spread = spread;
+    this.additionalSpread = additionalSpread;
   }
 
   @Override
@@ -214,11 +212,11 @@ public final class XCcyIborIborSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the spread added to the spread market quote.
+   * Gets the additional spread added to the market quote.
    * @return the value of the property
    */
-  public double getSpread() {
-    return spread;
+  public double getAdditionalSpread() {
+    return additionalSpread;
   }
 
   //-----------------------------------------------------------------------
@@ -240,7 +238,7 @@ public final class XCcyIborIborSwapCurveNode
       return JodaBeanUtils.equal(template, other.template) &&
           JodaBeanUtils.equal(spreadKey, other.spreadKey) &&
           JodaBeanUtils.equal(fxKey, other.fxKey) &&
-          JodaBeanUtils.equal(spread, other.spread);
+          JodaBeanUtils.equal(additionalSpread, other.additionalSpread);
     }
     return false;
   }
@@ -251,7 +249,7 @@ public final class XCcyIborIborSwapCurveNode
     hash = hash * 31 + JodaBeanUtils.hashCode(template);
     hash = hash * 31 + JodaBeanUtils.hashCode(spreadKey);
     hash = hash * 31 + JodaBeanUtils.hashCode(fxKey);
-    hash = hash * 31 + JodaBeanUtils.hashCode(spread);
+    hash = hash * 31 + JodaBeanUtils.hashCode(additionalSpread);
     return hash;
   }
 
@@ -262,7 +260,7 @@ public final class XCcyIborIborSwapCurveNode
     buf.append("template").append('=').append(template).append(',').append(' ');
     buf.append("spreadKey").append('=').append(spreadKey).append(',').append(' ');
     buf.append("fxKey").append('=').append(fxKey).append(',').append(' ');
-    buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
+    buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread));
     buf.append('}');
     return buf.toString();
   }
@@ -293,10 +291,10 @@ public final class XCcyIborIborSwapCurveNode
     private final MetaProperty<ObservableKey> fxKey = DirectMetaProperty.ofImmutable(
         this, "fxKey", XCcyIborIborSwapCurveNode.class, ObservableKey.class);
     /**
-     * The meta-property for the {@code spread} property.
+     * The meta-property for the {@code additionalSpread} property.
      */
-    private final MetaProperty<Double> spread = DirectMetaProperty.ofImmutable(
-        this, "spread", XCcyIborIborSwapCurveNode.class, Double.TYPE);
+    private final MetaProperty<Double> additionalSpread = DirectMetaProperty.ofImmutable(
+        this, "additionalSpread", XCcyIborIborSwapCurveNode.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -305,7 +303,7 @@ public final class XCcyIborIborSwapCurveNode
         "template",
         "spreadKey",
         "fxKey",
-        "spread");
+        "additionalSpread");
 
     /**
      * Restricted constructor.
@@ -322,8 +320,8 @@ public final class XCcyIborIborSwapCurveNode
           return spreadKey;
         case 97849389:  // fxKey
           return fxKey;
-        case -895684237:  // spread
-          return spread;
+        case 291232890:  // additionalSpread
+          return additionalSpread;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -369,11 +367,11 @@ public final class XCcyIborIborSwapCurveNode
     }
 
     /**
-     * The meta-property for the {@code spread} property.
+     * The meta-property for the {@code additionalSpread} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> spread() {
-      return spread;
+    public MetaProperty<Double> additionalSpread() {
+      return additionalSpread;
     }
 
     //-----------------------------------------------------------------------
@@ -386,8 +384,8 @@ public final class XCcyIborIborSwapCurveNode
           return ((XCcyIborIborSwapCurveNode) bean).getSpreadKey();
         case 97849389:  // fxKey
           return ((XCcyIborIborSwapCurveNode) bean).getFxKey();
-        case -895684237:  // spread
-          return ((XCcyIborIborSwapCurveNode) bean).getSpread();
+        case 291232890:  // additionalSpread
+          return ((XCcyIborIborSwapCurveNode) bean).getAdditionalSpread();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -412,7 +410,7 @@ public final class XCcyIborIborSwapCurveNode
     private XCcyIborIborSwapTemplate template;
     private ObservableKey spreadKey;
     private ObservableKey fxKey;
-    private double spread;
+    private double additionalSpread;
 
     /**
      * Restricted constructor.
@@ -428,7 +426,7 @@ public final class XCcyIborIborSwapCurveNode
       this.template = beanToCopy.getTemplate();
       this.spreadKey = beanToCopy.getSpreadKey();
       this.fxKey = beanToCopy.getFxKey();
-      this.spread = beanToCopy.getSpread();
+      this.additionalSpread = beanToCopy.getAdditionalSpread();
     }
 
     //-----------------------------------------------------------------------
@@ -441,8 +439,8 @@ public final class XCcyIborIborSwapCurveNode
           return spreadKey;
         case 97849389:  // fxKey
           return fxKey;
-        case -895684237:  // spread
-          return spread;
+        case 291232890:  // additionalSpread
+          return additionalSpread;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -460,8 +458,8 @@ public final class XCcyIborIborSwapCurveNode
         case 97849389:  // fxKey
           this.fxKey = (ObservableKey) newValue;
           break;
-        case -895684237:  // spread
-          this.spread = (Double) newValue;
+        case 291232890:  // additionalSpread
+          this.additionalSpread = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -499,7 +497,7 @@ public final class XCcyIborIborSwapCurveNode
           template,
           spreadKey,
           fxKey,
-          spread);
+          additionalSpread);
     }
 
     //-----------------------------------------------------------------------
@@ -537,12 +535,12 @@ public final class XCcyIborIborSwapCurveNode
     }
 
     /**
-     * Sets the spread added to the spread market quote.
-     * @param spread  the new value
+     * Sets the additional spread added to the market quote.
+     * @param additionalSpread  the new value
      * @return this, for chaining, not null
      */
-    public Builder spread(double spread) {
-      this.spread = spread;
+    public Builder additionalSpread(double additionalSpread) {
+      this.additionalSpread = additionalSpread;
       return this;
     }
 
@@ -554,7 +552,7 @@ public final class XCcyIborIborSwapCurveNode
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("spreadKey").append('=').append(JodaBeanUtils.toString(spreadKey)).append(',').append(' ');
       buf.append("fxKey").append('=').append(JodaBeanUtils.toString(fxKey)).append(',').append(' ');
-      buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
+      buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread));
       buf.append('}');
       return buf.toString();
     }

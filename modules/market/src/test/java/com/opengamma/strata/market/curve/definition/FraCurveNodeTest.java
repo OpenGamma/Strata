@@ -58,24 +58,24 @@ public class FraCurveNodeTest {
     FraCurveNode test = FraCurveNode.builder()
         .template(TEMPLATE)
         .rateKey(QUOTE_KEY)
-        .spread(SPREAD)
+        .additionalSpread(SPREAD)
         .build();
     assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getSpread(), SPREAD);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_noSpread() {
     FraCurveNode test = FraCurveNode.of(TEMPLATE, QUOTE_KEY);
     assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getSpread(), 0.0d);
+    assertEquals(test.getAdditionalSpread(), 0.0d);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_withSpread() {
     FraCurveNode test = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getSpread(), SPREAD);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 

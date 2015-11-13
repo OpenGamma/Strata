@@ -51,24 +51,24 @@ public class IborFixingDepositCurveNodeTest {
     IborFixingDepositCurveNode test = IborFixingDepositCurveNode.builder()
         .rateKey(QUOTE_KEY)
         .template(TEMPLATE)
-        .spread(SPREAD)
+        .additionalSpread(SPREAD)
         .build();
     assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getSpread(), SPREAD);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_spread() {
     IborFixingDepositCurveNode test = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getSpread(), SPREAD);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_noSpread() {
     IborFixingDepositCurveNode test = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_KEY);
     assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getSpread(), 0.0);
+    assertEquals(test.getAdditionalSpread(), 0.0);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
