@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A simple {@link ScenarioMarketDataValue} implementation containing a list of single market data values, one
@@ -39,6 +40,7 @@ public final class ScenarioValuesList<T> implements ScenarioMarketDataValue<T>, 
   
   @Override
   public T getValue(int scenarioIndex) {
+    ArgChecker.inRange(scenarioIndex, 0, values.size(), "scenarioIndex");
     return values.get(scenarioIndex);
   }
 

@@ -29,6 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
 import com.opengamma.strata.basics.market.ScenarioValuesList;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.function.ObjIntFunction;
 import com.opengamma.strata.collect.result.FailureReason;
@@ -51,11 +52,12 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
     if (isSingleValue()) {
       return value.getValue(0);
     }
-    throw new UnsupportedOperationException("This box does not contain a single value");
+    throw new IllegalStateException("This box does not contain a single value");
   }
 
   @Override
   public T getValue(int scenarioIndex) {
+    ArgChecker.inRange(scenarioIndex, 0, value.getScenarioCount(), "scenarioIndex");
     return value.getValue(scenarioIndex);
   }
 
