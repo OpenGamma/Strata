@@ -317,11 +317,11 @@ public final class InterpolatedNodalSurface
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       InterpolatedNodalSurface other = (InterpolatedNodalSurface) obj;
-      return JodaBeanUtils.equal(getMetadata(), other.getMetadata()) &&
-          JodaBeanUtils.equal(getXValues(), other.getXValues()) &&
-          JodaBeanUtils.equal(getYValues(), other.getYValues()) &&
-          JodaBeanUtils.equal(getZValues(), other.getZValues()) &&
-          JodaBeanUtils.equal(getInterpolator(), other.getInterpolator());
+      return JodaBeanUtils.equal(metadata, other.metadata) &&
+          JodaBeanUtils.equal(xValues, other.xValues) &&
+          JodaBeanUtils.equal(yValues, other.yValues) &&
+          JodaBeanUtils.equal(zValues, other.zValues) &&
+          JodaBeanUtils.equal(interpolator, other.interpolator);
     }
     return false;
   }
@@ -329,11 +329,11 @@ public final class InterpolatedNodalSurface
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMetadata());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getXValues());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getYValues());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getZValues());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getInterpolator());
+    hash = hash * 31 + JodaBeanUtils.hashCode(metadata);
+    hash = hash * 31 + JodaBeanUtils.hashCode(xValues);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yValues);
+    hash = hash * 31 + JodaBeanUtils.hashCode(zValues);
+    hash = hash * 31 + JodaBeanUtils.hashCode(interpolator);
     return hash;
   }
 
@@ -341,11 +341,11 @@ public final class InterpolatedNodalSurface
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("InterpolatedNodalSurface{");
-    buf.append("metadata").append('=').append(getMetadata()).append(',').append(' ');
-    buf.append("xValues").append('=').append(getXValues()).append(',').append(' ');
-    buf.append("yValues").append('=').append(getYValues()).append(',').append(' ');
-    buf.append("zValues").append('=').append(getZValues()).append(',').append(' ');
-    buf.append("interpolator").append('=').append(JodaBeanUtils.toString(getInterpolator()));
+    buf.append("metadata").append('=').append(metadata).append(',').append(' ');
+    buf.append("xValues").append('=').append(xValues).append(',').append(' ');
+    buf.append("yValues").append('=').append(yValues).append(',').append(' ');
+    buf.append("zValues").append('=').append(zValues).append(',').append(' ');
+    buf.append("interpolator").append('=').append(JodaBeanUtils.toString(interpolator));
     buf.append('}');
     return buf.toString();
   }

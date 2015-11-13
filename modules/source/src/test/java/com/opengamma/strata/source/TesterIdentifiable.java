@@ -137,9 +137,9 @@ public final class TesterIdentifiable
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       TesterIdentifiable other = (TesterIdentifiable) obj;
-      return JodaBeanUtils.equal(getStandardId(), other.getStandardId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          (getWidgetCount() == other.getWidgetCount());
+      return JodaBeanUtils.equal(standardId, other.standardId) &&
+          JodaBeanUtils.equal(name, other.name) &&
+          (widgetCount == other.widgetCount);
     }
     return false;
   }
@@ -147,9 +147,9 @@ public final class TesterIdentifiable
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getWidgetCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(standardId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(widgetCount);
     return hash;
   }
 
@@ -157,9 +157,9 @@ public final class TesterIdentifiable
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("TesterIdentifiable{");
-    buf.append("standardId").append('=').append(getStandardId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("widgetCount").append('=').append(JodaBeanUtils.toString(getWidgetCount()));
+    buf.append("standardId").append('=').append(standardId).append(',').append(' ');
+    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("widgetCount").append('=').append(JodaBeanUtils.toString(widgetCount));
     buf.append('}');
     return buf.toString();
   }

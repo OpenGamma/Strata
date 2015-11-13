@@ -141,6 +141,10 @@ final class SmileDeltaParameters
     return META_BEAN;
   }
 
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
   private SmileDeltaParameters(
       double timeToExpiry,
       DoubleArray delta,
@@ -203,9 +207,9 @@ final class SmileDeltaParameters
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SmileDeltaParameters other = (SmileDeltaParameters) obj;
-      return JodaBeanUtils.equal(getTimeToExpiry(), other.getTimeToExpiry()) &&
-          JodaBeanUtils.equal(getDelta(), other.getDelta()) &&
-          JodaBeanUtils.equal(getVolatility(), other.getVolatility());
+      return JodaBeanUtils.equal(timeToExpiry, other.timeToExpiry) &&
+          JodaBeanUtils.equal(delta, other.delta) &&
+          JodaBeanUtils.equal(volatility, other.volatility);
     }
     return false;
   }
@@ -213,9 +217,9 @@ final class SmileDeltaParameters
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeToExpiry());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDelta());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getVolatility());
+    hash = hash * 31 + JodaBeanUtils.hashCode(timeToExpiry);
+    hash = hash * 31 + JodaBeanUtils.hashCode(delta);
+    hash = hash * 31 + JodaBeanUtils.hashCode(volatility);
     return hash;
   }
 
@@ -223,9 +227,9 @@ final class SmileDeltaParameters
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("SmileDeltaParameters{");
-    buf.append("timeToExpiry").append('=').append(getTimeToExpiry()).append(',').append(' ');
-    buf.append("delta").append('=').append(getDelta()).append(',').append(' ');
-    buf.append("volatility").append('=').append(JodaBeanUtils.toString(getVolatility()));
+    buf.append("timeToExpiry").append('=').append(timeToExpiry).append(',').append(' ');
+    buf.append("delta").append('=').append(delta).append(',').append(' ');
+    buf.append("volatility").append('=').append(JodaBeanUtils.toString(volatility));
     buf.append('}');
     return buf.toString();
   }

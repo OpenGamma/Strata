@@ -312,13 +312,13 @@ public final class Cds
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Cds other = (Cds) obj;
-      return JodaBeanUtils.equal(getBuySellProtection(), other.getBuySellProtection()) &&
-          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
-          JodaBeanUtils.equal(getBusinessDayAdjustment(), other.getBusinessDayAdjustment()) &&
-          JodaBeanUtils.equal(getReferenceInformation(), other.getReferenceInformation()) &&
-          JodaBeanUtils.equal(getFeeLeg(), other.getFeeLeg()) &&
-          (isPayAccruedOnDefault() == other.isPayAccruedOnDefault());
+      return JodaBeanUtils.equal(buySellProtection, other.buySellProtection) &&
+          JodaBeanUtils.equal(startDate, other.startDate) &&
+          JodaBeanUtils.equal(endDate, other.endDate) &&
+          JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
+          JodaBeanUtils.equal(referenceInformation, other.referenceInformation) &&
+          JodaBeanUtils.equal(feeLeg, other.feeLeg) &&
+          (payAccruedOnDefault == other.payAccruedOnDefault);
     }
     return false;
   }
@@ -326,13 +326,13 @@ public final class Cds
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBuySellProtection());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayAdjustment());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceInformation());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFeeLeg());
-    hash = hash * 31 + JodaBeanUtils.hashCode(isPayAccruedOnDefault());
+    hash = hash * 31 + JodaBeanUtils.hashCode(buySellProtection);
+    hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
+    hash = hash * 31 + JodaBeanUtils.hashCode(referenceInformation);
+    hash = hash * 31 + JodaBeanUtils.hashCode(feeLeg);
+    hash = hash * 31 + JodaBeanUtils.hashCode(payAccruedOnDefault);
     return hash;
   }
 
@@ -340,13 +340,13 @@ public final class Cds
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("Cds{");
-    buf.append("buySellProtection").append('=').append(getBuySellProtection()).append(',').append(' ');
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(getBusinessDayAdjustment()).append(',').append(' ');
-    buf.append("referenceInformation").append('=').append(getReferenceInformation()).append(',').append(' ');
-    buf.append("feeLeg").append('=').append(getFeeLeg()).append(',').append(' ');
-    buf.append("payAccruedOnDefault").append('=').append(JodaBeanUtils.toString(isPayAccruedOnDefault()));
+    buf.append("buySellProtection").append('=').append(buySellProtection).append(',').append(' ');
+    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
+    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
+    buf.append("referenceInformation").append('=').append(referenceInformation).append(',').append(' ');
+    buf.append("feeLeg").append('=').append(feeLeg).append(',').append(' ');
+    buf.append("payAccruedOnDefault").append('=').append(JodaBeanUtils.toString(payAccruedOnDefault));
     buf.append('}');
     return buf.toString();
   }

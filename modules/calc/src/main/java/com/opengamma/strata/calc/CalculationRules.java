@@ -172,10 +172,10 @@ public final class CalculationRules implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CalculationRules other = (CalculationRules) obj;
-      return JodaBeanUtils.equal(getPricingRules(), other.getPricingRules()) &&
-          JodaBeanUtils.equal(getMarketDataRules(), other.getMarketDataRules()) &&
-          JodaBeanUtils.equal(getReportingRules(), other.getReportingRules()) &&
-          JodaBeanUtils.equal(getMarketDataConfig(), other.getMarketDataConfig());
+      return JodaBeanUtils.equal(pricingRules, other.pricingRules) &&
+          JodaBeanUtils.equal(marketDataRules, other.marketDataRules) &&
+          JodaBeanUtils.equal(reportingRules, other.reportingRules) &&
+          JodaBeanUtils.equal(marketDataConfig, other.marketDataConfig);
     }
     return false;
   }
@@ -183,10 +183,10 @@ public final class CalculationRules implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPricingRules());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataRules());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReportingRules());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataConfig());
+    hash = hash * 31 + JodaBeanUtils.hashCode(pricingRules);
+    hash = hash * 31 + JodaBeanUtils.hashCode(marketDataRules);
+    hash = hash * 31 + JodaBeanUtils.hashCode(reportingRules);
+    hash = hash * 31 + JodaBeanUtils.hashCode(marketDataConfig);
     return hash;
   }
 
@@ -194,10 +194,10 @@ public final class CalculationRules implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("CalculationRules{");
-    buf.append("pricingRules").append('=').append(getPricingRules()).append(',').append(' ');
-    buf.append("marketDataRules").append('=').append(getMarketDataRules()).append(',').append(' ');
-    buf.append("reportingRules").append('=').append(getReportingRules()).append(',').append(' ');
-    buf.append("marketDataConfig").append('=').append(JodaBeanUtils.toString(getMarketDataConfig()));
+    buf.append("pricingRules").append('=').append(pricingRules).append(',').append(' ');
+    buf.append("marketDataRules").append('=').append(marketDataRules).append(',').append(' ');
+    buf.append("reportingRules").append('=').append(reportingRules).append(',').append(' ');
+    buf.append("marketDataConfig").append('=').append(JodaBeanUtils.toString(marketDataConfig));
     buf.append('}');
     return buf.toString();
   }

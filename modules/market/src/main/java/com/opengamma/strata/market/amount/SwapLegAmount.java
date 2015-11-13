@@ -200,10 +200,10 @@ public class SwapLegAmount
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SwapLegAmount other = (SwapLegAmount) obj;
-      return JodaBeanUtils.equal(getAmount(), other.getAmount()) &&
-          JodaBeanUtils.equal(getPayReceive(), other.getPayReceive()) &&
-          JodaBeanUtils.equal(getType(), other.getType()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency());
+      return JodaBeanUtils.equal(amount, other.amount) &&
+          JodaBeanUtils.equal(payReceive, other.payReceive) &&
+          JodaBeanUtils.equal(type, other.type) &&
+          JodaBeanUtils.equal(currency, other.currency);
     }
     return false;
   }
@@ -211,10 +211,10 @@ public class SwapLegAmount
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAmount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPayReceive());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(amount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(payReceive);
+    hash = hash * 31 + JodaBeanUtils.hashCode(type);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     return hash;
   }
 
@@ -232,10 +232,10 @@ public class SwapLegAmount
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("amount").append('=').append(JodaBeanUtils.toString(getAmount())).append(',').append(' ');
-    buf.append("payReceive").append('=').append(JodaBeanUtils.toString(getPayReceive())).append(',').append(' ');
-    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("amount").append('=').append(JodaBeanUtils.toString(amount)).append(',').append(' ');
+    buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

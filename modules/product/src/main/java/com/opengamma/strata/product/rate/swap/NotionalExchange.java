@@ -182,8 +182,8 @@ public final class NotionalExchange
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       NotionalExchange other = (NotionalExchange) obj;
-      return JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
-          JodaBeanUtils.equal(getPaymentAmount(), other.getPaymentAmount());
+      return JodaBeanUtils.equal(paymentDate, other.paymentDate) &&
+          JodaBeanUtils.equal(paymentAmount, other.paymentAmount);
     }
     return false;
   }
@@ -191,8 +191,8 @@ public final class NotionalExchange
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentAmount);
     return hash;
   }
 
@@ -200,8 +200,8 @@ public final class NotionalExchange
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("NotionalExchange{");
-    buf.append("paymentDate").append('=').append(getPaymentDate()).append(',').append(' ');
-    buf.append("paymentAmount").append('=').append(JodaBeanUtils.toString(getPaymentAmount()));
+    buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
+    buf.append("paymentAmount").append('=').append(JodaBeanUtils.toString(paymentAmount));
     buf.append('}');
     return buf.toString();
   }

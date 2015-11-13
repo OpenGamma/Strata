@@ -246,10 +246,10 @@ public final class FxResetCalculation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxResetCalculation other = (FxResetCalculation) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getReferenceCurrency(), other.getReferenceCurrency()) &&
-          JodaBeanUtils.equal(getFixingRelativeTo(), other.getFixingRelativeTo()) &&
-          JodaBeanUtils.equal(getFixingDateOffset(), other.getFixingDateOffset());
+      return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(referenceCurrency, other.referenceCurrency) &&
+          JodaBeanUtils.equal(fixingRelativeTo, other.fixingRelativeTo) &&
+          JodaBeanUtils.equal(fixingDateOffset, other.fixingDateOffset);
     }
     return false;
   }
@@ -257,10 +257,10 @@ public final class FxResetCalculation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingRelativeTo());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDateOffset());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(referenceCurrency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixingRelativeTo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixingDateOffset);
     return hash;
   }
 
@@ -268,10 +268,10 @@ public final class FxResetCalculation
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("FxResetCalculation{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("referenceCurrency").append('=').append(getReferenceCurrency()).append(',').append(' ');
-    buf.append("fixingRelativeTo").append('=').append(getFixingRelativeTo()).append(',').append(' ');
-    buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(getFixingDateOffset()));
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("referenceCurrency").append('=').append(referenceCurrency).append(',').append(' ');
+    buf.append("fixingRelativeTo").append('=').append(fixingRelativeTo).append(',').append(' ');
+    buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(fixingDateOffset));
     buf.append('}');
     return buf.toString();
   }

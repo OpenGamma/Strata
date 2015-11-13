@@ -224,7 +224,7 @@ public final class ExpandedSwap
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ExpandedSwap other = (ExpandedSwap) obj;
-      return JodaBeanUtils.equal(getLegs(), other.getLegs());
+      return JodaBeanUtils.equal(legs, other.legs);
     }
     return false;
   }
@@ -232,7 +232,7 @@ public final class ExpandedSwap
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLegs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(legs);
     return hash;
   }
 
@@ -240,7 +240,7 @@ public final class ExpandedSwap
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("ExpandedSwap{");
-    buf.append("legs").append('=').append(JodaBeanUtils.toString(getLegs()));
+    buf.append("legs").append('=').append(JodaBeanUtils.toString(legs));
     buf.append('}');
     return buf.toString();
   }

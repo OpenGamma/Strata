@@ -347,7 +347,7 @@ public final class SurfaceCurrencyParameterSensitivities
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SurfaceCurrencyParameterSensitivities other = (SurfaceCurrencyParameterSensitivities) obj;
-      return JodaBeanUtils.equal(getSensitivities(), other.getSensitivities());
+      return JodaBeanUtils.equal(sensitivities, other.sensitivities);
     }
     return false;
   }
@@ -355,7 +355,7 @@ public final class SurfaceCurrencyParameterSensitivities
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivities());
+    hash = hash * 31 + JodaBeanUtils.hashCode(sensitivities);
     return hash;
   }
 
@@ -363,7 +363,7 @@ public final class SurfaceCurrencyParameterSensitivities
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("SurfaceCurrencyParameterSensitivities{");
-    buf.append("sensitivities").append('=').append(JodaBeanUtils.toString(getSensitivities()));
+    buf.append("sensitivities").append('=').append(JodaBeanUtils.toString(sensitivities));
     buf.append('}');
     return buf.toString();
   }

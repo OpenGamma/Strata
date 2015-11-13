@@ -183,10 +183,10 @@ public final class ReportCalculationResults implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ReportCalculationResults other = (ReportCalculationResults) obj;
-      return JodaBeanUtils.equal(getValuationDate(), other.getValuationDate()) &&
-          JodaBeanUtils.equal(getTrades(), other.getTrades()) &&
-          JodaBeanUtils.equal(getColumns(), other.getColumns()) &&
-          JodaBeanUtils.equal(getCalculationResults(), other.getCalculationResults());
+      return JodaBeanUtils.equal(valuationDate, other.valuationDate) &&
+          JodaBeanUtils.equal(trades, other.trades) &&
+          JodaBeanUtils.equal(columns, other.columns) &&
+          JodaBeanUtils.equal(calculationResults, other.calculationResults);
     }
     return false;
   }
@@ -194,10 +194,10 @@ public final class ReportCalculationResults implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTrades());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getColumns());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCalculationResults());
+    hash = hash * 31 + JodaBeanUtils.hashCode(valuationDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(trades);
+    hash = hash * 31 + JodaBeanUtils.hashCode(columns);
+    hash = hash * 31 + JodaBeanUtils.hashCode(calculationResults);
     return hash;
   }
 
@@ -205,10 +205,10 @@ public final class ReportCalculationResults implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("ReportCalculationResults{");
-    buf.append("valuationDate").append('=').append(getValuationDate()).append(',').append(' ');
-    buf.append("trades").append('=').append(getTrades()).append(',').append(' ');
-    buf.append("columns").append('=').append(getColumns()).append(',').append(' ');
-    buf.append("calculationResults").append('=').append(JodaBeanUtils.toString(getCalculationResults()));
+    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
+    buf.append("trades").append('=').append(trades).append(',').append(' ');
+    buf.append("columns").append('=').append(columns).append(',').append(' ');
+    buf.append("calculationResults").append('=').append(JodaBeanUtils.toString(calculationResults));
     buf.append('}');
     return buf.toString();
   }

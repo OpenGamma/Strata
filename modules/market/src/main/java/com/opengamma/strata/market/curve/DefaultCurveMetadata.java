@@ -277,10 +277,10 @@ public final class DefaultCurveMetadata
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DefaultCurveMetadata other = (DefaultCurveMetadata) obj;
-      return JodaBeanUtils.equal(getCurveName(), other.getCurveName()) &&
-          JodaBeanUtils.equal(getXValueType(), other.getXValueType()) &&
-          JodaBeanUtils.equal(getYValueType(), other.getYValueType()) &&
-          JodaBeanUtils.equal(getInfo(), other.getInfo()) &&
+      return JodaBeanUtils.equal(curveName, other.curveName) &&
+          JodaBeanUtils.equal(xValueType, other.xValueType) &&
+          JodaBeanUtils.equal(yValueType, other.yValueType) &&
+          JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(parameterMetadata, other.parameterMetadata);
     }
     return false;
@@ -289,10 +289,10 @@ public final class DefaultCurveMetadata
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getXValueType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getYValueType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getInfo());
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveName);
+    hash = hash * 31 + JodaBeanUtils.hashCode(xValueType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yValueType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(parameterMetadata);
     return hash;
   }
@@ -301,10 +301,10 @@ public final class DefaultCurveMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("DefaultCurveMetadata{");
-    buf.append("curveName").append('=').append(getCurveName()).append(',').append(' ');
-    buf.append("xValueType").append('=').append(getXValueType()).append(',').append(' ');
-    buf.append("yValueType").append('=').append(getYValueType()).append(',').append(' ');
-    buf.append("info").append('=').append(getInfo()).append(',').append(' ');
+    buf.append("curveName").append('=').append(curveName).append(',').append(' ');
+    buf.append("xValueType").append('=').append(xValueType).append(',').append(' ');
+    buf.append("yValueType").append('=').append(yValueType).append(',').append(' ');
+    buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("parameterMetadata").append('=').append(JodaBeanUtils.toString(parameterMetadata));
     buf.append('}');
     return buf.toString();

@@ -254,10 +254,10 @@ public final class UnitSecurity<P extends Product>
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       UnitSecurity<?> other = (UnitSecurity<?>) obj;
-      return JodaBeanUtils.equal(getStandardId(), other.getStandardId()) &&
-          JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getProduct(), other.getProduct());
+      return JodaBeanUtils.equal(standardId, other.standardId) &&
+          JodaBeanUtils.equal(attributes, other.attributes) &&
+          JodaBeanUtils.equal(name, other.name) &&
+          JodaBeanUtils.equal(product, other.product);
     }
     return false;
   }
@@ -265,10 +265,10 @@ public final class UnitSecurity<P extends Product>
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAttributes());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getProduct());
+    hash = hash * 31 + JodaBeanUtils.hashCode(standardId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(attributes);
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(product);
     return hash;
   }
 
@@ -276,10 +276,10 @@ public final class UnitSecurity<P extends Product>
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("UnitSecurity{");
-    buf.append("standardId").append('=').append(getStandardId()).append(',').append(' ');
-    buf.append("attributes").append('=').append(getAttributes()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("product").append('=').append(JodaBeanUtils.toString(getProduct()));
+    buf.append("standardId").append('=').append(standardId).append(',').append(' ');
+    buf.append("attributes").append('=').append(attributes).append(',').append(' ');
+    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("product").append('=').append(JodaBeanUtils.toString(product));
     buf.append('}');
     return buf.toString();
   }

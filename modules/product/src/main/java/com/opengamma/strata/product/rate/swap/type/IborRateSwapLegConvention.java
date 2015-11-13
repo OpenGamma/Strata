@@ -670,7 +670,7 @@ public final class IborRateSwapLegConvention
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborRateSwapLegConvention other = (IborRateSwapLegConvention) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
+      return JodaBeanUtils.equal(index, other.index) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(accrualFrequency, other.accrualFrequency) &&
@@ -684,7 +684,7 @@ public final class IborRateSwapLegConvention
           JodaBeanUtils.equal(paymentFrequency, other.paymentFrequency) &&
           JodaBeanUtils.equal(paymentDateOffset, other.paymentDateOffset) &&
           JodaBeanUtils.equal(compoundingMethod, other.compoundingMethod) &&
-          (isNotionalExchange() == other.isNotionalExchange());
+          (notionalExchange == other.notionalExchange);
     }
     return false;
   }
@@ -692,7 +692,7 @@ public final class IborRateSwapLegConvention
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(accrualFrequency);
@@ -706,7 +706,7 @@ public final class IborRateSwapLegConvention
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentFrequency);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(compoundingMethod);
-    hash = hash * 31 + JodaBeanUtils.hashCode(isNotionalExchange());
+    hash = hash * 31 + JodaBeanUtils.hashCode(notionalExchange);
     return hash;
   }
 
@@ -714,7 +714,7 @@ public final class IborRateSwapLegConvention
   public String toString() {
     StringBuilder buf = new StringBuilder(512);
     buf.append("IborRateSwapLegConvention{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
+    buf.append("index").append('=').append(index).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("accrualFrequency").append('=').append(accrualFrequency).append(',').append(' ');
@@ -728,7 +728,7 @@ public final class IborRateSwapLegConvention
     buf.append("paymentFrequency").append('=').append(paymentFrequency).append(',').append(' ');
     buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
     buf.append("compoundingMethod").append('=').append(compoundingMethod).append(',').append(' ');
-    buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(isNotionalExchange()));
+    buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(notionalExchange));
     buf.append('}');
     return buf.toString();
   }

@@ -341,12 +341,12 @@ public final class ImmutableRatesProvider
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ImmutableRatesProvider other = (ImmutableRatesProvider) obj;
-      return JodaBeanUtils.equal(getValuationDate(), other.getValuationDate()) &&
-          JodaBeanUtils.equal(getFxMatrix(), other.getFxMatrix()) &&
-          JodaBeanUtils.equal(getDiscountCurves(), other.getDiscountCurves()) &&
-          JodaBeanUtils.equal(getIndexCurves(), other.getIndexCurves()) &&
-          JodaBeanUtils.equal(getPriceIndexValues(), other.getPriceIndexValues()) &&
-          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries());
+      return JodaBeanUtils.equal(valuationDate, other.valuationDate) &&
+          JodaBeanUtils.equal(fxMatrix, other.fxMatrix) &&
+          JodaBeanUtils.equal(discountCurves, other.discountCurves) &&
+          JodaBeanUtils.equal(indexCurves, other.indexCurves) &&
+          JodaBeanUtils.equal(priceIndexValues, other.priceIndexValues) &&
+          JodaBeanUtils.equal(timeSeries, other.timeSeries);
     }
     return false;
   }
@@ -354,12 +354,12 @@ public final class ImmutableRatesProvider
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFxMatrix());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDiscountCurves());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexCurves());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPriceIndexValues());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(valuationDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fxMatrix);
+    hash = hash * 31 + JodaBeanUtils.hashCode(discountCurves);
+    hash = hash * 31 + JodaBeanUtils.hashCode(indexCurves);
+    hash = hash * 31 + JodaBeanUtils.hashCode(priceIndexValues);
+    hash = hash * 31 + JodaBeanUtils.hashCode(timeSeries);
     return hash;
   }
 
@@ -367,12 +367,12 @@ public final class ImmutableRatesProvider
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("ImmutableRatesProvider{");
-    buf.append("valuationDate").append('=').append(getValuationDate()).append(',').append(' ');
-    buf.append("fxMatrix").append('=').append(getFxMatrix()).append(',').append(' ');
-    buf.append("discountCurves").append('=').append(getDiscountCurves()).append(',').append(' ');
-    buf.append("indexCurves").append('=').append(getIndexCurves()).append(',').append(' ');
-    buf.append("priceIndexValues").append('=').append(getPriceIndexValues()).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(getTimeSeries()));
+    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
+    buf.append("fxMatrix").append('=').append(fxMatrix).append(',').append(' ');
+    buf.append("discountCurves").append('=').append(discountCurves).append(',').append(' ');
+    buf.append("indexCurves").append('=').append(indexCurves).append(',').append(' ');
+    buf.append("priceIndexValues").append('=').append(priceIndexValues).append(',').append(' ');
+    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries));
     buf.append('}');
     return buf.toString();
   }

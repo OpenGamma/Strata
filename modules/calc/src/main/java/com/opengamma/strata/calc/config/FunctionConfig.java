@@ -337,8 +337,8 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FunctionConfig<?> other = (FunctionConfig<?>) obj;
-      return JodaBeanUtils.equal(getFunctionType(), other.getFunctionType()) &&
-          JodaBeanUtils.equal(getArguments(), other.getArguments());
+      return JodaBeanUtils.equal(functionType, other.functionType) &&
+          JodaBeanUtils.equal(arguments, other.arguments);
     }
     return false;
   }
@@ -346,8 +346,8 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getArguments());
+    hash = hash * 31 + JodaBeanUtils.hashCode(functionType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(arguments);
     return hash;
   }
 
@@ -355,8 +355,8 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("FunctionConfig{");
-    buf.append("functionType").append('=').append(getFunctionType()).append(',').append(' ');
-    buf.append("arguments").append('=').append(JodaBeanUtils.toString(getArguments()));
+    buf.append("functionType").append('=').append(functionType).append(',').append(' ');
+    buf.append("arguments").append('=').append(JodaBeanUtils.toString(arguments));
     buf.append('}');
     return buf.toString();
   }

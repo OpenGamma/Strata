@@ -207,10 +207,10 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxVolatilitySurfaceYearFractionNodeMetadata other = (FxVolatilitySurfaceYearFractionNodeMetadata) obj;
-      return JodaBeanUtils.equal(getYearFraction(), other.getYearFraction()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getCurrencyPair(), other.getCurrencyPair()) &&
-          JodaBeanUtils.equal(getLabel(), other.getLabel());
+      return JodaBeanUtils.equal(yearFraction, other.yearFraction) &&
+          JodaBeanUtils.equal(strike, other.strike) &&
+          JodaBeanUtils.equal(currencyPair, other.currencyPair) &&
+          JodaBeanUtils.equal(label, other.label);
     }
     return false;
   }
@@ -218,10 +218,10 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getYearFraction());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLabel());
+    hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
+    hash = hash * 31 + JodaBeanUtils.hashCode(strike);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currencyPair);
+    hash = hash * 31 + JodaBeanUtils.hashCode(label);
     return hash;
   }
 
@@ -229,10 +229,10 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("FxVolatilitySurfaceYearFractionNodeMetadata{");
-    buf.append("yearFraction").append('=').append(getYearFraction()).append(',').append(' ');
-    buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
-    buf.append("currencyPair").append('=').append(getCurrencyPair()).append(',').append(' ');
-    buf.append("label").append('=').append(JodaBeanUtils.toString(getLabel()));
+    buf.append("yearFraction").append('=').append(yearFraction).append(',').append(' ');
+    buf.append("strike").append('=').append(strike).append(',').append(' ');
+    buf.append("currencyPair").append('=').append(currencyPair).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();
   }

@@ -273,7 +273,7 @@ public final class IsdaYieldCurveParRates
    * @return the value of the property, not null
    */
   public double[] getParRates() {
-    return (parRates != null ? parRates.clone() : null);
+    return parRates.clone();
   }
 
   //-----------------------------------------------------------------------
@@ -293,12 +293,12 @@ public final class IsdaYieldCurveParRates
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IsdaYieldCurveParRates other = (IsdaYieldCurveParRates) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getYieldCurvePoints(), other.getYieldCurvePoints()) &&
-          JodaBeanUtils.equal(getEndDatePoints(), other.getEndDatePoints()) &&
-          JodaBeanUtils.equal(getYieldCurveInstruments(), other.getYieldCurveInstruments()) &&
-          JodaBeanUtils.equal(getParRates(), other.getParRates()) &&
-          JodaBeanUtils.equal(getCurveConvention(), other.getCurveConvention());
+      return JodaBeanUtils.equal(name, other.name) &&
+          JodaBeanUtils.equal(yieldCurvePoints, other.yieldCurvePoints) &&
+          JodaBeanUtils.equal(endDatePoints, other.endDatePoints) &&
+          JodaBeanUtils.equal(yieldCurveInstruments, other.yieldCurveInstruments) &&
+          JodaBeanUtils.equal(parRates, other.parRates) &&
+          JodaBeanUtils.equal(curveConvention, other.curveConvention);
     }
     return false;
   }
@@ -306,12 +306,12 @@ public final class IsdaYieldCurveParRates
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getYieldCurvePoints());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDatePoints());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getYieldCurveInstruments());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getParRates());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yieldCurvePoints);
+    hash = hash * 31 + JodaBeanUtils.hashCode(endDatePoints);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yieldCurveInstruments);
+    hash = hash * 31 + JodaBeanUtils.hashCode(parRates);
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveConvention);
     return hash;
   }
 
@@ -319,12 +319,12 @@ public final class IsdaYieldCurveParRates
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("IsdaYieldCurveParRates{");
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("yieldCurvePoints").append('=').append(getYieldCurvePoints()).append(',').append(' ');
-    buf.append("endDatePoints").append('=').append(getEndDatePoints()).append(',').append(' ');
-    buf.append("yieldCurveInstruments").append('=').append(getYieldCurveInstruments()).append(',').append(' ');
-    buf.append("parRates").append('=').append(getParRates()).append(',').append(' ');
-    buf.append("curveConvention").append('=').append(JodaBeanUtils.toString(getCurveConvention()));
+    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("yieldCurvePoints").append('=').append(yieldCurvePoints).append(',').append(' ');
+    buf.append("endDatePoints").append('=').append(endDatePoints).append(',').append(' ');
+    buf.append("yieldCurveInstruments").append('=').append(yieldCurveInstruments).append(',').append(' ');
+    buf.append("parRates").append('=').append(parRates).append(',').append(' ');
+    buf.append("curveConvention").append('=').append(JodaBeanUtils.toString(curveConvention));
     buf.append('}');
     return buf.toString();
   }

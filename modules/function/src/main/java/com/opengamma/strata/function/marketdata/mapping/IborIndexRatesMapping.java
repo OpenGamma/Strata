@@ -147,8 +147,8 @@ public final class IborIndexRatesMapping
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborIndexRatesMapping other = (IborIndexRatesMapping) obj;
-      return JodaBeanUtils.equal(getCurveGroupName(), other.getCurveGroupName()) &&
-          JodaBeanUtils.equal(getMarketDataFeed(), other.getMarketDataFeed());
+      return JodaBeanUtils.equal(curveGroupName, other.curveGroupName) &&
+          JodaBeanUtils.equal(marketDataFeed, other.marketDataFeed);
     }
     return false;
   }
@@ -156,8 +156,8 @@ public final class IborIndexRatesMapping
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveGroupName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataFeed());
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveGroupName);
+    hash = hash * 31 + JodaBeanUtils.hashCode(marketDataFeed);
     return hash;
   }
 
@@ -165,8 +165,8 @@ public final class IborIndexRatesMapping
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("IborIndexRatesMapping{");
-    buf.append("curveGroupName").append('=').append(getCurveGroupName()).append(',').append(' ');
-    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(getMarketDataFeed()));
+    buf.append("curveGroupName").append('=').append(curveGroupName).append(',').append(' ');
+    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(marketDataFeed));
     buf.append('}');
     return buf.toString();
   }

@@ -132,7 +132,7 @@ public final class LogMoneynessStrike
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       LogMoneynessStrike other = (LogMoneynessStrike) obj;
-      return JodaBeanUtils.equal(getValue(), other.getValue());
+      return JodaBeanUtils.equal(value, other.value);
     }
     return false;
   }
@@ -140,7 +140,7 @@ public final class LogMoneynessStrike
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(value);
     return hash;
   }
 
@@ -148,7 +148,7 @@ public final class LogMoneynessStrike
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("LogMoneynessStrike{");
-    buf.append("value").append('=').append(JodaBeanUtils.toString(getValue()));
+    buf.append("value").append('=').append(JodaBeanUtils.toString(value));
     buf.append('}');
     return buf.toString();
   }

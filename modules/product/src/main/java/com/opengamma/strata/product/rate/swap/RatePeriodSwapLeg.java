@@ -448,14 +448,14 @@ public final class RatePeriodSwapLeg
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       RatePeriodSwapLeg other = (RatePeriodSwapLeg) obj;
-      return JodaBeanUtils.equal(getType(), other.getType()) &&
-          JodaBeanUtils.equal(getPayReceive(), other.getPayReceive()) &&
-          JodaBeanUtils.equal(getPaymentPeriods(), other.getPaymentPeriods()) &&
-          (isInitialExchange() == other.isInitialExchange()) &&
-          (isIntermediateExchange() == other.isIntermediateExchange()) &&
-          (isFinalExchange() == other.isFinalExchange()) &&
-          JodaBeanUtils.equal(getPaymentEvents(), other.getPaymentEvents()) &&
-          JodaBeanUtils.equal(getPaymentBusinessDayAdjustment(), other.getPaymentBusinessDayAdjustment());
+      return JodaBeanUtils.equal(type, other.type) &&
+          JodaBeanUtils.equal(payReceive, other.payReceive) &&
+          JodaBeanUtils.equal(paymentPeriods, other.paymentPeriods) &&
+          (initialExchange == other.initialExchange) &&
+          (intermediateExchange == other.intermediateExchange) &&
+          (finalExchange == other.finalExchange) &&
+          JodaBeanUtils.equal(paymentEvents, other.paymentEvents) &&
+          JodaBeanUtils.equal(paymentBusinessDayAdjustment, other.paymentBusinessDayAdjustment);
     }
     return false;
   }
@@ -463,14 +463,14 @@ public final class RatePeriodSwapLeg
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPayReceive());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentPeriods());
-    hash = hash * 31 + JodaBeanUtils.hashCode(isInitialExchange());
-    hash = hash * 31 + JodaBeanUtils.hashCode(isIntermediateExchange());
-    hash = hash * 31 + JodaBeanUtils.hashCode(isFinalExchange());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentEvents());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentBusinessDayAdjustment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(type);
+    hash = hash * 31 + JodaBeanUtils.hashCode(payReceive);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentPeriods);
+    hash = hash * 31 + JodaBeanUtils.hashCode(initialExchange);
+    hash = hash * 31 + JodaBeanUtils.hashCode(intermediateExchange);
+    hash = hash * 31 + JodaBeanUtils.hashCode(finalExchange);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentEvents);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentBusinessDayAdjustment);
     return hash;
   }
 
@@ -478,14 +478,14 @@ public final class RatePeriodSwapLeg
   public String toString() {
     StringBuilder buf = new StringBuilder(288);
     buf.append("RatePeriodSwapLeg{");
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
-    buf.append("payReceive").append('=').append(getPayReceive()).append(',').append(' ');
-    buf.append("paymentPeriods").append('=').append(getPaymentPeriods()).append(',').append(' ');
-    buf.append("initialExchange").append('=').append(isInitialExchange()).append(',').append(' ');
-    buf.append("intermediateExchange").append('=').append(isIntermediateExchange()).append(',').append(' ');
-    buf.append("finalExchange").append('=').append(isFinalExchange()).append(',').append(' ');
-    buf.append("paymentEvents").append('=').append(getPaymentEvents()).append(',').append(' ');
-    buf.append("paymentBusinessDayAdjustment").append('=').append(JodaBeanUtils.toString(getPaymentBusinessDayAdjustment()));
+    buf.append("type").append('=').append(type).append(',').append(' ');
+    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
+    buf.append("paymentPeriods").append('=').append(paymentPeriods).append(',').append(' ');
+    buf.append("initialExchange").append('=').append(initialExchange).append(',').append(' ');
+    buf.append("intermediateExchange").append('=').append(intermediateExchange).append(',').append(' ');
+    buf.append("finalExchange").append('=').append(finalExchange).append(',').append(' ');
+    buf.append("paymentEvents").append('=').append(paymentEvents).append(',').append(' ');
+    buf.append("paymentBusinessDayAdjustment").append('=').append(JodaBeanUtils.toString(paymentBusinessDayAdjustment));
     buf.append('}');
     return buf.toString();
   }

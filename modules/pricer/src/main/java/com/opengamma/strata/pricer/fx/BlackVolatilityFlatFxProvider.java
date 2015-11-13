@@ -245,10 +245,10 @@ public final class BlackVolatilityFlatFxProvider
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       BlackVolatilityFlatFxProvider other = (BlackVolatilityFlatFxProvider) obj;
-      return JodaBeanUtils.equal(getCurve(), other.getCurve()) &&
-          JodaBeanUtils.equal(getCurrencyPair(), other.getCurrencyPair()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getValuationDateTime(), other.getValuationDateTime());
+      return JodaBeanUtils.equal(curve, other.curve) &&
+          JodaBeanUtils.equal(currencyPair, other.currencyPair) &&
+          JodaBeanUtils.equal(dayCount, other.dayCount) &&
+          JodaBeanUtils.equal(valuationDateTime, other.valuationDateTime);
     }
     return false;
   }
@@ -256,10 +256,10 @@ public final class BlackVolatilityFlatFxProvider
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurve());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDateTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(curve);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currencyPair);
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(valuationDateTime);
     return hash;
   }
 
@@ -267,10 +267,10 @@ public final class BlackVolatilityFlatFxProvider
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("BlackVolatilityFlatFxProvider{");
-    buf.append("curve").append('=').append(getCurve()).append(',').append(' ');
-    buf.append("currencyPair").append('=').append(getCurrencyPair()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(getValuationDateTime()));
+    buf.append("curve").append('=').append(curve).append(',').append(' ');
+    buf.append("currencyPair").append('=').append(currencyPair).append(',').append(' ');
+    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime));
     buf.append('}');
     return buf.toString();
   }

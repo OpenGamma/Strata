@@ -494,7 +494,7 @@ class DenseLocalDateDoubleTimeSeries
    * @return the value of the property, not null
    */
   private double[] getPoints() {
-    return (points != null ? points.clone() : null);
+    return points.clone();
   }
 
   //-----------------------------------------------------------------------
@@ -515,9 +515,9 @@ class DenseLocalDateDoubleTimeSeries
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DenseLocalDateDoubleTimeSeries other = (DenseLocalDateDoubleTimeSeries) obj;
-      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getPoints(), other.getPoints()) &&
-          JodaBeanUtils.equal(getDateCalculation(), other.getDateCalculation());
+      return JodaBeanUtils.equal(startDate, other.startDate) &&
+          JodaBeanUtils.equal(points, other.points) &&
+          JodaBeanUtils.equal(dateCalculation, other.dateCalculation);
     }
     return false;
   }
@@ -525,9 +525,9 @@ class DenseLocalDateDoubleTimeSeries
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPoints());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDateCalculation());
+    hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(points);
+    hash = hash * 31 + JodaBeanUtils.hashCode(dateCalculation);
     return hash;
   }
 
@@ -545,9 +545,9 @@ class DenseLocalDateDoubleTimeSeries
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
-    buf.append("points").append('=').append(JodaBeanUtils.toString(getPoints())).append(',').append(' ');
-    buf.append("dateCalculation").append('=').append(JodaBeanUtils.toString(getDateCalculation())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+    buf.append("points").append('=').append(JodaBeanUtils.toString(points)).append(',').append(' ');
+    buf.append("dateCalculation").append('=').append(JodaBeanUtils.toString(dateCalculation)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

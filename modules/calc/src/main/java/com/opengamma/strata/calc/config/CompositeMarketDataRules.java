@@ -121,7 +121,7 @@ final class CompositeMarketDataRules implements MarketDataRules, ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CompositeMarketDataRules other = (CompositeMarketDataRules) obj;
-      return JodaBeanUtils.equal(getRules(), other.getRules());
+      return JodaBeanUtils.equal(rules, other.rules);
     }
     return false;
   }
@@ -129,7 +129,7 @@ final class CompositeMarketDataRules implements MarketDataRules, ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRules());
+    hash = hash * 31 + JodaBeanUtils.hashCode(rules);
     return hash;
   }
 
@@ -137,7 +137,7 @@ final class CompositeMarketDataRules implements MarketDataRules, ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("CompositeMarketDataRules{");
-    buf.append("rules").append('=').append(JodaBeanUtils.toString(getRules()));
+    buf.append("rules").append('=').append(JodaBeanUtils.toString(rules));
     buf.append('}');
     return buf.toString();
   }

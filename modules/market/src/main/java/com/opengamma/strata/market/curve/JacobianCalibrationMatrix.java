@@ -195,8 +195,8 @@ public final class JacobianCalibrationMatrix
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       JacobianCalibrationMatrix other = (JacobianCalibrationMatrix) obj;
-      return JodaBeanUtils.equal(getOrder(), other.getOrder()) &&
-          JodaBeanUtils.equal(getJacobianMatrix(), other.getJacobianMatrix());
+      return JodaBeanUtils.equal(order, other.order) &&
+          JodaBeanUtils.equal(jacobianMatrix, other.jacobianMatrix);
     }
     return false;
   }
@@ -204,8 +204,8 @@ public final class JacobianCalibrationMatrix
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getOrder());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getJacobianMatrix());
+    hash = hash * 31 + JodaBeanUtils.hashCode(order);
+    hash = hash * 31 + JodaBeanUtils.hashCode(jacobianMatrix);
     return hash;
   }
 
@@ -213,8 +213,8 @@ public final class JacobianCalibrationMatrix
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("JacobianCalibrationMatrix{");
-    buf.append("order").append('=').append(getOrder()).append(',').append(' ');
-    buf.append("jacobianMatrix").append('=').append(JodaBeanUtils.toString(getJacobianMatrix()));
+    buf.append("order").append('=').append(order).append(',').append(' ');
+    buf.append("jacobianMatrix").append('=').append(JodaBeanUtils.toString(jacobianMatrix));
     buf.append('}');
     return buf.toString();
   }

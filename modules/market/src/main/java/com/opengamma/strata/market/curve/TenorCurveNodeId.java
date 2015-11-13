@@ -122,7 +122,7 @@ public final class TenorCurveNodeId
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       TenorCurveNodeId other = (TenorCurveNodeId) obj;
-      return JodaBeanUtils.equal(getTenor(), other.getTenor());
+      return JodaBeanUtils.equal(tenor, other.tenor);
     }
     return false;
   }
@@ -130,7 +130,7 @@ public final class TenorCurveNodeId
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(tenor);
     return hash;
   }
 
@@ -138,7 +138,7 @@ public final class TenorCurveNodeId
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("TenorCurveNodeId{");
-    buf.append("tenor").append('=').append(JodaBeanUtils.toString(getTenor()));
+    buf.append("tenor").append('=').append(JodaBeanUtils.toString(tenor));
     buf.append('}');
     return buf.toString();
   }

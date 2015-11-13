@@ -189,8 +189,8 @@ public final class AdjustableDate
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       AdjustableDate other = (AdjustableDate) obj;
-      return JodaBeanUtils.equal(getUnadjusted(), other.getUnadjusted()) &&
-          JodaBeanUtils.equal(getAdjustment(), other.getAdjustment());
+      return JodaBeanUtils.equal(unadjusted, other.unadjusted) &&
+          JodaBeanUtils.equal(adjustment, other.adjustment);
     }
     return false;
   }
@@ -198,8 +198,8 @@ public final class AdjustableDate
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUnadjusted());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAdjustment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(unadjusted);
+    hash = hash * 31 + JodaBeanUtils.hashCode(adjustment);
     return hash;
   }
 

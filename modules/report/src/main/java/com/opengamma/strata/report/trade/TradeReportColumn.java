@@ -139,9 +139,9 @@ public class TradeReportColumn
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       TradeReportColumn other = (TradeReportColumn) obj;
-      return JodaBeanUtils.equal(getHeader(), other.getHeader()) &&
+      return JodaBeanUtils.equal(header, other.header) &&
           JodaBeanUtils.equal(value, other.value) &&
-          (isIgnoreFailures() == other.isIgnoreFailures());
+          (ignoreFailures == other.ignoreFailures);
     }
     return false;
   }
@@ -149,9 +149,9 @@ public class TradeReportColumn
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getHeader());
+    hash = hash * 31 + JodaBeanUtils.hashCode(header);
     hash = hash * 31 + JodaBeanUtils.hashCode(value);
-    hash = hash * 31 + JodaBeanUtils.hashCode(isIgnoreFailures());
+    hash = hash * 31 + JodaBeanUtils.hashCode(ignoreFailures);
     return hash;
   }
 
@@ -169,9 +169,9 @@ public class TradeReportColumn
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("header").append('=').append(JodaBeanUtils.toString(getHeader())).append(',').append(' ');
+    buf.append("header").append('=').append(JodaBeanUtils.toString(header)).append(',').append(' ');
     buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
-    buf.append("ignoreFailures").append('=').append(JodaBeanUtils.toString(isIgnoreFailures())).append(',').append(' ');
+    buf.append("ignoreFailures").append('=').append(JodaBeanUtils.toString(ignoreFailures)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

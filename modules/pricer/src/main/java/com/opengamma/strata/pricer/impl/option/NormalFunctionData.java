@@ -69,6 +69,10 @@ public final class NormalFunctionData
     return META_BEAN;
   }
 
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
   /**
    * The serialization version id.
    */
@@ -134,9 +138,9 @@ public final class NormalFunctionData
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       NormalFunctionData other = (NormalFunctionData) obj;
-      return JodaBeanUtils.equal(getForward(), other.getForward()) &&
-          JodaBeanUtils.equal(getNumeraire(), other.getNumeraire()) &&
-          JodaBeanUtils.equal(getNormalVolatility(), other.getNormalVolatility());
+      return JodaBeanUtils.equal(forward, other.forward) &&
+          JodaBeanUtils.equal(numeraire, other.numeraire) &&
+          JodaBeanUtils.equal(normalVolatility, other.normalVolatility);
     }
     return false;
   }
@@ -144,9 +148,9 @@ public final class NormalFunctionData
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getForward());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNumeraire());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNormalVolatility());
+    hash = hash * 31 + JodaBeanUtils.hashCode(forward);
+    hash = hash * 31 + JodaBeanUtils.hashCode(numeraire);
+    hash = hash * 31 + JodaBeanUtils.hashCode(normalVolatility);
     return hash;
   }
 
@@ -154,9 +158,9 @@ public final class NormalFunctionData
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("NormalFunctionData{");
-    buf.append("forward").append('=').append(getForward()).append(',').append(' ');
-    buf.append("numeraire").append('=').append(getNumeraire()).append(',').append(' ');
-    buf.append("normalVolatility").append('=').append(JodaBeanUtils.toString(getNormalVolatility()));
+    buf.append("forward").append('=').append(forward).append(',').append(' ');
+    buf.append("numeraire").append('=').append(numeraire).append(',').append(' ');
+    buf.append("normalVolatility").append('=').append(JodaBeanUtils.toString(normalVolatility));
     buf.append('}');
     return buf.toString();
   }

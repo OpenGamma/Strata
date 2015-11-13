@@ -143,7 +143,7 @@ public final class FxRateKey
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxRateKey other = (FxRateKey) obj;
-      return JodaBeanUtils.equal(getPair(), other.getPair());
+      return JodaBeanUtils.equal(pair, other.pair);
     }
     return false;
   }
@@ -151,7 +151,7 @@ public final class FxRateKey
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPair());
+    hash = hash * 31 + JodaBeanUtils.hashCode(pair);
     return hash;
   }
 
@@ -159,7 +159,7 @@ public final class FxRateKey
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("FxRateKey{");
-    buf.append("pair").append('=').append(JodaBeanUtils.toString(getPair()));
+    buf.append("pair").append('=').append(JodaBeanUtils.toString(pair));
     buf.append('}');
     return buf.toString();
   }

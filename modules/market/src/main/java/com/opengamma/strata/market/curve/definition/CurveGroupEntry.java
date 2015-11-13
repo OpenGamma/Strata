@@ -200,10 +200,10 @@ public final class CurveGroupEntry
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveGroupEntry other = (CurveGroupEntry) obj;
-      return JodaBeanUtils.equal(getCurveDefinition(), other.getCurveDefinition()) &&
-          JodaBeanUtils.equal(getDiscountCurrencies(), other.getDiscountCurrencies()) &&
-          JodaBeanUtils.equal(getIborIndices(), other.getIborIndices()) &&
-          JodaBeanUtils.equal(getOvernightIndices(), other.getOvernightIndices());
+      return JodaBeanUtils.equal(curveDefinition, other.curveDefinition) &&
+          JodaBeanUtils.equal(discountCurrencies, other.discountCurrencies) &&
+          JodaBeanUtils.equal(iborIndices, other.iborIndices) &&
+          JodaBeanUtils.equal(overnightIndices, other.overnightIndices);
     }
     return false;
   }
@@ -211,10 +211,10 @@ public final class CurveGroupEntry
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveDefinition());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDiscountCurrencies());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIborIndices());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getOvernightIndices());
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveDefinition);
+    hash = hash * 31 + JodaBeanUtils.hashCode(discountCurrencies);
+    hash = hash * 31 + JodaBeanUtils.hashCode(iborIndices);
+    hash = hash * 31 + JodaBeanUtils.hashCode(overnightIndices);
     return hash;
   }
 
@@ -222,10 +222,10 @@ public final class CurveGroupEntry
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("CurveGroupEntry{");
-    buf.append("curveDefinition").append('=').append(getCurveDefinition()).append(',').append(' ');
-    buf.append("discountCurrencies").append('=').append(getDiscountCurrencies()).append(',').append(' ');
-    buf.append("iborIndices").append('=').append(getIborIndices()).append(',').append(' ');
-    buf.append("overnightIndices").append('=').append(JodaBeanUtils.toString(getOvernightIndices()));
+    buf.append("curveDefinition").append('=').append(curveDefinition).append(',').append(' ');
+    buf.append("discountCurrencies").append('=').append(discountCurrencies).append(',').append(' ');
+    buf.append("iborIndices").append('=').append(iborIndices).append(',').append(' ');
+    buf.append("overnightIndices").append('=').append(JodaBeanUtils.toString(overnightIndices));
     buf.append('}');
     return buf.toString();
   }

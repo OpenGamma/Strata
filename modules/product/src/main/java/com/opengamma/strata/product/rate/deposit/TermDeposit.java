@@ -326,14 +326,14 @@ public final class TermDeposit
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       TermDeposit other = (TermDeposit) obj;
-      return JodaBeanUtils.equal(getBuySell(), other.getBuySell()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
+      return JodaBeanUtils.equal(buySell, other.buySell) &&
+          JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(startDate, other.startDate) &&
+          JodaBeanUtils.equal(endDate, other.endDate) &&
           JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getRate(), other.getRate());
+          JodaBeanUtils.equal(dayCount, other.dayCount) &&
+          JodaBeanUtils.equal(rate, other.rate);
     }
     return false;
   }
@@ -341,14 +341,14 @@ public final class TermDeposit
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBuySell());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(buySell);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rate);
     return hash;
   }
 
@@ -356,14 +356,14 @@ public final class TermDeposit
   public String toString() {
     StringBuilder buf = new StringBuilder(288);
     buf.append("TermDeposit{");
-    buf.append("buySell").append('=').append(getBuySell()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
+    buf.append("buySell").append('=').append(buySell).append(',').append(' ');
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
+    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
     buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate()));
+    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("rate").append('=').append(JodaBeanUtils.toString(rate));
     buf.append('}');
     return buf.toString();
   }

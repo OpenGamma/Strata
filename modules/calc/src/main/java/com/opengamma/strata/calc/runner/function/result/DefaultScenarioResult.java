@@ -167,7 +167,7 @@ public final class DefaultScenarioResult<T> implements ScenarioResult<T>, Immuta
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DefaultScenarioResult<?> other = (DefaultScenarioResult<?>) obj;
-      return JodaBeanUtils.equal(getResults(), other.getResults());
+      return JodaBeanUtils.equal(results, other.results);
     }
     return false;
   }
@@ -175,7 +175,7 @@ public final class DefaultScenarioResult<T> implements ScenarioResult<T>, Immuta
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getResults());
+    hash = hash * 31 + JodaBeanUtils.hashCode(results);
     return hash;
   }
 
@@ -183,7 +183,7 @@ public final class DefaultScenarioResult<T> implements ScenarioResult<T>, Immuta
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("DefaultScenarioResult{");
-    buf.append("results").append('=').append(JodaBeanUtils.toString(getResults()));
+    buf.append("results").append('=').append(JodaBeanUtils.toString(results));
     buf.append('}');
     return buf.toString();
   }

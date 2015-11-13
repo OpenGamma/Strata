@@ -323,13 +323,13 @@ public final class FxVanillaOption
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxVanillaOption other = (FxVanillaOption) obj;
-      return JodaBeanUtils.equal(getPutCall(), other.getPutCall()) &&
-          JodaBeanUtils.equal(getLongShort(), other.getLongShort()) &&
-          JodaBeanUtils.equal(getExpiryDate(), other.getExpiryDate()) &&
-          JodaBeanUtils.equal(getExpiryTime(), other.getExpiryTime()) &&
-          JodaBeanUtils.equal(getExpiryZone(), other.getExpiryZone()) &&
-          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike());
+      return JodaBeanUtils.equal(putCall, other.putCall) &&
+          JodaBeanUtils.equal(longShort, other.longShort) &&
+          JodaBeanUtils.equal(expiryDate, other.expiryDate) &&
+          JodaBeanUtils.equal(expiryTime, other.expiryTime) &&
+          JodaBeanUtils.equal(expiryZone, other.expiryZone) &&
+          JodaBeanUtils.equal(underlying, other.underlying) &&
+          JodaBeanUtils.equal(strike, other.strike);
     }
     return false;
   }
@@ -337,13 +337,13 @@ public final class FxVanillaOption
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPutCall());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLongShort());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryTime());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryZone());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash = hash * 31 + JodaBeanUtils.hashCode(putCall);
+    hash = hash * 31 + JodaBeanUtils.hashCode(longShort);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryTime);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryZone);
+    hash = hash * 31 + JodaBeanUtils.hashCode(underlying);
+    hash = hash * 31 + JodaBeanUtils.hashCode(strike);
     return hash;
   }
 
@@ -351,13 +351,13 @@ public final class FxVanillaOption
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("FxVanillaOption{");
-    buf.append("putCall").append('=').append(getPutCall()).append(',').append(' ');
-    buf.append("longShort").append('=').append(getLongShort()).append(',').append(' ');
-    buf.append("expiryDate").append('=').append(getExpiryDate()).append(',').append(' ');
-    buf.append("expiryTime").append('=').append(getExpiryTime()).append(',').append(' ');
-    buf.append("expiryZone").append('=').append(getExpiryZone()).append(',').append(' ');
-    buf.append("underlying").append('=').append(getUnderlying()).append(',').append(' ');
-    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike()));
+    buf.append("putCall").append('=').append(putCall).append(',').append(' ');
+    buf.append("longShort").append('=').append(longShort).append(',').append(' ');
+    buf.append("expiryDate").append('=').append(expiryDate).append(',').append(' ');
+    buf.append("expiryTime").append('=').append(expiryTime).append(',').append(' ');
+    buf.append("expiryZone").append('=').append(expiryZone).append(',').append(' ');
+    buf.append("underlying").append('=').append(underlying).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(strike));
     buf.append('}');
     return buf.toString();
   }

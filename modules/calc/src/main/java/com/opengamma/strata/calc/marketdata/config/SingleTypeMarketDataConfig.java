@@ -177,8 +177,8 @@ final class SingleTypeMarketDataConfig implements ImmutableBean, Serializable {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SingleTypeMarketDataConfig other = (SingleTypeMarketDataConfig) obj;
-      return JodaBeanUtils.equal(getConfigType(), other.getConfigType()) &&
-          JodaBeanUtils.equal(getConfigObjects(), other.getConfigObjects());
+      return JodaBeanUtils.equal(configType, other.configType) &&
+          JodaBeanUtils.equal(configObjects, other.configObjects);
     }
     return false;
   }
@@ -186,8 +186,8 @@ final class SingleTypeMarketDataConfig implements ImmutableBean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigObjects());
+    hash = hash * 31 + JodaBeanUtils.hashCode(configType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(configObjects);
     return hash;
   }
 
@@ -195,8 +195,8 @@ final class SingleTypeMarketDataConfig implements ImmutableBean, Serializable {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("SingleTypeMarketDataConfig{");
-    buf.append("configType").append('=').append(getConfigType()).append(',').append(' ');
-    buf.append("configObjects").append('=').append(JodaBeanUtils.toString(getConfigObjects()));
+    buf.append("configType").append('=').append(configType).append(',').append(' ');
+    buf.append("configObjects").append('=').append(JodaBeanUtils.toString(configObjects));
     buf.append('}');
     return buf.toString();
   }

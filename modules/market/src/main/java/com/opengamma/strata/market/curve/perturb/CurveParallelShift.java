@@ -151,8 +151,8 @@ public final class CurveParallelShift
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveParallelShift other = (CurveParallelShift) obj;
-      return JodaBeanUtils.equal(getShiftType(), other.getShiftType()) &&
-          JodaBeanUtils.equal(getShiftAmount(), other.getShiftAmount());
+      return JodaBeanUtils.equal(shiftType, other.shiftType) &&
+          JodaBeanUtils.equal(shiftAmount, other.shiftAmount);
     }
     return false;
   }
@@ -160,8 +160,8 @@ public final class CurveParallelShift
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(shiftType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(shiftAmount);
     return hash;
   }
 
@@ -169,8 +169,8 @@ public final class CurveParallelShift
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CurveParallelShift{");
-    buf.append("shiftType").append('=').append(getShiftType()).append(',').append(' ');
-    buf.append("shiftAmount").append('=').append(JodaBeanUtils.toString(getShiftAmount()));
+    buf.append("shiftType").append('=').append(shiftType).append(',').append(' ');
+    buf.append("shiftAmount").append('=').append(JodaBeanUtils.toString(shiftAmount));
     buf.append('}');
     return buf.toString();
   }

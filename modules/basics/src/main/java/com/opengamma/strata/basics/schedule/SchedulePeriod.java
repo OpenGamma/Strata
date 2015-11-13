@@ -398,10 +398,10 @@ public final class SchedulePeriod
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SchedulePeriod other = (SchedulePeriod) obj;
-      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
-          JodaBeanUtils.equal(getUnadjustedStartDate(), other.getUnadjustedStartDate()) &&
-          JodaBeanUtils.equal(getUnadjustedEndDate(), other.getUnadjustedEndDate());
+      return JodaBeanUtils.equal(startDate, other.startDate) &&
+          JodaBeanUtils.equal(endDate, other.endDate) &&
+          JodaBeanUtils.equal(unadjustedStartDate, other.unadjustedStartDate) &&
+          JodaBeanUtils.equal(unadjustedEndDate, other.unadjustedEndDate);
     }
     return false;
   }
@@ -409,10 +409,10 @@ public final class SchedulePeriod
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUnadjustedStartDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUnadjustedEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(unadjustedStartDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(unadjustedEndDate);
     return hash;
   }
 
@@ -420,10 +420,10 @@ public final class SchedulePeriod
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("SchedulePeriod{");
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
-    buf.append("unadjustedStartDate").append('=').append(getUnadjustedStartDate()).append(',').append(' ');
-    buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(getUnadjustedEndDate()));
+    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
+    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
+    buf.append("unadjustedStartDate").append('=').append(unadjustedStartDate).append(',').append(' ');
+    buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(unadjustedEndDate));
     buf.append('}');
     return buf.toString();
   }

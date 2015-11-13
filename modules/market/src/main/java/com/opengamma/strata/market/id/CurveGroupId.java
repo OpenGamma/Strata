@@ -137,8 +137,8 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveGroupId other = (CurveGroupId) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getMarketDataFeed(), other.getMarketDataFeed());
+      return JodaBeanUtils.equal(name, other.name) &&
+          JodaBeanUtils.equal(marketDataFeed, other.marketDataFeed);
     }
     return false;
   }
@@ -146,8 +146,8 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataFeed());
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(marketDataFeed);
     return hash;
   }
 
@@ -155,8 +155,8 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CurveGroupId{");
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(getMarketDataFeed()));
+    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(marketDataFeed));
     buf.append('}');
     return buf.toString();
   }

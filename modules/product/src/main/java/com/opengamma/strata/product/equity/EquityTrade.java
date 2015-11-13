@@ -201,9 +201,9 @@ public final class EquityTrade
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       EquityTrade other = (EquityTrade) obj;
-      return JodaBeanUtils.equal(getTradeInfo(), other.getTradeInfo()) &&
-          JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
-          (getQuantity() == other.getQuantity()) &&
+      return JodaBeanUtils.equal(tradeInfo, other.tradeInfo) &&
+          JodaBeanUtils.equal(securityLink, other.securityLink) &&
+          (quantity == other.quantity) &&
           JodaBeanUtils.equal(premium, other.premium);
     }
     return false;
@@ -212,9 +212,9 @@ public final class EquityTrade
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeInfo());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getQuantity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(tradeInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(securityLink);
+    hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
     hash = hash * 31 + JodaBeanUtils.hashCode(premium);
     return hash;
   }
@@ -223,9 +223,9 @@ public final class EquityTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("EquityTrade{");
-    buf.append("tradeInfo").append('=').append(getTradeInfo()).append(',').append(' ');
-    buf.append("securityLink").append('=').append(getSecurityLink()).append(',').append(' ');
-    buf.append("quantity").append('=').append(getQuantity()).append(',').append(' ');
+    buf.append("tradeInfo").append('=').append(tradeInfo).append(',').append(' ');
+    buf.append("securityLink").append('=').append(securityLink).append(',').append(' ');
+    buf.append("quantity").append('=').append(quantity).append(',').append(' ');
     buf.append("premium").append('=').append(JodaBeanUtils.toString(premium));
     buf.append('}');
     return buf.toString();

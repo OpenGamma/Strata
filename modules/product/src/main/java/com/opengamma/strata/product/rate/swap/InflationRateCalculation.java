@@ -320,9 +320,9 @@ public final class InflationRateCalculation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       InflationRateCalculation other = (InflationRateCalculation) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getLag(), other.getLag()) &&
-          (isInterpolated() == other.isInterpolated()) &&
+      return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(lag, other.lag) &&
+          (interpolated == other.interpolated) &&
           JodaBeanUtils.equal(gearing, other.gearing);
     }
     return false;
@@ -331,9 +331,9 @@ public final class InflationRateCalculation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLag());
-    hash = hash * 31 + JodaBeanUtils.hashCode(isInterpolated());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(lag);
+    hash = hash * 31 + JodaBeanUtils.hashCode(interpolated);
     hash = hash * 31 + JodaBeanUtils.hashCode(gearing);
     return hash;
   }
@@ -342,9 +342,9 @@ public final class InflationRateCalculation
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("InflationRateCalculation{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("lag").append('=').append(getLag()).append(',').append(' ');
-    buf.append("interpolated").append('=').append(isInterpolated()).append(',').append(' ');
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("lag").append('=').append(lag).append(',').append(' ');
+    buf.append("interpolated").append('=').append(interpolated).append(',').append(' ');
     buf.append("gearing").append('=').append(JodaBeanUtils.toString(gearing));
     buf.append('}');
     return buf.toString();

@@ -246,9 +246,9 @@ public final class CurvePointShifts
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurvePointShifts other = (CurvePointShifts) obj;
-      return JodaBeanUtils.equal(getShiftType(), other.getShiftType()) &&
-          JodaBeanUtils.equal(getShifts(), other.getShifts()) &&
-          JodaBeanUtils.equal(getNodeIndices(), other.getNodeIndices());
+      return JodaBeanUtils.equal(shiftType, other.shiftType) &&
+          JodaBeanUtils.equal(shifts, other.shifts) &&
+          JodaBeanUtils.equal(nodeIndices, other.nodeIndices);
     }
     return false;
   }
@@ -256,9 +256,9 @@ public final class CurvePointShifts
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getShifts());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNodeIndices());
+    hash = hash * 31 + JodaBeanUtils.hashCode(shiftType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(shifts);
+    hash = hash * 31 + JodaBeanUtils.hashCode(nodeIndices);
     return hash;
   }
 
@@ -266,9 +266,9 @@ public final class CurvePointShifts
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("CurvePointShifts{");
-    buf.append("shiftType").append('=').append(getShiftType()).append(',').append(' ');
-    buf.append("shifts").append('=').append(getShifts()).append(',').append(' ');
-    buf.append("nodeIndices").append('=').append(JodaBeanUtils.toString(getNodeIndices()));
+    buf.append("shiftType").append('=').append(shiftType).append(',').append(' ');
+    buf.append("shifts").append('=').append(shifts).append(',').append(' ');
+    buf.append("nodeIndices").append('=').append(JodaBeanUtils.toString(nodeIndices));
     buf.append('}');
     return buf.toString();
   }

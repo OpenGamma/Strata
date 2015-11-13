@@ -206,10 +206,10 @@ public final class FixedCouponBondTrade
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FixedCouponBondTrade other = (FixedCouponBondTrade) obj;
-      return JodaBeanUtils.equal(getTradeInfo(), other.getTradeInfo()) &&
-          JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
-          (getQuantity() == other.getQuantity()) &&
-          JodaBeanUtils.equal(getPayment(), other.getPayment());
+      return JodaBeanUtils.equal(tradeInfo, other.tradeInfo) &&
+          JodaBeanUtils.equal(securityLink, other.securityLink) &&
+          (quantity == other.quantity) &&
+          JodaBeanUtils.equal(payment, other.payment);
     }
     return false;
   }
@@ -217,10 +217,10 @@ public final class FixedCouponBondTrade
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeInfo());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getQuantity());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPayment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(tradeInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(securityLink);
+    hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
+    hash = hash * 31 + JodaBeanUtils.hashCode(payment);
     return hash;
   }
 
@@ -228,10 +228,10 @@ public final class FixedCouponBondTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("FixedCouponBondTrade{");
-    buf.append("tradeInfo").append('=').append(getTradeInfo()).append(',').append(' ');
-    buf.append("securityLink").append('=').append(getSecurityLink()).append(',').append(' ');
-    buf.append("quantity").append('=').append(getQuantity()).append(',').append(' ');
-    buf.append("payment").append('=').append(JodaBeanUtils.toString(getPayment()));
+    buf.append("tradeInfo").append('=').append(tradeInfo).append(',').append(' ');
+    buf.append("securityLink").append('=').append(securityLink).append(',').append(' ');
+    buf.append("quantity").append('=').append(quantity).append(',').append(' ');
+    buf.append("payment").append('=').append(JodaBeanUtils.toString(payment));
     buf.append('}');
     return buf.toString();
   }

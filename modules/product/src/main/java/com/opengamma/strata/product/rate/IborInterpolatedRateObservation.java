@@ -223,9 +223,9 @@ public final class IborInterpolatedRateObservation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborInterpolatedRateObservation other = (IborInterpolatedRateObservation) obj;
-      return JodaBeanUtils.equal(getShortIndex(), other.getShortIndex()) &&
-          JodaBeanUtils.equal(getLongIndex(), other.getLongIndex()) &&
-          JodaBeanUtils.equal(getFixingDate(), other.getFixingDate());
+      return JodaBeanUtils.equal(shortIndex, other.shortIndex) &&
+          JodaBeanUtils.equal(longIndex, other.longIndex) &&
+          JodaBeanUtils.equal(fixingDate, other.fixingDate);
     }
     return false;
   }
@@ -233,9 +233,9 @@ public final class IborInterpolatedRateObservation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getShortIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLongIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(shortIndex);
+    hash = hash * 31 + JodaBeanUtils.hashCode(longIndex);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixingDate);
     return hash;
   }
 
@@ -243,9 +243,9 @@ public final class IborInterpolatedRateObservation
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("IborInterpolatedRateObservation{");
-    buf.append("shortIndex").append('=').append(getShortIndex()).append(',').append(' ');
-    buf.append("longIndex").append('=').append(getLongIndex()).append(',').append(' ');
-    buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(getFixingDate()));
+    buf.append("shortIndex").append('=').append(shortIndex).append(',').append(' ');
+    buf.append("longIndex").append('=').append(longIndex).append(',').append(' ');
+    buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate));
     buf.append('}');
     return buf.toString();
   }

@@ -200,8 +200,8 @@ public final class DefaultMarketDataMappings implements MarketDataMappings, Immu
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DefaultMarketDataMappings other = (DefaultMarketDataMappings) obj;
-      return JodaBeanUtils.equal(getMarketDataFeed(), other.getMarketDataFeed()) &&
-          JodaBeanUtils.equal(getMappings(), other.getMappings());
+      return JodaBeanUtils.equal(marketDataFeed, other.marketDataFeed) &&
+          JodaBeanUtils.equal(mappings, other.mappings);
     }
     return false;
   }
@@ -209,8 +209,8 @@ public final class DefaultMarketDataMappings implements MarketDataMappings, Immu
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataFeed());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMappings());
+    hash = hash * 31 + JodaBeanUtils.hashCode(marketDataFeed);
+    hash = hash * 31 + JodaBeanUtils.hashCode(mappings);
     return hash;
   }
 
@@ -218,8 +218,8 @@ public final class DefaultMarketDataMappings implements MarketDataMappings, Immu
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("DefaultMarketDataMappings{");
-    buf.append("marketDataFeed").append('=').append(getMarketDataFeed()).append(',').append(' ');
-    buf.append("mappings").append('=').append(JodaBeanUtils.toString(getMappings()));
+    buf.append("marketDataFeed").append('=').append(marketDataFeed).append(',').append(' ');
+    buf.append("mappings").append('=').append(JodaBeanUtils.toString(mappings));
     buf.append('}');
     return buf.toString();
   }

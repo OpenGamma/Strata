@@ -66,6 +66,10 @@ final class SmileAndBucketedSensitivities
     return META_BEAN;
   }
 
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
   private SmileAndBucketedSensitivities(
       SmileDeltaParameters smile,
       DoubleMatrix sensitivities) {
@@ -115,8 +119,8 @@ final class SmileAndBucketedSensitivities
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SmileAndBucketedSensitivities other = (SmileAndBucketedSensitivities) obj;
-      return JodaBeanUtils.equal(getSmile(), other.getSmile()) &&
-          JodaBeanUtils.equal(getSensitivities(), other.getSensitivities());
+      return JodaBeanUtils.equal(smile, other.smile) &&
+          JodaBeanUtils.equal(sensitivities, other.sensitivities);
     }
     return false;
   }
@@ -124,8 +128,8 @@ final class SmileAndBucketedSensitivities
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSmile());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivities());
+    hash = hash * 31 + JodaBeanUtils.hashCode(smile);
+    hash = hash * 31 + JodaBeanUtils.hashCode(sensitivities);
     return hash;
   }
 
@@ -133,8 +137,8 @@ final class SmileAndBucketedSensitivities
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("SmileAndBucketedSensitivities{");
-    buf.append("smile").append('=').append(getSmile()).append(',').append(' ');
-    buf.append("sensitivities").append('=').append(JodaBeanUtils.toString(getSensitivities()));
+    buf.append("smile").append('=').append(smile).append(',').append(' ');
+    buf.append("sensitivities").append('=').append(JodaBeanUtils.toString(sensitivities));
     buf.append('}');
     return buf.toString();
   }

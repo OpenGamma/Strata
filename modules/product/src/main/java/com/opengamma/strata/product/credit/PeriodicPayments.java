@@ -268,12 +268,12 @@ public final class PeriodicPayments
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PeriodicPayments other = (PeriodicPayments) obj;
-      return JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getCoupon(), other.getCoupon()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getPaymentFrequency(), other.getPaymentFrequency()) &&
-          JodaBeanUtils.equal(getStubConvention(), other.getStubConvention()) &&
-          JodaBeanUtils.equal(getRollConvention(), other.getRollConvention());
+      return JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(coupon, other.coupon) &&
+          JodaBeanUtils.equal(dayCount, other.dayCount) &&
+          JodaBeanUtils.equal(paymentFrequency, other.paymentFrequency) &&
+          JodaBeanUtils.equal(stubConvention, other.stubConvention) &&
+          JodaBeanUtils.equal(rollConvention, other.rollConvention);
     }
     return false;
   }
@@ -281,12 +281,12 @@ public final class PeriodicPayments
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCoupon());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentFrequency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStubConvention());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(coupon);
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentFrequency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(stubConvention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rollConvention);
     return hash;
   }
 
@@ -294,12 +294,12 @@ public final class PeriodicPayments
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("PeriodicPayments{");
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("coupon").append('=').append(getCoupon()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("paymentFrequency").append('=').append(getPaymentFrequency()).append(',').append(' ');
-    buf.append("stubConvention").append('=').append(getStubConvention()).append(',').append(' ');
-    buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(getRollConvention()));
+    buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("coupon").append('=').append(coupon).append(',').append(' ');
+    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("paymentFrequency").append('=').append(paymentFrequency).append(',').append(' ');
+    buf.append("stubConvention").append('=').append(stubConvention).append(',').append(' ');
+    buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(rollConvention));
     buf.append('}');
     return buf.toString();
   }

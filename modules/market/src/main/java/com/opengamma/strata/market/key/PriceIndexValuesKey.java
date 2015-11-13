@@ -119,7 +119,7 @@ public final class PriceIndexValuesKey
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PriceIndexValuesKey other = (PriceIndexValuesKey) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex());
+      return JodaBeanUtils.equal(index, other.index);
     }
     return false;
   }
@@ -127,7 +127,7 @@ public final class PriceIndexValuesKey
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
     return hash;
   }
 
@@ -135,7 +135,7 @@ public final class PriceIndexValuesKey
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("PriceIndexValuesKey{");
-    buf.append("index").append('=').append(JodaBeanUtils.toString(getIndex()));
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index));
     buf.append('}');
     return buf.toString();
   }

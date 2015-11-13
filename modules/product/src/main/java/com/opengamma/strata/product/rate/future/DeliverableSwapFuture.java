@@ -235,10 +235,10 @@ public final class DeliverableSwapFuture
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DeliverableSwapFuture other = (DeliverableSwapFuture) obj;
-      return JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getDeliveryDate(), other.getDeliveryDate()) &&
-          JodaBeanUtils.equal(getLastTradeDate(), other.getLastTradeDate()) &&
-          JodaBeanUtils.equal(getUnderlyingSwap(), other.getUnderlyingSwap());
+      return JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(deliveryDate, other.deliveryDate) &&
+          JodaBeanUtils.equal(lastTradeDate, other.lastTradeDate) &&
+          JodaBeanUtils.equal(underlyingSwap, other.underlyingSwap);
     }
     return false;
   }
@@ -246,10 +246,10 @@ public final class DeliverableSwapFuture
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDeliveryDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLastTradeDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingSwap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(deliveryDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(lastTradeDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(underlyingSwap);
     return hash;
   }
 
@@ -257,10 +257,10 @@ public final class DeliverableSwapFuture
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("DeliverableSwapFuture{");
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("deliveryDate").append('=').append(getDeliveryDate()).append(',').append(' ');
-    buf.append("lastTradeDate").append('=').append(getLastTradeDate()).append(',').append(' ');
-    buf.append("underlyingSwap").append('=').append(JodaBeanUtils.toString(getUnderlyingSwap()));
+    buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("deliveryDate").append('=').append(deliveryDate).append(',').append(' ');
+    buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
+    buf.append("underlyingSwap").append('=').append(JodaBeanUtils.toString(underlyingSwap));
     buf.append('}');
     return buf.toString();
   }

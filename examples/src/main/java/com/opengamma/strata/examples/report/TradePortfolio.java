@@ -100,7 +100,7 @@ public final class TradePortfolio implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       TradePortfolio other = (TradePortfolio) obj;
-      return JodaBeanUtils.equal(getTrades(), other.getTrades());
+      return JodaBeanUtils.equal(trades, other.trades);
     }
     return false;
   }
@@ -108,7 +108,7 @@ public final class TradePortfolio implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTrades());
+    hash = hash * 31 + JodaBeanUtils.hashCode(trades);
     return hash;
   }
 
@@ -116,7 +116,7 @@ public final class TradePortfolio implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("TradePortfolio{");
-    buf.append("trades").append('=').append(JodaBeanUtils.toString(getTrades()));
+    buf.append("trades").append('=').append(JodaBeanUtils.toString(trades));
     buf.append('}');
     return buf.toString();
   }

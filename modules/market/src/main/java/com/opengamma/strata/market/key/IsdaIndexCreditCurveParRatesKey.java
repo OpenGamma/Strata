@@ -123,7 +123,7 @@ public final class IsdaIndexCreditCurveParRatesKey
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IsdaIndexCreditCurveParRatesKey other = (IsdaIndexCreditCurveParRatesKey) obj;
-      return JodaBeanUtils.equal(getReferenceInformation(), other.getReferenceInformation());
+      return JodaBeanUtils.equal(referenceInformation, other.referenceInformation);
     }
     return false;
   }
@@ -131,7 +131,7 @@ public final class IsdaIndexCreditCurveParRatesKey
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceInformation());
+    hash = hash * 31 + JodaBeanUtils.hashCode(referenceInformation);
     return hash;
   }
 
@@ -139,7 +139,7 @@ public final class IsdaIndexCreditCurveParRatesKey
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("IsdaIndexCreditCurveParRatesKey{");
-    buf.append("referenceInformation").append('=').append(JodaBeanUtils.toString(getReferenceInformation()));
+    buf.append("referenceInformation").append('=').append(JodaBeanUtils.toString(referenceInformation));
     buf.append('}');
     return buf.toString();
   }

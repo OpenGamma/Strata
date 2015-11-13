@@ -709,8 +709,8 @@ public final class OvernightRateSwapLegConvention
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       OvernightRateSwapLegConvention other = (OvernightRateSwapLegConvention) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getAccrualMethod(), other.getAccrualMethod()) &&
+      return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(accrualMethod, other.accrualMethod) &&
           JodaBeanUtils.equal(rateCutOffDays, other.rateCutOffDays) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
@@ -730,8 +730,8 @@ public final class OvernightRateSwapLegConvention
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualMethod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualMethod);
     hash = hash * 31 + JodaBeanUtils.hashCode(rateCutOffDays);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
@@ -751,8 +751,8 @@ public final class OvernightRateSwapLegConvention
   public String toString() {
     StringBuilder buf = new StringBuilder(480);
     buf.append("OvernightRateSwapLegConvention{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("accrualMethod").append('=').append(getAccrualMethod()).append(',').append(' ');
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("accrualMethod").append('=').append(accrualMethod).append(',').append(' ');
     buf.append("rateCutOffDays").append('=').append(rateCutOffDays).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');

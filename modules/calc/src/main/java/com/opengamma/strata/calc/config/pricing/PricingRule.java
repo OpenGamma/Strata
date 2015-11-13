@@ -230,10 +230,10 @@ public final class PricingRule<T extends CalculationTarget>
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PricingRule<?> other = (PricingRule<?>) obj;
-      return JodaBeanUtils.equal(getTargetType(), other.getTargetType()) &&
-          JodaBeanUtils.equal(getMeasures(), other.getMeasures()) &&
-          JodaBeanUtils.equal(getFunctionGroup(), other.getFunctionGroup()) &&
-          JodaBeanUtils.equal(getArguments(), other.getArguments());
+      return JodaBeanUtils.equal(targetType, other.targetType) &&
+          JodaBeanUtils.equal(measures, other.measures) &&
+          JodaBeanUtils.equal(functionGroup, other.functionGroup) &&
+          JodaBeanUtils.equal(arguments, other.arguments);
     }
     return false;
   }
@@ -241,10 +241,10 @@ public final class PricingRule<T extends CalculationTarget>
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTargetType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMeasures());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionGroup());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getArguments());
+    hash = hash * 31 + JodaBeanUtils.hashCode(targetType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(measures);
+    hash = hash * 31 + JodaBeanUtils.hashCode(functionGroup);
+    hash = hash * 31 + JodaBeanUtils.hashCode(arguments);
     return hash;
   }
 
@@ -252,10 +252,10 @@ public final class PricingRule<T extends CalculationTarget>
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("PricingRule{");
-    buf.append("targetType").append('=').append(getTargetType()).append(',').append(' ');
-    buf.append("measures").append('=').append(getMeasures()).append(',').append(' ');
-    buf.append("functionGroup").append('=').append(getFunctionGroup()).append(',').append(' ');
-    buf.append("arguments").append('=').append(JodaBeanUtils.toString(getArguments()));
+    buf.append("targetType").append('=').append(targetType).append(',').append(' ');
+    buf.append("measures").append('=').append(measures).append(',').append(' ');
+    buf.append("functionGroup").append('=').append(functionGroup).append(',').append(' ');
+    buf.append("arguments").append('=').append(JodaBeanUtils.toString(arguments));
     buf.append('}');
     return buf.toString();
   }

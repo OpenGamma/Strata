@@ -26,7 +26,6 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.io.ResourceLocator;
-import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
@@ -80,11 +79,6 @@ public class RatesCurvesCsvLoaderTest {
 
   // tolerance
   private static final double TOLERANCE = 1.0E-4;
-
-  static {
-    // TODO: remove when Joda-Beans issue fixed
-    LoaderUtils.findIndex("USD-LIBOR-3M");
-  }
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)

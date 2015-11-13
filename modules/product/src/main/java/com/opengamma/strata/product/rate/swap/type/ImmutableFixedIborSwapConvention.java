@@ -275,9 +275,9 @@ public final class ImmutableFixedIborSwapConvention
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ImmutableFixedIborSwapConvention other = (ImmutableFixedIborSwapConvention) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getFixedLeg(), other.getFixedLeg()) &&
-          JodaBeanUtils.equal(getFloatingLeg(), other.getFloatingLeg()) &&
+      return JodaBeanUtils.equal(name, other.name) &&
+          JodaBeanUtils.equal(fixedLeg, other.fixedLeg) &&
+          JodaBeanUtils.equal(floatingLeg, other.floatingLeg) &&
           JodaBeanUtils.equal(spotDateOffset, other.spotDateOffset);
     }
     return false;
@@ -286,9 +286,9 @@ public final class ImmutableFixedIborSwapConvention
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixedLeg());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFloatingLeg());
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixedLeg);
+    hash = hash * 31 + JodaBeanUtils.hashCode(floatingLeg);
     hash = hash * 31 + JodaBeanUtils.hashCode(spotDateOffset);
     return hash;
   }

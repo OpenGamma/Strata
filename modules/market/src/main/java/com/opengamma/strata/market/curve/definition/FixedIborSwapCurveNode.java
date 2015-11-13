@@ -206,9 +206,9 @@ public final class FixedIborSwapCurveNode
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FixedIborSwapCurveNode other = (FixedIborSwapCurveNode) obj;
-      return JodaBeanUtils.equal(getTemplate(), other.getTemplate()) &&
-          JodaBeanUtils.equal(getRateKey(), other.getRateKey()) &&
-          JodaBeanUtils.equal(getSpread(), other.getSpread());
+      return JodaBeanUtils.equal(template, other.template) &&
+          JodaBeanUtils.equal(rateKey, other.rateKey) &&
+          JodaBeanUtils.equal(spread, other.spread);
     }
     return false;
   }
@@ -216,9 +216,9 @@ public final class FixedIborSwapCurveNode
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTemplate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRateKey());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSpread());
+    hash = hash * 31 + JodaBeanUtils.hashCode(template);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rateKey);
+    hash = hash * 31 + JodaBeanUtils.hashCode(spread);
     return hash;
   }
 
@@ -226,9 +226,9 @@ public final class FixedIborSwapCurveNode
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("FixedIborSwapCurveNode{");
-    buf.append("template").append('=').append(getTemplate()).append(',').append(' ');
-    buf.append("rateKey").append('=').append(getRateKey()).append(',').append(' ');
-    buf.append("spread").append('=').append(JodaBeanUtils.toString(getSpread()));
+    buf.append("template").append('=').append(template).append(',').append(' ');
+    buf.append("rateKey").append('=').append(rateKey).append(',').append(' ');
+    buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
     buf.append('}');
     return buf.toString();
   }

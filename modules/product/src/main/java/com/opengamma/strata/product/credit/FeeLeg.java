@@ -165,8 +165,8 @@ public final class FeeLeg
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FeeLeg other = (FeeLeg) obj;
-      return JodaBeanUtils.equal(getUpfrontFee(), other.getUpfrontFee()) &&
-          JodaBeanUtils.equal(getPeriodicPayments(), other.getPeriodicPayments());
+      return JodaBeanUtils.equal(upfrontFee, other.upfrontFee) &&
+          JodaBeanUtils.equal(periodicPayments, other.periodicPayments);
     }
     return false;
   }
@@ -174,8 +174,8 @@ public final class FeeLeg
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUpfrontFee());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPeriodicPayments());
+    hash = hash * 31 + JodaBeanUtils.hashCode(upfrontFee);
+    hash = hash * 31 + JodaBeanUtils.hashCode(periodicPayments);
     return hash;
   }
 
@@ -183,8 +183,8 @@ public final class FeeLeg
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("FeeLeg{");
-    buf.append("upfrontFee").append('=').append(getUpfrontFee()).append(',').append(' ');
-    buf.append("periodicPayments").append('=').append(JodaBeanUtils.toString(getPeriodicPayments()));
+    buf.append("upfrontFee").append('=').append(upfrontFee).append(',').append(' ');
+    buf.append("periodicPayments").append('=').append(JodaBeanUtils.toString(periodicPayments));
     buf.append('}');
     return buf.toString();
   }

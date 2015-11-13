@@ -111,7 +111,7 @@ public final class NoMatchingRuleId implements MarketDataId<Void>, ImmutableBean
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       NoMatchingRuleId other = (NoMatchingRuleId) obj;
-      return JodaBeanUtils.equal(getKey(), other.getKey());
+      return JodaBeanUtils.equal(key, other.key);
     }
     return false;
   }
@@ -119,7 +119,7 @@ public final class NoMatchingRuleId implements MarketDataId<Void>, ImmutableBean
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getKey());
+    hash = hash * 31 + JodaBeanUtils.hashCode(key);
     return hash;
   }
 
@@ -127,7 +127,7 @@ public final class NoMatchingRuleId implements MarketDataId<Void>, ImmutableBean
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("NoMatchingRuleId{");
-    buf.append("key").append('=').append(JodaBeanUtils.toString(getKey()));
+    buf.append("key").append('=').append(JodaBeanUtils.toString(key));
     buf.append('}');
     return buf.toString();
   }

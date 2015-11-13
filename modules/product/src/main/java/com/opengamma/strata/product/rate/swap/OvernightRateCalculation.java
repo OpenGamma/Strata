@@ -430,11 +430,11 @@ public final class OvernightRateCalculation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       OvernightRateCalculation other = (OvernightRateCalculation) obj;
-      return JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getAccrualMethod(), other.getAccrualMethod()) &&
-          JodaBeanUtils.equal(getNegativeRateMethod(), other.getNegativeRateMethod()) &&
-          (getRateCutOffDays() == other.getRateCutOffDays()) &&
+      return JodaBeanUtils.equal(dayCount, other.dayCount) &&
+          JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(accrualMethod, other.accrualMethod) &&
+          JodaBeanUtils.equal(negativeRateMethod, other.negativeRateMethod) &&
+          (rateCutOffDays == other.rateCutOffDays) &&
           JodaBeanUtils.equal(gearing, other.gearing) &&
           JodaBeanUtils.equal(spread, other.spread);
     }
@@ -444,11 +444,11 @@ public final class OvernightRateCalculation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualMethod());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNegativeRateMethod());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRateCutOffDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualMethod);
+    hash = hash * 31 + JodaBeanUtils.hashCode(negativeRateMethod);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rateCutOffDays);
     hash = hash * 31 + JodaBeanUtils.hashCode(gearing);
     hash = hash * 31 + JodaBeanUtils.hashCode(spread);
     return hash;
@@ -458,11 +458,11 @@ public final class OvernightRateCalculation
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("OvernightRateCalculation{");
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("accrualMethod").append('=').append(getAccrualMethod()).append(',').append(' ');
-    buf.append("negativeRateMethod").append('=').append(getNegativeRateMethod()).append(',').append(' ');
-    buf.append("rateCutOffDays").append('=').append(getRateCutOffDays()).append(',').append(' ');
+    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("accrualMethod").append('=').append(accrualMethod).append(',').append(' ');
+    buf.append("negativeRateMethod").append('=').append(negativeRateMethod).append(',').append(' ');
+    buf.append("rateCutOffDays").append('=').append(rateCutOffDays).append(',').append(' ');
     buf.append("gearing").append('=').append(gearing).append(',').append(' ');
     buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
     buf.append('}');

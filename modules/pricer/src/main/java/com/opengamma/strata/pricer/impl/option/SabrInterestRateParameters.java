@@ -355,12 +355,12 @@ public final class SabrInterestRateParameters
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SabrInterestRateParameters other = (SabrInterestRateParameters) obj;
-      return JodaBeanUtils.equal(getAlphaSurface(), other.getAlphaSurface()) &&
-          JodaBeanUtils.equal(getBetaSurface(), other.getBetaSurface()) &&
-          JodaBeanUtils.equal(getRhoSurface(), other.getRhoSurface()) &&
-          JodaBeanUtils.equal(getNuSurface(), other.getNuSurface()) &&
-          JodaBeanUtils.equal(getSabrFunctionProvider(), other.getSabrFunctionProvider()) &&
-          JodaBeanUtils.equal(getShiftSurface(), other.getShiftSurface());
+      return JodaBeanUtils.equal(alphaSurface, other.alphaSurface) &&
+          JodaBeanUtils.equal(betaSurface, other.betaSurface) &&
+          JodaBeanUtils.equal(rhoSurface, other.rhoSurface) &&
+          JodaBeanUtils.equal(nuSurface, other.nuSurface) &&
+          JodaBeanUtils.equal(sabrFunctionProvider, other.sabrFunctionProvider) &&
+          JodaBeanUtils.equal(shiftSurface, other.shiftSurface);
     }
     return false;
   }
@@ -368,12 +368,12 @@ public final class SabrInterestRateParameters
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAlphaSurface());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBetaSurface());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRhoSurface());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNuSurface());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSabrFunctionProvider());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftSurface());
+    hash = hash * 31 + JodaBeanUtils.hashCode(alphaSurface);
+    hash = hash * 31 + JodaBeanUtils.hashCode(betaSurface);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rhoSurface);
+    hash = hash * 31 + JodaBeanUtils.hashCode(nuSurface);
+    hash = hash * 31 + JodaBeanUtils.hashCode(sabrFunctionProvider);
+    hash = hash * 31 + JodaBeanUtils.hashCode(shiftSurface);
     return hash;
   }
 
@@ -381,12 +381,12 @@ public final class SabrInterestRateParameters
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("SabrInterestRateParameters{");
-    buf.append("alphaSurface").append('=').append(getAlphaSurface()).append(',').append(' ');
-    buf.append("betaSurface").append('=').append(getBetaSurface()).append(',').append(' ');
-    buf.append("rhoSurface").append('=').append(getRhoSurface()).append(',').append(' ');
-    buf.append("nuSurface").append('=').append(getNuSurface()).append(',').append(' ');
-    buf.append("sabrFunctionProvider").append('=').append(getSabrFunctionProvider()).append(',').append(' ');
-    buf.append("shiftSurface").append('=').append(JodaBeanUtils.toString(getShiftSurface()));
+    buf.append("alphaSurface").append('=').append(alphaSurface).append(',').append(' ');
+    buf.append("betaSurface").append('=').append(betaSurface).append(',').append(' ');
+    buf.append("rhoSurface").append('=').append(rhoSurface).append(',').append(' ');
+    buf.append("nuSurface").append('=').append(nuSurface).append(',').append(' ');
+    buf.append("sabrFunctionProvider").append('=').append(sabrFunctionProvider).append(',').append(' ');
+    buf.append("shiftSurface").append('=').append(JodaBeanUtils.toString(shiftSurface));
     buf.append('}');
     return buf.toString();
   }

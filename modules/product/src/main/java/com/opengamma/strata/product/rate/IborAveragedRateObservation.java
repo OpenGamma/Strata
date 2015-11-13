@@ -191,8 +191,8 @@ public final class IborAveragedRateObservation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborAveragedRateObservation other = (IborAveragedRateObservation) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getFixings(), other.getFixings());
+      return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(fixings, other.fixings);
     }
     return false;
   }
@@ -200,8 +200,8 @@ public final class IborAveragedRateObservation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixings());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixings);
     return hash;
   }
 
@@ -209,8 +209,8 @@ public final class IborAveragedRateObservation
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("IborAveragedRateObservation{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("fixings").append('=').append(JodaBeanUtils.toString(getFixings()));
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("fixings").append('=').append(JodaBeanUtils.toString(fixings));
     buf.append('}');
     return buf.toString();
   }

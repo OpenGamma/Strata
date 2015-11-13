@@ -174,9 +174,9 @@ public final class SwaptionTrade
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SwaptionTrade other = (SwaptionTrade) obj;
-      return JodaBeanUtils.equal(getTradeInfo(), other.getTradeInfo()) &&
-          JodaBeanUtils.equal(getProduct(), other.getProduct()) &&
-          JodaBeanUtils.equal(getPremium(), other.getPremium());
+      return JodaBeanUtils.equal(tradeInfo, other.tradeInfo) &&
+          JodaBeanUtils.equal(product, other.product) &&
+          JodaBeanUtils.equal(premium, other.premium);
     }
     return false;
   }
@@ -184,9 +184,9 @@ public final class SwaptionTrade
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeInfo());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getProduct());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPremium());
+    hash = hash * 31 + JodaBeanUtils.hashCode(tradeInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(product);
+    hash = hash * 31 + JodaBeanUtils.hashCode(premium);
     return hash;
   }
 
@@ -194,9 +194,9 @@ public final class SwaptionTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("SwaptionTrade{");
-    buf.append("tradeInfo").append('=').append(getTradeInfo()).append(',').append(' ');
-    buf.append("product").append('=').append(getProduct()).append(',').append(' ');
-    buf.append("premium").append('=').append(JodaBeanUtils.toString(getPremium()));
+    buf.append("tradeInfo").append('=').append(tradeInfo).append(',').append(' ');
+    buf.append("product").append('=').append(product).append(',').append(' ');
+    buf.append("premium").append('=').append(JodaBeanUtils.toString(premium));
     buf.append('}');
     return buf.toString();
   }

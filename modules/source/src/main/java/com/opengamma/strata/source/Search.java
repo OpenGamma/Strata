@@ -185,8 +185,8 @@ public final class Search
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Search other = (Search) obj;
-      return JodaBeanUtils.equal(getCategorisingType(), other.getCategorisingType()) &&
-          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
+      return JodaBeanUtils.equal(categorisingType, other.categorisingType) &&
+          JodaBeanUtils.equal(attributes, other.attributes);
     }
     return false;
   }
@@ -194,8 +194,8 @@ public final class Search
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCategorisingType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(categorisingType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(attributes);
     return hash;
   }
 
@@ -203,8 +203,8 @@ public final class Search
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("Search{");
-    buf.append("categorisingType").append('=').append(getCategorisingType()).append(',').append(' ');
-    buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes()));
+    buf.append("categorisingType").append('=').append(categorisingType).append(',').append(' ');
+    buf.append("attributes").append('=').append(JodaBeanUtils.toString(attributes));
     buf.append('}');
     return buf.toString();
   }

@@ -348,15 +348,15 @@ public final class FixedCouponBondPaymentPeriod
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FixedCouponBondPaymentPeriod other = (FixedCouponBondPaymentPeriod) obj;
-      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
-          JodaBeanUtils.equal(getUnadjustedStartDate(), other.getUnadjustedStartDate()) &&
-          JodaBeanUtils.equal(getUnadjustedEndDate(), other.getUnadjustedEndDate()) &&
-          JodaBeanUtils.equal(getDetachmentDate(), other.getDetachmentDate()) &&
-          JodaBeanUtils.equal(getFixedRate(), other.getFixedRate()) &&
-          JodaBeanUtils.equal(getYearFraction(), other.getYearFraction());
+      return JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(startDate, other.startDate) &&
+          JodaBeanUtils.equal(endDate, other.endDate) &&
+          JodaBeanUtils.equal(unadjustedStartDate, other.unadjustedStartDate) &&
+          JodaBeanUtils.equal(unadjustedEndDate, other.unadjustedEndDate) &&
+          JodaBeanUtils.equal(detachmentDate, other.detachmentDate) &&
+          JodaBeanUtils.equal(fixedRate, other.fixedRate) &&
+          JodaBeanUtils.equal(yearFraction, other.yearFraction);
     }
     return false;
   }
@@ -364,15 +364,15 @@ public final class FixedCouponBondPaymentPeriod
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUnadjustedStartDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUnadjustedEndDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDetachmentDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixedRate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getYearFraction());
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(unadjustedStartDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(unadjustedEndDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(detachmentDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
     return hash;
   }
 
@@ -380,15 +380,15 @@ public final class FixedCouponBondPaymentPeriod
   public String toString() {
     StringBuilder buf = new StringBuilder(320);
     buf.append("FixedCouponBondPaymentPeriod{");
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
-    buf.append("unadjustedStartDate").append('=').append(getUnadjustedStartDate()).append(',').append(' ');
-    buf.append("unadjustedEndDate").append('=').append(getUnadjustedEndDate()).append(',').append(' ');
-    buf.append("detachmentDate").append('=').append(getDetachmentDate()).append(',').append(' ');
-    buf.append("fixedRate").append('=').append(getFixedRate()).append(',').append(' ');
-    buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(getYearFraction()));
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
+    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
+    buf.append("unadjustedStartDate").append('=').append(unadjustedStartDate).append(',').append(' ');
+    buf.append("unadjustedEndDate").append('=').append(unadjustedEndDate).append(',').append(' ');
+    buf.append("detachmentDate").append('=').append(detachmentDate).append(',').append(' ');
+    buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
+    buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));
     buf.append('}');
     return buf.toString();
   }

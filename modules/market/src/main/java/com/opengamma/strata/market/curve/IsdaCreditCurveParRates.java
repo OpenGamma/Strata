@@ -265,7 +265,7 @@ public final class IsdaCreditCurveParRates
    * @return the value of the property, not null
    */
   public double[] getParRates() {
-    return (parRates != null ? parRates.clone() : null);
+    return parRates.clone();
   }
 
   //-----------------------------------------------------------------------
@@ -294,12 +294,12 @@ public final class IsdaCreditCurveParRates
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IsdaCreditCurveParRates other = (IsdaCreditCurveParRates) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getCreditCurvePoints(), other.getCreditCurvePoints()) &&
-          JodaBeanUtils.equal(getEndDatePoints(), other.getEndDatePoints()) &&
-          JodaBeanUtils.equal(getParRates(), other.getParRates()) &&
-          JodaBeanUtils.equal(getCdsConvention(), other.getCdsConvention()) &&
-          JodaBeanUtils.equal(getScalingFactor(), other.getScalingFactor());
+      return JodaBeanUtils.equal(name, other.name) &&
+          JodaBeanUtils.equal(creditCurvePoints, other.creditCurvePoints) &&
+          JodaBeanUtils.equal(endDatePoints, other.endDatePoints) &&
+          JodaBeanUtils.equal(parRates, other.parRates) &&
+          JodaBeanUtils.equal(cdsConvention, other.cdsConvention) &&
+          JodaBeanUtils.equal(scalingFactor, other.scalingFactor);
     }
     return false;
   }
@@ -307,12 +307,12 @@ public final class IsdaCreditCurveParRates
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCreditCurvePoints());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDatePoints());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getParRates());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCdsConvention());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getScalingFactor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(creditCurvePoints);
+    hash = hash * 31 + JodaBeanUtils.hashCode(endDatePoints);
+    hash = hash * 31 + JodaBeanUtils.hashCode(parRates);
+    hash = hash * 31 + JodaBeanUtils.hashCode(cdsConvention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(scalingFactor);
     return hash;
   }
 
@@ -320,12 +320,12 @@ public final class IsdaCreditCurveParRates
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("IsdaCreditCurveParRates{");
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("creditCurvePoints").append('=').append(getCreditCurvePoints()).append(',').append(' ');
-    buf.append("endDatePoints").append('=').append(getEndDatePoints()).append(',').append(' ');
-    buf.append("parRates").append('=').append(getParRates()).append(',').append(' ');
-    buf.append("cdsConvention").append('=').append(getCdsConvention()).append(',').append(' ');
-    buf.append("scalingFactor").append('=').append(JodaBeanUtils.toString(getScalingFactor()));
+    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("creditCurvePoints").append('=').append(creditCurvePoints).append(',').append(' ');
+    buf.append("endDatePoints").append('=').append(endDatePoints).append(',').append(' ');
+    buf.append("parRates").append('=').append(parRates).append(',').append(' ');
+    buf.append("cdsConvention").append('=').append(cdsConvention).append(',').append(' ');
+    buf.append("scalingFactor").append('=').append(JodaBeanUtils.toString(scalingFactor));
     buf.append('}');
     return buf.toString();
   }

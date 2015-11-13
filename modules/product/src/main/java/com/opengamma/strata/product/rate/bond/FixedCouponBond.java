@@ -387,15 +387,15 @@ public final class FixedCouponBond
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FixedCouponBond other = (FixedCouponBond) obj;
-      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getPeriodicSchedule(), other.getPeriodicSchedule()) &&
-          JodaBeanUtils.equal(getFixedRate(), other.getFixedRate()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getYieldConvention(), other.getYieldConvention()) &&
-          JodaBeanUtils.equal(getLegalEntityId(), other.getLegalEntityId()) &&
-          JodaBeanUtils.equal(getSettlementDateOffset(), other.getSettlementDateOffset()) &&
-          JodaBeanUtils.equal(getExCouponPeriod(), other.getExCouponPeriod());
+      return JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(periodicSchedule, other.periodicSchedule) &&
+          JodaBeanUtils.equal(fixedRate, other.fixedRate) &&
+          JodaBeanUtils.equal(dayCount, other.dayCount) &&
+          JodaBeanUtils.equal(yieldConvention, other.yieldConvention) &&
+          JodaBeanUtils.equal(legalEntityId, other.legalEntityId) &&
+          JodaBeanUtils.equal(settlementDateOffset, other.settlementDateOffset) &&
+          JodaBeanUtils.equal(exCouponPeriod, other.exCouponPeriod);
     }
     return false;
   }
@@ -403,15 +403,15 @@ public final class FixedCouponBond
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPeriodicSchedule());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixedRate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getYieldConvention());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLegalEntityId());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDateOffset());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExCouponPeriod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(periodicSchedule);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yieldConvention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(settlementDateOffset);
+    hash = hash * 31 + JodaBeanUtils.hashCode(exCouponPeriod);
     return hash;
   }
 
@@ -419,15 +419,15 @@ public final class FixedCouponBond
   public String toString() {
     StringBuilder buf = new StringBuilder(320);
     buf.append("FixedCouponBond{");
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("periodicSchedule").append('=').append(getPeriodicSchedule()).append(',').append(' ');
-    buf.append("fixedRate").append('=').append(getFixedRate()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("yieldConvention").append('=').append(getYieldConvention()).append(',').append(' ');
-    buf.append("legalEntityId").append('=').append(getLegalEntityId()).append(',').append(' ');
-    buf.append("settlementDateOffset").append('=').append(getSettlementDateOffset()).append(',').append(' ');
-    buf.append("exCouponPeriod").append('=').append(JodaBeanUtils.toString(getExCouponPeriod()));
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("periodicSchedule").append('=').append(periodicSchedule).append(',').append(' ');
+    buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
+    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("yieldConvention").append('=').append(yieldConvention).append(',').append(' ');
+    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
+    buf.append("settlementDateOffset").append('=').append(settlementDateOffset).append(',').append(' ');
+    buf.append("exCouponPeriod").append('=').append(JodaBeanUtils.toString(exCouponPeriod));
     buf.append('}');
     return buf.toString();
   }

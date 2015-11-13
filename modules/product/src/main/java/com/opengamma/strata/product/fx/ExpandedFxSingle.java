@@ -276,8 +276,8 @@ public final class ExpandedFxSingle
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ExpandedFxSingle other = (ExpandedFxSingle) obj;
-      return JodaBeanUtils.equal(getBaseCurrencyPayment(), other.getBaseCurrencyPayment()) &&
-          JodaBeanUtils.equal(getCounterCurrencyPayment(), other.getCounterCurrencyPayment());
+      return JodaBeanUtils.equal(baseCurrencyPayment, other.baseCurrencyPayment) &&
+          JodaBeanUtils.equal(counterCurrencyPayment, other.counterCurrencyPayment);
     }
     return false;
   }
@@ -285,8 +285,8 @@ public final class ExpandedFxSingle
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseCurrencyPayment());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCounterCurrencyPayment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(baseCurrencyPayment);
+    hash = hash * 31 + JodaBeanUtils.hashCode(counterCurrencyPayment);
     return hash;
   }
 
@@ -294,8 +294,8 @@ public final class ExpandedFxSingle
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ExpandedFxSingle{");
-    buf.append("baseCurrencyPayment").append('=').append(getBaseCurrencyPayment()).append(',').append(' ');
-    buf.append("counterCurrencyPayment").append('=').append(JodaBeanUtils.toString(getCounterCurrencyPayment()));
+    buf.append("baseCurrencyPayment").append('=').append(baseCurrencyPayment).append(',').append(' ');
+    buf.append("counterCurrencyPayment").append('=').append(JodaBeanUtils.toString(counterCurrencyPayment));
     buf.append('}');
     return buf.toString();
   }

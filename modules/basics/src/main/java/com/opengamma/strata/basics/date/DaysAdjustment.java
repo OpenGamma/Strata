@@ -381,9 +381,9 @@ public final class DaysAdjustment
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DaysAdjustment other = (DaysAdjustment) obj;
-      return (getDays() == other.getDays()) &&
-          JodaBeanUtils.equal(getCalendar(), other.getCalendar()) &&
-          JodaBeanUtils.equal(getAdjustment(), other.getAdjustment());
+      return (days == other.days) &&
+          JodaBeanUtils.equal(calendar, other.calendar) &&
+          JodaBeanUtils.equal(adjustment, other.adjustment);
     }
     return false;
   }
@@ -391,9 +391,9 @@ public final class DaysAdjustment
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDays());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCalendar());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAdjustment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(days);
+    hash = hash * 31 + JodaBeanUtils.hashCode(calendar);
+    hash = hash * 31 + JodaBeanUtils.hashCode(adjustment);
     return hash;
   }
 

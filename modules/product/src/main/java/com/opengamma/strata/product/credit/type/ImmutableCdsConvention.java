@@ -336,16 +336,16 @@ public final class ImmutableCdsConvention
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ImmutableCdsConvention other = (ImmutableCdsConvention) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getBusinessDayAdjustment(), other.getBusinessDayAdjustment()) &&
-          JodaBeanUtils.equal(getPaymentFrequency(), other.getPaymentFrequency()) &&
-          JodaBeanUtils.equal(getRollConvention(), other.getRollConvention()) &&
-          (isPayAccruedOnDefault() == other.isPayAccruedOnDefault()) &&
-          JodaBeanUtils.equal(getStubConvention(), other.getStubConvention()) &&
-          (getStepInDays() == other.getStepInDays()) &&
-          (getSettleLagDays() == other.getSettleLagDays());
+      return JodaBeanUtils.equal(name, other.name) &&
+          JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(dayCount, other.dayCount) &&
+          JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
+          JodaBeanUtils.equal(paymentFrequency, other.paymentFrequency) &&
+          JodaBeanUtils.equal(rollConvention, other.rollConvention) &&
+          (payAccruedOnDefault == other.payAccruedOnDefault) &&
+          JodaBeanUtils.equal(stubConvention, other.stubConvention) &&
+          (stepInDays == other.stepInDays) &&
+          (settleLagDays == other.settleLagDays);
     }
     return false;
   }
@@ -353,16 +353,16 @@ public final class ImmutableCdsConvention
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayAdjustment());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentFrequency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
-    hash = hash * 31 + JodaBeanUtils.hashCode(isPayAccruedOnDefault());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStubConvention());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStepInDays());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSettleLagDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentFrequency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rollConvention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(payAccruedOnDefault);
+    hash = hash * 31 + JodaBeanUtils.hashCode(stubConvention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(stepInDays);
+    hash = hash * 31 + JodaBeanUtils.hashCode(settleLagDays);
     return hash;
   }
 

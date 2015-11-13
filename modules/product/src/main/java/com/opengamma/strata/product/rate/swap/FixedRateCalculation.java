@@ -199,8 +199,8 @@ public final class FixedRateCalculation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FixedRateCalculation other = (FixedRateCalculation) obj;
-      return JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getRate(), other.getRate());
+      return JodaBeanUtils.equal(dayCount, other.dayCount) &&
+          JodaBeanUtils.equal(rate, other.rate);
     }
     return false;
   }
@@ -208,8 +208,8 @@ public final class FixedRateCalculation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rate);
     return hash;
   }
 
@@ -217,8 +217,8 @@ public final class FixedRateCalculation
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("FixedRateCalculation{");
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate()));
+    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("rate").append('=').append(JodaBeanUtils.toString(rate));
     buf.append('}');
     return buf.toString();
   }

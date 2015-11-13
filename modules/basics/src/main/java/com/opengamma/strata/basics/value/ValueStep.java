@@ -280,7 +280,7 @@ public final class ValueStep
       ValueStep other = (ValueStep) obj;
       return JodaBeanUtils.equal(periodIndex, other.periodIndex) &&
           JodaBeanUtils.equal(date, other.date) &&
-          JodaBeanUtils.equal(getValue(), other.getValue());
+          JodaBeanUtils.equal(value, other.value);
     }
     return false;
   }
@@ -290,7 +290,7 @@ public final class ValueStep
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(periodIndex);
     hash = hash * 31 + JodaBeanUtils.hashCode(date);
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(value);
     return hash;
   }
 
@@ -300,7 +300,7 @@ public final class ValueStep
     buf.append("ValueStep{");
     buf.append("periodIndex").append('=').append(periodIndex).append(',').append(' ');
     buf.append("date").append('=').append(date).append(',').append(' ');
-    buf.append("value").append('=').append(JodaBeanUtils.toString(getValue()));
+    buf.append("value").append('=').append(JodaBeanUtils.toString(value));
     buf.append('}');
     return buf.toString();
   }

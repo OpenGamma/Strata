@@ -185,9 +185,9 @@ public final class GenericVolatilitySurfaceYearFractionMetadata
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       GenericVolatilitySurfaceYearFractionMetadata other = (GenericVolatilitySurfaceYearFractionMetadata) obj;
-      return JodaBeanUtils.equal(getYearFraction(), other.getYearFraction()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getLabel(), other.getLabel());
+      return JodaBeanUtils.equal(yearFraction, other.yearFraction) &&
+          JodaBeanUtils.equal(strike, other.strike) &&
+          JodaBeanUtils.equal(label, other.label);
     }
     return false;
   }
@@ -195,9 +195,9 @@ public final class GenericVolatilitySurfaceYearFractionMetadata
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getYearFraction());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLabel());
+    hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
+    hash = hash * 31 + JodaBeanUtils.hashCode(strike);
+    hash = hash * 31 + JodaBeanUtils.hashCode(label);
     return hash;
   }
 
@@ -205,9 +205,9 @@ public final class GenericVolatilitySurfaceYearFractionMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("GenericVolatilitySurfaceYearFractionMetadata{");
-    buf.append("yearFraction").append('=').append(getYearFraction()).append(',').append(' ');
-    buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
-    buf.append("label").append('=').append(JodaBeanUtils.toString(getLabel()));
+    buf.append("yearFraction").append('=').append(yearFraction).append(',').append(' ');
+    buf.append("strike").append('=').append(strike).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();
   }

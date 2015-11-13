@@ -225,9 +225,9 @@ public final class Failure
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Failure other = (Failure) obj;
-      return JodaBeanUtils.equal(getReason(), other.getReason()) &&
-          JodaBeanUtils.equal(getMessage(), other.getMessage()) &&
-          JodaBeanUtils.equal(getItems(), other.getItems());
+      return JodaBeanUtils.equal(reason, other.reason) &&
+          JodaBeanUtils.equal(message, other.message) &&
+          JodaBeanUtils.equal(items, other.items);
     }
     return false;
   }
@@ -235,9 +235,9 @@ public final class Failure
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReason());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMessage());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getItems());
+    hash = hash * 31 + JodaBeanUtils.hashCode(reason);
+    hash = hash * 31 + JodaBeanUtils.hashCode(message);
+    hash = hash * 31 + JodaBeanUtils.hashCode(items);
     return hash;
   }
 
@@ -245,9 +245,9 @@ public final class Failure
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("Failure{");
-    buf.append("reason").append('=').append(getReason()).append(',').append(' ');
-    buf.append("message").append('=').append(getMessage()).append(',').append(' ');
-    buf.append("items").append('=').append(JodaBeanUtils.toString(getItems()));
+    buf.append("reason").append('=').append(reason).append(',').append(' ');
+    buf.append("message").append('=').append(message).append(',').append(' ');
+    buf.append("items").append('=').append(JodaBeanUtils.toString(items));
     buf.append('}');
     return buf.toString();
   }

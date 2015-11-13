@@ -172,6 +172,10 @@ public final class LogLinearExtrapolator1D
     return META_BEAN;
   }
 
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
   /**
    * The serialization version id.
    */
@@ -218,7 +222,7 @@ public final class LogLinearExtrapolator1D
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       LogLinearExtrapolator1D other = (LogLinearExtrapolator1D) obj;
-      return JodaBeanUtils.equal(getEps(), other.getEps());
+      return JodaBeanUtils.equal(eps, other.eps);
     }
     return false;
   }
@@ -226,7 +230,7 @@ public final class LogLinearExtrapolator1D
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEps());
+    hash = hash * 31 + JodaBeanUtils.hashCode(eps);
     return hash;
   }
 
@@ -234,7 +238,7 @@ public final class LogLinearExtrapolator1D
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("LogLinearExtrapolator1D{");
-    buf.append("eps").append('=').append(JodaBeanUtils.toString(getEps()));
+    buf.append("eps").append('=').append(JodaBeanUtils.toString(eps));
     buf.append('}');
     return buf.toString();
   }

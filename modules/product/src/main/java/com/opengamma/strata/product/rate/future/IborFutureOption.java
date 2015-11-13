@@ -377,14 +377,14 @@ public class IborFutureOption
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborFutureOption other = (IborFutureOption) obj;
-      return JodaBeanUtils.equal(getPutCall(), other.getPutCall()) &&
-          JodaBeanUtils.equal(getStrikePrice(), other.getStrikePrice()) &&
-          JodaBeanUtils.equal(getExpiryDate(), other.getExpiryDate()) &&
-          JodaBeanUtils.equal(getExpiryTime(), other.getExpiryTime()) &&
-          JodaBeanUtils.equal(getExpiryZone(), other.getExpiryZone()) &&
-          JodaBeanUtils.equal(getPremiumStyle(), other.getPremiumStyle()) &&
-          JodaBeanUtils.equal(getRounding(), other.getRounding()) &&
-          JodaBeanUtils.equal(getUnderlyingLink(), other.getUnderlyingLink());
+      return JodaBeanUtils.equal(putCall, other.putCall) &&
+          JodaBeanUtils.equal(strikePrice, other.strikePrice) &&
+          JodaBeanUtils.equal(expiryDate, other.expiryDate) &&
+          JodaBeanUtils.equal(expiryTime, other.expiryTime) &&
+          JodaBeanUtils.equal(expiryZone, other.expiryZone) &&
+          JodaBeanUtils.equal(premiumStyle, other.premiumStyle) &&
+          JodaBeanUtils.equal(rounding, other.rounding) &&
+          JodaBeanUtils.equal(underlyingLink, other.underlyingLink);
     }
     return false;
   }
@@ -392,14 +392,14 @@ public class IborFutureOption
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPutCall());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStrikePrice());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryTime());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryZone());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumStyle());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRounding());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingLink());
+    hash = hash * 31 + JodaBeanUtils.hashCode(putCall);
+    hash = hash * 31 + JodaBeanUtils.hashCode(strikePrice);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryTime);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryZone);
+    hash = hash * 31 + JodaBeanUtils.hashCode(premiumStyle);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rounding);
+    hash = hash * 31 + JodaBeanUtils.hashCode(underlyingLink);
     return hash;
   }
 
@@ -417,14 +417,14 @@ public class IborFutureOption
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("putCall").append('=').append(JodaBeanUtils.toString(getPutCall())).append(',').append(' ');
-    buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(getStrikePrice())).append(',').append(' ');
-    buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(getExpiryDate())).append(',').append(' ');
-    buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(getExpiryTime())).append(',').append(' ');
-    buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(getExpiryZone())).append(',').append(' ');
-    buf.append("premiumStyle").append('=').append(JodaBeanUtils.toString(getPremiumStyle())).append(',').append(' ');
-    buf.append("rounding").append('=').append(JodaBeanUtils.toString(getRounding())).append(',').append(' ');
-    buf.append("underlyingLink").append('=').append(JodaBeanUtils.toString(getUnderlyingLink())).append(',').append(' ');
+    buf.append("putCall").append('=').append(JodaBeanUtils.toString(putCall)).append(',').append(' ');
+    buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(strikePrice)).append(',').append(' ');
+    buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
+    buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(expiryTime)).append(',').append(' ');
+    buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(expiryZone)).append(',').append(' ');
+    buf.append("premiumStyle").append('=').append(JodaBeanUtils.toString(premiumStyle)).append(',').append(' ');
+    buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding)).append(',').append(' ');
+    buf.append("underlyingLink").append('=').append(JodaBeanUtils.toString(underlyingLink)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

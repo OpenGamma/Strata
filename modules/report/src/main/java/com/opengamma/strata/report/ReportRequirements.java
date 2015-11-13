@@ -109,7 +109,7 @@ public class ReportRequirements implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ReportRequirements other = (ReportRequirements) obj;
-      return JodaBeanUtils.equal(getTradeMeasureRequirements(), other.getTradeMeasureRequirements());
+      return JodaBeanUtils.equal(tradeMeasureRequirements, other.tradeMeasureRequirements);
     }
     return false;
   }
@@ -117,7 +117,7 @@ public class ReportRequirements implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeMeasureRequirements());
+    hash = hash * 31 + JodaBeanUtils.hashCode(tradeMeasureRequirements);
     return hash;
   }
 
@@ -135,7 +135,7 @@ public class ReportRequirements implements ImmutableBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("tradeMeasureRequirements").append('=').append(JodaBeanUtils.toString(getTradeMeasureRequirements())).append(',').append(' ');
+    buf.append("tradeMeasureRequirements").append('=').append(JodaBeanUtils.toString(tradeMeasureRequirements)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -362,17 +362,17 @@ public class ExpandedCds
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ExpandedCds other = (ExpandedCds) obj;
-      return JodaBeanUtils.equal(getBuySellProtection(), other.getBuySellProtection()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getCoupon(), other.getCoupon()) &&
-          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
-          JodaBeanUtils.equal(getBusinessDayAdjustment(), other.getBusinessDayAdjustment()) &&
-          (isPayAccruedOnDefault() == other.isPayAccruedOnDefault()) &&
-          JodaBeanUtils.equal(getPaymentInterval(), other.getPaymentInterval()) &&
-          JodaBeanUtils.equal(getStubConvention(), other.getStubConvention()) &&
-          JodaBeanUtils.equal(getAccrualDayCount(), other.getAccrualDayCount()) &&
+      return JodaBeanUtils.equal(buySellProtection, other.buySellProtection) &&
+          JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(coupon, other.coupon) &&
+          JodaBeanUtils.equal(startDate, other.startDate) &&
+          JodaBeanUtils.equal(endDate, other.endDate) &&
+          JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
+          (payAccruedOnDefault == other.payAccruedOnDefault) &&
+          JodaBeanUtils.equal(paymentInterval, other.paymentInterval) &&
+          JodaBeanUtils.equal(stubConvention, other.stubConvention) &&
+          JodaBeanUtils.equal(accrualDayCount, other.accrualDayCount) &&
           JodaBeanUtils.equal(upfrontFeeAmount, other.upfrontFeeAmount) &&
           JodaBeanUtils.equal(upfrontFeePaymentDate, other.upfrontFeePaymentDate);
     }
@@ -382,17 +382,17 @@ public class ExpandedCds
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBuySellProtection());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCoupon());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayAdjustment());
-    hash = hash * 31 + JodaBeanUtils.hashCode(isPayAccruedOnDefault());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentInterval());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStubConvention());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(buySellProtection);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(coupon);
+    hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
+    hash = hash * 31 + JodaBeanUtils.hashCode(payAccruedOnDefault);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentInterval);
+    hash = hash * 31 + JodaBeanUtils.hashCode(stubConvention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualDayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(upfrontFeeAmount);
     hash = hash * 31 + JodaBeanUtils.hashCode(upfrontFeePaymentDate);
     return hash;
@@ -412,17 +412,17 @@ public class ExpandedCds
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("buySellProtection").append('=').append(JodaBeanUtils.toString(getBuySellProtection())).append(',').append(' ');
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
-    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
-    buf.append("coupon").append('=').append(JodaBeanUtils.toString(getCoupon())).append(',').append(' ');
-    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
-    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate())).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(getBusinessDayAdjustment())).append(',').append(' ');
-    buf.append("payAccruedOnDefault").append('=').append(JodaBeanUtils.toString(isPayAccruedOnDefault())).append(',').append(' ');
-    buf.append("paymentInterval").append('=').append(JodaBeanUtils.toString(getPaymentInterval())).append(',').append(' ');
-    buf.append("stubConvention").append('=').append(JodaBeanUtils.toString(getStubConvention())).append(',').append(' ');
-    buf.append("accrualDayCount").append('=').append(JodaBeanUtils.toString(getAccrualDayCount())).append(',').append(' ');
+    buf.append("buySellProtection").append('=').append(JodaBeanUtils.toString(buySellProtection)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+    buf.append("coupon").append('=').append(JodaBeanUtils.toString(coupon)).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
+    buf.append("payAccruedOnDefault").append('=').append(JodaBeanUtils.toString(payAccruedOnDefault)).append(',').append(' ');
+    buf.append("paymentInterval").append('=').append(JodaBeanUtils.toString(paymentInterval)).append(',').append(' ');
+    buf.append("stubConvention").append('=').append(JodaBeanUtils.toString(stubConvention)).append(',').append(' ');
+    buf.append("accrualDayCount").append('=').append(JodaBeanUtils.toString(accrualDayCount)).append(',').append(' ');
     buf.append("upfrontFeeAmount").append('=').append(JodaBeanUtils.toString(upfrontFeeAmount)).append(',').append(' ');
     buf.append("upfrontFeePaymentDate").append('=').append(JodaBeanUtils.toString(upfrontFeePaymentDate)).append(',').append(' ');
   }

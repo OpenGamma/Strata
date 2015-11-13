@@ -51,6 +51,10 @@ public final class DummyFraTrade
     return META_BEAN;
   }
 
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
   /**
    * The serialization version id.
    */
@@ -105,8 +109,8 @@ public final class DummyFraTrade
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DummyFraTrade other = (DummyFraTrade) obj;
-      return JodaBeanUtils.equal(getDate(), other.getDate()) &&
-          JodaBeanUtils.equal(getFixedRate(), other.getFixedRate());
+      return JodaBeanUtils.equal(date, other.date) &&
+          JodaBeanUtils.equal(fixedRate, other.fixedRate);
     }
     return false;
   }
@@ -114,8 +118,8 @@ public final class DummyFraTrade
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixedRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(date);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
     return hash;
   }
 
@@ -123,8 +127,8 @@ public final class DummyFraTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("DummyFraTrade{");
-    buf.append("date").append('=').append(getDate()).append(',').append(' ');
-    buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(getFixedRate()));
+    buf.append("date").append('=').append(date).append(',').append(' ');
+    buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate));
     buf.append('}');
     return buf.toString();
   }

@@ -241,9 +241,9 @@ public final class XCcyIborIborSwapTemplate
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       XCcyIborIborSwapTemplate other = (XCcyIborIborSwapTemplate) obj;
-      return JodaBeanUtils.equal(getPeriodToStart(), other.getPeriodToStart()) &&
-          JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
-          JodaBeanUtils.equal(getConvention(), other.getConvention());
+      return JodaBeanUtils.equal(periodToStart, other.periodToStart) &&
+          JodaBeanUtils.equal(tenor, other.tenor) &&
+          JodaBeanUtils.equal(convention, other.convention);
     }
     return false;
   }
@@ -251,9 +251,9 @@ public final class XCcyIborIborSwapTemplate
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPeriodToStart());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTenor());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(periodToStart);
+    hash = hash * 31 + JodaBeanUtils.hashCode(tenor);
+    hash = hash * 31 + JodaBeanUtils.hashCode(convention);
     return hash;
   }
 
@@ -261,9 +261,9 @@ public final class XCcyIborIborSwapTemplate
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("XCcyIborIborSwapTemplate{");
-    buf.append("periodToStart").append('=').append(getPeriodToStart()).append(',').append(' ');
-    buf.append("tenor").append('=').append(getTenor()).append(',').append(' ');
-    buf.append("convention").append('=').append(JodaBeanUtils.toString(getConvention()));
+    buf.append("periodToStart").append('=').append(periodToStart).append(',').append(' ');
+    buf.append("tenor").append('=').append(tenor).append(',').append(' ');
+    buf.append("convention").append('=').append(JodaBeanUtils.toString(convention));
     buf.append('}');
     return buf.toString();
   }

@@ -204,10 +204,10 @@ public final class SingleNameReferenceInformation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SingleNameReferenceInformation other = (SingleNameReferenceInformation) obj;
-      return JodaBeanUtils.equal(getReferenceEntityId(), other.getReferenceEntityId()) &&
-          JodaBeanUtils.equal(getSeniority(), other.getSeniority()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getRestructuringClause(), other.getRestructuringClause());
+      return JodaBeanUtils.equal(referenceEntityId, other.referenceEntityId) &&
+          JodaBeanUtils.equal(seniority, other.seniority) &&
+          JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(restructuringClause, other.restructuringClause);
     }
     return false;
   }
@@ -215,10 +215,10 @@ public final class SingleNameReferenceInformation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceEntityId());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSeniority());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRestructuringClause());
+    hash = hash * 31 + JodaBeanUtils.hashCode(referenceEntityId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(seniority);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(restructuringClause);
     return hash;
   }
 
@@ -226,10 +226,10 @@ public final class SingleNameReferenceInformation
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("SingleNameReferenceInformation{");
-    buf.append("referenceEntityId").append('=').append(getReferenceEntityId()).append(',').append(' ');
-    buf.append("seniority").append('=').append(getSeniority()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("restructuringClause").append('=').append(JodaBeanUtils.toString(getRestructuringClause()));
+    buf.append("referenceEntityId").append('=').append(referenceEntityId).append(',').append(' ');
+    buf.append("seniority").append('=').append(seniority).append(',').append(' ');
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("restructuringClause").append('=').append(JodaBeanUtils.toString(restructuringClause));
     buf.append('}');
     return buf.toString();
   }

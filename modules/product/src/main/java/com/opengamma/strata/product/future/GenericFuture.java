@@ -248,11 +248,11 @@ public final class GenericFuture
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       GenericFuture other = (GenericFuture) obj;
-      return JodaBeanUtils.equal(getProductId(), other.getProductId()) &&
-          JodaBeanUtils.equal(getExpiryMonth(), other.getExpiryMonth()) &&
+      return JodaBeanUtils.equal(productId, other.productId) &&
+          JodaBeanUtils.equal(expiryMonth, other.expiryMonth) &&
           JodaBeanUtils.equal(expiryDate, other.expiryDate) &&
-          JodaBeanUtils.equal(getTickSize(), other.getTickSize()) &&
-          JodaBeanUtils.equal(getTickValue(), other.getTickValue());
+          JodaBeanUtils.equal(tickSize, other.tickSize) &&
+          JodaBeanUtils.equal(tickValue, other.tickValue);
     }
     return false;
   }
@@ -260,11 +260,11 @@ public final class GenericFuture
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getProductId());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryMonth());
+    hash = hash * 31 + JodaBeanUtils.hashCode(productId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryMonth);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiryDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTickSize());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTickValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(tickSize);
+    hash = hash * 31 + JodaBeanUtils.hashCode(tickValue);
     return hash;
   }
 
@@ -272,11 +272,11 @@ public final class GenericFuture
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("GenericFuture{");
-    buf.append("productId").append('=').append(getProductId()).append(',').append(' ');
-    buf.append("expiryMonth").append('=').append(getExpiryMonth()).append(',').append(' ');
+    buf.append("productId").append('=').append(productId).append(',').append(' ');
+    buf.append("expiryMonth").append('=').append(expiryMonth).append(',').append(' ');
     buf.append("expiryDate").append('=').append(expiryDate).append(',').append(' ');
-    buf.append("tickSize").append('=').append(getTickSize()).append(',').append(' ');
-    buf.append("tickValue").append('=').append(JodaBeanUtils.toString(getTickValue()));
+    buf.append("tickSize").append('=').append(tickSize).append(',').append(' ');
+    buf.append("tickValue").append('=').append(JodaBeanUtils.toString(tickValue));
     buf.append('}');
     return buf.toString();
   }
