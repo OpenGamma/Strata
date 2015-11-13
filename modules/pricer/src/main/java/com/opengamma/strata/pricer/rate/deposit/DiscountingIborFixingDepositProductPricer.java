@@ -9,9 +9,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.finance.rate.deposit.ExpandedIborFixingDeposit;
-import com.opengamma.strata.finance.rate.deposit.IborFixingDeposit;
-import com.opengamma.strata.finance.rate.deposit.IborFixingDepositProduct;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -20,6 +17,9 @@ import com.opengamma.strata.market.value.DiscountIborIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.product.rate.deposit.ExpandedIborFixingDeposit;
+import com.opengamma.strata.product.rate.deposit.IborFixingDeposit;
+import com.opengamma.strata.product.rate.deposit.IborFixingDepositProduct;
 
 /**
  * The methods associated to the pricing of Ibor fixing deposit by discounting.

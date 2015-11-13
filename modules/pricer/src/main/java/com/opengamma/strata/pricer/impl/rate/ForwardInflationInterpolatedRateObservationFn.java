@@ -9,13 +9,13 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 
 import com.opengamma.strata.basics.index.PriceIndex;
-import com.opengamma.strata.finance.rate.InflationInterpolatedRateObservation;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.PriceIndexValues;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.InflationInterpolatedRateObservation;
 
 /**
  * Rate observation implementation for rate based on the weighted average of fixings 

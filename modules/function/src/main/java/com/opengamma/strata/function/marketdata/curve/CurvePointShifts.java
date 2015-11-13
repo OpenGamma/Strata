@@ -28,13 +28,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
+import com.opengamma.strata.calc.marketdata.scenario.ScenarioPerturbation;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.ObjIntPair;
-import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
-import com.opengamma.strata.engine.marketdata.scenario.ScenarioPerturbation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
@@ -73,7 +73,7 @@ public final class CurvePointShifts
    * The shift to apply to the rates.
    * <p>
    * There is one row in the matrix for each scenario and one column for each node in the curve.
-   * Node indices are found using {@link #nodeIndices}.
+   * Node indices are found using {@code nodeIndices}.
    */
   @PropertyDefinition(validate = "notNull")
   private final DoubleMatrix shifts;
@@ -219,7 +219,7 @@ public final class CurvePointShifts
    * Gets the shift to apply to the rates.
    * <p>
    * There is one row in the matrix for each scenario and one column for each node in the curve.
-   * Node indices are found using {@link #nodeIndices}.
+   * Node indices are found using {@code nodeIndices}.
    * @return the value of the property, not null
    */
   public DoubleMatrix getShifts() {

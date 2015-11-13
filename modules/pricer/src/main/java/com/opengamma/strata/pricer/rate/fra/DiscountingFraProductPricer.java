@@ -12,9 +12,6 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.rate.RateObservation;
-import com.opengamma.strata.finance.rate.fra.ExpandedFra;
-import com.opengamma.strata.finance.rate.fra.FraProduct;
 import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.explain.ExplainKey;
@@ -25,6 +22,9 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.fra.ExpandedFra;
+import com.opengamma.strata.product.rate.fra.FraProduct;
 
 /**
  * Pricer for for forward rate agreement (FRA) products.

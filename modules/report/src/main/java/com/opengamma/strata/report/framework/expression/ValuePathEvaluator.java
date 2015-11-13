@@ -16,11 +16,11 @@ import java.util.stream.IntStream;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.config.Measure;
-import com.opengamma.strata.finance.rate.fra.Fra;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
+import com.opengamma.strata.product.rate.fra.Fra;
+import com.opengamma.strata.product.rate.fra.FraTrade;
 import com.opengamma.strata.report.ReportCalculationResults;
 
 /**

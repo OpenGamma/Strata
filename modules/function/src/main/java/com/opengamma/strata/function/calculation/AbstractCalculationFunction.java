@@ -6,7 +6,7 @@
 package com.opengamma.strata.function.calculation;
 
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.engine.calculation.function.CalculationSingleFunction;
+import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 
 /**
  * Abstract function calculating a result for each of a set of scenarios.

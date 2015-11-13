@@ -7,14 +7,14 @@ package com.opengamma.strata.pricer.impl.rate;
 
 import java.time.LocalDate;
 
-import com.opengamma.strata.finance.rate.IborAveragedFixing;
-import com.opengamma.strata.finance.rate.IborAveragedRateObservation;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.IborAveragedFixing;
+import com.opengamma.strata.product.rate.IborAveragedRateObservation;
 
 /**
  * Rate observation implementation for a rate based on the average of multiple fixings of a

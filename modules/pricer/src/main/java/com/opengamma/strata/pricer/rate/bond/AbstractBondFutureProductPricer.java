@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.pricer.rate.bond;
 
-import com.opengamma.strata.finance.rate.bond.BondFuture;
-import com.opengamma.strata.finance.rate.bond.BondFutureTrade;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.product.rate.bond.BondFuture;
+import com.opengamma.strata.product.rate.bond.BondFutureTrade;
 
 /**
  * Base pricer for bond futures.

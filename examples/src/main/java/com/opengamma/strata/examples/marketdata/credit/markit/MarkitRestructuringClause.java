@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.examples.marketdata.credit.markit;
 
-import com.opengamma.strata.finance.credit.RestructuringClause;
+import com.opengamma.strata.product.credit.RestructuringClause;
 
 /**
  * Specifies the form of the restructuring credit event that is applicable to the credit default swap.

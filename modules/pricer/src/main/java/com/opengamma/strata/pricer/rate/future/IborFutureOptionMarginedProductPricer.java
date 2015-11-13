@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.pricer.rate.future;
 
-import com.opengamma.strata.finance.common.FutureOptionPremiumStyle;
-import com.opengamma.strata.finance.rate.future.IborFutureOption;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
+import com.opengamma.strata.product.rate.future.IborFutureOption;
 
 /**
  * Pricer for Ibor future option products with daily margin.

@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.function.calculation.fx;
 
-import com.opengamma.strata.finance.fx.ExpandedFxSwap;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.fx.ExpandedFxSwap;
 
 /**
  * Calculates the bucketed PV01, the present value curve parameter sensitivity of a {@code FxSwapTrade}.

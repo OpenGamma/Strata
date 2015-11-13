@@ -8,20 +8,20 @@ package com.opengamma.strata.pricer.impl.rate;
 import java.time.LocalDate;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.rate.FixedRateObservation;
-import com.opengamma.strata.finance.rate.IborAveragedRateObservation;
-import com.opengamma.strata.finance.rate.IborInterpolatedRateObservation;
-import com.opengamma.strata.finance.rate.IborRateObservation;
-import com.opengamma.strata.finance.rate.InflationInterpolatedRateObservation;
-import com.opengamma.strata.finance.rate.InflationMonthlyRateObservation;
-import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
-import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
-import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.FixedRateObservation;
+import com.opengamma.strata.product.rate.IborAveragedRateObservation;
+import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
+import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.InflationInterpolatedRateObservation;
+import com.opengamma.strata.product.rate.InflationMonthlyRateObservation;
+import com.opengamma.strata.product.rate.OvernightAveragedRateObservation;
+import com.opengamma.strata.product.rate.OvernightCompoundedRateObservation;
+import com.opengamma.strata.product.rate.RateObservation;
 
 /**
  * Rate observation implementation using multiple dispatch.

@@ -5,7 +5,7 @@ This directory contains the `strata-function` module.
 ### Overview
 
 This module contains functions that implement the extension points provided
-by strata-engine. These include the calculation of measures, using strata-pricer,
+by strata-calc. These include the calculation of measures, using strata-pricer,
 and the building of market data, such as curve calibration.
 
 

@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.function.calculation.rate.fra;
 
-import com.opengamma.strata.engine.config.Measure;
-import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
-import com.opengamma.strata.engine.config.pricing.FunctionGroup;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
+import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
+import com.opengamma.strata.calc.config.pricing.FunctionGroup;
+import com.opengamma.strata.product.rate.fra.FraTrade;
 
 /**
  * Contains function groups for built-in FRA calculation functions.

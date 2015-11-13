@@ -20,7 +20,7 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.collect.io.XmlFile;
 import com.opengamma.strata.collect.named.ExtendedEnum;
-import com.opengamma.strata.finance.TradeInfo;
+import com.opengamma.strata.product.TradeInfo;
 
 /**
  * Loader of trade data in FpML format.

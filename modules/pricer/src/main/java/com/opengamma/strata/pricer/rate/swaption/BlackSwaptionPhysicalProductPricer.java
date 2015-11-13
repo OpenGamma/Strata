@@ -13,19 +13,19 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
-import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
-import com.opengamma.strata.finance.rate.swap.Swap;
-import com.opengamma.strata.finance.rate.swap.SwapLegType;
-import com.opengamma.strata.finance.rate.swap.SwapProduct;
-import com.opengamma.strata.finance.rate.swaption.ExpandedSwaption;
-import com.opengamma.strata.finance.rate.swaption.SettlementType;
-import com.opengamma.strata.finance.rate.swaption.SwaptionProduct;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.rate.swap.ExpandedSwap;
+import com.opengamma.strata.product.rate.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.rate.swap.Swap;
+import com.opengamma.strata.product.rate.swap.SwapLegType;
+import com.opengamma.strata.product.rate.swap.SwapProduct;
+import com.opengamma.strata.product.rate.swaption.ExpandedSwaption;
+import com.opengamma.strata.product.rate.swaption.SettlementType;
+import com.opengamma.strata.product.rate.swaption.SwaptionProduct;
 
 /**
  * Pricer for swaption with physical settlement in a log-normal or Black model on the swap rate.

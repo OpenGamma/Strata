@@ -24,13 +24,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions;
 import com.opengamma.strata.market.sensitivity.SurfaceCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
 import com.opengamma.strata.market.surface.SwaptionSurfaceExpiryTenorNodeMetadata;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
+import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConventions;
 
 /**
  * Test {@link SabrVolatilitySwaptionProvider}.

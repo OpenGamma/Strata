@@ -6,8 +6,8 @@
 package com.opengamma.strata.function.calculation.rate.swap;
 
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.swap.ExpandedSwap;
 
 /**
  * Calculates the present value of a {@code SwapTrade} for each of a set of scenarios.

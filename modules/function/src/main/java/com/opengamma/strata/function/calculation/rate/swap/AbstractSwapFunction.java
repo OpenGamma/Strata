@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.function.calculation.rate.swap;
 
+import static com.opengamma.strata.calc.runner.function.FunctionUtils.toScenarioResult;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
-import static com.opengamma.strata.engine.calculation.function.FunctionUtils.toScenarioResult;
 
 import java.util.Optional;
 import java.util.Set;
@@ -17,14 +17,10 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.engine.calculation.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculation.function.result.ScenarioResult;
-import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.FunctionRequirements;
-import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
-import com.opengamma.strata.finance.rate.swap.Swap;
-import com.opengamma.strata.finance.rate.swap.SwapLeg;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
@@ -32,6 +28,10 @@ import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.rate.swap.ExpandedSwap;
+import com.opengamma.strata.product.rate.swap.Swap;
+import com.opengamma.strata.product.rate.swap.SwapLeg;
+import com.opengamma.strata.product.rate.swap.SwapTrade;
 
 /**
  * Perform calculations on a single {@code SwapTrade} for each of a set of scenarios.

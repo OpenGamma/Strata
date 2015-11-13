@@ -41,24 +41,24 @@ import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
-import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
-import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
-import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
-import com.opengamma.strata.finance.rate.swap.OvernightAccrualMethod;
-import com.opengamma.strata.finance.rate.swap.OvernightRateCalculation;
-import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
-import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.finance.rate.swap.StubCalculation;
-import com.opengamma.strata.finance.rate.swap.Swap;
-import com.opengamma.strata.finance.rate.swap.SwapLeg;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.rate.swap.CompoundingMethod;
+import com.opengamma.strata.product.rate.swap.FixedRateCalculation;
+import com.opengamma.strata.product.rate.swap.IborRateCalculation;
+import com.opengamma.strata.product.rate.swap.NotionalSchedule;
+import com.opengamma.strata.product.rate.swap.OvernightAccrualMethod;
+import com.opengamma.strata.product.rate.swap.OvernightRateCalculation;
+import com.opengamma.strata.product.rate.swap.PaymentSchedule;
+import com.opengamma.strata.product.rate.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.rate.swap.StubCalculation;
+import com.opengamma.strata.product.rate.swap.Swap;
+import com.opengamma.strata.product.rate.swap.SwapLeg;
+import com.opengamma.strata.product.rate.swap.SwapTrade;
 
 /**
  * Test end to end.

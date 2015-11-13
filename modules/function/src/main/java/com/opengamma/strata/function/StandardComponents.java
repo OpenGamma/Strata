@@ -10,28 +10,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.calc.CalculationEngine;
+import com.opengamma.strata.calc.DefaultCalculationEngine;
+import com.opengamma.strata.calc.config.pricing.PricingRules;
+import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
+import com.opengamma.strata.calc.marketdata.MarketDataFactory;
+import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
+import com.opengamma.strata.calc.marketdata.function.ObservableMarketDataFunction;
+import com.opengamma.strata.calc.marketdata.function.TimeSeriesProvider;
+import com.opengamma.strata.calc.marketdata.mapping.FeedIdMapping;
+import com.opengamma.strata.calc.runner.CalculationRunner;
+import com.opengamma.strata.calc.runner.DefaultCalculationRunner;
 import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.engine.CalculationEngine;
-import com.opengamma.strata.engine.DefaultCalculationEngine;
-import com.opengamma.strata.engine.calculation.CalculationRunner;
-import com.opengamma.strata.engine.calculation.DefaultCalculationRunner;
-import com.opengamma.strata.engine.config.pricing.PricingRules;
-import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
-import com.opengamma.strata.engine.marketdata.MarketDataFactory;
-import com.opengamma.strata.engine.marketdata.function.MarketDataFunction;
-import com.opengamma.strata.engine.marketdata.function.ObservableMarketDataFunction;
-import com.opengamma.strata.engine.marketdata.function.TimeSeriesProvider;
-import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
-import com.opengamma.strata.finance.credit.CdsTrade;
-import com.opengamma.strata.finance.future.GenericFutureOptionTrade;
-import com.opengamma.strata.finance.future.GenericFutureTrade;
-import com.opengamma.strata.finance.fx.FxNdfTrade;
-import com.opengamma.strata.finance.fx.FxSwapTrade;
-import com.opengamma.strata.finance.payment.BulletPaymentTrade;
-import com.opengamma.strata.finance.fx.FxSingleTrade;
-import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.marketdata.curve.CurveGroupMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.DiscountCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.DiscountFactorsMarketDataFunction;
@@ -41,6 +31,16 @@ import com.opengamma.strata.function.marketdata.curve.ParRatesMarketDataFunction
 import com.opengamma.strata.function.marketdata.curve.RateIndexCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.RootFinderConfig;
 import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
+import com.opengamma.strata.product.credit.CdsTrade;
+import com.opengamma.strata.product.future.GenericFutureOptionTrade;
+import com.opengamma.strata.product.future.GenericFutureTrade;
+import com.opengamma.strata.product.fx.FxNdfTrade;
+import com.opengamma.strata.product.fx.FxSingleTrade;
+import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.payment.BulletPaymentTrade;
+import com.opengamma.strata.product.rate.deposit.TermDepositTrade;
+import com.opengamma.strata.product.rate.fra.FraTrade;
+import com.opengamma.strata.product.rate.swap.SwapTrade;
 
 /**
  * Factory methods for creating standard Strata components.

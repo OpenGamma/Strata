@@ -9,13 +9,13 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.tuple.DoublesPair;
-import com.opengamma.strata.finance.rate.IborInterpolatedRateObservation;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
 
 /**
  * Rate observation implementation for rate based on the weighted average of the fixing

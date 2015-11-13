@@ -30,16 +30,16 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.rate.deposit.TermDeposit;
-import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
-import com.opengamma.strata.finance.rate.deposit.type.TermDepositConvention;
-import com.opengamma.strata.finance.rate.deposit.type.TermDepositConventions;
-import com.opengamma.strata.finance.rate.deposit.type.TermDepositTemplate;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.rate.deposit.TermDeposit;
+import com.opengamma.strata.product.rate.deposit.TermDepositTrade;
+import com.opengamma.strata.product.rate.deposit.type.TermDepositConvention;
+import com.opengamma.strata.product.rate.deposit.type.TermDepositConventions;
+import com.opengamma.strata.product.rate.deposit.type.TermDepositTemplate;
 
 /**
  * Test {@link TermDepositCurveNode}.

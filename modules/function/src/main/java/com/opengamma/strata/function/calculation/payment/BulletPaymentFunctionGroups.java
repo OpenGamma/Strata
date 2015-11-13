@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.function.calculation.payment;
 
-import com.opengamma.strata.engine.config.Measure;
-import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
-import com.opengamma.strata.engine.config.pricing.FunctionGroup;
-import com.opengamma.strata.finance.payment.BulletPaymentTrade;
+import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
+import com.opengamma.strata.calc.config.pricing.FunctionGroup;
+import com.opengamma.strata.product.payment.BulletPaymentTrade;
 
 /**
  * Contains function groups for built-in Bullet Payment calculation functions.

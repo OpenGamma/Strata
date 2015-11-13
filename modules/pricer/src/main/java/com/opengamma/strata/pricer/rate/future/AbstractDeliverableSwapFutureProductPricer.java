@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.pricer.rate.future;
 
-import com.opengamma.strata.finance.rate.future.DeliverableSwapFuture;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.product.rate.future.DeliverableSwapFuture;
 
 /**
  * Base pricer for deliverable swap futures.

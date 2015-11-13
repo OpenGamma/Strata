@@ -5,19 +5,9 @@
  */
 package com.opengamma.strata.function;
 
-import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
-import com.opengamma.strata.engine.config.pricing.PricingRule;
-import com.opengamma.strata.engine.config.pricing.PricingRules;
-import com.opengamma.strata.finance.credit.CdsTrade;
-import com.opengamma.strata.finance.future.GenericFutureOptionTrade;
-import com.opengamma.strata.finance.future.GenericFutureTrade;
-import com.opengamma.strata.finance.fx.FxNdfTrade;
-import com.opengamma.strata.finance.fx.FxSingleTrade;
-import com.opengamma.strata.finance.fx.FxSwapTrade;
-import com.opengamma.strata.finance.payment.BulletPaymentTrade;
-import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
+import com.opengamma.strata.calc.config.pricing.DefaultPricingRules;
+import com.opengamma.strata.calc.config.pricing.PricingRule;
+import com.opengamma.strata.calc.config.pricing.PricingRules;
 import com.opengamma.strata.function.calculation.credit.CdsFunctionGroups;
 import com.opengamma.strata.function.calculation.future.GenericFutureFunctionGroups;
 import com.opengamma.strata.function.calculation.future.GenericFutureOptionFunctionGroups;
@@ -28,6 +18,16 @@ import com.opengamma.strata.function.calculation.payment.BulletPaymentFunctionGr
 import com.opengamma.strata.function.calculation.rate.deposit.TermDepositFunctionGroups;
 import com.opengamma.strata.function.calculation.rate.fra.FraFunctionGroups;
 import com.opengamma.strata.function.calculation.rate.swap.SwapFunctionGroups;
+import com.opengamma.strata.product.credit.CdsTrade;
+import com.opengamma.strata.product.future.GenericFutureOptionTrade;
+import com.opengamma.strata.product.future.GenericFutureTrade;
+import com.opengamma.strata.product.fx.FxNdfTrade;
+import com.opengamma.strata.product.fx.FxSingleTrade;
+import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.payment.BulletPaymentTrade;
+import com.opengamma.strata.product.rate.deposit.TermDepositTrade;
+import com.opengamma.strata.product.rate.fra.FraTrade;
+import com.opengamma.strata.product.rate.swap.SwapTrade;
 
 /**
  * Contains standard sets of pricing rules that provide full access to the built-in asset class coverage.

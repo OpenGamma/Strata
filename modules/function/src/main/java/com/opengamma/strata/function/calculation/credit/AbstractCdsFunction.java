@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.credit;
 
-import static com.opengamma.strata.engine.calculation.function.FunctionUtils.toScenarioResult;
+import static com.opengamma.strata.calc.runner.function.FunctionUtils.toScenarioResult;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -16,17 +16,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.engine.calculation.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculation.function.result.ScenarioResult;
-import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.FunctionRequirements;
-import com.opengamma.strata.finance.credit.Cds;
-import com.opengamma.strata.finance.credit.CdsTrade;
-import com.opengamma.strata.finance.credit.ExpandedCds;
-import com.opengamma.strata.finance.credit.IndexReferenceInformation;
-import com.opengamma.strata.finance.credit.ReferenceInformation;
-import com.opengamma.strata.finance.credit.ReferenceInformationType;
-import com.opengamma.strata.finance.credit.SingleNameReferenceInformation;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
@@ -37,6 +30,13 @@ import com.opengamma.strata.market.key.IsdaSingleNameRecoveryRateKey;
 import com.opengamma.strata.market.key.IsdaYieldCurveParRatesKey;
 import com.opengamma.strata.market.value.CdsRecoveryRate;
 import com.opengamma.strata.pricer.credit.IsdaCdsPricer;
+import com.opengamma.strata.product.credit.Cds;
+import com.opengamma.strata.product.credit.CdsTrade;
+import com.opengamma.strata.product.credit.ExpandedCds;
+import com.opengamma.strata.product.credit.IndexReferenceInformation;
+import com.opengamma.strata.product.credit.ReferenceInformation;
+import com.opengamma.strata.product.credit.ReferenceInformationType;
+import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
 
 /**
  * Perform calculations on a single {@code CdsTrade} for each of a set of scenarios.

@@ -30,14 +30,12 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
+import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
+import com.opengamma.strata.calc.marketdata.MarketEnvironment;
+import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
+import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.calculation.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
-import com.opengamma.strata.engine.marketdata.MarketEnvironment;
-import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.engine.marketdata.scenario.MarketDataBox;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
@@ -65,6 +63,8 @@ import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
+import com.opengamma.strata.product.rate.fra.FraTrade;
+import com.opengamma.strata.product.rate.swap.SwapTrade;
 
 /**
  * Test {@link CurveGroupMarketDataFunction}.

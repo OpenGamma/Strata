@@ -32,16 +32,12 @@ import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.calc.config.MarketDataRule;
+import com.opengamma.strata.calc.config.MarketDataRules;
+import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.engine.config.MarketDataRule;
-import com.opengamma.strata.engine.config.MarketDataRules;
-import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
-import com.opengamma.strata.finance.credit.IndexReferenceInformation;
-import com.opengamma.strata.finance.credit.RestructuringClause;
-import com.opengamma.strata.finance.credit.SeniorityLevel;
-import com.opengamma.strata.finance.credit.SingleNameReferenceInformation;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.DiscountCurveId;
@@ -53,6 +49,10 @@ import com.opengamma.strata.market.id.IsdaSingleNameRecoveryRateId;
 import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
+import com.opengamma.strata.product.credit.IndexReferenceInformation;
+import com.opengamma.strata.product.credit.RestructuringClause;
+import com.opengamma.strata.product.credit.SeniorityLevel;
+import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
 
 /**
  * Test {@link MarketDataBuilder}, {@link DirectoryMarketDataBuilder} and {@link JarMarketDataBuilder}.

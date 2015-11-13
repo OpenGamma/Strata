@@ -29,10 +29,6 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.finance.rate.IborRateObservation;
-import com.opengamma.strata.finance.rate.RateObservation;
-import com.opengamma.strata.finance.rate.fra.ExpandedFra;
-import com.opengamma.strata.finance.rate.fra.Fra;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
@@ -52,6 +48,10 @@ import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.fra.ExpandedFra;
+import com.opengamma.strata.product.rate.fra.Fra;
 
 /**
  * Test.

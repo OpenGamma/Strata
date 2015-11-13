@@ -24,14 +24,14 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.rate.future.IborFutureTrade;
-import com.opengamma.strata.finance.rate.future.type.IborFutureConvention;
-import com.opengamma.strata.finance.rate.future.type.IborFutureConventions;
-import com.opengamma.strata.finance.rate.future.type.IborFutureTemplate;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.YearMonthCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.product.rate.future.IborFutureTrade;
+import com.opengamma.strata.product.rate.future.type.IborFutureConvention;
+import com.opengamma.strata.product.rate.future.type.IborFutureConventions;
+import com.opengamma.strata.product.rate.future.type.IborFutureTemplate;
 
 /**
  * Tests {@link IborFutureCurveNode}.

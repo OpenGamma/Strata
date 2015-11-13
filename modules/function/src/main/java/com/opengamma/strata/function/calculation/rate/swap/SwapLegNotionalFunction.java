@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.function.calculation.rate.swap;
 
+import static com.opengamma.strata.calc.runner.function.FunctionUtils.toScenarioResult;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static com.opengamma.strata.engine.calculation.function.FunctionUtils.toScenarioResult;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
@@ -16,20 +16,20 @@ import java.util.stream.IntStream;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.engine.calculation.function.result.ScenarioResult;
-import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.FunctionRequirements;
-import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
-import com.opengamma.strata.finance.rate.swap.NotionalPaymentPeriod;
-import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
-import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.finance.rate.swap.SwapLeg;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.market.amount.LegAmount;
 import com.opengamma.strata.market.amount.LegAmounts;
 import com.opengamma.strata.market.amount.SwapLegAmount;
+import com.opengamma.strata.product.rate.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.rate.swap.NotionalPaymentPeriod;
+import com.opengamma.strata.product.rate.swap.PaymentPeriod;
+import com.opengamma.strata.product.rate.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.rate.swap.SwapLeg;
+import com.opengamma.strata.product.rate.swap.SwapTrade;
 
 /**
  * Calculates the initial notional of each leg of an interest rate swap.

@@ -7,8 +7,8 @@
 package com.opengamma.strata.examples.finance;
 
 import static com.opengamma.strata.basics.BuySell.BUY;
-import static com.opengamma.strata.finance.credit.RestructuringClause.NO_RESTRUCTURING_2014;
-import static com.opengamma.strata.finance.credit.SeniorityLevel.SENIOR_UNSECURED_FOREIGN;
+import static com.opengamma.strata.product.credit.RestructuringClause.NO_RESTRUCTURING_2014;
+import static com.opengamma.strata.product.credit.SeniorityLevel.SENIOR_UNSECURED_FOREIGN;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -23,10 +23,10 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
 import com.opengamma.strata.examples.report.TradePortfolio;
-import com.opengamma.strata.finance.credit.CdsTrade;
-import com.opengamma.strata.finance.credit.IndexReferenceInformation;
-import com.opengamma.strata.finance.credit.SingleNameReferenceInformation;
-import com.opengamma.strata.finance.credit.type.CdsConventions;
+import com.opengamma.strata.product.credit.CdsTrade;
+import com.opengamma.strata.product.credit.IndexReferenceInformation;
+import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
+import com.opengamma.strata.product.credit.type.CdsConventions;
 
 /**
  * An example application showing how to load the example portfolio from the classpath

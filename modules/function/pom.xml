@@ -29,11 +29,11 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-engine</artifactId>
+      <artifactId>strata-calc</artifactId>
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-finance</artifactId>
+      <artifactId>strata-product</artifactId>
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
@@ -64,7 +64,7 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-engine</artifactId>
+      <artifactId>strata-calc</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

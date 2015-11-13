@@ -22,17 +22,17 @@ import com.google.common.collect.Maps;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.calc.marketdata.MarketEnvironmentBuilder;
 import com.opengamma.strata.collect.io.CsvFile;
-import com.opengamma.strata.engine.marketdata.MarketEnvironmentBuilder;
-import com.opengamma.strata.finance.credit.RestructuringClause;
-import com.opengamma.strata.finance.credit.SeniorityLevel;
-import com.opengamma.strata.finance.credit.SingleNameReferenceInformation;
-import com.opengamma.strata.finance.credit.type.CdsConvention;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
 import com.opengamma.strata.market.id.IsdaSingleNameRecoveryRateId;
 import com.opengamma.strata.market.value.CdsRecoveryRate;
+import com.opengamma.strata.product.credit.RestructuringClause;
+import com.opengamma.strata.product.credit.SeniorityLevel;
+import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
+import com.opengamma.strata.product.credit.type.CdsConvention;
 
 /**
  * Parser to load daily credit curve information provided by Markit.

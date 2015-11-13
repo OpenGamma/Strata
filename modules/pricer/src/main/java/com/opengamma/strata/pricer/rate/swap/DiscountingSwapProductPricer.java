@@ -14,21 +14,21 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
-import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
-import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
-import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
-import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
-import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
-import com.opengamma.strata.finance.rate.swap.SwapLeg;
-import com.opengamma.strata.finance.rate.swap.SwapLegType;
-import com.opengamma.strata.finance.rate.swap.SwapProduct;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.swap.CompoundingMethod;
+import com.opengamma.strata.product.rate.swap.ExpandedSwap;
+import com.opengamma.strata.product.rate.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.rate.swap.PaymentPeriod;
+import com.opengamma.strata.product.rate.swap.RateAccrualPeriod;
+import com.opengamma.strata.product.rate.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.rate.swap.SwapLeg;
+import com.opengamma.strata.product.rate.swap.SwapLegType;
+import com.opengamma.strata.product.rate.swap.SwapProduct;
 
 /**
  * Pricer for for rate swap products.

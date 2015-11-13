@@ -6,10 +6,10 @@
 package com.opengamma.strata.function.calculation.future;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
-import com.opengamma.strata.finance.future.GenericFutureOption;
-import com.opengamma.strata.finance.future.GenericFutureOptionTrade;
+import com.opengamma.strata.calc.marketdata.SingleCalculationMarketData;
 import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.product.future.GenericFutureOption;
+import com.opengamma.strata.product.future.GenericFutureOptionTrade;
 
 /**
  * Calculates the present value of a {@code GenericFutureOptionTrade} for each of a set of scenarios.

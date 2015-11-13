@@ -1,0 +1,139 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.strata.product.fx.type;
+
+import java.time.LocalDate;
+import java.time.Period;
+
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
+
+import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.ExtendedEnum;
+import com.opengamma.strata.collect.named.Named;
+import com.opengamma.strata.product.TradeConvention;
+import com.opengamma.strata.product.fx.FxSwapTrade;
+
+/**
+ * A market convention for FX Swap trades.
+ * <p>
+ * This defines the market convention for a FX swap based on a particular currency pair.
+ * <p>
+ * To manually create a convention, see {@link ImmutableFxSwapConvention}.
+ * To register a specific convention, see {@code FxSwapConvention.ini}.
+ */
+public interface FxSwapConvention
+    extends TradeConvention, Named {
+
+  /**
+   * Obtains a convention from a unique name.
+   * 
+   * @param uniqueName  the unique name
+   * @return the convention
+   * @throws IllegalArgumentException if the name is not known
+   */
+  @FromString
+  public static FxSwapConvention of(String uniqueName) {
+    ArgChecker.notNull(uniqueName, "uniqueName");
+    return extendedEnum().lookup(uniqueName);
+  }
+
+  /**
+   * Gets the extended enum helper.
+   * <p>
+   * This helper allows instances of the convention to be looked up.
+   * It also provides the complete set of available instances.
+   * 
+   * @return the extended enum helper
+   */
+  public static ExtendedEnum<FxSwapConvention> extendedEnum() {
+    return FxSwapConventions.ENUM_LOOKUP;
+  }
+
+  /**
+   * Creates a trade based on this convention.
+   * <p>
+   * This returns a trade based on the specified periods.
+   * For example, a '3M x 6M' FX swap has a period from spot to the start date of 3 months and
+   * a period from spot to the end date of 6 months
+   * <p>
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the FX Swap, the amount in the first currency of the pair is received in the near leg and paid in the 
+   * far leg, while the second currency is paid in the near leg and received in the far leg.
+   * 
+   * @param tradeDate  the date of the trade
+   * @param periodToNear  the period between the spot date and the near date
+   * @param periodToFar  the period between the spot date and the far date
+   * @param buySell  the buy/sell flag
+   * @param notional  the notional amount, in the first currency of the currency pair
+   * @param nearFxRate  the FX rate for the near leg
+   * @param forwardPoints  the FX points to be added to the FX rate at the far leg
+   * @return the trade
+   */
+  public default FxSwapTrade toTrade(
+      LocalDate tradeDate,
+      Period periodToNear,
+      Period periodToFar,
+      BuySell buySell,
+      double notional,
+      double nearFxRate,
+      double forwardPoints) {
+
+    LocalDate spotValue = calculateSpotDateFromTradeDate(tradeDate);
+    LocalDate startDate = spotValue.plus(periodToNear);
+    LocalDate endDate = spotValue.plus(periodToFar);
+    return toTrade(tradeDate, startDate, endDate, buySell, notional, nearFxRate, forwardPoints);
+  }
+
+  /**
+   * Creates a trade based on this convention.
+   * <p>
+   * This returns a trade based on the specified dates.
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the FX Swap, the amount in the first currency of the pair is received in the near leg and paid in the 
+   * far leg, while the second currency is paid in the near leg and received in the far leg.
+   * 
+   * @param tradeDate  the date of the trade
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param buySell  the buy/sell flag
+   * @param notional  the notional amount, in the payment currency of the template
+   * @param nearFxRate  the FX rate for the near leg
+   * @param forwardPoints  the FX points to be added to the FX rate at the far leg
+   * @return the trade
+   */
+  public abstract FxSwapTrade toTrade(
+      LocalDate tradeDate,
+      LocalDate startDate,
+      LocalDate endDate,
+      BuySell buySell,
+      double notional,
+      double nearFxRate,
+      double forwardPoints);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the spot date from the trade date.
+   * 
+   * @param tradeDate  the trade date
+   * @return the spot date
+   */
+  public abstract LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the name that uniquely identifies this convention.
+   * <p>
+   * This name is used in serialization and can be parsed using {@link #of(String)}.
+   * 
+   * @return the unique name
+   */
+  @ToString
+  @Override
+  public abstract String getName();
+
+}

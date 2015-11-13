@@ -19,14 +19,13 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.calc.config.FunctionConfig;
+import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.pricing.FunctionGroup;
+import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
+import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.collect.CollectProjectAssertions;
-import com.opengamma.strata.engine.calculation.function.CalculationSingleFunction;
-import com.opengamma.strata.engine.calculation.function.result.FxConvertibleList;
-import com.opengamma.strata.engine.config.FunctionConfig;
-import com.opengamma.strata.engine.config.Measure;
-import com.opengamma.strata.engine.config.pricing.FunctionGroup;
-import com.opengamma.strata.engine.marketdata.FunctionRequirements;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.function.marketdata.curve.MarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curves;
@@ -36,6 +35,7 @@ import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.rate.fra.FraDummyData;
+import com.opengamma.strata.product.rate.fra.FraTrade;
 
 /**
  * Test {@link FraFunctionGroups}.

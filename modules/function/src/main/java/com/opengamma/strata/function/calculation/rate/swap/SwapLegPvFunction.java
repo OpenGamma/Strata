@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
-import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.market.amount.LegAmount;
 import com.opengamma.strata.market.amount.LegAmounts;
 import com.opengamma.strata.market.amount.SwapLegAmount;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer;
+import com.opengamma.strata.product.rate.swap.ExpandedSwap;
+import com.opengamma.strata.product.rate.swap.ExpandedSwapLeg;
 
 /**
  * Calculates the present value of each leg of an interest rate swap.

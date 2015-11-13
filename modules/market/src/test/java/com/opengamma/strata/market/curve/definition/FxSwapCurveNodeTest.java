@@ -33,13 +33,13 @@ import com.opengamma.strata.basics.market.ImmutableObservableValues;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.fx.FxSwapTrade;
-import com.opengamma.strata.finance.fx.type.FxSwapTemplate;
-import com.opengamma.strata.finance.fx.type.ImmutableFxSwapConvention;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fx.type.FxSwapTemplate;
+import com.opengamma.strata.product.fx.type.ImmutableFxSwapConvention;
 
 /**
  * Test {@link FxSwapCurveNode}.

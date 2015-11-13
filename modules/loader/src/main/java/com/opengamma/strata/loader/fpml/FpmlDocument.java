@@ -41,7 +41,7 @@ import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.io.XmlElement;
-import com.opengamma.strata.finance.TradeInfo;
+import com.opengamma.strata.product.TradeInfo;
 
 /**
  * Provides data about the whole FpML document and parse helper methods.

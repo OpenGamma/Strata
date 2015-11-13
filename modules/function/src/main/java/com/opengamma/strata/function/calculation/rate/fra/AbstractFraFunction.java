@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.function.calculation.rate.fra;
 
+import static com.opengamma.strata.calc.runner.function.FunctionUtils.toScenarioResult;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
-import static com.opengamma.strata.engine.calculation.function.FunctionUtils.toScenarioResult;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -19,13 +19,10 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.engine.calculation.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculation.function.result.ScenarioResult;
-import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.FunctionRequirements;
-import com.opengamma.strata.finance.rate.fra.ExpandedFra;
-import com.opengamma.strata.finance.rate.fra.Fra;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
@@ -33,6 +30,9 @@ import com.opengamma.strata.market.key.IborIndexRatesKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
+import com.opengamma.strata.product.rate.fra.ExpandedFra;
+import com.opengamma.strata.product.rate.fra.Fra;
+import com.opengamma.strata.product.rate.fra.FraTrade;
 
 /**
  * Perform calculations on a single {@code FraTrade} for each of a set of scenarios.

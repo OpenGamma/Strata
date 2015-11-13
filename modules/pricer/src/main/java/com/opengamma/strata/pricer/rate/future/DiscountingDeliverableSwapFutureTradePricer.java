@@ -8,10 +8,10 @@ package com.opengamma.strata.pricer.rate.future;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.rate.future.DeliverableSwapFuture;
-import com.opengamma.strata.finance.rate.future.DeliverableSwapFutureTrade;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.future.DeliverableSwapFuture;
+import com.opengamma.strata.product.rate.future.DeliverableSwapFutureTrade;
 
 /**
  * Pricer implementation for deliverable swap futures.

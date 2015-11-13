@@ -12,10 +12,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.Security;
-import com.opengamma.strata.finance.rate.bond.ExpandedFixedCouponBond;
-import com.opengamma.strata.finance.rate.bond.FixedCouponBond;
-import com.opengamma.strata.finance.rate.bond.FixedCouponBondTrade;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.RepoCurveZeroRateSensitivity;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
@@ -24,6 +20,10 @@ import com.opengamma.strata.market.value.IssuerCurveDiscountFactors;
 import com.opengamma.strata.market.value.RepoCurveDiscountFactors;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
+import com.opengamma.strata.product.Security;
+import com.opengamma.strata.product.rate.bond.ExpandedFixedCouponBond;
+import com.opengamma.strata.product.rate.bond.FixedCouponBond;
+import com.opengamma.strata.product.rate.bond.FixedCouponBondTrade;
 
 /**
  * Pricer for for rate fixed coupon bond trades.

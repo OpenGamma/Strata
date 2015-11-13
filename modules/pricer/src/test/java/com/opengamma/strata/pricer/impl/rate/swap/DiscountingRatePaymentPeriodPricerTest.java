@@ -30,14 +30,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.finance.rate.FixedRateObservation;
-import com.opengamma.strata.finance.rate.IborRateObservation;
-import com.opengamma.strata.finance.rate.RateObservation;
-import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
-import com.opengamma.strata.finance.rate.swap.FxReset;
-import com.opengamma.strata.finance.rate.swap.NegativeRateMethod;
-import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
-import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -53,6 +45,14 @@ import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.product.rate.FixedRateObservation;
+import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.swap.CompoundingMethod;
+import com.opengamma.strata.product.rate.swap.FxReset;
+import com.opengamma.strata.product.rate.swap.NegativeRateMethod;
+import com.opengamma.strata.product.rate.swap.RateAccrualPeriod;
+import com.opengamma.strata.product.rate.swap.RatePaymentPeriod;
 
 /**
  * Test {@link DiscountingRatePaymentPeriodPricer}

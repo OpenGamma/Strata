@@ -22,9 +22,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
 import com.opengamma.strata.market.curve.definition.CurveNode;
@@ -36,6 +33,9 @@ import com.opengamma.strata.pricer.rate.deposit.DiscountingIborFixingDepositProd
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
+import com.opengamma.strata.product.rate.deposit.IborFixingDepositTrade;
+import com.opengamma.strata.product.rate.fra.FraTrade;
+import com.opengamma.strata.product.rate.swap.SwapTrade;
 
 /**
  * Test curve calibration

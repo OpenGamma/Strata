@@ -8,9 +8,9 @@ package com.opengamma.strata.function.calculation.credit;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
+import com.opengamma.strata.product.credit.ExpandedCds;
 
 /**
  * Calculates the jump to default of a {@code CdsTrade} for each of a set of scenarios.

@@ -6,8 +6,8 @@
 package com.opengamma.strata.function.calculation.fx;
 
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.finance.fx.ExpandedFxSwap;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.fx.ExpandedFxSwap;
 
 /**
  * Calculates the present value of an {@code FxSwapTrade} for each of a set of scenarios.

@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.rate.fra;
 
-import static com.opengamma.strata.engine.calculation.function.FunctionUtils.toScenarioResult;
+import static com.opengamma.strata.calc.runner.function.FunctionUtils.toScenarioResult;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.HashSet;
@@ -16,14 +16,11 @@ import com.google.common.collect.Iterables;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.marketdata.SingleCalculationMarketData;
+import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.engine.calculation.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculation.function.result.ScenarioResult;
-import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
-import com.opengamma.strata.finance.rate.fra.ExpandedFra;
-import com.opengamma.strata.finance.rate.fra.Fra;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.function.calculation.rate.MarketDataUtils;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.NodalCurve;
@@ -34,6 +31,9 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.CurveGammaCalculator;
+import com.opengamma.strata.product.rate.fra.ExpandedFra;
+import com.opengamma.strata.product.rate.fra.Fra;
+import com.opengamma.strata.product.rate.fra.FraTrade;
 
 /**
  * Calculates Gamma PV01, the second-order present value sensitivity of a {@link FraTrade}

@@ -29,7 +29,7 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-finance</artifactId>
+      <artifactId>strata-product</artifactId>
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>

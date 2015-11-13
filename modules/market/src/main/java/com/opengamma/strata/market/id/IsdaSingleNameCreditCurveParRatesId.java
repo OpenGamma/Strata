@@ -24,8 +24,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.finance.credit.SingleNameReferenceInformation;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
+import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
 
 /**
  * Market data ID for a set of par rates to be used in the ISDA credit model's credit curve

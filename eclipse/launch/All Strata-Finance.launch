@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.testng.eclipse.launchconfig">
 <listAttribute key="com.mountainminds.eclemma.core.SCOPE_IDS">
-<listEntry value="=strata-finance/src\/main\/java"/>
+<listEntry value="=strata-product/src\/main\/java"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.testng.remote.RemoteTestNG"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="strata-finance"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="strata-product"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
 <mapAttribute key="org.testng.eclipse.ALL_CLASS_METHODS"/>
 <listAttribute key="org.testng.eclipse.CLASS_TEST_LIST"/>
@@ -15,25 +15,25 @@
 <stringAttribute key="org.testng.eclipse.LOG_LEVEL" value="2"/>
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
-<listEntry value="com.opengamma.strata.finance"/>
-<listEntry value="com.opengamma.strata.finance.credit"/>
-<listEntry value="com.opengamma.strata.finance.credit.type"/>
-<listEntry value="com.opengamma.strata.finance.equity"/>
-<listEntry value="com.opengamma.strata.finance.future"/>
-<listEntry value="com.opengamma.strata.finance.fx"/>
-<listEntry value="com.opengamma.strata.finance.fx.type"/>
-<listEntry value="com.opengamma.strata.finance.payment"/>
-<listEntry value="com.opengamma.strata.finance.rate"/>
-<listEntry value="com.opengamma.strata.finance.rate.bond"/>
-<listEntry value="com.opengamma.strata.finance.rate.deposit"/>
-<listEntry value="com.opengamma.strata.finance.rate.deposit.type"/>
-<listEntry value="com.opengamma.strata.finance.rate.fra"/>
-<listEntry value="com.opengamma.strata.finance.rate.fra.type"/>
-<listEntry value="com.opengamma.strata.finance.rate.future"/>
-<listEntry value="com.opengamma.strata.finance.rate.future.type"/>
-<listEntry value="com.opengamma.strata.finance.rate.swap"/>
-<listEntry value="com.opengamma.strata.finance.rate.swap.type"/>
-<listEntry value="com.opengamma.strata.finance.rate.swaption"/>
+<listEntry value="com.opengamma.strata.product"/>
+<listEntry value="com.opengamma.strata.product.credit"/>
+<listEntry value="com.opengamma.strata.product.credit.type"/>
+<listEntry value="com.opengamma.strata.product.equity"/>
+<listEntry value="com.opengamma.strata.product.future"/>
+<listEntry value="com.opengamma.strata.product.fx"/>
+<listEntry value="com.opengamma.strata.product.fx.type"/>
+<listEntry value="com.opengamma.strata.product.payment"/>
+<listEntry value="com.opengamma.strata.product.rate"/>
+<listEntry value="com.opengamma.strata.product.rate.bond"/>
+<listEntry value="com.opengamma.strata.product.rate.deposit"/>
+<listEntry value="com.opengamma.strata.product.rate.deposit.type"/>
+<listEntry value="com.opengamma.strata.product.rate.fra"/>
+<listEntry value="com.opengamma.strata.product.rate.fra.type"/>
+<listEntry value="com.opengamma.strata.product.rate.future"/>
+<listEntry value="com.opengamma.strata.product.rate.future.type"/>
+<listEntry value="com.opengamma.strata.product.rate.swap"/>
+<listEntry value="com.opengamma.strata.product.rate.swap.type"/>
+<listEntry value="com.opengamma.strata.product.rate.swaption"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <stringAttribute key="org.testng.eclipse.PRE_DEFINED_LISTENERS" value=""/>

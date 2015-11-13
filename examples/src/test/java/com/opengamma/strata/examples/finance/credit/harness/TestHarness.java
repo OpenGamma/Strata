@@ -14,14 +14,14 @@ import org.testng.Assert;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
-import com.opengamma.strata.finance.credit.IndexReferenceInformation;
-import com.opengamma.strata.finance.credit.RestructuringClause;
-import com.opengamma.strata.finance.credit.SeniorityLevel;
-import com.opengamma.strata.finance.credit.SingleNameReferenceInformation;
-import com.opengamma.strata.finance.credit.type.CdsConventions;
+import com.opengamma.strata.product.credit.IndexReferenceInformation;
+import com.opengamma.strata.product.credit.RestructuringClause;
+import com.opengamma.strata.product.credit.SeniorityLevel;
+import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
+import com.opengamma.strata.product.credit.type.CdsConventions;
 
 public class TestHarness {
 

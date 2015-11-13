@@ -29,7 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.Lists;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.finance.credit.type.CdsConvention;
+import com.opengamma.strata.product.credit.type.CdsConvention;
 
 /**
  * The par rates used when calibrating an ISDA credit curve.

@@ -13,7 +13,7 @@ import java.util.function.Function;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
+import com.opengamma.strata.calc.marketdata.SingleCalculationMarketData;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;

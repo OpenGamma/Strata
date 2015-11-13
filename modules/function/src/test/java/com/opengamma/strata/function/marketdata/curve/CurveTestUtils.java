@@ -20,12 +20,6 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.rate.fra.type.FraTemplate;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
-import com.opengamma.strata.finance.rate.swap.type.FixedRateSwapLegConvention;
-import com.opengamma.strata.finance.rate.swap.type.IborRateSwapLegConvention;
-import com.opengamma.strata.finance.rate.swap.type.ImmutableFixedIborSwapConvention;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.definition.CurveNode;
 import com.opengamma.strata.market.curve.definition.FixedIborSwapCurveNode;
@@ -36,6 +30,12 @@ import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.product.rate.fra.type.FraTemplate;
+import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.rate.swap.type.FixedIborSwapTemplate;
+import com.opengamma.strata.product.rate.swap.type.FixedRateSwapLegConvention;
+import com.opengamma.strata.product.rate.swap.type.IborRateSwapLegConvention;
+import com.opengamma.strata.product.rate.swap.type.ImmutableFixedIborSwapConvention;
 
 /**
  * Helper methods for testing curves.

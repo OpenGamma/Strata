@@ -19,10 +19,6 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.finance.rate.swap.type.FixedRateSwapLegConvention;
-import com.opengamma.strata.finance.rate.swap.type.IborRateSwapLegConvention;
-import com.opengamma.strata.finance.rate.swap.type.ImmutableFixedIborSwapConvention;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
@@ -35,6 +31,10 @@ import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapol
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
+import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.rate.swap.type.FixedRateSwapLegConvention;
+import com.opengamma.strata.product.rate.swap.type.IborRateSwapLegConvention;
+import com.opengamma.strata.product.rate.swap.type.ImmutableFixedIborSwapConvention;
 
 /**
  * Black volatility data sets for testing.

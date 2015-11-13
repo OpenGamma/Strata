@@ -27,11 +27,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ObservableValues;
-import com.opengamma.strata.finance.rate.future.IborFutureTrade;
-import com.opengamma.strata.finance.rate.future.type.IborFutureTemplate;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.YearMonthCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.product.rate.future.IborFutureTrade;
+import com.opengamma.strata.product.rate.future.type.IborFutureTemplate;
 
 /**
  * A curve node whose instrument is an Ibor Future.

@@ -24,7 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
-import com.opengamma.strata.engine.marketdata.mapping.MarketDataMapping;
+import com.opengamma.strata.calc.marketdata.mapping.MarketDataMapping;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.DiscountFactorsId;
 import com.opengamma.strata.market.key.DiscountFactorsKey;

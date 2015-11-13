@@ -35,12 +35,6 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.finance.Security;
-import com.opengamma.strata.finance.UnitSecurity;
-import com.opengamma.strata.finance.rate.bond.ExpandedFixedCouponBond;
-import com.opengamma.strata.finance.rate.bond.FixedCouponBond;
-import com.opengamma.strata.finance.rate.bond.FixedCouponBondPaymentPeriod;
-import com.opengamma.strata.finance.rate.bond.YieldConvention;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
@@ -57,6 +51,12 @@ import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.impl.bond.DiscountingFixedCouponBondPaymentPeriodPricer;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.product.Security;
+import com.opengamma.strata.product.UnitSecurity;
+import com.opengamma.strata.product.rate.bond.ExpandedFixedCouponBond;
+import com.opengamma.strata.product.rate.bond.FixedCouponBond;
+import com.opengamma.strata.product.rate.bond.FixedCouponBondPaymentPeriod;
+import com.opengamma.strata.product.rate.bond.YieldConvention;
 
 /**
  * Test

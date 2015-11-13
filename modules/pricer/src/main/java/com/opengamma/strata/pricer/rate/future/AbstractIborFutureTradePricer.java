@@ -9,8 +9,8 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.rate.future.IborFuture;
-import com.opengamma.strata.finance.rate.future.IborFutureTrade;
+import com.opengamma.strata.product.rate.future.IborFuture;
+import com.opengamma.strata.product.rate.future.IborFutureTrade;
 
 /**
  * Base pricer for Ibor futures.

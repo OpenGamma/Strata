@@ -19,13 +19,13 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.finance.rate.deposit.ExpandedIborFixingDeposit;
-import com.opengamma.strata.finance.rate.deposit.IborFixingDeposit;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.datasets.ImmutableRatesProviderSimpleData;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.product.rate.deposit.ExpandedIborFixingDeposit;
+import com.opengamma.strata.product.rate.deposit.IborFixingDeposit;
 
 /**
  * Test {@link DiscountingIborFixingDepositProductPricer}.

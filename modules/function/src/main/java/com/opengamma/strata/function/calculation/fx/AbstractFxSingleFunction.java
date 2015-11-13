@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.fx;
 
-import static com.opengamma.strata.engine.calculation.function.FunctionUtils.toScenarioResult;
+import static com.opengamma.strata.calc.runner.function.FunctionUtils.toScenarioResult;
 
 import java.util.Optional;
 import java.util.Set;
@@ -14,18 +14,18 @@ import java.util.stream.IntStream;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
-import com.opengamma.strata.engine.calculation.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculation.function.result.ScenarioResult;
-import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.FunctionRequirements;
-import com.opengamma.strata.finance.fx.ExpandedFxSingle;
-import com.opengamma.strata.finance.fx.FxSingle;
-import com.opengamma.strata.finance.fx.FxSingleTrade;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.pricer.fx.DiscountingFxSingleProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.fx.ExpandedFxSingle;
+import com.opengamma.strata.product.fx.FxSingle;
+import com.opengamma.strata.product.fx.FxSingleTrade;
 
 /**
  * Perform calculations on a single {@code FxSingleTrade} for each of a set of scenarios.

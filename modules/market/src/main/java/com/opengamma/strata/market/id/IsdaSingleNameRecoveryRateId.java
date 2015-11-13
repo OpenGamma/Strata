@@ -24,8 +24,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.finance.credit.SingleNameReferenceInformation;
 import com.opengamma.strata.market.value.CdsRecoveryRate;
+import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
 
 /**
  * Market data ID for a recovery rate to be used in the ISDA credit model's
