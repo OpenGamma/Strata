@@ -42,7 +42,6 @@ import com.opengamma.strata.calc.runner.NoMatchingRuleId;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.result.Failure;
-import com.opengamma.strata.collect.result.FailureException;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -459,13 +458,11 @@ public class DefaultMarketDataFactoryTest {
   }
 
   /**
-   * Tests failures when there is no builder for an ID type.
+   * Tests an exception is thrown when there is no builder for an ID type.
    */
   public void noMarketDataBuilderAvailable() {
     TestIdB idB1 = new TestIdB("1");
     TestIdB idB2 = new TestIdB("2");
-    TestIdC idC1 = new TestIdC("1");
-    TestIdC idC2 = new TestIdC("2");
     TestMarketDataFunctionB builder = new TestMarketDataFunctionB();
 
     // Market data B depends on market data C so these requirements should cause instances of C to be built.
@@ -481,25 +478,13 @@ public class DefaultMarketDataFactoryTest {
             FeedIdMapping.identity(),
             builder);
 
-    CalculationEnvironment marketData = marketDataFactory.buildCalculationEnvironment(
-        requirements,
-        MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build(),
-        MARKET_DATA_CONFIG);
-    Map<MarketDataId<?>, Failure> failures = marketData.getValueFailures();
-
-    Failure failureB1 = failures.get(idB1);
-    Failure failureB2 = failures.get(idB2);
-    Failure failureC1 = failures.get(idC1);
-    Failure failureC2 = failures.get(idC2);
-
-    assertThat(failureB1).isNotNull();
-    assertThat(failureB2).isNotNull();
-    assertThat(failureC1).isNotNull();
-    assertThat(failureC2).isNotNull();
-    assertThat(failureB1.getMessage()).matches("No value for.*");
-    assertThat(failureB2.getMessage()).matches("No value for.*");
-    assertThat(failureC1.getMessage()).matches("No market data function available to handle.*");
-    assertThat(failureC2.getMessage()).matches("No market data function available to handle.*");
+    assertThrows(
+        () -> marketDataFactory.buildCalculationEnvironment(
+            requirements,
+            MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build(),
+            MARKET_DATA_CONFIG),
+        IllegalStateException.class,
+        "No market data function available for market data ID of type.*");
   }
 
   /**
@@ -1052,7 +1037,7 @@ public class DefaultMarketDataFactoryTest {
   }
 
   /**
-   * Tests that a failure is returned when building observable market data for scenarios where there is no
+   * Tests that an exception is thrown when building observable market data for scenarios where there is no
    * market data function.
    */
   public void nonObservableScenarioDataWithMissingBuilder() {
@@ -1072,21 +1057,16 @@ public class DefaultMarketDataFactoryTest {
         new FalseFilter<>(NonObservableId.class),
         new StringAppender("", "", ""));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
-        requirements,
-        suppliedData,
-        MARKET_DATA_CONFIG,
-        scenarioDefinition);
-    Map<MarketDataId<?>, Failure> failures = marketData.getValueFailures();
 
-    assertThat(failures.size()).isEqualTo(2);
-    assertThat(failures.get(id1)).isNotNull();
-    assertThat(failures.get(id2)).isNotNull();
-    assertThat(failures.get(id1).getMessage()).matches("No market data function available.*");
-    assertThat(failures.get(id2).getMessage()).matches("No market data function available.*");
+    assertThrows(
+        () -> factory.buildCalculationEnvironment(
+            requirements,
+            suppliedData,
+            MARKET_DATA_CONFIG,
+            scenarioDefinition),
+        IllegalStateException.class,
+        "No market data function available for market data ID of type.*");
 
-    assertThrows(() -> marketData.getValue(id1), FailureException.class, "No market data function available.*");
-    assertThrows(() -> marketData.getValue(id2), FailureException.class, "No market data function available.*");
   }
 
   /**
@@ -1391,23 +1371,16 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public Result<MarketDataBox<TestMarketDataB>> build(
+    public MarketDataBox<TestMarketDataB> build(
         TestIdB id,
         MarketDataLookup marketData,
         MarketDataConfig marketDataConfig) {
 
       TestIdA idA = new TestIdA(id.str);
       TestIdC idC = new TestIdC(id.str);
-
-      if (!marketData.containsValue(idA)) {
-        return Result.failure(FailureReason.MISSING_DATA, "No value for {}", idA);
-      }
-      if (!marketData.containsValue(idC)) {
-        return Result.failure(FailureReason.MISSING_DATA, "No value for {}", idC);
-      }
       MarketDataBox<Double> valueA = marketData.getValue(idA);
       MarketDataBox<TestMarketDataC> marketDataC = marketData.getValue(idC);
-      return valueA.combineWith(marketDataC, (a, c) -> Result.success(new TestMarketDataB(a, c)));
+      return valueA.combineWith(marketDataC, TestMarketDataB::new);
     }
 
     @Override
@@ -1459,13 +1432,13 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public Result<MarketDataBox<TestMarketDataC>> build(
+    public MarketDataBox<TestMarketDataC> build(
         TestIdC id,
         MarketDataLookup marketData,
         MarketDataConfig marketDataConfig) {
 
       LocalDateDoubleTimeSeries timeSeries = marketData.getTimeSeries(new TestIdA(id.str));
-      return Result.success(MarketDataBox.ofSingleValue(new TestMarketDataC(timeSeries)));
+      return MarketDataBox.ofSingleValue(new TestMarketDataC(timeSeries));
     }
 
     @Override
@@ -1597,13 +1570,13 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public Result<MarketDataBox<String>> build(
+    public MarketDataBox<String> build(
         NonObservableId id,
         MarketDataLookup marketData,
         MarketDataConfig marketDataConfig) {
 
       MarketDataBox<Double> value = marketData.getValue(TestObservableId.of(StandardId.of("reqs", id.str)));
-      return value.apply(v -> Result.success(Double.toString(v)));
+      return value.apply(v -> Double.toString(v));
     }
 
     @Override

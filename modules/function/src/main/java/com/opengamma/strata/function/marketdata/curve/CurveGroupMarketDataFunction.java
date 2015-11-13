@@ -25,8 +25,7 @@ import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
-import com.opengamma.strata.collect.result.FailureReason;
-import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.ParRates;
@@ -86,7 +85,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   }
 
   @Override
-  public Result<MarketDataBox<CurveGroup>> build(
+  public MarketDataBox<CurveGroup> build(
       CurveGroupId id,
       MarketDataLookup marketData,
       MarketDataConfig marketDataConfig) {
@@ -95,7 +94,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     Optional<CurveGroupDefinition> optionalGroup = marketDataConfig.get(CurveGroupDefinition.class, groupName);
 
     if (!optionalGroup.isPresent()) {
-      return Result.failure(FailureReason.MISSING_DATA, "No configuration found for curve group '{}'", groupName);
+      throw new IllegalArgumentException("No configuration found for curve group " + groupName);
     }
     CurveGroupDefinition groupDefn = optionalGroup.get();
     return buildCurveGroup(groupDefn, marketData, id.getMarketDataFeed());
@@ -115,7 +114,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * @param feed  the market data feed that is the source of the observable data
    * @return a result containing the curve group or details of why it couldn't be built
    */
-  Result<MarketDataBox<CurveGroup>> buildCurveGroup(
+  MarketDataBox<CurveGroup> buildCurveGroup(
       CurveGroupDefinition groupDefn,
       MarketDataLookup marketData,
       MarketDataFeed feed) {
@@ -123,15 +122,10 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     // find and combine all the par rates
     CurveGroupName groupName = groupDefn.getName();
 
-    List<Result<MarketDataBox<ParRates>>> parRatesResults = groupDefn.getEntries().stream()
+    List<MarketDataBox<ParRates>> parRateBoxes = groupDefn.getEntries().stream()
         .map(CurveGroupEntry::getCurveDefinition)
         .map(curveDefn -> parRates(curveDefn, marketData, groupName, feed))
         .collect(toImmutableList());
-
-    if (Result.anyFailures(parRatesResults)) {
-      return Result.failure(parRatesResults);
-    }
-    List<MarketDataBox<ParRates>> parRateBoxes = parRatesResults.stream().map(Result::getValue).collect(toImmutableList());
     // If any of the rates have values for multiple scenarios then we need to build a curve group for each scenario.
     // If all rates contain a single value then we only need to build a single curve group.
     boolean multipleValues = parRateBoxes.stream().anyMatch(MarketDataBox::isScenarioValue);
@@ -141,18 +135,13 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         buildSingleCurveGroup(groupDefn, marketData.getValuationDate(), parRateBoxes);
   }
 
-  private Result<MarketDataBox<CurveGroup>> buildMultipleCurveGroups(
+  private MarketDataBox<CurveGroup> buildMultipleCurveGroups(
       CurveGroupDefinition groupDefn,
       MarketDataBox<LocalDate> valuationDateBox,
       List<MarketDataBox<ParRates>> parRateBoxes) {
 
-    Result<Integer> scenarioCountResult = scenarioCount(valuationDateBox, parRateBoxes);
-
-    if (scenarioCountResult.isFailure()) {
-      return Result.failure(scenarioCountResult);
-    }
-    int scenarioCount = scenarioCountResult.getValue();
-    ImmutableList.Builder<Result<CurveGroup>> builder = ImmutableList.builder();
+    int scenarioCount = scenarioCount(valuationDateBox, parRateBoxes);
+    ImmutableList.Builder<CurveGroup> builder = ImmutableList.builder();
 
     for (int i = 0; i < scenarioCount; i++) {
       List<ParRates> parRatesList = parRatesForScenario(parRateBoxes, i);
@@ -160,16 +149,8 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       LocalDate valuationDate = valuationDateBox.getValue(scenarioCount);
       builder.add(buildGroup(groupDefn, valuationDate, ratesByKey));
     }
-    ImmutableList<Result<CurveGroup>> results = builder.build();
-
-    if (Result.anyFailures(results)) {
-      return Result.failure(results);
-    }
-    List<CurveGroup> curveGroups = results.stream()
-        .map(Result::getValue)
-        .collect(toImmutableList());
-
-    return Result.success(MarketDataBox.ofScenarioValues(curveGroups));
+    ImmutableList<CurveGroup> curveGroups = builder.build();
+    return MarketDataBox.ofScenarioValues(curveGroups);
   }
 
   private static List<ParRates> parRatesForScenario(List<MarketDataBox<ParRates>> boxes, int scenarioIndex) {
@@ -178,18 +159,15 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         .collect(toImmutableList());
   }
 
-  private Result<MarketDataBox<CurveGroup>> buildSingleCurveGroup(
+  private MarketDataBox<CurveGroup> buildSingleCurveGroup(
       CurveGroupDefinition groupDefn,
       MarketDataBox<LocalDate> valuationDate,
       List<MarketDataBox<ParRates>> parRateBoxes) {
 
     List<ParRates> parRates = parRateBoxes.stream().map(MarketDataBox::getSingleValue).collect(toImmutableList());
     ObservableValues parRateValuesByKey = ratesByKey(parRates);
-    Result<CurveGroup> result = buildGroup(groupDefn, valuationDate.getSingleValue(), parRateValuesByKey);
-
-    return result.isFailure() ?
-        Result.failure(result) :
-        Result.success(MarketDataBox.ofSingleValue(result.getValue()));
+    CurveGroup curveGroup = buildGroup(groupDefn, valuationDate.getSingleValue(), parRateValuesByKey);
+    return MarketDataBox.ofSingleValue(curveGroup);
   }
 
   /**
@@ -205,7 +183,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     return ImmutableObservableValues.of(valueMap);
   }
 
-  private Result<CurveGroup> buildGroup(
+  private CurveGroup buildGroup(
       CurveGroupDefinition groupDefn,
       LocalDate valuationDate,
       ObservableValues parRateValuesByKey) {
@@ -218,20 +196,17 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         ImmutableMap.of(),
         FxMatrix.empty());
 
-    // extract the result
-    CurveGroup curveGroup = CurveGroup.of(
+    return CurveGroup.of(
         groupDefn.getName(),
         calibratedProvider.getDiscountCurves(),
         calibratedProvider.getIndexCurves());
-
-    return Result.success(curveGroup);
   }
 
-  private static Result<Integer> scenarioCount(
+  private static int scenarioCount(
       MarketDataBox<LocalDate> valuationDate,
       List<MarketDataBox<ParRates>> parRateBoxes) {
 
-    Integer scenarioCount = null;
+    int scenarioCount = 0;
 
     if (valuationDate.isScenarioValue()) {
       scenarioCount = valuationDate.getScenarioCount();
@@ -240,26 +215,26 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       if (box.isScenarioValue()) {
         int boxScenarioCount = box.getScenarioCount();
 
-        if (scenarioCount == null) {
+        if (scenarioCount == 0) {
           scenarioCount = boxScenarioCount;
         } else {
           if (scenarioCount != boxScenarioCount) {
-            return Result.failure(
-                FailureReason.INVALID_INPUT,
-                "There are {} scenarios for par rates {} which does not match the previous scenario count {}",
-                boxScenarioCount,
-                box,
-                scenarioCount);
+            throw new IllegalArgumentException(
+                Messages.format(
+                    "All boxes must have the same number of scenarios, current count = {}, box {} has {}",
+                    scenarioCount,
+                    box,
+                    box.getScenarioCount()));
           }
         }
       }
     }
-    if (scenarioCount != null) {
-      return Result.success(scenarioCount);
+    if (scenarioCount != 0) {
+      return scenarioCount;
     }
     // This shouldn't happen, this method is only called after checking at least one of the values contains data
     // for multiple scenarios.
-    return Result.failure(FailureReason.INVALID_INPUT, "Cannot count the scenarios, all data contained single values");
+    throw new IllegalArgumentException("Cannot count the scenarios, all data contained single values");
   }
 
   /**
@@ -275,7 +250,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * @param feed  the market data feed that is the source of the underlying market data
    * @return the par rates required for the curve if available.
    */
-  private Result<MarketDataBox<ParRates>> parRates(
+  private MarketDataBox<ParRates> parRates(
       NodalCurveDefinition curveDefn,
       MarketDataLookup marketData,
       CurveGroupName groupName,
@@ -284,12 +259,9 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     // only try to get par rates from the market data if the curve needs market data
     if (requiresMarketData(curveDefn)) {
       ParRatesId parRatesId = ParRatesId.of(groupName, curveDefn.getName(), feed);
-      if (!marketData.containsValue(parRatesId)) {
-        return Result.failure(FailureReason.MISSING_DATA, "No par rates for {}", parRatesId);
-      }
-      return Result.success(marketData.getValue(parRatesId));
+      return marketData.getValue(parRatesId);
     } else {
-      return Result.success(MarketDataBox.ofSingleValue(ParRates.builder().build()));
+      return MarketDataBox.ofSingleValue(ParRates.builder().build());
     }
   }
 

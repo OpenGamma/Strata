@@ -8,6 +8,7 @@ package com.opengamma.strata.function.marketdata.curve;
 import static com.opengamma.strata.basics.currency.Currency.AUD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
 
 import java.time.LocalDate;
@@ -18,8 +19,6 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
-import com.opengamma.strata.collect.result.FailureReason;
-import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -53,8 +52,8 @@ public class DiscountFactorsMarketDataFunctionTest {
     DiscountFactors expected1 = ZeroRateDiscountFactors.of(AUD, VAL_DATE, curve);
 
     DiscountFactorsId dfId = DiscountFactorsId.of(AUD, CURVE_GROUP_NAME, FEED);
-    Result<MarketDataBox<DiscountFactors>> result = test.build(dfId, marketData, MarketDataConfig.empty());
-    assertThat(result).hasValue(MarketDataBox.ofSingleValue(expected1));
+    MarketDataBox<DiscountFactors> result = test.build(dfId, marketData, MarketDataConfig.empty());
+    assertThat(result).isEqualTo(MarketDataBox.ofSingleValue(expected1));
   }
 
   public void test_buildDiscountFactors() {
@@ -69,8 +68,8 @@ public class DiscountFactorsMarketDataFunctionTest {
     DiscountFactors expected1 = SimpleDiscountFactors.of(AUD, VAL_DATE, curve);
 
     DiscountFactorsId dfId = DiscountFactorsId.of(AUD, CURVE_GROUP_NAME, FEED);
-    Result<MarketDataBox<DiscountFactors>> result = test.build(dfId, marketData, MarketDataConfig.empty());
-    assertThat(result).hasValue(MarketDataBox.ofSingleValue(expected1));
+    MarketDataBox<DiscountFactors> result = test.build(dfId, marketData, MarketDataConfig.empty());
+    assertThat(result).isEqualTo(MarketDataBox.ofSingleValue(expected1));
   }
 
   public void test_noCurve() {
@@ -78,8 +77,7 @@ public class DiscountFactorsMarketDataFunctionTest {
     DiscountFactorsMarketDataFunction test = new DiscountFactorsMarketDataFunction();
 
     DiscountFactorsId dfId = DiscountFactorsId.of(AUD, CURVE_GROUP_NAME, FEED);
-    Result<MarketDataBox<DiscountFactors>> result = test.build(dfId, marketData, MarketDataConfig.empty());
-    assertThat(result).isFailure(FailureReason.MISSING_DATA);
+    assertThrows(() -> test.build(dfId, marketData, MarketDataConfig.empty()), IllegalArgumentException.class);
   }
 
   public void test_unknownCurve() {
@@ -92,8 +90,7 @@ public class DiscountFactorsMarketDataFunctionTest {
     DiscountFactorsMarketDataFunction test = new DiscountFactorsMarketDataFunction();
 
     DiscountFactorsId dfId = DiscountFactorsId.of(AUD, CURVE_GROUP_NAME, FEED);
-    Result<MarketDataBox<DiscountFactors>> result = test.build(dfId, marketData, MarketDataConfig.empty());
-    assertThat(result).isFailure(FailureReason.MISSING_DATA);
+    assertThrows(() -> test.build(dfId, marketData, MarketDataConfig.empty()), IllegalArgumentException.class);
   }
 
 }

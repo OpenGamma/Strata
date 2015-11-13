@@ -157,11 +157,11 @@ public interface MarketDataBox<T> {
    * This is primarily intended for use by market data factories which might receive single values or
    * scenario values from upstream market data factories.
    *
-   * @param fn  a function to apply to the market data in the box
    * @param <R>  the return type of the function
+   * @param fn  a function to apply to the market data in the box
    * @return a result wrapping a box containing the return value of the function
    */
-  public abstract <R> Result<MarketDataBox<R>> apply(Function<T, Result<R>> fn);
+  public abstract <R> MarketDataBox<R> apply(Function<T, R> fn);
 
   /**
    * Applies a function to the contents of the box once for each scenario and returns a box containing
@@ -179,7 +179,7 @@ public interface MarketDataBox<T> {
    * @param <R>  the type of the returned market data
    * @return a box containing market data created by applying the function to the contents of this box
    */
-  public abstract  <R> MarketDataBox<R> apply(int scenarioCount, ObjIntFunction<T, R> fn);
+  public abstract <R> MarketDataBox<R> apply(int scenarioCount, ObjIntFunction<T, R> fn);
 
   /**
    * Applies a function to the market data in this box and another box and returns a box containing the result.
@@ -190,14 +190,14 @@ public interface MarketDataBox<T> {
    * This is primarily intended for use by market data factories which might receive single values or
    * scenario values from upstream market data factories.
    *
+   * @param <U>  the type of market data in the other box
+   * @param <R>  the type of the market data returned in the result of the function
    * @param other  another market data box
    * @param fn  a function invoked with the market data from each box. The return value is used to build the data
    *   in the returned box
-   * @param <U>  the type of market data in the other box
-   * @param <R>  the type of the market data returned in the result of the function
    * @return a box containing market data created by applying the function to the data in this box and another box
    */
-  public abstract <U, R> Result<MarketDataBox<R>> combineWith(MarketDataBox<U> other, BiFunction<T, U, Result<R>> fn);
+  public abstract <U, R> MarketDataBox<R> combineWith(MarketDataBox<U> other, BiFunction<T, U, R> fn);
 
   /**
    * Returns the number of scenarios for which this box contains data.

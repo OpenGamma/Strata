@@ -35,7 +35,6 @@ import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
@@ -112,10 +111,8 @@ public class CurveGroupMarketDataFunctionTest {
         .valuationDate(valuationDate)
         .addValue(ParRatesId.of(groupName, curveName, MarketDataFeed.NONE), parRates)
         .build();
-    Result<MarketDataBox<CurveGroup>> result = function.buildCurveGroup(groupDefn, marketData, MarketDataFeed.NONE);
+    MarketDataBox<CurveGroup> curveGroup = function.buildCurveGroup(groupDefn, marketData, MarketDataFeed.NONE);
 
-    assertThat(result).isSuccess();
-    MarketDataBox<CurveGroup> curveGroup = result.getValue();
     Curve curve = curveGroup.getSingleValue().findDiscountCurve(Currency.USD).get();
     DiscountFactors discountFactors = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, curve);
     IborIndexRates iborIndexRates = DiscountIborIndexRates.of(IborIndices.USD_LIBOR_3M, discountFactors);
@@ -166,9 +163,7 @@ public class CurveGroupMarketDataFunctionTest {
         .addValue(ParRatesId.of(groupName, curveName, MarketDataFeed.NONE), parRates)
         .build();
 
-    Result<MarketDataBox<CurveGroup>> result = function.buildCurveGroup(groupDefn, marketData, MarketDataFeed.NONE);
-    assertThat(result).isSuccess();
-    MarketDataBox<CurveGroup> curveGroup = result.getValue();
+    MarketDataBox<CurveGroup> curveGroup = function.buildCurveGroup(groupDefn, marketData, MarketDataFeed.NONE);
     Curve curve = curveGroup.getSingleValue().findDiscountCurve(Currency.USD).get();
     DiscountFactors discountFactors = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, curve);
     IborIndexRates iborIndexRates = DiscountIborIndexRates.of(IborIndices.USD_LIBOR_3M, discountFactors);
@@ -263,10 +258,7 @@ public class CurveGroupMarketDataFunctionTest {
 
     CurveGroupMarketDataFunction function =
         new CurveGroupMarketDataFunction(RootFinderConfig.defaults(), CalibrationMeasures.DEFAULT);
-    Result<MarketDataBox<CurveGroup>> result = function.build(curveGroupId, marketData, marketDataConfig);
-
-    assertThat(result).isSuccess();
-    MarketDataBox<CurveGroup> curveGroup = result.getValue();
+    MarketDataBox<CurveGroup> curveGroup = function.build(curveGroupId, marketData, marketDataConfig);
 
     // Check the FRA curve identifiers are the expected tenors
     Curve forwardCurve = curveGroup.getSingleValue().findForwardCurve(IborIndices.USD_LIBOR_3M).get();
