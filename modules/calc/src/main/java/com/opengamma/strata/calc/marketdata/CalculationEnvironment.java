@@ -292,12 +292,12 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CalculationEnvironment other = (CalculationEnvironment) obj;
-      return JodaBeanUtils.equal(getValuationDate(), other.getValuationDate()) &&
-          (getScenarioCount() == other.getScenarioCount()) &&
-          JodaBeanUtils.equal(getValues(), other.getValues()) &&
-          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
-          JodaBeanUtils.equal(getValueFailures(), other.getValueFailures()) &&
-          JodaBeanUtils.equal(getTimeSeriesFailures(), other.getTimeSeriesFailures());
+      return JodaBeanUtils.equal(valuationDate, other.valuationDate) &&
+          (scenarioCount == other.scenarioCount) &&
+          JodaBeanUtils.equal(values, other.values) &&
+          JodaBeanUtils.equal(timeSeries, other.timeSeries) &&
+          JodaBeanUtils.equal(valueFailures, other.valueFailures) &&
+          JodaBeanUtils.equal(timeSeriesFailures, other.timeSeriesFailures);
     }
     return false;
   }
@@ -305,12 +305,12 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getScenarioCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValues());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValueFailures());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesFailures());
+    hash = hash * 31 + JodaBeanUtils.hashCode(valuationDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(scenarioCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(values);
+    hash = hash * 31 + JodaBeanUtils.hashCode(timeSeries);
+    hash = hash * 31 + JodaBeanUtils.hashCode(valueFailures);
+    hash = hash * 31 + JodaBeanUtils.hashCode(timeSeriesFailures);
     return hash;
   }
 
@@ -318,12 +318,12 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("CalculationEnvironment{");
-    buf.append("valuationDate").append('=').append(getValuationDate()).append(',').append(' ');
-    buf.append("scenarioCount").append('=').append(getScenarioCount()).append(',').append(' ');
-    buf.append("values").append('=').append(getValues()).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
-    buf.append("valueFailures").append('=').append(getValueFailures()).append(',').append(' ');
-    buf.append("timeSeriesFailures").append('=').append(JodaBeanUtils.toString(getTimeSeriesFailures()));
+    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
+    buf.append("scenarioCount").append('=').append(scenarioCount).append(',').append(' ');
+    buf.append("values").append('=').append(values).append(',').append(' ');
+    buf.append("timeSeries").append('=').append(timeSeries).append(',').append(' ');
+    buf.append("valueFailures").append('=').append(valueFailures).append(',').append(' ');
+    buf.append("timeSeriesFailures").append('=').append(JodaBeanUtils.toString(timeSeriesFailures));
     buf.append('}');
     return buf.toString();
   }

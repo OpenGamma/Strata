@@ -967,10 +967,10 @@ public final class PeriodicSchedule
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PeriodicSchedule other = (PeriodicSchedule) obj;
-      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
-          JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
-          JodaBeanUtils.equal(getBusinessDayAdjustment(), other.getBusinessDayAdjustment()) &&
+      return JodaBeanUtils.equal(startDate, other.startDate) &&
+          JodaBeanUtils.equal(endDate, other.endDate) &&
+          JodaBeanUtils.equal(frequency, other.frequency) &&
+          JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
           JodaBeanUtils.equal(startDateBusinessDayAdjustment, other.startDateBusinessDayAdjustment) &&
           JodaBeanUtils.equal(endDateBusinessDayAdjustment, other.endDateBusinessDayAdjustment) &&
           JodaBeanUtils.equal(stubConvention, other.stubConvention) &&
@@ -985,10 +985,10 @@ public final class PeriodicSchedule
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFrequency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayAdjustment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(frequency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
     hash = hash * 31 + JodaBeanUtils.hashCode(startDateBusinessDayAdjustment);
     hash = hash * 31 + JodaBeanUtils.hashCode(endDateBusinessDayAdjustment);
     hash = hash * 31 + JodaBeanUtils.hashCode(stubConvention);
@@ -1003,10 +1003,10 @@ public final class PeriodicSchedule
   public String toString() {
     StringBuilder buf = new StringBuilder(384);
     buf.append("PeriodicSchedule{");
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
-    buf.append("frequency").append('=').append(getFrequency()).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(getBusinessDayAdjustment()).append(',').append(' ');
+    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
+    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
+    buf.append("frequency").append('=').append(frequency).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
     buf.append("startDateBusinessDayAdjustment").append('=').append(startDateBusinessDayAdjustment).append(',').append(' ');
     buf.append("endDateBusinessDayAdjustment").append('=').append(endDateBusinessDayAdjustment).append(',').append(' ');
     buf.append("stubConvention").append('=').append(stubConvention).append(',').append(' ');

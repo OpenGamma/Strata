@@ -185,9 +185,9 @@ public final class IndexRateId implements ObservableId, ImmutableBean, Serializa
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IndexRateId other = (IndexRateId) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getFieldName(), other.getFieldName()) &&
-          JodaBeanUtils.equal(getMarketDataFeed(), other.getMarketDataFeed());
+      return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(fieldName, other.fieldName) &&
+          JodaBeanUtils.equal(marketDataFeed, other.marketDataFeed);
     }
     return false;
   }
@@ -195,9 +195,9 @@ public final class IndexRateId implements ObservableId, ImmutableBean, Serializa
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFieldName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataFeed());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fieldName);
+    hash = hash * 31 + JodaBeanUtils.hashCode(marketDataFeed);
     return hash;
   }
 
@@ -205,9 +205,9 @@ public final class IndexRateId implements ObservableId, ImmutableBean, Serializa
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("IndexRateId{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("fieldName").append('=').append(getFieldName()).append(',').append(' ');
-    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(getMarketDataFeed()));
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("fieldName").append('=').append(fieldName).append(',').append(' ');
+    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(marketDataFeed));
     buf.append('}');
     return buf.toString();
   }

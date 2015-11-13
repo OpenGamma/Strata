@@ -325,9 +325,9 @@ public final class DiscountOvernightIndexRates
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DiscountOvernightIndexRates other = (DiscountOvernightIndexRates) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
-          JodaBeanUtils.equal(getDiscountFactors(), other.getDiscountFactors());
+      return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(timeSeries, other.timeSeries) &&
+          JodaBeanUtils.equal(discountFactors, other.discountFactors);
     }
     return false;
   }
@@ -335,9 +335,9 @@ public final class DiscountOvernightIndexRates
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDiscountFactors());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(timeSeries);
+    hash = hash * 31 + JodaBeanUtils.hashCode(discountFactors);
     return hash;
   }
 
@@ -345,9 +345,9 @@ public final class DiscountOvernightIndexRates
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("DiscountOvernightIndexRates{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
-    buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(getDiscountFactors()));
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("timeSeries").append('=').append(timeSeries).append(',').append(' ');
+    buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(discountFactors));
     buf.append('}');
     return buf.toString();
   }

@@ -295,13 +295,13 @@ public final class BondFutureOptionSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       BondFutureOptionSensitivity other = (BondFutureOptionSensitivity) obj;
-      return JodaBeanUtils.equal(getFutureSecurityId(), other.getFutureSecurityId()) &&
-          JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
-          JodaBeanUtils.equal(getFutureExpiryDate(), other.getFutureExpiryDate()) &&
-          JodaBeanUtils.equal(getStrikePrice(), other.getStrikePrice()) &&
-          JodaBeanUtils.equal(getFuturePrice(), other.getFuturePrice()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getSensitivity(), other.getSensitivity());
+      return JodaBeanUtils.equal(futureSecurityId, other.futureSecurityId) &&
+          JodaBeanUtils.equal(expiry, other.expiry) &&
+          JodaBeanUtils.equal(futureExpiryDate, other.futureExpiryDate) &&
+          JodaBeanUtils.equal(strikePrice, other.strikePrice) &&
+          JodaBeanUtils.equal(futurePrice, other.futurePrice) &&
+          JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(sensitivity, other.sensitivity);
     }
     return false;
   }
@@ -309,13 +309,13 @@ public final class BondFutureOptionSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFutureSecurityId());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiry());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFutureExpiryDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStrikePrice());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFuturePrice());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(futureSecurityId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiry);
+    hash = hash * 31 + JodaBeanUtils.hashCode(futureExpiryDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(strikePrice);
+    hash = hash * 31 + JodaBeanUtils.hashCode(futurePrice);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(sensitivity);
     return hash;
   }
 
@@ -323,13 +323,13 @@ public final class BondFutureOptionSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("BondFutureOptionSensitivity{");
-    buf.append("futureSecurityId").append('=').append(getFutureSecurityId()).append(',').append(' ');
-    buf.append("expiry").append('=').append(getExpiry()).append(',').append(' ');
-    buf.append("futureExpiryDate").append('=').append(getFutureExpiryDate()).append(',').append(' ');
-    buf.append("strikePrice").append('=').append(getStrikePrice()).append(',').append(' ');
-    buf.append("futurePrice").append('=').append(getFuturePrice()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(getSensitivity()));
+    buf.append("futureSecurityId").append('=').append(futureSecurityId).append(',').append(' ');
+    buf.append("expiry").append('=').append(expiry).append(',').append(' ');
+    buf.append("futureExpiryDate").append('=').append(futureExpiryDate).append(',').append(' ');
+    buf.append("strikePrice").append('=').append(strikePrice).append(',').append(' ');
+    buf.append("futurePrice").append('=').append(futurePrice).append(',').append(' ');
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();
   }

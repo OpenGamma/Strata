@@ -254,8 +254,8 @@ public final class RepoCurveDiscountFactors
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       RepoCurveDiscountFactors other = (RepoCurveDiscountFactors) obj;
-      return JodaBeanUtils.equal(getDiscountFactors(), other.getDiscountFactors()) &&
-          JodaBeanUtils.equal(getBondGroup(), other.getBondGroup());
+      return JodaBeanUtils.equal(discountFactors, other.discountFactors) &&
+          JodaBeanUtils.equal(bondGroup, other.bondGroup);
     }
     return false;
   }
@@ -263,8 +263,8 @@ public final class RepoCurveDiscountFactors
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDiscountFactors());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBondGroup());
+    hash = hash * 31 + JodaBeanUtils.hashCode(discountFactors);
+    hash = hash * 31 + JodaBeanUtils.hashCode(bondGroup);
     return hash;
   }
 
@@ -272,8 +272,8 @@ public final class RepoCurveDiscountFactors
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("RepoCurveDiscountFactors{");
-    buf.append("discountFactors").append('=').append(getDiscountFactors()).append(',').append(' ');
-    buf.append("bondGroup").append('=').append(JodaBeanUtils.toString(getBondGroup()));
+    buf.append("discountFactors").append('=').append(discountFactors).append(',').append(' ');
+    buf.append("bondGroup").append('=').append(JodaBeanUtils.toString(bondGroup));
     buf.append('}');
     return buf.toString();
   }

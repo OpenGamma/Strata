@@ -197,9 +197,9 @@ public final class BulletPayment
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       BulletPayment other = (BulletPayment) obj;
-      return JodaBeanUtils.equal(getPayReceive(), other.getPayReceive()) &&
-          JodaBeanUtils.equal(getValue(), other.getValue()) &&
-          JodaBeanUtils.equal(getDate(), other.getDate());
+      return JodaBeanUtils.equal(payReceive, other.payReceive) &&
+          JodaBeanUtils.equal(value, other.value) &&
+          JodaBeanUtils.equal(date, other.date);
     }
     return false;
   }
@@ -207,9 +207,9 @@ public final class BulletPayment
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPayReceive());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValue());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(payReceive);
+    hash = hash * 31 + JodaBeanUtils.hashCode(value);
+    hash = hash * 31 + JodaBeanUtils.hashCode(date);
     return hash;
   }
 
@@ -217,9 +217,9 @@ public final class BulletPayment
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("BulletPayment{");
-    buf.append("payReceive").append('=').append(getPayReceive()).append(',').append(' ');
-    buf.append("value").append('=').append(getValue()).append(',').append(' ');
-    buf.append("date").append('=').append(JodaBeanUtils.toString(getDate()));
+    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
+    buf.append("value").append('=').append(value).append(',').append(' ');
+    buf.append("date").append('=').append(JodaBeanUtils.toString(date));
     buf.append('}');
     return buf.toString();
   }

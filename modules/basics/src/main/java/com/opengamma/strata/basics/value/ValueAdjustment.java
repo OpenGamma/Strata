@@ -227,8 +227,8 @@ public final class ValueAdjustment
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ValueAdjustment other = (ValueAdjustment) obj;
-      return JodaBeanUtils.equal(getModifyingValue(), other.getModifyingValue()) &&
-          JodaBeanUtils.equal(getType(), other.getType());
+      return JodaBeanUtils.equal(modifyingValue, other.modifyingValue) &&
+          JodaBeanUtils.equal(type, other.type);
     }
     return false;
   }
@@ -236,8 +236,8 @@ public final class ValueAdjustment
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getModifyingValue());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(modifyingValue);
+    hash = hash * 31 + JodaBeanUtils.hashCode(type);
     return hash;
   }
 

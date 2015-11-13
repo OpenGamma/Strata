@@ -324,10 +324,10 @@ public final class PaymentSchedule
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PaymentSchedule other = (PaymentSchedule) obj;
-      return JodaBeanUtils.equal(getPaymentFrequency(), other.getPaymentFrequency()) &&
-          JodaBeanUtils.equal(getPaymentRelativeTo(), other.getPaymentRelativeTo()) &&
-          JodaBeanUtils.equal(getPaymentDateOffset(), other.getPaymentDateOffset()) &&
-          JodaBeanUtils.equal(getCompoundingMethod(), other.getCompoundingMethod());
+      return JodaBeanUtils.equal(paymentFrequency, other.paymentFrequency) &&
+          JodaBeanUtils.equal(paymentRelativeTo, other.paymentRelativeTo) &&
+          JodaBeanUtils.equal(paymentDateOffset, other.paymentDateOffset) &&
+          JodaBeanUtils.equal(compoundingMethod, other.compoundingMethod);
     }
     return false;
   }
@@ -335,10 +335,10 @@ public final class PaymentSchedule
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentFrequency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentRelativeTo());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDateOffset());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCompoundingMethod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentFrequency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentRelativeTo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDateOffset);
+    hash = hash * 31 + JodaBeanUtils.hashCode(compoundingMethod);
     return hash;
   }
 
@@ -346,10 +346,10 @@ public final class PaymentSchedule
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("PaymentSchedule{");
-    buf.append("paymentFrequency").append('=').append(getPaymentFrequency()).append(',').append(' ');
-    buf.append("paymentRelativeTo").append('=').append(getPaymentRelativeTo()).append(',').append(' ');
-    buf.append("paymentDateOffset").append('=').append(getPaymentDateOffset()).append(',').append(' ');
-    buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(getCompoundingMethod()));
+    buf.append("paymentFrequency").append('=').append(paymentFrequency).append(',').append(' ');
+    buf.append("paymentRelativeTo").append('=').append(paymentRelativeTo).append(',').append(' ');
+    buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
+    buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod));
     buf.append('}');
     return buf.toString();
   }

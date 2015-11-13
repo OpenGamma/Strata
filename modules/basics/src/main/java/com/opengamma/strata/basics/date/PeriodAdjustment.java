@@ -292,9 +292,9 @@ public final class PeriodAdjustment
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PeriodAdjustment other = (PeriodAdjustment) obj;
-      return JodaBeanUtils.equal(getPeriod(), other.getPeriod()) &&
-          JodaBeanUtils.equal(getAdditionConvention(), other.getAdditionConvention()) &&
-          JodaBeanUtils.equal(getAdjustment(), other.getAdjustment());
+      return JodaBeanUtils.equal(period, other.period) &&
+          JodaBeanUtils.equal(additionConvention, other.additionConvention) &&
+          JodaBeanUtils.equal(adjustment, other.adjustment);
     }
     return false;
   }
@@ -302,9 +302,9 @@ public final class PeriodAdjustment
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPeriod());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAdditionConvention());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAdjustment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(period);
+    hash = hash * 31 + JodaBeanUtils.hashCode(additionConvention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(adjustment);
     return hash;
   }
 

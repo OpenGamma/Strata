@@ -239,8 +239,8 @@ public final class ValueSchedule
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ValueSchedule other = (ValueSchedule) obj;
-      return JodaBeanUtils.equal(getInitialValue(), other.getInitialValue()) &&
-          JodaBeanUtils.equal(getSteps(), other.getSteps());
+      return JodaBeanUtils.equal(initialValue, other.initialValue) &&
+          JodaBeanUtils.equal(steps, other.steps);
     }
     return false;
   }
@@ -248,8 +248,8 @@ public final class ValueSchedule
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getInitialValue());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSteps());
+    hash = hash * 31 + JodaBeanUtils.hashCode(initialValue);
+    hash = hash * 31 + JodaBeanUtils.hashCode(steps);
     return hash;
   }
 
@@ -257,8 +257,8 @@ public final class ValueSchedule
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ValueSchedule{");
-    buf.append("initialValue").append('=').append(getInitialValue()).append(',').append(' ');
-    buf.append("steps").append('=').append(JodaBeanUtils.toString(getSteps()));
+    buf.append("initialValue").append('=').append(initialValue).append(',').append(' ');
+    buf.append("steps").append('=').append(JodaBeanUtils.toString(steps));
     buf.append('}');
     return buf.toString();
   }

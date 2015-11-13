@@ -114,7 +114,7 @@ public final class IsdaIndexRecoveryRateId
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IsdaIndexRecoveryRateId other = (IsdaIndexRecoveryRateId) obj;
-      return JodaBeanUtils.equal(getReferenceInformation(), other.getReferenceInformation());
+      return JodaBeanUtils.equal(referenceInformation, other.referenceInformation);
     }
     return false;
   }
@@ -122,7 +122,7 @@ public final class IsdaIndexRecoveryRateId
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceInformation());
+    hash = hash * 31 + JodaBeanUtils.hashCode(referenceInformation);
     return hash;
   }
 
@@ -130,7 +130,7 @@ public final class IsdaIndexRecoveryRateId
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("IsdaIndexRecoveryRateId{");
-    buf.append("referenceInformation").append('=').append(JodaBeanUtils.toString(getReferenceInformation()));
+    buf.append("referenceInformation").append('=').append(JodaBeanUtils.toString(referenceInformation));
     buf.append('}');
     return buf.toString();
   }

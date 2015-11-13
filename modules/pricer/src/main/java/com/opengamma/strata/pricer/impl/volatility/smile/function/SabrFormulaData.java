@@ -257,7 +257,7 @@ public final class SabrFormulaData
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SabrFormulaData other = (SabrFormulaData) obj;
-      return JodaBeanUtils.equal(getParameters(), other.getParameters());
+      return JodaBeanUtils.equal(parameters, other.parameters);
     }
     return false;
   }
@@ -265,7 +265,7 @@ public final class SabrFormulaData
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getParameters());
+    hash = hash * 31 + JodaBeanUtils.hashCode(parameters);
     return hash;
   }
 
@@ -273,7 +273,7 @@ public final class SabrFormulaData
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("SabrFormulaData{");
-    buf.append("parameters").append('=').append(JodaBeanUtils.toString(getParameters()));
+    buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters));
     buf.append('}');
     return buf.toString();
   }

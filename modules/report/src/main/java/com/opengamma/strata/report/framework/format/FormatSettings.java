@@ -130,8 +130,8 @@ public final class FormatSettings<T>
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FormatSettings<?> other = (FormatSettings<?>) obj;
-      return JodaBeanUtils.equal(getCategory(), other.getCategory()) &&
-          JodaBeanUtils.equal(getFormatter(), other.getFormatter());
+      return JodaBeanUtils.equal(category, other.category) &&
+          JodaBeanUtils.equal(formatter, other.formatter);
     }
     return false;
   }
@@ -139,8 +139,8 @@ public final class FormatSettings<T>
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCategory());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFormatter());
+    hash = hash * 31 + JodaBeanUtils.hashCode(category);
+    hash = hash * 31 + JodaBeanUtils.hashCode(formatter);
     return hash;
   }
 
@@ -148,8 +148,8 @@ public final class FormatSettings<T>
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("FormatSettings{");
-    buf.append("category").append('=').append(getCategory()).append(',').append(' ');
-    buf.append("formatter").append('=').append(JodaBeanUtils.toString(getFormatter()));
+    buf.append("category").append('=').append(category).append(',').append(' ');
+    buf.append("formatter").append('=').append(JodaBeanUtils.toString(formatter));
     buf.append('}');
     return buf.toString();
   }

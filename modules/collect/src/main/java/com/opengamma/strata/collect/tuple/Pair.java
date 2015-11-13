@@ -215,8 +215,8 @@ public final class Pair<A, B>
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Pair<?, ?> other = (Pair<?, ?>) obj;
-      return JodaBeanUtils.equal(getFirst(), other.getFirst()) &&
-          JodaBeanUtils.equal(getSecond(), other.getSecond());
+      return JodaBeanUtils.equal(first, other.first) &&
+          JodaBeanUtils.equal(second, other.second);
     }
     return false;
   }
@@ -224,8 +224,8 @@ public final class Pair<A, B>
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFirst());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSecond());
+    hash = hash * 31 + JodaBeanUtils.hashCode(first);
+    hash = hash * 31 + JodaBeanUtils.hashCode(second);
     return hash;
   }
 

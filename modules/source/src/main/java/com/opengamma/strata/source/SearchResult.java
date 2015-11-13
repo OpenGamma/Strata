@@ -154,8 +154,8 @@ public final class SearchResult
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SearchResult other = (SearchResult) obj;
-      return JodaBeanUtils.equal(getMatchingIds(), other.getMatchingIds()) &&
-          JodaBeanUtils.equal(getMatchStatus(), other.getMatchStatus());
+      return JodaBeanUtils.equal(matchingIds, other.matchingIds) &&
+          JodaBeanUtils.equal(matchStatus, other.matchStatus);
     }
     return false;
   }
@@ -163,8 +163,8 @@ public final class SearchResult
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMatchingIds());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMatchStatus());
+    hash = hash * 31 + JodaBeanUtils.hashCode(matchingIds);
+    hash = hash * 31 + JodaBeanUtils.hashCode(matchStatus);
     return hash;
   }
 
@@ -172,8 +172,8 @@ public final class SearchResult
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("SearchResult{");
-    buf.append("matchingIds").append('=').append(getMatchingIds()).append(',').append(' ');
-    buf.append("matchStatus").append('=').append(JodaBeanUtils.toString(getMatchStatus()));
+    buf.append("matchingIds").append('=').append(matchingIds).append(',').append(' ');
+    buf.append("matchStatus").append('=').append(JodaBeanUtils.toString(matchStatus));
     buf.append('}');
     return buf.toString();
   }

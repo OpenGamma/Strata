@@ -280,8 +280,8 @@ public final class Payment
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Payment other = (Payment) obj;
-      return JodaBeanUtils.equal(getValue(), other.getValue()) &&
-          JodaBeanUtils.equal(getDate(), other.getDate());
+      return JodaBeanUtils.equal(value, other.value) &&
+          JodaBeanUtils.equal(date, other.date);
     }
     return false;
   }
@@ -289,8 +289,8 @@ public final class Payment
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValue());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(value);
+    hash = hash * 31 + JodaBeanUtils.hashCode(date);
     return hash;
   }
 
@@ -298,8 +298,8 @@ public final class Payment
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("Payment{");
-    buf.append("value").append('=').append(getValue()).append(',').append(' ');
-    buf.append("date").append('=').append(JodaBeanUtils.toString(getDate()));
+    buf.append("value").append('=').append(value).append(',').append(' ');
+    buf.append("date").append('=').append(JodaBeanUtils.toString(date));
     buf.append('}');
     return buf.toString();
   }

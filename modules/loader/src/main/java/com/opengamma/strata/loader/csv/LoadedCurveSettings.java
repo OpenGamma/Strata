@@ -163,6 +163,10 @@ final class LoadedCurveSettings
     return META_BEAN;
   }
 
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
   private LoadedCurveSettings(
       CurveName curveName,
       ValueType yValueType,
@@ -261,12 +265,12 @@ final class LoadedCurveSettings
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       LoadedCurveSettings other = (LoadedCurveSettings) obj;
-      return JodaBeanUtils.equal(getCurveName(), other.getCurveName()) &&
-          JodaBeanUtils.equal(getYValueType(), other.getYValueType()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getInterpolator(), other.getInterpolator()) &&
-          JodaBeanUtils.equal(getExtrapolatorLeft(), other.getExtrapolatorLeft()) &&
-          JodaBeanUtils.equal(getExtrapolatorRight(), other.getExtrapolatorRight());
+      return JodaBeanUtils.equal(curveName, other.curveName) &&
+          JodaBeanUtils.equal(yValueType, other.yValueType) &&
+          JodaBeanUtils.equal(dayCount, other.dayCount) &&
+          JodaBeanUtils.equal(interpolator, other.interpolator) &&
+          JodaBeanUtils.equal(extrapolatorLeft, other.extrapolatorLeft) &&
+          JodaBeanUtils.equal(extrapolatorRight, other.extrapolatorRight);
     }
     return false;
   }
@@ -274,12 +278,12 @@ final class LoadedCurveSettings
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getYValueType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getInterpolator());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExtrapolatorLeft());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExtrapolatorRight());
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveName);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yValueType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(interpolator);
+    hash = hash * 31 + JodaBeanUtils.hashCode(extrapolatorLeft);
+    hash = hash * 31 + JodaBeanUtils.hashCode(extrapolatorRight);
     return hash;
   }
 
@@ -287,12 +291,12 @@ final class LoadedCurveSettings
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("LoadedCurveSettings{");
-    buf.append("curveName").append('=').append(getCurveName()).append(',').append(' ');
-    buf.append("yValueType").append('=').append(getYValueType()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("interpolator").append('=').append(getInterpolator()).append(',').append(' ');
-    buf.append("extrapolatorLeft").append('=').append(getExtrapolatorLeft()).append(',').append(' ');
-    buf.append("extrapolatorRight").append('=').append(JodaBeanUtils.toString(getExtrapolatorRight()));
+    buf.append("curveName").append('=').append(curveName).append(',').append(' ');
+    buf.append("yValueType").append('=').append(yValueType).append(',').append(' ');
+    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("interpolator").append('=').append(interpolator).append(',').append(' ');
+    buf.append("extrapolatorLeft").append('=').append(extrapolatorLeft).append(',').append(' ');
+    buf.append("extrapolatorRight").append('=').append(JodaBeanUtils.toString(extrapolatorRight));
     buf.append('}');
     return buf.toString();
   }

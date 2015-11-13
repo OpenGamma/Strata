@@ -282,9 +282,9 @@ public final class CurveCurrencyParameterSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveCurrencyParameterSensitivity other = (CurveCurrencyParameterSensitivity) obj;
-      return JodaBeanUtils.equal(getMetadata(), other.getMetadata()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getSensitivity(), other.getSensitivity());
+      return JodaBeanUtils.equal(metadata, other.metadata) &&
+          JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(sensitivity, other.sensitivity);
     }
     return false;
   }
@@ -292,9 +292,9 @@ public final class CurveCurrencyParameterSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMetadata());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(metadata);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(sensitivity);
     return hash;
   }
 
@@ -302,9 +302,9 @@ public final class CurveCurrencyParameterSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("CurveCurrencyParameterSensitivity{");
-    buf.append("metadata").append('=').append(getMetadata()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(getSensitivity()));
+    buf.append("metadata").append('=').append(metadata).append(',').append(' ');
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();
   }

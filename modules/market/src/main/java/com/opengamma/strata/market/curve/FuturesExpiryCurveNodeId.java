@@ -133,7 +133,7 @@ public final class FuturesExpiryCurveNodeId
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FuturesExpiryCurveNodeId other = (FuturesExpiryCurveNodeId) obj;
-      return JodaBeanUtils.equal(getExpiry(), other.getExpiry());
+      return JodaBeanUtils.equal(expiry, other.expiry);
     }
     return false;
   }
@@ -141,7 +141,7 @@ public final class FuturesExpiryCurveNodeId
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiry);
     return hash;
   }
 
@@ -149,7 +149,7 @@ public final class FuturesExpiryCurveNodeId
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("FuturesExpiryCurveNodeId{");
-    buf.append("expiry").append('=').append(JodaBeanUtils.toString(getExpiry()));
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry));
     buf.append('}');
     return buf.toString();
   }

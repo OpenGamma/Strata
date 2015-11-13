@@ -395,8 +395,8 @@ public final class ScenarioDefinition implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ScenarioDefinition other = (ScenarioDefinition) obj;
-      return JodaBeanUtils.equal(getMappings(), other.getMappings()) &&
-          JodaBeanUtils.equal(getScenarioNames(), other.getScenarioNames());
+      return JodaBeanUtils.equal(mappings, other.mappings) &&
+          JodaBeanUtils.equal(scenarioNames, other.scenarioNames);
     }
     return false;
   }
@@ -404,8 +404,8 @@ public final class ScenarioDefinition implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMappings());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getScenarioNames());
+    hash = hash * 31 + JodaBeanUtils.hashCode(mappings);
+    hash = hash * 31 + JodaBeanUtils.hashCode(scenarioNames);
     return hash;
   }
 
@@ -413,8 +413,8 @@ public final class ScenarioDefinition implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ScenarioDefinition{");
-    buf.append("mappings").append('=').append(getMappings()).append(',').append(' ');
-    buf.append("scenarioNames").append('=').append(JodaBeanUtils.toString(getScenarioNames()));
+    buf.append("mappings").append('=').append(mappings).append(',').append(' ');
+    buf.append("scenarioNames").append('=').append(JodaBeanUtils.toString(scenarioNames));
     buf.append('}');
     return buf.toString();
   }

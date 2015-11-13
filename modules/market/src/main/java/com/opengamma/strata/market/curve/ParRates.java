@@ -158,8 +158,8 @@ public final class ParRates
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ParRates other = (ParRates) obj;
-      return JodaBeanUtils.equal(getRates(), other.getRates()) &&
-          JodaBeanUtils.equal(getCurveMetadata(), other.getCurveMetadata());
+      return JodaBeanUtils.equal(rates, other.rates) &&
+          JodaBeanUtils.equal(curveMetadata, other.curveMetadata);
     }
     return false;
   }
@@ -167,8 +167,8 @@ public final class ParRates
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRates());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveMetadata());
+    hash = hash * 31 + JodaBeanUtils.hashCode(rates);
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveMetadata);
     return hash;
   }
 
@@ -176,8 +176,8 @@ public final class ParRates
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ParRates{");
-    buf.append("rates").append('=').append(getRates()).append(',').append(' ');
-    buf.append("curveMetadata").append('=').append(JodaBeanUtils.toString(getCurveMetadata()));
+    buf.append("rates").append('=').append(rates).append(',').append(' ');
+    buf.append("curveMetadata").append('=').append(JodaBeanUtils.toString(curveMetadata));
     buf.append('}');
     return buf.toString();
   }

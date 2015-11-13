@@ -120,7 +120,7 @@ final class CompositeReportingRules implements ReportingRules, ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CompositeReportingRules other = (CompositeReportingRules) obj;
-      return JodaBeanUtils.equal(getRules(), other.getRules());
+      return JodaBeanUtils.equal(rules, other.rules);
     }
     return false;
   }
@@ -128,7 +128,7 @@ final class CompositeReportingRules implements ReportingRules, ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRules());
+    hash = hash * 31 + JodaBeanUtils.hashCode(rules);
     return hash;
   }
 
@@ -136,7 +136,7 @@ final class CompositeReportingRules implements ReportingRules, ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("CompositeReportingRules{");
-    buf.append("rules").append('=').append(JodaBeanUtils.toString(getRules()));
+    buf.append("rules").append('=').append(JodaBeanUtils.toString(rules));
     buf.append('}');
     return buf.toString();
   }

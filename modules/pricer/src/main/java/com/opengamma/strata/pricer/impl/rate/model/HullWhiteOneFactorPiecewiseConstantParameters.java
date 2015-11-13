@@ -239,9 +239,9 @@ public final class HullWhiteOneFactorPiecewiseConstantParameters implements Immu
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       HullWhiteOneFactorPiecewiseConstantParameters other = (HullWhiteOneFactorPiecewiseConstantParameters) obj;
-      return JodaBeanUtils.equal(getMeanReversion(), other.getMeanReversion()) &&
-          JodaBeanUtils.equal(getVolatility(), other.getVolatility()) &&
-          JodaBeanUtils.equal(getVolatilityTime(), other.getVolatilityTime());
+      return JodaBeanUtils.equal(meanReversion, other.meanReversion) &&
+          JodaBeanUtils.equal(volatility, other.volatility) &&
+          JodaBeanUtils.equal(volatilityTime, other.volatilityTime);
     }
     return false;
   }
@@ -249,9 +249,9 @@ public final class HullWhiteOneFactorPiecewiseConstantParameters implements Immu
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMeanReversion());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getVolatility());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getVolatilityTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(meanReversion);
+    hash = hash * 31 + JodaBeanUtils.hashCode(volatility);
+    hash = hash * 31 + JodaBeanUtils.hashCode(volatilityTime);
     return hash;
   }
 
@@ -259,9 +259,9 @@ public final class HullWhiteOneFactorPiecewiseConstantParameters implements Immu
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("HullWhiteOneFactorPiecewiseConstantParameters{");
-    buf.append("meanReversion").append('=').append(getMeanReversion()).append(',').append(' ');
-    buf.append("volatility").append('=').append(getVolatility()).append(',').append(' ');
-    buf.append("volatilityTime").append('=').append(JodaBeanUtils.toString(getVolatilityTime()));
+    buf.append("meanReversion").append('=').append(meanReversion).append(',').append(' ');
+    buf.append("volatility").append('=').append(volatility).append(',').append(' ');
+    buf.append("volatilityTime").append('=').append(JodaBeanUtils.toString(volatilityTime));
     buf.append('}');
     return buf.toString();
   }

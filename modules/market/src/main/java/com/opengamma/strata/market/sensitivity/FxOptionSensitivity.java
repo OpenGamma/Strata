@@ -266,12 +266,12 @@ public final class FxOptionSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxOptionSensitivity other = (FxOptionSensitivity) obj;
-      return JodaBeanUtils.equal(getCurrencyPair(), other.getCurrencyPair()) &&
-          JodaBeanUtils.equal(getExpiryDateTime(), other.getExpiryDateTime()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getForward(), other.getForward()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getSensitivity(), other.getSensitivity());
+      return JodaBeanUtils.equal(currencyPair, other.currencyPair) &&
+          JodaBeanUtils.equal(expiryDateTime, other.expiryDateTime) &&
+          JodaBeanUtils.equal(strike, other.strike) &&
+          JodaBeanUtils.equal(forward, other.forward) &&
+          JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(sensitivity, other.sensitivity);
     }
     return false;
   }
@@ -279,12 +279,12 @@ public final class FxOptionSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryDateTime());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getForward());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(currencyPair);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryDateTime);
+    hash = hash * 31 + JodaBeanUtils.hashCode(strike);
+    hash = hash * 31 + JodaBeanUtils.hashCode(forward);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(sensitivity);
     return hash;
   }
 
@@ -292,12 +292,12 @@ public final class FxOptionSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("FxOptionSensitivity{");
-    buf.append("currencyPair").append('=').append(getCurrencyPair()).append(',').append(' ');
-    buf.append("expiryDateTime").append('=').append(getExpiryDateTime()).append(',').append(' ');
-    buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
-    buf.append("forward").append('=').append(getForward()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(getSensitivity()));
+    buf.append("currencyPair").append('=').append(currencyPair).append(',').append(' ');
+    buf.append("expiryDateTime").append('=').append(expiryDateTime).append(',').append(' ');
+    buf.append("strike").append('=').append(strike).append(',').append(' ');
+    buf.append("forward").append('=').append(forward).append(',').append(' ');
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();
   }

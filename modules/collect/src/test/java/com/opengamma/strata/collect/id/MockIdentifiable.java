@@ -179,9 +179,9 @@ public final class MockIdentifiable
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MockIdentifiable other = (MockIdentifiable) obj;
-      return JodaBeanUtils.equal(getStandardId(), other.getStandardId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getLink(), other.getLink());
+      return JodaBeanUtils.equal(standardId, other.standardId) &&
+          JodaBeanUtils.equal(name, other.name) &&
+          JodaBeanUtils.equal(link, other.link);
     }
     return false;
   }
@@ -189,9 +189,9 @@ public final class MockIdentifiable
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLink());
+    hash = hash * 31 + JodaBeanUtils.hashCode(standardId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(link);
     return hash;
   }
 
@@ -199,9 +199,9 @@ public final class MockIdentifiable
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("MockIdentifiable{");
-    buf.append("standardId").append('=').append(getStandardId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("link").append('=').append(JodaBeanUtils.toString(getLink()));
+    buf.append("standardId").append('=').append(standardId).append(',').append(' ');
+    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("link").append('=').append(JodaBeanUtils.toString(link));
     buf.append('}');
     return buf.toString();
   }

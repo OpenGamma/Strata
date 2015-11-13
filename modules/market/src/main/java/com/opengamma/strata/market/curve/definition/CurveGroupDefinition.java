@@ -226,8 +226,8 @@ public final class CurveGroupDefinition
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveGroupDefinition other = (CurveGroupDefinition) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getEntries(), other.getEntries());
+      return JodaBeanUtils.equal(name, other.name) &&
+          JodaBeanUtils.equal(entries, other.entries);
     }
     return false;
   }
@@ -235,8 +235,8 @@ public final class CurveGroupDefinition
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEntries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(entries);
     return hash;
   }
 
@@ -244,8 +244,8 @@ public final class CurveGroupDefinition
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CurveGroupDefinition{");
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("entries").append('=').append(JodaBeanUtils.toString(getEntries()));
+    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("entries").append('=').append(JodaBeanUtils.toString(entries));
     buf.append('}');
     return buf.toString();
   }

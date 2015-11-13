@@ -97,6 +97,10 @@ public final class DummyFraCurveNode
     return META_BEAN;
   }
 
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
   /**
    * The serialization version id.
    */
@@ -175,10 +179,10 @@ public final class DummyFraCurveNode
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DummyFraCurveNode other = (DummyFraCurveNode) obj;
-      return JodaBeanUtils.equal(getPeriodToStart(), other.getPeriodToStart()) &&
-          JodaBeanUtils.equal(getPeriodToEnd(), other.getPeriodToEnd()) &&
-          JodaBeanUtils.equal(getRateKey(), other.getRateKey()) &&
-          JodaBeanUtils.equal(getSpread(), other.getSpread());
+      return JodaBeanUtils.equal(periodToStart, other.periodToStart) &&
+          JodaBeanUtils.equal(periodToEnd, other.periodToEnd) &&
+          JodaBeanUtils.equal(rateKey, other.rateKey) &&
+          JodaBeanUtils.equal(spread, other.spread);
     }
     return false;
   }
@@ -186,10 +190,10 @@ public final class DummyFraCurveNode
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPeriodToStart());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPeriodToEnd());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRateKey());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSpread());
+    hash = hash * 31 + JodaBeanUtils.hashCode(periodToStart);
+    hash = hash * 31 + JodaBeanUtils.hashCode(periodToEnd);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rateKey);
+    hash = hash * 31 + JodaBeanUtils.hashCode(spread);
     return hash;
   }
 
@@ -197,10 +201,10 @@ public final class DummyFraCurveNode
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("DummyFraCurveNode{");
-    buf.append("periodToStart").append('=').append(getPeriodToStart()).append(',').append(' ');
-    buf.append("periodToEnd").append('=').append(getPeriodToEnd()).append(',').append(' ');
-    buf.append("rateKey").append('=').append(getRateKey()).append(',').append(' ');
-    buf.append("spread").append('=').append(JodaBeanUtils.toString(getSpread()));
+    buf.append("periodToStart").append('=').append(periodToStart).append(',').append(' ');
+    buf.append("periodToEnd").append('=').append(periodToEnd).append(',').append(' ');
+    buf.append("rateKey").append('=').append(rateKey).append(',').append(' ');
+    buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
     buf.append('}');
     return buf.toString();
   }

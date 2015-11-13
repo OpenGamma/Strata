@@ -265,10 +265,10 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       BlackVolatilityExpLogMoneynessBondFutureProvider other = (BlackVolatilityExpLogMoneynessBondFutureProvider) obj;
-      return JodaBeanUtils.equal(getParameters(), other.getParameters()) &&
-          JodaBeanUtils.equal(getFutureSecurityId(), other.getFutureSecurityId()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getValuationDateTime(), other.getValuationDateTime());
+      return JodaBeanUtils.equal(parameters, other.parameters) &&
+          JodaBeanUtils.equal(futureSecurityId, other.futureSecurityId) &&
+          JodaBeanUtils.equal(dayCount, other.dayCount) &&
+          JodaBeanUtils.equal(valuationDateTime, other.valuationDateTime);
     }
     return false;
   }
@@ -276,10 +276,10 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getParameters());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFutureSecurityId());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDateTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(parameters);
+    hash = hash * 31 + JodaBeanUtils.hashCode(futureSecurityId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(valuationDateTime);
     return hash;
   }
 
@@ -287,10 +287,10 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("BlackVolatilityExpLogMoneynessBondFutureProvider{");
-    buf.append("parameters").append('=').append(getParameters()).append(',').append(' ');
-    buf.append("futureSecurityId").append('=').append(getFutureSecurityId()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(getValuationDateTime()));
+    buf.append("parameters").append('=').append(parameters).append(',').append(' ');
+    buf.append("futureSecurityId").append('=').append(futureSecurityId).append(',').append(' ');
+    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime));
     buf.append('}');
     return buf.toString();
   }

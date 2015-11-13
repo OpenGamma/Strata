@@ -285,13 +285,13 @@ public final class SwaptionSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SwaptionSensitivity other = (SwaptionSensitivity) obj;
-      return JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
-          JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
-          JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getForward(), other.getForward()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getSensitivity(), other.getSensitivity());
+      return JodaBeanUtils.equal(convention, other.convention) &&
+          JodaBeanUtils.equal(expiry, other.expiry) &&
+          JodaBeanUtils.equal(tenor, other.tenor) &&
+          JodaBeanUtils.equal(strike, other.strike) &&
+          JodaBeanUtils.equal(forward, other.forward) &&
+          JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(sensitivity, other.sensitivity);
     }
     return false;
   }
@@ -299,13 +299,13 @@ public final class SwaptionSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiry());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTenor());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getForward());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(convention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiry);
+    hash = hash * 31 + JodaBeanUtils.hashCode(tenor);
+    hash = hash * 31 + JodaBeanUtils.hashCode(strike);
+    hash = hash * 31 + JodaBeanUtils.hashCode(forward);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(sensitivity);
     return hash;
   }
 
@@ -313,13 +313,13 @@ public final class SwaptionSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("SwaptionSensitivity{");
-    buf.append("convention").append('=').append(getConvention()).append(',').append(' ');
-    buf.append("expiry").append('=').append(getExpiry()).append(',').append(' ');
-    buf.append("tenor").append('=').append(getTenor()).append(',').append(' ');
-    buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
-    buf.append("forward").append('=').append(getForward()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(getSensitivity()));
+    buf.append("convention").append('=').append(convention).append(',').append(' ');
+    buf.append("expiry").append('=').append(expiry).append(',').append(' ');
+    buf.append("tenor").append('=').append(tenor).append(',').append(' ');
+    buf.append("strike").append('=').append(strike).append(',').append(' ');
+    buf.append("forward").append('=').append(forward).append(',').append(' ');
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();
   }

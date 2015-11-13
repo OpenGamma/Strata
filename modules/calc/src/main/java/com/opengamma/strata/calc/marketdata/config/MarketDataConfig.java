@@ -159,7 +159,7 @@ public final class MarketDataConfig implements ImmutableBean, Serializable {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MarketDataConfig other = (MarketDataConfig) obj;
-      return JodaBeanUtils.equal(getConfigs(), other.getConfigs());
+      return JodaBeanUtils.equal(configs, other.configs);
     }
     return false;
   }
@@ -167,7 +167,7 @@ public final class MarketDataConfig implements ImmutableBean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(configs);
     return hash;
   }
 
@@ -175,7 +175,7 @@ public final class MarketDataConfig implements ImmutableBean, Serializable {
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("MarketDataConfig{");
-    buf.append("configs").append('=').append(JodaBeanUtils.toString(getConfigs()));
+    buf.append("configs").append('=').append(JodaBeanUtils.toString(configs));
     buf.append('}');
     return buf.toString();
   }

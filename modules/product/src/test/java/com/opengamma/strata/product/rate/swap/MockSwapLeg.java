@@ -234,11 +234,11 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MockSwapLeg other = (MockSwapLeg) obj;
-      return JodaBeanUtils.equal(getType(), other.getType()) &&
-          JodaBeanUtils.equal(getPayReceive(), other.getPayReceive()) &&
-          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency());
+      return JodaBeanUtils.equal(type, other.type) &&
+          JodaBeanUtils.equal(payReceive, other.payReceive) &&
+          JodaBeanUtils.equal(startDate, other.startDate) &&
+          JodaBeanUtils.equal(endDate, other.endDate) &&
+          JodaBeanUtils.equal(currency, other.currency);
     }
     return false;
   }
@@ -246,11 +246,11 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPayReceive());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(type);
+    hash = hash * 31 + JodaBeanUtils.hashCode(payReceive);
+    hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     return hash;
   }
 
@@ -258,11 +258,11 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("MockSwapLeg{");
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
-    buf.append("payReceive").append('=').append(getPayReceive()).append(',').append(' ');
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency()));
+    buf.append("type").append('=').append(type).append(',').append(' ');
+    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
+    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
+    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency));
     buf.append('}');
     return buf.toString();
   }

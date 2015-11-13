@@ -66,6 +66,10 @@ final class VolatilityAndBucketedSensitivities
     return META_BEAN;
   }
 
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
   private VolatilityAndBucketedSensitivities(
       double volatility,
       DoubleMatrix sensitivities) {
@@ -115,8 +119,8 @@ final class VolatilityAndBucketedSensitivities
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       VolatilityAndBucketedSensitivities other = (VolatilityAndBucketedSensitivities) obj;
-      return JodaBeanUtils.equal(getVolatility(), other.getVolatility()) &&
-          JodaBeanUtils.equal(getSensitivities(), other.getSensitivities());
+      return JodaBeanUtils.equal(volatility, other.volatility) &&
+          JodaBeanUtils.equal(sensitivities, other.sensitivities);
     }
     return false;
   }
@@ -124,8 +128,8 @@ final class VolatilityAndBucketedSensitivities
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getVolatility());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivities());
+    hash = hash * 31 + JodaBeanUtils.hashCode(volatility);
+    hash = hash * 31 + JodaBeanUtils.hashCode(sensitivities);
     return hash;
   }
 
@@ -133,8 +137,8 @@ final class VolatilityAndBucketedSensitivities
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("VolatilityAndBucketedSensitivities{");
-    buf.append("volatility").append('=').append(getVolatility()).append(',').append(' ');
-    buf.append("sensitivities").append('=').append(JodaBeanUtils.toString(getSensitivities()));
+    buf.append("volatility").append('=').append(volatility).append(',').append(' ');
+    buf.append("sensitivities").append('=').append(JodaBeanUtils.toString(sensitivities));
     buf.append('}');
     return buf.toString();
   }

@@ -120,7 +120,7 @@ public final class CurveNameFilter
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveNameFilter other = (CurveNameFilter) obj;
-      return JodaBeanUtils.equal(getCurveName(), other.getCurveName());
+      return JodaBeanUtils.equal(curveName, other.curveName);
     }
     return false;
   }
@@ -128,7 +128,7 @@ public final class CurveNameFilter
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveName);
     return hash;
   }
 
@@ -136,7 +136,7 @@ public final class CurveNameFilter
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("CurveNameFilter{");
-    buf.append("curveName").append('=').append(JodaBeanUtils.toString(getCurveName()));
+    buf.append("curveName").append('=').append(JodaBeanUtils.toString(curveName));
     buf.append('}');
     return buf.toString();
   }

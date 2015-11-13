@@ -46,7 +46,6 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
-import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -114,11 +113,6 @@ public class CalibrationCheckExample {
    */
   private static final ResourceLocator QUOTES_RESOURCE =
       ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "quotes/quotes.csv");
-
-  static {
-    // TODO: remove when Joda-Beans issue fixed
-    LoaderUtils.findIndex("USD-LIBOR-3M");
-  }
 
   //-------------------------------------------------------------------------
   /** 

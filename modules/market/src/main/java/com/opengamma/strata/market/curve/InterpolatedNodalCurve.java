@@ -388,12 +388,12 @@ public final class InterpolatedNodalCurve
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       InterpolatedNodalCurve other = (InterpolatedNodalCurve) obj;
-      return JodaBeanUtils.equal(getMetadata(), other.getMetadata()) &&
-          JodaBeanUtils.equal(getXValues(), other.getXValues()) &&
-          JodaBeanUtils.equal(getYValues(), other.getYValues()) &&
-          JodaBeanUtils.equal(getExtrapolatorLeft(), other.getExtrapolatorLeft()) &&
-          JodaBeanUtils.equal(getInterpolator(), other.getInterpolator()) &&
-          JodaBeanUtils.equal(getExtrapolatorRight(), other.getExtrapolatorRight());
+      return JodaBeanUtils.equal(metadata, other.metadata) &&
+          JodaBeanUtils.equal(xValues, other.xValues) &&
+          JodaBeanUtils.equal(yValues, other.yValues) &&
+          JodaBeanUtils.equal(extrapolatorLeft, other.extrapolatorLeft) &&
+          JodaBeanUtils.equal(interpolator, other.interpolator) &&
+          JodaBeanUtils.equal(extrapolatorRight, other.extrapolatorRight);
     }
     return false;
   }
@@ -401,12 +401,12 @@ public final class InterpolatedNodalCurve
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMetadata());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getXValues());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getYValues());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExtrapolatorLeft());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getInterpolator());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExtrapolatorRight());
+    hash = hash * 31 + JodaBeanUtils.hashCode(metadata);
+    hash = hash * 31 + JodaBeanUtils.hashCode(xValues);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yValues);
+    hash = hash * 31 + JodaBeanUtils.hashCode(extrapolatorLeft);
+    hash = hash * 31 + JodaBeanUtils.hashCode(interpolator);
+    hash = hash * 31 + JodaBeanUtils.hashCode(extrapolatorRight);
     return hash;
   }
 
@@ -414,12 +414,12 @@ public final class InterpolatedNodalCurve
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("InterpolatedNodalCurve{");
-    buf.append("metadata").append('=').append(getMetadata()).append(',').append(' ');
-    buf.append("xValues").append('=').append(getXValues()).append(',').append(' ');
-    buf.append("yValues").append('=').append(getYValues()).append(',').append(' ');
-    buf.append("extrapolatorLeft").append('=').append(getExtrapolatorLeft()).append(',').append(' ');
-    buf.append("interpolator").append('=').append(getInterpolator()).append(',').append(' ');
-    buf.append("extrapolatorRight").append('=').append(JodaBeanUtils.toString(getExtrapolatorRight()));
+    buf.append("metadata").append('=').append(metadata).append(',').append(' ');
+    buf.append("xValues").append('=').append(xValues).append(',').append(' ');
+    buf.append("yValues").append('=').append(yValues).append(',').append(' ');
+    buf.append("extrapolatorLeft").append('=').append(extrapolatorLeft).append(',').append(' ');
+    buf.append("interpolator").append('=').append(interpolator).append(',').append(' ');
+    buf.append("extrapolatorRight").append('=').append(JodaBeanUtils.toString(extrapolatorRight));
     buf.append('}');
     return buf.toString();
   }

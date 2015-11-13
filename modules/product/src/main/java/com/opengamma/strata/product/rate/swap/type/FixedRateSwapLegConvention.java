@@ -499,10 +499,10 @@ public final class FixedRateSwapLegConvention
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FixedRateSwapLegConvention other = (FixedRateSwapLegConvention) obj;
-      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getAccrualFrequency(), other.getAccrualFrequency()) &&
-          JodaBeanUtils.equal(getAccrualBusinessDayAdjustment(), other.getAccrualBusinessDayAdjustment()) &&
+      return JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(dayCount, other.dayCount) &&
+          JodaBeanUtils.equal(accrualFrequency, other.accrualFrequency) &&
+          JodaBeanUtils.equal(accrualBusinessDayAdjustment, other.accrualBusinessDayAdjustment) &&
           JodaBeanUtils.equal(startDateBusinessDayAdjustment, other.startDateBusinessDayAdjustment) &&
           JodaBeanUtils.equal(endDateBusinessDayAdjustment, other.endDateBusinessDayAdjustment) &&
           JodaBeanUtils.equal(stubConvention, other.stubConvention) &&
@@ -517,10 +517,10 @@ public final class FixedRateSwapLegConvention
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualFrequency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualBusinessDayAdjustment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualFrequency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualBusinessDayAdjustment);
     hash = hash * 31 + JodaBeanUtils.hashCode(startDateBusinessDayAdjustment);
     hash = hash * 31 + JodaBeanUtils.hashCode(endDateBusinessDayAdjustment);
     hash = hash * 31 + JodaBeanUtils.hashCode(stubConvention);
@@ -535,10 +535,10 @@ public final class FixedRateSwapLegConvention
   public String toString() {
     StringBuilder buf = new StringBuilder(384);
     buf.append("FixedRateSwapLegConvention{");
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("accrualFrequency").append('=').append(getAccrualFrequency()).append(',').append(' ');
-    buf.append("accrualBusinessDayAdjustment").append('=').append(getAccrualBusinessDayAdjustment()).append(',').append(' ');
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("accrualFrequency").append('=').append(accrualFrequency).append(',').append(' ');
+    buf.append("accrualBusinessDayAdjustment").append('=').append(accrualBusinessDayAdjustment).append(',').append(' ');
     buf.append("startDateBusinessDayAdjustment").append('=').append(startDateBusinessDayAdjustment).append(',').append(' ');
     buf.append("endDateBusinessDayAdjustment").append('=').append(endDateBusinessDayAdjustment).append(',').append(' ');
     buf.append("stubConvention").append('=').append(stubConvention).append(',').append(' ');

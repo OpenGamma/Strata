@@ -221,9 +221,9 @@ public final class ResetSchedule
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ResetSchedule other = (ResetSchedule) obj;
-      return JodaBeanUtils.equal(getResetFrequency(), other.getResetFrequency()) &&
-          JodaBeanUtils.equal(getBusinessDayAdjustment(), other.getBusinessDayAdjustment()) &&
-          JodaBeanUtils.equal(getAveragingMethod(), other.getAveragingMethod());
+      return JodaBeanUtils.equal(resetFrequency, other.resetFrequency) &&
+          JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
+          JodaBeanUtils.equal(averagingMethod, other.averagingMethod);
     }
     return false;
   }
@@ -231,9 +231,9 @@ public final class ResetSchedule
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getResetFrequency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayAdjustment());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAveragingMethod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(resetFrequency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
+    hash = hash * 31 + JodaBeanUtils.hashCode(averagingMethod);
     return hash;
   }
 
@@ -241,9 +241,9 @@ public final class ResetSchedule
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ResetSchedule{");
-    buf.append("resetFrequency").append('=').append(getResetFrequency()).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(getBusinessDayAdjustment()).append(',').append(' ');
-    buf.append("averagingMethod").append('=').append(JodaBeanUtils.toString(getAveragingMethod()));
+    buf.append("resetFrequency").append('=').append(resetFrequency).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
+    buf.append("averagingMethod").append('=').append(JodaBeanUtils.toString(averagingMethod));
     buf.append('}');
     return buf.toString();
   }

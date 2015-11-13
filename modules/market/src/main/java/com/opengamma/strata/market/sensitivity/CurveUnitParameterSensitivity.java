@@ -248,8 +248,8 @@ public final class CurveUnitParameterSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveUnitParameterSensitivity other = (CurveUnitParameterSensitivity) obj;
-      return JodaBeanUtils.equal(getMetadata(), other.getMetadata()) &&
-          JodaBeanUtils.equal(getSensitivity(), other.getSensitivity());
+      return JodaBeanUtils.equal(metadata, other.metadata) &&
+          JodaBeanUtils.equal(sensitivity, other.sensitivity);
     }
     return false;
   }
@@ -257,8 +257,8 @@ public final class CurveUnitParameterSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMetadata());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(metadata);
+    hash = hash * 31 + JodaBeanUtils.hashCode(sensitivity);
     return hash;
   }
 
@@ -266,8 +266,8 @@ public final class CurveUnitParameterSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CurveUnitParameterSensitivity{");
-    buf.append("metadata").append('=').append(getMetadata()).append(',').append(' ');
-    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(getSensitivity()));
+    buf.append("metadata").append('=').append(metadata).append(',').append(' ');
+    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();
   }

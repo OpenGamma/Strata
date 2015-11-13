@@ -267,9 +267,9 @@ public final class FraTemplate
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FraTemplate other = (FraTemplate) obj;
-      return JodaBeanUtils.equal(getPeriodToStart(), other.getPeriodToStart()) &&
-          JodaBeanUtils.equal(getPeriodToEnd(), other.getPeriodToEnd()) &&
-          JodaBeanUtils.equal(getConvention(), other.getConvention());
+      return JodaBeanUtils.equal(periodToStart, other.periodToStart) &&
+          JodaBeanUtils.equal(periodToEnd, other.periodToEnd) &&
+          JodaBeanUtils.equal(convention, other.convention);
     }
     return false;
   }
@@ -277,9 +277,9 @@ public final class FraTemplate
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPeriodToStart());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPeriodToEnd());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(periodToStart);
+    hash = hash * 31 + JodaBeanUtils.hashCode(periodToEnd);
+    hash = hash * 31 + JodaBeanUtils.hashCode(convention);
     return hash;
   }
 
@@ -287,9 +287,9 @@ public final class FraTemplate
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("FraTemplate{");
-    buf.append("periodToStart").append('=').append(getPeriodToStart()).append(',').append(' ');
-    buf.append("periodToEnd").append('=').append(getPeriodToEnd()).append(',').append(' ');
-    buf.append("convention").append('=').append(JodaBeanUtils.toString(getConvention()));
+    buf.append("periodToStart").append('=').append(periodToStart).append(',').append(' ');
+    buf.append("periodToEnd").append('=').append(periodToEnd).append(',').append(' ');
+    buf.append("convention").append('=').append(JodaBeanUtils.toString(convention));
     buf.append('}');
     return buf.toString();
   }

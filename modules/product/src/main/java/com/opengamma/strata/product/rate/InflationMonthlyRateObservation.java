@@ -201,9 +201,9 @@ public final class InflationMonthlyRateObservation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       InflationMonthlyRateObservation other = (InflationMonthlyRateObservation) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getReferenceStartMonth(), other.getReferenceStartMonth()) &&
-          JodaBeanUtils.equal(getReferenceEndMonth(), other.getReferenceEndMonth());
+      return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(referenceStartMonth, other.referenceStartMonth) &&
+          JodaBeanUtils.equal(referenceEndMonth, other.referenceEndMonth);
     }
     return false;
   }
@@ -211,9 +211,9 @@ public final class InflationMonthlyRateObservation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceStartMonth());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceEndMonth());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(referenceStartMonth);
+    hash = hash * 31 + JodaBeanUtils.hashCode(referenceEndMonth);
     return hash;
   }
 
@@ -221,9 +221,9 @@ public final class InflationMonthlyRateObservation
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("InflationMonthlyRateObservation{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("referenceStartMonth").append('=').append(getReferenceStartMonth()).append(',').append(' ');
-    buf.append("referenceEndMonth").append('=').append(JodaBeanUtils.toString(getReferenceEndMonth()));
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("referenceStartMonth").append('=').append(referenceStartMonth).append(',').append(' ');
+    buf.append("referenceEndMonth").append('=').append(JodaBeanUtils.toString(referenceEndMonth));
     buf.append('}');
     return buf.toString();
   }

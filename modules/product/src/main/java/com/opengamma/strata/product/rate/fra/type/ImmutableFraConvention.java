@@ -463,7 +463,7 @@ public final class ImmutableFraConvention
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ImmutableFraConvention other = (ImmutableFraConvention) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
+      return JodaBeanUtils.equal(index, other.index) &&
           JodaBeanUtils.equal(name, other.name) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
@@ -479,7 +479,7 @@ public final class ImmutableFraConvention
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
     hash = hash * 31 + JodaBeanUtils.hashCode(name);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);

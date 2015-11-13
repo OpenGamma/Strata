@@ -249,13 +249,13 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CalculationTaskConfig other = (CalculationTaskConfig) obj;
-      return JodaBeanUtils.equal(getTarget(), other.getTarget()) &&
-          (getRowIndex() == other.getRowIndex()) &&
-          (getColumnIndex() == other.getColumnIndex()) &&
-          JodaBeanUtils.equal(getFunctionConfig(), other.getFunctionConfig()) &&
-          JodaBeanUtils.equal(getFunctionArguments(), other.getFunctionArguments()) &&
-          JodaBeanUtils.equal(getMarketDataMappings(), other.getMarketDataMappings()) &&
-          JodaBeanUtils.equal(getReportingRules(), other.getReportingRules());
+      return JodaBeanUtils.equal(target, other.target) &&
+          (rowIndex == other.rowIndex) &&
+          (columnIndex == other.columnIndex) &&
+          JodaBeanUtils.equal(functionConfig, other.functionConfig) &&
+          JodaBeanUtils.equal(functionArguments, other.functionArguments) &&
+          JodaBeanUtils.equal(marketDataMappings, other.marketDataMappings) &&
+          JodaBeanUtils.equal(reportingRules, other.reportingRules);
     }
     return false;
   }
@@ -263,13 +263,13 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTarget());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRowIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getColumnIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionConfig());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionArguments());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataMappings());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReportingRules());
+    hash = hash * 31 + JodaBeanUtils.hashCode(target);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rowIndex);
+    hash = hash * 31 + JodaBeanUtils.hashCode(columnIndex);
+    hash = hash * 31 + JodaBeanUtils.hashCode(functionConfig);
+    hash = hash * 31 + JodaBeanUtils.hashCode(functionArguments);
+    hash = hash * 31 + JodaBeanUtils.hashCode(marketDataMappings);
+    hash = hash * 31 + JodaBeanUtils.hashCode(reportingRules);
     return hash;
   }
 
@@ -277,13 +277,13 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("CalculationTaskConfig{");
-    buf.append("target").append('=').append(getTarget()).append(',').append(' ');
-    buf.append("rowIndex").append('=').append(getRowIndex()).append(',').append(' ');
-    buf.append("columnIndex").append('=').append(getColumnIndex()).append(',').append(' ');
-    buf.append("functionConfig").append('=').append(getFunctionConfig()).append(',').append(' ');
-    buf.append("functionArguments").append('=').append(getFunctionArguments()).append(',').append(' ');
-    buf.append("marketDataMappings").append('=').append(getMarketDataMappings()).append(',').append(' ');
-    buf.append("reportingRules").append('=').append(JodaBeanUtils.toString(getReportingRules()));
+    buf.append("target").append('=').append(target).append(',').append(' ');
+    buf.append("rowIndex").append('=').append(rowIndex).append(',').append(' ');
+    buf.append("columnIndex").append('=').append(columnIndex).append(',').append(' ');
+    buf.append("functionConfig").append('=').append(functionConfig).append(',').append(' ');
+    buf.append("functionArguments").append('=').append(functionArguments).append(',').append(' ');
+    buf.append("marketDataMappings").append('=').append(marketDataMappings).append(',').append(' ');
+    buf.append("reportingRules").append('=').append(JodaBeanUtils.toString(reportingRules));
     buf.append('}');
     return buf.toString();
   }

@@ -143,8 +143,8 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       BeanWrapper other = (BeanWrapper) obj;
-      return JodaBeanUtils.equal(getBean(), other.getBean()) &&
-          JodaBeanUtils.equal(getAdditionalIdentifiers(), other.getAdditionalIdentifiers());
+      return JodaBeanUtils.equal(bean, other.bean) &&
+          JodaBeanUtils.equal(additionalIdentifiers, other.additionalIdentifiers);
     }
     return false;
   }
@@ -152,8 +152,8 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBean());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAdditionalIdentifiers());
+    hash = hash * 31 + JodaBeanUtils.hashCode(bean);
+    hash = hash * 31 + JodaBeanUtils.hashCode(additionalIdentifiers);
     return hash;
   }
 
@@ -161,8 +161,8 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("BeanWrapper{");
-    buf.append("bean").append('=').append(getBean()).append(',').append(' ');
-    buf.append("additionalIdentifiers").append('=').append(JodaBeanUtils.toString(getAdditionalIdentifiers()));
+    buf.append("bean").append('=').append(bean).append(',').append(' ');
+    buf.append("additionalIdentifiers").append('=').append(JodaBeanUtils.toString(additionalIdentifiers));
     buf.append('}');
     return buf.toString();
   }

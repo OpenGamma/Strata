@@ -70,6 +70,10 @@ public final class BlackFunctionData
     return META_BEAN;
   }
 
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
   /**
    * The serialization version id.
    */
@@ -135,9 +139,9 @@ public final class BlackFunctionData
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       BlackFunctionData other = (BlackFunctionData) obj;
-      return JodaBeanUtils.equal(getForward(), other.getForward()) &&
-          JodaBeanUtils.equal(getNumeraire(), other.getNumeraire()) &&
-          JodaBeanUtils.equal(getBlackVolatility(), other.getBlackVolatility());
+      return JodaBeanUtils.equal(forward, other.forward) &&
+          JodaBeanUtils.equal(numeraire, other.numeraire) &&
+          JodaBeanUtils.equal(blackVolatility, other.blackVolatility);
     }
     return false;
   }
@@ -145,9 +149,9 @@ public final class BlackFunctionData
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getForward());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNumeraire());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBlackVolatility());
+    hash = hash * 31 + JodaBeanUtils.hashCode(forward);
+    hash = hash * 31 + JodaBeanUtils.hashCode(numeraire);
+    hash = hash * 31 + JodaBeanUtils.hashCode(blackVolatility);
     return hash;
   }
 
@@ -155,9 +159,9 @@ public final class BlackFunctionData
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("BlackFunctionData{");
-    buf.append("forward").append('=').append(getForward()).append(',').append(' ');
-    buf.append("numeraire").append('=').append(getNumeraire()).append(',').append(' ');
-    buf.append("blackVolatility").append('=').append(JodaBeanUtils.toString(getBlackVolatility()));
+    buf.append("forward").append('=').append(forward).append(',').append(' ');
+    buf.append("numeraire").append('=').append(numeraire).append(',').append(' ');
+    buf.append("blackVolatility").append('=').append(JodaBeanUtils.toString(blackVolatility));
     buf.append('}');
     return buf.toString();
   }

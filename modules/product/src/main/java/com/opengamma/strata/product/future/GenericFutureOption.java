@@ -405,14 +405,14 @@ public final class GenericFutureOption
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       GenericFutureOption other = (GenericFutureOption) obj;
-      return JodaBeanUtils.equal(getProductId(), other.getProductId()) &&
-          JodaBeanUtils.equal(getExpiryMonth(), other.getExpiryMonth()) &&
-          JodaBeanUtils.equal(getPutCall(), other.getPutCall()) &&
-          JodaBeanUtils.equal(getStrikePrice(), other.getStrikePrice()) &&
+      return JodaBeanUtils.equal(productId, other.productId) &&
+          JodaBeanUtils.equal(expiryMonth, other.expiryMonth) &&
+          JodaBeanUtils.equal(putCall, other.putCall) &&
+          JodaBeanUtils.equal(strikePrice, other.strikePrice) &&
           JodaBeanUtils.equal(expiryDate, other.expiryDate) &&
-          JodaBeanUtils.equal(getTickSize(), other.getTickSize()) &&
-          JodaBeanUtils.equal(getTickValue(), other.getTickValue()) &&
-          (getUnderlyingQuantity() == other.getUnderlyingQuantity()) &&
+          JodaBeanUtils.equal(tickSize, other.tickSize) &&
+          JodaBeanUtils.equal(tickValue, other.tickValue) &&
+          (underlyingQuantity == other.underlyingQuantity) &&
           JodaBeanUtils.equal(underlyingLink, other.underlyingLink);
     }
     return false;
@@ -421,14 +421,14 @@ public final class GenericFutureOption
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getProductId());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryMonth());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPutCall());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStrikePrice());
+    hash = hash * 31 + JodaBeanUtils.hashCode(productId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryMonth);
+    hash = hash * 31 + JodaBeanUtils.hashCode(putCall);
+    hash = hash * 31 + JodaBeanUtils.hashCode(strikePrice);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiryDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTickSize());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTickValue());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingQuantity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(tickSize);
+    hash = hash * 31 + JodaBeanUtils.hashCode(tickValue);
+    hash = hash * 31 + JodaBeanUtils.hashCode(underlyingQuantity);
     hash = hash * 31 + JodaBeanUtils.hashCode(underlyingLink);
     return hash;
   }
@@ -437,14 +437,14 @@ public final class GenericFutureOption
   public String toString() {
     StringBuilder buf = new StringBuilder(320);
     buf.append("GenericFutureOption{");
-    buf.append("productId").append('=').append(getProductId()).append(',').append(' ');
-    buf.append("expiryMonth").append('=').append(getExpiryMonth()).append(',').append(' ');
-    buf.append("putCall").append('=').append(getPutCall()).append(',').append(' ');
-    buf.append("strikePrice").append('=').append(getStrikePrice()).append(',').append(' ');
+    buf.append("productId").append('=').append(productId).append(',').append(' ');
+    buf.append("expiryMonth").append('=').append(expiryMonth).append(',').append(' ');
+    buf.append("putCall").append('=').append(putCall).append(',').append(' ');
+    buf.append("strikePrice").append('=').append(strikePrice).append(',').append(' ');
     buf.append("expiryDate").append('=').append(expiryDate).append(',').append(' ');
-    buf.append("tickSize").append('=').append(getTickSize()).append(',').append(' ');
-    buf.append("tickValue").append('=').append(getTickValue()).append(',').append(' ');
-    buf.append("underlyingQuantity").append('=').append(getUnderlyingQuantity()).append(',').append(' ');
+    buf.append("tickSize").append('=').append(tickSize).append(',').append(' ');
+    buf.append("tickValue").append('=').append(tickValue).append(',').append(' ');
+    buf.append("underlyingQuantity").append('=').append(underlyingQuantity).append(',').append(' ');
     buf.append("underlyingLink").append('=').append(JodaBeanUtils.toString(underlyingLink));
     buf.append('}');
     return buf.toString();

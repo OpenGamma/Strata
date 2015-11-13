@@ -205,9 +205,9 @@ public final class Results implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Results other = (Results) obj;
-      return (getRowCount() == other.getRowCount()) &&
-          (getColumnCount() == other.getColumnCount()) &&
-          JodaBeanUtils.equal(getItems(), other.getItems());
+      return (rowCount == other.rowCount) &&
+          (columnCount == other.columnCount) &&
+          JodaBeanUtils.equal(items, other.items);
     }
     return false;
   }
@@ -215,9 +215,9 @@ public final class Results implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRowCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getColumnCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getItems());
+    hash = hash * 31 + JodaBeanUtils.hashCode(rowCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(columnCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(items);
     return hash;
   }
 
@@ -225,9 +225,9 @@ public final class Results implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("Results{");
-    buf.append("rowCount").append('=').append(getRowCount()).append(',').append(' ');
-    buf.append("columnCount").append('=').append(getColumnCount()).append(',').append(' ');
-    buf.append("items").append('=').append(JodaBeanUtils.toString(getItems()));
+    buf.append("rowCount").append('=').append(rowCount).append(',').append(' ');
+    buf.append("columnCount").append('=').append(columnCount).append(',').append(' ');
+    buf.append("items").append('=').append(JodaBeanUtils.toString(items));
     buf.append('}');
     return buf.toString();
   }

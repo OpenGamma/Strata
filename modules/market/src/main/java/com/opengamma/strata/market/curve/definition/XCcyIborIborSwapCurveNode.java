@@ -237,10 +237,10 @@ public final class XCcyIborIborSwapCurveNode
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       XCcyIborIborSwapCurveNode other = (XCcyIborIborSwapCurveNode) obj;
-      return JodaBeanUtils.equal(getTemplate(), other.getTemplate()) &&
-          JodaBeanUtils.equal(getSpreadKey(), other.getSpreadKey()) &&
-          JodaBeanUtils.equal(getFxKey(), other.getFxKey()) &&
-          JodaBeanUtils.equal(getSpread(), other.getSpread());
+      return JodaBeanUtils.equal(template, other.template) &&
+          JodaBeanUtils.equal(spreadKey, other.spreadKey) &&
+          JodaBeanUtils.equal(fxKey, other.fxKey) &&
+          JodaBeanUtils.equal(spread, other.spread);
     }
     return false;
   }
@@ -248,10 +248,10 @@ public final class XCcyIborIborSwapCurveNode
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTemplate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSpreadKey());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFxKey());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSpread());
+    hash = hash * 31 + JodaBeanUtils.hashCode(template);
+    hash = hash * 31 + JodaBeanUtils.hashCode(spreadKey);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fxKey);
+    hash = hash * 31 + JodaBeanUtils.hashCode(spread);
     return hash;
   }
 
@@ -259,10 +259,10 @@ public final class XCcyIborIborSwapCurveNode
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("XCcyIborIborSwapCurveNode{");
-    buf.append("template").append('=').append(getTemplate()).append(',').append(' ');
-    buf.append("spreadKey").append('=').append(getSpreadKey()).append(',').append(' ');
-    buf.append("fxKey").append('=').append(getFxKey()).append(',').append(' ');
-    buf.append("spread").append('=').append(JodaBeanUtils.toString(getSpread()));
+    buf.append("template").append('=').append(template).append(',').append(' ');
+    buf.append("spreadKey").append('=').append(spreadKey).append(',').append(' ');
+    buf.append("fxKey").append('=').append(fxKey).append(',').append(' ');
+    buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
     buf.append('}');
     return buf.toString();
   }

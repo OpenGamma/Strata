@@ -130,8 +130,8 @@ public final class CalculationTasksConfig implements ImmutableBean, Serializable
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CalculationTasksConfig other = (CalculationTasksConfig) obj;
-      return JodaBeanUtils.equal(getTaskConfigurations(), other.getTaskConfigurations()) &&
-          JodaBeanUtils.equal(getColumns(), other.getColumns());
+      return JodaBeanUtils.equal(taskConfigurations, other.taskConfigurations) &&
+          JodaBeanUtils.equal(columns, other.columns);
     }
     return false;
   }
@@ -139,8 +139,8 @@ public final class CalculationTasksConfig implements ImmutableBean, Serializable
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTaskConfigurations());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getColumns());
+    hash = hash * 31 + JodaBeanUtils.hashCode(taskConfigurations);
+    hash = hash * 31 + JodaBeanUtils.hashCode(columns);
     return hash;
   }
 
@@ -148,8 +148,8 @@ public final class CalculationTasksConfig implements ImmutableBean, Serializable
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CalculationTasksConfig{");
-    buf.append("taskConfigurations").append('=').append(getTaskConfigurations()).append(',').append(' ');
-    buf.append("columns").append('=').append(JodaBeanUtils.toString(getColumns()));
+    buf.append("taskConfigurations").append('=').append(taskConfigurations).append(',').append(' ');
+    buf.append("columns").append('=').append(JodaBeanUtils.toString(columns));
     buf.append('}');
     return buf.toString();
   }

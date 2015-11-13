@@ -285,9 +285,9 @@ public final class TenorAdjustment
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       TenorAdjustment other = (TenorAdjustment) obj;
-      return JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
-          JodaBeanUtils.equal(getAdditionConvention(), other.getAdditionConvention()) &&
-          JodaBeanUtils.equal(getAdjustment(), other.getAdjustment());
+      return JodaBeanUtils.equal(tenor, other.tenor) &&
+          JodaBeanUtils.equal(additionConvention, other.additionConvention) &&
+          JodaBeanUtils.equal(adjustment, other.adjustment);
     }
     return false;
   }
@@ -295,9 +295,9 @@ public final class TenorAdjustment
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTenor());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAdditionConvention());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAdjustment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(tenor);
+    hash = hash * 31 + JodaBeanUtils.hashCode(additionConvention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(adjustment);
     return hash;
   }
 

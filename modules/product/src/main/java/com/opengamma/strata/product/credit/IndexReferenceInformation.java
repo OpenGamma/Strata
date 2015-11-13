@@ -170,9 +170,9 @@ public final class IndexReferenceInformation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IndexReferenceInformation other = (IndexReferenceInformation) obj;
-      return JodaBeanUtils.equal(getIndexId(), other.getIndexId()) &&
-          (getIndexSeries() == other.getIndexSeries()) &&
-          (getIndexAnnexVersion() == other.getIndexAnnexVersion());
+      return JodaBeanUtils.equal(indexId, other.indexId) &&
+          (indexSeries == other.indexSeries) &&
+          (indexAnnexVersion == other.indexAnnexVersion);
     }
     return false;
   }
@@ -180,9 +180,9 @@ public final class IndexReferenceInformation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexId());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexSeries());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexAnnexVersion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(indexId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(indexSeries);
+    hash = hash * 31 + JodaBeanUtils.hashCode(indexAnnexVersion);
     return hash;
   }
 
@@ -190,9 +190,9 @@ public final class IndexReferenceInformation
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("IndexReferenceInformation{");
-    buf.append("indexId").append('=').append(getIndexId()).append(',').append(' ');
-    buf.append("indexSeries").append('=').append(getIndexSeries()).append(',').append(' ');
-    buf.append("indexAnnexVersion").append('=').append(JodaBeanUtils.toString(getIndexAnnexVersion()));
+    buf.append("indexId").append('=').append(indexId).append(',').append(' ');
+    buf.append("indexSeries").append('=').append(indexSeries).append(',').append(' ');
+    buf.append("indexAnnexVersion").append('=').append(JodaBeanUtils.toString(indexAnnexVersion));
     buf.append('}');
     return buf.toString();
   }

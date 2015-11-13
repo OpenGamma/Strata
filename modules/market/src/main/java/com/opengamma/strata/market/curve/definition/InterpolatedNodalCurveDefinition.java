@@ -330,14 +330,14 @@ public final class InterpolatedNodalCurveDefinition
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       InterpolatedNodalCurveDefinition other = (InterpolatedNodalCurveDefinition) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getXValueType(), other.getXValueType()) &&
-          JodaBeanUtils.equal(getYValueType(), other.getYValueType()) &&
+      return JodaBeanUtils.equal(name, other.name) &&
+          JodaBeanUtils.equal(xValueType, other.xValueType) &&
+          JodaBeanUtils.equal(yValueType, other.yValueType) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
-          JodaBeanUtils.equal(getNodes(), other.getNodes()) &&
-          JodaBeanUtils.equal(getInterpolator(), other.getInterpolator()) &&
-          JodaBeanUtils.equal(getExtrapolatorLeft(), other.getExtrapolatorLeft()) &&
-          JodaBeanUtils.equal(getExtrapolatorRight(), other.getExtrapolatorRight());
+          JodaBeanUtils.equal(nodes, other.nodes) &&
+          JodaBeanUtils.equal(interpolator, other.interpolator) &&
+          JodaBeanUtils.equal(extrapolatorLeft, other.extrapolatorLeft) &&
+          JodaBeanUtils.equal(extrapolatorRight, other.extrapolatorRight);
     }
     return false;
   }
@@ -345,14 +345,14 @@ public final class InterpolatedNodalCurveDefinition
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getXValueType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getYValueType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(xValueType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yValueType);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNodes());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getInterpolator());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExtrapolatorLeft());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExtrapolatorRight());
+    hash = hash * 31 + JodaBeanUtils.hashCode(nodes);
+    hash = hash * 31 + JodaBeanUtils.hashCode(interpolator);
+    hash = hash * 31 + JodaBeanUtils.hashCode(extrapolatorLeft);
+    hash = hash * 31 + JodaBeanUtils.hashCode(extrapolatorRight);
     return hash;
   }
 
@@ -360,14 +360,14 @@ public final class InterpolatedNodalCurveDefinition
   public String toString() {
     StringBuilder buf = new StringBuilder(288);
     buf.append("InterpolatedNodalCurveDefinition{");
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("xValueType").append('=').append(getXValueType()).append(',').append(' ');
-    buf.append("yValueType").append('=').append(getYValueType()).append(',').append(' ');
+    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("xValueType").append('=').append(xValueType).append(',').append(' ');
+    buf.append("yValueType").append('=').append(yValueType).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("nodes").append('=').append(getNodes()).append(',').append(' ');
-    buf.append("interpolator").append('=').append(getInterpolator()).append(',').append(' ');
-    buf.append("extrapolatorLeft").append('=').append(getExtrapolatorLeft()).append(',').append(' ');
-    buf.append("extrapolatorRight").append('=').append(JodaBeanUtils.toString(getExtrapolatorRight()));
+    buf.append("nodes").append('=').append(nodes).append(',').append(' ');
+    buf.append("interpolator").append('=').append(interpolator).append(',').append(' ');
+    buf.append("extrapolatorLeft").append('=').append(extrapolatorLeft).append(',').append(' ');
+    buf.append("extrapolatorRight").append('=').append(JodaBeanUtils.toString(extrapolatorRight));
     buf.append('}');
     return buf.toString();
   }

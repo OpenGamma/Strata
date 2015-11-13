@@ -116,7 +116,7 @@ public final class DiscountFactorsKey
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DiscountFactorsKey other = (DiscountFactorsKey) obj;
-      return JodaBeanUtils.equal(getCurrency(), other.getCurrency());
+      return JodaBeanUtils.equal(currency, other.currency);
     }
     return false;
   }
@@ -124,7 +124,7 @@ public final class DiscountFactorsKey
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     return hash;
   }
 
@@ -132,7 +132,7 @@ public final class DiscountFactorsKey
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("DiscountFactorsKey{");
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency()));
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency));
     buf.append('}');
     return buf.toString();
   }

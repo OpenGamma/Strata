@@ -414,14 +414,14 @@ public final class BondFuture
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       BondFuture other = (BondFuture) obj;
-      return JodaBeanUtils.equal(getDeliveryBasket(), other.getDeliveryBasket()) &&
-          JodaBeanUtils.equal(getConversionFactor(), other.getConversionFactor()) &&
-          JodaBeanUtils.equal(getLastTradeDate(), other.getLastTradeDate()) &&
-          JodaBeanUtils.equal(getFirstNoticeDate(), other.getFirstNoticeDate()) &&
-          JodaBeanUtils.equal(getLastNoticeDate(), other.getLastNoticeDate()) &&
-          JodaBeanUtils.equal(getFirstDeliveryDate(), other.getFirstDeliveryDate()) &&
-          JodaBeanUtils.equal(getLastDeliveryDate(), other.getLastDeliveryDate()) &&
-          JodaBeanUtils.equal(getRounding(), other.getRounding());
+      return JodaBeanUtils.equal(deliveryBasket, other.deliveryBasket) &&
+          JodaBeanUtils.equal(conversionFactor, other.conversionFactor) &&
+          JodaBeanUtils.equal(lastTradeDate, other.lastTradeDate) &&
+          JodaBeanUtils.equal(firstNoticeDate, other.firstNoticeDate) &&
+          JodaBeanUtils.equal(lastNoticeDate, other.lastNoticeDate) &&
+          JodaBeanUtils.equal(firstDeliveryDate, other.firstDeliveryDate) &&
+          JodaBeanUtils.equal(lastDeliveryDate, other.lastDeliveryDate) &&
+          JodaBeanUtils.equal(rounding, other.rounding);
     }
     return false;
   }
@@ -429,14 +429,14 @@ public final class BondFuture
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDeliveryBasket());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getConversionFactor());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLastTradeDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstNoticeDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLastNoticeDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRounding());
+    hash = hash * 31 + JodaBeanUtils.hashCode(deliveryBasket);
+    hash = hash * 31 + JodaBeanUtils.hashCode(conversionFactor);
+    hash = hash * 31 + JodaBeanUtils.hashCode(lastTradeDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(firstNoticeDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(lastNoticeDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(firstDeliveryDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(lastDeliveryDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rounding);
     return hash;
   }
 
@@ -444,14 +444,14 @@ public final class BondFuture
   public String toString() {
     StringBuilder buf = new StringBuilder(288);
     buf.append("BondFuture{");
-    buf.append("deliveryBasket").append('=').append(getDeliveryBasket()).append(',').append(' ');
-    buf.append("conversionFactor").append('=').append(getConversionFactor()).append(',').append(' ');
-    buf.append("lastTradeDate").append('=').append(getLastTradeDate()).append(',').append(' ');
-    buf.append("firstNoticeDate").append('=').append(getFirstNoticeDate()).append(',').append(' ');
-    buf.append("lastNoticeDate").append('=').append(getLastNoticeDate()).append(',').append(' ');
-    buf.append("firstDeliveryDate").append('=').append(getFirstDeliveryDate()).append(',').append(' ');
-    buf.append("lastDeliveryDate").append('=').append(getLastDeliveryDate()).append(',').append(' ');
-    buf.append("rounding").append('=').append(JodaBeanUtils.toString(getRounding()));
+    buf.append("deliveryBasket").append('=').append(deliveryBasket).append(',').append(' ');
+    buf.append("conversionFactor").append('=').append(conversionFactor).append(',').append(' ');
+    buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
+    buf.append("firstNoticeDate").append('=').append(firstNoticeDate).append(',').append(' ');
+    buf.append("lastNoticeDate").append('=').append(lastNoticeDate).append(',').append(' ');
+    buf.append("firstDeliveryDate").append('=').append(firstDeliveryDate).append(',').append(' ');
+    buf.append("lastDeliveryDate").append('=').append(lastDeliveryDate).append(',').append(' ');
+    buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding));
     buf.append('}');
     return buf.toString();
   }

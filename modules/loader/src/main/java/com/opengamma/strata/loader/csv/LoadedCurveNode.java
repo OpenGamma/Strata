@@ -85,6 +85,10 @@ final class LoadedCurveNode
     return META_BEAN;
   }
 
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
   private LoadedCurveNode(
       LocalDate date,
       double value,
@@ -146,9 +150,9 @@ final class LoadedCurveNode
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       LoadedCurveNode other = (LoadedCurveNode) obj;
-      return JodaBeanUtils.equal(getDate(), other.getDate()) &&
-          JodaBeanUtils.equal(getValue(), other.getValue()) &&
-          JodaBeanUtils.equal(getLabel(), other.getLabel());
+      return JodaBeanUtils.equal(date, other.date) &&
+          JodaBeanUtils.equal(value, other.value) &&
+          JodaBeanUtils.equal(label, other.label);
     }
     return false;
   }
@@ -156,9 +160,9 @@ final class LoadedCurveNode
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValue());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLabel());
+    hash = hash * 31 + JodaBeanUtils.hashCode(date);
+    hash = hash * 31 + JodaBeanUtils.hashCode(value);
+    hash = hash * 31 + JodaBeanUtils.hashCode(label);
     return hash;
   }
 
@@ -166,9 +170,9 @@ final class LoadedCurveNode
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("LoadedCurveNode{");
-    buf.append("date").append('=').append(getDate()).append(',').append(' ');
-    buf.append("value").append('=').append(getValue()).append(',').append(' ');
-    buf.append("label").append('=').append(JodaBeanUtils.toString(getLabel()));
+    buf.append("date").append('=').append(date).append(',').append(' ');
+    buf.append("value").append('=').append(value).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();
   }

@@ -245,10 +245,10 @@ public final class IborRateSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborRateSensitivity other = (IborRateSensitivity) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getFixingDate(), other.getFixingDate()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getSensitivity(), other.getSensitivity());
+      return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(fixingDate, other.fixingDate) &&
+          JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(sensitivity, other.sensitivity);
     }
     return false;
   }
@@ -256,10 +256,10 @@ public final class IborRateSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixingDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(sensitivity);
     return hash;
   }
 
@@ -267,10 +267,10 @@ public final class IborRateSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("IborRateSensitivity{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("fixingDate").append('=').append(getFixingDate()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(getSensitivity()));
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("fixingDate").append('=').append(fixingDate).append(',').append(' ');
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();
   }

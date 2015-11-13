@@ -281,10 +281,10 @@ public final class DefaultSurfaceMetadata
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DefaultSurfaceMetadata other = (DefaultSurfaceMetadata) obj;
-      return JodaBeanUtils.equal(getSurfaceName(), other.getSurfaceName()) &&
-          JodaBeanUtils.equal(getXValueType(), other.getXValueType()) &&
-          JodaBeanUtils.equal(getYValueType(), other.getYValueType()) &&
-          JodaBeanUtils.equal(getZValueType(), other.getZValueType()) &&
+      return JodaBeanUtils.equal(surfaceName, other.surfaceName) &&
+          JodaBeanUtils.equal(xValueType, other.xValueType) &&
+          JodaBeanUtils.equal(yValueType, other.yValueType) &&
+          JodaBeanUtils.equal(zValueType, other.zValueType) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(parameterMetadata, other.parameterMetadata);
     }
@@ -294,10 +294,10 @@ public final class DefaultSurfaceMetadata
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSurfaceName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getXValueType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getYValueType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getZValueType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(surfaceName);
+    hash = hash * 31 + JodaBeanUtils.hashCode(xValueType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yValueType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(zValueType);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(parameterMetadata);
     return hash;
@@ -307,10 +307,10 @@ public final class DefaultSurfaceMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("DefaultSurfaceMetadata{");
-    buf.append("surfaceName").append('=').append(getSurfaceName()).append(',').append(' ');
-    buf.append("xValueType").append('=').append(getXValueType()).append(',').append(' ');
-    buf.append("yValueType").append('=').append(getYValueType()).append(',').append(' ');
-    buf.append("zValueType").append('=').append(getZValueType()).append(',').append(' ');
+    buf.append("surfaceName").append('=').append(surfaceName).append(',').append(' ');
+    buf.append("xValueType").append('=').append(xValueType).append(',').append(' ');
+    buf.append("yValueType").append('=').append(yValueType).append(',').append(' ');
+    buf.append("zValueType").append('=').append(zValueType).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("parameterMetadata").append('=').append(JodaBeanUtils.toString(parameterMetadata));
     buf.append('}');

@@ -478,9 +478,9 @@ public final class Schedule
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Schedule other = (Schedule) obj;
-      return JodaBeanUtils.equal(getPeriods(), other.getPeriods()) &&
-          JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
-          JodaBeanUtils.equal(getRollConvention(), other.getRollConvention());
+      return JodaBeanUtils.equal(periods, other.periods) &&
+          JodaBeanUtils.equal(frequency, other.frequency) &&
+          JodaBeanUtils.equal(rollConvention, other.rollConvention);
     }
     return false;
   }
@@ -488,9 +488,9 @@ public final class Schedule
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPeriods());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFrequency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(periods);
+    hash = hash * 31 + JodaBeanUtils.hashCode(frequency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rollConvention);
     return hash;
   }
 
@@ -498,9 +498,9 @@ public final class Schedule
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("Schedule{");
-    buf.append("periods").append('=').append(getPeriods()).append(',').append(' ');
-    buf.append("frequency").append('=').append(getFrequency()).append(',').append(' ');
-    buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(getRollConvention()));
+    buf.append("periods").append('=').append(periods).append(',').append(' ');
+    buf.append("frequency").append('=').append(frequency).append(',').append(' ');
+    buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(rollConvention));
     buf.append('}');
     return buf.toString();
   }

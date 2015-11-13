@@ -151,8 +151,8 @@ public final class DefaultMarketDataRule implements MarketDataRule, ImmutableBea
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DefaultMarketDataRule other = (DefaultMarketDataRule) obj;
-      return JodaBeanUtils.equal(getMappings(), other.getMappings()) &&
-          JodaBeanUtils.equal(getTargetTypes(), other.getTargetTypes());
+      return JodaBeanUtils.equal(mappings, other.mappings) &&
+          JodaBeanUtils.equal(targetTypes, other.targetTypes);
     }
     return false;
   }
@@ -160,8 +160,8 @@ public final class DefaultMarketDataRule implements MarketDataRule, ImmutableBea
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMappings());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTargetTypes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(mappings);
+    hash = hash * 31 + JodaBeanUtils.hashCode(targetTypes);
     return hash;
   }
 
@@ -169,8 +169,8 @@ public final class DefaultMarketDataRule implements MarketDataRule, ImmutableBea
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("DefaultMarketDataRule{");
-    buf.append("mappings").append('=').append(getMappings()).append(',').append(' ');
-    buf.append("targetTypes").append('=').append(JodaBeanUtils.toString(getTargetTypes()));
+    buf.append("mappings").append('=').append(mappings).append(',').append(' ');
+    buf.append("targetTypes").append('=').append(JodaBeanUtils.toString(targetTypes));
     buf.append('}');
     return buf.toString();
   }

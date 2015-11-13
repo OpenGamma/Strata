@@ -538,7 +538,7 @@ public final class MultiCurrencyAmount
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MultiCurrencyAmount other = (MultiCurrencyAmount) obj;
-      return JodaBeanUtils.equal(getAmounts(), other.getAmounts());
+      return JodaBeanUtils.equal(amounts, other.amounts);
     }
     return false;
   }
@@ -546,7 +546,7 @@ public final class MultiCurrencyAmount
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAmounts());
+    hash = hash * 31 + JodaBeanUtils.hashCode(amounts);
     return hash;
   }
 

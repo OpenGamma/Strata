@@ -250,7 +250,7 @@ public final class TradeInfo
           JodaBeanUtils.equal(tradeTime, other.tradeTime) &&
           JodaBeanUtils.equal(zone, other.zone) &&
           JodaBeanUtils.equal(settlementDate, other.settlementDate) &&
-          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
+          JodaBeanUtils.equal(attributes, other.attributes);
     }
     return false;
   }
@@ -264,7 +264,7 @@ public final class TradeInfo
     hash = hash * 31 + JodaBeanUtils.hashCode(tradeTime);
     hash = hash * 31 + JodaBeanUtils.hashCode(zone);
     hash = hash * 31 + JodaBeanUtils.hashCode(settlementDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(attributes);
     return hash;
   }
 
@@ -278,7 +278,7 @@ public final class TradeInfo
     buf.append("tradeTime").append('=').append(tradeTime).append(',').append(' ');
     buf.append("zone").append('=').append(zone).append(',').append(' ');
     buf.append("settlementDate").append('=').append(settlementDate).append(',').append(' ');
-    buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes()));
+    buf.append("attributes").append('=').append(JodaBeanUtils.toString(attributes));
     buf.append('}');
     return buf.toString();
   }

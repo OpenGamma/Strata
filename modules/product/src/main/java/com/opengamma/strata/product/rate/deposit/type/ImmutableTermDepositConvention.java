@@ -308,11 +308,11 @@ public final class ImmutableTermDepositConvention
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ImmutableTermDepositConvention other = (ImmutableTermDepositConvention) obj;
-      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+      return JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(name, other.name) &&
-          JodaBeanUtils.equal(getBusinessDayAdjustment(), other.getBusinessDayAdjustment()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getSpotDateOffset(), other.getSpotDateOffset());
+          JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
+          JodaBeanUtils.equal(dayCount, other.dayCount) &&
+          JodaBeanUtils.equal(spotDateOffset, other.spotDateOffset);
     }
     return false;
   }
@@ -320,11 +320,11 @@ public final class ImmutableTermDepositConvention
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(name);
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayAdjustment());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSpotDateOffset());
+    hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(spotDateOffset);
     return hash;
   }
 

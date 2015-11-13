@@ -178,9 +178,9 @@ public final class FailureItem
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FailureItem other = (FailureItem) obj;
-      return JodaBeanUtils.equal(getReason(), other.getReason()) &&
-          JodaBeanUtils.equal(getMessage(), other.getMessage()) &&
-          JodaBeanUtils.equal(getStackTrace(), other.getStackTrace()) &&
+      return JodaBeanUtils.equal(reason, other.reason) &&
+          JodaBeanUtils.equal(message, other.message) &&
+          JodaBeanUtils.equal(stackTrace, other.stackTrace) &&
           JodaBeanUtils.equal(causeType, other.causeType);
     }
     return false;
@@ -189,9 +189,9 @@ public final class FailureItem
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReason());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMessage());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStackTrace());
+    hash = hash * 31 + JodaBeanUtils.hashCode(reason);
+    hash = hash * 31 + JodaBeanUtils.hashCode(message);
+    hash = hash * 31 + JodaBeanUtils.hashCode(stackTrace);
     hash = hash * 31 + JodaBeanUtils.hashCode(causeType);
     return hash;
   }
@@ -200,9 +200,9 @@ public final class FailureItem
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("FailureItem{");
-    buf.append("reason").append('=').append(getReason()).append(',').append(' ');
-    buf.append("message").append('=').append(getMessage()).append(',').append(' ');
-    buf.append("stackTrace").append('=').append(getStackTrace()).append(',').append(' ');
+    buf.append("reason").append('=').append(reason).append(',').append(' ');
+    buf.append("message").append('=').append(message).append(',').append(' ');
+    buf.append("stackTrace").append('=').append(stackTrace).append(',').append(' ');
     buf.append("causeType").append('=').append(JodaBeanUtils.toString(causeType));
     buf.append('}');
     return buf.toString();

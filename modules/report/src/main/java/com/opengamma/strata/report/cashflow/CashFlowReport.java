@@ -203,11 +203,11 @@ public final class CashFlowReport
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CashFlowReport other = (CashFlowReport) obj;
-      return JodaBeanUtils.equal(getValuationDate(), other.getValuationDate()) &&
-          JodaBeanUtils.equal(getRunInstant(), other.getRunInstant()) &&
-          JodaBeanUtils.equal(getColumnKeys(), other.getColumnKeys()) &&
-          JodaBeanUtils.equal(getColumnHeaders(), other.getColumnHeaders()) &&
-          JodaBeanUtils.equal(getData(), other.getData());
+      return JodaBeanUtils.equal(valuationDate, other.valuationDate) &&
+          JodaBeanUtils.equal(runInstant, other.runInstant) &&
+          JodaBeanUtils.equal(columnKeys, other.columnKeys) &&
+          JodaBeanUtils.equal(columnHeaders, other.columnHeaders) &&
+          JodaBeanUtils.equal(data, other.data);
     }
     return false;
   }
@@ -215,11 +215,11 @@ public final class CashFlowReport
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRunInstant());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getColumnKeys());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getColumnHeaders());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(valuationDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(runInstant);
+    hash = hash * 31 + JodaBeanUtils.hashCode(columnKeys);
+    hash = hash * 31 + JodaBeanUtils.hashCode(columnHeaders);
+    hash = hash * 31 + JodaBeanUtils.hashCode(data);
     return hash;
   }
 
@@ -227,11 +227,11 @@ public final class CashFlowReport
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("CashFlowReport{");
-    buf.append("valuationDate").append('=').append(getValuationDate()).append(',').append(' ');
-    buf.append("runInstant").append('=').append(getRunInstant()).append(',').append(' ');
-    buf.append("columnKeys").append('=').append(getColumnKeys()).append(',').append(' ');
-    buf.append("columnHeaders").append('=').append(getColumnHeaders()).append(',').append(' ');
-    buf.append("data").append('=').append(JodaBeanUtils.toString(getData()));
+    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
+    buf.append("runInstant").append('=').append(runInstant).append(',').append(' ');
+    buf.append("columnKeys").append('=').append(columnKeys).append(',').append(' ');
+    buf.append("columnHeaders").append('=').append(columnHeaders).append(',').append(' ');
+    buf.append("data").append('=').append(JodaBeanUtils.toString(data));
     buf.append('}');
     return buf.toString();
   }

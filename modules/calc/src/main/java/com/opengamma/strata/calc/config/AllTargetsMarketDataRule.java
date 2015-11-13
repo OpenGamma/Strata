@@ -108,7 +108,7 @@ public final class AllTargetsMarketDataRule implements MarketDataRule, Immutable
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       AllTargetsMarketDataRule other = (AllTargetsMarketDataRule) obj;
-      return JodaBeanUtils.equal(getMappings(), other.getMappings());
+      return JodaBeanUtils.equal(mappings, other.mappings);
     }
     return false;
   }
@@ -116,7 +116,7 @@ public final class AllTargetsMarketDataRule implements MarketDataRule, Immutable
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMappings());
+    hash = hash * 31 + JodaBeanUtils.hashCode(mappings);
     return hash;
   }
 
@@ -124,7 +124,7 @@ public final class AllTargetsMarketDataRule implements MarketDataRule, Immutable
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("AllTargetsMarketDataRule{");
-    buf.append("mappings").append('=').append(JodaBeanUtils.toString(getMappings()));
+    buf.append("mappings").append('=').append(JodaBeanUtils.toString(mappings));
     buf.append('}');
     return buf.toString();
   }

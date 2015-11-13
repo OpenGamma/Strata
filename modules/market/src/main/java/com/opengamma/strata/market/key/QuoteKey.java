@@ -179,8 +179,8 @@ public final class QuoteKey
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       QuoteKey other = (QuoteKey) obj;
-      return JodaBeanUtils.equal(getStandardId(), other.getStandardId()) &&
-          JodaBeanUtils.equal(getFieldName(), other.getFieldName());
+      return JodaBeanUtils.equal(standardId, other.standardId) &&
+          JodaBeanUtils.equal(fieldName, other.fieldName);
     }
     return false;
   }
@@ -188,8 +188,8 @@ public final class QuoteKey
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFieldName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(standardId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fieldName);
     return hash;
   }
 
@@ -197,8 +197,8 @@ public final class QuoteKey
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("QuoteKey{");
-    buf.append("standardId").append('=').append(getStandardId()).append(',').append(' ');
-    buf.append("fieldName").append('=').append(JodaBeanUtils.toString(getFieldName()));
+    buf.append("standardId").append('=').append(standardId).append(',').append(' ');
+    buf.append("fieldName").append('=').append(JodaBeanUtils.toString(fieldName));
     buf.append('}');
     return buf.toString();
   }

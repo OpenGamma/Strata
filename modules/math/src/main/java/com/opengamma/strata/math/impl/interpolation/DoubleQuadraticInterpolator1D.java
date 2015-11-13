@@ -184,6 +184,10 @@ public final class DoubleQuadraticInterpolator1D
     return META_BEAN;
   }
 
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
   /**
    * The serialization version id.
    */
@@ -231,7 +235,7 @@ public final class DoubleQuadraticInterpolator1D
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DoubleQuadraticInterpolator1D other = (DoubleQuadraticInterpolator1D) obj;
-      return JodaBeanUtils.equal(getWeightFunction(), other.getWeightFunction());
+      return JodaBeanUtils.equal(weightFunction, other.weightFunction);
     }
     return false;
   }
@@ -239,7 +243,7 @@ public final class DoubleQuadraticInterpolator1D
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getWeightFunction());
+    hash = hash * 31 + JodaBeanUtils.hashCode(weightFunction);
     return hash;
   }
 
@@ -247,7 +251,7 @@ public final class DoubleQuadraticInterpolator1D
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("DoubleQuadraticInterpolator1D{");
-    buf.append("weightFunction").append('=').append(JodaBeanUtils.toString(getWeightFunction()));
+    buf.append("weightFunction").append('=').append(JodaBeanUtils.toString(weightFunction));
     buf.append('}');
     return buf.toString();
   }

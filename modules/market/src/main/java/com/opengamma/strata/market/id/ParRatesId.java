@@ -146,9 +146,9 @@ public final class ParRatesId
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ParRatesId other = (ParRatesId) obj;
-      return JodaBeanUtils.equal(getCurveGroupName(), other.getCurveGroupName()) &&
-          JodaBeanUtils.equal(getCurveName(), other.getCurveName()) &&
-          JodaBeanUtils.equal(getMarketDataFeed(), other.getMarketDataFeed());
+      return JodaBeanUtils.equal(curveGroupName, other.curveGroupName) &&
+          JodaBeanUtils.equal(curveName, other.curveName) &&
+          JodaBeanUtils.equal(marketDataFeed, other.marketDataFeed);
     }
     return false;
   }
@@ -156,9 +156,9 @@ public final class ParRatesId
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveGroupName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataFeed());
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveGroupName);
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveName);
+    hash = hash * 31 + JodaBeanUtils.hashCode(marketDataFeed);
     return hash;
   }
 
@@ -166,9 +166,9 @@ public final class ParRatesId
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ParRatesId{");
-    buf.append("curveGroupName").append('=').append(getCurveGroupName()).append(',').append(' ');
-    buf.append("curveName").append('=').append(getCurveName()).append(',').append(' ');
-    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(getMarketDataFeed()));
+    buf.append("curveGroupName").append('=').append(curveGroupName).append(',').append(' ');
+    buf.append("curveName").append('=').append(curveName).append(',').append(' ');
+    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(marketDataFeed));
     buf.append('}');
     return buf.toString();
   }

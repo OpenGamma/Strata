@@ -144,8 +144,8 @@ public final class SimpleCurveNodeMetadata
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SimpleCurveNodeMetadata other = (SimpleCurveNodeMetadata) obj;
-      return JodaBeanUtils.equal(getDate(), other.getDate()) &&
-          JodaBeanUtils.equal(getLabel(), other.getLabel());
+      return JodaBeanUtils.equal(date, other.date) &&
+          JodaBeanUtils.equal(label, other.label);
     }
     return false;
   }
@@ -153,8 +153,8 @@ public final class SimpleCurveNodeMetadata
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLabel());
+    hash = hash * 31 + JodaBeanUtils.hashCode(date);
+    hash = hash * 31 + JodaBeanUtils.hashCode(label);
     return hash;
   }
 
@@ -162,8 +162,8 @@ public final class SimpleCurveNodeMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("SimpleCurveNodeMetadata{");
-    buf.append("date").append('=').append(getDate()).append(',').append(' ');
-    buf.append("label").append('=').append(JodaBeanUtils.toString(getLabel()));
+    buf.append("date").append('=').append(date).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();
   }

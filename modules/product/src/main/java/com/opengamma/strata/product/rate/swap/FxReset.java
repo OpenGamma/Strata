@@ -220,9 +220,9 @@ public final class FxReset
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxReset other = (FxReset) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getReferenceCurrency(), other.getReferenceCurrency()) &&
-          JodaBeanUtils.equal(getFixingDate(), other.getFixingDate());
+      return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(referenceCurrency, other.referenceCurrency) &&
+          JodaBeanUtils.equal(fixingDate, other.fixingDate);
     }
     return false;
   }
@@ -230,9 +230,9 @@ public final class FxReset
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(referenceCurrency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixingDate);
     return hash;
   }
 
@@ -240,9 +240,9 @@ public final class FxReset
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("FxReset{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("referenceCurrency").append('=').append(getReferenceCurrency()).append(',').append(' ');
-    buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(getFixingDate()));
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("referenceCurrency").append('=').append(referenceCurrency).append(',').append(' ');
+    buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate));
     buf.append('}');
     return buf.toString();
   }

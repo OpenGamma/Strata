@@ -282,10 +282,10 @@ public final class OvernightAveragedRateObservation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       OvernightAveragedRateObservation other = (OvernightAveragedRateObservation) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
-          (getRateCutOffDays() == other.getRateCutOffDays());
+      return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(startDate, other.startDate) &&
+          JodaBeanUtils.equal(endDate, other.endDate) &&
+          (rateCutOffDays == other.rateCutOffDays);
     }
     return false;
   }
@@ -293,10 +293,10 @@ public final class OvernightAveragedRateObservation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRateCutOffDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rateCutOffDays);
     return hash;
   }
 
@@ -304,10 +304,10 @@ public final class OvernightAveragedRateObservation
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("OvernightAveragedRateObservation{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
-    buf.append("rateCutOffDays").append('=').append(JodaBeanUtils.toString(getRateCutOffDays()));
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
+    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
+    buf.append("rateCutOffDays").append('=').append(JodaBeanUtils.toString(rateCutOffDays));
     buf.append('}');
     return buf.toString();
   }

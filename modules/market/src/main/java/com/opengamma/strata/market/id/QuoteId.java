@@ -196,9 +196,9 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       QuoteId other = (QuoteId) obj;
-      return JodaBeanUtils.equal(getStandardId(), other.getStandardId()) &&
-          JodaBeanUtils.equal(getFieldName(), other.getFieldName()) &&
-          JodaBeanUtils.equal(getMarketDataFeed(), other.getMarketDataFeed());
+      return JodaBeanUtils.equal(standardId, other.standardId) &&
+          JodaBeanUtils.equal(fieldName, other.fieldName) &&
+          JodaBeanUtils.equal(marketDataFeed, other.marketDataFeed);
     }
     return false;
   }
@@ -206,9 +206,9 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFieldName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataFeed());
+    hash = hash * 31 + JodaBeanUtils.hashCode(standardId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fieldName);
+    hash = hash * 31 + JodaBeanUtils.hashCode(marketDataFeed);
     return hash;
   }
 
@@ -216,9 +216,9 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("QuoteId{");
-    buf.append("standardId").append('=').append(getStandardId()).append(',').append(' ');
-    buf.append("fieldName").append('=').append(getFieldName()).append(',').append(' ');
-    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(getMarketDataFeed()));
+    buf.append("standardId").append('=').append(standardId).append(',').append(' ');
+    buf.append("fieldName").append('=').append(fieldName).append(',').append(' ');
+    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(marketDataFeed));
     buf.append('}');
     return buf.toString();
   }

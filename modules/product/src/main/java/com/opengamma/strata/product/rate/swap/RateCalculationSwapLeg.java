@@ -315,11 +315,11 @@ public final class RateCalculationSwapLeg
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       RateCalculationSwapLeg other = (RateCalculationSwapLeg) obj;
-      return JodaBeanUtils.equal(getPayReceive(), other.getPayReceive()) &&
-          JodaBeanUtils.equal(getAccrualSchedule(), other.getAccrualSchedule()) &&
-          JodaBeanUtils.equal(getPaymentSchedule(), other.getPaymentSchedule()) &&
-          JodaBeanUtils.equal(getNotionalSchedule(), other.getNotionalSchedule()) &&
-          JodaBeanUtils.equal(getCalculation(), other.getCalculation());
+      return JodaBeanUtils.equal(payReceive, other.payReceive) &&
+          JodaBeanUtils.equal(accrualSchedule, other.accrualSchedule) &&
+          JodaBeanUtils.equal(paymentSchedule, other.paymentSchedule) &&
+          JodaBeanUtils.equal(notionalSchedule, other.notionalSchedule) &&
+          JodaBeanUtils.equal(calculation, other.calculation);
     }
     return false;
   }
@@ -327,11 +327,11 @@ public final class RateCalculationSwapLeg
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPayReceive());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualSchedule());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentSchedule());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNotionalSchedule());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCalculation());
+    hash = hash * 31 + JodaBeanUtils.hashCode(payReceive);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualSchedule);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentSchedule);
+    hash = hash * 31 + JodaBeanUtils.hashCode(notionalSchedule);
+    hash = hash * 31 + JodaBeanUtils.hashCode(calculation);
     return hash;
   }
 
@@ -339,11 +339,11 @@ public final class RateCalculationSwapLeg
   public String toString() {
     StringBuilder buf = new StringBuilder(320);
     buf.append("RateCalculationSwapLeg{");
-    buf.append("payReceive").append('=').append(getPayReceive()).append(',').append(' ');
-    buf.append("accrualSchedule").append('=').append(getAccrualSchedule()).append(',').append(' ');
-    buf.append("paymentSchedule").append('=').append(getPaymentSchedule()).append(',').append(' ');
-    buf.append("notionalSchedule").append('=').append(getNotionalSchedule()).append(',').append(' ');
-    buf.append("calculation").append('=').append(getCalculation()).append(',').append(' ');
+    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
+    buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
+    buf.append("paymentSchedule").append('=').append(paymentSchedule).append(',').append(' ');
+    buf.append("notionalSchedule").append('=').append(notionalSchedule).append(',').append(' ');
+    buf.append("calculation").append('=').append(calculation).append(',').append(' ');
     buf.append("type").append('=').append(getType()).append(',').append(' ');
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');

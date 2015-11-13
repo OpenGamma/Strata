@@ -628,12 +628,12 @@ public final class IborRateCalculation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborRateCalculation other = (IborRateCalculation) obj;
-      return JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
+      return JodaBeanUtils.equal(dayCount, other.dayCount) &&
+          JodaBeanUtils.equal(index, other.index) &&
           JodaBeanUtils.equal(resetPeriods, other.resetPeriods) &&
-          JodaBeanUtils.equal(getFixingRelativeTo(), other.getFixingRelativeTo()) &&
-          JodaBeanUtils.equal(getFixingDateOffset(), other.getFixingDateOffset()) &&
-          JodaBeanUtils.equal(getNegativeRateMethod(), other.getNegativeRateMethod()) &&
+          JodaBeanUtils.equal(fixingRelativeTo, other.fixingRelativeTo) &&
+          JodaBeanUtils.equal(fixingDateOffset, other.fixingDateOffset) &&
+          JodaBeanUtils.equal(negativeRateMethod, other.negativeRateMethod) &&
           JodaBeanUtils.equal(firstRegularRate, other.firstRegularRate) &&
           JodaBeanUtils.equal(initialStub, other.initialStub) &&
           JodaBeanUtils.equal(finalStub, other.finalStub) &&
@@ -646,12 +646,12 @@ public final class IborRateCalculation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
     hash = hash * 31 + JodaBeanUtils.hashCode(resetPeriods);
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingRelativeTo());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDateOffset());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNegativeRateMethod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixingRelativeTo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixingDateOffset);
+    hash = hash * 31 + JodaBeanUtils.hashCode(negativeRateMethod);
     hash = hash * 31 + JodaBeanUtils.hashCode(firstRegularRate);
     hash = hash * 31 + JodaBeanUtils.hashCode(initialStub);
     hash = hash * 31 + JodaBeanUtils.hashCode(finalStub);
@@ -664,12 +664,12 @@ public final class IborRateCalculation
   public String toString() {
     StringBuilder buf = new StringBuilder(384);
     buf.append("IborRateCalculation{");
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
+    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("index").append('=').append(index).append(',').append(' ');
     buf.append("resetPeriods").append('=').append(resetPeriods).append(',').append(' ');
-    buf.append("fixingRelativeTo").append('=').append(getFixingRelativeTo()).append(',').append(' ');
-    buf.append("fixingDateOffset").append('=').append(getFixingDateOffset()).append(',').append(' ');
-    buf.append("negativeRateMethod").append('=').append(getNegativeRateMethod()).append(',').append(' ');
+    buf.append("fixingRelativeTo").append('=').append(fixingRelativeTo).append(',').append(' ');
+    buf.append("fixingDateOffset").append('=').append(fixingDateOffset).append(',').append(' ');
+    buf.append("negativeRateMethod").append('=').append(negativeRateMethod).append(',').append(' ');
     buf.append("firstRegularRate").append('=').append(firstRegularRate).append(',').append(' ');
     buf.append("initialStub").append('=').append(initialStub).append(',').append(' ');
     buf.append("finalStub").append('=').append(finalStub).append(',').append(' ');

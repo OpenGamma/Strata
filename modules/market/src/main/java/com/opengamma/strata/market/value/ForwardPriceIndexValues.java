@@ -357,11 +357,11 @@ public final class ForwardPriceIndexValues
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ForwardPriceIndexValues other = (ForwardPriceIndexValues) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getValuationMonth(), other.getValuationMonth()) &&
-          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
-          JodaBeanUtils.equal(getCurve(), other.getCurve()) &&
-          JodaBeanUtils.equal(getSeasonality(), other.getSeasonality());
+      return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(valuationMonth, other.valuationMonth) &&
+          JodaBeanUtils.equal(timeSeries, other.timeSeries) &&
+          JodaBeanUtils.equal(curve, other.curve) &&
+          JodaBeanUtils.equal(seasonality, other.seasonality);
     }
     return false;
   }
@@ -369,11 +369,11 @@ public final class ForwardPriceIndexValues
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationMonth());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurve());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSeasonality());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(valuationMonth);
+    hash = hash * 31 + JodaBeanUtils.hashCode(timeSeries);
+    hash = hash * 31 + JodaBeanUtils.hashCode(curve);
+    hash = hash * 31 + JodaBeanUtils.hashCode(seasonality);
     return hash;
   }
 
@@ -381,11 +381,11 @@ public final class ForwardPriceIndexValues
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("ForwardPriceIndexValues{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("valuationMonth").append('=').append(getValuationMonth()).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
-    buf.append("curve").append('=').append(getCurve()).append(',').append(' ');
-    buf.append("seasonality").append('=').append(JodaBeanUtils.toString(getSeasonality()));
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("valuationMonth").append('=').append(valuationMonth).append(',').append(' ');
+    buf.append("timeSeries").append('=').append(timeSeries).append(',').append(' ');
+    buf.append("curve").append('=').append(curve).append(',').append(' ');
+    buf.append("seasonality").append('=').append(JodaBeanUtils.toString(seasonality));
     buf.append('}');
     return buf.toString();
   }

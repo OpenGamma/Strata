@@ -165,7 +165,7 @@ public final class CurrencyValuesArray
    * @return the value of the property, not null
    */
   public double[] getValues() {
-    return (values != null ? values.clone() : null);
+    return values.clone();
   }
 
   //-----------------------------------------------------------------------
@@ -184,8 +184,8 @@ public final class CurrencyValuesArray
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurrencyValuesArray other = (CurrencyValuesArray) obj;
-      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getValues(), other.getValues());
+      return JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(values, other.values);
     }
     return false;
   }
@@ -193,8 +193,8 @@ public final class CurrencyValuesArray
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(values);
     return hash;
   }
 
@@ -202,8 +202,8 @@ public final class CurrencyValuesArray
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CurrencyValuesArray{");
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("values").append('=').append(JodaBeanUtils.toString(getValues()));
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("values").append('=').append(JodaBeanUtils.toString(values));
     buf.append('}');
     return buf.toString();
   }

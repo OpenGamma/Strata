@@ -195,10 +195,10 @@ public final class DefaultFunctionGroup<T extends CalculationTarget>
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DefaultFunctionGroup<?> other = (DefaultFunctionGroup<?>) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getTargetType(), other.getTargetType()) &&
-          JodaBeanUtils.equal(getFunctionConfig(), other.getFunctionConfig()) &&
-          JodaBeanUtils.equal(getFunctionArguments(), other.getFunctionArguments());
+      return JodaBeanUtils.equal(name, other.name) &&
+          JodaBeanUtils.equal(targetType, other.targetType) &&
+          JodaBeanUtils.equal(functionConfig, other.functionConfig) &&
+          JodaBeanUtils.equal(functionArguments, other.functionArguments);
     }
     return false;
   }
@@ -206,10 +206,10 @@ public final class DefaultFunctionGroup<T extends CalculationTarget>
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTargetType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionConfig());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionArguments());
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(targetType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(functionConfig);
+    hash = hash * 31 + JodaBeanUtils.hashCode(functionArguments);
     return hash;
   }
 
@@ -217,10 +217,10 @@ public final class DefaultFunctionGroup<T extends CalculationTarget>
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("DefaultFunctionGroup{");
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("targetType").append('=').append(getTargetType()).append(',').append(' ');
-    buf.append("functionConfig").append('=').append(getFunctionConfig()).append(',').append(' ');
-    buf.append("functionArguments").append('=').append(JodaBeanUtils.toString(getFunctionArguments()));
+    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("targetType").append('=').append(targetType).append(',').append(' ');
+    buf.append("functionConfig").append('=').append(functionConfig).append(',').append(' ');
+    buf.append("functionArguments").append('=').append(JodaBeanUtils.toString(functionArguments));
     buf.append('}');
     return buf.toString();
   }

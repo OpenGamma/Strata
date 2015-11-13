@@ -328,7 +328,7 @@ public final class PointSensitivities
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PointSensitivities other = (PointSensitivities) obj;
-      return JodaBeanUtils.equal(getSensitivities(), other.getSensitivities());
+      return JodaBeanUtils.equal(sensitivities, other.sensitivities);
     }
     return false;
   }
@@ -336,7 +336,7 @@ public final class PointSensitivities
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivities());
+    hash = hash * 31 + JodaBeanUtils.hashCode(sensitivities);
     return hash;
   }
 
@@ -344,7 +344,7 @@ public final class PointSensitivities
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("PointSensitivities{");
-    buf.append("sensitivities").append('=').append(JodaBeanUtils.toString(getSensitivities()));
+    buf.append("sensitivities").append('=').append(JodaBeanUtils.toString(sensitivities));
     buf.append('}');
     return buf.toString();
   }
