@@ -119,8 +119,8 @@ public final class Cds
     Period paymentInterval = getFeeLeg().getPeriodicPayments().getPaymentFrequency().getPeriod();
     StubConvention stubConvention = getFeeLeg().getPeriodicPayments().getStubConvention();
     DayCount accrualDayCount = getFeeLeg().getPeriodicPayments().getDayCount();
-    double upfrontFeeAmount = getFeeLeg().getUpfrontFee().getFixedAmount().getAmount();
-    LocalDate upfrontFeePaymentDate = getFeeLeg().getUpfrontFee().getPaymentDate();
+    double upfrontFeeAmount = getFeeLeg().getUpfrontFee().getAmount();
+    LocalDate upfrontFeePaymentDate = getFeeLeg().getUpfrontFee().getDate();
     double coupon = getFeeLeg().getPeriodicPayments().getCoupon();
     double notional = getFeeLeg().getPeriodicPayments().getNotional().getAmount();
     Currency currency = getFeeLeg().getPeriodicPayments().getNotional().getCurrency();

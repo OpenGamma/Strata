@@ -57,7 +57,21 @@ public final class Payment
   /**
    * Creates a {@code Payment} representing an amount.
    * <p>
-   * Whether the payment is pay or receive is determined by the sign of the specified amonut.
+   * Whether the payment is pay or receive is determined by the sign of the specified amount.
+   * 
+   * @param currency  the currency of the payment
+   * @param amount  the amount of the payment
+   * @param date  the date that the payment is made
+   * @return the payment instance
+   */
+  public static Payment of(Currency currency, double amount, LocalDate date) {
+    return new Payment(CurrencyAmount.of(currency, amount), date);
+  }
+
+  /**
+   * Creates a {@code Payment} representing an amount.
+   * <p>
+   * Whether the payment is pay or receive is determined by the sign of the specified amount.
    * 
    * @param value  the amount of the payment
    * @param date  the date that the payment is made
