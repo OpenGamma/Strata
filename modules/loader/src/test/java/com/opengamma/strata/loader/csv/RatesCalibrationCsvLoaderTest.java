@@ -107,7 +107,7 @@ public class RatesCalibrationCsvLoaderTest {
     assertEquals(entry1.getOvernightIndices(), ImmutableSet.of());
     assertEquals(entry1.getCurveDefinition().getName(), CurveName.of("USD-3ML"));
     assertEquals(entry1.getCurveDefinition().getYValueType(), ValueType.ZERO_RATE);
-    assertEquals(entry1.getCurveDefinition().getParameterCount(), 15);
+    assertEquals(entry1.getCurveDefinition().getParameterCount(), 19);
   }
 
   //-------------------------------------------------------------------------
