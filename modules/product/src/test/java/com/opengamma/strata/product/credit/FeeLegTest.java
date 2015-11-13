@@ -8,6 +8,7 @@ package com.opengamma.strata.product.credit;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
@@ -37,6 +38,7 @@ public class FeeLegTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
   }
 
   public void test_serialization() {
@@ -45,6 +47,10 @@ public class FeeLegTest {
 
   static FeeLeg sut() {
     return FeeLeg.of(Payment.of(USD, 1_000_000d, date(2014, 3, 23)), PeriodicPaymentsTest.sut());
+  }
+
+  static FeeLeg sut2() {
+    return FeeLeg.of(Payment.of(USD, 2_000_000d, date(2014, 3, 23)), PeriodicPaymentsTest.sut2());
   }
 
 }
