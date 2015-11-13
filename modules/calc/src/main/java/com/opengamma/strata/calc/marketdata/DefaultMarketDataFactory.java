@@ -285,11 +285,13 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     // convince the compiler the operations are safe, although the logic guarantees it.
 
     // This cast removes a spurious warning
-    MarketDataFunction marketDataFunction = functions.get((Class<? extends MarketDataId<?>>) id.getClass());
+    Class<? extends MarketDataId<?>> idClass = (Class<? extends MarketDataId<?>>) id.getClass();
+    MarketDataFunction marketDataFunction = functions.get(idClass);
 
-    return marketDataFunction != null ?
-        marketDataFunction.build(id, suppliedData, marketDataConfig) :
-        failureForMissingBuilder(id);
+    if (marketDataFunction == null) {
+      throw new IllegalStateException("No market data function available for market data ID of type " + idClass.getName());
+    }
+    return Result.of(() -> marketDataFunction.build(id, suppliedData, marketDataConfig));
   }
 
   @SuppressWarnings("unchecked")
@@ -428,19 +430,6 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    */
   private <T> Result<T> noMappingResult(ObservableId id) {
     return Result.failure(FailureReason.MISSING_DATA, "No feed ID mapping found for ID {}", id);
-  }
-
-  /**
-   * Returns a failure for the ID indicating there is no builder available to handle it.
-   *
-   * @param id the market data ID
-   * @return a failure for the ID indicating there is no builder available to handle it
-   */
-  private Result<MarketDataBox<?>> failureForMissingBuilder(MarketDataId<?> id) {
-    return Result.failure(
-        FailureReason.INVALID_INPUT,
-        "No market data function available to handle {}",
-        id);
   }
 
   /**

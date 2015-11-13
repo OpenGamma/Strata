@@ -10,8 +10,6 @@ import static com.opengamma.strata.collect.TestHelper.assertThrows;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.collect.result.Result;
-
 @Test
 public class SingleMarketDataBoxTest {
 
@@ -48,8 +46,8 @@ public class SingleMarketDataBoxTest {
 
   public void apply() {
     MarketDataBox<Integer> box = MarketDataBox.ofSingleValue(27);
-    Result<MarketDataBox<Integer>> result = box.apply(v -> Result.success(v * 2));
-    assertThat(result).hasValue(MarketDataBox.ofSingleValue(54));
+    MarketDataBox<Integer> result = box.apply(v -> v * 2);
+    assertThat(result).isEqualTo(MarketDataBox.ofSingleValue(54));
   }
 
   /**
@@ -68,9 +66,7 @@ public class SingleMarketDataBoxTest {
   public void combineWithSingleBox() {
     MarketDataBox<Integer> box = MarketDataBox.ofSingleValue(27);
     MarketDataBox<Integer> otherBox = MarketDataBox.ofSingleValue(15);
-    Result<MarketDataBox<Integer>> result = box.combineWith(otherBox, (v1, v2) -> Result.success(v1 + v2));
-    assertThat(result).isSuccess();
-    MarketDataBox<Integer> resultBox = result.getValue();
+    MarketDataBox<Integer> resultBox = box.combineWith(otherBox, (v1, v2) -> v1 + v2);
     assertThat(resultBox.isSingleValue()).isTrue();
     assertThat(resultBox.getValue(0)).isEqualTo(42);
   }
@@ -78,9 +74,7 @@ public class SingleMarketDataBoxTest {
   public void combineWithScenarioBox() {
     MarketDataBox<Integer> box = MarketDataBox.ofSingleValue(27);
     MarketDataBox<Integer> otherBox = MarketDataBox.ofScenarioValues(15, 16, 17);
-    Result<MarketDataBox<Integer>> result = box.combineWith(otherBox, (v1, v2) -> Result.success(v1 + v2));
-    assertThat(result).isSuccess();
-    MarketDataBox<Integer> resultBox = result.getValue();
+    MarketDataBox<Integer> resultBox = box.combineWith(otherBox, (v1, v2) -> v1 + v2);
     assertThat(resultBox.isScenarioValue()).isTrue();
     assertThat(resultBox.getScenarioCount()).isEqualTo(3);
     assertThat(resultBox.getValue(0)).isEqualTo(42);

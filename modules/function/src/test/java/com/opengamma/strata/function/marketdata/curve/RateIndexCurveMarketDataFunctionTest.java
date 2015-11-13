@@ -19,7 +19,6 @@ import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
-import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
@@ -53,8 +52,8 @@ public class RateIndexCurveMarketDataFunctionTest {
         .build();
     RateIndexCurveMarketDataFunction builder = new RateIndexCurveMarketDataFunction();
 
-    Result<MarketDataBox<Curve>> result = builder.build(curveId, marketData, MarketDataConfig.empty());
-    assertThat(result).hasValue(MarketDataBox.ofSingleValue(curve));
+    MarketDataBox<Curve> result = builder.build(curveId, marketData, MarketDataConfig.empty());
+    assertThat(result).isEqualTo(MarketDataBox.ofSingleValue(curve));
   }
 
   /**
@@ -79,11 +78,11 @@ public class RateIndexCurveMarketDataFunctionTest {
         .build();
     RateIndexCurveMarketDataFunction builder = new RateIndexCurveMarketDataFunction();
 
-    Result<MarketDataBox<Curve>> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
-    assertThat(result1).hasValue(MarketDataBox.ofSingleValue(curve1));
+    MarketDataBox<Curve> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
+    assertThat(result1).isEqualTo(MarketDataBox.ofSingleValue(curve1));
 
-    Result<MarketDataBox<Curve>> result2 = builder.build(curveId2, marketData, MarketDataConfig.empty());
-    assertThat(result2).hasValue(MarketDataBox.ofSingleValue(curve2));
+    MarketDataBox<Curve> result2 = builder.build(curveId2, marketData, MarketDataConfig.empty());
+    assertThat(result2).isEqualTo(MarketDataBox.ofSingleValue(curve2));
   }
 
   /**
@@ -126,17 +125,17 @@ public class RateIndexCurveMarketDataFunctionTest {
 
     RateIndexCurveMarketDataFunction builder = new RateIndexCurveMarketDataFunction();
 
-    Result<MarketDataBox<Curve>> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
-    assertThat(result1).hasValue(MarketDataBox.ofSingleValue(curve1));
+    MarketDataBox<Curve> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
+    assertThat(result1).isEqualTo(MarketDataBox.ofSingleValue(curve1));
 
-    Result<MarketDataBox<Curve>> result2 = builder.build(curveId2, marketData, MarketDataConfig.empty());
-    assertThat(result2).hasValue(MarketDataBox.ofSingleValue(curve2));
+    MarketDataBox<Curve> result2 = builder.build(curveId2, marketData, MarketDataConfig.empty());
+    assertThat(result2).isEqualTo(MarketDataBox.ofSingleValue(curve2));
 
-    Result<MarketDataBox<Curve>> result3 = builder.build(curveId3, marketData, MarketDataConfig.empty());
-    assertThat(result3).hasValue(MarketDataBox.ofSingleValue(curve3));
+    MarketDataBox<Curve> result3 = builder.build(curveId3, marketData, MarketDataConfig.empty());
+    assertThat(result3).isEqualTo(MarketDataBox.ofSingleValue(curve3));
 
-    Result<MarketDataBox<Curve>> result4 = builder.build(curveId4, marketData, MarketDataConfig.empty());
-    assertThat(result4).hasValue(MarketDataBox.ofSingleValue(curve4));
+    MarketDataBox<Curve> result4 = builder.build(curveId4, marketData, MarketDataConfig.empty());
+    assertThat(result4).isEqualTo(MarketDataBox.ofSingleValue(curve4));
   }
 
 }

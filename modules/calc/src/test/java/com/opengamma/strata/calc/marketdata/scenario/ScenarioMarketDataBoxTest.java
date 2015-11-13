@@ -11,7 +11,6 @@ import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
-import com.opengamma.strata.collect.result.Result;
 
 @Test
 public class ScenarioMarketDataBoxTest {
@@ -52,8 +51,8 @@ public class ScenarioMarketDataBoxTest {
 
   public void apply() {
     MarketDataBox<Integer> box = MarketDataBox.ofScenarioValues(27, 28, 29);
-    Result<MarketDataBox<Integer>> result = box.apply(v -> Result.success(v * 2));
-    assertThat(result).hasValue(MarketDataBox.ofScenarioValues(54, 56, 58));
+    MarketDataBox<Integer> result = box.apply(v -> v * 2);
+    assertThat(result).isEqualTo(MarketDataBox.ofScenarioValues(54, 56, 58));
   }
 
   /**
@@ -81,9 +80,7 @@ public class ScenarioMarketDataBoxTest {
   public void combineWithSingleBox() {
     MarketDataBox<Integer> box = MarketDataBox.ofScenarioValues(27, 28, 29);
     MarketDataBox<Integer> otherBox = MarketDataBox.ofSingleValue(15);
-    Result<MarketDataBox<Integer>> result = box.combineWith(otherBox, (v1, v2) -> Result.success(v1 + v2));
-    assertThat(result).isSuccess();
-    MarketDataBox<Integer> resultBox = result.getValue();
+    MarketDataBox<Integer> resultBox = box.combineWith(otherBox, (v1, v2) -> v1 + v2);
     assertThat(resultBox.isScenarioValue()).isTrue();
     assertThat(resultBox.getScenarioCount()).isEqualTo(3);
     assertThat(resultBox.getValue(0)).isEqualTo(42);
@@ -94,9 +91,7 @@ public class ScenarioMarketDataBoxTest {
   public void combineWithScenarioBox() {
     MarketDataBox<Integer> box = MarketDataBox.ofScenarioValues(27, 28, 29);
     MarketDataBox<Integer> otherBox = MarketDataBox.ofScenarioValues(15, 16, 17);
-    Result<MarketDataBox<Integer>> result = box.combineWith(otherBox, (v1, v2) -> Result.success(v1 + v2));
-    assertThat(result).isSuccess();
-    MarketDataBox<Integer> resultBox = result.getValue();
+    MarketDataBox<Integer> resultBox = box.combineWith(otherBox, (v1, v2) -> v1 + v2);
     assertThat(resultBox.isScenarioValue()).isTrue();
     assertThat(resultBox.getScenarioCount()).isEqualTo(3);
     assertThat(resultBox.getValue(0)).isEqualTo(42);
@@ -107,8 +102,10 @@ public class ScenarioMarketDataBoxTest {
   public void combineWithScenarioBoxWithWrongNumberOfScenarios() {
     MarketDataBox<Integer> box = MarketDataBox.ofScenarioValues(27, 28, 29);
     MarketDataBox<Integer> otherBox = MarketDataBox.ofScenarioValues(15, 16, 17, 18);
-    Result<MarketDataBox<Integer>> result = box.combineWith(otherBox, (v1, v2) -> Result.success(v1 + v2));
-    assertThat(result).hasFailureMessageMatching("Scenario values must have the same number of scenarios.*");
+    assertThrows(
+        () -> box.combineWith(otherBox, (v1, v2) -> v1 + v2),
+        IllegalArgumentException.class,
+        "Scenario values must have the same number of scenarios.*");
   }
 
   public void getMarketDataType() {
