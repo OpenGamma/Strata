@@ -32,15 +32,15 @@ import com.opengamma.strata.product.rate.bond.BondFutureTrade;
 public class DiscountingBondFutureTradetPricerTest {
 
   // product and trade
-  private static final BondFuture FUTURE_PRODUCT = BondDataSets.FUTURE_PRODUCT;
-  private static final BondFutureTrade FUTURE_TRADE = BondDataSets.FUTURE_TRADE;
-  private static final double REFERENCE_PRICE = BondDataSets.REFERENCE_PRICE;
-  private static final double NOTIONAL = BondDataSets.NOTIONAL;
-  private static final long QUANTITY = BondDataSets.QUANTITY;
+  private static final BondFuture FUTURE_PRODUCT = BondDataSets.FUTURE_PRODUCT_USD;
+  private static final BondFutureTrade FUTURE_TRADE = BondDataSets.FUTURE_TRADE_USD;
+  private static final double REFERENCE_PRICE = BondDataSets.REFERENCE_PRICE_USD;
+  private static final double NOTIONAL = BondDataSets.NOTIONAL_USD;
+  private static final long QUANTITY = BondDataSets.QUANTITY_USD;
   // curves
   private static final LegalEntityDiscountingProvider PROVIDER = LegalEntityDiscountingProviderDataSets.ISSUER_REPO_ZERO;
-  private static final CurveMetadata METADATA_ISSUER = LegalEntityDiscountingProviderDataSets.META_ZERO_ISSUER;
-  private static final CurveMetadata METADATA_REPO = LegalEntityDiscountingProviderDataSets.META_ZERO_REPO;
+  private static final CurveMetadata METADATA_ISSUER = LegalEntityDiscountingProviderDataSets.META_ZERO_ISSUER_USD;
+  private static final CurveMetadata METADATA_REPO = LegalEntityDiscountingProviderDataSets.META_ZERO_REPO_USD;
   // parameters
   private static final double Z_SPREAD = 0.0075;
   private static final int PERIOD_PER_YEAR = 4;

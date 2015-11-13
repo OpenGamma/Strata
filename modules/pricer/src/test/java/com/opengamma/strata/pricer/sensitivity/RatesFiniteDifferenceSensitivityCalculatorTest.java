@@ -119,17 +119,17 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
   public void sensitivity_legalEntity_Zero() {
     CurveCurrencyParameterSensitivities sensiComputed = FD_CALCULATOR.sensitivity(
         LegalEntityDiscountingProviderDataSets.ISSUER_REPO_ZERO, this::fn);
-    DoubleArray timeIssuer = LegalEntityDiscountingProviderDataSets.ISSUER_TIME;
-    DoubleArray timesRepo = LegalEntityDiscountingProviderDataSets.REPO_TIME;
+    DoubleArray timeIssuer = LegalEntityDiscountingProviderDataSets.ISSUER_TIME_USD;
+    DoubleArray timesRepo = LegalEntityDiscountingProviderDataSets.REPO_TIME_USD;
     assertEquals(sensiComputed.size(), 2);
     DoubleArray sensiIssuer = sensiComputed.getSensitivity(
-        LegalEntityDiscountingProviderDataSets.META_ZERO_ISSUER.getCurveName(), USD).getSensitivity();
+        LegalEntityDiscountingProviderDataSets.META_ZERO_ISSUER_USD.getCurveName(), USD).getSensitivity();
     assertEquals(sensiIssuer.size(), timeIssuer.size());
     for (int i = 0; i < timeIssuer.size(); i++) {
       assertEquals(timeIssuer.get(i), sensiIssuer.get(i), TOLERANCE_DELTA);
     }
     DoubleArray sensiRepo = sensiComputed.getSensitivity(
-        LegalEntityDiscountingProviderDataSets.META_ZERO_REPO.getCurveName(), USD).getSensitivity();
+        LegalEntityDiscountingProviderDataSets.META_ZERO_REPO_USD.getCurveName(), USD).getSensitivity();
     assertEquals(sensiRepo.size(), timesRepo.size());
     for (int i = 0; i < timesRepo.size(); i++) {
       assertEquals(timesRepo.get(i), sensiRepo.get(i), TOLERANCE_DELTA);
@@ -140,17 +140,17 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
   public void sensitivity_legalEntity_Simple() {
     CurveCurrencyParameterSensitivities sensiComputed = FD_CALCULATOR.sensitivity(
         LegalEntityDiscountingProviderDataSets.ISSUER_REPO_SIMPLE, this::fn);
-    DoubleArray timeIssuer = LegalEntityDiscountingProviderDataSets.ISSUER_TIME;
-    DoubleArray timesRepo = LegalEntityDiscountingProviderDataSets.REPO_TIME;
+    DoubleArray timeIssuer = LegalEntityDiscountingProviderDataSets.ISSUER_TIME_USD;
+    DoubleArray timesRepo = LegalEntityDiscountingProviderDataSets.REPO_TIME_USD;
     assertEquals(sensiComputed.size(), 2);
     DoubleArray sensiIssuer = sensiComputed.getSensitivity(
-        LegalEntityDiscountingProviderDataSets.META_SIMPLE_ISSUER.getCurveName(), USD).getSensitivity();
+        LegalEntityDiscountingProviderDataSets.META_SIMPLE_ISSUER_USD.getCurveName(), USD).getSensitivity();
     assertEquals(sensiIssuer.size(), timeIssuer.size());
     for (int i = 0; i < timeIssuer.size(); i++) {
       assertEquals(timeIssuer.get(i), sensiIssuer.get(i), TOLERANCE_DELTA);
     }
     DoubleArray sensiRepo = sensiComputed.getSensitivity(
-        LegalEntityDiscountingProviderDataSets.META_SIMPLE_REPO.getCurveName(), USD).getSensitivity();
+        LegalEntityDiscountingProviderDataSets.META_SIMPLE_REPO_USD.getCurveName(), USD).getSensitivity();
     assertEquals(sensiRepo.size(), timesRepo.size());
     for (int i = 0; i < timesRepo.size(); i++) {
       assertEquals(timesRepo.get(i), sensiRepo.get(i), TOLERANCE_DELTA);
