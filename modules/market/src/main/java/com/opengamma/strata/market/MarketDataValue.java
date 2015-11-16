@@ -29,6 +29,9 @@ public interface MarketDataValue<T extends MarketDataValue<T>> {
    * A system may have multiple market data values with the same key, and {@link MarketDataId}
    * is used to uniquely identify each.
    * <p>
+   * For example, the concept of a USD discounting curve is represented by a {@code MarketDataKey}, but
+   * the system may contain more than one actual USD discounting curve, each represented by a {@code MarketDataId}.
+   * <p>
    * Note that the key should not include the valuation date.
    * 
    * @return the key used to identify this market data
