@@ -778,7 +778,7 @@ public class SwapEnd2EndTest {
     // StandardDataSets.providerUsdDscOnL1L3L6() with locked holidays and time-series
     return ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(StandardDataSets.FX_MATRIX)
+        .fxRateProvider(StandardDataSets.FX_MATRIX)
         .discountCurves(ImmutableMap.of(USD, StandardDataSets.GROUP1_USD_DSC))
         .indexCurves(ImmutableMap.of(
             USD_FED_FUND, StandardDataSets.GROUP1_USD_ON,

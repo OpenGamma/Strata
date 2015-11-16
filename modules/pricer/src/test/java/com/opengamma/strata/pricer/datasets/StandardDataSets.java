@@ -411,7 +411,7 @@ public class StandardDataSets {
     // data from group 1
     return ImmutableRatesProvider.builder()
         .valuationDate(StandardDataSets.VAL_DATE_2014_01_22)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(USD, StandardDataSets.GROUP1_USD_DSC))
         .indexCurves(ImmutableMap.of(
             USD_FED_FUND, StandardDataSets.GROUP1_USD_ON,
@@ -431,7 +431,7 @@ public class StandardDataSets {
     // data from group 2
     return ImmutableRatesProvider.builder()
         .valuationDate(StandardDataSets.VAL_DATE_2014_01_22)
-        .fxMatrix(FX_MATRIX_EUR_USD)
+        .fxRateProvider(FX_MATRIX_EUR_USD)
         .discountCurves(ImmutableMap.of(
             EUR, StandardDataSets.GROUP2_EUR_DSC,
             USD, StandardDataSets.GROUP2_USD_DSC))

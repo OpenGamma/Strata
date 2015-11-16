@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -160,7 +159,6 @@ public class SwaptionSabrRateVolatilityDataSet {
     return ImmutableRatesProvider.builder()
         .discountCurves(ImmutableMap.of(USD, CURVE_DSC_USD))
         .indexCurves(ImmutableMap.of(USD_LIBOR_3M, CURVE_FWD_USD))
-        .fxMatrix(FxMatrix.empty())
         .valuationDate(valuationDate)
         .build();
   }
@@ -264,7 +262,6 @@ public class SwaptionSabrRateVolatilityDataSet {
     return ImmutableRatesProvider.builder()
         .discountCurves(ImmutableMap.of(EUR, CURVE_DSC_EUR))
         .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, CURVE_FWD_EUR))
-        .fxMatrix(FxMatrix.empty())
         .valuationDate(valuationDate)
         .build();
   }

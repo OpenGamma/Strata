@@ -86,7 +86,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
   public void test_presentValueSensitivity() {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .build();
     FxResetNotionalExchange[] expanded =
@@ -118,7 +118,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
   public void test_forecastValueSensitivity() {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .build();
     FxResetNotionalExchange[] expanded =
