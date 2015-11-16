@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.market.curve.perturb.ShiftType;
+import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionResult;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;

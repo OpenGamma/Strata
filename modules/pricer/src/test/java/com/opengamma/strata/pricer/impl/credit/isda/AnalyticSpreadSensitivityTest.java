@@ -13,7 +13,7 @@ import java.time.Period;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.schedule.StubConvention;
-import com.opengamma.strata.market.curve.perturb.ShiftType;
+import com.opengamma.strata.market.ShiftType;
 
 /**
  * Test.

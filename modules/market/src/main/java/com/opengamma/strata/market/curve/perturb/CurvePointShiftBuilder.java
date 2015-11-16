@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.ShiftType;
 
 /**
  * Mutable builder for building instances of {@link CurvePointShift}.
