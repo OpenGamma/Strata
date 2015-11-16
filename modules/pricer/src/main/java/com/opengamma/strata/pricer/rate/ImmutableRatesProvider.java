@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
@@ -74,10 +75,11 @@ public final class ImmutableRatesProvider
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate valuationDate;
   /**
-   * The matrix of foreign exchange rates, defaulted to an empty matrix.
+   * The provider of foreign exchange rates.
+   * Conversions where both currencies are the same always succeed.
    */
   @PropertyDefinition(validate = "notNull", get = "private")
-  private final FxMatrix fxMatrix;
+  private final FxRateProvider fxRateProvider;
   /**
    * The discount curves, defaulted to an empty map.
    * The curve data, predicting the future, associated with each currency.
@@ -106,7 +108,7 @@ public final class ImmutableRatesProvider
   //-------------------------------------------------------------------------
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.fxMatrix = FxMatrix.empty();
+    builder.fxRateProvider = FxMatrix.empty();
   }
 
   //-------------------------------------------------------------------------
@@ -146,10 +148,7 @@ public final class ImmutableRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public double fxRate(Currency baseCurrency, Currency counterCurrency) {
-    if (baseCurrency.equals(counterCurrency)) {
-      return 1d;
-    }
-    return fxMatrix.fxRate(baseCurrency, counterCurrency);
+    return fxRateProvider.fxRate(baseCurrency, counterCurrency);
   }
 
   //-------------------------------------------------------------------------
@@ -178,7 +177,7 @@ public final class ImmutableRatesProvider
   public FxForwardRates fxForwardRates(CurrencyPair currencyPair) {
     DiscountFactors base = discountFactors(currencyPair.getBase());
     DiscountFactors counter = discountFactors(currencyPair.getCounter());
-    return DiscountFxForwardRates.of(currencyPair, fxMatrix, base, counter);
+    return DiscountFxForwardRates.of(currencyPair, fxRateProvider, base, counter);
   };
 
   //-------------------------------------------------------------------------
@@ -231,19 +230,19 @@ public final class ImmutableRatesProvider
 
   private ImmutableRatesProvider(
       LocalDate valuationDate,
-      FxMatrix fxMatrix,
+      FxRateProvider fxRateProvider,
       Map<Currency, Curve> discountCurves,
       Map<Index, Curve> indexCurves,
       Map<PriceIndex, PriceIndexValues> priceIndexValues,
       Map<Index, LocalDateDoubleTimeSeries> timeSeries) {
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
-    JodaBeanUtils.notNull(fxMatrix, "fxMatrix");
+    JodaBeanUtils.notNull(fxRateProvider, "fxRateProvider");
     JodaBeanUtils.notNull(discountCurves, "discountCurves");
     JodaBeanUtils.notNull(indexCurves, "indexCurves");
     JodaBeanUtils.notNull(priceIndexValues, "priceIndexValues");
     JodaBeanUtils.notNull(timeSeries, "timeSeries");
     this.valuationDate = valuationDate;
-    this.fxMatrix = fxMatrix;
+    this.fxRateProvider = fxRateProvider;
     this.discountCurves = ImmutableMap.copyOf(discountCurves);
     this.indexCurves = ImmutableMap.copyOf(indexCurves);
     this.priceIndexValues = ImmutableMap.copyOf(priceIndexValues);
@@ -278,11 +277,12 @@ public final class ImmutableRatesProvider
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the matrix of foreign exchange rates, defaulted to an empty matrix.
+   * Gets the provider of foreign exchange rates.
+   * Conversions where both currencies are the same always succeed.
    * @return the value of the property, not null
    */
-  private FxMatrix getFxMatrix() {
-    return fxMatrix;
+  private FxRateProvider getFxRateProvider() {
+    return fxRateProvider;
   }
 
   //-----------------------------------------------------------------------
@@ -342,7 +342,7 @@ public final class ImmutableRatesProvider
     if (obj != null && obj.getClass() == this.getClass()) {
       ImmutableRatesProvider other = (ImmutableRatesProvider) obj;
       return JodaBeanUtils.equal(valuationDate, other.valuationDate) &&
-          JodaBeanUtils.equal(fxMatrix, other.fxMatrix) &&
+          JodaBeanUtils.equal(fxRateProvider, other.fxRateProvider) &&
           JodaBeanUtils.equal(discountCurves, other.discountCurves) &&
           JodaBeanUtils.equal(indexCurves, other.indexCurves) &&
           JodaBeanUtils.equal(priceIndexValues, other.priceIndexValues) &&
@@ -355,7 +355,7 @@ public final class ImmutableRatesProvider
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(valuationDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(fxMatrix);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fxRateProvider);
     hash = hash * 31 + JodaBeanUtils.hashCode(discountCurves);
     hash = hash * 31 + JodaBeanUtils.hashCode(indexCurves);
     hash = hash * 31 + JodaBeanUtils.hashCode(priceIndexValues);
@@ -368,7 +368,7 @@ public final class ImmutableRatesProvider
     StringBuilder buf = new StringBuilder(224);
     buf.append("ImmutableRatesProvider{");
     buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
-    buf.append("fxMatrix").append('=').append(fxMatrix).append(',').append(' ');
+    buf.append("fxRateProvider").append('=').append(fxRateProvider).append(',').append(' ');
     buf.append("discountCurves").append('=').append(discountCurves).append(',').append(' ');
     buf.append("indexCurves").append('=').append(indexCurves).append(',').append(' ');
     buf.append("priceIndexValues").append('=').append(priceIndexValues).append(',').append(' ');
@@ -393,10 +393,10 @@ public final class ImmutableRatesProvider
     private final MetaProperty<LocalDate> valuationDate = DirectMetaProperty.ofImmutable(
         this, "valuationDate", ImmutableRatesProvider.class, LocalDate.class);
     /**
-     * The meta-property for the {@code fxMatrix} property.
+     * The meta-property for the {@code fxRateProvider} property.
      */
-    private final MetaProperty<FxMatrix> fxMatrix = DirectMetaProperty.ofImmutable(
-        this, "fxMatrix", ImmutableRatesProvider.class, FxMatrix.class);
+    private final MetaProperty<FxRateProvider> fxRateProvider = DirectMetaProperty.ofImmutable(
+        this, "fxRateProvider", ImmutableRatesProvider.class, FxRateProvider.class);
     /**
      * The meta-property for the {@code discountCurves} property.
      */
@@ -427,7 +427,7 @@ public final class ImmutableRatesProvider
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "valuationDate",
-        "fxMatrix",
+        "fxRateProvider",
         "discountCurves",
         "indexCurves",
         "priceIndexValues",
@@ -444,8 +444,8 @@ public final class ImmutableRatesProvider
       switch (propertyName.hashCode()) {
         case 113107279:  // valuationDate
           return valuationDate;
-        case -1198118093:  // fxMatrix
-          return fxMatrix;
+        case -1499624221:  // fxRateProvider
+          return fxRateProvider;
         case -624113147:  // discountCurves
           return discountCurves;
         case 886361302:  // indexCurves
@@ -483,11 +483,11 @@ public final class ImmutableRatesProvider
     }
 
     /**
-     * The meta-property for the {@code fxMatrix} property.
+     * The meta-property for the {@code fxRateProvider} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FxMatrix> fxMatrix() {
-      return fxMatrix;
+    public MetaProperty<FxRateProvider> fxRateProvider() {
+      return fxRateProvider;
     }
 
     /**
@@ -528,8 +528,8 @@ public final class ImmutableRatesProvider
       switch (propertyName.hashCode()) {
         case 113107279:  // valuationDate
           return ((ImmutableRatesProvider) bean).getValuationDate();
-        case -1198118093:  // fxMatrix
-          return ((ImmutableRatesProvider) bean).getFxMatrix();
+        case -1499624221:  // fxRateProvider
+          return ((ImmutableRatesProvider) bean).getFxRateProvider();
         case -624113147:  // discountCurves
           return ((ImmutableRatesProvider) bean).getDiscountCurves();
         case 886361302:  // indexCurves
@@ -560,7 +560,7 @@ public final class ImmutableRatesProvider
   public static final class Builder extends DirectFieldsBeanBuilder<ImmutableRatesProvider> {
 
     private LocalDate valuationDate;
-    private FxMatrix fxMatrix;
+    private FxRateProvider fxRateProvider;
     private Map<Currency, Curve> discountCurves = ImmutableMap.of();
     private Map<Index, Curve> indexCurves = ImmutableMap.of();
     private Map<PriceIndex, PriceIndexValues> priceIndexValues = ImmutableMap.of();
@@ -579,7 +579,7 @@ public final class ImmutableRatesProvider
      */
     private Builder(ImmutableRatesProvider beanToCopy) {
       this.valuationDate = beanToCopy.getValuationDate();
-      this.fxMatrix = beanToCopy.getFxMatrix();
+      this.fxRateProvider = beanToCopy.getFxRateProvider();
       this.discountCurves = beanToCopy.getDiscountCurves();
       this.indexCurves = beanToCopy.getIndexCurves();
       this.priceIndexValues = beanToCopy.getPriceIndexValues();
@@ -592,8 +592,8 @@ public final class ImmutableRatesProvider
       switch (propertyName.hashCode()) {
         case 113107279:  // valuationDate
           return valuationDate;
-        case -1198118093:  // fxMatrix
-          return fxMatrix;
+        case -1499624221:  // fxRateProvider
+          return fxRateProvider;
         case -624113147:  // discountCurves
           return discountCurves;
         case 886361302:  // indexCurves
@@ -614,8 +614,8 @@ public final class ImmutableRatesProvider
         case 113107279:  // valuationDate
           this.valuationDate = (LocalDate) newValue;
           break;
-        case -1198118093:  // fxMatrix
-          this.fxMatrix = (FxMatrix) newValue;
+        case -1499624221:  // fxRateProvider
+          this.fxRateProvider = (FxRateProvider) newValue;
           break;
         case -624113147:  // discountCurves
           this.discountCurves = (Map<Currency, Curve>) newValue;
@@ -663,7 +663,7 @@ public final class ImmutableRatesProvider
     public ImmutableRatesProvider build() {
       return new ImmutableRatesProvider(
           valuationDate,
-          fxMatrix,
+          fxRateProvider,
           discountCurves,
           indexCurves,
           priceIndexValues,
@@ -684,13 +684,14 @@ public final class ImmutableRatesProvider
     }
 
     /**
-     * Sets the matrix of foreign exchange rates, defaulted to an empty matrix.
-     * @param fxMatrix  the new value, not null
+     * Sets the provider of foreign exchange rates.
+     * Conversions where both currencies are the same always succeed.
+     * @param fxRateProvider  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder fxMatrix(FxMatrix fxMatrix) {
-      JodaBeanUtils.notNull(fxMatrix, "fxMatrix");
-      this.fxMatrix = fxMatrix;
+    public Builder fxRateProvider(FxRateProvider fxRateProvider) {
+      JodaBeanUtils.notNull(fxRateProvider, "fxRateProvider");
+      this.fxRateProvider = fxRateProvider;
       return this;
     }
 
@@ -748,7 +749,7 @@ public final class ImmutableRatesProvider
       StringBuilder buf = new StringBuilder(224);
       buf.append("ImmutableRatesProvider.Builder{");
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
-      buf.append("fxMatrix").append('=').append(JodaBeanUtils.toString(fxMatrix)).append(',').append(' ');
+      buf.append("fxRateProvider").append('=').append(JodaBeanUtils.toString(fxRateProvider)).append(',').append(' ');
       buf.append("discountCurves").append('=').append(JodaBeanUtils.toString(discountCurves)).append(',').append(' ');
       buf.append("indexCurves").append('=').append(JodaBeanUtils.toString(indexCurves)).append(',').append(' ');
       buf.append("priceIndexValues").append('=').append(JodaBeanUtils.toString(priceIndexValues)).append(',').append(' ');

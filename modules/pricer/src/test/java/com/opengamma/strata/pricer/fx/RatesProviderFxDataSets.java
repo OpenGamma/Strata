@@ -91,7 +91,7 @@ public class RatesProviderFxDataSets {
             .put(GBP, GBP_DSC)
             .put(KRW, KRW_DSC)
             .build())
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .build();
   }
 
@@ -103,7 +103,7 @@ public class RatesProviderFxDataSets {
             .put(EUR, EUR_DSC)
             .put(USD, USD_DSC)
             .build())
-        .fxMatrix(fxMatrix)
+        .fxRateProvider(fxMatrix)
         .build();
   }
 

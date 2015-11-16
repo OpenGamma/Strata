@@ -12,7 +12,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.Trade;
-import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -117,7 +117,7 @@ public final class CurveCalibrator {
    * @param valuationDate  the validation date
    * @param marketData  the market data required to build a trade for the instrument
    * @param timeSeries  the time-series
-   * @param fxMatrix  the FX matrix
+   * @param fxRateProvider  the FX rate provider
    * @return the rates provider resulting from the calibration
    */
   public ImmutableRatesProvider calibrate(
@@ -125,11 +125,11 @@ public final class CurveCalibrator {
       LocalDate valuationDate,
       ObservableValues marketData,
       Map<Index, LocalDateDoubleTimeSeries> timeSeries,
-      FxMatrix fxMatrix) {
+      FxRateProvider fxRateProvider) {
 
     ImmutableRatesProvider knownData = ImmutableRatesProvider.builder()
         .valuationDate(valuationDate)
-        .fxMatrix(fxMatrix)
+        .fxRateProvider(fxRateProvider)
         .timeSeries(timeSeries)
         .build();
     return calibrate(ImmutableList.of(curveGroupDefn), knownData, marketData);

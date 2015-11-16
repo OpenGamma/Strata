@@ -101,7 +101,7 @@ public class ImmutableRatesProviderTest {
   public void test_fxRate_separate() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .build();
     assertEquals(test.fxRate(USD, GBP), 1 / FX_GBP_USD, 0d);
     assertEquals(test.fxRate(USD, USD), 1d, 0d);
@@ -110,7 +110,7 @@ public class ImmutableRatesProviderTest {
   public void test_fxRate_pair() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .build();
     assertEquals(test.fxRate(CurrencyPair.of(USD, GBP)), 1 / FX_GBP_USD, 0d);
   }
@@ -120,7 +120,7 @@ public class ImmutableRatesProviderTest {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(VAL_DATE, 0.62d);
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .timeSeries(ImmutableMap.of(GBP_USD_WM, ts))
         .build();
@@ -132,7 +132,7 @@ public class ImmutableRatesProviderTest {
   public void test_fxForwardRates() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .build();
     DiscountFxForwardRates res = (DiscountFxForwardRates) test.fxForwardRates(CurrencyPair.of(GBP, USD));

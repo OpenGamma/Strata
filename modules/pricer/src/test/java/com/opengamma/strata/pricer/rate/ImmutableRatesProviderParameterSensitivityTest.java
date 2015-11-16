@@ -127,27 +127,27 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   public void pointAndParameterFx() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .build();
     ImmutableRatesProvider test_gbp_up = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_UP, USD, DISCOUNT_CURVE_USD))
         .build();
     ImmutableRatesProvider test_gbp_dw = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_DOWN, USD, DISCOUNT_CURVE_USD))
         .build();
     ImmutableRatesProvider test_usd_up = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD_UP))
         .build();
     ImmutableRatesProvider test_usd_dw = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD_DOWN))
         .build();
     LocalDate matuirtyDate = GBP_USD_WM.calculateMaturityFromFixing(VAL_DATE);
