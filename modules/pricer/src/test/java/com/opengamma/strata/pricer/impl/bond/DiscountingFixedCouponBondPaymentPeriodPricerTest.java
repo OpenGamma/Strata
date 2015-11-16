@@ -33,7 +33,7 @@ import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.IssuerCurveDiscountFactors;
 import com.opengamma.strata.market.value.LegalEntityGroup;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
-import com.opengamma.strata.product.rate.bond.FixedCouponBondPaymentPeriod;
+import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
 
 /**
  * Test {@link DiscountingFixedCouponBondPaymentPeriodPricer}.

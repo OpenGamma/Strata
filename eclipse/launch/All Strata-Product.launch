@@ -16,6 +16,8 @@
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.strata.product"/>
+<listEntry value="com.opengamma.strata.product.bond"/>
+<listEntry value="com.opengamma.strata.product.bond.type"/>
 <listEntry value="com.opengamma.strata.product.credit"/>
 <listEntry value="com.opengamma.strata.product.credit.type"/>
 <listEntry value="com.opengamma.strata.product.equity"/>
@@ -24,7 +26,6 @@
 <listEntry value="com.opengamma.strata.product.fx.type"/>
 <listEntry value="com.opengamma.strata.product.payment"/>
 <listEntry value="com.opengamma.strata.product.rate"/>
-<listEntry value="com.opengamma.strata.product.rate.bond"/>
 <listEntry value="com.opengamma.strata.product.rate.deposit"/>
 <listEntry value="com.opengamma.strata.product.rate.deposit.type"/>
 <listEntry value="com.opengamma.strata.product.rate.fra"/>
