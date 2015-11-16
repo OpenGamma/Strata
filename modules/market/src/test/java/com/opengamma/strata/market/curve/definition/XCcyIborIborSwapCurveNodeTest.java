@@ -64,11 +64,11 @@ public class XCcyIborIborSwapCurveNodeTest {
         .template(TEMPLATE)
         .spreadKey(SPREAD_KEY)
         .fxKey(FX_KEY)
-        .spread(SPREAD_ADJ)
+        .additionalSpread(SPREAD_ADJ)
         .build();
     assertEquals(test.getSpreadKey(), SPREAD_KEY);
     assertEquals(test.getFxKey(), FX_KEY);
-    assertEquals(test.getSpread(), SPREAD_ADJ);
+    assertEquals(test.getAdditionalSpread(), SPREAD_ADJ);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
@@ -76,7 +76,7 @@ public class XCcyIborIborSwapCurveNodeTest {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, FX_KEY);
     assertEquals(test.getSpreadKey(), SPREAD_KEY);
     assertEquals(test.getFxKey(), FX_KEY);
-    assertEquals(test.getSpread(), 0.0d);
+    assertEquals(test.getAdditionalSpread(), 0.0d);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
@@ -84,7 +84,7 @@ public class XCcyIborIborSwapCurveNodeTest {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, FX_KEY, SPREAD_ADJ);
     assertEquals(test.getSpreadKey(), SPREAD_KEY);
     assertEquals(test.getFxKey(), FX_KEY);
-    assertEquals(test.getSpread(), SPREAD_ADJ);
+    assertEquals(test.getAdditionalSpread(), SPREAD_ADJ);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 

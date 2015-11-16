@@ -51,24 +51,24 @@ public class IborIborSwapCurveNodeTest {
     IborIborSwapCurveNode test = IborIborSwapCurveNode.builder()
         .template(TEMPLATE)
         .rateKey(QUOTE_KEY)
-        .spread(SPREAD)
+        .additionalSpread(SPREAD)
         .build();
     assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getSpread(), SPREAD);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_noSpread() {
     IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY);
     assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getSpread(), 0.0d);
+    assertEquals(test.getAdditionalSpread(), 0.0d);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_withSpread() {
     IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getSpread(), SPREAD);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
