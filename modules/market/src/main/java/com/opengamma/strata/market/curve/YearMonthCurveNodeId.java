@@ -40,7 +40,7 @@ public final class YearMonthCurveNodeId
 
   /**
    * The year-month of the curve node.
-   * The is typically the futures expiry date.
+   * This typically the futures expiry date.
    */
   @PropertyDefinition(validate = "notNull")
   private final YearMonth expiry;
@@ -121,7 +121,7 @@ public final class YearMonthCurveNodeId
   //-----------------------------------------------------------------------
   /**
    * Gets the year-month of the curve node.
-   * The is typically the futures expiry date.
+   * This typically the futures expiry date.
    * @return the value of the property, not null
    */
   public YearMonth getExpiry() {
