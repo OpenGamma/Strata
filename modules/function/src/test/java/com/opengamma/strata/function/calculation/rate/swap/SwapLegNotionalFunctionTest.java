@@ -22,7 +22,7 @@ import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.collect.CollectProjectAssertions;
-import com.opengamma.strata.function.marketdata.curve.MarketDataMap;
+import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.amount.LegAmounts;
 import com.opengamma.strata.market.amount.SwapLegAmount;
 import com.opengamma.strata.pricer.rate.swap.SwapDummyData;
@@ -55,7 +55,7 @@ public class SwapLegNotionalFunctionTest {
     assertThat(reqs.getSingleValueRequirements()).isEmpty();
     assertThat(reqs.getTimeSeriesRequirements()).isEmpty();
     CollectProjectAssertions.assertThat(test.defaultReportingCurrency(SWAP_TRADE)).hasValue(ccy);
-    MarketDataMap md = new MarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
+    TestMarketDataMap md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
 
     LegAmounts expected = LegAmounts.of(
         SwapLegAmount.of(firstLeg, CurrencyAmount.of(ccy, notional)),
@@ -76,7 +76,7 @@ public class SwapLegNotionalFunctionTest {
     RateCalculationSwapLeg secondLeg = SwapDummyData.IBOR_RATECALC_SWAP_LEG;
     SwapTrade trade = SwapTrade.builder().product(Swap.of(firstLeg, secondLeg)).build();
     LocalDate valDate = trade.getProduct().getEndDate().plusDays(7);
-    MarketDataMap md = new MarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
+    TestMarketDataMap md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
 
     double notional = secondLeg.getNotionalSchedule().getAmount().getInitialValue();
     LegAmounts expected = LegAmounts.of(
@@ -98,7 +98,7 @@ public class SwapLegNotionalFunctionTest {
         .build();
     SwapTrade trade = SwapTrade.builder().product(Swap.of(leg, leg)).build();
     LocalDate valDate = trade.getProduct().getEndDate().plusDays(7);
-    MarketDataMap md = new MarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
+    TestMarketDataMap md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
 
     SwapLegNotionalFunction test = new SwapLegNotionalFunction();
     assertThrowsIllegalArg(() -> test.execute(trade, md));

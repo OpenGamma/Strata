@@ -30,7 +30,7 @@ import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.collect.CollectProjectAssertions;
-import com.opengamma.strata.function.marketdata.curve.MarketDataMap;
+import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
@@ -81,7 +81,7 @@ public class BulletPaymentFunctionGroupsTest {
     CollectProjectAssertions.assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy);
     DiscountFactors df1 = SimpleDiscountFactors.of(
         ccy, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
-    MarketDataMap md = new MarketDataMap(
+    TestMarketDataMap md = new TestMarketDataMap(
         valDate,
         ImmutableMap.of(DiscountFactorsKey.of(ccy), df1),
         ImmutableMap.of());
@@ -98,7 +98,7 @@ public class BulletPaymentFunctionGroupsTest {
     LocalDate valDate = TRADE.getProduct().getDate().adjusted().plusDays(7);
     DiscountFactors df1 = SimpleDiscountFactors.of(
         ccy, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
-    MarketDataMap md = new MarketDataMap(
+    TestMarketDataMap md = new TestMarketDataMap(
         valDate,
         ImmutableMap.of(DiscountFactorsKey.of(ccy), df1),
         ImmutableMap.of());

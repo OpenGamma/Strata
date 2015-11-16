@@ -15,7 +15,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 /**
  * A source of market data provided to an engine function and used for a calculation across a single scenario.
  * <p>
- * The set of data provided by this interface is a subset of the set provided by {@link CalculationEnvironment}.
+ * The set of data provided by this interface is a subset of the set provided by {@link CalculationMarketDataMap}.
  * For example a function might request a USD discounting curve, but the scenario market data can contain
  * multiple curve groups, each with a USD discounting curve.
  * <p>

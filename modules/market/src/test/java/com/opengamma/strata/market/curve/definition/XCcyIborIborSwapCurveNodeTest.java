@@ -24,9 +24,8 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.market.ImmutableObservableValues;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
@@ -57,7 +56,7 @@ public class XCcyIborIborSwapCurveNodeTest {
     MAP_OV.put(SPREAD_KEY, SPREAD_XCS);
     MAP_OV.put(FX_KEY, FX_EUR_USD);
   }
-  private static final ImmutableObservableValues OV = ImmutableObservableValues.of(MAP_OV);
+  private static final MarketData OV = MarketData.builder().addValues(MAP_OV).build();
 
   public void test_builder() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.builder()
@@ -107,8 +106,9 @@ public class XCcyIborIborSwapCurveNodeTest {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, FX_KEY, SPREAD_ADJ);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    assertThrowsIllegalArg(() -> node.trade(
-        valuationDate, ObservableValues.of(QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")), rate)));
+    QuoteKey key = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
+    MarketData marketData = MarketData.builder().addValue(key, rate).build();
+    assertThrowsIllegalArg(() -> node.trade(valuationDate, marketData));
   }
 
   public void test_initialGuess() {

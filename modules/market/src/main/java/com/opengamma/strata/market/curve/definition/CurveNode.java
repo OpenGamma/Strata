@@ -9,8 +9,8 @@ import java.time.LocalDate;
 import java.util.Set;
 
 import com.opengamma.strata.basics.Trade;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.value.ValueType;
 
@@ -49,7 +49,7 @@ public interface CurveNode {
    * @param marketData  the market data required to build a trade for the instrument
    * @return a trade representing the instrument at the node
    */
-  public abstract Trade trade(LocalDate valuationDate, ObservableValues marketData);
+  public abstract Trade trade(LocalDate valuationDate, MarketData marketData);
 
   /**
    * Gets the initial guess used for calibrating the node.
@@ -66,6 +66,6 @@ public interface CurveNode {
    * @param valueType  the type of y-value that the curve will contain
    * @return the initial guess of the calibrated value
    */
-  public abstract double initialGuess(LocalDate valuationDate, ObservableValues marketData, ValueType valueType);
+  public abstract double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType);
 
 }

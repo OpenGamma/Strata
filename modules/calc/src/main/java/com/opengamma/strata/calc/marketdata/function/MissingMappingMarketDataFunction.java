@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.calc.marketdata.function;
 
-import com.opengamma.strata.calc.marketdata.MarketDataLookup;
+import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
@@ -32,7 +32,7 @@ public final class MissingMappingMarketDataFunction implements MarketDataFunctio
   @Override
   public MarketDataBox<Void> build(
       MissingMappingId id,
-      MarketDataLookup marketData,
+      CalculationEnvironment marketData,
       MarketDataConfig marketDataConfig) {
 
     throw new IllegalArgumentException("No market data mapping found for market data key " + id.getKey());

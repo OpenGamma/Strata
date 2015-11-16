@@ -25,8 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
@@ -99,13 +99,13 @@ public final class FixedOvernightSwapCurveNode
   }
 
   @Override
-  public SwapTrade trade(LocalDate valuationDate, ObservableValues marketData) {
+  public SwapTrade trade(LocalDate valuationDate, MarketData marketData) {
     double fixedRate = marketData.getValue(rateKey) + additionalSpread;
     return template.toTrade(valuationDate, BuySell.BUY, 1, fixedRate);
   }
 
   @Override
-  public double initialGuess(LocalDate valuationDate, ObservableValues marketData, ValueType valueType) {
+  public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
     if (ValueType.ZERO_RATE.equals(valueType)) {
       return marketData.getValue(rateKey);
     }

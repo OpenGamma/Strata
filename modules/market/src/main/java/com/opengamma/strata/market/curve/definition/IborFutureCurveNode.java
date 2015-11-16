@@ -25,8 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.YearMonthCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
@@ -94,13 +94,13 @@ public final class IborFutureCurveNode
   }
 
   @Override
-  public IborFutureTrade trade(LocalDate valuationDate, ObservableValues marketData) {
+  public IborFutureTrade trade(LocalDate valuationDate, MarketData marketData) {
     double price = marketData.getValue(rateKey) + additionalSpread;
     return template.toTrade(valuationDate, 1L, 1d, price);
   }
 
   @Override
-  public double initialGuess(LocalDate valuationDate, ObservableValues marketData, ValueType valueType) {
+  public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
     if (ValueType.ZERO_RATE.equals(valueType)) {
       return 1d - marketData.getValue(rateKey);
     }

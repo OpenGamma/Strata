@@ -11,7 +11,7 @@ import static org.mockito.Mockito.mock;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
+import com.opengamma.strata.calc.marketdata.CalculationMarketDataMap;
 import com.opengamma.strata.calc.marketdata.CalculationRequirements;
 import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
@@ -56,7 +56,7 @@ public class CurveParallelShiftUsageTest {
         mock(ObservableMarketDataFunction.class),
         FeedIdMapping.identity());
     CalculationRequirements requirements = CalculationRequirements.builder().addValues(curveId).build();
-    CalculationEnvironment scenarioData = marketDataFactory.buildCalculationEnvironment(
+    CalculationMarketDataMap scenarioData = marketDataFactory.buildCalculationMarketData(
         requirements,
         marketData,
         MarketDataConfig.empty(),

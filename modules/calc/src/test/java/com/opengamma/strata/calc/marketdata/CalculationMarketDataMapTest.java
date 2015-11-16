@@ -19,7 +19,7 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 
 @Test
-public class CalculationEnvironmentTest {
+public class CalculationMarketDataMapTest {
 
   /**
    * Tests the special handling of {@link NoMatchingRuleId}

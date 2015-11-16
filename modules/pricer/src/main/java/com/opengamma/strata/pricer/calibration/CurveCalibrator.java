@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.market.ObservableValues;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -123,7 +123,7 @@ public final class CurveCalibrator {
   public ImmutableRatesProvider calibrate(
       CurveGroupDefinition curveGroupDefn,
       LocalDate valuationDate,
-      ObservableValues marketData,
+      MarketData marketData,
       Map<Index, LocalDateDoubleTimeSeries> timeSeries,
       FxRateProvider fxRateProvider) {
 
@@ -152,7 +152,7 @@ public final class CurveCalibrator {
   public ImmutableRatesProvider calibrate(
       List<CurveGroupDefinition> allGroupsDefn,
       ImmutableRatesProvider knownData,
-      ObservableValues marketData) {
+      MarketData marketData) {
 
     // perform calibration one group at a time, building up the result by mutating these variables
     ImmutableRatesProvider providerCombined = knownData;

@@ -412,7 +412,7 @@ public class MarketDataNodeTest {
     }
 
     @Override
-    public MarketDataBox<Double> build(TestIdA id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+    public MarketDataBox<Double> build(TestIdA id, CalculationEnvironment marketData, MarketDataConfig marketDataConfig) {
       throw new UnsupportedOperationException("build not implemented");
     }
 
@@ -440,7 +440,7 @@ public class MarketDataNodeTest {
     @Override
     public MarketDataBox<TestMarketDataB> build(
         TestIdB id,
-        MarketDataLookup marketData,
+        CalculationEnvironment marketData,
         MarketDataConfig marketDataConfig) {
 
       throw new UnsupportedOperationException("build not implemented");

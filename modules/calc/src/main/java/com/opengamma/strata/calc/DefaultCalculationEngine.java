@@ -11,7 +11,7 @@ import java.util.List;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.config.CalculationTasksConfig;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
+import com.opengamma.strata.calc.marketdata.CalculationMarketDataMap;
 import com.opengamma.strata.calc.marketdata.MarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
@@ -93,13 +93,13 @@ public final class DefaultCalculationEngine implements CalculationEngine {
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
     // build any missing market data
-    CalculationEnvironment calculationEnvironment = marketDataFactory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = marketDataFactory.buildCalculationMarketData(
         tasks.getRequirements(),
         marketEnvironment,
         calculationRules.getMarketDataConfig());
 
     // perform the calculations
-    return calculationRunner.calculateSingleScenario(tasks, calculationEnvironment);
+    return calculationRunner.calculateSingleScenario(tasks, marketData);
   }
 
   @Override
@@ -120,14 +120,14 @@ public final class DefaultCalculationEngine implements CalculationEngine {
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
     // build any required scenarios from the base market data
-    CalculationEnvironment scenarioMarketData = marketDataFactory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = marketDataFactory.buildCalculationMarketData(
         tasks.getRequirements(),
         suppliedMarketData,
         calculationRules.getMarketDataConfig(),
         scenarioDefinition);
 
     // perform the calculations
-    return calculationRunner.calculateMultipleScenarios(tasks, scenarioMarketData);
+    return calculationRunner.calculateMultipleScenarios(tasks, marketData);
   }
 
   /**

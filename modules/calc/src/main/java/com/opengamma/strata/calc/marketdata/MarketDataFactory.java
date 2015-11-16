@@ -26,12 +26,12 @@ public interface MarketDataFactory {
    * <p>
    * It is anticipated that {@link MarketEnvironment} will be exposed directly to users.
    * <p>
-   * The market data used in calculations is provided by {@link CalculationEnvironment}. This
+   * The market data used in calculations is provided by {@link CalculationMarketDataMap}. This
    * contains the same data as {@link MarketEnvironment} plus
    * additional derived values used by the calculations and scenario framework.
    * <p>
-   * {@link CalculationEnvironment} can be built from a {@link MarketEnvironment} using
-   * {@link #buildCalculationEnvironment}
+   * {@link CalculationMarketDataMap} can be built from a {@link MarketEnvironment} using
+   * {@link #buildCalculationMarketData}
    *
    * @param requirements  the market data required
    * @param suppliedData  the market data supplied by the caller
@@ -41,7 +41,7 @@ public interface MarketDataFactory {
    *   specified in tne requirements. This is intended to be used when debugging problems building market data
    * @return the requested market data plus details of any data that could not be built
    */
-  public abstract MarketEnvironmentResult buildMarketEnvironment(
+  public abstract MarketEnvironmentResult buildMarketData(
       MarketDataRequirements requirements,
       MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig,
@@ -53,7 +53,7 @@ public interface MarketDataFactory {
    * If the calculations require any data not provided in the {@code suppliedData} it is built by the
    * engine.
    * <p>
-   * {@link CalculationEnvironment} contains the same data as {@link MarketEnvironment} plus
+   * {@link CalculationMarketDataMap} contains the same data as {@link MarketEnvironment} plus
    * additional derived values used by the calculations and scenario framework.
    *
    * @param requirements  the market data required for the calculations
@@ -61,7 +61,7 @@ public interface MarketDataFactory {
    * @param marketDataConfig  configuration needed to build non-observable market data, for example curves or surfaces
    * @return the market data required by the calculations plus details of any data that could not be built
    */
-  public abstract CalculationEnvironment buildCalculationEnvironment(
+  public abstract CalculationMarketDataMap buildCalculationMarketData(
       CalculationRequirements requirements,
       MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig);
@@ -72,7 +72,7 @@ public interface MarketDataFactory {
    * If the calculations require any data not provided in the {@code suppliedData} it is built by the
    * engine before applying the scenario definition.
    * <p>
-   * {@link CalculationEnvironment} contains the same data as {@link MarketEnvironment} plus
+   * {@link CalculationMarketDataMap} contains the same data as {@link MarketEnvironment} plus
    * additional derived values used by the calculations and scenario framework.
    * <p>
    * If the scenario definition contains perturbations that apply to the inputs used to build market data,
@@ -88,7 +88,7 @@ public interface MarketDataFactory {
    * @param scenarioDefinition  defines how the market data for each scenario is derived from the base data
    * @return the market data required by the calculations
    */
-  public abstract CalculationEnvironment buildCalculationEnvironment(
+  public abstract CalculationMarketDataMap buildCalculationMarketData(
       CalculationRequirements requirements,
       MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig,

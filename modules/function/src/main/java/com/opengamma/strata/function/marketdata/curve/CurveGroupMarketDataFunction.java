@@ -16,11 +16,10 @@ import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.FxMatrix;
-import com.opengamma.strata.basics.market.ImmutableObservableValues;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ObservableValues;
-import com.opengamma.strata.calc.marketdata.MarketDataLookup;
+import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
@@ -87,7 +86,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   @Override
   public MarketDataBox<CurveGroup> build(
       CurveGroupId id,
-      MarketDataLookup marketData,
+      CalculationEnvironment marketData,
       MarketDataConfig marketDataConfig) {
 
     CurveGroupName groupName = id.getName();
@@ -116,7 +115,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    */
   MarketDataBox<CurveGroup> buildCurveGroup(
       CurveGroupDefinition groupDefn,
-      MarketDataLookup marketData,
+      CalculationEnvironment marketData,
       MarketDataFeed feed) {
 
     // find and combine all the par rates
@@ -145,7 +144,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
 
     for (int i = 0; i < scenarioCount; i++) {
       List<ParRates> parRatesList = parRatesForScenario(parRateBoxes, i);
-      ObservableValues ratesByKey = ratesByKey(parRatesList);
+      MarketData ratesByKey = ratesByKey(parRatesList);
       LocalDate valuationDate = valuationDateBox.getValue(scenarioCount);
       builder.add(buildGroup(groupDefn, valuationDate, ratesByKey));
     }
@@ -165,8 +164,8 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       List<MarketDataBox<ParRates>> parRateBoxes) {
 
     List<ParRates> parRates = parRateBoxes.stream().map(MarketDataBox::getSingleValue).collect(toImmutableList());
-    ObservableValues parRateValuesByKey = ratesByKey(parRates);
-    CurveGroup curveGroup = buildGroup(groupDefn, valuationDate.getSingleValue(), parRateValuesByKey);
+    MarketData parRateValues = ratesByKey(parRates);
+    CurveGroup curveGroup = buildGroup(groupDefn, valuationDate.getSingleValue(), parRateValues);
     return MarketDataBox.ofSingleValue(curveGroup);
   }
 
@@ -176,23 +175,23 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * @param parRates  par rates objects
    * @return the underlying quotes from the par rates
    */
-  private static ObservableValues ratesByKey(List<ParRates> parRates) {
+  private static MarketData ratesByKey(List<ParRates> parRates) {
     Map<ObservableKey, Double> valueMap = parRates.stream()
         .flatMap(pr -> pr.toRatesByKey().entrySet().stream())
         .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-    return ImmutableObservableValues.of(valueMap);
+    return MarketData.builder().addValues(valueMap).build();
   }
 
   private CurveGroup buildGroup(
       CurveGroupDefinition groupDefn,
       LocalDate valuationDate,
-      ObservableValues parRateValuesByKey) {
+      MarketData parRateValues) {
 
     // perform the calibration
     ImmutableRatesProvider calibratedProvider = curveCalibrator.calibrate(
         groupDefn,
         valuationDate,
-        parRateValuesByKey,
+        parRateValues,
         ImmutableMap.of(),
         FxMatrix.empty());
 
@@ -252,7 +251,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    */
   private MarketDataBox<ParRates> parRates(
       NodalCurveDefinition curveDefn,
-      MarketDataLookup marketData,
+      CalculationEnvironment marketData,
       CurveGroupName groupName,
       MarketDataFeed feed) {
 
