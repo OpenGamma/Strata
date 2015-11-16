@@ -46,7 +46,6 @@ import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.YearMonth;
 
 import org.testng.annotations.Test;
 
@@ -124,12 +123,11 @@ public class DiscountingSwapProductPricerTest {
 
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final LocalDate VAL_DATE_INFLATION = date(2014, 7, 8);
-  private static final YearMonth VAL_MONTH_INFLATION = YearMonth.of(2014, 7);
   private static final double CONSTANT_INDEX = 242d;
   private static final double START_INDEX = 218d;
   private static final PriceIndexValues PRICE_CURVE = ForwardPriceIndexValues.of(
       GB_RPI,
-      VAL_MONTH_INFLATION,
+      VAL_DATE_INFLATION,
       LocalDateDoubleTimeSeries.of(date(2014, 3, 31), START_INDEX),
       InterpolatedNodalCurve.of(
           Curves.prices("GB_RPI_CURVE_FLAT"),

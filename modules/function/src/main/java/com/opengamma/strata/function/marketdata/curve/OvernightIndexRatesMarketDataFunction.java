@@ -13,7 +13,6 @@ import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
@@ -21,6 +20,7 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.OvernightIndexRatesId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
+import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.DiscountOvernightIndexRates;
 import com.opengamma.strata.market.value.OvernightIndexRates;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
@@ -75,21 +75,8 @@ public class OvernightIndexRatesMarketDataFunction
       LocalDateDoubleTimeSeries timeSeries,
       Curve curve) {
 
-    ValueType yValueType = curve.getMetadata().getYValueType();
-    if (ValueType.ZERO_RATE.equals(yValueType)) {
-      ZeroRateDiscountFactors df = ZeroRateDiscountFactors.of(index.getCurrency(), valuationDate, curve);
-      return DiscountOvernightIndexRates.of(index, timeSeries, df);
-
-    } else if (ValueType.DISCOUNT_FACTOR.equals(yValueType)) {
-      SimpleDiscountFactors df = SimpleDiscountFactors.of(index.getCurrency(), valuationDate, curve);
-      return DiscountOvernightIndexRates.of(index, timeSeries, df);
-
-    } else {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "Invalid curve, must have ValueType of 'ZeroRate' or 'DiscountFactor', but was: {}",
-              yValueType));
-    }
+    DiscountFactors df = DiscountFactors.of(index.getCurrency(), valuationDate, curve);
+    return DiscountOvernightIndexRates.of(index, timeSeries, df);
   }
 
   @Override

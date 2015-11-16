@@ -183,7 +183,6 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   public void pointAndParameterPriceIndex() {
     double eps = 1.0e-13;
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
-    YearMonth valuationMonth = YearMonth.of(2014, 1);
     DoubleArray x = DoubleArray.of(0.5, 1.0, 2.0);
     DoubleArray y = DoubleArray.of(224.2, 262.6, 277.5);
     CurveInterpolator interp = CurveInterpolators.NATURAL_CUBIC_SPLINE;
@@ -191,7 +190,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     InterpolatedNodalCurve interpCurve = InterpolatedNodalCurve.of(Curves.prices(curveName), x, y, interp);
     PriceIndexValues values = ForwardPriceIndexValues.of(
         GB_RPI,
-        valuationMonth,
+        valuationDate,
         LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 200),
         interpCurve);
     ImmutableRatesProvider provider = ImmutableRatesProvider.builder()

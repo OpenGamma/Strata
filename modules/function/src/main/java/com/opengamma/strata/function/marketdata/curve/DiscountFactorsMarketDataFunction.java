@@ -68,17 +68,7 @@ public class DiscountFactorsMarketDataFunction
       LocalDate valuationDate, 
       Curve curve) {
     
-    ValueType yValueType = curve.getMetadata().getYValueType();
-    if (ValueType.ZERO_RATE.equals(yValueType)) {
-      return ZeroRateDiscountFactors.of(currency, valuationDate, curve);
-
-    } else if (ValueType.DISCOUNT_FACTOR.equals(yValueType)) {
-      return SimpleDiscountFactors.of(currency, valuationDate, curve);
-
-    } else {
-      throw new IllegalArgumentException(
-          "Invalid curve, must have ValueType of 'ZeroRate' or 'DiscountFactor', but was " + yValueType);
-    }
+    return DiscountFactors.of(currency, valuationDate, curve);
   }
 
 }

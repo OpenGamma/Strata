@@ -30,6 +30,7 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.key.FxIndexRatesKey;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -77,6 +78,7 @@ public class DiscountFxIndexRatesTest {
   //-------------------------------------------------------------------------
   public void test_of_withoutFixings() {
     DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, FWD_RATES);
+    assertEquals(test.getKey(), FxIndexRatesKey.of(GBP_USD_WM));
     assertEquals(test.getIndex(), GBP_USD_WM);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getTimeSeries(), SERIES_EMPTY);
@@ -85,6 +87,7 @@ public class DiscountFxIndexRatesTest {
 
   public void test_of_withFixings() {
     DiscountFxIndexRates test = DiscountFxIndexRates.of(GBP_USD_WM, SERIES, FWD_RATES);
+    assertEquals(test.getKey(), FxIndexRatesKey.of(GBP_USD_WM));
     assertEquals(test.getIndex(), GBP_USD_WM);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getTimeSeries(), SERIES);
