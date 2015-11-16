@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.basics.market;
+package com.opengamma.strata.market;
 
 /**
  * Describes a perturbation applied to a single piece of data as part of a scenario.
@@ -40,4 +40,5 @@ public interface Perturbation<T> {
    * @return a new item of market data derived by applying the perturbation to the input data
    */
   public abstract T applyTo(T marketData);
+
 }

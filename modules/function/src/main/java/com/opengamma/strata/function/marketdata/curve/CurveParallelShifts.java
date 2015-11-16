@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioPerturbation;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.perturb.ParallelShiftedCurve;
-import com.opengamma.strata.market.curve.perturb.ShiftType;
 
 /**
  * Perturbation which applies a parallel shift to a curve.

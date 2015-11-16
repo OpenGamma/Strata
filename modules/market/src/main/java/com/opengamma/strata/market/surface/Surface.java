@@ -7,9 +7,9 @@ package com.opengamma.strata.market.surface;
 
 import java.util.Map;
 
-import com.opengamma.strata.basics.market.Perturbation;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.tuple.DoublesPair;
+import com.opengamma.strata.market.Perturbation;
 
 /**
  * A surface that maps a {@code double} x-value and y-value to a {@code double} z-value.

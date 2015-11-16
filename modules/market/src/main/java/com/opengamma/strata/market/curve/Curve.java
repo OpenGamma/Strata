@@ -7,8 +7,8 @@ package com.opengamma.strata.market.curve;
 
 import java.time.Period;
 
-import com.opengamma.strata.basics.market.Perturbation;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 
 /**

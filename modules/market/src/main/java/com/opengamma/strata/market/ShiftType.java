@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve.perturb;
+package com.opengamma.strata.market;
 
 import com.opengamma.strata.basics.value.ValueAdjustment;
 
