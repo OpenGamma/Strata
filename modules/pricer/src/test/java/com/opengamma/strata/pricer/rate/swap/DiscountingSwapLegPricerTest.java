@@ -43,7 +43,6 @@ import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.YearMonth;
 import java.util.Map;
 
 import org.testng.annotations.Test;
@@ -512,13 +511,12 @@ public class DiscountingSwapLegPricerTest {
   private static final double START_INDEX = 218.0;
   private static final double NOTIONAL = 1000d;
   private static final LocalDate VAL_DATE_INFLATION = LocalDate.of(2014, 7, 8);
-  private static final YearMonth VAL_MONTH_INFLATION = YearMonth.from(VAL_DATE_INFLATION);
 
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final double CONSTANT_INDEX = 242.0;
   private static final PriceIndexValues GBPRI_CURVE_FLAT = ForwardPriceIndexValues.of(
       GB_RPI,
-      VAL_MONTH_INFLATION,
+      VAL_DATE_INFLATION,
       LocalDateDoubleTimeSeries.of(VAL_DATE_INFLATION.minusMonths(3), START_INDEX),
       InterpolatedNodalCurve.of(
           Curves.prices("GB_RPI_CURVE"),
@@ -529,7 +527,7 @@ public class DiscountingSwapLegPricerTest {
   private static final CurveInterpolator INTERP_SPLINE = CurveInterpolators.NATURAL_CUBIC_SPLINE;
   private static final PriceIndexValues GBPRI_CURVE = ForwardPriceIndexValues.of(
       GB_RPI,
-      VAL_MONTH_INFLATION,
+      VAL_DATE_INFLATION,
       LocalDateDoubleTimeSeries.of(VAL_DATE_INFLATION.minusMonths(3), 227.2),
       InterpolatedNodalCurve.of(
           Curves.prices("GB_RPI_CURVE"),

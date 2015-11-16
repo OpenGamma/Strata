@@ -16,6 +16,7 @@ package com.opengamma.strata.market;
  *
  * @param <T>  the type of the market data handled by the perturbation
  */
+@FunctionalInterface
 public interface Perturbation<T> {
 
   /**

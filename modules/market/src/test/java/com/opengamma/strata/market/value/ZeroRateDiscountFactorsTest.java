@@ -73,7 +73,7 @@ public class ZeroRateDiscountFactorsTest {
     CurveMetadata noDayCountMetadata = DefaultCurveMetadata.builder()
         .curveName(NAME)
         .xValueType(ValueType.YEAR_FRACTION)
-        .yValueType(ValueType.DISCOUNT_FACTOR)
+        .yValueType(ValueType.ZERO_RATE)
         .build();
     InterpolatedNodalCurve notDayCount = InterpolatedNodalCurve.of(
         noDayCountMetadata, DoubleArray.of(0, 10), DoubleArray.of(1, 2), INTERPOLATOR);

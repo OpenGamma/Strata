@@ -19,7 +19,6 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 
 import org.testng.annotations.Test;
 
@@ -47,7 +46,6 @@ public class ImmutableRatesProviderTest {
 
   private static final LocalDate PREV_DATE = LocalDate.of(2014, 6, 27);
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 6, 30);
-  private static final YearMonth VAL_MONTH = YearMonth.of(2014, 6);
   private static final double FX_GBP_USD = 1.6d;
   private static final FxMatrix FX_MATRIX = FxMatrix.of(GBP, USD, FX_GBP_USD);
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
@@ -64,7 +62,7 @@ public class ImmutableRatesProviderTest {
       Curves.zeroRates("USD-Discount", ACT_ACT_ISDA), 0.97d);
   private static final PriceIndexValues GBPRI_CURVE = ForwardPriceIndexValues.of(
       GB_RPI,
-      VAL_MONTH,
+      VAL_DATE,
       LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 252),
       InterpolatedNodalCurve.of(
           Curves.prices("GB-RPI"), DoubleArray.of(1d, 10d), DoubleArray.of(252d, 252d), INTERPOLATOR));
