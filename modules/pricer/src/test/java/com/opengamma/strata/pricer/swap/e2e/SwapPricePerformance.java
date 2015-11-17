@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.rate.e2e;
+package com.opengamma.strata.pricer.swap.e2e;
 
 import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
@@ -12,13 +12,13 @@ import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
-import static com.opengamma.strata.pricer.rate.e2e.SwapEnd2EndTest.BDA_MF;
-import static com.opengamma.strata.pricer.rate.e2e.SwapEnd2EndTest.BDA_P;
-import static com.opengamma.strata.pricer.rate.e2e.SwapEnd2EndTest.NOTIONAL;
-import static com.opengamma.strata.pricer.rate.e2e.SwapEnd2EndTest.USD_LIBOR_1M;
-import static com.opengamma.strata.pricer.rate.e2e.SwapEnd2EndTest.USD_LIBOR_3M;
-import static com.opengamma.strata.pricer.rate.e2e.SwapEnd2EndTest.USD_LIBOR_6M;
-import static com.opengamma.strata.pricer.rate.e2e.SwapEnd2EndTest.swapPricer;
+import static com.opengamma.strata.pricer.swap.e2e.SwapEnd2EndTest.BDA_MF;
+import static com.opengamma.strata.pricer.swap.e2e.SwapEnd2EndTest.BDA_P;
+import static com.opengamma.strata.pricer.swap.e2e.SwapEnd2EndTest.NOTIONAL;
+import static com.opengamma.strata.pricer.swap.e2e.SwapEnd2EndTest.USD_LIBOR_1M;
+import static com.opengamma.strata.pricer.swap.e2e.SwapEnd2EndTest.USD_LIBOR_3M;
+import static com.opengamma.strata.pricer.swap.e2e.SwapEnd2EndTest.USD_LIBOR_6M;
+import static com.opengamma.strata.pricer.swap.e2e.SwapEnd2EndTest.swapPricer;
 
 import java.time.LocalDate;
 

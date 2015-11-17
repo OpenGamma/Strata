@@ -70,7 +70,7 @@ import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
-import com.opengamma.strata.pricer.rate.e2e.CalendarUSD;
+import com.opengamma.strata.pricer.swap.e2e.CalendarUSD;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;

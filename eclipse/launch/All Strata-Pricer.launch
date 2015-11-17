@@ -31,10 +31,9 @@
 <listEntry value="com.opengamma.strata.pricer.impl.swap"/>
 <listEntry value="com.opengamma.strata.pricer.index"/>
 <listEntry value="com.opengamma.strata.pricer.rate"/>
-<listEntry value="com.opengamma.strata.pricer.rate.datasets"/>
-<listEntry value="com.opengamma.strata.pricer.rate.e2e"/>
 <listEntry value="com.opengamma.strata.pricer.sensitivity"/>
 <listEntry value="com.opengamma.strata.pricer.swap"/>
+<listEntry value="com.opengamma.strata.pricer.swap.e2e"/>
 <listEntry value="com.opengamma.strata.pricer.swaption"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
