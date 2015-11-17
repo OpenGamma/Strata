@@ -10,7 +10,7 @@ import java.util.Set;
 
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.value.ValueType;
 
@@ -28,7 +28,7 @@ public interface CurveNode {
    *
    * @return requirements for the market data needed to build a trade representing the instrument at the node
    */
-  public abstract Set<ObservableKey> requirements();
+  public abstract Set<? extends SimpleMarketDataKey<?>> requirements();
 
   /**
    * Returns metadata for the node.

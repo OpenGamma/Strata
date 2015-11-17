@@ -26,11 +26,14 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
@@ -54,11 +57,11 @@ public class FxSwapCurveNodeTest {
   private static final Period FAR_PERIOD = Period.ofMonths(6);
   private static final FxSwapTemplate TEMPLATE = FxSwapTemplate.of(NEAR_PERIOD, FAR_PERIOD, CONVENTION);
 
-  private static final QuoteKey QUOTE_KEY_NEAR = QuoteKey.of(StandardId.of("OG-Ticker", "EUR_USD"));
+  private static final FxRateKey QUOTE_KEY_NEAR = FxRateKey.of(EUR_USD);
   private static final QuoteKey QUOTE_KEY_PTS = QuoteKey.of(StandardId.of("OG-Ticker", "EUR_USD_3M_6M"));
-  private static final double FX_RATE_NEAR = 1.30d;
+  private static final FxRate FX_RATE_NEAR = FxRate.of(EUR_USD, 1.30d);
   private static final double FX_RATE_PTS = 0.0050d;
-  private static final Map<ObservableKey, Double> MAP_OV = new HashMap<>();
+  private static final Map<MarketDataKey<?>, Object> MAP_OV = new HashMap<>();
   static {
     MAP_OV.put(QUOTE_KEY_NEAR, FX_RATE_NEAR);
     MAP_OV.put(QUOTE_KEY_PTS, FX_RATE_PTS);
@@ -85,8 +88,8 @@ public class FxSwapCurveNodeTest {
 
   public void test_requirements() {
     FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_NEAR, QUOTE_KEY_PTS);
-    Set<ObservableKey> setExpected = ImmutableSet.of(QUOTE_KEY_NEAR, QUOTE_KEY_PTS);
-    Set<ObservableKey> set = test.requirements();
+    Set<? extends MarketDataKey<?>> setExpected = ImmutableSet.of(QUOTE_KEY_NEAR, QUOTE_KEY_PTS);
+    Set<? extends SimpleMarketDataKey<?>> set = test.requirements();
     assertTrue(set.equals(setExpected));
   }
 
@@ -94,7 +97,8 @@ public class FxSwapCurveNodeTest {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_NEAR, QUOTE_KEY_PTS);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     FxSwapTrade trade = node.trade(valuationDate, OV);
-    FxSwapTrade expected = TEMPLATE.toTrade(valuationDate, BuySell.BUY, 1.0, FX_RATE_NEAR, FX_RATE_PTS);
+    double rate = FX_RATE_NEAR.fxRate(EUR_USD);
+    FxSwapTrade expected = TEMPLATE.toTrade(valuationDate, BuySell.BUY, 1.0, rate, FX_RATE_PTS);
     assertEquals(trade, expected);
   }
 
@@ -127,8 +131,8 @@ public class FxSwapCurveNodeTest {
   public void coverage() {
     FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_NEAR, QUOTE_KEY_PTS);
     coverImmutableBean(test);
-    FxSwapCurveNode test2 = FxSwapCurveNode
-        .of(FxSwapTemplate.of(Period.ZERO, FAR_PERIOD, CONVENTION), QUOTE_KEY_PTS, QUOTE_KEY_NEAR);
+    FxSwapCurveNode test2 =
+        FxSwapCurveNode.of(FxSwapTemplate.of(Period.ZERO, FAR_PERIOD, CONVENTION), QUOTE_KEY_NEAR, QUOTE_KEY_PTS);
     coverBeanEquals(test, test2);
   }
 

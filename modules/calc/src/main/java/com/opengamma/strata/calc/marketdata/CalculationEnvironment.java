@@ -57,6 +57,21 @@ public interface CalculationEnvironment {
    */
   public abstract <T> MarketDataBox<T> getValue(MarketDataId<T> id);
 
+  // TODO I don't think this is necessary
+  /**
+   * Returns a map of market data ID to value.
+   * <p>
+   * The map contains a value for every ID in the argument. If there is no market data available for any of
+   * the IDs an exception is thrown.
+   *
+   * @param ids  IDs of the required market data
+   * @return the market data values keyed by ID
+   * @throws IllegalArgumentException if there is no value for any of the IDs
+   */
+  public default Map<? extends MarketDataId<?>, MarketDataBox<?>> getValues(Set<? extends MarketDataId<?>> ids) {
+    return ids.stream().collect(toImmutableMap(id -> id, id -> getValue(id)));
+  }
+
   /**
    * Returns a time series of market data values.
    *

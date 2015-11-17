@@ -25,9 +25,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
@@ -50,7 +53,7 @@ public final class FxSwapCurveNode
    * The key identifying the market data value which provides the FX near (spot) date rate.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ObservableKey fxNearKey;
+  private final FxRateKey fxNearKey;
   /**
    * The key identifying the market data value which provides the FX forward points.
    */
@@ -66,7 +69,7 @@ public final class FxSwapCurveNode
    * @param fxPtsKey  the key identifying the FX points between the near date and the far date
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static FxSwapCurveNode of(FxSwapTemplate template, ObservableKey fxNearKey, ObservableKey fxPtsKey) {
+  public static FxSwapCurveNode of(FxSwapTemplate template, FxRateKey fxNearKey, ObservableKey fxPtsKey) {
     return FxSwapCurveNode.builder()
         .template(template)
         .fxNearKey(fxNearKey)
@@ -76,7 +79,7 @@ public final class FxSwapCurveNode
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<ObservableKey> requirements() {
+  public Set<? extends SimpleMarketDataKey<?>> requirements() {
     return ImmutableSet.of(fxNearKey, fxPtsKey);
   }
 
@@ -89,9 +92,10 @@ public final class FxSwapCurveNode
 
   @Override
   public FxSwapTrade trade(LocalDate valuationDate, MarketData marketData) {
-    double fxNearRate = marketData.getValue(fxNearKey);
+    FxRate fxNearRate = marketData.getValue(fxNearKey);
+    double rate = fxNearRate.fxRate(fxNearKey.getPair());
     double fxPts = marketData.getValue(fxPtsKey);
-    return template.toTrade(valuationDate, BuySell.BUY, 1d, fxNearRate, fxPts);
+    return template.toTrade(valuationDate, BuySell.BUY, 1d, rate, fxPts);
   }
 
   @Override
@@ -131,7 +135,7 @@ public final class FxSwapCurveNode
 
   private FxSwapCurveNode(
       FxSwapTemplate template,
-      ObservableKey fxNearKey,
+      FxRateKey fxNearKey,
       ObservableKey fxPtsKey) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(fxNearKey, "fxNearKey");
@@ -170,7 +174,7 @@ public final class FxSwapCurveNode
    * Gets the key identifying the market data value which provides the FX near (spot) date rate.
    * @return the value of the property, not null
    */
-  public ObservableKey getFxNearKey() {
+  public FxRateKey getFxNearKey() {
     return fxNearKey;
   }
 
@@ -244,8 +248,8 @@ public final class FxSwapCurveNode
     /**
      * The meta-property for the {@code fxNearKey} property.
      */
-    private final MetaProperty<ObservableKey> fxNearKey = DirectMetaProperty.ofImmutable(
-        this, "fxNearKey", FxSwapCurveNode.class, ObservableKey.class);
+    private final MetaProperty<FxRateKey> fxNearKey = DirectMetaProperty.ofImmutable(
+        this, "fxNearKey", FxSwapCurveNode.class, FxRateKey.class);
     /**
      * The meta-property for the {@code fxPtsKey} property.
      */
@@ -307,7 +311,7 @@ public final class FxSwapCurveNode
      * The meta-property for the {@code fxNearKey} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ObservableKey> fxNearKey() {
+    public MetaProperty<FxRateKey> fxNearKey() {
       return fxNearKey;
     }
 
@@ -351,7 +355,7 @@ public final class FxSwapCurveNode
   public static final class Builder extends DirectFieldsBeanBuilder<FxSwapCurveNode> {
 
     private FxSwapTemplate template;
-    private ObservableKey fxNearKey;
+    private FxRateKey fxNearKey;
     private ObservableKey fxPtsKey;
 
     /**
@@ -392,7 +396,7 @@ public final class FxSwapCurveNode
           this.template = (FxSwapTemplate) newValue;
           break;
         case -1797478427:  // fxNearKey
-          this.fxNearKey = (ObservableKey) newValue;
+          this.fxNearKey = (FxRateKey) newValue;
           break;
         case -1094751134:  // fxPtsKey
           this.fxPtsKey = (ObservableKey) newValue;
@@ -452,7 +456,7 @@ public final class FxSwapCurveNode
      * @param fxNearKey  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder fxNearKey(ObservableKey fxNearKey) {
+    public Builder fxNearKey(FxRateKey fxNearKey) {
       JodaBeanUtils.notNull(fxNearKey, "fxNearKey");
       this.fxNearKey = fxNearKey;
       return this;

@@ -23,9 +23,13 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
@@ -47,11 +51,12 @@ public class XCcyIborIborSwapCurveNodeTest {
       XCcyIborIborSwapTemplate.of(Period.ofMonths(1), TENOR_10Y, XCcyIborIborSwapConventions.EUR_EURIBOR_3M_USD_LIBOR_3M);
   private static final QuoteKey SPREAD_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "USD-EUR-XCS-10Y"));
   private static final QuoteKey SPREAD_KEY2 = QuoteKey.of(StandardId.of("OG-Ticker", "Test"));
-  private static final QuoteKey FX_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "EUR-USD"));
+  private static final FxRateKey FX_KEY = FxRateKey.of(Currency.EUR, Currency.USD);
   private static final double SPREAD_XCS = 0.00125;
-  private static final double FX_EUR_USD = 1.25;
+  private static final FxRate FX_EUR_USD = FxRate.of(Currency.EUR, Currency.USD, 1.25);
   private static final double SPREAD_ADJ = 0.0015;
-  private static final Map<ObservableKey, Double> MAP_OV = new HashMap<>();
+  private static final Map<MarketDataKey<?>, Object> MAP_OV = new HashMap<>();
+
   static {
     MAP_OV.put(SPREAD_KEY, SPREAD_XCS);
     MAP_OV.put(FX_KEY, FX_EUR_USD);
@@ -89,8 +94,8 @@ public class XCcyIborIborSwapCurveNodeTest {
 
   public void test_requirements() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, FX_KEY, SPREAD_ADJ);
-    Set<ObservableKey> setExpected = ImmutableSet.of(SPREAD_KEY, FX_KEY);
-    Set<ObservableKey> set = test.requirements();
+    Set<? extends SimpleMarketDataKey<?>> setExpected = ImmutableSet.of(SPREAD_KEY, FX_KEY);
+    Set<? extends SimpleMarketDataKey<?>> set = test.requirements();
     assertTrue(set.equals(setExpected));
   }
 
@@ -98,7 +103,8 @@ public class XCcyIborIborSwapCurveNodeTest {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, FX_KEY, SPREAD_ADJ);
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     SwapTrade trade = node.trade(tradeDate, OV);
-    SwapTrade expected = TEMPLATE.toTrade(tradeDate, BUY, 1, FX_EUR_USD, SPREAD_XCS + SPREAD_ADJ);
+    double rate = FX_EUR_USD.fxRate(Currency.EUR, Currency.USD);
+    SwapTrade expected = TEMPLATE.toTrade(tradeDate, BUY, 1, rate, SPREAD_XCS + SPREAD_ADJ);
     assertEquals(trade, expected);
   }
 
@@ -131,8 +137,8 @@ public class XCcyIborIborSwapCurveNodeTest {
   public void coverage() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, FX_KEY, SPREAD_ADJ);
     coverImmutableBean(test);
-    XCcyIborIborSwapCurveNode test2 = XCcyIborIborSwapCurveNode
-        .of(TEMPLATE2, SPREAD_KEY2, QuoteKey.of(StandardId.of("OG-Ticker", "XXX")), 0.1);
+    XCcyIborIborSwapCurveNode test2 =
+        XCcyIborIborSwapCurveNode.of(TEMPLATE2, SPREAD_KEY2, FX_KEY, 0.1);
     coverBeanEquals(test, test2);
   }
 

@@ -25,8 +25,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
@@ -56,7 +59,7 @@ public final class XCcyIborIborSwapCurveNode
    * The key identifying the market data value which provides the FX rate.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ObservableKey fxKey;
+  private final FxRateKey fxKey;
   /**
    * The additional spread added to the market quote.
    */
@@ -76,7 +79,7 @@ public final class XCcyIborIborSwapCurveNode
   public static XCcyIborIborSwapCurveNode of(
       XCcyIborIborSwapTemplate template,
       ObservableKey spreadKey,
-      ObservableKey fxKey) {
+      FxRateKey fxKey) {
 
     return of(template, spreadKey, fxKey, 0d);
   }
@@ -94,7 +97,7 @@ public final class XCcyIborIborSwapCurveNode
   public static XCcyIborIborSwapCurveNode of(
       XCcyIborIborSwapTemplate template,
       ObservableKey spreadKey,
-      ObservableKey fxKey,
+      FxRateKey fxKey,
       double additionalSpread) {
 
     return new XCcyIborIborSwapCurveNode(template, spreadKey, fxKey, additionalSpread);
@@ -102,7 +105,7 @@ public final class XCcyIborIborSwapCurveNode
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<ObservableKey> requirements() {
+  public Set<? extends SimpleMarketDataKey<?>> requirements() {
     return ImmutableSet.of(spreadKey, fxKey);
   }
 
@@ -115,8 +118,9 @@ public final class XCcyIborIborSwapCurveNode
   @Override
   public SwapTrade trade(LocalDate valuationDate, MarketData marketData) {
     double marketQuote = marketData.getValue(spreadKey) + additionalSpread;
-    double fxRate = marketData.getValue(fxKey);
-    return template.toTrade(valuationDate, BuySell.BUY, 1, fxRate, marketQuote);
+    FxRate fxRate = marketData.getValue(fxKey);
+    double rate = fxRate.fxRate(fxKey.getPair());
+    return template.toTrade(valuationDate, BuySell.BUY, 1, rate, marketQuote);
   }
 
   @Override
@@ -157,7 +161,7 @@ public final class XCcyIborIborSwapCurveNode
   private XCcyIborIborSwapCurveNode(
       XCcyIborIborSwapTemplate template,
       ObservableKey spreadKey,
-      ObservableKey fxKey,
+      FxRateKey fxKey,
       double additionalSpread) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(spreadKey, "spreadKey");
@@ -206,7 +210,7 @@ public final class XCcyIborIborSwapCurveNode
    * Gets the key identifying the market data value which provides the FX rate.
    * @return the value of the property, not null
    */
-  public ObservableKey getFxKey() {
+  public FxRateKey getFxKey() {
     return fxKey;
   }
 
@@ -288,8 +292,8 @@ public final class XCcyIborIborSwapCurveNode
     /**
      * The meta-property for the {@code fxKey} property.
      */
-    private final MetaProperty<ObservableKey> fxKey = DirectMetaProperty.ofImmutable(
-        this, "fxKey", XCcyIborIborSwapCurveNode.class, ObservableKey.class);
+    private final MetaProperty<FxRateKey> fxKey = DirectMetaProperty.ofImmutable(
+        this, "fxKey", XCcyIborIborSwapCurveNode.class, FxRateKey.class);
     /**
      * The meta-property for the {@code additionalSpread} property.
      */
@@ -362,7 +366,7 @@ public final class XCcyIborIborSwapCurveNode
      * The meta-property for the {@code fxKey} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ObservableKey> fxKey() {
+    public MetaProperty<FxRateKey> fxKey() {
       return fxKey;
     }
 
@@ -409,7 +413,7 @@ public final class XCcyIborIborSwapCurveNode
 
     private XCcyIborIborSwapTemplate template;
     private ObservableKey spreadKey;
-    private ObservableKey fxKey;
+    private FxRateKey fxKey;
     private double additionalSpread;
 
     /**
@@ -456,7 +460,7 @@ public final class XCcyIborIborSwapCurveNode
           this.spreadKey = (ObservableKey) newValue;
           break;
         case 97849389:  // fxKey
-          this.fxKey = (ObservableKey) newValue;
+          this.fxKey = (FxRateKey) newValue;
           break;
         case 291232890:  // additionalSpread
           this.additionalSpread = (Double) newValue;
@@ -528,7 +532,7 @@ public final class XCcyIborIborSwapCurveNode
      * @param fxKey  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder fxKey(ObservableKey fxKey) {
+    public Builder fxKey(FxRateKey fxKey) {
       JodaBeanUtils.notNull(fxKey, "fxKey");
       this.fxKey = fxKey;
       return this;

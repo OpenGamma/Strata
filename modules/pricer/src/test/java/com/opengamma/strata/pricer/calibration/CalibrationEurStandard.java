@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
@@ -121,7 +120,7 @@ public class CalibrationEurStandard {
     CurveGroupDefinition config = config(dscOisTenors, dscIdValues, fwd3FraTenors, fwd3IrsTenors, fwd3IdValues,
         fwd6FraTenors, fwd6IrsTenors, fwd6IdValues);
     /* Results */
-    return CALIBRATOR.calibrate(config, valuationDate, allQuotes, TS, FxMatrix.empty());
+    return CALIBRATOR.calibrate(config, valuationDate, allQuotes, TS);
   }
 
   public static String[] dscIdValues(Period[] dscOisTenors) {

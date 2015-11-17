@@ -15,10 +15,9 @@ import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataFeed;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -176,8 +175,8 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * @return the underlying quotes from the par rates
    */
   private static MarketData ratesByKey(List<ParRates> parRates) {
-    Map<ObservableKey, Double> valueMap = parRates.stream()
-        .flatMap(pr -> pr.toRatesByKey().entrySet().stream())
+    Map<? extends MarketDataKey<?>, ?> valueMap = parRates.stream()
+        .flatMap(pr -> pr.getRates().entrySet().stream())
         .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     return MarketData.of(valueMap);
   }
@@ -192,8 +191,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         groupDefn,
         valuationDate,
         parRateValues,
-        ImmutableMap.of(),
-        FxMatrix.empty());
+        ImmutableMap.of());
 
     return CurveGroup.of(
         groupDefn.getName(),
