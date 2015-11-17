@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.swap;
 
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.swap.ExpandedSwap;

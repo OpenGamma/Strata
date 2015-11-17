@@ -24,9 +24,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
-import com.opengamma.strata.market.sensitivity.SurfaceCurrencyParameterSensitivities;
-import com.opengamma.strata.market.sensitivity.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
+import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
+import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;

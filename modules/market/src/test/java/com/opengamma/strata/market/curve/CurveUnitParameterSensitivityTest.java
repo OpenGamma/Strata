@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.sensitivity;
+package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
@@ -15,11 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.CurveMetadata;
-import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveParameterMetadata;
-import com.opengamma.strata.market.curve.Curves;
-import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 
 /**
  * Test {@link CurveUnitParameterSensitivity}.

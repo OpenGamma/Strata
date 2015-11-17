@@ -28,8 +28,8 @@ import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 
 /**
  * A curve with a parallel shift applied to its y-values.

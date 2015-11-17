@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 
 /**
  * Provides and caches format settings across types.

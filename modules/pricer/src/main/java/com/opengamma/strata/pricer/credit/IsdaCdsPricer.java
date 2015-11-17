@@ -9,13 +9,13 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
-import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurve;

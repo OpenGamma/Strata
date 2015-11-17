@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 
 /**
  * Token evaluator for curve currency parameter sensitivity.

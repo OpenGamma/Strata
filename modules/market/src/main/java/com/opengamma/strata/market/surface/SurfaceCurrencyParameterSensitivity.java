@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.sensitivity;
+package com.opengamma.strata.market.surface;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -26,48 +26,59 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxConvertible;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.CurveMetadata;
-import com.opengamma.strata.market.curve.CurveName;
 
 /**
- * Unit parameter sensitivity for a single curve.
+ * Parameter sensitivity for a single surface.
+* <p>
+ * Surface parameter sensitivity is the sensitivity of a value to the parameters of a surface used
+ * to determine the value.
  * <p>
- * Unit parameter sensitivity is the sensitivity of a value to the parameters of a curve used to
- * determine the value where no currency applies.
- * <p>
- * This class represents sensitivity to a single curve. The sensitivity is expressed as an array
- * of values, one for each parameter used to create the curve.
+ * This class represents sensitivity to a surface curve. The sensitivity is expressed as an array
+ * of values, one for each parameter used to create the surface.
  */
 @BeanDefinition(builderScope = "private")
-public final class CurveUnitParameterSensitivity
-    implements ImmutableBean {
+public final class SurfaceCurrencyParameterSensitivity
+    implements FxConvertible<SurfaceCurrencyParameterSensitivity>, ImmutableBean {
 
   /**
-   * The curve metadata.
+   * The surface metadata.
    * <p>
    * The metadata includes an optional list of parameter metadata.
-   * If present, the size of the parameter metadata list will match the number of parameters of this curve.
+   * If present, the size of the parameter metadata list will match the number of parameters of this surface.
    */
   @PropertyDefinition(validate = "notNull")
-  private final CurveMetadata metadata;
+  private final SurfaceMetadata metadata;
+  /**
+   * The currency of the sensitivity.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Currency currency;
   /**
    * The parameter sensitivity values.
-   * There will be one sensitivity value for each parameter of the curve.
+   * There will be one sensitivity value for each parameter of the surface.
    */
   @PropertyDefinition(validate = "notNull")
   private final DoubleArray sensitivity;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the curve metadata and sensitivity.
+   * Obtains an instance from the surface metadata, currency and sensitivity.
    * 
-   * @param metadata  the curve metadata
-   * @param sensitivity  the sensitivity values, one for each node in the curve
+   * @param metadata  the surface metadata
+   * @param currency  the currency of the sensitivity
+   * @param sensitivity  the sensitivity values, one for each node in the surface
    * @return the sensitivity object
    */
-  public static CurveUnitParameterSensitivity of(CurveMetadata metadata, DoubleArray sensitivity) {
-    return new CurveUnitParameterSensitivity(metadata, sensitivity);
+  public static SurfaceCurrencyParameterSensitivity of(
+      SurfaceMetadata metadata,
+      Currency currency,
+      DoubleArray sensitivity) {
+
+    return new SurfaceCurrencyParameterSensitivity(metadata, currency, sensitivity);
   }
 
   @ImmutableValidator
@@ -81,18 +92,18 @@ public final class CurveUnitParameterSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the curve name.
+   * Gets the surface name.
    * 
-   * @return the curve name
+   * @return the surface name
    */
-  public CurveName getCurveName() {
-    return metadata.getCurveName();
+  public SurfaceName getSurfaceName() {
+    return metadata.getSurfaceName();
   }
 
   /**
-   * Gets the number of parameters in the curve.
+   * Gets the number of parameters in the surface.
    * <p>
-   * This returns the number of parameters in the curve.
+   * This returns the number of parameters in the surface.
    * 
    * @return the number of parameters
    */
@@ -101,31 +112,39 @@ public final class CurveUnitParameterSensitivity
   }
 
   /**
-   * Compares the key of two sensitivity objects, excluding the parameter sensitivity values.
+   * Compares two sensitivity objects, excluding the parameter sensitivity values.
    * 
    * @param other  the other sensitivity object
    * @return positive if greater, zero if equal, negative if less
    */
-  public int compareKey(CurveUnitParameterSensitivity other) {
+  public int compareExcludingSensitivity(SurfaceCurrencyParameterSensitivity other) {
     return ComparisonChain.start()
-        .compare(metadata.getCurveName(), other.metadata.getCurveName())
+        .compare(metadata.getSurfaceName(), other.metadata.getSurfaceName())
+        .compare(currency, other.currency)
         .result();
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Returns an instance in the specified currency with the sensitivity values multiplied by the specified factor.
+   * Converts this sensitivity to an equivalent in the specified currency.
    * <p>
-   * Each value in the sensitivity array will be multiplied by the specified factor.
+   * Any FX conversion that is required will use rates from the provider.
    * 
-   * @param currency  the currency of the amount
-   * @param amount  the amount to multiply by
-   * @return the resulting sensitivity object
+   * @param resultCurrency  the currency of the result
+   * @param rateProvider  the provider of FX rates
+   * @return the sensitivity object expressed in terms of the result currency
+   * @throws RuntimeException if no FX rate could be found
    */
-  public CurveCurrencyParameterSensitivity multipliedBy(Currency currency, double amount) {
-    return CurveCurrencyParameterSensitivity.of(metadata, currency, sensitivity.multipliedBy(amount));
+  @Override
+  public SurfaceCurrencyParameterSensitivity convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
+    if (currency.equals(resultCurrency)) {
+      return this;
+    }
+    double fxRate = rateProvider.fxRate(currency, resultCurrency);
+    return mapSensitivity(s -> s * fxRate, resultCurrency);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns an instance with the sensitivity values multiplied by the specified factor.
    * <p>
@@ -134,7 +153,7 @@ public final class CurveUnitParameterSensitivity
    * @param factor  the multiplicative factor
    * @return an instance based on this one, with each sensitivity multiplied by the factor
    */
-  public CurveUnitParameterSensitivity multipliedBy(double factor) {
+  public SurfaceCurrencyParameterSensitivity multipliedBy(double factor) {
     return mapSensitivity(s -> s * factor);
   }
 
@@ -150,8 +169,13 @@ public final class CurveUnitParameterSensitivity
    * @param operator  the operator to be applied to the sensitivities
    * @return an instance based on this one, with the operator applied to the sensitivity values
    */
-  public CurveUnitParameterSensitivity mapSensitivity(DoubleUnaryOperator operator) {
-    return new CurveUnitParameterSensitivity(metadata, sensitivity.map(operator));
+  public SurfaceCurrencyParameterSensitivity mapSensitivity(DoubleUnaryOperator operator) {
+    return mapSensitivity(operator, currency);
+  }
+
+  // maps the sensitivities and potentially changes the currency
+  private SurfaceCurrencyParameterSensitivity mapSensitivity(DoubleUnaryOperator operator, Currency currency) {
+    return new SurfaceCurrencyParameterSensitivity(metadata, currency, sensitivity.map(operator));
   }
 
   /**
@@ -162,11 +186,11 @@ public final class CurveUnitParameterSensitivity
    * @param sensitivity  the new sensitivity values
    * @return an instance based on this one, with the specified sensitivity values
    */
-  public CurveUnitParameterSensitivity withSensitivity(DoubleArray sensitivity) {
+  public SurfaceCurrencyParameterSensitivity withSensitivity(DoubleArray sensitivity) {
     if (sensitivity.size() != this.sensitivity.size()) {
       throw new IllegalArgumentException("Length of sensitivity must match parameter count");
     }
-    return new CurveUnitParameterSensitivity(metadata, sensitivity);
+    return new SurfaceCurrencyParameterSensitivity(metadata, currency, sensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -175,37 +199,40 @@ public final class CurveUnitParameterSensitivity
    * 
    * @return the total sensitivity values
    */
-  public double total() {
-    return sensitivity.total();
+  public CurrencyAmount total() {
+    return CurrencyAmount.of(currency, sensitivity.total());
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code CurveUnitParameterSensitivity}.
+   * The meta-bean for {@code SurfaceCurrencyParameterSensitivity}.
    * @return the meta-bean, not null
    */
-  public static CurveUnitParameterSensitivity.Meta meta() {
-    return CurveUnitParameterSensitivity.Meta.INSTANCE;
+  public static SurfaceCurrencyParameterSensitivity.Meta meta() {
+    return SurfaceCurrencyParameterSensitivity.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(CurveUnitParameterSensitivity.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(SurfaceCurrencyParameterSensitivity.Meta.INSTANCE);
   }
 
-  private CurveUnitParameterSensitivity(
-      CurveMetadata metadata,
+  private SurfaceCurrencyParameterSensitivity(
+      SurfaceMetadata metadata,
+      Currency currency,
       DoubleArray sensitivity) {
     JodaBeanUtils.notNull(metadata, "metadata");
+    JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(sensitivity, "sensitivity");
     this.metadata = metadata;
+    this.currency = currency;
     this.sensitivity = sensitivity;
     validate();
   }
 
   @Override
-  public CurveUnitParameterSensitivity.Meta metaBean() {
-    return CurveUnitParameterSensitivity.Meta.INSTANCE;
+  public SurfaceCurrencyParameterSensitivity.Meta metaBean() {
+    return SurfaceCurrencyParameterSensitivity.Meta.INSTANCE;
   }
 
   @Override
@@ -220,20 +247,29 @@ public final class CurveUnitParameterSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curve metadata.
+   * Gets the surface metadata.
    * <p>
    * The metadata includes an optional list of parameter metadata.
-   * If present, the size of the parameter metadata list will match the number of parameters of this curve.
+   * If present, the size of the parameter metadata list will match the number of parameters of this surface.
    * @return the value of the property, not null
    */
-  public CurveMetadata getMetadata() {
+  public SurfaceMetadata getMetadata() {
     return metadata;
   }
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the currency of the sensitivity.
+   * @return the value of the property, not null
+   */
+  public Currency getCurrency() {
+    return currency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the parameter sensitivity values.
-   * There will be one sensitivity value for each parameter of the curve.
+   * There will be one sensitivity value for each parameter of the surface.
    * @return the value of the property, not null
    */
   public DoubleArray getSensitivity() {
@@ -247,8 +283,9 @@ public final class CurveUnitParameterSensitivity
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CurveUnitParameterSensitivity other = (CurveUnitParameterSensitivity) obj;
+      SurfaceCurrencyParameterSensitivity other = (SurfaceCurrencyParameterSensitivity) obj;
       return JodaBeanUtils.equal(metadata, other.metadata) &&
+          JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(sensitivity, other.sensitivity);
     }
     return false;
@@ -258,15 +295,17 @@ public final class CurveUnitParameterSensitivity
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(metadata);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(sensitivity);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
-    buf.append("CurveUnitParameterSensitivity{");
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("SurfaceCurrencyParameterSensitivity{");
     buf.append("metadata").append('=').append(metadata).append(',').append(' ');
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();
@@ -274,7 +313,7 @@ public final class CurveUnitParameterSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code CurveUnitParameterSensitivity}.
+   * The meta-bean for {@code SurfaceCurrencyParameterSensitivity}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -285,19 +324,25 @@ public final class CurveUnitParameterSensitivity
     /**
      * The meta-property for the {@code metadata} property.
      */
-    private final MetaProperty<CurveMetadata> metadata = DirectMetaProperty.ofImmutable(
-        this, "metadata", CurveUnitParameterSensitivity.class, CurveMetadata.class);
+    private final MetaProperty<SurfaceMetadata> metadata = DirectMetaProperty.ofImmutable(
+        this, "metadata", SurfaceCurrencyParameterSensitivity.class, SurfaceMetadata.class);
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
+        this, "currency", SurfaceCurrencyParameterSensitivity.class, Currency.class);
     /**
      * The meta-property for the {@code sensitivity} property.
      */
     private final MetaProperty<DoubleArray> sensitivity = DirectMetaProperty.ofImmutable(
-        this, "sensitivity", CurveUnitParameterSensitivity.class, DoubleArray.class);
+        this, "sensitivity", SurfaceCurrencyParameterSensitivity.class, DoubleArray.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "metadata",
+        "currency",
         "sensitivity");
 
     /**
@@ -311,6 +356,8 @@ public final class CurveUnitParameterSensitivity
       switch (propertyName.hashCode()) {
         case -450004177:  // metadata
           return metadata;
+        case 575402001:  // currency
+          return currency;
         case 564403871:  // sensitivity
           return sensitivity;
       }
@@ -318,13 +365,13 @@ public final class CurveUnitParameterSensitivity
     }
 
     @Override
-    public BeanBuilder<? extends CurveUnitParameterSensitivity> builder() {
-      return new CurveUnitParameterSensitivity.Builder();
+    public BeanBuilder<? extends SurfaceCurrencyParameterSensitivity> builder() {
+      return new SurfaceCurrencyParameterSensitivity.Builder();
     }
 
     @Override
-    public Class<? extends CurveUnitParameterSensitivity> beanType() {
-      return CurveUnitParameterSensitivity.class;
+    public Class<? extends SurfaceCurrencyParameterSensitivity> beanType() {
+      return SurfaceCurrencyParameterSensitivity.class;
     }
 
     @Override
@@ -337,8 +384,16 @@ public final class CurveUnitParameterSensitivity
      * The meta-property for the {@code metadata} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurveMetadata> metadata() {
+    public MetaProperty<SurfaceMetadata> metadata() {
       return metadata;
+    }
+
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Currency> currency() {
+      return currency;
     }
 
     /**
@@ -354,9 +409,11 @@ public final class CurveUnitParameterSensitivity
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -450004177:  // metadata
-          return ((CurveUnitParameterSensitivity) bean).getMetadata();
+          return ((SurfaceCurrencyParameterSensitivity) bean).getMetadata();
+        case 575402001:  // currency
+          return ((SurfaceCurrencyParameterSensitivity) bean).getCurrency();
         case 564403871:  // sensitivity
-          return ((CurveUnitParameterSensitivity) bean).getSensitivity();
+          return ((SurfaceCurrencyParameterSensitivity) bean).getSensitivity();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -374,11 +431,12 @@ public final class CurveUnitParameterSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code CurveUnitParameterSensitivity}.
+   * The bean-builder for {@code SurfaceCurrencyParameterSensitivity}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<CurveUnitParameterSensitivity> {
+  private static final class Builder extends DirectFieldsBeanBuilder<SurfaceCurrencyParameterSensitivity> {
 
-    private CurveMetadata metadata;
+    private SurfaceMetadata metadata;
+    private Currency currency;
     private DoubleArray sensitivity;
 
     /**
@@ -393,6 +451,8 @@ public final class CurveUnitParameterSensitivity
       switch (propertyName.hashCode()) {
         case -450004177:  // metadata
           return metadata;
+        case 575402001:  // currency
+          return currency;
         case 564403871:  // sensitivity
           return sensitivity;
         default:
@@ -404,7 +464,10 @@ public final class CurveUnitParameterSensitivity
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -450004177:  // metadata
-          this.metadata = (CurveMetadata) newValue;
+          this.metadata = (SurfaceMetadata) newValue;
+          break;
+        case 575402001:  // currency
+          this.currency = (Currency) newValue;
           break;
         case 564403871:  // sensitivity
           this.sensitivity = (DoubleArray) newValue;
@@ -440,18 +503,20 @@ public final class CurveUnitParameterSensitivity
     }
 
     @Override
-    public CurveUnitParameterSensitivity build() {
-      return new CurveUnitParameterSensitivity(
+    public SurfaceCurrencyParameterSensitivity build() {
+      return new SurfaceCurrencyParameterSensitivity(
           metadata,
+          currency,
           sensitivity);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
-      buf.append("CurveUnitParameterSensitivity.Builder{");
+      StringBuilder buf = new StringBuilder(128);
+      buf.append("SurfaceCurrencyParameterSensitivity.Builder{");
       buf.append("metadata").append('=').append(JodaBeanUtils.toString(metadata)).append(',').append(' ');
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
       buf.append('}');
       return buf.toString();

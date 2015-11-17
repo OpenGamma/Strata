@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.sensitivity;
+package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
@@ -16,9 +16,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.CurveMetadata;
-import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 
 /**
  * Test {@link CurveUnitParameterSensitivities}.

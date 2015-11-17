@@ -24,9 +24,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 
 /**
  * A yield or hazard curve values between nodes are linearly interpolated from t*r points,

@@ -13,8 +13,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 
 /**
  * Evaluates a token against curve currency parameter sensitivities.

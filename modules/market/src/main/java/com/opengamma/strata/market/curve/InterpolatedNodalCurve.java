@@ -32,7 +32,6 @@ import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
-import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;

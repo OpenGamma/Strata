@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.market.curve;
 
-import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
-
 /**
  * Testing curve implementation.
  * <p>

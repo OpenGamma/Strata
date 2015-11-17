@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.sensitivity;
+package com.opengamma.strata.market.surface;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,7 +38,6 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.surface.SurfaceName;
 
 /**
  * Currency-based parameter sensitivity for a collection of surfaces.

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.sensitivity;
+package com.opengamma.strata.market.curve;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -30,8 +30,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.CurveMetadata;
-import com.opengamma.strata.market.curve.CurveName;
 
 /**
  * Parameter sensitivity for a single curve.

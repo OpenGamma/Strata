@@ -7,9 +7,9 @@ package com.opengamma.strata.function.calculation.credit;
 
 import java.time.LocalDate;
 
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.product.credit.ExpandedCds;
 
 /**

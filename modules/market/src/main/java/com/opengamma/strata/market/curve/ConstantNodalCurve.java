@@ -28,7 +28,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 
 /**
  * A curve based on a single constant value.

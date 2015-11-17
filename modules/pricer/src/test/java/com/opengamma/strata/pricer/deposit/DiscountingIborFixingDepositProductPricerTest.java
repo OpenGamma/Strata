@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.datasets.ImmutableRatesProviderSimpleData;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;

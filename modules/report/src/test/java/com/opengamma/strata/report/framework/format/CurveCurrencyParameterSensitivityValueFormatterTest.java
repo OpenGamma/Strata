@@ -11,9 +11,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 
 /**
  * Test {@link CurveCurrencyParameterSensitivityValueFormatter}.

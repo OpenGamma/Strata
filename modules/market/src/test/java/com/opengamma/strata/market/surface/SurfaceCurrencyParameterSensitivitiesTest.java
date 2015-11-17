@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.sensitivity;
+package com.opengamma.strata.market.surface;
 
 import static com.opengamma.strata.basics.BasicProjectAssertions.assertThat;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
@@ -23,9 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
-import com.opengamma.strata.market.surface.SurfaceMetadata;
-import com.opengamma.strata.market.surface.SurfaceName;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 
 /**
  * Test {@link SurfaceCurrencyParameterSensitivities}.

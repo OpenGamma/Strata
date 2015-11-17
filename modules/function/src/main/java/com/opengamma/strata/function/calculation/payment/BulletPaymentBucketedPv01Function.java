@@ -6,7 +6,7 @@
 package com.opengamma.strata.function.calculation.payment;
 
 import com.opengamma.strata.basics.currency.Payment;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 

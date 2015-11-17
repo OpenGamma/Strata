@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.sensitivity;
+package com.opengamma.strata.market.curve;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -35,7 +35,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.CurveName;
 
 /**
  * Unit parameter sensitivity for a collection of curves.

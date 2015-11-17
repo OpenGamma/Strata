@@ -8,8 +8,8 @@ package com.opengamma.strata.pricer.swaption;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
-import com.opengamma.strata.market.sensitivity.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
+import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
