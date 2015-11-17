@@ -7,8 +7,8 @@ package com.opengamma.strata.function.marketdata.curve;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -88,14 +88,13 @@ public class CurveInputsMarketDataFunctionTest {
   }
 
   /**
-   * Test that the requirements are empty if there is no curve group configuration corresponding to the ID
+   * Test that an exception is thrown if there is no curve group configuration corresponding to the ID
    */
   public void requirementsMissingGroupConfig() {
     CurveInputsMarketDataFunction marketDataFunction = new CurveInputsMarketDataFunction();
     CurveInputsId curveInputsId =
         CurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), MarketDataFeed.NONE);
-    MarketDataRequirements requirements = marketDataFunction.requirements(curveInputsId, MarketDataConfig.empty());
-    assertThat(requirements.getObservables()).isEmpty();
+    assertThrowsIllegalArg(() -> marketDataFunction.requirements(curveInputsId, MarketDataConfig.empty()));
   }
 
   /**
@@ -195,7 +194,7 @@ public class CurveInputsMarketDataFunctionTest {
     assertThrows(
         () -> marketDataFunction.build(curveInputsId, emptyData, MarketDataConfig.empty()),
         IllegalArgumentException.class,
-        "No configuration found for curve group .*");
+        "No configuration found of type .*");
   }
 
   /**

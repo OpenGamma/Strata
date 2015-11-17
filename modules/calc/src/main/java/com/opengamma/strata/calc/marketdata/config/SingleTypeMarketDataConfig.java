@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -53,13 +52,23 @@ final class SingleTypeMarketDataConfig implements ImmutableBean, Serializable {
   private final ImmutableMap<String, Object> configObjects;
 
   /**
-   * Returns the configuration object with the specified name if found.
+   * Returns the configuration object with the specified name if found or throws an exception if not.
    *
    * @param name  the name of the configuration object
    * @return the named object if available
+   * @throws IllegalArgumentException if no configuration is found with the specified name
    */
-  Optional<Object> get(String name) {
-    return Optional.ofNullable(configObjects.get(name));
+  Object get(String name) {
+    Object config = configObjects.get(name);
+
+    if (config == null) {
+      throw new IllegalArgumentException(
+          Messages.format(
+              "No configuration found with type {} and name {}",
+              configType.getName(),
+              name));
+    }
+    return config;
   }
 
   /**

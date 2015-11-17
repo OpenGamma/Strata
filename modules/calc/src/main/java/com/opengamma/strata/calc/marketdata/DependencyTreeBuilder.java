@@ -130,21 +130,25 @@ class DependencyTreeBuilder {
    */
   private MarketDataNode buildNode(MarketDataId<?> id, MarketDataNode.DataType dataType) {
 
-    // Observable data has special handling and is guaranteed to have a builder.
+    // Observable data has special handling and is guaranteed to have a function.
     // Supplied data definitely has no dependencies because it already exists and doesn't need to be built.
     if (id instanceof ObservableId || isSupplied(id, dataType, suppliedData)) {
       return MarketDataNode.leaf(id, dataType);
     }
-    // Find the builder that can build the data identified by the ID
+    // Find the function that can build the data identified by the ID
     @SuppressWarnings("rawtypes")
-    MarketDataFunction builder = functions.get(id.getClass());
+    MarketDataFunction function = functions.get(id.getClass());
 
-    if (builder != null) {
-      @SuppressWarnings("unchecked")
-      MarketDataRequirements requirements = builder.requirements(id, marketDataConfig);
-      return MarketDataNode.child(id, dataType, dependencyNodes(CalculationRequirements.of(requirements)));
+    if (function != null) {
+      try {
+        @SuppressWarnings("unchecked")
+        MarketDataRequirements requirements = function.requirements(id, marketDataConfig);
+        return MarketDataNode.child(id, dataType, dependencyNodes(CalculationRequirements.of(requirements)));
+      } catch (Exception e) {
+        return MarketDataNode.child(id, dataType, ImmutableList.of());
+      }
     } else {
-      // If there is no builder insert a leaf node. It will be flagged as an error when the data is built
+      // If there is no function insert a leaf node. It will be flagged as an error when the data is built
       return MarketDataNode.leaf(id, dataType);
     }
   }

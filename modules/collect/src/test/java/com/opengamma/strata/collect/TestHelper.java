@@ -258,6 +258,22 @@ public class TestHelper {
   }
 
   /**
+   * Asserts that the lambda-based code throws an {@code IllegalArgumentException} and checks the message
+   * matches an regex.
+   * <p>
+   * For example:
+   * <pre>
+   *  assertThrows(() -> new Foo(null), "Foo constructor argument must not be null");
+   * </pre>
+   *
+   * @param runner  the lambda containing the code to test
+   * @param regex  regular expression that must match the exception message
+   */
+  public static void assertThrowsIllegalArg(AssertRunnable runner, String regex) {
+    assertThrows(runner, IllegalArgumentException.class, regex);
+  }
+
+  /**
    * Asserts that the lambda-based code throws an exception
    * and that the cause of the exception is the supplied cause.
    * <p>
