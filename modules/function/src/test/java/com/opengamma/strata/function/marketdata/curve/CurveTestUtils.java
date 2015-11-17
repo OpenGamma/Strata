@@ -16,8 +16,8 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.curve.CurveName;
@@ -139,11 +139,11 @@ final class CurveTestUtils {
     return QuoteId.of(StandardId.of(TEST_SCHEME, nodeName));
   }
 
-  static ObservableId id(CurveNode node) {
+  static ObservableKey key(CurveNode node) {
     if (node instanceof FraCurveNode) {
-      return ((FraCurveNode) node).getRateKey().toObservableId(MarketDataFeed.NONE);
+      return ((FraCurveNode) node).getRateKey();
     } else if (node instanceof FixedIborSwapCurveNode) {
-      return ((FixedIborSwapCurveNode) node).getRateKey().toObservableId(MarketDataFeed.NONE);
+      return ((FixedIborSwapCurveNode) node).getRateKey();
     } else {
       throw new IllegalArgumentException("Unsupported node type " + node.getClass().getName());
     }

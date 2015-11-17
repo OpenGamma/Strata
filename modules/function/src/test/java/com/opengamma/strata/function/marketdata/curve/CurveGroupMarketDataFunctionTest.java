@@ -7,7 +7,6 @@ package com.opengamma.strata.function.marketdata.curve;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.offset;
 
@@ -28,8 +27,6 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -84,15 +81,15 @@ public class CurveGroupMarketDataFunctionTest {
         .map(FraCurveNode.class::cast)
         .collect(toImmutableList());
 
-    List<ObservableId> ids = nodes.stream().map(CurveTestUtils::id).collect(toImmutableList());
-    Map<ObservableId, Double> parRateData = ImmutableMap.<ObservableId, Double>builder()
-        .put(ids.get(0), 0.003)
-        .put(ids.get(1), 0.0033)
-        .put(ids.get(2), 0.0037)
-        .put(ids.get(3), 0.0054)
-        .put(ids.get(4), 0.007)
-        .put(ids.get(5), 0.0091)
-        .put(ids.get(6), 0.0134)
+    List<MarketDataKey<?>> keys = nodes.stream().map(CurveTestUtils::key).collect(toImmutableList());
+    Map<MarketDataKey<?>, Double> parRateData = ImmutableMap.<MarketDataKey<?>, Double>builder()
+        .put(keys.get(0), 0.003)
+        .put(keys.get(1), 0.0033)
+        .put(keys.get(2), 0.0037)
+        .put(keys.get(3), 0.0054)
+        .put(keys.get(4), 0.007)
+        .put(keys.get(5), 0.0091)
+        .put(keys.get(6), 0.0134)
         .build();
 
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
@@ -119,10 +116,8 @@ public class CurveGroupMarketDataFunctionTest {
 
     DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
     IborIndexRatesKey forwardCurveKey = IborIndexRatesKey.of(IborIndices.USD_LIBOR_3M);
-    Map<ObservableKey, ?> quotesMap = parRateData.entrySet().stream()
-        .collect(toImmutableMap(tp -> tp.getKey().toObservableKey(), tp -> tp.getValue()));
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
-        .putAll(quotesMap)
+        .putAll(parRateData)
         .put(discountFactorsKey, discountFactors)
         .put(forwardCurveKey, iborIndexRates)
         .build();
@@ -151,12 +146,12 @@ public class CurveGroupMarketDataFunctionTest {
         new CurveGroupMarketDataFunction(RootFinderConfig.defaults(), CalibrationMeasures.DEFAULT);
     LocalDate valuationDate = date(2011, 3, 8);
 
-    Map<ObservableId, Double> parRateData = ImmutableMap.<ObservableId, Double>builder()
-        .put(CurveTestUtils.id(nodes.get(0)), 0.0037)
-        .put(CurveTestUtils.id(nodes.get(1)), 0.0054)
-        .put(CurveTestUtils.id(nodes.get(2)), 0.005)
-        .put(CurveTestUtils.id(nodes.get(3)), 0.0087)
-        .put(CurveTestUtils.id(nodes.get(4)), 0.012)
+    Map<MarketDataKey<?>, Double> parRateData = ImmutableMap.<MarketDataKey<?>, Double>builder()
+        .put(CurveTestUtils.key(nodes.get(0)), 0.0037)
+        .put(CurveTestUtils.key(nodes.get(1)), 0.0054)
+        .put(CurveTestUtils.key(nodes.get(2)), 0.005)
+        .put(CurveTestUtils.key(nodes.get(3)), 0.0087)
+        .put(CurveTestUtils.key(nodes.get(4)), 0.012)
         .build();
 
     ParRates parRates = ParRates.of(parRateData, DefaultCurveMetadata.of(curveName));
@@ -172,10 +167,8 @@ public class CurveGroupMarketDataFunctionTest {
 
     DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
     IborIndexRatesKey forwardCurveKey = IborIndexRatesKey.of(IborIndices.USD_LIBOR_3M);
-    Map<ObservableKey, ?> quotesMap = parRateData.entrySet().stream()
-        .collect(toImmutableMap(tp -> tp.getKey().toObservableKey(), tp -> tp.getValue()));
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
-        .putAll(quotesMap)
+        .putAll(parRateData)
         .put(discountFactorsKey, discountFactors)
         .put(forwardCurveKey, iborIndexRates)
         .build();
@@ -243,14 +236,14 @@ public class CurveGroupMarketDataFunctionTest {
 
     CurveGroupId curveGroupId = CurveGroupId.of(groupName);
 
-    Map<ObservableId, Double> fraParRateData = ImmutableMap.<ObservableId, Double>builder()
-        .put(CurveTestUtils.id(fraNodes.get(0)), 0.003)
-        .put(CurveTestUtils.id(fraNodes.get(1)), 0.0033)
-        .put(CurveTestUtils.id(fraNodes.get(2)), 0.0037)
-        .put(CurveTestUtils.id(fraNodes.get(3)), 0.0054)
-        .put(CurveTestUtils.id(fraNodes.get(4)), 0.007)
-        .put(CurveTestUtils.id(fraNodes.get(5)), 0.0091)
-        .put(CurveTestUtils.id(fraNodes.get(6)), 0.0134).build();
+    Map<MarketDataKey<?>, Double> fraParRateData = ImmutableMap.<MarketDataKey<?>, Double>builder()
+        .put(CurveTestUtils.key(fraNodes.get(0)), 0.003)
+        .put(CurveTestUtils.key(fraNodes.get(1)), 0.0033)
+        .put(CurveTestUtils.key(fraNodes.get(2)), 0.0037)
+        .put(CurveTestUtils.key(fraNodes.get(3)), 0.0054)
+        .put(CurveTestUtils.key(fraNodes.get(4)), 0.007)
+        .put(CurveTestUtils.key(fraNodes.get(5)), 0.0091)
+        .put(CurveTestUtils.key(fraNodes.get(6)), 0.0134).build();
 
     LocalDate valuationDate = date(2011, 3, 8);
     ParRates fraParRates = ParRates.of(fraParRateData, fraCurveDefn.metadata(valuationDate));

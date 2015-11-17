@@ -45,7 +45,7 @@ public class QuoteKeyTest {
 
   public void test_toObservableId() {
     QuoteKey test = QuoteKey.of(ID, FieldName.of("Foo"));
-    QuoteId feed = test.toObservableId(FEED);
+    QuoteId feed = test.toMarketDataId(FEED);
     assertEquals(feed.getStandardId(), ID);
     assertEquals(feed.getFieldName(), FieldName.of("Foo"));
     assertEquals(feed.getMarketDataType(), Double.class);

@@ -102,7 +102,7 @@ public final class QuoteKey
 
   //-------------------------------------------------------------------------
   @Override
-  public QuoteId toObservableId(MarketDataFeed marketDataFeed) {
+  public QuoteId toMarketDataId(MarketDataFeed marketDataFeed) {
     return QuoteId.of(standardId, marketDataFeed, fieldName);
   }
 

@@ -25,7 +25,6 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
@@ -185,7 +184,7 @@ public class CalibrationDiscountingSimple1Test {
   //-------------------------------------------------------------------------
   public void calibration_present_value() {
     ImmutableRatesProvider result2 =
-        CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VALUATION_DATE, ALL_QUOTES, TS, FxMatrix.empty());
+        CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VALUATION_DATE, ALL_QUOTES, TS);
     // Test PV
     CurveNode[] fwd3Nodes = CURVES_NODES.get(0).get(0);
     List<Trade> fwd3Trades = new ArrayList<>();
@@ -222,7 +221,7 @@ public class CalibrationDiscountingSimple1Test {
       startTime = System.currentTimeMillis();
       for (int looprep = 0; looprep < nbTests; looprep++) {
         ImmutableRatesProvider result =
-            CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VALUATION_DATE, ALL_QUOTES, TS, FxMatrix.empty());
+            CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VALUATION_DATE, ALL_QUOTES, TS);
         count += result.getDiscountCurves().size() + result.getIndexCurves().size();
       }
       endTime = System.currentTimeMillis();

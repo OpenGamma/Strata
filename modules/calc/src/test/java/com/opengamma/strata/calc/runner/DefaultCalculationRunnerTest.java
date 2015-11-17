@@ -136,11 +136,11 @@ public class DefaultCalculationRunnerTest {
     assertThat(nonObservables).hasSize(1);
     assertThat(nonObservables.iterator().next()).isEqualTo(nonObservableId);
 
-    MarketDataId<?> observableId = TestObservableKey.of("2").toObservableId(MarketDataFeed.NO_RULE);
+    MarketDataId<?> observableId = TestObservableKey.of("2").toMarketDataId(MarketDataFeed.NO_RULE);
     assertThat(observables).hasSize(1);
     assertThat(observables.iterator().next()).isEqualTo(observableId);
 
-    MarketDataId<?> timeSeriesId = TestObservableKey.of("3").toObservableId(MarketDataFeed.NO_RULE);
+    MarketDataId<?> timeSeriesId = TestObservableKey.of("3").toMarketDataId(MarketDataFeed.NO_RULE);
     assertThat(timeSeries).hasSize(1);
     assertThat(timeSeries.iterator().next()).isEqualTo(timeSeriesId);
   }

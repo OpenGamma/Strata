@@ -169,9 +169,9 @@ public class ParRatesMarketDataFunctionTest {
     MarketDataBox<ParRates> result = marketDataFunction.build(parRatesId, marketData, marketDataConfig);
 
     ParRates parRates = result.getSingleValue();
-    assertThat(parRates.getRates().get(idA)).isEqualTo(1d);
-    assertThat(parRates.getRates().get(idB)).isEqualTo(2d);
-    assertThat(parRates.getRates().get(idC)).isEqualTo(3d);
+    assertThat(parRates.getRates().get(idA.toObservableKey())).isEqualTo(1d);
+    assertThat(parRates.getRates().get(idB.toObservableKey())).isEqualTo(2d);
+    assertThat(parRates.getRates().get(idC.toObservableKey())).isEqualTo(3d);
 
     List<CurveParameterMetadata> expectedMetadata = ImmutableList.of(
         node1x4.metadata(VALUATION_DATE),

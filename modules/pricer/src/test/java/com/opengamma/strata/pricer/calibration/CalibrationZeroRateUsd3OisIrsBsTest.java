@@ -35,7 +35,6 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
@@ -369,7 +368,7 @@ public class CalibrationZeroRateUsd3OisIrsBsTest {
   //-------------------------------------------------------------------------
   public void calibration_present_value_oneGroup() {
     ImmutableRatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, ALL_QUOTES, TS, FxMatrix.empty());
+        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, ALL_QUOTES, TS);
     assertPresentValue(result);
   }
 
@@ -382,7 +381,7 @@ public class CalibrationZeroRateUsd3OisIrsBsTest {
   public void calibration_market_quote_sensitivity_one_group() {
     double shift = 1.0E-6;
     Function<MarketData, ImmutableRatesProvider> f =
-        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, marketData, TS, FxMatrix.empty());
+        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, marketData, TS);
     calibration_market_quote_sensitivity_check(f, shift);
   }
   
@@ -512,7 +511,7 @@ public class CalibrationZeroRateUsd3OisIrsBsTest {
       startTime = System.currentTimeMillis();
       for (int looprep = 0; looprep < nbTests; looprep++) {
         ImmutableRatesProvider result =
-            CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, ALL_QUOTES, TS, FxMatrix.empty());
+            CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, ALL_QUOTES, TS);
         count += result.getDiscountCurves().size() + result.getIndexCurves().size();
       }
       endTime = System.currentTimeMillis();

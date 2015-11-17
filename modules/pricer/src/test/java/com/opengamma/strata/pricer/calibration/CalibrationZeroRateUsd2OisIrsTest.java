@@ -30,7 +30,6 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
@@ -275,7 +274,7 @@ public class CalibrationZeroRateUsd2OisIrsTest {
   //-------------------------------------------------------------------------
   public void calibration_present_value_oneGroup() {
     ImmutableRatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, ALL_QUOTES, TS, FxMatrix.empty());
+        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, ALL_QUOTES, TS);
     assertResult(result);
   }
 
@@ -325,7 +324,7 @@ public class CalibrationZeroRateUsd2OisIrsTest {
   public void calibration_market_quote_sensitivity_one_group() {
     double shift = 1.0E-6;
     Function<MarketData, ImmutableRatesProvider> f =
-        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, marketData, TS, FxMatrix.empty());
+        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, marketData, TS);
     calibration_market_quote_sensitivity_check(f, shift);
   }
   
@@ -344,7 +343,7 @@ public class CalibrationZeroRateUsd2OisIrsTest {
     SwapTrade trade = FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M.toTrade(VALUATION_DATE, Period.ofMonths(6),
         Tenor.TENOR_7Y, BuySell.BUY, notional, rate);
     ImmutableRatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, ALL_QUOTES, TS, FxMatrix.empty());
+        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, ALL_QUOTES, TS);
     PointSensitivityBuilder pts = SWAP_PRICER.presentValueSensitivity(trade.getProduct(), result);
     CurveCurrencyParameterSensitivities ps = result.curveParameterSensitivity(pts.build());
     CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, result);
@@ -382,7 +381,7 @@ public class CalibrationZeroRateUsd2OisIrsTest {
       startTime = System.currentTimeMillis();
       for (int looprep = 0; looprep < nbTests; looprep++) {
         ImmutableRatesProvider result =
-            CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, ALL_QUOTES, TS, FxMatrix.empty());
+            CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, ALL_QUOTES, TS);
         count += result.getDiscountCurves().size() + result.getIndexCurves().size();
       }
       endTime = System.currentTimeMillis();

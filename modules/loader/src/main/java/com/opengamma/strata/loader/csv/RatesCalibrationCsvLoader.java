@@ -21,8 +21,10 @@ import java.util.regex.Pattern;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.math.DoubleMath;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.FieldName;
+import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.io.CsvFile;
@@ -300,10 +302,10 @@ public final class RatesCalibrationCsvLoader {
       return curveIborIborCurveNode(conventionStr, timeStr, label, quoteKey, spread);
     }
     if ("XCS".equalsIgnoreCase(typeStr) || "XCcyIborIborSwap".equalsIgnoreCase(typeStr)) {
-      return curveXCcyIborIborCurveNode(conventionStr, timeStr, label, quoteKey, fxKey, spread);
+      return curveXCcyIborIborCurveNode(conventionStr, timeStr, label, quoteKey, spread);
     }
     if ("FXS".equalsIgnoreCase(typeStr) || "FxSwap".equalsIgnoreCase(typeStr)) {
-      return curveFxSwapCurveNode(conventionStr, timeStr, label, quoteKey, fxKey, spread);
+      return curveFxSwapCurveNode(conventionStr, timeStr, label, quoteKey, spread);
     }
     throw new IllegalArgumentException(Messages.format("Invalid curve node type: {}", typeStr));
   }
@@ -397,12 +399,8 @@ public final class RatesCalibrationCsvLoader {
       String timeStr,
       String label,
       QuoteKey quoteKey,
-      QuoteKey fxKey,
       double spread) {
 
-    if (fxKey == null) {
-      throw new IllegalArgumentException("FX quote information required for cross currency swap");
-    }
     Matcher matcher = SIMPLE_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
     if (!matcher.matches()) {
       throw new IllegalArgumentException(Messages.format("Invalid time format for XCS: {}", timeStr));
@@ -410,7 +408,9 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     XCcyIborIborSwapConvention convention = XCcyIborIborSwapConvention.of(conventionStr);
     XCcyIborIborSwapTemplate template = XCcyIborIborSwapTemplate.of(Tenor.of(periodToEnd), convention);
-    return XCcyIborIborSwapCurveNode.of(template, quoteKey, fxKey, spread);
+    CurrencyPair currencyPair = convention.getCurrencyPair();
+    FxRateKey fxKey = FxRateKey.of(currencyPair);
+    return XCcyIborIborSwapCurveNode.of(template, quoteKey, spread);
   }
 
   //-------------------------------------------------------------------------
@@ -419,12 +419,8 @@ public final class RatesCalibrationCsvLoader {
       String timeStr,
       String label,
       QuoteKey quoteKey,
-      QuoteKey fxKey,
       double spread) {
 
-    if (fxKey == null) {
-      throw new IllegalArgumentException("FX quote information required for FX swap");
-    }
     if (!DoubleMath.fuzzyEquals(spread, 0d, 1e-10d)) {
       throw new IllegalArgumentException("Additional spread must be zero for FX swaps");
     }
@@ -435,7 +431,9 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     FxSwapConvention convention = FxSwapConvention.of(conventionStr);
     FxSwapTemplate template = FxSwapTemplate.of(periodToEnd, convention);
-    return FxSwapCurveNode.of(template, quoteKey, fxKey);
+    CurrencyPair currencyPair = convention.getCurrencyPair();
+    FxRateKey fxKey = FxRateKey.of(currencyPair);
+    return FxSwapCurveNode.of(template, quoteKey);
   }
 
   //-------------------------------------------------------------------------

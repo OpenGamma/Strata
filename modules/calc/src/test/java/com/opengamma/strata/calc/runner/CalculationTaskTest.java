@@ -63,7 +63,7 @@ public class CalculationTaskTest {
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
     ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();
 
-    MarketDataId<?> timeSeriesId = TestObservableKey.of("3").toObservableId(marketDataFeed);
+    MarketDataId<?> timeSeriesId = TestObservableKey.of("3").toMarketDataId(marketDataFeed);
     assertThat(timeSeries).hasSize(1);
     assertThat(timeSeries.iterator().next()).isEqualTo(timeSeriesId);
 
@@ -71,7 +71,7 @@ public class CalculationTaskTest {
     assertThat(nonObservables).hasSize(1);
     assertThat(nonObservables.iterator().next()).isEqualTo(nonObservableId);
 
-    MarketDataId<?> observableId = TestObservableKey.of("2").toObservableId(marketDataFeed);
+    MarketDataId<?> observableId = TestObservableKey.of("2").toMarketDataId(marketDataFeed);
     assertThat(observables).hasSize(1);
     assertThat(observables.iterator().next()).isEqualTo(observableId);
   }

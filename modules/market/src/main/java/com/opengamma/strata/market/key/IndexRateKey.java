@@ -87,7 +87,7 @@ public final class IndexRateKey
   }
 
   @Override
-  public IndexRateId toObservableId(MarketDataFeed marketDataFeed) {
+  public IndexRateId toMarketDataId(MarketDataFeed marketDataFeed) {
     return IndexRateId.of(index, marketDataFeed, fieldName);
   }
 

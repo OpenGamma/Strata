@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.Trade;
-import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
@@ -216,7 +215,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
   //-------------------------------------------------------------------------
   public void calibration_present_value() {
     ImmutableRatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, ALL_QUOTES, TS, FxMatrix.empty());
+        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, ALL_QUOTES, TS);
 
     ImmutableList<CurveGroupEntry> entries = CURVE_GROUP_CONFIG.getEntries();
     // Test PV Dsc
