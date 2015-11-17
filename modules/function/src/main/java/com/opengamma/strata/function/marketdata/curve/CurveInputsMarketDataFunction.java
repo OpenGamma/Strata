@@ -28,22 +28,22 @@ import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.ParRates;
 import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
 import com.opengamma.strata.market.curve.definition.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.curve.definition.NodalCurveDefinition;
-import com.opengamma.strata.market.id.ParRatesId;
+import com.opengamma.strata.market.id.CurveInputsId;
 
 /**
- * Market data function that builds the par rates used when calibrating a curve.
+ * Market data function that builds the input data used when calibrating a curve.
  */
-public final class ParRatesMarketDataFunction implements MarketDataFunction<ParRates, ParRatesId> {
+public final class CurveInputsMarketDataFunction implements MarketDataFunction<CurveInputs, CurveInputsId> {
 
   @Override
-  public MarketDataRequirements requirements(ParRatesId id, MarketDataConfig marketDataConfig) {
+  public MarketDataRequirements requirements(CurveInputsId id, MarketDataConfig marketDataConfig) {
     Optional<CurveGroupDefinition> optionalGroup = marketDataConfig.get(CurveGroupDefinition.class, id.getCurveGroupName());
 
     if (!optionalGroup.isPresent()) {
@@ -70,8 +70,8 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
   }
 
   @Override
-  public MarketDataBox<ParRates> build(
-      ParRatesId id,
+  public MarketDataBox<CurveInputs> build(
+      CurveInputsId id,
       CalculationEnvironment marketData,
       MarketDataConfig marketDataConfig) {
 
@@ -92,73 +92,81 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
     NodalCurveDefinition curveDefn = entry.getCurveDefinition();
     MarketDataFeed marketDataFeed = id.getMarketDataFeed();
     Set<? extends SimpleMarketDataKey<?>> requirements = nodeRequirements(curveDefn);
-    Map<? extends MarketDataKey<?>, MarketDataBox<?>> rates = getMarketDataValues(marketData, requirements, marketDataFeed);
+    Map<? extends MarketDataKey<?>, MarketDataBox<?>> marketDataValues =
+        getMarketDataValues(marketData, requirements, marketDataFeed);
     MarketDataBox<LocalDate> valuationDate = marketData.getValuationDate();
-    // Do any of the rates contain values for multiple scenarios, or do they contain 1 rate each?
-    boolean multipleRatesValues = rates.values().stream().anyMatch(MarketDataBox::isScenarioValue);
+    // Do any of the inputs contain values for multiple scenarios, or do they contain 1 value each?
+    boolean multipleInputValues = marketDataValues.values().stream().anyMatch(MarketDataBox::isScenarioValue);
     boolean multipleValuationDates = valuationDate.isScenarioValue();
 
-    return multipleRatesValues || multipleValuationDates ?
-        buildMultipleParRates(curveDefn, rates, valuationDate) :
-        buildSingleParRates(curveDefn, rates, valuationDate);
+    return multipleInputValues || multipleValuationDates ?
+        buildMultipleCurveInputs(curveDefn, marketDataValues, valuationDate) :
+        buildSingleCurveInputs(curveDefn, marketDataValues, valuationDate);
   }
 
-  private MarketDataBox<ParRates> buildSingleParRates(
+  private MarketDataBox<CurveInputs> buildSingleCurveInputs(
       NodalCurveDefinition curveDefn,
-      Map<? extends MarketDataKey<?>, MarketDataBox<?>> rates,
+      Map<? extends MarketDataKey<?>, MarketDataBox<?>> marketData,
       MarketDataBox<LocalDate> valuationDate) {
 
-    // There is only a single map of rates and single valuation date - create a single ParRates instance
+    // There is only a single map of values and single valuation date - create a single CurveInputs instance
     CurveMetadata curveMetadata = curveDefn.metadata(valuationDate.getSingleValue());
-    Map<? extends MarketDataKey<?>, ?> singleRates = rates.entrySet().stream()
+    Map<? extends MarketDataKey<?>, ?> singleMarketDataValues = marketData.entrySet().stream()
         .collect(toImmutableMap(e -> e.getKey(), e -> e.getValue().getSingleValue()));
 
-    ParRates parRates = ParRates.of(singleRates, curveMetadata);
-    return MarketDataBox.ofSingleValue(parRates);
+    CurveInputs curveInputs = CurveInputs.of(singleMarketDataValues, curveMetadata);
+    return MarketDataBox.ofSingleValue(curveInputs);
   }
 
-  private MarketDataBox<ParRates> buildMultipleParRates(
+  private MarketDataBox<CurveInputs> buildMultipleCurveInputs(
       NodalCurveDefinition curveDefn,
-      Map<? extends MarketDataKey<?>, MarketDataBox<?>> rates,
+      Map<? extends MarketDataKey<?>, MarketDataBox<?>> marketData,
       MarketDataBox<LocalDate> valuationDate) {
 
-    // If there are multiple values for any of the rates or for the valuation dates then we need to create
-    // multiple sets of ParRates
-    int scenarioCount = scenarioCount(valuationDate, rates);
+    // If there are multiple values for any of the input data values or for the valuation dates then we need to create
+    // multiple sets of inputs
+    int scenarioCount = scenarioCount(valuationDate, marketData);
 
     List<CurveMetadata> curveMetadata = IntStream.range(0, scenarioCount)
         .mapToObj(valuationDate::getValue)
         .map(curveDefn::metadata)
         .collect(toImmutableList());
 
-    List<Map<? extends MarketDataKey<?>, ?>> singleRates = IntStream.range(0, scenarioCount)
-        .mapToObj(i -> buildSingleRates(rates, i))
+    List<Map<? extends MarketDataKey<?>, ?>> scenarioValues = IntStream.range(0, scenarioCount)
+        .mapToObj(i -> buildScenarioValues(marketData, i))
         .collect(toImmutableList());
 
-    List<ParRates> parRates = zip(singleRates.stream(), curveMetadata.stream())
-        .map(pair -> ParRates.of(pair.getFirst(), pair.getSecond()))
+    List<CurveInputs> curveInputs = zip(scenarioValues.stream(), curveMetadata.stream())
+        .map(pair -> CurveInputs.of(pair.getFirst(), pair.getSecond()))
         .collect(toImmutableList());
 
-    return MarketDataBox.ofScenarioValues(parRates);
+    return MarketDataBox.ofScenarioValues(curveInputs);
   }
 
-  private static Map<? extends MarketDataKey<?>, ?> buildSingleRates(
-      Map<? extends MarketDataKey<?>, MarketDataBox<?>> rates,
+  /**
+   * Builds a map of market data key to market data value for a single scenario.
+   *
+   * @param values  the market data values for all scenarios
+   * @param scenarioIndex  the index of the scenario
+   * @return map of market data values for one scenario
+   */
+  private static Map<? extends MarketDataKey<?>, ?> buildScenarioValues(
+      Map<? extends MarketDataKey<?>, MarketDataBox<?>> values,
       int scenarioIndex) {
 
-    return rates.entrySet().stream().collect(toImmutableMap(e -> e.getKey(), e -> e.getValue().getValue(scenarioIndex)));
+    return values.entrySet().stream().collect(toImmutableMap(e -> e.getKey(), e -> e.getValue().getValue(scenarioIndex)));
   }
 
   private static int scenarioCount(
       MarketDataBox<LocalDate> valuationDate,
-      Map<? extends MarketDataKey<?>, MarketDataBox<?>> rates) {
+      Map<? extends MarketDataKey<?>, MarketDataBox<?>> marketData) {
 
     int scenarioCount = 0;
 
     if (valuationDate.isScenarioValue()) {
       scenarioCount = valuationDate.getScenarioCount();
     }
-    for (Map.Entry<? extends MarketDataKey<?>, MarketDataBox<?>> entry : rates.entrySet()) {
+    for (Map.Entry<? extends MarketDataKey<?>, MarketDataBox<?>> entry : marketData.entrySet()) {
       MarketDataBox<?> box = entry.getValue();
       MarketDataKey<?> id = entry.getKey();
 
@@ -188,8 +196,8 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
   }
 
   @Override
-  public Class<ParRatesId> getMarketDataIdType() {
-    return ParRatesId.class;
+  public Class<CurveInputsId> getMarketDataIdType() {
+    return CurveInputsId.class;
   }
 
   /**

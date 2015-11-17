@@ -186,7 +186,7 @@ public class CurveEndToEndTest {
 
     // Market data functions --------------------------------------------------
 
-    ParRatesMarketDataFunction parRatesFunction = new ParRatesMarketDataFunction();
+    CurveInputsMarketDataFunction parRatesFunction = new CurveInputsMarketDataFunction();
     CurveGroupMarketDataFunction curveGroupFunction = new CurveGroupMarketDataFunction(
         RootFinderConfig.defaults(), CalibrationMeasures.DEFAULT);
     DiscountCurveMarketDataFunction discountCurveFunction = new DiscountCurveMarketDataFunction();

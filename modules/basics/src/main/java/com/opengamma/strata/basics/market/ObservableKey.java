@@ -61,9 +61,4 @@ public interface ObservableKey
    * @return the identifier corresponding to this key
    */
   public abstract ObservableId toMarketDataId(MarketDataFeed marketDataFeed);
-
-  //@Override
-  //public default ObservableId toMarketDataId(MarketDataFeed marketDataFeed) {
-  //  return toObservableId(marketDataFeed);
-  //}
 }
