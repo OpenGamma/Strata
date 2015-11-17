@@ -7,7 +7,7 @@ package com.opengamma.strata.function.calculation.rate.fra;
 
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.rate.fra.ExpandedFra;
+import com.opengamma.strata.product.fra.ExpandedFra;
 
 /**
  * Obtains the explain map for present value on a {@code FraTrade}.

@@ -86,10 +86,10 @@ import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
-import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
-import com.opengamma.strata.product.rate.fra.ExpandedFra;
-import com.opengamma.strata.product.rate.fra.Fra;
-import com.opengamma.strata.product.rate.fra.FraTrade;
+import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
+import com.opengamma.strata.product.fra.ExpandedFra;
+import com.opengamma.strata.product.fra.Fra;
+import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.rate.swap.SwapTrade;
 
 /**

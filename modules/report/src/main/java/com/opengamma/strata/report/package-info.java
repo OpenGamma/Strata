@@ -47,10 +47,10 @@
  * </ul>
  * The remaining parts of the expression are evaluated against the source object to find the value to display
  * in the column. For example, if the expression is '{@code Product.index.name}' and the results contain
- * {@link com.opengamma.strata.product.rate.fra.FraTrade FraTrade} instances
+ * {@link com.opengamma.strata.product.fra.FraTrade FraTrade} instances
  * the following calls will be made for each trade in the results:
  * <ul>
- *   <li>{@code FraTrade.getProduct()} returning a {@link com.opengamma.strata.product.rate.fra.Fra Fra}</li>
+ *   <li>{@code FraTrade.getProduct()} returning a {@link com.opengamma.strata.product.fra.Fra Fra}</li>
  *   <li>{@code Fra.getIndex()} returning an {@link com.opengamma.strata.basics.index.IborIndex IborIndex}</li>
  *   <li>{@code IborIndex.getName()} returning the index name</li>
  * </ul>

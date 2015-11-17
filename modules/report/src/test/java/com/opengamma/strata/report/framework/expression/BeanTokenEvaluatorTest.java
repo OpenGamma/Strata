@@ -26,7 +26,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.market.amount.LegAmounts;
 import com.opengamma.strata.market.amount.SwapLegAmount;
-import com.opengamma.strata.product.rate.fra.Fra;
+import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.rate.swap.SwapLegType;
 
 @Test

@@ -31,9 +31,9 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.CurveGammaCalculator;
-import com.opengamma.strata.product.rate.fra.ExpandedFra;
-import com.opengamma.strata.product.rate.fra.Fra;
-import com.opengamma.strata.product.rate.fra.FraTrade;
+import com.opengamma.strata.product.fra.ExpandedFra;
+import com.opengamma.strata.product.fra.Fra;
+import com.opengamma.strata.product.fra.FraTrade;
 
 /**
  * Calculates Gamma PV01, the second-order present value sensitivity of a {@link FraTrade}

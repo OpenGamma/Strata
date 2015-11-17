@@ -34,8 +34,8 @@ import com.opengamma.strata.market.key.IborIndexRatesKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
-import com.opengamma.strata.pricer.rate.fra.FraDummyData;
-import com.opengamma.strata.product.rate.fra.FraTrade;
+import com.opengamma.strata.pricer.fra.FraDummyData;
+import com.opengamma.strata.product.fra.FraTrade;
 
 /**
  * Test {@link FraFunctionGroups}.

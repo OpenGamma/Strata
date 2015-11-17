@@ -50,14 +50,14 @@ import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.math.impl.interpolation.FlatExtrapolator1D;
 import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
+import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.deposit.DiscountingIborFixingDepositProductPricer;
-import com.opengamma.strata.pricer.rate.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.fra.type.FraTemplate;
 import com.opengamma.strata.product.rate.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.product.rate.deposit.type.IborFixingDepositTemplate;
-import com.opengamma.strata.product.rate.fra.FraTrade;
-import com.opengamma.strata.product.rate.fra.type.FraTemplate;
 import com.opengamma.strata.product.rate.swap.SwapTrade;
 import com.opengamma.strata.product.rate.swap.type.FixedIborSwapTemplate;
 

@@ -37,9 +37,9 @@ import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.rate.fra.Fra;
-import com.opengamma.strata.product.rate.fra.FraTrade;
-import com.opengamma.strata.product.rate.fra.type.FraTemplate;
+import com.opengamma.strata.product.fra.Fra;
+import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.fra.type.FraTemplate;
 
 /**
  * Test {@link FraCurveNode}.

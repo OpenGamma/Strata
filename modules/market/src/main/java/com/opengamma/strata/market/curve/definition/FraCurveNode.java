@@ -31,9 +31,9 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
-import com.opengamma.strata.product.rate.fra.ExpandedFra;
-import com.opengamma.strata.product.rate.fra.FraTrade;
-import com.opengamma.strata.product.rate.fra.type.FraTemplate;
+import com.opengamma.strata.product.fra.ExpandedFra;
+import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.fra.type.FraTemplate;
 
 /**
  * A curve node whose instrument is a Forward Rate Agreement (FRA).

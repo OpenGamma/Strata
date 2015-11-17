@@ -28,11 +28,11 @@ import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IborIndexRatesKey;
 import com.opengamma.strata.market.key.IndexRateKey;
+import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
-import com.opengamma.strata.product.rate.fra.ExpandedFra;
-import com.opengamma.strata.product.rate.fra.Fra;
-import com.opengamma.strata.product.rate.fra.FraTrade;
+import com.opengamma.strata.product.fra.ExpandedFra;
+import com.opengamma.strata.product.fra.Fra;
+import com.opengamma.strata.product.fra.FraTrade;
 
 /**
  * Perform calculations on a single {@code FraTrade} for each of a set of scenarios.

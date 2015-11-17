@@ -30,7 +30,7 @@ import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
-import com.opengamma.strata.product.rate.fra.type.FraTemplate;
+import com.opengamma.strata.product.fra.type.FraTemplate;
 import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.product.rate.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.product.rate.swap.type.FixedRateSwapLegConvention;

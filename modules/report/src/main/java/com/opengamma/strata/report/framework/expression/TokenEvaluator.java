@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.product.rate.fra.Fra;
+import com.opengamma.strata.product.fra.Fra;
 
 /**
  * Evaluates a token against an object to produce another object.
