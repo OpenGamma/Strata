@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.rate.future;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -58,13 +59,13 @@ public class HullWhiteIborFutureTradePricer
    * 
    * @param trade  the trade to price
    * @param ratesProvider  the rates provider
-   * @param hwProvider  the future convexity factor provider
+   * @param hwProvider  the Hull-White model parameter provider
    * @return the price of the trade, in decimal form
    */
   public double price(
       IborFutureTrade trade,
       RatesProvider ratesProvider,
-      HullWhiteOneFactorPiecewiseConstantConvexityFactorProvider hwProvider) {
+      HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
     return productPricer.price(trade.getSecurity().getProduct(), ratesProvider, hwProvider);
   }
 
@@ -75,7 +76,7 @@ public class HullWhiteIborFutureTradePricer
    * 
    * @param trade  the trade to price
    * @param ratesProvider  the rates provider
-   * @param hwProvider  the future convexity factor provider
+   * @param hwProvider  the Hull-White model parameter provider
    * @param lastMarginPrice  the last price used in margining. If the valuation is done on the trade date, the trade 
    * price will be used as a reference price; if not, the last margin price will be used.
    * @return the present value
@@ -83,7 +84,7 @@ public class HullWhiteIborFutureTradePricer
   public CurrencyAmount presentValue(
       IborFutureTrade trade,
       RatesProvider ratesProvider,
-      HullWhiteOneFactorPiecewiseConstantConvexityFactorProvider hwProvider,
+      HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider,
       double lastMarginPrice) {
     double referencePrice = referencePrice(trade, ratesProvider.getValuationDate(), lastMarginPrice);
     double price = price(trade, ratesProvider, hwProvider);
@@ -98,13 +99,13 @@ public class HullWhiteIborFutureTradePricer
    * 
    * @param trade  the trade to price
    * @param ratesProvider  the rates provider
-   * @param hwProvider  the future convexity factor provider
+   * @param hwProvider  the Hull-White model parameter provider
    * @return the present value curve sensitivity of the trade
    */
   public PointSensitivities presentValueSensitivity(
       IborFutureTrade trade,
       RatesProvider ratesProvider,
-      HullWhiteOneFactorPiecewiseConstantConvexityFactorProvider hwProvider) {
+      HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
     IborFuture product = trade.getSecurity().getProduct();
     PointSensitivities priceSensi = productPricer.priceSensitivity(product, ratesProvider, hwProvider);
     PointSensitivities marginIndexSensi = productPricer.marginIndexSensitivity(product, priceSensi);
@@ -120,7 +121,7 @@ public class HullWhiteIborFutureTradePricer
    * 
    * @param trade  the trade to price
    * @param ratesProvider  the rates provider
-   * @param hwProvider  the future convexity factor provider
+   * @param hwProvider  the Hull-White model parameter provider
    * @param lastMarginPrice  the last price used in margining. If the valuation is done on the trade date, the trade 
    * price will be used as a reference price; if not, the last margin price will be used.
    * @return the par spread.
@@ -128,7 +129,7 @@ public class HullWhiteIborFutureTradePricer
   public double parSpread(
       IborFutureTrade trade,
       RatesProvider ratesProvider,
-      HullWhiteOneFactorPiecewiseConstantConvexityFactorProvider hwProvider,
+      HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider,
       double lastMarginPrice) {
     double referencePrice = referencePrice(trade, ratesProvider.getValuationDate(), lastMarginPrice);
     return price(trade, ratesProvider, hwProvider) - referencePrice;
@@ -142,14 +143,35 @@ public class HullWhiteIborFutureTradePricer
    * 
    * @param trade  the trade to price
    * @param ratesProvider  the rates provider
-   * @param hwProvider  the future convexity factor provider
+   * @param hwProvider  the Hull-White model parameter provider
    * @return the par spread curve sensitivity of the trade
    */
   public PointSensitivities parSpreadSensitivity(
       IborFutureTrade trade,
       RatesProvider ratesProvider,
-      HullWhiteOneFactorPiecewiseConstantConvexityFactorProvider hwProvider) {
+      HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
     return productPricer.priceSensitivity(trade.getSecurity().getProduct(), ratesProvider, hwProvider);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+  * Calculates the currency exposure of the Ibor future trade.
+  * <p>
+  * Since the Ibor future is based on a single currency, the trade is exposed to only this currency.  
+  * 
+  * @param trade  the trade to price
+  * @param provider  the rates provider
+  * @param hwProvider  the Hull-White model parameter provider
+  * @param lastMarginPrice  the last price used in margining. If the valuation is done on the trade date, the trade 
+  * price will be used as a reference price; if not, the last margin price will be used.
+  * @return the currency exposure of the trade
+  */
+  public MultiCurrencyAmount currencyExposure(
+      IborFutureTrade trade,
+      RatesProvider provider,
+      HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider,
+      double lastMarginPrice) {
+
+    return MultiCurrencyAmount.of(presentValue(trade, provider, hwProvider, lastMarginPrice));
+  }
 }

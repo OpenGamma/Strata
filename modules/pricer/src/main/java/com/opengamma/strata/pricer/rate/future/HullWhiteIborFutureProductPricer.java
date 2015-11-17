@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.rate.future;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -22,8 +23,7 @@ import com.opengamma.strata.product.rate.future.IborFuture;
  * Reference: Henrard M., Eurodollar Futures and Options: Convexity Adjustment in HJM One-Factor Model. March 2005.
  * Available at <a href="http://ssrn.com/abstract=682343">http://ssrn.com/abstract=682343</a>
  */
-public class HullWhiteIborFutureProductPricer
-    extends AbstractIborFutureProductPricer {
+public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductPricer {
 
   /**
   * Default implementation.
@@ -44,13 +44,13 @@ public class HullWhiteIborFutureProductPricer
   * 
   * @param future  the future to price
   * @param ratesProvider  the rates provider
-  * @param hwProvider  the future convexity factor provider
+  * @param hwProvider  the Hull-White model parameter provider
   * @return the price of the product, in decimal form
   */
   public double price(
       IborFuture future,
       RatesProvider ratesProvider,
-      HullWhiteOneFactorPiecewiseConstantConvexityFactorProvider hwProvider) {
+      HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
     double parRate = parRate(future, ratesProvider, hwProvider);
     return 1d - parRate;
@@ -63,13 +63,13 @@ public class HullWhiteIborFutureProductPricer
   * 
   * @param future  the future to price
   * @param ratesProvider  the rates provider
-  * @param hwProvider  the future convexity factor provider
+  * @param hwProvider  the Hull-White model parameter provider
   * @return the convexity adjustment, in decimal form
   */
   public double convexityAdjustment(
       IborFuture future,
       RatesProvider ratesProvider,
-      HullWhiteOneFactorPiecewiseConstantConvexityFactorProvider hwProvider) {
+      HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
     double forward = ratesProvider.iborIndexRates(future.getIndex()).rate(future.getFixingDate());
     double parRate = parRate(future, ratesProvider, hwProvider);
@@ -84,13 +84,13 @@ public class HullWhiteIborFutureProductPricer
   * 
   * @param future  the future to price
   * @param ratesProvider  the rates provider
-  * @param hwProvider  the future convexity factor provider
+  * @param hwProvider  the Hull-White model parameter provider
   * @return the par rate of the product, in decimal form
   */
   public double parRate(
       IborFuture future,
       RatesProvider ratesProvider,
-      HullWhiteOneFactorPiecewiseConstantConvexityFactorProvider hwProvider) {
+      HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
     double forward = ratesProvider.iborIndexRates(future.getIndex()).rate(future.getFixingDate());
     IborIndex index = future.getIndex();
@@ -108,13 +108,13 @@ public class HullWhiteIborFutureProductPricer
   * 
   * @param future  the future to price
   * @param ratesProvider  the rates provider
-  * @param hwProvider  the future convexity factor provider
+  * @param hwProvider  the Hull-White model parameter provider
   * @return the price curve sensitivity of the product
   */
   public PointSensitivities priceSensitivity(
       IborFuture future,
       RatesProvider ratesProvider,
-      HullWhiteOneFactorPiecewiseConstantConvexityFactorProvider hwProvider) {
+      HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
     IborIndex index = future.getIndex();
     LocalDate fixingStartDate = index.calculateEffectiveFromFixing(future.getFixingDate());
@@ -126,4 +126,27 @@ public class HullWhiteIborFutureProductPricer
     return PointSensitivities.of(sensi);
   }
 
+  /**
+  * Calculates the price sensitivity to piecewise constant volatility parameters of the Hull-White model.
+  * 
+  * @param future  the future to price
+  * @param ratesProvider  the rates provider
+  * @param hwProvider  the Hull-White model parameter provider
+  * @return the price parameter sensitivity of the product
+  */
+  public DoubleArray priceSensitivityHullWhiteParameter(
+      IborFuture future,
+      RatesProvider ratesProvider,
+      HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
+
+    double forward = ratesProvider.iborIndexRates(future.getIndex()).rate(future.getFixingDate());
+    IborIndex index = future.getIndex();
+    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(future.getFixingDate());
+    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
+    double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
+    DoubleArray convexityDeriv = DoubleArray.copyOf(hwProvider.futuresConvexityFactorAdjoint(
+        future.getLastTradeDate(), fixingStartDate, fixingEndDate).getDerivatives());
+    convexityDeriv = convexityDeriv.multipliedBy(-forward - 1d / fixingYearFraction);
+    return convexityDeriv;
+  }
 }

@@ -12,6 +12,7 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -25,8 +26,8 @@ import com.opengamma.strata.product.rate.future.IborFutureTrade;
  */
 @Test
 public class HullWhiteIborFutureTradePricerTest {
-  private static final HullWhiteOneFactorPiecewiseConstantConvexityFactorProvider HW_PROVIDER =
-      HullWhiteIborFutureDataSet.CONVEXITY_FACTOR_PROVIDER;
+  private static final HullWhiteOneFactorPiecewiseConstantParametersProvider HW_PROVIDER =
+      HullWhiteIborFutureDataSet.HULL_WHITE_PARAMETER_PROVIDER;
   private static final ImmutableRatesProvider RATE_PROVIDER = HullWhiteIborFutureDataSet.RATE_PROVIDER;
   private static final IborFutureTrade TRADE = HullWhiteIborFutureDataSet.IBOR_FUTURE_TRADE;
   private static final IborFuture PRODUCT = HullWhiteIborFutureDataSet.IBOR_FUTURE;
@@ -75,6 +76,15 @@ public class HullWhiteIborFutureTradePricerTest {
     CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER,
             p -> CurrencyAmount.of(EUR, PRICER.parSpread(TRADE, p, HW_PROVIDER, LAST_PRICE)));
     assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * TOL_FD));
+  }
+
+  public void test_currencyExposure() {
+    PointSensitivities point = PRICER.presentValueSensitivity(TRADE, RATE_PROVIDER, HW_PROVIDER);
+    MultiCurrencyAmount expected = RATE_PROVIDER.currencyExposure(point)
+        .plus(PRICER.presentValue(TRADE, RATE_PROVIDER, HW_PROVIDER, LAST_PRICE));
+    MultiCurrencyAmount computed = PRICER.currencyExposure(TRADE, RATE_PROVIDER, HW_PROVIDER, LAST_PRICE);
+    assertEquals(computed.size(), 1);
+    assertEquals(computed.getAmount(EUR).getAmount(), expected.getAmount(EUR).getAmount(), NOTIONAL * QUANTITY * TOL);
   }
 
   //-------------------------------------------------------------------------

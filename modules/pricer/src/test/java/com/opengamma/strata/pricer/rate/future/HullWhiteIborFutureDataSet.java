@@ -46,8 +46,8 @@ public class HullWhiteIborFutureDataSet {
   private static final HullWhiteOneFactorPiecewiseConstantParameters MODEL_PARAMETERS =
       HullWhiteOneFactorPiecewiseConstantParameters.of(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
   /**  Hull-White one factor model parameters   */
-  public static final HullWhiteOneFactorPiecewiseConstantConvexityFactorProvider CONVEXITY_FACTOR_PROVIDER =
-      HullWhiteOneFactorPiecewiseConstantConvexityFactorProvider.of(MODEL_PARAMETERS, ACT_ACT_ISDA, VALUATION);
+  public static final HullWhiteOneFactorPiecewiseConstantParametersProvider HULL_WHITE_PARAMETER_PROVIDER =
+      HullWhiteOneFactorPiecewiseConstantParametersProvider.of(MODEL_PARAMETERS, ACT_ACT_ISDA, VALUATION);
 
   /*
    * Rates provider

@@ -16,8 +16,10 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.DoubleArrayMath;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.rate.future.IborFuture;
@@ -27,8 +29,8 @@ import com.opengamma.strata.product.rate.future.IborFuture;
  */
 @Test
 public class HullWhiteIborFutureProductPricerTest {
-  private static final HullWhiteOneFactorPiecewiseConstantConvexityFactorProvider HW_PROVIDER =
-      HullWhiteIborFutureDataSet.CONVEXITY_FACTOR_PROVIDER;
+  private static final HullWhiteOneFactorPiecewiseConstantParametersProvider HW_PROVIDER =
+      HullWhiteIborFutureDataSet.HULL_WHITE_PARAMETER_PROVIDER;
   private static final ImmutableRatesProvider RATE_PROVIDER = HullWhiteIborFutureDataSet.RATE_PROVIDER;
   private static final IborFuture PRODUCT = HullWhiteIborFutureDataSet.IBOR_FUTURE;
 
@@ -69,6 +71,33 @@ public class HullWhiteIborFutureProductPricerTest {
     CurveCurrencyParameterSensitivities expected =
         FD_CAL.sensitivity(RATE_PROVIDER, (p) -> CurrencyAmount.of(EUR, PRICER.price(PRODUCT, (p), HW_PROVIDER)));
     assertTrue(computed.equalWithTolerance(expected, TOL_FD));
+  }
+
+  public void test_priceSensitivityHullWhiteParameter() {
+    DoubleArray computed = PRICER.priceSensitivityHullWhiteParameter(PRODUCT, RATE_PROVIDER, HW_PROVIDER);
+    DoubleArray vols = HW_PROVIDER.getParameters().getVolatility();
+    int size = vols.size();
+    double[] expected = new double[size];
+    for (int i = 0; i < size; ++i) {
+      double[] volsUp = vols.toArray();
+      double[] volsDw = vols.toArray();
+      volsUp[i] += TOL_FD;
+      volsDw[i] -= TOL_FD;
+      HullWhiteOneFactorPiecewiseConstantParameters paramsUp = HullWhiteOneFactorPiecewiseConstantParameters.of(
+          HW_PROVIDER.getParameters().getMeanReversion(), DoubleArray.copyOf(volsUp), HW_PROVIDER.getParameters()
+              .getVolatilityTime().subArray(1, size));
+      HullWhiteOneFactorPiecewiseConstantParameters paramsDw = HullWhiteOneFactorPiecewiseConstantParameters.of(
+          HW_PROVIDER.getParameters().getMeanReversion(), DoubleArray.copyOf(volsDw), HW_PROVIDER.getParameters()
+              .getVolatilityTime().subArray(1, size));
+      HullWhiteOneFactorPiecewiseConstantParametersProvider provUp = HullWhiteOneFactorPiecewiseConstantParametersProvider
+          .of(paramsUp, HW_PROVIDER.getDayCount(), HW_PROVIDER.getValuationDateTime());
+      HullWhiteOneFactorPiecewiseConstantParametersProvider provDw = HullWhiteOneFactorPiecewiseConstantParametersProvider
+          .of(paramsDw, HW_PROVIDER.getDayCount(), HW_PROVIDER.getValuationDateTime());
+      double priceUp = PRICER.price(PRODUCT, RATE_PROVIDER, provUp);
+      double priceDw = PRICER.price(PRODUCT, RATE_PROVIDER, provDw);
+      expected[i] = 0.5 * (priceUp - priceDw) / TOL_FD;
+    }
+    assertTrue(DoubleArrayMath.fuzzyEquals(computed.toArray(), expected, TOL_FD));
   }
 
   //-------------------------------------------------------------------------
