@@ -10,7 +10,7 @@ import java.util.List;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.market.curve.definition.CurveParameterSize;
+import com.opengamma.strata.market.curve.CurveParameterSize;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 

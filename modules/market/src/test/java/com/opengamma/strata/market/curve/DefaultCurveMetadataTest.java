@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.definition.CurveParameterSize;
 
 /**
  * Test {@link CurveMetadata}.

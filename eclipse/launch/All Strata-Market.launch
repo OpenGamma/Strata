@@ -18,8 +18,8 @@
 <listEntry value="com.opengamma.strata.market"/>
 <listEntry value="com.opengamma.strata.market.amount"/>
 <listEntry value="com.opengamma.strata.market.curve"/>
-<listEntry value="com.opengamma.strata.market.curve.definition"/>
 <listEntry value="com.opengamma.strata.market.curve.meta"/>
+<listEntry value="com.opengamma.strata.market.curve.node"/>
 <listEntry value="com.opengamma.strata.market.curve.perturb"/>
 <listEntry value="com.opengamma.strata.market.explain"/>
 <listEntry value="com.opengamma.strata.market.id"/>
