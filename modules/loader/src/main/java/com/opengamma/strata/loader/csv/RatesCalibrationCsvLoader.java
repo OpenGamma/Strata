@@ -86,7 +86,7 @@ import com.opengamma.strata.product.swap.type.XCcyIborIborSwapTemplate;
  * <p>
  * The third file is the curve calibration nodes file.
  * This file has the following header row:<br />
- * {@code Curve Name,Label,Symbology,Ticker,Field Name,FX Symbology,FX Ticker,FX Field Name,Type,Convention,Time,Spread}.
+ * {@code Curve Name,Label,Symbology,Ticker,Field Name,Type,Convention,Time,Spread}.
  * <ul>
  * <li>The 'Curve Name' column is the name of the curve.
  * <li>The 'Label' column is the label used to refer to the node.
