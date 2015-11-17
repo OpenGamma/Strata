@@ -61,7 +61,7 @@ public final class CalculationMarketDataMap implements ImmutableBean, Calculatio
   private final MarketDataBox<LocalDate> valuationDate;
 
   /** The number of scenarios for which the environment contains market data. */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition(validate = "ArgChecker.notNegative", overrideGet = true)
   private final int scenarioCount;
 
   // TODO Should there be separate maps for observable and non-observable data?
@@ -244,6 +244,7 @@ public final class CalculationMarketDataMap implements ImmutableBean, Calculatio
    * Gets the number of scenarios for which the environment contains market data.
    * @return the value of the property
    */
+  @Override
   public int getScenarioCount() {
     return scenarioCount;
   }

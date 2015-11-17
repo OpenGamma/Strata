@@ -34,11 +34,18 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 public final class CurveInputs
     implements ImmutableBean, Serializable {
 
-  /** The market data. */
+  /**
+   * The market data.
+   * <p>
+   * There will typically be at least one entry for each node on the curve.
+   */
   @PropertyDefinition(validate = "notNull", builderType = "Map<? extends MarketDataKey<?>, ?>")
   private final ImmutableMap<? extends MarketDataKey<?>, ?> marketData;
-
-  /** The metadata for the curve. */
+  /**
+   * The metadata for the curve.
+   * <p>
+   * This is used to identify the curve and the necessary pieces of market data.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurveMetadata curveMetadata;
 
@@ -108,6 +115,8 @@ public final class CurveInputs
   //-----------------------------------------------------------------------
   /**
    * Gets the market data.
+   * <p>
+   * There will typically be at least one entry for each node on the curve.
    * @return the value of the property, not null
    */
   public ImmutableMap<? extends MarketDataKey<?>, ?> getMarketData() {
@@ -117,6 +126,8 @@ public final class CurveInputs
   //-----------------------------------------------------------------------
   /**
    * Gets the metadata for the curve.
+   * <p>
+   * This is used to identify the curve and the necessary pieces of market data.
    * @return the value of the property, not null
    */
   public CurveMetadata getCurveMetadata() {
@@ -351,6 +362,8 @@ public final class CurveInputs
     //-----------------------------------------------------------------------
     /**
      * Sets the market data.
+     * <p>
+     * There will typically be at least one entry for each node on the curve.
      * @param marketData  the new value, not null
      * @return this, for chaining, not null
      */
@@ -362,6 +375,8 @@ public final class CurveInputs
 
     /**
      * Sets the metadata for the curve.
+     * <p>
+     * This is used to identify the curve and the necessary pieces of market data.
      * @param curveMetadata  the new value, not null
      * @return this, for chaining, not null
      */

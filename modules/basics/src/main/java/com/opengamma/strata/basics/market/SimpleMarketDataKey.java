@@ -48,4 +48,5 @@ public interface SimpleMarketDataKey<T> extends MarketDataKey<T> {
    * @return the identifier corresponding to this key
    */
   public abstract MarketDataId<T> toMarketDataId(MarketDataFeed marketDataFeed);
+
 }

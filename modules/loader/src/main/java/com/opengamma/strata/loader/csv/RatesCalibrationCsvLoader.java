@@ -21,10 +21,8 @@ import java.util.regex.Pattern;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.math.DoubleMath;
-import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.io.CsvFile;
@@ -408,8 +406,6 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     XCcyIborIborSwapConvention convention = XCcyIborIborSwapConvention.of(conventionStr);
     XCcyIborIborSwapTemplate template = XCcyIborIborSwapTemplate.of(Tenor.of(periodToEnd), convention);
-    CurrencyPair currencyPair = convention.getCurrencyPair();
-    FxRateKey fxKey = FxRateKey.of(currencyPair);
     return XCcyIborIborSwapCurveNode.of(template, quoteKey, spread);
   }
 
@@ -431,8 +427,6 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     FxSwapConvention convention = FxSwapConvention.of(conventionStr);
     FxSwapTemplate template = FxSwapTemplate.of(periodToEnd, convention);
-    CurrencyPair currencyPair = convention.getCurrencyPair();
-    FxRateKey fxKey = FxRateKey.of(currencyPair);
     return FxSwapCurveNode.of(template, quoteKey);
   }
 
