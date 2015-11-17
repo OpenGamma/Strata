@@ -11,12 +11,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.calc.config.pricing.PricingRules;
+import com.opengamma.strata.function.calculation.deposit.TermDepositFunctionGroupsTest;
+import com.opengamma.strata.function.calculation.fra.FraFunctionGroupsTest;
 import com.opengamma.strata.function.calculation.fx.FxNdfFunctionGroupsTest;
 import com.opengamma.strata.function.calculation.fx.FxSingleFunctionGroupsTest;
 import com.opengamma.strata.function.calculation.fx.FxSwapFunctionGroupsTest;
-import com.opengamma.strata.function.calculation.rate.deposit.TermDepositFunctionGroupsTest;
-import com.opengamma.strata.function.calculation.rate.fra.FraFunctionGroupsTest;
-import com.opengamma.strata.function.calculation.rate.swap.SwapFunctionGroupsTest;
+import com.opengamma.strata.function.calculation.swap.SwapFunctionGroupsTest;
 
 /**
  * Test {@link StandardPricingRules}.
