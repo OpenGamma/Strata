@@ -56,6 +56,9 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 @BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class CalculationMarketDataMap implements ImmutableBean, CalculationEnvironment, Serializable {
 
+  /** An instance containing no market data. */
+  static final CalculationMarketDataMap EMPTY = builder().buildMarketDataMap();
+
   /** The valuation date associated with the market data. */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final MarketDataBox<LocalDate> valuationDate;

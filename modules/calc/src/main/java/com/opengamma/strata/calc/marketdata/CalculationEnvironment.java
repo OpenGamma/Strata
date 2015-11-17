@@ -97,4 +97,13 @@ public interface CalculationEnvironment {
   public static CalculationEnvironmentBuilder builder() {
     return new CalculationEnvironmentBuilder();
   }
+
+  /**
+   * Returns a {@code CalculationEnvironment} containing no data.
+   *
+   * @return a {@code CalculationEnvironment} containing no data
+   */
+  public static CalculationEnvironment empty() {
+    return CalculationMarketDataMap.EMPTY;
+  }
 }

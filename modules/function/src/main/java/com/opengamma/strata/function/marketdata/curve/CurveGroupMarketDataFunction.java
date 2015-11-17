@@ -11,7 +11,6 @@ import static java.util.stream.Collectors.toMap;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -64,12 +63,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   //-------------------------------------------------------------------------
   @Override
   public MarketDataRequirements requirements(CurveGroupId id, MarketDataConfig marketDataConfig) {
-    Optional<CurveGroupDefinition> optionalGroup = marketDataConfig.get(CurveGroupDefinition.class, id.getName());
-
-    if (!optionalGroup.isPresent()) {
-      return MarketDataRequirements.empty();
-    }
-    CurveGroupDefinition groupDefn = optionalGroup.get();
+    CurveGroupDefinition groupDefn = marketDataConfig.get(CurveGroupDefinition.class, id.getName());
 
     // request input data for any curves that need market data
     // no input data is requested if the curve definition contains all the market data needed to build the curve
@@ -89,12 +83,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       MarketDataConfig marketDataConfig) {
 
     CurveGroupName groupName = id.getName();
-    Optional<CurveGroupDefinition> optionalGroup = marketDataConfig.get(CurveGroupDefinition.class, groupName);
-
-    if (!optionalGroup.isPresent()) {
-      throw new IllegalArgumentException("No configuration found for curve group " + groupName);
-    }
-    CurveGroupDefinition groupDefn = optionalGroup.get();
+    CurveGroupDefinition groupDefn = marketDataConfig.get(CurveGroupDefinition.class, groupName);
     return buildCurveGroup(groupDefn, marketData, id.getMarketDataFeed());
   }
 
