@@ -26,6 +26,8 @@ import java.util.Optional;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
@@ -42,6 +44,7 @@ public class XCcyIborIborSwapTemplateTest {
   private static final HolidayCalendar EUTA_USNY = EUTA.combineWith(USNY);
 
   private static final double NOTIONAL_2M = 2_000_000d;
+  private static final CurrencyPair EUR_USD = CurrencyPair.of(Currency.EUR, Currency.USD);
   private static final double FX_EUR_USD = 1.15d;
   private static final DaysAdjustment PLUS_TWO_DAY = DaysAdjustment.ofBusinessDays(2, EUTA_USNY);
   private static final IborRateSwapLegConvention EUR3M = IborRateSwapLegConvention.builder()
@@ -65,6 +68,7 @@ public class XCcyIborIborSwapTemplateTest {
     assertEquals(test.getPeriodToStart(), Period.ZERO);
     assertEquals(test.getTenor(), TENOR_10Y);
     assertEquals(test.getConvention(), CONV);
+    assertEquals(test.getCurrencyPair(), EUR_USD);
   }
 
   public void test_of() {
@@ -72,6 +76,7 @@ public class XCcyIborIborSwapTemplateTest {
     assertEquals(test.getPeriodToStart(), Period.ofMonths(3));
     assertEquals(test.getTenor(), TENOR_10Y);
     assertEquals(test.getConvention(), CONV);
+    assertEquals(test.getCurrencyPair(), EUR_USD);
   }
 
   //-------------------------------------------------------------------------

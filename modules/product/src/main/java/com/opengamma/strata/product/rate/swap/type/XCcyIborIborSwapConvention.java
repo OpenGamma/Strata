@@ -12,6 +12,7 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
@@ -79,6 +80,13 @@ public interface XCcyIborIborSwapConvention
    * @return the flat leg convention
    */
   public abstract IborRateSwapLegConvention getFlatLeg();
+
+  /**
+   * Gets the currency pair of the convention.
+   * 
+   * @return the currency pair
+   */
+  public abstract CurrencyPair getCurrencyPair();
 
   //-------------------------------------------------------------------------
   /**

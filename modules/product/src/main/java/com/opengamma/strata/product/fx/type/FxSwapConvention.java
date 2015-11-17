@@ -12,6 +12,7 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
@@ -54,6 +55,15 @@ public interface FxSwapConvention
     return FxSwapConventions.ENUM_LOOKUP;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the currency pair of the convention.
+   * 
+   * @return the currency pair
+   */
+  public abstract CurrencyPair getCurrencyPair();
+
+  //-------------------------------------------------------------------------
   /**
    * Creates a trade based on this convention.
    * <p>
@@ -71,7 +81,7 @@ public interface FxSwapConvention
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount, in the first currency of the currency pair
    * @param nearFxRate  the FX rate for the near leg
-   * @param forwardPoints  the FX points to be added to the FX rate at the far leg
+   * @param farLegForwardPoints  the FX points to be added to the FX rate at the far leg
    * @return the trade
    */
   public default FxSwapTrade toTrade(
@@ -81,12 +91,12 @@ public interface FxSwapConvention
       BuySell buySell,
       double notional,
       double nearFxRate,
-      double forwardPoints) {
+      double farLegForwardPoints) {
 
     LocalDate spotValue = calculateSpotDateFromTradeDate(tradeDate);
     LocalDate startDate = spotValue.plus(periodToNear);
     LocalDate endDate = spotValue.plus(periodToFar);
-    return toTrade(tradeDate, startDate, endDate, buySell, notional, nearFxRate, forwardPoints);
+    return toTrade(tradeDate, startDate, endDate, buySell, notional, nearFxRate, farLegForwardPoints);
   }
 
   /**
@@ -103,7 +113,7 @@ public interface FxSwapConvention
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount, in the payment currency of the template
    * @param nearFxRate  the FX rate for the near leg
-   * @param forwardPoints  the FX points to be added to the FX rate at the far leg
+   * @param farLegForwardPoints  the FX points to be added to the FX rate at the far leg
    * @return the trade
    */
   public abstract FxSwapTrade toTrade(
@@ -113,7 +123,7 @@ public interface FxSwapConvention
       BuySell buySell,
       double notional,
       double nearFxRate,
-      double forwardPoints);
+      double farLegForwardPoints);
 
   //-------------------------------------------------------------------------
   /**
