@@ -127,7 +127,7 @@ public class CurveGroupMarketDataFunctionTest {
         .put(forwardCurveKey, iborIndexRates)
         .build();
 
-    MarketData marketData = MarketData.builder().addValues(marketDataMap).build();
+    MarketData marketData = MarketData.of(marketDataMap);
     TestMarketDataMap calculationMarketData = new TestMarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
     MarketDataRatesProvider ratesProvider =
         new MarketDataRatesProvider(new DefaultSingleCalculationMarketData(calculationMarketData, 0));
@@ -179,7 +179,7 @@ public class CurveGroupMarketDataFunctionTest {
         .put(discountFactorsKey, discountFactors)
         .put(forwardCurveKey, iborIndexRates)
         .build();
-    MarketData marketData = MarketData.builder().addValues(marketDataMap).build();
+    MarketData marketData = MarketData.of(marketDataMap);
     TestMarketDataMap calculationMarketData = new TestMarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
     MarketDataRatesProvider ratesProvider =
         new MarketDataRatesProvider(new DefaultSingleCalculationMarketData(calculationMarketData, 0));

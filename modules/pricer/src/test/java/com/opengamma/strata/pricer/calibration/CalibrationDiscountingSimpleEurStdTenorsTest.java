@@ -161,7 +161,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
     for (int i = 0; i < FWD6_NB_NODES; i++) {
       map.put(QuoteKey.of(StandardId.of(SCHEME, FWD6_ID_VALUE[i])), FWD6_MARKET_QUOTES[i]);
     }
-    ALL_QUOTES = MarketData.builder().addValues(map).build();
+    ALL_QUOTES = MarketData.of(map);
   }
 
   private static final DiscountingSwapProductPricer SWAP_PRICER =

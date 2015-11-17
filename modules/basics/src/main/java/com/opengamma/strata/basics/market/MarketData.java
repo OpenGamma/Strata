@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.basics.market;
 
+import java.util.Map;
+
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
@@ -56,5 +58,15 @@ public interface MarketData {
    */
   public static MarketDataBuilder builder() {
     return new MarketDataBuilder();
+  }
+
+  /**
+   * Builds a set of market data from the values in a map.
+   *
+   * @param values  a map of market data values
+   * @return a {@code MarketData} instance containing the values in the map
+   */
+  public static MarketData of(Map<? extends MarketDataKey<?>, ?> values) {
+    return builder().addValues(values).build();
   }
 }

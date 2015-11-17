@@ -249,7 +249,7 @@ public final class CalculationEnvironmentBuilder {
    * Builds a set of market data from the data in this builder.
    * <p>
    * It is possible to continue to add more data to a builder after calling {@code build()}. Any
-   * {@code BaseMarketData} instances built previously will be unaffected.
+   * {@code CalculationEnvironment} instances built previously will be unaffected.
    *
    * @return a set of market data from the data in this builder
    */
@@ -261,7 +261,7 @@ public final class CalculationEnvironmentBuilder {
    * Builds a set of market data from the data in this builder.
    * <p>
    * It is possible to continue to add more data to a builder after calling {@code build()}. Any
-   * {@code BaseMarketData} instances built previously will be unaffected.
+   * {@code CalculationMarketDataMap} instances built previously will be unaffected.
    *
    * @return a set of market data from the data in this builder
    */

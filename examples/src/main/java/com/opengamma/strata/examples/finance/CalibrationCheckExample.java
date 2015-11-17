@@ -208,7 +208,7 @@ public class CalibrationCheckExample {
       for (CurveNode node : nodes) {
         if (!(node instanceof IborFixingDepositCurveNode)) {
           // IborFixingDeposit is not a real trade, so there is no appropriate comparison
-          trades.add(node.trade(VALUATION_DATE, MarketData.builder().addValues(quotesByKey).build()));
+          trades.add(node.trade(VALUATION_DATE, MarketData.of(quotesByKey)));
         }
       }
     }

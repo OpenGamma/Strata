@@ -56,7 +56,7 @@ public class XCcyIborIborSwapCurveNodeTest {
     MAP_OV.put(SPREAD_KEY, SPREAD_XCS);
     MAP_OV.put(FX_KEY, FX_EUR_USD);
   }
-  private static final MarketData OV = MarketData.builder().addValues(MAP_OV).build();
+  private static final MarketData OV = MarketData.of(MAP_OV);
 
   public void test_builder() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.builder()

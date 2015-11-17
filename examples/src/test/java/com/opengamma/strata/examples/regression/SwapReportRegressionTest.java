@@ -33,7 +33,7 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
-import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
+import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.rate.swap.FixedRateCalculation;
@@ -67,7 +67,7 @@ public class SwapReportRegressionTest {
         Column.of(Measure.PV01),
         Column.of(Measure.ACCRUED_INTEREST));
 
-    MarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
+    ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
 
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(StandardComponents.pricingRules())

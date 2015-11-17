@@ -39,7 +39,7 @@ public class MarketDataBuilderTest {
 
   public void addValues() {
     Map<? extends MarketDataKey<?>, ?> marketDataMap = ImmutableMap.of(KEY1, 123d, KEY2, 321d);
-    MarketData marketData = MarketData.builder().addValues(marketDataMap).build();
+    MarketData marketData = MarketData.of(marketDataMap);
     assertThat(marketData.getValue(KEY1)).isEqualTo(123d);
     assertThat(marketData.getValue(KEY2)).isEqualTo(321d);
     assertThat(marketData.containsValue(KEY3)).isFalse();
@@ -61,6 +61,6 @@ public class MarketDataBuilderTest {
 
   public void wrongType() {
     Map<? extends MarketDataKey<?>, ?> marketDataMap = ImmutableMap.of(KEY1, 123d, KEY2, "abc");
-    assertThrowsIllegalArg(() -> MarketData.builder().addValues(marketDataMap).build());
+    assertThrowsIllegalArg(() -> MarketData.of(marketDataMap));
   }
 }

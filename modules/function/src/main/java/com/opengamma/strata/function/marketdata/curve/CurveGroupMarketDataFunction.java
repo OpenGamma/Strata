@@ -179,7 +179,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     Map<ObservableKey, Double> valueMap = parRates.stream()
         .flatMap(pr -> pr.toRatesByKey().entrySet().stream())
         .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-    return MarketData.builder().addValues(valueMap).build();
+    return MarketData.of(valueMap);
   }
 
   private CurveGroup buildGroup(

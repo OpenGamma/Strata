@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.basics.market;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -28,7 +29,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  * Immutable bean implementation of {@link MarketData}.
  */
 @BeanDefinition
-public final class ImmutableMarketData implements MarketData, ImmutableBean {
+public final class ImmutableMarketData implements MarketData, ImmutableBean, Serializable {
 
   /** The market data values. */
   @PropertyDefinition(validate = "notNull", builderType = "Map<? extends MarketDataKey<?>, ?>")
@@ -37,6 +38,16 @@ public final class ImmutableMarketData implements MarketData, ImmutableBean {
   /** The time series. */
   @PropertyDefinition(validate = "notNull")
   private final Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeries;
+
+  /**
+   * Returns a set of market data containing the values in the map.
+   *
+   * @param values  the market data values
+   * @return a set of market data containing the values in the map
+   */
+  public static ImmutableMarketData of(Map<? extends MarketDataKey<?>, ?> values) {
+    return builder().values(values).build();
+  }
 
   @Override
   public boolean containsValue(MarketDataKey<?> key) {
@@ -82,6 +93,11 @@ public final class ImmutableMarketData implements MarketData, ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(ImmutableMarketData.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

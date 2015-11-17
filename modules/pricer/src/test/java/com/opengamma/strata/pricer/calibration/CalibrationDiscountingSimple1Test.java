@@ -131,7 +131,7 @@ public class CalibrationDiscountingSimple1Test {
     for (int i = 0; i < FWD3_NB_NODES; i++) {
       map.put(QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i])), FWD3_MARKET_QUOTES[i]);
     }
-    ALL_QUOTES = MarketData.builder().addValues(map).build();
+    ALL_QUOTES = MarketData.of(map);
   }
 
   /** All nodes by groups. */

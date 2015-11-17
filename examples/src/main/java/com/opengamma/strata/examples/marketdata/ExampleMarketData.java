@@ -27,8 +27,8 @@ public final class ExampleMarketData {
    * 
    * @return the market data builder
    */
-  public static MarketDataBuilder builder() {
-    return MarketDataBuilder.ofResource(EXAMPLE_MARKET_DATA_ROOT);
+  public static ExampleMarketDataBuilder builder() {
+    return ExampleMarketDataBuilder.ofResource(EXAMPLE_MARKET_DATA_ROOT);
   }
 
 }

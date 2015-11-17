@@ -258,7 +258,7 @@ public class CalibrationEurStandard {
     for (int i = 0; i < fwd6MarketQuotes.length; i++) {
       allQuotes.put(QuoteKey.of(StandardId.of(SCHEME, fwd6IdValue[i])), fwd6MarketQuotes[i]);
     }
-    return MarketData.builder().addValues(allQuotes).build();
+    return MarketData.of(allQuotes);
   }
 
 }

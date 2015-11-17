@@ -207,7 +207,7 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
     for (int i = 0; i < FWD3_NB_NODES; i++) {
       map.put(QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i])), FWD3_MARKET_QUOTES[i]);
     }
-    ALL_QUOTES = ImmutableMarketData.builder().values(map).build();
+    ALL_QUOTES = ImmutableMarketData.of(map);
   }
 
   /** All nodes by groups. */
@@ -308,7 +308,7 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
     for (int i = 0; i < DSC_NB_NODES; i++) {
       Map<MarketDataKey<?>, Object> map = new HashMap<>(ALL_QUOTES.getValues());
       map.put(QuoteKey.of(StandardId.of(SCHEME, DSC_ID_VALUE[i])), DSC_MARKET_QUOTES[i] + shift);
-      ImmutableMarketData marketData = ImmutableMarketData.builder().values(map).build();
+      ImmutableMarketData marketData = ImmutableMarketData.of(map);
       ImmutableRatesProvider rpShifted = calibrator.apply(marketData);
       double pvS = SWAP_PRICER.presentValue(trade.getProduct(), rpShifted).getAmount(USD).getAmount();
       assertEquals(mqsDscComputed[i], (pvS - pv0) / shift, TOLERANCE_PV_DELTA, "DSC - node " + i);
@@ -317,7 +317,7 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
     for (int i = 0; i < FWD3_NB_NODES; i++) {
       Map<MarketDataKey<?>, Object> map = new HashMap<>(ALL_QUOTES.getValues());
       map.put(QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i])), FWD3_MARKET_QUOTES[i] + shift);
-      ImmutableMarketData marketData = ImmutableMarketData.builder().values(map).build();
+      ImmutableMarketData marketData = ImmutableMarketData.of(map);
       ImmutableRatesProvider rpShifted = calibrator.apply(marketData);
       double pvS = SWAP_PRICER.presentValue(trade.getProduct(), rpShifted).getAmount(USD).getAmount();
       assertEquals(mqsFwd3Computed[i], (pvS - pv0) / shift, TOLERANCE_PV_DELTA, "FWD3 - node " + i);

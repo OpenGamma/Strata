@@ -73,7 +73,7 @@ public class MarketDataBuilder {
    * @param timeSeriesMap  the time series
    * @return this builder
    */
-  public MarketDataBuilder addTimeSeries(Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap) {
+  public MarketDataBuilder addTimeSeries(Map<? extends ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap) {
     ArgChecker.notNull(timeSeriesMap, "timeSeriesMap");
     timeSeries.putAll(timeSeriesMap);
     return this;
@@ -98,7 +98,7 @@ public class MarketDataBuilder {
     if (!key.getMarketDataType().isInstance(value)) {
       throw new IllegalArgumentException(
           Messages.format(
-              "Value type doesn't match expected type. expected type: {}, object type: {}, key: {}, value: {}",
+              "Value type doesn't match expected type. expected type: {}, value type: {}, key: {}, value: {}",
               key.getMarketDataType(),
               value.getClass().getName(),
               key,

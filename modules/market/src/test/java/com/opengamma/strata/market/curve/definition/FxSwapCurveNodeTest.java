@@ -63,7 +63,7 @@ public class FxSwapCurveNodeTest {
     MAP_OV.put(QUOTE_KEY_NEAR, FX_RATE_NEAR);
     MAP_OV.put(QUOTE_KEY_PTS, FX_RATE_PTS);
   }
-  private static final MarketData OV = MarketData.builder().addValues(MAP_OV).build();
+  private static final MarketData OV = MarketData.of(MAP_OV);
 
   public void test_builder() {
     FxSwapCurveNode test = FxSwapCurveNode.builder()
