@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.rate.future;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.rate.future.IborFuture;
@@ -110,6 +111,24 @@ public class HullWhiteIborFutureTradePricer
     PointSensitivities priceSensi = productPricer.priceSensitivity(product, ratesProvider, hwProvider);
     PointSensitivities marginIndexSensi = productPricer.marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
+  }
+
+  /**
+   * Calculates the present value sensitivity to piecewise constant volatility parameters of the Hull-White model.
+   * 
+   * @param trade  the trade to price
+   * @param ratesProvider  the rates provider
+   * @param hwProvider  the Hull-White model parameter provider
+   * @return the present value parameter sensitivity of the trade
+   */
+  public DoubleArray presentValueSensitivityHullWhiteParameter(
+      IborFutureTrade trade,
+      RatesProvider ratesProvider,
+      HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
+    IborFuture product = trade.getSecurity().getProduct();
+    DoubleArray hwSensi = productPricer.priceSensitivityHullWhiteParameter(product, ratesProvider, hwProvider);
+    hwSensi = hwSensi.multipliedBy(product.getNotional() * product.getAccrualFactor() * trade.getQuantity());
+    return hwSensi;
   }
 
   //-------------------------------------------------------------------------
