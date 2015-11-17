@@ -8,7 +8,7 @@ package com.opengamma.strata.function.calculation.rate.deposit;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
-import com.opengamma.strata.product.rate.deposit.TermDepositTrade;
+import com.opengamma.strata.product.deposit.TermDepositTrade;
 
 /**
  * Contains function groups for built-in Term Deposit calculation functions.

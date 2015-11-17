@@ -32,10 +32,10 @@ import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.rate.deposit.IborFixingDeposit;
-import com.opengamma.strata.product.rate.deposit.IborFixingDepositTrade;
-import com.opengamma.strata.product.rate.deposit.type.IborFixingDepositTemplate;
-import com.opengamma.strata.product.rate.deposit.type.ImmutableIborFixingDepositConvention;
+import com.opengamma.strata.product.deposit.IborFixingDeposit;
+import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
+import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
+import com.opengamma.strata.product.deposit.type.ImmutableIborFixingDepositConvention;
 
 /**
  * Test {@link IborFixingDepositCurveNode}.

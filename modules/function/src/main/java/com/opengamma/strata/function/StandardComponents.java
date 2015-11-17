@@ -32,6 +32,7 @@ import com.opengamma.strata.function.marketdata.curve.RateIndexCurveMarketDataFu
 import com.opengamma.strata.function.marketdata.curve.RootFinderConfig;
 import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.product.credit.CdsTrade;
+import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.future.GenericFutureOptionTrade;
 import com.opengamma.strata.product.future.GenericFutureTrade;
@@ -39,7 +40,6 @@ import com.opengamma.strata.product.fx.FxNdfTrade;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
-import com.opengamma.strata.product.rate.deposit.TermDepositTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**

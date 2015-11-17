@@ -8,7 +8,7 @@ package com.opengamma.strata.function.calculation.rate.deposit;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.rate.deposit.ExpandedTermDeposit;
+import com.opengamma.strata.product.deposit.ExpandedTermDeposit;
 
 /**
  * Calculates PV01, the present value sensitivity of a {@code TermDepositTrade}.

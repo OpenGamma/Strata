@@ -36,8 +36,8 @@ import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.rate.deposit.TermDeposit;
-import com.opengamma.strata.product.rate.deposit.TermDepositTrade;
+import com.opengamma.strata.product.deposit.TermDeposit;
+import com.opengamma.strata.product.deposit.TermDepositTrade;
 
 /**
  * Test {@link TermDepositFunctionGroups}.

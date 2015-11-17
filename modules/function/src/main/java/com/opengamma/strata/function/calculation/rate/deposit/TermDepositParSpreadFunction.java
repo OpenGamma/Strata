@@ -6,7 +6,7 @@
 package com.opengamma.strata.function.calculation.rate.deposit;
 
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.rate.deposit.ExpandedTermDeposit;
+import com.opengamma.strata.product.deposit.ExpandedTermDeposit;
 
 /**
  * Calculates the par spread of a {@code TermDepositTrade} for each of a set of scenarios.

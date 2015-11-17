@@ -20,6 +20,8 @@
 <listEntry value="com.opengamma.strata.product.bond.type"/>
 <listEntry value="com.opengamma.strata.product.credit"/>
 <listEntry value="com.opengamma.strata.product.credit.type"/>
+<listEntry value="com.opengamma.strata.product.deposit"/>
+<listEntry value="com.opengamma.strata.product.deposit.type"/>
 <listEntry value="com.opengamma.strata.product.equity"/>
 <listEntry value="com.opengamma.strata.product.fra"/>
 <listEntry value="com.opengamma.strata.product.fra.type"/>
@@ -28,8 +30,6 @@
 <listEntry value="com.opengamma.strata.product.fx.type"/>
 <listEntry value="com.opengamma.strata.product.payment"/>
 <listEntry value="com.opengamma.strata.product.rate"/>
-<listEntry value="com.opengamma.strata.product.rate.deposit"/>
-<listEntry value="com.opengamma.strata.product.rate.deposit.type"/>
 <listEntry value="com.opengamma.strata.product.rate.future"/>
 <listEntry value="com.opengamma.strata.product.rate.future.type"/>
 <listEntry value="com.opengamma.strata.product.swap"/>

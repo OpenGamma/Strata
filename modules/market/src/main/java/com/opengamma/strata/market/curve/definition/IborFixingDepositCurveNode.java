@@ -31,9 +31,9 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
-import com.opengamma.strata.product.rate.deposit.ExpandedIborFixingDeposit;
-import com.opengamma.strata.product.rate.deposit.IborFixingDepositTrade;
-import com.opengamma.strata.product.rate.deposit.type.IborFixingDepositTemplate;
+import com.opengamma.strata.product.deposit.ExpandedIborFixingDeposit;
+import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
+import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
 
 /**
  * A curve node whose instrument is an Ibor fixing deposit.
