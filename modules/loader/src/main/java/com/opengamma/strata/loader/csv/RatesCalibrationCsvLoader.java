@@ -410,7 +410,7 @@ public final class RatesCalibrationCsvLoader {
     XCcyIborIborSwapTemplate template = XCcyIborIborSwapTemplate.of(Tenor.of(periodToEnd), convention);
     CurrencyPair currencyPair = convention.getCurrencyPair();
     FxRateKey fxKey = FxRateKey.of(currencyPair);
-    return XCcyIborIborSwapCurveNode.of(template, quoteKey, fxKey, spread);
+    return XCcyIborIborSwapCurveNode.of(template, quoteKey, spread);
   }
 
   //-------------------------------------------------------------------------
@@ -433,7 +433,7 @@ public final class RatesCalibrationCsvLoader {
     FxSwapTemplate template = FxSwapTemplate.of(periodToEnd, convention);
     CurrencyPair currencyPair = convention.getCurrencyPair();
     FxRateKey fxKey = FxRateKey.of(currencyPair);
-    return FxSwapCurveNode.of(template, fxKey, quoteKey);
+    return FxSwapCurveNode.of(template, quoteKey);
   }
 
   //-------------------------------------------------------------------------

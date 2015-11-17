@@ -154,7 +154,6 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     for (int i = 0; i < EUR_DSC_NB_FX_NODES; i++) {
       EUR_DSC_NODES[i] = FxSwapCurveNode.of(
           FxSwapTemplate.of(EUR_DSC_FX_TENORS[i], EUR_USD),
-          FxRateKey.of(EUR, USD),
           QuoteKey.of(StandardId.of(SCHEME, EUR_DSC_ID_VALUE[i])));
     }
   }

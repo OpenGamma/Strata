@@ -60,10 +60,10 @@ public interface ObservableKey
    * @param marketDataFeed  the market data feed that is the source of the observable market data
    * @return the identifier corresponding to this key
    */
-  public abstract ObservableId toObservableId(MarketDataFeed marketDataFeed);
+  public abstract ObservableId toMarketDataId(MarketDataFeed marketDataFeed);
 
-  @Override
-  public default MarketDataId<Double> toMarketDataId(MarketDataFeed marketDataFeed) {
-    return toObservableId(marketDataFeed);
-  }
+  //@Override
+  //public default ObservableId toMarketDataId(MarketDataFeed marketDataFeed) {
+  //  return toObservableId(marketDataFeed);
+  //}
 }

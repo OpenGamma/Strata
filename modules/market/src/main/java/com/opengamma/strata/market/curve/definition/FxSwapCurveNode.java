@@ -65,14 +65,13 @@ public final class FxSwapCurveNode
    * Returns a curve node for an FX Swap using the specified instrument template and keys.
    *
    * @param template  the template used for building the instrument for the node
-   * @param fxNearKey  the key identifying the FX rate for the near date used when building the instrument for the node
    * @param fxPtsKey  the key identifying the FX points between the near date and the far date
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static FxSwapCurveNode of(FxSwapTemplate template, FxRateKey fxNearKey, ObservableKey fxPtsKey) {
+  public static FxSwapCurveNode of(FxSwapTemplate template, ObservableKey fxPtsKey) {
     return FxSwapCurveNode.builder()
         .template(template)
-        .fxNearKey(fxNearKey)
+        .fxNearKey(FxRateKey.of(template.getCurrencyPair()))
         .fxPtsKey(fxPtsKey)
         .build();
   }
@@ -93,7 +92,7 @@ public final class FxSwapCurveNode
   @Override
   public FxSwapTrade trade(LocalDate valuationDate, MarketData marketData) {
     FxRate fxNearRate = marketData.getValue(fxNearKey);
-    double rate = fxNearRate.fxRate(fxNearKey.getPair());
+    double rate = fxNearRate.fxRate(template.getCurrencyPair());
     double fxPts = marketData.getValue(fxPtsKey);
     return template.toTrade(valuationDate, BuySell.BUY, 1d, rate, fxPts);
   }

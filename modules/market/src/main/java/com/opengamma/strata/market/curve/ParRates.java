@@ -26,22 +26,19 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.market.MarketDataKey;
 
 /**
- * The par rates used when calibrating a curve.
+ * The input data used when calibrating a curve.
  * <p>
- * A curve is calibrated using par rates, which provide the current market value of a set of instruments.
+ * This class contains the current market value of a set of instruments used when calibrating a curve.
  */
 @BeanDefinition
 public final class ParRates
     implements ImmutableBean, Serializable {
 
-  /**
-   * The par rates.
-   */
+  /** The market data. */
   @PropertyDefinition(validate = "notNull", builderType = "Map<? extends MarketDataKey<?>, ?>")
   private final ImmutableMap<? extends MarketDataKey<?>, ?> rates;
-  /**
-   * The metadata for the curve.
-   */
+
+  /** The metadata for the curve. */
   @PropertyDefinition(validate = "notNull")
   private final CurveMetadata curveMetadata;
 
@@ -110,7 +107,7 @@ public final class ParRates
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the par rates.
+   * Gets the market data.
    * @return the value of the property, not null
    */
   public ImmutableMap<? extends MarketDataKey<?>, ?> getRates() {
@@ -353,7 +350,7 @@ public final class ParRates
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the par rates.
+     * Sets the market data.
      * @param rates  the new value, not null
      * @return this, for chaining, not null
      */

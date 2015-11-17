@@ -44,7 +44,7 @@ public final class TestObservableKey
   }
 
   @Override
-  public ObservableId toObservableId(MarketDataFeed marketDataFeed) {
+  public ObservableId toMarketDataId(MarketDataFeed marketDataFeed) {
     return new TestObservableId(standardId, marketDataFeed);
   }
 

@@ -45,6 +45,6 @@ class NoMatchingRuleMappings implements MarketDataMappings {
    */
   @Override
   public ObservableId getIdForObservableKey(ObservableKey key) {
-    return key.toObservableId(MarketDataFeed.NO_RULE);
+    return key.toMarketDataId(MarketDataFeed.NO_RULE);
   }
 }

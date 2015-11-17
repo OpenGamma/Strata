@@ -73,15 +73,10 @@ public final class XCcyIborIborSwapCurveNode
    *
    * @param template  the template used for building the instrument for the node
    * @param spreadKey  the key identifying the market spread used when building the instrument for the node
-   * @param fxKey  the key identifying the FX rate for the near date used when building the instrument for the node
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static XCcyIborIborSwapCurveNode of(
-      XCcyIborIborSwapTemplate template,
-      ObservableKey spreadKey,
-      FxRateKey fxKey) {
-
-    return of(template, spreadKey, fxKey, 0d);
+  public static XCcyIborIborSwapCurveNode of(XCcyIborIborSwapTemplate template, ObservableKey spreadKey) {
+    return of(template, spreadKey, 0d);
   }
 
   /**
@@ -90,17 +85,15 @@ public final class XCcyIborIborSwapCurveNode
    *
    * @param template  the template defining the node instrument
    * @param spreadKey  the key identifying the market spread used when building the instrument for the node
-   * @param fxKey  the key identifying the FX rate for the near date used when building the instrument for the node
    * @param additionalSpread  the additional spread amount added to the market quote
    * @return a node whose instrument is built from the template using a market rate
    */
   public static XCcyIborIborSwapCurveNode of(
       XCcyIborIborSwapTemplate template,
       ObservableKey spreadKey,
-      FxRateKey fxKey,
       double additionalSpread) {
 
-    return new XCcyIborIborSwapCurveNode(template, spreadKey, fxKey, additionalSpread);
+    return new XCcyIborIborSwapCurveNode(template, spreadKey, FxRateKey.of(template.getCurrencyPair()), additionalSpread);
   }
 
   //-------------------------------------------------------------------------
@@ -119,7 +112,7 @@ public final class XCcyIborIborSwapCurveNode
   public SwapTrade trade(LocalDate valuationDate, MarketData marketData) {
     double marketQuote = marketData.getValue(spreadKey) + additionalSpread;
     FxRate fxRate = marketData.getValue(fxKey);
-    double rate = fxRate.fxRate(fxKey.getPair());
+    double rate = fxRate.fxRate(template.getCurrencyPair());
     return template.toTrade(valuationDate, BuySell.BUY, 1, rate, marketQuote);
   }
 

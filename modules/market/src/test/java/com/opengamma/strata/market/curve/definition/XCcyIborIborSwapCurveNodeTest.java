@@ -77,7 +77,7 @@ public class XCcyIborIborSwapCurveNodeTest {
   }
 
   public void test_of_noSpread() {
-    XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, FX_KEY);
+    XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY);
     assertEquals(test.getSpreadKey(), SPREAD_KEY);
     assertEquals(test.getFxKey(), FX_KEY);
     assertEquals(test.getAdditionalSpread(), 0.0d);
@@ -85,7 +85,7 @@ public class XCcyIborIborSwapCurveNodeTest {
   }
 
   public void test_of_withSpread() {
-    XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, FX_KEY, SPREAD_ADJ);
+    XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, SPREAD_ADJ);
     assertEquals(test.getSpreadKey(), SPREAD_KEY);
     assertEquals(test.getFxKey(), FX_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD_ADJ);
@@ -93,14 +93,14 @@ public class XCcyIborIborSwapCurveNodeTest {
   }
 
   public void test_requirements() {
-    XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, FX_KEY, SPREAD_ADJ);
+    XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, SPREAD_ADJ);
     Set<? extends SimpleMarketDataKey<?>> setExpected = ImmutableSet.of(SPREAD_KEY, FX_KEY);
     Set<? extends SimpleMarketDataKey<?>> set = test.requirements();
     assertTrue(set.equals(setExpected));
   }
 
   public void test_trade() {
-    XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, FX_KEY, SPREAD_ADJ);
+    XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, SPREAD_ADJ);
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     SwapTrade trade = node.trade(tradeDate, OV);
     double rate = FX_EUR_USD.fxRate(Currency.EUR, Currency.USD);
@@ -109,7 +109,7 @@ public class XCcyIborIborSwapCurveNodeTest {
   }
 
   public void test_trade_differentKey() {
-    XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, FX_KEY, SPREAD_ADJ);
+    XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, SPREAD_ADJ);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     QuoteKey key = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
@@ -118,14 +118,14 @@ public class XCcyIborIborSwapCurveNodeTest {
   }
 
   public void test_initialGuess() {
-    XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, FX_KEY, SPREAD_ADJ);
+    XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, SPREAD_ADJ);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     assertEquals(node.initialGuess(valuationDate, OV, ValueType.ZERO_RATE), 0d);
     assertEquals(node.initialGuess(valuationDate, OV, ValueType.DISCOUNT_FACTOR), 1.0d);
   }
 
   public void test_metadata() {
-    XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, FX_KEY, SPREAD_ADJ);
+    XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, SPREAD_ADJ);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     CurveParameterMetadata metadata = node.metadata(valuationDate);
     // 2015-01-22 is Thursday, start is 2015-01-26, but 2025-01-26 is Sunday, so end is 2025-01-27
@@ -135,15 +135,15 @@ public class XCcyIborIborSwapCurveNodeTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, FX_KEY, SPREAD_ADJ);
+    XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, SPREAD_ADJ);
     coverImmutableBean(test);
     XCcyIborIborSwapCurveNode test2 =
-        XCcyIborIborSwapCurveNode.of(TEMPLATE2, SPREAD_KEY2, FX_KEY, 0.1);
+        XCcyIborIborSwapCurveNode.of(TEMPLATE2, SPREAD_KEY2, 0.1);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, FX_KEY, SPREAD_ADJ);
+    XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, SPREAD_ADJ);
     assertSerialization(test);
   }
 
