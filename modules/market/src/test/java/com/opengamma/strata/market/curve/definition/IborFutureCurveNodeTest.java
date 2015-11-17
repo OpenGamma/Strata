@@ -28,10 +28,10 @@ import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.YearMonthCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
-import com.opengamma.strata.product.rate.future.IborFutureTrade;
-import com.opengamma.strata.product.rate.future.type.IborFutureConvention;
-import com.opengamma.strata.product.rate.future.type.IborFutureConventions;
-import com.opengamma.strata.product.rate.future.type.IborFutureTemplate;
+import com.opengamma.strata.product.index.IborFutureTrade;
+import com.opengamma.strata.product.index.type.IborFutureConvention;
+import com.opengamma.strata.product.index.type.IborFutureConventions;
+import com.opengamma.strata.product.index.type.IborFutureTemplate;
 
 /**
  * Tests {@link IborFutureCurveNode}.

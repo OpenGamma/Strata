@@ -30,8 +30,8 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.YearMonthCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
-import com.opengamma.strata.product.rate.future.IborFutureTrade;
-import com.opengamma.strata.product.rate.future.type.IborFutureTemplate;
+import com.opengamma.strata.product.index.IborFutureTrade;
+import com.opengamma.strata.product.index.type.IborFutureTemplate;
 
 /**
  * A curve node whose instrument is an Ibor Future.

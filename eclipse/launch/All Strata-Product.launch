@@ -28,10 +28,10 @@
 <listEntry value="com.opengamma.strata.product.future"/>
 <listEntry value="com.opengamma.strata.product.fx"/>
 <listEntry value="com.opengamma.strata.product.fx.type"/>
+<listEntry value="com.opengamma.strata.product.index"/>
+<listEntry value="com.opengamma.strata.product.index.type"/>
 <listEntry value="com.opengamma.strata.product.payment"/>
 <listEntry value="com.opengamma.strata.product.rate"/>
-<listEntry value="com.opengamma.strata.product.rate.future"/>
-<listEntry value="com.opengamma.strata.product.rate.future.type"/>
 <listEntry value="com.opengamma.strata.product.swap"/>
 <listEntry value="com.opengamma.strata.product.swap.type"/>
 <listEntry value="com.opengamma.strata.product.swaption"/>
