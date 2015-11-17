@@ -54,6 +54,7 @@ public class FxSwapTemplateTest {
     assertEquals(test.getPeriodToNear(), Period.ZERO);
     assertEquals(test.getPeriodToFar(), FAR_PERIOD);
     assertEquals(test.getConvention(), CONVENTION);
+    assertEquals(test.getCurrencyPair(), EUR_USD);
   }
 
   public void test_of_near_far() {
@@ -61,6 +62,7 @@ public class FxSwapTemplateTest {
     assertEquals(test.getPeriodToNear(), NEAR_PERIOD);
     assertEquals(test.getPeriodToFar(), FAR_PERIOD);
     assertEquals(test.getConvention(), CONVENTION);
+    assertEquals(test.getCurrencyPair(), EUR_USD);
   }
 
   public void test_builder_insufficientInfo() {

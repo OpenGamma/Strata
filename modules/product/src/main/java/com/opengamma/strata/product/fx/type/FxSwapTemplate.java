@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.TradeTemplate;
 import com.opengamma.strata.product.fx.FxSwapTrade;
@@ -122,6 +123,15 @@ public final class FxSwapTemplate
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the currency pair of the template.
+   * 
+   * @return the currency pair
+   */
+  public CurrencyPair getCurrencyPair() {
+    return convention.getCurrencyPair();
+  }
+
   /**
    * Creates a trade based on this template.
    * <p>

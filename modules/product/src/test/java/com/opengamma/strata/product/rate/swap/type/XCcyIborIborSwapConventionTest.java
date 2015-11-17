@@ -28,6 +28,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
@@ -45,6 +47,7 @@ public class XCcyIborIborSwapConventionTest {
 
   private static final String NAME = "EUR/USD-Swap";
   private static final double NOTIONAL_2M = 2_000_000d;
+  private static final CurrencyPair EUR_USD = CurrencyPair.of(Currency.EUR, Currency.USD);
   private static final double FX_EUR_USD = 1.15d;
   private static final BusinessDayAdjustment BDA_FOLLOW = BusinessDayAdjustment.of(FOLLOWING, EUTA_USNY);
   private static final DaysAdjustment NEXT_SAME_BUS_DAY = DaysAdjustment.ofCalendarDays(0, BDA_FOLLOW);
@@ -78,6 +81,7 @@ public class XCcyIborIborSwapConventionTest {
     assertEquals(test.getSpreadLeg(), EUR3M.expand());
     assertEquals(test.getFlatLeg(), USD3M.expand());
     assertEquals(test.getSpotDateOffset(), EUR3M.getIndex().getEffectiveDateOffset());
+    assertEquals(test.getCurrencyPair(), EUR_USD);
   }
 
   public void test_expandAllSpecified() {

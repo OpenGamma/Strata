@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.TradeInfo;
@@ -99,6 +100,16 @@ public final class ImmutableXCcyIborIborSwapConvention
    */
   public DaysAdjustment getSpotDateOffset() {
     return spotDateOffset != null ? spotDateOffset : spreadLeg.getIndex().getEffectiveDateOffset();
+  }
+
+  /**
+   * Gets the currency pair of the convention.
+   * 
+   * @return the currency pair
+   */
+  @Override
+  public CurrencyPair getCurrencyPair() {
+    return CurrencyPair.of(spreadLeg.getCurrency(), flatLeg.getCurrency());
   }
 
   //-------------------------------------------------------------------------
