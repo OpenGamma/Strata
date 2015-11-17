@@ -71,7 +71,7 @@ public class HullWhiteIborFutureDataSet {
   public static final ImmutableRatesProvider RATE_PROVIDER = ImmutableRatesProvider.builder()
       .discountCurves(ImmutableMap.of(EUR, DSC_CURVE))
       .indexCurves(ImmutableMap.of(EUR_EURIBOR_3M, FWD3_CURVE))
-      .fxMatrix(FxMatrix.empty())
+      .fxRateProvider(FxMatrix.empty())
       .valuationDate(VALUATION)
       .build();
 
