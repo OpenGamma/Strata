@@ -86,17 +86,13 @@ import com.opengamma.strata.product.swap.type.XCcyIborIborSwapTemplate;
  * <p>
  * The third file is the curve calibration nodes file.
  * This file has the following header row:<br />
- * {@code Curve Name,Label,Quote Symbology,Quote Ticker,Quote Field Name,FX Symbology,FX Ticker,FX Field Name,Type,Convention,Time,Spread}.
+ * {@code Curve Name,Label,Symbology,Ticker,Field Name,Type,Convention,Time,Spread}.
  * <ul>
  * <li>The 'Curve Name' column is the name of the curve.
  * <li>The 'Label' column is the label used to refer to the node.
- * <li>The 'Quote Symbology' column is the symbology scheme applicable to the ticker used for the market price.
- * <li>The 'Quote Ticker' column is the identifier within the symbology used for the market price.
- * <li>The 'Quote Field Name' column is the field name used for the market price, defaulted to "MarketValue", allowing
- *  fields such as 'Bid' or 'Ask' to be specified.
- * <li>The 'FX Symbology' column is the symbology scheme applicable to the ticker used for the FX rate.
- * <li>The 'FX Ticker' column is the identifier within the symbology used for the FX rate.
- * <li>The 'FX Field Name' column is the field name used for the FX rate, defaulted to "MarketValue", allowing
+ * <li>The 'Symbology' column is the symbology scheme applicable to the ticker used for the market price.
+ * <li>The 'Ticker' column is the identifier within the symbology used for the market price.
+ * <li>The 'Field Name' column is the field name used for the market price, defaulted to "MarketValue", allowing
  *  fields such as 'Bid' or 'Ask' to be specified.
  * <li>The 'Type' column is the type of the instrument, such as "FRA" or "OIS".
  * <li>The 'Convention' column is the name of the convention to use.
@@ -114,12 +110,9 @@ public final class RatesCalibrationCsvLoader {
   // CSV column headers
   private static final String CURVE_NAME = "Curve Name";
   private static final String CURVE_LABEL = "Label";
-  private static final String CURVE_SYMBOLOGY_QUOTE = "Quote Symbology";
-  private static final String CURVE_TICKER_QUOTE = "Quote Ticker";
-  private static final String CURVE_FIELD_QUOTE = "Quote Field Name";
-  private static final String CURVE_SYMBOLOGY_FX = "FX Symbology";
-  private static final String CURVE_TICKER_FX = "FX Ticker";
-  private static final String CURVE_FIELD_FX = "FX Field Name";
+  private static final String CURVE_SYMBOLOGY_QUOTE = "Symbology";
+  private static final String CURVE_TICKER_QUOTE = "Ticker";
+  private static final String CURVE_FIELD_QUOTE = "Field Name";
   private static final String CURVE_TYPE = "Type";
   private static final String CURVE_CONVENTION = "Convention";
   private static final String CURVE_TIME = "Time";
@@ -230,9 +223,6 @@ public final class RatesCalibrationCsvLoader {
       String symbologyQuoteStr = csv.field(i, CURVE_SYMBOLOGY_QUOTE);
       String tickerQuoteStr = csv.field(i, CURVE_TICKER_QUOTE);
       String fieldQuoteStr = csv.field(i, CURVE_FIELD_QUOTE);
-      String symbologyFxStr = csv.field(i, CURVE_SYMBOLOGY_FX);
-      String tickerFxStr = csv.field(i, CURVE_TICKER_FX);
-      String fieldFxStr = csv.field(i, CURVE_FIELD_FX);
       String typeStr = csv.field(i, CURVE_TYPE);
       String conventionStr = csv.field(i, CURVE_CONVENTION);
       String timeStr = csv.field(i, CURVE_TIME);
@@ -242,16 +232,10 @@ public final class RatesCalibrationCsvLoader {
       StandardId quoteId = StandardId.of(symbologyQuoteStr, tickerQuoteStr);
       FieldName quoteField = fieldQuoteStr.isEmpty() ? FieldName.MARKET_VALUE : FieldName.of(fieldQuoteStr);
       QuoteKey quoteKey = QuoteKey.of(quoteId, quoteField);
-      QuoteKey fxKey = null;
-      if (!symbologyFxStr.isEmpty() && !tickerFxStr.isEmpty()) {
-        StandardId fxId = StandardId.of(symbologyFxStr, tickerFxStr);
-        FieldName fxField = fieldFxStr.isEmpty() ? FieldName.MARKET_VALUE : FieldName.of(fieldFxStr);
-        fxKey = QuoteKey.of(fxId, fxField);
-      }
       double spread = spreadStr.isEmpty() ? 0d : Double.parseDouble(spreadStr);
 
       List<CurveNode> curveNodes = allNodes.computeIfAbsent(curveName, k -> new ArrayList<CurveNode>());
-      curveNodes.add(createCurveNode(typeStr, conventionStr, timeStr, label, quoteKey, fxKey, spread));
+      curveNodes.add(createCurveNode(typeStr, conventionStr, timeStr, label, quoteKey, spread));
     }
     return buildCurveDefinition(settingsMap, allNodes);
   }
@@ -281,7 +265,6 @@ public final class RatesCalibrationCsvLoader {
       String timeStr,
       String label,
       QuoteKey quoteKey,
-      QuoteKey fxKey,
       double spread) {
 
     if ("FIX".equalsIgnoreCase(typeStr) || "IborFixingDeposit".equalsIgnoreCase(typeStr)) {
