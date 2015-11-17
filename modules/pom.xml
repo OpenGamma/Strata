@@ -60,7 +60,6 @@
     <module>basics</module>
     <module>collect</module>
     <module>calc</module>
-    <module>source</module>
     <module>product</module>
     <module>function</module>
     <module>loader</module>
