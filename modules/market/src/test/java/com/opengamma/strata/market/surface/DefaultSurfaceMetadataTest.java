@@ -16,7 +16,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.market.ValueType;
 
 /**
  * Test {@link DefaultSurfaceMetadata}.

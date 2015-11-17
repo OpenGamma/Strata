@@ -27,9 +27,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.YearMonthCurveNodeMetadata;
-import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.type.IborFutureTemplate;
 

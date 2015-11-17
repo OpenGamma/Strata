@@ -44,6 +44,7 @@ import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
@@ -55,7 +56,6 @@ import com.opengamma.strata.market.curve.definition.InterpolatedNodalCurveDefini
 import com.opengamma.strata.market.curve.definition.TermDepositCurveNode;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.math.impl.interpolation.FlatExtrapolator1D;
 import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
 import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;

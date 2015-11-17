@@ -11,8 +11,8 @@ import java.util.Set;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.SimpleMarketDataKey;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
-import com.opengamma.strata.market.value.ValueType;
 
 /**
  * A node in the configuration specifying how to calibrate a curve.

@@ -22,11 +22,11 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
-import com.opengamma.strata.market.value.ValueType;
 
 /**
  * Test {@link CurveGroupEntry}.

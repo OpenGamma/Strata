@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.Perturbation;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveInfoType;

@@ -30,6 +30,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.option.SimpleStrike;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
@@ -37,7 +38,6 @@ import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.meta.FxVolatilitySurfaceYearFractionNodeMetadata;
-import com.opengamma.strata.market.value.ValueType;
 
 /**
  * Data provider of volatility for FX options in the lognormal or Black-Scholes model. 

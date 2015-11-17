@@ -35,9 +35,9 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.value.ValueType;
 
 /**
  * Provides the definition of how to calibrate a group of curves.

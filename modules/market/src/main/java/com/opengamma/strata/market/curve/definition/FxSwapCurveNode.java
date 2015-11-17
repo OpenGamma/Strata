@@ -31,9 +31,9 @@ import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.SimpleMarketDataKey;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
-import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
 

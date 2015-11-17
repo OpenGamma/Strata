@@ -34,6 +34,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
@@ -42,7 +43,6 @@ import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.market.value.ValueType;
 
 /**
  * Provides the definition of how to calibrate an interpolated nodal curve.

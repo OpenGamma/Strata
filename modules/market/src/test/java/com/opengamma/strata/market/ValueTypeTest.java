@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.value;
+package com.opengamma.strata.market;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
