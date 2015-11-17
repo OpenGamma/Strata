@@ -21,8 +21,8 @@ import org.joda.beans.impl.light.LightMetaBean;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
@@ -61,21 +61,18 @@ public final class DummyFraCurveNode
 
   @Override
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
-//    LocalDate spotValue = valuationDate.plusDays(0);
-//    LocalDate startDate = spotValue.plus(periodToStart);
-//    LocalDate endDate = spotValue.plus(periodToEnd);
     return SimpleCurveNodeMetadata.of(
         HolidayCalendars.SAT_SUN.nextOrSame(valuationDate.plus(periodToEnd)), periodToEnd.toString());
   }
 
   @Override
-  public DummyFraTrade trade(LocalDate valuationDate, ObservableValues marketData) {
+  public DummyFraTrade trade(LocalDate valuationDate, MarketData marketData) {
     double fixedRate = marketData.getValue(rateKey) + spread;
     return DummyFraTrade.of(valuationDate, fixedRate);
   }
 
   @Override
-  public double initialGuess(LocalDate valuationDate, ObservableValues marketData, ValueType valueType) {
+  public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
     if (ValueType.ZERO_RATE.equals(valueType)) {
       return marketData.getValue(rateKey);
     }

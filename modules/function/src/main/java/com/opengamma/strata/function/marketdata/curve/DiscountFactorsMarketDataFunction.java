@@ -8,7 +8,7 @@ package com.opengamma.strata.function.marketdata.curve;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.calc.marketdata.MarketDataLookup;
+import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
@@ -47,7 +47,7 @@ public class DiscountFactorsMarketDataFunction
   @Override
   public MarketDataBox<DiscountFactors> build(
       DiscountFactorsId id,
-      MarketDataLookup marketData,
+      CalculationEnvironment marketData,
       MarketDataConfig config) {
 
     // find curve

@@ -111,14 +111,14 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   }
 
   @Override
-  public MarketEnvironmentResult buildMarketEnvironment(
+  public MarketEnvironmentResult buildMarketData(
       MarketDataRequirements requirements,
       MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig,
       boolean includeIntermediateValues) {
 
     CalculationRequirements calcRequirements = CalculationRequirements.of(requirements);
-    CalculationEnvironment calcEnv = buildCalculationEnvironment(calcRequirements, suppliedData, marketDataConfig);
+    CalculationMarketDataMap calcEnv = buildCalculationMarketData(calcRequirements, suppliedData, marketDataConfig);
     Map<MarketDataId<?>, MarketDataBox<?>> values;
     Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries;
 
@@ -151,24 +151,24 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   }
 
   @Override
-  public CalculationEnvironment buildCalculationEnvironment(
+  public CalculationMarketDataMap buildCalculationMarketData(
       CalculationRequirements requirements,
       MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig) {
 
-    return buildCalculationEnvironment(requirements, suppliedData, marketDataConfig, ScenarioDefinition.empty());
+    return buildCalculationMarketData(requirements, suppliedData, marketDataConfig, ScenarioDefinition.empty());
   }
 
   @Override
-  public CalculationEnvironment buildCalculationEnvironment(
+  public CalculationMarketDataMap buildCalculationMarketData(
       CalculationRequirements requirements,
       MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig,
       ScenarioDefinition scenarioDefinition) {
 
     CalculationEnvironmentBuilder dataBuilder =
-        CalculationEnvironment.builder().valuationDate(suppliedData.getValuationDate());
-    CalculationEnvironment builtData = dataBuilder.build();
+        CalculationMarketDataMap.builder().valuationDate(suppliedData.getValuationDate());
+    CalculationMarketDataMap builtData = dataBuilder.buildMarketDataMap();
 
     // Build a tree of the market data dependencies. The root of the tree represents the calculations.
     // The children of the root represent the market data directly used in the calculations. The children
@@ -195,7 +195,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
     while (!root.isLeaf()) {
       // Effectively final reference to buildData which can be used in a lambda expression
-      CalculationEnvironment marketData = builtData;
+      CalculationMarketDataMap marketData = builtData;
 
       // The leaves of the dependency tree represent market data with no dependencies that can be built immediately
       Pair<MarketDataNode, MarketDataRequirements> pair = root.withLeavesRemoved();
@@ -256,7 +256,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       // --------------------------------------------------------------------------------------------
 
       // Put the data built so far into an object that will be used in the next phase of building data
-      builtData = dataBuilder.build();
+      builtData = dataBuilder.buildMarketDataMap();
 
       // A copy of the dependency tree not including the leaf nodes
       root = pair.getFirst();
@@ -275,7 +275,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   @SuppressWarnings({"unchecked", "rawtypes"})
   private Result<MarketDataBox<?>> buildNonObservableData(
       MarketDataId id,
-      MarketDataLookup suppliedData,
+      CalculationEnvironment suppliedData,
       MarketDataConfig marketDataConfig) {
 
     // The raw types in this method are an unfortunate necessity. The type parameters on MarketDataBuilder
@@ -298,7 +298,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   private Map<MarketDataId<?>, Result<MarketDataBox<?>>> buildNonObservableData(
       Set<? extends MarketDataId<?>> ids,
       MarketDataConfig marketDataConfig,
-      CalculationEnvironment marketData) {
+      CalculationMarketDataMap marketData) {
 
     return ids.stream().collect(toImmutableMap(id -> id, id -> buildNonObservableData(id, marketData, marketDataConfig)));
   }

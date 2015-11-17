@@ -29,9 +29,8 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.market.ImmutableObservableValues;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
@@ -64,7 +63,7 @@ public class FxSwapCurveNodeTest {
     MAP_OV.put(QUOTE_KEY_NEAR, FX_RATE_NEAR);
     MAP_OV.put(QUOTE_KEY_PTS, FX_RATE_PTS);
   }
-  private static final ImmutableObservableValues OV = ImmutableObservableValues.of(MAP_OV);
+  private static final MarketData OV = MarketData.of(MAP_OV);
 
   public void test_builder() {
     FxSwapCurveNode test = FxSwapCurveNode.builder()
@@ -103,8 +102,8 @@ public class FxSwapCurveNodeTest {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_NEAR, QUOTE_KEY_PTS);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    assertThrowsIllegalArg(() -> node.trade(
-        valuationDate, ObservableValues.of(QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")), rate)));
+    QuoteKey quoteKey = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
+    assertThrowsIllegalArg(() -> node.trade(valuationDate, MarketData.builder().addValue(quoteKey, rate).build()));
   }
 
   public void test_initialGuess() {

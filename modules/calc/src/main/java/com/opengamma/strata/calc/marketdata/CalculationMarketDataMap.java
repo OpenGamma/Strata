@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.calc.marketdata;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -32,38 +33,39 @@ import com.opengamma.strata.calc.runner.MissingMappingId;
 import com.opengamma.strata.calc.runner.NoMatchingRuleId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.result.Failure;
+import com.opengamma.strata.collect.result.FailureException;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
- * A set of market data.
+ * A collection of market data for a single set of calculations.
  * <p>
- * A market environment contains the basic market data values that are of interest to users. For example, a market
- * environment might contain market quotes, calibrated curves and volatility surfaces.
+ * A calculation environment contains all the data required to perform calculations. This includes the market data
+ * a user would expect to see, for example quotes and curves, and also other values derived from market data.
  * <p>
- * It is anticipated that {@link MarketEnvironment} will be exposed directly to users.
+ * The derived values include objects used in calculations encapsulating market data and logic that operates on
+ * it, and objects with market data and metadata required by the scenario framework.
  * <p>
- * The market data used in calculations is provided by {@link CalculationMarketDataMap}. This
- * contains the same data as {@link MarketEnvironment} plus
- * additional derived values used by the calculations and scenario framework.
+ * {@code CalculationEnvironment} should be considered an implementation detail and is not intended as a
+ * user-facing data structure.
  * <p>
- * {@link CalculationMarketDataMap} can be built from a {@link MarketEnvironment} using a {@link MarketDataFactory}.
+ * {@link MarketEnvironment} should be used to store market data values that users wish to interact with.
  *
- * @see MarketDataFactory
- * @see CalculationMarketDataMap
+ * @see MarketEnvironment
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
-public final class MarketEnvironment implements ImmutableBean, CalculationEnvironment {
+public final class CalculationMarketDataMap implements ImmutableBean, CalculationEnvironment, Serializable {
 
-  /** The valuation date associated with the data. */
+  /** The valuation date associated with the market data. */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final MarketDataBox<LocalDate> valuationDate;
 
-  /** The number of scenarios. */
+  /** The number of scenarios for which the environment contains market data. */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final int scenarioCount;
 
   // TODO Should there be separate maps for observable and non-observable data?
-  // TODO Do the values need to include the timestamp as well as the market data item? In the box?
+  // TODO Do the values need to include the timestamp as well as the market data item?
   /** The individual items of market data, keyed by ID. */
   @PropertyDefinition(validate = "notNull", builderType = "Map<? extends MarketDataId<?>, MarketDataBox<?>>")
   private final ImmutableMap<MarketDataId<?>, MarketDataBox<?>> values;
@@ -73,22 +75,30 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
   @PropertyDefinition(validate = "notNull", builderType = "Map<? extends ObservableId, LocalDateDoubleTimeSeries>")
   private final ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> timeSeries;
 
+  /** Details of failures when building single market data values. */
+  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends MarketDataId<?>, Failure>")
+  private final ImmutableMap<MarketDataId<?>, Failure> valueFailures;
+
+  /** Details of failures when building time series of market data values. */
+  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends MarketDataId<?>, Failure>")
+  private final ImmutableMap<MarketDataId<?>, Failure> timeSeriesFailures;
+
   /**
-   * Returns an empty mutable builder for building a new instance of {@code MarketEnvironment}.
+   * Returns an empty mutable builder for building a new instance of {@code CalculationEnvironment}.
    *
-   * @return an empty mutable builder for building a new instance of {@code MarketEnvironment}
+   * @return an empty mutable builder for building a new instance of {@code CalculationEnvironment}
    */
-  public static MarketEnvironmentBuilder builder() {
-    return new MarketEnvironmentBuilder();
+  public static CalculationEnvironmentBuilder builder() {
+    return new CalculationEnvironmentBuilder();
   }
 
   /**
-   * Returns an empty set of market data.
+   * Returns an empty set of market data with the specified valuation date.
    *
-   * @return an empty set of market data
+   * @return an empty set of market data with the specified valuation date
    */
-  public static MarketEnvironment empty() {
-    return MarketEnvironment.builder().build();
+  public static CalculationEnvironment empty() {
+    return CalculationMarketDataMap.builder().valuationDate(MarketDataBox.ofScenarioValues()).build();
   }
 
   @Override
@@ -111,7 +121,12 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
     MarketDataBox<T> value = (MarketDataBox<T>) values.get(id);
 
     if (value == null) {
-      throw new IllegalArgumentException("No market data value available for " + id);
+      Failure failure = valueFailures.get(id);
+
+      if (failure != null) {
+        throw new FailureException(failure);
+      }
+      throw new IllegalArgumentException("No market data available for " + id);
     }
     if (!id.getMarketDataType().isAssignableFrom(value.getMarketDataType())) {
       throw new IllegalArgumentException(
@@ -136,7 +151,7 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
     LocalDateDoubleTimeSeries timeSeries = this.timeSeries.get(id);
 
     if (timeSeries == null) {
-      throw new IllegalArgumentException("No time series available for ID " + id);
+      throw new IllegalArgumentException("No time series available for " + id);
     }
     return timeSeries;
   }
@@ -146,23 +161,28 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
    *
    * @return a mutable builder containing the data from this object
    */
-  public MarketEnvironmentBuilder toBuilder() {
-    return new MarketEnvironmentBuilder(valuationDate, scenarioCount, values, timeSeries);
+  public CalculationEnvironmentBuilder toBuilder() {
+    return new CalculationEnvironmentBuilder(valuationDate, values, timeSeries, valueFailures, timeSeriesFailures);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code MarketEnvironment}.
+   * The meta-bean for {@code CalculationMarketDataMap}.
    * @return the meta-bean, not null
    */
-  public static MarketEnvironment.Meta meta() {
-    return MarketEnvironment.Meta.INSTANCE;
+  public static CalculationMarketDataMap.Meta meta() {
+    return CalculationMarketDataMap.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(MarketEnvironment.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(CalculationMarketDataMap.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Creates an instance.
@@ -170,25 +190,33 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
    * @param scenarioCount  the value of the property
    * @param values  the value of the property, not null
    * @param timeSeries  the value of the property, not null
+   * @param valueFailures  the value of the property, not null
+   * @param timeSeriesFailures  the value of the property, not null
    */
-  MarketEnvironment(
+  CalculationMarketDataMap(
       MarketDataBox<LocalDate> valuationDate,
       int scenarioCount,
       Map<? extends MarketDataId<?>, MarketDataBox<?>> values,
-      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
+      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries,
+      Map<? extends MarketDataId<?>, Failure> valueFailures,
+      Map<? extends MarketDataId<?>, Failure> timeSeriesFailures) {
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
     ArgChecker.notNegative(scenarioCount, "scenarioCount");
     JodaBeanUtils.notNull(values, "values");
     JodaBeanUtils.notNull(timeSeries, "timeSeries");
+    JodaBeanUtils.notNull(valueFailures, "valueFailures");
+    JodaBeanUtils.notNull(timeSeriesFailures, "timeSeriesFailures");
     this.valuationDate = valuationDate;
     this.scenarioCount = scenarioCount;
     this.values = ImmutableMap.copyOf(values);
     this.timeSeries = ImmutableMap.copyOf(timeSeries);
+    this.valueFailures = ImmutableMap.copyOf(valueFailures);
+    this.timeSeriesFailures = ImmutableMap.copyOf(timeSeriesFailures);
   }
 
   @Override
-  public MarketEnvironment.Meta metaBean() {
-    return MarketEnvironment.Meta.INSTANCE;
+  public CalculationMarketDataMap.Meta metaBean() {
+    return CalculationMarketDataMap.Meta.INSTANCE;
   }
 
   @Override
@@ -203,7 +231,7 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the valuation date associated with the data.
+   * Gets the valuation date associated with the market data.
    * @return the value of the property, not null
    */
   @Override
@@ -213,7 +241,7 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the number of scenarios.
+   * Gets the number of scenarios for which the environment contains market data.
    * @return the value of the property
    */
   public int getScenarioCount() {
@@ -239,17 +267,37 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets details of failures when building single market data values.
+   * @return the value of the property, not null
+   */
+  public ImmutableMap<MarketDataId<?>, Failure> getValueFailures() {
+    return valueFailures;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets details of failures when building time series of market data values.
+   * @return the value of the property, not null
+   */
+  public ImmutableMap<MarketDataId<?>, Failure> getTimeSeriesFailures() {
+    return timeSeriesFailures;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      MarketEnvironment other = (MarketEnvironment) obj;
+      CalculationMarketDataMap other = (CalculationMarketDataMap) obj;
       return JodaBeanUtils.equal(valuationDate, other.valuationDate) &&
           (scenarioCount == other.scenarioCount) &&
           JodaBeanUtils.equal(values, other.values) &&
-          JodaBeanUtils.equal(timeSeries, other.timeSeries);
+          JodaBeanUtils.equal(timeSeries, other.timeSeries) &&
+          JodaBeanUtils.equal(valueFailures, other.valueFailures) &&
+          JodaBeanUtils.equal(timeSeriesFailures, other.timeSeriesFailures);
     }
     return false;
   }
@@ -261,24 +309,28 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
     hash = hash * 31 + JodaBeanUtils.hashCode(scenarioCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(values);
     hash = hash * 31 + JodaBeanUtils.hashCode(timeSeries);
+    hash = hash * 31 + JodaBeanUtils.hashCode(valueFailures);
+    hash = hash * 31 + JodaBeanUtils.hashCode(timeSeriesFailures);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
-    buf.append("MarketEnvironment{");
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("CalculationMarketDataMap{");
     buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
     buf.append("scenarioCount").append('=').append(scenarioCount).append(',').append(' ');
     buf.append("values").append('=').append(values).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries));
+    buf.append("timeSeries").append('=').append(timeSeries).append(',').append(' ');
+    buf.append("valueFailures").append('=').append(valueFailures).append(',').append(' ');
+    buf.append("timeSeriesFailures").append('=').append(JodaBeanUtils.toString(timeSeriesFailures));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code MarketEnvironment}.
+   * The meta-bean for {@code CalculationMarketDataMap}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -291,24 +343,36 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<MarketDataBox<LocalDate>> valuationDate = DirectMetaProperty.ofImmutable(
-        this, "valuationDate", MarketEnvironment.class, (Class) MarketDataBox.class);
+        this, "valuationDate", CalculationMarketDataMap.class, (Class) MarketDataBox.class);
     /**
      * The meta-property for the {@code scenarioCount} property.
      */
     private final MetaProperty<Integer> scenarioCount = DirectMetaProperty.ofImmutable(
-        this, "scenarioCount", MarketEnvironment.class, Integer.TYPE);
+        this, "scenarioCount", CalculationMarketDataMap.class, Integer.TYPE);
     /**
      * The meta-property for the {@code values} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableMap<MarketDataId<?>, MarketDataBox<?>>> values = DirectMetaProperty.ofImmutable(
-        this, "values", MarketEnvironment.class, (Class) ImmutableMap.class);
+        this, "values", CalculationMarketDataMap.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code timeSeries} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableMap<ObservableId, LocalDateDoubleTimeSeries>> timeSeries = DirectMetaProperty.ofImmutable(
-        this, "timeSeries", MarketEnvironment.class, (Class) ImmutableMap.class);
+        this, "timeSeries", CalculationMarketDataMap.class, (Class) ImmutableMap.class);
+    /**
+     * The meta-property for the {@code valueFailures} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> valueFailures = DirectMetaProperty.ofImmutable(
+        this, "valueFailures", CalculationMarketDataMap.class, (Class) ImmutableMap.class);
+    /**
+     * The meta-property for the {@code timeSeriesFailures} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> timeSeriesFailures = DirectMetaProperty.ofImmutable(
+        this, "timeSeriesFailures", CalculationMarketDataMap.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
      */
@@ -317,7 +381,9 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
         "valuationDate",
         "scenarioCount",
         "values",
-        "timeSeries");
+        "timeSeries",
+        "valueFailures",
+        "timeSeriesFailures");
 
     /**
      * Restricted constructor.
@@ -336,18 +402,22 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
           return values;
         case 779431844:  // timeSeries
           return timeSeries;
+        case -68881222:  // valueFailures
+          return valueFailures;
+        case -1580093459:  // timeSeriesFailures
+          return timeSeriesFailures;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public BeanBuilder<? extends MarketEnvironment> builder() {
-      return new MarketEnvironment.Builder();
+    public BeanBuilder<? extends CalculationMarketDataMap> builder() {
+      return new CalculationMarketDataMap.Builder();
     }
 
     @Override
-    public Class<? extends MarketEnvironment> beanType() {
-      return MarketEnvironment.class;
+    public Class<? extends CalculationMarketDataMap> beanType() {
+      return CalculationMarketDataMap.class;
     }
 
     @Override
@@ -388,18 +458,38 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
       return timeSeries;
     }
 
+    /**
+     * The meta-property for the {@code valueFailures} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> valueFailures() {
+      return valueFailures;
+    }
+
+    /**
+     * The meta-property for the {@code timeSeriesFailures} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> timeSeriesFailures() {
+      return timeSeriesFailures;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 113107279:  // valuationDate
-          return ((MarketEnvironment) bean).getValuationDate();
+          return ((CalculationMarketDataMap) bean).getValuationDate();
         case -1203198113:  // scenarioCount
-          return ((MarketEnvironment) bean).getScenarioCount();
+          return ((CalculationMarketDataMap) bean).getScenarioCount();
         case -823812830:  // values
-          return ((MarketEnvironment) bean).getValues();
+          return ((CalculationMarketDataMap) bean).getValues();
         case 779431844:  // timeSeries
-          return ((MarketEnvironment) bean).getTimeSeries();
+          return ((CalculationMarketDataMap) bean).getTimeSeries();
+        case -68881222:  // valueFailures
+          return ((CalculationMarketDataMap) bean).getValueFailures();
+        case -1580093459:  // timeSeriesFailures
+          return ((CalculationMarketDataMap) bean).getTimeSeriesFailures();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -417,14 +507,16 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code MarketEnvironment}.
+   * The bean-builder for {@code CalculationMarketDataMap}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<MarketEnvironment> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CalculationMarketDataMap> {
 
     private MarketDataBox<LocalDate> valuationDate;
     private int scenarioCount;
     private Map<? extends MarketDataId<?>, MarketDataBox<?>> values = ImmutableMap.of();
     private Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of();
+    private Map<? extends MarketDataId<?>, Failure> valueFailures = ImmutableMap.of();
+    private Map<? extends MarketDataId<?>, Failure> timeSeriesFailures = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -444,6 +536,10 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
           return values;
         case 779431844:  // timeSeries
           return timeSeries;
+        case -68881222:  // valueFailures
+          return valueFailures;
+        case -1580093459:  // timeSeriesFailures
+          return timeSeriesFailures;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -464,6 +560,12 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
           break;
         case 779431844:  // timeSeries
           this.timeSeries = (Map<? extends ObservableId, LocalDateDoubleTimeSeries>) newValue;
+          break;
+        case -68881222:  // valueFailures
+          this.valueFailures = (Map<? extends MarketDataId<?>, Failure>) newValue;
+          break;
+        case -1580093459:  // timeSeriesFailures
+          this.timeSeriesFailures = (Map<? extends MarketDataId<?>, Failure>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -496,23 +598,27 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
     }
 
     @Override
-    public MarketEnvironment build() {
-      return new MarketEnvironment(
+    public CalculationMarketDataMap build() {
+      return new CalculationMarketDataMap(
           valuationDate,
           scenarioCount,
           values,
-          timeSeries);
+          timeSeries,
+          valueFailures,
+          timeSeriesFailures);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
-      buf.append("MarketEnvironment.Builder{");
+      StringBuilder buf = new StringBuilder(224);
+      buf.append("CalculationMarketDataMap.Builder{");
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
       buf.append("scenarioCount").append('=').append(JodaBeanUtils.toString(scenarioCount)).append(',').append(' ');
       buf.append("values").append('=').append(JodaBeanUtils.toString(values)).append(',').append(' ');
-      buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries));
+      buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries)).append(',').append(' ');
+      buf.append("valueFailures").append('=').append(JodaBeanUtils.toString(valueFailures)).append(',').append(' ');
+      buf.append("timeSeriesFailures").append('=').append(JodaBeanUtils.toString(timeSeriesFailures));
       buf.append('}');
       return buf.toString();
     }

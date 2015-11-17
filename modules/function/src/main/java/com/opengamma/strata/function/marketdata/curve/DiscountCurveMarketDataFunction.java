@@ -7,7 +7,7 @@ package com.opengamma.strata.function.marketdata.curve;
 
 import java.util.Optional;
 
-import com.opengamma.strata.calc.marketdata.MarketDataLookup;
+import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
@@ -39,7 +39,7 @@ public class DiscountCurveMarketDataFunction
   }
 
   @Override
-  public MarketDataBox<Curve> build(DiscountCurveId id, MarketDataLookup marketData, MarketDataConfig config) {
+  public MarketDataBox<Curve> build(DiscountCurveId id, CalculationEnvironment marketData, MarketDataConfig config) {
 
     // find curve
     CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());

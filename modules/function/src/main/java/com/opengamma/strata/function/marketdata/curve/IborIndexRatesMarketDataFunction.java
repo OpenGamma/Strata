@@ -8,7 +8,7 @@ package com.opengamma.strata.function.marketdata.curve;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.calc.marketdata.MarketDataLookup;
+import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
@@ -54,7 +54,7 @@ public class IborIndexRatesMarketDataFunction
   @Override
   public MarketDataBox<IborIndexRates> build(
       IborIndexRatesId id,
-      MarketDataLookup marketData,
+      CalculationEnvironment marketData,
       MarketDataConfig config) {
 
     // find time-series

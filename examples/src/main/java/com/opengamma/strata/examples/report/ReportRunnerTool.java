@@ -25,7 +25,7 @@ import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
-import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
+import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.product.FinanceTrade;
 import com.opengamma.strata.report.Report;
@@ -152,8 +152,8 @@ public class ReportRunnerTool {
 
     PricingRules pricingRules = StandardComponents.pricingRules();
 
-    MarketDataBuilder marketDataBuilder = marketDataRoot == null ?
-        ExampleMarketData.builder() : MarketDataBuilder.ofPath(marketDataRoot.toPath());
+    ExampleMarketDataBuilder marketDataBuilder = marketDataRoot == null ?
+        ExampleMarketData.builder() : ExampleMarketDataBuilder.ofPath(marketDataRoot.toPath());
 
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(pricingRules)

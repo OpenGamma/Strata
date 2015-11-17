@@ -26,7 +26,7 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
-import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
+import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.product.SecurityLink;
 import com.opengamma.strata.product.TradeInfo;
@@ -60,7 +60,7 @@ public class GenericFuturePricingExample {
         Column.of(Measure.PRESENT_VALUE));
 
     // use the built-in example market data
-    MarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
+    ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
 
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()

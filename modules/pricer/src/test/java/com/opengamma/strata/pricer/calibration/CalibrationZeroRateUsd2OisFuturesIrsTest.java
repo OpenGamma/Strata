@@ -42,7 +42,9 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
-import com.opengamma.strata.basics.market.ImmutableObservableValues;
+import com.opengamma.strata.basics.market.ImmutableMarketData;
+import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -196,7 +198,7 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
   }
 
   /** All quotes for the curve calibration */
-  private static final ImmutableObservableValues ALL_QUOTES;
+  private static final ImmutableMarketData ALL_QUOTES;
   static {
     Map<ObservableKey, Double> map = new HashMap<>();
     for (int i = 0; i < DSC_NB_NODES; i++) {
@@ -205,7 +207,7 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
     for (int i = 0; i < FWD3_NB_NODES; i++) {
       map.put(QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i])), FWD3_MARKET_QUOTES[i]);
     }
-    ALL_QUOTES = ImmutableObservableValues.of(map);
+    ALL_QUOTES = ImmutableMarketData.of(map);
   }
 
   /** All nodes by groups. */
@@ -285,13 +287,13 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
   
   public void calibration_market_quote_sensitivity_one_group() {
     double shift = 1.0E-6;
-    Function<ImmutableObservableValues, ImmutableRatesProvider> f =
-        (ov) -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, ov, TS, FxMatrix.empty());
+    Function<MarketData, ImmutableRatesProvider> f =
+        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, marketData, TS, FxMatrix.empty());
     calibration_market_quote_sensitivity_check(f, shift);
   }
 
   private void calibration_market_quote_sensitivity_check(
-      Function<ImmutableObservableValues, ImmutableRatesProvider> calibrator,
+      Function<MarketData, ImmutableRatesProvider> calibrator,
       double shift) {
     double notional = 100_000_000.0;
     double spread = 0.0050;
@@ -304,19 +306,19 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
     double pv0 = SWAP_PRICER.presentValue(trade.getProduct(), result).getAmount(USD).getAmount();
     double[] mqsDscComputed = mqs.getSensitivity(DSCON_CURVE_NAME, USD).getSensitivity().toArray();
     for (int i = 0; i < DSC_NB_NODES; i++) {
-      Map<ObservableKey, Double> map = new HashMap<>(ALL_QUOTES.getValues());
+      Map<MarketDataKey<?>, Object> map = new HashMap<>(ALL_QUOTES.getValues());
       map.put(QuoteKey.of(StandardId.of(SCHEME, DSC_ID_VALUE[i])), DSC_MARKET_QUOTES[i] + shift);
-      ImmutableObservableValues ov = ImmutableObservableValues.of(map);
-      ImmutableRatesProvider rpShifted = calibrator.apply(ov);
+      ImmutableMarketData marketData = ImmutableMarketData.of(map);
+      ImmutableRatesProvider rpShifted = calibrator.apply(marketData);
       double pvS = SWAP_PRICER.presentValue(trade.getProduct(), rpShifted).getAmount(USD).getAmount();
       assertEquals(mqsDscComputed[i], (pvS - pv0) / shift, TOLERANCE_PV_DELTA, "DSC - node " + i);
     }
     double[] mqsFwd3Computed = mqs.getSensitivity(FWD3_CURVE_NAME, USD).getSensitivity().toArray();
     for (int i = 0; i < FWD3_NB_NODES; i++) {
-      Map<ObservableKey, Double> map = new HashMap<>(ALL_QUOTES.getValues());
+      Map<MarketDataKey<?>, Object> map = new HashMap<>(ALL_QUOTES.getValues());
       map.put(QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i])), FWD3_MARKET_QUOTES[i] + shift);
-      ImmutableObservableValues ov = ImmutableObservableValues.of(map);
-      ImmutableRatesProvider rpShifted = calibrator.apply(ov);
+      ImmutableMarketData marketData = ImmutableMarketData.of(map);
+      ImmutableRatesProvider rpShifted = calibrator.apply(marketData);
       double pvS = SWAP_PRICER.presentValue(trade.getProduct(), rpShifted).getAmount(USD).getAmount();
       assertEquals(mqsFwd3Computed[i], (pvS - pv0) / shift, TOLERANCE_PV_DELTA, "FWD3 - node " + i);
     }

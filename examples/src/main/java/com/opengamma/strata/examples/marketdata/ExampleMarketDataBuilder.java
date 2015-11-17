@@ -69,9 +69,9 @@ import com.opengamma.strata.market.id.RateCurveId;
  *   </ul>
  * </ul>
  */
-public abstract class MarketDataBuilder {
+public abstract class ExampleMarketDataBuilder {
 
-  private static final Logger log = LoggerFactory.getLogger(MarketDataBuilder.class);
+  private static final Logger log = LoggerFactory.getLogger(ExampleMarketDataBuilder.class);
 
   /** The name of the subdirectory containing historical fixings. */
   private static final String HISTORICAL_FIXINGS_DIR = "historical-fixings";
@@ -107,8 +107,8 @@ public abstract class MarketDataBuilder {
    * @param resourceRoot  the resource root path
    * @return the market data builder
    */
-  public static MarketDataBuilder ofResource(String resourceRoot) {
-    return ofResource(resourceRoot, MarketDataBuilder.class.getClassLoader());
+  public static ExampleMarketDataBuilder ofResource(String resourceRoot) {
+    return ofResource(resourceRoot, ExampleMarketDataBuilder.class.getClassLoader());
   }
 
   /**
@@ -122,7 +122,7 @@ public abstract class MarketDataBuilder {
    * @param classLoader  the class loader with which to find the resource
    * @return the market data builder
    */
-  public static MarketDataBuilder ofResource(String resourceRoot, ClassLoader classLoader) {
+  public static ExampleMarketDataBuilder ofResource(String resourceRoot, ClassLoader classLoader) {
     // classpath resources are forward-slash separated
     String qualifiedRoot = resourceRoot;
     qualifiedRoot = qualifiedRoot.startsWith("/") ? qualifiedRoot.substring(1) : qualifiedRoot;
@@ -164,7 +164,7 @@ public abstract class MarketDataBuilder {
    * @param rootPath  the root directory
    * @return the market data builder
    */
-  public static MarketDataBuilder ofPath(Path rootPath) {
+  public static ExampleMarketDataBuilder ofPath(Path rootPath) {
     return new DirectoryMarketDataBuilder(rootPath);
   }
 

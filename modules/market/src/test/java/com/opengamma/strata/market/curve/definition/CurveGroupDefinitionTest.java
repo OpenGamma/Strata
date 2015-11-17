@@ -25,8 +25,8 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.Trade;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
@@ -108,7 +108,9 @@ public class CurveGroupDefinitionTest {
         .addCurve(CURVE_DEFN, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
 
-    ObservableValues marketData = ObservableValues.of(ImmutableMap.of(GBP_LIBOR_1M_ID, 0.5d, GBP_LIBOR_3M_ID, 1.5d));
+    MarketData marketData = MarketData.builder()
+        .addValues(ImmutableMap.of(GBP_LIBOR_1M_ID, 0.5d, GBP_LIBOR_3M_ID, 1.5d))
+        .build();
     Trade trade1 = NODE1.trade(date(2015, 6, 30), marketData);
     Trade trade2 = NODE2.trade(date(2015, 6, 30), marketData);
     assertEquals(test.getTotalParameterCount(), 2);

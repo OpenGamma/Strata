@@ -28,7 +28,7 @@ import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.collect.CollectProjectAssertions;
-import com.opengamma.strata.function.marketdata.curve.MarketDataMap;
+import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.key.DiscountCurveKey;
@@ -78,7 +78,7 @@ public class SwapFunctionGroupsTest {
     CollectProjectAssertions.assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy);
     DiscountFactors df = SimpleDiscountFactors.of(
         ccy, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
-    MarketDataMap md = new MarketDataMap(valDate, ImmutableMap.of(DiscountFactorsKey.of(ccy), df), ImmutableMap.of());
+    TestMarketDataMap md = new TestMarketDataMap(valDate, ImmutableMap.of(DiscountFactorsKey.of(ccy), df), ImmutableMap.of());
     assertThat(function.execute(TRADE, md)).isEqualTo(
         FxConvertibleList.of(ImmutableList.of(MultiCurrencyAmount.of(ccy, 0d))));
   }
@@ -93,7 +93,7 @@ public class SwapFunctionGroupsTest {
     LocalDate valDate = trade.getProduct().getEndDate().minusDays(7);
     ConstantNodalCurve curve = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     DiscountFactors df = SimpleDiscountFactors.of(GBP, valDate, curve);
-    MarketDataMap md = new MarketDataMap(
+    TestMarketDataMap md = new TestMarketDataMap(
         valDate,
         ImmutableMap.of(DiscountCurveKey.of(GBP), curve, DiscountFactorsKey.of(GBP), df),
         ImmutableMap.of());

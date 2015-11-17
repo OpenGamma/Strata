@@ -19,7 +19,7 @@ import java.util.stream.IntStream;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.calc.marketdata.MarketDataLookup;
+import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
@@ -66,7 +66,7 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
   @Override
   public MarketDataBox<ParRates> build(
       ParRatesId id,
-      MarketDataLookup marketData,
+      CalculationEnvironment marketData,
       MarketDataConfig marketDataConfig) {
 
     CurveGroupName groupName = id.getCurveGroupName();

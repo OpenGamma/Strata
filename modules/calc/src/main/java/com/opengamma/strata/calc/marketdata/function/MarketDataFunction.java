@@ -6,7 +6,7 @@
 package com.opengamma.strata.calc.marketdata.function;
 
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.calc.marketdata.MarketDataLookup;
+import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
@@ -40,7 +40,7 @@ public interface MarketDataFunction<T, I extends MarketDataId<? extends T>> {
    * @param marketDataConfig  configuration specifying how the market data should be built
    * @return built market data, or details of the problems that prevented building
    */
-  public abstract MarketDataBox<T> build(I id, MarketDataLookup marketData, MarketDataConfig marketDataConfig);
+  public abstract MarketDataBox<T> build(I id, CalculationEnvironment marketData, MarketDataConfig marketDataConfig);
 
   /**
    * Returns the type of market data ID this function can handle.

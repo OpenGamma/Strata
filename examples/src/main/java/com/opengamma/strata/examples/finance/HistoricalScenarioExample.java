@@ -39,7 +39,7 @@ import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.engine.ExampleEngine;
-import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
+import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.marketdata.curve.CurvePointShifts;
 import com.opengamma.strata.function.marketdata.curve.CurvePointShiftsBuilder;
@@ -92,7 +92,7 @@ public class HistoricalScenarioExample {
         Column.of(Measure.PRESENT_VALUE));
 
     // use the built-in example historical scenario market data
-    MarketDataBuilder marketDataBuilder = MarketDataBuilder.ofResource(MARKET_DATA_RESOURCE_ROOT);
+    ExampleMarketDataBuilder marketDataBuilder = ExampleMarketDataBuilder.ofResource(MARKET_DATA_RESOURCE_ROOT);
 
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()

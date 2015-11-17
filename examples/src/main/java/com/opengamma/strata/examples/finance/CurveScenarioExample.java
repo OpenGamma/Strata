@@ -38,7 +38,7 @@ import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
-import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
+import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.marketdata.curve.CurveParallelShifts;
 import com.opengamma.strata.function.marketdata.scenario.curve.AnyCurveFilter;
@@ -85,7 +85,7 @@ public class CurveScenarioExample {
         Column.of(Measure.PV01));
 
     // use the built-in example market data
-    MarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
+    ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
 
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()

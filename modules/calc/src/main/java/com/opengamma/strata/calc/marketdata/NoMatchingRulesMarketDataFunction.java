@@ -35,7 +35,7 @@ public final class NoMatchingRulesMarketDataFunction implements MarketDataFuncti
 
   @SuppressWarnings("unchecked")
   @Override
-  public MarketDataBox build(MarketDataId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+  public MarketDataBox build(MarketDataId id, CalculationEnvironment marketData, MarketDataConfig marketDataConfig) {
     throw new IllegalArgumentException(
         "No market data rules were available to build the market data for key " + ((NoMatchingRuleId) id).getKey());
   }

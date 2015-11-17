@@ -10,7 +10,6 @@ import java.util.Map;
 
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -18,8 +17,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 /**
  * Test implementation of {@link CalculationMarketData} backed by a map.
  */
-public final class MarketDataMap
-    implements CalculationMarketData, ObservableValues {
+public final class TestMarketDataMap implements CalculationMarketData {
 
   private final MarketDataBox<LocalDate> valuationDate;
 
@@ -27,7 +25,7 @@ public final class MarketDataMap
 
   private final Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap;
 
-  public MarketDataMap(
+  public TestMarketDataMap(
       LocalDate valuationDate,
       Map<MarketDataKey<?>, Object> marketData,
       Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap) {
@@ -68,20 +66,6 @@ public final class MarketDataMap
     } else {
       throw new IllegalArgumentException("No time series for " + key);
     }
-  }
-
-  @Override
-  public boolean containsValue(ObservableKey marketDataKey) {
-    return marketData.containsKey(marketDataKey);
-  }
-
-  @Override
-  public double getValue(ObservableKey marketDataKey) {
-    Object value = marketData.get(marketDataKey);
-    if (value instanceof Double) {
-      return (Double) value;
-    }
-    throw new IllegalArgumentException("Market data not found: " + marketDataKey);
   }
 
 }
