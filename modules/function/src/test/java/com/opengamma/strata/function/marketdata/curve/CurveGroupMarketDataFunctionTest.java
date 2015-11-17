@@ -36,17 +36,17 @@ import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
-import com.opengamma.strata.market.curve.ParRates;
 import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.definition.CurveNode;
 import com.opengamma.strata.market.curve.definition.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.definition.FraCurveNode;
 import com.opengamma.strata.market.curve.definition.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.id.CurveGroupId;
-import com.opengamma.strata.market.id.ParRatesId;
+import com.opengamma.strata.market.id.CurveInputsId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
@@ -82,7 +82,7 @@ public class CurveGroupMarketDataFunctionTest {
         .collect(toImmutableList());
 
     List<MarketDataKey<?>> keys = nodes.stream().map(CurveTestUtils::key).collect(toImmutableList());
-    Map<MarketDataKey<?>, Double> parRateData = ImmutableMap.<MarketDataKey<?>, Double>builder()
+    Map<MarketDataKey<?>, Double> inputData = ImmutableMap.<MarketDataKey<?>, Double>builder()
         .put(keys.get(0), 0.003)
         .put(keys.get(1), 0.0033)
         .put(keys.get(2), 0.0037)
@@ -94,7 +94,7 @@ public class CurveGroupMarketDataFunctionTest {
 
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
     CurveName curveName = CurveName.of("FRA Curve");
-    ParRates parRates = ParRates.of(parRateData, DefaultCurveMetadata.of(curveName));
+    CurveInputs curveInputs = CurveInputs.of(inputData, DefaultCurveMetadata.of(curveName));
 
     CurveGroupDefinition groupDefn = CurveGroupDefinition.builder()
         .name(groupName)
@@ -106,7 +106,7 @@ public class CurveGroupMarketDataFunctionTest {
     LocalDate valuationDate = date(2011, 3, 8);
     MarketEnvironment marketEnvironment = MarketEnvironment.builder()
         .valuationDate(valuationDate)
-        .addValue(ParRatesId.of(groupName, curveName, MarketDataFeed.NONE), parRates)
+        .addValue(CurveInputsId.of(groupName, curveName, MarketDataFeed.NONE), curveInputs)
         .build();
     MarketDataBox<CurveGroup> curveGroup = function.buildCurveGroup(groupDefn, marketEnvironment, MarketDataFeed.NONE);
 
@@ -117,7 +117,7 @@ public class CurveGroupMarketDataFunctionTest {
     DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
     IborIndexRatesKey forwardCurveKey = IborIndexRatesKey.of(IborIndices.USD_LIBOR_3M);
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
-        .putAll(parRateData)
+        .putAll(inputData)
         .put(discountFactorsKey, discountFactors)
         .put(forwardCurveKey, iborIndexRates)
         .build();
@@ -146,7 +146,7 @@ public class CurveGroupMarketDataFunctionTest {
         new CurveGroupMarketDataFunction(RootFinderConfig.defaults(), CalibrationMeasures.DEFAULT);
     LocalDate valuationDate = date(2011, 3, 8);
 
-    Map<MarketDataKey<?>, Double> parRateData = ImmutableMap.<MarketDataKey<?>, Double>builder()
+    Map<MarketDataKey<?>, Double> inputData = ImmutableMap.<MarketDataKey<?>, Double>builder()
         .put(CurveTestUtils.key(nodes.get(0)), 0.0037)
         .put(CurveTestUtils.key(nodes.get(1)), 0.0054)
         .put(CurveTestUtils.key(nodes.get(2)), 0.005)
@@ -154,10 +154,10 @@ public class CurveGroupMarketDataFunctionTest {
         .put(CurveTestUtils.key(nodes.get(4)), 0.012)
         .build();
 
-    ParRates parRates = ParRates.of(parRateData, DefaultCurveMetadata.of(curveName));
+    CurveInputs curveInputs = CurveInputs.of(inputData, DefaultCurveMetadata.of(curveName));
     MarketEnvironment marketEnvironment = MarketEnvironment.builder()
         .valuationDate(valuationDate)
-        .addValue(ParRatesId.of(groupName, curveName, MarketDataFeed.NONE), parRates)
+        .addValue(CurveInputsId.of(groupName, curveName, MarketDataFeed.NONE), curveInputs)
         .build();
 
     MarketDataBox<CurveGroup> curveGroup = function.buildCurveGroup(groupDefn, marketEnvironment, MarketDataFeed.NONE);
@@ -168,7 +168,7 @@ public class CurveGroupMarketDataFunctionTest {
     DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
     IborIndexRatesKey forwardCurveKey = IborIndexRatesKey.of(IborIndices.USD_LIBOR_3M);
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
-        .putAll(parRateData)
+        .putAll(inputData)
         .put(discountFactorsKey, discountFactors)
         .put(forwardCurveKey, iborIndexRates)
         .build();
@@ -216,7 +216,7 @@ public class CurveGroupMarketDataFunctionTest {
     CurveGroupId curveGroupId = CurveGroupId.of(groupName, feed);
     MarketDataRequirements requirements = function.requirements(curveGroupId, marketDataConfig);
 
-    assertThat(requirements.getNonObservables()).contains(ParRatesId.of(groupName, curveName, feed));
+    assertThat(requirements.getNonObservables()).contains(CurveInputsId.of(groupName, curveName, feed));
   }
 
   public void metadata() {
@@ -236,7 +236,7 @@ public class CurveGroupMarketDataFunctionTest {
 
     CurveGroupId curveGroupId = CurveGroupId.of(groupName);
 
-    Map<MarketDataKey<?>, Double> fraParRateData = ImmutableMap.<MarketDataKey<?>, Double>builder()
+    Map<MarketDataKey<?>, Double> fraInputData = ImmutableMap.<MarketDataKey<?>, Double>builder()
         .put(CurveTestUtils.key(fraNodes.get(0)), 0.003)
         .put(CurveTestUtils.key(fraNodes.get(1)), 0.0033)
         .put(CurveTestUtils.key(fraNodes.get(2)), 0.0037)
@@ -246,10 +246,10 @@ public class CurveGroupMarketDataFunctionTest {
         .put(CurveTestUtils.key(fraNodes.get(6)), 0.0134).build();
 
     LocalDate valuationDate = date(2011, 3, 8);
-    ParRates fraParRates = ParRates.of(fraParRateData, fraCurveDefn.metadata(valuationDate));
+    CurveInputs fraCurveInputs = CurveInputs.of(fraInputData, fraCurveDefn.metadata(valuationDate));
     MarketEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(valuationDate)
-        .addValue(ParRatesId.of(groupName, fraCurveDefn.getName(), MarketDataFeed.NONE), fraParRates)
+        .addValue(CurveInputsId.of(groupName, fraCurveDefn.getName(), MarketDataFeed.NONE), fraCurveInputs)
         .build();
 
     CurveGroupMarketDataFunction function =

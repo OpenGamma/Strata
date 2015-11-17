@@ -20,41 +20,41 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.key.QuoteKey;
 
 /**
- * Test {@link ParRates}.
+ * Test {@link CurveInputs}.
  */
 @Test
-public class ParRatesTest {
+public class CurveInputsTest {
 
-  private static final Map<MarketDataKey<?>, Object> RATE_MAP =
+  private static final Map<MarketDataKey<?>, Object> DATA_MAP =
       ImmutableMap.of(QuoteKey.of(StandardId.of("OG", "Ticker")), 6d);
-  private static final Map<MarketDataKey<?>, Object> RATE_MAP2 =
+  private static final Map<MarketDataKey<?>, Object> DATA_MAP2 =
       ImmutableMap.of(QuoteKey.of(StandardId.of("OG", "Ticker")), 7d);
   private static final CurveMetadata METADATA = DefaultCurveMetadata.of("Test");
   private static final CurveMetadata METADATA2 = DefaultCurveMetadata.of("Test2");
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    ParRates test = ParRates.of(RATE_MAP, METADATA);
-    assertThat(test.getRates()).isEqualTo(RATE_MAP);
+    CurveInputs test = CurveInputs.of(DATA_MAP, METADATA);
+    assertThat(test.getMarketData()).isEqualTo(DATA_MAP);
     assertThat(test.getCurveMetadata()).isEqualTo(METADATA);
   }
 
   public void test_builder() {
-    ParRates test = ParRates.builder().rates(RATE_MAP).curveMetadata(METADATA).build();
-    assertThat(test.getRates()).isEqualTo(RATE_MAP);
+    CurveInputs test = CurveInputs.builder().marketData(DATA_MAP).curveMetadata(METADATA).build();
+    assertThat(test.getMarketData()).isEqualTo(DATA_MAP);
     assertThat(test.getCurveMetadata()).isEqualTo(METADATA);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ParRates test = ParRates.of(RATE_MAP, METADATA);
+    CurveInputs test = CurveInputs.of(DATA_MAP, METADATA);
     coverImmutableBean(test);
-    ParRates test2 = ParRates.of(RATE_MAP2, METADATA2);
+    CurveInputs test2 = CurveInputs.of(DATA_MAP2, METADATA2);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    ParRates test = ParRates.of(RATE_MAP, METADATA);
+    CurveInputs test = CurveInputs.of(DATA_MAP, METADATA);
     assertSerialization(test);
   }
 

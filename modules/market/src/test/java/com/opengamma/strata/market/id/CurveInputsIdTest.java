@@ -14,14 +14,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.ParRates;
 
 /**
- * Test {@link ParRatesId}.
+ * Test {@link CurveInputsId}.
  */
 @Test
-public class ParRatesIdTest {
+public class CurveInputsIdTest {
 
   private static final CurveGroupName GROUP1 = CurveGroupName.of("Group1");
   private static final CurveGroupName GROUP2 = CurveGroupName.of("Group2");
@@ -31,23 +31,23 @@ public class ParRatesIdTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    ParRatesId test = ParRatesId.of(GROUP1, NAME1, MarketDataFeed.NONE);
+    CurveInputsId test = CurveInputsId.of(GROUP1, NAME1, MarketDataFeed.NONE);
     assertEquals(test.getCurveGroupName(), GROUP1);
     assertEquals(test.getCurveName(), NAME1);
     assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
-    assertEquals(test.getMarketDataType(), ParRates.class);
+    assertEquals(test.getMarketDataType(), CurveInputs.class);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ParRatesId test = ParRatesId.of(GROUP1, NAME1, MarketDataFeed.NONE);
+    CurveInputsId test = CurveInputsId.of(GROUP1, NAME1, MarketDataFeed.NONE);
     coverImmutableBean(test);
-    ParRatesId test2 = ParRatesId.of(GROUP2, NAME2, FEED2);
+    CurveInputsId test2 = CurveInputsId.of(GROUP2, NAME2, FEED2);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    ParRatesId test = ParRatesId.of(GROUP1, NAME1, MarketDataFeed.NONE);
+    CurveInputsId test = CurveInputsId.of(GROUP1, NAME1, MarketDataFeed.NONE);
     assertSerialization(test);
   }
 
