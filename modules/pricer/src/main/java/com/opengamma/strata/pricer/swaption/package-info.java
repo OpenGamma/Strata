@@ -5,7 +5,7 @@
  */
 
 /**
- * Conventions and templates to aid the construction of rate index products.
+ * Calculators for swaptions.
  */
-package com.opengamma.strata.product.index.type;
+package com.opengamma.strata.pricer.swaption;
 

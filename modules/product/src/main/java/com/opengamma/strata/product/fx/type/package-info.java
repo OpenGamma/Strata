@@ -5,7 +5,7 @@
  */
 
 /**
- * Conventions and templates to aid the construction of rate index products.
+ * Conventions and templates to aid the construction of foreign exchange products.
  */
-package com.opengamma.strata.product.index.type;
+package com.opengamma.strata.product.fx.type;
 

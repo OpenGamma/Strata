@@ -5,7 +5,7 @@
  */
 
 /**
- * Entity objects describing a credit default swap (CDS).
+ * Entity objects describing credit products.
  * <p>
  * A CDS is a financial instrument where the protection seller agrees to compensate
  * the protection buyer if a specified specified company or Sovereign entity experiences
