@@ -135,13 +135,10 @@ public class CurveEndToEndTest {
         .put(id(swap3y), 0.012)
         .build();
 
-    Map<ObservableKey, Double> parRatesByKey =
-        parRateData.entrySet().stream().collect(toImmutableMap(e -> e.getKey().toObservableKey(), e -> e.getValue()));
-
     LocalDate valuationDate = date(2011, 3, 8);
 
     // Build the trades from the node instruments
-    MarketData quotes = MarketData.of(parRatesByKey);
+    MarketData quotes = MarketData.builder().addObservableValuesById(parRateData).build();
     Trade fra3x6Trade = fra3x6Node.trade(valuationDate, quotes);
     Trade fra6x9Trade = fra6x9Node.trade(valuationDate, quotes);
     Trade swap1yTrade = swap1yNode.trade(valuationDate, quotes);

@@ -7,12 +7,10 @@ package com.opengamma.strata.examples.finance;
 
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
-import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -22,7 +20,6 @@ import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.calc.CalculationEngine;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
@@ -183,8 +180,6 @@ public class CalibrationCheckExample {
   private static Pair<List<Trade>, Results> getResults() {
     // load quotes
     ImmutableMap<QuoteId, Double> quotes = QuotesCsvLoader.load(VALUATION_DATE, QUOTES_RESOURCE);
-    Map<ObservableKey, Double> quotesByKey =
-        quotes.entrySet().stream().collect(toImmutableMap(e -> e.getKey().toObservableKey(), e -> e.getValue()));
 
     // create the market data builder and populate with known data
     MarketEnvironmentBuilder snapshotBuilder =
@@ -208,7 +203,7 @@ public class CalibrationCheckExample {
       for (CurveNode node : nodes) {
         if (!(node instanceof IborFixingDepositCurveNode)) {
           // IborFixingDeposit is not a real trade, so there is no appropriate comparison
-          trades.add(node.trade(VALUATION_DATE, MarketData.of(quotesByKey)));
+          trades.add(node.trade(VALUATION_DATE, MarketData.builder().addObservableValuesById(quotes).build()));
         }
       }
     }

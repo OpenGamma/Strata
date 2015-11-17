@@ -62,11 +62,14 @@ public interface MarketData {
 
   /**
    * Builds a set of market data from the values in a map.
+   * <p>
+   * The {@link #builder()} method and {@link MarketDataBuilder} class provide additional options when building
+   * {@code MarketData} instances.
    *
    * @param values  a map of market data values
    * @return a {@code MarketData} instance containing the values in the map
    */
   public static MarketData of(Map<? extends MarketDataKey<?>, ?> values) {
-    return builder().addValues(values).build();
+    return ImmutableMarketData.of(values);
   }
 }

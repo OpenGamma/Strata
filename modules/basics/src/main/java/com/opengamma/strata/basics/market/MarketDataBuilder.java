@@ -47,8 +47,24 @@ public class MarketDataBuilder {
   public MarketDataBuilder addValues(Map<? extends MarketDataKey<?>, ?> values) {
     ArgChecker.notNull(values, "values");
     values.entrySet().forEach(e -> {
-      checkType(e);
+      checkType(e.getKey(), e.getValue());
       this.values.put(e.getKey(), e.getValue());
+    });
+    return this;
+  }
+
+  /**
+   * Adds multiple values to the builder.
+   *
+   * @param values  the values
+   * @return this builder
+   */
+  public MarketDataBuilder addObservableValuesById(Map<? extends ObservableId, ?> values) {
+    ArgChecker.notNull(values, "values");
+    values.entrySet().forEach(e -> {
+      ObservableKey key = e.getKey().toObservableKey();
+      checkType(key, e.getValue());
+      this.values.put(key, e.getValue());
     });
     return this;
   }
@@ -91,10 +107,7 @@ public class MarketDataBuilder {
   /**
    * Checks the value is an instance of the market data type of the key.
    */
-  private static void checkType(Map.Entry<? extends MarketDataKey<?>, ?> entry) {
-    MarketDataKey<?> key = entry.getKey();
-    Object value = entry.getValue();
-
+  private static void checkType(MarketDataKey<?> key, Object value) {
     if (!key.getMarketDataType().isInstance(value)) {
       throw new IllegalArgumentException(
           Messages.format(

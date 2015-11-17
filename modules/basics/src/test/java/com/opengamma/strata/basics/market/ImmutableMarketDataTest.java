@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.basics.market;
 
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,6 +46,10 @@ public class ImmutableMarketDataTest {
   public void getTimeSeries() {
     assertThrowsIllegalArg(() -> DATA.getTimeSeries(KEY1));
     assertThat(DATA.getTimeSeries(KEY2)).isEqualTo(TIME_SERIES);
+  }
+
+  public void serialization() {
+    assertSerialization(data());
   }
 
   private static ImmutableMarketData data() {
