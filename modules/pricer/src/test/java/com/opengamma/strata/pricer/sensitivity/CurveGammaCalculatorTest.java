@@ -50,14 +50,14 @@ import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.product.rate.swap.FixedRateCalculation;
-import com.opengamma.strata.product.rate.swap.IborRateCalculation;
-import com.opengamma.strata.product.rate.swap.NotionalSchedule;
-import com.opengamma.strata.product.rate.swap.PaymentSchedule;
-import com.opengamma.strata.product.rate.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.product.rate.swap.Swap;
-import com.opengamma.strata.product.rate.swap.SwapLeg;
+import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.NotionalSchedule;
+import com.opengamma.strata.product.swap.PaymentSchedule;
+import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.SwapLeg;
 
 /**
  * Test {@link CurveGammaCalculator}.

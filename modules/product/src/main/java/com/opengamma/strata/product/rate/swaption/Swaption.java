@@ -29,7 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.LongShort;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.rate.swap.Swap;
+import com.opengamma.strata.product.swap.Swap;
 
 /**
  * An option on an underlying swap.

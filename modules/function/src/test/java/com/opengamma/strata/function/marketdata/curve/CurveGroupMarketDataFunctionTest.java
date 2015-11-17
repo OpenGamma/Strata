@@ -61,9 +61,9 @@ import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
+import com.opengamma.strata.pricer.swap.DiscountingSwapTradePricer;
 import com.opengamma.strata.product.fra.FraTrade;
-import com.opengamma.strata.product.rate.swap.SwapTrade;
+import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
  * Test {@link CurveGroupMarketDataFunction}.

@@ -25,13 +25,13 @@ import com.opengamma.strata.collect.CollectProjectAssertions;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.amount.LegAmounts;
 import com.opengamma.strata.market.amount.SwapLegAmount;
-import com.opengamma.strata.pricer.rate.swap.SwapDummyData;
-import com.opengamma.strata.product.rate.swap.KnownAmountSwapLeg;
-import com.opengamma.strata.product.rate.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.product.rate.swap.RatePaymentPeriod;
-import com.opengamma.strata.product.rate.swap.Swap;
-import com.opengamma.strata.product.rate.swap.SwapLeg;
-import com.opengamma.strata.product.rate.swap.SwapTrade;
+import com.opengamma.strata.pricer.swap.SwapDummyData;
+import com.opengamma.strata.product.swap.KnownAmountSwapLeg;
+import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
  * Test {@link SwapLegNotionalFunction}.

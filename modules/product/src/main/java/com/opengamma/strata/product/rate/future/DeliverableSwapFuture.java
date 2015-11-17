@@ -27,14 +27,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.Product;
-import com.opengamma.strata.product.rate.swap.ExpandedSwapLeg;
-import com.opengamma.strata.product.rate.swap.NotionalExchange;
-import com.opengamma.strata.product.rate.swap.NotionalPaymentPeriod;
-import com.opengamma.strata.product.rate.swap.PaymentEvent;
-import com.opengamma.strata.product.rate.swap.PaymentPeriod;
-import com.opengamma.strata.product.rate.swap.Swap;
-import com.opengamma.strata.product.rate.swap.SwapLeg;
-import com.opengamma.strata.product.rate.swap.SwapLegType;
+import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.NotionalExchange;
+import com.opengamma.strata.product.swap.NotionalPaymentPeriod;
+import com.opengamma.strata.product.swap.PaymentEvent;
+import com.opengamma.strata.product.swap.PaymentPeriod;
+import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.SwapLegType;
 
 /**
  * A deliverable swap futures contract.

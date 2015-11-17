@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.rate.swap;
 
-import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_RATECALC_SWAP_LEG;
+import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATECALC_SWAP_LEG;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -26,12 +26,12 @@ import com.opengamma.strata.collect.CollectProjectAssertions;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
-import com.opengamma.strata.pricer.impl.rate.swap.DiscountingRatePaymentPeriodPricer;
-import com.opengamma.strata.product.rate.swap.ExpandedSwapLeg;
-import com.opengamma.strata.product.rate.swap.RateAccrualPeriod;
-import com.opengamma.strata.product.rate.swap.RatePaymentPeriod;
-import com.opengamma.strata.product.rate.swap.Swap;
-import com.opengamma.strata.product.rate.swap.SwapTrade;
+import com.opengamma.strata.pricer.impl.swap.DiscountingRatePaymentPeriodPricer;
+import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.RateAccrualPeriod;
+import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
  * Test {@link SwapAccruedInterestFunction}.

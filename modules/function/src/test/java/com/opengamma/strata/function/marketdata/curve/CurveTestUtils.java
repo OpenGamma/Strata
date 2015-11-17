@@ -31,11 +31,11 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.product.fra.type.FraTemplate;
-import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.product.rate.swap.type.FixedIborSwapTemplate;
-import com.opengamma.strata.product.rate.swap.type.FixedRateSwapLegConvention;
-import com.opengamma.strata.product.rate.swap.type.IborRateSwapLegConvention;
-import com.opengamma.strata.product.rate.swap.type.ImmutableFixedIborSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
+import com.opengamma.strata.product.swap.type.FixedRateSwapLegConvention;
+import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
+import com.opengamma.strata.product.swap.type.ImmutableFixedIborSwapConvention;
 
 /**
  * Helper methods for testing curves.

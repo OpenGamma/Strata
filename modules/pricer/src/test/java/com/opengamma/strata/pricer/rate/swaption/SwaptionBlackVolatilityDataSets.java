@@ -11,7 +11,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
-import static com.opengamma.strata.product.rate.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
+import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -33,10 +33,10 @@ import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.product.rate.swap.type.FixedRateSwapLegConvention;
-import com.opengamma.strata.product.rate.swap.type.IborRateSwapLegConvention;
-import com.opengamma.strata.product.rate.swap.type.ImmutableFixedIborSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedRateSwapLegConvention;
+import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
+import com.opengamma.strata.product.swap.type.ImmutableFixedIborSwapConvention;
 
 /**
  * Black volatility data sets for testing.

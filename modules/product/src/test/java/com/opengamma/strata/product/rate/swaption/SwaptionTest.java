@@ -26,8 +26,8 @@ import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.product.rate.swap.Swap;
-import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConventions;
+import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 
 /**
  * Test {@link Swaption}.

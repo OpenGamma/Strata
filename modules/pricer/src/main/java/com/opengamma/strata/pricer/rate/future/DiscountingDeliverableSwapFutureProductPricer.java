@@ -11,9 +11,9 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.rate.future.DeliverableSwapFuture;
-import com.opengamma.strata.product.rate.swap.Swap;
+import com.opengamma.strata.product.swap.Swap;
 
 /**
  * Pricer for for deliverable swap futures.

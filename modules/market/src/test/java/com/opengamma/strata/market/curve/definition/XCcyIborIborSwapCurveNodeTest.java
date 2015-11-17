@@ -31,9 +31,9 @@ import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
-import com.opengamma.strata.product.rate.swap.SwapTrade;
-import com.opengamma.strata.product.rate.swap.type.XCcyIborIborSwapConventions;
-import com.opengamma.strata.product.rate.swap.type.XCcyIborIborSwapTemplate;
+import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swap.type.XCcyIborIborSwapConventions;
+import com.opengamma.strata.product.swap.type.XCcyIborIborSwapTemplate;
 
 /**
  * Test {@link XCcyIborIborSwapCurveNode}.

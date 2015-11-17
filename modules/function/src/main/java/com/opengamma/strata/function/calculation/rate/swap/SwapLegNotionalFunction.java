@@ -24,12 +24,12 @@ import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.market.amount.LegAmount;
 import com.opengamma.strata.market.amount.LegAmounts;
 import com.opengamma.strata.market.amount.SwapLegAmount;
-import com.opengamma.strata.product.rate.swap.ExpandedSwapLeg;
-import com.opengamma.strata.product.rate.swap.NotionalPaymentPeriod;
-import com.opengamma.strata.product.rate.swap.PaymentPeriod;
-import com.opengamma.strata.product.rate.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.product.rate.swap.SwapLeg;
-import com.opengamma.strata.product.rate.swap.SwapTrade;
+import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.NotionalPaymentPeriod;
+import com.opengamma.strata.product.swap.PaymentPeriod;
+import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
  * Calculates the initial notional of each leg of an interest rate swap.

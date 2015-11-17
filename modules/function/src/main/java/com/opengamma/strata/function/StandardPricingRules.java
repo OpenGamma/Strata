@@ -27,7 +27,7 @@ import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.rate.deposit.TermDepositTrade;
-import com.opengamma.strata.product.rate.swap.SwapTrade;
+import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
  * Contains standard sets of pricing rules that provide full access to the built-in asset class coverage.

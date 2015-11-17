@@ -8,7 +8,7 @@ package com.opengamma.strata.pricer.rate.swaption;
 import static com.opengamma.strata.basics.BuySell.SELL;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
-import static com.opengamma.strata.product.rate.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
+import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -30,11 +30,11 @@ import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.product.rate.swap.Swap;
 import com.opengamma.strata.product.rate.swaption.CashSettlement;
 import com.opengamma.strata.product.rate.swaption.CashSettlementMethod;
 import com.opengamma.strata.product.rate.swaption.Swaption;
 import com.opengamma.strata.product.rate.swaption.SwaptionTrade;
+import com.opengamma.strata.product.swap.Swap;
 
 /**
  * Test {@link NormalSwaptionCashParYieldTradePricer}.

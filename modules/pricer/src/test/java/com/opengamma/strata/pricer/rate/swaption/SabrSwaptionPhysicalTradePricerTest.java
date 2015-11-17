@@ -27,11 +27,11 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.product.rate.swap.Swap;
 import com.opengamma.strata.product.rate.swaption.PhysicalSettlement;
 import com.opengamma.strata.product.rate.swaption.Swaption;
 import com.opengamma.strata.product.rate.swaption.SwaptionSettlement;
 import com.opengamma.strata.product.rate.swaption.SwaptionTrade;
+import com.opengamma.strata.product.swap.Swap;
 
 /**
  * Test {@link SabrSwaptionPhysicalTradePricer}.

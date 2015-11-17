@@ -44,21 +44,21 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
+import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.pricer.swap.DiscountingSwapTradePricer;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.rate.swap.CompoundingMethod;
-import com.opengamma.strata.product.rate.swap.FixedRateCalculation;
-import com.opengamma.strata.product.rate.swap.IborRateCalculation;
-import com.opengamma.strata.product.rate.swap.NotionalSchedule;
-import com.opengamma.strata.product.rate.swap.OvernightAccrualMethod;
-import com.opengamma.strata.product.rate.swap.OvernightRateCalculation;
-import com.opengamma.strata.product.rate.swap.PaymentSchedule;
-import com.opengamma.strata.product.rate.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.product.rate.swap.StubCalculation;
-import com.opengamma.strata.product.rate.swap.Swap;
-import com.opengamma.strata.product.rate.swap.SwapLeg;
-import com.opengamma.strata.product.rate.swap.SwapTrade;
+import com.opengamma.strata.product.swap.CompoundingMethod;
+import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.NotionalSchedule;
+import com.opengamma.strata.product.swap.OvernightAccrualMethod;
+import com.opengamma.strata.product.swap.OvernightRateCalculation;
+import com.opengamma.strata.product.swap.PaymentSchedule;
+import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.StubCalculation;
+import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
  * Test end to end.

@@ -33,7 +33,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.rate.swap.NotionalPaymentPeriod;
+import com.opengamma.strata.product.swap.NotionalPaymentPeriod;
 
 /**
  * A period over which a fixed coupon is paid.

@@ -7,7 +7,7 @@ package com.opengamma.strata.function.calculation.rate.swap;
 
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.rate.swap.ExpandedSwap;
+import com.opengamma.strata.product.swap.ExpandedSwap;
 
 /**
  * Obtains the explain map for present value on a {@code SwapTrade}.

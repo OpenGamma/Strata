@@ -18,13 +18,13 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.rate.deposit.DiscountingTermDepositProductPricer;
 import com.opengamma.strata.pricer.rate.future.DiscountingIborFutureTradePricer;
-import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.rate.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.product.rate.deposit.TermDepositTrade;
 import com.opengamma.strata.product.rate.future.IborFutureTrade;
-import com.opengamma.strata.product.rate.swap.SwapTrade;
+import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
  * Provides calibration measures for a single type of trade based on functions.

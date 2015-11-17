@@ -20,8 +20,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
-import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConventions;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 
 /**
  * Test {@link SwaptionSabrSensitivity}.

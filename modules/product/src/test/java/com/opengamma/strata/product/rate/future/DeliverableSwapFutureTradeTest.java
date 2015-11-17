@@ -26,8 +26,8 @@ import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityLink;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.UnitSecurity;
-import com.opengamma.strata.product.rate.swap.Swap;
-import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConventions;
+import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 
 /**
  * Test {@link DeliverableSwapFutureTrade}.

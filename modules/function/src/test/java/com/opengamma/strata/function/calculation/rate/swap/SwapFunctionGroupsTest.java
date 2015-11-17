@@ -37,9 +37,9 @@ import com.opengamma.strata.market.key.IborIndexRatesKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
-import com.opengamma.strata.pricer.rate.swap.SwapDummyData;
-import com.opengamma.strata.product.rate.swap.Swap;
-import com.opengamma.strata.product.rate.swap.SwapTrade;
+import com.opengamma.strata.pricer.swap.SwapDummyData;
+import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
  * Test {@link SwapFunctionGroups}.

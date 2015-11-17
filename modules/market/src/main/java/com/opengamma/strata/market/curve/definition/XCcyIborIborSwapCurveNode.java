@@ -30,8 +30,8 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
-import com.opengamma.strata.product.rate.swap.SwapTrade;
-import com.opengamma.strata.product.rate.swap.type.XCcyIborIborSwapTemplate;
+import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swap.type.XCcyIborIborSwapTemplate;
 
 /**
  * A curve node whose instrument is a cross-currency Ibor-Ibor interest rate swap.

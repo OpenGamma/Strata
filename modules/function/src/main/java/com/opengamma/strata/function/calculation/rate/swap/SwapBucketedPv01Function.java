@@ -8,7 +8,7 @@ package com.opengamma.strata.function.calculation.rate.swap;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.rate.swap.ExpandedSwap;
+import com.opengamma.strata.product.swap.ExpandedSwap;
 
 /**
  * Calculates the bucketed PV01, the present value curve parameter sensitivity of a {@code SwapTrade}.

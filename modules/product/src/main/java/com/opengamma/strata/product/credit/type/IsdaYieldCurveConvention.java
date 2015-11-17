@@ -20,7 +20,7 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
-import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
  * CDS Standard model definition for parameters required to bootstrap an ISDA yield curve

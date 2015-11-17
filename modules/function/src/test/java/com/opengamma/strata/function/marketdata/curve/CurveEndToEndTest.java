@@ -90,7 +90,7 @@ import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.product.fra.ExpandedFra;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
-import com.opengamma.strata.product.rate.swap.SwapTrade;
+import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
  * Test curves.

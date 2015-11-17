@@ -56,23 +56,23 @@ import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.SwaptionSurfaceExpiryTenorNodeMetadata;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
-import com.opengamma.strata.product.rate.swap.FixedRateCalculation;
-import com.opengamma.strata.product.rate.swap.IborRateCalculation;
-import com.opengamma.strata.product.rate.swap.NotionalSchedule;
-import com.opengamma.strata.product.rate.swap.PaymentSchedule;
-import com.opengamma.strata.product.rate.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.product.rate.swap.Swap;
-import com.opengamma.strata.product.rate.swap.SwapLeg;
-import com.opengamma.strata.product.rate.swap.SwapLegType;
-import com.opengamma.strata.product.rate.swap.type.IborIborSwapConvention;
-import com.opengamma.strata.product.rate.swap.type.IborRateSwapLegConvention;
-import com.opengamma.strata.product.rate.swap.type.ImmutableIborIborSwapConvention;
+import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.rate.swaption.CashSettlement;
 import com.opengamma.strata.product.rate.swaption.CashSettlementMethod;
 import com.opengamma.strata.product.rate.swaption.PhysicalSettlement;
 import com.opengamma.strata.product.rate.swaption.Swaption;
+import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.NotionalSchedule;
+import com.opengamma.strata.product.swap.PaymentSchedule;
+import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.SwapLegType;
+import com.opengamma.strata.product.swap.type.IborIborSwapConvention;
+import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
+import com.opengamma.strata.product.swap.type.ImmutableIborIborSwapConvention;
 
 /**
  * Test {@link SabrSwaptionCashParYieldProductPricer}.

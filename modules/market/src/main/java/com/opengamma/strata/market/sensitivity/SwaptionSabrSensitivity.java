@@ -27,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.basics.currency.FxRateProvider;
-import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
  * Sensitivity of a swaption to SABR model parameters.

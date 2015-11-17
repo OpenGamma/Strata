@@ -50,14 +50,14 @@ import com.opengamma.strata.product.fx.type.FxSwapConvention;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
 import com.opengamma.strata.product.rate.deposit.type.IborFixingDepositConvention;
 import com.opengamma.strata.product.rate.deposit.type.IborFixingDepositTemplate;
-import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.product.rate.swap.type.FixedIborSwapTemplate;
-import com.opengamma.strata.product.rate.swap.type.FixedOvernightSwapConvention;
-import com.opengamma.strata.product.rate.swap.type.FixedOvernightSwapTemplate;
-import com.opengamma.strata.product.rate.swap.type.IborIborSwapConvention;
-import com.opengamma.strata.product.rate.swap.type.IborIborSwapTemplate;
-import com.opengamma.strata.product.rate.swap.type.XCcyIborIborSwapConvention;
-import com.opengamma.strata.product.rate.swap.type.XCcyIborIborSwapTemplate;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
+import com.opengamma.strata.product.swap.type.FixedOvernightSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
+import com.opengamma.strata.product.swap.type.IborIborSwapConvention;
+import com.opengamma.strata.product.swap.type.IborIborSwapTemplate;
+import com.opengamma.strata.product.swap.type.XCcyIborIborSwapConvention;
+import com.opengamma.strata.product.swap.type.XCcyIborIborSwapTemplate;
 
 /**
  * Loads a set of definitions to calibrate rates curves by reading from CSV resources.

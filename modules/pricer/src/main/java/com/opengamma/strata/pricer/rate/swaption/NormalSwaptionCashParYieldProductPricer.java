@@ -18,21 +18,21 @@ import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
 import com.opengamma.strata.pricer.impl.option.NormalFunctionData;
 import com.opengamma.strata.pricer.impl.option.NormalPriceFunction;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.rate.FixedRateObservation;
 import com.opengamma.strata.product.rate.RateObservation;
-import com.opengamma.strata.product.rate.swap.ExpandedSwap;
-import com.opengamma.strata.product.rate.swap.ExpandedSwapLeg;
-import com.opengamma.strata.product.rate.swap.PaymentPeriod;
-import com.opengamma.strata.product.rate.swap.RatePaymentPeriod;
-import com.opengamma.strata.product.rate.swap.Swap;
-import com.opengamma.strata.product.rate.swap.SwapLegType;
-import com.opengamma.strata.product.rate.swap.SwapProduct;
 import com.opengamma.strata.product.rate.swaption.CashSettlement;
 import com.opengamma.strata.product.rate.swaption.CashSettlementMethod;
 import com.opengamma.strata.product.rate.swaption.ExpandedSwaption;
 import com.opengamma.strata.product.rate.swaption.SettlementType;
 import com.opengamma.strata.product.rate.swaption.SwaptionProduct;
+import com.opengamma.strata.product.swap.ExpandedSwap;
+import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.PaymentPeriod;
+import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.SwapLegType;
+import com.opengamma.strata.product.swap.SwapProduct;
 
 /**
  * Pricer for swaption with par yield curve method of cash settlement in a normal model on the swap rate.

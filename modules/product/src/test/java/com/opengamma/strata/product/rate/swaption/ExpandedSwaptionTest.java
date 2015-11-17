@@ -21,8 +21,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.product.rate.swap.ExpandedSwap;
-import com.opengamma.strata.product.rate.swap.type.FixedIborSwapConventions;
+import com.opengamma.strata.product.swap.ExpandedSwap;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 
 /**
  * Test {@link ExpandedSwaption}.
