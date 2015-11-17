@@ -261,10 +261,10 @@ public final class FxNdf
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxNdf other = (FxNdf) obj;
-      return JodaBeanUtils.equal(getSettlementCurrencyNotional(), other.getSettlementCurrencyNotional()) &&
-          JodaBeanUtils.equal(getAgreedFxRate(), other.getAgreedFxRate()) &&
-          JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate());
+      return JodaBeanUtils.equal(settlementCurrencyNotional, other.settlementCurrencyNotional) &&
+          JodaBeanUtils.equal(agreedFxRate, other.agreedFxRate) &&
+          JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(paymentDate, other.paymentDate);
     }
     return false;
   }
@@ -272,10 +272,10 @@ public final class FxNdf
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementCurrencyNotional());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAgreedFxRate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(settlementCurrencyNotional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(agreedFxRate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDate);
     return hash;
   }
 
@@ -283,10 +283,10 @@ public final class FxNdf
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("FxNdf{");
-    buf.append("settlementCurrencyNotional").append('=').append(getSettlementCurrencyNotional()).append(',').append(' ');
-    buf.append("agreedFxRate").append('=').append(getAgreedFxRate()).append(',').append(' ');
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(getPaymentDate()));
+    buf.append("settlementCurrencyNotional").append('=').append(settlementCurrencyNotional).append(',').append(' ');
+    buf.append("agreedFxRate").append('=').append(agreedFxRate).append(',').append(' ');
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate));
     buf.append('}');
     return buf.toString();
   }

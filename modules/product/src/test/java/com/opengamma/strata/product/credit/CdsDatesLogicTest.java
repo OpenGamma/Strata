@@ -9,7 +9,7 @@ import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.product.credit.CdsDatesLogic.getCdsDateSet;
 import static com.opengamma.strata.product.credit.CdsDatesLogic.getNextCdsDate;
 import static com.opengamma.strata.product.credit.CdsDatesLogic.getNextIndexRollDate;
-import static com.opengamma.strata.product.credit.CdsDatesLogic.getPrevCdsDate;
+import static com.opengamma.strata.product.credit.CdsDatesLogic.getPreviousCdsDate;
 import static com.opengamma.strata.product.credit.CdsDatesLogic.isCdsDate;
 import static com.opengamma.strata.product.credit.CdsDatesLogic.isIndexRollDate;
 import static org.testng.AssertJUnit.assertEquals;
@@ -123,30 +123,30 @@ public class CdsDatesLogicTest {
 
   public void prevCdsTest() {
     LocalDate today = LocalDate.of(2011, Month.JUNE, 21);
-    LocalDate prevCds = getPrevCdsDate(today);
+    LocalDate prevCds = getPreviousCdsDate(today);
     assertEquals(LocalDate.of(2011, Month.JUNE, 20), prevCds);
 
     today = LocalDate.of(2011, Month.JUNE, 20);
-    prevCds = getPrevCdsDate(today);
+    prevCds = getPreviousCdsDate(today);
     assertEquals(LocalDate.of(2011, Month.MARCH, 20), prevCds);
 
-    prevCds = getPrevCdsDate(prevCds);
+    prevCds = getPreviousCdsDate(prevCds);
     assertEquals(LocalDate.of(2010, Month.DECEMBER, 20), prevCds);
 
     today = LocalDate.of(2011, Month.JUNE, 18);
-    prevCds = getPrevCdsDate(today);
+    prevCds = getPreviousCdsDate(today);
     assertEquals(LocalDate.of(2011, Month.MARCH, 20), prevCds);
 
     today = LocalDate.of(1976, Month.JULY, 30);
-    prevCds = getPrevCdsDate(today);
+    prevCds = getPreviousCdsDate(today);
     assertEquals(LocalDate.of(1976, Month.JUNE, 20), prevCds);
 
     today = LocalDate.of(1977, Month.FEBRUARY, 13);
-    prevCds = getPrevCdsDate(today);
+    prevCds = getPreviousCdsDate(today);
     assertEquals(LocalDate.of(1976, Month.DECEMBER, 20), prevCds);
 
     today = LocalDate.of(2013, Month.MARCH, 1);
-    prevCds = getPrevCdsDate(today);
+    prevCds = getPreviousCdsDate(today);
     assertEquals(LocalDate.of(2012, Month.DECEMBER, 20), prevCds);
   }
 

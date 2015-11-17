@@ -186,9 +186,9 @@ public final class TenorCurveNodeMetadata
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       TenorCurveNodeMetadata other = (TenorCurveNodeMetadata) obj;
-      return JodaBeanUtils.equal(getDate(), other.getDate()) &&
-          JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
-          JodaBeanUtils.equal(getLabel(), other.getLabel());
+      return JodaBeanUtils.equal(date, other.date) &&
+          JodaBeanUtils.equal(tenor, other.tenor) &&
+          JodaBeanUtils.equal(label, other.label);
     }
     return false;
   }
@@ -196,9 +196,9 @@ public final class TenorCurveNodeMetadata
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTenor());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLabel());
+    hash = hash * 31 + JodaBeanUtils.hashCode(date);
+    hash = hash * 31 + JodaBeanUtils.hashCode(tenor);
+    hash = hash * 31 + JodaBeanUtils.hashCode(label);
     return hash;
   }
 
@@ -206,9 +206,9 @@ public final class TenorCurveNodeMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("TenorCurveNodeMetadata{");
-    buf.append("date").append('=').append(getDate()).append(',').append(' ');
-    buf.append("tenor").append('=').append(getTenor()).append(',').append(' ');
-    buf.append("label").append('=').append(JodaBeanUtils.toString(getLabel()));
+    buf.append("date").append('=').append(date).append(',').append(' ');
+    buf.append("tenor").append('=').append(tenor).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();
   }

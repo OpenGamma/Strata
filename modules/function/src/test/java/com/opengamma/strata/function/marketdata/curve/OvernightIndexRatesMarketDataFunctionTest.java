@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
 
 import java.time.LocalDate;
@@ -19,8 +20,6 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
-import com.opengamma.strata.collect.result.FailureReason;
-import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
@@ -61,8 +60,8 @@ public class OvernightIndexRatesMarketDataFunctionTest {
         USD_FED_FUND, timeSeries, ZeroRateDiscountFactors.of(USD, VAL_DATE, curve));
 
     OvernightIndexRatesId dfId = OvernightIndexRatesId.of(USD_FED_FUND, CURVE_GROUP_NAME, FEED);
-    Result<MarketDataBox<OvernightIndexRates>> result = test.build(dfId, marketData, MarketDataConfig.empty());
-    assertThat(result).hasValue(MarketDataBox.ofSingleValue(expected1));
+    MarketDataBox<OvernightIndexRates> result = test.build(dfId, marketData, MarketDataConfig.empty());
+    assertThat(result).isEqualTo(MarketDataBox.ofSingleValue(expected1));
   }
 
   public void test_buildOvernightIndexRates() {
@@ -81,8 +80,8 @@ public class OvernightIndexRatesMarketDataFunctionTest {
         USD_FED_FUND, timeSeries, SimpleDiscountFactors.of(USD, VAL_DATE, curve));
 
     OvernightIndexRatesId dfId = OvernightIndexRatesId.of(USD_FED_FUND, CURVE_GROUP_NAME, FEED);
-    Result<MarketDataBox<OvernightIndexRates>> result = test.build(dfId, marketData, MarketDataConfig.empty());
-    assertThat(result).hasValue(MarketDataBox.ofSingleValue(expected1));
+    MarketDataBox<OvernightIndexRates> result = test.build(dfId, marketData, MarketDataConfig.empty());
+    assertThat(result).isEqualTo(MarketDataBox.ofSingleValue(expected1));
   }
 
   public void test_noCurve() {
@@ -95,8 +94,7 @@ public class OvernightIndexRatesMarketDataFunctionTest {
     OvernightIndexRatesMarketDataFunction test = new OvernightIndexRatesMarketDataFunction();
 
     OvernightIndexRatesId dfId = OvernightIndexRatesId.of(USD_FED_FUND, CURVE_GROUP_NAME, FEED);
-    Result<MarketDataBox<OvernightIndexRates>> result = test.build(dfId, marketData, MarketDataConfig.empty());
-    assertThat(result).isFailure(FailureReason.MISSING_DATA);
+    assertThrows(() -> test.build(dfId, marketData, MarketDataConfig.empty()), IllegalArgumentException.class);
   }
 
   public void test_noTimeSeries() {
@@ -109,8 +107,7 @@ public class OvernightIndexRatesMarketDataFunctionTest {
     OvernightIndexRatesMarketDataFunction test = new OvernightIndexRatesMarketDataFunction();
 
     OvernightIndexRatesId dfId = OvernightIndexRatesId.of(USD_FED_FUND, CURVE_GROUP_NAME, FEED);
-    Result<MarketDataBox<OvernightIndexRates>> result = test.build(dfId, marketData, MarketDataConfig.empty());
-    assertThat(result).isFailure(FailureReason.MISSING_DATA);
+    assertThrows(() -> test.build(dfId, marketData, MarketDataConfig.empty()), IllegalArgumentException.class);
   }
 
   public void test_unknownCurve() {
@@ -126,8 +123,7 @@ public class OvernightIndexRatesMarketDataFunctionTest {
     OvernightIndexRatesMarketDataFunction test = new OvernightIndexRatesMarketDataFunction();
 
     OvernightIndexRatesId dfId = OvernightIndexRatesId.of(USD_FED_FUND, CURVE_GROUP_NAME, FEED);
-    Result<MarketDataBox<OvernightIndexRates>> result = test.build(dfId, marketData, MarketDataConfig.empty());
-    assertThat(result).isFailure(FailureReason.MISSING_DATA);
+    assertThrows(() -> test.build(dfId, marketData, MarketDataConfig.empty()), IllegalArgumentException.class);
   }
 
 }

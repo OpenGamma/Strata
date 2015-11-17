@@ -283,8 +283,8 @@ public final class FxRate
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxRate other = (FxRate) obj;
-      return JodaBeanUtils.equal(getPair(), other.getPair()) &&
-          JodaBeanUtils.equal(getRate(), other.getRate());
+      return JodaBeanUtils.equal(pair, other.pair) &&
+          JodaBeanUtils.equal(rate, other.rate);
     }
     return false;
   }
@@ -292,8 +292,8 @@ public final class FxRate
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPair());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(pair);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rate);
     return hash;
   }
 

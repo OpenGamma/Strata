@@ -145,7 +145,7 @@ public class MockSimpleProduct
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MockSimpleProduct other = (MockSimpleProduct) obj;
-      return JodaBeanUtils.equal(getName(), other.getName());
+      return JodaBeanUtils.equal(name, other.name);
     }
     return false;
   }
@@ -153,7 +153,7 @@ public class MockSimpleProduct
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
     return hash;
   }
 
@@ -171,7 +171,7 @@ public class MockSimpleProduct
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

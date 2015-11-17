@@ -211,10 +211,10 @@ public final class CalculationRequirements implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CalculationRequirements other = (CalculationRequirements) obj;
-      return JodaBeanUtils.equal(getObservables(), other.getObservables()) &&
-          JodaBeanUtils.equal(getNonObservables(), other.getNonObservables()) &&
-          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
-          JodaBeanUtils.equal(getOutputCurrencies(), other.getOutputCurrencies());
+      return JodaBeanUtils.equal(observables, other.observables) &&
+          JodaBeanUtils.equal(nonObservables, other.nonObservables) &&
+          JodaBeanUtils.equal(timeSeries, other.timeSeries) &&
+          JodaBeanUtils.equal(outputCurrencies, other.outputCurrencies);
     }
     return false;
   }
@@ -222,10 +222,10 @@ public final class CalculationRequirements implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getObservables());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNonObservables());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getOutputCurrencies());
+    hash = hash * 31 + JodaBeanUtils.hashCode(observables);
+    hash = hash * 31 + JodaBeanUtils.hashCode(nonObservables);
+    hash = hash * 31 + JodaBeanUtils.hashCode(timeSeries);
+    hash = hash * 31 + JodaBeanUtils.hashCode(outputCurrencies);
     return hash;
   }
 
@@ -233,10 +233,10 @@ public final class CalculationRequirements implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("CalculationRequirements{");
-    buf.append("observables").append('=').append(getObservables()).append(',').append(' ');
-    buf.append("nonObservables").append('=').append(getNonObservables()).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
-    buf.append("outputCurrencies").append('=').append(JodaBeanUtils.toString(getOutputCurrencies()));
+    buf.append("observables").append('=').append(observables).append(',').append(' ');
+    buf.append("nonObservables").append('=').append(nonObservables).append(',').append(' ');
+    buf.append("timeSeries").append('=').append(timeSeries).append(',').append(' ');
+    buf.append("outputCurrencies").append('=').append(JodaBeanUtils.toString(outputCurrencies));
     buf.append('}');
     return buf.toString();
   }

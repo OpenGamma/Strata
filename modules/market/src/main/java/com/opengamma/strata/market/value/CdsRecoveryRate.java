@@ -104,7 +104,7 @@ public final class CdsRecoveryRate
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CdsRecoveryRate other = (CdsRecoveryRate) obj;
-      return JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate());
+      return JodaBeanUtils.equal(recoveryRate, other.recoveryRate);
     }
     return false;
   }
@@ -112,7 +112,7 @@ public final class CdsRecoveryRate
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(recoveryRate);
     return hash;
   }
 
@@ -120,7 +120,7 @@ public final class CdsRecoveryRate
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("CdsRecoveryRate{");
-    buf.append("recoveryRate").append('=').append(JodaBeanUtils.toString(getRecoveryRate()));
+    buf.append("recoveryRate").append('=').append(JodaBeanUtils.toString(recoveryRate));
     buf.append('}');
     return buf.toString();
   }

@@ -300,7 +300,7 @@ public final class Swap
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Swap other = (Swap) obj;
-      return JodaBeanUtils.equal(getLegs(), other.getLegs());
+      return JodaBeanUtils.equal(legs, other.legs);
     }
     return false;
   }
@@ -308,7 +308,7 @@ public final class Swap
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLegs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(legs);
     return hash;
   }
 
@@ -316,7 +316,7 @@ public final class Swap
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("Swap{");
-    buf.append("legs").append('=').append(getLegs()).append(',').append(' ');
+    buf.append("legs").append('=').append(legs).append(',').append(' ');
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate()));
     buf.append('}');

@@ -17,7 +17,7 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 /**
  * Loads market data from the standard directory structure on disk.
  */
-public class DirectoryMarketDataBuilder extends MarketDataBuilder {
+public class DirectoryMarketDataBuilder extends ExampleMarketDataBuilder {
 
   /**
    * The path to the root of the directory structure.

@@ -28,8 +28,8 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -115,7 +115,7 @@ public class CalibrationEurStandard {
     double[] fwd6MarketQuotes = fwdMarketQuotes(fwd6FixingQuote, fwd6FraQuotes, fwd6IrsQuotes);
     String[] fwd6IdValues = fwdIdValue(6, fwd6FixingQuote, fwd6FraQuotes, fwd6IrsQuotes, fwd6FraTenors, fwd6IrsTenors);
     /* All quotes for the curve calibration */
-    ObservableValues allQuotes =
+    MarketData allQuotes =
         allQuotes(dscOisQuotes, dscIdValues, fwd3MarketQuotes, fwd3IdValues, fwd6MarketQuotes, fwd6IdValues);
     /* All nodes by groups. */
     CurveGroupDefinition config = config(dscOisTenors, dscIdValues, fwd3FraTenors, fwd3IrsTenors, fwd3IdValues,
@@ -240,7 +240,7 @@ public class CalibrationEurStandard {
         .addForwardCurve(FWD6_CURVE_DEFN, EUR_EURIBOR_6M).build();
   }
 
-  public static ObservableValues allQuotes(
+  public static MarketData allQuotes(
       double[] dscOisQuotes,
       String[] dscIdValues,
       double[] fwd3MarketQuotes,
@@ -258,7 +258,7 @@ public class CalibrationEurStandard {
     for (int i = 0; i < fwd6MarketQuotes.length; i++) {
       allQuotes.put(QuoteKey.of(StandardId.of(SCHEME, fwd6IdValue[i])), fwd6MarketQuotes[i]);
     }
-    return ObservableValues.of(allQuotes);
+    return MarketData.of(allQuotes);
   }
 
 }

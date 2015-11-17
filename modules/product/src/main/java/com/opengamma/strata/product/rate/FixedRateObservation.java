@@ -133,7 +133,7 @@ public final class FixedRateObservation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FixedRateObservation other = (FixedRateObservation) obj;
-      return JodaBeanUtils.equal(getRate(), other.getRate());
+      return JodaBeanUtils.equal(rate, other.rate);
     }
     return false;
   }
@@ -141,7 +141,7 @@ public final class FixedRateObservation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(rate);
     return hash;
   }
 
@@ -149,7 +149,7 @@ public final class FixedRateObservation
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("FixedRateObservation{");
-    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate()));
+    buf.append("rate").append('=').append(JodaBeanUtils.toString(rate));
     buf.append('}');
     return buf.toString();
   }

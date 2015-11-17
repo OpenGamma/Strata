@@ -42,7 +42,6 @@ import com.opengamma.strata.calc.runner.NoMatchingRuleId;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.result.Failure;
-import com.opengamma.strata.collect.result.FailureException;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -81,7 +80,7 @@ public class DefaultMarketDataFactoryTest {
     CalculationRequirements requirements = CalculationRequirements.builder()
         .addTimeSeries(id1, id2)
         .build();
-    CalculationEnvironment marketData = marketDataFactory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = marketDataFactory.buildCalculationMarketData(
         requirements,
         MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build(),
         MARKET_DATA_CONFIG);
@@ -109,7 +108,7 @@ public class DefaultMarketDataFactoryTest {
     CalculationRequirements requirements = CalculationRequirements.builder()
         .addValues(id1, id2)
         .build();
-    CalculationEnvironment marketData = marketDataFactory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = marketDataFactory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG);
@@ -143,7 +142,7 @@ public class DefaultMarketDataFactoryTest {
     CalculationRequirements requirements = CalculationRequirements.builder()
         .addValues(idC)
         .build();
-    CalculationEnvironment marketData = marketDataFactory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = marketDataFactory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG);
@@ -164,7 +163,7 @@ public class DefaultMarketDataFactoryTest {
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
     TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
     CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1, id2).build();
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG);
@@ -192,7 +191,7 @@ public class DefaultMarketDataFactoryTest {
         .addValue(id2, 2d)
         .build();
     CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1, id2).build();
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG);
@@ -214,7 +213,7 @@ public class DefaultMarketDataFactoryTest {
     TestObservableKey key = TestObservableKey.of("1");
     MissingMappingId missingId = MissingMappingId.of(key);
     CalculationRequirements requirements = CalculationRequirements.builder().addValues(missingId).build();
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         requirements,
         MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build(),
         MARKET_DATA_CONFIG);
@@ -242,7 +241,7 @@ public class DefaultMarketDataFactoryTest {
             Optional::of);
 
     CalculationRequirements marketDataRequirements = CalculationRequirements.builder().addValues(requirements).build();
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         marketDataRequirements,
         MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build(),
         MARKET_DATA_CONFIG);
@@ -271,7 +270,7 @@ public class DefaultMarketDataFactoryTest {
             Optional::of);
 
     CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1).build();
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         requirements,
         MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build(),
         MARKET_DATA_CONFIG);
@@ -316,7 +315,7 @@ public class DefaultMarketDataFactoryTest {
 
     CalculationRequirements marketDataRequirements =
         CalculationRequirements.builder().addTimeSeries(requirements).build();
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         marketDataRequirements,
         MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build(),
         MARKET_DATA_CONFIG);
@@ -371,7 +370,7 @@ public class DefaultMarketDataFactoryTest {
             builderB,
             builderC);
 
-    CalculationEnvironment marketData = marketDataFactory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = marketDataFactory.buildCalculationMarketData(
         requirements,
         MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build(),
         MARKET_DATA_CONFIG);
@@ -440,7 +439,7 @@ public class DefaultMarketDataFactoryTest {
         builderB,
         builderC);
 
-    CalculationEnvironment marketData = marketDataFactory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = marketDataFactory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG);
@@ -459,13 +458,11 @@ public class DefaultMarketDataFactoryTest {
   }
 
   /**
-   * Tests failures when there is no builder for an ID type.
+   * Tests an exception is thrown when there is no builder for an ID type.
    */
   public void noMarketDataBuilderAvailable() {
     TestIdB idB1 = new TestIdB("1");
     TestIdB idB2 = new TestIdB("2");
-    TestIdC idC1 = new TestIdC("1");
-    TestIdC idC2 = new TestIdC("2");
     TestMarketDataFunctionB builder = new TestMarketDataFunctionB();
 
     // Market data B depends on market data C so these requirements should cause instances of C to be built.
@@ -481,25 +478,13 @@ public class DefaultMarketDataFactoryTest {
             FeedIdMapping.identity(),
             builder);
 
-    CalculationEnvironment marketData = marketDataFactory.buildCalculationEnvironment(
-        requirements,
-        MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build(),
-        MARKET_DATA_CONFIG);
-    Map<MarketDataId<?>, Failure> failures = marketData.getValueFailures();
-
-    Failure failureB1 = failures.get(idB1);
-    Failure failureB2 = failures.get(idB2);
-    Failure failureC1 = failures.get(idC1);
-    Failure failureC2 = failures.get(idC2);
-
-    assertThat(failureB1).isNotNull();
-    assertThat(failureB2).isNotNull();
-    assertThat(failureC1).isNotNull();
-    assertThat(failureC2).isNotNull();
-    assertThat(failureB1.getMessage()).matches("No value for.*");
-    assertThat(failureB2.getMessage()).matches("No value for.*");
-    assertThat(failureC1.getMessage()).matches("No market data function available to handle.*");
-    assertThat(failureC2.getMessage()).matches("No market data function available to handle.*");
+    assertThrows(
+        () -> marketDataFactory.buildCalculationMarketData(
+            requirements,
+            MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build(),
+            MARKET_DATA_CONFIG),
+        IllegalStateException.class,
+        "No market data function available for market data ID of type.*");
   }
 
   /**
@@ -539,7 +524,7 @@ public class DefaultMarketDataFactoryTest {
             builderB,
             builderC);
 
-    MarketEnvironmentResult result = marketDataFactory.buildMarketEnvironment(
+    MarketEnvironmentResult result = marketDataFactory.buildMarketData(
         requirements,
         MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build(),
         MARKET_DATA_CONFIG,
@@ -604,7 +589,7 @@ public class DefaultMarketDataFactoryTest {
             builderB,
             builderC);
 
-    MarketEnvironmentResult result = marketDataFactory.buildMarketEnvironment(
+    MarketEnvironmentResult result = marketDataFactory.buildMarketData(
         requirements,
         MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build(),
         MARKET_DATA_CONFIG,
@@ -652,7 +637,7 @@ public class DefaultMarketDataFactoryTest {
             new FalseFilter<>(TestObservableId.class),
             new AbsoluteDoubleShift(1, 2, 3));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG,
@@ -686,7 +671,7 @@ public class DefaultMarketDataFactoryTest {
             new FalseFilter<>(TestObservableId.class),
             new AbsoluteDoubleShift(1, 2, 3));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG,
@@ -733,7 +718,7 @@ public class DefaultMarketDataFactoryTest {
         new FalseFilter<>(TestObservableId.class),
         new AbsoluteDoubleShift(1, 2, 3));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG,
@@ -758,7 +743,7 @@ public class DefaultMarketDataFactoryTest {
         new ExactIdFilter<>(id1),
         new AbsoluteDoubleShift(1, 2, 3));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG,
@@ -790,7 +775,7 @@ public class DefaultMarketDataFactoryTest {
         new ExactIdFilter<>(id2),
         new AbsoluteDoubleShift(1, 2, 3));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping1, mapping2));
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG,
@@ -821,7 +806,7 @@ public class DefaultMarketDataFactoryTest {
         new FalseFilter<>(NonObservableId.class),
         new StringAppender("", "", ""));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG,
@@ -860,7 +845,7 @@ public class DefaultMarketDataFactoryTest {
         new FalseFilter<>(NonObservableId.class),
         new StringAppender("", "", ""));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG,
@@ -929,7 +914,7 @@ public class DefaultMarketDataFactoryTest {
         new TestCPerturbation(1.1, 1.2, 1.3));
 
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(aMapping, cMapping);
-    CalculationEnvironment marketData = marketDataFactory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = marketDataFactory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG,
@@ -976,7 +961,7 @@ public class DefaultMarketDataFactoryTest {
             new ExactIdFilter<>(id1),
             new StringAppender("foo", "bar", "baz"));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG,
@@ -1010,7 +995,7 @@ public class DefaultMarketDataFactoryTest {
         new ExactIdFilter<>(id1),
         new StringAppender("foo", "bar", "baz"));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping1, mapping2));
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG,
@@ -1041,7 +1026,7 @@ public class DefaultMarketDataFactoryTest {
         new ExactIdFilter<>(quoteId),
         new RelativeDoubleShift(0.1, 0.2, 0.3));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG,
@@ -1052,7 +1037,7 @@ public class DefaultMarketDataFactoryTest {
   }
 
   /**
-   * Tests that a failure is returned when building observable market data for scenarios where there is no
+   * Tests that an exception is thrown when building observable market data for scenarios where there is no
    * market data function.
    */
   public void nonObservableScenarioDataWithMissingBuilder() {
@@ -1072,21 +1057,16 @@ public class DefaultMarketDataFactoryTest {
         new FalseFilter<>(NonObservableId.class),
         new StringAppender("", "", ""));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
-        requirements,
-        suppliedData,
-        MARKET_DATA_CONFIG,
-        scenarioDefinition);
-    Map<MarketDataId<?>, Failure> failures = marketData.getValueFailures();
 
-    assertThat(failures.size()).isEqualTo(2);
-    assertThat(failures.get(id1)).isNotNull();
-    assertThat(failures.get(id2)).isNotNull();
-    assertThat(failures.get(id1).getMessage()).matches("No market data function available.*");
-    assertThat(failures.get(id2).getMessage()).matches("No market data function available.*");
+    assertThrows(
+        () -> factory.buildCalculationMarketData(
+            requirements,
+            suppliedData,
+            MARKET_DATA_CONFIG,
+            scenarioDefinition),
+        IllegalStateException.class,
+        "No market data function available for market data ID of type.*");
 
-    assertThrows(() -> marketData.getValue(id1), FailureException.class, "No market data function available.*");
-    assertThrows(() -> marketData.getValue(id2), FailureException.class, "No market data function available.*");
   }
 
   /**
@@ -1108,7 +1088,7 @@ public class DefaultMarketDataFactoryTest {
         .addValue(id, "value")
         .build();
     CalculationRequirements requirements = CalculationRequirements.builder().addValues(id).build();
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG,
@@ -1137,7 +1117,7 @@ public class DefaultMarketDataFactoryTest {
         .valuationDate(date(2011, 3, 8))
         .addValue(id, 2d)
         .build();
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+    CalculationMarketDataMap marketData = factory.buildCalculationMarketData(
         requirements,
         suppliedData,
         MARKET_DATA_CONFIG,
@@ -1391,23 +1371,16 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public Result<MarketDataBox<TestMarketDataB>> build(
+    public MarketDataBox<TestMarketDataB> build(
         TestIdB id,
-        MarketDataLookup marketData,
+        CalculationEnvironment marketData,
         MarketDataConfig marketDataConfig) {
 
       TestIdA idA = new TestIdA(id.str);
       TestIdC idC = new TestIdC(id.str);
-
-      if (!marketData.containsValue(idA)) {
-        return Result.failure(FailureReason.MISSING_DATA, "No value for {}", idA);
-      }
-      if (!marketData.containsValue(idC)) {
-        return Result.failure(FailureReason.MISSING_DATA, "No value for {}", idC);
-      }
       MarketDataBox<Double> valueA = marketData.getValue(idA);
       MarketDataBox<TestMarketDataC> marketDataC = marketData.getValue(idC);
-      return valueA.combineWith(marketDataC, (a, c) -> Result.success(new TestMarketDataB(a, c)));
+      return valueA.combineWith(marketDataC, TestMarketDataB::new);
     }
 
     @Override
@@ -1459,13 +1432,13 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public Result<MarketDataBox<TestMarketDataC>> build(
+    public MarketDataBox<TestMarketDataC> build(
         TestIdC id,
-        MarketDataLookup marketData,
+        CalculationEnvironment marketData,
         MarketDataConfig marketDataConfig) {
 
       LocalDateDoubleTimeSeries timeSeries = marketData.getTimeSeries(new TestIdA(id.str));
-      return Result.success(MarketDataBox.ofSingleValue(new TestMarketDataC(timeSeries)));
+      return MarketDataBox.ofSingleValue(new TestMarketDataC(timeSeries));
     }
 
     @Override
@@ -1597,13 +1570,13 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public Result<MarketDataBox<String>> build(
+    public MarketDataBox<String> build(
         NonObservableId id,
-        MarketDataLookup marketData,
+        CalculationEnvironment marketData,
         MarketDataConfig marketDataConfig) {
 
       MarketDataBox<Double> value = marketData.getValue(TestObservableId.of(StandardId.of("reqs", id.str)));
-      return value.apply(v -> Result.success(Double.toString(v)));
+      return value.apply(v -> Double.toString(v));
     }
 
     @Override

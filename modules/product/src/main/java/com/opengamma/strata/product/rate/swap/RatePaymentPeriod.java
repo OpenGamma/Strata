@@ -384,13 +384,13 @@ public final class RatePaymentPeriod
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       RatePaymentPeriod other = (RatePaymentPeriod) obj;
-      return JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
-          JodaBeanUtils.equal(getAccrualPeriods(), other.getAccrualPeriods()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+      return JodaBeanUtils.equal(paymentDate, other.paymentDate) &&
+          JodaBeanUtils.equal(accrualPeriods, other.accrualPeriods) &&
+          JodaBeanUtils.equal(dayCount, other.dayCount) &&
+          JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(fxReset, other.fxReset) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getCompoundingMethod(), other.getCompoundingMethod());
+          JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(compoundingMethod, other.compoundingMethod);
     }
     return false;
   }
@@ -398,13 +398,13 @@ public final class RatePaymentPeriod
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualPeriods());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualPeriods);
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(fxReset);
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCompoundingMethod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(compoundingMethod);
     return hash;
   }
 
@@ -412,13 +412,13 @@ public final class RatePaymentPeriod
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("RatePaymentPeriod{");
-    buf.append("paymentDate").append('=').append(getPaymentDate()).append(',').append(' ');
-    buf.append("accrualPeriods").append('=').append(getAccrualPeriods()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
+    buf.append("accrualPeriods").append('=').append(accrualPeriods).append(',').append(' ');
+    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("fxReset").append('=').append(fxReset).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(getCompoundingMethod()));
+    buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod));
     buf.append('}');
     return buf.toString();
   }

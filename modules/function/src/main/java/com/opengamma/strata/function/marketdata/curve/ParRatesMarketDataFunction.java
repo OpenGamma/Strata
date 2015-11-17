@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.function.marketdata.curve;
 
-import static com.opengamma.strata.collect.Guavate.not;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
@@ -20,13 +19,12 @@ import java.util.stream.IntStream;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.calc.marketdata.MarketDataLookup;
+import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
-import com.opengamma.strata.collect.result.FailureReason;
-import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
@@ -66,9 +64,9 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
   }
 
   @Override
-  public Result<MarketDataBox<ParRates>> build(
+  public MarketDataBox<ParRates> build(
       ParRatesId id,
-      MarketDataLookup marketData,
+      CalculationEnvironment marketData,
       MarketDataConfig marketDataConfig) {
 
     CurveGroupName groupName = id.getCurveGroupName();
@@ -76,24 +74,17 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
     Optional<CurveGroupDefinition> optionalGroup = marketDataConfig.get(CurveGroupDefinition.class, groupName);
 
     if (!optionalGroup.isPresent()) {
-      return Result.failure(FailureReason.MISSING_DATA, "No configuration found for curve group '{}'", groupName);
+      throw new IllegalArgumentException(Messages.format("No configuration found for curve group '{}'", groupName));
     }
     CurveGroupDefinition groupDefn = optionalGroup.get();
     Optional<CurveGroupEntry> optionalEntry = groupDefn.findEntry(curveName);
 
     if (!optionalEntry.isPresent()) {
-      return Result.failure(FailureReason.MISSING_DATA, "No curve named '{}' found in group '{}'", curveName, groupName);
+      throw new IllegalArgumentException(Messages.format("No curve named '{}' found in group '{}'", curveName, groupName));
     }
     CurveGroupEntry entry = optionalEntry.get();
     NodalCurveDefinition curveDefn = entry.getCurveDefinition();
     Set<ObservableId> requirements = nodeRequirements(id.getMarketDataFeed(), curveDefn);
-
-    if (!marketData.containsValues(requirements)) {
-      Set<ObservableId> missingRequirements = requirements.stream()
-          .filter(not(marketData::containsValue))
-          .collect(toImmutableSet());
-      return Result.failure(FailureReason.MISSING_DATA, "No market data available for '{}'", missingRequirements);
-    }
     Map<ObservableId, MarketDataBox<Double>> rates = marketData.getObservableValues(requirements);
     MarketDataBox<LocalDate> valuationDate = marketData.getValuationDate();
     // Do any of the rates contain values for multiple scenarios, or do they contain 1 rate each?
@@ -105,7 +96,7 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
         buildSingleParRates(curveDefn, rates, valuationDate);
   }
 
-  private Result<MarketDataBox<ParRates>> buildSingleParRates(
+  private MarketDataBox<ParRates> buildSingleParRates(
       NodalCurveDefinition curveDefn,
       Map<ObservableId, MarketDataBox<Double>> rates, MarketDataBox<LocalDate> valuationDate) {
     // There is only a single map of rates and single valuation date - create a single ParRates instance
@@ -114,20 +105,15 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
         .collect(toImmutableMap(e -> e.getKey(), e -> e.getValue().getSingleValue()));
 
     ParRates parRates = ParRates.of(singleRates, curveMetadata);
-    return Result.success(MarketDataBox.ofSingleValue(parRates));
+    return MarketDataBox.ofSingleValue(parRates);
   }
 
-  private Result<MarketDataBox<ParRates>> buildMultipleParRates(
+  private MarketDataBox<ParRates> buildMultipleParRates(
       NodalCurveDefinition curveDefn,
       Map<ObservableId, MarketDataBox<Double>> rates, MarketDataBox<LocalDate> valuationDate) {
     // If there are multiple values for any of the rates or for the valuation dates then we need to create
     // multiple sets of ParRates
-    Result<Integer> scenarioCountResult = scenarioCount(valuationDate, rates);
-
-    if (scenarioCountResult.isFailure()) {
-      return Result.failure(scenarioCountResult);
-    }
-    int scenarioCount = scenarioCountResult.getValue();
+    int scenarioCount = scenarioCount(valuationDate, rates);
 
     List<CurveMetadata> curveMetadata = IntStream.range(0, scenarioCount)
         .mapToObj(valuationDate::getValue)
@@ -142,7 +128,7 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
         .map(pair -> ParRates.of(pair.getFirst(), pair.getSecond()))
         .collect(toImmutableList());
 
-    return Result.success(MarketDataBox.ofScenarioValues(parRates));
+    return MarketDataBox.ofScenarioValues(parRates);
   }
 
   private static Map<ObservableId, Double> buildSingleRates(
@@ -152,11 +138,11 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
     return rates.entrySet().stream().collect(toImmutableMap(e -> e.getKey(), e -> e.getValue().getValue(scenarioIndex)));
   }
 
-  private static Result<Integer> scenarioCount(
+  private static int scenarioCount(
       MarketDataBox<LocalDate> valuationDate,
       Map<ObservableId, MarketDataBox<Double>> rates) {
 
-    Integer scenarioCount = null;
+    int scenarioCount = 0;
 
     if (valuationDate.isScenarioValue()) {
       scenarioCount = valuationDate.getScenarioCount();
@@ -168,26 +154,26 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
       if (box.isScenarioValue()) {
         int boxScenarioCount = box.getScenarioCount();
 
-        if (scenarioCount == null) {
+        if (scenarioCount == 0) {
           scenarioCount = boxScenarioCount;
         } else {
           if (scenarioCount != boxScenarioCount) {
-            return Result.failure(
-                FailureReason.INVALID_INPUT,
-                "There are {} scenarios for ID {} which does not match the previous scenario count {}",
-                boxScenarioCount,
-                id,
-                scenarioCount);
+            throw new IllegalArgumentException(
+                Messages.format(
+                    "There are {} scenarios for ID {} which does not match the previous scenario count {}",
+                    boxScenarioCount,
+                    id,
+                    scenarioCount));
           }
         }
       }
     }
-    if (scenarioCount != null) {
-      return Result.success(scenarioCount);
+    if (scenarioCount != 0) {
+      return scenarioCount;
     }
     // This shouldn't happen, this method is only called after checking at least one of the values contains data
     // for multiple scenarios.
-    return Result.failure(FailureReason.INVALID_INPUT, "Cannot count the scenarios, all data contained single values");
+    throw new IllegalArgumentException("Cannot count the scenarios, all data contained single values");
   }
 
   @Override

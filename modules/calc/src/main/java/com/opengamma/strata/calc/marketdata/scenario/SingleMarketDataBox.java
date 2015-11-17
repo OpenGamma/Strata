@@ -28,8 +28,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.function.ObjIntFunction;
-import com.opengamma.strata.collect.result.Result;
 
 /**
  * A market data box containing a single value which is used in all scenarios.
@@ -47,12 +47,13 @@ public final class SingleMarketDataBox<T> implements ImmutableBean, MarketDataBo
 
   @Override
   public T getValue(int scenarioIndex) {
+    ArgChecker.notNegative(scenarioIndex, "scenarioIndex");
     return value;
   }
 
   @Override
   public ScenarioMarketDataValue<T> getScenarioValue() {
-    throw new UnsupportedOperationException("This box does not contain a multiple value");
+    throw new IllegalStateException("This box does not contain a scenario value");
   }
 
   @Override
@@ -71,35 +72,30 @@ public final class SingleMarketDataBox<T> implements ImmutableBean, MarketDataBo
   }
 
   @Override
-  public <R> Result<MarketDataBox<R>> apply(Function<T, Result<R>> fn) {
-    return fn.apply(value).map(MarketDataBox::ofSingleValue);
+  public <R> MarketDataBox<R> apply(Function<T, R> fn) {
+    return MarketDataBox.ofSingleValue(fn.apply(value));
   }
 
   @Override
-  public <U, R> Result<MarketDataBox<R>> combineWith(MarketDataBox<U> other, BiFunction<T, U, Result<R>> fn) {
+  public <U, R> MarketDataBox<R> combineWith(MarketDataBox<U> other, BiFunction<T, U, R> fn) {
     return other.isSingleValue() ?
         combineWithSingle(other, fn) :
         combineWithMultiple(other, fn);
   }
 
-  private <U, R> Result<MarketDataBox<R>> combineWithMultiple(MarketDataBox<U> other, BiFunction<T, U, Result<R>> fn) {
+  private <U, R> MarketDataBox<R> combineWithMultiple(MarketDataBox<U> other, BiFunction<T, U, R> fn) {
     ScenarioMarketDataValue<U> otherValue = other.getScenarioValue();
     int scenarioCount = otherValue.getScenarioCount();
 
-    List<Result<R>> results = IntStream.range(0, scenarioCount)
+    List<R> values = IntStream.range(0, scenarioCount)
         .mapToObj(i -> fn.apply(value, other.getValue(i)))
         .collect(toImmutableList());
-
-    if (Result.anyFailures(results)) {
-      return Result.failure(results);
-    }
-    List<R> values = results.stream().map(Result::getValue).collect(toImmutableList());
-    return Result.success(MarketDataBox.ofScenarioValues(values));
+    return MarketDataBox.ofScenarioValues(values);
   }
 
-  private <U, R> Result<MarketDataBox<R>> combineWithSingle(MarketDataBox<U> other, BiFunction<T, U, Result<R>> fn) {
+  private <U, R> MarketDataBox<R> combineWithSingle(MarketDataBox<U> other, BiFunction<T, U, R> fn) {
     U otherValue = other.getSingleValue();
-    return fn.apply(value, otherValue).map(MarketDataBox::ofSingleValue);
+    return MarketDataBox.ofSingleValue(fn.apply(value, otherValue));
   }
 
   @Override
@@ -207,7 +203,7 @@ public final class SingleMarketDataBox<T> implements ImmutableBean, MarketDataBo
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SingleMarketDataBox<?> other = (SingleMarketDataBox<?>) obj;
-      return JodaBeanUtils.equal(getValue(), other.getValue());
+      return JodaBeanUtils.equal(value, other.value);
     }
     return false;
   }
@@ -215,7 +211,7 @@ public final class SingleMarketDataBox<T> implements ImmutableBean, MarketDataBo
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(value);
     return hash;
   }
 
@@ -223,7 +219,7 @@ public final class SingleMarketDataBox<T> implements ImmutableBean, MarketDataBo
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("SingleMarketDataBox{");
-    buf.append("value").append('=').append(JodaBeanUtils.toString(getValue()));
+    buf.append("value").append('=').append(JodaBeanUtils.toString(value));
     buf.append('}');
     return buf.toString();
   }

@@ -287,12 +287,12 @@ public class InflationInterpolatedRateObservation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       InflationInterpolatedRateObservation other = (InflationInterpolatedRateObservation) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getReferenceStartMonth(), other.getReferenceStartMonth()) &&
-          JodaBeanUtils.equal(getReferenceStartInterpolationMonth(), other.getReferenceStartInterpolationMonth()) &&
-          JodaBeanUtils.equal(getReferenceEndMonth(), other.getReferenceEndMonth()) &&
-          JodaBeanUtils.equal(getReferenceEndInterpolationMonth(), other.getReferenceEndInterpolationMonth()) &&
-          JodaBeanUtils.equal(getWeight(), other.getWeight());
+      return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(referenceStartMonth, other.referenceStartMonth) &&
+          JodaBeanUtils.equal(referenceStartInterpolationMonth, other.referenceStartInterpolationMonth) &&
+          JodaBeanUtils.equal(referenceEndMonth, other.referenceEndMonth) &&
+          JodaBeanUtils.equal(referenceEndInterpolationMonth, other.referenceEndInterpolationMonth) &&
+          JodaBeanUtils.equal(weight, other.weight);
     }
     return false;
   }
@@ -300,12 +300,12 @@ public class InflationInterpolatedRateObservation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceStartMonth());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceStartInterpolationMonth());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceEndMonth());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceEndInterpolationMonth());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getWeight());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(referenceStartMonth);
+    hash = hash * 31 + JodaBeanUtils.hashCode(referenceStartInterpolationMonth);
+    hash = hash * 31 + JodaBeanUtils.hashCode(referenceEndMonth);
+    hash = hash * 31 + JodaBeanUtils.hashCode(referenceEndInterpolationMonth);
+    hash = hash * 31 + JodaBeanUtils.hashCode(weight);
     return hash;
   }
 
@@ -323,12 +323,12 @@ public class InflationInterpolatedRateObservation
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("index").append('=').append(JodaBeanUtils.toString(getIndex())).append(',').append(' ');
-    buf.append("referenceStartMonth").append('=').append(JodaBeanUtils.toString(getReferenceStartMonth())).append(',').append(' ');
-    buf.append("referenceStartInterpolationMonth").append('=').append(JodaBeanUtils.toString(getReferenceStartInterpolationMonth())).append(',').append(' ');
-    buf.append("referenceEndMonth").append('=').append(JodaBeanUtils.toString(getReferenceEndMonth())).append(',').append(' ');
-    buf.append("referenceEndInterpolationMonth").append('=').append(JodaBeanUtils.toString(getReferenceEndInterpolationMonth())).append(',').append(' ');
-    buf.append("weight").append('=').append(JodaBeanUtils.toString(getWeight())).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("referenceStartMonth").append('=').append(JodaBeanUtils.toString(referenceStartMonth)).append(',').append(' ');
+    buf.append("referenceStartInterpolationMonth").append('=').append(JodaBeanUtils.toString(referenceStartInterpolationMonth)).append(',').append(' ');
+    buf.append("referenceEndMonth").append('=').append(JodaBeanUtils.toString(referenceEndMonth)).append(',').append(' ');
+    buf.append("referenceEndInterpolationMonth").append('=').append(JodaBeanUtils.toString(referenceEndInterpolationMonth)).append(',').append(' ');
+    buf.append("weight").append('=').append(JodaBeanUtils.toString(weight)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

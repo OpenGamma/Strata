@@ -319,10 +319,10 @@ public final class NormalVolatilityExpiryTenorSwaptionProvider
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       NormalVolatilityExpiryTenorSwaptionProvider other = (NormalVolatilityExpiryTenorSwaptionProvider) obj;
-      return JodaBeanUtils.equal(getSurface(), other.getSurface()) &&
-          JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getValuationDateTime(), other.getValuationDateTime());
+      return JodaBeanUtils.equal(surface, other.surface) &&
+          JodaBeanUtils.equal(convention, other.convention) &&
+          JodaBeanUtils.equal(dayCount, other.dayCount) &&
+          JodaBeanUtils.equal(valuationDateTime, other.valuationDateTime);
     }
     return false;
   }
@@ -330,10 +330,10 @@ public final class NormalVolatilityExpiryTenorSwaptionProvider
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSurface());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDateTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(surface);
+    hash = hash * 31 + JodaBeanUtils.hashCode(convention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(valuationDateTime);
     return hash;
   }
 
@@ -341,10 +341,10 @@ public final class NormalVolatilityExpiryTenorSwaptionProvider
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("NormalVolatilityExpiryTenorSwaptionProvider{");
-    buf.append("surface").append('=').append(getSurface()).append(',').append(' ');
-    buf.append("convention").append('=').append(getConvention()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(getValuationDateTime()));
+    buf.append("surface").append('=').append(surface).append(',').append(' ');
+    buf.append("convention").append('=').append(convention).append(',').append(' ');
+    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime));
     buf.append('}');
     return buf.toString();
   }

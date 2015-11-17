@@ -111,14 +111,14 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   }
 
   @Override
-  public MarketEnvironmentResult buildMarketEnvironment(
+  public MarketEnvironmentResult buildMarketData(
       MarketDataRequirements requirements,
       MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig,
       boolean includeIntermediateValues) {
 
     CalculationRequirements calcRequirements = CalculationRequirements.of(requirements);
-    CalculationEnvironment calcEnv = buildCalculationEnvironment(calcRequirements, suppliedData, marketDataConfig);
+    CalculationMarketDataMap calcEnv = buildCalculationMarketData(calcRequirements, suppliedData, marketDataConfig);
     Map<MarketDataId<?>, MarketDataBox<?>> values;
     Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries;
 
@@ -151,24 +151,24 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   }
 
   @Override
-  public CalculationEnvironment buildCalculationEnvironment(
+  public CalculationMarketDataMap buildCalculationMarketData(
       CalculationRequirements requirements,
       MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig) {
 
-    return buildCalculationEnvironment(requirements, suppliedData, marketDataConfig, ScenarioDefinition.empty());
+    return buildCalculationMarketData(requirements, suppliedData, marketDataConfig, ScenarioDefinition.empty());
   }
 
   @Override
-  public CalculationEnvironment buildCalculationEnvironment(
+  public CalculationMarketDataMap buildCalculationMarketData(
       CalculationRequirements requirements,
       MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig,
       ScenarioDefinition scenarioDefinition) {
 
     CalculationEnvironmentBuilder dataBuilder =
-        CalculationEnvironment.builder().valuationDate(suppliedData.getValuationDate());
-    CalculationEnvironment builtData = dataBuilder.build();
+        CalculationMarketDataMap.builder().valuationDate(suppliedData.getValuationDate());
+    CalculationMarketDataMap builtData = dataBuilder.buildMarketDataMap();
 
     // Build a tree of the market data dependencies. The root of the tree represents the calculations.
     // The children of the root represent the market data directly used in the calculations. The children
@@ -195,7 +195,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
     while (!root.isLeaf()) {
       // Effectively final reference to buildData which can be used in a lambda expression
-      CalculationEnvironment marketData = builtData;
+      CalculationMarketDataMap marketData = builtData;
 
       // The leaves of the dependency tree represent market data with no dependencies that can be built immediately
       Pair<MarketDataNode, MarketDataRequirements> pair = root.withLeavesRemoved();
@@ -256,7 +256,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       // --------------------------------------------------------------------------------------------
 
       // Put the data built so far into an object that will be used in the next phase of building data
-      builtData = dataBuilder.build();
+      builtData = dataBuilder.buildMarketDataMap();
 
       // A copy of the dependency tree not including the leaf nodes
       root = pair.getFirst();
@@ -275,7 +275,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   @SuppressWarnings({"unchecked", "rawtypes"})
   private Result<MarketDataBox<?>> buildNonObservableData(
       MarketDataId id,
-      MarketDataLookup suppliedData,
+      CalculationEnvironment suppliedData,
       MarketDataConfig marketDataConfig) {
 
     // The raw types in this method are an unfortunate necessity. The type parameters on MarketDataBuilder
@@ -285,18 +285,20 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     // convince the compiler the operations are safe, although the logic guarantees it.
 
     // This cast removes a spurious warning
-    MarketDataFunction marketDataFunction = functions.get((Class<? extends MarketDataId<?>>) id.getClass());
+    Class<? extends MarketDataId<?>> idClass = (Class<? extends MarketDataId<?>>) id.getClass();
+    MarketDataFunction marketDataFunction = functions.get(idClass);
 
-    return marketDataFunction != null ?
-        marketDataFunction.build(id, suppliedData, marketDataConfig) :
-        failureForMissingBuilder(id);
+    if (marketDataFunction == null) {
+      throw new IllegalStateException("No market data function available for market data ID of type " + idClass.getName());
+    }
+    return Result.of(() -> marketDataFunction.build(id, suppliedData, marketDataConfig));
   }
 
   @SuppressWarnings("unchecked")
   private Map<MarketDataId<?>, Result<MarketDataBox<?>>> buildNonObservableData(
       Set<? extends MarketDataId<?>> ids,
       MarketDataConfig marketDataConfig,
-      CalculationEnvironment marketData) {
+      CalculationMarketDataMap marketData) {
 
     return ids.stream().collect(toImmutableMap(id -> id, id -> buildNonObservableData(id, marketData, marketDataConfig)));
   }
@@ -428,19 +430,6 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    */
   private <T> Result<T> noMappingResult(ObservableId id) {
     return Result.failure(FailureReason.MISSING_DATA, "No feed ID mapping found for ID {}", id);
-  }
-
-  /**
-   * Returns a failure for the ID indicating there is no builder available to handle it.
-   *
-   * @param id the market data ID
-   * @return a failure for the ID indicating there is no builder available to handle it
-   */
-  private Result<MarketDataBox<?>> failureForMissingBuilder(MarketDataId<?> id) {
-    return Result.failure(
-        FailureReason.INVALID_INPUT,
-        "No market data function available to handle {}",
-        id);
   }
 
   /**

@@ -174,10 +174,10 @@ public final class CalculationResult implements ImmutableBean, Serializable {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CalculationResult other = (CalculationResult) obj;
-      return JodaBeanUtils.equal(getTarget(), other.getTarget()) &&
-          (getRowIndex() == other.getRowIndex()) &&
-          (getColumnIndex() == other.getColumnIndex()) &&
-          JodaBeanUtils.equal(getResult(), other.getResult());
+      return JodaBeanUtils.equal(target, other.target) &&
+          (rowIndex == other.rowIndex) &&
+          (columnIndex == other.columnIndex) &&
+          JodaBeanUtils.equal(result, other.result);
     }
     return false;
   }
@@ -185,10 +185,10 @@ public final class CalculationResult implements ImmutableBean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTarget());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRowIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getColumnIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getResult());
+    hash = hash * 31 + JodaBeanUtils.hashCode(target);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rowIndex);
+    hash = hash * 31 + JodaBeanUtils.hashCode(columnIndex);
+    hash = hash * 31 + JodaBeanUtils.hashCode(result);
     return hash;
   }
 
@@ -196,10 +196,10 @@ public final class CalculationResult implements ImmutableBean, Serializable {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("CalculationResult{");
-    buf.append("target").append('=').append(getTarget()).append(',').append(' ');
-    buf.append("rowIndex").append('=').append(getRowIndex()).append(',').append(' ');
-    buf.append("columnIndex").append('=').append(getColumnIndex()).append(',').append(' ');
-    buf.append("result").append('=').append(JodaBeanUtils.toString(getResult()));
+    buf.append("target").append('=').append(target).append(',').append(' ');
+    buf.append("rowIndex").append('=').append(rowIndex).append(',').append(' ');
+    buf.append("columnIndex").append('=').append(columnIndex).append(',').append(' ');
+    buf.append("result").append('=').append(JodaBeanUtils.toString(result));
     buf.append('}');
     return buf.toString();
   }

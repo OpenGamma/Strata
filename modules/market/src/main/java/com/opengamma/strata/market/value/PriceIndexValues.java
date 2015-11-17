@@ -9,7 +9,9 @@ import java.time.YearMonth;
 
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.MarketDataValue;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.key.PriceIndexValuesKey;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
@@ -21,7 +23,20 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * This provides historic and forward values for a single {@link PriceIndex}, such as 'US-CPI-U'.
  * This is typically used in inflation products.
  */
-public interface PriceIndexValues {
+public interface PriceIndexValues
+    extends MarketDataValue<PriceIndexValues> {
+
+  /**
+   * Gets the market data key.
+   * <p>
+   * This returns the {@link PriceIndexValuesKey} that identifies this instance.
+   * 
+   * @return the market data key
+   */
+  @Override
+  public default PriceIndexValuesKey getKey() {
+    return PriceIndexValuesKey.of(getIndex());
+  }
 
   /**
    * Gets the Price index.
@@ -31,15 +46,6 @@ public interface PriceIndexValues {
    * @return the Price index
    */
   public abstract PriceIndex getIndex();
-
-  /**
-   * Gets the valuation month.
-   * <p>
-   * The raw data in this provider is calibrated for this month.
-   * 
-   * @return the valuation month
-   */
-  public abstract YearMonth getValuationMonth();
 
   /**
    * Gets the time-series of fixings for the index.

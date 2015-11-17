@@ -26,8 +26,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
@@ -53,10 +53,10 @@ public final class TermDepositCurveNode
   @PropertyDefinition(validate = "notNull")
   private final ObservableKey rateKey;
   /**
-   * The spread added to the rate.
+   * The additional spread added to the rate.
    */
   @PropertyDefinition
-  private final double spread;
+  private final double additionalSpread;
 
   //-------------------------------------------------------------------------
   /**
@@ -75,11 +75,11 @@ public final class TermDepositCurveNode
    *
    * @param template  the template defining the node instrument
    * @param rateKey  the key identifying the market data providing the rate for the node instrument
-   * @param spread  the spread amount added to the rate
+   * @param additionalSpread  the additional spread amount added to the rate
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static TermDepositCurveNode of(TermDepositTemplate template, ObservableKey rateKey, double spread) {
-    return new TermDepositCurveNode(template, rateKey, spread);
+  public static TermDepositCurveNode of(TermDepositTemplate template, ObservableKey rateKey, double additionalSpread) {
+    return new TermDepositCurveNode(template, rateKey, additionalSpread);
   }
 
   //-------------------------------------------------------------------------
@@ -96,13 +96,13 @@ public final class TermDepositCurveNode
   }
 
   @Override
-  public TermDepositTrade trade(LocalDate valuationDate, ObservableValues marketData) {
-    double fixedRate = marketData.getValue(rateKey) + spread;
+  public TermDepositTrade trade(LocalDate valuationDate, MarketData marketData) {
+    double fixedRate = marketData.getValue(rateKey) + additionalSpread;
     return template.toTrade(valuationDate, BuySell.BUY, 1d, fixedRate);
   }
 
   @Override
-  public double initialGuess(LocalDate valuationDate, ObservableValues marketData, ValueType valueType) {
+  public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
     if (ValueType.ZERO_RATE.equals(valueType)) {
       return marketData.getValue(rateKey);
     }
@@ -139,12 +139,12 @@ public final class TermDepositCurveNode
   private TermDepositCurveNode(
       TermDepositTemplate template,
       ObservableKey rateKey,
-      double spread) {
+      double additionalSpread) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(rateKey, "rateKey");
     this.template = template;
     this.rateKey = rateKey;
-    this.spread = spread;
+    this.additionalSpread = additionalSpread;
   }
 
   @Override
@@ -182,11 +182,11 @@ public final class TermDepositCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the spread added to the rate.
+   * Gets the additional spread added to the rate.
    * @return the value of the property
    */
-  public double getSpread() {
-    return spread;
+  public double getAdditionalSpread() {
+    return additionalSpread;
   }
 
   //-----------------------------------------------------------------------
@@ -205,9 +205,9 @@ public final class TermDepositCurveNode
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       TermDepositCurveNode other = (TermDepositCurveNode) obj;
-      return JodaBeanUtils.equal(getTemplate(), other.getTemplate()) &&
-          JodaBeanUtils.equal(getRateKey(), other.getRateKey()) &&
-          JodaBeanUtils.equal(getSpread(), other.getSpread());
+      return JodaBeanUtils.equal(template, other.template) &&
+          JodaBeanUtils.equal(rateKey, other.rateKey) &&
+          JodaBeanUtils.equal(additionalSpread, other.additionalSpread);
     }
     return false;
   }
@@ -215,9 +215,9 @@ public final class TermDepositCurveNode
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTemplate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRateKey());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSpread());
+    hash = hash * 31 + JodaBeanUtils.hashCode(template);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rateKey);
+    hash = hash * 31 + JodaBeanUtils.hashCode(additionalSpread);
     return hash;
   }
 
@@ -225,9 +225,9 @@ public final class TermDepositCurveNode
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("TermDepositCurveNode{");
-    buf.append("template").append('=').append(getTemplate()).append(',').append(' ');
-    buf.append("rateKey").append('=').append(getRateKey()).append(',').append(' ');
-    buf.append("spread").append('=').append(JodaBeanUtils.toString(getSpread()));
+    buf.append("template").append('=').append(template).append(',').append(' ');
+    buf.append("rateKey").append('=').append(rateKey).append(',').append(' ');
+    buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread));
     buf.append('}');
     return buf.toString();
   }
@@ -253,10 +253,10 @@ public final class TermDepositCurveNode
     private final MetaProperty<ObservableKey> rateKey = DirectMetaProperty.ofImmutable(
         this, "rateKey", TermDepositCurveNode.class, ObservableKey.class);
     /**
-     * The meta-property for the {@code spread} property.
+     * The meta-property for the {@code additionalSpread} property.
      */
-    private final MetaProperty<Double> spread = DirectMetaProperty.ofImmutable(
-        this, "spread", TermDepositCurveNode.class, Double.TYPE);
+    private final MetaProperty<Double> additionalSpread = DirectMetaProperty.ofImmutable(
+        this, "additionalSpread", TermDepositCurveNode.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -264,7 +264,7 @@ public final class TermDepositCurveNode
         this, null,
         "template",
         "rateKey",
-        "spread");
+        "additionalSpread");
 
     /**
      * Restricted constructor.
@@ -279,8 +279,8 @@ public final class TermDepositCurveNode
           return template;
         case 983444831:  // rateKey
           return rateKey;
-        case -895684237:  // spread
-          return spread;
+        case 291232890:  // additionalSpread
+          return additionalSpread;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -318,11 +318,11 @@ public final class TermDepositCurveNode
     }
 
     /**
-     * The meta-property for the {@code spread} property.
+     * The meta-property for the {@code additionalSpread} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> spread() {
-      return spread;
+    public MetaProperty<Double> additionalSpread() {
+      return additionalSpread;
     }
 
     //-----------------------------------------------------------------------
@@ -333,8 +333,8 @@ public final class TermDepositCurveNode
           return ((TermDepositCurveNode) bean).getTemplate();
         case 983444831:  // rateKey
           return ((TermDepositCurveNode) bean).getRateKey();
-        case -895684237:  // spread
-          return ((TermDepositCurveNode) bean).getSpread();
+        case 291232890:  // additionalSpread
+          return ((TermDepositCurveNode) bean).getAdditionalSpread();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -358,7 +358,7 @@ public final class TermDepositCurveNode
 
     private TermDepositTemplate template;
     private ObservableKey rateKey;
-    private double spread;
+    private double additionalSpread;
 
     /**
      * Restricted constructor.
@@ -373,7 +373,7 @@ public final class TermDepositCurveNode
     private Builder(TermDepositCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
       this.rateKey = beanToCopy.getRateKey();
-      this.spread = beanToCopy.getSpread();
+      this.additionalSpread = beanToCopy.getAdditionalSpread();
     }
 
     //-----------------------------------------------------------------------
@@ -384,8 +384,8 @@ public final class TermDepositCurveNode
           return template;
         case 983444831:  // rateKey
           return rateKey;
-        case -895684237:  // spread
-          return spread;
+        case 291232890:  // additionalSpread
+          return additionalSpread;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -400,8 +400,8 @@ public final class TermDepositCurveNode
         case 983444831:  // rateKey
           this.rateKey = (ObservableKey) newValue;
           break;
-        case -895684237:  // spread
-          this.spread = (Double) newValue;
+        case 291232890:  // additionalSpread
+          this.additionalSpread = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -438,7 +438,7 @@ public final class TermDepositCurveNode
       return new TermDepositCurveNode(
           template,
           rateKey,
-          spread);
+          additionalSpread);
     }
 
     //-----------------------------------------------------------------------
@@ -465,12 +465,12 @@ public final class TermDepositCurveNode
     }
 
     /**
-     * Sets the spread added to the rate.
-     * @param spread  the new value
+     * Sets the additional spread added to the rate.
+     * @param additionalSpread  the new value
      * @return this, for chaining, not null
      */
-    public Builder spread(double spread) {
-      this.spread = spread;
+    public Builder additionalSpread(double additionalSpread) {
+      this.additionalSpread = additionalSpread;
       return this;
     }
 
@@ -481,7 +481,7 @@ public final class TermDepositCurveNode
       buf.append("TermDepositCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("rateKey").append('=').append(JodaBeanUtils.toString(rateKey)).append(',').append(' ');
-      buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
+      buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread));
       buf.append('}');
       return buf.toString();
     }

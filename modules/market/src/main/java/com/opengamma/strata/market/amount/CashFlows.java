@@ -192,7 +192,7 @@ public final class CashFlows
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CashFlows other = (CashFlows) obj;
-      return JodaBeanUtils.equal(getCashFlows(), other.getCashFlows());
+      return JodaBeanUtils.equal(cashFlows, other.cashFlows);
     }
     return false;
   }
@@ -200,7 +200,7 @@ public final class CashFlows
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCashFlows());
+    hash = hash * 31 + JodaBeanUtils.hashCode(cashFlows);
     return hash;
   }
 
@@ -208,7 +208,7 @@ public final class CashFlows
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("CashFlows{");
-    buf.append("cashFlows").append('=').append(JodaBeanUtils.toString(getCashFlows()));
+    buf.append("cashFlows").append('=').append(JodaBeanUtils.toString(cashFlows));
     buf.append('}');
     return buf.toString();
   }

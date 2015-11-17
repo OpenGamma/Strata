@@ -905,6 +905,80 @@ public final class ArgChecker {
 
   //-------------------------------------------------------------------------
   /**
+   * Checks that the argument is within the range defined by {@code low <= x < high}.
+   * <p>
+   * Given a value, this returns true if it is within the specified range including the
+   * lower boundary but excluding the upper boundary.
+   * For example, in a constructor:
+   * <pre>
+   *  this.amount = ArgChecker.inRange(amount, 0d, 1d, "amount");
+   * </pre>
+   *
+   * @param argument  the value to check
+   * @param lowInclusive  the low value of the range
+   * @param highExclusive  the high value of the range
+   * @param name  the name of the argument to use in the error message, not null
+   * @return the input {@code argument}
+   * @throws IllegalArgumentException if the argument is outside the valid range
+   */
+  public static int inRange(int argument, int lowInclusive, int highExclusive, String name) {
+    if (argument < lowInclusive || argument >= highExclusive) {
+      throw new IllegalArgumentException(
+          Messages.format("Expected {} <= '{}' < {}, but found {}", lowInclusive, name, highExclusive, argument));
+    }
+    return argument;
+  }
+
+  /**
+   * Checks that the argument is within the range defined by {@code low <= x <= high}.
+   * <p>
+   * Given a value, this returns true if it is within the specified range including both boundaries.
+   * For example, in a constructor:
+   * <pre>
+   *  this.amount = ArgChecker.inRangeInclusive(amount, 0d, 1d, "amount");
+   * </pre>
+   *
+   * @param argument  the value to check
+   * @param lowInclusive  the low value of the range
+   * @param highInclusive  the high value of the range
+   * @param name  the name of the argument to use in the error message, not null
+   * @return the input {@code argument}
+   * @throws IllegalArgumentException if the argument is outside the valid range
+   */
+  public static int inRangeInclusive(int argument, int lowInclusive, int highInclusive, String name) {
+    if (argument < lowInclusive || argument > highInclusive) {
+      throw new IllegalArgumentException(
+          Messages.format("Expected {} <= '{}' <= {}, but found {}", lowInclusive, name, highInclusive, argument));
+    }
+    return argument;
+  }
+
+  /**
+   * Checks that the argument is within the range defined by {@code low < x < high}.
+   * <p>
+   * Given a value, this returns true if it is within the specified range excluding both boundaries.
+   * For example, in a constructor:
+   * <pre>
+   *  this.amount = ArgChecker.inRangeExclusive(amount, 0d, 1d, "amount");
+   * </pre>
+   *
+   * @param argument  the value to check
+   * @param lowExclusive  the low value of the range
+   * @param highExclusive  the high value of the range
+   * @param name  the name of the argument to use in the error message, not null
+   * @return the input {@code argument}
+   * @throws IllegalArgumentException if the argument is outside the valid range
+   */
+  public static int inRangeExclusive(int argument, int lowExclusive, int highExclusive, String name) {
+    if (argument <= lowExclusive || argument >= highExclusive) {
+      throw new IllegalArgumentException(
+          Messages.format("Expected {} < '{}' < {}, but found {}", lowExclusive, name, highExclusive, argument));
+    }
+    return argument;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Checks that the two values are in order and not equal.
    * <p>
    * Given two comparable instances, this checks that the first is "less than" the second.

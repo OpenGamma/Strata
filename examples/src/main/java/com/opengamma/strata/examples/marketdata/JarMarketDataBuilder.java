@@ -19,7 +19,7 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 /**
  * Loads market data from the standard directory structure embedded within a JAR file.
  */
-public class JarMarketDataBuilder extends MarketDataBuilder {
+public class JarMarketDataBuilder extends ExampleMarketDataBuilder {
 
   /**
    * The JAR file containing the expected structure of resources.

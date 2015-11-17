@@ -200,8 +200,8 @@ public final class BusinessDayAdjustment
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       BusinessDayAdjustment other = (BusinessDayAdjustment) obj;
-      return JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
-          JodaBeanUtils.equal(getCalendar(), other.getCalendar());
+      return JodaBeanUtils.equal(convention, other.convention) &&
+          JodaBeanUtils.equal(calendar, other.calendar);
     }
     return false;
   }
@@ -209,8 +209,8 @@ public final class BusinessDayAdjustment
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCalendar());
+    hash = hash * 31 + JodaBeanUtils.hashCode(convention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(calendar);
     return hash;
   }
 

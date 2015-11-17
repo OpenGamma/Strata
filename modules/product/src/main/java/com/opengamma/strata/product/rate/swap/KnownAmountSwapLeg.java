@@ -337,11 +337,11 @@ public final class KnownAmountSwapLeg
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       KnownAmountSwapLeg other = (KnownAmountSwapLeg) obj;
-      return JodaBeanUtils.equal(getPayReceive(), other.getPayReceive()) &&
-          JodaBeanUtils.equal(getAccrualSchedule(), other.getAccrualSchedule()) &&
-          JodaBeanUtils.equal(getPaymentSchedule(), other.getPaymentSchedule()) &&
-          JodaBeanUtils.equal(getAmount(), other.getAmount()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency());
+      return JodaBeanUtils.equal(payReceive, other.payReceive) &&
+          JodaBeanUtils.equal(accrualSchedule, other.accrualSchedule) &&
+          JodaBeanUtils.equal(paymentSchedule, other.paymentSchedule) &&
+          JodaBeanUtils.equal(amount, other.amount) &&
+          JodaBeanUtils.equal(currency, other.currency);
     }
     return false;
   }
@@ -349,11 +349,11 @@ public final class KnownAmountSwapLeg
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPayReceive());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualSchedule());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentSchedule());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAmount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(payReceive);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualSchedule);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentSchedule);
+    hash = hash * 31 + JodaBeanUtils.hashCode(amount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     return hash;
   }
 
@@ -361,11 +361,11 @@ public final class KnownAmountSwapLeg
   public String toString() {
     StringBuilder buf = new StringBuilder(288);
     buf.append("KnownAmountSwapLeg{");
-    buf.append("payReceive").append('=').append(getPayReceive()).append(',').append(' ');
-    buf.append("accrualSchedule").append('=').append(getAccrualSchedule()).append(',').append(' ');
-    buf.append("paymentSchedule").append('=').append(getPaymentSchedule()).append(',').append(' ');
-    buf.append("amount").append('=').append(getAmount()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
+    buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
+    buf.append("paymentSchedule").append('=').append(paymentSchedule).append(',').append(' ');
+    buf.append("amount").append('=').append(amount).append(',').append(' ');
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("type").append('=').append(getType()).append(',').append(' ');
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate()));

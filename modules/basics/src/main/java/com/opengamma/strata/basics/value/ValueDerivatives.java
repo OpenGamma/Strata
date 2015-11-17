@@ -76,6 +76,10 @@ public final class ValueDerivatives
     return META_BEAN;
   }
 
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
   /**
    * The serialization version id.
    */
@@ -119,7 +123,7 @@ public final class ValueDerivatives
    * @return the value of the property, not null
    */
   public double[] getDerivatives() {
-    return (derivatives != null ? derivatives.clone() : null);
+    return derivatives.clone();
   }
 
   //-----------------------------------------------------------------------
@@ -130,8 +134,8 @@ public final class ValueDerivatives
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ValueDerivatives other = (ValueDerivatives) obj;
-      return JodaBeanUtils.equal(getValue(), other.getValue()) &&
-          JodaBeanUtils.equal(getDerivatives(), other.getDerivatives());
+      return JodaBeanUtils.equal(value, other.value) &&
+          JodaBeanUtils.equal(derivatives, other.derivatives);
     }
     return false;
   }
@@ -139,8 +143,8 @@ public final class ValueDerivatives
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValue());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDerivatives());
+    hash = hash * 31 + JodaBeanUtils.hashCode(value);
+    hash = hash * 31 + JodaBeanUtils.hashCode(derivatives);
     return hash;
   }
 
@@ -148,8 +152,8 @@ public final class ValueDerivatives
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ValueDerivatives{");
-    buf.append("value").append('=').append(getValue()).append(',').append(' ');
-    buf.append("derivatives").append('=').append(JodaBeanUtils.toString(getDerivatives()));
+    buf.append("value").append('=').append(value).append(',').append(' ');
+    buf.append("derivatives").append('=').append(JodaBeanUtils.toString(derivatives));
     buf.append('}');
     return buf.toString();
   }

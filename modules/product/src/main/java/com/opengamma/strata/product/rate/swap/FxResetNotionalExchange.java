@@ -290,11 +290,11 @@ public final class FxResetNotionalExchange
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxResetNotionalExchange other = (FxResetNotionalExchange) obj;
-      return JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
-          JodaBeanUtils.equal(getReferenceCurrency(), other.getReferenceCurrency()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getFixingDate(), other.getFixingDate());
+      return JodaBeanUtils.equal(paymentDate, other.paymentDate) &&
+          JodaBeanUtils.equal(referenceCurrency, other.referenceCurrency) &&
+          JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(fixingDate, other.fixingDate);
     }
     return false;
   }
@@ -302,11 +302,11 @@ public final class FxResetNotionalExchange
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(referenceCurrency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixingDate);
     return hash;
   }
 
@@ -314,11 +314,11 @@ public final class FxResetNotionalExchange
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("FxResetNotionalExchange{");
-    buf.append("paymentDate").append('=').append(getPaymentDate()).append(',').append(' ');
-    buf.append("referenceCurrency").append('=').append(getReferenceCurrency()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(getFixingDate()));
+    buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
+    buf.append("referenceCurrency").append('=').append(referenceCurrency).append(',').append(' ');
+    buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate));
     buf.append('}');
     return buf.toString();
   }

@@ -22,8 +22,8 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
@@ -51,24 +51,24 @@ public class IborIborSwapCurveNodeTest {
     IborIborSwapCurveNode test = IborIborSwapCurveNode.builder()
         .template(TEMPLATE)
         .rateKey(QUOTE_KEY)
-        .spread(SPREAD)
+        .additionalSpread(SPREAD)
         .build();
     assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getSpread(), SPREAD);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_noSpread() {
     IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY);
     assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getSpread(), 0.0d);
+    assertEquals(test.getAdditionalSpread(), 0.0d);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_withSpread() {
     IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getSpread(), SPREAD);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
@@ -84,7 +84,8 @@ public class IborIborSwapCurveNodeTest {
     IborIborSwapCurveNode node = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     double rate = 0.125;
-    SwapTrade trade = node.trade(tradeDate, ObservableValues.of(QUOTE_KEY, rate));
+    MarketData marketData = MarketData.builder().addValue(QUOTE_KEY, rate).build();
+    SwapTrade trade = node.trade(tradeDate, marketData);
     SwapTrade expected = TEMPLATE.toTrade(tradeDate, BUY, 1, rate + SPREAD);
     assertEquals(trade, expected);
   }
@@ -93,16 +94,18 @@ public class IborIborSwapCurveNodeTest {
     IborIborSwapCurveNode node = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    assertThrowsIllegalArg(() -> node.trade(
-        valuationDate, ObservableValues.of(QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")), rate)));
+    QuoteKey key = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
+    MarketData marketData = MarketData.builder().addValue(key, rate).build();
+    assertThrowsIllegalArg(() -> node.trade(valuationDate, marketData));
   }
 
   public void test_initialGuess() {
     IborIborSwapCurveNode node = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    assertEquals(node.initialGuess(valuationDate, ObservableValues.of(QUOTE_KEY, rate), ValueType.ZERO_RATE), 0d);
-    assertEquals(node.initialGuess(valuationDate, ObservableValues.of(QUOTE_KEY, rate), ValueType.DISCOUNT_FACTOR), 1.0d);
+    MarketData marketData = MarketData.builder().addValue(QUOTE_KEY, rate).build();
+    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.ZERO_RATE), 0d);
+    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR), 1.0d);
   }
 
   public void test_metadata() {

@@ -27,8 +27,8 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
@@ -59,24 +59,24 @@ public class TermDepositCurveNodeTest {
     TermDepositCurveNode test = TermDepositCurveNode.builder()
         .template(TEMPLATE)
         .rateKey(QUOTE_KEY)
-        .spread(SPREAD)
+        .additionalSpread(SPREAD)
         .build();
     assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getSpread(), SPREAD);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_noSpread() {
     TermDepositCurveNode test = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY);
     assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getSpread(), 0.0d);
+    assertEquals(test.getAdditionalSpread(), 0.0d);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_withSpread() {
     TermDepositCurveNode test = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getSpread(), SPREAD);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
 
   }
@@ -93,7 +93,8 @@ public class TermDepositCurveNodeTest {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    TermDepositTrade trade = node.trade(valuationDate, ObservableValues.of(QUOTE_KEY, rate));
+    MarketData marketData = MarketData.builder().addValue(QUOTE_KEY, rate).build();
+    TermDepositTrade trade = node.trade(valuationDate, marketData);
     LocalDate startDateExpected = PLUS_TWO_DAYS.adjust(valuationDate);
     LocalDate endDateExpected = startDateExpected.plus(DEPOSIT_PERIOD);
     TermDeposit depositExpected = TermDeposit.builder()
@@ -117,16 +118,18 @@ public class TermDepositCurveNodeTest {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    assertThrowsIllegalArg(() -> node.trade(
-        valuationDate, ObservableValues.of(QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")), rate)));
+    QuoteKey key = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
+    MarketData marketData = MarketData.builder().addValue(key, rate).build();
+    assertThrowsIllegalArg(() -> node.trade(valuationDate, marketData));
   }
 
   public void test_initialGuess() {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    assertEquals(node.initialGuess(valuationDate, ObservableValues.of(QUOTE_KEY, rate), ValueType.ZERO_RATE), rate);
-    assertEquals(node.initialGuess(valuationDate, ObservableValues.of(QUOTE_KEY, rate), ValueType.DISCOUNT_FACTOR), 0d);
+    MarketData marketData = MarketData.builder().addValue(QUOTE_KEY, rate).build();
+    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.ZERO_RATE), rate);
+    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR), 0d);
   }
 
   public void test_metadata() {

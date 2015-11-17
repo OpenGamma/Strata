@@ -336,15 +336,15 @@ public final class ExpandedFra
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ExpandedFra other = (ExpandedFra) obj;
-      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
-          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
-          JodaBeanUtils.equal(getYearFraction(), other.getYearFraction()) &&
-          JodaBeanUtils.equal(getFixedRate(), other.getFixedRate()) &&
-          JodaBeanUtils.equal(getFloatingRate(), other.getFloatingRate()) &&
-          JodaBeanUtils.equal(getDiscounting(), other.getDiscounting());
+      return JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(paymentDate, other.paymentDate) &&
+          JodaBeanUtils.equal(startDate, other.startDate) &&
+          JodaBeanUtils.equal(endDate, other.endDate) &&
+          JodaBeanUtils.equal(yearFraction, other.yearFraction) &&
+          JodaBeanUtils.equal(fixedRate, other.fixedRate) &&
+          JodaBeanUtils.equal(floatingRate, other.floatingRate) &&
+          JodaBeanUtils.equal(discounting, other.discounting);
     }
     return false;
   }
@@ -352,15 +352,15 @@ public final class ExpandedFra
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getYearFraction());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixedRate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFloatingRate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDiscounting());
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(floatingRate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(discounting);
     return hash;
   }
 
@@ -368,15 +368,15 @@ public final class ExpandedFra
   public String toString() {
     StringBuilder buf = new StringBuilder(320);
     buf.append("ExpandedFra{");
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("paymentDate").append('=').append(getPaymentDate()).append(',').append(' ');
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
-    buf.append("yearFraction").append('=').append(getYearFraction()).append(',').append(' ');
-    buf.append("fixedRate").append('=').append(getFixedRate()).append(',').append(' ');
-    buf.append("floatingRate").append('=').append(getFloatingRate()).append(',').append(' ');
-    buf.append("discounting").append('=').append(JodaBeanUtils.toString(getDiscounting()));
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
+    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
+    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
+    buf.append("yearFraction").append('=').append(yearFraction).append(',').append(' ');
+    buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
+    buf.append("floatingRate").append('=').append(floatingRate).append(',').append(' ');
+    buf.append("discounting").append('=').append(JodaBeanUtils.toString(discounting));
     buf.append('}');
     return buf.toString();
   }

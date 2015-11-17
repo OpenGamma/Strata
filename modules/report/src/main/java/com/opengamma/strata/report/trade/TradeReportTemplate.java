@@ -118,7 +118,7 @@ public final class TradeReportTemplate
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       TradeReportTemplate other = (TradeReportTemplate) obj;
-      return JodaBeanUtils.equal(getColumns(), other.getColumns());
+      return JodaBeanUtils.equal(columns, other.columns);
     }
     return false;
   }
@@ -126,7 +126,7 @@ public final class TradeReportTemplate
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getColumns());
+    hash = hash * 31 + JodaBeanUtils.hashCode(columns);
     return hash;
   }
 
@@ -134,7 +134,7 @@ public final class TradeReportTemplate
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("TradeReportTemplate{");
-    buf.append("columns").append('=').append(JodaBeanUtils.toString(getColumns()));
+    buf.append("columns").append('=').append(JodaBeanUtils.toString(columns));
     buf.append('}');
     return buf.toString();
   }

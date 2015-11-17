@@ -400,7 +400,7 @@ public final class CurveCurrencyParameterSensitivities
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveCurrencyParameterSensitivities other = (CurveCurrencyParameterSensitivities) obj;
-      return JodaBeanUtils.equal(getSensitivities(), other.getSensitivities());
+      return JodaBeanUtils.equal(sensitivities, other.sensitivities);
     }
     return false;
   }
@@ -408,7 +408,7 @@ public final class CurveCurrencyParameterSensitivities
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivities());
+    hash = hash * 31 + JodaBeanUtils.hashCode(sensitivities);
     return hash;
   }
 
@@ -416,7 +416,7 @@ public final class CurveCurrencyParameterSensitivities
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("CurveCurrencyParameterSensitivities{");
-    buf.append("sensitivities").append('=').append(JodaBeanUtils.toString(getSensitivities()));
+    buf.append("sensitivities").append('=').append(JodaBeanUtils.toString(sensitivities));
     buf.append('}');
     return buf.toString();
   }

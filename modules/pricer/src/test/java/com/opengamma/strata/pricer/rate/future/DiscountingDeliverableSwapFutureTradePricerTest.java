@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -81,7 +80,6 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
       InterpolatedNodalCurve.of(USD_FWD3_METADATA, USD_FWD3_TIME, USD_FWD3_RATE, INTERPOLATOR);
   private static final ImmutableRatesProvider PROVIDER = ImmutableRatesProvider.builder()
       .valuationDate(VALUATION)
-      .fxMatrix(FxMatrix.empty())
       .discountCurves(ImmutableMap.of(USD, USD_DSC))
       .indexCurves(ImmutableMap.of(USD_LIBOR_3M, USD_FWD3))
       .build();

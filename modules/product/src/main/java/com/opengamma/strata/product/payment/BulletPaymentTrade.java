@@ -148,8 +148,8 @@ public final class BulletPaymentTrade
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       BulletPaymentTrade other = (BulletPaymentTrade) obj;
-      return JodaBeanUtils.equal(getTradeInfo(), other.getTradeInfo()) &&
-          JodaBeanUtils.equal(getProduct(), other.getProduct());
+      return JodaBeanUtils.equal(tradeInfo, other.tradeInfo) &&
+          JodaBeanUtils.equal(product, other.product);
     }
     return false;
   }
@@ -157,8 +157,8 @@ public final class BulletPaymentTrade
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeInfo());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getProduct());
+    hash = hash * 31 + JodaBeanUtils.hashCode(tradeInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(product);
     return hash;
   }
 
@@ -166,8 +166,8 @@ public final class BulletPaymentTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("BulletPaymentTrade{");
-    buf.append("tradeInfo").append('=').append(getTradeInfo()).append(',').append(' ');
-    buf.append("product").append('=').append(JodaBeanUtils.toString(getProduct()));
+    buf.append("tradeInfo").append('=').append(tradeInfo).append(',').append(' ');
+    buf.append("product").append('=').append(JodaBeanUtils.toString(product));
     buf.append('}');
     return buf.toString();
   }

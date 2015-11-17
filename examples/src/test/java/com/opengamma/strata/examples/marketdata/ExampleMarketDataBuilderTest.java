@@ -55,10 +55,10 @@ import com.opengamma.strata.product.credit.SeniorityLevel;
 import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
 
 /**
- * Test {@link MarketDataBuilder}, {@link DirectoryMarketDataBuilder} and {@link JarMarketDataBuilder}.
+ * Test {@link ExampleMarketDataBuilder}, {@link DirectoryMarketDataBuilder} and {@link JarMarketDataBuilder}.
  */
 @Test
-public class MarketDataBuilderTest {
+public class ExampleMarketDataBuilderTest {
 
   private static final String EXAMPLE_MARKET_DATA_CLASSPATH_ROOT = "example-marketdata";
   private static final String EXAMPLE_MARKET_DATA_DIRECTORY_ROOT = "src/main/resources/example-marketdata";
@@ -168,7 +168,7 @@ public class MarketDataBuilderTest {
   public void test_classpath_jar() throws Exception {
 
     // Create a JAR file containing the example market data
-    File tempFile = File.createTempFile(MarketDataBuilderTest.class.getSimpleName(), ".jar");
+    File tempFile = File.createTempFile(ExampleMarketDataBuilderTest.class.getSimpleName(), ".jar");
     try (FileOutputStream tempFileOut = new FileOutputStream(tempFile)) {
       try (JarOutputStream zipFileOut = new JarOutputStream(tempFileOut)) {
         File diskRoot = new File(EXAMPLE_MARKET_DATA_DIRECTORY_ROOT);
@@ -181,7 +181,7 @@ public class MarketDataBuilderTest {
     try (URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] {tempFile.toURI().toURL()})) {
       // Test automatically finding the resource inside the JAR
       Thread.currentThread().setContextClassLoader(classLoader);
-      assertBuilder(MarketDataBuilder.ofResource("zip-data", classLoader));
+      assertBuilder(ExampleMarketDataBuilder.ofResource("zip-data", classLoader));
     } finally {
       Thread.currentThread().setContextClassLoader(originalContextClassLoader);
       try {
@@ -194,41 +194,41 @@ public class MarketDataBuilderTest {
 
   public void test_ofPath() {
     Path rootPath = new File(EXAMPLE_MARKET_DATA_DIRECTORY_ROOT).toPath();
-    MarketDataBuilder builder = MarketDataBuilder.ofPath(rootPath);
+    ExampleMarketDataBuilder builder = ExampleMarketDataBuilder.ofPath(rootPath);
     assertBuilder(builder);
   }
 
   public void test_ofPath_with_spaces() {
     Path rootPath = new File(TEST_SPACES_DIRECTORY_ROOT).toPath();
-    MarketDataBuilder builder = MarketDataBuilder.ofPath(rootPath);
+    ExampleMarketDataBuilder builder = ExampleMarketDataBuilder.ofPath(rootPath);
 
     MarketEnvironment snapshot = builder.buildSnapshot(LocalDate.of(2015, 1, 1));
     assertEquals(snapshot.getTimeSeries().size(), 1);
   }
 
   public void test_ofResource_directory() {
-    MarketDataBuilder builder = MarketDataBuilder.ofResource(EXAMPLE_MARKET_DATA_CLASSPATH_ROOT);
+    ExampleMarketDataBuilder builder = ExampleMarketDataBuilder.ofResource(EXAMPLE_MARKET_DATA_CLASSPATH_ROOT);
     assertBuilder(builder);
   }
 
   public void test_ofResource_directory_extraSlashes() {
-    MarketDataBuilder builder = MarketDataBuilder.ofResource("/" + EXAMPLE_MARKET_DATA_CLASSPATH_ROOT + "/");
+    ExampleMarketDataBuilder builder = ExampleMarketDataBuilder.ofResource("/" + EXAMPLE_MARKET_DATA_CLASSPATH_ROOT + "/");
     assertBuilder(builder);
   }
 
   public void test_ofResource_directory_notFound() {
-    assertThrowsIllegalArg(() -> MarketDataBuilder.ofResource("bad-dir"));
+    assertThrowsIllegalArg(() -> ExampleMarketDataBuilder.ofResource("bad-dir"));
   }
 
   public void test_ofResource_directory_with_spaces() {
-    MarketDataBuilder builder = MarketDataBuilder.ofResource(TEST_SPACES_CLASSPATH_ROOT);
+    ExampleMarketDataBuilder builder = ExampleMarketDataBuilder.ofResource(TEST_SPACES_CLASSPATH_ROOT);
 
     MarketEnvironment snapshot = builder.buildSnapshot(MARKET_DATA_DATE);
     assertEquals(snapshot.getTimeSeries().size(), 1);
   }
 
   //-------------------------------------------------------------------------
-  private void assertBuilder(MarketDataBuilder builder) {
+  private void assertBuilder(ExampleMarketDataBuilder builder) {
     MarketEnvironment snapshot = builder.buildSnapshot(MARKET_DATA_DATE);
 
     assertEquals(MARKET_DATA_DATE, snapshot.getValuationDate().getSingleValue());

@@ -282,12 +282,12 @@ public final class IborFuture
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborFuture other = (IborFuture) obj;
-      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getAccrualFactor(), other.getAccrualFactor()) &&
-          JodaBeanUtils.equal(getLastTradeDate(), other.getLastTradeDate()) &&
-          JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getRounding(), other.getRounding());
+      return JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(accrualFactor, other.accrualFactor) &&
+          JodaBeanUtils.equal(lastTradeDate, other.lastTradeDate) &&
+          JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(rounding, other.rounding);
     }
     return false;
   }
@@ -295,12 +295,12 @@ public final class IborFuture
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualFactor());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLastTradeDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRounding());
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualFactor);
+    hash = hash * 31 + JodaBeanUtils.hashCode(lastTradeDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rounding);
     return hash;
   }
 
@@ -308,12 +308,12 @@ public final class IborFuture
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("IborFuture{");
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("accrualFactor").append('=').append(getAccrualFactor()).append(',').append(' ');
-    buf.append("lastTradeDate").append('=').append(getLastTradeDate()).append(',').append(' ');
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("rounding").append('=').append(JodaBeanUtils.toString(getRounding()));
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("accrualFactor").append('=').append(accrualFactor).append(',').append(' ');
+    buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding));
     buf.append('}');
     return buf.toString();
   }

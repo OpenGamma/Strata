@@ -33,7 +33,7 @@ import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.collect.CollectProjectAssertions;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.function.marketdata.curve.MarketDataMap;
+import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
@@ -93,7 +93,7 @@ public class FxNdfFunctionGroupsTest {
         ccy1, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
     DiscountFactors df2 = SimpleDiscountFactors.of(
         ccy2, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
-    MarketDataMap md = new MarketDataMap(
+    TestMarketDataMap md = new TestMarketDataMap(
         valDate,
         ImmutableMap.of(DiscountFactorsKey.of(ccy1), df1, DiscountFactorsKey.of(ccy2), df2),
         ImmutableMap.of());
@@ -114,7 +114,7 @@ public class FxNdfFunctionGroupsTest {
     DiscountFactors df2 = SimpleDiscountFactors.of(
         ccy2, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
     FxRate fxRate = FxRate.of(ccy1, ccy2, 1.6d);
-    MarketDataMap md = new MarketDataMap(
+    TestMarketDataMap md = new TestMarketDataMap(
         valDate,
         ImmutableMap.of(
             DiscountFactorsKey.of(ccy1), df1,

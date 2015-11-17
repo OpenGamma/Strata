@@ -32,8 +32,8 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -125,13 +125,13 @@ public class CalibrationDiscountingSimple1Test {
   }
 
   /** All quotes for the curve calibration */
-  private static final ObservableValues ALL_QUOTES;
+  private static final MarketData ALL_QUOTES;
   static {
     Map<ObservableKey, Double> map = new HashMap<>();
     for (int i = 0; i < FWD3_NB_NODES; i++) {
       map.put(QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i])), FWD3_MARKET_QUOTES[i]);
     }
-    ALL_QUOTES = ObservableValues.of(map);
+    ALL_QUOTES = MarketData.of(map);
   }
 
   /** All nodes by groups. */

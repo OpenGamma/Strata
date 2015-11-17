@@ -63,6 +63,10 @@ final class LoadedCurveKey
     return META_BEAN;
   }
 
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
   private LoadedCurveKey(
       LocalDate curveDate,
       CurveName curveName) {
@@ -113,8 +117,8 @@ final class LoadedCurveKey
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       LoadedCurveKey other = (LoadedCurveKey) obj;
-      return JodaBeanUtils.equal(getCurveDate(), other.getCurveDate()) &&
-          JodaBeanUtils.equal(getCurveName(), other.getCurveName());
+      return JodaBeanUtils.equal(curveDate, other.curveDate) &&
+          JodaBeanUtils.equal(curveName, other.curveName);
     }
     return false;
   }
@@ -122,8 +126,8 @@ final class LoadedCurveKey
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveName);
     return hash;
   }
 
@@ -131,8 +135,8 @@ final class LoadedCurveKey
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("LoadedCurveKey{");
-    buf.append("curveDate").append('=').append(getCurveDate()).append(',').append(' ');
-    buf.append("curveName").append('=').append(JodaBeanUtils.toString(getCurveName()));
+    buf.append("curveDate").append('=').append(curveDate).append(',').append(' ');
+    buf.append("curveName").append('=').append(JodaBeanUtils.toString(curveName));
     buf.append('}');
     return buf.toString();
   }

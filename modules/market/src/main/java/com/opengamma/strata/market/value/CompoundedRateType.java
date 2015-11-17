@@ -6,7 +6,9 @@
 package com.opengamma.strata.market.value;
 
 import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 
+import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -34,16 +36,27 @@ public enum CompoundedRateType {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the type of compounded rate from a unique name.
+   * Obtains the type from a unique name.
    * 
    * @param uniqueName  the unique name
-   * @return the compounded rate type
+   * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
   public static CompoundedRateType of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(uniqueName);
+    return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
+  }
+
+  /**
+   * Returns the formatted unique name of the type.
+   * 
+   * @return the formatted string representing the type
+   */
+  @ToString
+  @Override
+  public String toString() {
+    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
   }
 
 }

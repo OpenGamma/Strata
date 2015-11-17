@@ -380,14 +380,14 @@ public final class BondFutureOption
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       BondFutureOption other = (BondFutureOption) obj;
-      return JodaBeanUtils.equal(getPutCall(), other.getPutCall()) &&
-          JodaBeanUtils.equal(getStrikePrice(), other.getStrikePrice()) &&
-          JodaBeanUtils.equal(getExpiryDate(), other.getExpiryDate()) &&
-          JodaBeanUtils.equal(getExpiryTime(), other.getExpiryTime()) &&
-          JodaBeanUtils.equal(getExpiryZone(), other.getExpiryZone()) &&
-          JodaBeanUtils.equal(getPremiumStyle(), other.getPremiumStyle()) &&
-          JodaBeanUtils.equal(getRounding(), other.getRounding()) &&
-          JodaBeanUtils.equal(getUnderlyingLink(), other.getUnderlyingLink());
+      return JodaBeanUtils.equal(putCall, other.putCall) &&
+          JodaBeanUtils.equal(strikePrice, other.strikePrice) &&
+          JodaBeanUtils.equal(expiryDate, other.expiryDate) &&
+          JodaBeanUtils.equal(expiryTime, other.expiryTime) &&
+          JodaBeanUtils.equal(expiryZone, other.expiryZone) &&
+          JodaBeanUtils.equal(premiumStyle, other.premiumStyle) &&
+          JodaBeanUtils.equal(rounding, other.rounding) &&
+          JodaBeanUtils.equal(underlyingLink, other.underlyingLink);
     }
     return false;
   }
@@ -395,14 +395,14 @@ public final class BondFutureOption
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPutCall());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStrikePrice());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryTime());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryZone());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumStyle());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRounding());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingLink());
+    hash = hash * 31 + JodaBeanUtils.hashCode(putCall);
+    hash = hash * 31 + JodaBeanUtils.hashCode(strikePrice);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryTime);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryZone);
+    hash = hash * 31 + JodaBeanUtils.hashCode(premiumStyle);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rounding);
+    hash = hash * 31 + JodaBeanUtils.hashCode(underlyingLink);
     return hash;
   }
 
@@ -410,14 +410,14 @@ public final class BondFutureOption
   public String toString() {
     StringBuilder buf = new StringBuilder(288);
     buf.append("BondFutureOption{");
-    buf.append("putCall").append('=').append(getPutCall()).append(',').append(' ');
-    buf.append("strikePrice").append('=').append(getStrikePrice()).append(',').append(' ');
-    buf.append("expiryDate").append('=').append(getExpiryDate()).append(',').append(' ');
-    buf.append("expiryTime").append('=').append(getExpiryTime()).append(',').append(' ');
-    buf.append("expiryZone").append('=').append(getExpiryZone()).append(',').append(' ');
-    buf.append("premiumStyle").append('=').append(getPremiumStyle()).append(',').append(' ');
-    buf.append("rounding").append('=').append(getRounding()).append(',').append(' ');
-    buf.append("underlyingLink").append('=').append(JodaBeanUtils.toString(getUnderlyingLink()));
+    buf.append("putCall").append('=').append(putCall).append(',').append(' ');
+    buf.append("strikePrice").append('=').append(strikePrice).append(',').append(' ');
+    buf.append("expiryDate").append('=').append(expiryDate).append(',').append(' ');
+    buf.append("expiryTime").append('=').append(expiryTime).append(',').append(' ');
+    buf.append("expiryZone").append('=').append(expiryZone).append(',').append(' ');
+    buf.append("premiumStyle").append('=').append(premiumStyle).append(',').append(' ');
+    buf.append("rounding").append('=').append(rounding).append(',').append(' ');
+    buf.append("underlyingLink").append('=').append(JodaBeanUtils.toString(underlyingLink));
     buf.append('}');
     return buf.toString();
   }

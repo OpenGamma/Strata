@@ -378,15 +378,15 @@ public final class RateAccrualPeriod
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       RateAccrualPeriod other = (RateAccrualPeriod) obj;
-      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
-          JodaBeanUtils.equal(getUnadjustedStartDate(), other.getUnadjustedStartDate()) &&
-          JodaBeanUtils.equal(getUnadjustedEndDate(), other.getUnadjustedEndDate()) &&
-          JodaBeanUtils.equal(getYearFraction(), other.getYearFraction()) &&
-          JodaBeanUtils.equal(getRateObservation(), other.getRateObservation()) &&
-          JodaBeanUtils.equal(getGearing(), other.getGearing()) &&
-          JodaBeanUtils.equal(getSpread(), other.getSpread()) &&
-          JodaBeanUtils.equal(getNegativeRateMethod(), other.getNegativeRateMethod());
+      return JodaBeanUtils.equal(startDate, other.startDate) &&
+          JodaBeanUtils.equal(endDate, other.endDate) &&
+          JodaBeanUtils.equal(unadjustedStartDate, other.unadjustedStartDate) &&
+          JodaBeanUtils.equal(unadjustedEndDate, other.unadjustedEndDate) &&
+          JodaBeanUtils.equal(yearFraction, other.yearFraction) &&
+          JodaBeanUtils.equal(rateObservation, other.rateObservation) &&
+          JodaBeanUtils.equal(gearing, other.gearing) &&
+          JodaBeanUtils.equal(spread, other.spread) &&
+          JodaBeanUtils.equal(negativeRateMethod, other.negativeRateMethod);
     }
     return false;
   }
@@ -394,15 +394,15 @@ public final class RateAccrualPeriod
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUnadjustedStartDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUnadjustedEndDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getYearFraction());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRateObservation());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getGearing());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSpread());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNegativeRateMethod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(unadjustedStartDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(unadjustedEndDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rateObservation);
+    hash = hash * 31 + JodaBeanUtils.hashCode(gearing);
+    hash = hash * 31 + JodaBeanUtils.hashCode(spread);
+    hash = hash * 31 + JodaBeanUtils.hashCode(negativeRateMethod);
     return hash;
   }
 
@@ -410,15 +410,15 @@ public final class RateAccrualPeriod
   public String toString() {
     StringBuilder buf = new StringBuilder(320);
     buf.append("RateAccrualPeriod{");
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
-    buf.append("unadjustedStartDate").append('=').append(getUnadjustedStartDate()).append(',').append(' ');
-    buf.append("unadjustedEndDate").append('=').append(getUnadjustedEndDate()).append(',').append(' ');
-    buf.append("yearFraction").append('=').append(getYearFraction()).append(',').append(' ');
-    buf.append("rateObservation").append('=').append(getRateObservation()).append(',').append(' ');
-    buf.append("gearing").append('=').append(getGearing()).append(',').append(' ');
-    buf.append("spread").append('=').append(getSpread()).append(',').append(' ');
-    buf.append("negativeRateMethod").append('=').append(JodaBeanUtils.toString(getNegativeRateMethod()));
+    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
+    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
+    buf.append("unadjustedStartDate").append('=').append(unadjustedStartDate).append(',').append(' ');
+    buf.append("unadjustedEndDate").append('=').append(unadjustedEndDate).append(',').append(' ');
+    buf.append("yearFraction").append('=').append(yearFraction).append(',').append(' ');
+    buf.append("rateObservation").append('=').append(rateObservation).append(',').append(' ');
+    buf.append("gearing").append('=').append(gearing).append(',').append(' ');
+    buf.append("spread").append('=').append(spread).append(',').append(' ');
+    buf.append("negativeRateMethod").append('=').append(JodaBeanUtils.toString(negativeRateMethod));
     buf.append('}');
     return buf.toString();
   }

@@ -20,15 +20,16 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
-import com.opengamma.strata.basics.market.Perturbation;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.key.IborIndexRatesKey;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -65,6 +66,7 @@ public class DiscountIborIndexRatesTest {
   //-------------------------------------------------------------------------
   public void test_of_withoutFixings() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, DFCURVE);
+    assertEquals(test.getKey(), IborIndexRatesKey.of(GBP_LIBOR_3M));
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getTimeSeries(), SERIES_EMPTY);
@@ -75,6 +77,7 @@ public class DiscountIborIndexRatesTest {
 
   public void test_of_withFixings() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
+    assertEquals(test.getKey(), IborIndexRatesKey.of(GBP_LIBOR_3M));
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getTimeSeries(), SERIES);

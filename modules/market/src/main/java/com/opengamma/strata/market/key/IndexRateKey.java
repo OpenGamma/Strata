@@ -163,8 +163,8 @@ public final class IndexRateKey
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IndexRateKey other = (IndexRateKey) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getFieldName(), other.getFieldName());
+      return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(fieldName, other.fieldName);
     }
     return false;
   }
@@ -172,8 +172,8 @@ public final class IndexRateKey
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFieldName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fieldName);
     return hash;
   }
 
@@ -181,8 +181,8 @@ public final class IndexRateKey
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("IndexRateKey{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("fieldName").append('=').append(JodaBeanUtils.toString(getFieldName()));
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("fieldName").append('=').append(JodaBeanUtils.toString(fieldName));
     buf.append('}');
     return buf.toString();
   }

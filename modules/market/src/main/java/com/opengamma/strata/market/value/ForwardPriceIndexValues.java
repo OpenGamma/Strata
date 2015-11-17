@@ -8,6 +8,7 @@ package com.opengamma.strata.market.value;
 import static java.time.temporal.ChronoUnit.MONTHS;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -63,10 +64,10 @@ public final class ForwardPriceIndexValues
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PriceIndex index;
   /**
-   * The valuation month.
+   * The valuation date.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final YearMonth valuationMonth;
+  private final LocalDate valuationDate;
   /**
    * The monthly time-series.
    * This covers known historical fixings and must not be empty.
@@ -112,18 +113,18 @@ public final class ForwardPriceIndexValues
    * series is added as the first point of the interpolated curve to ensure a coherent transition.
    * 
    * @param index  the Price index
-   * @param valuationMonth  the valuation month for which the curve is valid
+   * @param valuationDate  the valuation date for which the curve is valid
    * @param fixings  the known historical fixings
    * @param curve  the underlying forward curve for index estimation
    * @return the values instance
    */
   public static ForwardPriceIndexValues of(
       PriceIndex index,
-      YearMonth valuationMonth,
+      LocalDate valuationDate,
       LocalDateDoubleTimeSeries fixings,
       InterpolatedNodalCurve curve) {
 
-    return new ForwardPriceIndexValues(index, valuationMonth, fixings, curve, NO_SEASONALITY);
+    return new ForwardPriceIndexValues(index, valuationDate, fixings, curve, NO_SEASONALITY);
   }
 
   /**
@@ -140,7 +141,7 @@ public final class ForwardPriceIndexValues
    * series is added as the first point of the interpolated curve to ensure a coherent transition.
    * 
    * @param index  the Price index
-   * @param valuationMonth  the valuation month for which the curve is valid
+   * @param valuationDate  the valuation date for which the curve is valid
    * @param fixings  the known historical fixings
    * @param curve  the underlying forward curve for index estimation
    * @param seasonality  the seasonality adjustment, size 12, index zero is January,
@@ -149,23 +150,23 @@ public final class ForwardPriceIndexValues
    */
   public static ForwardPriceIndexValues of(
       PriceIndex index,
-      YearMonth valuationMonth,
+      LocalDate valuationDate,
       LocalDateDoubleTimeSeries fixings,
       InterpolatedNodalCurve curve,
       DoubleArray seasonality) {
 
-    return new ForwardPriceIndexValues(index, valuationMonth, fixings, curve, seasonality);
+    return new ForwardPriceIndexValues(index, valuationDate, fixings, curve, seasonality);
   }
 
   @ImmutableConstructor
   private ForwardPriceIndexValues(
       PriceIndex index,
-      YearMonth valuationMonth,
+      LocalDate valuationDate,
       LocalDateDoubleTimeSeries timeSeries,
       InterpolatedNodalCurve curve,
       DoubleArray seasonality) {
     ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(valuationMonth, "valuationMonth");
+    ArgChecker.notNull(valuationDate, "valuationDate");
     ArgChecker.notNull(timeSeries, "timeSeries");
     ArgChecker.isFalse(timeSeries.isEmpty(), "timeSeries must not be empty");
     ArgChecker.notNull(curve, "curve");
@@ -174,13 +175,13 @@ public final class ForwardPriceIndexValues
     curve.getMetadata().getXValueType().checkEquals(ValueType.MONTHS, "Incorrect x-value type for price curve");
     curve.getMetadata().getYValueType().checkEquals(ValueType.PRICE_INDEX, "Incorrect y-value type for price curve");
     this.index = index;
-    this.valuationMonth = valuationMonth;
+    this.valuationDate = valuationDate;
     this.timeSeries = timeSeries;
     this.curve = curve;
     this.seasonality = seasonality;
     // add the latest element of the time series as the first node on the curve
     YearMonth lastMonth = YearMonth.from(timeSeries.getLatestDate());
-    double nbMonth = valuationMonth.until(lastMonth, MONTHS);
+    double nbMonth = numberOfMonths(lastMonth);
     DoubleArray x = curve.getXValues();
     ArgChecker.isTrue(nbMonth < x.get(0), "The first estimation month should be after the last known index fixing");
     this.extendedCurve = curve.withNode(0, nbMonth, timeSeries.getLatestValue());
@@ -206,7 +207,7 @@ public final class ForwardPriceIndexValues
       return fixing.getAsDouble();
     }
     // otherwise, return the estimate from the curve.
-    double nbMonth = valuationMonth.until(month, MONTHS);
+    double nbMonth = numberOfMonths(month);
     double value = extendedCurve.yValue(nbMonth);
     int month0 = month.getMonthValue() - 1; // seasonality list start at 0 and months start at 1
     double adjustment = seasonality.get(month0);
@@ -231,7 +232,7 @@ public final class ForwardPriceIndexValues
       return CurveUnitParameterSensitivities.of(
           CurveUnitParameterSensitivity.of(curve.getMetadata(), DoubleArray.filled(getParameterCount())));
     }
-    double nbMonth = valuationMonth.until(month, MONTHS);
+    double nbMonth = numberOfMonths(month);
     int month0 = month.getMonthValue() - 1;
     double adjustment = seasonality.get(month0);
     DoubleArray unadjustedSensitivity = extendedCurve.yValueParameterSensitivity(nbMonth).getSensitivity();
@@ -255,7 +256,11 @@ public final class ForwardPriceIndexValues
    * @return the new instance
    */
   public ForwardPriceIndexValues withCurve(InterpolatedNodalCurve curve) {
-    return new ForwardPriceIndexValues(index, valuationMonth, timeSeries, curve, seasonality);
+    return new ForwardPriceIndexValues(index, valuationDate, timeSeries, curve, seasonality);
+  }
+
+  private double numberOfMonths(YearMonth month) {
+    return YearMonth.from(valuationDate).until(month, MONTHS);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -304,12 +309,12 @@ public final class ForwardPriceIndexValues
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the valuation month.
+   * Gets the valuation date.
    * @return the value of the property, not null
    */
   @Override
-  public YearMonth getValuationMonth() {
-    return valuationMonth;
+  public LocalDate getValuationDate() {
+    return valuationDate;
   }
 
   //-----------------------------------------------------------------------
@@ -357,11 +362,11 @@ public final class ForwardPriceIndexValues
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ForwardPriceIndexValues other = (ForwardPriceIndexValues) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getValuationMonth(), other.getValuationMonth()) &&
-          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
-          JodaBeanUtils.equal(getCurve(), other.getCurve()) &&
-          JodaBeanUtils.equal(getSeasonality(), other.getSeasonality());
+      return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(valuationDate, other.valuationDate) &&
+          JodaBeanUtils.equal(timeSeries, other.timeSeries) &&
+          JodaBeanUtils.equal(curve, other.curve) &&
+          JodaBeanUtils.equal(seasonality, other.seasonality);
     }
     return false;
   }
@@ -369,11 +374,11 @@ public final class ForwardPriceIndexValues
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationMonth());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurve());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSeasonality());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(valuationDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(timeSeries);
+    hash = hash * 31 + JodaBeanUtils.hashCode(curve);
+    hash = hash * 31 + JodaBeanUtils.hashCode(seasonality);
     return hash;
   }
 
@@ -381,11 +386,11 @@ public final class ForwardPriceIndexValues
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("ForwardPriceIndexValues{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("valuationMonth").append('=').append(getValuationMonth()).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
-    buf.append("curve").append('=').append(getCurve()).append(',').append(' ');
-    buf.append("seasonality").append('=').append(JodaBeanUtils.toString(getSeasonality()));
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
+    buf.append("timeSeries").append('=').append(timeSeries).append(',').append(' ');
+    buf.append("curve").append('=').append(curve).append(',').append(' ');
+    buf.append("seasonality").append('=').append(JodaBeanUtils.toString(seasonality));
     buf.append('}');
     return buf.toString();
   }
@@ -406,10 +411,10 @@ public final class ForwardPriceIndexValues
     private final MetaProperty<PriceIndex> index = DirectMetaProperty.ofImmutable(
         this, "index", ForwardPriceIndexValues.class, PriceIndex.class);
     /**
-     * The meta-property for the {@code valuationMonth} property.
+     * The meta-property for the {@code valuationDate} property.
      */
-    private final MetaProperty<YearMonth> valuationMonth = DirectMetaProperty.ofImmutable(
-        this, "valuationMonth", ForwardPriceIndexValues.class, YearMonth.class);
+    private final MetaProperty<LocalDate> valuationDate = DirectMetaProperty.ofImmutable(
+        this, "valuationDate", ForwardPriceIndexValues.class, LocalDate.class);
     /**
      * The meta-property for the {@code timeSeries} property.
      */
@@ -431,7 +436,7 @@ public final class ForwardPriceIndexValues
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "index",
-        "valuationMonth",
+        "valuationDate",
         "timeSeries",
         "curve",
         "seasonality");
@@ -447,8 +452,8 @@ public final class ForwardPriceIndexValues
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case -779918081:  // valuationMonth
-          return valuationMonth;
+        case 113107279:  // valuationDate
+          return valuationDate;
         case 779431844:  // timeSeries
           return timeSeries;
         case 95027439:  // curve
@@ -484,11 +489,11 @@ public final class ForwardPriceIndexValues
     }
 
     /**
-     * The meta-property for the {@code valuationMonth} property.
+     * The meta-property for the {@code valuationDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<YearMonth> valuationMonth() {
-      return valuationMonth;
+    public MetaProperty<LocalDate> valuationDate() {
+      return valuationDate;
     }
 
     /**
@@ -521,8 +526,8 @@ public final class ForwardPriceIndexValues
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return ((ForwardPriceIndexValues) bean).getIndex();
-        case -779918081:  // valuationMonth
-          return ((ForwardPriceIndexValues) bean).getValuationMonth();
+        case 113107279:  // valuationDate
+          return ((ForwardPriceIndexValues) bean).getValuationDate();
         case 779431844:  // timeSeries
           return ((ForwardPriceIndexValues) bean).getTimeSeries();
         case 95027439:  // curve
@@ -551,7 +556,7 @@ public final class ForwardPriceIndexValues
   private static final class Builder extends DirectFieldsBeanBuilder<ForwardPriceIndexValues> {
 
     private PriceIndex index;
-    private YearMonth valuationMonth;
+    private LocalDate valuationDate;
     private LocalDateDoubleTimeSeries timeSeries;
     private InterpolatedNodalCurve curve;
     private DoubleArray seasonality;
@@ -568,8 +573,8 @@ public final class ForwardPriceIndexValues
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case -779918081:  // valuationMonth
-          return valuationMonth;
+        case 113107279:  // valuationDate
+          return valuationDate;
         case 779431844:  // timeSeries
           return timeSeries;
         case 95027439:  // curve
@@ -587,8 +592,8 @@ public final class ForwardPriceIndexValues
         case 100346066:  // index
           this.index = (PriceIndex) newValue;
           break;
-        case -779918081:  // valuationMonth
-          this.valuationMonth = (YearMonth) newValue;
+        case 113107279:  // valuationDate
+          this.valuationDate = (LocalDate) newValue;
           break;
         case 779431844:  // timeSeries
           this.timeSeries = (LocalDateDoubleTimeSeries) newValue;
@@ -633,7 +638,7 @@ public final class ForwardPriceIndexValues
     public ForwardPriceIndexValues build() {
       return new ForwardPriceIndexValues(
           index,
-          valuationMonth,
+          valuationDate,
           timeSeries,
           curve,
           seasonality);
@@ -645,7 +650,7 @@ public final class ForwardPriceIndexValues
       StringBuilder buf = new StringBuilder(192);
       buf.append("ForwardPriceIndexValues.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("valuationMonth").append('=').append(JodaBeanUtils.toString(valuationMonth)).append(',').append(' ');
+      buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
       buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries)).append(',').append(' ');
       buf.append("curve").append('=').append(JodaBeanUtils.toString(curve)).append(',').append(' ');
       buf.append("seasonality").append('=').append(JodaBeanUtils.toString(seasonality));

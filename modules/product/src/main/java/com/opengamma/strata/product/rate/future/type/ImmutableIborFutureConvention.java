@@ -276,10 +276,10 @@ public final class ImmutableIborFutureConvention
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ImmutableIborFutureConvention other = (ImmutableIborFutureConvention) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getDateSequence(), other.getDateSequence()) &&
-          JodaBeanUtils.equal(getBusinessDayAdjustment(), other.getBusinessDayAdjustment());
+      return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(name, other.name) &&
+          JodaBeanUtils.equal(dateSequence, other.dateSequence) &&
+          JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment);
     }
     return false;
   }
@@ -287,10 +287,10 @@ public final class ImmutableIborFutureConvention
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDateSequence());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayAdjustment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(dateSequence);
+    hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
     return hash;
   }
 

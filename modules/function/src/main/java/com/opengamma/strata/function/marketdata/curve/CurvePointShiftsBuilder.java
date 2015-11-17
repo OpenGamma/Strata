@@ -14,7 +14,7 @@ import java.util.Map;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.market.curve.perturb.ShiftType;
+import com.opengamma.strata.market.ShiftType;
 
 /**
  * Mutable builder for building instances of {@link CurvePointShifts}.

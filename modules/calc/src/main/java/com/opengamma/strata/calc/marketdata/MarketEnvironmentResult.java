@@ -136,9 +136,9 @@ public final class MarketEnvironmentResult implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MarketEnvironmentResult other = (MarketEnvironmentResult) obj;
-      return JodaBeanUtils.equal(getMarketEnvironment(), other.getMarketEnvironment()) &&
-          JodaBeanUtils.equal(getSingleValueFailures(), other.getSingleValueFailures()) &&
-          JodaBeanUtils.equal(getTimeSeriesFailures(), other.getTimeSeriesFailures());
+      return JodaBeanUtils.equal(marketEnvironment, other.marketEnvironment) &&
+          JodaBeanUtils.equal(singleValueFailures, other.singleValueFailures) &&
+          JodaBeanUtils.equal(timeSeriesFailures, other.timeSeriesFailures);
     }
     return false;
   }
@@ -146,9 +146,9 @@ public final class MarketEnvironmentResult implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketEnvironment());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSingleValueFailures());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesFailures());
+    hash = hash * 31 + JodaBeanUtils.hashCode(marketEnvironment);
+    hash = hash * 31 + JodaBeanUtils.hashCode(singleValueFailures);
+    hash = hash * 31 + JodaBeanUtils.hashCode(timeSeriesFailures);
     return hash;
   }
 
@@ -156,9 +156,9 @@ public final class MarketEnvironmentResult implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("MarketEnvironmentResult{");
-    buf.append("marketEnvironment").append('=').append(getMarketEnvironment()).append(',').append(' ');
-    buf.append("singleValueFailures").append('=').append(getSingleValueFailures()).append(',').append(' ');
-    buf.append("timeSeriesFailures").append('=').append(JodaBeanUtils.toString(getTimeSeriesFailures()));
+    buf.append("marketEnvironment").append('=').append(marketEnvironment).append(',').append(' ');
+    buf.append("singleValueFailures").append('=').append(singleValueFailures).append(',').append(' ');
+    buf.append("timeSeriesFailures").append('=').append(JodaBeanUtils.toString(timeSeriesFailures));
     buf.append('}');
     return buf.toString();
   }

@@ -107,7 +107,7 @@ public final class MockIdentifiable2
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MockIdentifiable2 other = (MockIdentifiable2) obj;
-      return JodaBeanUtils.equal(getStandardId(), other.getStandardId());
+      return JodaBeanUtils.equal(standardId, other.standardId);
     }
     return false;
   }
@@ -115,7 +115,7 @@ public final class MockIdentifiable2
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(standardId);
     return hash;
   }
 
@@ -123,7 +123,7 @@ public final class MockIdentifiable2
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("MockIdentifiable2{");
-    buf.append("standardId").append('=').append(JodaBeanUtils.toString(getStandardId()));
+    buf.append("standardId").append('=').append(JodaBeanUtils.toString(standardId));
     buf.append('}');
     return buf.toString();
   }

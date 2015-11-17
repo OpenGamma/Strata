@@ -224,8 +224,8 @@ public final class ConstantNodalSurface
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ConstantNodalSurface other = (ConstantNodalSurface) obj;
-      return JodaBeanUtils.equal(getMetadata(), other.getMetadata()) &&
-          JodaBeanUtils.equal(getZValue(), other.getZValue());
+      return JodaBeanUtils.equal(metadata, other.metadata) &&
+          JodaBeanUtils.equal(zValue, other.zValue);
     }
     return false;
   }
@@ -233,8 +233,8 @@ public final class ConstantNodalSurface
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMetadata());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getZValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(metadata);
+    hash = hash * 31 + JodaBeanUtils.hashCode(zValue);
     return hash;
   }
 
@@ -242,8 +242,8 @@ public final class ConstantNodalSurface
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ConstantNodalSurface{");
-    buf.append("metadata").append('=').append(getMetadata()).append(',').append(' ');
-    buf.append("zValue").append('=').append(JodaBeanUtils.toString(getZValue()));
+    buf.append("metadata").append('=').append(metadata).append(',').append(' ');
+    buf.append("zValue").append('=').append(JodaBeanUtils.toString(zValue));
     buf.append('}');
     return buf.toString();
   }

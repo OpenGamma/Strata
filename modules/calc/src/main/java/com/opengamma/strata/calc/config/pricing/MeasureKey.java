@@ -115,8 +115,8 @@ final class MeasureKey implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MeasureKey other = (MeasureKey) obj;
-      return JodaBeanUtils.equal(getTargetType(), other.getTargetType()) &&
-          JodaBeanUtils.equal(getMeasure(), other.getMeasure());
+      return JodaBeanUtils.equal(targetType, other.targetType) &&
+          JodaBeanUtils.equal(measure, other.measure);
     }
     return false;
   }
@@ -124,8 +124,8 @@ final class MeasureKey implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTargetType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMeasure());
+    hash = hash * 31 + JodaBeanUtils.hashCode(targetType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(measure);
     return hash;
   }
 
@@ -133,8 +133,8 @@ final class MeasureKey implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("MeasureKey{");
-    buf.append("targetType").append('=').append(getTargetType()).append(',').append(' ');
-    buf.append("measure").append('=').append(JodaBeanUtils.toString(getMeasure()));
+    buf.append("targetType").append('=').append(targetType).append(',').append(' ');
+    buf.append("measure").append('=').append(JodaBeanUtils.toString(measure));
     buf.append('}');
     return buf.toString();
   }

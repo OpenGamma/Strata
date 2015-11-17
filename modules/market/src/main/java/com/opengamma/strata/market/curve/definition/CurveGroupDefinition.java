@@ -33,7 +33,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.Trade;
-import com.opengamma.strata.basics.market.ObservableValues;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
@@ -116,8 +116,8 @@ public final class CurveGroupDefinition
    * Gets the total number of parameters in the group.
    * <p>
    * This returns the total number of parameters in the group, which equals the number of nodes.
-   * The result of {@link #trades(LocalDate, ObservableValues)} and
-   * {@link #initialGuesses(LocalDate, ObservableValues)} will be of this size.
+   * The result of {@link #trades(LocalDate, MarketData)} and
+   * {@link #initialGuesses(LocalDate, MarketData)} will be of this size.
    * 
    * @return the number of parameters
    */
@@ -137,7 +137,7 @@ public final class CurveGroupDefinition
    * @param marketData  the market data required to build a trade for the instrument
    * @return the list of all trades
    */
-  public ImmutableList<Trade> trades(LocalDate valuationDate, ObservableValues marketData) {
+  public ImmutableList<Trade> trades(LocalDate valuationDate, MarketData marketData) {
     return entries.stream()
         .map(CurveGroupEntry::getCurveDefinition)
         .flatMap(curveDef -> curveDef.getNodes().stream())
@@ -154,7 +154,7 @@ public final class CurveGroupDefinition
    * @param marketData  the market data required to build a trade for the instrument
    * @return the list of all initial guesses
    */
-  public ImmutableList<Double> initialGuesses(LocalDate valuationDate, ObservableValues marketData) {
+  public ImmutableList<Double> initialGuesses(LocalDate valuationDate, MarketData marketData) {
     ImmutableList.Builder<Double> result = ImmutableList.builder();
     for (CurveGroupEntry entry : entries) {
       NodalCurveDefinition defn = entry.getCurveDefinition();
@@ -226,8 +226,8 @@ public final class CurveGroupDefinition
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveGroupDefinition other = (CurveGroupDefinition) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getEntries(), other.getEntries());
+      return JodaBeanUtils.equal(name, other.name) &&
+          JodaBeanUtils.equal(entries, other.entries);
     }
     return false;
   }
@@ -235,8 +235,8 @@ public final class CurveGroupDefinition
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEntries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(entries);
     return hash;
   }
 
@@ -244,8 +244,8 @@ public final class CurveGroupDefinition
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CurveGroupDefinition{");
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("entries").append('=').append(JodaBeanUtils.toString(getEntries()));
+    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("entries").append('=').append(JodaBeanUtils.toString(entries));
     buf.append('}');
     return buf.toString();
   }

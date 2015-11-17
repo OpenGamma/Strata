@@ -128,6 +128,10 @@ public final class ExponentialInterpolator1D
     return META_BEAN;
   }
 
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
   /**
    * The serialization version id.
    */

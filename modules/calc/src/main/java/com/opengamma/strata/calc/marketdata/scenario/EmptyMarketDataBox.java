@@ -10,7 +10,6 @@ import java.util.function.Function;
 
 import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
 import com.opengamma.strata.collect.function.ObjIntFunction;
-import com.opengamma.strata.collect.result.Result;
 
 /**
  * A market data box that contains no data.
@@ -52,13 +51,13 @@ class EmptyMarketDataBox implements MarketDataBox<Void> {
   }
 
   @Override
-  public <R> Result<MarketDataBox<R>> apply(Function<Void, Result<R>> fn) {
-    return Result.success(empty());
+  public <R> MarketDataBox<R> apply(Function<Void, R> fn) {
+    return empty();
   }
 
   @Override
-  public <U, R> Result<MarketDataBox<R>> combineWith(MarketDataBox<U> other, BiFunction<Void, U, Result<R>> fn) {
-    return Result.success(empty());
+  public <U, R> MarketDataBox<R> combineWith(MarketDataBox<U> other, BiFunction<Void, U, R> fn) {
+    return empty();
   }
 
   @Override

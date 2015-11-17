@@ -19,7 +19,6 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 
 import org.testng.annotations.Test;
 
@@ -47,7 +46,6 @@ public class ImmutableRatesProviderTest {
 
   private static final LocalDate PREV_DATE = LocalDate.of(2014, 6, 27);
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 6, 30);
-  private static final YearMonth VAL_MONTH = YearMonth.of(2014, 6);
   private static final double FX_GBP_USD = 1.6d;
   private static final FxMatrix FX_MATRIX = FxMatrix.of(GBP, USD, FX_GBP_USD);
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
@@ -64,7 +62,7 @@ public class ImmutableRatesProviderTest {
       Curves.zeroRates("USD-Discount", ACT_ACT_ISDA), 0.97d);
   private static final PriceIndexValues GBPRI_CURVE = ForwardPriceIndexValues.of(
       GB_RPI,
-      VAL_MONTH,
+      VAL_DATE,
       LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 252),
       InterpolatedNodalCurve.of(
           Curves.prices("GB-RPI"), DoubleArray.of(1d, 10d), DoubleArray.of(252d, 252d), INTERPOLATOR));
@@ -101,7 +99,7 @@ public class ImmutableRatesProviderTest {
   public void test_fxRate_separate() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .build();
     assertEquals(test.fxRate(USD, GBP), 1 / FX_GBP_USD, 0d);
     assertEquals(test.fxRate(USD, USD), 1d, 0d);
@@ -110,7 +108,7 @@ public class ImmutableRatesProviderTest {
   public void test_fxRate_pair() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .build();
     assertEquals(test.fxRate(CurrencyPair.of(USD, GBP)), 1 / FX_GBP_USD, 0d);
   }
@@ -120,7 +118,7 @@ public class ImmutableRatesProviderTest {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(VAL_DATE, 0.62d);
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .timeSeries(ImmutableMap.of(GBP_USD_WM, ts))
         .build();
@@ -132,7 +130,7 @@ public class ImmutableRatesProviderTest {
   public void test_fxForwardRates() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .build();
     DiscountFxForwardRates res = (DiscountFxForwardRates) test.fxForwardRates(CurrencyPair.of(GBP, USD));

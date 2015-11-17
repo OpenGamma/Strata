@@ -280,12 +280,12 @@ public final class Swaption
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Swaption other = (Swaption) obj;
-      return JodaBeanUtils.equal(getLongShort(), other.getLongShort()) &&
-          JodaBeanUtils.equal(getSwaptionSettlement(), other.getSwaptionSettlement()) &&
-          JodaBeanUtils.equal(getExpiryDate(), other.getExpiryDate()) &&
-          JodaBeanUtils.equal(getExpiryTime(), other.getExpiryTime()) &&
-          JodaBeanUtils.equal(getExpiryZone(), other.getExpiryZone()) &&
-          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying());
+      return JodaBeanUtils.equal(longShort, other.longShort) &&
+          JodaBeanUtils.equal(swaptionSettlement, other.swaptionSettlement) &&
+          JodaBeanUtils.equal(expiryDate, other.expiryDate) &&
+          JodaBeanUtils.equal(expiryTime, other.expiryTime) &&
+          JodaBeanUtils.equal(expiryZone, other.expiryZone) &&
+          JodaBeanUtils.equal(underlying, other.underlying);
     }
     return false;
   }
@@ -293,12 +293,12 @@ public final class Swaption
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLongShort());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSwaptionSettlement());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryTime());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryZone());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
+    hash = hash * 31 + JodaBeanUtils.hashCode(longShort);
+    hash = hash * 31 + JodaBeanUtils.hashCode(swaptionSettlement);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryTime);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryZone);
+    hash = hash * 31 + JodaBeanUtils.hashCode(underlying);
     return hash;
   }
 
@@ -306,12 +306,12 @@ public final class Swaption
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("Swaption{");
-    buf.append("longShort").append('=').append(getLongShort()).append(',').append(' ');
-    buf.append("swaptionSettlement").append('=').append(getSwaptionSettlement()).append(',').append(' ');
-    buf.append("expiryDate").append('=').append(getExpiryDate()).append(',').append(' ');
-    buf.append("expiryTime").append('=').append(getExpiryTime()).append(',').append(' ');
-    buf.append("expiryZone").append('=').append(getExpiryZone()).append(',').append(' ');
-    buf.append("underlying").append('=').append(JodaBeanUtils.toString(getUnderlying()));
+    buf.append("longShort").append('=').append(longShort).append(',').append(' ');
+    buf.append("swaptionSettlement").append('=').append(swaptionSettlement).append(',').append(' ');
+    buf.append("expiryDate").append('=').append(expiryDate).append(',').append(' ');
+    buf.append("expiryTime").append('=').append(expiryTime).append(',').append(' ');
+    buf.append("expiryZone").append('=').append(expiryZone).append(',').append(' ');
+    buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying));
     buf.append('}');
     return buf.toString();
   }

@@ -7,13 +7,12 @@ package com.opengamma.strata.function.marketdata.curve;
 
 import java.util.Optional;
 
-import com.opengamma.strata.calc.marketdata.MarketDataLookup;
+import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
-import com.opengamma.strata.collect.result.FailureReason;
-import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.id.CurveGroupId;
@@ -40,32 +39,25 @@ public class DiscountCurveMarketDataFunction
   }
 
   @Override
-  public Result<MarketDataBox<Curve>> build(DiscountCurveId id, MarketDataLookup marketData, MarketDataConfig config) {
+  public MarketDataBox<Curve> build(DiscountCurveId id, CalculationEnvironment marketData, MarketDataConfig config) {
 
     // find curve
     CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
-    if (!marketData.containsValue(curveGroupId)) {
-      return Result.failure(
-          FailureReason.MISSING_DATA,
-          "No curve group found: Group: {}, Feed: {}",
-          id.getCurveGroupName(),
-          id.getMarketDataFeed());
-    }
     MarketDataBox<CurveGroup> curveGroupBox = marketData.getValue(curveGroupId);
     return curveGroupBox.apply(curveGroup -> buildCurve(id, curveGroup));
   }
 
-  private Result<Curve> buildCurve(DiscountCurveId id, CurveGroup curveGroup) {
+  private Curve buildCurve(DiscountCurveId id, CurveGroup curveGroup) {
     Optional<Curve> optionalDiscountCurve = curveGroup.findDiscountCurve(id.getCurrency());
     if (optionalDiscountCurve.isPresent()) {
-      return Result.success(optionalDiscountCurve.get());
+      return optionalDiscountCurve.get();
     } else {
-      return Result.failure(
-          FailureReason.MISSING_DATA,
-          "No discount curve found: Currency: {}, Group: {}, Feed: {}",
-          id.getCurrency(),
-          id.getCurveGroupName(),
-          id.getMarketDataFeed());
+      throw new IllegalArgumentException(
+          Messages.format(
+              "No discount curve found: Currency: {}, Group: {}, Feed: {}",
+              id.getCurrency(),
+              id.getCurveGroupName(),
+              id.getMarketDataFeed()));
     }
   }
 

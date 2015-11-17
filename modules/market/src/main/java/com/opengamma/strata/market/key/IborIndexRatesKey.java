@@ -119,7 +119,7 @@ public final class IborIndexRatesKey
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborIndexRatesKey other = (IborIndexRatesKey) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex());
+      return JodaBeanUtils.equal(index, other.index);
     }
     return false;
   }
@@ -127,7 +127,7 @@ public final class IborIndexRatesKey
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
     return hash;
   }
 
@@ -135,7 +135,7 @@ public final class IborIndexRatesKey
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("IborIndexRatesKey{");
-    buf.append("index").append('=').append(JodaBeanUtils.toString(getIndex()));
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index));
     buf.append('}');
     return buf.toString();
   }

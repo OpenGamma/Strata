@@ -142,8 +142,8 @@ public final class CashSettlement implements SwaptionSettlement, ImmutableBean, 
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CashSettlement other = (CashSettlement) obj;
-      return JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
-          JodaBeanUtils.equal(getCashSettlementMethod(), other.getCashSettlementMethod());
+      return JodaBeanUtils.equal(settlementDate, other.settlementDate) &&
+          JodaBeanUtils.equal(cashSettlementMethod, other.cashSettlementMethod);
     }
     return false;
   }
@@ -151,8 +151,8 @@ public final class CashSettlement implements SwaptionSettlement, ImmutableBean, 
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCashSettlementMethod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(settlementDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(cashSettlementMethod);
     return hash;
   }
 
@@ -160,8 +160,8 @@ public final class CashSettlement implements SwaptionSettlement, ImmutableBean, 
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CashSettlement{");
-    buf.append("settlementDate").append('=').append(getSettlementDate()).append(',').append(' ');
-    buf.append("cashSettlementMethod").append('=').append(JodaBeanUtils.toString(getCashSettlementMethod()));
+    buf.append("settlementDate").append('=').append(settlementDate).append(',').append(' ');
+    buf.append("cashSettlementMethod").append('=').append(JodaBeanUtils.toString(cashSettlementMethod));
     buf.append('}');
     return buf.toString();
   }

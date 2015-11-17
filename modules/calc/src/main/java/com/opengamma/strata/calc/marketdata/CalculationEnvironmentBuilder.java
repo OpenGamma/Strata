@@ -20,7 +20,7 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
- * A mutable builder for building up {@link CalculationEnvironment} instances.
+ * A mutable builder for building up {@link CalculationMarketDataMap} instances.
  */
 public final class CalculationEnvironmentBuilder {
 
@@ -249,12 +249,24 @@ public final class CalculationEnvironmentBuilder {
    * Builds a set of market data from the data in this builder.
    * <p>
    * It is possible to continue to add more data to a builder after calling {@code build()}. Any
-   * {@code BaseMarketData} instances built previously will be unaffected.
+   * {@code CalculationEnvironment} instances built previously will be unaffected.
    *
    * @return a set of market data from the data in this builder
    */
   public CalculationEnvironment build() {
-    return new CalculationEnvironment(valuationDate, scenarioCount, values, timeSeries, valueFailures, timeSeriesFailures);
+    return new CalculationMarketDataMap(valuationDate, scenarioCount, values, timeSeries, valueFailures, timeSeriesFailures);
+  }
+
+  /**
+   * Builds a set of market data from the data in this builder.
+   * <p>
+   * It is possible to continue to add more data to a builder after calling {@code build()}. Any
+   * {@code CalculationMarketDataMap} instances built previously will be unaffected.
+   *
+   * @return a set of market data from the data in this builder
+   */
+  CalculationMarketDataMap buildMarketDataMap() {
+    return new CalculationMarketDataMap(valuationDate, scenarioCount, values, timeSeries, valueFailures, timeSeriesFailures);
   }
 
   private void updateScenarioCount(MarketDataBox<?> box) {

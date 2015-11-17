@@ -8,9 +8,13 @@ package com.opengamma.strata.market.value;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.market.Perturbation;
+import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.market.MarketDataValue;
+import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
@@ -21,7 +25,46 @@ import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
  * The discount factor represents the time value of money for the specified currency
  * when comparing the valuation date to the specified date.
  */
-public interface DiscountFactors {
+public interface DiscountFactors
+    extends MarketDataValue<DiscountFactors> {
+
+  /**
+   * Creates a new discount factors instance from a curve.
+   * <p>
+   * The curve is specified by an instance of {@link Curve}, such as {@link InterpolatedNodalCurve}.
+   * The curve must have x-values of {@linkplain ValueType#YEAR_FRACTION year fractions} with
+   * the day count specified. The y-values must be {@linkplain ValueType#ZERO_RATE zero rates}
+   * or {@linkplain ValueType#DISCOUNT_FACTOR discount factors}.
+   * 
+   * @param currency  the currency
+   * @param valuationDate  the valuation date for which the curve is valid
+   * @param curve  the underlying curve
+   * @return the curve
+   */
+  public static DiscountFactors of(Currency currency, LocalDate valuationDate, Curve curve) {
+    if (curve.getMetadata().getYValueType().equals(ValueType.DISCOUNT_FACTOR)) {
+      return SimpleDiscountFactors.of(currency, valuationDate, curve);
+    } else if (curve.getMetadata().getYValueType().equals(ValueType.ZERO_RATE)) {
+      return ZeroRateDiscountFactors.of(currency, valuationDate, curve);
+    } else {
+      throw new IllegalArgumentException(Messages.format(
+          "Unknown value type in discount curve, must be 'DiscountFactor' or 'ZeroRate' but was '{}'",
+          curve.getMetadata().getYValueType()));
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the market data key.
+   * <p>
+   * This returns the {@link DiscountFactorsKey} that identifies this instance.
+   * 
+   * @return the market data key
+   */
+  @Override
+  public default DiscountFactorsKey getKey() {
+    return DiscountFactorsKey.of(getCurrency());
+  }
 
   /**
    * Gets the currency.
@@ -31,15 +74,6 @@ public interface DiscountFactors {
    * @return the currency
    */
   public abstract Currency getCurrency();
-
-  /**
-   * Gets the valuation date.
-   * <p>
-   * The raw data in this provider is calibrated for this date.
-   * 
-   * @return the valuation date
-   */
-  public abstract LocalDate getValuationDate();
 
   /**
    * Gets the name of the underlying curve.

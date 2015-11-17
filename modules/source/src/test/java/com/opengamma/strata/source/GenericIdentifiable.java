@@ -153,9 +153,9 @@ public final class GenericIdentifiable<T>
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       GenericIdentifiable<?> other = (GenericIdentifiable<?>) obj;
-      return JodaBeanUtils.equal(getStandardId(), other.getStandardId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getData(), other.getData());
+      return JodaBeanUtils.equal(standardId, other.standardId) &&
+          JodaBeanUtils.equal(name, other.name) &&
+          JodaBeanUtils.equal(data, other.data);
     }
     return false;
   }
@@ -163,9 +163,9 @@ public final class GenericIdentifiable<T>
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(standardId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(data);
     return hash;
   }
 
@@ -173,9 +173,9 @@ public final class GenericIdentifiable<T>
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("GenericIdentifiable{");
-    buf.append("standardId").append('=').append(getStandardId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("data").append('=').append(JodaBeanUtils.toString(getData()));
+    buf.append("standardId").append('=').append(standardId).append(',').append(' ');
+    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("data").append('=').append(JodaBeanUtils.toString(data));
     buf.append('}');
     return buf.toString();
   }

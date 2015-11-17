@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.impl.rate;
 
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPIX;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -39,7 +40,7 @@ import com.opengamma.strata.product.rate.InflationInterpolatedRateObservation;
 public class ForwardInflationInterpolatedRateObservationFnTest {
 
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
-  private static final YearMonth VAL_MONTH = YearMonth.of(2014, 6);
+  private static final LocalDate VAL_DATE = LocalDate.of(2014, 6, 10);
 
   private static final LocalDate DUMMY_ACCRUAL_START_DATE = date(2015, 1, 4); // Accrual dates irrelevant for the rate
   private static final LocalDate DUMMY_ACCRUAL_END_DATE = date(2016, 1, 5); // Accrual dates irrelevant for the rate
@@ -145,13 +146,13 @@ public class ForwardInflationInterpolatedRateObservationFnTest {
       double rateEnd,
       double rateEndInterp) {
 
-    LocalDateDoubleTimeSeries timeSeries = LocalDateDoubleTimeSeries.of(VAL_MONTH.atEndOfMonth(), 300);
+    LocalDateDoubleTimeSeries timeSeries = LocalDateDoubleTimeSeries.of(VAL_DATE.with(lastDayOfMonth()), 300);
     InterpolatedNodalCurve curve = InterpolatedNodalCurve.of(
         Curves.prices("GB-RPIX"),
         DoubleArray.of(4, 5, 16, 17),
         DoubleArray.of(rateStart, rateStartInterp, rateEnd, rateEndInterp),
         INTERPOLATOR);
-    ForwardPriceIndexValues values = ForwardPriceIndexValues.of(GB_RPIX, VAL_MONTH, timeSeries, curve);
+    ForwardPriceIndexValues values = ForwardPriceIndexValues.of(GB_RPIX, VAL_DATE, timeSeries, curve);
     return ImmutableRatesProvider.builder()
         .valuationDate(DUMMY_ACCRUAL_END_DATE)
         .priceIndexValues(ImmutableMap.of(GB_RPIX, values))

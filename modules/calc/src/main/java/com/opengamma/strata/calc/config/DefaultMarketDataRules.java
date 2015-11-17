@@ -142,7 +142,7 @@ public final class DefaultMarketDataRules implements MarketDataRules, ImmutableB
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DefaultMarketDataRules other = (DefaultMarketDataRules) obj;
-      return JodaBeanUtils.equal(getRules(), other.getRules());
+      return JodaBeanUtils.equal(rules, other.rules);
     }
     return false;
   }
@@ -150,7 +150,7 @@ public final class DefaultMarketDataRules implements MarketDataRules, ImmutableB
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRules());
+    hash = hash * 31 + JodaBeanUtils.hashCode(rules);
     return hash;
   }
 
@@ -158,7 +158,7 @@ public final class DefaultMarketDataRules implements MarketDataRules, ImmutableB
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("DefaultMarketDataRules{");
-    buf.append("rules").append('=').append(JodaBeanUtils.toString(getRules()));
+    buf.append("rules").append('=').append(JodaBeanUtils.toString(rules));
     buf.append('}');
     return buf.toString();
   }

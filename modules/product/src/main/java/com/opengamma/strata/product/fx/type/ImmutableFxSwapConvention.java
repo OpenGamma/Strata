@@ -278,9 +278,9 @@ public final class ImmutableFxSwapConvention
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ImmutableFxSwapConvention other = (ImmutableFxSwapConvention) obj;
-      return JodaBeanUtils.equal(getCurrencyPair(), other.getCurrencyPair()) &&
+      return JodaBeanUtils.equal(currencyPair, other.currencyPair) &&
           JodaBeanUtils.equal(name, other.name) &&
-          JodaBeanUtils.equal(getSpotDateOffset(), other.getSpotDateOffset()) &&
+          JodaBeanUtils.equal(spotDateOffset, other.spotDateOffset) &&
           JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment);
     }
     return false;
@@ -289,9 +289,9 @@ public final class ImmutableFxSwapConvention
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
+    hash = hash * 31 + JodaBeanUtils.hashCode(currencyPair);
     hash = hash * 31 + JodaBeanUtils.hashCode(name);
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSpotDateOffset());
+    hash = hash * 31 + JodaBeanUtils.hashCode(spotDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
     return hash;
   }

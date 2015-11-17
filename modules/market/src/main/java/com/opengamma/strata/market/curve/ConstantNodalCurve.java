@@ -227,8 +227,8 @@ public final class ConstantNodalCurve
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ConstantNodalCurve other = (ConstantNodalCurve) obj;
-      return JodaBeanUtils.equal(getMetadata(), other.getMetadata()) &&
-          JodaBeanUtils.equal(getYValue(), other.getYValue());
+      return JodaBeanUtils.equal(metadata, other.metadata) &&
+          JodaBeanUtils.equal(yValue, other.yValue);
     }
     return false;
   }
@@ -236,8 +236,8 @@ public final class ConstantNodalCurve
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMetadata());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getYValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(metadata);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yValue);
     return hash;
   }
 
@@ -245,8 +245,8 @@ public final class ConstantNodalCurve
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ConstantNodalCurve{");
-    buf.append("metadata").append('=').append(getMetadata()).append(',').append(' ');
-    buf.append("yValue").append('=').append(JodaBeanUtils.toString(getYValue()));
+    buf.append("metadata").append('=').append(metadata).append(',').append(' ');
+    buf.append("yValue").append('=').append(JodaBeanUtils.toString(yValue));
     buf.append('}');
     return buf.toString();
   }

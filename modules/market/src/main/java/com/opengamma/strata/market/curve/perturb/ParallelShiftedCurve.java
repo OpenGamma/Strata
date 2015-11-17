@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
@@ -239,9 +240,9 @@ public final class ParallelShiftedCurve
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ParallelShiftedCurve other = (ParallelShiftedCurve) obj;
-      return JodaBeanUtils.equal(getUnderlyingCurve(), other.getUnderlyingCurve()) &&
-          JodaBeanUtils.equal(getShiftType(), other.getShiftType()) &&
-          JodaBeanUtils.equal(getShiftAmount(), other.getShiftAmount());
+      return JodaBeanUtils.equal(underlyingCurve, other.underlyingCurve) &&
+          JodaBeanUtils.equal(shiftType, other.shiftType) &&
+          JodaBeanUtils.equal(shiftAmount, other.shiftAmount);
     }
     return false;
   }
@@ -249,9 +250,9 @@ public final class ParallelShiftedCurve
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingCurve());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(underlyingCurve);
+    hash = hash * 31 + JodaBeanUtils.hashCode(shiftType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(shiftAmount);
     return hash;
   }
 
@@ -259,9 +260,9 @@ public final class ParallelShiftedCurve
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ParallelShiftedCurve{");
-    buf.append("underlyingCurve").append('=').append(getUnderlyingCurve()).append(',').append(' ');
-    buf.append("shiftType").append('=').append(getShiftType()).append(',').append(' ');
-    buf.append("shiftAmount").append('=').append(JodaBeanUtils.toString(getShiftAmount()));
+    buf.append("underlyingCurve").append('=').append(underlyingCurve).append(',').append(' ');
+    buf.append("shiftType").append('=').append(shiftType).append(',').append(' ');
+    buf.append("shiftAmount").append('=').append(JodaBeanUtils.toString(shiftAmount));
     buf.append('}');
     return buf.toString();
   }

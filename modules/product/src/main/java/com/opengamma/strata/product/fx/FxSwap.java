@@ -215,8 +215,8 @@ public final class FxSwap
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxSwap other = (FxSwap) obj;
-      return JodaBeanUtils.equal(getNearLeg(), other.getNearLeg()) &&
-          JodaBeanUtils.equal(getFarLeg(), other.getFarLeg());
+      return JodaBeanUtils.equal(nearLeg, other.nearLeg) &&
+          JodaBeanUtils.equal(farLeg, other.farLeg);
     }
     return false;
   }
@@ -224,8 +224,8 @@ public final class FxSwap
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNearLeg());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFarLeg());
+    hash = hash * 31 + JodaBeanUtils.hashCode(nearLeg);
+    hash = hash * 31 + JodaBeanUtils.hashCode(farLeg);
     return hash;
   }
 
@@ -233,8 +233,8 @@ public final class FxSwap
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("FxSwap{");
-    buf.append("nearLeg").append('=').append(getNearLeg()).append(',').append(' ');
-    buf.append("farLeg").append('=').append(JodaBeanUtils.toString(getFarLeg()));
+    buf.append("nearLeg").append('=').append(nearLeg).append(',').append(' ');
+    buf.append("farLeg").append('=').append(JodaBeanUtils.toString(farLeg));
     buf.append('}');
     return buf.toString();
   }

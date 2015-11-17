@@ -308,7 +308,7 @@
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>1.10.19</version>
+        <version>${mockito.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -478,10 +478,11 @@
     <findbugs.version>1.3.9</findbugs.version>
     <guava.version>18.0</guava.version>
     <joda-convert.version>1.7</joda-convert.version>
-    <joda-beans.version>1.6</joda-beans.version>
+    <joda-beans.version>1.7</joda-beans.version>
     <jool.version>0.9.6</jool.version>
     <slf4j.version>1.7.12</slf4j.version>
     <testng.version>6.9.4</testng.version>
+    <mockito.version>1.10.19</mockito.version>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata</h1>]]></doctitle>

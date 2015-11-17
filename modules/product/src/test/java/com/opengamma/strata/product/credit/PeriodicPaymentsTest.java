@@ -60,4 +60,14 @@ public class PeriodicPaymentsTest {
         RollConventions.DAY_20);
   }
 
+  static PeriodicPayments sut2() {
+    return PeriodicPayments.of(
+        CurrencyAmount.of(Currency.USD, 200_000_000d),
+        0.00200,
+        DayCounts.ACT_365F,
+        Frequency.P6M,
+        StubConvention.SHORT_FINAL,
+        RollConventions.EOM);
+  }
+
 }

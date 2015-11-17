@@ -215,9 +215,9 @@ public final class PerturbationMapping<T> implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PerturbationMapping<?> other = (PerturbationMapping<?>) obj;
-      return JodaBeanUtils.equal(getMarketDataType(), other.getMarketDataType()) &&
-          JodaBeanUtils.equal(getFilter(), other.getFilter()) &&
-          JodaBeanUtils.equal(getPerturbation(), other.getPerturbation());
+      return JodaBeanUtils.equal(marketDataType, other.marketDataType) &&
+          JodaBeanUtils.equal(filter, other.filter) &&
+          JodaBeanUtils.equal(perturbation, other.perturbation);
     }
     return false;
   }
@@ -225,9 +225,9 @@ public final class PerturbationMapping<T> implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFilter());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPerturbation());
+    hash = hash * 31 + JodaBeanUtils.hashCode(marketDataType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(filter);
+    hash = hash * 31 + JodaBeanUtils.hashCode(perturbation);
     return hash;
   }
 
@@ -235,9 +235,9 @@ public final class PerturbationMapping<T> implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("PerturbationMapping{");
-    buf.append("marketDataType").append('=').append(getMarketDataType()).append(',').append(' ');
-    buf.append("filter").append('=').append(getFilter()).append(',').append(' ');
-    buf.append("perturbation").append('=').append(JodaBeanUtils.toString(getPerturbation()));
+    buf.append("marketDataType").append('=').append(marketDataType).append(',').append(' ');
+    buf.append("filter").append('=').append(filter).append(',').append(' ');
+    buf.append("perturbation").append('=').append(JodaBeanUtils.toString(perturbation));
     buf.append('}');
     return buf.toString();
   }

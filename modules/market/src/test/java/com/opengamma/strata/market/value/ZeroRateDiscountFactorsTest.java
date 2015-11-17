@@ -21,8 +21,8 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
-import com.opengamma.strata.basics.market.Perturbation;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
@@ -73,7 +73,7 @@ public class ZeroRateDiscountFactorsTest {
     CurveMetadata noDayCountMetadata = DefaultCurveMetadata.builder()
         .curveName(NAME)
         .xValueType(ValueType.YEAR_FRACTION)
-        .yValueType(ValueType.DISCOUNT_FACTOR)
+        .yValueType(ValueType.ZERO_RATE)
         .build();
     InterpolatedNodalCurve notDayCount = InterpolatedNodalCurve.of(
         noDayCountMetadata, DoubleArray.of(0, 10), DoubleArray.of(1, 2), INTERPOLATOR);

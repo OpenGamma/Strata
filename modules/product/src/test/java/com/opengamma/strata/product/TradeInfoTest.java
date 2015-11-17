@@ -31,6 +31,7 @@ public class TradeInfoTest {
     TradeInfo test = TradeInfo.builder()
         .counterparty(StandardId.of("OG-Party", "Other"))
         .build();
+    assertEquals(test.getId(), Optional.empty());
     assertEquals(test.getCounterparty(), Optional.of(StandardId.of("OG-Party", "Other")));
     assertEquals(test.getTradeDate(), Optional.empty());
     assertEquals(test.getTradeTime(), Optional.empty());
@@ -50,6 +51,7 @@ public class TradeInfoTest {
         .build();
     coverImmutableBean(test);
     TradeInfo test2 = TradeInfo.builder()
+        .id(StandardId.of("OG-Id", "1"))
         .counterparty(StandardId.of("OG-Party", "Other2"))
         .tradeDate(date(2014, 6, 21))
         .tradeTime(LocalTime.NOON)

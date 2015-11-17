@@ -283,9 +283,9 @@ public final class FxSingle
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxSingle other = (FxSingle) obj;
-      return JodaBeanUtils.equal(getBaseCurrencyAmount(), other.getBaseCurrencyAmount()) &&
-          JodaBeanUtils.equal(getCounterCurrencyAmount(), other.getCounterCurrencyAmount()) &&
-          JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate());
+      return JodaBeanUtils.equal(baseCurrencyAmount, other.baseCurrencyAmount) &&
+          JodaBeanUtils.equal(counterCurrencyAmount, other.counterCurrencyAmount) &&
+          JodaBeanUtils.equal(paymentDate, other.paymentDate);
     }
     return false;
   }
@@ -293,9 +293,9 @@ public final class FxSingle
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseCurrencyAmount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCounterCurrencyAmount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(baseCurrencyAmount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(counterCurrencyAmount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDate);
     return hash;
   }
 
@@ -303,9 +303,9 @@ public final class FxSingle
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("FxSingle{");
-    buf.append("baseCurrencyAmount").append('=').append(getBaseCurrencyAmount()).append(',').append(' ');
-    buf.append("counterCurrencyAmount").append('=').append(getCounterCurrencyAmount()).append(',').append(' ');
-    buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(getPaymentDate()));
+    buf.append("baseCurrencyAmount").append('=').append(baseCurrencyAmount).append(',').append(' ');
+    buf.append("counterCurrencyAmount").append('=').append(counterCurrencyAmount).append(',').append(' ');
+    buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate));
     buf.append('}');
     return buf.toString();
   }

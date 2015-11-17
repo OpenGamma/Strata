@@ -11,6 +11,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.MarketDataValue;
+import com.opengamma.strata.market.key.FxIndexRatesKey;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -22,8 +24,20 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * An FX rate is the conversion rate between two currencies. An FX index is the rate
  * as published by a specific organization, typically at a well-known time-of-day.
  */
-public interface FxIndexRates {
+public interface FxIndexRates
+    extends MarketDataValue<FxIndexRates> {
 
+  /**
+   * Gets the market data key.
+   * <p>
+   * This returns the {@link FxIndexRatesKey} that identifies this instance.
+   * 
+   * @return the market data key
+   */
+  @Override
+  public default FxIndexRatesKey getKey() {
+    return FxIndexRatesKey.of(getIndex());
+  }
   /**
    * Gets the FX index.
    * <p>
@@ -32,15 +46,6 @@ public interface FxIndexRates {
    * @return the FX index
    */
   public abstract FxIndex getIndex();
-
-  /**
-   * Gets the valuation date.
-   * <p>
-   * The raw data in this provider is calibrated for this date.
-   * 
-   * @return the valuation date
-   */
-  public abstract LocalDate getValuationDate();
 
   /**
    * Gets the time-series of fixings for the index.

@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A simple {@link ScenarioMarketDataValue} implementation containing a list of single market data values, one
@@ -39,6 +40,7 @@ public final class ScenarioValuesList<T> implements ScenarioMarketDataValue<T>, 
   
   @Override
   public T getValue(int scenarioIndex) {
+    ArgChecker.inRange(scenarioIndex, 0, values.size(), "scenarioIndex");
     return values.get(scenarioIndex);
   }
 
@@ -150,7 +152,7 @@ public final class ScenarioValuesList<T> implements ScenarioMarketDataValue<T>, 
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ScenarioValuesList<?> other = (ScenarioValuesList<?>) obj;
-      return JodaBeanUtils.equal(getValues(), other.getValues());
+      return JodaBeanUtils.equal(values, other.values);
     }
     return false;
   }
@@ -158,7 +160,7 @@ public final class ScenarioValuesList<T> implements ScenarioMarketDataValue<T>, 
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(values);
     return hash;
   }
 
@@ -166,7 +168,7 @@ public final class ScenarioValuesList<T> implements ScenarioMarketDataValue<T>, 
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("ScenarioValuesList{");
-    buf.append("values").append('=').append(JodaBeanUtils.toString(getValues()));
+    buf.append("values").append('=').append(JodaBeanUtils.toString(values));
     buf.append('}');
     return buf.toString();
   }

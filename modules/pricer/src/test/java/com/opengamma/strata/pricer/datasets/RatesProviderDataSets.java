@@ -94,7 +94,7 @@ public class RatesProviderDataSets {
 
   public static final ImmutableRatesProvider SINGLE_USD = ImmutableRatesProvider.builder()
       .valuationDate(VAL_DATE_2014_01_22)
-      .fxMatrix(FX_MATRIX_USD)
+      .fxRateProvider(FX_MATRIX_USD)
       .discountCurves(USD_SINGLE_CCY_MAP)
       .indexCurves(USD_SINGLE_IND_MAP)
       .build();
@@ -114,7 +114,7 @@ public class RatesProviderDataSets {
 
   public static final ImmutableRatesProvider MULTI_USD = ImmutableRatesProvider.builder()
       .valuationDate(VAL_DATE_2014_01_22)
-      .fxMatrix(FX_MATRIX_USD)
+      .fxRateProvider(FX_MATRIX_USD)
       .discountCurves(USD_MULTI_CCY_MAP)
       .indexCurves(USD_MULTI_IND_MAP)
       .build();
@@ -146,7 +146,7 @@ public class RatesProviderDataSets {
 
   public static final ImmutableRatesProvider MULTI_GBP = ImmutableRatesProvider.builder()
       .valuationDate(VAL_DATE_2014_01_22)
-      .fxMatrix(FX_MATRIX_GBP)
+      .fxRateProvider(FX_MATRIX_GBP)
       .discountCurves(GBP_MULTI_CCY_MAP)
       .indexCurves(GBP_MULTI_IND_MAP)
       .build();
@@ -173,7 +173,7 @@ public class RatesProviderDataSets {
   }
   public static final ImmutableRatesProvider MULTI_GBP_USD = ImmutableRatesProvider.builder()
       .valuationDate(VAL_DATE_2014_01_22)
-      .fxMatrix(FX_MATRIX_GBP_USD)
+      .fxRateProvider(FX_MATRIX_GBP_USD)
       .discountCurves(GBP_USD_MULTI_CCY_MAP)
       .indexCurves(GBP_USD_MULTI_IND_MAP)
       .build();

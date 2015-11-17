@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.market.ObservableValues;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
@@ -108,7 +108,7 @@ public class CalibrationDiscountingSimpleEur3Test {
         CalibrationEurStandard.fwdIdValue(6, FWD6_FIXING_QUOTE, FWD6_FRA_QUOTES, FWD6_IRS_QUOTES, FWD6_FRA_TENORS,
             FWD6_IRS_TENORS);
     /* All quotes for the curve calibration */
-    ObservableValues allQuotes =
+    MarketData allQuotes =
         CalibrationEurStandard.allQuotes(
             DSC_MARKET_QUOTES, dscIdValues, fwd3MarketQuotes, fwd3IdValue, fwd6MarketQuotes, fwd6IdValue);
     /* All nodes by groups. */
@@ -181,9 +181,12 @@ public class CalibrationDiscountingSimpleEur3Test {
         CalibrationEurStandard.fwdIdValue(6, FWD6_FIXING_QUOTE, FWD6_FRA_QUOTES, FWD6_IRS_QUOTES, FWD6_FRA_TENORS,
             FWD6_IRS_TENORS);
     /* All quotes for the curve calibration */
-    ObservableValues allQuotes =
-        CalibrationEurStandard.allQuotes(DSC_MARKET_QUOTES, dscIdValues, fwd3MarketQuotes, fwd3IdValue, fwd6MarketQuotes,
-            fwd6IdValue);
+    MarketData allQuotes = CalibrationEurStandard.allQuotes(DSC_MARKET_QUOTES,
+        dscIdValues,
+        fwd3MarketQuotes,
+        fwd3IdValue,
+        fwd6MarketQuotes,
+        fwd6IdValue);
     /* All nodes by groups. */
     CurveGroupDefinition config = CalibrationEurStandard.config(DSC_OIS_TENORS, dscIdValues,
         FWD3_FRA_TENORS, FWD3_IRS_TENORS, fwd3IdValue, FWD6_FRA_TENORS, FWD6_IRS_TENORS, fwd6IdValue);

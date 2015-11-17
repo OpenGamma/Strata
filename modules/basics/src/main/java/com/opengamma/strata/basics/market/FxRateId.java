@@ -172,8 +172,8 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxRateId other = (FxRateId) obj;
-      return JodaBeanUtils.equal(getPair(), other.getPair()) &&
-          JodaBeanUtils.equal(getMarketDataFeed(), other.getMarketDataFeed());
+      return JodaBeanUtils.equal(pair, other.pair) &&
+          JodaBeanUtils.equal(marketDataFeed, other.marketDataFeed);
     }
     return false;
   }
@@ -181,8 +181,8 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPair());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataFeed());
+    hash = hash * 31 + JodaBeanUtils.hashCode(pair);
+    hash = hash * 31 + JodaBeanUtils.hashCode(marketDataFeed);
     return hash;
   }
 
@@ -190,8 +190,8 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("FxRateId{");
-    buf.append("pair").append('=').append(getPair()).append(',').append(' ');
-    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(getMarketDataFeed()));
+    buf.append("pair").append('=').append(pair).append(',').append(' ');
+    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(marketDataFeed));
     buf.append('}');
     return buf.toString();
   }

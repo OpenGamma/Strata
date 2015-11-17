@@ -36,10 +36,10 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.calc.CalculationEngine;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
@@ -138,12 +138,12 @@ public class CurveEndToEndTest {
     LocalDate valuationDate = date(2011, 3, 8);
 
     // Build the trades from the node instruments
-    ObservableValues quotesMap = ObservableValues.ofIdMap(parRateData);
-    Trade fra3x6Trade = fra3x6Node.trade(valuationDate, quotesMap);
-    Trade fra6x9Trade = fra6x9Node.trade(valuationDate, quotesMap);
-    Trade swap1yTrade = swap1yNode.trade(valuationDate, quotesMap);
-    Trade swap2yTrade = swap2yNode.trade(valuationDate, quotesMap);
-    Trade swap3yTrade = swap3yNode.trade(valuationDate, quotesMap);
+    MarketData quotes = MarketData.builder().addObservableValuesById(parRateData).build();
+    Trade fra3x6Trade = fra3x6Node.trade(valuationDate, quotes);
+    Trade fra6x9Trade = fra6x9Node.trade(valuationDate, quotes);
+    Trade swap1yTrade = swap1yNode.trade(valuationDate, quotes);
+    Trade swap2yTrade = swap2yNode.trade(valuationDate, quotes);
+    Trade swap3yTrade = swap3yNode.trade(valuationDate, quotes);
 
     List<Trade> trades = ImmutableList.of(fra3x6Trade, fra6x9Trade, swap1yTrade, swap2yTrade, swap3yTrade);
 

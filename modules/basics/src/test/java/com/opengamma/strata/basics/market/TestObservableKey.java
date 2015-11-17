@@ -63,6 +63,10 @@ public final class TestObservableKey
     return META_BEAN;
   }
 
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
   /**
    * The serialization version id.
    */
@@ -118,8 +122,8 @@ public final class TestObservableKey
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       TestObservableKey other = (TestObservableKey) obj;
-      return JodaBeanUtils.equal(getStandardId(), other.getStandardId()) &&
-          JodaBeanUtils.equal(getFieldName(), other.getFieldName());
+      return JodaBeanUtils.equal(standardId, other.standardId) &&
+          JodaBeanUtils.equal(fieldName, other.fieldName);
     }
     return false;
   }
@@ -127,8 +131,8 @@ public final class TestObservableKey
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFieldName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(standardId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fieldName);
     return hash;
   }
 
@@ -136,8 +140,8 @@ public final class TestObservableKey
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("TestObservableKey{");
-    buf.append("standardId").append('=').append(getStandardId()).append(',').append(' ');
-    buf.append("fieldName").append('=').append(JodaBeanUtils.toString(getFieldName()));
+    buf.append("standardId").append('=').append(standardId).append(',').append(' ');
+    buf.append("fieldName").append('=').append(JodaBeanUtils.toString(fieldName));
     buf.append('}');
     return buf.toString();
   }

@@ -216,9 +216,9 @@ public final class IborFutureTemplate
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborFutureTemplate other = (IborFutureTemplate) obj;
-      return JodaBeanUtils.equal(getMinimumPeriod(), other.getMinimumPeriod()) &&
-          (getSequenceNumber() == other.getSequenceNumber()) &&
-          JodaBeanUtils.equal(getConvention(), other.getConvention());
+      return JodaBeanUtils.equal(minimumPeriod, other.minimumPeriod) &&
+          (sequenceNumber == other.sequenceNumber) &&
+          JodaBeanUtils.equal(convention, other.convention);
     }
     return false;
   }
@@ -226,9 +226,9 @@ public final class IborFutureTemplate
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMinimumPeriod());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSequenceNumber());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(minimumPeriod);
+    hash = hash * 31 + JodaBeanUtils.hashCode(sequenceNumber);
+    hash = hash * 31 + JodaBeanUtils.hashCode(convention);
     return hash;
   }
 
@@ -236,9 +236,9 @@ public final class IborFutureTemplate
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("IborFutureTemplate{");
-    buf.append("minimumPeriod").append('=').append(getMinimumPeriod()).append(',').append(' ');
-    buf.append("sequenceNumber").append('=').append(getSequenceNumber()).append(',').append(' ');
-    buf.append("convention").append('=').append(JodaBeanUtils.toString(getConvention()));
+    buf.append("minimumPeriod").append('=').append(minimumPeriod).append(',').append(' ');
+    buf.append("sequenceNumber").append('=').append(sequenceNumber).append(',').append(' ');
+    buf.append("convention").append('=').append(JodaBeanUtils.toString(convention));
     buf.append('}');
     return buf.toString();
   }

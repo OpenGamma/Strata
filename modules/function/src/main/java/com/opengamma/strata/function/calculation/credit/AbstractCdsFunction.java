@@ -89,7 +89,7 @@ public abstract class AbstractCdsFunction<T>
     Cds cds = trade.getProduct();
 
     Currency notionalCurrency = cds.getFeeLeg().getPeriodicPayments().getNotional().getCurrency();
-    Currency feeCurrency = cds.getFeeLeg().getUpfrontFee().getFixedAmount().getCurrency();
+    Currency feeCurrency = cds.getFeeLeg().getUpfrontFee().getCurrency();
 
     Set<MarketDataKey<?>> rateCurveKeys = ImmutableSet.of(
         IsdaYieldCurveParRatesKey.of(notionalCurrency),

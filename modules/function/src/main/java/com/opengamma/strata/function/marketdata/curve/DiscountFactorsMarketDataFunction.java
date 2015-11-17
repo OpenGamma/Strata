@@ -8,13 +8,11 @@ package com.opengamma.strata.function.marketdata.curve;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.calc.marketdata.MarketDataLookup;
+import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
-import com.opengamma.strata.collect.result.FailureReason;
-import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -47,21 +45,13 @@ public class DiscountFactorsMarketDataFunction
   }
 
   @Override
-  public Result<MarketDataBox<DiscountFactors>> build(
+  public MarketDataBox<DiscountFactors> build(
       DiscountFactorsId id,
-      MarketDataLookup marketData,
+      CalculationEnvironment marketData,
       MarketDataConfig config) {
 
     // find curve
     DiscountCurveId curveId = DiscountCurveId.of(id.getCurrency(), id.getCurveGroupName(), id.getMarketDataFeed());
-    if (!marketData.containsValue(curveId)) {
-      return Result.failure(
-          FailureReason.MISSING_DATA,
-          "No discount curve found: Currency: {}, Group: {}, Feed: {}",
-          id.getCurrency(),
-          id.getCurveGroupName(),
-          id.getMarketDataFeed());
-    }
     MarketDataBox<Curve> curveBox = marketData.getValue(curveId);
     MarketDataBox<LocalDate> valDateBox = marketData.getValuationDate();
     return curveBox.combineWith(valDateBox, (curve, valDate) -> createDiscountFactors(id.getCurrency(), valDate, curve));
@@ -73,24 +63,12 @@ public class DiscountFactorsMarketDataFunction
   }
 
   // create the instance of DiscountFactors
-  private Result<DiscountFactors> createDiscountFactors(
+  private DiscountFactors createDiscountFactors(
       Currency currency, 
       LocalDate valuationDate, 
       Curve curve) {
     
-    ValueType yValueType = curve.getMetadata().getYValueType();
-    if (ValueType.ZERO_RATE.equals(yValueType)) {
-      return Result.success(ZeroRateDiscountFactors.of(currency, valuationDate, curve));
-
-    } else if (ValueType.DISCOUNT_FACTOR.equals(yValueType)) {
-      return Result.success(SimpleDiscountFactors.of(currency, valuationDate, curve));
-
-    } else {
-      return Result.failure(
-          FailureReason.MISSING_DATA,
-          "Invalid curve, must have ValueType of 'ZeroRate' or 'DiscountFactor', but was: {}",
-          yValueType);
-    }
+    return DiscountFactors.of(currency, valuationDate, curve);
   }
 
 }

@@ -169,9 +169,9 @@ public final class RootFinderConfig implements ImmutableBean, Serializable {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       RootFinderConfig other = (RootFinderConfig) obj;
-      return JodaBeanUtils.equal(getAbsoluteTolerance(), other.getAbsoluteTolerance()) &&
-          JodaBeanUtils.equal(getRelativeTolerance(), other.getRelativeTolerance()) &&
-          (getMaximumSteps() == other.getMaximumSteps());
+      return JodaBeanUtils.equal(absoluteTolerance, other.absoluteTolerance) &&
+          JodaBeanUtils.equal(relativeTolerance, other.relativeTolerance) &&
+          (maximumSteps == other.maximumSteps);
     }
     return false;
   }
@@ -179,9 +179,9 @@ public final class RootFinderConfig implements ImmutableBean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAbsoluteTolerance());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRelativeTolerance());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMaximumSteps());
+    hash = hash * 31 + JodaBeanUtils.hashCode(absoluteTolerance);
+    hash = hash * 31 + JodaBeanUtils.hashCode(relativeTolerance);
+    hash = hash * 31 + JodaBeanUtils.hashCode(maximumSteps);
     return hash;
   }
 
@@ -189,9 +189,9 @@ public final class RootFinderConfig implements ImmutableBean, Serializable {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("RootFinderConfig{");
-    buf.append("absoluteTolerance").append('=').append(getAbsoluteTolerance()).append(',').append(' ');
-    buf.append("relativeTolerance").append('=').append(getRelativeTolerance()).append(',').append(' ');
-    buf.append("maximumSteps").append('=').append(JodaBeanUtils.toString(getMaximumSteps()));
+    buf.append("absoluteTolerance").append('=').append(absoluteTolerance).append(',').append(' ');
+    buf.append("relativeTolerance").append('=').append(relativeTolerance).append(',').append(' ');
+    buf.append("maximumSteps").append('=').append(JodaBeanUtils.toString(maximumSteps));
     buf.append('}');
     return buf.toString();
   }

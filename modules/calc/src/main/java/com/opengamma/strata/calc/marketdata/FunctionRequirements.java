@@ -154,9 +154,9 @@ public final class FunctionRequirements implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FunctionRequirements other = (FunctionRequirements) obj;
-      return JodaBeanUtils.equal(getSingleValueRequirements(), other.getSingleValueRequirements()) &&
-          JodaBeanUtils.equal(getTimeSeriesRequirements(), other.getTimeSeriesRequirements()) &&
-          JodaBeanUtils.equal(getOutputCurrencies(), other.getOutputCurrencies());
+      return JodaBeanUtils.equal(singleValueRequirements, other.singleValueRequirements) &&
+          JodaBeanUtils.equal(timeSeriesRequirements, other.timeSeriesRequirements) &&
+          JodaBeanUtils.equal(outputCurrencies, other.outputCurrencies);
     }
     return false;
   }
@@ -164,9 +164,9 @@ public final class FunctionRequirements implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSingleValueRequirements());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesRequirements());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getOutputCurrencies());
+    hash = hash * 31 + JodaBeanUtils.hashCode(singleValueRequirements);
+    hash = hash * 31 + JodaBeanUtils.hashCode(timeSeriesRequirements);
+    hash = hash * 31 + JodaBeanUtils.hashCode(outputCurrencies);
     return hash;
   }
 
@@ -174,9 +174,9 @@ public final class FunctionRequirements implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("FunctionRequirements{");
-    buf.append("singleValueRequirements").append('=').append(getSingleValueRequirements()).append(',').append(' ');
-    buf.append("timeSeriesRequirements").append('=').append(getTimeSeriesRequirements()).append(',').append(' ');
-    buf.append("outputCurrencies").append('=').append(JodaBeanUtils.toString(getOutputCurrencies()));
+    buf.append("singleValueRequirements").append('=').append(singleValueRequirements).append(',').append(' ');
+    buf.append("timeSeriesRequirements").append('=').append(timeSeriesRequirements).append(',').append(' ');
+    buf.append("outputCurrencies").append('=').append(JodaBeanUtils.toString(outputCurrencies));
     buf.append('}');
     return buf.toString();
   }

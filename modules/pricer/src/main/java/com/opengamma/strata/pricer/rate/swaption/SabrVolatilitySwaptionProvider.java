@@ -344,10 +344,10 @@ public final class SabrVolatilitySwaptionProvider implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SabrVolatilitySwaptionProvider other = (SabrVolatilitySwaptionProvider) obj;
-      return JodaBeanUtils.equal(getParameters(), other.getParameters()) &&
-          JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getValuationDateTime(), other.getValuationDateTime());
+      return JodaBeanUtils.equal(parameters, other.parameters) &&
+          JodaBeanUtils.equal(convention, other.convention) &&
+          JodaBeanUtils.equal(dayCount, other.dayCount) &&
+          JodaBeanUtils.equal(valuationDateTime, other.valuationDateTime);
     }
     return false;
   }
@@ -355,10 +355,10 @@ public final class SabrVolatilitySwaptionProvider implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getParameters());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDateTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(parameters);
+    hash = hash * 31 + JodaBeanUtils.hashCode(convention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(valuationDateTime);
     return hash;
   }
 
@@ -366,10 +366,10 @@ public final class SabrVolatilitySwaptionProvider implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("SabrVolatilitySwaptionProvider{");
-    buf.append("parameters").append('=').append(getParameters()).append(',').append(' ');
-    buf.append("convention").append('=').append(getConvention()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(getValuationDateTime()));
+    buf.append("parameters").append('=').append(parameters).append(',').append(' ');
+    buf.append("convention").append('=').append(convention).append(',').append(' ');
+    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime));
     buf.append('}');
     return buf.toString();
   }

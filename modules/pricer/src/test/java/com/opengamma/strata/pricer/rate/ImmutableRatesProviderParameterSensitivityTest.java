@@ -127,27 +127,27 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   public void pointAndParameterFx() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .build();
     ImmutableRatesProvider test_gbp_up = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_UP, USD, DISCOUNT_CURVE_USD))
         .build();
     ImmutableRatesProvider test_gbp_dw = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_DOWN, USD, DISCOUNT_CURVE_USD))
         .build();
     ImmutableRatesProvider test_usd_up = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD_UP))
         .build();
     ImmutableRatesProvider test_usd_dw = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
+        .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD_DOWN))
         .build();
     LocalDate matuirtyDate = GBP_USD_WM.calculateMaturityFromFixing(VAL_DATE);
@@ -183,7 +183,6 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   public void pointAndParameterPriceIndex() {
     double eps = 1.0e-13;
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
-    YearMonth valuationMonth = YearMonth.of(2014, 1);
     DoubleArray x = DoubleArray.of(0.5, 1.0, 2.0);
     DoubleArray y = DoubleArray.of(224.2, 262.6, 277.5);
     CurveInterpolator interp = CurveInterpolators.NATURAL_CUBIC_SPLINE;
@@ -191,7 +190,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     InterpolatedNodalCurve interpCurve = InterpolatedNodalCurve.of(Curves.prices(curveName), x, y, interp);
     PriceIndexValues values = ForwardPriceIndexValues.of(
         GB_RPI,
-        valuationMonth,
+        valuationDate,
         LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 200),
         interpCurve);
     ImmutableRatesProvider provider = ImmutableRatesProvider.builder()

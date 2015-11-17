@@ -42,17 +42,17 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  * <p>
  * It is anticipated that {@link MarketEnvironment} will be exposed directly to users.
  * <p>
- * The market data used in calculations is provided by {@link CalculationEnvironment}. This
+ * The market data used in calculations is provided by {@link CalculationMarketDataMap}. This
  * contains the same data as {@link MarketEnvironment} plus
  * additional derived values used by the calculations and scenario framework.
  * <p>
- * {@link CalculationEnvironment} can be built from a {@link MarketEnvironment} using a {@link MarketDataFactory}.
+ * {@link CalculationMarketDataMap} can be built from a {@link MarketEnvironment} using a {@link MarketDataFactory}.
  *
  * @see MarketDataFactory
- * @see CalculationEnvironment
+ * @see CalculationMarketDataMap
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
-public final class MarketEnvironment implements ImmutableBean, MarketDataLookup {
+public final class MarketEnvironment implements ImmutableBean, CalculationEnvironment {
 
   /** The valuation date associated with the data. */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
@@ -246,10 +246,10 @@ public final class MarketEnvironment implements ImmutableBean, MarketDataLookup 
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MarketEnvironment other = (MarketEnvironment) obj;
-      return JodaBeanUtils.equal(getValuationDate(), other.getValuationDate()) &&
-          (getScenarioCount() == other.getScenarioCount()) &&
-          JodaBeanUtils.equal(getValues(), other.getValues()) &&
-          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries());
+      return JodaBeanUtils.equal(valuationDate, other.valuationDate) &&
+          (scenarioCount == other.scenarioCount) &&
+          JodaBeanUtils.equal(values, other.values) &&
+          JodaBeanUtils.equal(timeSeries, other.timeSeries);
     }
     return false;
   }
@@ -257,10 +257,10 @@ public final class MarketEnvironment implements ImmutableBean, MarketDataLookup 
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getScenarioCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValues());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(valuationDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(scenarioCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(values);
+    hash = hash * 31 + JodaBeanUtils.hashCode(timeSeries);
     return hash;
   }
 
@@ -268,10 +268,10 @@ public final class MarketEnvironment implements ImmutableBean, MarketDataLookup 
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("MarketEnvironment{");
-    buf.append("valuationDate").append('=').append(getValuationDate()).append(',').append(' ');
-    buf.append("scenarioCount").append('=').append(getScenarioCount()).append(',').append(' ');
-    buf.append("values").append('=').append(getValues()).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(getTimeSeries()));
+    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
+    buf.append("scenarioCount").append('=').append(scenarioCount).append(',').append(' ');
+    buf.append("values").append('=').append(values).append(',').append(' ');
+    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries));
     buf.append('}');
     return buf.toString();
   }

@@ -306,11 +306,11 @@ public final class FxForwardSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxForwardSensitivity other = (FxForwardSensitivity) obj;
-      return JodaBeanUtils.equal(getCurrencyPair(), other.getCurrencyPair()) &&
-          JodaBeanUtils.equal(getReferenceCurrency(), other.getReferenceCurrency()) &&
-          JodaBeanUtils.equal(getReferenceDate(), other.getReferenceDate()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getSensitivity(), other.getSensitivity());
+      return JodaBeanUtils.equal(currencyPair, other.currencyPair) &&
+          JodaBeanUtils.equal(referenceCurrency, other.referenceCurrency) &&
+          JodaBeanUtils.equal(referenceDate, other.referenceDate) &&
+          JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(sensitivity, other.sensitivity);
     }
     return false;
   }
@@ -318,11 +318,11 @@ public final class FxForwardSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(currencyPair);
+    hash = hash * 31 + JodaBeanUtils.hashCode(referenceCurrency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(referenceDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(sensitivity);
     return hash;
   }
 
@@ -330,11 +330,11 @@ public final class FxForwardSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("FxForwardSensitivity{");
-    buf.append("currencyPair").append('=').append(getCurrencyPair()).append(',').append(' ');
-    buf.append("referenceCurrency").append('=').append(getReferenceCurrency()).append(',').append(' ');
-    buf.append("referenceDate").append('=').append(getReferenceDate()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(getSensitivity()));
+    buf.append("currencyPair").append('=').append(currencyPair).append(',').append(' ');
+    buf.append("referenceCurrency").append('=').append(referenceCurrency).append(',').append(' ');
+    buf.append("referenceDate").append('=').append(referenceDate).append(',').append(' ');
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();
   }

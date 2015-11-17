@@ -132,8 +132,8 @@ final class SimpleColumnDefinition implements ColumnDefinition, ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SimpleColumnDefinition other = (SimpleColumnDefinition) obj;
-      return JodaBeanUtils.equal(getMeasure(), other.getMeasure()) &&
-          JodaBeanUtils.equal(getName(), other.getName());
+      return JodaBeanUtils.equal(measure, other.measure) &&
+          JodaBeanUtils.equal(name, other.name);
     }
     return false;
   }
@@ -141,8 +141,8 @@ final class SimpleColumnDefinition implements ColumnDefinition, ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMeasure());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(measure);
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
     return hash;
   }
 
@@ -150,8 +150,8 @@ final class SimpleColumnDefinition implements ColumnDefinition, ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("SimpleColumnDefinition{");
-    buf.append("measure").append('=').append(getMeasure()).append(',').append(' ');
-    buf.append("name").append('=').append(JodaBeanUtils.toString(getName()));
+    buf.append("measure").append('=').append(measure).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name));
     buf.append('}');
     return buf.toString();
   }

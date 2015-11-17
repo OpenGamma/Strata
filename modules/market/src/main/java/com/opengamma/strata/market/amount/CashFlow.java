@@ -242,10 +242,10 @@ public final class CashFlow
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CashFlow other = (CashFlow) obj;
-      return JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
-          JodaBeanUtils.equal(getPresentValue(), other.getPresentValue()) &&
-          JodaBeanUtils.equal(getForecastValue(), other.getForecastValue()) &&
-          JodaBeanUtils.equal(getDiscountFactor(), other.getDiscountFactor());
+      return JodaBeanUtils.equal(paymentDate, other.paymentDate) &&
+          JodaBeanUtils.equal(presentValue, other.presentValue) &&
+          JodaBeanUtils.equal(forecastValue, other.forecastValue) &&
+          JodaBeanUtils.equal(discountFactor, other.discountFactor);
     }
     return false;
   }
@@ -253,10 +253,10 @@ public final class CashFlow
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPresentValue());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getForecastValue());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDiscountFactor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(presentValue);
+    hash = hash * 31 + JodaBeanUtils.hashCode(forecastValue);
+    hash = hash * 31 + JodaBeanUtils.hashCode(discountFactor);
     return hash;
   }
 
@@ -264,10 +264,10 @@ public final class CashFlow
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("CashFlow{");
-    buf.append("paymentDate").append('=').append(getPaymentDate()).append(',').append(' ');
-    buf.append("presentValue").append('=').append(getPresentValue()).append(',').append(' ');
-    buf.append("forecastValue").append('=').append(getForecastValue()).append(',').append(' ');
-    buf.append("discountFactor").append('=').append(JodaBeanUtils.toString(getDiscountFactor()));
+    buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
+    buf.append("presentValue").append('=').append(presentValue).append(',').append(' ');
+    buf.append("forecastValue").append('=').append(forecastValue).append(',').append(' ');
+    buf.append("discountFactor").append('=').append(JodaBeanUtils.toString(discountFactor));
     buf.append('}');
     return buf.toString();
   }

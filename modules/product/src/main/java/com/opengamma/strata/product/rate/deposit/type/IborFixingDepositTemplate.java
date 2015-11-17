@@ -236,8 +236,8 @@ public final class IborFixingDepositTemplate
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborFixingDepositTemplate other = (IborFixingDepositTemplate) obj;
-      return JodaBeanUtils.equal(getDepositPeriod(), other.getDepositPeriod()) &&
-          JodaBeanUtils.equal(getConvention(), other.getConvention());
+      return JodaBeanUtils.equal(depositPeriod, other.depositPeriod) &&
+          JodaBeanUtils.equal(convention, other.convention);
     }
     return false;
   }
@@ -245,8 +245,8 @@ public final class IborFixingDepositTemplate
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDepositPeriod());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(depositPeriod);
+    hash = hash * 31 + JodaBeanUtils.hashCode(convention);
     return hash;
   }
 
@@ -254,8 +254,8 @@ public final class IborFixingDepositTemplate
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("IborFixingDepositTemplate{");
-    buf.append("depositPeriod").append('=').append(getDepositPeriod()).append(',').append(' ');
-    buf.append("convention").append('=').append(JodaBeanUtils.toString(getConvention()));
+    buf.append("depositPeriod").append('=').append(depositPeriod).append(',').append(' ');
+    buf.append("convention").append('=').append(JodaBeanUtils.toString(convention));
     buf.append('}');
     return buf.toString();
   }

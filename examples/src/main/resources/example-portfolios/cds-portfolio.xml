@@ -21,8 +21,8 @@
                 </referenceInformation>
                 <feeLeg>
                     <upfrontFee>
-                        <fixedAmount>USD 3694117.73</fixedAmount>
-                        <paymentDate>2014-10-21</paymentDate>
+                        <value>USD 3694117.73</value>
+                        <date>2014-10-21</date>
                     </upfrontFee>
                     <periodicPayments>
                         <notional>USD 100000000</notional>
@@ -56,8 +56,8 @@
                 </referenceInformation>
                 <feeLeg>
                     <upfrontFee>
-                        <fixedAmount>USD -1370582</fixedAmount>
-                        <paymentDate>2014-10-21</paymentDate>
+                        <value>USD -1370582</value>
+                        <date>2014-10-21</date>
                     </upfrontFee>
                     <periodicPayments>
                         <notional>USD 100000000</notional>
@@ -90,8 +90,8 @@
                 </referenceInformation>
                 <feeLeg>
                     <upfrontFee>
-                        <fixedAmount>USD 2000000</fixedAmount>
-                        <paymentDate>2014-10-21</paymentDate>
+                        <value>USD 2000000</value>
+                        <date>2014-10-21</date>
                     </upfrontFee>
                     <periodicPayments>
                         <notional>USD 100000000</notional>

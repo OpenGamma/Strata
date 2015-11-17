@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -102,7 +101,6 @@ public class BlackSwaptionCashParYieldProductPricerTest {
   private static final ImmutableRatesProvider RATE_PROVIDER = ImmutableRatesProvider.builder()
       .discountCurves(ImmutableMap.of(EUR, DSC_CURVE))
       .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, FWD6_CURVE))
-      .fxMatrix(FxMatrix.empty())
       .valuationDate(VALUATION)
       .build();
   // surface
@@ -234,13 +232,11 @@ public class BlackSwaptionCashParYieldProductPricerTest {
   private static final ImmutableRatesProvider RATES_PROVIDER_AT_MATURITY = ImmutableRatesProvider.builder()
       .discountCurves(ImmutableMap.of(EUR, DSC_CURVE))
       .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, FWD6_CURVE))
-      .fxMatrix(FxMatrix.empty())
       .valuationDate(MATURITY)
       .build();
   private static final ImmutableRatesProvider RATES_PROVIDER_AFTER_MATURITY = ImmutableRatesProvider.builder()
       .discountCurves(ImmutableMap.of(EUR, DSC_CURVE))
       .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, FWD6_CURVE))
-      .fxMatrix(FxMatrix.empty())
       .valuationDate(MATURITY.plusDays(1))
       .build();
   private static final BlackVolatilityExpiryTenorSwaptionProvider VOL_PROVIDER_AT_MATURITY =

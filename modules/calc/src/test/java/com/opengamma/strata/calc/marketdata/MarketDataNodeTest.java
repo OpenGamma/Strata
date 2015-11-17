@@ -24,7 +24,6 @@ import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.tuple.Pair;
 
 @Test
@@ -413,7 +412,7 @@ public class MarketDataNodeTest {
     }
 
     @Override
-    public Result<MarketDataBox<Double>> build(TestIdA id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+    public MarketDataBox<Double> build(TestIdA id, CalculationEnvironment marketData, MarketDataConfig marketDataConfig) {
       throw new UnsupportedOperationException("build not implemented");
     }
 
@@ -439,9 +438,9 @@ public class MarketDataNodeTest {
     }
 
     @Override
-    public Result<MarketDataBox<TestMarketDataB>> build(
+    public MarketDataBox<TestMarketDataB> build(
         TestIdB id,
-        MarketDataLookup marketData,
+        CalculationEnvironment marketData,
         MarketDataConfig marketDataConfig) {
 
       throw new UnsupportedOperationException("build not implemented");

@@ -213,11 +213,11 @@ public final class TradeReport
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       TradeReport other = (TradeReport) obj;
-      return JodaBeanUtils.equal(getValuationDate(), other.getValuationDate()) &&
-          JodaBeanUtils.equal(getRunInstant(), other.getRunInstant()) &&
-          JodaBeanUtils.equal(getColumns(), other.getColumns()) &&
-          JodaBeanUtils.equal(getColumnHeaders(), other.getColumnHeaders()) &&
-          JodaBeanUtils.equal(getData(), other.getData());
+      return JodaBeanUtils.equal(valuationDate, other.valuationDate) &&
+          JodaBeanUtils.equal(runInstant, other.runInstant) &&
+          JodaBeanUtils.equal(columns, other.columns) &&
+          JodaBeanUtils.equal(columnHeaders, other.columnHeaders) &&
+          JodaBeanUtils.equal(data, other.data);
     }
     return false;
   }
@@ -225,11 +225,11 @@ public final class TradeReport
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRunInstant());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getColumns());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getColumnHeaders());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(valuationDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(runInstant);
+    hash = hash * 31 + JodaBeanUtils.hashCode(columns);
+    hash = hash * 31 + JodaBeanUtils.hashCode(columnHeaders);
+    hash = hash * 31 + JodaBeanUtils.hashCode(data);
     return hash;
   }
 
@@ -237,11 +237,11 @@ public final class TradeReport
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("TradeReport{");
-    buf.append("valuationDate").append('=').append(getValuationDate()).append(',').append(' ');
-    buf.append("runInstant").append('=').append(getRunInstant()).append(',').append(' ');
-    buf.append("columns").append('=').append(getColumns()).append(',').append(' ');
-    buf.append("columnHeaders").append('=').append(getColumnHeaders()).append(',').append(' ');
-    buf.append("data").append('=').append(JodaBeanUtils.toString(getData()));
+    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
+    buf.append("runInstant").append('=').append(runInstant).append(',').append(' ');
+    buf.append("columns").append('=').append(columns).append(',').append(' ');
+    buf.append("columnHeaders").append('=').append(columnHeaders).append(',').append(' ');
+    buf.append("data").append('=').append(JodaBeanUtils.toString(data));
     buf.append('}');
     return buf.toString();
   }

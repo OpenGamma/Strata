@@ -348,11 +348,11 @@ public final class LegalEntityDiscountingProvider
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       LegalEntityDiscountingProvider other = (LegalEntityDiscountingProvider) obj;
-      return JodaBeanUtils.equal(getValuationDate(), other.getValuationDate()) &&
-          JodaBeanUtils.equal(getBondMap(), other.getBondMap()) &&
-          JodaBeanUtils.equal(getRepoCurves(), other.getRepoCurves()) &&
-          JodaBeanUtils.equal(getLegalEntityMap(), other.getLegalEntityMap()) &&
-          JodaBeanUtils.equal(getIssuerCurves(), other.getIssuerCurves());
+      return JodaBeanUtils.equal(valuationDate, other.valuationDate) &&
+          JodaBeanUtils.equal(bondMap, other.bondMap) &&
+          JodaBeanUtils.equal(repoCurves, other.repoCurves) &&
+          JodaBeanUtils.equal(legalEntityMap, other.legalEntityMap) &&
+          JodaBeanUtils.equal(issuerCurves, other.issuerCurves);
     }
     return false;
   }
@@ -360,11 +360,11 @@ public final class LegalEntityDiscountingProvider
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBondMap());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRepoCurves());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLegalEntityMap());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIssuerCurves());
+    hash = hash * 31 + JodaBeanUtils.hashCode(valuationDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(bondMap);
+    hash = hash * 31 + JodaBeanUtils.hashCode(repoCurves);
+    hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityMap);
+    hash = hash * 31 + JodaBeanUtils.hashCode(issuerCurves);
     return hash;
   }
 
@@ -372,11 +372,11 @@ public final class LegalEntityDiscountingProvider
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("LegalEntityDiscountingProvider{");
-    buf.append("valuationDate").append('=').append(getValuationDate()).append(',').append(' ');
-    buf.append("bondMap").append('=').append(getBondMap()).append(',').append(' ');
-    buf.append("repoCurves").append('=').append(getRepoCurves()).append(',').append(' ');
-    buf.append("legalEntityMap").append('=').append(getLegalEntityMap()).append(',').append(' ');
-    buf.append("issuerCurves").append('=').append(JodaBeanUtils.toString(getIssuerCurves()));
+    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
+    buf.append("bondMap").append('=').append(bondMap).append(',').append(' ');
+    buf.append("repoCurves").append('=').append(repoCurves).append(',').append(' ');
+    buf.append("legalEntityMap").append('=').append(legalEntityMap).append(',').append(' ');
+    buf.append("issuerCurves").append('=').append(JodaBeanUtils.toString(issuerCurves));
     buf.append('}');
     return buf.toString();
   }

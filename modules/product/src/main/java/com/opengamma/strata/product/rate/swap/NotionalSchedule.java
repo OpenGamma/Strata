@@ -476,12 +476,12 @@ public final class NotionalSchedule
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       NotionalSchedule other = (NotionalSchedule) obj;
-      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+      return JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(fxReset, other.fxReset) &&
-          JodaBeanUtils.equal(getAmount(), other.getAmount()) &&
-          (isInitialExchange() == other.isInitialExchange()) &&
-          (isIntermediateExchange() == other.isIntermediateExchange()) &&
-          (isFinalExchange() == other.isFinalExchange());
+          JodaBeanUtils.equal(amount, other.amount) &&
+          (initialExchange == other.initialExchange) &&
+          (intermediateExchange == other.intermediateExchange) &&
+          (finalExchange == other.finalExchange);
     }
     return false;
   }
@@ -489,12 +489,12 @@ public final class NotionalSchedule
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(fxReset);
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAmount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(isInitialExchange());
-    hash = hash * 31 + JodaBeanUtils.hashCode(isIntermediateExchange());
-    hash = hash * 31 + JodaBeanUtils.hashCode(isFinalExchange());
+    hash = hash * 31 + JodaBeanUtils.hashCode(amount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(initialExchange);
+    hash = hash * 31 + JodaBeanUtils.hashCode(intermediateExchange);
+    hash = hash * 31 + JodaBeanUtils.hashCode(finalExchange);
     return hash;
   }
 
@@ -502,12 +502,12 @@ public final class NotionalSchedule
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("NotionalSchedule{");
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("fxReset").append('=').append(fxReset).append(',').append(' ');
-    buf.append("amount").append('=').append(getAmount()).append(',').append(' ');
-    buf.append("initialExchange").append('=').append(isInitialExchange()).append(',').append(' ');
-    buf.append("intermediateExchange").append('=').append(isIntermediateExchange()).append(',').append(' ');
-    buf.append("finalExchange").append('=').append(JodaBeanUtils.toString(isFinalExchange()));
+    buf.append("amount").append('=').append(amount).append(',').append(' ');
+    buf.append("initialExchange").append('=').append(initialExchange).append(',').append(' ');
+    buf.append("intermediateExchange").append('=').append(intermediateExchange).append(',').append(' ');
+    buf.append("finalExchange").append('=').append(JodaBeanUtils.toString(finalExchange));
     buf.append('}');
     return buf.toString();
   }

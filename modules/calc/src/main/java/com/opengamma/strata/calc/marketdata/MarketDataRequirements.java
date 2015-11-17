@@ -149,9 +149,9 @@ public final class MarketDataRequirements implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MarketDataRequirements other = (MarketDataRequirements) obj;
-      return JodaBeanUtils.equal(getObservables(), other.getObservables()) &&
-          JodaBeanUtils.equal(getNonObservables(), other.getNonObservables()) &&
-          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries());
+      return JodaBeanUtils.equal(observables, other.observables) &&
+          JodaBeanUtils.equal(nonObservables, other.nonObservables) &&
+          JodaBeanUtils.equal(timeSeries, other.timeSeries);
     }
     return false;
   }
@@ -159,9 +159,9 @@ public final class MarketDataRequirements implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getObservables());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNonObservables());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(observables);
+    hash = hash * 31 + JodaBeanUtils.hashCode(nonObservables);
+    hash = hash * 31 + JodaBeanUtils.hashCode(timeSeries);
     return hash;
   }
 
@@ -169,9 +169,9 @@ public final class MarketDataRequirements implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("MarketDataRequirements{");
-    buf.append("observables").append('=').append(getObservables()).append(',').append(' ');
-    buf.append("nonObservables").append('=').append(getNonObservables()).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(getTimeSeries()));
+    buf.append("observables").append('=').append(observables).append(',').append(' ');
+    buf.append("nonObservables").append('=').append(nonObservables).append(',').append(' ');
+    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries));
     buf.append('}');
     return buf.toString();
   }

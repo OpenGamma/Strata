@@ -188,9 +188,9 @@ public final class CurveGroup
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveGroup other = (CurveGroup) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getDiscountCurves(), other.getDiscountCurves()) &&
-          JodaBeanUtils.equal(getForwardCurves(), other.getForwardCurves());
+      return JodaBeanUtils.equal(name, other.name) &&
+          JodaBeanUtils.equal(discountCurves, other.discountCurves) &&
+          JodaBeanUtils.equal(forwardCurves, other.forwardCurves);
     }
     return false;
   }
@@ -198,9 +198,9 @@ public final class CurveGroup
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDiscountCurves());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getForwardCurves());
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(discountCurves);
+    hash = hash * 31 + JodaBeanUtils.hashCode(forwardCurves);
     return hash;
   }
 
@@ -208,9 +208,9 @@ public final class CurveGroup
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("CurveGroup{");
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("discountCurves").append('=').append(getDiscountCurves()).append(',').append(' ');
-    buf.append("forwardCurves").append('=').append(JodaBeanUtils.toString(getForwardCurves()));
+    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("discountCurves").append('=').append(discountCurves).append(',').append(' ');
+    buf.append("forwardCurves").append('=').append(JodaBeanUtils.toString(forwardCurves));
     buf.append('}');
     return buf.toString();
   }

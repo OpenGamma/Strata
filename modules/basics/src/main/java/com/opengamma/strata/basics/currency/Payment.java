@@ -57,7 +57,21 @@ public final class Payment
   /**
    * Creates a {@code Payment} representing an amount.
    * <p>
-   * Whether the payment is pay or receive is determined by the sign of the specified amonut.
+   * Whether the payment is pay or receive is determined by the sign of the specified amount.
+   * 
+   * @param currency  the currency of the payment
+   * @param amount  the amount of the payment
+   * @param date  the date that the payment is made
+   * @return the payment instance
+   */
+  public static Payment of(Currency currency, double amount, LocalDate date) {
+    return new Payment(CurrencyAmount.of(currency, amount), date);
+  }
+
+  /**
+   * Creates a {@code Payment} representing an amount.
+   * <p>
+   * Whether the payment is pay or receive is determined by the sign of the specified amount.
    * 
    * @param value  the amount of the payment
    * @param date  the date that the payment is made
@@ -266,8 +280,8 @@ public final class Payment
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Payment other = (Payment) obj;
-      return JodaBeanUtils.equal(getValue(), other.getValue()) &&
-          JodaBeanUtils.equal(getDate(), other.getDate());
+      return JodaBeanUtils.equal(value, other.value) &&
+          JodaBeanUtils.equal(date, other.date);
     }
     return false;
   }
@@ -275,8 +289,8 @@ public final class Payment
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValue());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(value);
+    hash = hash * 31 + JodaBeanUtils.hashCode(date);
     return hash;
   }
 
@@ -284,8 +298,8 @@ public final class Payment
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("Payment{");
-    buf.append("value").append('=').append(getValue()).append(',').append(' ');
-    buf.append("date").append('=').append(JodaBeanUtils.toString(getDate()));
+    buf.append("value").append('=').append(value).append(',').append(' ');
+    buf.append("date").append('=').append(JodaBeanUtils.toString(date));
     buf.append('}');
     return buf.toString();
   }

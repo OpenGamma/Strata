@@ -21,8 +21,8 @@ import org.joda.beans.impl.light.LightMetaBean;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
@@ -61,21 +61,18 @@ public final class DummyFraCurveNode
 
   @Override
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
-//    LocalDate spotValue = valuationDate.plusDays(0);
-//    LocalDate startDate = spotValue.plus(periodToStart);
-//    LocalDate endDate = spotValue.plus(periodToEnd);
     return SimpleCurveNodeMetadata.of(
         HolidayCalendars.SAT_SUN.nextOrSame(valuationDate.plus(periodToEnd)), periodToEnd.toString());
   }
 
   @Override
-  public DummyFraTrade trade(LocalDate valuationDate, ObservableValues marketData) {
+  public DummyFraTrade trade(LocalDate valuationDate, MarketData marketData) {
     double fixedRate = marketData.getValue(rateKey) + spread;
     return DummyFraTrade.of(valuationDate, fixedRate);
   }
 
   @Override
-  public double initialGuess(LocalDate valuationDate, ObservableValues marketData, ValueType valueType) {
+  public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
     if (ValueType.ZERO_RATE.equals(valueType)) {
       return marketData.getValue(rateKey);
     }
@@ -95,6 +92,10 @@ public final class DummyFraCurveNode
    */
   public static MetaBean meta() {
     return META_BEAN;
+  }
+
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
   }
 
   /**
@@ -175,10 +176,10 @@ public final class DummyFraCurveNode
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DummyFraCurveNode other = (DummyFraCurveNode) obj;
-      return JodaBeanUtils.equal(getPeriodToStart(), other.getPeriodToStart()) &&
-          JodaBeanUtils.equal(getPeriodToEnd(), other.getPeriodToEnd()) &&
-          JodaBeanUtils.equal(getRateKey(), other.getRateKey()) &&
-          JodaBeanUtils.equal(getSpread(), other.getSpread());
+      return JodaBeanUtils.equal(periodToStart, other.periodToStart) &&
+          JodaBeanUtils.equal(periodToEnd, other.periodToEnd) &&
+          JodaBeanUtils.equal(rateKey, other.rateKey) &&
+          JodaBeanUtils.equal(spread, other.spread);
     }
     return false;
   }
@@ -186,10 +187,10 @@ public final class DummyFraCurveNode
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPeriodToStart());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPeriodToEnd());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRateKey());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSpread());
+    hash = hash * 31 + JodaBeanUtils.hashCode(periodToStart);
+    hash = hash * 31 + JodaBeanUtils.hashCode(periodToEnd);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rateKey);
+    hash = hash * 31 + JodaBeanUtils.hashCode(spread);
     return hash;
   }
 
@@ -197,10 +198,10 @@ public final class DummyFraCurveNode
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("DummyFraCurveNode{");
-    buf.append("periodToStart").append('=').append(getPeriodToStart()).append(',').append(' ');
-    buf.append("periodToEnd").append('=').append(getPeriodToEnd()).append(',').append(' ');
-    buf.append("rateKey").append('=').append(getRateKey()).append(',').append(' ');
-    buf.append("spread").append('=').append(JodaBeanUtils.toString(getSpread()));
+    buf.append("periodToStart").append('=').append(periodToStart).append(',').append(' ');
+    buf.append("periodToEnd").append('=').append(periodToEnd).append(',').append(' ');
+    buf.append("rateKey").append('=').append(rateKey).append(',').append(' ');
+    buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
     buf.append('}');
     return buf.toString();
   }

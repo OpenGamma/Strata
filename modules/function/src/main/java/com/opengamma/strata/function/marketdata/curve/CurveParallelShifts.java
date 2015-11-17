@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioPerturbation;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.perturb.ParallelShiftedCurve;
-import com.opengamma.strata.market.curve.perturb.ShiftType;
 
 /**
  * Perturbation which applies a parallel shift to a curve.
@@ -165,8 +165,8 @@ public final class CurveParallelShifts
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveParallelShifts other = (CurveParallelShifts) obj;
-      return JodaBeanUtils.equal(getShiftType(), other.getShiftType()) &&
-          JodaBeanUtils.equal(getShiftAmounts(), other.getShiftAmounts());
+      return JodaBeanUtils.equal(shiftType, other.shiftType) &&
+          JodaBeanUtils.equal(shiftAmounts, other.shiftAmounts);
     }
     return false;
   }
@@ -174,8 +174,8 @@ public final class CurveParallelShifts
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftAmounts());
+    hash = hash * 31 + JodaBeanUtils.hashCode(shiftType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(shiftAmounts);
     return hash;
   }
 
@@ -183,8 +183,8 @@ public final class CurveParallelShifts
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CurveParallelShifts{");
-    buf.append("shiftType").append('=').append(getShiftType()).append(',').append(' ');
-    buf.append("shiftAmounts").append('=').append(JodaBeanUtils.toString(getShiftAmounts()));
+    buf.append("shiftType").append('=').append(shiftType).append(',').append(' ');
+    buf.append("shiftAmounts").append('=').append(JodaBeanUtils.toString(shiftAmounts));
     buf.append('}');
     return buf.toString();
   }

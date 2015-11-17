@@ -137,8 +137,7 @@ public final class CdsDatesLogic {
    * @param date  the date to start from
    * @return the previous CDS date
    */
-  public static LocalDate getPrevCdsDate(LocalDate date) {
-    // TODO: rename to previous
+  public static LocalDate getPreviousCdsDate(LocalDate date) {
     int year = date.getYear();
     int month = date.getMonthValue();
     int day = date.getDayOfMonth();

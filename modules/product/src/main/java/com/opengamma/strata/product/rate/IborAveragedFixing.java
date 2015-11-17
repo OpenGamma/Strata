@@ -253,9 +253,9 @@ public final class IborAveragedFixing
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborAveragedFixing other = (IborAveragedFixing) obj;
-      return JodaBeanUtils.equal(getFixingDate(), other.getFixingDate()) &&
+      return JodaBeanUtils.equal(fixingDate, other.fixingDate) &&
           JodaBeanUtils.equal(fixedRate, other.fixedRate) &&
-          JodaBeanUtils.equal(getWeight(), other.getWeight());
+          JodaBeanUtils.equal(weight, other.weight);
     }
     return false;
   }
@@ -263,9 +263,9 @@ public final class IborAveragedFixing
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixingDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(getWeight());
+    hash = hash * 31 + JodaBeanUtils.hashCode(weight);
     return hash;
   }
 
@@ -273,9 +273,9 @@ public final class IborAveragedFixing
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("IborAveragedFixing{");
-    buf.append("fixingDate").append('=').append(getFixingDate()).append(',').append(' ');
+    buf.append("fixingDate").append('=').append(fixingDate).append(',').append(' ');
     buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
-    buf.append("weight").append('=').append(JodaBeanUtils.toString(getWeight()));
+    buf.append("weight").append('=').append(JodaBeanUtils.toString(weight));
     buf.append('}');
     return buf.toString();
   }

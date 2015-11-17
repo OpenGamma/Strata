@@ -99,6 +99,10 @@ public final class SimpleOptionData
     return META_BEAN;
   }
 
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
   /**
    * The serialization version id.
    */
@@ -185,11 +189,11 @@ public final class SimpleOptionData
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SimpleOptionData other = (SimpleOptionData) obj;
-      return JodaBeanUtils.equal(getForward(), other.getForward()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getTimeToExpiry(), other.getTimeToExpiry()) &&
-          JodaBeanUtils.equal(getDiscountFactor(), other.getDiscountFactor()) &&
-          JodaBeanUtils.equal(getPutCall(), other.getPutCall());
+      return JodaBeanUtils.equal(forward, other.forward) &&
+          JodaBeanUtils.equal(strike, other.strike) &&
+          JodaBeanUtils.equal(timeToExpiry, other.timeToExpiry) &&
+          JodaBeanUtils.equal(discountFactor, other.discountFactor) &&
+          JodaBeanUtils.equal(putCall, other.putCall);
     }
     return false;
   }
@@ -197,11 +201,11 @@ public final class SimpleOptionData
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getForward());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeToExpiry());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDiscountFactor());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPutCall());
+    hash = hash * 31 + JodaBeanUtils.hashCode(forward);
+    hash = hash * 31 + JodaBeanUtils.hashCode(strike);
+    hash = hash * 31 + JodaBeanUtils.hashCode(timeToExpiry);
+    hash = hash * 31 + JodaBeanUtils.hashCode(discountFactor);
+    hash = hash * 31 + JodaBeanUtils.hashCode(putCall);
     return hash;
   }
 
@@ -209,11 +213,11 @@ public final class SimpleOptionData
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("SimpleOptionData{");
-    buf.append("forward").append('=').append(getForward()).append(',').append(' ');
-    buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
-    buf.append("timeToExpiry").append('=').append(getTimeToExpiry()).append(',').append(' ');
-    buf.append("discountFactor").append('=').append(getDiscountFactor()).append(',').append(' ');
-    buf.append("putCall").append('=').append(JodaBeanUtils.toString(getPutCall()));
+    buf.append("forward").append('=').append(forward).append(',').append(' ');
+    buf.append("strike").append('=').append(strike).append(',').append(' ');
+    buf.append("timeToExpiry").append('=').append(timeToExpiry).append(',').append(' ');
+    buf.append("discountFactor").append('=').append(discountFactor).append(',').append(' ');
+    buf.append("putCall").append('=').append(JodaBeanUtils.toString(putCall));
     buf.append('}');
     return buf.toString();
   }

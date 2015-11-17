@@ -7,13 +7,12 @@ package com.opengamma.strata.function.marketdata.curve;
 
 import java.util.Optional;
 
-import com.opengamma.strata.calc.marketdata.MarketDataLookup;
+import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
-import com.opengamma.strata.collect.result.FailureReason;
-import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.id.CurveGroupId;
@@ -37,31 +36,27 @@ public final class RateIndexCurveMarketDataFunction implements MarketDataFunctio
   }
 
   @Override
-  public Result<MarketDataBox<Curve>> build(
+  public MarketDataBox<Curve> build(
       RateIndexCurveId id,
-      MarketDataLookup marketData,
+      CalculationEnvironment marketData,
       MarketDataConfig marketDataConfig) {
 
     CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
-
-    if (!marketData.containsValue(curveGroupId)) {
-      return Result.failure(FailureReason.MISSING_DATA, "No curve group found with name {}", id.getCurveGroupName());
-    }
     MarketDataBox<CurveGroup> curveGroupBox = marketData.getValue(curveGroupId);
     return curveGroupBox.apply(curveGroup -> buildCurve(id, curveGroup));
   }
 
-  private Result<Curve> buildCurve(RateIndexCurveId id, CurveGroup curveGroup) {
+  private Curve buildCurve(RateIndexCurveId id, CurveGroup curveGroup) {
     Optional<Curve> optionalForwardCurve = curveGroup.findForwardCurve(id.getIndex());
 
     if (optionalForwardCurve.isPresent()) {
-      return Result.success(optionalForwardCurve.get());
+      return optionalForwardCurve.get();
     } else {
-      return Result.failure(
-          FailureReason.MISSING_DATA,
-          "No forward curve available for index {} in curve group {}",
-          id.getIndex().getName(),
-          id.getCurveGroupName());
+      throw new IllegalArgumentException(
+          Messages.format(
+              "No forward curve available for index {} in curve group {}",
+              id.getIndex().getName(),
+              id.getCurveGroupName()));
     }
   }
 

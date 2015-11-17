@@ -245,10 +245,10 @@ public final class ZeroRateSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ZeroRateSensitivity other = (ZeroRateSensitivity) obj;
-      return JodaBeanUtils.equal(getCurveCurrency(), other.getCurveCurrency()) &&
-          JodaBeanUtils.equal(getDate(), other.getDate()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getSensitivity(), other.getSensitivity());
+      return JodaBeanUtils.equal(curveCurrency, other.curveCurrency) &&
+          JodaBeanUtils.equal(date, other.date) &&
+          JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(sensitivity, other.sensitivity);
     }
     return false;
   }
@@ -256,10 +256,10 @@ public final class ZeroRateSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveCurrency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(date);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(sensitivity);
     return hash;
   }
 
@@ -267,10 +267,10 @@ public final class ZeroRateSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("ZeroRateSensitivity{");
-    buf.append("curveCurrency").append('=').append(getCurveCurrency()).append(',').append(' ');
-    buf.append("date").append('=').append(getDate()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(getSensitivity()));
+    buf.append("curveCurrency").append('=').append(curveCurrency).append(',').append(' ');
+    buf.append("date").append('=').append(date).append(',').append(' ');
+    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();
   }

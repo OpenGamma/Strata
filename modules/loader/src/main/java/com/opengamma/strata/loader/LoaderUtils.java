@@ -5,45 +5,18 @@
  */
 package com.opengamma.strata.loader;
 
-import org.joda.beans.JodaBeanUtils;
-
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.math.impl.interpolation.DoubleQuadraticInterpolator1D;
-import com.opengamma.strata.math.impl.interpolation.ExponentialExtrapolator1D;
-import com.opengamma.strata.math.impl.interpolation.ExponentialInterpolator1D;
-import com.opengamma.strata.math.impl.interpolation.FlatExtrapolator1D;
-import com.opengamma.strata.math.impl.interpolation.LinearExtrapolator1D;
-import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
-import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
-import com.opengamma.strata.math.impl.interpolation.NaturalCubicSplineInterpolator1D;
-import com.opengamma.strata.math.impl.interpolation.QuadraticPolynomialLeftExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.TimeSquareInterpolator1D;
 
 /**
  * Contains utilities for loading market data from input files.
  */
 public final class LoaderUtils {
   
-  static {
-    JodaBeanUtils.registerMetaBean(DoubleQuadraticInterpolator1D.meta());
-    JodaBeanUtils.registerMetaBean(ExponentialInterpolator1D.meta());
-    JodaBeanUtils.registerMetaBean(LinearInterpolator1D.meta());
-    JodaBeanUtils.registerMetaBean(LogLinearInterpolator1D.meta());
-    JodaBeanUtils.registerMetaBean(NaturalCubicSplineInterpolator1D.meta());
-    JodaBeanUtils.registerMetaBean(TimeSquareInterpolator1D.meta());
-
-    JodaBeanUtils.registerMetaBean(ExponentialExtrapolator1D.meta());
-    JodaBeanUtils.registerMetaBean(FlatExtrapolator1D.meta());
-    JodaBeanUtils.registerMetaBean(LinearExtrapolator1D.meta());
-    JodaBeanUtils.registerMetaBean(QuadraticPolynomialLeftExtrapolator.meta());
-  }
-
-  //-------------------------------------------------------------------------
   /**
    * Attempts to locate a rate index by reference name.
    * <p>

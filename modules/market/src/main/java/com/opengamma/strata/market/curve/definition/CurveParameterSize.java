@@ -127,8 +127,8 @@ public final class CurveParameterSize
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveParameterSize other = (CurveParameterSize) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          (getParameterCount() == other.getParameterCount());
+      return JodaBeanUtils.equal(name, other.name) &&
+          (parameterCount == other.parameterCount);
     }
     return false;
   }
@@ -136,8 +136,8 @@ public final class CurveParameterSize
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getParameterCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(parameterCount);
     return hash;
   }
 
@@ -145,8 +145,8 @@ public final class CurveParameterSize
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CurveParameterSize{");
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("parameterCount").append('=').append(JodaBeanUtils.toString(getParameterCount()));
+    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("parameterCount").append('=').append(JodaBeanUtils.toString(parameterCount));
     buf.append('}');
     return buf.toString();
   }

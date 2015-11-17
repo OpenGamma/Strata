@@ -311,10 +311,10 @@ public final class DiscountFxForwardRates
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DiscountFxForwardRates other = (DiscountFxForwardRates) obj;
-      return JodaBeanUtils.equal(getCurrencyPair(), other.getCurrencyPair()) &&
-          JodaBeanUtils.equal(getFxRateProvider(), other.getFxRateProvider()) &&
-          JodaBeanUtils.equal(getBaseCurrencyDiscountFactors(), other.getBaseCurrencyDiscountFactors()) &&
-          JodaBeanUtils.equal(getCounterCurrencyDiscountFactors(), other.getCounterCurrencyDiscountFactors());
+      return JodaBeanUtils.equal(currencyPair, other.currencyPair) &&
+          JodaBeanUtils.equal(fxRateProvider, other.fxRateProvider) &&
+          JodaBeanUtils.equal(baseCurrencyDiscountFactors, other.baseCurrencyDiscountFactors) &&
+          JodaBeanUtils.equal(counterCurrencyDiscountFactors, other.counterCurrencyDiscountFactors);
     }
     return false;
   }
@@ -322,10 +322,10 @@ public final class DiscountFxForwardRates
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFxRateProvider());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseCurrencyDiscountFactors());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCounterCurrencyDiscountFactors());
+    hash = hash * 31 + JodaBeanUtils.hashCode(currencyPair);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fxRateProvider);
+    hash = hash * 31 + JodaBeanUtils.hashCode(baseCurrencyDiscountFactors);
+    hash = hash * 31 + JodaBeanUtils.hashCode(counterCurrencyDiscountFactors);
     return hash;
   }
 
@@ -333,10 +333,10 @@ public final class DiscountFxForwardRates
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("DiscountFxForwardRates{");
-    buf.append("currencyPair").append('=').append(getCurrencyPair()).append(',').append(' ');
-    buf.append("fxRateProvider").append('=').append(getFxRateProvider()).append(',').append(' ');
-    buf.append("baseCurrencyDiscountFactors").append('=').append(getBaseCurrencyDiscountFactors()).append(',').append(' ');
-    buf.append("counterCurrencyDiscountFactors").append('=').append(JodaBeanUtils.toString(getCounterCurrencyDiscountFactors()));
+    buf.append("currencyPair").append('=').append(currencyPair).append(',').append(' ');
+    buf.append("fxRateProvider").append('=').append(fxRateProvider).append(',').append(' ');
+    buf.append("baseCurrencyDiscountFactors").append('=').append(baseCurrencyDiscountFactors).append(',').append(' ');
+    buf.append("counterCurrencyDiscountFactors").append('=').append(JodaBeanUtils.toString(counterCurrencyDiscountFactors));
     buf.append('}');
     return buf.toString();
   }

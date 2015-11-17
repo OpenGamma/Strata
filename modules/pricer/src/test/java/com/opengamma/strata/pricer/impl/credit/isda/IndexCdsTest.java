@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.market.curve.perturb.ShiftType;
+import com.opengamma.strata.market.ShiftType;
 
 /**
  * Test.

@@ -239,9 +239,9 @@ public final class Triple<A, B, C>
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Triple<?, ?, ?> other = (Triple<?, ?, ?>) obj;
-      return JodaBeanUtils.equal(getFirst(), other.getFirst()) &&
-          JodaBeanUtils.equal(getSecond(), other.getSecond()) &&
-          JodaBeanUtils.equal(getThird(), other.getThird());
+      return JodaBeanUtils.equal(first, other.first) &&
+          JodaBeanUtils.equal(second, other.second) &&
+          JodaBeanUtils.equal(third, other.third);
     }
     return false;
   }
@@ -249,9 +249,9 @@ public final class Triple<A, B, C>
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFirst());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSecond());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getThird());
+    hash = hash * 31 + JodaBeanUtils.hashCode(first);
+    hash = hash * 31 + JodaBeanUtils.hashCode(second);
+    hash = hash * 31 + JodaBeanUtils.hashCode(third);
     return hash;
   }
 
