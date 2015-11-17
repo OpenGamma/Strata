@@ -30,7 +30,7 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.market.curve.SimpleCurveNodeMetadata;
+import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.perturb.CurvePointShift;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve;
+package com.opengamma.strata.market.curve.meta;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -29,6 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 
 /**
  * Curve node metadata for a curve node with a specific year-month.

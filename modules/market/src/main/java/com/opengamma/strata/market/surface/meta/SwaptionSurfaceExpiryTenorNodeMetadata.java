@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.surface;
+package com.opengamma.strata.market.surface.meta;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -24,37 +24,34 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.market.option.Strike;
+import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 
 /**
- * Surface node metadata for a surface node with a specific time to expiry and strike.
+ * Surface node metadata for a surface node for swaptions with a specific time to expiry and underlying swap tenor.
+ * <p>
+ * This typically represents a node of swaption volatility surface parameterized by expiry and tenor. 
+ * Alternative applications include a representation of a node on model parameter surface, e.g., SABR model parameters.
  */
 @BeanDefinition(builderScope = "private")
-public final class FxVolatilitySurfaceYearFractionNodeMetadata
+public final class SwaptionSurfaceExpiryTenorNodeMetadata
     implements SurfaceParameterMetadata, ImmutableBean, Serializable {
 
   /**
-   * The year fraction of the surface node.
-   * <p>
-   * This is the time to expiry that the node on the surface is defined as.
-   * There is not necessarily a direct relationship with a date from an underlying instrument.
-   */
+  * The year fraction of the surface node.
+  * <p>
+  * This is the time to expiry that the node on the surface is defined as.
+  * There is not necessarily a direct relationship with a date from an underlying instrument.
+  */
   @PropertyDefinition
   private final double yearFraction;
   /**
-   * The strike of the surface node.
-   * <p>
-   * This is the strike that the node on the surface is defined as.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final Strike strike;
-  /**
-   * The currency pair that describes the node.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final CurrencyPair currencyPair;
+  * The tenor of the surface node.
+  * <p>
+  * This is the tenor of the underlying swap that the node on the surface is defined as.
+  */
+  @PropertyDefinition
+  private final double tenor;
   /**
    * The label that describes the node.
    */
@@ -63,64 +60,60 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
 
   //-------------------------------------------------------------------------
   /**
-   * Creates node metadata using year fraction, strike and currency pair. 
+   * Creates node metadata using swap convention, year fraction and strike. 
    * 
    * @param yearFraction  the year fraction
-   * @param strike  the strike
-   * @param currencyPair  the currency pair
+   * @param tenor  the tenor
    * @return node metadata 
    */
-  public static FxVolatilitySurfaceYearFractionNodeMetadata of(
+  public static SwaptionSurfaceExpiryTenorNodeMetadata of(
       double yearFraction,
-      Strike strike,
-      CurrencyPair currencyPair) {
+      double tenor) {
 
-    String label = Pair.of(yearFraction, strike.getLabel()).toString();
-    return new FxVolatilitySurfaceYearFractionNodeMetadata(yearFraction, strike, currencyPair, label);
+    String label = Pair.of(yearFraction, tenor).toString();
+    return new SwaptionSurfaceExpiryTenorNodeMetadata(yearFraction, tenor, label);
   }
 
   /**
-   * Creates node using year fraction, strike, label and currency pair.  
+   * Creates node using swap convention, year fraction, strike and label.  
    * 
    * @param yearFraction  the year fraction
-   * @param strike  the strike
+   * @param tenor  the tenor
    * @param label  the label to use
-   * @param currencyPair  the currency pair
    * @return the metadata
    */
-  public static FxVolatilitySurfaceYearFractionNodeMetadata of(
+  public static SwaptionSurfaceExpiryTenorNodeMetadata of(
       double yearFraction,
-      Strike strike,
-      String label,
-      CurrencyPair currencyPair) {
+      double tenor,
+      String label) {
 
-    return new FxVolatilitySurfaceYearFractionNodeMetadata(yearFraction, strike, currencyPair, label);
+    return new SwaptionSurfaceExpiryTenorNodeMetadata(yearFraction, tenor, label);
   }
 
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
-    if (builder.label == null && builder.strike != null) {
-      builder.label = Pair.of(builder.yearFraction, builder.strike.getLabel()).toString();
+    if (builder.label == null) {
+      builder.label = Pair.of(builder.yearFraction, builder.tenor).toString();
     }
   }
 
   @Override
-  public Pair<Double, Strike> getIdentifier() {
-    return Pair.of(yearFraction, strike);
+  public Pair<Double, Double> getIdentifier() {
+    return Pair.of(yearFraction, tenor);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code FxVolatilitySurfaceYearFractionNodeMetadata}.
+   * The meta-bean for {@code SwaptionSurfaceExpiryTenorNodeMetadata}.
    * @return the meta-bean, not null
    */
-  public static FxVolatilitySurfaceYearFractionNodeMetadata.Meta meta() {
-    return FxVolatilitySurfaceYearFractionNodeMetadata.Meta.INSTANCE;
+  public static SwaptionSurfaceExpiryTenorNodeMetadata.Meta meta() {
+    return SwaptionSurfaceExpiryTenorNodeMetadata.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(FxVolatilitySurfaceYearFractionNodeMetadata.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(SwaptionSurfaceExpiryTenorNodeMetadata.Meta.INSTANCE);
   }
 
   /**
@@ -128,23 +121,19 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
    */
   private static final long serialVersionUID = 1L;
 
-  private FxVolatilitySurfaceYearFractionNodeMetadata(
+  private SwaptionSurfaceExpiryTenorNodeMetadata(
       double yearFraction,
-      Strike strike,
-      CurrencyPair currencyPair,
+      double tenor,
       String label) {
-    JodaBeanUtils.notNull(strike, "strike");
-    JodaBeanUtils.notNull(currencyPair, "currencyPair");
     JodaBeanUtils.notEmpty(label, "label");
     this.yearFraction = yearFraction;
-    this.strike = strike;
-    this.currencyPair = currencyPair;
+    this.tenor = tenor;
     this.label = label;
   }
 
   @Override
-  public FxVolatilitySurfaceYearFractionNodeMetadata.Meta metaBean() {
-    return FxVolatilitySurfaceYearFractionNodeMetadata.Meta.INSTANCE;
+  public SwaptionSurfaceExpiryTenorNodeMetadata.Meta metaBean() {
+    return SwaptionSurfaceExpiryTenorNodeMetadata.Meta.INSTANCE;
   }
 
   @Override
@@ -171,22 +160,13 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the strike of the surface node.
+   * Gets the tenor of the surface node.
    * <p>
-   * This is the strike that the node on the surface is defined as.
-   * @return the value of the property, not null
+   * This is the tenor of the underlying swap that the node on the surface is defined as.
+   * @return the value of the property
    */
-  public Strike getStrike() {
-    return strike;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the currency pair that describes the node.
-   * @return the value of the property, not null
-   */
-  public CurrencyPair getCurrencyPair() {
-    return currencyPair;
+  public double getTenor() {
+    return tenor;
   }
 
   //-----------------------------------------------------------------------
@@ -206,10 +186,9 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      FxVolatilitySurfaceYearFractionNodeMetadata other = (FxVolatilitySurfaceYearFractionNodeMetadata) obj;
+      SwaptionSurfaceExpiryTenorNodeMetadata other = (SwaptionSurfaceExpiryTenorNodeMetadata) obj;
       return JodaBeanUtils.equal(yearFraction, other.yearFraction) &&
-          JodaBeanUtils.equal(strike, other.strike) &&
-          JodaBeanUtils.equal(currencyPair, other.currencyPair) &&
+          JodaBeanUtils.equal(tenor, other.tenor) &&
           JodaBeanUtils.equal(label, other.label);
     }
     return false;
@@ -219,19 +198,17 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
-    hash = hash * 31 + JodaBeanUtils.hashCode(strike);
-    hash = hash * 31 + JodaBeanUtils.hashCode(currencyPair);
+    hash = hash * 31 + JodaBeanUtils.hashCode(tenor);
     hash = hash * 31 + JodaBeanUtils.hashCode(label);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
-    buf.append("FxVolatilitySurfaceYearFractionNodeMetadata{");
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("SwaptionSurfaceExpiryTenorNodeMetadata{");
     buf.append("yearFraction").append('=').append(yearFraction).append(',').append(' ');
-    buf.append("strike").append('=').append(strike).append(',').append(' ');
-    buf.append("currencyPair").append('=').append(currencyPair).append(',').append(' ');
+    buf.append("tenor").append('=').append(tenor).append(',').append(' ');
     buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();
@@ -239,7 +216,7 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code FxVolatilitySurfaceYearFractionNodeMetadata}.
+   * The meta-bean for {@code SwaptionSurfaceExpiryTenorNodeMetadata}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -251,30 +228,24 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
      * The meta-property for the {@code yearFraction} property.
      */
     private final MetaProperty<Double> yearFraction = DirectMetaProperty.ofImmutable(
-        this, "yearFraction", FxVolatilitySurfaceYearFractionNodeMetadata.class, Double.TYPE);
+        this, "yearFraction", SwaptionSurfaceExpiryTenorNodeMetadata.class, Double.TYPE);
     /**
-     * The meta-property for the {@code strike} property.
+     * The meta-property for the {@code tenor} property.
      */
-    private final MetaProperty<Strike> strike = DirectMetaProperty.ofImmutable(
-        this, "strike", FxVolatilitySurfaceYearFractionNodeMetadata.class, Strike.class);
-    /**
-     * The meta-property for the {@code currencyPair} property.
-     */
-    private final MetaProperty<CurrencyPair> currencyPair = DirectMetaProperty.ofImmutable(
-        this, "currencyPair", FxVolatilitySurfaceYearFractionNodeMetadata.class, CurrencyPair.class);
+    private final MetaProperty<Double> tenor = DirectMetaProperty.ofImmutable(
+        this, "tenor", SwaptionSurfaceExpiryTenorNodeMetadata.class, Double.TYPE);
     /**
      * The meta-property for the {@code label} property.
      */
     private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
-        this, "label", FxVolatilitySurfaceYearFractionNodeMetadata.class, String.class);
+        this, "label", SwaptionSurfaceExpiryTenorNodeMetadata.class, String.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "yearFraction",
-        "strike",
-        "currencyPair",
+        "tenor",
         "label");
 
     /**
@@ -288,10 +259,8 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
       switch (propertyName.hashCode()) {
         case -1731780257:  // yearFraction
           return yearFraction;
-        case -891985998:  // strike
-          return strike;
-        case 1005147787:  // currencyPair
-          return currencyPair;
+        case 110246592:  // tenor
+          return tenor;
         case 102727412:  // label
           return label;
       }
@@ -299,13 +268,13 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
     }
 
     @Override
-    public BeanBuilder<? extends FxVolatilitySurfaceYearFractionNodeMetadata> builder() {
-      return new FxVolatilitySurfaceYearFractionNodeMetadata.Builder();
+    public BeanBuilder<? extends SwaptionSurfaceExpiryTenorNodeMetadata> builder() {
+      return new SwaptionSurfaceExpiryTenorNodeMetadata.Builder();
     }
 
     @Override
-    public Class<? extends FxVolatilitySurfaceYearFractionNodeMetadata> beanType() {
-      return FxVolatilitySurfaceYearFractionNodeMetadata.class;
+    public Class<? extends SwaptionSurfaceExpiryTenorNodeMetadata> beanType() {
+      return SwaptionSurfaceExpiryTenorNodeMetadata.class;
     }
 
     @Override
@@ -323,19 +292,11 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
     }
 
     /**
-     * The meta-property for the {@code strike} property.
+     * The meta-property for the {@code tenor} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Strike> strike() {
-      return strike;
-    }
-
-    /**
-     * The meta-property for the {@code currencyPair} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<CurrencyPair> currencyPair() {
-      return currencyPair;
+    public MetaProperty<Double> tenor() {
+      return tenor;
     }
 
     /**
@@ -351,13 +312,11 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1731780257:  // yearFraction
-          return ((FxVolatilitySurfaceYearFractionNodeMetadata) bean).getYearFraction();
-        case -891985998:  // strike
-          return ((FxVolatilitySurfaceYearFractionNodeMetadata) bean).getStrike();
-        case 1005147787:  // currencyPair
-          return ((FxVolatilitySurfaceYearFractionNodeMetadata) bean).getCurrencyPair();
+          return ((SwaptionSurfaceExpiryTenorNodeMetadata) bean).getYearFraction();
+        case 110246592:  // tenor
+          return ((SwaptionSurfaceExpiryTenorNodeMetadata) bean).getTenor();
         case 102727412:  // label
-          return ((FxVolatilitySurfaceYearFractionNodeMetadata) bean).getLabel();
+          return ((SwaptionSurfaceExpiryTenorNodeMetadata) bean).getLabel();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -375,13 +334,12 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code FxVolatilitySurfaceYearFractionNodeMetadata}.
+   * The bean-builder for {@code SwaptionSurfaceExpiryTenorNodeMetadata}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<FxVolatilitySurfaceYearFractionNodeMetadata> {
+  private static final class Builder extends DirectFieldsBeanBuilder<SwaptionSurfaceExpiryTenorNodeMetadata> {
 
     private double yearFraction;
-    private Strike strike;
-    private CurrencyPair currencyPair;
+    private double tenor;
     private String label;
 
     /**
@@ -396,10 +354,8 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
       switch (propertyName.hashCode()) {
         case -1731780257:  // yearFraction
           return yearFraction;
-        case -891985998:  // strike
-          return strike;
-        case 1005147787:  // currencyPair
-          return currencyPair;
+        case 110246592:  // tenor
+          return tenor;
         case 102727412:  // label
           return label;
         default:
@@ -413,11 +369,8 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
         case -1731780257:  // yearFraction
           this.yearFraction = (Double) newValue;
           break;
-        case -891985998:  // strike
-          this.strike = (Strike) newValue;
-          break;
-        case 1005147787:  // currencyPair
-          this.currencyPair = (CurrencyPair) newValue;
+        case 110246592:  // tenor
+          this.tenor = (Double) newValue;
           break;
         case 102727412:  // label
           this.label = (String) newValue;
@@ -453,23 +406,21 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
     }
 
     @Override
-    public FxVolatilitySurfaceYearFractionNodeMetadata build() {
+    public SwaptionSurfaceExpiryTenorNodeMetadata build() {
       preBuild(this);
-      return new FxVolatilitySurfaceYearFractionNodeMetadata(
+      return new SwaptionSurfaceExpiryTenorNodeMetadata(
           yearFraction,
-          strike,
-          currencyPair,
+          tenor,
           label);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
-      buf.append("FxVolatilitySurfaceYearFractionNodeMetadata.Builder{");
+      StringBuilder buf = new StringBuilder(128);
+      buf.append("SwaptionSurfaceExpiryTenorNodeMetadata.Builder{");
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
-      buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');
-      buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair)).append(',').append(' ');
+      buf.append("tenor").append('=').append(JodaBeanUtils.toString(tenor)).append(',').append(' ');
       buf.append("label").append('=').append(JodaBeanUtils.toString(label));
       buf.append('}');
       return buf.toString();

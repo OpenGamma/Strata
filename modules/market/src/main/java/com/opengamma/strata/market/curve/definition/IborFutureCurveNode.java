@@ -28,7 +28,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
-import com.opengamma.strata.market.curve.YearMonthCurveNodeMetadata;
+import com.opengamma.strata.market.curve.meta.YearMonthCurveNodeMetadata;
 import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.type.IborFutureTemplate;

@@ -34,11 +34,11 @@ import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.option.LogMoneynessStrike;
 import com.opengamma.strata.market.sensitivity.BondFutureOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.SurfaceCurrencyParameterSensitivity;
-import com.opengamma.strata.market.surface.GenericVolatilitySurfaceYearFractionMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
+import com.opengamma.strata.market.surface.meta.GenericVolatilitySurfaceYearFractionMetadata;
 
 /**
  * Data provider of volatility for bond future options in the log-normal or Black model. 
