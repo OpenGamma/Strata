@@ -21,13 +21,13 @@ import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
-import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
-import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
-import com.opengamma.strata.market.key.IsdaIndexCreditCurveParRatesKey;
+import com.opengamma.strata.market.curve.IsdaCreditCurveInputs;
+import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
+import com.opengamma.strata.market.key.IsdaIndexCreditCurveInputsKey;
 import com.opengamma.strata.market.key.IsdaIndexRecoveryRateKey;
-import com.opengamma.strata.market.key.IsdaSingleNameCreditCurveParRatesKey;
+import com.opengamma.strata.market.key.IsdaSingleNameCreditCurveInputsKey;
 import com.opengamma.strata.market.key.IsdaSingleNameRecoveryRateKey;
-import com.opengamma.strata.market.key.IsdaYieldCurveParRatesKey;
+import com.opengamma.strata.market.key.IsdaYieldCurveInputsKey;
 import com.opengamma.strata.market.value.CdsRecoveryRate;
 import com.opengamma.strata.pricer.credit.IsdaCdsPricer;
 import com.opengamma.strata.product.credit.Cds;
@@ -92,8 +92,8 @@ public abstract class AbstractCdsFunction<T>
     Currency feeCurrency = cds.getFeeLeg().getUpfrontFee().getCurrency();
 
     Set<MarketDataKey<?>> rateCurveKeys = ImmutableSet.of(
-        IsdaYieldCurveParRatesKey.of(notionalCurrency),
-        IsdaYieldCurveParRatesKey.of(feeCurrency));
+        IsdaYieldCurveInputsKey.of(notionalCurrency),
+        IsdaYieldCurveInputsKey.of(feeCurrency));
 
     Set<Currency> currencies = ImmutableSet.of(notionalCurrency, feeCurrency);
     ReferenceInformation referenceInformation = cds.getReferenceInformation();
@@ -106,7 +106,7 @@ public abstract class AbstractCdsFunction<T>
       SingleNameReferenceInformation singleNameReferenceInformation = (SingleNameReferenceInformation) referenceInformation;
 
       Set<MarketDataKey<?>> keys = ImmutableSet.of(
-          IsdaSingleNameCreditCurveParRatesKey.of(singleNameReferenceInformation),
+          IsdaSingleNameCreditCurveInputsKey.of(singleNameReferenceInformation),
           IsdaSingleNameRecoveryRateKey.of(singleNameReferenceInformation));
 
       return FunctionRequirements.builder()
@@ -117,7 +117,7 @@ public abstract class AbstractCdsFunction<T>
       IndexReferenceInformation indexReferenceInformation = (IndexReferenceInformation) referenceInformation;
 
       Set<MarketDataKey<?>> keys = ImmutableSet.of(
-          IsdaIndexCreditCurveParRatesKey.of(indexReferenceInformation),
+          IsdaIndexCreditCurveInputsKey.of(indexReferenceInformation),
           IsdaIndexRecoveryRateKey.of(indexReferenceInformation));
 
       return FunctionRequirements.builder()
@@ -137,30 +137,30 @@ public abstract class AbstractCdsFunction<T>
   // execute for a single product
   protected T execute(CdsTrade trade, DefaultSingleCalculationMarketData provider) {
 
-    IsdaYieldCurveParRatesKey yieldCurveParRatesKey = IsdaYieldCurveParRatesKey.of(
+    IsdaYieldCurveInputsKey yieldCurveInputsKey = IsdaYieldCurveInputsKey.of(
         trade.getProduct().getFeeLeg().getPeriodicPayments().getNotional().getCurrency());
-    IsdaYieldCurveParRates yieldCurveParRates = provider.getValue(yieldCurveParRatesKey);
+    IsdaYieldCurveInputs yieldCurveInputs = provider.getValue(yieldCurveInputsKey);
 
     ReferenceInformation referenceInformation = trade.getProduct().getReferenceInformation();
     ReferenceInformationType cdsType = referenceInformation.getType();
     // TODO see comment above on the other switch statement
-    IsdaCreditCurveParRates creditCurveParRates;
+    IsdaCreditCurveInputs creditCurveInputs;
     CdsRecoveryRate cdsRecoveryRate;
     switch (cdsType) {
       case SINGLE_NAME:
         SingleNameReferenceInformation singleNameReferenceInformation = (SingleNameReferenceInformation) referenceInformation;
-        IsdaSingleNameCreditCurveParRatesKey singleNameCreditCurveParRatesKey =
-            IsdaSingleNameCreditCurveParRatesKey.of(singleNameReferenceInformation);
-        creditCurveParRates = provider.getValue(singleNameCreditCurveParRatesKey);
+        IsdaSingleNameCreditCurveInputsKey singleNameCreditCurveInputsKey =
+            IsdaSingleNameCreditCurveInputsKey.of(singleNameReferenceInformation);
+        creditCurveInputs = provider.getValue(singleNameCreditCurveInputsKey);
         IsdaSingleNameRecoveryRateKey singleNameRecoveryRateKey =
             IsdaSingleNameRecoveryRateKey.of(singleNameReferenceInformation);
         cdsRecoveryRate = provider.getValue(singleNameRecoveryRateKey);
         break;
       case INDEX:
         IndexReferenceInformation indexReferenceInformation = (IndexReferenceInformation) referenceInformation;
-        IsdaIndexCreditCurveParRatesKey indexCreditCurveParRatesKey =
-            IsdaIndexCreditCurveParRatesKey.of(indexReferenceInformation);
-        creditCurveParRates = provider.getValue(indexCreditCurveParRatesKey);
+        IsdaIndexCreditCurveInputsKey indexCreditCurveInputsKey =
+            IsdaIndexCreditCurveInputsKey.of(indexReferenceInformation);
+        creditCurveInputs = provider.getValue(indexCreditCurveInputsKey);
         IsdaIndexRecoveryRateKey indexRecoveryRateKey =
             IsdaIndexRecoveryRateKey.of(indexReferenceInformation);
         cdsRecoveryRate = provider.getValue(indexRecoveryRateKey);
@@ -169,11 +169,11 @@ public abstract class AbstractCdsFunction<T>
         throw new IllegalStateException("unknown reference information type: " + cdsType);
     }
     double recoveryRate = cdsRecoveryRate.getRecoveryRate();
-    double scalingFactor = creditCurveParRates.getScalingFactor();
+    double scalingFactor = creditCurveInputs.getScalingFactor();
     return execute(
         trade.getProduct().expand(),
-        yieldCurveParRates,
-        creditCurveParRates,
+        yieldCurveInputs,
+        creditCurveInputs,
         provider.getValuationDate(),
         recoveryRate,
         scalingFactor);
@@ -182,8 +182,8 @@ public abstract class AbstractCdsFunction<T>
   // execute for a single product
   protected abstract T execute(
       ExpandedCds product,
-      IsdaYieldCurveParRates yieldCurveParRates,
-      IsdaCreditCurveParRates creditCurveParRates,
+      IsdaYieldCurveInputs yieldCurveInputs,
+      IsdaCreditCurveInputs creditCurveInputs,
       LocalDate valuationDate,
       double recoveryRate,
       double scalingFactor);

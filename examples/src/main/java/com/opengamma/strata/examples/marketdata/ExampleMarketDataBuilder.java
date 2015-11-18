@@ -41,8 +41,8 @@ import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCurvesCsvLoader;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
-import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
+import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
+import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.RateCurveId;
 
@@ -329,11 +329,11 @@ public abstract class ExampleMarketDataBuilder {
     }
 
     CharSource inputSource = cdsYieldCurvesResource.getCharSource();
-    Map<IsdaYieldCurveParRatesId, IsdaYieldCurveParRates> yieldCuves = MarkitYieldCurveDataParser.parse(inputSource);
+    Map<IsdaYieldCurveInputsId, IsdaYieldCurveInputs> yieldCuves = MarkitYieldCurveDataParser.parse(inputSource);
 
-    for (IsdaYieldCurveParRatesId id : yieldCuves.keySet()) {
-      IsdaYieldCurveParRates parRates = yieldCuves.get(id);
-      builder.addValue(id, parRates);
+    for (IsdaYieldCurveInputsId id : yieldCuves.keySet()) {
+      IsdaYieldCurveInputs curveInputs = yieldCuves.get(id);
+      builder.addValue(id, curveInputs);
     }
   }
 

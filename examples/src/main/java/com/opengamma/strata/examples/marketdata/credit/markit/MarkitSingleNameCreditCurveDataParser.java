@@ -25,8 +25,8 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.calc.marketdata.MarketEnvironmentBuilder;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
-import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
+import com.opengamma.strata.market.curve.IsdaCreditCurveInputs;
+import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveInputsId;
 import com.opengamma.strata.market.id.IsdaSingleNameRecoveryRateId;
 import com.opengamma.strata.market.value.CdsRecoveryRate;
 import com.opengamma.strata.product.credit.RestructuringClause;
@@ -125,7 +125,7 @@ public class MarkitSingleNameCreditCurveDataParser {
             currency,
             restructuringClause);
 
-        IsdaSingleNameCreditCurveParRatesId curveId = IsdaSingleNameCreditCurveParRatesId.of(referenceInformation);
+        IsdaSingleNameCreditCurveInputsId curveId = IsdaSingleNameCreditCurveInputsId.of(referenceInformation);
 
         List<Period> periodsList = Lists.newArrayList();
         List<Double> ratesList = Lists.newArrayList();
@@ -153,7 +153,7 @@ public class MarkitSingleNameCreditCurveDataParser {
         double[] rates = ratesList.stream().mapToDouble(s -> s).toArray();
         double unitScalingFactor = 1d; // for single name, we don't do any scaling (no index factor)
 
-        IsdaCreditCurveParRates parRates = IsdaCreditCurveParRates.of(
+        IsdaCreditCurveInputs curveInputs = IsdaCreditCurveInputs.of(
             CurveName.of(creditCurveName),
             periods,
             endDates,
@@ -161,7 +161,7 @@ public class MarkitSingleNameCreditCurveDataParser {
             cdsConvention,
             unitScalingFactor);
 
-        builder.addValue(curveId, parRates);
+        builder.addValue(curveId, curveInputs);
 
         IsdaSingleNameRecoveryRateId recoveryRateId = IsdaSingleNameRecoveryRateId.of(referenceInformation);
         CdsRecoveryRate cdsRecoveryRate = CdsRecoveryRate.of(recoveryRate);
