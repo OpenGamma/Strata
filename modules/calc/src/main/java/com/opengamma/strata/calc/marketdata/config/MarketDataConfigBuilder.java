@@ -66,6 +66,11 @@ public final class MarketDataConfigBuilder {
    * Adds an item of configuration that is the default of its type.
    * <p>
    * There can only be one default item for each type.
+   * <p>
+   * There is a class of configuration where there is always a one value shared between all calculations.
+   * An example is the configuration which specifies which market quote to use when building FX rates for
+   * a currency pair. All calculations use the same set of FX rates obtained from the same underlying
+   * market data.
    *
    * @param value  the configuration value
    * @param <T>  the type used when looking up the configuration

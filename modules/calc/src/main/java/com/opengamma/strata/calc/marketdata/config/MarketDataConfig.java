@@ -42,7 +42,7 @@ public final class MarketDataConfig implements ImmutableBean, Serializable {
   @PropertyDefinition(validate = "notNull", get = "private")
   private final ImmutableMap<Class<?>, SingleTypeMarketDataConfig> configs;
 
-  /** The configuration objects, keyed by their type and name. */
+  /** The configuration objects where there is only one instance per type. */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final ImmutableMap<Class<?>, Object> defaultConfigs;
 
@@ -107,11 +107,18 @@ public final class MarketDataConfig implements ImmutableBean, Serializable {
   }
 
   /**
-   * Returns the default configuration object with the specified type if available.
+   * Returns an item of configuration that is the default of its type.
+   * <p>
+   * There can only be one default item for each type.
+   * <p>
+   * There is a class of configuration where there is always a one value shared between all calculations.
+   * An example is the configuration which specifies which market quote to use when building FX rates for
+   * a currency pair. All calculations use the same set of FX rates obtained from the same underlying
+   * market data.
    *
    * @param type the type of the configuration object
    * @param <T> the type of the configuration object
-   * @return the configuration with the specified type and name
+   * @return the configuration with the specified type
    * @throws IllegalArgumentException if no configuration is found with the specified type and name
    */
   @SuppressWarnings("unchecked")
@@ -183,7 +190,7 @@ public final class MarketDataConfig implements ImmutableBean, Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the configuration objects, keyed by their type and name.
+   * Gets the configuration objects where there is only one instance per type.
    * @return the value of the property, not null
    */
   private ImmutableMap<Class<?>, Object> getDefaultConfigs() {
