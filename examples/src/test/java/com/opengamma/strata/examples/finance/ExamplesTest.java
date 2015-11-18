@@ -65,6 +65,14 @@ public class ExamplesTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_termDepositPricing() {
+    String captured = caputureSystemOut(() -> TermDepositPricingExample.main(NO_ARGS));
+    assertTrue(captured.contains("+------"));
+    assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("Exception"));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_curveScenario() {
     String captured = caputureSystemOut(() -> CurveScenarioExample.main(NO_ARGS));
     assertTrue(captured.contains("PV01"));
