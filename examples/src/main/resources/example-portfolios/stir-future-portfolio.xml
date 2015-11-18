@@ -13,7 +13,7 @@
    </tradeInfo>
    <securityLink>
     <target type="com.opengamma.strata.product.UnitSecurity">
-     <standardId>OG-Ticker~IborFuture-USD-LIBOR-3M-2015-03</standardId>
+     <standardId>OG-Future~Ibor-USD-LIBOR-3M-Mar15</standardId>
      <attributes/>
      <name></name>
      <product type="com.opengamma.strata.product.index.IborFuture">
@@ -26,8 +26,8 @@
      </product>
     </target>
    </securityLink>
-   <quantity>5</quantity>
-   <initialPrice>0.9998</initialPrice>
+   <quantity>20</quantity>
+   <initialPrice>0.9997</initialPrice>
   </item>
   <item type="IborFutureTrade">
    <tradeInfo>
@@ -41,7 +41,7 @@
    </tradeInfo>
    <securityLink>
     <target type="UnitSecurity">
-     <standardId>OG-Ticker~IborFuture-USD-LIBOR-3M-2015-06</standardId>
+     <standardId>OG-Future~Ibor-USD-LIBOR-3M-Jun15</standardId>
      <attributes/>
      <name></name>
      <product type="IborFuture">
@@ -54,8 +54,8 @@
      </product>
     </target>
    </securityLink>
-   <quantity>10</quantity>
-   <initialPrice>0.9996</initialPrice>
+   <quantity>20</quantity>
+   <initialPrice>0.9997</initialPrice>
   </item>
  </trades>
 </bean>

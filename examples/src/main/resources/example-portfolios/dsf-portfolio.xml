@@ -3,7 +3,9 @@
  <trades>
   <item type="com.opengamma.strata.product.swap.DeliverableSwapFutureTrade">
    <tradeInfo>
+    <id>example~1</id>
     <counterparty>mn~Dealer G</counterparty>
+    <tradeDate>2015-03-18</tradeDate>
     <settlementDate>2015-03-18</settlementDate>
     <attributes>
      <entry key="description">CME-5Y-DSF Mar15</entry>
@@ -16,8 +18,8 @@
      <name></name>
      <product type="com.opengamma.strata.product.swap.DeliverableSwapFuture">
       <notional>100000.0</notional>
-      <deliveryDate>2015-03-20</deliveryDate>
-      <lastTradeDate>2015-03-18</lastTradeDate>
+      <deliveryDate>2015-03-18</deliveryDate>
+      <lastTradeDate>2015-03-16</lastTradeDate>
       <underlyingSwap>
        <legs>
         <item type="com.opengamma.strata.product.swap.RateCalculationSwapLeg">
@@ -119,11 +121,13 @@
     </target>
    </securityLink>
    <quantity>20</quantity>
-   <tradePrice>100.75</tradePrice>
+   <tradePrice>1.0075</tradePrice>
   </item>
   <item type="DeliverableSwapFutureTrade">
    <tradeInfo>
+    <id>example~2</id>
     <counterparty>mn~Dealer G</counterparty>
+    <tradeDate>2015-06-17</tradeDate>
     <settlementDate>2015-06-17</settlementDate>
     <attributes>
      <entry key="description">CME-5Y-DSF Jun15</entry>
@@ -136,8 +140,8 @@
      <name></name>
      <product type="DeliverableSwapFuture">
       <notional>100000.0</notional>
-      <deliveryDate>2015-06-19</deliveryDate>
-      <lastTradeDate>2015-06-17</lastTradeDate>
+      <deliveryDate>2015-06-17</deliveryDate>
+      <lastTradeDate>2015-06-15</lastTradeDate>
       <underlyingSwap>
        <legs>
         <item type="RateCalculationSwapLeg">
@@ -239,7 +243,7 @@
     </target>
    </securityLink>
    <quantity>20</quantity>
-   <tradePrice>100.75</tradePrice>
+   <tradePrice>1.0085</tradePrice>
   </item>
  </trades>
 </bean>

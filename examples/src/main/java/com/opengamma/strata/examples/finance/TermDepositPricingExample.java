@@ -85,7 +85,7 @@ public class TermDepositPricingExample {
         columns,
         results);
 
-    TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("termdeposit-report-template");
+    TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("term-deposit-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
     tradeReport.writeAsciiTable(System.out);
   }

@@ -224,7 +224,7 @@
   </item>
   <item type="SwapTrade">
    <tradeInfo>
-     <id>example~3</id>
+    <id>example~3</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
@@ -1403,55 +1403,6 @@
    <product>
     <legs>
      <item type="RateCalculationSwapLeg">
-      <payReceive>Pay</payReceive>
-      <accrualSchedule>
-       <startDate>2014-01-24</startDate>
-       <endDate>2021-01-24</endDate>
-       <frequency>P3M</frequency>
-       <businessDayAdjustment>
-        <convention>ModifiedFollowing</convention>
-        <calendar>GBLO</calendar>
-       </businessDayAdjustment>
-      </accrualSchedule>
-      <paymentSchedule>
-       <paymentFrequency>P3M</paymentFrequency>
-       <paymentRelativeTo>PeriodEnd</paymentRelativeTo>
-       <paymentDateOffset>
-        <days>0</days>
-        <calendar>NoHolidays</calendar>
-        <adjustment>
-         <convention>NoAdjust</convention>
-         <calendar>NoHolidays</calendar>
-        </adjustment>
-       </paymentDateOffset>
-       <compoundingMethod>None</compoundingMethod>
-      </paymentSchedule>
-      <notionalSchedule>
-       <currency>GBP</currency>
-       <amount>
-        <initialValue>6.16E7</initialValue>
-        <steps/>
-       </amount>
-       <initialExchange>false</initialExchange>
-       <intermediateExchange>false</intermediateExchange>
-       <finalExchange>false</finalExchange>
-      </notionalSchedule>
-      <calculation type="IborRateCalculation">
-       <dayCount>Act/365F</dayCount>
-       <index>GBP-LIBOR-3M</index>
-       <fixingRelativeTo>PeriodStart</fixingRelativeTo>
-       <fixingDateOffset>
-        <days>0</days>
-        <calendar>NoHolidays</calendar>
-        <adjustment>
-         <convention>Preceding</convention>
-         <calendar>GBLO</calendar>
-        </adjustment>
-       </fixingDateOffset>
-       <negativeRateMethod>AllowNegative</negativeRateMethod>
-      </calculation>
-     </item>
-     <item type="RateCalculationSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2014-01-24</startDate>
@@ -1502,6 +1453,55 @@
         <initialValue>0.0091</initialValue>
         <steps/>
        </spread>
+      </calculation>
+     </item>
+     <item type="RateCalculationSwapLeg">
+      <payReceive>Pay</payReceive>
+      <accrualSchedule>
+       <startDate>2014-01-24</startDate>
+       <endDate>2021-01-24</endDate>
+       <frequency>P3M</frequency>
+       <businessDayAdjustment>
+        <convention>ModifiedFollowing</convention>
+        <calendar>GBLO</calendar>
+       </businessDayAdjustment>
+      </accrualSchedule>
+      <paymentSchedule>
+       <paymentFrequency>P3M</paymentFrequency>
+       <paymentRelativeTo>PeriodEnd</paymentRelativeTo>
+       <paymentDateOffset>
+        <days>0</days>
+        <calendar>NoHolidays</calendar>
+        <adjustment>
+         <convention>NoAdjust</convention>
+         <calendar>NoHolidays</calendar>
+        </adjustment>
+       </paymentDateOffset>
+       <compoundingMethod>None</compoundingMethod>
+      </paymentSchedule>
+      <notionalSchedule>
+       <currency>GBP</currency>
+       <amount>
+        <initialValue>6.16E7</initialValue>
+        <steps/>
+       </amount>
+       <initialExchange>false</initialExchange>
+       <intermediateExchange>false</intermediateExchange>
+       <finalExchange>false</finalExchange>
+      </notionalSchedule>
+      <calculation type="IborRateCalculation">
+       <dayCount>Act/365F</dayCount>
+       <index>GBP-LIBOR-3M</index>
+       <fixingRelativeTo>PeriodStart</fixingRelativeTo>
+       <fixingDateOffset>
+        <days>0</days>
+        <calendar>NoHolidays</calendar>
+        <adjustment>
+         <convention>Preceding</convention>
+         <calendar>GBLO</calendar>
+        </adjustment>
+       </fixingDateOffset>
+       <negativeRateMethod>AllowNegative</negativeRateMethod>
       </calculation>
      </item>
     </legs>
