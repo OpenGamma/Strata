@@ -22,8 +22,8 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
-import com.opengamma.strata.market.id.IsdaIndexCreditCurveParRatesId;
+import com.opengamma.strata.market.curve.IsdaCreditCurveInputs;
+import com.opengamma.strata.market.id.IsdaIndexCreditCurveInputsId;
 import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
 import com.opengamma.strata.market.value.CdsRecoveryRate;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
@@ -80,7 +80,7 @@ public class MarkitIndexCreditCurveDataParser {
       CharSource curveSource,
       CharSource staticDataSource) {
 
-    Map<IsdaIndexCreditCurveParRatesId, List<Point>> curveData = Maps.newHashMap();
+    Map<IsdaIndexCreditCurveInputsId, List<Point>> curveData = Maps.newHashMap();
     Map<MarkitRedCode, StaticData> staticDataMap = parseStaticData(staticDataSource);
 
     CsvFile csv = CsvFile.of(curveSource, true);
@@ -98,7 +98,7 @@ public class MarkitIndexCreditCurveDataParser {
       int indexSeries = Integer.parseInt(seriesText);
       int indexAnnexVersion = Integer.parseInt(versionText);
 
-      IsdaIndexCreditCurveParRatesId id = IsdaIndexCreditCurveParRatesId.of(
+      IsdaIndexCreditCurveInputsId id = IsdaIndexCreditCurveInputsId.of(
           IndexReferenceInformation.of(
               indexId,
               indexSeries,
@@ -128,7 +128,7 @@ public class MarkitIndexCreditCurveDataParser {
       points.add(new Point(term, maturity, spread));
     }
 
-    for (IsdaIndexCreditCurveParRatesId curveId : curveData.keySet()) {
+    for (IsdaIndexCreditCurveInputsId curveId : curveData.keySet()) {
       MarkitRedCode redCode = MarkitRedCode.from(curveId.getReferenceInformation().getIndexId());
       StaticData staticData = staticDataMap.get(redCode);
       ArgChecker.notNull(staticData, "Did not find a static data record for " + redCode);
@@ -145,7 +145,7 @@ public class MarkitIndexCreditCurveDataParser {
       LocalDate[] endDates = points.stream().map(s -> s.getDate()).toArray(LocalDate[]::new);
       double[] rates = points.stream().mapToDouble(s -> s.getRate()).toArray();
 
-      IsdaCreditCurveParRates parRates = IsdaCreditCurveParRates.of(
+      IsdaCreditCurveInputs curveInputs = IsdaCreditCurveInputs.of(
           CurveName.of(creditCurveName),
           periods,
           endDates,
@@ -153,7 +153,7 @@ public class MarkitIndexCreditCurveDataParser {
           convention,
           indexFactor);
 
-      builder.addValue(curveId, parRates);
+      builder.addValue(curveId, curveInputs);
 
       IsdaIndexRecoveryRateId recoveryRateId = IsdaIndexRecoveryRateId.of(curveId.getReferenceInformation());
       CdsRecoveryRate cdsRecoveryRate = CdsRecoveryRate.of(recoveryRate);

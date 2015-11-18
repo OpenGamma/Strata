@@ -16,8 +16,8 @@ import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
-import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
+import com.opengamma.strata.market.curve.IsdaCreditCurveInputs;
+import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
 import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.pricer.PricingException;
@@ -160,7 +160,7 @@ public class IsdaCdsHelper {
   // Calibration is performed here.
   public static IsdaCompliantYieldCurve createIsdaDiscountCurve(
       LocalDate valuationDate,
-      IsdaYieldCurveParRates yieldCurve) {
+      IsdaYieldCurveInputs yieldCurve) {
 
     try {
       // model does not use floating leg of underlying IRS
@@ -201,7 +201,7 @@ public class IsdaCdsHelper {
   // Calibration is performed here.
   public static IsdaCompliantCreditCurve createIsdaCreditCurve(
       LocalDate valuationDate,
-      IsdaCreditCurveParRates curveCurve,
+      IsdaCreditCurveInputs curveCurve,
       IsdaCompliantYieldCurve yieldCurve,
       double recoveryRate) {
 
@@ -232,7 +232,7 @@ public class IsdaCdsHelper {
   // Calibration is performed here.
   public static IsdaCompliantCreditCurve createIsdaCreditCurve(
       LocalDate valuationDate,
-      IsdaCreditCurveParRates curveCurve,
+      IsdaCreditCurveInputs curveCurve,
       NodalCurve yieldCurve,
       double recoveryRate) {
 

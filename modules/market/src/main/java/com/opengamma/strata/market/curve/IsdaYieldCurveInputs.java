@@ -30,17 +30,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.Lists;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
-import com.opengamma.strata.product.credit.type.CdsConvention;
+import com.opengamma.strata.product.credit.type.IsdaYieldCurveConvention;
 
 /**
- * The par rates used when calibrating an ISDA credit curve.
+ * The par rates used when calibrating an ISDA yield curve.
  */
 @BeanDefinition(builderScope = "private")
-public final class IsdaCreditCurveParRates
+public final class IsdaYieldCurveInputs
     implements ImmutableBean, Serializable {
-  // TODO the recovery rate is not really a part of the curve, but the data is available along side when
-  // TODO as parsing the curves, so it is convenient to put it here for the moment.
-  // TODO the scaling factor is the index factor and not really part of the curve
   // TODO replace arrays with lists
 
   /**
@@ -52,12 +49,17 @@ public final class IsdaCreditCurveParRates
    * The tenor at each curve node.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Period[] creditCurvePoints;
+  private final Period[] yieldCurvePoints;
   /**
    * The end date at each curve node.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate[] endDatePoints;
+  /**
+   * The instrument type at each curve node.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final IsdaYieldCurveUnderlyingType[] yieldCurveInstruments;
   /**
    * The par rate at each curve node.
    */
@@ -67,22 +69,18 @@ public final class IsdaCreditCurveParRates
    * The underlying convention.
    */
   @PropertyDefinition(validate = "notNull")
-  private final CdsConvention cdsConvention;
-  /**
-   * The scaling factor.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final double scalingFactor;
+  private final IsdaYieldCurveConvention curveConvention;
 
   //-------------------------------------------------------------------------
   /**
-   * Provide curve meta data to capture tenor and anchor point date information
-   * @return curve metadata
+   * Provides curve meta data to capture tenor and anchor point date information.
+   * 
+   * @return the curve metadata
    */
   public CurveMetadata getCurveMetaData() {
     List<CurveParameterMetadata> parameters = Lists.newArrayList();
-    for (int i = 0; i < creditCurvePoints.length; i++) {
-      TenorCurveNodeMetadata pointData = TenorCurveNodeMetadata.of(endDatePoints[i], Tenor.of(creditCurvePoints[i]));
+    for (int i = 0; i < yieldCurvePoints.length; i++) {
+      TenorCurveNodeMetadata pointData = TenorCurveNodeMetadata.of(endDatePoints[i], Tenor.of(yieldCurvePoints[i]));
       parameters.add(pointData);
     }
     return DefaultCurveMetadata.builder()
@@ -95,36 +93,36 @@ public final class IsdaCreditCurveParRates
    * Creates an instance of the par rates.
    * 
    * @param name  the curve name
-   * @param creditCurvePoints  the tenor at each curve node
+   * @param yieldCurvePoints  the tenor at each curve node
+   * @param endDatePoints  the end dates
+   * @param yieldCurveInstruments  the instrument type at each curve node
    * @param parRates  the par rate at each curve node
-   * @param endDatePoints  the end date at each curve node
-   * @param cdsConvention  the underlying convention
-   * @param scalingFactor  the scaling factor
+   * @param curveConvention  the underlying convention
    * @return the par rates
    */
-  public static IsdaCreditCurveParRates of(
+  public static IsdaYieldCurveInputs of(
       CurveName name,
-      Period[] creditCurvePoints,
+      Period[] yieldCurvePoints,
       LocalDate[] endDatePoints,
+      IsdaYieldCurveUnderlyingType[] yieldCurveInstruments,
       double[] parRates,
-      CdsConvention cdsConvention,
-      double scalingFactor) {
+      IsdaYieldCurveConvention curveConvention) {
 
-    return new IsdaCreditCurveParRates(
+    return new IsdaYieldCurveInputs(
         name,
-        creditCurvePoints,
+        yieldCurvePoints,
         endDatePoints,
+        yieldCurveInstruments,
         parRates,
-        cdsConvention,
-        scalingFactor);
+        curveConvention);
   }
 
   @ImmutableValidator
   private void validate() {
-    if (creditCurvePoints.length <= 0) {
+    if (yieldCurvePoints.length <= 0) {
       throw new IllegalArgumentException("Cannot have zero points");
     }
-    if (creditCurvePoints.length != parRates.length) {
+    if (yieldCurvePoints.length != yieldCurveInstruments.length || yieldCurvePoints.length != parRates.length) {
       throw new IllegalArgumentException("Points do not line up");
     }
   }
@@ -136,7 +134,7 @@ public final class IsdaCreditCurveParRates
    * @param shift  the shift to apply
    * @return the bumped instance
    */
-  public IsdaCreditCurveParRates parallelShiftParRatesinBps(double shift) {
+  public IsdaYieldCurveInputs parallelShiftParRatesinBps(double shift) {
     double[] shiftedRates = parRates.clone();
     for (int i = 0; i < shiftedRates.length; i++) {
       shiftedRates[i] = shiftedRates[i] + shift;
@@ -151,7 +149,7 @@ public final class IsdaCreditCurveParRates
    * @param shift  the shift to apply
    * @return the bumped instance
    */
-  public IsdaCreditCurveParRates bucketedShiftParRatesinBps(int index, double shift) {
+  public IsdaYieldCurveInputs bucketedShiftParRatesinBps(int index, double shift) {
     double[] shiftedRates = parRates.clone();
     shiftedRates[index] = shiftedRates[index] + shift;
     return applyShift(shiftedRates);
@@ -163,32 +161,33 @@ public final class IsdaCreditCurveParRates
    * @return the number of points
    */
   public int getNumberOfPoints() {
-    return creditCurvePoints.length;
+    return yieldCurvePoints.length;
   }
 
   // applies the shift
-  private IsdaCreditCurveParRates applyShift(double[] shiftedRates) {
-    return IsdaCreditCurveParRates.of(
+  private IsdaYieldCurveInputs applyShift(double[] shiftedRates) {
+    return IsdaYieldCurveInputs.of(
         name,
-        creditCurvePoints.clone(),
+        yieldCurvePoints.clone(),
         endDatePoints.clone(),
+        yieldCurveInstruments.clone(),
         shiftedRates,
-        cdsConvention,
-        scalingFactor);
+        curveConvention
+        );
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code IsdaCreditCurveParRates}.
+   * The meta-bean for {@code IsdaYieldCurveInputs}.
    * @return the meta-bean, not null
    */
-  public static IsdaCreditCurveParRates.Meta meta() {
-    return IsdaCreditCurveParRates.Meta.INSTANCE;
+  public static IsdaYieldCurveInputs.Meta meta() {
+    return IsdaYieldCurveInputs.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(IsdaCreditCurveParRates.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(IsdaYieldCurveInputs.Meta.INSTANCE);
   }
 
   /**
@@ -196,31 +195,31 @@ public final class IsdaCreditCurveParRates
    */
   private static final long serialVersionUID = 1L;
 
-  private IsdaCreditCurveParRates(
+  private IsdaYieldCurveInputs(
       CurveName name,
-      Period[] creditCurvePoints,
+      Period[] yieldCurvePoints,
       LocalDate[] endDatePoints,
+      IsdaYieldCurveUnderlyingType[] yieldCurveInstruments,
       double[] parRates,
-      CdsConvention cdsConvention,
-      double scalingFactor) {
+      IsdaYieldCurveConvention curveConvention) {
     JodaBeanUtils.notNull(name, "name");
-    JodaBeanUtils.notNull(creditCurvePoints, "creditCurvePoints");
+    JodaBeanUtils.notNull(yieldCurvePoints, "yieldCurvePoints");
     JodaBeanUtils.notNull(endDatePoints, "endDatePoints");
+    JodaBeanUtils.notNull(yieldCurveInstruments, "yieldCurveInstruments");
     JodaBeanUtils.notNull(parRates, "parRates");
-    JodaBeanUtils.notNull(cdsConvention, "cdsConvention");
-    JodaBeanUtils.notNull(scalingFactor, "scalingFactor");
+    JodaBeanUtils.notNull(curveConvention, "curveConvention");
     this.name = name;
-    this.creditCurvePoints = creditCurvePoints;
+    this.yieldCurvePoints = yieldCurvePoints;
     this.endDatePoints = endDatePoints;
+    this.yieldCurveInstruments = yieldCurveInstruments;
     this.parRates = parRates.clone();
-    this.cdsConvention = cdsConvention;
-    this.scalingFactor = scalingFactor;
+    this.curveConvention = curveConvention;
     validate();
   }
 
   @Override
-  public IsdaCreditCurveParRates.Meta metaBean() {
-    return IsdaCreditCurveParRates.Meta.INSTANCE;
+  public IsdaYieldCurveInputs.Meta metaBean() {
+    return IsdaYieldCurveInputs.Meta.INSTANCE;
   }
 
   @Override
@@ -247,8 +246,8 @@ public final class IsdaCreditCurveParRates
    * Gets the tenor at each curve node.
    * @return the value of the property, not null
    */
-  public Period[] getCreditCurvePoints() {
-    return creditCurvePoints;
+  public Period[] getYieldCurvePoints() {
+    return yieldCurvePoints;
   }
 
   //-----------------------------------------------------------------------
@@ -258,6 +257,15 @@ public final class IsdaCreditCurveParRates
    */
   public LocalDate[] getEndDatePoints() {
     return endDatePoints;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the instrument type at each curve node.
+   * @return the value of the property, not null
+   */
+  public IsdaYieldCurveUnderlyingType[] getYieldCurveInstruments() {
+    return yieldCurveInstruments;
   }
 
   //-----------------------------------------------------------------------
@@ -274,17 +282,8 @@ public final class IsdaCreditCurveParRates
    * Gets the underlying convention.
    * @return the value of the property, not null
    */
-  public CdsConvention getCdsConvention() {
-    return cdsConvention;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the scaling factor.
-   * @return the value of the property, not null
-   */
-  public double getScalingFactor() {
-    return scalingFactor;
+  public IsdaYieldCurveConvention getCurveConvention() {
+    return curveConvention;
   }
 
   //-----------------------------------------------------------------------
@@ -294,13 +293,13 @@ public final class IsdaCreditCurveParRates
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      IsdaCreditCurveParRates other = (IsdaCreditCurveParRates) obj;
+      IsdaYieldCurveInputs other = (IsdaYieldCurveInputs) obj;
       return JodaBeanUtils.equal(name, other.name) &&
-          JodaBeanUtils.equal(creditCurvePoints, other.creditCurvePoints) &&
+          JodaBeanUtils.equal(yieldCurvePoints, other.yieldCurvePoints) &&
           JodaBeanUtils.equal(endDatePoints, other.endDatePoints) &&
+          JodaBeanUtils.equal(yieldCurveInstruments, other.yieldCurveInstruments) &&
           JodaBeanUtils.equal(parRates, other.parRates) &&
-          JodaBeanUtils.equal(cdsConvention, other.cdsConvention) &&
-          JodaBeanUtils.equal(scalingFactor, other.scalingFactor);
+          JodaBeanUtils.equal(curveConvention, other.curveConvention);
     }
     return false;
   }
@@ -309,31 +308,31 @@ public final class IsdaCreditCurveParRates
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(name);
-    hash = hash * 31 + JodaBeanUtils.hashCode(creditCurvePoints);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yieldCurvePoints);
     hash = hash * 31 + JodaBeanUtils.hashCode(endDatePoints);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yieldCurveInstruments);
     hash = hash * 31 + JodaBeanUtils.hashCode(parRates);
-    hash = hash * 31 + JodaBeanUtils.hashCode(cdsConvention);
-    hash = hash * 31 + JodaBeanUtils.hashCode(scalingFactor);
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveConvention);
     return hash;
   }
 
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
-    buf.append("IsdaCreditCurveParRates{");
+    buf.append("IsdaYieldCurveInputs{");
     buf.append("name").append('=').append(name).append(',').append(' ');
-    buf.append("creditCurvePoints").append('=').append(creditCurvePoints).append(',').append(' ');
+    buf.append("yieldCurvePoints").append('=').append(yieldCurvePoints).append(',').append(' ');
     buf.append("endDatePoints").append('=').append(endDatePoints).append(',').append(' ');
+    buf.append("yieldCurveInstruments").append('=').append(yieldCurveInstruments).append(',').append(' ');
     buf.append("parRates").append('=').append(parRates).append(',').append(' ');
-    buf.append("cdsConvention").append('=').append(cdsConvention).append(',').append(' ');
-    buf.append("scalingFactor").append('=').append(JodaBeanUtils.toString(scalingFactor));
+    buf.append("curveConvention").append('=').append(JodaBeanUtils.toString(curveConvention));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code IsdaCreditCurveParRates}.
+   * The meta-bean for {@code IsdaYieldCurveInputs}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -345,43 +344,43 @@ public final class IsdaCreditCurveParRates
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<CurveName> name = DirectMetaProperty.ofImmutable(
-        this, "name", IsdaCreditCurveParRates.class, CurveName.class);
+        this, "name", IsdaYieldCurveInputs.class, CurveName.class);
     /**
-     * The meta-property for the {@code creditCurvePoints} property.
+     * The meta-property for the {@code yieldCurvePoints} property.
      */
-    private final MetaProperty<Period[]> creditCurvePoints = DirectMetaProperty.ofImmutable(
-        this, "creditCurvePoints", IsdaCreditCurveParRates.class, Period[].class);
+    private final MetaProperty<Period[]> yieldCurvePoints = DirectMetaProperty.ofImmutable(
+        this, "yieldCurvePoints", IsdaYieldCurveInputs.class, Period[].class);
     /**
      * The meta-property for the {@code endDatePoints} property.
      */
     private final MetaProperty<LocalDate[]> endDatePoints = DirectMetaProperty.ofImmutable(
-        this, "endDatePoints", IsdaCreditCurveParRates.class, LocalDate[].class);
+        this, "endDatePoints", IsdaYieldCurveInputs.class, LocalDate[].class);
+    /**
+     * The meta-property for the {@code yieldCurveInstruments} property.
+     */
+    private final MetaProperty<IsdaYieldCurveUnderlyingType[]> yieldCurveInstruments = DirectMetaProperty.ofImmutable(
+        this, "yieldCurveInstruments", IsdaYieldCurveInputs.class, IsdaYieldCurveUnderlyingType[].class);
     /**
      * The meta-property for the {@code parRates} property.
      */
     private final MetaProperty<double[]> parRates = DirectMetaProperty.ofImmutable(
-        this, "parRates", IsdaCreditCurveParRates.class, double[].class);
+        this, "parRates", IsdaYieldCurveInputs.class, double[].class);
     /**
-     * The meta-property for the {@code cdsConvention} property.
+     * The meta-property for the {@code curveConvention} property.
      */
-    private final MetaProperty<CdsConvention> cdsConvention = DirectMetaProperty.ofImmutable(
-        this, "cdsConvention", IsdaCreditCurveParRates.class, CdsConvention.class);
-    /**
-     * The meta-property for the {@code scalingFactor} property.
-     */
-    private final MetaProperty<Double> scalingFactor = DirectMetaProperty.ofImmutable(
-        this, "scalingFactor", IsdaCreditCurveParRates.class, Double.TYPE);
+    private final MetaProperty<IsdaYieldCurveConvention> curveConvention = DirectMetaProperty.ofImmutable(
+        this, "curveConvention", IsdaYieldCurveInputs.class, IsdaYieldCurveConvention.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "name",
-        "creditCurvePoints",
+        "yieldCurvePoints",
         "endDatePoints",
+        "yieldCurveInstruments",
         "parRates",
-        "cdsConvention",
-        "scalingFactor");
+        "curveConvention");
 
     /**
      * Restricted constructor.
@@ -394,28 +393,28 @@ public final class IsdaCreditCurveParRates
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
-        case -1771294215:  // creditCurvePoints
-          return creditCurvePoints;
+        case 695376101:  // yieldCurvePoints
+          return yieldCurvePoints;
         case 578522476:  // endDatePoints
           return endDatePoints;
+        case -1469575510:  // yieldCurveInstruments
+          return yieldCurveInstruments;
         case 1157229426:  // parRates
           return parRates;
-        case 288334147:  // cdsConvention
-          return cdsConvention;
-        case -794828874:  // scalingFactor
-          return scalingFactor;
+        case 1796217280:  // curveConvention
+          return curveConvention;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public BeanBuilder<? extends IsdaCreditCurveParRates> builder() {
-      return new IsdaCreditCurveParRates.Builder();
+    public BeanBuilder<? extends IsdaYieldCurveInputs> builder() {
+      return new IsdaYieldCurveInputs.Builder();
     }
 
     @Override
-    public Class<? extends IsdaCreditCurveParRates> beanType() {
-      return IsdaCreditCurveParRates.class;
+    public Class<? extends IsdaYieldCurveInputs> beanType() {
+      return IsdaYieldCurveInputs.class;
     }
 
     @Override
@@ -433,11 +432,11 @@ public final class IsdaCreditCurveParRates
     }
 
     /**
-     * The meta-property for the {@code creditCurvePoints} property.
+     * The meta-property for the {@code yieldCurvePoints} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Period[]> creditCurvePoints() {
-      return creditCurvePoints;
+    public MetaProperty<Period[]> yieldCurvePoints() {
+      return yieldCurvePoints;
     }
 
     /**
@@ -449,6 +448,14 @@ public final class IsdaCreditCurveParRates
     }
 
     /**
+     * The meta-property for the {@code yieldCurveInstruments} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<IsdaYieldCurveUnderlyingType[]> yieldCurveInstruments() {
+      return yieldCurveInstruments;
+    }
+
+    /**
      * The meta-property for the {@code parRates} property.
      * @return the meta-property, not null
      */
@@ -457,19 +464,11 @@ public final class IsdaCreditCurveParRates
     }
 
     /**
-     * The meta-property for the {@code cdsConvention} property.
+     * The meta-property for the {@code curveConvention} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CdsConvention> cdsConvention() {
-      return cdsConvention;
-    }
-
-    /**
-     * The meta-property for the {@code scalingFactor} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> scalingFactor() {
-      return scalingFactor;
+    public MetaProperty<IsdaYieldCurveConvention> curveConvention() {
+      return curveConvention;
     }
 
     //-----------------------------------------------------------------------
@@ -477,17 +476,17 @@ public final class IsdaCreditCurveParRates
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
-          return ((IsdaCreditCurveParRates) bean).getName();
-        case -1771294215:  // creditCurvePoints
-          return ((IsdaCreditCurveParRates) bean).getCreditCurvePoints();
+          return ((IsdaYieldCurveInputs) bean).getName();
+        case 695376101:  // yieldCurvePoints
+          return ((IsdaYieldCurveInputs) bean).getYieldCurvePoints();
         case 578522476:  // endDatePoints
-          return ((IsdaCreditCurveParRates) bean).getEndDatePoints();
+          return ((IsdaYieldCurveInputs) bean).getEndDatePoints();
+        case -1469575510:  // yieldCurveInstruments
+          return ((IsdaYieldCurveInputs) bean).getYieldCurveInstruments();
         case 1157229426:  // parRates
-          return ((IsdaCreditCurveParRates) bean).getParRates();
-        case 288334147:  // cdsConvention
-          return ((IsdaCreditCurveParRates) bean).getCdsConvention();
-        case -794828874:  // scalingFactor
-          return ((IsdaCreditCurveParRates) bean).getScalingFactor();
+          return ((IsdaYieldCurveInputs) bean).getParRates();
+        case 1796217280:  // curveConvention
+          return ((IsdaYieldCurveInputs) bean).getCurveConvention();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -505,16 +504,16 @@ public final class IsdaCreditCurveParRates
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code IsdaCreditCurveParRates}.
+   * The bean-builder for {@code IsdaYieldCurveInputs}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<IsdaCreditCurveParRates> {
+  private static final class Builder extends DirectFieldsBeanBuilder<IsdaYieldCurveInputs> {
 
     private CurveName name;
-    private Period[] creditCurvePoints;
+    private Period[] yieldCurvePoints;
     private LocalDate[] endDatePoints;
+    private IsdaYieldCurveUnderlyingType[] yieldCurveInstruments;
     private double[] parRates;
-    private CdsConvention cdsConvention;
-    private double scalingFactor;
+    private IsdaYieldCurveConvention curveConvention;
 
     /**
      * Restricted constructor.
@@ -528,16 +527,16 @@ public final class IsdaCreditCurveParRates
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
-        case -1771294215:  // creditCurvePoints
-          return creditCurvePoints;
+        case 695376101:  // yieldCurvePoints
+          return yieldCurvePoints;
         case 578522476:  // endDatePoints
           return endDatePoints;
+        case -1469575510:  // yieldCurveInstruments
+          return yieldCurveInstruments;
         case 1157229426:  // parRates
           return parRates;
-        case 288334147:  // cdsConvention
-          return cdsConvention;
-        case -794828874:  // scalingFactor
-          return scalingFactor;
+        case 1796217280:  // curveConvention
+          return curveConvention;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -549,20 +548,20 @@ public final class IsdaCreditCurveParRates
         case 3373707:  // name
           this.name = (CurveName) newValue;
           break;
-        case -1771294215:  // creditCurvePoints
-          this.creditCurvePoints = (Period[]) newValue;
+        case 695376101:  // yieldCurvePoints
+          this.yieldCurvePoints = (Period[]) newValue;
           break;
         case 578522476:  // endDatePoints
           this.endDatePoints = (LocalDate[]) newValue;
           break;
+        case -1469575510:  // yieldCurveInstruments
+          this.yieldCurveInstruments = (IsdaYieldCurveUnderlyingType[]) newValue;
+          break;
         case 1157229426:  // parRates
           this.parRates = (double[]) newValue;
           break;
-        case 288334147:  // cdsConvention
-          this.cdsConvention = (CdsConvention) newValue;
-          break;
-        case -794828874:  // scalingFactor
-          this.scalingFactor = (Double) newValue;
+        case 1796217280:  // curveConvention
+          this.curveConvention = (IsdaYieldCurveConvention) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -595,27 +594,27 @@ public final class IsdaCreditCurveParRates
     }
 
     @Override
-    public IsdaCreditCurveParRates build() {
-      return new IsdaCreditCurveParRates(
+    public IsdaYieldCurveInputs build() {
+      return new IsdaYieldCurveInputs(
           name,
-          creditCurvePoints,
+          yieldCurvePoints,
           endDatePoints,
+          yieldCurveInstruments,
           parRates,
-          cdsConvention,
-          scalingFactor);
+          curveConvention);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(224);
-      buf.append("IsdaCreditCurveParRates.Builder{");
+      buf.append("IsdaYieldCurveInputs.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
-      buf.append("creditCurvePoints").append('=').append(JodaBeanUtils.toString(creditCurvePoints)).append(',').append(' ');
+      buf.append("yieldCurvePoints").append('=').append(JodaBeanUtils.toString(yieldCurvePoints)).append(',').append(' ');
       buf.append("endDatePoints").append('=').append(JodaBeanUtils.toString(endDatePoints)).append(',').append(' ');
+      buf.append("yieldCurveInstruments").append('=').append(JodaBeanUtils.toString(yieldCurveInstruments)).append(',').append(' ');
       buf.append("parRates").append('=').append(JodaBeanUtils.toString(parRates)).append(',').append(' ');
-      buf.append("cdsConvention").append('=').append(JodaBeanUtils.toString(cdsConvention)).append(',').append(' ');
-      buf.append("scalingFactor").append('=').append(JodaBeanUtils.toString(scalingFactor));
+      buf.append("curveConvention").append('=').append(JodaBeanUtils.toString(curveConvention));
       buf.append('}');
       return buf.toString();
     }

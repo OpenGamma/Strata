@@ -8,8 +8,8 @@ package com.opengamma.strata.function.calculation.credit;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
-import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
+import com.opengamma.strata.market.curve.IsdaCreditCurveInputs;
+import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
 import com.opengamma.strata.product.credit.ExpandedCds;
 
 /**
@@ -21,14 +21,14 @@ public class CdsJumpToDefaultFunction
   @Override
   protected CurrencyAmount execute(
       ExpandedCds product,
-      IsdaYieldCurveParRates yieldCurveParRates,
-      IsdaCreditCurveParRates creditCurveParRates,
+      IsdaYieldCurveInputs yieldCurveInputs,
+      IsdaCreditCurveInputs creditCurveInputs,
       LocalDate valuationDate,
       double recoveryRate,
       double scalingFactor) {
 
     return pricer().jumpToDefault(
-        product, yieldCurveParRates, creditCurveParRates, valuationDate, recoveryRate, scalingFactor);
+        product, yieldCurveInputs, creditCurveInputs, valuationDate, recoveryRate, scalingFactor);
   }
 
 }
