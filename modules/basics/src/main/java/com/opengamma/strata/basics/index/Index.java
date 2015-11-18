@@ -26,14 +26,14 @@ public interface Index
   /**
    * Returns the standard identifier of the index.
    * <p>
-   * The standard identifier has a scheme of "OpenGammaIndex".
+   * The standard identifier has a scheme of "OG-Index".
    * The value is the {@linkplain #getName() name} of the index.
    * 
    * @return the standard identifier
    */
   @Override
   public default StandardId getStandardId() {
-    return StandardId.of("OpenGammaIndex", getName());
+    return StandardId.of("OG-Index", getName());
   }
 
 }
