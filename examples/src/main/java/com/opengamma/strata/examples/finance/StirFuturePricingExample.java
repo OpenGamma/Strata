@@ -5,19 +5,13 @@
  */
 package com.opengamma.strata.examples.finance;
 
-import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
-
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.Trade;
-import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.calc.CalculationEngine;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
@@ -31,18 +25,18 @@ import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.deposit.TermDeposit;
-import com.opengamma.strata.product.deposit.TermDepositTrade;
+import com.opengamma.strata.product.index.IborFutureTrade;
+import com.opengamma.strata.product.index.type.IborFutureConventions;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.trade.TradeReport;
 import com.opengamma.strata.report.trade.TradeReportTemplate;
 
 /**
- * Example to illustrate using the engine to price a Term Deposit.
+ * Example to illustrate using the engine to price an Ibor Future (STIR).
  * <p>
  * This makes use of the example engine and the example market data environment.
  */
-public class TermDepositPricingExample {
+public class StirFuturePricingExample {
 
   /**
    * Runs the example, pricing the instruments, producing the output as an ASCII table.
@@ -57,7 +51,6 @@ public class TermDepositPricingExample {
     List<Column> columns = ImmutableList.of(
         Column.of(Measure.PRESENT_VALUE),
         Column.of(Measure.PV01),
-        Column.of(Measure.PAR_RATE),
         Column.of(Measure.PAR_SPREAD),
         Column.of(Measure.BUCKETED_PV01));
 
@@ -85,57 +78,43 @@ public class TermDepositPricingExample {
         columns,
         results);
 
-    TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("term-deposit-report-template");
+    TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("stir-future-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
     tradeReport.writeAsciiTable(System.out);
   }
 
   //-----------------------------------------------------------------------  
-  // create a TermDeposit trade
+  // create a trade
   private static Trade createTrade1() {
-    TermDeposit td = TermDeposit.builder()
-        .buySell(BuySell.BUY)
-        .startDate(LocalDate.of(2014, 9, 12))
-        .endDate(LocalDate.of(2014, 12, 12))
-        .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, HolidayCalendars.GBLO))
-        .currency(Currency.USD)
-        .notional(10_000_000)
-        .dayCount(DayCounts.THIRTY_360_ISDA)
-        .rate(0.003)
-        .build();
-
-    return TermDepositTrade.builder()
-        .product(td)
+    IborFutureTrade trade = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.toTrade(
+        LocalDate.of(2014, 9, 12), Period.ofMonths(1), 2, 5, 1_000_000, 0.9998);
+    return trade.toBuilder()
         .tradeInfo(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .attributes(ImmutableMap.of("description", "Deposit 10M at 3%"))
+            .attributes(ImmutableMap.of("description", "Mar15 IMM Ibor Future"))
             .counterparty(StandardId.of("example", "A"))
-            .settlementDate(LocalDate.of(2014, 12, 16))
+            .tradeDate(LocalDate.of(2014, 9, 12))
+            .settlementDate(LocalDate.of(2014, 9, 14))
             .build())
+        .quantity(20)
+        .initialPrice(0.9997)
         .build();
   }
 
-  // create a TermDeposit trade
+  // create a trade
   private static Trade createTrade2() {
-    TermDeposit td = TermDeposit.builder()
-        .buySell(BuySell.BUY)
-        .startDate(LocalDate.of(2014, 12, 12))
-        .endDate(LocalDate.of(2015, 12, 12))
-        .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, HolidayCalendars.GBLO))
-        .currency(Currency.USD)
-        .notional(5_000_000)
-        .dayCount(DayCounts.THIRTY_360_ISDA)
-        .rate(0.0038)
-        .build();
-
-    return TermDepositTrade.builder()
-        .product(td)
+    IborFutureTrade trade = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.toTrade(
+        LocalDate.of(2014, 9, 12), Period.ofMonths(1), 3, 10, 1_000_000, 0.9996);
+    return trade.toBuilder()
         .tradeInfo(TradeInfo.builder()
-            .id(StandardId.of("example", "2"))
-            .attributes(ImmutableMap.of("description", "Deposit 5M at 3.8%"))
+            .id(StandardId.of("example", "1"))
+            .attributes(ImmutableMap.of("description", "Jun15 IMM Ibor Future"))
             .counterparty(StandardId.of("example", "A"))
-            .settlementDate(LocalDate.of(2015, 12, 16))
+            .tradeDate(LocalDate.of(2014, 9, 12))
+            .settlementDate(LocalDate.of(2014, 9, 14))
             .build())
+        .quantity(20)
+        .initialPrice(0.9997)
         .build();
   }
 

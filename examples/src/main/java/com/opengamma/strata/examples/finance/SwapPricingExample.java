@@ -811,7 +811,7 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .product(Swap.of(payLeg, receiveLeg))
+        .product(Swap.of(receiveLeg, payLeg))
         .tradeInfo(TradeInfo.builder()
             .id(StandardId.of("example", "14"))
             .attributes(ImmutableMap.of("description", "GBP Libor 3m vs USD Libor 3m"))

@@ -11,7 +11,9 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -49,6 +51,11 @@ import com.opengamma.strata.product.index.IborFutureTrade;
 @BeanDefinition
 public final class ImmutableIborFutureConvention
     implements IborFutureConvention, ImmutableBean, Serializable {
+
+  /**
+   * Date formatter for year month, such as 'Mar15'.
+   */
+  private static final DateTimeFormatter MONTH_YEAR_FORMAT = DateTimeFormatter.ofPattern("MMMuu", Locale.ENGLISH);
 
   /**
    * The Ibor index.
@@ -134,7 +141,7 @@ public final class ImmutableIborFutureConvention
         .notional(notional).build();
     YearMonth m = YearMonth.from(lastTradeDate);
     Security<IborFuture> security = UnitSecurity.builder(underlying)
-        .standardId(StandardId.of("OG-Ticker", "IborFuture-" + index.getName() + "-" + m.toString()))
+        .standardId(StandardId.of("OG-Future", "Ibor-" + index.getName() + "-" + m.format(MONTH_YEAR_FORMAT)))
         .build();
     SecurityLink<IborFuture> securityLink = SecurityLink.resolved(security);
     TradeInfo info = TradeInfo.builder().tradeDate(tradeDate).build();

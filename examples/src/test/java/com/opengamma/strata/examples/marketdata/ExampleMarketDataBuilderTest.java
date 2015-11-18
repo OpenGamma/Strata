@@ -87,6 +87,10 @@ public class ExampleMarketDataBuilderTest {
       QuoteId.of(StandardId.of("OG-Future", "Eurex-FGBL-Mar14")),
       QuoteId.of(StandardId.of("OG-FutOpt", "Eurex-OGBL-Mar14-C150")),
       QuoteId.of(StandardId.of("OG-Future", "CME-ED-Mar14")),
+      QuoteId.of(StandardId.of("OG-Future", "Ibor-USD-LIBOR-3M-Mar15")),
+      QuoteId.of(StandardId.of("OG-Future", "Ibor-USD-LIBOR-3M-Jun15")),
+      QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Mar15")),
+      QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Jun15")),
       IsdaYieldCurveInputsId.of(Currency.USD),
       IsdaSingleNameCreditCurveInputsId.of(
           SingleNameReferenceInformation.of(
