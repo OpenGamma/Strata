@@ -9,7 +9,6 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
-// TODO Once there's a TimeSeriesSource this will probably be redundant
 /**
  * A source of time series of observable market data.
  */
@@ -20,10 +19,22 @@ public interface TimeSeriesProvider {
    * <p>
    * This is useful when it is not necessary for the engine to source time-series on-demand, for
    * example because all market data is being provided in a snapshot.
-   * 
+   *
    * @return the time-series provider
    */
   public static TimeSeriesProvider none() {
+    return NoTimeSeriesProvider.INSTANCE;
+  }
+
+  /**
+   * Returns a time-series provider that returns an empty time series for any ID.
+   * <p>
+   * This is useful when calculations might require a time series and therefore request it but the
+   * user knows that in the current case the time series data won't be used.
+   *
+   * @return the time-series provider
+   */
+  public static TimeSeriesProvider empty() {
     return EmptyTimeSeriesProvider.INSTANCE;
   }
 

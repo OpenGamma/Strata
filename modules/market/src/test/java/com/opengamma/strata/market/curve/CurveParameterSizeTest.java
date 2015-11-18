@@ -12,9 +12,6 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveParameterSize;
-
 /**
  * Test {@link CurveParameterSize}.
  */

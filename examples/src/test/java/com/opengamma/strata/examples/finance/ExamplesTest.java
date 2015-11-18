@@ -146,6 +146,13 @@ public class ExamplesTest {
     assertFalse(captured.contains("Exception"));
   }
 
+  public void test_calibration_xccy() throws Exception {
+    String captured = caputureSystemOut(() -> CalibrationXCcyCheckExample.main(NO_ARGS));
+    assertTrue(captured.contains("Checked PV for all instruments used in the calibration set are near to zero"));
+    assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("Exception"));
+  }
+
   //-------------------------------------------------------------------------
   private String[] toolArgs(String name) {
     return new String[] {

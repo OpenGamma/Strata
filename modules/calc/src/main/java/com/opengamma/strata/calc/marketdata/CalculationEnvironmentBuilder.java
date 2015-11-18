@@ -236,11 +236,11 @@ public final class CalculationEnvironmentBuilder {
    */
   public CalculationEnvironmentBuilder valuationDate(MarketDataBox<LocalDate> valuationDate) {
     ArgChecker.notNull(valuationDate, "valuationDate");
-    updateScenarioCount(valuationDate);
 
     if (valuationDate.getScenarioCount() == 0) {
       throw new IllegalArgumentException("Valuation date must not be empty");
     }
+    updateScenarioCount(valuationDate);
     this.valuationDate = valuationDate;
     return this;
   }

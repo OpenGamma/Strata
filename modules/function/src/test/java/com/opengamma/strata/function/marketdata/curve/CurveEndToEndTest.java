@@ -68,7 +68,6 @@ import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.function.calculation.swap.SwapPvFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
@@ -199,7 +198,7 @@ public class CurveEndToEndTest {
     DefaultCalculationRunner calculationRunner = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
 
     DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
-        EmptyTimeSeriesProvider.INSTANCE,
+        TimeSeriesProvider.empty(),
         new MapObservableMarketDataFunction(parRateData),
         FeedIdMapping.identity(),
         parRatesFunction,
@@ -240,19 +239,6 @@ public class CurveEndToEndTest {
     return DefaultPricingRules.of(
         PricingRule.builder(FraTrade.class).functionGroup(fraGroup).build(),
         PricingRule.builder(SwapTrade.class).functionGroup(swapGroup).build());
-  }
-
-  /**
-   * Time series provider that returns an empty time series for any ID.
-   */
-  private static final class EmptyTimeSeriesProvider implements TimeSeriesProvider {
-
-    private static final TimeSeriesProvider INSTANCE = new EmptyTimeSeriesProvider();
-
-    @Override
-    public Result<LocalDateDoubleTimeSeries> timeSeries(ObservableId id) {
-      return Result.success(LocalDateDoubleTimeSeries.empty());
-    }
   }
 
   /**
