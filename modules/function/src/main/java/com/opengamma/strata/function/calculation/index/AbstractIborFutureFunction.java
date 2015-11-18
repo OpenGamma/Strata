@@ -63,17 +63,17 @@ public abstract class AbstractIborFutureFunction<T>
 
   @Override
   public FunctionRequirements requirements(IborFutureTrade trade) {
-    IborFuture fra = trade.getProduct();
+    IborFuture product = trade.getProduct();
 
     // the market data that is needed
     QuoteKey quoteKey = QuoteKey.of(trade.getSecurity().getStandardId());
-    IborIndexRatesKey indexForwardCurveKey = IborIndexRatesKey.of(fra.getIndex());
-    DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(fra.getCurrency());
-    IndexRateKey indexTimeSeriesKey = IndexRateKey.of(fra.getIndex());
+    IborIndexRatesKey indexForwardCurveKey = IborIndexRatesKey.of(product.getIndex());
+    DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(product.getCurrency());
+    IndexRateKey indexTimeSeriesKey = IndexRateKey.of(product.getIndex());
     return FunctionRequirements.builder()
         .singleValueRequirements(quoteKey, indexForwardCurveKey, discountFactorsKey)
         .timeSeriesRequirements(indexTimeSeriesKey)
-        .outputCurrencies(fra.getCurrency())
+        .outputCurrencies(product.getCurrency())
         .build();
   }
 

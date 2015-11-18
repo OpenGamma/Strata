@@ -69,11 +69,11 @@ public abstract class AbstractDeliverableSwapFutureFunction<T>
 
   @Override
   public FunctionRequirements requirements(DeliverableSwapFutureTrade trade) {
-    DeliverableSwapFuture dsf = trade.getProduct();
+    DeliverableSwapFuture product = trade.getProduct();
 
     // the market data that is needed
     QuoteKey quoteKey = QuoteKey.of(trade.getSecurity().getStandardId());
-    Set<Index> indices = dsf.getUnderlyingSwap().allIndices();
+    Set<Index> indices = product.getUnderlyingSwap().allIndices();
     Set<ObservableKey> indexRateKeys =
         indices.stream()
             .map(IndexRateKey::of)
@@ -82,7 +82,7 @@ public abstract class AbstractDeliverableSwapFutureFunction<T>
         indices.stream()
             .map(MarketDataKeys::indexCurve)
             .collect(toImmutableSet());
-    DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(dsf.getCurrency());
+    DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(product.getCurrency());
     Set<MarketDataKey<?>> reqs = ImmutableSet.<MarketDataKey<?>>builder()
         .add(quoteKey)
         .add(discountFactorsKey)
@@ -91,7 +91,7 @@ public abstract class AbstractDeliverableSwapFutureFunction<T>
     return FunctionRequirements.builder()
         .singleValueRequirements(reqs)
         .timeSeriesRequirements(indexRateKeys)
-        .outputCurrencies(dsf.getCurrency())
+        .outputCurrencies(product.getCurrency())
         .build();
   }
 
