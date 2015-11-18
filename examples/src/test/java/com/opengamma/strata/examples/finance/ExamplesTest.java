@@ -57,6 +57,14 @@ public class ExamplesTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_iborFuturePricing() {
+    String captured = caputureSystemOut(() -> StirFuturePricingExample.main(NO_ARGS));
+    assertTrue(captured.contains("+------"));
+    assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("Exception"));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_swapPricing() {
     String captured = caputureSystemOut(() -> SwapPricingExample.main(NO_ARGS));
     assertTrue(captured.contains("+------"));

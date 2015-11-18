@@ -16,6 +16,7 @@ import com.opengamma.strata.function.calculation.future.GenericFutureOptionFunct
 import com.opengamma.strata.function.calculation.fx.FxNdfFunctionGroups;
 import com.opengamma.strata.function.calculation.fx.FxSingleFunctionGroups;
 import com.opengamma.strata.function.calculation.fx.FxSwapFunctionGroups;
+import com.opengamma.strata.function.calculation.index.IborFutureFunctionGroups;
 import com.opengamma.strata.function.calculation.payment.BulletPaymentFunctionGroups;
 import com.opengamma.strata.function.calculation.swap.SwapFunctionGroups;
 import com.opengamma.strata.product.credit.CdsTrade;
@@ -26,6 +27,7 @@ import com.opengamma.strata.product.future.GenericFutureTrade;
 import com.opengamma.strata.product.fx.FxNdfTrade;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 
@@ -48,6 +50,7 @@ final class StandardPricingRules {
       PricingRule.builder(FxSwapTrade.class).functionGroup(FxSwapFunctionGroups.discounting()).build(),
       PricingRule.builder(GenericFutureTrade.class).functionGroup(GenericFutureFunctionGroups.market()).build(),
       PricingRule.builder(GenericFutureOptionTrade.class).functionGroup(GenericFutureOptionFunctionGroups.market()).build(),
+      PricingRule.builder(IborFutureTrade.class).functionGroup(IborFutureFunctionGroups.discounting()).build(),
       PricingRule.builder(SwapTrade.class).functionGroup(SwapFunctionGroups.discounting()).build(),
       PricingRule.builder(TermDepositTrade.class).functionGroup(TermDepositFunctionGroups.discounting()).build());
 
@@ -75,6 +78,7 @@ final class StandardPricingRules {
    *  <li>FX swap - {@link FxSwapTrade}
    *  <li>Generic Future - {@link GenericFutureTrade}
    *  <li>Generic Future Option - {@link GenericFutureOptionTrade}
+   *  <li>Ibor Future (STIR) - {@link IborFutureTrade}
    *  <li>Rate Swap - {@link SwapTrade}
    *  <li>Term Deposit - {@link TermDepositTrade}
    * </ul>

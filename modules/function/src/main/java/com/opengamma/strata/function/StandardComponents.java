@@ -39,6 +39,7 @@ import com.opengamma.strata.product.future.GenericFutureTrade;
 import com.opengamma.strata.product.fx.FxNdfTrade;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 
@@ -149,6 +150,7 @@ public class StandardComponents {
    *  <li>FX swap - {@link FxSwapTrade}
    *  <li>Generic Future - {@link GenericFutureTrade}
    *  <li>Generic Future Option - {@link GenericFutureOptionTrade}
+   *  <li>Ibor Future (STIR) - {@link IborFutureTrade}
    *  <li>Rate Swap - {@link SwapTrade}
    *  <li>Term Deposit - {@link TermDepositTrade}
    * </ul>
