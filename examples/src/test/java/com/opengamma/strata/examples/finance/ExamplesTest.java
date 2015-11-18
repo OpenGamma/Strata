@@ -33,6 +33,14 @@ public class ExamplesTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_dsfPricing() {
+    String captured = caputureSystemOut(() -> DeliverableSwapFuturePricingExample.main(NO_ARGS));
+    assertTrue(captured.contains("+------"));
+    assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("Exception"));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_fraPricing() {
     String captured = caputureSystemOut(() -> FraPricingExample.main(NO_ARGS));
     assertTrue(captured.contains("+------"));

@@ -41,6 +41,7 @@ import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
+import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
@@ -144,6 +145,7 @@ public class StandardComponents {
    * <ul>
    *  <li>Bullet Payment - {@link BulletPaymentTrade}
    *  <li>Credit Default Swap - {@link CdsTrade}
+   *  <li>Deliverable Swap Future - {@link DeliverableSwapFutureTrade}
    *  <li>Forward Rate Agreement - {@link FraTrade}
    *  <li>FX single (spot/forward) - {@link FxSingleTrade}
    *  <li>FX NDF - {@link FxNdfTrade}
