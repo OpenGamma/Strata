@@ -29,6 +29,7 @@ public class ExamplesTest {
     String captured = caputureSystemOut(() -> CdsPricingExample.main(NO_ARGS));
     assertTrue(captured.contains("+------"));
     assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("FAIL"));
     assertFalse(captured.contains("Exception"));
   }
 
@@ -37,6 +38,7 @@ public class ExamplesTest {
     String captured = caputureSystemOut(() -> DeliverableSwapFuturePricingExample.main(NO_ARGS));
     assertTrue(captured.contains("+------"));
     assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("FAIL"));
     assertFalse(captured.contains("Exception"));
   }
 
@@ -45,6 +47,7 @@ public class ExamplesTest {
     String captured = caputureSystemOut(() -> FraPricingExample.main(NO_ARGS));
     assertTrue(captured.contains("+------"));
     assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("FAIL"));
     assertFalse(captured.contains("Exception"));
   }
 
@@ -53,6 +56,7 @@ public class ExamplesTest {
     String captured = caputureSystemOut(() -> FxPricingExample.main(NO_ARGS));
     assertTrue(captured.contains("+------"));
     assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("FAIL"));
     assertFalse(captured.contains("Exception"));
   }
 
@@ -61,6 +65,7 @@ public class ExamplesTest {
     String captured = caputureSystemOut(() -> GenericFuturePricingExample.main(NO_ARGS));
     assertTrue(captured.contains("+------"));
     assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("FAIL"));
     assertFalse(captured.contains("Exception"));
   }
 
@@ -69,6 +74,7 @@ public class ExamplesTest {
     String captured = caputureSystemOut(() -> StirFuturePricingExample.main(NO_ARGS));
     assertTrue(captured.contains("+------"));
     assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("FAIL"));
     assertFalse(captured.contains("Exception"));
   }
 
@@ -77,6 +83,7 @@ public class ExamplesTest {
     String captured = caputureSystemOut(() -> SwapPricingExample.main(NO_ARGS));
     assertTrue(captured.contains("+------"));
     assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("FAIL"));
     assertFalse(captured.contains("Exception"));
   }
 
@@ -85,6 +92,7 @@ public class ExamplesTest {
     String captured = caputureSystemOut(() -> TermDepositPricingExample.main(NO_ARGS));
     assertTrue(captured.contains("+------"));
     assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("FAIL"));
     assertFalse(captured.contains("Exception"));
   }
 
@@ -93,6 +101,7 @@ public class ExamplesTest {
     String captured = caputureSystemOut(() -> CurveScenarioExample.main(NO_ARGS));
     assertTrue(captured.contains("PV01"));
     assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("FAIL"));
     assertFalse(captured.contains("Exception"));
   }
 
@@ -101,6 +110,7 @@ public class ExamplesTest {
     String captured = caputureSystemOut(() -> HistoricalScenarioExample.main(NO_ARGS));
     assertTrue(captured.contains("Base PV"));
     assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("FAIL"));
     assertFalse(captured.contains("Exception"));
   }
 
@@ -109,6 +119,7 @@ public class ExamplesTest {
     String captured = caputureSystemOut(() -> CdsTradeExample.main(NO_ARGS));
     assertTrue(captured.contains("<product>"));
     assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("FAIL"));
     assertFalse(captured.contains("Exception"));
   }
 
@@ -117,6 +128,7 @@ public class ExamplesTest {
     String captured = caputureSystemOut(() -> SwapTradeModelDemo.main(NO_ARGS));
     assertTrue(captured.contains("<product>"));
     assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("FAIL"));
     assertFalse(captured.contains("Exception"));
   }
 
