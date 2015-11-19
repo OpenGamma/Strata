@@ -39,6 +39,7 @@ import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.curve.node.FxSwapCurveNode;
 import com.opengamma.strata.market.curve.node.IborFixingDepositCurveNode;
 import com.opengamma.strata.market.curve.node.IborIborSwapCurveNode;
+import com.opengamma.strata.market.curve.node.TermDepositCurveNode;
 import com.opengamma.strata.market.curve.node.XCcyIborIborSwapCurveNode;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.RateCurveId;
@@ -46,6 +47,8 @@ import com.opengamma.strata.market.id.RateIndexCurveId;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositConvention;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
+import com.opengamma.strata.product.deposit.type.TermDepositConvention;
+import com.opengamma.strata.product.deposit.type.TermDepositTemplate;
 import com.opengamma.strata.product.fra.type.FraConvention;
 import com.opengamma.strata.product.fra.type.FraTemplate;
 import com.opengamma.strata.product.fx.type.FxSwapConvention;
@@ -267,6 +270,9 @@ public final class RatesCalibrationCsvLoader {
       QuoteKey quoteKey,
       double spread) {
 
+    if ("DEP".equalsIgnoreCase(typeStr) || "TermDeposit".equalsIgnoreCase(typeStr)) {
+      return curveTermDepositCurveNode(conventionStr, timeStr, label, quoteKey, spread);
+    }
     if ("FIX".equalsIgnoreCase(typeStr) || "IborFixingDeposit".equalsIgnoreCase(typeStr)) {
       return curveIborFixingDepositCurveNode(conventionStr, timeStr, label, quoteKey, spread);
     }
@@ -289,6 +295,23 @@ public final class RatesCalibrationCsvLoader {
       return curveFxSwapCurveNode(conventionStr, timeStr, label, quoteKey, spread);
     }
     throw new IllegalArgumentException(Messages.format("Invalid curve node type: {}", typeStr));
+  }
+
+  private static CurveNode curveTermDepositCurveNode(
+      String conventionStr,
+      String timeStr,
+      String label,
+      QuoteKey quoteKey,
+      double spread) {
+
+    Matcher matcher = SIMPLE_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    if (!matcher.matches()) {
+      throw new IllegalArgumentException(Messages.format("Invalid time format for Term Deposit: {}", timeStr));
+    }
+    Period periodToEnd = Period.parse("P" + matcher.group(1));
+    TermDepositConvention convention = TermDepositConvention.of(conventionStr);
+    TermDepositTemplate template = TermDepositTemplate.of(periodToEnd, convention);
+    return TermDepositCurveNode.of(template, quoteKey, spread);
   }
 
   private static CurveNode curveIborFixingDepositCurveNode(
@@ -384,7 +407,7 @@ public final class RatesCalibrationCsvLoader {
 
     Matcher matcher = SIMPLE_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
     if (!matcher.matches()) {
-      throw new IllegalArgumentException(Messages.format("Invalid time format for XCS: {}", timeStr));
+      throw new IllegalArgumentException(Messages.format("Invalid time format for Cross Currency Swap: {}", timeStr));
     }
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     XCcyIborIborSwapConvention convention = XCcyIborIborSwapConvention.of(conventionStr);
