@@ -24,6 +24,20 @@
         <include>**/*</include>
       </includes>
     </fileSet>
+    <fileSet>
+      <directory>examples/${project.build.directory}</directory>
+      <outputDirectory>lib</outputDirectory>
+      <includes>
+        <include>strata-examples-${version}.jar</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>examples/${project.build.directory}</directory>
+      <outputDirectory>src</outputDirectory>
+      <includes>
+        <include>strata-examples-${version}-sources.jar</include>
+      </includes>
+    </fileSet>
   </fileSets>
   <moduleSets>
     <moduleSet>
