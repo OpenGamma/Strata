@@ -52,7 +52,8 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 public final class NormalVolatilityExpiryTenorSwaptionProvider
     implements NormalVolatilitySwaptionProvider, ImmutableBean, Serializable {
 
-  /** The normal volatility surface. 
+  /**
+   * The normal volatility surface. 
    * <p>
    * The order of the dimensions is expiry/swap tenor 
    */
@@ -262,14 +263,7 @@ public final class NormalVolatilityExpiryTenorSwaptionProvider
 
   //-----------------------------------------------------------------------
   /**
-   * Gets volatility environment for swaptions in the normal or Bachelier model.
-   * The volatility is represented by a surface on the expiry and swap tenor dimensions.
-   * /
-   * @BeanDefinition(builderScope = "private")
-   * public final class NormalVolatilityExpiryTenorSwaptionProvider
-   * implements NormalVolatilitySwaptionProvider, ImmutableBean, Serializable {
-   * 
-   * /** The normal volatility surface.
+   * Gets the normal volatility surface.
    * <p>
    * The order of the dimensions is expiry/swap tenor
    * @return the value of the property, not null
