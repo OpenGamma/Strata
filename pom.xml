@@ -107,17 +107,6 @@
         <module>examples</module>
       </modules>
     </profile>
-    <!-- Profile including analytics triggered by -Dbootstrap -->
-    <profile>
-      <id>include-analytics-module</id>
-      <activation>
-        <property><name>bootstrap</name></property>
-        <file><exists>${analytics.dir.path}/pom.xml</exists></file>
-      </activation>
-      <modules>
-        <module>${analytics.dir.path}</module>
-      </modules>
-    </profile>
     <!-- Profile creating dist zip triggered by -Ddist -->
     <profile>
       <id>build-dist-zip</id>
@@ -187,7 +176,6 @@
     <maven.deploy.skip>true</maven.deploy.skip>
     <!-- The relative module paths, can be overridden on command line -->
     <javafx.jar.path>${java.home}/lib/ext/jfxrt.jar</javafx.jar.path>
-    <analytics.dir.path>../Analytics</analytics.dir.path>
   </properties>
 
 </project>
