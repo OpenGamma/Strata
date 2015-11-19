@@ -106,8 +106,11 @@ public class IborIndexRatesMarketDataFunctionTest {
         .build();
     IborIndexRatesMarketDataFunction test = new IborIndexRatesMarketDataFunction();
 
+    IborIndexRates expected = DiscountIborIndexRates.of(
+        USD_LIBOR_3M, LocalDateDoubleTimeSeries.empty(), ZeroRateDiscountFactors.of(USD, VAL_DATE, curve));
+
     IborIndexRatesId dfId = IborIndexRatesId.of(USD_LIBOR_3M, CURVE_GROUP_NAME, FEED);
-    assertThrows(() -> test.build(dfId, marketData, MarketDataConfig.empty()), IllegalArgumentException.class);
+    assertThat(test.build(dfId, marketData, MarketDataConfig.empty())).isEqualTo(MarketDataBox.ofSingleValue(expected));
   }
 
   public void test_unknownCurve() {

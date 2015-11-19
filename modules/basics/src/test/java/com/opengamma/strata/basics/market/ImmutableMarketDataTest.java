@@ -44,7 +44,7 @@ public class ImmutableMarketDataTest {
   }
 
   public void getTimeSeries() {
-    assertThrowsIllegalArg(() -> DATA.getTimeSeries(KEY1));
+    assertThat(DATA.getTimeSeries(KEY1)).isEqualTo(LocalDateDoubleTimeSeries.empty());
     assertThat(DATA.getTimeSeries(KEY2)).isEqualTo(TIME_SERIES);
   }
 

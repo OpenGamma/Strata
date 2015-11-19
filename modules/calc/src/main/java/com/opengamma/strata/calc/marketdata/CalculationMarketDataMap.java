@@ -152,11 +152,7 @@ public final class CalculationMarketDataMap implements ImmutableBean, Calculatio
   @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
     LocalDateDoubleTimeSeries timeSeries = this.timeSeries.get(id);
-
-    if (timeSeries == null) {
-      throw new IllegalArgumentException("No time series available for " + id);
-    }
-    return timeSeries;
+    return timeSeries == null ? LocalDateDoubleTimeSeries.empty() : timeSeries;
   }
 
   /**
