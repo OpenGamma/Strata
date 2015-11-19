@@ -313,6 +313,15 @@
   </dependencyManagement>
 
   <!-- ==================================================================== -->
+  <distributionManagement>
+    <repository>
+      <id>og-public-release</id>
+      <name>OpenGamma public maven repository</name>
+      <url>${og-public-release.url}</url>
+    </repository>
+  </distributionManagement>
+
+  <!-- ==================================================================== -->
   <profiles>
     <!-- build source and javadoc jars -->
     <profile>
