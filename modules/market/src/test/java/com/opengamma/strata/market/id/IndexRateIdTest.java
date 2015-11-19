@@ -35,7 +35,7 @@ public class IndexRateIdTest {
     assertEquals(test.getFieldName(), FieldName.MARKET_VALUE);
     assertEquals(test.getStandardId(), GBP_SONIA.getStandardId());
     assertEquals(test.getMarketDataType(), Double.class);
-    assertEquals(test.toObservableKey(), IndexRateKey.of(GBP_SONIA, FieldName.MARKET_VALUE));
+    assertEquals(test.toMarketDataKey(), IndexRateKey.of(GBP_SONIA, FieldName.MARKET_VALUE));
   }
 
   public void test_of_2args() {
@@ -45,7 +45,7 @@ public class IndexRateIdTest {
     assertEquals(test.getFieldName(), FieldName.MARKET_VALUE);
     assertEquals(test.getStandardId(), GBP_SONIA.getStandardId());
     assertEquals(test.getMarketDataType(), Double.class);
-    assertEquals(test.toObservableKey(), IndexRateKey.of(GBP_SONIA, FieldName.MARKET_VALUE));
+    assertEquals(test.toMarketDataKey(), IndexRateKey.of(GBP_SONIA, FieldName.MARKET_VALUE));
   }
 
   public void test_of_3args() {
@@ -55,7 +55,7 @@ public class IndexRateIdTest {
     assertEquals(test.getFieldName(), FIELD);
     assertEquals(test.getStandardId(), GBP_SONIA.getStandardId());
     assertEquals(test.getMarketDataType(), Double.class);
-    assertEquals(test.toObservableKey(), IndexRateKey.of(GBP_SONIA, FIELD));
+    assertEquals(test.toMarketDataKey(), IndexRateKey.of(GBP_SONIA, FIELD));
   }
 
   //-------------------------------------------------------------------------

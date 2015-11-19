@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 
 @Test
@@ -58,6 +59,11 @@ public class DefaultMarketDataMappingsTest {
     @Override
     public Class<String> getMarketDataType() {
       return String.class;
+    }
+
+    @Override
+    public MarketDataKey<String> toMarketDataKey() {
+      throw new UnsupportedOperationException("toMarketDataKey not implemented");
     }
   }
 }

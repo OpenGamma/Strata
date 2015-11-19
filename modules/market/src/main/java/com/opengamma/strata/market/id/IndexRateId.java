@@ -97,7 +97,7 @@ public final class IndexRateId implements ObservableId, ImmutableBean, Serializa
   }
 
   @Override
-  public IndexRateKey toObservableKey() {
+  public IndexRateKey toMarketDataKey() {
     return IndexRateKey.of(index, fieldName);
   }
 

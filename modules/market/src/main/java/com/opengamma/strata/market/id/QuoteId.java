@@ -108,7 +108,7 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
   }
 
   @Override
-  public ObservableKey toObservableKey() {
+  public ObservableKey toMarketDataKey() {
     return QuoteKey.of(standardId, fieldName);
   }
 
