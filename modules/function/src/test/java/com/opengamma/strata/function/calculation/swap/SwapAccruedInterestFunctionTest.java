@@ -23,7 +23,6 @@ import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.collect.CollectProjectAssertions;
-import com.opengamma.strata.function.calculation.swap.SwapAccruedInterestFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.key.DiscountFactorsKey;

@@ -27,7 +27,6 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.YearMonthCurveNodeMetadata;
-import com.opengamma.strata.market.curve.node.IborFutureCurveNode;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.type.IborFutureConvention;

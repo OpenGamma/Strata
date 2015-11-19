@@ -30,7 +30,6 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
-import com.opengamma.strata.market.curve.node.IborFixingDepositCurveNode;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.deposit.IborFixingDeposit;
