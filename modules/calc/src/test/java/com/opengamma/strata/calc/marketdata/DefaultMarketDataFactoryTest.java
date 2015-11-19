@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.TestObservableId;
@@ -1222,7 +1223,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public ObservableKey toObservableKey() {
+    public ObservableKey toMarketDataKey() {
       throw new UnsupportedOperationException("toObservableKey not implemented");
     }
 
@@ -1266,6 +1267,11 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
+    public MarketDataKey<TestMarketDataB> toMarketDataKey() {
+      throw new UnsupportedOperationException("toMarketDataKey not implemented");
+    }
+
+    @Override
     public boolean equals(Object o) {
       if (this == o) {
         return true;
@@ -1288,6 +1294,7 @@ public class DefaultMarketDataFactoryTest {
     }
   }
 
+
   private static final class TestIdC implements MarketDataId<TestMarketDataC> {
 
     private final String str;
@@ -1299,6 +1306,11 @@ public class DefaultMarketDataFactoryTest {
     @Override
     public Class<TestMarketDataC> getMarketDataType() {
       return TestMarketDataC.class;
+    }
+
+    @Override
+    public MarketDataKey<TestMarketDataC> toMarketDataKey() {
+      throw new UnsupportedOperationException("toMarketDataKey not implemented");
     }
 
     @Override
@@ -1549,6 +1561,11 @@ public class DefaultMarketDataFactoryTest {
     @Override
     public Class<String> getMarketDataType() {
       return String.class;
+    }
+
+    @Override
+    public MarketDataKey<String> toMarketDataKey() {
+      throw new UnsupportedOperationException("toMarketDataKey not implemented");
     }
 
     @Override

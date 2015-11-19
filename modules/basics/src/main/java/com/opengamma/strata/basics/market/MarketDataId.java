@@ -30,4 +30,10 @@ public interface MarketDataId<T> {
    */
   public abstract Class<T> getMarketDataType();
 
+  /**
+   * Returns the key associated with this ID.
+   *
+   * @return the key associated with this ID
+   */
+  public abstract MarketDataKey<T> toMarketDataKey();
 }

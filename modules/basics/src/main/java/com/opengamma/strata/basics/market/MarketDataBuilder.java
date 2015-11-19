@@ -62,7 +62,7 @@ public class MarketDataBuilder {
   public MarketDataBuilder addObservableValuesById(Map<? extends ObservableId, ?> values) {
     ArgChecker.notNull(values, "values");
     values.entrySet().forEach(e -> {
-      ObservableKey key = e.getKey().toObservableKey();
+      ObservableKey key = e.getKey().toMarketDataKey();
       checkType(key, e.getValue());
       this.values.put(key, e.getValue());
     });

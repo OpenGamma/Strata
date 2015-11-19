@@ -172,9 +172,9 @@ public class CurveInputsMarketDataFunctionTest {
     MarketDataBox<CurveInputs> result = marketDataFunction.build(curveInputsId, marketData, marketDataConfig);
 
     CurveInputs curveInputs = result.getSingleValue();
-    assertThat(curveInputs.getMarketData().get(idA.toObservableKey())).isEqualTo(1d);
-    assertThat(curveInputs.getMarketData().get(idB.toObservableKey())).isEqualTo(2d);
-    assertThat(curveInputs.getMarketData().get(idC.toObservableKey())).isEqualTo(3d);
+    assertThat(curveInputs.getMarketData().get(idA.toMarketDataKey())).isEqualTo(1d);
+    assertThat(curveInputs.getMarketData().get(idB.toMarketDataKey())).isEqualTo(2d);
+    assertThat(curveInputs.getMarketData().get(idC.toMarketDataKey())).isEqualTo(3d);
 
     List<CurveParameterMetadata> expectedMetadata = ImmutableList.of(
         node1x4.metadata(VALUATION_DATE),

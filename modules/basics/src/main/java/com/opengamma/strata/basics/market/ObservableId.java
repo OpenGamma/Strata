@@ -62,12 +62,8 @@ public interface ObservableId
    */
   public abstract MarketDataFeed getMarketDataFeed();
 
-  /**
-   * Returns the key associated with this ID.
-   *
-   * @return the key associated with this ID
-   */
-  public abstract ObservableKey toObservableKey();
+  @Override
+  public abstract ObservableKey toMarketDataKey();
 
   @Override
   public default Class<Double> getMarketDataType() {
