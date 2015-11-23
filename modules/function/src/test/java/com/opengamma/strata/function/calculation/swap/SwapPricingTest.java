@@ -44,7 +44,6 @@ import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.config.pricing.PricingRule;
-import com.opengamma.strata.calc.marketdata.CalculationMarketDataMap;
 import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -170,7 +169,7 @@ public class SwapPricingTest {
         calculationRunner.createCalculationConfig(trades, columns, pricingRules, marketDataRules, reportingCurrency);
     CalculationTasks calculationTasks = calculationRunner.createCalculationTasks(calculationConfig);
 
-    CalculationMarketDataMap marketData = marketDataFactory.buildCalculationMarketData(
+    MarketEnvironment marketData = marketDataFactory.buildMarketData(
         calculationTasks.getRequirements(),
         suppliedData,
         MarketDataConfig.empty());
