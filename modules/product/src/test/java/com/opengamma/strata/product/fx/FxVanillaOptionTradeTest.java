@@ -23,6 +23,7 @@ import com.opengamma.strata.basics.LongShort;
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -52,20 +53,24 @@ public class FxVanillaOptionTradeTest {
       .underlying(FX)
       .build();
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 11, 12)).build();
+  private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(EUR, NOTIONAL * 0.05), date(2014, 11, 14));
 
   public void test_builder() {
     FxVanillaOptionTrade test = FxVanillaOptionTrade.builder()
         .product(FX_OPTION)
         .tradeInfo(TRADE_INFO)
+        .premium(PREMIUM)
         .build();
     assertEquals(test.getProduct(), FX_OPTION);
     assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getPremium(), PREMIUM);
   }
 
   public void coverage() {
     FxVanillaOptionTrade test1 = FxVanillaOptionTrade.builder()
         .product(FX_OPTION)
         .tradeInfo(TRADE_INFO)
+        .premium(PREMIUM)
         .build();
     coverImmutableBean(test1);
     FxVanillaOption option = FxVanillaOption.builder()
@@ -77,8 +82,10 @@ public class FxVanillaOptionTradeTest {
         .strike(STRIKE)
         .underlying(FX)
         .build();
+    Payment premium = Payment.of(CurrencyAmount.of(EUR, NOTIONAL * 0.01), date(2014, 11, 13));
     FxVanillaOptionTrade test2 = FxVanillaOptionTrade.builder()
         .product(option)
+        .premium(premium)
         .build();
     coverBeanEquals(test1, test2);
   }
@@ -87,6 +94,7 @@ public class FxVanillaOptionTradeTest {
     FxVanillaOptionTrade test = FxVanillaOptionTrade.builder()
         .product(FX_OPTION)
         .tradeInfo(TRADE_INFO)
+        .premium(PREMIUM)
         .build();
     assertSerialization(test);
   }

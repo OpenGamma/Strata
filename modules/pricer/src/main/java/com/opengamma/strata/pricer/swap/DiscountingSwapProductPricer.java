@@ -423,6 +423,39 @@ public class DiscountingSwapProductPricer {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Calculates the currency exposure of the swap product.
+   * 
+   * @param product  the product to price
+   * @param provider  the rates provider
+   * @return the currency exposure of the swap product
+   */
+  public MultiCurrencyAmount currencyExposure(SwapProduct product, RatesProvider provider) {
+    ExpandedSwap swap = product.expand();
+    MultiCurrencyAmount ce = MultiCurrencyAmount.empty();
+    for (ExpandedSwapLeg leg : swap.getLegs()) {
+      ce = ce.plus(legPricer.currencyExposure(leg, provider));
+    }
+    return ce;
+  }
+
+  /**
+   * Calculates the current cash of the swap product.
+   * 
+   * @param product  the product to price
+   * @param provider  the rates provider
+   * @return the current cash of the swap product
+   */
+  public MultiCurrencyAmount currentCash(SwapProduct product, RatesProvider provider) {
+    ExpandedSwap swap = product.expand();
+    MultiCurrencyAmount ce = MultiCurrencyAmount.empty();
+    for (ExpandedSwapLeg leg : swap.getLegs()) {
+      ce = ce.plus(legPricer.currentCash(leg, provider));
+    }
+    return ce;
+  }
+
+  //-------------------------------------------------------------------------
   // checking that at least one leg is a fixed leg and returning the first one
   private ExpandedSwapLeg fixedLeg(ExpandedSwap swap) {
     List<ExpandedSwapLeg> fixedLegs = swap.getLegs(SwapLegType.FIXED);

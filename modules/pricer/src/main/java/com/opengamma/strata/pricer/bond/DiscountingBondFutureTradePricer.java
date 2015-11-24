@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.bond;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.value.CompoundedRateType;
@@ -269,6 +270,52 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
 
     return productPricer.priceSensitivityWithZSpread(
         trade.getSecurity().getProduct(), provider, zSpread, compoundedRateType, periodPerYear);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the currency exposure of the bond future trade.
+   * 
+   * @param trade  the trade to price
+   * @param provider  the rates provider
+   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
+   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
+   * @return the currency exposure of the bond future trade
+   */
+  public MultiCurrencyAmount currencyExposure(
+      BondFutureTrade trade,
+      LegalEntityDiscountingProvider provider,
+      double referencePrice) {
+
+    double price = price(trade, provider);
+    return currencyExposure(trade, price, referencePrice);
+  }
+
+  /**
+   * Calculates the currency exposure of the bond future trade with z-spread.
+   * <p>
+   * The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates 
+   * of the issuer discounting curve. 
+   * 
+   * @param trade  the trade to price
+   * @param provider  the rates provider
+   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
+   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
+   * @param zSpread  the z-spread
+   * @param compoundedRateType  the compounded rate type
+   * @param periodPerYear  the number of periods per year
+   * @return the currency exposure of the bond future trade
+   */
+  public MultiCurrencyAmount currencyExposureWithZSpread(
+      BondFutureTrade trade,
+      LegalEntityDiscountingProvider provider,
+      double referencePrice,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodPerYear) {
+
+    double price = priceWithZSpread(trade, provider, zSpread, compoundedRateType, periodPerYear);
+    return currencyExposure(trade, price, referencePrice);
   }
 
 }

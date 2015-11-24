@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
@@ -23,6 +24,7 @@ import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.bond.ExpandedFixedCouponBond;
 import com.opengamma.strata.product.bond.FixedCouponBond;
+import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
 import com.opengamma.strata.product.bond.FixedCouponBondTrade;
 
 /**
@@ -287,6 +289,75 @@ public class DiscountingFixedCouponBondTradePricer {
     PointSensitivityBuilder sensiProduct = productPresnetValueSensitivity.multipliedBy(trade.getQuantity());
     PointSensitivityBuilder sensiPayment = presentValueSensitivityPayment(trade, provider);
     return sensiProduct.combinedWith(sensiPayment);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the currency exposure of the fixed coupon bond trade.
+   * 
+   * @param trade  the trade to price
+   * @param provider  the rates provider
+   * @return the currency exposure of the fixed coupon bond trade
+   */
+  public MultiCurrencyAmount currencyExposure(FixedCouponBondTrade trade, LegalEntityDiscountingProvider provider) {
+    
+    return MultiCurrencyAmount.of(presentValue(trade, provider));
+  }
+
+  /**
+   * Calculates the currency exposure of the fixed coupon bond trade with z-spread.
+   * 
+   * @param trade  the trade to price
+   * @param provider  the rates provider
+   * @param zSpread  the z-spread
+   * @param compoundedRateType  the compounded rate type
+   * @param periodsPerYear  the number of periods per year
+   * @return the currency exposure of the fixed coupon bond trade
+   */
+  public MultiCurrencyAmount currencyExposureWithZSpread(
+      FixedCouponBondTrade trade,
+      LegalEntityDiscountingProvider provider,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodsPerYear) {
+    
+    return MultiCurrencyAmount.of(presentValueWithZSpread(trade, provider, zSpread, compoundedRateType, periodsPerYear));
+  }
+
+  /**
+   * Calculates the current of the fixed coupon bond trade.
+   * 
+   * @param trade  the trade to price
+   * @param valuationDate  the valuation date
+   * @return the current cash amount
+   */
+  public CurrencyAmount currentCash(FixedCouponBondTrade trade, LocalDate valuationDate) {
+    Payment upfront = trade.getPayment();
+    Currency currency = upfront.getCurrency(); // assumes single currency is involved in trade
+    CurrencyAmount currentCash = CurrencyAmount.zero(currency);
+    if (upfront.getDate().equals(valuationDate)) {
+      currentCash = currentCash.plus(CurrencyAmount.of(currency, upfront.getAmount()));
+    }
+    LocalDate settlementDate = trade.getTradeInfo().getSettlementDate().get();
+    FixedCouponBond product = trade.getProduct();
+    if (!settlementDate.isAfter(valuationDate)) {
+      ExpandedFixedCouponBond expanded = product.expand();
+      double cashCoupon = product.getExCouponPeriod().getDays() != 0 ? 0d : currentCashCouponPayment(expanded, valuationDate);
+      Payment payment = expanded.getNominalPayment();
+      double cashNominal = payment.getDate().isEqual(valuationDate) ? payment.getAmount() : 0d;
+      currentCash = currentCash.plus(CurrencyAmount.of(currency, (cashCoupon + cashNominal) * trade.getQuantity()));
+    }
+    return currentCash;
+  }
+
+  private double currentCashCouponPayment(ExpandedFixedCouponBond product, LocalDate referenceDate) {
+    double cash = 0d;
+    for (FixedCouponBondPaymentPeriod period : product.getPeriodicPayments()) {
+      if (period.getPaymentDate().isEqual(referenceDate)) {
+        cash += period.getFixedRate() * period.getNotional() * period.getYearFraction();
+      }
+    }
+    return cash;
   }
 
   //-------------------------------------------------------------------------

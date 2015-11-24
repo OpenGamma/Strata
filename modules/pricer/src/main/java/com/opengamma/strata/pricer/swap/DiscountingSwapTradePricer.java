@@ -133,4 +133,27 @@ public class DiscountingSwapTradePricer {
     return productPricer.cashFlows(trade.getProduct(), provider);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the currency exposure of the swap trade.
+   * 
+   * @param trade  the trade to price
+   * @param provider  the rates provider
+   * @return the currency exposure of the swap trade
+   */
+  public MultiCurrencyAmount currencyExposure(SwapTrade trade, RatesProvider provider) {
+    return productPricer.currencyExposure(trade.getProduct(), provider);
+  }
+
+  /**
+   * Calculates the current cash of the swap trade.
+   * 
+   * @param trade  the trade to price
+   * @param provider  the rates provider
+   * @return the current cash of the swap trade
+   */
+  public MultiCurrencyAmount currentCash(SwapTrade trade, RatesProvider provider) {
+    return productPricer.currentCash(trade.getProduct(), provider);
+  }
+
 }

@@ -37,6 +37,7 @@ import static com.opengamma.strata.pricer.swap.SwapDummyData.SWAP_CROSS_CURRENCY
 import static com.opengamma.strata.pricer.swap.SwapDummyData.SWAP_INFLATION;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.SWAP_TRADE;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.SWAP_TRADE_CROSS_CURRENCY;
+import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
 import static com.opengamma.strata.product.swap.type.IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M;
 import static org.mockito.Mockito.mock;
@@ -46,6 +47,7 @@ import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
@@ -57,6 +59,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -109,8 +112,6 @@ public class DiscountingSwapProductPricerTest {
 
   private static final RatesProvider MOCK_PROV = new MockRatesProvider(RatesProviderDataSets.VAL_DATE_2014_01_22);
 
-  private static final DiscountingSwapProductPricer PRICER_SWAP = DiscountingSwapProductPricer.DEFAULT;
-
   private static final ImmutableRatesProvider RATES_GBP = RatesProviderDataSets.MULTI_GBP;
   private static final ImmutableRatesProvider RATES_GBP_USD = RatesProviderDataSets.MULTI_GBP_USD;
   private static final double FD_SHIFT = 1.0E-7;
@@ -150,6 +151,7 @@ public class DiscountingSwapProductPricerTest {
       .toTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, SPREAD);
   
   private static final DiscountingSwapProductPricer SWAP_PRODUCT_PRICER = DiscountingSwapProductPricer.DEFAULT;
+  private static final DiscountingSwapTradePricer SWAP_TRADE_PRICER = DiscountingSwapTradePricer.DEFAULT;
 
   //-------------------------------------------------------------------------
   public void test_legPricer() {
@@ -497,19 +499,19 @@ public class DiscountingSwapProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_parRateSensitivity_singleCurrency() {
     ExpandedSwap expanded = SWAP.expand();
-    PointSensitivities point = PRICER_SWAP.parRateSensitivity(expanded, RATES_GBP).build();
+    PointSensitivities point = SWAP_PRODUCT_PRICER.parRateSensitivity(expanded, RATES_GBP).build();
     CurveCurrencyParameterSensitivities prAd = RATES_GBP.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
-        RATES_GBP, p -> CurrencyAmount.of(GBP, PRICER_SWAP.parRate(expanded, p)));
+        RATES_GBP, p -> CurrencyAmount.of(GBP, SWAP_PRODUCT_PRICER.parRate(expanded, p)));
     assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));
   }
 
   public void test_parRateSensitivity_crossCurrency() {
     ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
-    PointSensitivities point = PRICER_SWAP.parRateSensitivity(expanded, RATES_GBP_USD).build();
+    PointSensitivities point = SWAP_PRODUCT_PRICER.parRateSensitivity(expanded, RATES_GBP_USD).build();
     CurveCurrencyParameterSensitivities prAd = RATES_GBP_USD.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
-        RATES_GBP_USD, p -> CurrencyAmount.of(USD, PRICER_SWAP.parRate(expanded, p)));
+        RATES_GBP_USD, p -> CurrencyAmount.of(USD, SWAP_PRODUCT_PRICER.parRate(expanded, p)));
     assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));
   }
 
@@ -731,20 +733,71 @@ public class DiscountingSwapProductPricerTest {
   //-------------------------------------------------------------------------
   public void par_spread_sensitivity_fixed_ibor() {
     ExpandedSwap expanded = SWAP_USD_FIXED_6M_LIBOR_3M_5Y.getProduct().expand();
-    PointSensitivities point = PRICER_SWAP.parSpreadSensitivity(expanded, MULTI_USD).build();
+    PointSensitivities point = SWAP_PRODUCT_PRICER.parSpreadSensitivity(expanded, MULTI_USD).build();
     CurveCurrencyParameterSensitivities prAd = MULTI_USD.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
-        MULTI_USD, p -> CurrencyAmount.of(USD, PRICER_SWAP.parSpread(expanded, p)));
+        MULTI_USD, p -> CurrencyAmount.of(USD, SWAP_PRODUCT_PRICER.parSpread(expanded, p)));
     assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));
   }
 
   public void par_spread_sensitivity_ibor_ibor() {
     ExpandedSwap expanded = SWAP_USD_LIBOR_3M_LIBOR_6M_5Y.getProduct().expand();
-    PointSensitivities point = PRICER_SWAP.parSpreadSensitivity(expanded, MULTI_USD).build();
+    PointSensitivities point = SWAP_PRODUCT_PRICER.parSpreadSensitivity(expanded, MULTI_USD).build();
     CurveCurrencyParameterSensitivities prAd = MULTI_USD.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
-        MULTI_USD, p -> CurrencyAmount.of(USD, PRICER_SWAP.parSpread(expanded, p)));
+        MULTI_USD, p -> CurrencyAmount.of(USD, SWAP_PRODUCT_PRICER.parSpread(expanded, p)));
     assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));
   }
 
+  //-------------------------------------------------------------------------
+  public void test_currencyExposure_singleCurrency() {
+    ExpandedSwap expanded = SWAP.expand();
+    PointSensitivities point = SWAP_PRODUCT_PRICER.parRateSensitivity(expanded, RATES_GBP).build();
+    MultiCurrencyAmount expected = RATES_GBP.currencyExposure(point)
+        .plus(SWAP_PRODUCT_PRICER.presentValue(expanded, RATES_GBP));
+    MultiCurrencyAmount computed = SWAP_PRODUCT_PRICER.currencyExposure(expanded, RATES_GBP);
+    assertEquals(computed, expected);
+    MultiCurrencyAmount fromTrade = SWAP_TRADE_PRICER.currencyExposure(SWAP_TRADE, RATES_GBP);
+    assertEquals(fromTrade, computed);
+  }
+
+  public void test_currencyExposure_crossCurrency() {
+    ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
+    PointSensitivities point = SWAP_PRODUCT_PRICER.parRateSensitivity(expanded, RATES_GBP_USD).build();
+    MultiCurrencyAmount expected = RATES_GBP_USD.currencyExposure(point)
+        .plus(SWAP_PRODUCT_PRICER.presentValue(expanded, RATES_GBP_USD));
+    MultiCurrencyAmount computed = SWAP_PRODUCT_PRICER.currencyExposure(expanded, RATES_GBP_USD);
+    assertEquals(computed, expected);
+    MultiCurrencyAmount fromTrade = SWAP_TRADE_PRICER.currencyExposure(SWAP_TRADE_CROSS_CURRENCY, RATES_GBP_USD);
+    assertEquals(fromTrade, computed);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_currentCash_zero() {
+    ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
+    MultiCurrencyAmount computed = SWAP_PRODUCT_PRICER.currentCash(expanded, RATES_GBP_USD);
+    assertEquals(computed, MultiCurrencyAmount.of(CurrencyAmount.zero(GBP), CurrencyAmount.zero(USD)));
+    MultiCurrencyAmount fromTrade = SWAP_TRADE_PRICER.currentCash(SWAP_TRADE_CROSS_CURRENCY, RATES_GBP_USD);
+    assertEquals(fromTrade, computed);
+  }
+
+  public void test_currentCash_onPayment() {
+    SwapTrade trade = GBP_FIXED_1Y_LIBOR_3M.toTrade(MULTI_USD.getValuationDate(), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD);
+    ExpandedSwap expanded = trade.getProduct().expand();
+    Map<Index, LocalDateDoubleTimeSeries> ts =
+        ImmutableMap.of(GBP_LIBOR_3M, LocalDateDoubleTimeSeries.of(LocalDate.of(2016, 10, 24), 0.003));
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
+        .valuationDate(expanded.getLegs().get(0).getPaymentPeriods().get(2).getPaymentDate())
+        .discountCurves(RatesProviderDataSets.GBP_MULTI_CCY_MAP)
+        .indexCurves(RatesProviderDataSets.GBP_MULTI_IND_MAP)
+        .timeSeries(ts)
+        .build();
+    MultiCurrencyAmount computed = SWAP_PRODUCT_PRICER.currentCash(expanded, prov);
+    MultiCurrencyAmount expected = MultiCurrencyAmount.of(
+        SWAP_PRODUCT_PRICER.getLegPricer().currentCash(expanded.getLegs().get(0), prov)
+            .plus(SWAP_PRODUCT_PRICER.getLegPricer().currentCash(expanded.getLegs().get(1), prov)));
+    assertEquals(computed, expected);
+    MultiCurrencyAmount fromTrade = SWAP_TRADE_PRICER.currentCash(trade, prov);
+    assertEquals(fromTrade, computed);
+  }
 }

@@ -11,6 +11,7 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -120,4 +121,17 @@ public class DiscountingKnownAmountPaymentPeriodPricer
     }
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public MultiCurrencyAmount currencyExposure(KnownAmountPaymentPeriod period, RatesProvider provider) {
+    return MultiCurrencyAmount.of(CurrencyAmount.of(period.getCurrency(), presentValue(period, provider)));
+  }
+
+  @Override
+  public double currentCash(KnownAmountPaymentPeriod period, RatesProvider provider) {
+    if (provider.getValuationDate().isEqual(period.getPaymentDate())) {
+      return forecastValue(period, provider);
+    }
+    return 0d;
+  }
 }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.fx;
 
+import java.time.LocalDate;
+
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -112,6 +114,21 @@ public class DiscountingFxSingleProductPricer {
     double dfEnd = provider.discountFactor(counterPayment.getCurrency(), fx.getPaymentDate());
     double notionalBaseCcy = basePayment.getAmount();
     return pvCounterCcy / (notionalBaseCcy * dfEnd);
+  }
+
+  /**
+   * Computes the current cash.
+   * 
+   * @param product  the product to price
+   * @param valuationDate  the valuation date
+   * @return the current cash
+   */
+  public MultiCurrencyAmount currentCash(FxSingleProduct product, LocalDate valuationDate) {
+    ExpandedFxSingle fx = product.expand();
+    if (valuationDate.isEqual(fx.getPaymentDate())) {
+      return MultiCurrencyAmount.of(fx.getBaseCurrencyPayment().getValue(), fx.getCounterCurrencyPayment().getValue());
+    }
+    return MultiCurrencyAmount.empty();
   }
 
   //-------------------------------------------------------------------------

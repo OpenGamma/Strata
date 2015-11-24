@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -449,6 +450,35 @@ public class DiscountingRatePaymentPeriodPricer
     builder.put(ExplainKey.SPREAD, accrualPeriod.getSpread());
     builder.put(ExplainKey.PAY_OFF_RATE, accrualPeriod.getNegativeRateMethod().adjust(payOffRate));
     builder.put(ExplainKey.UNIT_AMOUNT, ua);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public MultiCurrencyAmount currencyExposure(RatePaymentPeriod period, RatesProvider provider) {
+    MultiCurrencyAmount ce = MultiCurrencyAmount.empty();
+    if (period.getFxReset().isPresent()) {
+      FxReset fxReset = period.getFxReset().get();
+      double df = provider.discountFactor(period.getCurrency(), period.getPaymentDate());
+      FxIndexRates rates = provider.fxIndexRates(fxReset.getIndex());
+      LocalDate maturityDate = rates.getIndex().calculateMaturityFromFixing(fxReset.getFixingDate());
+      double fxRateSpotSensitivity = rates.getFxForwardRates()
+          .rateFxSpotSensitivity(fxReset.getReferenceCurrency(), maturityDate);
+      ce = ce.plus(CurrencyAmount.of(fxReset.getReferenceCurrency(),
+          accrualWithNotional(period, period.getNotional() * fxRateSpotSensitivity * df, provider)));
+    } else {
+      double df = provider.discountFactor(period.getCurrency(), period.getPaymentDate());
+      ce = ce.plus(CurrencyAmount.of(period.getCurrency(),
+          accrualWithNotional(period, period.getNotional() * df, provider)));
+    }
+    return ce;
+  }
+
+  @Override
+  public double currentCash(RatePaymentPeriod period, RatesProvider provider) {
+    if (provider.getValuationDate().isEqual(period.getPaymentDate())) {
+      return forecastValue(period, provider);
+    }
+    return 0d;
   }
 
   //-------------------------------------------------------------------------

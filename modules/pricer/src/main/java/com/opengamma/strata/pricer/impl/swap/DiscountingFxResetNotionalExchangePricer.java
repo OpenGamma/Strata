@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -101,6 +102,25 @@ public class DiscountingFxResetNotionalExchangePricer
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.of(currency, forecastValue(event, provider)));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.of(currency, presentValue(event, provider)));
     }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public MultiCurrencyAmount currencyExposure(FxResetNotionalExchange event, RatesProvider provider) {
+    double df = provider.discountFactor(event.getCurrency(), event.getPaymentDate());
+    FxIndexRates rates = provider.fxIndexRates(event.getIndex());
+    LocalDate maturityDate = rates.getIndex().calculateMaturityFromFixing(event.getFixingDate());
+    double fxRateSpotSensitivity = rates.getFxForwardRates().rateFxSpotSensitivity(event.getReferenceCurrency(), maturityDate);
+    return MultiCurrencyAmount.of(
+        CurrencyAmount.of(event.getReferenceCurrency(), event.getNotional() * df * fxRateSpotSensitivity));
+  }
+
+  @Override
+  public double currentCash(FxResetNotionalExchange event, RatesProvider provider) {
+    if (provider.getValuationDate().isEqual(event.getPaymentDate())) {
+      return forecastValue(event, provider);
+    }
+    return 0d;
   }
 
 }

@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
@@ -213,6 +214,14 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
     CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER,
         (p) -> OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, (p), VOL_PROVIDER, REFERENCE_PRICE));
     assertTrue(computed.equalWithTolerance(expected.combinedWith(sensiVol), 30d * EPS * NOTIONAL * QUANTITY));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_currencyExposure() {
+    MultiCurrencyAmount ceComputed = OPTION_TRADE_PRICER.currencyExposure(
+        OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER, REFERENCE_PRICE);
+    CurrencyAmount pv = OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER, REFERENCE_PRICE);
+    assertEquals(ceComputed, MultiCurrencyAmount.of(pv));
   }
 
   //-------------------------------------------------------------------------

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.swap;
 
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -149,6 +150,31 @@ public class DispatchingPaymentPeriodPricer
       ratePaymentPeriodPricer.explainPresentValue((RatePaymentPeriod) paymentPeriod, provider, builder);
     } else if (paymentPeriod instanceof KnownAmountPaymentPeriod) {
       knownAmountPaymentPeriodPricer.explainPresentValue((KnownAmountPaymentPeriod) paymentPeriod, provider, builder);
+    } else {
+      throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentPeriod.getClass().getSimpleName());
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public MultiCurrencyAmount currencyExposure(PaymentPeriod paymentPeriod, RatesProvider provider) {
+    // dispatch by runtime type
+    if (paymentPeriod instanceof RatePaymentPeriod) {
+      return ratePaymentPeriodPricer.currencyExposure((RatePaymentPeriod) paymentPeriod, provider);
+    } else if (paymentPeriod instanceof KnownAmountPaymentPeriod) {
+      return knownAmountPaymentPeriodPricer.currencyExposure((KnownAmountPaymentPeriod) paymentPeriod, provider);
+    } else {
+      throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentPeriod.getClass().getSimpleName());
+    }
+  }
+
+  @Override
+  public double currentCash(PaymentPeriod paymentPeriod, RatesProvider provider) {
+    // dispatch by runtime type
+    if (paymentPeriod instanceof RatePaymentPeriod) {
+      return ratePaymentPeriodPricer.currentCash((RatePaymentPeriod) paymentPeriod, provider);
+    } else if (paymentPeriod instanceof KnownAmountPaymentPeriod) {
+      return knownAmountPaymentPeriodPricer.currentCash((KnownAmountPaymentPeriod) paymentPeriod, provider);
     } else {
       throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentPeriod.getClass().getSimpleName());
     }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.swap;
 
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -110,6 +111,31 @@ public class DispatchingPaymentEventPricer
       notionalExchangePricer.explainPresentValue((NotionalExchange) paymentEvent, provider, builder);
     } else if (paymentEvent instanceof FxResetNotionalExchange) {
       fxResetNotionalExchangePricer.explainPresentValue((FxResetNotionalExchange) paymentEvent, provider, builder);
+    } else {
+      throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentEvent.getClass().getSimpleName());
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public MultiCurrencyAmount currencyExposure(PaymentEvent paymentEvent, RatesProvider provider) {
+    // dispatch by runtime type
+    if (paymentEvent instanceof NotionalExchange) {
+      return notionalExchangePricer.currencyExposure((NotionalExchange) paymentEvent, provider);
+    } else if (paymentEvent instanceof FxResetNotionalExchange) {
+      return fxResetNotionalExchangePricer.currencyExposure((FxResetNotionalExchange) paymentEvent, provider);
+    } else {
+      throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentEvent.getClass().getSimpleName());
+    }
+  }
+
+  @Override
+  public double currentCash(PaymentEvent paymentEvent, RatesProvider provider) {
+    // dispatch by runtime type
+    if (paymentEvent instanceof NotionalExchange) {
+      return notionalExchangePricer.currentCash((NotionalExchange) paymentEvent, provider);
+    } else if (paymentEvent instanceof FxResetNotionalExchange) {
+      return fxResetNotionalExchangePricer.currentCash((FxResetNotionalExchange) paymentEvent, provider);
     } else {
       throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentEvent.getClass().getSimpleName());
     }

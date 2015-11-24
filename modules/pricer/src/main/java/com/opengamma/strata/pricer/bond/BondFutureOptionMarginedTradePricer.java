@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
@@ -132,6 +133,42 @@ public abstract class BondFutureOptionMarginedTradePricer {
     PointSensitivities priceSensi = getProductPricer().priceSensitivity(product, ratesProvider, futureProvider);
     PointSensitivities marginIndexSensi = getProductPricer().marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the currency exposure of the bond future option trade.
+   * 
+   * @param trade  the trade to price
+   * @param ratesProvider  the rates provider
+   * @param futureProvider  the provider of future/option pricing data
+   * @param lastClosingPrice  the last closing price
+   * @return the currency exposure of the bond future option trade
+   */
+  public MultiCurrencyAmount currencyExposure(
+      BondFutureOptionTrade trade,
+      LegalEntityDiscountingProvider ratesProvider,
+      BondFutureProvider futureProvider,
+      double lastClosingPrice) {
+    double price = price(trade, ratesProvider, futureProvider);
+    return currencyExposure(trade, ratesProvider.getValuationDate(), price, lastClosingPrice);
+  }
+
+  /**
+   * Calculates the currency exposure of the bond future option trade from the current option price.
+   * 
+   * @param trade  the trade to price
+   * @param valuationDate  the valuation date; required to asses if the trade or last closing price should be used
+   * @param currentOptionPrice  the option price on the valuation date
+   * @param lastClosingPrice  the last closing price
+   * @return the currency exposure of the bond future option trade
+   */
+  public MultiCurrencyAmount currencyExposure(
+      BondFutureOptionTrade trade,
+      LocalDate valuationDate,
+      double currentOptionPrice,
+      double lastClosingPrice) {
+    return MultiCurrencyAmount.of(presentValue(trade, valuationDate, currentOptionPrice, lastClosingPrice));
   }
 
 }

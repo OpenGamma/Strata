@@ -60,12 +60,6 @@ public class DiscountingFxSingleProductPricerTest {
     assertEquals(computed, MultiCurrencyAmount.empty());
   }
 
-  public void test_currencyExposure() {
-    MultiCurrencyAmount computed = PRICER.currencyExposure(FWD, PROVIDER);
-    MultiCurrencyAmount expected = PRICER.presentValue(FWD, PROVIDER);
-    assertEquals(computed, expected);
-  }
-
   public void test_parSpread() {
     double spread = PRICER.parSpread(FWD, PROVIDER);
     FxSingle fwdSp = FxSingle.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE + spread), PAYMENT_DATE);
@@ -118,4 +112,20 @@ public class DiscountingFxSingleProductPricerTest {
     assertEquals(computed, PointSensitivities.empty());
   }
 
+  //-------------------------------------------------------------------------
+  public void test_currencyExposure() {
+    MultiCurrencyAmount computed = PRICER.currencyExposure(FWD, PROVIDER);
+    MultiCurrencyAmount expected = PRICER.presentValue(FWD, PROVIDER);
+    assertEquals(computed, expected);
+  }
+
+  public void test_currentCash_zero() {
+    MultiCurrencyAmount computed = PRICER.currentCash(FWD, PROVIDER.getValuationDate());
+    assertEquals(computed, MultiCurrencyAmount.empty());
+  }
+
+  public void test_currentCash_onPayment() {
+    MultiCurrencyAmount computed = PRICER.currentCash(FWD, PAYMENT_DATE);
+    assertEquals(computed, MultiCurrencyAmount.of(FWD.getBaseCurrencyAmount(), FWD.getCounterCurrencyAmount()));
+  }
 }
