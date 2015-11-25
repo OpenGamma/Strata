@@ -13,7 +13,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * @param <S> the type of the arguments
  * @param <T> the return type of the function
  */
-public abstract class Function1D<S, T> implements Function<S, T> {
+public abstract class Function1D<S, T> {
 
   /**
    * Implementation of the interface.
@@ -23,7 +23,6 @@ public abstract class Function1D<S, T> implements Function<S, T> {
    * @return the value of the function
    */
   @SuppressWarnings("unchecked")
-  @Override
   public T evaluate(S... x) {
     ArgChecker.noNulls(x, "parameter list");
     ArgChecker.isTrue(x.length == 1, "parameter list must have one element");

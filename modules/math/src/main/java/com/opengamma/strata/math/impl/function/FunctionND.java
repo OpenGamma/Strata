@@ -13,7 +13,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * @param <S> the type of the arguments
  * @param <T> the return type of the function
  */
-public abstract class FunctionND<S, T> implements Function<S, T> {
+public abstract class FunctionND<S, T> {
 
   /**
    * Implementation of the interface.
@@ -23,7 +23,6 @@ public abstract class FunctionND<S, T> implements Function<S, T> {
    * @throws IllegalArgumentException if the number of arguments is not equal to the dimension
    */
   @SuppressWarnings("unchecked")
-  @Override
   public T evaluate(S... x) {
     ArgChecker.noNulls(x, "x");
     return evaluateFunction(x);

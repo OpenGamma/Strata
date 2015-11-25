@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
-import com.opengamma.strata.math.impl.function.Function;
 import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.FunctionND;
 
@@ -19,7 +18,7 @@ import com.opengamma.strata.math.impl.function.FunctionND;
  * @param <V> Type of the function to be integrated (e.g. {@link Function1D},
  * {@link FunctionND})
  */
-public interface Integrator<T, U, V extends Function<U, T>> {
+public interface Integrator<T, U, V> {
 
   /**
    * @param f The function to be integrated, not null
