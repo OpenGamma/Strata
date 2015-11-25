@@ -20,7 +20,7 @@ public class BulletPaymentBucketedPv01Function
   @Override
   protected CurveCurrencyParameterSensitivities execute(Payment product, RatesProvider provider) {
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(product, provider).build();
-    return provider.curveParameterSensitivity(pointSensitivity);
+    return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
   }
 
 }
