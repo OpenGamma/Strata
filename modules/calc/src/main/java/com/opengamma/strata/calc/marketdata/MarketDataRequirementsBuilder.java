@@ -84,6 +84,14 @@ public final class MarketDataRequirementsBuilder {
     return addValues(Arrays.asList(ids));
   }
 
+  /**
+   * Adds the output currencies.
+   * <p>
+   * These are used to ensure that FX rate market data is available for currency conversion.
+   *
+   * @param currencies  the output currencies
+   * @return this builder
+   */
   public MarketDataRequirementsBuilder addOutputCurrencies(Currency... currencies) {
     outputCurrencies.addAll(Arrays.asList(currencies));
     return this;
