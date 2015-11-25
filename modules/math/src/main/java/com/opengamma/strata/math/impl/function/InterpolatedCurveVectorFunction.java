@@ -53,7 +53,7 @@ public class InterpolatedCurveVectorFunction extends VectorFunction {
   }
 
   @Override
-  public DoubleArray evaluate(DoubleArray x) {
+  public DoubleArray apply(DoubleArray x) {
     Interpolator1DDataBundle db = _interpolator.getDataBundleFromSortedArrays(_knots, x.toArray());
     return DoubleArray.of(_samplePoints.length, i -> _interpolator.interpolate(db, _samplePoints[i]));
   }

@@ -42,7 +42,7 @@ public class RealPolynomialFunction1D extends DoubleFunction1D {
 
   //-------------------------------------------------------------------------
   @Override
-  public Double evaluate(Double x) {
+  public Double apply(Double x) {
     ArgChecker.notNull(x, "x");
     double y = _coefficients[_n - 1];
     for (int i = _n - 2; i >= 0; i--) {

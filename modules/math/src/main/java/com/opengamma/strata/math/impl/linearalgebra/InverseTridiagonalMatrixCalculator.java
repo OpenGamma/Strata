@@ -17,7 +17,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
 public class InverseTridiagonalMatrixCalculator extends Function1D<TridiagonalMatrix, DoubleMatrix> {
 
   @Override
-  public DoubleMatrix evaluate(TridiagonalMatrix x) {
+  public DoubleMatrix apply(TridiagonalMatrix x) {
     ArgChecker.notNull(x, "x");
     double[] a = x.getDiagonalData();
     double[] b = x.getUpperSubDiagonalData();

@@ -22,7 +22,7 @@ public class JacobianEstimateInitializationFunction implements NewtonRootFinderM
 
     ArgChecker.notNull(jacobianFunction, "Jacobian Function");
     ArgChecker.notNull(x, "x");
-    return jacobianFunction.evaluate(x);
+    return jacobianFunction.apply(x);
   }
 
 }

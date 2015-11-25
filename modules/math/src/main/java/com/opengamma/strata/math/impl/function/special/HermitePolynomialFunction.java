@@ -16,7 +16,7 @@ public class HermitePolynomialFunction extends OrthogonalPolynomialFunctionGener
 
   private static final DoubleFunction1D TWO_X = new DoubleFunction1D() {
     @Override
-    public Double evaluate(Double x) {
+    public Double apply(Double x) {
       return 2 * x;
     }
   };

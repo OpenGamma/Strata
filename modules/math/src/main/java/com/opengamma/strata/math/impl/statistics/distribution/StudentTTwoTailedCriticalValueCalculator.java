@@ -29,10 +29,10 @@ public class StudentTTwoTailedCriticalValueCalculator extends Function1D<Double,
   }
 
   @Override
-  public Double evaluate(Double x) {
+  public Double apply(Double x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.notNegative(x, "x");
-    return _calc.evaluate(0.5 + 0.5 * x);
+    return _calc.apply(0.5 + 0.5 * x);
   }
 
 }

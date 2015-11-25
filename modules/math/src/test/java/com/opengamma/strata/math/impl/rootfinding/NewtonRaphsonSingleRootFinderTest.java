@@ -20,7 +20,7 @@ public class NewtonRaphsonSingleRootFinderTest {
   private static final DoubleFunction1D F1 = new DoubleFunction1D() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return x * x * x - 6 * x * x + 11 * x - 106;
     }
 
@@ -29,7 +29,7 @@ public class NewtonRaphsonSingleRootFinderTest {
       return new DoubleFunction1D() {
 
         @Override
-        public Double evaluate(final Double x) {
+        public Double apply(final Double x) {
           return 3 * x * x - 12 * x + 11;
         }
 
@@ -40,7 +40,7 @@ public class NewtonRaphsonSingleRootFinderTest {
   private static final Function1D<Double, Double> F2 = new Function1D<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return x * x * x - 6 * x * x + 11 * x - 106;
     }
 
@@ -48,7 +48,7 @@ public class NewtonRaphsonSingleRootFinderTest {
   private static final Function1D<Double, Double> DF1 = new Function1D<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 3 * x * x - 12 * x + 11;
     }
 
@@ -56,7 +56,7 @@ public class NewtonRaphsonSingleRootFinderTest {
   private static final Function1D<Double, Double> DF2 = new Function1D<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 3 * x * x - 12 * x + 11;
     }
 

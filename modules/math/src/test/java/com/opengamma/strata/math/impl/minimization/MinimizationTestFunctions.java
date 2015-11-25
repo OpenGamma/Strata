@@ -16,7 +16,7 @@ public abstract class MinimizationTestFunctions {
   public static final Function1D<DoubleArray, Double> ROSENBROCK = new Function1D<DoubleArray, Double>() {
 
     @Override
-    public Double evaluate(DoubleArray x) {
+    public Double apply(DoubleArray x) {
       return FunctionUtils.square(1 - x.get(0)) + 100 * FunctionUtils.square(x.get(1) - FunctionUtils.square(x.get(0)));
     }
   };
@@ -24,7 +24,7 @@ public abstract class MinimizationTestFunctions {
   public static final Function1D<DoubleArray, DoubleArray> ROSENBROCK_GRAD =
       new Function1D<DoubleArray, DoubleArray>() {
         @Override
-        public DoubleArray evaluate(DoubleArray x) {
+        public DoubleArray apply(DoubleArray x) {
           return DoubleArray.of(
               2 * (x.get(0) - 1) + 400 * x.get(0) * (FunctionUtils.square(x.get(0)) - x.get(1)),
               200 * (x.get(1) - FunctionUtils.square(x.get(0))));
@@ -34,7 +34,7 @@ public abstract class MinimizationTestFunctions {
   public static final Function1D<DoubleArray, Double> UNCOUPLED_ROSENBROCK = new Function1D<DoubleArray, Double>() {
 
     @Override
-    public Double evaluate(final DoubleArray x) {
+    public Double apply(final DoubleArray x) {
       final int n = x.size();
       if (n % 2 != 0) {
         throw new IllegalArgumentException("vector length must be even");
@@ -50,7 +50,7 @@ public abstract class MinimizationTestFunctions {
   public static final Function1D<DoubleArray, Double> COUPLED_ROSENBROCK = new Function1D<DoubleArray, Double>() {
 
     @Override
-    public Double evaluate(DoubleArray x) {
+    public Double apply(DoubleArray x) {
       int n = x.size();
 
       double sum = 0;
@@ -64,7 +64,7 @@ public abstract class MinimizationTestFunctions {
   public static final Function1D<DoubleArray, DoubleArray> COUPLED_ROSENBROCK_GRAD = new Function1D<DoubleArray, DoubleArray>() {
 
     @Override
-    public DoubleArray evaluate(DoubleArray x) {
+    public DoubleArray apply(DoubleArray x) {
       int n = x.size();
 
       double[] res = new double[n];

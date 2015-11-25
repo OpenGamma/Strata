@@ -15,7 +15,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
 public class PositiveOrZero extends Function1D<DoubleArray, Boolean> {
 
   @Override
-  public Boolean evaluate(DoubleArray x) {
+  public Boolean apply(DoubleArray x) {
     double[] data = x.toArray();
     for (double value : data) {
       if (value < 0.0) {

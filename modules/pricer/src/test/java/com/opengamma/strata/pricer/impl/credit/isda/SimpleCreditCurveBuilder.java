@@ -161,7 +161,7 @@ public class SimpleCreditCurveBuilder extends IsdaCompliantCreditCurveBuilder {
     }
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       final IsdaCompliantCreditCurve cc = _creditCurve.withRate(x, _index);
       return _pricer.pv(_cds, _yieldCurve, cc, _spread) - _pointsUpfront;
     }

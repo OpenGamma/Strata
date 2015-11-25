@@ -32,7 +32,7 @@ public abstract class InterpolatorNDTestCase {
   protected static final Function1D<double[], Double> COS_EXP_FUNCTION = new Function1D<double[], Double>() {
 
     @Override
-    public Double evaluate(final double[] x) {
+    public Double apply(final double[] x) {
       return Math.sin(Math.PI * x[0] / 10.0) * Math.exp(-x[1] / 5.);
     }
   };
@@ -47,7 +47,7 @@ public abstract class InterpolatorNDTestCase {
       z = 10 * random.nextDouble();
       FLAT_DATA.add(Pair.of(new double[] {x, y, z }, VALUE));
       temp = new double[] {x, y };
-      COS_EXP_DATA.add(Pair.of(temp, COS_EXP_FUNCTION.evaluate(temp)));
+      COS_EXP_DATA.add(Pair.of(temp, COS_EXP_FUNCTION.apply(temp)));
     }
 
     SWAPTION_ATM_VOL_DATA.add(Pair.of(new double[] {1, 1 }, 0.7332));
@@ -82,7 +82,7 @@ public abstract class InterpolatorNDTestCase {
       x2 = 10 * getRandom().nextDouble();
       x = new double[] {x1, x2 };
       final double fit = interpolator.interpolate(dataBundle, x);
-      assertEquals(COS_EXP_FUNCTION.evaluate(x), fit, tol);
+      assertEquals(COS_EXP_FUNCTION.apply(x), fit, tol);
     }
 
     //check the input points are recovered exactly

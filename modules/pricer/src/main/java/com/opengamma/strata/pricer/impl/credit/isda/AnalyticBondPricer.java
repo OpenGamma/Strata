@@ -68,7 +68,7 @@ public class AnalyticBondPricer {
     ArgChecker.isTrue(bondPrice > 0.0, "Bond price must be positive");
     Function1D<Double, Double> priceFunc = getBondPriceForHazardRateFunction(bond, yieldCurve, cleanOrDirty);
 
-    double zeroRiskPrice = priceFunc.evaluate(0.);
+    double zeroRiskPrice = priceFunc.apply(0.);
     if (bondPrice == zeroRiskPrice) {
       return 0.0;
     }
@@ -84,8 +84,8 @@ public class AnalyticBondPricer {
 
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double lambda) {
-        return priceFunc.evaluate(lambda) - bondPrice;
+      public Double apply(Double lambda) {
+        return priceFunc.apply(lambda) - bondPrice;
       }
     };
 
@@ -106,7 +106,7 @@ public class AnalyticBondPricer {
    */
   public double bondPriceForHazardRate(
       BondAnalytic bond, IsdaCompliantYieldCurve yieldCurve, double hazardRate, CdsPriceType cleanOrDirty) {
-    return getBondPriceForHazardRateFunction(bond, yieldCurve, cleanOrDirty).evaluate(hazardRate);
+    return getBondPriceForHazardRateFunction(bond, yieldCurve, cleanOrDirty).apply(hazardRate);
   }
 
   //-------------------------------------------------------------------------
@@ -157,7 +157,7 @@ public class AnalyticBondPricer {
     return new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double lambda) {
+      public Double apply(Double lambda) {
 
         double riskyDisPayments = cleanOrDirty == CdsPriceType.CLEAN ? -bond.getAccruedInterest() : 0.0;
         for (int i = 0; i < nPayments; i++) {

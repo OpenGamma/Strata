@@ -40,12 +40,12 @@ public class StudentTTwoTailedCriticalValueCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
-    F.evaluate((Double) null);
+    F.apply((Double) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegative() {
-    F.evaluate(-4.);
+    F.apply(-4.);
   }
 
   @Test
@@ -55,7 +55,7 @@ public class StudentTTwoTailedCriticalValueCalculatorTest {
     for (int i = 0; i < 100; i++) {
       x = RANDOM.nextDouble();
       y = 0.5 * (1 + x);
-      assertEquals(y, T.getCDF(F.evaluate(x)), eps);
+      assertEquals(y, T.getCDF(F.apply(x)), eps);
     }
   }
 }

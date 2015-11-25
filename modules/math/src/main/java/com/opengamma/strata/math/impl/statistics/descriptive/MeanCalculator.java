@@ -21,7 +21,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
 public class MeanCalculator extends Function1D<double[], Double> {
 
   @Override
-  public Double evaluate(double[] x) {
+  public Double apply(double[] x) {
     ArgChecker.notEmpty(x, "x");
     if (x.length == 1) {
       return x[0];

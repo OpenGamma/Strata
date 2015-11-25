@@ -64,7 +64,7 @@ class CalibrationDerivative
 
   //-------------------------------------------------------------------------
   @Override
-  public DoubleMatrix evaluate(DoubleArray x) {
+  public DoubleMatrix apply(DoubleArray x) {
     // create child provider from matrix
     ImmutableRatesProvider provider = providerGenerator.generate(x);
     // calculate derivative for each trade using the child provider

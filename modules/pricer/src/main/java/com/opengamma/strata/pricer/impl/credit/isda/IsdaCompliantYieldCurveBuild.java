@@ -292,7 +292,7 @@ public class IsdaCompliantYieldCurveBuild {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         IsdaCompliantCurve tempCurve = curve.withRate(x, curveIndex);
         double sum = 1.0 - cachedValues; // Floating leg at par
         for (int i = index1; i < index2; i++) {
@@ -306,7 +306,7 @@ public class IsdaCompliantYieldCurveBuild {
     Function1D<Double, Double> grad = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         IsdaCompliantCurve tempCurve = curve.withRate(x, curveIndex);
         double sum = cachedSense;
         for (int i = index1; i < index2; i++) {
@@ -320,7 +320,7 @@ public class IsdaCompliantYieldCurveBuild {
     };
 
     double guess = curve.getZeroRateAtIndex(curveIndex);
-    if (guess == 0.0 && func.evaluate(guess) == 0.0) {
+    if (guess == 0.0 && func.apply(guess) == 0.0) {
       return curve;
     }
     double[] bracket = BRACKETER.getBracketedPoints(func, 0.8 * guess, 1.25 * guess, 0, Double.POSITIVE_INFINITY);

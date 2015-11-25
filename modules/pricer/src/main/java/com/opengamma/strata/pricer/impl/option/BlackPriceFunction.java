@@ -38,7 +38,7 @@ public final class BlackPriceFunction {
     boolean isCall = option.isCall();
     return new Function1D<BlackFunctionData, Double>() {
       @Override
-      public Double evaluate(BlackFunctionData data) {
+      public Double apply(BlackFunctionData data) {
         ArgChecker.notNull(data, "data");
         double forward = data.getForward();
         double sigma = data.getBlackVolatility();
@@ -218,7 +218,7 @@ public final class BlackPriceFunction {
     double t = option.getTimeToExpiry();
     return new Function1D<BlackFunctionData, Double>() {
       @Override
-      public Double evaluate(BlackFunctionData data) {
+      public Double apply(BlackFunctionData data) {
         ArgChecker.notNull(data, "data");
         double sigma = data.getBlackVolatility();
         double f = data.getForward();

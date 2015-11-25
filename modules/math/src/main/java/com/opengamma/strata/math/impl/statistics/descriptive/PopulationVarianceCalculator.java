@@ -24,11 +24,11 @@ public class PopulationVarianceCalculator extends Function1D<double[], Double> {
   private final Function1D<double[], Double> _variance = new SampleVarianceCalculator();
 
   @Override
-  public Double evaluate(double[] x) {
+  public Double apply(double[] x) {
     ArgChecker.notNull(x, "x");
     int n = x.length;
     ArgChecker.isTrue(n >= 2, "Need at least two points to calculate the population variance");
-    return _variance.evaluate(x) * (n - 1) / n;
+    return _variance.apply(x) * (n - 1) / n;
   }
 
 }

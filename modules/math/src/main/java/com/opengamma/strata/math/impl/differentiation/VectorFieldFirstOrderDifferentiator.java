@@ -85,15 +85,15 @@ public class VectorFieldFirstOrderDifferentiator
         return new Function1D<DoubleArray, DoubleMatrix>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleMatrix evaluate(DoubleArray x) {
+          public DoubleMatrix apply(DoubleArray x) {
             ArgChecker.notNull(x, "x");
-            DoubleArray y = function.evaluate(x);
+            DoubleArray y = function.apply(x);
             int n = x.size();
             int m = y.size();
             double[][] res = new double[m][n];
             for (int j = 0; j < n; j++) {
               double xj = x.get(j);
-              DoubleArray up = function.evaluate(x.with(j, xj + eps));
+              DoubleArray up = function.apply(x.with(j, xj + eps));
               for (int i = 0; i < m; i++) {
                 res[i][j] = (up.get(i) - y.get(i)) / eps;
               }
@@ -105,16 +105,16 @@ public class VectorFieldFirstOrderDifferentiator
         return new Function1D<DoubleArray, DoubleMatrix>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleMatrix evaluate(DoubleArray x) {
+          public DoubleMatrix apply(DoubleArray x) {
             ArgChecker.notNull(x, "x");
-            DoubleArray y = function.evaluate(x); // need this unused evaluation to get size of y
+            DoubleArray y = function.apply(x); // need this unused evaluation to get size of y
             int n = x.size();
             int m = y.size();
             double[][] res = new double[m][n];
             for (int j = 0; j < n; j++) {
               double xj = x.get(j);
-              DoubleArray up = function.evaluate(x.with(j, xj + eps));
-              DoubleArray down = function.evaluate(x.with(j, xj - eps));
+              DoubleArray up = function.apply(x.with(j, xj + eps));
+              DoubleArray down = function.apply(x.with(j, xj - eps));
               for (int i = 0; i < m; i++) {
                 res[i][j] = (up.get(i) - down.get(i)) / twoEps;
               }
@@ -126,15 +126,15 @@ public class VectorFieldFirstOrderDifferentiator
         return new Function1D<DoubleArray, DoubleMatrix>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleMatrix evaluate(DoubleArray x) {
+          public DoubleMatrix apply(DoubleArray x) {
             ArgChecker.notNull(x, "x");
-            DoubleArray y = function.evaluate(x);
+            DoubleArray y = function.apply(x);
             int n = x.size();
             int m = y.size();
             double[][] res = new double[m][n];
             for (int j = 0; j < n; j++) {
               double xj = x.get(j);
-              DoubleArray down = function.evaluate(x.with(j, xj - eps));
+              DoubleArray down = function.apply(x.with(j, xj - eps));
               for (int i = 0; i < m; i++) {
                 res[i][j] = (y.get(i) - down.get(i)) / eps;
               }
@@ -162,11 +162,11 @@ public class VectorFieldFirstOrderDifferentiator
     return new Function1D<DoubleArray, DoubleMatrix>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix evaluate(DoubleArray x) {
+      public DoubleMatrix apply(DoubleArray x) {
         ArgChecker.notNull(x, "x");
-        ArgChecker.isTrue(domain.evaluate(x), "point {} is not in the function domain", x.toString());
+        ArgChecker.isTrue(domain.apply(x), "point {} is not in the function domain", x.toString());
 
-        DoubleArray mid = function.evaluate(x); // need this unused evaluation to get size of y
+        DoubleArray mid = function.apply(x); // need this unused evaluation to get size of y
         int n = x.size();
         int m = mid.size();
         double[][] res = new double[m][n];
@@ -177,24 +177,24 @@ public class VectorFieldFirstOrderDifferentiator
           double xj = x.get(j);
           DoubleArray xPlusOneEps = x.with(j, xj + eps);
           DoubleArray xMinusOneEps = x.with(j, xj - eps);
-          if (!domain.evaluate(xPlusOneEps)) {
+          if (!domain.apply(xPlusOneEps)) {
             DoubleArray xMinusTwoEps = x.with(j, xj - twoEps);
-            if (!domain.evaluate(xMinusTwoEps)) {
+            if (!domain.apply(xMinusTwoEps)) {
               throw new MathException("cannot get derivative at point " + x.toString() + " in direction " + j);
             }
             y[2] = mid;
-            y[0] = function.evaluate(xMinusTwoEps);
-            y[1] = function.evaluate(xMinusOneEps);
+            y[0] = function.apply(xMinusTwoEps);
+            y[1] = function.apply(xMinusOneEps);
             w = wBack;
           } else {
-            if (!domain.evaluate(xMinusOneEps)) {
+            if (!domain.apply(xMinusOneEps)) {
               y[0] = mid;
-              y[1] = function.evaluate(xPlusOneEps);
-              y[2] = function.evaluate(x.with(j, xj + twoEps));
+              y[1] = function.apply(xPlusOneEps);
+              y[2] = function.apply(x.with(j, xj + twoEps));
               w = wFwd;
             } else {
-              y[2] = function.evaluate(xPlusOneEps);
-              y[0] = function.evaluate(xMinusOneEps);
+              y[2] = function.apply(xPlusOneEps);
+              y[0] = function.apply(xMinusOneEps);
               y[1] = mid;
               w = wCent;
             }

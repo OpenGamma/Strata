@@ -46,8 +46,8 @@ public class GenericImpliedVolatiltySolver {
     _priceFunc = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double sigma) {
-        return _priceAndVegaFunc.evaluate(sigma)[0];
+      public Double apply(Double sigma) {
+        return _priceAndVegaFunc.apply(sigma)[0];
       }
     };
   }
@@ -65,8 +65,8 @@ public class GenericImpliedVolatiltySolver {
     _priceAndVegaFunc = new Function1D<Double, double[]>() {
 
       @Override
-      public double[] evaluate(Double sigma) {
-        return new double[] {priceFunc.evaluate(sigma), vegaFunc.evaluate(sigma)};
+      public double[] apply(Double sigma) {
+        return new double[] {priceFunc.apply(sigma), vegaFunc.apply(sigma)};
       }
     };
   }
@@ -105,7 +105,7 @@ public class GenericImpliedVolatiltySolver {
     }
     double sigma = (lowerSigma + upperSigma) / 2.0;
 
-    double[] pnv = _priceAndVegaFunc.evaluate(sigma);
+    double[] pnv = _priceAndVegaFunc.apply(sigma);
 
     // This can happen for American options,
     // where low volatilities puts you in the early excise region which obviously has zero vega
@@ -131,7 +131,7 @@ public class GenericImpliedVolatiltySolver {
     int count = 0;
     while (Math.abs(actChange) > VOL_TOL) {
       sigma += actChange;
-      pnv = _priceAndVegaFunc.evaluate(sigma);
+      pnv = _priceAndVegaFunc.apply(sigma);
 
       if (pnv[1] == 0 || Double.isNaN(pnv[1])) {
         return solveByBisection(optionPrice, lowerSigma, upperSigma);
@@ -165,8 +165,8 @@ public class GenericImpliedVolatiltySolver {
     BracketRoot bracketer = new BracketRoot();
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double volatility) {
-        return _priceFunc.evaluate(volatility) / optionPrice - 1.0;
+      public Double apply(Double volatility) {
+        return _priceFunc.apply(volatility) / optionPrice - 1.0;
       }
     };
     return bracketer.getBracketedPoints(
@@ -182,8 +182,8 @@ public class GenericImpliedVolatiltySolver {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double volatility) {
-        double trialPrice = _priceFunc.evaluate(volatility);
+      public Double apply(Double volatility) {
+        double trialPrice = _priceFunc.apply(volatility);
         return trialPrice / optionPrice - 1.0;
       }
     };

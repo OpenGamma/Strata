@@ -52,8 +52,8 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
     return new Function1D<DoubleArray, DoubleMatrix[]>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix[] evaluate(DoubleArray x) {
-        DoubleMatrix[] gamma = hFunc.evaluate(x);
+      public DoubleMatrix[] apply(DoubleArray x) {
+        DoubleMatrix[] gamma = hFunc.apply(x);
         return reshapeTensor(gamma);
       }
     };
@@ -71,8 +71,8 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
     return new Function1D<DoubleArray, DoubleMatrix[]>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix[] evaluate(DoubleArray x) {
-        DoubleMatrix[] gamma = hFunc.evaluate(x);
+      public DoubleMatrix[] apply(DoubleArray x) {
+        DoubleMatrix[] gamma = hFunc.apply(x);
         return reshapeTensor(gamma);
       }
     };
@@ -118,9 +118,9 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
     return new Function1D<DoubleArray, DoubleMatrix[]>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix[] evaluate(DoubleArray x) {
+      public DoubleMatrix[] apply(DoubleArray x) {
         ArgChecker.notNull(x, "x");
-        DoubleArray y = function.evaluate(x);
+        DoubleArray y = function.apply(x);
         int n = x.size();
         int m = y.size();
         double[][][] res = new double[m][n][n];
@@ -129,17 +129,17 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
           double xj = x.get(j);
           DoubleArray xPlusOneEps = x.with(j, xj + eps);
           DoubleArray xMinusOneEps = x.with(j, xj - eps);
-          DoubleArray up = function.evaluate(x.with(j, xj + eps));
-          DoubleArray down = function.evaluate(xMinusOneEps);
+          DoubleArray up = function.apply(x.with(j, xj + eps));
+          DoubleArray down = function.apply(xMinusOneEps);
           for (int i = 0; i < m; i++) {
             res[i][j][j] = (up.get(i) + down.get(i) - 2 * y.get(i)) / epsSqr;
           }
           for (int k = j + 1; k < n; k++) {
             double xk = x.get(k);
-            DoubleArray downup = function.evaluate(xMinusOneEps.with(k, xk + eps));
-            DoubleArray downdown = function.evaluate(xMinusOneEps.with(k, xk - eps));
-            DoubleArray updown = function.evaluate(xPlusOneEps.with(k, xk - eps));
-            DoubleArray upup = function.evaluate(xPlusOneEps.with(k, xk + eps));
+            DoubleArray downup = function.apply(xMinusOneEps.with(k, xk + eps));
+            DoubleArray downdown = function.apply(xMinusOneEps.with(k, xk - eps));
+            DoubleArray updown = function.apply(xPlusOneEps.with(k, xk - eps));
+            DoubleArray upup = function.apply(xPlusOneEps.with(k, xk + eps));
             for (int i = 0; i < m; i++) {
               res[i][j][k] = (upup.get(i) + downdown.get(i) - updown.get(i) - downup.get(i)) / 4 / epsSqr;
             }
@@ -166,16 +166,16 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
     return new Function1D<DoubleArray, DoubleMatrix>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix evaluate(DoubleArray x) {
+      public DoubleMatrix apply(DoubleArray x) {
         ArgChecker.notNull(x, "x");
-        DoubleArray y = function.evaluate(x);
+        DoubleArray y = function.apply(x);
         int n = x.size();
         int m = y.size();
         double[][] res = new double[m][n];
         for (int j = 0; j < n; j++) {
           double xj = x.get(j);
-          DoubleArray up = function.evaluate(x.with(j, xj + eps));
-          DoubleArray down = function.evaluate(x.with(j, xj - eps));
+          DoubleArray up = function.apply(x.with(j, xj + eps));
+          DoubleArray down = function.apply(x.with(j, xj - eps));
           for (int i = 0; i < m; i++) {
             res[i][j] = (up.get(i) + down.get(i) - 2 * y.get(i)) / epsSqr;
           }

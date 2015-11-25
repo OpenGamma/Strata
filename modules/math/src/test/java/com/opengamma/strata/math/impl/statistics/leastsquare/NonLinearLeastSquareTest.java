@@ -38,7 +38,7 @@ public class NonLinearLeastSquareTest {
   private static final Function1D<Double, Double> TARGET = new Function1D<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return Math.sin(x);
     }
   };
@@ -47,7 +47,7 @@ public class NonLinearLeastSquareTest {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public DoubleArray evaluate(final DoubleArray a) {
+    public DoubleArray apply(final DoubleArray a) {
       ArgChecker.isTrue(a.size() == 4, "four parameters");
       final int n = X.size();
       final double[] res = new double[n];
@@ -97,7 +97,7 @@ public class NonLinearLeastSquareTest {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public DoubleMatrix evaluate(final DoubleArray a) {
+    public DoubleMatrix apply(final DoubleArray a) {
       final int n = X.size();
       final int m = a.size();
       final double[][] res = new double[n][m];
@@ -114,7 +114,7 @@ public class NonLinearLeastSquareTest {
 
   static {
     X = DoubleArray.of(20, i -> -Math.PI + i * Math.PI / 10);
-    Y = DoubleArray.of(20, i -> TARGET.evaluate(X.get(i)));
+    Y = DoubleArray.of(20, i -> TARGET.apply(X.get(i)));
     SIGMA = DoubleArray.of(20, i -> 0.1 * Math.exp(Math.abs(X.get(i)) / Math.PI));
     LS = new NonLinearLeastSquare();
   }
@@ -182,7 +182,7 @@ public class NonLinearLeastSquareTest {
     final DoubleArray delta = (DoubleArray) ma.subtract(res.getFitParameters(), trueValues);
 
     final LUDecompositionCommons decmp = new LUDecompositionCommons();
-    final LUDecompositionResult decmpRes = decmp.evaluate(res.getCovariance());
+    final LUDecompositionResult decmpRes = decmp.apply(res.getCovariance());
     final DoubleMatrix invCovariance = decmpRes.solve(DoubleMatrix.identity(4));
 
     double z = ma.getInnerProduct(delta, ma.multiply(invCovariance, delta));

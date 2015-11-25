@@ -216,8 +216,8 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     Function1D<DoubleArray, DoubleMatrix> jacFunc = _fitter.getModelJacobianFunction();
     VectorFieldFirstOrderDifferentiator differ = new VectorFieldFirstOrderDifferentiator();
     Function1D<DoubleArray, DoubleMatrix> jacFuncFD = differ.differentiate(func);
-    DoubleMatrix jac = jacFunc.evaluate(x);
-    DoubleMatrix jacFD = jacFuncFD.evaluate(x);
+    DoubleMatrix jac = jacFunc.apply(x);
+    DoubleMatrix jacFD = jacFuncFD.apply(x);
     int rows = jacFD.rowCount();
     int cols = jacFD.columnCount();
 

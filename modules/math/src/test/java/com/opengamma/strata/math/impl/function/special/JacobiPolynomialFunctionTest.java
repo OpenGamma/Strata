@@ -21,7 +21,7 @@ public class JacobiPolynomialFunctionTest {
   private static final DoubleFunction1D P0 = new DoubleFunction1D() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 1.;
     }
 
@@ -29,7 +29,7 @@ public class JacobiPolynomialFunctionTest {
   private static final DoubleFunction1D P1 = new DoubleFunction1D() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 0.5 * (2 * (ALPHA + 1) + (ALPHA + BETA + 2) * (x - 1));
     }
 
@@ -37,7 +37,7 @@ public class JacobiPolynomialFunctionTest {
   private static final DoubleFunction1D P2 = new DoubleFunction1D() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 0.125 * (4 * (ALPHA + 1) * (ALPHA + 2) + 4 * (ALPHA + BETA + 3) * (ALPHA + 2) * (x - 1) + (ALPHA + BETA + 3) * (ALPHA + BETA + 4) * (x - 1) * (x - 1));
     }
 
@@ -66,11 +66,11 @@ public class JacobiPolynomialFunctionTest {
     DoubleFunction1D[] p = JACOBI.getPolynomials(0, ALPHA, BETA);
     assertEquals(p.length, 1);
     final double x = 1.23;
-    assertEquals(p[0].evaluate(x), 1, EPS);
+    assertEquals(p[0].apply(x), 1, EPS);
     for (int i = 0; i <= 2; i++) {
       p = JACOBI.getPolynomials(i, ALPHA, BETA);
       for (int j = 0; j <= i; j++) {
-        assertEquals(P[j].evaluate(x), p[j].evaluate(x), EPS);
+        assertEquals(P[j].apply(x), p[j].apply(x), EPS);
       }
     }
   }

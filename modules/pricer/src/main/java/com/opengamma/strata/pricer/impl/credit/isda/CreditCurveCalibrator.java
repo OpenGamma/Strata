@@ -311,7 +311,7 @@ public class CreditCurveCalibrator {
           }
           case Fail: {
             double minValue = i == 0 ? 0.0 : _creditCurve.getRTAtIndex(i - 1) / _creditCurve.getTimeAtIndex(i);
-            if (i > 0 && func.evaluate(minValue) > 0.0) { //can never fail on the first spread
+            if (i > 0 && func.apply(minValue) > 0.0) { //can never fail on the first spread
               StringBuilder msg = new StringBuilder();
               if (puf[i] == 0.0) {
                 msg.append("The par spread of " + premiums[i] + " at index " + i);
@@ -328,7 +328,7 @@ public class CreditCurveCalibrator {
           }
           case ZeroHazardRate: {
             double minValue = i == 0 ? 0.0 : _creditCurve.getRTAtIndex(i - 1) / _creditCurve.getTimeAtIndex(i);
-            if (i > 0 && func.evaluate(minValue) > 0.0) { //can never fail on the first spread
+            if (i > 0 && func.apply(minValue) > 0.0) { //can never fail on the first spread
               // this is setting the forward hazard rate for this period to zero, rather than letting it go negative
               updateAll(minValue, i);
             } else {
@@ -351,7 +351,7 @@ public class CreditCurveCalibrator {
       double lgd = _lgd[index];
       return new Function1D<Double, Double>() {
         @Override
-        public Double evaluate(Double h) {
+        public Double apply(Double h) {
           update(h, index);
           double protLegPV = 0.0;
           for (int i = 0; i <= index; i++) {
@@ -374,7 +374,7 @@ public class CreditCurveCalibrator {
       double lgd = _lgd[index];
       return new Function1D<Double, Double>() {
         @Override
-        public Double evaluate(Double x) {
+        public Double apply(Double x) {
           //do not call update - all ready called for getting the value 
 
           double protLegPVSense = _protLegElmtPV[index][1];

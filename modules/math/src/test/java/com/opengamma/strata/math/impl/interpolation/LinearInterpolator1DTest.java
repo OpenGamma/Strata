@@ -24,7 +24,7 @@ public class LinearInterpolator1DTest {
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 2 * x - 7;
     }
   };
@@ -66,8 +66,8 @@ public class LinearInterpolator1DTest {
     double x;
     for (int i = 0; i < 10; i++) {
       x = Double.valueOf(i);
-      data.put(x, FUNCTION.evaluate(x));
+      data.put(x, FUNCTION.apply(x));
     }
-    assertEquals(INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(data), 3.4), FUNCTION.evaluate(3.4), 1e-15);
+    assertEquals(INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(data), 3.4), FUNCTION.apply(3.4), 1e-15);
   }
 }

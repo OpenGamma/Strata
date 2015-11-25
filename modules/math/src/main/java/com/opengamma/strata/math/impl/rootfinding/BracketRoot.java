@@ -36,8 +36,8 @@ public class BracketRoot {
     double x2 = xUpper;
     double f1 = 0;
     double f2 = 0;
-    f1 = f.evaluate(x1);
-    f2 = f.evaluate(x2);
+    f1 = f.apply(x1);
+    f2 = f.apply(x2);
     if (Double.isNaN(f1)) {
       throw new MathException("Failed to bracket root: function invalid at x = " + x1 + " f(x) = " + f1);
     }
@@ -51,13 +51,13 @@ public class BracketRoot {
       }
       if (Math.abs(f1) < Math.abs(f2)) {
         x1 += RATIO * (x1 - x2);
-        f1 = f.evaluate(x1);
+        f1 = f.apply(x1);
         if (Double.isNaN(f1)) {
           throw new MathException("Failed to bracket root: function invalid at x = " + x1 + " f(x) = " + f1);
         }
       } else {
         x2 += RATIO * (x2 - x1);
-        f2 = f.evaluate(x2);
+        f2 = f.apply(x2);
         if (Double.isNaN(f2)) {
           throw new MathException("Failed to bracket root: function invalid at x = " + x2 + " f(x) = " + f2);
         }
@@ -76,8 +76,8 @@ public class BracketRoot {
     double f2 = 0;
     boolean lowerLimitReached = false;
     boolean upperLimitReached = false;
-    f1 = f.evaluate(x1);
-    f2 = f.evaluate(x2);
+    f1 = f.apply(x1);
+    f2 = f.apply(x2);
     if (Double.isNaN(f1)) {
       throw new MathException("Failed to bracket root: function invalid at x = " + x1 + " f(x) = " + f1);
     }
@@ -97,7 +97,7 @@ public class BracketRoot {
           x1 = minX;
           lowerLimitReached = true;
         }
-        f1 = f.evaluate(x1);
+        f1 = f.apply(x1);
         if (Double.isNaN(f1)) {
           throw new MathException("Failed to bracket root: function invalid at x = " + x1 + " f(x) = " + f1);
         }
@@ -107,7 +107,7 @@ public class BracketRoot {
           x2 = maxX;
           upperLimitReached = true;
         }
-        f2 = f.evaluate(x2);
+        f2 = f.apply(x2);
         if (Double.isNaN(f2)) {
           throw new MathException("Failed to bracket root: function invalid at x = " + x2 + " f(x) = " + f2);
         }

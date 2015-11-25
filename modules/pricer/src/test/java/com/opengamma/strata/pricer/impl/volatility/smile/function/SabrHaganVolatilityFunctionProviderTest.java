@@ -568,11 +568,11 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
     if (fdType != null) {
       switch (fdType) {
         case FORWARD:
-          return (-1.5 * funcA.evaluate(dataA) + 2.0 * funcB.evaluate(dataB) - 0.5 * funcC.evaluate(dataC)) / delta;
+          return (-1.5 * funcA.apply(dataA) + 2.0 * funcB.apply(dataB) - 0.5 * funcC.apply(dataC)) / delta;
         case BACKWARD:
-          return (0.5 * funcA.evaluate(dataA) - 2.0 * funcB.evaluate(dataB) + 1.5 * funcC.evaluate(dataC)) / delta;
+          return (0.5 * funcA.apply(dataA) - 2.0 * funcB.apply(dataB) + 1.5 * funcC.apply(dataC)) / delta;
         case CENTRAL:
-          return (funcC.evaluate(dataC) - funcA.evaluate(dataA)) / 2.0 / delta;
+          return (funcC.apply(dataC) - funcA.apply(dataA)) / 2.0 / delta;
         default:
           throw new MathException("enum not found");
       }
@@ -583,7 +583,7 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
   private Function1D<SabrFormulaData, Double> getVolatilityFunction(EuropeanVanillaOption option, double forward) {
     return new Function1D<SabrFormulaData, Double>() {
       @Override
-      public Double evaluate(SabrFormulaData data) {
+      public Double apply(SabrFormulaData data) {
         ArgChecker.notNull(data, "data");
         return FUNCTION.getVolatility(forward, option.getStrike(), option.getTimeToExpiry(), data);
       }

@@ -141,11 +141,11 @@ public class BasisFunctionGenerator {
 
     return new Function1D<double[], Double>() {
       @Override
-      public Double evaluate(double[] x) {
+      public Double apply(double[] x) {
         double product = 1.0;
         ArgChecker.isTrue(dim == x.length, "length of x {} was not equal to dimension {}", x.length, dim);
         for (int i = 0; i < dim; i++) {
-          product *= funcs.get(i).evaluate(x[i]);
+          product *= funcs.get(i).apply(x[i]);
         }
         return product;
       }
@@ -178,7 +178,7 @@ public class BasisFunctionGenerator {
         private final double _h = knots[index + 1];
 
         @Override
-        public Double evaluate(final Double x) {
+        public Double apply(final Double x) {
           return (x >= _l && x < _h) ? 1.0 : 0.0;
         }
       };
@@ -193,7 +193,7 @@ public class BasisFunctionGenerator {
         private final double _inv2 = 1.0 / (knots[index + 2] - knots[index + 1]);
 
         @Override
-        public Double evaluate(final Double x) {
+        public Double apply(final Double x) {
           return (x <= _l || x >= _h) ? 0.0 : (x <= _m ? (x - _l) * _inv1 : (_h - x) * _inv2);
         }
       };
@@ -210,8 +210,8 @@ public class BasisFunctionGenerator {
       private final double _xb = knots[index + degree + 1];
 
       @Override
-      public Double evaluate(final Double x) {
-        return (x - _xa) * _inv1 * fa.evaluate(x) + (_xb - x) * _inv2 * fb.evaluate(x);
+      public Double apply(final Double x) {
+        return (x - _xa) * _inv1 * fa.apply(x) + (_xb - x) * _inv2 * fb.apply(x);
       }
     };
 

@@ -31,7 +31,7 @@ public class DoubleQuadraticInterpolator1DNodeSensitivityCalculatorTest {
     private static final double d = 0.05;
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return (a + b * x) * Math.exp(-c * x) + d;
     }
 
@@ -42,7 +42,7 @@ public class DoubleQuadraticInterpolator1DNodeSensitivityCalculatorTest {
     final int n = t.length;
     final double[] r = new double[n];
     for (int i = 0; i < n; i++) {
-      r[i] = FUNCTION.evaluate(t[i]);
+      r[i] = FUNCTION.apply(t[i]);
     }
     DATA = INTERPOLATOR.getDataBundleFromSortedArrays(t, r);
 

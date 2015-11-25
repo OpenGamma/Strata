@@ -62,8 +62,8 @@ public class GaussHermiteQuadratureIntegrator1D extends GaussianQuadratureIntegr
     if (lower.equals(LIMITS[0]) && upper.equals(LIMITS[1])) {
       return new Function1D<Double, Double>() {
         @Override
-        public Double evaluate(Double x) {
-          return Math.exp(x * x) * function.evaluate(x);
+        public Double apply(Double x) {
+          return Math.exp(x * x) * function.apply(x);
         }
       };
     }

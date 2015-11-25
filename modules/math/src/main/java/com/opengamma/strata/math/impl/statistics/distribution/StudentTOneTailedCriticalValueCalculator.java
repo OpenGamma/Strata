@@ -30,7 +30,7 @@ public class StudentTOneTailedCriticalValueCalculator extends Function1D<Double,
   }
 
   @Override
-  public Double evaluate(Double x) {
+  public Double apply(Double x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.notNegative(x, "x");
     if (DoubleMath.fuzzyEquals(x, 0.5, 1e-14)) {

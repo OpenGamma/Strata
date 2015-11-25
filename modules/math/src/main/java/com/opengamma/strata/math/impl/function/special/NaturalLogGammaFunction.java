@@ -20,7 +20,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
 public class NaturalLogGammaFunction extends Function1D<Double, Double> {
 
   @Override
-  public Double evaluate(Double x) {
+  public Double apply(Double x) {
     ArgChecker.isTrue(x > 0, "x must be greater than zero");
     return Gamma.logGamma(x);
   }

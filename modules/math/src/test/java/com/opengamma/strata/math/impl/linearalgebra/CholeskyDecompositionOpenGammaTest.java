@@ -37,14 +37,14 @@ public class CholeskyDecompositionOpenGammaTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullObjectMatrix() {
-    CDOG.evaluate((DoubleMatrix) null);
+    CDOG.apply((DoubleMatrix) null);
   }
 
   /**
    * Tests A = L L^T.
    */
   public void recoverOrginal() {
-    final CholeskyDecompositionResult result = CDOG.evaluate(A3);
+    final CholeskyDecompositionResult result = CDOG.apply(A3);
     final DoubleMatrix a = (DoubleMatrix) ALGEBRA.multiply(result.getL(), result.getLT());
     checkEquals(A3, a);
   }
@@ -53,7 +53,7 @@ public class CholeskyDecompositionOpenGammaTest {
    * Tests solve Ax = b from A and b.
    */
   public void solveVector() {
-    final CholeskyDecompositionResult result = CDOG.evaluate(A5);
+    final CholeskyDecompositionResult result = CDOG.apply(A5);
     double[] b = new double[] {1.0, 2.0, 3.0, 4.0, -1.0 };
     double[] x = result.solve(b);
     DoubleArray ax = (DoubleArray) ALGEBRA.multiply(A5, DoubleArray.copyOf(x));
@@ -64,7 +64,7 @@ public class CholeskyDecompositionOpenGammaTest {
    * Tests solve AX = B from A and B.
    */
   public void solveMatrix() {
-    final CholeskyDecompositionResult result = CDOG.evaluate(A5);
+    final CholeskyDecompositionResult result = CDOG.apply(A5);
     double[][] b = new double[][] { {1.0, 2.0 }, {2.0, 3.0 }, {3.0, 4.0 }, {4.0, -2.0 }, {-1.0, -1.0 } };
     DoubleMatrix x = result.solve(DoubleMatrix.copyOf(b));
     DoubleMatrix ax = (DoubleMatrix) ALGEBRA.multiply(A5, x);
@@ -76,8 +76,8 @@ public class CholeskyDecompositionOpenGammaTest {
    * Compare results with Common decomposition
    */
   public void compareCommon() {
-    final CholeskyDecompositionResult resultOG = CDOG.evaluate(A3);
-    final CholeskyDecompositionResult resultC = CDC.evaluate(A3);
+    final CholeskyDecompositionResult resultOG = CDOG.apply(A3);
+    final CholeskyDecompositionResult resultC = CDC.apply(A3);
     checkEquals(resultC.getL(), resultOG.getL());
     checkEquals(ALGEBRA.getTranspose(resultC.getL()), resultOG.getLT());
     assertEquals("Determinant", resultC.getDeterminant(), resultOG.getDeterminant(), 1.0E-10);

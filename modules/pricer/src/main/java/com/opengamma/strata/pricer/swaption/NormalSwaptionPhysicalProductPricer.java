@@ -106,7 +106,7 @@ public class NormalSwaptionPhysicalProductPricer {
     EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiry, isCall ? PutCall.CALL : PutCall.PUT);
     // option required to pass the strike (in case the swap has non-constant coupon).
     Function1D<NormalFunctionData, Double> func = NORMAL.getPriceFunction(option);
-    double pv = func.evaluate(normalData) * ((expanded.getLongShort() == LongShort.LONG) ? 1.0 : -1.0);
+    double pv = func.apply(normalData) * ((expanded.getLongShort() == LongShort.LONG) ? 1.0 : -1.0);
     return CurrencyAmount.of(fixedLeg.getCurrency(), pv);
   }
 

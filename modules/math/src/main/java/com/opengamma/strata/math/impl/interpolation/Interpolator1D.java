@@ -40,7 +40,7 @@ public abstract class Interpolator1D
     double range = data.lastKey() - data.firstKey();
     Function1D<Double, Boolean> domain = new Function1D<Double, Boolean>() {
       @Override
-      public Boolean evaluate(Double x) {
+      public Boolean apply(Double x) {
         return x >= data.firstKey() && x <= data.lastKey();
       }
     };
@@ -48,7 +48,7 @@ public abstract class Interpolator1D
     ScalarFirstOrderDifferentiator diff = new ScalarFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, range * EPS);
     Function1D<Double, Double> func = getFunction(data);
     Function1D<Double, Double> gradFunc = diff.differentiate(func, domain);
-    return gradFunc.evaluate(value);
+    return gradFunc.apply(value);
   }
 
   /**
@@ -59,7 +59,7 @@ public abstract class Interpolator1D
   public Function1D<Double, Double> getFunction(final Interpolator1DDataBundle data) {
     return new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         return interpolate(data, x);
       }
     };
@@ -79,7 +79,7 @@ public abstract class Interpolator1D
      */
     return new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         return firstDerivative(data, x);
       }
     };

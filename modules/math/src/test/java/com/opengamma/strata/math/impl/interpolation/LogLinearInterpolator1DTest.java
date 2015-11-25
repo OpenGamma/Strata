@@ -25,7 +25,7 @@ public class LogLinearInterpolator1DTest {
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 2 * x + 7;
     }
   };
@@ -39,8 +39,8 @@ public class LogLinearInterpolator1DTest {
     double x;
     for (int i = 0; i < 10; i++) {
       x = Double.valueOf(i);
-      data.put(x, FUNCTION.evaluate(x));
-      transformedData.put(x, Math.log(FUNCTION.evaluate(x)));
+      data.put(x, FUNCTION.apply(x));
+      transformedData.put(x, Math.log(FUNCTION.apply(x)));
     }
     MODEL = LINEAR.getDataBundle(data);
     TRANSFORMED_MODEL = INTERPOLATOR.getDataBundle(transformedData);

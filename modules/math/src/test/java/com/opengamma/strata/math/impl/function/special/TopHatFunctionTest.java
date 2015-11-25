@@ -28,23 +28,23 @@ public class TopHatFunctionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
-    F.evaluate((Double) null);
+    F.apply((Double) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testX1() {
-    F.evaluate(X1);
+    F.apply(X1);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testX2() {
-    F.evaluate(X2);
+    F.apply(X2);
   }
 
   @Test
   public void test() {
-    assertEquals(F.evaluate(X1 - 1e-15), 0, 0);
-    assertEquals(F.evaluate(X2 + 1e-15), 0, 0);
-    assertEquals(F.evaluate((X1 + X2) / 2), Y, 0);
+    assertEquals(F.apply(X1 - 1e-15), 0, 0);
+    assertEquals(F.apply(X2 + 1e-15), 0, 0);
+    assertEquals(F.apply((X1 + X2) / 2), Y, 0);
   }
 }

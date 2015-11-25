@@ -193,7 +193,7 @@ public class GeneralizedLeastSquare {
 
     for (i = 0; i < m; i++) {
       for (j = 0; j < n; j++) {
-        f[i][j] = basisFunctions.get(i).evaluate(x.get(j));
+        f[i][j] = basisFunctions.get(i).apply(x.get(j));
       }
     }
 
@@ -215,7 +215,7 @@ public class GeneralizedLeastSquare {
       ma = (DoubleMatrix) _algebra.add(ma, _algebra.scale(d, lambda));
     }
 
-    DecompositionResult decmp = _decomposition.evaluate(ma);
+    DecompositionResult decmp = _decomposition.apply(ma);
     DoubleArray w = decmp.solve(mb);
     DoubleMatrix covar = decmp.solve(DoubleMatrix.identity(m));
 
@@ -255,7 +255,7 @@ public class GeneralizedLeastSquare {
 
     for (i = 0; i < m; i++) {
       for (j = 0; j < n; j++) {
-        f[i][j] = basisFunctions.get(i).evaluate(x.get(j));
+        f[i][j] = basisFunctions.get(i).apply(x.get(j));
       }
     }
 
@@ -279,7 +279,7 @@ public class GeneralizedLeastSquare {
       }
     }
 
-    DecompositionResult decmp = _decomposition.evaluate(ma);
+    DecompositionResult decmp = _decomposition.apply(ma);
     DoubleArray w = decmp.solve(mb);
     DoubleMatrix covar = decmp.solve(DoubleMatrix.identity(m));
 

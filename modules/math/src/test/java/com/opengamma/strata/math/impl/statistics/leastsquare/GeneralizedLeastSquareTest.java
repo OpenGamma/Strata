@@ -66,7 +66,7 @@ public class GeneralizedLeastSquareTest {
       final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
         @Override
-        public Double evaluate(final Double x) {
+        public Double apply(final Double x) {
           return Math.sin((2 * k + 1) * x);
         }
       };
@@ -79,7 +79,7 @@ public class GeneralizedLeastSquareTest {
       final int k = i;
       final Function1D<DoubleArray, Double> func = new Function1D<DoubleArray, Double>() {
         @Override
-        public Double evaluate(final DoubleArray x) {
+        public Double apply(final DoubleArray x) {
           ArgChecker.isTrue(x.size() == 2);
           return Math.sin((2 * k + 1) * x.get(0)) * Math.cos((2 * k + 1) * x.get(1));
         }
@@ -91,7 +91,7 @@ public class GeneralizedLeastSquareTest {
     SIN_EXP_FUNCTION = new Function1D<double[], Double>() {
 
       @Override
-      public Double evaluate(final double[] x) {
+      public Double apply(final double[] x) {
         return Math.sin(Math.PI * x[0] / 10.0) * Math.exp(-x[1] / 5.);
       }
     };
@@ -106,12 +106,12 @@ public class GeneralizedLeastSquareTest {
     SIGMA_TRIG = new ArrayList<>();
     for (int i = 0; i < n; i++) {
       X[i] = i / 5.0;
-      Y[i] = TEST_FUNCTION.evaluate(X[i]);
+      Y[i] = TEST_FUNCTION.apply(X[i]);
       final double[] temp = new double[2];
       temp[0] = 2.0 * RANDOM.nextDouble();
       temp[1] = 2.0 * RANDOM.nextDouble();
       X_TRIG.add(DoubleArray.copyOf(temp));
-      Y_TRIG.add(VECTOR_TEST_FUNCTION.evaluate(X_TRIG.get(i)));
+      Y_TRIG.add(VECTOR_TEST_FUNCTION.apply(X_TRIG.get(i)));
       SIGMA[i] = 0.01;
       SIGMA_TRIG.add(0.01);
     }
@@ -124,7 +124,7 @@ public class GeneralizedLeastSquareTest {
       temp[0] = 10.0 * RANDOM.nextDouble();
       temp[1] = 10.0 * RANDOM.nextDouble();
       X_SIN_EXP.add(temp);
-      Y_SIN_EXP.add(SIN_EXP_FUNCTION.evaluate(X_SIN_EXP.get(i)));
+      Y_SIN_EXP.add(SIN_EXP_FUNCTION.apply(X_SIN_EXP.get(i)));
       SIGMA_COS_EXP.add(0.01);
     }
 
@@ -173,7 +173,7 @@ public class GeneralizedLeastSquareTest {
     final Function1D<Double, Double> spline =
         new BasisFunctionAggregation<>(BASIS_FUNCTIONS, results.getFitParameters().toArray());
     assertEquals(0.0, results.getChiSq(), 1e-12);
-    assertEquals(-0.023605293, spline.evaluate(0.5), 1e-8);
+    assertEquals(-0.023605293, spline.apply(0.5), 1e-8);
 
     if (PRINT) {
       System.out.println("Chi^2:\t" + results.getChiSq());
@@ -181,7 +181,7 @@ public class GeneralizedLeastSquareTest {
 
       for (int i = 0; i < 101; i++) {
         final double x = 0 + i * 2.0 / 100.0;
-        System.out.println(x + "\t" + spline.evaluate(x));
+        System.out.println(x + "\t" + spline.apply(x));
       }
       for (int i = 0; i < X.length; i++) {
         System.out.println(X[i] + "\t" + Y[i]);
@@ -196,7 +196,7 @@ public class GeneralizedLeastSquareTest {
     final Function1D<double[], Double> spline =
         new BasisFunctionAggregation<>(BASIS_FUNCTIONS_2D, results.getFitParameters().toArray());
     assertEquals(0.0, results.getChiSq(), 1e-16);
-    assertEquals(0.05161579, spline.evaluate(new double[] {4, 3 }), 1e-8);
+    assertEquals(0.05161579, spline.apply(new double[] {4, 3 }), 1e-8);
 
     /*
      * Print out function for debugging
@@ -217,7 +217,7 @@ public class GeneralizedLeastSquareTest {
         System.out.print(x[0]);
         for (int j = 0; j < 101; j++) {
           x[1] = -0.0 + j * 10.0 / 100.0;
-          final double y = spline.evaluate(x);
+          final double y = spline.apply(x);
           System.out.print("\t" + y);
         }
         System.out.print("\n");
@@ -231,7 +231,7 @@ public class GeneralizedLeastSquareTest {
     final GeneralizedLeastSquareResults<Double> results = gls.solve(X, Y, SIGMA, BASIS_FUNCTIONS, 1000.0, 2);
     final Function1D<Double, Double> spline = results.getFunction();
     assertEquals(2225.7, results.getChiSq(), 1e-1);
-    assertEquals(-0.758963811327287, spline.evaluate(1.1), 1e-8);
+    assertEquals(-0.758963811327287, spline.apply(1.1), 1e-8);
 
     /*
      * Print out function for debugging
@@ -242,7 +242,7 @@ public class GeneralizedLeastSquareTest {
 
       for (int i = 0; i < 101; i++) {
         final double x = 0 + i * 2.0 / 100.0;
-        System.out.println(x + "\t" + spline.evaluate(x));
+        System.out.println(x + "\t" + spline.apply(x));
       }
       for (int i = 0; i < X.length; i++) {
         System.out.println(X[i] + "\t" + Y[i]);
@@ -304,9 +304,9 @@ public class GeneralizedLeastSquareTest {
       for (int i = 0; i < 101; i++) {
         final double logX = -5 + 8 * i / 100.;
         final double x = Math.exp(logX);
-        System.out.println(x + "\t" + +logX + "\t" + spline.evaluate(x) + "\t" + interpolator.interpolate(db, x) + "\t"
-            + splineLog.evaluate(logX) + "\t" + interpolator.interpolate(dbLog, logX) + "\t" + splineVar.evaluate(x) + "\t"
-            + interpolator.interpolate(dbVar, x) + "\t" + splineVarLog.evaluate(logX) + "\t" + interpolator.interpolate(dbVarLog, logX));
+        System.out.println(x + "\t" + +logX + "\t" + spline.apply(x) + "\t" + interpolator.interpolate(db, x) + "\t"
+            + splineLog.apply(logX) + "\t" + interpolator.interpolate(dbLog, logX) + "\t" + splineVar.apply(x) + "\t"
+            + interpolator.interpolate(dbVar, x) + "\t" + splineVarLog.apply(logX) + "\t" + interpolator.interpolate(dbVarLog, logX));
       }
       for (int i = 0; i < n; i++) {
         System.out.println(lnX[i] + "\t" + yData[i]);
@@ -324,7 +324,7 @@ public class GeneralizedLeastSquareTest {
 
     assertEquals(0.0, results.getChiSq(), 1e-9);
     final Function1D<double[], Double> spline = results.getFunction();
-    assertEquals(0.5333876489112092, spline.evaluate(new double[] {4, 3 }), 1e-8);
+    assertEquals(0.5333876489112092, spline.apply(new double[] {4, 3 }), 1e-8);
 
     /*
      * Print out function for debugging
@@ -345,7 +345,7 @@ public class GeneralizedLeastSquareTest {
         System.out.print(x[0]);
         for (int j = 0; j < 101; j++) {
           x[1] = -0.0 + j * 10.0 / 100.0;
-          final double y = spline.evaluate(x);
+          final double y = spline.apply(x);
           System.out.print("\t" + y);
         }
         System.out.print("\n");

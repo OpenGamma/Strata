@@ -252,7 +252,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
   public double kappa(DoubleArray discountedCashFlow, DoubleArray alpha) {
     final Function1D<Double, Double> swapValue = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         double error = 0.0;
         for (int loopcf = 0; loopcf < alpha.size(); loopcf++) {
           error += discountedCashFlow.get(loopcf) *
@@ -322,7 +322,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
   public double lambda(DoubleArray discountedCashFlow, DoubleArray alpha2, DoubleArray hwH) {
     final Function1D<Double, Double> swapValue = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         double value = 0.0;
         for (int loopcf = 0; loopcf < alpha2.size(); loopcf++) {
           value += discountedCashFlow.get(loopcf) * Math.exp(-0.5 * alpha2.get(loopcf) - hwH.get(loopcf) * x);

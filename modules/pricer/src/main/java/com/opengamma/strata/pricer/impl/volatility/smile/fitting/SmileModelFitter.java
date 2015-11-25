@@ -38,7 +38,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare(DecompositionFactory.SV_COMMONS, MA, 1e-12);
   private static final Function1D<DoubleArray, Boolean> UNCONSTRAINED = new Function1D<DoubleArray, Boolean>() {
     @Override
-    public Boolean evaluate(DoubleArray x) {
+    public Boolean apply(DoubleArray x) {
       return true;
     }
   };
@@ -81,7 +81,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
     _model = model;
     _volFunc = new Function1D<DoubleArray, DoubleArray>() {
       @Override
-      public DoubleArray evaluate(DoubleArray x) {
+      public DoubleArray apply(DoubleArray x) {
         final T data = toSmileModelData(x);
         double[] res = new double[n];
         for (int i = 0; i < n; ++i) {
@@ -92,7 +92,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
     };
     _volAdjointFunc = new Function1D<DoubleArray, DoubleMatrix>() {
       @Override
-      public DoubleMatrix evaluate(DoubleArray x) {
+      public DoubleMatrix apply(DoubleArray x) {
         final T data = toSmileModelData(x);
         double[][] resAdj = new double[n][];
         for (int i = 0; i < n; ++i) {

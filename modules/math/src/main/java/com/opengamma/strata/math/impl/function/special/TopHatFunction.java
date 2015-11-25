@@ -53,7 +53,7 @@ public class TopHatFunction extends Function1D<Double, Double> {
    * @return The value of the function
    */
   @Override
-  public Double evaluate(Double x) {
+  public Double apply(Double x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(x != _x1, "Function is undefined for x = x1");
     ArgChecker.isTrue(x != _x2, "Function is undefined for x = x2");

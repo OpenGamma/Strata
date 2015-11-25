@@ -39,7 +39,7 @@ public class ParameterizedCurveVectorFunction extends VectorFunction {
     return DoubleMatrix.ofArrayObjects(
         getLengthOfRange(),
         getLengthOfDomain(),
-        i -> sense.evaluate(_samplePoints[i]));
+        i -> sense.apply(_samplePoints[i]));
   }
 
   @Override
@@ -59,9 +59,9 @@ public class ParameterizedCurveVectorFunction extends VectorFunction {
    * @return the curve value at the sample points 
    */
   @Override
-  public DoubleArray evaluate(DoubleArray curveParameters) {
+  public DoubleArray apply(DoubleArray curveParameters) {
     Function1D<Double, Double> func = _curve.asFunctionOfArguments(curveParameters);
-    return DoubleArray.of(_samplePoints.length, i -> func.evaluate(_samplePoints[i]));
+    return DoubleArray.of(_samplePoints.length, i -> func.apply(_samplePoints[i]));
   }
 
 }

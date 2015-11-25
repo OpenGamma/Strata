@@ -38,8 +38,8 @@ public class GoldenSectionMinimizer1D implements ScalarMinimizer {
       x2 = triplet[1];
       x1 = triplet[0] + GOLDEN * (triplet[1] - triplet[0]);
     }
-    f1 = f.evaluate(x1);
-    f2 = f.evaluate(x2);
+    f1 = f.apply(x1);
+    f2 = f.apply(x2);
     while (Math.abs(x3 - x0) > EPS * (Math.abs(x1) + Math.abs(x2))) {
       if (f2 < f1) {
         temp = GOLDEN * (x2 - x3) + x3;
@@ -47,14 +47,14 @@ public class GoldenSectionMinimizer1D implements ScalarMinimizer {
         x1 = x2;
         x2 = temp;
         f1 = f2;
-        f2 = f.evaluate(temp);
+        f2 = f.apply(temp);
       } else {
         temp = GOLDEN * (x1 - x0) + x0;
         x3 = x2;
         x2 = x1;
         x1 = temp;
         f2 = f1;
-        f1 = f.evaluate(temp);
+        f1 = f.apply(temp);
       }
       i++;
       if (i > MAX_ITER) {

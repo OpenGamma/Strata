@@ -36,7 +36,7 @@ public class AdaptiveCompositeIntegrator1DTest extends Integrator1DTestCase {
   private Function1D<Double, Double> sampleFunc() {
     return new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(final Double x) {
+      public Double apply(final Double x) {
         return 100. * Math.sin(10. / x) / x / x;
       }
     };

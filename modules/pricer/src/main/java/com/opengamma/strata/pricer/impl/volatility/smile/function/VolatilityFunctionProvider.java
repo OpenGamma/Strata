@@ -70,7 +70,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
   private Function1D<T, Double> getVolatilityFunction(double forward, double strike, double timeToExpiry) {
     return new Function1D<T, Double>() {
       @Override
-      public Double evaluate(T data) {
+      public Double apply(T data) {
         ArgChecker.notNull(data, "data");
         return getVolatility(forward, strike, timeToExpiry, data);
       }
@@ -95,14 +95,14 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
       if (data.isAllowed(index, up)) {
         T dUp = (T) data.with(index, up);
         T dDown = (T) data.with(index, down);
-        return 0.5 * (func.evaluate(dUp) - func.evaluate(dDown)) / EPS;
+        return 0.5 * (func.apply(dUp) - func.apply(dDown)) / EPS;
       }
       T dDown = (T) data.with(index, down);
-      return (func.evaluate(data) - func.evaluate(dDown)) / EPS;
+      return (func.apply(data) - func.apply(dDown)) / EPS;
     }
     ArgChecker.isTrue(data.isAllowed(index, up), "No values and index {} = {} are allowed", index, mid);
     T dUp = (T) data.with(index, up);
-    return (func.evaluate(dUp) - func.evaluate(data)) / EPS;
+    return (func.apply(dUp) - func.apply(data)) / EPS;
   }
 
 }

@@ -28,6 +28,6 @@ public class GammaFunctionTest {
   @Test
   public void test() {
     final double x = RANDOM.nextDouble();
-    assertEquals(Math.log(GAMMA.applyAsDouble(x)), LN_GAMMA.evaluate(x), EPS);
+    assertEquals(Math.log(GAMMA.applyAsDouble(x)), LN_GAMMA.apply(x), EPS);
   }
 }

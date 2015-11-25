@@ -72,10 +72,10 @@ public class LaplaceDistributionTest extends ProbabilityDistributionTestCase {
     assertCDFWithNull(LAPLACE);
     assertPDFWithNull(LAPLACE);
     assertInverseCDFWithNull(LAPLACE);
-    final double mean = new MeanCalculator().evaluate(DATA);
+    final double mean = new MeanCalculator().apply(DATA);
     final double median = new MedianCalculator().apply(DATA);
-    final double variance = new SampleVarianceCalculator().evaluate(DATA);
-    final double skew = new SampleSkewnessCalculator().evaluate(DATA);
+    final double variance = new SampleVarianceCalculator().apply(DATA);
+    final double skew = new SampleSkewnessCalculator().apply(DATA);
     final double kurtosis = new SampleFisherKurtosisCalculator().apply(DATA);
     assertEquals(mean, MU, EPS1);
     assertEquals(median, MU, EPS1);

@@ -31,7 +31,7 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorTest {
   private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 3 * x + 11;
     }
 
@@ -43,7 +43,7 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorTest {
     Y = new double[n];
     for (int i = 0; i < n; i++) {
       X[i] = i;
-      Y[i] = F.evaluate(X[i]);
+      Y[i] = F.apply(X[i]);
     }
     DATA = new ArrayInterpolator1DDataBundle(X, Y);
   }

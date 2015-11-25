@@ -48,7 +48,7 @@ public final class CommonsMathWrapper {
    */
   public static UnivariateFunction wrapUnivariate(Function1D<Double, Double> f) {
     ArgChecker.notNull(f, "f");
-    return f::evaluate;
+    return f::apply;
   }
 
   /**
@@ -77,7 +77,7 @@ public final class CommonsMathWrapper {
    */
   public static MultivariateFunction wrapMultivariateVector(Function1D<DoubleArray, Double> f) {
     ArgChecker.notNull(f, "f");
-    return point -> f.evaluate(DoubleArray.copyOf(point));
+    return point -> f.apply(DoubleArray.copyOf(point));
   }
 
   /**
@@ -184,7 +184,7 @@ public final class CommonsMathWrapper {
     return new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         try {
           return lagrange.value(x);
         } catch (DimensionMismatchException | NonMonotonicSequenceException | NumberIsTooSmallException e) {
@@ -217,7 +217,7 @@ public final class CommonsMathWrapper {
     return new UnivariateDifferentiableFunction() {
       @Override
       public double value(double x) {
-        return f.evaluate(x);
+        return f.apply(x);
       }
 
       @Override

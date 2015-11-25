@@ -30,12 +30,12 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
   }
 
   @Override
-  public Double evaluate(T x) {
+  public Double apply(T x) {
     ArgChecker.notNull(x, "x");
     double sum = 0;
     int n = _w.length;
     for (int i = 0; i < n; i++) {
-      double temp = _f.get(i).evaluate(x);
+      double temp = _f.get(i).apply(x);
       if (temp != 0.0) {
         sum += _w[i] * temp;
       }
@@ -51,7 +51,7 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
    */
   public DoubleArray weightSensitivity(T x) {
     ArgChecker.notNull(x, "x");
-    return DoubleArray.of(_w.length, i -> _f.get(i).evaluate(x));
+    return DoubleArray.of(_w.length, i -> _f.get(i).apply(x));
   }
 
   /**
@@ -66,7 +66,7 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
     double sum = 0;
     double[] data = new double[n];
     for (int i = 0; i < n; i++) {
-      double temp = _f.get(i).evaluate(x);
+      double temp = _f.get(i).apply(x);
       if (temp != 0.0) {
         sum += _w[i] * temp;
         data[i] = temp;

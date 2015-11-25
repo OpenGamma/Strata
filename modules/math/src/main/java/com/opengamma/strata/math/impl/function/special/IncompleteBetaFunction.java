@@ -69,7 +69,7 @@ public class IncompleteBetaFunction extends Function1D<Double, Double> {
    * @throws IllegalArgumentException if $x < 0$ or $x > 1$
    */
   @Override
-  public Double evaluate(Double x) {
+  public Double apply(Double x) {
     ArgChecker.isTrue(x >= 0 && x <= 1, "x must be in the range 0 to 1");
     try {
       return Beta.regularizedBeta(x, _a, _b, _eps, _maxIter);

@@ -19,7 +19,7 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
 public class LUDecompositionCommons extends Decomposition<LUDecompositionResult> {
 
   @Override
-  public LUDecompositionResult evaluate(DoubleMatrix x) {
+  public LUDecompositionResult apply(DoubleMatrix x) {
     ArgChecker.notNull(x, "x");
     RealMatrix temp = CommonsMathWrapper.wrap(x);
     LUDecomposition lu = new LUDecomposition(temp);

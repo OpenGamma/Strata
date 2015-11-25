@@ -39,7 +39,7 @@ public final class NormalPriceFunction {
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(NormalFunctionData data) {
+      public Double apply(NormalFunctionData data) {
         ArgChecker.notNull(data, "data");
         double forward = data.getForward();
         double numeraire = data.getNumeraire();

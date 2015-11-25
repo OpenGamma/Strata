@@ -77,7 +77,7 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
     double[] weights = _quadrature.getWeights();
     double sum = 0;
     for (int i = 0; i < n; i++) {
-      sum += polyFunction.evaluate(abscissas[i]) * weights[i];
+      sum += polyFunction.apply(abscissas[i]) * weights[i];
     }
     return sum;
   }

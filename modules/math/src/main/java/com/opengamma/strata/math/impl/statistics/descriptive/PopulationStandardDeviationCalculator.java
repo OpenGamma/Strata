@@ -23,7 +23,7 @@ public class PopulationStandardDeviationCalculator implements Function<double[],
   public Double apply(double[] x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(x.length > 1, "Need at least two points to calculate standard deviation");
-    return Math.sqrt(VARIANCE.evaluate(x));
+    return Math.sqrt(VARIANCE.apply(x));
   }
 
 }

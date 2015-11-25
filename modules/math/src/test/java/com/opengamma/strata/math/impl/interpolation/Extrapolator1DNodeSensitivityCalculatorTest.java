@@ -33,7 +33,7 @@ public class Extrapolator1DNodeSensitivityCalculatorTest {
     private static final double D = 0.05;
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return (A + B * x) * Math.exp(-C * x) + D;
     }
   };
@@ -43,7 +43,7 @@ public class Extrapolator1DNodeSensitivityCalculatorTest {
     final int n = t.length;
     final double[] r = new double[n];
     for (int i = 0; i < n; i++) {
-      r[i] = FUNCTION.evaluate(t[i]);
+      r[i] = FUNCTION.apply(t[i]);
     }
     DATA = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(t, r));
   }
@@ -86,12 +86,12 @@ public class Extrapolator1DNodeSensitivityCalculatorTest {
     ScalarFirstOrderDifferentiator diff = new ScalarFirstOrderDifferentiator();
     Function1D<Double, Boolean> domain = new Function1D<Double, Boolean>() {
       @Override
-      public Boolean evaluate(Double x) {
+      public Boolean apply(Double x) {
         return x <= 5.0;
       }
     };
     Function1D<Double, Double> gradFunc = diff.differentiate(func, domain);
 
-    assertEquals(gradFunc.evaluate(x[n - 1]), grad, 1e-8);
+    assertEquals(gradFunc.apply(x[n - 1]), grad, 1e-8);
   }
 }

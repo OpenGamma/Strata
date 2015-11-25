@@ -45,10 +45,10 @@ public class IntegratorRepeated2D extends Integrator2D<Double, Double> {
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(Double y) {
+      public Double apply(Double y) {
         Function1D<Double, Double> fy = new Function1D<Double, Double>() {
           @Override
-          public Double evaluate(Double x) {
+          public Double apply(Double x) {
             return f.evaluate(x, y);
           }
         };

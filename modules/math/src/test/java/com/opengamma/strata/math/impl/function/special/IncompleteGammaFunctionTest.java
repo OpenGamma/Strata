@@ -43,8 +43,8 @@ public class IncompleteGammaFunctionTest {
 
   @Test
   public void testLimits() {
-    assertEquals(FUNCTION.evaluate(0.), 0, EPS);
-    assertEquals(FUNCTION.evaluate(100.), 1, EPS);
+    assertEquals(FUNCTION.apply(0.), 0, EPS);
+    assertEquals(FUNCTION.apply(100.), 1, EPS);
   }
 
   @Test
@@ -52,12 +52,12 @@ public class IncompleteGammaFunctionTest {
     final Function1D<Double, Double> f = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(final Double x) {
+      public Double apply(final Double x) {
         return 1 - Math.exp(-x);
       }
 
     };
     final double x = 4.6;
-    assertEquals(f.evaluate(x), FUNCTION.evaluate(x), EPS);
+    assertEquals(f.apply(x), FUNCTION.apply(x), EPS);
   }
 }

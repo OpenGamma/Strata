@@ -25,7 +25,7 @@ public class ShermanMorrisonMatrixUpdateFunctionTest {
   private static final Function1D<DoubleArray, DoubleMatrix> J = new Function1D<DoubleArray, DoubleMatrix>() {
     @SuppressWarnings("synthetic-access")
     @Override
-    public DoubleMatrix evaluate(DoubleArray x) {
+    public DoubleMatrix apply(DoubleArray x) {
       return ALGEBRA.getOuterProduct(x, x);
     }
   };

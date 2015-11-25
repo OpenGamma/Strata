@@ -22,7 +22,7 @@ public class LinearInterpolator1DNodeSensitivityCalculatorTest {
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 2 * x - 7;
     }
 
@@ -35,7 +35,7 @@ public class LinearInterpolator1DNodeSensitivityCalculatorTest {
     final double[] y = new double[n];
     for (int i = 0; i < n; i++) {
       x[i] = Double.valueOf(i);
-      y[i] = FUNCTION.evaluate(x[i]);
+      y[i] = FUNCTION.apply(x[i]);
     }
     DATA = INTERPOLATOR.getDataBundleFromSortedArrays(x, y);
   }

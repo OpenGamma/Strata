@@ -42,7 +42,7 @@ public class NonLinearLeastSquareWithPenalty {
    */
   public static final Function1D<DoubleArray, Boolean> UNCONSTRAINED = new Function1D<DoubleArray, Boolean>() {
     @Override
-    public Boolean evaluate(DoubleArray x) {
+    public Boolean apply(DoubleArray x) {
       return true;
     }
   };
@@ -231,7 +231,7 @@ public class NonLinearLeastSquareWithPenalty {
     ArgChecker.notNull(startPos, "startPos");
     int nObs = observedValues.size();
     ArgChecker.isTrue(nObs == sigma.size(), "observedValues and sigma must be same length");
-    ArgChecker.isTrue(allowedValue.evaluate(startPos),
+    ArgChecker.isTrue(allowedValue.apply(startPos),
         "The start position {} is not valid for this model. Please choose a valid start position", startPos);
 
     DoubleMatrix alpha;
@@ -259,7 +259,7 @@ public class NonLinearLeastSquareWithPenalty {
       DoubleArray deltaTheta;
 
       try {
-        decmp = _decomposition.evaluate(alpha);
+        decmp = _decomposition.apply(alpha);
         deltaTheta = decmp.solve(beta);
       } catch (Exception e) {
         throw new MathException(e);
@@ -267,7 +267,7 @@ public class NonLinearLeastSquareWithPenalty {
 
       DoubleArray trialTheta = (DoubleArray) _algebra.add(theta, deltaTheta);
 
-      if (!allowedValue.evaluate(trialTheta)) {
+      if (!allowedValue.apply(trialTheta)) {
         lambda = increaseLambda(lambda);
         continue;
       }
@@ -283,7 +283,7 @@ public class NonLinearLeastSquareWithPenalty {
         DoubleMatrix alpha0 = lambda == 0.0 ? alpha : getModifiedCurvatureMatrix(jacobian, 0.0, penalty);
 
         if (lambda > 0.0) {
-          decmp = _decomposition.evaluate(alpha0);
+          decmp = _decomposition.apply(alpha0);
         }
         return finish(alpha0, decmp, newChiSqr - p, p, jacobian, trialTheta, sigma);
       }
@@ -338,7 +338,7 @@ public class NonLinearLeastSquareWithPenalty {
       DoubleArray theta) {
 
     int n = observedValues.size();
-    DoubleArray modelValues = func.evaluate(theta);
+    DoubleArray modelValues = func.apply(theta);
     ArgChecker.isTrue(n == modelValues.size(),
         "Number of data points different between model (" + modelValues.size() + ") and observed (" + n + ")");
     return DoubleArray.of(n, i -> (observedValues.get(i) - modelValues.get(i)) / sigma.get(i));
@@ -360,7 +360,7 @@ public class NonLinearLeastSquareWithPenalty {
   }
 
   private DoubleMatrix getJacobian(Function1D<DoubleArray, DoubleMatrix> jac, DoubleArray sigma, DoubleArray theta) {
-    DoubleMatrix res = jac.evaluate(theta);
+    DoubleMatrix res = jac.apply(theta);
     double[][] data = res.toArray();
     int n = res.rowCount();
     int m = res.columnCount();

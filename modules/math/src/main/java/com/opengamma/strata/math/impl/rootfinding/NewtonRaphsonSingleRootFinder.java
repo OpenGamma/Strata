@@ -150,11 +150,11 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
   public Double getRoot(DoubleFunction1D function, DoubleFunction1D derivative, Double x1, Double x2) {
     checkInputs(function, x1, x2);
     ArgChecker.notNull(derivative, "derivative function");
-    double y1 = function.evaluate(x1);
+    double y1 = function.apply(x1);
     if (Math.abs(y1) < _accuracy) {
       return x1;
     }
-    double y2 = function.evaluate(x2);
+    double y2 = function.apply(x2);
     if (Math.abs(y2) < _accuracy) {
       return x2;
     }
@@ -164,8 +164,8 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
     double xLower = x1 > x2 ? x2 : x1;
     double xUpper = x1 > x2 ? x1 : x2;
     for (int i = 0; i < MAX_ITER; i++) {
-      double y = function.evaluate(x);
-      double dy = derivative.evaluate(x);
+      double y = function.apply(x);
+      double dy = derivative.apply(x);
       double dx = -y / dy;
       if (Math.abs(dx) <= _accuracy) {
         return x + dx;
@@ -198,8 +198,8 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
     ArgChecker.notNull(x, "x");
     double root = x;
     for (int i = 0; i < MAX_ITER; i++) {
-      double y = function.evaluate(root);
-      double dy = derivative.evaluate(root);
+      double y = function.apply(root);
+      double dy = derivative.apply(root);
       double dx = y / dy;
       if (Math.abs(dx) <= _accuracy) {
         return root - dx;

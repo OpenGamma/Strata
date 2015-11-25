@@ -82,7 +82,7 @@ public class MomentCalculatorTest {
 
   private void assertNullArg(final Function1D<double[], Double> f) {
     try {
-      f.evaluate((double[]) null);
+      f.apply((double[]) null);
       Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -100,7 +100,7 @@ public class MomentCalculatorTest {
 
   private void assertInsufficientData(final Function1D<double[], Double> f) {
     try {
-      f.evaluate(new double[] {1. });
+      f.apply(new double[] {1. });
       Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -109,33 +109,33 @@ public class MomentCalculatorTest {
 
   @Test
   public void testNormal() {
-    assertEquals(SAMPLE_VARIANCE.evaluate(NORMAL_DATA), STD * STD, EPS);
-    assertEquals(POPULATION_VARIANCE.evaluate(NORMAL_DATA), STD * STD, EPS);
-    assertEquals(SAMPLE_STD.evaluate(NORMAL_DATA), STD, EPS);
+    assertEquals(SAMPLE_VARIANCE.apply(NORMAL_DATA), STD * STD, EPS);
+    assertEquals(POPULATION_VARIANCE.apply(NORMAL_DATA), STD * STD, EPS);
+    assertEquals(SAMPLE_STD.apply(NORMAL_DATA), STD, EPS);
     assertEquals(POPULATION_STD.apply(NORMAL_DATA), STD, EPS);
-    assertEquals(SAMPLE_SKEWNESS.evaluate(NORMAL_DATA), 0., EPS);
+    assertEquals(SAMPLE_SKEWNESS.apply(NORMAL_DATA), 0., EPS);
     assertEquals(SAMPLE_FISHER_KURTOSIS.apply(NORMAL_DATA), 0., EPS);
   }
 
   @Test
   public void testStudentT() {
     final double variance = DOF / (DOF - 2);
-    assertEquals(SAMPLE_VARIANCE.evaluate(STUDENT_T_DATA), variance, EPS);
-    assertEquals(POPULATION_VARIANCE.evaluate(STUDENT_T_DATA), variance, EPS);
-    assertEquals(SAMPLE_STD.evaluate(STUDENT_T_DATA), Math.sqrt(variance), EPS);
+    assertEquals(SAMPLE_VARIANCE.apply(STUDENT_T_DATA), variance, EPS);
+    assertEquals(POPULATION_VARIANCE.apply(STUDENT_T_DATA), variance, EPS);
+    assertEquals(SAMPLE_STD.apply(STUDENT_T_DATA), Math.sqrt(variance), EPS);
     assertEquals(POPULATION_STD.apply(STUDENT_T_DATA), Math.sqrt(variance), EPS);
-    assertEquals(SAMPLE_SKEWNESS.evaluate(STUDENT_T_DATA), 0., EPS);
+    assertEquals(SAMPLE_SKEWNESS.apply(STUDENT_T_DATA), 0., EPS);
     assertEquals(SAMPLE_FISHER_KURTOSIS.apply(STUDENT_T_DATA), 6 / (DOF - 4), EPS);
   }
 
   @Test
   public void testChiSq() {
     final double variance = 2 * DOF;
-    assertEquals(SAMPLE_VARIANCE.evaluate(CHI_SQ_DATA), variance, EPS);
-    assertEquals(POPULATION_VARIANCE.evaluate(CHI_SQ_DATA), variance, EPS);
-    assertEquals(SAMPLE_STD.evaluate(CHI_SQ_DATA), Math.sqrt(variance), EPS);
+    assertEquals(SAMPLE_VARIANCE.apply(CHI_SQ_DATA), variance, EPS);
+    assertEquals(POPULATION_VARIANCE.apply(CHI_SQ_DATA), variance, EPS);
+    assertEquals(SAMPLE_STD.apply(CHI_SQ_DATA), Math.sqrt(variance), EPS);
     assertEquals(POPULATION_STD.apply(CHI_SQ_DATA), Math.sqrt(variance), EPS);
-    assertEquals(SAMPLE_SKEWNESS.evaluate(CHI_SQ_DATA), Math.sqrt(8 / DOF), EPS);
+    assertEquals(SAMPLE_SKEWNESS.apply(CHI_SQ_DATA), Math.sqrt(8 / DOF), EPS);
     assertEquals(SAMPLE_FISHER_KURTOSIS.apply(CHI_SQ_DATA), 12 / DOF, EPS);
   }
 

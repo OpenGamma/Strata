@@ -32,7 +32,7 @@ public class SampleFisherKurtosisCalculator implements Function<double[], Double
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(x.length >= 4, "Need at least four points to calculate kurtosis");
     double sum = 0;
-    double mean = MEAN.evaluate(x);
+    double mean = MEAN.apply(x);
     double variance = 0;
     for (Double d : x) {
       double diff = d - mean;

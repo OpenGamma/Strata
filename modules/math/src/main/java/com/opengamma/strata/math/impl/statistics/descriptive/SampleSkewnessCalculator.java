@@ -24,12 +24,12 @@ public class SampleSkewnessCalculator extends Function1D<double[], Double> {
   private static final Function1D<double[], Double> MEAN = new MeanCalculator();
 
   @Override
-  public Double evaluate(double[] x) {
+  public Double apply(double[] x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(x.length >= 3, "Need at least three points to calculate sample skewness");
     double sum = 0;
     double variance = 0;
-    double mean = MEAN.evaluate(x);
+    double mean = MEAN.apply(x);
     for (Double d : x) {
       double diff = d - mean;
       variance += diff * diff;

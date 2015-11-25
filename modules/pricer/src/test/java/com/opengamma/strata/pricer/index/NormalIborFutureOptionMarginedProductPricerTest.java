@@ -88,7 +88,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
     double normalVol = PARAMETERS_PRICE.zValue(expiryTime, priceSimpleMoneyness);
     EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiryTime, FUTURE_OPTION_PRODUCT.getPutCall());
     NormalFunctionData normalPoint = NormalFunctionData.of(futurePrice, 1.0, normalVol);
-    double optionPriceExpected = NORMAL_FUNCTION.getPriceFunction(option).evaluate(normalPoint);
+    double optionPriceExpected = NORMAL_FUNCTION.getPriceFunction(option).apply(normalPoint);
     double optionPriceComputed = OPTION_PRICER.price(FUTURE_OPTION_PRODUCT, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     assertEquals(optionPriceComputed, optionPriceExpected, TOLERANCE_PRICE);
   }

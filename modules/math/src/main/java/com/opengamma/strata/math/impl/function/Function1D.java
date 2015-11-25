@@ -26,7 +26,7 @@ public abstract class Function1D<S, T> {
   public T evaluate(S... x) {
     ArgChecker.noNulls(x, "parameter list");
     ArgChecker.isTrue(x.length == 1, "parameter list must have one element");
-    return evaluate(x[0]);
+    return apply(x[0]);
   }
 
   /**
@@ -35,6 +35,6 @@ public abstract class Function1D<S, T> {
    * @param x  the argument of the function, not null
    * @return the value of the function
    */
-  public abstract T evaluate(S x);
+  public abstract T apply(S x);
 
 }

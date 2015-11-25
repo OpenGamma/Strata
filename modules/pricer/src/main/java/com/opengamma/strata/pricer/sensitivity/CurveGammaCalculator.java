@@ -67,7 +67,7 @@ public class CurveGammaCalculator {
 
     Delta deltaShift = new Delta(curve, sensitivitiesFn);
     Function1D<DoubleArray, DoubleMatrix> gammaFn = fd.differentiate(deltaShift);
-    DoubleArray gamma = gammaFn.evaluate(DoubleArray.filled(1)).column(0);
+    DoubleArray gamma = gammaFn.apply(DoubleArray.filled(1)).column(0);
     return CurveCurrencyParameterSensitivity.of(curve.getMetadata(), curveCurrency, gamma);
   }
 
@@ -85,7 +85,7 @@ public class CurveGammaCalculator {
     }
 
     @Override
-    public DoubleArray evaluate(DoubleArray s) {
+    public DoubleArray apply(DoubleArray s) {
       double shift = s.get(0);
       DoubleArray yieldBumped = curve.getYValues().map(v -> v + shift);
       NodalCurve curveBumped = curve.withYValues(yieldBumped);

@@ -156,7 +156,7 @@ public class PolynomialsLeastSquaresFitter {
 
     Decomposition<QRDecompositionResult> qrComm = new QRDecompositionCommons();
 
-    DecompositionResult decompResult = qrComm.evaluate(xDataMatrix);
+    DecompositionResult decompResult = qrComm.apply(xDataMatrix);
     _qrResult = (QRDecompositionResult) decompResult;
 
     DoubleMatrix qMatrix = _qrResult.getQ();
@@ -237,9 +237,9 @@ public class PolynomialsLeastSquaresFitter {
     double[] res = new double[nData];
 
     Function1D<double[], Double> calculator = new MeanCalculator();
-    _renorm[0] = calculator.evaluate(xData);
+    _renorm[0] = calculator.apply(xData);
     calculator = new SampleStandardDeviationCalculator();
-    _renorm[1] = calculator.evaluate(xData);
+    _renorm[1] = calculator.apply(xData);
 
     double tmp = _renorm[0] / _renorm[1];
     for (int i = 0; i < nData; ++i) {

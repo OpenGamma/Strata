@@ -1022,14 +1022,14 @@ public final class BlackFormulaRepository {
 
     Function1D<Double, Double> priceFunc = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         return price(forward, strike, timeToExpiry, x, isCall);
       }
     };
 
     Function1D<Double, Double> vegaFunc = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         return vega(forward, strike, timeToExpiry, x);
       }
     };
@@ -1080,7 +1080,7 @@ public final class BlackFormulaRepository {
 
     Function1D<Double, Double> priceFunc = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         double modelPrice = 0d;
         for (SimpleOptionData option : data) {
           modelPrice += price(option, x);
@@ -1091,7 +1091,7 @@ public final class BlackFormulaRepository {
 
     Function1D<Double, Double> vegaFunc = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         double vega = 0d;
         for (SimpleOptionData option : data) {
           vega += vega(option, x);

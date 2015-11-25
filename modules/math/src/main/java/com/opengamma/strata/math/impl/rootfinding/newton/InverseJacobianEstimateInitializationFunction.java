@@ -28,8 +28,8 @@ public class InverseJacobianEstimateInitializationFunction implements NewtonRoot
   public DoubleMatrix getInitializedMatrix(Function1D<DoubleArray, DoubleMatrix> jacobianFunction, DoubleArray x) {
     ArgChecker.notNull(jacobianFunction, "jacobianFunction");
     ArgChecker.notNull(x, "x");
-    DoubleMatrix estimate = jacobianFunction.evaluate(x);
-    DecompositionResult decompositionResult = _decomposition.evaluate(estimate);
+    DoubleMatrix estimate = jacobianFunction.apply(x);
+    DecompositionResult decompositionResult = _decomposition.apply(estimate);
     return decompositionResult.solve(DoubleMatrix.identity(x.size()));
   }
 

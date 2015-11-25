@@ -61,8 +61,8 @@ public class GaussJacobiQuadratureIntegrator1D extends GaussianQuadratureIntegra
     double c = (upper + lower) / 2;
     return new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
-        return m * function.evaluate(m * x + c);
+      public Double apply(Double x) {
+        return m * function.apply(m * x + c);
       }
     };
   }

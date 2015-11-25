@@ -63,7 +63,7 @@ public abstract class ParameterizedFunction<S, T, U> {
     ArgChecker.notNull(x, "x");
     return new Function1D<T, U>() {
       @Override
-      public U evaluate(T params) {
+      public U apply(T params) {
         return ParameterizedFunction.this.evaluate(x, params);
       }
     };
@@ -79,7 +79,7 @@ public abstract class ParameterizedFunction<S, T, U> {
     ArgChecker.notNull(params, "params");
     return new Function1D<S, U>() {
       @Override
-      public U evaluate(S x) {
+      public U apply(S x) {
         return ParameterizedFunction.this.evaluate(x, params);
       }
     };

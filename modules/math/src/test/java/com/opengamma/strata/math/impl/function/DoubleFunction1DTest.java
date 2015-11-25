@@ -19,7 +19,7 @@ public class DoubleFunction1DTest {
   private static final DoubleFunction1D F1 = new DoubleFunction1D() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return x * x * x + 2 * x * x - 7 * x + 12;
     }
 
@@ -27,7 +27,7 @@ public class DoubleFunction1DTest {
   private static final DoubleFunction1D DF1 = new DoubleFunction1D() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 3 * x * x + 4 * x - 7;
     }
 
@@ -35,7 +35,7 @@ public class DoubleFunction1DTest {
   private static final DoubleFunction1D F2 = new DoubleFunction1D() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return Math.sin(x);
     }
 
@@ -43,7 +43,7 @@ public class DoubleFunction1DTest {
   private static final DoubleFunction1D DF2 = new DoubleFunction1D() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return Math.cos(x);
     }
 
@@ -51,7 +51,7 @@ public class DoubleFunction1DTest {
   private static final DoubleFunction1D F3 = new DoubleFunction1D() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return x * x * x + 2 * x * x - 7 * x + 12;
     }
 
@@ -64,7 +64,7 @@ public class DoubleFunction1DTest {
   private static final DoubleFunction1D F4 = new DoubleFunction1D() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return Math.sin(x);
     }
 
@@ -110,40 +110,40 @@ public class DoubleFunction1DTest {
 
   @Test
   public void testAdd() {
-    assertEquals(F1.add(F2).evaluate(X), F1.evaluate(X) + F2.evaluate(X), EPS);
-    assertEquals(F1.add(A).evaluate(X), F1.evaluate(X) + A, EPS);
+    assertEquals(F1.add(F2).apply(X), F1.apply(X) + F2.apply(X), EPS);
+    assertEquals(F1.add(A).apply(X), F1.apply(X) + A, EPS);
   }
 
   @Test
   public void testDivide() {
-    assertEquals(F1.divide(F2).evaluate(X), F1.evaluate(X) / F2.evaluate(X), EPS);
-    assertEquals(F1.divide(A).evaluate(X), F1.evaluate(X) / A, EPS);
+    assertEquals(F1.divide(F2).apply(X), F1.apply(X) / F2.apply(X), EPS);
+    assertEquals(F1.divide(A).apply(X), F1.apply(X) / A, EPS);
   }
 
   @Test
   public void testMultiply() {
-    assertEquals(F1.multiply(F2).evaluate(X), F1.evaluate(X) * F2.evaluate(X), EPS);
-    assertEquals(F1.multiply(A).evaluate(X), F1.evaluate(X) * A, EPS);
+    assertEquals(F1.multiply(F2).apply(X), F1.apply(X) * F2.apply(X), EPS);
+    assertEquals(F1.multiply(A).apply(X), F1.apply(X) * A, EPS);
   }
 
   @Test
   public void testSubtract() {
-    assertEquals(F1.subtract(F2).evaluate(X), F1.evaluate(X) - F2.evaluate(X), EPS);
-    assertEquals(F1.subtract(A).evaluate(X), F1.evaluate(X) - A, EPS);
+    assertEquals(F1.subtract(F2).apply(X), F1.apply(X) - F2.apply(X), EPS);
+    assertEquals(F1.subtract(A).apply(X), F1.apply(X) - A, EPS);
   }
 
   @Test
   public void testDerivative() {
-    assertEquals(F1.derivative().evaluate(X), DF1.evaluate(X), 1e-3);
-    assertEquals(F2.derivative().evaluate(X), DF2.evaluate(X), 1e-3);
-    assertEquals(F1.derivative(FiniteDifferenceType.CENTRAL, 1e-5).evaluate(X), DF1.evaluate(X), 1e-3);
-    assertEquals(F2.derivative(FiniteDifferenceType.CENTRAL, 1e-5).evaluate(X), DF2.evaluate(X), 1e-3);
-    assertEquals(F1.derivative(FiniteDifferenceType.FORWARD, 1e-5).evaluate(X), DF1.evaluate(X), 1e-3);
-    assertEquals(F2.derivative(FiniteDifferenceType.FORWARD, 1e-5).evaluate(X), DF2.evaluate(X), 1e-3);
-    assertEquals(F1.derivative(FiniteDifferenceType.BACKWARD, 1e-5).evaluate(X), DF1.evaluate(X), 1e-3);
-    assertEquals(F2.derivative(FiniteDifferenceType.BACKWARD, 1e-5).evaluate(X), DF2.evaluate(X), 1e-3);
-    assertEquals(F3.derivative().evaluate(X), DF1.evaluate(X), 1e-15);
-    assertEquals(F4.derivative().evaluate(X), DF2.evaluate(X), 1e-15);
+    assertEquals(F1.derivative().apply(X), DF1.apply(X), 1e-3);
+    assertEquals(F2.derivative().apply(X), DF2.apply(X), 1e-3);
+    assertEquals(F1.derivative(FiniteDifferenceType.CENTRAL, 1e-5).apply(X), DF1.apply(X), 1e-3);
+    assertEquals(F2.derivative(FiniteDifferenceType.CENTRAL, 1e-5).apply(X), DF2.apply(X), 1e-3);
+    assertEquals(F1.derivative(FiniteDifferenceType.FORWARD, 1e-5).apply(X), DF1.apply(X), 1e-3);
+    assertEquals(F2.derivative(FiniteDifferenceType.FORWARD, 1e-5).apply(X), DF2.apply(X), 1e-3);
+    assertEquals(F1.derivative(FiniteDifferenceType.BACKWARD, 1e-5).apply(X), DF1.apply(X), 1e-3);
+    assertEquals(F2.derivative(FiniteDifferenceType.BACKWARD, 1e-5).apply(X), DF2.apply(X), 1e-3);
+    assertEquals(F3.derivative().apply(X), DF1.apply(X), 1e-15);
+    assertEquals(F4.derivative().apply(X), DF2.apply(X), 1e-15);
   }
 
   @Test
@@ -151,15 +151,15 @@ public class DoubleFunction1DTest {
     final Function1D<Double, Double> f1 = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(final Double x) {
+      public Double apply(final Double x) {
         return x * x * x + 2 * x * x - 7 * x + 12;
       }
     };
     final DoubleFunction1D f2 = DoubleFunction1D.from(f1);
     for (int i = 0; i < 100; i++) {
       final double x = Math.random();
-      assertEquals(f2.evaluate(x), F1.evaluate(x), 0);
-      assertEquals(f2.derivative().evaluate(x), F1.derivative().evaluate(x), 0);
+      assertEquals(f2.apply(x), F1.apply(x), 0);
+      assertEquals(f2.derivative().apply(x), F1.derivative().apply(x), 0);
     }
   }
 }

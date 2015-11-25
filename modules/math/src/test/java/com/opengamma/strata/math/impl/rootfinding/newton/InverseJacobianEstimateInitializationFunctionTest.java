@@ -29,7 +29,7 @@ public class InverseJacobianEstimateInitializationFunctionTest {
   private static final Function1D<DoubleArray, DoubleMatrix> J = new Function1D<DoubleArray, DoubleMatrix>() {
 
     @Override
-    public DoubleMatrix evaluate(DoubleArray v) {
+    public DoubleMatrix apply(DoubleArray v) {
       double[] x = v.toArray();
       return DoubleMatrix.copyOf(new double[][] { {x[0] * x[0], x[0] * x[1]}, {x[0] - x[1], x[1] * x[1]}});
     }
@@ -54,7 +54,7 @@ public class InverseJacobianEstimateInitializationFunctionTest {
 
   public void test() {
     DoubleMatrix m1 = ESTIMATE.getInitializedMatrix(J, X);
-    DoubleMatrix m2 = J.evaluate(X);
+    DoubleMatrix m2 = J.apply(X);
     DoubleMatrix m3 = (DoubleMatrix) (ALGEBRA.multiply(m1, m2));
     DoubleMatrix identity = DoubleMatrix.identity(2);
     for (int i = 0; i < 2; i++) {

@@ -278,7 +278,7 @@ public class QuantileCalculationMethodTest {
   public void index_above_095_100_expected_shortfall() {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return QUANTILE_INDEX_ABOVE.quantileWithExtrapolationFromSorted(level, SORTED_100);
       }
     };
@@ -293,7 +293,7 @@ public class QuantileCalculationMethodTest {
   public void index_above_095_123_expected_shortfall() {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return QUANTILE_INDEX_ABOVE.quantileWithExtrapolationFromSorted(level, SORTED_123);
       }
     };
@@ -310,7 +310,7 @@ public class QuantileCalculationMethodTest {
   public void index_above_9999_100_expected_shortfall() {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return QUANTILE_INDEX_ABOVE.quantileWithExtrapolationFromSorted(level, SORTED_100);
       }
     };
@@ -322,7 +322,7 @@ public class QuantileCalculationMethodTest {
   public void index_nearest_095_100_expected_shortfall() {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return QUANTILE_NEAREST_INDEX.quantileWithExtrapolationFromSorted(level, SORTED_100);
       }
     };
@@ -334,7 +334,7 @@ public class QuantileCalculationMethodTest {
   public void index_nearest_095_123_expected_shortfall() {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return QUANTILE_NEAREST_INDEX.quantileWithExtrapolationFromSorted(level, SORTED_123);
       }
     };
@@ -352,7 +352,7 @@ public class QuantileCalculationMethodTest {
   public void index_nearest_9999_100_expected_shortfall() {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return QUANTILE_NEAREST_INDEX.quantileWithExtrapolationFromSorted(level, SORTED_100);
       }
     };
@@ -364,7 +364,7 @@ public class QuantileCalculationMethodTest {
   public void index_nearest_one_095_100_expected_shortfall() {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return QUANTILE_SAMPLE1_NEAREST_INDEX.quantileWithExtrapolationFromSorted(level, SORTED_100);
       }
     };
@@ -383,7 +383,7 @@ public class QuantileCalculationMethodTest {
   public void index_nearest_one_9999_100_expected_shortfall() {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return QUANTILE_SAMPLE1_NEAREST_INDEX.quantileWithExtrapolationFromSorted(level, SORTED_100);
       }
     };
@@ -396,7 +396,7 @@ public class QuantileCalculationMethodTest {
   public void interpolation_sample_095_100_expected_shortfall() {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return QUANTILE_SAMPLE_INTERPOLATION.quantileWithExtrapolationFromSorted(level, SORTED_100);
       }
     };
@@ -408,7 +408,7 @@ public class QuantileCalculationMethodTest {
   public void interpolation_sample_095_123_expected_shortfall() {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return QUANTILE_SAMPLE_INTERPOLATION.quantileWithExtrapolationFromSorted(level, SORTED_123);
       }
     };
@@ -427,7 +427,7 @@ public class QuantileCalculationMethodTest {
   public void interpolation_sample_9999_100_expected_shortfall() {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return QUANTILE_SAMPLE_INTERPOLATION.quantileWithExtrapolationFromSorted(level, SORTED_100);
       }
     };
@@ -440,7 +440,7 @@ public class QuantileCalculationMethodTest {
   public void interpolation_samplePlusOne_095_123_expected_shortfall() {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromSorted(level, SORTED_123);
       }
     };
@@ -459,7 +459,7 @@ public class QuantileCalculationMethodTest {
   public void interpolation_samplePlusOne_9999_100_expected_shortfall() {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromSorted(level, SORTED_100);
       }
     };
@@ -472,7 +472,7 @@ public class QuantileCalculationMethodTest {
   public void interpolation_midway_095_100_expected_shortfall() {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromSorted(level, SORTED_100);
       }
     };
@@ -484,7 +484,7 @@ public class QuantileCalculationMethodTest {
   public void interpolation_midway_095_123_expected_shortfall() {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromSorted(level, SORTED_123);
       }
     };
@@ -503,7 +503,7 @@ public class QuantileCalculationMethodTest {
   public void interpolation_midway_9999_100_expected_shortfall() {
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromSorted(level, SORTED_100);
       }
     };
@@ -518,7 +518,7 @@ public class QuantileCalculationMethodTest {
     double level = 0.3;
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return ExcelInterpolationQuantileMethod.DEFAULT.quantileWithExtrapolationFromUnsorted(level, data);
       }
     };
@@ -532,7 +532,7 @@ public class QuantileCalculationMethodTest {
     DoubleArray data = DoubleArray.of(1.0, 3.0, 2.0, 4.0);
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return ExcelInterpolationQuantileMethod.DEFAULT.quantileWithExtrapolationFromUnsorted(level, data);
       }
     };
@@ -546,7 +546,7 @@ public class QuantileCalculationMethodTest {
     DoubleArray data = DoubleArray.of(1.0, 3.0, 2.0, 4.0);
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double level) {
+      public Double apply(Double level) {
         return ExcelInterpolationQuantileMethod.DEFAULT.quantileWithExtrapolationFromUnsorted(level, data);
       }
     };

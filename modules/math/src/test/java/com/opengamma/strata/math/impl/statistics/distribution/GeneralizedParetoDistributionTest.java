@@ -97,9 +97,9 @@ public class GeneralizedParetoDistributionTest extends ProbabilityDistributionTe
     final double mean = MU + SIGMA / (1 - KSI);
     final double median = MU + SIGMA * (Math.pow(2, KSI) - 1) / KSI;
     final double variance = SIGMA * SIGMA / ((1 - KSI) * (1 - KSI) * (1 - 2 * KSI));
-    assertEquals(meanCalculator.evaluate(data), mean, eps);
+    assertEquals(meanCalculator.apply(data), mean, eps);
     assertEquals(medianCalculator.apply(data), median, eps);
-    assertEquals(varianceCalculator.evaluate(data), variance, eps);
+    assertEquals(varianceCalculator.apply(data), variance, eps);
   }
 
   private void assertLimit(final ProbabilityDistribution<Double> dist, final double limit) {

@@ -70,27 +70,27 @@ public class ScalarFirstOrderDifferentiator
         return new Function1D<Double, Double>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public Double evaluate(Double x) {
+          public Double apply(Double x) {
             ArgChecker.notNull(x, "x");
-            return (function.evaluate(x + eps) - function.evaluate(x)) / eps;
+            return (function.apply(x + eps) - function.apply(x)) / eps;
           }
         };
       case CENTRAL:
         return new Function1D<Double, Double>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public Double evaluate(Double x) {
+          public Double apply(Double x) {
             ArgChecker.notNull(x, "x");
-            return (function.evaluate(x + eps) - function.evaluate(x - eps)) / twoEps;
+            return (function.apply(x + eps) - function.apply(x - eps)) / twoEps;
           }
         };
       case BACKWARD:
         return new Function1D<Double, Double>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public Double evaluate(Double x) {
+          public Double apply(Double x) {
             ArgChecker.notNull(x, "x");
-            return (function.evaluate(x) - function.evaluate(x - eps)) / eps;
+            return (function.apply(x) - function.apply(x - eps)) / eps;
           }
         };
       default:
@@ -113,30 +113,30 @@ public class ScalarFirstOrderDifferentiator
     return new Function1D<Double, Double>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         ArgChecker.notNull(x, "x");
-        ArgChecker.isTrue(domain.evaluate(x), "point {} is not in the function domain", x.toString());
+        ArgChecker.isTrue(domain.apply(x), "point {} is not in the function domain", x.toString());
 
         double[] y = new double[3];
         double[] w;
 
-        if (!domain.evaluate(x + eps)) {
-          if (!domain.evaluate(x - eps)) {
+        if (!domain.apply(x + eps)) {
+          if (!domain.apply(x - eps)) {
             throw new MathException("cannot get derivative at point " + x.toString());
           }
-          y[0] = function.evaluate(x - twoEps);
-          y[1] = function.evaluate(x - eps);
-          y[2] = function.evaluate(x);
+          y[0] = function.apply(x - twoEps);
+          y[1] = function.apply(x - eps);
+          y[2] = function.apply(x);
           w = wBack;
         } else {
-          if (!domain.evaluate(x - eps)) {
-            y[0] = function.evaluate(x);
-            y[1] = function.evaluate(x + eps);
-            y[2] = function.evaluate(x + twoEps);
+          if (!domain.apply(x - eps)) {
+            y[0] = function.apply(x);
+            y[1] = function.apply(x + eps);
+            y[2] = function.apply(x + twoEps);
             w = wFwd;
           } else {
-            y[0] = function.evaluate(x - eps);
-            y[2] = function.evaluate(x + eps);
+            y[0] = function.apply(x - eps);
+            y[2] = function.apply(x + eps);
             w = wCent;
           }
         }

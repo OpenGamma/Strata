@@ -54,7 +54,7 @@ class CalibrationValue
 
   //-------------------------------------------------------------------------
   @Override
-  public DoubleArray evaluate(DoubleArray x) {
+  public DoubleArray apply(DoubleArray x) {
     // create child provider from matrix
     ImmutableRatesProvider childProvider = providerGenerator.generate(x);
     // calculate value for each trade using the child provider

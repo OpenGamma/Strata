@@ -136,7 +136,7 @@ public class IsdaCompliantCurveCalibrator {
     }
 
     @Override
-    public Double evaluate(Double x) {
+    public Double apply(Double x) {
       // TODO this direct access is unpleasant
       IsdaCompliantDateCreditCurve hazardCurve = _hazardCurve.withRate(x, _index);
       double rpv01 = PRICER.pvPremiumLegPerUnitSpread(_today, _stepinDate, _valueDate, _startDate, _endDate,

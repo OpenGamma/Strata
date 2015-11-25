@@ -8691,8 +8691,8 @@ public class BlackFormulaRepositoryTest {
 
     Function1D<Double, Double> fullIntergrand = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
-        return func.evaluate(x) * Math.exp(-x * x);
+      public Double apply(Double x) {
+        return func.apply(x) * Math.exp(-x * x);
       }
     };
 
@@ -8712,7 +8712,7 @@ public class BlackFormulaRepositoryTest {
 
     return new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         double s = fwd * Math.exp(-sigmaSqrTO2 + sigmaRoot2T * x);
         return Math.max(s - k, 0) / rootPI;
       }

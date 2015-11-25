@@ -44,14 +44,14 @@ public class GaussJacobiWeightAndAbscissaFunctionTest extends WeightAndAbscissaF
     final Function1D<Integer, Double> chebyshevAbscissa = new Function1D<Integer, Double>() {
 
       @Override
-      public Double evaluate(final Integer x) {
+      public Double apply(final Integer x) {
         return -Math.cos(Math.PI * (x + 0.5) / n);
       }
 
     };
     for (int i = 0; i < n; i++) {
       assertEquals(chebyshevWeight, w3[i], EPS);
-      assertEquals(chebyshevAbscissa.evaluate(i), -x3[i], EPS);
+      assertEquals(chebyshevAbscissa.apply(i), -x3[i], EPS);
     }
   }
 

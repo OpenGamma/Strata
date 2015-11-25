@@ -32,10 +32,10 @@ public abstract class ParameterizedSurface extends ParameterizedFunction<Doubles
 
     return new Function1D<DoublesPair, DoubleArray>() {
       @Override
-      public DoubleArray evaluate(DoublesPair xy) {
+      public DoubleArray apply(DoublesPair xy) {
         Function1D<DoubleArray, Double> f = asFunctionOfParameters(xy);
         Function1D<DoubleArray, DoubleArray> g = FIRST_ORDER_DIFF.differentiate(f);
-        return g.evaluate(params);
+        return g.apply(params);
       }
     };
   }

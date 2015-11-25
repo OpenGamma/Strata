@@ -207,7 +207,7 @@ public class BlackSwaptionPhysicalProductPricerTest {
     BlackFunctionData blackData = BlackFunctionData.of(forward, Math.abs(pvbp), volatility);
     double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
     EuropeanVanillaOption option = EuropeanVanillaOption.of(STRIKE, expiry, PutCall.PUT);
-    double pvExpected = BLACK.getPriceFunction(option).evaluate(blackData);
+    double pvExpected = BLACK.getPriceFunction(option).apply(blackData);
     CurrencyAmount pvComputed =
         PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
     assertEquals(pvComputed.getCurrency(), USD);

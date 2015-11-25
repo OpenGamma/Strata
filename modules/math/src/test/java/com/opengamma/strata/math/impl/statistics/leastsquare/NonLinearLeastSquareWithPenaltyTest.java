@@ -44,7 +44,7 @@ public class NonLinearLeastSquareWithPenaltyTest {
     Function1D<DoubleArray, DoubleArray> func = new Function1D<DoubleArray, DoubleArray>() {
 
       @Override
-      public DoubleArray evaluate(DoubleArray x) {
+      public DoubleArray apply(DoubleArray x) {
         return DoubleArray.of(n, i -> x.get(onIndex[i]));
       }
     };
@@ -52,7 +52,7 @@ public class NonLinearLeastSquareWithPenaltyTest {
     Function1D<DoubleArray, DoubleMatrix> jac = new Function1D<DoubleArray, DoubleMatrix>() {
 
       @Override
-      public DoubleMatrix evaluate(DoubleArray x) {
+      public DoubleMatrix apply(DoubleArray x) {
         return DoubleMatrix.of(
             n,
             nWeights,

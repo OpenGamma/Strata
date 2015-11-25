@@ -66,8 +66,8 @@ public class ParameterizedCurveTest {
 
     for (int i = 0; i < 20; i++) {
       double x = Math.PI * (-0.5 + i / 19.);
-      DoubleArray s1 = paramsSenseAnal.evaluate(x);
-      DoubleArray s2 = paramsSenseFD.evaluate(x);
+      DoubleArray s1 = paramsSenseAnal.apply(x);
+      DoubleArray s2 = paramsSenseFD.apply(x);
       for (int j = 0; j < 3; j++) {
         assertEquals(s1.get(j), s2.get(j), 1e-10);
       }

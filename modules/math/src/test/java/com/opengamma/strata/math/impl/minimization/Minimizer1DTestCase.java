@@ -19,14 +19,14 @@ public abstract class Minimizer1DTestCase {
   private static final Function1D<Double, Double> QUADRATIC = new Function1D<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return x * x + 7 * x + 12;
     }
 
   };
   private static final Function1D<Double, Double> QUINTIC = new Function1D<Double, Double>() {
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 1 + x * (-3 + x * (-9 + x * (-1 + x * (4 + x))));
     }
   };

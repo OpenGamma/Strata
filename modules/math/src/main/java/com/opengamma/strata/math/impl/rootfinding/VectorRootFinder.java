@@ -46,7 +46,7 @@ public abstract class VectorRootFinder implements SingleRootFinder<DoubleArray, 
         throw new IllegalArgumentException("Invalid start position x0 = " + x0.toString());
       }
     }
-    DoubleArray y = function.evaluate(x0);
+    DoubleArray y = function.apply(x0);
     int m = y.size();
     for (int i = 0; i < m; i++) {
       if (!Doubles.isFinite(y.get(i))) {

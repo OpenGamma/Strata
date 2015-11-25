@@ -247,7 +247,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
     }
 
     final TridiagonalMatrix tridiagonal = new TridiagonalMatrix(a, b, c);
-    return invertor.evaluate(tridiagonal);
+    return invertor.apply(tridiagonal);
   }
 
   @Override

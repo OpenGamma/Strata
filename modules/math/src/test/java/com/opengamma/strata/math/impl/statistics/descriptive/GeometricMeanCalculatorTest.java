@@ -46,6 +46,6 @@ public class GeometricMeanCalculatorTest {
   @Test
   public void test() {
     assertEquals(GEOMETRIC.apply(FLAT), 2, 0);
-    assertEquals(GEOMETRIC.apply(X), Math.exp(ARITHMETIC.evaluate(LN_X)), 1e-15);
+    assertEquals(GEOMETRIC.apply(X), Math.exp(ARITHMETIC.apply(LN_X)), 1e-15);
   }
 }

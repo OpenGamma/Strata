@@ -32,10 +32,10 @@ public abstract class ParameterizedCurve extends ParameterizedFunction<Double, D
     return new Function1D<Double, DoubleArray>() {
 
       @Override
-      public DoubleArray evaluate(Double x) {
+      public DoubleArray apply(Double x) {
         Function1D<DoubleArray, Double> f = asFunctionOfParameters(x);
         Function1D<DoubleArray, DoubleArray> g = FIRST_ORDER_DIFF.differentiate(f);
-        return g.evaluate(params);
+        return g.apply(params);
       }
     };
   }

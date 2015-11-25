@@ -36,7 +36,7 @@ public class NaturalCubicSplineInterpolator1DTest {
     final TreeMap<Double, Double> data = new TreeMap<>();
     for (int i = 0; i < 12; i++) {
       final double x = i / 10.;
-      data.put(x, CUBIC.evaluate(x));
+      data.put(x, CUBIC.apply(x));
     }
     MODEL = INTERPOLATOR.getDataBundle(data);
   }
@@ -72,7 +72,7 @@ public class NaturalCubicSplineInterpolator1DTest {
   public void test() {
     for (int i = 0; i < 100; i++) {
       final double x = RANDOM.nextDouble();
-      assertEquals(CUBIC.evaluate(x), INTERPOLATOR.interpolate(MODEL, x), EPS);
+      assertEquals(CUBIC.apply(x), INTERPOLATOR.interpolate(MODEL, x), EPS);
     }
   }
 

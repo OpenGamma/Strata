@@ -25,7 +25,7 @@ public class NewtonDefaultUpdateFunction implements NewtonRootFinderMatrixUpdate
 
     ArgChecker.notNull(jacobianFunction, "jacobianFunction");
     ArgChecker.notNull(x, "x");
-    return jacobianFunction.evaluate(x);
+    return jacobianFunction.apply(x);
   }
 
 }

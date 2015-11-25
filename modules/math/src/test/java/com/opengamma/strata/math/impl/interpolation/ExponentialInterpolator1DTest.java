@@ -71,12 +71,12 @@ public class ExponentialInterpolator1DTest {
     int dataSize1 = xData1.length;
     double[] yData1 = new double[dataSize1];
     for (int i = 0; i < dataSize1; ++i) {
-      yData1[i] = func1.evaluate(xData1[i]);
+      yData1[i] = func1.apply(xData1[i]);
     }
     int keySize1 = keys1.length;
     double[] expectedValues1 = new double[keySize1];
     for (int i = 0; i < keySize1; ++i) {
-      expectedValues1[i] = func1.evaluate(keys1[i]);
+      expectedValues1[i] = func1.apply(keys1[i]);
     }
     testInterpolation(xData1, yData1, keys1, expectedValues1, false);
     /* negative */
@@ -88,12 +88,12 @@ public class ExponentialInterpolator1DTest {
     int dataSize2 = xData2.length;
     double[] yData2 = new double[dataSize2];
     for (int i = 0; i < dataSize2; ++i) {
-      yData2[i] = func2.evaluate(xData2[i]);
+      yData2[i] = func2.apply(xData2[i]);
     }
     int keySize2 = keys2.length;
     double[] expectedValues2 = new double[keySize2];
     for (int i = 0; i < keySize2; ++i) {
-      expectedValues2[i] = func2.evaluate(keys2[i]);
+      expectedValues2[i] = func2.apply(keys2[i]);
     }
     testInterpolation(xData2, yData2, keys2, expectedValues2, false);
   }
@@ -114,12 +114,12 @@ public class ExponentialInterpolator1DTest {
     Function1D<Double, Double>[] func1 = new Function1D[nIntervals];
     b1[0] = 1.4;
     func1[0] = createExpFunction(a1[0], b1[0]);
-    yData1[0] = func1[0].evaluate(xData1[0]);
-    yData1[1] = func1[0].evaluate(xData1[1]);
+    yData1[0] = func1[0].apply(xData1[0]);
+    yData1[1] = func1[0].apply(xData1[1]);
     for (int i = 1; i < nIntervals; ++i) {
       b1[i] = b1[i - 1] - Math.log(a1[i] / a1[i - 1]) / xData1[i];
       func1[i] = createExpFunction(a1[i], b1[i]);
-      yData1[i + 1] = func1[i].evaluate(xData1[i + 1]);
+      yData1[i + 1] = func1[i].apply(xData1[i + 1]);
     }
     double[] keys1 = new double[] {-2.05, -2.1, -1.8, -1.0 / 11.0, 0.0, 0.05,
       0.5, 1.2, 3.3, 4.5, 5.2, 7.33, 8.25, 9.2 };
@@ -127,7 +127,7 @@ public class ExponentialInterpolator1DTest {
     double[] expectedValues1 = new double[keySize1];
     for (int i = 0; i < keySize1; ++i) {
       int index = FunctionUtils.getLowerBoundIndex(DoubleArray.copyOf(xData1), keys1[i]);
-      expectedValues1[i] = func1[index].evaluate(keys1[i]);
+      expectedValues1[i] = func1[index].apply(keys1[i]);
     }
     testInterpolation(xData1, yData1, keys1, expectedValues1, false);
     /* negative */
@@ -140,12 +140,12 @@ public class ExponentialInterpolator1DTest {
     Function1D<Double, Double>[] func2 = new Function1D[nIntervals];
     b2[0] = 1.4;
     func2[0] = createExpFunction(a2[0], b2[0]);
-    yData2[0] = func2[0].evaluate(xData2[0]);
-    yData2[1] = func2[0].evaluate(xData2[1]);
+    yData2[0] = func2[0].apply(xData2[0]);
+    yData2[1] = func2[0].apply(xData2[1]);
     for (int i = 1; i < nIntervals; ++i) {
       b2[i] = b2[i - 1] - Math.log(a2[i] / a2[i - 1]) / xData2[i];
       func2[i] = createExpFunction(a2[i], b2[i]);
-      yData2[i + 1] = func2[i].evaluate(xData2[i + 1]);
+      yData2[i + 1] = func2[i].apply(xData2[i + 1]);
     }
     double[] keys2 = new double[] {-2.05, -2.2, -1.8, -1.0 / 22.0, 0.0, 0.05,
       0.5, 2.2, 3.3, 4.5, 5.2, 7.33, 8.25, 9.2 };
@@ -153,7 +153,7 @@ public class ExponentialInterpolator1DTest {
     double[] expectedValues2 = new double[keySize2];
     for (int i = 0; i < keySize2; ++i) {
       int index = FunctionUtils.getLowerBoundIndex(DoubleArray.copyOf(xData2), keys2[i]);
-      expectedValues2[i] = func2[index].evaluate(keys2[i]);
+      expectedValues2[i] = func2[index].apply(keys2[i]);
     }
     testInterpolation(xData2, yData2, keys2, expectedValues2, false);
   }
@@ -172,12 +172,12 @@ public class ExponentialInterpolator1DTest {
     int dataSize1 = xData1.length;
     double[] yData1 = new double[dataSize1];
     for (int i = 0; i < dataSize1; ++i) {
-      yData1[i] = func1.evaluate(xData1[i]);
+      yData1[i] = func1.apply(xData1[i]);
     }
     int keySize1 = keys1.length;
     double[] expectedValues1 = new double[keySize1];
     for (int i = 0; i < keySize1; ++i) {
-      expectedValues1[i] = func1.evaluate(keys1[i]);
+      expectedValues1[i] = func1.apply(keys1[i]);
     }
     testInterpolation(xData1, yData1, keys1, expectedValues1, false);
     /* negative */
@@ -189,12 +189,12 @@ public class ExponentialInterpolator1DTest {
     int dataSize2 = xData2.length;
     double[] yData2 = new double[dataSize2];
     for (int i = 0; i < dataSize2; ++i) {
-      yData2[i] = func2.evaluate(xData2[i]);
+      yData2[i] = func2.apply(xData2[i]);
     }
     int keySize2 = keys2.length;
     double[] expectedValues2 = new double[keySize2];
     for (int i = 0; i < keySize2; ++i) {
-      expectedValues2[i] = func2.evaluate(keys2[i]);
+      expectedValues2[i] = func2.apply(keys2[i]);
     }
     testInterpolation(xData2, yData2, keys2, expectedValues2, false);
   }
@@ -308,7 +308,7 @@ public class ExponentialInterpolator1DTest {
   private Function1D<Double, Double> createExpFunction(final double a, final double b) {
     return new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double value) {
+      public Double apply(Double value) {
         return a * Math.exp(b * value);
       }
     };

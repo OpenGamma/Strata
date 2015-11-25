@@ -44,8 +44,8 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
         return new DoubleFunction1D() {
 
           @Override
-          public Double evaluate(Double x) {
-            return (DoubleFunction1D.this.evaluate(x + eps) - DoubleFunction1D.this.evaluate(x - eps)) / 2 / eps;
+          public Double apply(Double x) {
+            return (DoubleFunction1D.this.apply(x + eps) - DoubleFunction1D.this.apply(x - eps)) / 2 / eps;
           }
 
         };
@@ -53,8 +53,8 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
         return new DoubleFunction1D() {
 
           @Override
-          public Double evaluate(Double x) {
-            return (DoubleFunction1D.this.evaluate(x) - DoubleFunction1D.this.evaluate(x - eps)) / eps;
+          public Double apply(Double x) {
+            return (DoubleFunction1D.this.apply(x) - DoubleFunction1D.this.apply(x - eps)) / eps;
           }
 
         };
@@ -62,8 +62,8 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
         return new DoubleFunction1D() {
 
           @Override
-          public Double evaluate(Double x) {
-            return (DoubleFunction1D.this.evaluate(x + eps) - DoubleFunction1D.this.evaluate(x)) / eps;
+          public Double apply(Double x) {
+            return (DoubleFunction1D.this.apply(x + eps) - DoubleFunction1D.this.apply(x)) / eps;
           }
 
         };
@@ -84,8 +84,8 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double evaluate(Double x) {
-        return DoubleFunction1D.this.evaluate(x) + f.evaluate(x);
+      public Double apply(Double x) {
+        return DoubleFunction1D.this.apply(x) + f.apply(x);
       }
 
     };
@@ -102,8 +102,8 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double evaluate(Double x) {
-        return DoubleFunction1D.this.evaluate(x) + a;
+      public Double apply(Double x) {
+        return DoubleFunction1D.this.apply(x) + a;
       }
 
     };
@@ -122,8 +122,8 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double evaluate(Double x) {
-        return DoubleFunction1D.this.evaluate(x) / f.evaluate(x);
+      public Double apply(Double x) {
+        return DoubleFunction1D.this.apply(x) / f.apply(x);
       }
 
     };
@@ -140,8 +140,8 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double evaluate(Double x) {
-        return DoubleFunction1D.this.evaluate(x) / a;
+      public Double apply(Double x) {
+        return DoubleFunction1D.this.apply(x) / a;
       }
 
     };
@@ -159,8 +159,8 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double evaluate(Double x) {
-        return DoubleFunction1D.this.evaluate(x) * f.evaluate(x);
+      public Double apply(Double x) {
+        return DoubleFunction1D.this.apply(x) * f.apply(x);
       }
 
     };
@@ -177,8 +177,8 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double evaluate(Double x) {
-        return DoubleFunction1D.this.evaluate(x) * a;
+      public Double apply(Double x) {
+        return DoubleFunction1D.this.apply(x) * a;
       }
 
     };
@@ -196,8 +196,8 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double evaluate(Double x) {
-        return DoubleFunction1D.this.evaluate(x) - f.evaluate(x);
+      public Double apply(Double x) {
+        return DoubleFunction1D.this.apply(x) - f.apply(x);
       }
 
     };
@@ -214,8 +214,8 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double evaluate(Double x) {
-        return DoubleFunction1D.this.evaluate(x) - a;
+      public Double apply(Double x) {
+        return DoubleFunction1D.this.apply(x) - a;
       }
 
     };
@@ -232,8 +232,8 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double evaluate(Double x) {
-        return f.evaluate(x);
+      public Double apply(Double x) {
+        return f.apply(x);
       }
 
     };

@@ -15,7 +15,7 @@ public class Function1DTest {
   private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 0.;
     }
 

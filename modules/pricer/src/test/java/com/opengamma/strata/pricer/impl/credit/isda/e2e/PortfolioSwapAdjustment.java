@@ -183,7 +183,7 @@ public class PortfolioSwapAdjustment {
     double clean = intrinsicData.getIndexFactor() * indexPUF;
     return new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         IsdaCompliantCreditCurve[] adjCurves = adjustCurves(creditCurves, x);
         return _pricer.indexPV(indexCDS, indexCoupon, yieldCurve, intrinsicData.withCreditCurves(adjCurves)) - clean;
       }
@@ -203,7 +203,7 @@ public class PortfolioSwapAdjustment {
     double clean = intrinsicData.getIndexFactor() * indexPUF;
     return new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         IsdaCompliantCreditCurve[] adjCurves = adjustCurves(creditCurves, x, firstKnots, lastKnots);
         return _pricer.indexPV(indexCDS, indexCoupon, yieldCurve, intrinsicData.withCreditCurves(adjCurves)) - clean;
       }

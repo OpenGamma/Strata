@@ -45,14 +45,14 @@ public class AverageCalculatorTest {
   public void testSingleValue() {
     final double value = 3.;
     final double[] x = {value };
-    assertEquals(value, MEAN.evaluate(x), EPS);
+    assertEquals(value, MEAN.apply(x), EPS);
     assertEquals(value, MEDIAN.apply(x), EPS);
     assertEquals(value, MODE.apply(x), EPS);
   }
 
   @Test
   public void testMean() {
-    assertEquals(MEAN.evaluate(DATA), 3.33, EPS);
+    assertEquals(MEAN.apply(DATA), 3.33, EPS);
   }
 
   @Test
@@ -85,7 +85,7 @@ public class AverageCalculatorTest {
 
   private void assertNull(final Function1D<double[], Double> calculator) {
     try {
-      calculator.evaluate((double[]) null);
+      calculator.apply((double[]) null);
       Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -105,7 +105,7 @@ public class AverageCalculatorTest {
   private void assertEmpty(final Function1D<double[], Double> calculator) {
     final double[] x = new double[0];
     try {
-      calculator.evaluate(x);
+      calculator.apply(x);
       Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected

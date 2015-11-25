@@ -67,11 +67,11 @@ public class ScalarFieldFirstOrderDifferentiator
         return new Function1D<DoubleArray, DoubleArray>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleArray evaluate(DoubleArray x) {
+          public DoubleArray apply(DoubleArray x) {
             ArgChecker.notNull(x, "x");
-            double y = function.evaluate(x);
+            double y = function.apply(x);
             return DoubleArray.of(x.size(), i -> {
-              double up = function.evaluate(x.with(i, x.get(i) + eps));
+              double up = function.apply(x.with(i, x.get(i) + eps));
               return (up - y) / eps;
             });
           }
@@ -80,11 +80,11 @@ public class ScalarFieldFirstOrderDifferentiator
         return new Function1D<DoubleArray, DoubleArray>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleArray evaluate(DoubleArray x) {
+          public DoubleArray apply(DoubleArray x) {
             ArgChecker.notNull(x, "x");
             return DoubleArray.of(x.size(), i -> {
-              double up = function.evaluate(x.with(i, x.get(i) + eps));
-              double down = function.evaluate(x.with(i, x.get(i) - eps));
+              double up = function.apply(x.with(i, x.get(i) + eps));
+              double down = function.apply(x.with(i, x.get(i) - eps));
               return (up - down) / twoEps;
             });
           }
@@ -93,11 +93,11 @@ public class ScalarFieldFirstOrderDifferentiator
         return new Function1D<DoubleArray, DoubleArray>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleArray evaluate(DoubleArray x) {
+          public DoubleArray apply(DoubleArray x) {
             ArgChecker.notNull(x, "x");
-            double y = function.evaluate(x);
+            double y = function.apply(x);
             return DoubleArray.of(x.size(), i -> {
-              double down = function.evaluate(x.with(i, x.get(i) - eps));
+              double down = function.apply(x.with(i, x.get(i) - eps));
               return (y - down) / eps;
             });
           }
@@ -123,9 +123,9 @@ public class ScalarFieldFirstOrderDifferentiator
     return new Function1D<DoubleArray, DoubleArray>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleArray evaluate(DoubleArray x) {
+      public DoubleArray apply(DoubleArray x) {
         ArgChecker.notNull(x, "x");
-        ArgChecker.isTrue(domain.evaluate(x), "point {} is not in the function domain", x.toString());
+        ArgChecker.isTrue(domain.apply(x), "point {} is not in the function domain", x.toString());
 
         return DoubleArray.of(x.size(), i -> {
           double xi = x.get(i);
@@ -133,26 +133,26 @@ public class ScalarFieldFirstOrderDifferentiator
           DoubleArray xMinusOneEps = x.with(i, xi - eps);
           double y0, y1, y2;
           double[] w;
-          if (!domain.evaluate(xPlusOneEps)) {
+          if (!domain.apply(xPlusOneEps)) {
             DoubleArray xMinusTwoEps = x.with(i, xi - twoEps);
-            if (!domain.evaluate(xMinusTwoEps)) {
+            if (!domain.apply(xMinusTwoEps)) {
               throw new MathException("cannot get derivative at point " + x.toString() + " in direction " + i);
             }
-            y0 = function.evaluate(xMinusTwoEps);
-            y2 = function.evaluate(x);
-            y1 = function.evaluate(xMinusOneEps);
+            y0 = function.apply(xMinusTwoEps);
+            y2 = function.apply(x);
+            y1 = function.apply(xMinusOneEps);
             w = wBack;
           } else {
-            double temp = function.evaluate(xPlusOneEps);
-            if (!domain.evaluate(xMinusOneEps)) {
+            double temp = function.apply(xPlusOneEps);
+            if (!domain.apply(xMinusOneEps)) {
               y1 = temp;
-              y0 = function.evaluate(x);
-              y2 = function.evaluate(x.with(i, xi + twoEps));
+              y0 = function.apply(x);
+              y2 = function.apply(x.with(i, xi + twoEps));
               w = wFwd;
             } else {
               y1 = 0;
               y2 = temp;
-              y0 = function.evaluate(xMinusOneEps);
+              y0 = function.apply(xMinusOneEps);
               w = wCent;
             }
           }

@@ -38,7 +38,7 @@ public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleAr
   }
 
   @Override
-  public LinkedHashMap<String, Interpolator1DDataBundle> evaluate(final DoubleArray x) {
+  public LinkedHashMap<String, Interpolator1DDataBundle> apply(final DoubleArray x) {
     ArgChecker.notNull(x, "null data x");
     ArgChecker.isTrue(_nNodes == x.size(), "x wrong length");
 

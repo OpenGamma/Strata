@@ -88,9 +88,9 @@ public class NormalImpliedVolatilityFormula {
         Function1D<Double, Double> func = new Function1D<Double, Double>() {
           @SuppressWarnings({"synthetic-access"})
           @Override
-          public Double evaluate(Double volatility) {
+          public Double apply(Double volatility) {
             NormalFunctionData myData = NormalFunctionData.of(data.getForward(), data.getNumeraire(), volatility);
-            return NORMAL_PRICE_FUNCTION.getPriceFunction(option).evaluate(myData) - optionPrice;
+            return NORMAL_PRICE_FUNCTION.getPriceFunction(option).apply(myData) - optionPrice;
           }
         };
         double[] range = bracketer.getBracketedPoints(func, 0.0, 10.0);

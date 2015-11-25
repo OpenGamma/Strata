@@ -73,8 +73,8 @@ public class ParameterizedSurfaceTest {
       for (int j = 0; j < 20; j++) {
         final double y = Math.PI * (-0.5 + j / 19.);
         final DoublesPair xy = DoublesPair.of(x, y);
-        final DoubleArray s1 = paramsSenseAnal.evaluate(xy);
-        final DoubleArray s2 = paramsSenseFD.evaluate(xy);
+        final DoubleArray s1 = paramsSenseAnal.apply(xy);
+        final DoubleArray s2 = paramsSenseFD.apply(xy);
         for (int k = 0; k < 3; k++) {
           assertEquals(s1.get(k), s2.get(k), 1e-10);
         }

@@ -50,7 +50,7 @@ public class IncompleteGammaFunction extends Function1D<Double, Double> {
 
   //-------------------------------------------------------------------------
   @Override
-  public Double evaluate(Double x) {
+  public Double apply(Double x) {
     try {
       return Gamma.regularizedGammaP(_a, x, _eps, _maxIter);
     } catch (MaxCountExceededException e) {
