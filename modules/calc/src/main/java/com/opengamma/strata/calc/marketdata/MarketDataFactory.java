@@ -18,62 +18,24 @@ public interface MarketDataFactory {
   /**
    * Builds a set of market data.
    * <p>
-   * If the requirements specify any data not provided in the {@code suppliedData} it is built by the
+   * If the requirements include any data not provided in the {@code suppliedData} it is built by the
    * engine.
-   * <p>
-   * A market environment contains the basic market data values that are of interest to users. For example, a market
-   * environment might contain market quotes, calibrated curves and volatility surfaces.
-   * <p>
-   * It is anticipated that {@link MarketEnvironment} will be exposed directly to users.
-   * <p>
-   * The market data used in calculations is provided by {@link CalculationMarketDataMap}. This
-   * contains the same data as {@link MarketEnvironment} plus
-   * additional derived values used by the calculations and scenario framework.
-   * <p>
-   * {@link CalculationMarketDataMap} can be built from a {@link MarketEnvironment} using
-   * {@link #buildCalculationMarketData}
-   *
-   * @param requirements  the market data required
-   * @param suppliedData  the market data supplied by the caller
-   * @param marketDataConfig  configuration needed to build non-observable market data, for example curves or surfaces
-   * @param includeIntermediateValues  if this flag is true all market data values are returned including intermediate
-   *   values used to build other values. If it is false the returned data will only include the values
-   *   specified in tne requirements. This is intended to be used when debugging problems building market data
-   * @return the requested market data plus details of any data that could not be built
-   */
-  public abstract MarketEnvironmentResult buildMarketData(
-      MarketDataRequirements requirements,
-      MarketEnvironment suppliedData,
-      MarketDataConfig marketDataConfig,
-      boolean includeIntermediateValues);
-
-  /**
-   * Builds the market data required for performing calculations over a portfolio.
-   * <p>
-   * If the calculations require any data not provided in the {@code suppliedData} it is built by the
-   * engine.
-   * <p>
-   * {@link CalculationMarketDataMap} contains the same data as {@link MarketEnvironment} plus
-   * additional derived values used by the calculations and scenario framework.
    *
    * @param requirements  the market data required for the calculations
    * @param suppliedData  market data supplied by the user
    * @param marketDataConfig  configuration needed to build non-observable market data, for example curves or surfaces
    * @return the market data required by the calculations plus details of any data that could not be built
    */
-  public abstract CalculationMarketDataMap buildCalculationMarketData(
-      CalculationRequirements requirements,
-      MarketEnvironment suppliedData,
+  public abstract MarketEnvironment buildMarketData(
+      MarketDataRequirements requirements,
+      CalculationEnvironment suppliedData,
       MarketDataConfig marketDataConfig);
 
   /**
-   * Builds the market data required for performing calculations over a portfolio for a set of scenarios.
+   * Builds the market data required for performing calculations for a set of scenarios.
    * <p>
    * If the calculations require any data not provided in the {@code suppliedData} it is built by the
    * engine before applying the scenario definition.
-   * <p>
-   * {@link CalculationMarketDataMap} contains the same data as {@link MarketEnvironment} plus
-   * additional derived values used by the calculations and scenario framework.
    * <p>
    * If the scenario definition contains perturbations that apply to the inputs used to build market data,
    * the data must be built by this method, not provided in {@code suppliedData}.
@@ -88,9 +50,9 @@ public interface MarketDataFactory {
    * @param scenarioDefinition  defines how the market data for each scenario is derived from the base data
    * @return the market data required by the calculations
    */
-  public abstract CalculationMarketDataMap buildCalculationMarketData(
-      CalculationRequirements requirements,
-      MarketEnvironment suppliedData,
+  public abstract MarketEnvironment buildMarketData(
+      MarketDataRequirements requirements,
+      CalculationEnvironment suppliedData,
       MarketDataConfig marketDataConfig,
       ScenarioDefinition scenarioDefinition);
 }

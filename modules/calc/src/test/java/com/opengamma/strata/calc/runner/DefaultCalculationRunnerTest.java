@@ -36,8 +36,8 @@ import com.opengamma.strata.calc.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.calc.config.pricing.PricingRule;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.marketdata.CalculationRequirements;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.TestKey;
 import com.opengamma.strata.calc.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
@@ -127,7 +127,7 @@ public class DefaultCalculationRunnerTest {
     CalculationTasksConfig calculationConfig =
         runner.createCalculationConfig(targets, columns, pricingRules, marketDataRules, reportingRules);
     CalculationTasks calculationTasks = runner.createCalculationTasks(calculationConfig);
-    CalculationRequirements requirements = calculationTasks.getRequirements();
+    MarketDataRequirements requirements = calculationTasks.getRequirements();
     Set<? extends MarketDataId<?>> nonObservables = requirements.getNonObservables();
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
     ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();

@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.calc.marketdata;
 
-import static com.opengamma.strata.collect.Guavate.entriesToImmutableMap;
 import static com.opengamma.strata.collect.Guavate.not;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
@@ -111,64 +110,23 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   }
 
   @Override
-  public MarketEnvironmentResult buildMarketData(
+  public MarketEnvironment buildMarketData(
       MarketDataRequirements requirements,
-      MarketEnvironment suppliedData,
-      MarketDataConfig marketDataConfig,
-      boolean includeIntermediateValues) {
-
-    CalculationRequirements calcRequirements = CalculationRequirements.of(requirements);
-    CalculationMarketDataMap calcEnv = buildCalculationMarketData(calcRequirements, suppliedData, marketDataConfig);
-    Map<MarketDataId<?>, MarketDataBox<?>> values;
-    Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries;
-
-    if (includeIntermediateValues) {
-      // If the intermediate values are required then all the data from the calculation environment is included
-      values = calcEnv.getValues();
-      timeSeries = calcEnv.getTimeSeries();
-    } else {
-      // If the intermediate values are not required then the results are filtered to only include the values
-      // requested in the requirements
-      values = calcEnv.getValues().entrySet().stream()
-          .filter(tp -> requirements.getNonObservables().contains(tp.getKey()) ||
-              requirements.getObservables().contains(tp.getKey()))
-          .collect(entriesToImmutableMap());
-      timeSeries = calcEnv.getTimeSeries().entrySet().stream()
-          .filter(tp -> requirements.getTimeSeries().contains(tp.getKey()))
-          .collect(entriesToImmutableMap());
-    }
-    MarketEnvironment marketEnvironment = MarketEnvironment.builder()
-        .valuationDate(calcEnv.getValuationDate())
-        .addBoxedValues(values)
-        .addTimeSeries(timeSeries)
-        .build();
-
-    return MarketEnvironmentResult.builder()
-        .marketEnvironment(marketEnvironment)
-        .singleValueFailures(calcEnv.getValueFailures())
-        .timeSeriesFailures(calcEnv.getTimeSeriesFailures())
-        .build();
-  }
-
-  @Override
-  public CalculationMarketDataMap buildCalculationMarketData(
-      CalculationRequirements requirements,
-      MarketEnvironment suppliedData,
+      CalculationEnvironment suppliedData,
       MarketDataConfig marketDataConfig) {
 
-    return buildCalculationMarketData(requirements, suppliedData, marketDataConfig, ScenarioDefinition.empty());
+    return buildMarketData(requirements, suppliedData, marketDataConfig, ScenarioDefinition.empty());
   }
 
   @Override
-  public CalculationMarketDataMap buildCalculationMarketData(
-      CalculationRequirements requirements,
-      MarketEnvironment suppliedData,
+  public MarketEnvironment buildMarketData(
+      MarketDataRequirements requirements,
+      CalculationEnvironment suppliedData,
       MarketDataConfig marketDataConfig,
       ScenarioDefinition scenarioDefinition) {
 
-    CalculationEnvironmentBuilder dataBuilder =
-        CalculationMarketDataMap.builder().valuationDate(suppliedData.getValuationDate());
-    CalculationMarketDataMap builtData = dataBuilder.buildMarketDataMap();
+    MarketEnvironmentBuilder dataBuilder = MarketEnvironment.builder().valuationDate(suppliedData.getValuationDate());
+    MarketEnvironment builtData = dataBuilder.build();
 
     // Build a tree of the market data dependencies. The root of the tree represents the calculations.
     // The children of the root represent the market data directly used in the calculations. The children
@@ -195,7 +153,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
     while (!root.isLeaf()) {
       // Effectively final reference to buildData which can be used in a lambda expression
-      CalculationMarketDataMap marketData = builtData;
+      MarketEnvironment marketData = builtData;
 
       // The leaves of the dependency tree represent market data with no dependencies that can be built immediately
       Pair<MarketDataNode, MarketDataRequirements> pair = root.withLeavesRemoved();
@@ -256,7 +214,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       // --------------------------------------------------------------------------------------------
 
       // Put the data built so far into an object that will be used in the next phase of building data
-      builtData = dataBuilder.buildMarketDataMap();
+      builtData = dataBuilder.build();
 
       // A copy of the dependency tree not including the leaf nodes
       root = pair.getFirst();
@@ -275,7 +233,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   @SuppressWarnings({"unchecked", "rawtypes"})
   private Result<MarketDataBox<?>> buildNonObservableData(
       MarketDataId id,
-      CalculationEnvironment suppliedData,
+      MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig) {
 
     // The raw types in this method are an unfortunate necessity. The type parameters on MarketDataBuilder
@@ -298,7 +256,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   private Map<MarketDataId<?>, Result<MarketDataBox<?>>> buildNonObservableData(
       Set<? extends MarketDataId<?>> ids,
       MarketDataConfig marketDataConfig,
-      CalculationMarketDataMap marketData) {
+      MarketEnvironment marketData) {
 
     return ids.stream().collect(toImmutableMap(id -> id, id -> buildNonObservableData(id, marketData, marketDataConfig)));
   }
@@ -320,7 +278,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       MarketDataId<?> id,
       Result<MarketDataBox<?>> valueResult,
       ScenarioDefinition scenarioDefinition,
-      CalculationEnvironmentBuilder builder) {
+      MarketEnvironmentBuilder builder) {
 
     if (valueResult.isFailure()) {
       builder.addResultUnsafe(id, valueResult);
@@ -346,7 +304,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       ObservableId id,
       Result<Double> valueResult,
       ScenarioDefinition scenarioDefinition,
-      CalculationEnvironmentBuilder builder) {
+      MarketEnvironmentBuilder builder) {
 
     if (valueResult.isFailure()) {
       builder.addResultUnsafe(id, Result.failure(valueResult));
@@ -371,7 +329,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       MarketDataId<?> id,
       MarketDataBox<?> value,
       ScenarioDefinition scenarioDefinition,
-      CalculationEnvironmentBuilder builder) {
+      MarketEnvironmentBuilder builder) {
 
     Optional<PerturbationMapping<?>> optionalMapping = scenarioDefinition.getMappings().stream()
         .filter(m -> m.matches(id, value))

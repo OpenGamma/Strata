@@ -94,8 +94,8 @@ public interface CalculationEnvironment {
    *
    * @return a mutable builder for building a {@code CalculationEnvironment}
    */
-  public static CalculationEnvironmentBuilder builder() {
-    return new CalculationEnvironmentBuilder();
+  public static MarketEnvironmentBuilder builder() {
+    return MarketEnvironment.builder();
   }
 
   /**
@@ -104,6 +104,6 @@ public interface CalculationEnvironment {
    * @return a {@code CalculationEnvironment} containing no data
    */
   public static CalculationEnvironment empty() {
-    return CalculationMarketDataMap.EMPTY;
+    return MarketEnvironment.empty();
   }
 }

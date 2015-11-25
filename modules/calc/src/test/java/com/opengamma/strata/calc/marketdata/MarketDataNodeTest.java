@@ -151,7 +151,7 @@ public class MarketDataNodeTest {
 
     MarketDataNode root =
         MarketDataNode.buildDependencyTree(
-            CalculationRequirements.of(requirements),
+            requirements,
             MarketEnvironment.empty(),
             MarketDataConfig.empty(),
             functions);
@@ -200,7 +200,7 @@ public class MarketDataNodeTest {
 
     MarketDataNode root1 =
         MarketDataNode.buildDependencyTree(
-            CalculationRequirements.of(requirements),
+            requirements,
             MarketEnvironment.empty(),
             MarketDataConfig.empty(),
             functions);
@@ -214,11 +214,12 @@ public class MarketDataNodeTest {
             .addValue(new TestIdB("3"), new TestMarketDataB())
             .build();
 
-    MarketDataNode root2 = MarketDataNode.buildDependencyTree(
-        CalculationRequirements.of(requirements),
-        suppliedData,
-        MarketDataConfig.empty(),
-        functions);
+    MarketDataNode root2 =
+        MarketDataNode.buildDependencyTree(
+            requirements,
+            suppliedData,
+            MarketDataConfig.empty(),
+            functions);
 
     MarketDataNode expected2 =
         rootNode(
@@ -255,7 +256,7 @@ public class MarketDataNodeTest {
     // Build the tree without providing a market data function to handle TestId3
     MarketDataNode root =
         MarketDataNode.buildDependencyTree(
-            CalculationRequirements.of(requirements),
+            requirements,
             MarketEnvironment.empty(),
             MarketDataConfig.empty(),
             functions);

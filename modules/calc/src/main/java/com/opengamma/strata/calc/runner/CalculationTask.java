@@ -20,10 +20,10 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.calc.config.ReportingRules;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.marketdata.CalculationRequirements;
-import com.opengamma.strata.calc.marketdata.CalculationRequirementsBuilder;
 import com.opengamma.strata.calc.marketdata.DefaultCalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
+import com.opengamma.strata.calc.marketdata.MarketDataRequirementsBuilder;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
@@ -93,9 +93,9 @@ public class CalculationTask {
    *
    * @return requirements specifying the market data the function needs to perform its calculations
    */
-  public CalculationRequirements requirements() {
+  public MarketDataRequirements requirements() {
     FunctionRequirements functionRequirements = function.requirements(target);
-    CalculationRequirementsBuilder requirementsBuilder = CalculationRequirements.builder();
+    MarketDataRequirementsBuilder requirementsBuilder = MarketDataRequirements.builder();
 
     functionRequirements.getTimeSeriesRequirements().stream()
         .map(marketDataMappings::getIdForObservableKey)

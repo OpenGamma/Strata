@@ -246,7 +246,7 @@ public class CurveInputsMarketDataFunctionTest {
     assertThrows(
         () -> marketDataFunction.build(curveInputsId, emptyData, marketDataConfig),
         IllegalArgumentException.class,
-        "No market data value available for .*");
+        "No market data available for .*");
   }
 
   //-------------------------------------------------------------------------
