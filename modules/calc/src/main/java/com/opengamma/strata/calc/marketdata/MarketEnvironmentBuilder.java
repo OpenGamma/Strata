@@ -330,6 +330,10 @@ public final class MarketEnvironmentBuilder {
    * @return a set of market data from the data in this builder
    */
   public MarketEnvironment build() {
+    if (valuationDate.getScenarioCount() == 0) {
+      // This isn't checked in MarketEnvironment otherwise it would be impossible to have an empty environment
+      throw new IllegalArgumentException("Valuation date must be specified");
+    }
     return new MarketEnvironment(valuationDate, scenarioCount, values, timeSeries, valueFailures, timeSeriesFailures);
   }
 

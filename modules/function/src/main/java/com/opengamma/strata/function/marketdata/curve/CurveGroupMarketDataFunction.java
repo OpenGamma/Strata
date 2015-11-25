@@ -11,6 +11,7 @@ import static java.util.stream.Collectors.toMap;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BinaryOperator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -46,8 +47,10 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   // TODO Where should the root finder config come from?
   //   Should it be possible to override it for each call? Put it in MarketDataConfig?
   //   Is it a system-wide setting?
+
   /**
-   * Creates a new function for building curve groups that delegates to {@code curveBuilder} to perform calibration.
+   * Creates a new function for building curve groups that delegates to a {@link CurveCalibrator}
+   * to perform calibration.
    *
    * @param rootFinderConfig  the configuration for the root finder used when calibrating curves
    * @param measures  the measures used for calibration
@@ -58,6 +61,15 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         rootFinderConfig.getRelativeTolerance(),
         rootFinderConfig.getMaximumSteps(),
         measures);
+  }
+
+  /**
+   * Creates a new function for building curve groups that delegates to {@code curveCalibrator} to perform calibration.
+   *
+   * @param curveCalibrator  performs the calibration
+   */
+  public CurveGroupMarketDataFunction(CurveCalibrator curveCalibrator) {
+    this.curveCalibrator = curveCalibrator;
   }
 
   //-------------------------------------------------------------------------
@@ -164,9 +176,12 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * @return the underlying quotes from the input data
    */
   private static MarketData inputsByKey(List<CurveInputs> inputs) {
+    // This needs to be a variable because javac JDK8u60 won't compile it inline
+    BinaryOperator<Object> mergeFunction = (v1, v2) -> checkValuesEqual(v1, v2);
+
     Map<? extends MarketDataKey<?>, ?> valueMap = inputs.stream()
         .flatMap(pr -> pr.getMarketData().entrySet().stream())
-        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, mergeFunction));
     return MarketData.of(valueMap);
   }
 
@@ -186,6 +201,29 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         groupDefn.getName(),
         calibratedProvider.getDiscountCurves(),
         calibratedProvider.getIndexCurves());
+  }
+
+  /**
+   * Checks two values are equal and returns one of them if they are, otherwise throws an exception.
+   * <p>
+   * This is used as the merging function when collecting values into a map. If two values have the
+   * same key they must be equal. Therefore this function checks equality and returns one of the values.
+   * No actual merging is necessary as the values are the same.
+   *
+   * @param value1  a value which is being inserted into a map
+   * @param value2  a value which is being inserted into a map
+   * @return one of the values if they are equal
+   * @throws IllegalArgumentException if the values are not equal
+   */
+  private static Object checkValuesEqual(Object value1, Object value2) {
+    if (value1.equals(value2)) {
+      return value1;
+    }
+    throw new IllegalArgumentException(
+        Messages.format(
+            "Values with the same key must be equal but found unequal values: {} and {}",
+            value1,
+            value2));
   }
 
   private static int scenarioCount(

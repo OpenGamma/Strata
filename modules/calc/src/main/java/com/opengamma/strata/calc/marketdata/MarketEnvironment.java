@@ -54,7 +54,13 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 public final class MarketEnvironment implements ImmutableBean, CalculationEnvironment {
 
   /** An instance containing no market data. */
-  static final MarketEnvironment EMPTY = builder().build();
+  static final MarketEnvironment EMPTY = new MarketEnvironment(
+      MarketDataBox.empty(),
+      0,
+      ImmutableMap.of(),
+      ImmutableMap.of(),
+      ImmutableMap.of(),
+      ImmutableMap.of());
 
   /** The valuation date associated with the data. */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
