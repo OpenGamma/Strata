@@ -75,11 +75,11 @@ public final class TenorCurveNodeMetadata
    * 
    * @param date  the date of the curve node
    * @param tenor  the tenor of the curve node
-   * @param label  the label to use
+   * @param label  the label to use, an empty string will default to the tenor
    * @return node metadata based on a tenor
    */
   public static TenorCurveNodeMetadata of(LocalDate date, Tenor tenor, String label) {
-    return new TenorCurveNodeMetadata(date, tenor, label);
+    return new TenorCurveNodeMetadata(date, tenor, label.isEmpty() ? tenor.toString() : label);
   }
 
   @ImmutablePreBuild

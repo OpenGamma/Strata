@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -66,6 +67,12 @@ public final class XCcyIborIborSwapCurveNode
    */
   @PropertyDefinition
   private final double additionalSpread;
+  /**
+   * The label to use for the node.
+   * If absent an appropriate default label will be used.
+   */
+  @PropertyDefinition(get = "optional")
+  private final String label;
 
   //-------------------------------------------------------------------------
   /**
@@ -94,7 +101,27 @@ public final class XCcyIborIborSwapCurveNode
       ObservableKey spreadKey,
       double additionalSpread) {
 
-    return new XCcyIborIborSwapCurveNode(template, spreadKey, FxRateKey.of(template.getCurrencyPair()), additionalSpread);
+    return of(template, spreadKey, additionalSpread, null);
+  }
+
+  /**
+   * Returns a curve node for a cross-currency Ibor-Ibor interest rate swap using the
+   * specified instrument template, rate key, spread and label.
+   *
+   * @param template  the template defining the node instrument
+   * @param spreadKey  the key identifying the market spread used when building the instrument for the node
+   * @param additionalSpread  the additional spread amount added to the market quote
+   * @param label  the label to use for the node, if null or empty an appropriate default label will be used
+   * @return a node whose instrument is built from the template using a market rate
+   */
+  public static XCcyIborIborSwapCurveNode of(
+      XCcyIborIborSwapTemplate template,
+      ObservableKey spreadKey,
+      double additionalSpread,
+      String label) {
+
+    FxRateKey fxKey = FxRateKey.of(template.getCurrencyPair());
+    return new XCcyIborIborSwapCurveNode(template, spreadKey, fxKey, additionalSpread, label);
   }
 
   //-------------------------------------------------------------------------
@@ -106,7 +133,7 @@ public final class XCcyIborIborSwapCurveNode
   @Override
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
     SwapTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1, 0);
-    return TenorCurveNodeMetadata.of(trade.getProduct().getEndDate(), template.getTenor());
+    return TenorCurveNodeMetadata.of(trade.getProduct().getEndDate(), template.getTenor(), getLabel().orElse(""));
   }
 
   @Override
@@ -156,7 +183,8 @@ public final class XCcyIborIborSwapCurveNode
       XCcyIborIborSwapTemplate template,
       ObservableKey spreadKey,
       FxRateKey fxKey,
-      double additionalSpread) {
+      double additionalSpread,
+      String label) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(spreadKey, "spreadKey");
     JodaBeanUtils.notNull(fxKey, "fxKey");
@@ -164,6 +192,7 @@ public final class XCcyIborIborSwapCurveNode
     this.spreadKey = spreadKey;
     this.fxKey = fxKey;
     this.additionalSpread = additionalSpread;
+    this.label = label;
   }
 
   @Override
@@ -219,6 +248,16 @@ public final class XCcyIborIborSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the label to use for the node.
+   * If absent an appropriate default label will be used.
+   * @return the optional value of the property, not null
+   */
+  public Optional<String> getLabel() {
+    return Optional.ofNullable(label);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -236,7 +275,8 @@ public final class XCcyIborIborSwapCurveNode
       return JodaBeanUtils.equal(template, other.template) &&
           JodaBeanUtils.equal(spreadKey, other.spreadKey) &&
           JodaBeanUtils.equal(fxKey, other.fxKey) &&
-          JodaBeanUtils.equal(additionalSpread, other.additionalSpread);
+          JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
+          JodaBeanUtils.equal(label, other.label);
     }
     return false;
   }
@@ -248,17 +288,19 @@ public final class XCcyIborIborSwapCurveNode
     hash = hash * 31 + JodaBeanUtils.hashCode(spreadKey);
     hash = hash * 31 + JodaBeanUtils.hashCode(fxKey);
     hash = hash * 31 + JodaBeanUtils.hashCode(additionalSpread);
+    hash = hash * 31 + JodaBeanUtils.hashCode(label);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("XCcyIborIborSwapCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
     buf.append("spreadKey").append('=').append(spreadKey).append(',').append(' ');
     buf.append("fxKey").append('=').append(fxKey).append(',').append(' ');
-    buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread));
+    buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();
   }
@@ -294,6 +336,11 @@ public final class XCcyIborIborSwapCurveNode
     private final MetaProperty<Double> additionalSpread = DirectMetaProperty.ofImmutable(
         this, "additionalSpread", XCcyIborIborSwapCurveNode.class, Double.TYPE);
     /**
+     * The meta-property for the {@code label} property.
+     */
+    private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
+        this, "label", XCcyIborIborSwapCurveNode.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -301,7 +348,8 @@ public final class XCcyIborIborSwapCurveNode
         "template",
         "spreadKey",
         "fxKey",
-        "additionalSpread");
+        "additionalSpread",
+        "label");
 
     /**
      * Restricted constructor.
@@ -320,6 +368,8 @@ public final class XCcyIborIborSwapCurveNode
           return fxKey;
         case 291232890:  // additionalSpread
           return additionalSpread;
+        case 102727412:  // label
+          return label;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -372,6 +422,14 @@ public final class XCcyIborIborSwapCurveNode
       return additionalSpread;
     }
 
+    /**
+     * The meta-property for the {@code label} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> label() {
+      return label;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -384,6 +442,8 @@ public final class XCcyIborIborSwapCurveNode
           return ((XCcyIborIborSwapCurveNode) bean).getFxKey();
         case 291232890:  // additionalSpread
           return ((XCcyIborIborSwapCurveNode) bean).getAdditionalSpread();
+        case 102727412:  // label
+          return ((XCcyIborIborSwapCurveNode) bean).label;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -409,6 +469,7 @@ public final class XCcyIborIborSwapCurveNode
     private ObservableKey spreadKey;
     private FxRateKey fxKey;
     private double additionalSpread;
+    private String label;
 
     /**
      * Restricted constructor.
@@ -425,6 +486,7 @@ public final class XCcyIborIborSwapCurveNode
       this.spreadKey = beanToCopy.getSpreadKey();
       this.fxKey = beanToCopy.getFxKey();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
+      this.label = beanToCopy.label;
     }
 
     //-----------------------------------------------------------------------
@@ -439,6 +501,8 @@ public final class XCcyIborIborSwapCurveNode
           return fxKey;
         case 291232890:  // additionalSpread
           return additionalSpread;
+        case 102727412:  // label
+          return label;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -458,6 +522,9 @@ public final class XCcyIborIborSwapCurveNode
           break;
         case 291232890:  // additionalSpread
           this.additionalSpread = (Double) newValue;
+          break;
+        case 102727412:  // label
+          this.label = (String) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -495,7 +562,8 @@ public final class XCcyIborIborSwapCurveNode
           template,
           spreadKey,
           fxKey,
-          additionalSpread);
+          additionalSpread,
+          label);
     }
 
     //-----------------------------------------------------------------------
@@ -542,15 +610,27 @@ public final class XCcyIborIborSwapCurveNode
       return this;
     }
 
+    /**
+     * Sets the label to use for the node.
+     * If absent an appropriate default label will be used.
+     * @param label  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder label(String label) {
+      this.label = label;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("XCcyIborIborSwapCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("spreadKey").append('=').append(JodaBeanUtils.toString(spreadKey)).append(',').append(' ');
       buf.append("fxKey").append('=').append(JodaBeanUtils.toString(fxKey)).append(',').append(' ');
-      buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread));
+      buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');
+      buf.append("label").append('=').append(JodaBeanUtils.toString(label));
       buf.append('}');
       return buf.toString();
     }

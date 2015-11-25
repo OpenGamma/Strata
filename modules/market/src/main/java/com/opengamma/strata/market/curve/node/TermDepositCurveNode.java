@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -58,6 +59,12 @@ public final class TermDepositCurveNode
    */
   @PropertyDefinition
   private final double additionalSpread;
+  /**
+   * The label to use for the node.
+   * If absent an appropriate default label will be used.
+   */
+  @PropertyDefinition(get = "optional")
+  private final String label;
 
   //-------------------------------------------------------------------------
   /**
@@ -68,7 +75,7 @@ public final class TermDepositCurveNode
    * @return a node whose instrument is built from the template using a market rate
    */
   public static TermDepositCurveNode of(TermDepositTemplate template, ObservableKey rateKey) {
-    return new TermDepositCurveNode(template, rateKey, 0d);
+    return of(template, rateKey, 0d, null);
   }
 
   /**
@@ -80,7 +87,25 @@ public final class TermDepositCurveNode
    * @return a node whose instrument is built from the template using a market rate
    */
   public static TermDepositCurveNode of(TermDepositTemplate template, ObservableKey rateKey, double additionalSpread) {
-    return new TermDepositCurveNode(template, rateKey, additionalSpread);
+    return of(template, rateKey, additionalSpread, null);
+  }
+
+  /**
+   * Returns a curve node for a term deposit using the specified instrument template, rate key, spread and label.
+   *
+   * @param template  the template defining the node instrument
+   * @param rateKey  the key identifying the market data providing the rate for the node instrument
+   * @param additionalSpread  the additional spread amount added to the rate
+   * @param label  the label to use for the node, if null or empty an appropriate default label will be used
+   * @return a node whose instrument is built from the template using a market rate
+   */
+  public static TermDepositCurveNode of(
+      TermDepositTemplate template,
+      ObservableKey rateKey,
+      double additionalSpread,
+      String label) {
+
+    return new TermDepositCurveNode(template, rateKey, additionalSpread, label);
   }
 
   //-------------------------------------------------------------------------
@@ -93,7 +118,7 @@ public final class TermDepositCurveNode
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
     Tenor endTenor = Tenor.of(template.getDepositPeriod());
     ExpandedTermDeposit deposit = template.toTrade(valuationDate, BuySell.BUY, 0d, 0d).getProduct().expand();
-    return TenorCurveNodeMetadata.of(deposit.getEndDate(), endTenor);
+    return TenorCurveNodeMetadata.of(deposit.getEndDate(), endTenor, getLabel().orElse(""));
   }
 
   @Override
@@ -140,12 +165,14 @@ public final class TermDepositCurveNode
   private TermDepositCurveNode(
       TermDepositTemplate template,
       ObservableKey rateKey,
-      double additionalSpread) {
+      double additionalSpread,
+      String label) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(rateKey, "rateKey");
     this.template = template;
     this.rateKey = rateKey;
     this.additionalSpread = additionalSpread;
+    this.label = label;
   }
 
   @Override
@@ -192,6 +219,16 @@ public final class TermDepositCurveNode
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the label to use for the node.
+   * If absent an appropriate default label will be used.
+   * @return the optional value of the property, not null
+   */
+  public Optional<String> getLabel() {
+    return Optional.ofNullable(label);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -208,7 +245,8 @@ public final class TermDepositCurveNode
       TermDepositCurveNode other = (TermDepositCurveNode) obj;
       return JodaBeanUtils.equal(template, other.template) &&
           JodaBeanUtils.equal(rateKey, other.rateKey) &&
-          JodaBeanUtils.equal(additionalSpread, other.additionalSpread);
+          JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
+          JodaBeanUtils.equal(label, other.label);
     }
     return false;
   }
@@ -219,16 +257,18 @@ public final class TermDepositCurveNode
     hash = hash * 31 + JodaBeanUtils.hashCode(template);
     hash = hash * 31 + JodaBeanUtils.hashCode(rateKey);
     hash = hash * 31 + JodaBeanUtils.hashCode(additionalSpread);
+    hash = hash * 31 + JodaBeanUtils.hashCode(label);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("TermDepositCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
     buf.append("rateKey").append('=').append(rateKey).append(',').append(' ');
-    buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread));
+    buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();
   }
@@ -259,13 +299,19 @@ public final class TermDepositCurveNode
     private final MetaProperty<Double> additionalSpread = DirectMetaProperty.ofImmutable(
         this, "additionalSpread", TermDepositCurveNode.class, Double.TYPE);
     /**
+     * The meta-property for the {@code label} property.
+     */
+    private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
+        this, "label", TermDepositCurveNode.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "template",
         "rateKey",
-        "additionalSpread");
+        "additionalSpread",
+        "label");
 
     /**
      * Restricted constructor.
@@ -282,6 +328,8 @@ public final class TermDepositCurveNode
           return rateKey;
         case 291232890:  // additionalSpread
           return additionalSpread;
+        case 102727412:  // label
+          return label;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -326,6 +374,14 @@ public final class TermDepositCurveNode
       return additionalSpread;
     }
 
+    /**
+     * The meta-property for the {@code label} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> label() {
+      return label;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -336,6 +392,8 @@ public final class TermDepositCurveNode
           return ((TermDepositCurveNode) bean).getRateKey();
         case 291232890:  // additionalSpread
           return ((TermDepositCurveNode) bean).getAdditionalSpread();
+        case 102727412:  // label
+          return ((TermDepositCurveNode) bean).label;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -360,6 +418,7 @@ public final class TermDepositCurveNode
     private TermDepositTemplate template;
     private ObservableKey rateKey;
     private double additionalSpread;
+    private String label;
 
     /**
      * Restricted constructor.
@@ -375,6 +434,7 @@ public final class TermDepositCurveNode
       this.template = beanToCopy.getTemplate();
       this.rateKey = beanToCopy.getRateKey();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
+      this.label = beanToCopy.label;
     }
 
     //-----------------------------------------------------------------------
@@ -387,6 +447,8 @@ public final class TermDepositCurveNode
           return rateKey;
         case 291232890:  // additionalSpread
           return additionalSpread;
+        case 102727412:  // label
+          return label;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -403,6 +465,9 @@ public final class TermDepositCurveNode
           break;
         case 291232890:  // additionalSpread
           this.additionalSpread = (Double) newValue;
+          break;
+        case 102727412:  // label
+          this.label = (String) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -439,7 +504,8 @@ public final class TermDepositCurveNode
       return new TermDepositCurveNode(
           template,
           rateKey,
-          additionalSpread);
+          additionalSpread,
+          label);
     }
 
     //-----------------------------------------------------------------------
@@ -475,14 +541,26 @@ public final class TermDepositCurveNode
       return this;
     }
 
+    /**
+     * Sets the label to use for the node.
+     * If absent an appropriate default label will be used.
+     * @param label  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder label(String label) {
+      this.label = label;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("TermDepositCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("rateKey").append('=').append(JodaBeanUtils.toString(rateKey)).append(',').append(' ');
-      buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread));
+      buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');
+      buf.append("label").append('=').append(JodaBeanUtils.toString(label));
       buf.append('}');
       return buf.toString();
     }

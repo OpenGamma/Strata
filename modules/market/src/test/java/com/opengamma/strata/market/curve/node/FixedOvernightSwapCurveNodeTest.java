@@ -17,6 +17,7 @@ import static org.testng.Assert.assertFalse;
 
 import java.time.LocalDate;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 
 import org.testng.annotations.Test;
@@ -43,13 +44,16 @@ public class FixedOvernightSwapCurveNodeTest {
       FixedOvernightSwapTemplate.of(TENOR_10Y, FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS);
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit1"));
   private static final double SPREAD = 0.0015;
+  private static final String LABEL = "Label";
 
   public void test_builder() {
     FixedOvernightSwapCurveNode test = FixedOvernightSwapCurveNode.builder()
+        .label(LABEL)
         .template(TEMPLATE)
         .rateKey(QUOTE_KEY)
         .additionalSpread(SPREAD)
         .build();
+    assertEquals(test.getLabel(), Optional.of(LABEL));
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
@@ -57,6 +61,7 @@ public class FixedOvernightSwapCurveNodeTest {
 
   public void test_of_noSpread() {
     FixedOvernightSwapCurveNode test = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY);
+    assertEquals(test.getLabel(), Optional.empty());
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), 0.0d);
     assertEquals(test.getTemplate(), TEMPLATE);
@@ -64,6 +69,15 @@ public class FixedOvernightSwapCurveNodeTest {
 
   public void test_of_withSpread() {
     FixedOvernightSwapCurveNode test = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    assertEquals(test.getLabel(), Optional.empty());
+    assertEquals(test.getRateKey(), QUOTE_KEY);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
+    assertEquals(test.getTemplate(), TEMPLATE);
+  }
+
+  public void test_of_withSpreadAndLabel() {
+    FixedOvernightSwapCurveNode test = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL);
+    assertEquals(test.getLabel(), Optional.of(LABEL));
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);

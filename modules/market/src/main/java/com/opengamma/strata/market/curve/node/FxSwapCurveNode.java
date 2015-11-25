@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -60,6 +61,12 @@ public final class FxSwapCurveNode
    */
   @PropertyDefinition(validate = "notNull")
   private final ObservableKey fxPtsKey;
+  /**
+   * The label to use for the node.
+   * If absent an appropriate default label will be used.
+   */
+  @PropertyDefinition(get = "optional")
+  private final String label;
 
   //-------------------------------------------------------------------------
   /**
@@ -70,11 +77,20 @@ public final class FxSwapCurveNode
    * @return a node whose instrument is built from the template using a market rate
    */
   public static FxSwapCurveNode of(FxSwapTemplate template, ObservableKey fxPtsKey) {
-    return FxSwapCurveNode.builder()
-        .template(template)
-        .fxNearKey(FxRateKey.of(template.getCurrencyPair()))
-        .fxPtsKey(fxPtsKey)
-        .build();
+    return of(template, fxPtsKey, null);
+  }
+
+  /**
+   * Returns a curve node for an FX Swap using the specified instrument template and keys and label.
+   *
+   * @param template  the template used for building the instrument for the node
+   * @param fxPtsKey  the key identifying the FX points between the near date and the far date
+   * @param label  the label to use for the node, if null or empty an appropriate default label will be used
+   * @return a node whose instrument is built from the template using a market rate
+   */
+  public static FxSwapCurveNode of(FxSwapTemplate template, ObservableKey fxPtsKey, String label) {
+    FxRateKey fxKey = FxRateKey.of(template.getCurrencyPair());
+    return new FxSwapCurveNode(template, fxKey, fxPtsKey, label);
   }
 
   //-------------------------------------------------------------------------
@@ -87,7 +103,7 @@ public final class FxSwapCurveNode
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
     FxSwapTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1, 0);
     LocalDate farDate = trade.getProduct().getFarLeg().getPaymentDate();
-    return TenorCurveNodeMetadata.of(farDate, Tenor.of(template.getPeriodToFar()));
+    return TenorCurveNodeMetadata.of(farDate, Tenor.of(template.getPeriodToFar()), getLabel().orElse(""));
   }
 
   @Override
@@ -136,13 +152,15 @@ public final class FxSwapCurveNode
   private FxSwapCurveNode(
       FxSwapTemplate template,
       FxRateKey fxNearKey,
-      ObservableKey fxPtsKey) {
+      ObservableKey fxPtsKey,
+      String label) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(fxNearKey, "fxNearKey");
     JodaBeanUtils.notNull(fxPtsKey, "fxPtsKey");
     this.template = template;
     this.fxNearKey = fxNearKey;
     this.fxPtsKey = fxPtsKey;
+    this.label = label;
   }
 
   @Override
@@ -189,6 +207,16 @@ public final class FxSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the label to use for the node.
+   * If absent an appropriate default label will be used.
+   * @return the optional value of the property, not null
+   */
+  public Optional<String> getLabel() {
+    return Optional.ofNullable(label);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -205,7 +233,8 @@ public final class FxSwapCurveNode
       FxSwapCurveNode other = (FxSwapCurveNode) obj;
       return JodaBeanUtils.equal(template, other.template) &&
           JodaBeanUtils.equal(fxNearKey, other.fxNearKey) &&
-          JodaBeanUtils.equal(fxPtsKey, other.fxPtsKey);
+          JodaBeanUtils.equal(fxPtsKey, other.fxPtsKey) &&
+          JodaBeanUtils.equal(label, other.label);
     }
     return false;
   }
@@ -216,16 +245,18 @@ public final class FxSwapCurveNode
     hash = hash * 31 + JodaBeanUtils.hashCode(template);
     hash = hash * 31 + JodaBeanUtils.hashCode(fxNearKey);
     hash = hash * 31 + JodaBeanUtils.hashCode(fxPtsKey);
+    hash = hash * 31 + JodaBeanUtils.hashCode(label);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("FxSwapCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
     buf.append("fxNearKey").append('=').append(fxNearKey).append(',').append(' ');
-    buf.append("fxPtsKey").append('=').append(JodaBeanUtils.toString(fxPtsKey));
+    buf.append("fxPtsKey").append('=').append(fxPtsKey).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();
   }
@@ -256,13 +287,19 @@ public final class FxSwapCurveNode
     private final MetaProperty<ObservableKey> fxPtsKey = DirectMetaProperty.ofImmutable(
         this, "fxPtsKey", FxSwapCurveNode.class, ObservableKey.class);
     /**
+     * The meta-property for the {@code label} property.
+     */
+    private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
+        this, "label", FxSwapCurveNode.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "template",
         "fxNearKey",
-        "fxPtsKey");
+        "fxPtsKey",
+        "label");
 
     /**
      * Restricted constructor.
@@ -279,6 +316,8 @@ public final class FxSwapCurveNode
           return fxNearKey;
         case -1094751134:  // fxPtsKey
           return fxPtsKey;
+        case 102727412:  // label
+          return label;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -323,6 +362,14 @@ public final class FxSwapCurveNode
       return fxPtsKey;
     }
 
+    /**
+     * The meta-property for the {@code label} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> label() {
+      return label;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -333,6 +380,8 @@ public final class FxSwapCurveNode
           return ((FxSwapCurveNode) bean).getFxNearKey();
         case -1094751134:  // fxPtsKey
           return ((FxSwapCurveNode) bean).getFxPtsKey();
+        case 102727412:  // label
+          return ((FxSwapCurveNode) bean).label;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -357,6 +406,7 @@ public final class FxSwapCurveNode
     private FxSwapTemplate template;
     private FxRateKey fxNearKey;
     private ObservableKey fxPtsKey;
+    private String label;
 
     /**
      * Restricted constructor.
@@ -372,6 +422,7 @@ public final class FxSwapCurveNode
       this.template = beanToCopy.getTemplate();
       this.fxNearKey = beanToCopy.getFxNearKey();
       this.fxPtsKey = beanToCopy.getFxPtsKey();
+      this.label = beanToCopy.label;
     }
 
     //-----------------------------------------------------------------------
@@ -384,6 +435,8 @@ public final class FxSwapCurveNode
           return fxNearKey;
         case -1094751134:  // fxPtsKey
           return fxPtsKey;
+        case 102727412:  // label
+          return label;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -400,6 +453,9 @@ public final class FxSwapCurveNode
           break;
         case -1094751134:  // fxPtsKey
           this.fxPtsKey = (ObservableKey) newValue;
+          break;
+        case 102727412:  // label
+          this.label = (String) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -436,7 +492,8 @@ public final class FxSwapCurveNode
       return new FxSwapCurveNode(
           template,
           fxNearKey,
-          fxPtsKey);
+          fxPtsKey,
+          label);
     }
 
     //-----------------------------------------------------------------------
@@ -473,14 +530,26 @@ public final class FxSwapCurveNode
       return this;
     }
 
+    /**
+     * Sets the label to use for the node.
+     * If absent an appropriate default label will be used.
+     * @param label  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder label(String label) {
+      this.label = label;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("FxSwapCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("fxNearKey").append('=').append(JodaBeanUtils.toString(fxNearKey)).append(',').append(' ');
-      buf.append("fxPtsKey").append('=').append(JodaBeanUtils.toString(fxPtsKey));
+      buf.append("fxPtsKey").append('=').append(JodaBeanUtils.toString(fxPtsKey)).append(',').append(' ');
+      buf.append("label").append('=').append(JodaBeanUtils.toString(label));
       buf.append('}');
       return buf.toString();
     }

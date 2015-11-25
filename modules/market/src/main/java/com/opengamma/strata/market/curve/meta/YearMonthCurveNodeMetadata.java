@@ -84,11 +84,11 @@ public final class YearMonthCurveNodeMetadata
    * 
    * @param date  the date of the curve node
    * @param yearMonth  the year-month of the curve node
-   * @param label  the label to use
+   * @param label  the label to use, an empty string will default to the year-month
    * @return node metadata based on a year-month
    */
   public static YearMonthCurveNodeMetadata of(LocalDate date, YearMonth yearMonth, String label) {
-    return new YearMonthCurveNodeMetadata(date, yearMonth, label);
+    return new YearMonthCurveNodeMetadata(date, yearMonth, label.isEmpty() ? yearMonth.format(FORMATTER) : label);
   }
 
   @ImmutablePreBuild
