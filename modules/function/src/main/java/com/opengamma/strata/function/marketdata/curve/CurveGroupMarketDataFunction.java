@@ -6,12 +6,11 @@
 package com.opengamma.strata.function.marketdata.curve;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static java.util.stream.Collectors.toMap;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BinaryOperator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -176,13 +175,28 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * @return the underlying quotes from the input data
    */
   private static MarketData inputsByKey(List<CurveInputs> inputs) {
-    // This needs to be a variable because javac JDK8u60 won't compile it inline
-    BinaryOperator<Object> mergeFunction = (v1, v2) -> checkValuesEqual(v1, v2);
+    Map<MarketDataKey<?>, Object> marketDataMap = new HashMap<>();
 
-    Map<? extends MarketDataKey<?>, ?> valueMap = inputs.stream()
-        .flatMap(pr -> pr.getMarketData().entrySet().stream())
-        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, mergeFunction));
-    return MarketData.of(valueMap);
+    for (CurveInputs input : inputs) {
+      Map<? extends MarketDataKey<?>, ?> inputMarketData = input.getMarketData();
+
+      for (Map.Entry<? extends MarketDataKey<?>, ?> entry : inputMarketData.entrySet()) {
+        Object existingValue = marketDataMap.get(entry.getKey());
+
+        // If the same key is used by multiple different curves the corresponding market data value must be equal
+        if (existingValue == null) {
+          marketDataMap.put(entry.getKey(), entry.getValue());
+        } else if (!existingValue.equals(entry.getValue())) {
+          throw new IllegalArgumentException(
+              Messages.format(
+                  "Multiple unequal values found for key {}. Values: {} and {}",
+                  entry.getKey(),
+                  existingValue,
+                  entry.getValue()));
+        }
+      }
+    }
+    return MarketData.of(marketDataMap);
   }
 
   private CurveGroup buildGroup(
@@ -201,29 +215,6 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         groupDefn.getName(),
         calibratedProvider.getDiscountCurves(),
         calibratedProvider.getIndexCurves());
-  }
-
-  /**
-   * Checks two values are equal and returns one of them if they are, otherwise throws an exception.
-   * <p>
-   * This is used as the merging function when collecting values into a map. If two values have the
-   * same key they must be equal. Therefore this function checks equality and returns one of the values.
-   * No actual merging is necessary as the values are the same.
-   *
-   * @param value1  a value which is being inserted into a map
-   * @param value2  a value which is being inserted into a map
-   * @return one of the values if they are equal
-   * @throws IllegalArgumentException if the values are not equal
-   */
-  private static Object checkValuesEqual(Object value1, Object value2) {
-    if (value1.equals(value2)) {
-      return value1;
-    }
-    throw new IllegalArgumentException(
-        Messages.format(
-            "Values with the same key must be equal but found unequal values: {} and {}",
-            value1,
-            value2));
   }
 
   private static int scenarioCount(

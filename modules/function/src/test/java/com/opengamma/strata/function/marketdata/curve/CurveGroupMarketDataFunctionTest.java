@@ -375,7 +375,7 @@ public class CurveGroupMarketDataFunctionTest {
         .addValue(CurveInputsId.of(curveGroupName, curveName1, MarketDataFeed.NONE), curveInputs1)
         .addValue(CurveInputsId.of(curveGroupName, curveName2, MarketDataFeed.NONE), badCurveInputs)
         .build();
-    String msg = "Values with the same key must be equal but found unequal values.*";
+    String msg = "Multiple unequal values found for key .*\\. Values: .* and .*";
     assertThrowsIllegalArg(() -> fn.buildCurveGroup(groupDefinition, badMarketData, MarketDataFeed.NONE), msg);
   }
 
