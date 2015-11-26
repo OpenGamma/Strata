@@ -5,15 +5,15 @@
  */
 package com.opengamma.strata.math.impl.function.special;
 
+import java.util.function.DoubleBinaryOperator;
 import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function2D;
 
 /**
  * 
  */
-public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
+public class InverseIncompleteGammaFunction implements DoubleBinaryOperator {
 //TODO either find another implementation or delete this class
 
   private final Function<Double, Double> _lnGamma = new NaturalLogGammaFunction();
@@ -21,7 +21,7 @@ public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
 
   //-------------------------------------------------------------------------
   @Override
-  public Double evaluate(Double a, Double p) {
+  public double applyAsDouble(double a, double p) {
     ArgChecker.notNegativeOrZero(a, "a");
     ArgChecker.inRangeExclusive(p, 0d, 1d, "p");
     double x;
