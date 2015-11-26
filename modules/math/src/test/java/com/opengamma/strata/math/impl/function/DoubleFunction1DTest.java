@@ -7,6 +7,8 @@ package com.opengamma.strata.math.impl.function;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
@@ -148,7 +150,7 @@ public class DoubleFunction1DTest {
 
   @Test
   public void testConversion() {
-    final Function1D<Double, Double> f1 = new Function1D<Double, Double>() {
+    final Function<Double, Double> f1 = new Function<Double, Double>() {
 
       @Override
       public Double apply(final Double x) {

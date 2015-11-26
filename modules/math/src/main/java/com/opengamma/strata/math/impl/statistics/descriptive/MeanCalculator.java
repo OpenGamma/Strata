@@ -5,8 +5,9 @@
  */
 package com.opengamma.strata.math.impl.statistics.descriptive;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Calculates the arithmetic mean of a series of data.
@@ -18,7 +19,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * \end{align*}
  * $$
  */
-public class MeanCalculator extends Function1D<double[], Double> {
+public class MeanCalculator implements Function<double[], Double> {
 
   @Override
   public Double apply(double[] x) {

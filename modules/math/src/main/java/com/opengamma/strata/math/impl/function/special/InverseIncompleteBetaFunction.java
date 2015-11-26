@@ -5,21 +5,22 @@
  */
 package com.opengamma.strata.math.impl.function.special;
 
+import java.util.function.Function;
+
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * 
  */
-public class InverseIncompleteBetaFunction extends Function1D<Double, Double> {
+public class InverseIncompleteBetaFunction implements Function<Double, Double> {
 //TODO either find another implementation or delete this class
 
   private final double _a;
   private final double _b;
-  private final Function1D<Double, Double> _lnGamma = new NaturalLogGammaFunction();
-  private final Function1D<Double, Double> _beta;
+  private final Function<Double, Double> _lnGamma = new NaturalLogGammaFunction();
+  private final Function<Double, Double> _beta;
   private static final double EPS = 1e-9;
 
   public InverseIncompleteBetaFunction(double a, double b) {

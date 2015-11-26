@@ -6,6 +6,7 @@
 package com.opengamma.strata.math.impl.function;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -35,7 +36,7 @@ public class ParameterizedCurveVectorFunction extends VectorFunction {
   //-------------------------------------------------------------------------
   @Override
   public DoubleMatrix calculateJacobian(DoubleArray x) {
-    Function1D<Double, DoubleArray> sense = _curve.getYParameterSensitivity(x);
+    Function<Double, DoubleArray> sense = _curve.getYParameterSensitivity(x);
     return DoubleMatrix.ofArrayObjects(
         getLengthOfRange(),
         getLengthOfDomain(),
@@ -60,7 +61,7 @@ public class ParameterizedCurveVectorFunction extends VectorFunction {
    */
   @Override
   public DoubleArray apply(DoubleArray curveParameters) {
-    Function1D<Double, Double> func = _curve.asFunctionOfArguments(curveParameters);
+    Function<Double, Double> func = _curve.asFunctionOfArguments(curveParameters);
     return DoubleArray.of(_samplePoints.length, i -> func.apply(_samplePoints[i]));
   }
 

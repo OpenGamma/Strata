@@ -7,9 +7,9 @@ package com.opengamma.strata.math.impl.integration;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.testng.annotations.Test;
+import java.util.function.Function;
 
-import com.opengamma.strata.math.impl.function.Function1D;
+import org.testng.annotations.Test;
 
 /**
  * Test.
@@ -17,7 +17,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
 @Test
 public class GaussianQuadratureIntegrator1DTest {
 
-  private static final Function1D<Double, Double> ONE = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> ONE = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
@@ -25,7 +25,7 @@ public class GaussianQuadratureIntegrator1DTest {
     }
   };
 
-  private static final Function1D<Double, Double> DF1 = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> DF1 = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
@@ -33,7 +33,7 @@ public class GaussianQuadratureIntegrator1DTest {
     }
 
   };
-  private static final Function1D<Double, Double> F1 = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> F1 = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
@@ -41,7 +41,7 @@ public class GaussianQuadratureIntegrator1DTest {
     }
 
   };
-  private static final Function1D<Double, Double> DF2 = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> DF2 = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
@@ -50,7 +50,7 @@ public class GaussianQuadratureIntegrator1DTest {
 
   };
 
-  private static final Function1D<Double, Double> DF3 = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> DF3 = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
@@ -59,14 +59,14 @@ public class GaussianQuadratureIntegrator1DTest {
 
   };
 
-  private static final Function1D<Double, Double> COS = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> COS = new Function<Double, Double>() {
     @Override
     public Double apply(final Double x) {
       return Math.cos(x);
     }
   };
 
-  private static final Function1D<Double, Double> COS_EXP = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> COS_EXP = new Function<Double, Double>() {
     @Override
     public Double apply(final Double x) {
       return Math.cos(x) * Math.exp(-x * x);

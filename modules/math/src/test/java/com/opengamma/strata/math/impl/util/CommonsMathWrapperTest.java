@@ -8,6 +8,8 @@ package com.opengamma.strata.math.impl.util;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
+import java.util.function.Function;
+
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.polynomials.PolynomialFunctionLagrangeForm;
@@ -20,7 +22,6 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.ComplexNumber;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.FunctionND;
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 
@@ -33,7 +34,7 @@ public class CommonsMathWrapperTest {
   private static final DoubleArray OG_VECTOR = DoubleArray.of(1, 2, 3);
   private static final DoubleMatrix OG_MATRIX = DoubleMatrix.copyOf(
       new double[][] { {1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
-  private static final Function1D<Double, Double> OG_FUNCTION_1D = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> OG_FUNCTION_1D = new Function<Double, Double>() {
     @Override
     public Double apply(final Double x) {
       return x * x + 7 * x + 12;
@@ -63,7 +64,7 @@ public class CommonsMathWrapperTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1DFunction() {
-    CommonsMathWrapper.wrapUnivariate((Function1D<Double, Double>) null);
+    CommonsMathWrapper.wrapUnivariate((Function<Double, Double>) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -160,7 +161,7 @@ public class CommonsMathWrapperTest {
       x[i] = i;
       y[i] = OG_POLYNOMIAL.apply(x[i]);
     }
-    Function1D<Double, Double> unwrapped = CommonsMathWrapper.unwrap(new PolynomialFunctionLagrangeForm(x, y));
+    Function<Double, Double> unwrapped = CommonsMathWrapper.unwrap(new PolynomialFunctionLagrangeForm(x, y));
     for (int i = 0; i < 100; i++) {
       assertEquals(unwrapped.apply(i + 0.5), OG_POLYNOMIAL.apply(i + 0.5), 1e-9);
     }

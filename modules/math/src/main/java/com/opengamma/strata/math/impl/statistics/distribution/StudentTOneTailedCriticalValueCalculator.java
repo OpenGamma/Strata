@@ -5,16 +5,17 @@
  */
 package com.opengamma.strata.math.impl.statistics.distribution;
 
+import java.util.function.Function;
+
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 import cern.jet.random.engine.RandomEngine;
 
 /**
  *
  */
-public class StudentTOneTailedCriticalValueCalculator extends Function1D<Double, Double> {
+public class StudentTOneTailedCriticalValueCalculator implements Function<Double, Double> {
 
   private final ProbabilityDistribution<Double> _dist;
 

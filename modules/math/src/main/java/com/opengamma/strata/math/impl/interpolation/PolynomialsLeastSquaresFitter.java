@@ -9,11 +9,11 @@ import static com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory.COMMONS
 import static com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
 import com.opengamma.strata.math.impl.linearalgebra.QRDecompositionCommons;
@@ -236,7 +236,7 @@ public class PolynomialsLeastSquaresFitter {
     int nData = xData.length;
     double[] res = new double[nData];
 
-    Function1D<double[], Double> calculator = new MeanCalculator();
+    Function<double[], Double> calculator = new MeanCalculator();
     _renorm[0] = calculator.apply(xData);
     calculator = new SampleStandardDeviationCalculator();
     _renorm[1] = calculator.apply(xData);

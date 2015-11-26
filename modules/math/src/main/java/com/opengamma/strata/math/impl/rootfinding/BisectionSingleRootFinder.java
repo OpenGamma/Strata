@@ -5,8 +5,9 @@
  */
 package com.opengamma.strata.math.impl.rootfinding;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Finds a single root of a function using the bisection method.
@@ -43,7 +44,7 @@ public class BisectionSingleRootFinder extends RealSingleRootFinder {
    * @throws MathException If the root is not found to the required accuracy in 100 attempts
    */
   @Override
-  public Double getRoot(Function1D<Double, Double> function, Double x1, Double x2) {
+  public Double getRoot(Function<Double, Double> function, Double x1, Double x2) {
     checkInputs(function, x1, x2);
     double y1 = function.apply(x1);
     double y = function.apply(x2);

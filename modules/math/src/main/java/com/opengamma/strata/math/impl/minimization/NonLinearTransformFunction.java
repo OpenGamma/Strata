@@ -5,9 +5,10 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 
@@ -19,17 +20,17 @@ public class NonLinearTransformFunction {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
 
   private final NonLinearParameterTransforms _transform;
-  private final Function1D<DoubleArray, DoubleArray> _func;
-  private final Function1D<DoubleArray, DoubleMatrix> _jac;
+  private final Function<DoubleArray, DoubleArray> _func;
+  private final Function<DoubleArray, DoubleMatrix> _jac;
 
   public NonLinearTransformFunction(
-      Function1D<DoubleArray, DoubleArray> func,
-      Function1D<DoubleArray, DoubleMatrix> jac,
+      Function<DoubleArray, DoubleArray> func,
+      Function<DoubleArray, DoubleMatrix> jac,
       NonLinearParameterTransforms transform) {
 
     _transform = transform;
 
-    _func = new Function1D<DoubleArray, DoubleArray>() {
+    _func = new Function<DoubleArray, DoubleArray>() {
       @SuppressWarnings("synthetic-access")
       @Override
       public DoubleArray apply(DoubleArray yStar) {
@@ -38,7 +39,7 @@ public class NonLinearTransformFunction {
       }
     };
 
-    _jac = new Function1D<DoubleArray, DoubleMatrix>() {
+    _jac = new Function<DoubleArray, DoubleMatrix>() {
       @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix apply(DoubleArray yStar) {
@@ -51,11 +52,11 @@ public class NonLinearTransformFunction {
 
   }
 
-  public Function1D<DoubleArray, DoubleArray> getFittingFunction() {
+  public Function<DoubleArray, DoubleArray> getFittingFunction() {
     return _func;
   }
 
-  public Function1D<DoubleArray, DoubleMatrix> getFittingJacobian() {
+  public Function<DoubleArray, DoubleMatrix> getFittingJacobian() {
     return _jac;
   }
 

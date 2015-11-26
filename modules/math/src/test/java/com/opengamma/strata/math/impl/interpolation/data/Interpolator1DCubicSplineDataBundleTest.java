@@ -11,10 +11,10 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 
 /**
@@ -24,7 +24,7 @@ import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 public class Interpolator1DCubicSplineDataBundleTest {
   private static final RealPolynomialFunction1D LINEAR = new RealPolynomialFunction1D(new double[] {1, 3 });
   private static final RealPolynomialFunction1D CUBIC = new RealPolynomialFunction1D(new double[] {1, 3, 3, 1 });
-  private static final Function1D<Double, Double> NORMAL = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> NORMAL = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {

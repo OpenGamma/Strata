@@ -6,22 +6,22 @@
 package com.opengamma.strata.math.impl.interpolation;
 
 import java.util.List;
+import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * 
  * @param <T> The domain type of the function (e.g. Double, double[], DoubleArray etc) 
  */
-public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
+public class BasisFunctionAggregation<T> implements Function<T, Double> {
 
-  private final List<Function1D<T, Double>> _f;
+  private final List<Function<T, Double>> _f;
   private final double[] _w;
 
-  public BasisFunctionAggregation(List<Function1D<T, Double>> functions, double[] weights) {
+  public BasisFunctionAggregation(List<Function<T, Double>> functions, double[] weights) {
     ArgChecker.notEmpty(functions, "no functions");
     ArgChecker.notNull(weights, "no weights");
     ArgChecker.isTrue(functions.size() == weights.length);

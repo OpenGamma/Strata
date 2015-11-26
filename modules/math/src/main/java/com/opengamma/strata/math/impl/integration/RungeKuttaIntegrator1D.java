@@ -5,8 +5,9 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Adapted from the forth-order Runge-Kutta method for solving ODE. See <a
@@ -59,7 +60,7 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
   }
 
   @Override
-  public Double integrate(Function1D<Double, Double> f, Double lower, Double upper) {
+  public Double integrate(Function<Double, Double> f, Double lower, Double upper) {
     ArgChecker.notNull(lower, "lower");
     ArgChecker.notNull(upper, "upper");
     if (Double.isNaN(lower) || Double.isInfinite(lower) || Double.isInfinite(upper) || Double.isNaN(upper)) {
@@ -93,7 +94,7 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
   }
 
   private double calculateRungeKuttaFourthOrder(
-      Function1D<Double, Double> f,
+      Function<Double, Double> f,
       double x,
       double h,
       double fl,

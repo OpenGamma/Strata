@@ -5,9 +5,10 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 
@@ -31,12 +32,12 @@ public final class BlackPriceFunction {
    * @param option  the option description
    * @return the price function
    */
-  public Function1D<BlackFunctionData, Double> getPriceFunction(final EuropeanVanillaOption option) {
+  public Function<BlackFunctionData, Double> getPriceFunction(final EuropeanVanillaOption option) {
     ArgChecker.notNull(option, "option");
     double k = option.getStrike();
     double t = option.getTimeToExpiry();
     boolean isCall = option.isCall();
-    return new Function1D<BlackFunctionData, Double>() {
+    return new Function<BlackFunctionData, Double>() {
       @Override
       public Double apply(BlackFunctionData data) {
         ArgChecker.notNull(data, "data");
@@ -212,11 +213,11 @@ public final class BlackPriceFunction {
    * @param option  the option description
    * @return the vega function
    */
-  public Function1D<BlackFunctionData, Double> getVegaFunction(EuropeanVanillaOption option) {
+  public Function<BlackFunctionData, Double> getVegaFunction(EuropeanVanillaOption option) {
     ArgChecker.notNull(option, "option");
     double k = option.getStrike();
     double t = option.getTimeToExpiry();
-    return new Function1D<BlackFunctionData, Double>() {
+    return new Function<BlackFunctionData, Double>() {
       @Override
       public Double apply(BlackFunctionData data) {
         ArgChecker.notNull(data, "data");

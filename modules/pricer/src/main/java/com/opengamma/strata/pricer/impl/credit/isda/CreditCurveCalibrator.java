@@ -10,9 +10,9 @@ import static com.opengamma.strata.pricer.impl.credit.isda.DoublesScheduleGenera
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
 
 /**
@@ -301,8 +301,8 @@ public class CreditCurveCalibrator {
 
       _creditCurve = new IsdaCompliantCreditCurve(_t, guess);
       for (int i = 0; i < _nCDS; i++) {
-        Function1D<Double, Double> func = getPointFunction(i, premiums[i], puf[i]);
-        Function1D<Double, Double> grad = getPointDerivative(i, premiums[i]);
+        Function<Double, Double> func = getPointFunction(i, premiums[i], puf[i]);
+        Function<Double, Double> grad = getPointDerivative(i, premiums[i]);
         switch (_arbHandle) {
           case Ignore: {
             double zeroRate = ROOTFINDER.getRoot(func, grad, guess[i]);
@@ -344,12 +344,12 @@ public class CreditCurveCalibrator {
       return _creditCurve;
     }
 
-    private Function1D<Double, Double> getPointFunction(int index, double premium, double puf) {
+    private Function<Double, Double> getPointFunction(int index, double premium, double puf) {
       int[] iCoupons = _cds2CouponsMap[index];
       int nCoupons = iCoupons.length;
       double dirtyPV = puf - premium * _unitAccured[index];
       double lgd = _lgd[index];
-      return new Function1D<Double, Double>() {
+      return new Function<Double, Double>() {
         @Override
         public Double apply(Double h) {
           update(h, index);
@@ -368,11 +368,11 @@ public class CreditCurveCalibrator {
       };
     }
 
-    private Function1D<Double, Double> getPointDerivative(int index, double premium) {
+    private Function<Double, Double> getPointDerivative(int index, double premium) {
       int[] iCoupons = _cdsCouponsUpdateMap[index];
       int nCoupons = iCoupons.length;
       double lgd = _lgd[index];
-      return new Function1D<Double, Double>() {
+      return new Function<Double, Double>() {
         @Override
         public Double apply(Double x) {
           //do not call update - all ready called for getting the value 

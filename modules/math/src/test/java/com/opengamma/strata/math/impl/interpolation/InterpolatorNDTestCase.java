@@ -9,15 +9,16 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+
+import org.testng.annotations.Test;
+
+import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.math.impl.interpolation.data.InterpolatorNDDataBundle;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
-import org.testng.annotations.Test;
-
-import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.interpolation.data.InterpolatorNDDataBundle;
 
 /**
  * Abstract test.
@@ -29,7 +30,7 @@ public abstract class InterpolatorNDTestCase {
   protected static final List<Pair<double[], Double>> SWAPTION_ATM_VOL_DATA = new ArrayList<>();
   protected static final double VALUE = 0.3;
 
-  protected static final Function1D<double[], Double> COS_EXP_FUNCTION = new Function1D<double[], Double>() {
+  protected static final Function<double[], Double> COS_EXP_FUNCTION = new Function<double[], Double>() {
 
     @Override
     public Double apply(final double[] x) {

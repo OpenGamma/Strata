@@ -6,9 +6,9 @@
 package com.opengamma.strata.math.impl.statistics.distribution;
 
 import java.util.Date;
+import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.special.GammaFunction;
 import com.opengamma.strata.math.impl.function.special.InverseIncompleteBetaFunction;
 
@@ -29,7 +29,7 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
   // TODO need a better seed
   private final double _degFreedom;
   private final StudentT _dist;
-  private final Function1D<Double, Double> _beta;
+  private final Function<Double, Double> _beta;
 
   /**
    * @param degFreedom The number of degrees of freedom, not negative or zero

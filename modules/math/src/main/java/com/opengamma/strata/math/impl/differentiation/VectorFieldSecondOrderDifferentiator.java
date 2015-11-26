@@ -5,10 +5,11 @@
  */
 package com.opengamma.strata.math.impl.differentiation;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * The Vector field second order differentiator.
@@ -43,13 +44,13 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
    * @return a function representing the second derivative of the vector field (i.e. a rank 3 tensor field)
    */
   @Override
-  public Function1D<DoubleArray, DoubleMatrix[]> differentiate(
-      Function1D<DoubleArray, DoubleArray> function) {
+  public Function<DoubleArray, DoubleMatrix[]> differentiate(
+      Function<DoubleArray, DoubleArray> function) {
 
     ArgChecker.notNull(function, "function");
-    Function1D<DoubleArray, DoubleMatrix> jacFunc = vectorFieldDiff.differentiate(function);
-    Function1D<DoubleArray, DoubleMatrix[]> hFunc = maxtrixFieldDiff.differentiate(jacFunc);
-    return new Function1D<DoubleArray, DoubleMatrix[]>() {
+    Function<DoubleArray, DoubleMatrix> jacFunc = vectorFieldDiff.differentiate(function);
+    Function<DoubleArray, DoubleMatrix[]> hFunc = maxtrixFieldDiff.differentiate(jacFunc);
+    return new Function<DoubleArray, DoubleMatrix[]>() {
       @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix[] apply(DoubleArray x) {
@@ -61,14 +62,14 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<DoubleArray, DoubleMatrix[]> differentiate(
-      Function1D<DoubleArray, DoubleArray> function,
-      Function1D<DoubleArray, Boolean> domain) {
+  public Function<DoubleArray, DoubleMatrix[]> differentiate(
+      Function<DoubleArray, DoubleArray> function,
+      Function<DoubleArray, Boolean> domain) {
 
     ArgChecker.notNull(function, "function");
-    Function1D<DoubleArray, DoubleMatrix> jacFunc = vectorFieldDiff.differentiate(function, domain);
-    Function1D<DoubleArray, DoubleMatrix[]> hFunc = maxtrixFieldDiff.differentiate(jacFunc, domain);
-    return new Function1D<DoubleArray, DoubleMatrix[]>() {
+    Function<DoubleArray, DoubleMatrix> jacFunc = vectorFieldDiff.differentiate(function, domain);
+    Function<DoubleArray, DoubleMatrix[]> hFunc = maxtrixFieldDiff.differentiate(jacFunc, domain);
+    return new Function<DoubleArray, DoubleMatrix[]>() {
       @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix[] apply(DoubleArray x) {
@@ -112,10 +113,10 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
   }
 
   //-------------------------------------------------------------------------
-  public Function1D<DoubleArray, DoubleMatrix[]> differentiateFull(
-      Function1D<DoubleArray, DoubleArray> function) {
+  public Function<DoubleArray, DoubleMatrix[]> differentiateFull(
+      Function<DoubleArray, DoubleArray> function) {
 
-    return new Function1D<DoubleArray, DoubleMatrix[]>() {
+    return new Function<DoubleArray, DoubleMatrix[]>() {
       @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix[] apply(DoubleArray x) {
@@ -160,10 +161,10 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
   }
 
   //-------------------------------------------------------------------------
-  public Function1D<DoubleArray, DoubleMatrix> differentiateNoCross(
-      Function1D<DoubleArray, DoubleArray> function) {
+  public Function<DoubleArray, DoubleMatrix> differentiateNoCross(
+      Function<DoubleArray, DoubleArray> function) {
 
-    return new Function1D<DoubleArray, DoubleMatrix>() {
+    return new Function<DoubleArray, DoubleMatrix>() {
       @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix apply(DoubleArray x) {

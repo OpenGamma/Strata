@@ -5,12 +5,13 @@
  */
 package com.opengamma.strata.math.impl.function.special;
 
+import java.util.function.Function;
+
 import org.apache.commons.math3.exception.MaxCountExceededException;
 import org.apache.commons.math3.special.Gamma;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * The incomplete gamma function is defined as:
@@ -24,7 +25,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * This class is a wrapper for the Commons Math library implementation of the incomplete gamma
  * function <a href="http://commons.apache.org/math/api-2.1/index.html">link</a>
  */
-public class IncompleteGammaFunction extends Function1D<Double, Double> {
+public class IncompleteGammaFunction implements Function<Double, Double> {
 
   private final int _maxIter;
   private final double _eps;

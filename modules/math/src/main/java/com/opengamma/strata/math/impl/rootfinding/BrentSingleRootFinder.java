@@ -5,8 +5,9 @@
  */
 package com.opengamma.strata.math.impl.rootfinding;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * 
@@ -33,7 +34,7 @@ public class BrentSingleRootFinder extends RealSingleRootFinder {
 
   //-------------------------------------------------------------------------
   @Override
-  public Double getRoot(Function1D<Double, Double> function, Double xLower, Double xUpper) {
+  public Double getRoot(Function<Double, Double> function, Double xLower, Double xUpper) {
     checkInputs(function, xLower, xUpper);
     if (xLower.equals(xUpper)) {
       return xLower;

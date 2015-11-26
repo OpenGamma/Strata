@@ -7,11 +7,12 @@ package com.opengamma.strata.math.impl.differentiation;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Test.
@@ -20,7 +21,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
 public class MaxtrixFieldFirstOrderDifferentiatorTest {
   private static final MatrixFieldFirstOrderDifferentiator DIFF = new MatrixFieldFirstOrderDifferentiator();
 
-  private static final Function1D<DoubleArray, DoubleMatrix> F = new Function1D<DoubleArray, DoubleMatrix>() {
+  private static final Function<DoubleArray, DoubleMatrix> F = new Function<DoubleArray, DoubleMatrix>() {
 
     @Override
     public DoubleMatrix apply(final DoubleArray x) {
@@ -37,7 +38,7 @@ public class MaxtrixFieldFirstOrderDifferentiatorTest {
     }
   };
 
-  private static final Function1D<DoubleArray, DoubleMatrix[]> G = new Function1D<DoubleArray, DoubleMatrix[]>() {
+  private static final Function<DoubleArray, DoubleMatrix[]> G = new Function<DoubleArray, DoubleMatrix[]>() {
 
     @Override
     public DoubleMatrix[] apply(final DoubleArray x) {
@@ -64,7 +65,7 @@ public class MaxtrixFieldFirstOrderDifferentiatorTest {
 
   @Test
   public void test() {
-    Function1D<DoubleArray, DoubleMatrix[]> analDiffFunc = DIFF.differentiate(F);
+    Function<DoubleArray, DoubleMatrix[]> analDiffFunc = DIFF.differentiate(F);
 
     final DoubleArray x = DoubleArray.of(1.3423, 0.235);
 

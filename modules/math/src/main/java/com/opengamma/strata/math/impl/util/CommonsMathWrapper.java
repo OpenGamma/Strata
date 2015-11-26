@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.math.impl.util;
 
+import java.util.function.Function;
+
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
@@ -26,7 +28,6 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.ComplexNumber;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.FunctionND;
 
 /**
@@ -46,7 +47,7 @@ public final class CommonsMathWrapper {
    * @param f  an OG 1-D function mapping doubles onto doubles
    * @return a Commons univariate real function
    */
-  public static UnivariateFunction wrapUnivariate(Function1D<Double, Double> f) {
+  public static UnivariateFunction wrapUnivariate(Function<Double, Double> f) {
     ArgChecker.notNull(f, "f");
     return f::apply;
   }
@@ -57,16 +58,9 @@ public final class CommonsMathWrapper {
    * @param f  an OG 1-D function mapping doubles onto doubles
    * @return a Commons univariate real function
    */
-  public static MultivariateFunction wrapMultivariate(Function1D<Double, Double> f) {
+  public static MultivariateFunction wrapMultivariate(Function<Double, Double> f) {
     ArgChecker.notNull(f, "f");
-    return point -> {
-      int n = point.length;
-      Double[] coordinate = new Double[n];
-      for (int i = 0; i < n; i++) {
-        coordinate[i] = point[i];
-      }
-      return f.evaluate(coordinate);
-    };
+    return point -> f.apply(point[0]);
   }
 
   /**
@@ -75,7 +69,7 @@ public final class CommonsMathWrapper {
    * @param f  an OG 1-D function mapping vectors of doubles onto doubles
    * @return a Commons multivariate real function
    */
-  public static MultivariateFunction wrapMultivariateVector(Function1D<DoubleArray, Double> f) {
+  public static MultivariateFunction wrapMultivariateVector(Function<DoubleArray, Double> f) {
     ArgChecker.notNull(f, "f");
     return point -> f.apply(DoubleArray.copyOf(point));
   }
@@ -179,9 +173,9 @@ public final class CommonsMathWrapper {
    * @param lagrange  a Commons polynomial in Lagrange form
    * @return an OG 1-D function mapping doubles to doubles
    */
-  public static Function1D<Double, Double> unwrap(PolynomialFunctionLagrangeForm lagrange) {
+  public static Function<Double, Double> unwrap(PolynomialFunctionLagrangeForm lagrange) {
     ArgChecker.notNull(lagrange, "lagrange");
-    return new Function1D<Double, Double>() {
+    return new Function<Double, Double>() {
 
       @Override
       public Double apply(Double x) {

@@ -9,17 +9,17 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.function.Function;
 
-import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.MersenneTwister64;
-import cern.jet.random.engine.RandomEngine;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.statistics.distribution.ChiSquareDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.StudentTDistribution;
+
+import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
 
 /**
  * Test.
@@ -29,11 +29,11 @@ public class MomentCalculatorTest {
 
   private static final double STD = 2.;
   private static final double DOF = 10;
-  private static final Function1D<double[], Double> SAMPLE_VARIANCE = new SampleVarianceCalculator();
-  private static final Function1D<double[], Double> POPULATION_VARIANCE = new PopulationVarianceCalculator();
-  private static final Function1D<double[], Double> SAMPLE_STD = new SampleStandardDeviationCalculator();
+  private static final Function<double[], Double> SAMPLE_VARIANCE = new SampleVarianceCalculator();
+  private static final Function<double[], Double> POPULATION_VARIANCE = new PopulationVarianceCalculator();
+  private static final Function<double[], Double> SAMPLE_STD = new SampleStandardDeviationCalculator();
   private static final Function<double[], Double> POPULATION_STD = new PopulationStandardDeviationCalculator();
-  private static final Function1D<double[], Double> SAMPLE_SKEWNESS = new SampleSkewnessCalculator();
+  private static final Function<double[], Double> SAMPLE_SKEWNESS = new SampleSkewnessCalculator();
   private static final Function<double[], Double> SAMPLE_FISHER_KURTOSIS = new SampleFisherKurtosisCalculator();
   private static final RandomEngine ENGINE = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, STD, ENGINE);
@@ -71,38 +71,20 @@ public class MomentCalculatorTest {
     assertInsufficientData(SAMPLE_FISHER_KURTOSIS);
   }
 
-  private void assertNullArg(final Function<double[], Double> f) {
+  private void assertNullArg(Function<double[], Double> f) {
     try {
       f.apply((double[]) null);
       Assert.fail();
-    } catch (final IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
       // Expected
     }
   }
 
-  private void assertNullArg(final Function1D<double[], Double> f) {
+  private void assertInsufficientData(Function<double[], Double> f) {
     try {
-      f.apply((double[]) null);
+      f.apply(new double[] {1.});
       Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-  }
-
-  private void assertInsufficientData(final Function<double[], Double> f) {
-    try {
-      f.apply(new double[] {1. });
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-  }
-
-  private void assertInsufficientData(final Function1D<double[], Double> f) {
-    try {
-      f.apply(new double[] {1. });
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
       // Expected
     }
   }
@@ -119,7 +101,7 @@ public class MomentCalculatorTest {
 
   @Test
   public void testStudentT() {
-    final double variance = DOF / (DOF - 2);
+    double variance = DOF / (DOF - 2);
     assertEquals(SAMPLE_VARIANCE.apply(STUDENT_T_DATA), variance, EPS);
     assertEquals(POPULATION_VARIANCE.apply(STUDENT_T_DATA), variance, EPS);
     assertEquals(SAMPLE_STD.apply(STUDENT_T_DATA), Math.sqrt(variance), EPS);
@@ -130,7 +112,7 @@ public class MomentCalculatorTest {
 
   @Test
   public void testChiSq() {
-    final double variance = 2 * DOF;
+    double variance = 2 * DOF;
     assertEquals(SAMPLE_VARIANCE.apply(CHI_SQ_DATA), variance, EPS);
     assertEquals(POPULATION_VARIANCE.apply(CHI_SQ_DATA), variance, EPS);
     assertEquals(SAMPLE_STD.apply(CHI_SQ_DATA), Math.sqrt(variance), EPS);

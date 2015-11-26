@@ -5,11 +5,12 @@
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Test.
@@ -25,7 +26,7 @@ public class NewtonDefaultUpdateFunctionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVector() {
-    F.getUpdatedMatrix(new Function1D<DoubleArray, DoubleMatrix>() {
+    F.getUpdatedMatrix(new Function<DoubleArray, DoubleMatrix>() {
 
       @Override
       public DoubleMatrix apply(DoubleArray x) {

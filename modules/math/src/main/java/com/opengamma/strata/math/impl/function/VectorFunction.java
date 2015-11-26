@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.math.impl.function;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
@@ -12,7 +14,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
  * Abstraction for the vector function $f: \mathbb{R}^m \to \mathbb{R}^n \quad x \mapsto f(x)$ where the 
  * Jacobian $j : \mathbb{R}^m \to \mathbb{R}^{n\times m} \quad x \mapsto j(x)$ is also provided 
  */
-public abstract class VectorFunction extends Function1D<DoubleArray, DoubleArray> {
+public abstract class VectorFunction implements Function<DoubleArray, DoubleArray> {
 
   /**
    * Calculate the Jacobian at a point $\mathbf{x}$. For a function 

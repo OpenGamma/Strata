@@ -7,16 +7,16 @@ package com.opengamma.strata.math.impl.rootfinding;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.testng.annotations.Test;
+import java.util.function.Function;
 
-import com.opengamma.strata.math.impl.function.Function1D;
+import org.testng.annotations.Test;
 
 /**
  * Abstract test.
  */
 @Test
 public abstract class RealSingleRootFinderTestCase {
-  protected static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
+  protected static final Function<Double, Double> F = new Function<Double, Double>() {
     @Override
     public Double apply(Double x) {
       return x * x * x - 4 * x * x + x + 6;

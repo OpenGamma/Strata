@@ -7,6 +7,8 @@ package com.opengamma.strata.math.impl.function;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -61,8 +63,8 @@ public class ParameterizedCurveTest {
         };
 
     DoubleArray params = DoubleArray.of(0.7, -0.3, 1.2);
-    Function1D<Double, DoubleArray> paramsSenseFD = testCurve.getYParameterSensitivity(params);
-    Function1D<Double, DoubleArray> paramsSenseAnal = parmSense.asFunctionOfArguments(params);
+    Function<Double, DoubleArray> paramsSenseFD = testCurve.getYParameterSensitivity(params);
+    Function<Double, DoubleArray> paramsSenseAnal = parmSense.asFunctionOfArguments(params);
 
     for (int i = 0; i < 20; i++) {
       double x = Math.PI * (-0.5 + i / 19.);

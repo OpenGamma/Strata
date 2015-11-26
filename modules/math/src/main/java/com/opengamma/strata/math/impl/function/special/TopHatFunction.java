@@ -5,8 +5,9 @@
  */
 package com.opengamma.strata.math.impl.function.special;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Class representing the top-hat function, defined as:
@@ -25,7 +26,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * 
  * This function is discontinuous at $x_1$ and $x_2$.
  */
-public class TopHatFunction extends Function1D<Double, Double> {
+public class TopHatFunction implements Function<Double, Double> {
 
   private final double _x1;
   private final double _x2;

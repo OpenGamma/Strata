@@ -7,10 +7,10 @@ package com.opengamma.strata.math.impl.statistics.leastsquare;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.BasisFunctionAggregation;
 
 /**
@@ -19,7 +19,7 @@ import com.opengamma.strata.math.impl.interpolation.BasisFunctionAggregation;
  */
 public class GeneralizedLeastSquareResults<T> extends LeastSquareResults {
 
-  private final Function1D<T, Double> _function;
+  private final Function<T, Double> _function;
 
   /**
    * Creates an instance
@@ -30,7 +30,7 @@ public class GeneralizedLeastSquareResults<T> extends LeastSquareResults {
    * @param covariance  the covariance matrix of the result
    */
   public GeneralizedLeastSquareResults(
-      List<Function1D<T, Double>> basisFunctions,
+      List<Function<T, Double>> basisFunctions,
       double chiSq,
       DoubleArray parameters,
       DoubleMatrix covariance) {
@@ -45,7 +45,7 @@ public class GeneralizedLeastSquareResults<T> extends LeastSquareResults {
    * Gets the functions field.
    * @return the functions
    */
-  public Function1D<T, Double> getFunction() {
+  public Function<T, Double> getFunction() {
     return _function;
   }
 

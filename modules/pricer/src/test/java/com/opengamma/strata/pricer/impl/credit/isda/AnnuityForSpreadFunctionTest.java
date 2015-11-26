@@ -82,9 +82,9 @@ public class AnnuityForSpreadFunctionTest {
 
     final double spread = 100 * 1.e-4;
 
-    final double integralWithTriangle = contPrem.evaluate(spread);
-    final double sumWithCalibrate = isda.evaluate(spread);
-    final double sumWithTriangle = approx.evaluate(spread);
+    final double integralWithTriangle = contPrem.apply(spread);
+    final double sumWithCalibrate = isda.apply(spread);
+    final double sumWithTriangle = approx.apply(spread);
     final double ref = sumWithCalibrate * 1.e-3;
     assertEquals(sumWithCalibrate, integralWithTriangle, ref);
     assertEquals(sumWithCalibrate, sumWithTriangle, ref);
@@ -115,9 +115,9 @@ public class AnnuityForSpreadFunctionTest {
 
     final double spread = 100 * 1.e-4;
 
-    final double integralWithTriangle = contPrem.evaluate(spread);
-    final double sumWithCalibrate = isda.evaluate(spread);
-    final double sumWithTriangle = approx.evaluate(spread);
+    final double integralWithTriangle = contPrem.apply(spread);
+    final double sumWithCalibrate = isda.apply(spread);
+    final double sumWithTriangle = approx.apply(spread);
     final double ref = sumWithCalibrate * 1.e-2;
     assertEquals(sumWithCalibrate, integralWithTriangle, ref);
     assertEquals(sumWithCalibrate, sumWithTriangle, ref);

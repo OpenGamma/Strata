@@ -5,15 +5,17 @@
  */
 package com.opengamma.strata.math.impl.function;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 
 /**
  * Parent class for a family of functions that take real arguments and return real values.
- * The functionality of {@link Function1D} is  extended; this class allows arithmetic
+ * The functionality of {@link Function} is  extended; this class allows arithmetic
  * operations on functions and defines a derivative function.
  */
-public abstract class DoubleFunction1D extends Function1D<Double, Double> {
+public abstract class DoubleFunction1D implements Function<Double, Double> {
 
   private static final double EPS = 1e-5;
 
@@ -222,12 +224,12 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
   }
 
   /**
-   * Converts a Function1D<Double, Double> into a DoubleFunction1D.
+   * Converts a Function<Double, Double> into a DoubleFunction1D.
    * 
    * @param f  the function to convert
    * @return the converted function
    */
-  public static DoubleFunction1D from(Function1D<Double, Double> f) {
+  public static DoubleFunction1D from(Function<Double, Double> f) {
     ArgChecker.notNull(f, "f");
     return new DoubleFunction1D() {
 

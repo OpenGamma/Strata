@@ -5,10 +5,11 @@
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * 
@@ -17,7 +18,7 @@ public class NewtonDefaultUpdateFunction implements NewtonRootFinderMatrixUpdate
 
   @Override
   public DoubleMatrix getUpdatedMatrix(
-      Function1D<DoubleArray, DoubleMatrix> jacobianFunction,
+      Function<DoubleArray, DoubleMatrix> jacobianFunction,
       DoubleArray x,
       DoubleArray deltaX,
       DoubleArray deltaY,

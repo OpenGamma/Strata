@@ -9,12 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.FunctionUtils;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
@@ -65,7 +65,7 @@ public class ExponentialInterpolator1DTest {
     /* positive */
     double a1 = 3.5;
     double b1 = 1.4;
-    Function1D<Double, Double> func1 = createExpFunction(a1, b1);
+    Function<Double, Double> func1 = createExpFunction(a1, b1);
     double[] xData1 = new double[] {-2.2, -3.0 / 11.0, 0.0, 0.01, 3.0, 9.5 };
     double[] keys1 = new double[] {-2.05, -2.1, -1.8, -1.0 / 11.0, 0.05, 0.5, 4.5, 8.25, 9.2 };
     int dataSize1 = xData1.length;
@@ -82,7 +82,7 @@ public class ExponentialInterpolator1DTest {
     /* negative */
     double a2 = -1.82;
     double b2 = 0.2;
-    Function1D<Double, Double> func2 = createExpFunction(a2, b2);
+    Function<Double, Double> func2 = createExpFunction(a2, b2);
     double[] xData2 = new double[] {-2.2, -3.0 / 11.0, 0.0, 0.01, 3.0, 12.5 };
     double[] keys2 = new double[] {-2.1, -1.8, -1.0 / 11.0, 0.05, 0.5, 4.5, 8.25 };
     int dataSize2 = xData2.length;
@@ -111,7 +111,7 @@ public class ExponentialInterpolator1DTest {
     double[] b1 = new double[nIntervals];
     double[] yData1 = new double[nIntervals + 1];
     // introducing b1 and yData1 such that the piecewise function becomes continuous
-    Function1D<Double, Double>[] func1 = new Function1D[nIntervals];
+    Function<Double, Double>[] func1 = new Function[nIntervals];
     b1[0] = 1.4;
     func1[0] = createExpFunction(a1[0], b1[0]);
     yData1[0] = func1[0].apply(xData1[0]);
@@ -137,7 +137,7 @@ public class ExponentialInterpolator1DTest {
     double[] b2 = new double[nIntervals];
     double[] yData2 = new double[nIntervals + 1];
     // introducing b2 and yData2 such that the piecewise function becomes continuous
-    Function1D<Double, Double>[] func2 = new Function1D[nIntervals];
+    Function<Double, Double>[] func2 = new Function[nIntervals];
     b2[0] = 1.4;
     func2[0] = createExpFunction(a2[0], b2[0]);
     yData2[0] = func2[0].apply(xData2[0]);
@@ -166,7 +166,7 @@ public class ExponentialInterpolator1DTest {
     /* positive */
     double a1 = 2.5;
     double b1 = 0.0;
-    Function1D<Double, Double> func1 = createExpFunction(a1, b1);
+    Function<Double, Double> func1 = createExpFunction(a1, b1);
     double[] xData1 = new double[] {-2.2, -1.1, -0.5, -3.0 / 11.0, 0.0, 0.01, 1.05, 2.6, 3.4, 5.1 };
     double[] keys1 = new double[] {-2.1, -1.8, -1.0 / 11.0, 0.05, 0.5, 4.5 };
     int dataSize1 = xData1.length;
@@ -183,7 +183,7 @@ public class ExponentialInterpolator1DTest {
     /* negative */
     double a2 = -3.82;
     double b2 = 0.0;
-    Function1D<Double, Double> func2 = createExpFunction(a2, b2);
+    Function<Double, Double> func2 = createExpFunction(a2, b2);
     double[] xData2 = new double[] {-12.0, 0.15, 1.1, 3.0, 9.2, 12.5 };
     double[] keys2 = new double[] {-11.0, -5.41, 0.5, 2.22, 4.5, 5.78, 7.4, 10.1, 11.25 };
     int dataSize2 = xData2.length;
@@ -305,8 +305,8 @@ public class ExponentialInterpolator1DTest {
     assertEquals(expected, obtained, Math.max(Math.abs(expected), 1.0) * relativeTol);
   }
 
-  private Function1D<Double, Double> createExpFunction(final double a, final double b) {
-    return new Function1D<Double, Double>() {
+  private Function<Double, Double> createExpFunction(final double a, final double b) {
+    return new Function<Double, Double>() {
       @Override
       public Double apply(Double value) {
         return a * Math.exp(b * value);

@@ -5,12 +5,13 @@
  */
 package com.opengamma.strata.math.impl.statistics.leastsquare;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
@@ -40,7 +41,7 @@ public class NonLinearLeastSquareWithPenalty {
   /**
    * Unconstrained allowed function - always returns true
    */
-  public static final Function1D<DoubleArray, Boolean> UNCONSTRAINED = new Function1D<DoubleArray, Boolean>() {
+  public static final Function<DoubleArray, Boolean> UNCONSTRAINED = new Function<DoubleArray, Boolean>() {
     @Override
     public Boolean apply(DoubleArray x) {
       return true;
@@ -118,7 +119,7 @@ public class NonLinearLeastSquareWithPenalty {
    */
   public LeastSquareWithPenaltyResults solve(
       DoubleArray observedValues,
-      Function1D<DoubleArray, DoubleArray> func,
+      Function<DoubleArray, DoubleArray> func,
       DoubleArray startPos,
       DoubleMatrix penalty) {
 
@@ -141,7 +142,7 @@ public class NonLinearLeastSquareWithPenalty {
   public LeastSquareWithPenaltyResults solve(
       DoubleArray observedValues,
       DoubleArray sigma,
-      Function1D<DoubleArray, DoubleArray> func,
+      Function<DoubleArray, DoubleArray> func,
       DoubleArray startPos,
       DoubleMatrix penalty) {
 
@@ -167,10 +168,10 @@ public class NonLinearLeastSquareWithPenalty {
   public LeastSquareWithPenaltyResults solve(
       DoubleArray observedValues,
       DoubleArray sigma,
-      Function1D<DoubleArray, DoubleArray> func,
+      Function<DoubleArray, DoubleArray> func,
       DoubleArray startPos,
       DoubleMatrix penalty,
-      Function1D<DoubleArray, Boolean> allowedValue) {
+      Function<DoubleArray, Boolean> allowedValue) {
 
     VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
     return solve(observedValues, sigma, func, jac.differentiate(func), startPos, penalty, allowedValue);
@@ -191,8 +192,8 @@ public class NonLinearLeastSquareWithPenalty {
   public LeastSquareWithPenaltyResults solve(
       DoubleArray observedValues,
       DoubleArray sigma,
-      Function1D<DoubleArray, DoubleArray> func,
-      Function1D<DoubleArray, DoubleMatrix> jac,
+      Function<DoubleArray, DoubleArray> func,
+      Function<DoubleArray, DoubleMatrix> jac,
       DoubleArray startPos, DoubleMatrix penalty) {
 
     return solve(observedValues, sigma, func, jac, startPos, penalty, UNCONSTRAINED);
@@ -217,12 +218,12 @@ public class NonLinearLeastSquareWithPenalty {
   public LeastSquareWithPenaltyResults solve(
       DoubleArray observedValues,
       DoubleArray sigma,
-      Function1D<DoubleArray,
+      Function<DoubleArray,
       DoubleArray> func,
-      Function1D<DoubleArray, DoubleMatrix> jac,
+      Function<DoubleArray, DoubleMatrix> jac,
       DoubleArray startPos,
       DoubleMatrix penalty,
-      Function1D<DoubleArray, Boolean> allowedValue) {
+      Function<DoubleArray, Boolean> allowedValue) {
 
     ArgChecker.notNull(observedValues, "observedValues");
     ArgChecker.notNull(sigma, " sigma");
@@ -332,7 +333,7 @@ public class NonLinearLeastSquareWithPenalty {
   }
 
   private DoubleArray getError(
-      Function1D<DoubleArray, DoubleArray> func,
+      Function<DoubleArray, DoubleArray> func,
       DoubleArray observedValues,
       DoubleArray sigma,
       DoubleArray theta) {
@@ -359,7 +360,7 @@ public class NonLinearLeastSquareWithPenalty {
     return DoubleMatrix.ofUnsafe(data);
   }
 
-  private DoubleMatrix getJacobian(Function1D<DoubleArray, DoubleMatrix> jac, DoubleArray sigma, DoubleArray theta) {
+  private DoubleMatrix getJacobian(Function<DoubleArray, DoubleMatrix> jac, DoubleArray sigma, DoubleArray theta) {
     DoubleMatrix res = jac.apply(theta);
     double[][] data = res.toArray();
     int n = res.rowCount();

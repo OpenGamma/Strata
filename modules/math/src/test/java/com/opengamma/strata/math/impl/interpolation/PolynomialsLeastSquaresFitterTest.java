@@ -7,11 +7,12 @@ package com.opengamma.strata.math.impl.interpolation;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 import com.opengamma.strata.math.impl.regression.LeastSquaresRegressionResult;
 import com.opengamma.strata.math.impl.statistics.descriptive.MeanCalculator;
@@ -24,8 +25,8 @@ import com.opengamma.strata.math.impl.statistics.descriptive.SampleStandardDevia
 public class PolynomialsLeastSquaresFitterTest {
   private static final double EPS = 1e-14;
 
-  private final Function1D<double[], Double> _meanCal = new MeanCalculator();
-  private final Function1D<double[], Double> _stdCal = new SampleStandardDeviationCalculator();
+  private final Function<double[], Double> _meanCal = new MeanCalculator();
+  private final Function<double[], Double> _stdCal = new SampleStandardDeviationCalculator();
 
   /**
    * Checks coefficients of polynomial f(x) are recovered and residuals, { y_i -f(x_i) }, are accurate

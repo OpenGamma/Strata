@@ -7,9 +7,9 @@ package com.opengamma.strata.math.impl.integration;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.testng.annotations.Test;
+import java.util.function.Function;
 
-import com.opengamma.strata.math.impl.function.Function1D;
+import org.testng.annotations.Test;
 
 /**
  * Test.
@@ -19,7 +19,7 @@ public class RungeKuttaIntegrator1DTest {
 
   private static final double ROOT_2PI = Math.sqrt(2.0 * java.lang.Math.PI);
 
-  private static final Function1D<Double, Double> CUBE = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> CUBE = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
@@ -28,7 +28,7 @@ public class RungeKuttaIntegrator1DTest {
 
   };
 
-  private static final Function1D<Double, Double> TRIANGLE = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> TRIANGLE = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
@@ -41,7 +41,7 @@ public class RungeKuttaIntegrator1DTest {
 
   };
 
-  private static final Function1D<Double, Double> MIX_NORM = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> MIX_NORM = new Function<Double, Double>() {
     private final double[] W = new double[] {0.2, 0.2, 0.2, 0.2, 0.2 };
     private final double[] MU = new double[] {0.0, -0.4, 0.5, 0.0, 0.01234583 };
     private final double[] SIGMA = new double[] {3.0, 0.1, 5.0, 0.001, 0.0001 };
@@ -60,7 +60,7 @@ public class RungeKuttaIntegrator1DTest {
     }
   };
 
-  private static final Function1D<Double, Double> SIN_INV_X = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> SIN_INV_X = new Function<Double, Double>() {
     @Override
     public Double apply(final Double x) {
       final double eps = 1e-127;

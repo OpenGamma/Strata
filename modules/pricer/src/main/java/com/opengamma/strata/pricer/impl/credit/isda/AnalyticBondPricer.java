@@ -8,9 +8,9 @@ package com.opengamma.strata.pricer.impl.credit.isda;
 import static com.opengamma.strata.math.impl.util.Epsilon.epsilon;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
 
 /**
@@ -66,7 +66,7 @@ public class AnalyticBondPricer {
       CdsPriceType cleanOrDirty) {
 
     ArgChecker.isTrue(bondPrice > 0.0, "Bond price must be positive");
-    Function1D<Double, Double> priceFunc = getBondPriceForHazardRateFunction(bond, yieldCurve, cleanOrDirty);
+    Function<Double, Double> priceFunc = getBondPriceForHazardRateFunction(bond, yieldCurve, cleanOrDirty);
 
     double zeroRiskPrice = priceFunc.apply(0.);
     if (bondPrice == zeroRiskPrice) {
@@ -82,7 +82,7 @@ public class AnalyticBondPricer {
           bond.getRecoveryRate() + ". Please check inputs");
     }
 
-    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+    Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double lambda) {
         return priceFunc.apply(lambda) - bondPrice;
@@ -118,7 +118,7 @@ public class AnalyticBondPricer {
    * @param cleanOrDirty  the clean or dirty price for the bond 
    * @return a function of hazard rate to bond price 
    */
-  public Function1D<Double, Double> getBondPriceForHazardRateFunction(
+  public Function<Double, Double> getBondPriceForHazardRateFunction(
       BondAnalytic bond,
       IsdaCompliantYieldCurve yieldCurve,
       CdsPriceType cleanOrDirty) {
@@ -154,7 +154,7 @@ public class AnalyticBondPricer {
       rt[i] = yieldCurve.getRT(intNodes[i]);
     }
 
-    return new Function1D<Double, Double>() {
+    return new Function<Double, Double>() {
 
       @Override
       public Double apply(Double lambda) {

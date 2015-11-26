@@ -5,8 +5,9 @@
  */
 package com.opengamma.strata.math.impl.statistics.descriptive;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * The sample skewness gives a measure of the asymmetry of the probability
@@ -19,9 +20,9 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * $$
  * where $\overline{x}$ is the sample mean.
  */
-public class SampleSkewnessCalculator extends Function1D<double[], Double> {
+public class SampleSkewnessCalculator implements Function<double[], Double> {
 
-  private static final Function1D<double[], Double> MEAN = new MeanCalculator();
+  private static final Function<double[], Double> MEAN = new MeanCalculator();
 
   @Override
   public Double apply(double[] x) {

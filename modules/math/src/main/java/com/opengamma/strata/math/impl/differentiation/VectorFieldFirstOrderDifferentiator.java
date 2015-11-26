@@ -5,11 +5,12 @@
  */
 package com.opengamma.strata.math.impl.differentiation;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Differentiates a vector field (i.e. there is a vector value for every point
@@ -78,11 +79,11 @@ public class VectorFieldFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<DoubleArray, DoubleMatrix> differentiate(Function1D<DoubleArray, DoubleArray> function) {
+  public Function<DoubleArray, DoubleMatrix> differentiate(Function<DoubleArray, DoubleArray> function) {
     ArgChecker.notNull(function, "function");
     switch (differenceType) {
       case FORWARD:
-        return new Function1D<DoubleArray, DoubleMatrix>() {
+        return new Function<DoubleArray, DoubleMatrix>() {
           @SuppressWarnings("synthetic-access")
           @Override
           public DoubleMatrix apply(DoubleArray x) {
@@ -102,7 +103,7 @@ public class VectorFieldFirstOrderDifferentiator
           }
         };
       case CENTRAL:
-        return new Function1D<DoubleArray, DoubleMatrix>() {
+        return new Function<DoubleArray, DoubleMatrix>() {
           @SuppressWarnings("synthetic-access")
           @Override
           public DoubleMatrix apply(DoubleArray x) {
@@ -123,7 +124,7 @@ public class VectorFieldFirstOrderDifferentiator
           }
         };
       case BACKWARD:
-        return new Function1D<DoubleArray, DoubleMatrix>() {
+        return new Function<DoubleArray, DoubleMatrix>() {
           @SuppressWarnings("synthetic-access")
           @Override
           public DoubleMatrix apply(DoubleArray x) {
@@ -149,9 +150,9 @@ public class VectorFieldFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<DoubleArray, DoubleMatrix> differentiate(
-      Function1D<DoubleArray, DoubleArray> function,
-      Function1D<DoubleArray, Boolean> domain) {
+  public Function<DoubleArray, DoubleMatrix> differentiate(
+      Function<DoubleArray, DoubleArray> function,
+      Function<DoubleArray, Boolean> domain) {
 
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(domain, "domain");
@@ -159,7 +160,7 @@ public class VectorFieldFirstOrderDifferentiator
     double[] wCent = new double[] {-1., 0., 1.};
     double[] wBack = new double[] {1., -4., 3.};
 
-    return new Function1D<DoubleArray, DoubleMatrix>() {
+    return new Function<DoubleArray, DoubleMatrix>() {
       @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix apply(DoubleArray x) {

@@ -6,7 +6,7 @@
 package com.opengamma.strata.math.impl.rootfinding;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
+import java.util.function.Function;
 
 /**
  * Parent class for root-finders that find a single real root $x$ for a function $f(x)$.  
@@ -14,13 +14,13 @@ import com.opengamma.strata.math.impl.function.Function1D;
 public abstract class RealSingleRootFinder implements SingleRootFinder<Double, Double> {
 
   @Override
-  public Double getRoot(Function1D<Double, Double> function, Double... startingPoints) {
+  public Double getRoot(Function<Double, Double> function, Double... startingPoints) {
     ArgChecker.notNull(startingPoints, "startingPoints");
     ArgChecker.isTrue(startingPoints.length == 2);
     return getRoot(function, startingPoints[0], startingPoints[1]);
   }
 
-  public abstract Double getRoot(Function1D<Double, Double> function, Double x1, Double x2);
+  public abstract Double getRoot(Function<Double, Double> function, Double x1, Double x2);
 
   /**
    * Tests that the inputs to the root-finder are not null, and that a root is bracketed by the bounding values.
@@ -30,7 +30,7 @@ public abstract class RealSingleRootFinder implements SingleRootFinder<Double, D
    * @param x2 The second bound, not null, must be greater than x1
    * @throws IllegalArgumentException if x1 and x2 do not bracket a root
    */
-  protected void checkInputs(Function1D<Double, Double> function, Double x1, Double x2) {
+  protected void checkInputs(Function<Double, Double> function, Double x1, Double x2) {
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(x1, "x1");
     ArgChecker.notNull(x2, "x2");

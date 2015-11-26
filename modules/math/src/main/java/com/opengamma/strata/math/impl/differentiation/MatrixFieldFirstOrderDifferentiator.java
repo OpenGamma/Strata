@@ -5,11 +5,12 @@
  */
 package com.opengamma.strata.math.impl.differentiation;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 
@@ -49,11 +50,11 @@ public class MatrixFieldFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<DoubleArray, DoubleMatrix[]> differentiate(
-      Function1D<DoubleArray, DoubleMatrix> function) {
+  public Function<DoubleArray, DoubleMatrix[]> differentiate(
+      Function<DoubleArray, DoubleMatrix> function) {
 
     ArgChecker.notNull(function, "function");
-    return new Function1D<DoubleArray, DoubleMatrix[]>() {
+    return new Function<DoubleArray, DoubleMatrix[]>() {
       @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix[] apply(DoubleArray x) {
@@ -74,9 +75,9 @@ public class MatrixFieldFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<DoubleArray, DoubleMatrix[]> differentiate(
-      Function1D<DoubleArray, DoubleMatrix> function,
-      Function1D<DoubleArray, Boolean> domain) {
+  public Function<DoubleArray, DoubleMatrix[]> differentiate(
+      Function<DoubleArray, DoubleMatrix> function,
+      Function<DoubleArray, Boolean> domain) {
 
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(domain, "domain");
@@ -85,7 +86,7 @@ public class MatrixFieldFirstOrderDifferentiator
     double[] wCent = new double[] {-1. / twoEps, 0., 1. / twoEps};
     double[] wBack = new double[] {1. / twoEps, -4. / twoEps, 3. / twoEps};
 
-    return new Function1D<DoubleArray, DoubleMatrix[]>() {
+    return new Function<DoubleArray, DoubleMatrix[]>() {
       @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix[] apply(DoubleArray x) {

@@ -5,12 +5,13 @@
  */
 package com.opengamma.strata.math.impl.function.special;
 
+import java.util.function.Function;
+
 import org.apache.commons.math3.exception.MaxCountExceededException;
 import org.apache.commons.math3.special.Beta;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * The incomplete beta function is defined as:
@@ -23,7 +24,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * <p>
  * This class uses the <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/special/Beta.html">Commons Math library implementation</a> of the Beta function.
  */
-public class IncompleteBetaFunction extends Function1D<Double, Double> {
+public class IncompleteBetaFunction implements Function<Double, Double> {
 
   private final double _a;
   private final double _b;

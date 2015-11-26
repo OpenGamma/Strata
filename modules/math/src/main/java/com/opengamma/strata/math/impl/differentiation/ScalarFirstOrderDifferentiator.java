@@ -5,9 +5,10 @@
  */
 package com.opengamma.strata.math.impl.differentiation;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Differentiates a scalar function with respect to its argument using finite difference.
@@ -63,11 +64,11 @@ public class ScalarFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<Double, Double> differentiate(Function1D<Double, Double> function) {
+  public Function<Double, Double> differentiate(Function<Double, Double> function) {
     ArgChecker.notNull(function, "function");
     switch (differenceType) {
       case FORWARD:
-        return new Function1D<Double, Double>() {
+        return new Function<Double, Double>() {
           @SuppressWarnings("synthetic-access")
           @Override
           public Double apply(Double x) {
@@ -76,7 +77,7 @@ public class ScalarFirstOrderDifferentiator
           }
         };
       case CENTRAL:
-        return new Function1D<Double, Double>() {
+        return new Function<Double, Double>() {
           @SuppressWarnings("synthetic-access")
           @Override
           public Double apply(Double x) {
@@ -85,7 +86,7 @@ public class ScalarFirstOrderDifferentiator
           }
         };
       case BACKWARD:
-        return new Function1D<Double, Double>() {
+        return new Function<Double, Double>() {
           @SuppressWarnings("synthetic-access")
           @Override
           public Double apply(Double x) {
@@ -100,9 +101,9 @@ public class ScalarFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<Double, Double> differentiate(
-      Function1D<Double, Double> function,
-      Function1D<Double, Boolean> domain) {
+  public Function<Double, Double> differentiate(
+      Function<Double, Double> function,
+      Function<Double, Boolean> domain) {
 
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(domain, "domain");
@@ -110,7 +111,7 @@ public class ScalarFirstOrderDifferentiator
     double[] wCent = new double[] {-1. / twoEps, 0., 1. / twoEps};
     double[] wBack = new double[] {1. / twoEps, -4. / twoEps, 3. / twoEps};
 
-    return new Function1D<Double, Double>() {
+    return new Function<Double, Double>() {
       @SuppressWarnings("synthetic-access")
       @Override
       public Double apply(Double x) {

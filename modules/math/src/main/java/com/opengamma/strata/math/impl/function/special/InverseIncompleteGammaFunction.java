@@ -5,8 +5,9 @@
  */
 package com.opengamma.strata.math.impl.function.special;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.Function2D;
 
 /**
@@ -15,7 +16,7 @@ import com.opengamma.strata.math.impl.function.Function2D;
 public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
 //TODO either find another implementation or delete this class
 
-  private final Function1D<Double, Double> _lnGamma = new NaturalLogGammaFunction();
+  private final Function<Double, Double> _lnGamma = new NaturalLogGammaFunction();
   private static final double EPS = 1e-8;
 
   //-------------------------------------------------------------------------
@@ -29,7 +30,7 @@ public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
     double u;
     double pp, lna1 = 0, afac = 0;
     double a1 = a - 1;
-    Function1D<Double, Double> gammaIncomplete = new IncompleteGammaFunction(a);
+    Function<Double, Double> gammaIncomplete = new IncompleteGammaFunction(a);
     double gln = _lnGamma.apply(a);
     if (a > 1) {
       lna1 = Math.log(a1);

@@ -7,10 +7,10 @@ package com.opengamma.strata.math.impl.function.special;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.apache.commons.math3.random.Well44497b;
 import org.testng.annotations.Test;
-
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Test.
@@ -23,7 +23,7 @@ public class IncompleteBetaFunctionTest {
   private static final double A = 0.4;
   private static final double B = 0.2;
   private static final int MAX_ITER = 10000;
-  private static final Function1D<Double, Double> BETA = new IncompleteBetaFunction(A, B);
+  private static final Function<Double, Double> BETA = new IncompleteBetaFunction(A, B);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeA1() {
@@ -70,8 +70,8 @@ public class IncompleteBetaFunctionTest {
     final double a = RANDOM.nextDouble();
     final double b = RANDOM.nextDouble();
     final double x = RANDOM.nextDouble();
-    final Function1D<Double, Double> f1 = new IncompleteBetaFunction(a, b);
-    final Function1D<Double, Double> f2 = new IncompleteBetaFunction(b, a);
+    final Function<Double, Double> f1 = new IncompleteBetaFunction(a, b);
+    final Function<Double, Double> f2 = new IncompleteBetaFunction(b, a);
     assertEquals(f1.apply(0.), 0, EPS);
     assertEquals(f1.apply(1.), 1, EPS);
     assertEquals(f1.apply(x), 1 - f2.apply(1 - x), EPS);

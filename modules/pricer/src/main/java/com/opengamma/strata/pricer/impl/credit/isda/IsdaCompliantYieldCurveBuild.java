@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
@@ -16,7 +17,6 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
 
@@ -289,7 +289,7 @@ public class IsdaCompliantYieldCurveBuild {
     int index1 = i1;
     int index2 = i2;
 
-    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+    Function<Double, Double> func = new Function<Double, Double>() {
 
       @Override
       public Double apply(Double x) {
@@ -303,7 +303,7 @@ public class IsdaCompliantYieldCurveBuild {
       }
     };
 
-    Function1D<Double, Double> grad = new Function1D<Double, Double>() {
+    Function<Double, Double> grad = new Function<Double, Double>() {
 
       @Override
       public Double apply(Double x) {

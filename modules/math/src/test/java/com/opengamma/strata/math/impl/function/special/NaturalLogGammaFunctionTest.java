@@ -7,16 +7,16 @@ package com.opengamma.strata.math.impl.function.special;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.testng.annotations.Test;
+import java.util.function.Function;
 
-import com.opengamma.strata.math.impl.function.Function1D;
+import org.testng.annotations.Test;
 
 /**
  * Test.
  */
 @Test
 public class NaturalLogGammaFunctionTest {
-  private static final Function1D<Double, Double> LN_GAMMA = new NaturalLogGammaFunction();
+  private static final Function<Double, Double> LN_GAMMA = new NaturalLogGammaFunction();
   private static final double EPS = 1e-9;
 
   @Test(expectedExceptions = IllegalArgumentException.class)

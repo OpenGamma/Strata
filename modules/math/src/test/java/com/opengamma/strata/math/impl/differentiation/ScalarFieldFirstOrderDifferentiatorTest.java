@@ -7,10 +7,11 @@ package com.opengamma.strata.math.impl.differentiation;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Test.
@@ -18,7 +19,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
 @Test
 public class ScalarFieldFirstOrderDifferentiatorTest {
 
-  private static final Function1D<DoubleArray, Double> F = new Function1D<DoubleArray, Double>() {
+  private static final Function<DoubleArray, Double> F = new Function<DoubleArray, Double>() {
 
     @Override
     public Double apply(final DoubleArray x) {
@@ -28,7 +29,7 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
     }
   };
 
-  private static final Function1D<DoubleArray, Boolean> DOMAIN = new Function1D<DoubleArray, Boolean>() {
+  private static final Function<DoubleArray, Boolean> DOMAIN = new Function<DoubleArray, Boolean>() {
 
     @Override
     public Boolean apply(final DoubleArray x) {
@@ -37,7 +38,7 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
     }
   };
 
-  private static final Function1D<DoubleArray, DoubleArray> G = new Function1D<DoubleArray, DoubleArray>() {
+  private static final Function<DoubleArray, DoubleArray> G = new Function<DoubleArray, DoubleArray>() {
 
     @Override
     public DoubleArray apply(final DoubleArray x) {
@@ -61,7 +62,7 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
-    CENTRAL.differentiate((Function1D<DoubleArray, Double>) null);
+    CENTRAL.differentiate((Function<DoubleArray, Double>) null);
   }
 
   @Test
@@ -86,7 +87,7 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
     x[1] = DoubleArray.of(0.0, 12.6);
     x[2] = DoubleArray.of(Math.PI, 0.0);
 
-    final Function1D<DoubleArray, DoubleArray> fdGradFunc = CENTRAL.differentiate(F, DOMAIN);
+    final Function<DoubleArray, DoubleArray> fdGradFunc = CENTRAL.differentiate(F, DOMAIN);
 
     for (int k = 0; k < 3; k++) {
       final DoubleArray fdRes = fdGradFunc.apply(x[k]);

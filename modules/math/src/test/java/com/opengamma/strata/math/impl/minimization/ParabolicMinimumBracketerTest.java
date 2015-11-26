@@ -7,11 +7,12 @@ package com.opengamma.strata.math.impl.minimization;
 
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Test.
@@ -19,7 +20,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
 @Test
 public class ParabolicMinimumBracketerTest extends MinimumBracketerTestCase {
   private static final MinimumBracketer BRACKETER = new ParabolicMinimumBracketer();
-  private static final Function1D<Double, Double> LINEAR = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> LINEAR = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
@@ -27,7 +28,7 @@ public class ParabolicMinimumBracketerTest extends MinimumBracketerTestCase {
     }
 
   };
-  private static final Function1D<Double, Double> QUADRATIC = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> QUADRATIC = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
@@ -35,7 +36,7 @@ public class ParabolicMinimumBracketerTest extends MinimumBracketerTestCase {
     }
 
   };
-  private static final Function1D<Double, Double> MOD_QUADRATIC = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> MOD_QUADRATIC = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
@@ -43,7 +44,7 @@ public class ParabolicMinimumBracketerTest extends MinimumBracketerTestCase {
     }
   };
 
-  private static final Function1D<Double, Double> STRETCHED_QUADRATIC = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> STRETCHED_QUADRATIC = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
@@ -80,7 +81,7 @@ public class ParabolicMinimumBracketerTest extends MinimumBracketerTestCase {
     assertFunction(STRETCHED_QUADRATIC, 0, 1);
   }
 
-  private void assertFunction(final Function1D<Double, Double> f, final double xLower, final double xUpper) {
+  private void assertFunction(final Function<Double, Double> f, final double xLower, final double xUpper) {
     final double[] result = BRACKETER.getBracketedPoints(f, xLower, xUpper);
     if (result[0] < result[1]) {
       assertTrue(result[1] < result[2]);

@@ -11,13 +11,14 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
@@ -450,13 +451,13 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
   private double fdSensitivity(EuropeanVanillaOption optionData, double forward,
       SabrFormulaData sabrData, SabrParameter param, double delta) {
 
-    Function1D<SabrFormulaData, Double> funcC = null;
-    Function1D<SabrFormulaData, Double> funcB = null;
-    Function1D<SabrFormulaData, Double> funcA = null;
+    Function<SabrFormulaData, Double> funcC = null;
+    Function<SabrFormulaData, Double> funcB = null;
+    Function<SabrFormulaData, Double> funcA = null;
     SabrFormulaData dataC = null;
     SabrFormulaData dataB = sabrData;
     SabrFormulaData dataA = null;
-    Function1D<SabrFormulaData, Double> func = getVolatilityFunction(optionData, forward);
+    Function<SabrFormulaData, Double> func = getVolatilityFunction(optionData, forward);
 
     FiniteDifferenceType fdType = null;
 
@@ -580,8 +581,8 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
     throw new MathException("enum not found");
   }
 
-  private Function1D<SabrFormulaData, Double> getVolatilityFunction(EuropeanVanillaOption option, double forward) {
-    return new Function1D<SabrFormulaData, Double>() {
+  private Function<SabrFormulaData, Double> getVolatilityFunction(EuropeanVanillaOption option, double forward) {
+    return new Function<SabrFormulaData, Double>() {
       @Override
       public Double apply(SabrFormulaData data) {
         ArgChecker.notNull(data, "data");

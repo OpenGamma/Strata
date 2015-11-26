@@ -5,10 +5,11 @@
  */
 package com.opengamma.strata.math.impl.rootfinding;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Class for finding the real root of a function within a range of $x$-values using the one-dimensional version of Newton's method.
@@ -66,13 +67,13 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
    *  step takes the estimate for the root outside the original bounds.
    */
   @Override
-  public Double getRoot(Function1D<Double, Double> function, Double x1, Double x2) {
+  public Double getRoot(Function<Double, Double> function, Double x1, Double x2) {
     ArgChecker.notNull(function, "function");
     return getRoot(DoubleFunction1D.from(function), x1, x2);
   }
 
   //-------------------------------------------------------------------------
-  public Double getRoot(Function1D<Double, Double> function, Double x) {
+  public Double getRoot(Function<Double, Double> function, Double x) {
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(x, "x");
     DoubleFunction1D f = DoubleFunction1D.from(function);
@@ -119,7 +120,7 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
    * @throws MathException If the root is not found in 1000 attempts; if the Newton
    *  step takes the estimate for the root outside the original bounds.
    */
-  public Double getRoot(Function1D<Double, Double> function, Function1D<Double, Double> derivative, Double x1, Double x2) {
+  public Double getRoot(Function<Double, Double> function, Function<Double, Double> derivative, Double x1, Double x2) {
     checkInputs(function, x1, x2);
     ArgChecker.notNull(derivative, "derivative");
     return getRoot(DoubleFunction1D.from(function), DoubleFunction1D.from(derivative), x1, x2);
@@ -133,7 +134,7 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
    * @return The root
    * @throws MathException If the root is not found in 1000 attempts.
    */
-  public Double getRoot(Function1D<Double, Double> function, Function1D<Double, Double> derivative, Double x) {
+  public Double getRoot(Function<Double, Double> function, Function<Double, Double> derivative, Double x) {
     return getRoot(DoubleFunction1D.from(function), DoubleFunction1D.from(derivative), x);
   }
 

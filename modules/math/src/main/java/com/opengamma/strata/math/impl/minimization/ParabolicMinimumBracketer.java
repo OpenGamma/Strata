@@ -5,8 +5,9 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * 
@@ -19,7 +20,7 @@ public class ParabolicMinimumBracketer extends MinimumBracketer {
   private static final double MAGNIFICATION = 1 + GOLDEN;
 
   @Override
-  public double[] getBracketedPoints(Function1D<Double, Double> f, double xLower, double xUpper) {
+  public double[] getBracketedPoints(Function<Double, Double> f, double xLower, double xUpper) {
     checkInputs(f, xLower, xUpper);
     double temp;
     double x1 = xLower;

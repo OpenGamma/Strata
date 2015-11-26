@@ -7,10 +7,11 @@ package com.opengamma.strata.math.impl.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
@@ -29,7 +30,7 @@ public class CombinedInterpolatorExtrapolatorTest {
   private static final CombinedInterpolatorExtrapolator COMBINED1 = new CombinedInterpolatorExtrapolator(INTERPOLATOR);
   private static final CombinedInterpolatorExtrapolator COMBINED2 = new CombinedInterpolatorExtrapolator(INTERPOLATOR, LEFT_EXTRAPOLATOR);
   private static final CombinedInterpolatorExtrapolator COMBINED3 = new CombinedInterpolatorExtrapolator(INTERPOLATOR, LEFT_EXTRAPOLATOR, RIGHT_EXTRAPOLATOR);
-  private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> F = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {

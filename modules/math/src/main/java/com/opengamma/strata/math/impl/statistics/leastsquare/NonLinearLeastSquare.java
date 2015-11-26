@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.math.impl.statistics.leastsquare;
 
+import java.util.function.Function;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +17,6 @@ import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldSecondOrderDifferentiator;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.ParameterizedFunction;
 import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
@@ -32,7 +33,7 @@ public class NonLinearLeastSquare {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NonLinearLeastSquare.class);
   private static final int MAX_ATTEMPTS = 10000;
-  private static final Function1D<DoubleArray, Boolean> UNCONSTRAINED = new Function1D<DoubleArray, Boolean>() {
+  private static final Function<DoubleArray, Boolean> UNCONSTRAINED = new Function<DoubleArray, Boolean>() {
     @Override
     public Boolean apply(DoubleArray x) {
       return true;
@@ -129,7 +130,7 @@ public class NonLinearLeastSquare {
     ArgChecker.isTrue(y.size() == n, "y wrong length");
     ArgChecker.isTrue(sigma.size() == n, "sigma wrong length");
 
-    Function1D<DoubleArray, DoubleArray> func1D = new Function1D<DoubleArray, DoubleArray>() {
+    Function<DoubleArray, DoubleArray> func1D = new Function<DoubleArray, DoubleArray>() {
       @Override
       public DoubleArray apply(DoubleArray theta) {
         return DoubleArray.of(x.size(), i -> func.evaluate(x.get(i), theta));
@@ -223,14 +224,14 @@ public class NonLinearLeastSquare {
     ArgChecker.isTrue(y.size() == n, "y wrong length");
     ArgChecker.isTrue(sigma.size() == n, "sigma wrong length");
 
-    Function1D<DoubleArray, DoubleArray> func1D = new Function1D<DoubleArray, DoubleArray>() {
+    Function<DoubleArray, DoubleArray> func1D = new Function<DoubleArray, DoubleArray>() {
       @Override
       public DoubleArray apply(DoubleArray theta) {
         return DoubleArray.of(x.size(), i -> func.evaluate(x.get(i), theta));
       }
     };
 
-    Function1D<DoubleArray, DoubleMatrix> jac = new Function1D<DoubleArray, DoubleMatrix>() {
+    Function<DoubleArray, DoubleMatrix> jac = new Function<DoubleArray, DoubleMatrix>() {
       @Override
       public DoubleMatrix apply(DoubleArray theta) {
         int m = x.size();
@@ -257,7 +258,7 @@ public class NonLinearLeastSquare {
    */
   public LeastSquareResults solve(
       DoubleArray observedValues,
-      Function1D<DoubleArray, DoubleArray> func,
+      Function<DoubleArray, DoubleArray> func,
       DoubleArray startPos) {
 
     int n = observedValues.size();
@@ -278,7 +279,7 @@ public class NonLinearLeastSquare {
   public LeastSquareResults solve(
       DoubleArray observedValues,
       DoubleArray sigma,
-      Function1D<DoubleArray, DoubleArray> func,
+      Function<DoubleArray, DoubleArray> func,
       DoubleArray startPos) {
 
     VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
@@ -301,7 +302,7 @@ public class NonLinearLeastSquare {
   public LeastSquareResults solve(
       DoubleArray observedValues,
       DoubleArray sigma,
-      Function1D<DoubleArray, DoubleArray> func,
+      Function<DoubleArray, DoubleArray> func,
       DoubleArray startPos,
       DoubleArray maxJumps) {
 
@@ -323,8 +324,8 @@ public class NonLinearLeastSquare {
   public LeastSquareResults solve(
       DoubleArray observedValues,
       DoubleArray sigma,
-      Function1D<DoubleArray, DoubleArray> func,
-      Function1D<DoubleArray, DoubleMatrix> jac, DoubleArray startPos) {
+      Function<DoubleArray, DoubleArray> func,
+      Function<DoubleArray, DoubleMatrix> jac, DoubleArray startPos) {
 
     return solve(observedValues, sigma, func, jac, startPos, UNCONSTRAINED, null);
   }
@@ -346,8 +347,8 @@ public class NonLinearLeastSquare {
   public LeastSquareResults solve(
       DoubleArray observedValues,
       DoubleArray sigma,
-      Function1D<DoubleArray, DoubleArray> func,
-      Function1D<DoubleArray, DoubleMatrix> jac,
+      Function<DoubleArray, DoubleArray> func,
+      Function<DoubleArray, DoubleMatrix> jac,
       DoubleArray startPos,
       DoubleArray maxJumps) {
 
@@ -372,10 +373,10 @@ public class NonLinearLeastSquare {
   public LeastSquareResults solve(
       DoubleArray observedValues,
       DoubleArray sigma,
-      Function1D<DoubleArray, DoubleArray> func,
-      Function1D<DoubleArray, DoubleMatrix> jac,
+      Function<DoubleArray, DoubleArray> func,
+      Function<DoubleArray, DoubleMatrix> jac,
       DoubleArray startPos,
-      Function1D<DoubleArray, Boolean> constraints,
+      Function<DoubleArray, Boolean> constraints,
       DoubleArray maxJumps) {
 
     ArgChecker.notNull(observedValues, "observedValues");
@@ -449,7 +450,7 @@ public class NonLinearLeastSquare {
         // add the second derivative information to the Hessian matrix to check we are not at a local maximum or saddle
         // point
         VectorFieldSecondOrderDifferentiator diff = new VectorFieldSecondOrderDifferentiator();
-        Function1D<DoubleArray, DoubleMatrix[]> secDivFunc = diff.differentiate(func, constraints);
+        Function<DoubleArray, DoubleMatrix[]> secDivFunc = diff.differentiate(func, constraints);
         DoubleMatrix[] secDiv = secDivFunc.apply(trialTheta);
         double[][] temp = new double[nParms][nParms];
         for (int i = 0; i < nObs; i++) {
@@ -586,8 +587,8 @@ public class NonLinearLeastSquare {
    */
   public DoubleMatrix calInverseJacobian(
       DoubleArray sigma,
-      Function1D<DoubleArray, DoubleArray> func,
-      Function1D<DoubleArray, DoubleMatrix> jac,
+      Function<DoubleArray, DoubleArray> func,
+      Function<DoubleArray, DoubleMatrix> jac,
       DoubleArray originalSolution) {
 
     DoubleMatrix jacobian = getJacobian(jac, sigma, originalSolution);
@@ -622,7 +623,7 @@ public class NonLinearLeastSquare {
     return new LeastSquareResults(newChiSqr, newTheta, covariance, inverseJacobian);
   }
 
-  private DoubleArray getError(final Function1D<DoubleArray, DoubleArray> func, final DoubleArray observedValues, final DoubleArray sigma, final DoubleArray theta) {
+  private DoubleArray getError(final Function<DoubleArray, DoubleArray> func, final DoubleArray observedValues, final DoubleArray sigma, final DoubleArray theta) {
     int n = observedValues.size();
     DoubleArray modelValues = func.apply(theta);
     ArgChecker.isTrue(n == modelValues.size(), "Number of data points different between model (" + modelValues.size() + ") and observed (" + n + ")");
@@ -644,7 +645,7 @@ public class NonLinearLeastSquare {
     return DoubleMatrix.copyOf(res);
   }
 
-  private DoubleMatrix getJacobian(final Function1D<DoubleArray, DoubleMatrix> jac, final DoubleArray sigma, final DoubleArray theta) {
+  private DoubleMatrix getJacobian(final Function<DoubleArray, DoubleMatrix> jac, final DoubleArray sigma, final DoubleArray theta) {
     DoubleMatrix res = jac.apply(theta);
     double[][] data = res.toArray();
     int n = res.rowCount();

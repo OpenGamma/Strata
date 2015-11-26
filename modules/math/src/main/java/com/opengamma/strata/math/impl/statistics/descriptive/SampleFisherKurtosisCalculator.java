@@ -8,7 +8,6 @@ package com.opengamma.strata.math.impl.statistics.descriptive;
 import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * The sample Fisher kurtosis gives a measure of how heavy the tails of a distribution are
@@ -25,7 +24,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
  */
 public class SampleFisherKurtosisCalculator implements Function<double[], Double> {
 
-  private static final Function1D<double[], Double> MEAN = new MeanCalculator();
+  private static final Function<double[], Double> MEAN = new MeanCalculator();
 
   @Override
   public Double apply(double[] x) {

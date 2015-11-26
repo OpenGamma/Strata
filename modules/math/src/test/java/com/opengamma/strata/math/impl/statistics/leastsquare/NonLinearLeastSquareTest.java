@@ -8,12 +8,13 @@ package com.opengamma.strata.math.impl.statistics.leastsquare;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.ParameterizedFunction;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionResult;
@@ -35,7 +36,7 @@ public class NonLinearLeastSquareTest {
   private static final DoubleArray SIGMA;
   private static final NonLinearLeastSquare LS;
 
-  private static final Function1D<Double, Double> TARGET = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> TARGET = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
@@ -43,7 +44,7 @@ public class NonLinearLeastSquareTest {
     }
   };
 
-  private static final Function1D<DoubleArray, DoubleArray> FUNCTION = new Function1D<DoubleArray, DoubleArray>() {
+  private static final Function<DoubleArray, DoubleArray> FUNCTION = new Function<DoubleArray, DoubleArray>() {
 
     @SuppressWarnings("synthetic-access")
     @Override
@@ -93,7 +94,7 @@ public class NonLinearLeastSquareTest {
     }
   };
 
-  private static final Function1D<DoubleArray, DoubleMatrix> GRAD = new Function1D<DoubleArray, DoubleMatrix>() {
+  private static final Function<DoubleArray, DoubleMatrix> GRAD = new Function<DoubleArray, DoubleMatrix>() {
 
     @SuppressWarnings("synthetic-access")
     @Override

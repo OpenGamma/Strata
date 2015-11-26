@@ -13,7 +13,6 @@ import java.util.function.Function;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.statistics.descriptive.MeanCalculator;
 import com.opengamma.strata.math.impl.statistics.descriptive.MedianCalculator;
 import com.opengamma.strata.math.impl.statistics.descriptive.PopulationVarianceCalculator;
@@ -85,9 +84,9 @@ public class GeneralizedParetoDistributionTest extends ProbabilityDistributionTe
 
   @Test
   public void testDistribution() {
-    final Function1D<double[], Double> meanCalculator = new MeanCalculator();
+    final Function<double[], Double> meanCalculator = new MeanCalculator();
     final Function<double[], Double> medianCalculator = new MedianCalculator();
-    final Function1D<double[], Double> varianceCalculator = new PopulationVarianceCalculator();
+    final Function<double[], Double> varianceCalculator = new PopulationVarianceCalculator();
     final int n = 1000000;
     final double eps = 0.1;
     final double[] data = new double[n];

@@ -6,13 +6,13 @@
 package com.opengamma.strata.pricer.impl.rate.model;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.rootfinding.RidderSingleRootFinder;
 
@@ -250,7 +250,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
    * @return the exercise boundary
    */
   public double kappa(DoubleArray discountedCashFlow, DoubleArray alpha) {
-    final Function1D<Double, Double> swapValue = new Function1D<Double, Double>() {
+    final Function<Double, Double> swapValue = new Function<Double, Double>() {
       @Override
       public Double apply(Double x) {
         double error = 0.0;
@@ -320,7 +320,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
    * @return the exercise boundary
    */
   public double lambda(DoubleArray discountedCashFlow, DoubleArray alpha2, DoubleArray hwH) {
-    final Function1D<Double, Double> swapValue = new Function1D<Double, Double>() {
+    final Function<Double, Double> swapValue = new Function<Double, Double>() {
       @Override
       public Double apply(Double x) {
         double value = 0.0;

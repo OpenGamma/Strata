@@ -8,11 +8,11 @@ package com.opengamma.strata.math.impl.interpolation;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.TreeMap;
+import java.util.function.Function;
 
 import org.apache.commons.math3.random.Well44497b;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DCubicSplineDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
@@ -28,7 +28,7 @@ public class NaturalCubicSplineInterpolator1DTest {
   private static final double[] COEFF = new double[] {-0.4, 0.05, 0.2, 1. };
 
   private static final Interpolator1D INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
-  private static final Function1D<Double, Double> CUBIC = new RealPolynomialFunction1D(COEFF);
+  private static final Function<Double, Double> CUBIC = new RealPolynomialFunction1D(COEFF);
   private static final double EPS = 1e-2;
   private static final Interpolator1DDataBundle MODEL;
 

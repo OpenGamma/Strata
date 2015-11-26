@@ -5,9 +5,10 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * 
@@ -20,11 +21,11 @@ public class GoldenSectionMinimizer1D implements ScalarMinimizer {
   private static final double EPS = 1e-12;
 
   @Override
-  public double minimize(Function1D<Double, Double> f, double startPosition, double lower, double upper) {
+  public double minimize(Function<Double, Double> f, double startPosition, double lower, double upper) {
     return minimize(f, lower, upper);
   }
 
-  public double minimize(Function1D<Double, Double> f, double lower, double upper) {
+  public double minimize(Function<Double, Double> f, double lower, double upper) {
     ArgChecker.notNull(f, "function");
     double x0, x1, x2, x3, f1, f2, temp;
     int i = 0;
@@ -69,7 +70,7 @@ public class GoldenSectionMinimizer1D implements ScalarMinimizer {
   }
 
   @Override
-  public Double minimize(Function1D<Double, Double> function, Double startPosition) {
+  public Double minimize(Function<Double, Double> function, Double startPosition) {
     throw new UnsupportedOperationException("Need lower and upper bounds to use this minimization method");
   }
 }

@@ -7,9 +7,9 @@ package com.opengamma.strata.math.impl.function.special;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.testng.annotations.Test;
+import java.util.function.Function;
 
-import com.opengamma.strata.math.impl.function.Function1D;
+import org.testng.annotations.Test;
 
 /**
  * Test.
@@ -19,7 +19,7 @@ public class TopHatFunctionTest {
   private static final double X1 = 2;
   private static final double X2 = 2.5;
   private static final double Y = 10;
-  private static final Function1D<Double, Double> F = new TopHatFunction(X1, X2, Y);
+  private static final Function<Double, Double> F = new TopHatFunction(X1, X2, Y);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongOrder() {

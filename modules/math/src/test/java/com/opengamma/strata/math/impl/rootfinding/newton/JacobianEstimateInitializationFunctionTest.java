@@ -7,11 +7,12 @@ package com.opengamma.strata.math.impl.rootfinding.newton;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Test.
@@ -20,7 +21,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
 public class JacobianEstimateInitializationFunctionTest {
 
   private static final JacobianEstimateInitializationFunction ESTIMATE = new JacobianEstimateInitializationFunction();
-  private static final Function1D<DoubleArray, DoubleMatrix> J = new Function1D<DoubleArray, DoubleMatrix>() {
+  private static final Function<DoubleArray, DoubleMatrix> J = new Function<DoubleArray, DoubleMatrix>() {
     @Override
     public DoubleMatrix apply(DoubleArray v) {
       double[] x = v.toArray();

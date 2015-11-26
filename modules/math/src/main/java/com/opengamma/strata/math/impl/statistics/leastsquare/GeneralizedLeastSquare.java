@@ -8,6 +8,7 @@ package com.opengamma.strata.math.impl.statistics.leastsquare;
 import static org.apache.commons.math3.util.CombinatoricsUtils.binomialCoefficient;
 
 import java.util.List;
+import java.util.function.Function;
 
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
@@ -16,7 +17,6 @@ import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.FunctionUtils;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
 import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionCommons;
@@ -46,7 +46,7 @@ public class GeneralizedLeastSquare {
    * @return the results of the least square
    */
   public <T> GeneralizedLeastSquareResults<T> solve(
-      T[] x, double[] y, double[] sigma, List<Function1D<T, Double>> basisFunctions) {
+      T[] x, double[] y, double[] sigma, List<Function<T, Double>> basisFunctions) {
     return solve(x, y, sigma, basisFunctions, 0.0, 0);
   }
 
@@ -62,7 +62,7 @@ public class GeneralizedLeastSquare {
    * @return the results of the least square
    */
   public <T> GeneralizedLeastSquareResults<T> solve(
-      T[] x, double[] y, double[] sigma, List<Function1D<T, Double>> basisFunctions,
+      T[] x, double[] y, double[] sigma, List<Function<T, Double>> basisFunctions,
       double lambda, int differenceOrder) {
     ArgChecker.notNull(x, "x null");
     ArgChecker.notNull(y, "y null");
@@ -84,7 +84,7 @@ public class GeneralizedLeastSquare {
   }
 
   GeneralizedLeastSquareResults<Double> solve(
-      double[] x, double[] y, double[] sigma, List<Function1D<Double, Double>> basisFunctions,
+      double[] x, double[] y, double[] sigma, List<Function<Double, Double>> basisFunctions,
       double lambda, int differenceOrder) {
     return solve(DoubleArrayMath.toObject(x), y, sigma, basisFunctions, lambda, differenceOrder);
   }
@@ -99,7 +99,7 @@ public class GeneralizedLeastSquare {
    * @return the results of the least square
    */
   public <T> GeneralizedLeastSquareResults<T> solve(
-      List<T> x, List<Double> y, List<Double> sigma, List<Function1D<T, Double>> basisFunctions) {
+      List<T> x, List<Double> y, List<Double> sigma, List<Function<T, Double>> basisFunctions) {
     return solve(x, y, sigma, basisFunctions, 0.0, 0);
   }
 
@@ -115,7 +115,7 @@ public class GeneralizedLeastSquare {
    * @return the results of the least square
    */
   public <T> GeneralizedLeastSquareResults<T> solve(
-      List<T> x, List<Double> y, List<Double> sigma, List<Function1D<T, Double>> basisFunctions,
+      List<T> x, List<Double> y, List<Double> sigma, List<Function<T, Double>> basisFunctions,
       double lambda, int differenceOrder) {
     ArgChecker.notEmpty(x, "empty measurement points");
     ArgChecker.notEmpty(y, "empty measurement values");
@@ -146,7 +146,7 @@ public class GeneralizedLeastSquare {
    * @return the results of the least square
    */
   public <T> GeneralizedLeastSquareResults<T> solve(
-      List<T> x, List<Double> y, List<Double> sigma, List<Function1D<T, Double>> basisFunctions,
+      List<T> x, List<Double> y, List<Double> sigma, List<Function<T, Double>> basisFunctions,
       int[] sizes, double[] lambda, int[] differenceOrder) {
     ArgChecker.notEmpty(x, "empty measurement points");
     ArgChecker.notEmpty(y, "empty measurement values");
@@ -172,7 +172,7 @@ public class GeneralizedLeastSquare {
   }
 
   private <T> GeneralizedLeastSquareResults<T> solveImp(
-      List<T> x, List<Double> y, List<Double> sigma, List<Function1D<T, Double>> basisFunctions,
+      List<T> x, List<Double> y, List<Double> sigma, List<Function<T, Double>> basisFunctions,
       double lambda, int differenceOrder) {
 
     int n = x.size();
@@ -232,7 +232,7 @@ public class GeneralizedLeastSquare {
   }
 
   private <T> GeneralizedLeastSquareResults<T> solveImp(
-      List<T> x, List<Double> y, List<Double> sigma, List<Function1D<T, Double>> basisFunctions,
+      List<T> x, List<Double> y, List<Double> sigma, List<Function<T, Double>> basisFunctions,
       int[] sizes, double[] lambda, int[] differenceOrder) {
 
     int dim = sizes.length;

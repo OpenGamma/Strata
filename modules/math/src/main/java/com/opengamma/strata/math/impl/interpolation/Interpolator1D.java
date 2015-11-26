@@ -8,12 +8,12 @@ package com.opengamma.strata.math.impl.interpolation;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.function.Function;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.math.impl.differentiation.ScalarFirstOrderDifferentiator;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
@@ -38,7 +38,7 @@ public abstract class Interpolator1D
    */
   public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
     double range = data.lastKey() - data.firstKey();
-    Function1D<Double, Boolean> domain = new Function1D<Double, Boolean>() {
+    Function<Double, Boolean> domain = new Function<Double, Boolean>() {
       @Override
       public Boolean apply(Double x) {
         return x >= data.firstKey() && x <= data.lastKey();
@@ -46,8 +46,8 @@ public abstract class Interpolator1D
     };
 
     ScalarFirstOrderDifferentiator diff = new ScalarFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, range * EPS);
-    Function1D<Double, Double> func = getFunction(data);
-    Function1D<Double, Double> gradFunc = diff.differentiate(func, domain);
+    Function<Double, Double> func = getFunction(data);
+    Function<Double, Double> gradFunc = diff.differentiate(func, domain);
     return gradFunc.apply(value);
   }
 
@@ -56,8 +56,8 @@ public abstract class Interpolator1D
    * @param data The knots and computed values used by the interpolator
    * @return a 1D function
    */
-  public Function1D<Double, Double> getFunction(final Interpolator1DDataBundle data) {
-    return new Function1D<Double, Double>() {
+  public Function<Double, Double> getFunction(final Interpolator1DDataBundle data) {
+    return new Function<Double, Double>() {
       @Override
       public Double apply(Double x) {
         return interpolate(data, x);
@@ -70,14 +70,14 @@ public abstract class Interpolator1D
    * @param data The knots and computed values used by the interpolator
    * @return a 1D function of the gradient
    */
-  public Function1D<Double, Double> getGradientFunction(final Interpolator1DDataBundle data) {
+  public Function<Double, Double> getGradientFunction(final Interpolator1DDataBundle data) {
     /*
      * Implementation note: It would be more efficient to have the finite difference mechanism (found in firstDerivative)
      * here and have firstDerivative call this rather than the other way round. However firstDerivative is overridden in
      * concrete implementations (with an analytic calculation), which would mean calls to getGradientFunction would be
      * computed by FD even if firstDerivative was over ridden.
      */
-    return new Function1D<Double, Double>() {
+    return new Function<Double, Double>() {
       @Override
       public Double apply(Double x) {
         return firstDerivative(data, x);

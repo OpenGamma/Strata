@@ -7,9 +7,10 @@ package com.opengamma.strata.math.impl.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
@@ -19,7 +20,7 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
 public class LinearInterpolator1DNodeSensitivityCalculatorTest {
   private static final double EPS = 1e-15;
   private static final LinearInterpolator1D INTERPOLATOR = new LinearInterpolator1D();
-  private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> FUNCTION = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {

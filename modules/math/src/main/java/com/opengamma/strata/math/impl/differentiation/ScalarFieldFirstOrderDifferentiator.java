@@ -5,10 +5,11 @@
  */
 package com.opengamma.strata.math.impl.differentiation;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Differentiates a scalar field (i.e. there is a scalar value for every point
@@ -58,13 +59,13 @@ public class ScalarFieldFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<DoubleArray, DoubleArray> differentiate(
-      Function1D<DoubleArray, Double> function) {
+  public Function<DoubleArray, DoubleArray> differentiate(
+      Function<DoubleArray, Double> function) {
 
     ArgChecker.notNull(function, "function");
     switch (differenceType) {
       case FORWARD:
-        return new Function1D<DoubleArray, DoubleArray>() {
+        return new Function<DoubleArray, DoubleArray>() {
           @SuppressWarnings("synthetic-access")
           @Override
           public DoubleArray apply(DoubleArray x) {
@@ -77,7 +78,7 @@ public class ScalarFieldFirstOrderDifferentiator
           }
         };
       case CENTRAL:
-        return new Function1D<DoubleArray, DoubleArray>() {
+        return new Function<DoubleArray, DoubleArray>() {
           @SuppressWarnings("synthetic-access")
           @Override
           public DoubleArray apply(DoubleArray x) {
@@ -90,7 +91,7 @@ public class ScalarFieldFirstOrderDifferentiator
           }
         };
       case BACKWARD:
-        return new Function1D<DoubleArray, DoubleArray>() {
+        return new Function<DoubleArray, DoubleArray>() {
           @SuppressWarnings("synthetic-access")
           @Override
           public DoubleArray apply(DoubleArray x) {
@@ -109,9 +110,9 @@ public class ScalarFieldFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<DoubleArray, DoubleArray> differentiate(
-      Function1D<DoubleArray, Double> function,
-      Function1D<DoubleArray, Boolean> domain) {
+  public Function<DoubleArray, DoubleArray> differentiate(
+      Function<DoubleArray, Double> function,
+      Function<DoubleArray, Boolean> domain) {
 
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(domain, "domain");
@@ -120,7 +121,7 @@ public class ScalarFieldFirstOrderDifferentiator
     double[] wCent = new double[] {-1. / twoEps, 0., 1. / twoEps};
     double[] wBack = new double[] {1. / twoEps, -4. / twoEps, 3. / twoEps};
 
-    return new Function1D<DoubleArray, DoubleArray>() {
+    return new Function<DoubleArray, DoubleArray>() {
       @SuppressWarnings("synthetic-access")
       @Override
       public DoubleArray apply(DoubleArray x) {

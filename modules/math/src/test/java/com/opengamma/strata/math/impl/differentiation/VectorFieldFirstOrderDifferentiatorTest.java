@@ -7,11 +7,12 @@ package com.opengamma.strata.math.impl.differentiation;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Test.
@@ -19,7 +20,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
 @Test
 public class VectorFieldFirstOrderDifferentiatorTest {
 
-  private static final Function1D<DoubleArray, DoubleArray> F = new Function1D<DoubleArray, DoubleArray>() {
+  private static final Function<DoubleArray, DoubleArray> F = new Function<DoubleArray, DoubleArray>() {
 
     @Override
     public DoubleArray apply(final DoubleArray x) {
@@ -31,7 +32,7 @@ public class VectorFieldFirstOrderDifferentiatorTest {
     }
   };
 
-  private static final Function1D<DoubleArray, DoubleArray> F2 = new Function1D<DoubleArray, DoubleArray>() {
+  private static final Function<DoubleArray, DoubleArray> F2 = new Function<DoubleArray, DoubleArray>() {
 
     @Override
     public DoubleArray apply(final DoubleArray x) {
@@ -44,7 +45,7 @@ public class VectorFieldFirstOrderDifferentiatorTest {
     }
   };
 
-  private static final Function1D<DoubleArray, DoubleMatrix> G = new Function1D<DoubleArray, DoubleMatrix>() {
+  private static final Function<DoubleArray, DoubleMatrix> G = new Function<DoubleArray, DoubleMatrix>() {
 
     @Override
     public DoubleMatrix apply(final DoubleArray x) {
@@ -59,7 +60,7 @@ public class VectorFieldFirstOrderDifferentiatorTest {
     }
   };
 
-  private static final Function1D<DoubleArray, DoubleMatrix> G2 = new Function1D<DoubleArray, DoubleMatrix>() {
+  private static final Function<DoubleArray, DoubleMatrix> G2 = new Function<DoubleArray, DoubleMatrix>() {
 
     @Override
     public DoubleMatrix apply(final DoubleArray x) {
@@ -76,7 +77,7 @@ public class VectorFieldFirstOrderDifferentiatorTest {
     }
   };
 
-  private static final Function1D<DoubleArray, Boolean> DOMAIN = new Function1D<DoubleArray, Boolean>() {
+  private static final Function<DoubleArray, Boolean> DOMAIN = new Function<DoubleArray, Boolean>() {
 
     @Override
     public Boolean apply(final DoubleArray x) {
@@ -102,7 +103,7 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
-    CENTRAL.differentiate((Function1D<DoubleArray, DoubleArray>) null);
+    CENTRAL.differentiate((Function<DoubleArray, DoubleArray>) null);
   }
 
   @Test
@@ -141,7 +142,7 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void outsideDomainTest() {
-    final Function1D<DoubleArray, DoubleMatrix> fdJacFunc = CENTRAL.differentiate(F2, DOMAIN);
+    final Function<DoubleArray, DoubleMatrix> fdJacFunc = CENTRAL.differentiate(F2, DOMAIN);
     fdJacFunc.apply(DoubleArray.of(2.3, 3.2));
   }
 
@@ -157,7 +158,7 @@ public class VectorFieldFirstOrderDifferentiatorTest {
     x[5] = DoubleArray.of(0.0, 0.0);
     x[6] = DoubleArray.of(Math.PI, Math.PI);
 
-    final Function1D<DoubleArray, DoubleMatrix> fdJacFunc = CENTRAL.differentiate(F2, DOMAIN);
+    final Function<DoubleArray, DoubleMatrix> fdJacFunc = CENTRAL.differentiate(F2, DOMAIN);
 
     for (int k = 0; k < 7; k++) {
       final DoubleMatrix anJac = G2.apply(x[k]);

@@ -5,10 +5,11 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
+import java.util.function.Function;
+
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 
@@ -29,21 +30,21 @@ public class GenericImpliedVolatiltySolver {
   /**
    * The price function.
    */
-  private final Function1D<Double, Double> _priceFunc;
+  private final Function<Double, Double> _priceFunc;
   /**
    * The combined price and vega function.
    */
-  private final Function1D<Double, double[]> _priceAndVegaFunc;
+  private final Function<Double, double[]> _priceAndVegaFunc;
 
   /**
    * Creates an instance.
    * 
    * @param priceAndVegaFunc  the combined price and vega function
    */
-  public GenericImpliedVolatiltySolver(Function1D<Double, double[]> priceAndVegaFunc) {
+  public GenericImpliedVolatiltySolver(Function<Double, double[]> priceAndVegaFunc) {
     ArgChecker.notNull(priceAndVegaFunc, "priceAndVegaFunc");
     _priceAndVegaFunc = priceAndVegaFunc;
-    _priceFunc = new Function1D<Double, Double>() {
+    _priceFunc = new Function<Double, Double>() {
 
       @Override
       public Double apply(Double sigma) {
@@ -58,11 +59,11 @@ public class GenericImpliedVolatiltySolver {
    * @param priceFunc  the pricing function
    * @param vegaFunc  the vega function
    */
-  public GenericImpliedVolatiltySolver(Function1D<Double, Double> priceFunc, Function1D<Double, Double> vegaFunc) {
+  public GenericImpliedVolatiltySolver(Function<Double, Double> priceFunc, Function<Double, Double> vegaFunc) {
     ArgChecker.notNull(priceFunc, "priceFunc");
     ArgChecker.notNull(vegaFunc, "vegaFunc");
     _priceFunc = priceFunc;
-    _priceAndVegaFunc = new Function1D<Double, double[]>() {
+    _priceAndVegaFunc = new Function<Double, double[]>() {
 
       @Override
       public double[] apply(Double sigma) {
@@ -163,7 +164,7 @@ public class GenericImpliedVolatiltySolver {
   //-------------------------------------------------------------------------
   private double[] bracketRoot(double optionPrice, double sigma) {
     BracketRoot bracketer = new BracketRoot();
-    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+    Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double volatility) {
         return _priceFunc.apply(volatility) / optionPrice - 1.0;
@@ -179,7 +180,7 @@ public class GenericImpliedVolatiltySolver {
 
   private double solveByBisection(double optionPrice, double lowerSigma, double upperSigma) {
     BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(VOL_TOL);
-    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+    Function<Double, Double> func = new Function<Double, Double>() {
 
       @Override
       public Double apply(Double volatility) {

@@ -7,6 +7,8 @@ package com.opengamma.strata.math.impl.function;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -65,8 +67,8 @@ public class ParameterizedSurfaceTest {
         };
 
     final DoubleArray params = DoubleArray.of(0.7, -0.3, 1.2);
-    final Function1D<DoublesPair, DoubleArray> paramsSenseFD = testSurface.getZParameterSensitivity(params);
-    final Function1D<DoublesPair, DoubleArray> paramsSenseAnal = parmSense.asFunctionOfArguments(params);
+    final Function<DoublesPair, DoubleArray> paramsSenseFD = testSurface.getZParameterSensitivity(params);
+    final Function<DoublesPair, DoubleArray> paramsSenseAnal = parmSense.asFunctionOfArguments(params);
 
     for (int i = 0; i < 20; i++) {
       final double x = Math.PI * (-0.5 + i / 19.);

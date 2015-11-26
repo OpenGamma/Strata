@@ -5,15 +5,16 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.FunctionUtils;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * 
  */
 public abstract class MinimizationTestFunctions {
-  public static final Function1D<DoubleArray, Double> ROSENBROCK = new Function1D<DoubleArray, Double>() {
+  public static final Function<DoubleArray, Double> ROSENBROCK = new Function<DoubleArray, Double>() {
 
     @Override
     public Double apply(DoubleArray x) {
@@ -21,8 +22,8 @@ public abstract class MinimizationTestFunctions {
     }
   };
 
-  public static final Function1D<DoubleArray, DoubleArray> ROSENBROCK_GRAD =
-      new Function1D<DoubleArray, DoubleArray>() {
+  public static final Function<DoubleArray, DoubleArray> ROSENBROCK_GRAD =
+      new Function<DoubleArray, DoubleArray>() {
         @Override
         public DoubleArray apply(DoubleArray x) {
           return DoubleArray.of(
@@ -31,7 +32,7 @@ public abstract class MinimizationTestFunctions {
         }
       };
 
-  public static final Function1D<DoubleArray, Double> UNCOUPLED_ROSENBROCK = new Function1D<DoubleArray, Double>() {
+  public static final Function<DoubleArray, Double> UNCOUPLED_ROSENBROCK = new Function<DoubleArray, Double>() {
 
     @Override
     public Double apply(final DoubleArray x) {
@@ -47,7 +48,7 @@ public abstract class MinimizationTestFunctions {
     }
   };
 
-  public static final Function1D<DoubleArray, Double> COUPLED_ROSENBROCK = new Function1D<DoubleArray, Double>() {
+  public static final Function<DoubleArray, Double> COUPLED_ROSENBROCK = new Function<DoubleArray, Double>() {
 
     @Override
     public Double apply(DoubleArray x) {
@@ -61,7 +62,7 @@ public abstract class MinimizationTestFunctions {
     }
   };
 
-  public static final Function1D<DoubleArray, DoubleArray> COUPLED_ROSENBROCK_GRAD = new Function1D<DoubleArray, DoubleArray>() {
+  public static final Function<DoubleArray, DoubleArray> COUPLED_ROSENBROCK_GRAD = new Function<DoubleArray, DoubleArray>() {
 
     @Override
     public DoubleArray apply(DoubleArray x) {

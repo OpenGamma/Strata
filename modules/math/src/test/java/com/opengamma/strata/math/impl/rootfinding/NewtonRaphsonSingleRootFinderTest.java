@@ -7,10 +7,11 @@ package com.opengamma.strata.math.impl.rootfinding;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Test.
@@ -37,7 +38,7 @@ public class NewtonRaphsonSingleRootFinderTest {
     }
 
   };
-  private static final Function1D<Double, Double> F2 = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> F2 = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
@@ -45,7 +46,7 @@ public class NewtonRaphsonSingleRootFinderTest {
     }
 
   };
-  private static final Function1D<Double, Double> DF1 = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> DF1 = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
@@ -53,7 +54,7 @@ public class NewtonRaphsonSingleRootFinderTest {
     }
 
   };
-  private static final Function1D<Double, Double> DF2 = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> DF2 = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
@@ -79,7 +80,7 @@ public class NewtonRaphsonSingleRootFinderTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction1() {
-    ROOT_FINDER.getRoot((Function1D<Double, Double>) null, X1, X2);
+    ROOT_FINDER.getRoot((Function<Double, Double>) null, X1, X2);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -159,12 +160,12 @@ public class NewtonRaphsonSingleRootFinderTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDerivative4() {
-    ROOT_FINDER.getRoot(F2, (Function1D<Double, Double>) null, X);
+    ROOT_FINDER.getRoot(F2, (Function<Double, Double>) null, X);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction5() {
-    ROOT_FINDER.getRoot((Function1D<Double, Double>) null, X);
+    ROOT_FINDER.getRoot((Function<Double, Double>) null, X);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

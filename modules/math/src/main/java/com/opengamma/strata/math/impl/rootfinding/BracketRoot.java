@@ -5,12 +5,13 @@
  */
 package com.opengamma.strata.math.impl.rootfinding;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
- * Class that brackets single root of a function. For a 1-D function ({@link Function1D}) $f(x)$,
+ * Class that brackets single root of a function. For a 1-D function ({@link Function}) $f(x)$,
  * initial values for the interval, $x_1$ and $x_2$, are supplied.
  * <p>
  * A root is assumed to be bracketed if $f(x_1)f(x_2) < 0$. If this condition is not satisfied, then either
@@ -30,7 +31,7 @@ public class BracketRoot {
    * @return The bracketed points as an array, where the first element is the lower bracket and the second the upper bracket.
    * @throws MathException If a root is not bracketed in 50 attempts.
    */
-  public double[] getBracketedPoints(Function1D<Double, Double> f, double xLower, double xUpper) {
+  public double[] getBracketedPoints(Function<Double, Double> f, double xLower, double xUpper) {
     ArgChecker.notNull(f, "f");
     double x1 = xLower;
     double x2 = xUpper;
@@ -66,7 +67,7 @@ public class BracketRoot {
     throw new MathException("Failed to bracket root");
   }
 
-  public double[] getBracketedPoints(Function1D<Double, Double> f, double xLower, double xUpper, double minX, double maxX) {
+  public double[] getBracketedPoints(Function<Double, Double> f, double xLower, double xUpper, double minX, double maxX) {
     ArgChecker.notNull(f, "f");
     ArgChecker.isTrue(xLower >= minX, "xLower < minX");
     ArgChecker.isTrue(xUpper <= maxX, "xUpper < maxX");

@@ -5,7 +5,8 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
-import com.opengamma.strata.math.impl.function.Function1D;
+import java.util.function.Function;
+
 import com.opengamma.strata.math.impl.function.Function2D;
 
 /**
@@ -39,14 +40,14 @@ public class IntegratorRepeated2D extends Integrator2D<Double, Double> {
    * @param upper The upper bound (for the inner-first variable).
    * @return The inner integral function.
    */
-  private Function1D<Double, Double> innerIntegral(Function2D<Double, Double> f, Double lower, Double upper) {
+  private Function<Double, Double> innerIntegral(Function2D<Double, Double> f, Double lower, Double upper) {
 
-    return new Function1D<Double, Double>() {
+    return new Function<Double, Double>() {
 
       @SuppressWarnings("synthetic-access")
       @Override
       public Double apply(Double y) {
-        Function1D<Double, Double> fy = new Function1D<Double, Double>() {
+        Function<Double, Double> fy = new Function<Double, Double>() {
           @Override
           public Double apply(Double x) {
             return f.evaluate(x, y);

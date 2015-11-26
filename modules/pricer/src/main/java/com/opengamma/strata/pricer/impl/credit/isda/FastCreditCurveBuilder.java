@@ -10,9 +10,10 @@ import static com.opengamma.strata.math.impl.util.Epsilon.epsilonP;
 import static com.opengamma.strata.pricer.impl.credit.isda.DoublesScheduleGenerator.getIntegrationsPoints;
 import static com.opengamma.strata.pricer.impl.credit.isda.DoublesScheduleGenerator.truncateSetInclusive;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.rootfinding.BrentSingleRootFinder;
 import com.opengamma.strata.math.impl.rootfinding.RealSingleRootFinder;
@@ -98,7 +99,7 @@ public class FastCreditCurveBuilder extends IsdaCompliantCreditCurveBuilder {
     IsdaCompliantCreditCurve creditCurve = new IsdaCompliantCreditCurve(t, guess);
     for (int i = 0; i < n; i++) {
       Pricer pricer = new Pricer(cds[i], yieldCurve, t, premiums[i], pointsUpfront[i]);
-      Function1D<Double, Double> func = pricer.getPointFunction(i, creditCurve);
+      Function<Double, Double> func = pricer.getPointFunction(i, creditCurve);
 
       switch (getArbHanding()) {
         case Ignore: {
@@ -265,8 +266,8 @@ public class FastCreditCurveBuilder extends IsdaCompliantCreditCurveBuilder {
 
     }
 
-    public Function1D<Double, Double> getPointFunction(int index, IsdaCompliantCreditCurve creditCurve) {
-      return new Function1D<Double, Double>() {
+    public Function<Double, Double> getPointFunction(int index, IsdaCompliantCreditCurve creditCurve) {
+      return new Function<Double, Double>() {
         @Override
         public Double apply(Double x) {
           IsdaCompliantCreditCurve cc = creditCurve.withRate(x, index);

@@ -8,7 +8,6 @@ package com.opengamma.strata.math.impl.linearalgebra;
 import static com.opengamma.strata.math.impl.linearalgebra.TridiagonalSolver.solvTriDag;
 import static org.testng.AssertJUnit.assertEquals;
 
-import cern.jet.random.engine.MersenneTwister;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -16,6 +15,8 @@ import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
+
+import cern.jet.random.engine.MersenneTwister;
 
 /**
  * Test.

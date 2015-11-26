@@ -7,15 +7,15 @@ package com.opengamma.strata.math.impl.integration;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.testng.annotations.Test;
+import java.util.function.Function;
 
-import com.opengamma.strata.math.impl.function.Function1D;
+import org.testng.annotations.Test;
 
 /**
  * Abstract test.
  */
 public abstract class Integrator1DTestCase {
-  private static final Function1D<Double, Double> DF = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> DF = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
@@ -23,7 +23,7 @@ public abstract class Integrator1DTestCase {
     }
 
   };
-  private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> F = new Function<Double, Double>() {
 
     @Override
     public Double apply(final Double x) {
