@@ -23,7 +23,7 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
    * @param underlyingData Contains sorted data (x,y)
    * @param method {@link PiecewisePolynomialInterpolator}
    */
-  public Interpolator1DPiecewisePoynomialDataBundle(final Interpolator1DDataBundle underlyingData, final PiecewisePolynomialInterpolator method) {
+  public Interpolator1DPiecewisePoynomialDataBundle(Interpolator1DDataBundle underlyingData, PiecewisePolynomialInterpolator method) {
     ArgChecker.notNull(underlyingData, "underlying data");
     ArgChecker.notNull(method, "method");
 
@@ -37,14 +37,14 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
    * @param leftCond  Condition on left endpoint
    * @param rightCond  Condition on right endpoint
    */
-  public Interpolator1DPiecewisePoynomialDataBundle(final Interpolator1DDataBundle underlyingData, final PiecewisePolynomialInterpolator method, final double leftCond, final double rightCond) {
+  public Interpolator1DPiecewisePoynomialDataBundle(Interpolator1DDataBundle underlyingData, PiecewisePolynomialInterpolator method, double leftCond, double rightCond) {
     ArgChecker.notNull(underlyingData, "underlying data");
     ArgChecker.notNull(method, "method");
 
     _underlyingData = underlyingData;
-    final double[] yValues = underlyingData.getValues();
-    final int nData = yValues.length;
-    final double[] yValuesMod = new double[nData + 2];
+    double[] yValues = underlyingData.getValues();
+    int nData = yValues.length;
+    double[] yValuesMod = new double[nData + 2];
     yValuesMod[0] = leftCond;
     yValuesMod[nData + 1] = rightCond;
     System.arraycopy(yValues, 0, yValuesMod, 1, nData);
@@ -86,27 +86,27 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
   }
 
   @Override
-  public boolean containsKey(final Double key) {
+  public boolean containsKey(double key) {
     return _underlyingData.containsKey(key);
   }
 
   @Override
-  public Double firstKey() {
+  public double firstKey() {
     return _underlyingData.firstKey();
   }
 
   @Override
-  public Double firstValue() {
+  public double firstValue() {
     return _underlyingData.firstValue();
   }
 
   @Override
-  public Double get(final Double key) {
+  public double get(double key) {
     return _underlyingData.get(key);
   }
 
   @Override
-  public InterpolationBoundedValues getBoundedValues(final Double key) {
+  public InterpolationBoundedValues getBoundedValues(double key) {
     return _underlyingData.getBoundedValues(key);
   }
 
@@ -116,12 +116,12 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
   }
 
   @Override
-  public int getLowerBoundIndex(final Double value) {
+  public int getLowerBoundIndex(double value) {
     return _underlyingData.getLowerBoundIndex(value);
   }
 
   @Override
-  public Double getLowerBoundKey(final Double value) {
+  public double getLowerBoundKey(double value) {
     return _underlyingData.getLowerBoundKey(value);
   }
 
@@ -131,22 +131,22 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
   }
 
   @Override
-  public Double higherKey(final Double key) {
+  public double higherKey(double key) {
     return _underlyingData.higherKey(key);
   }
 
   @Override
-  public Double higherValue(final Double key) {
+  public double higherValue(double key) {
     return _underlyingData.higherValue(key);
   }
 
   @Override
-  public Double lastKey() {
+  public double lastKey() {
     return _underlyingData.lastKey();
   }
 
   @Override
-  public Double lastValue() {
+  public double lastValue() {
     return _underlyingData.lastValue();
   }
 
@@ -162,7 +162,7 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     result = prime * result + _poly.hashCode();
     result = prime * result + _underlyingData.hashCode();

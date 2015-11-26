@@ -351,7 +351,6 @@ public class ProductPiecewisePolynomialInterpolator1DTest {
   private static final double[] S_ARR = new double[] {1d, 2d, 3d, 4d};
   private static final ProductPiecewisePolynomialInterpolator1D S_INTERP = new ProductPiecewisePolynomialInterpolator1D(
       INTERP_SENSE[0]);
-  private static final Interpolator1DDataBundle S_DATA = S_INTERP.getDataBundle(S_ARR, S_ARR);
 
   /**
    * base interpolator is null
@@ -398,14 +397,6 @@ public class ProductPiecewisePolynomialInterpolator1DTest {
   }
 
   /**
-   * Double value is null
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullValueInterpTest() {
-    S_INTERP.interpolate(S_DATA, null);
-  }
-
-  /**
    * data bundle is null
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -414,27 +405,11 @@ public class ProductPiecewisePolynomialInterpolator1DTest {
   }
 
   /**
-   * Double value is null
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullValueDerivTest() {
-    S_INTERP.firstDerivative(S_DATA, null);
-  }
-
-  /**
    * data bundle is null
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullDataSenseTest() {
     S_INTERP.getNodeSensitivitiesForValue(null, 1.5);
-  }
-
-  /**
-   * Double value is null
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullValueSenseTest() {
-    S_INTERP.getNodeSensitivitiesForValue(S_DATA, null);
   }
 
 }

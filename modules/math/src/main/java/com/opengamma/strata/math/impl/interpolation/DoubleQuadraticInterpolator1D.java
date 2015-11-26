@@ -48,8 +48,7 @@ public final class DoubleQuadraticInterpolator1D
 
   //-------------------------------------------------------------------------
   @Override
-  public Double interpolate(Interpolator1DDataBundle data, Double value) {
-    ArgChecker.notNull(value, "value");
+  public double interpolate(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data bundle");
     ArgChecker.isTrue(data instanceof Interpolator1DDoubleQuadraticDataBundle, "data bundle is of wrong type");
     Interpolator1DDoubleQuadraticDataBundle quadraticData = (Interpolator1DDoubleQuadraticDataBundle) data;
@@ -76,8 +75,7 @@ public final class DoubleQuadraticInterpolator1D
   }
 
   @Override
-  public double firstDerivative(Interpolator1DDataBundle data, Double value) {
-    ArgChecker.notNull(value, "value");
+  public double firstDerivative(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data bundle");
     ArgChecker.isTrue(data instanceof Interpolator1DDoubleQuadraticDataBundle, "data bundle is of wrong type");
     Interpolator1DDoubleQuadraticDataBundle quadraticData = (Interpolator1DDoubleQuadraticDataBundle) data;
@@ -109,7 +107,7 @@ public final class DoubleQuadraticInterpolator1D
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data");
     ArgChecker.isTrue(data instanceof Interpolator1DDoubleQuadraticDataBundle, "data bundle is of wrong type");
     Interpolator1DDoubleQuadraticDataBundle quadraticData = (Interpolator1DDoubleQuadraticDataBundle) data;

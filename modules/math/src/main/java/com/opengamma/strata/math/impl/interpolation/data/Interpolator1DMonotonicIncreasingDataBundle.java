@@ -14,22 +14,23 @@ import com.opengamma.strata.math.impl.MathException;
  * 
  */
 public class Interpolator1DMonotonicIncreasingDataBundle implements Interpolator1DDataBundle {
+
   private final Interpolator1DDataBundle _underlyingData;
   private final double[] _a;
   private final double[] _b;
 
-  public Interpolator1DMonotonicIncreasingDataBundle(final Interpolator1DDataBundle underlyingData) {
+  public Interpolator1DMonotonicIncreasingDataBundle(Interpolator1DDataBundle underlyingData) {
     ArgChecker.notNull(underlyingData, "underlying data");
     _underlyingData = underlyingData;
-    final double[] x = _underlyingData.getKeys();
-    final double[] h = _underlyingData.getValues();
-    final int n = _underlyingData.size();
+    double[] x = _underlyingData.getKeys();
+    double[] h = _underlyingData.getValues();
+    int n = _underlyingData.size();
 
     for (int i = 1; i < n; i++) {
       ArgChecker.isTrue(h[i] >= h[i - 1], "Data not increasing");
     }
 
-    final double[] dx = new double[n];
+    double[] dx = new double[n];
     dx[0] = x[0];
     for (int i = 1; i < n; i++) {
       dx[i] = x[i] - x[i - 1];
@@ -40,7 +41,7 @@ public class Interpolator1DMonotonicIncreasingDataBundle implements Interpolator
 
     for (int i = 1; i < n; i++) {
       _a[i] = _a[i - 1] * Math.exp(_b[i - 1] * dx[i - 1]);
-      final double temp = ((h[i] - h[i - 1]) / _a[i] - dx[i]) * 2 / dx[i] / dx[i];
+      double temp = ((h[i] - h[i - 1]) / _a[i] - dx[i]) * 2 / dx[i] / dx[i];
       if (temp == 0) {
         _b[i] = 0.0;
       } else {
@@ -50,14 +51,14 @@ public class Interpolator1DMonotonicIncreasingDataBundle implements Interpolator
     _a[n] = _a[n - 1] * Math.exp(_b[n - 1] * dx[n - 1]);
   }
 
-  private double solveForB(final double c, final double a, final double dx, final double startB) {
-    final double eps = 1e-12;
+  private double solveForB(double c, double a, double dx, double startB) {
+    double eps = 1e-12;
     double f = c + a / startB * (Math.exp(startB * dx) - 1);
     double b = startB;
     int count = 0;
     while (Math.abs(f) > eps) {
-      final double expB = Math.exp(b * dx);
-      final double df = a * (dx * expB / b - (expB - 1) / b / b);
+      double expB = Math.exp(b * dx);
+      double df = a * (dx * expB / b - (expB - 1) / b / b);
       b = b - f / df;
       f = c + a / b * (Math.exp(b * dx) - 1);
       if (count > 50) {
@@ -69,27 +70,27 @@ public class Interpolator1DMonotonicIncreasingDataBundle implements Interpolator
   }
 
   @Override
-  public boolean containsKey(final Double key) {
+  public boolean containsKey(double key) {
     return _underlyingData.containsKey(key);
   }
 
   @Override
-  public Double firstKey() {
+  public double firstKey() {
     return _underlyingData.firstKey();
   }
 
   @Override
-  public Double firstValue() {
+  public double firstValue() {
     return _underlyingData.firstValue();
   }
 
   @Override
-  public Double get(final Double key) {
+  public double get(double key) {
     return _underlyingData.get(key);
   }
 
   @Override
-  public InterpolationBoundedValues getBoundedValues(final Double key) {
+  public InterpolationBoundedValues getBoundedValues(double key) {
     return _underlyingData.getBoundedValues(key);
   }
 
@@ -99,9 +100,9 @@ public class Interpolator1DMonotonicIncreasingDataBundle implements Interpolator
   }
 
   @Override
-  public int getLowerBoundIndex(final Double value) {
-    final double[] keys = _underlyingData.getKeys();
-    final int n = _underlyingData.size();
+  public int getLowerBoundIndex(double value) {
+    double[] keys = _underlyingData.getKeys();
+    int n = _underlyingData.size();
     if (value < keys[0]) {
       return 0;
     }
@@ -121,7 +122,7 @@ public class Interpolator1DMonotonicIncreasingDataBundle implements Interpolator
   }
 
   @Override
-  public Double getLowerBoundKey(final Double value) {
+  public double getLowerBoundKey(double value) {
     return _underlyingData.getLowerBoundKey(value);
   }
 
@@ -131,22 +132,22 @@ public class Interpolator1DMonotonicIncreasingDataBundle implements Interpolator
   }
 
   @Override
-  public Double higherKey(final Double key) {
+  public double higherKey(double key) {
     return _underlyingData.higherKey(key);
   }
 
   @Override
-  public Double higherValue(final Double key) {
+  public double higherValue(double key) {
     return _underlyingData.higherValue(key);
   }
 
   @Override
-  public Double lastKey() {
+  public double lastKey() {
     return _underlyingData.lastKey();
   }
 
   @Override
-  public Double lastValue() {
+  public double lastValue() {
     return _underlyingData.lastValue();
   }
 
@@ -156,14 +157,14 @@ public class Interpolator1DMonotonicIncreasingDataBundle implements Interpolator
   }
 
   @Override
-  public void setYValueAtIndex(final int index, final double y) {
+  public void setYValueAtIndex(int index, double y) {
   }
 
-  public double getA(final int index) {
+  public double getA(int index) {
     return _a[index];
   }
 
-  public double getB(final int index) {
+  public double getB(int index) {
     return _b[index];
   }
 

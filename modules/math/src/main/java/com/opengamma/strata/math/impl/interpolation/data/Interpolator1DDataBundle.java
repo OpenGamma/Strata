@@ -14,27 +14,27 @@ import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
  */
 public interface Interpolator1DDataBundle {
 
-  Double getLowerBoundKey(Double value);
+  double getLowerBoundKey(double value);
 
-  int getLowerBoundIndex(Double value);
+  int getLowerBoundIndex(double value);
 
-  Double get(Double key);
+  double get(double key);
 
-  Double firstKey();
+  double firstKey();
 
-  Double lastKey();
+  double lastKey();
 
-  Double firstValue();
+  double firstValue();
 
-  Double lastValue();
+  double lastValue();
 
-  Double higherKey(Double key);
+  double higherKey(double key);
 
-  Double higherValue(Double key);
+  double higherValue(double key);
 
-  InterpolationBoundedValues getBoundedValues(Double key);
+  InterpolationBoundedValues getBoundedValues(double key);
 
-  boolean containsKey(Double key);
+  boolean containsKey(double key);
 
   int size();
 

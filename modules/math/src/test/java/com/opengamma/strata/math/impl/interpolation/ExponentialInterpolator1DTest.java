@@ -8,7 +8,6 @@ package com.opengamma.strata.math.impl.interpolation;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.function.Function;
 
 import org.testng.annotations.Test;
@@ -30,11 +29,6 @@ public class ExponentialInterpolator1DTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
     INTERPOLATOR.interpolate(null, 2.);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullData() {
-    INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(Collections.<Double, Double>emptyMap()), null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

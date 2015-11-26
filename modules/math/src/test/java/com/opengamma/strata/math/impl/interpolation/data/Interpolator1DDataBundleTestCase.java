@@ -7,7 +7,6 @@ package com.opengamma.strata.math.impl.interpolation.data;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
@@ -115,8 +114,8 @@ public abstract class Interpolator1DDataBundleTestCase {
     assertEquals(50., DATA.higherValue(4.), EPS);
     assertEquals(2., DATA.higherKey(1.), EPS);
     assertEquals(20., DATA.higherValue(1.), EPS);
-    assertNull(DATA.higherKey(5.));
-    assertNull(DATA.higherValue(5.));
+    assertTrue(Double.isNaN(DATA.higherKey(5.)));
+    assertTrue(Double.isNaN(DATA.higherValue(5.)));
   }
 
   @Test
@@ -126,8 +125,8 @@ public abstract class Interpolator1DDataBundleTestCase {
     assertEquals(30., DATA.get(3.), EPS);
     assertEquals(40., DATA.get(4.), EPS);
     assertEquals(50., DATA.get(5.), EPS);
-    assertNull(DATA.get(4.5));
-    assertNull(DATA.get(6.));
+    assertTrue(Double.isNaN(DATA.get(4.5)));
+    assertTrue(Double.isNaN(DATA.get(6.)));
   }
 
   @Test

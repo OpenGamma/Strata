@@ -31,9 +31,8 @@ public final class FlatExtrapolator1D
 
   //-------------------------------------------------------------------------
   @Override
-  public Double extrapolate(final Interpolator1DDataBundle data, final Double value, Interpolator1D interpolator) {
+  public double extrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     JodaBeanUtils.notNull(data, "data");
-    JodaBeanUtils.notNull(value, "value");
     if (value < data.firstKey()) {
       return data.firstValue();
     } else if (value > data.lastKey()) {
@@ -43,9 +42,8 @@ public final class FlatExtrapolator1D
   }
 
   @Override
-  public double firstDerivative(final Interpolator1DDataBundle data, final Double value, Interpolator1D interpolator) {
+  public double firstDerivative(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     if (value < data.firstKey()) {
       return 0.;
     } else if (value > data.lastKey()) {
@@ -56,19 +54,18 @@ public final class FlatExtrapolator1D
 
   @Override
   public double[] getNodeSensitivitiesForValue(
-      final Interpolator1DDataBundle data,
-      final Double value,
+      Interpolator1DDataBundle data,
+      double value,
       Interpolator1D interpolator) {
 
     ArgChecker.notNull(data, "data");
-
-    final int n = data.size();
+    int n = data.size();
     if (value < data.firstKey()) {
-      final double[] result = new double[n];
+      double[] result = new double[n];
       result[0] = 1;
       return result;
     } else if (value > data.lastKey()) {
-      final double[] result = new double[n];
+      double[] result = new double[n];
       result[n - 1] = 1;
       return result;
     }

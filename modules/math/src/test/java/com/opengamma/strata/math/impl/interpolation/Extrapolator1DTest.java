@@ -41,18 +41,8 @@ public class Extrapolator1DTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullValue1() {
-    LINEAR_EXTRAPOLATOR.extrapolate(DATA, null, INTERPOLATOR);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData2() {
     FLAT_EXTRAPOLATOR.extrapolate(null, 1.4, INTERPOLATOR);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullValue2() {
-    FLAT_EXTRAPOLATOR.extrapolate(DATA, null, INTERPOLATOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

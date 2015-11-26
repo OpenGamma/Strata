@@ -13,7 +13,7 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
 /**
  * A base class for two-dimensional interpolation.
  */
-public abstract class Interpolator2D implements Interpolator<Map<Double, Interpolator1DDataBundle>, DoublesPair> {
+public abstract class Interpolator2D {
 
   /**
    * @param dataBundle
@@ -23,9 +23,10 @@ public abstract class Interpolator2D implements Interpolator<Map<Double, Interpo
    *          found.
    * @return The value of z
    */
-  @Override
   public abstract Double interpolate(Map<Double, Interpolator1DDataBundle> dataBundle, DoublesPair value);
 
-  public abstract Map<DoublesPair, Double> getNodeSensitivitiesForValue(final Map<Double, Interpolator1DDataBundle> dataBundle, final DoublesPair value);
+  public abstract Map<DoublesPair, Double> getNodeSensitivitiesForValue(
+      Map<Double, Interpolator1DDataBundle> dataBundle,
+      DoublesPair value);
 
 }

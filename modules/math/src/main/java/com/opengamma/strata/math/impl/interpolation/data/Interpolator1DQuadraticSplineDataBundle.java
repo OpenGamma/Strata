@@ -13,17 +13,18 @@ import com.opengamma.strata.collect.ArgChecker;
  * 
  */
 public class Interpolator1DQuadraticSplineDataBundle implements Interpolator1DDataBundle {
+
   private final Interpolator1DDataBundle _underlyingData;
   private final double[] _a;
   private final double[] _b;
 
-  public Interpolator1DQuadraticSplineDataBundle(final Interpolator1DDataBundle underlyingData) {
+  public Interpolator1DQuadraticSplineDataBundle(Interpolator1DDataBundle underlyingData) {
     ArgChecker.notNull(underlyingData, "underlying data");
     _underlyingData = underlyingData;
-    final double[] x = _underlyingData.getKeys();
-    final double[] h = _underlyingData.getValues();
-    final int n = _underlyingData.size();
-    final double[] dx = new double[n];
+    double[] x = _underlyingData.getKeys();
+    double[] h = _underlyingData.getValues();
+    int n = _underlyingData.size();
+    double[] dx = new double[n];
     dx[0] = x[0];
     for (int i = 1; i < n; i++) {
       dx[i] = x[i] - x[i - 1];
@@ -35,40 +36,40 @@ public class Interpolator1DQuadraticSplineDataBundle implements Interpolator1DDa
     for (int i = 1; i < n; i++) {
       _a[i] = _a[i - 1] + _b[i - 1] * dx[i - 1];
 
-      final double a = Math.pow(dx[i], 3) / 3;
-      final double b = _a[i] * dx[i] * dx[i];
-      final double c = _a[i] * _a[i] * dx[i] + h[i - 1] - h[i];
+      double a = Math.pow(dx[i], 3) / 3;
+      double b = _a[i] * dx[i] * dx[i];
+      double c = _a[i] * _a[i] * dx[i] + h[i - 1] - h[i];
       double root = b * b - 4 * a * c;
       ArgChecker.isTrue(root >= 0, "root of neg");
       root = Math.sqrt(root);
-      final double temp1 = (-b + root) / 2 / a;
+      double temp1 = (-b + root) / 2 / a;
       _b[i] = temp1;
     }
     _a[n] = _a[n - 1];
   }
 
   @Override
-  public boolean containsKey(final Double key) {
+  public boolean containsKey(double key) {
     return _underlyingData.containsKey(key);
   }
 
   @Override
-  public Double firstKey() {
+  public double firstKey() {
     return _underlyingData.firstKey();
   }
 
   @Override
-  public Double firstValue() {
+  public double firstValue() {
     return _underlyingData.firstValue();
   }
 
   @Override
-  public Double get(final Double key) {
+  public double get(double key) {
     return _underlyingData.get(key);
   }
 
   @Override
-  public InterpolationBoundedValues getBoundedValues(final Double key) {
+  public InterpolationBoundedValues getBoundedValues(double key) {
     return _underlyingData.getBoundedValues(key);
   }
 
@@ -78,9 +79,9 @@ public class Interpolator1DQuadraticSplineDataBundle implements Interpolator1DDa
   }
 
   @Override
-  public int getLowerBoundIndex(final Double value) {
-    final double[] keys = _underlyingData.getKeys();
-    final int n = _underlyingData.size();
+  public int getLowerBoundIndex(double value) {
+    double[] keys = _underlyingData.getKeys();
+    int n = _underlyingData.size();
     if (value < keys[0]) {
       return 0;
     }
@@ -100,7 +101,7 @@ public class Interpolator1DQuadraticSplineDataBundle implements Interpolator1DDa
   }
 
   @Override
-  public Double getLowerBoundKey(final Double value) {
+  public double getLowerBoundKey(double value) {
     return _underlyingData.getLowerBoundKey(value);
   }
 
@@ -110,22 +111,22 @@ public class Interpolator1DQuadraticSplineDataBundle implements Interpolator1DDa
   }
 
   @Override
-  public Double higherKey(final Double key) {
+  public double higherKey(double key) {
     return _underlyingData.higherKey(key);
   }
 
   @Override
-  public Double higherValue(final Double key) {
+  public double higherValue(double key) {
     return _underlyingData.higherValue(key);
   }
 
   @Override
-  public Double lastKey() {
+  public double lastKey() {
     return _underlyingData.lastKey();
   }
 
   @Override
-  public Double lastValue() {
+  public double lastValue() {
     return _underlyingData.lastValue();
   }
 
@@ -135,14 +136,14 @@ public class Interpolator1DQuadraticSplineDataBundle implements Interpolator1DDa
   }
 
   @Override
-  public void setYValueAtIndex(final int index, final double y) {
+  public void setYValueAtIndex(int index, double y) {
   }
 
-  public double getA(final int index) {
+  public double getA(int index) {
     return _a[index];
   }
 
-  public double getB(final int index) {
+  public double getB(int index) {
     return _b[index];
   }
 

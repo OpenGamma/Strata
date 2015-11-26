@@ -63,9 +63,8 @@ public class ProductPolynomialExtrapolator1D
    * otherwise this returns a reference value
    */
   @Override
-  public Double extrapolate(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double extrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     ArgChecker.isTrue(value < data.firstKey() || value > data.lastKey(), "value was within data range");
     ArgChecker.isTrue(interpolator instanceof ProductPiecewisePolynomialInterpolator1D,
                       "This interpolator should be used with ProductPiecewisePolynomialInterpolator1D");
@@ -83,9 +82,8 @@ public class ProductPolynomialExtrapolator1D
    * otherwise this returns a reference value
    */
   @Override
-  public double firstDerivative(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double firstDerivative(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     ArgChecker.isTrue(value < data.firstKey() || value > data.lastKey(), "value was within data range");
     ArgChecker.isTrue(interpolator instanceof ProductPiecewisePolynomialInterpolator1D,
                       "This interpolator should be used with ProductPiecewisePolynomialInterpolator1D");
@@ -103,9 +101,8 @@ public class ProductPolynomialExtrapolator1D
    * otherwise this returns a reference value
    */
   @Override
-  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     ArgChecker.isTrue(value < data.firstKey() || value > data.lastKey(), "value was within data range");
     ArgChecker.isTrue(interpolator instanceof ProductPiecewisePolynomialInterpolator1D,
                       "This interpolator should be used with ProductPiecewisePolynomialInterpolator1D");

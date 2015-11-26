@@ -46,8 +46,7 @@ public class ProductPiecewisePolynomialInterpolator1D extends Interpolator1D {
    * otherwise this returns a reference value
    */
   @Override
-  public Double interpolate(Interpolator1DDataBundle data, Double value) {
-    ArgChecker.notNull(value, "value");
+  public double interpolate(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data bundle");
     ArgChecker.isTrue(data instanceof Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle,
         "data should be instance of Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle");
@@ -61,8 +60,7 @@ public class ProductPiecewisePolynomialInterpolator1D extends Interpolator1D {
    * otherwise this returns a reference value
    */
   @Override
-  public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
-    ArgChecker.notNull(value, "value");
+  public double firstDerivative(final Interpolator1DDataBundle data, final double value) {
     ArgChecker.notNull(data, "data bundle");
     ArgChecker.isTrue(data instanceof Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle,
         "data should be instance of Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle");
@@ -76,8 +74,7 @@ public class ProductPiecewisePolynomialInterpolator1D extends Interpolator1D {
    * otherwise this returns a reference value
    */
   @Override
-  public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
-    ArgChecker.notNull(value, "value");
+  public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final double value) {
     ArgChecker.notNull(data, "data bundle");
     ArgChecker.isTrue(data instanceof Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle,
         "data should be instance of Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle");
@@ -153,7 +150,7 @@ public class ProductPiecewisePolynomialInterpolator1D extends Interpolator1D {
   }
 
   @Override
-  protected double[] getFiniteDifferenceSensitivities(final Interpolator1DDataBundle data, final Double value) {
+  protected double[] getFiniteDifferenceSensitivities(final Interpolator1DDataBundle data, final double value) {
     throw new IllegalArgumentException("Use the method, getNodeSensitivitiesForValue");
   }
 

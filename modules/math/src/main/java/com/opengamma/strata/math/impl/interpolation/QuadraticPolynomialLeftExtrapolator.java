@@ -54,9 +54,8 @@ public final class QuadraticPolynomialLeftExtrapolator
   }
 
   @Override
-  public Double extrapolate(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double extrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     if (data.firstKey() == 0.) {
       throw new IllegalArgumentException("The trivial point at key=0. is already included");
     }
@@ -69,9 +68,8 @@ public final class QuadraticPolynomialLeftExtrapolator
   }
 
   @Override
-  public double firstDerivative(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double firstDerivative(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     if (data.firstKey() == 0.) {
       throw new IllegalArgumentException("The trivial point at key=0. is already included");
     }
@@ -84,7 +82,7 @@ public final class QuadraticPolynomialLeftExtrapolator
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
     if (data.firstKey() == 0.) {
       throw new IllegalArgumentException("The trivial point at key=0. is already included");
@@ -97,9 +95,8 @@ public final class QuadraticPolynomialLeftExtrapolator
     throw new IllegalArgumentException("Value " + value + " was within data range");
   }
 
-  private Double leftExtrapolate(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double leftExtrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.firstKey();
     double y = data.firstValue();
     double m = interpolator.firstDerivative(data, x);
@@ -108,9 +105,8 @@ public final class QuadraticPolynomialLeftExtrapolator
     return quadCoef * value * value + linCoef * value + 1.;
   }
 
-  private Double leftExtrapolateDerivative(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double leftExtrapolateDerivative(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.firstKey();
     double y = data.firstValue();
     double m = interpolator.firstDerivative(data, x);
@@ -119,7 +115,7 @@ public final class QuadraticPolynomialLeftExtrapolator
     return 2. * quadCoef * value + linCoef;
   }
 
-  private double[] getLeftSensitivities(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double[] getLeftSensitivities(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     double eps = this.eps * (data.lastKey() - data.firstKey());
     double x = data.firstKey();
     double[] result = interpolator.getNodeSensitivitiesForValue(data, x + eps);

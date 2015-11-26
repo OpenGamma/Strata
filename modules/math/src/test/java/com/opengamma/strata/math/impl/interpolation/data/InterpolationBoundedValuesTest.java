@@ -19,11 +19,13 @@ public class InterpolationBoundedValuesTest {
   private static final double HIGHER_BOUND_KEY = 4;
   private static final double LOWER_BOUND_VALUE = 56;
   private static final double HIGHER_BOUND_VALUE = 78;
-  private static final InterpolationBoundedValues VALUES = new InterpolationBoundedValues(LOWER_BOUND_INDEX, LOWER_BOUND_KEY, LOWER_BOUND_VALUE, HIGHER_BOUND_KEY, HIGHER_BOUND_VALUE);
+  private static final InterpolationBoundedValues VALUES = new InterpolationBoundedValues(
+      LOWER_BOUND_INDEX, LOWER_BOUND_KEY, LOWER_BOUND_VALUE, HIGHER_BOUND_KEY, HIGHER_BOUND_VALUE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeLowerBoundIndex() {
-    new InterpolationBoundedValues(-LOWER_BOUND_INDEX, LOWER_BOUND_KEY, LOWER_BOUND_VALUE, HIGHER_BOUND_KEY, HIGHER_BOUND_VALUE);
+    new InterpolationBoundedValues(
+        -LOWER_BOUND_INDEX, LOWER_BOUND_KEY, LOWER_BOUND_VALUE, HIGHER_BOUND_KEY, HIGHER_BOUND_VALUE);
   }
 
   @Test

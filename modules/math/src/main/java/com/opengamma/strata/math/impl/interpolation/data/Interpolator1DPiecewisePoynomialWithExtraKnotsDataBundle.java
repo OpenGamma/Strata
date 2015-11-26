@@ -32,15 +32,15 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
    * @param underlyingData Contains sorted data (x,y)
    * @param method {@link PiecewisePolynomialInterpolator}
    */
-  public Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle(final Interpolator1DDataBundle underlyingData, final PiecewisePolynomialInterpolator method) {
+  public Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle(Interpolator1DDataBundle underlyingData, PiecewisePolynomialInterpolator method) {
     ArgChecker.notNull(underlyingData, "underlying data");
     ArgChecker.notNull(method, "method");
 
     _underlyingData = underlyingData;
     _poly = method.interpolate(underlyingData.getKeys(), underlyingData.getValues());
 
-    final double[] yValues = underlyingData.getValues();
-    final int nData = yValues.length;
+    double[] yValues = underlyingData.getValues();
+    int nData = yValues.length;
     _polyUp = new PiecewisePolynomialResult[nData];
     _polyDw = new PiecewisePolynomialResult[nData];
     double[] yValuesUp = Arrays.copyOf(yValues, nData);
@@ -121,27 +121,27 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
   }
 
   @Override
-  public boolean containsKey(final Double key) {
+  public boolean containsKey(double key) {
     return _underlyingData.containsKey(key);
   }
 
   @Override
-  public Double firstKey() {
+  public double firstKey() {
     return _underlyingData.firstKey();
   }
 
   @Override
-  public Double firstValue() {
+  public double firstValue() {
     return _underlyingData.firstValue();
   }
 
   @Override
-  public Double get(final Double key) {
+  public double get(double key) {
     return _underlyingData.get(key);
   }
 
   @Override
-  public InterpolationBoundedValues getBoundedValues(final Double key) {
+  public InterpolationBoundedValues getBoundedValues(double key) {
     return _underlyingData.getBoundedValues(key);
   }
 
@@ -151,12 +151,12 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
   }
 
   @Override
-  public int getLowerBoundIndex(final Double value) {
+  public int getLowerBoundIndex(double value) {
     return _underlyingData.getLowerBoundIndex(value);
   }
 
   @Override
-  public Double getLowerBoundKey(final Double value) {
+  public double getLowerBoundKey(double value) {
     return _underlyingData.getLowerBoundKey(value);
   }
 
@@ -166,22 +166,22 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
   }
 
   @Override
-  public Double higherKey(final Double key) {
+  public double higherKey(double key) {
     return _underlyingData.higherKey(key);
   }
 
   @Override
-  public Double higherValue(final Double key) {
+  public double higherValue(double key) {
     return _underlyingData.higherValue(key);
   }
 
   @Override
-  public Double lastKey() {
+  public double lastKey() {
     return _underlyingData.lastKey();
   }
 
   @Override
-  public Double lastValue() {
+  public double lastValue() {
     return _underlyingData.lastValue();
   }
 
@@ -197,7 +197,7 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     result = prime * result + _poly.hashCode();
     result = prime * result + _underlyingData.hashCode();

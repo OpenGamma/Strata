@@ -39,8 +39,7 @@ public final class TimeSquareInterpolator1D
 
   //-------------------------------------------------------------------------
   @Override
-  public Double interpolate(Interpolator1DDataBundle data, Double value) {
-    JodaBeanUtils.notNull(value, "value");
+  public double interpolate(Interpolator1DDataBundle data, double value) {
     JodaBeanUtils.notNull(data, "data");
     ArgChecker.isTrue(value > 0, "Value should be stricly positive");
     InterpolationBoundedValues boundedValues = data.getBoundedValues(value);
@@ -59,8 +58,7 @@ public final class TimeSquareInterpolator1D
   }
 
   @Override
-  public double firstDerivative(Interpolator1DDataBundle data, Double value) {
-    JodaBeanUtils.notNull(value, "value");
+  public double firstDerivative(Interpolator1DDataBundle data, double value) {
     JodaBeanUtils.notNull(data, "data");
     ArgChecker.isTrue(value > 0, "Value should be stricly positive");
     int lowerIndex = data.getLowerBoundIndex(value);
@@ -85,8 +83,7 @@ public final class TimeSquareInterpolator1D
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
-    ArgChecker.notNull(value, "Value to be interpolated must not be null");
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "Data bundle must not be null");
     int n = data.size();
     double[] resultSensitivity = new double[n];

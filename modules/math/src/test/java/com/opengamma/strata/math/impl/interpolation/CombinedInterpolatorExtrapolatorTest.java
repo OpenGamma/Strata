@@ -85,11 +85,6 @@ public class CombinedInterpolatorExtrapolatorTest {
     COMBINED1.interpolate(null, 2.3);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullValue() {
-    COMBINED1.interpolate(DATA, null);
-  }
-
   @Test
   public void testInterpolatorOnly() {
     final double x = 6.7;

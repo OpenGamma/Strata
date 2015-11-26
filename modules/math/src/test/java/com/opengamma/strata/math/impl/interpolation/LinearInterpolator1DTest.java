@@ -36,11 +36,6 @@ public class LinearInterpolator1DTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullValue() {
-    INTERPOLATOR.interpolate(MODEL, null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowValue() {
     INTERPOLATOR.interpolate(MODEL, -4.);
   }
