@@ -455,22 +455,23 @@ public class DiscountingRatePaymentPeriodPricer
   //-------------------------------------------------------------------------
   @Override
   public MultiCurrencyAmount currencyExposure(RatePaymentPeriod period, RatesProvider provider) {
-    MultiCurrencyAmount ce = MultiCurrencyAmount.empty();
+    double df = provider.discountFactor(period.getCurrency(), period.getPaymentDate());
     if (period.getFxReset().isPresent()) {
       FxReset fxReset = period.getFxReset().get();
-      double df = provider.discountFactor(period.getCurrency(), period.getPaymentDate());
       FxIndexRates rates = provider.fxIndexRates(fxReset.getIndex());
+      if (!fxReset.getFixingDate().isAfter(provider.getValuationDate()) &&
+          rates.getTimeSeries().get(fxReset.getFixingDate()).isPresent()) {
+        double fxRate = rates.rate(fxReset.getReferenceCurrency(), fxReset.getFixingDate());
+        return MultiCurrencyAmount.of(period.getCurrency(),
+            accrualWithNotional(period, period.getNotional() * fxRate * df, provider));
+      }
       LocalDate maturityDate = rates.getIndex().calculateMaturityFromFixing(fxReset.getFixingDate());
       double fxRateSpotSensitivity = rates.getFxForwardRates()
           .rateFxSpotSensitivity(fxReset.getReferenceCurrency(), maturityDate);
-      ce = ce.plus(CurrencyAmount.of(fxReset.getReferenceCurrency(),
-          accrualWithNotional(period, period.getNotional() * fxRateSpotSensitivity * df, provider)));
-    } else {
-      double df = provider.discountFactor(period.getCurrency(), period.getPaymentDate());
-      ce = ce.plus(CurrencyAmount.of(period.getCurrency(),
-          accrualWithNotional(period, period.getNotional() * df, provider)));
+      return MultiCurrencyAmount.of(fxReset.getReferenceCurrency(),
+          accrualWithNotional(period, period.getNotional() * fxRateSpotSensitivity * df, provider));
     }
-    return ce;
+    return MultiCurrencyAmount.of(period.getCurrency(), accrualWithNotional(period, period.getNotional() * df, provider));
   }
 
   @Override

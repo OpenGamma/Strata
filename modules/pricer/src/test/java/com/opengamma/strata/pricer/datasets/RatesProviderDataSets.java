@@ -154,10 +154,10 @@ public class RatesProviderDataSets {
   //-------------------------------------------------------------------------
   //     =====     GBP + USD      =====        
 
-  private static final FxMatrix FX_MATRIX_GBP_USD =
+  public static final FxMatrix FX_MATRIX_GBP_USD =
       FxMatrix.builder().addRate(GBP, USD, 1.50).build();
 
-  private static final Map<Currency, Curve> GBP_USD_MULTI_CCY_MAP = new HashMap<>();
+  public static final Map<Currency, Curve> GBP_USD_MULTI_CCY_MAP = new HashMap<>();
   static {
     GBP_USD_MULTI_CCY_MAP.put(GBP, GBP_DSC);
     GBP_USD_MULTI_CCY_MAP.put(USD, USD_DSC);
