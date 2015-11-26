@@ -20,7 +20,7 @@ public class FxSwapBucketedPv01Function
   @Override
   protected CurveCurrencyParameterSensitivities execute(ExpandedFxSwap product, RatesProvider provider) {
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(product, provider);
-    return provider.curveParameterSensitivity(pointSensitivity);
+    return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
   }
 
 }

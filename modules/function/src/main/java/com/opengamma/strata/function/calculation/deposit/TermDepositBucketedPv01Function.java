@@ -20,7 +20,7 @@ public class TermDepositBucketedPv01Function
   @Override
   protected CurveCurrencyParameterSensitivities execute(ExpandedTermDeposit product, RatesProvider provider) {
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(product, provider);
-    return provider.curveParameterSensitivity(pointSensitivity);
+    return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
   }
 
 }
