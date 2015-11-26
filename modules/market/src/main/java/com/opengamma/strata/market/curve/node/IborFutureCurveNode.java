@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -58,10 +57,12 @@ public final class IborFutureCurveNode
   @PropertyDefinition
   private final double additionalSpread;
   /**
-   * The label to use for the node.
-   * If absent an appropriate default label will be used.
+   * The label to use for the node, may be empty.
+   * <p>
+   * If empty, a default label will be created when the metadata is built.
+   * The default label depends on the valuation date, so cannot be created in the node.
    */
-  @PropertyDefinition(get = "optional")
+  @PropertyDefinition(get = "private", validate = "notNull")
   private final String label;
 
   //-------------------------------------------------------------------------
@@ -89,7 +90,7 @@ public final class IborFutureCurveNode
       ObservableKey rateKey,
       double additionalSpread) {
 
-    return of(template, rateKey, additionalSpread, null);
+    return of(template, rateKey, additionalSpread, "");
   }
 
   /**
@@ -98,7 +99,7 @@ public final class IborFutureCurveNode
    * @param template  the template defining the node instrument
    * @param rateKey  the key identifying the market data providing the rate for the node instrument
    * @param additionalSpread  the additional spread amount added to the rate
-   * @param label  the label to use for the node, if null or empty an appropriate default label will be used
+   * @param label  the label to use for the node, if empty an appropriate default label will be generated
    * @return a node whose instrument is built from the template using a market rate
    */
   public static IborFutureCurveNode of(
@@ -120,7 +121,10 @@ public final class IborFutureCurveNode
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
     LocalDate referenceDate = template.referenceDate(valuationDate);
     LocalDate maturityDate = template.getConvention().getIndex().calculateMaturityFromEffective(referenceDate);
-    return YearMonthCurveNodeMetadata.of(maturityDate, YearMonth.from(referenceDate), getLabel().orElse(""));
+    if (label.isEmpty()) {
+      return YearMonthCurveNodeMetadata.of(maturityDate, YearMonth.from(referenceDate));
+    }
+    return YearMonthCurveNodeMetadata.of(maturityDate, YearMonth.from(referenceDate), label);
   }
 
   @Override
@@ -176,6 +180,7 @@ public final class IborFutureCurveNode
       String label) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(rateKey, "rateKey");
+    JodaBeanUtils.notNull(label, "label");
     this.template = template;
     this.rateKey = rateKey;
     this.additionalSpread = additionalSpread;
@@ -226,12 +231,14 @@ public final class IborFutureCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the label to use for the node.
-   * If absent an appropriate default label will be used.
-   * @return the optional value of the property, not null
+   * Gets the label to use for the node, may be empty.
+   * <p>
+   * If empty, a default label will be created when the metadata is built.
+   * The default label depends on the valuation date, so cannot be created in the node.
+   * @return the value of the property, not null
    */
-  public Optional<String> getLabel() {
-    return Optional.ofNullable(label);
+  private String getLabel() {
+    return label;
   }
 
   //-----------------------------------------------------------------------
@@ -400,7 +407,7 @@ public final class IborFutureCurveNode
         case 291232890:  // additionalSpread
           return ((IborFutureCurveNode) bean).getAdditionalSpread();
         case 102727412:  // label
-          return ((IborFutureCurveNode) bean).label;
+          return ((IborFutureCurveNode) bean).getLabel();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -441,7 +448,7 @@ public final class IborFutureCurveNode
       this.template = beanToCopy.getTemplate();
       this.rateKey = beanToCopy.getRateKey();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
-      this.label = beanToCopy.label;
+      this.label = beanToCopy.getLabel();
     }
 
     //-----------------------------------------------------------------------
@@ -549,12 +556,15 @@ public final class IborFutureCurveNode
     }
 
     /**
-     * Sets the label to use for the node.
-     * If absent an appropriate default label will be used.
-     * @param label  the new value
+     * Sets the label to use for the node, may be empty.
+     * <p>
+     * If empty, a default label will be created when the metadata is built.
+     * The default label depends on the valuation date, so cannot be created in the node.
+     * @param label  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder label(String label) {
+      JodaBeanUtils.notNull(label, "label");
       this.label = label;
       return this;
     }

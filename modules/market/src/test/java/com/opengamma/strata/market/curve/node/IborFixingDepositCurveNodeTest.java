@@ -17,7 +17,6 @@ import static org.testng.Assert.assertFalse;
 
 import java.time.LocalDate;
 import java.util.Iterator;
-import java.util.Optional;
 import java.util.Set;
 
 import org.testng.annotations.Test;
@@ -47,6 +46,7 @@ public class IborFixingDepositCurveNodeTest {
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit1"));
   private static final double SPREAD = 0.0015;
   private static final String LABEL = "Label";
+  private static final String LABEL_AUTO = "3M";
   private static final IborFixingDepositTemplate TEMPLATE = IborFixingDepositTemplate.of(EUR_LIBOR_3M);
 
   public void test_builder() {
@@ -56,7 +56,7 @@ public class IborFixingDepositCurveNodeTest {
         .template(TEMPLATE)
         .additionalSpread(SPREAD)
         .build();
-    assertEquals(test.getLabel(), Optional.of(LABEL));
+    assertEquals(test.getLabel(), LABEL);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
@@ -64,7 +64,7 @@ public class IborFixingDepositCurveNodeTest {
 
   public void test_of_noSpread() {
     IborFixingDepositCurveNode test = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_KEY);
-    assertEquals(test.getLabel(), Optional.empty());
+    assertEquals(test.getLabel(), LABEL_AUTO);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), 0.0);
     assertEquals(test.getTemplate(), TEMPLATE);
@@ -72,7 +72,7 @@ public class IborFixingDepositCurveNodeTest {
 
   public void test_of_withSpread() {
     IborFixingDepositCurveNode test = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
-    assertEquals(test.getLabel(), Optional.empty());
+    assertEquals(test.getLabel(), LABEL_AUTO);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
@@ -80,7 +80,7 @@ public class IborFixingDepositCurveNodeTest {
 
   public void test_of_withSpreadAndLabel() {
     IborFixingDepositCurveNode test = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL);
-    assertEquals(test.getLabel(), Optional.of(LABEL));
+    assertEquals(test.getLabel(), LABEL);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);

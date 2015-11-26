@@ -18,7 +18,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import org.testng.annotations.Test;
@@ -57,6 +56,7 @@ public class XCcyIborIborSwapCurveNodeTest {
   private static final FxRate FX_EUR_USD = FxRate.of(Currency.EUR, Currency.USD, 1.25);
   private static final double SPREAD_ADJ = 0.0015;
   private static final String LABEL = "Label";
+  private static final String LABEL_AUTO = "10Y";
   private static final Map<MarketDataKey<?>, Object> MAP_OV = new HashMap<>();
 
   static {
@@ -70,39 +70,34 @@ public class XCcyIborIborSwapCurveNodeTest {
         .label(LABEL)
         .template(TEMPLATE)
         .spreadKey(SPREAD_KEY)
-        .fxKey(FX_KEY)
         .additionalSpread(SPREAD_ADJ)
         .build();
-    assertEquals(test.getLabel(), Optional.of(LABEL));
+    assertEquals(test.getLabel(), LABEL);
     assertEquals(test.getSpreadKey(), SPREAD_KEY);
-    assertEquals(test.getFxKey(), FX_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD_ADJ);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_noSpread() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY);
-    assertEquals(test.getLabel(), Optional.empty());
+    assertEquals(test.getLabel(), LABEL_AUTO);
     assertEquals(test.getSpreadKey(), SPREAD_KEY);
-    assertEquals(test.getFxKey(), FX_KEY);
     assertEquals(test.getAdditionalSpread(), 0.0d);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_withSpread() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, SPREAD_ADJ);
-    assertEquals(test.getLabel(), Optional.empty());
+    assertEquals(test.getLabel(), LABEL_AUTO);
     assertEquals(test.getSpreadKey(), SPREAD_KEY);
-    assertEquals(test.getFxKey(), FX_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD_ADJ);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_withSpreadAndLabel() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, SPREAD_ADJ, LABEL);
-    assertEquals(test.getLabel(), Optional.of(LABEL));
+    assertEquals(test.getLabel(), LABEL);
     assertEquals(test.getSpreadKey(), SPREAD_KEY);
-    assertEquals(test.getFxKey(), FX_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD_ADJ);
     assertEquals(test.getTemplate(), TEMPLATE);
   }

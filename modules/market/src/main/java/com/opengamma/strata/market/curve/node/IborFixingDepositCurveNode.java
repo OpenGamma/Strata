@@ -9,12 +9,12 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -60,15 +60,18 @@ public final class IborFixingDepositCurveNode
   @PropertyDefinition
   private final double additionalSpread;
   /**
-   * The label to use for the node.
-   * If absent an appropriate default label will be used.
+   * The label to use for the node, defaulted.
+   * <p>
+   * When building, this will default based on the deposit period if not specified.
    */
-  @PropertyDefinition(get = "optional")
+  @PropertyDefinition(validate = "notEmpty")
   private final String label;
 
   //-------------------------------------------------------------------------
   /**
    * Returns a curve node for an Ibor deposit using the specified template and rate key.
+   * <p>
+   * A suitable default label will be created.
    *
    * @param template  the template used for building the instrument for the node
    * @param rateKey  the key identifying the market rate used when building the instrument for the node
@@ -80,6 +83,8 @@ public final class IborFixingDepositCurveNode
 
   /**
    * Returns a curve node for an Ibor deposit using the specified template, rate key and spread.
+   * <p>
+   * A suitable default label will be created.
    *
    * @param template  the template defining the node instrument
    * @param rateKey  the key identifying the market data providing the rate for the node instrument
@@ -91,7 +96,11 @@ public final class IborFixingDepositCurveNode
       ObservableKey rateKey,
       double additionalSpread) {
 
-    return of(template, rateKey, additionalSpread, null);
+    return builder()
+        .template(template)
+        .rateKey(rateKey)
+        .additionalSpread(additionalSpread)
+        .build();
   }
 
   /**
@@ -112,6 +121,13 @@ public final class IborFixingDepositCurveNode
     return new IborFixingDepositCurveNode(template, rateKey, additionalSpread, label);
   }
 
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.label == null && builder.template != null) {
+      builder.label = Tenor.of(builder.template.getDepositPeriod()).toString();
+    }
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public Set<ObservableKey> requirements() {
@@ -122,7 +138,7 @@ public final class IborFixingDepositCurveNode
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
     Tenor endTenor = Tenor.of(template.getDepositPeriod());
     ExpandedIborFixingDeposit deposit = template.toTrade(valuationDate, BuySell.BUY, 0d, 0d).getProduct().expand();
-    return TenorCurveNodeMetadata.of(deposit.getEndDate(), endTenor, getLabel().orElse(""));
+    return TenorCurveNodeMetadata.of(deposit.getEndDate(), endTenor, label);
   }
 
   @Override
@@ -173,6 +189,7 @@ public final class IborFixingDepositCurveNode
       String label) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(rateKey, "rateKey");
+    JodaBeanUtils.notEmpty(label, "label");
     this.template = template;
     this.rateKey = rateKey;
     this.additionalSpread = additionalSpread;
@@ -223,12 +240,13 @@ public final class IborFixingDepositCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the label to use for the node.
-   * If absent an appropriate default label will be used.
-   * @return the optional value of the property, not null
+   * Gets the label to use for the node, defaulted.
+   * <p>
+   * When building, this will default based on the deposit period if not specified.
+   * @return the value of the property, not empty
    */
-  public Optional<String> getLabel() {
-    return Optional.ofNullable(label);
+  public String getLabel() {
+    return label;
   }
 
   //-----------------------------------------------------------------------
@@ -397,7 +415,7 @@ public final class IborFixingDepositCurveNode
         case 291232890:  // additionalSpread
           return ((IborFixingDepositCurveNode) bean).getAdditionalSpread();
         case 102727412:  // label
-          return ((IborFixingDepositCurveNode) bean).label;
+          return ((IborFixingDepositCurveNode) bean).getLabel();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -438,7 +456,7 @@ public final class IborFixingDepositCurveNode
       this.template = beanToCopy.getTemplate();
       this.rateKey = beanToCopy.getRateKey();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
-      this.label = beanToCopy.label;
+      this.label = beanToCopy.getLabel();
     }
 
     //-----------------------------------------------------------------------
@@ -505,6 +523,7 @@ public final class IborFixingDepositCurveNode
 
     @Override
     public IborFixingDepositCurveNode build() {
+      preBuild(this);
       return new IborFixingDepositCurveNode(
           template,
           rateKey,
@@ -546,12 +565,14 @@ public final class IborFixingDepositCurveNode
     }
 
     /**
-     * Sets the label to use for the node.
-     * If absent an appropriate default label will be used.
-     * @param label  the new value
+     * Sets the label to use for the node, defaulted.
+     * <p>
+     * When building, this will default based on the deposit period if not specified.
+     * @param label  the new value, not empty
      * @return this, for chaining, not null
      */
     public Builder label(String label) {
+      JodaBeanUtils.notEmpty(label, "label");
       this.label = label;
       return this;
     }
