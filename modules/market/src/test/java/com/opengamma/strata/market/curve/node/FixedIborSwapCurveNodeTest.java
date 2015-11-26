@@ -43,15 +43,19 @@ public class FixedIborSwapCurveNodeTest {
       FixedIborSwapTemplate.of(TENOR_10Y, FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M);
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit1"));
   private static final double SPREAD = 0.0015;
+  private static final String LABEL = "Label";
+  private static final String LABEL_AUTO = "10Y";
 
   private static final double TOLERANCE_DF = 1.0E-10;
 
   public void test_builder() {
     FixedIborSwapCurveNode test = FixedIborSwapCurveNode.builder()
+        .label(LABEL)
         .template(TEMPLATE)
         .rateKey(QUOTE_KEY)
         .additionalSpread(SPREAD)
         .build();
+    assertEquals(test.getLabel(), LABEL);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
@@ -59,6 +63,7 @@ public class FixedIborSwapCurveNodeTest {
 
   public void test_of_noSpread() {
     FixedIborSwapCurveNode test = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY);
+    assertEquals(test.getLabel(), LABEL_AUTO);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), 0.0d);
     assertEquals(test.getTemplate(), TEMPLATE);
@@ -66,6 +71,15 @@ public class FixedIborSwapCurveNodeTest {
 
   public void test_of_withSpread() {
     FixedIborSwapCurveNode test = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    assertEquals(test.getLabel(), LABEL_AUTO);
+    assertEquals(test.getRateKey(), QUOTE_KEY);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
+    assertEquals(test.getTemplate(), TEMPLATE);
+  }
+
+  public void test_of_withSpreadAndLabel() {
+    FixedIborSwapCurveNode test = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL);
+    assertEquals(test.getLabel(), LABEL);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);

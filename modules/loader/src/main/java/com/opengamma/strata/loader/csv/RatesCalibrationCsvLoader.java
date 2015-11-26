@@ -311,7 +311,7 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     TermDepositConvention convention = TermDepositConvention.of(conventionStr);
     TermDepositTemplate template = TermDepositTemplate.of(periodToEnd, convention);
-    return TermDepositCurveNode.of(template, quoteKey, spread);
+    return TermDepositCurveNode.of(template, quoteKey, spread, label);
   }
 
   private static CurveNode curveIborFixingDepositCurveNode(
@@ -324,7 +324,7 @@ public final class RatesCalibrationCsvLoader {
     IborFixingDepositConvention convention = IborFixingDepositConvention.of(conventionStr);
     IborFixingDepositTemplate template = IborFixingDepositTemplate.of(
         convention.getIndex().getTenor().getPeriod(), convention);
-    return IborFixingDepositCurveNode.of(template, quoteKey, spread);
+    return IborFixingDepositCurveNode.of(template, quoteKey, spread, label);
   }
 
   private static CurveNode curveFraCurveNode(
@@ -343,7 +343,7 @@ public final class RatesCalibrationCsvLoader {
 
     FraConvention convention = FraConvention.of(conventionStr);
     FraTemplate template = FraTemplate.of(periodToStart, periodToEnd, convention);
-    return FraCurveNode.of(template, quoteKey, spread);
+    return FraCurveNode.of(template, quoteKey, spread, label);
   }
 
   //-------------------------------------------------------------------------
@@ -361,7 +361,7 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     FixedOvernightSwapConvention convention = FixedOvernightSwapConvention.of(conventionStr);
     FixedOvernightSwapTemplate template = FixedOvernightSwapTemplate.of(Tenor.of(periodToEnd), convention);
-    return FixedOvernightSwapCurveNode.of(template, quoteKey, spread);
+    return FixedOvernightSwapCurveNode.of(template, quoteKey, spread, label);
   }
 
   private static CurveNode curveFixedIborCurveNode(
@@ -378,7 +378,7 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     FixedIborSwapConvention convention = FixedIborSwapConvention.of(conventionStr);
     FixedIborSwapTemplate template = FixedIborSwapTemplate.of(Tenor.of(periodToEnd), convention);
-    return FixedIborSwapCurveNode.of(template, quoteKey, spread);
+    return FixedIborSwapCurveNode.of(template, quoteKey, spread, label);
   }
 
   private static CurveNode curveIborIborCurveNode(
@@ -395,7 +395,7 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     IborIborSwapConvention convention = IborIborSwapConvention.of(conventionStr);
     IborIborSwapTemplate template = IborIborSwapTemplate.of(Tenor.of(periodToEnd), convention);
-    return IborIborSwapCurveNode.of(template, quoteKey, spread);
+    return IborIborSwapCurveNode.of(template, quoteKey, spread, label);
   }
 
   private static CurveNode curveXCcyIborIborCurveNode(
@@ -412,7 +412,7 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     XCcyIborIborSwapConvention convention = XCcyIborIborSwapConvention.of(conventionStr);
     XCcyIborIborSwapTemplate template = XCcyIborIborSwapTemplate.of(Tenor.of(periodToEnd), convention);
-    return XCcyIborIborSwapCurveNode.of(template, quoteKey, spread);
+    return XCcyIborIborSwapCurveNode.of(template, quoteKey, spread, label);
   }
 
   //-------------------------------------------------------------------------
@@ -433,7 +433,7 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     FxSwapConvention convention = FxSwapConvention.of(conventionStr);
     FxSwapTemplate template = FxSwapTemplate.of(periodToEnd, convention);
-    return FxSwapCurveNode.of(template, quoteKey);
+    return FxSwapCurveNode.of(template, quoteKey, label);
   }
 
   //-------------------------------------------------------------------------

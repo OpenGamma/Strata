@@ -14,6 +14,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -58,21 +59,32 @@ public final class FraCurveNode
    */
   @PropertyDefinition
   private final double additionalSpread;
+  /**
+   * The label to use for the node, defaulted.
+   * <p>
+   * When building, this will default based on the period to end if not specified.
+   */
+  @PropertyDefinition(validate = "notEmpty")
+  private final String label;
 
   //-------------------------------------------------------------------------
   /**
    * Returns a curve node for a FRA using the specified instrument template and rate key.
+   * <p>
+   * A suitable default label will be created.
    *
    * @param template  the template used for building the instrument for the node
    * @param rateKey  the key identifying the market rate used when building the instrument for the node
    * @return a node whose instrument is built from the template using a market rate
    */
   public static FraCurveNode of(FraTemplate template, ObservableKey rateKey) {
-    return new FraCurveNode(template, rateKey, 0d);
+    return of(template, rateKey, 0d);
   }
 
   /**
    * Returns a curve node for a FRA using the specified instrument template, rate key and spread.
+   * <p>
+   * A suitable default label will be created.
    *
    * @param template  the template defining the node instrument
    * @param rateKey  the key identifying the market data providing the rate for the node instrument
@@ -80,7 +92,31 @@ public final class FraCurveNode
    * @return a node whose instrument is built from the template using a market rate
    */
   public static FraCurveNode of(FraTemplate template, ObservableKey rateKey, double additionalSpread) {
-    return new FraCurveNode(template, rateKey, additionalSpread);
+    return builder()
+        .template(template)
+        .rateKey(rateKey)
+        .additionalSpread(additionalSpread)
+        .build();
+  }
+
+  /**
+   * Returns a curve node for a FRA using the specified instrument template, rate key, spread and label.
+   *
+   * @param template  the template defining the node instrument
+   * @param rateKey  the key identifying the market data providing the rate for the node instrument
+   * @param additionalSpread  the additional spread amount added to the rate
+   * @param label  the label to use for the node
+   * @return a node whose instrument is built from the template using a market rate
+   */
+  public static FraCurveNode of(FraTemplate template, ObservableKey rateKey, double additionalSpread, String label) {
+    return new FraCurveNode(template, rateKey, additionalSpread, label);
+  }
+
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.label == null && builder.template != null) {
+      builder.label = Tenor.of(builder.template.getPeriodToEnd()).toString();
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -93,7 +129,8 @@ public final class FraCurveNode
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
     FraTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1);
     ExpandedFra expandedFra = trade.getProduct().expand();
-    return TenorCurveNodeMetadata.of(expandedFra.getEndDate(), Tenor.of(template.getPeriodToEnd()));
+    Tenor tenor = Tenor.of(template.getPeriodToEnd());
+    return TenorCurveNodeMetadata.of(expandedFra.getEndDate(), tenor, label);
   }
 
   @Override
@@ -144,12 +181,15 @@ public final class FraCurveNode
   private FraCurveNode(
       FraTemplate template,
       ObservableKey rateKey,
-      double additionalSpread) {
+      double additionalSpread,
+      String label) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(rateKey, "rateKey");
+    JodaBeanUtils.notEmpty(label, "label");
     this.template = template;
     this.rateKey = rateKey;
     this.additionalSpread = additionalSpread;
+    this.label = label;
   }
 
   @Override
@@ -196,6 +236,17 @@ public final class FraCurveNode
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the label to use for the node, defaulted.
+   * <p>
+   * When building, this will default based on the period to end if not specified.
+   * @return the value of the property, not empty
+   */
+  public String getLabel() {
+    return label;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -212,7 +263,8 @@ public final class FraCurveNode
       FraCurveNode other = (FraCurveNode) obj;
       return JodaBeanUtils.equal(template, other.template) &&
           JodaBeanUtils.equal(rateKey, other.rateKey) &&
-          JodaBeanUtils.equal(additionalSpread, other.additionalSpread);
+          JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
+          JodaBeanUtils.equal(label, other.label);
     }
     return false;
   }
@@ -223,16 +275,18 @@ public final class FraCurveNode
     hash = hash * 31 + JodaBeanUtils.hashCode(template);
     hash = hash * 31 + JodaBeanUtils.hashCode(rateKey);
     hash = hash * 31 + JodaBeanUtils.hashCode(additionalSpread);
+    hash = hash * 31 + JodaBeanUtils.hashCode(label);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("FraCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
     buf.append("rateKey").append('=').append(rateKey).append(',').append(' ');
-    buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread));
+    buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();
   }
@@ -263,13 +317,19 @@ public final class FraCurveNode
     private final MetaProperty<Double> additionalSpread = DirectMetaProperty.ofImmutable(
         this, "additionalSpread", FraCurveNode.class, Double.TYPE);
     /**
+     * The meta-property for the {@code label} property.
+     */
+    private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
+        this, "label", FraCurveNode.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "template",
         "rateKey",
-        "additionalSpread");
+        "additionalSpread",
+        "label");
 
     /**
      * Restricted constructor.
@@ -286,6 +346,8 @@ public final class FraCurveNode
           return rateKey;
         case 291232890:  // additionalSpread
           return additionalSpread;
+        case 102727412:  // label
+          return label;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -330,6 +392,14 @@ public final class FraCurveNode
       return additionalSpread;
     }
 
+    /**
+     * The meta-property for the {@code label} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> label() {
+      return label;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -340,6 +410,8 @@ public final class FraCurveNode
           return ((FraCurveNode) bean).getRateKey();
         case 291232890:  // additionalSpread
           return ((FraCurveNode) bean).getAdditionalSpread();
+        case 102727412:  // label
+          return ((FraCurveNode) bean).getLabel();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -364,6 +436,7 @@ public final class FraCurveNode
     private FraTemplate template;
     private ObservableKey rateKey;
     private double additionalSpread;
+    private String label;
 
     /**
      * Restricted constructor.
@@ -379,6 +452,7 @@ public final class FraCurveNode
       this.template = beanToCopy.getTemplate();
       this.rateKey = beanToCopy.getRateKey();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
+      this.label = beanToCopy.getLabel();
     }
 
     //-----------------------------------------------------------------------
@@ -391,6 +465,8 @@ public final class FraCurveNode
           return rateKey;
         case 291232890:  // additionalSpread
           return additionalSpread;
+        case 102727412:  // label
+          return label;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -407,6 +483,9 @@ public final class FraCurveNode
           break;
         case 291232890:  // additionalSpread
           this.additionalSpread = (Double) newValue;
+          break;
+        case 102727412:  // label
+          this.label = (String) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -440,10 +519,12 @@ public final class FraCurveNode
 
     @Override
     public FraCurveNode build() {
+      preBuild(this);
       return new FraCurveNode(
           template,
           rateKey,
-          additionalSpread);
+          additionalSpread,
+          label);
     }
 
     //-----------------------------------------------------------------------
@@ -479,14 +560,28 @@ public final class FraCurveNode
       return this;
     }
 
+    /**
+     * Sets the label to use for the node, defaulted.
+     * <p>
+     * When building, this will default based on the period to end if not specified.
+     * @param label  the new value, not empty
+     * @return this, for chaining, not null
+     */
+    public Builder label(String label) {
+      JodaBeanUtils.notEmpty(label, "label");
+      this.label = label;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("FraCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("rateKey").append('=').append(JodaBeanUtils.toString(rateKey)).append(',').append(' ');
-      buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread));
+      buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');
+      buf.append("label").append('=').append(JodaBeanUtils.toString(label));
       buf.append('}');
       return buf.toString();
     }

@@ -61,6 +61,8 @@ public class FxSwapCurveNodeTest {
   private static final QuoteKey QUOTE_KEY_PTS = QuoteKey.of(StandardId.of("OG-Ticker", "EUR_USD_3M_6M"));
   private static final FxRate FX_RATE_NEAR = FxRate.of(EUR_USD, 1.30d);
   private static final double FX_RATE_PTS = 0.0050d;
+  private static final String LABEL = "Label";
+  private static final String LABEL_AUTO = "6M";
   private static final Map<MarketDataKey<?>, Object> MAP_OV = new HashMap<>();
   static {
     MAP_OV.put(RATE_KEY_NEAR, FX_RATE_NEAR);
@@ -70,19 +72,26 @@ public class FxSwapCurveNodeTest {
 
   public void test_builder() {
     FxSwapCurveNode test = FxSwapCurveNode.builder()
+        .label(LABEL)
         .template(TEMPLATE)
-        .fxNearKey(RATE_KEY_NEAR)
-        .fxPtsKey(QUOTE_KEY_PTS)
+        .farForwardPointsKey(QUOTE_KEY_PTS)
         .build();
-    assertEquals(test.getFxNearKey(), RATE_KEY_NEAR);
-    assertEquals(test.getFxPtsKey(), QUOTE_KEY_PTS);
+    assertEquals(test.getLabel(), LABEL);
+    assertEquals(test.getFarForwardPointsKey(), QUOTE_KEY_PTS);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of() {
     FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS);
-    assertEquals(test.getFxNearKey(), RATE_KEY_NEAR);
-    assertEquals(test.getFxPtsKey(), QUOTE_KEY_PTS);
+    assertEquals(test.getLabel(), LABEL_AUTO);
+    assertEquals(test.getFarForwardPointsKey(), QUOTE_KEY_PTS);
+    assertEquals(test.getTemplate(), TEMPLATE);
+  }
+
+  public void test_of_withLabel() {
+    FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS, LABEL);
+    assertEquals(test.getLabel(), LABEL);
+    assertEquals(test.getFarForwardPointsKey(), QUOTE_KEY_PTS);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 

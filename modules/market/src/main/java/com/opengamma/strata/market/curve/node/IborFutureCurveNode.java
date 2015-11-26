@@ -56,6 +56,14 @@ public final class IborFutureCurveNode
    */
   @PropertyDefinition
   private final double additionalSpread;
+  /**
+   * The label to use for the node, may be empty.
+   * <p>
+   * If empty, a default label will be created when the metadata is built.
+   * The default label depends on the valuation date, so cannot be created in the node.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final String label;
 
   //-------------------------------------------------------------------------
   /**
@@ -77,8 +85,30 @@ public final class IborFutureCurveNode
    * @param additionalSpread  the additional spread amount added to the rate
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static IborFutureCurveNode of(IborFutureTemplate template, ObservableKey rateKey, double additionalSpread) {
-    return new IborFutureCurveNode(template, rateKey, additionalSpread);
+  public static IborFutureCurveNode of(
+      IborFutureTemplate template,
+      ObservableKey rateKey,
+      double additionalSpread) {
+
+    return of(template, rateKey, additionalSpread, "");
+  }
+
+  /**
+   * Obtains a curve node for an Ibor Future using the specified template, rate key, spread and label.
+   *
+   * @param template  the template defining the node instrument
+   * @param rateKey  the key identifying the market data providing the rate for the node instrument
+   * @param additionalSpread  the additional spread amount added to the rate
+   * @param label  the label to use for the node, if empty an appropriate default label will be generated
+   * @return a node whose instrument is built from the template using a market rate
+   */
+  public static IborFutureCurveNode of(
+      IborFutureTemplate template,
+      ObservableKey rateKey,
+      double additionalSpread,
+      String label) {
+
+    return new IborFutureCurveNode(template, rateKey, additionalSpread, label);
   }
 
   //-------------------------------------------------------------------------
@@ -91,7 +121,10 @@ public final class IborFutureCurveNode
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
     LocalDate referenceDate = template.referenceDate(valuationDate);
     LocalDate maturityDate = template.getConvention().getIndex().calculateMaturityFromEffective(referenceDate);
-    return YearMonthCurveNodeMetadata.of(maturityDate, YearMonth.from(referenceDate));
+    if (label.isEmpty()) {
+      return YearMonthCurveNodeMetadata.of(maturityDate, YearMonth.from(referenceDate));
+    }
+    return YearMonthCurveNodeMetadata.of(maturityDate, YearMonth.from(referenceDate), label);
   }
 
   @Override
@@ -143,12 +176,15 @@ public final class IborFutureCurveNode
   private IborFutureCurveNode(
       IborFutureTemplate template,
       ObservableKey rateKey,
-      double additionalSpread) {
+      double additionalSpread,
+      String label) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(rateKey, "rateKey");
+    JodaBeanUtils.notNull(label, "label");
     this.template = template;
     this.rateKey = rateKey;
     this.additionalSpread = additionalSpread;
+    this.label = label;
   }
 
   @Override
@@ -195,6 +231,18 @@ public final class IborFutureCurveNode
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the label to use for the node, may be empty.
+   * <p>
+   * If empty, a default label will be created when the metadata is built.
+   * The default label depends on the valuation date, so cannot be created in the node.
+   * @return the value of the property, not null
+   */
+  public String getLabel() {
+    return label;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -211,7 +259,8 @@ public final class IborFutureCurveNode
       IborFutureCurveNode other = (IborFutureCurveNode) obj;
       return JodaBeanUtils.equal(template, other.template) &&
           JodaBeanUtils.equal(rateKey, other.rateKey) &&
-          JodaBeanUtils.equal(additionalSpread, other.additionalSpread);
+          JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
+          JodaBeanUtils.equal(label, other.label);
     }
     return false;
   }
@@ -222,16 +271,18 @@ public final class IborFutureCurveNode
     hash = hash * 31 + JodaBeanUtils.hashCode(template);
     hash = hash * 31 + JodaBeanUtils.hashCode(rateKey);
     hash = hash * 31 + JodaBeanUtils.hashCode(additionalSpread);
+    hash = hash * 31 + JodaBeanUtils.hashCode(label);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("IborFutureCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
     buf.append("rateKey").append('=').append(rateKey).append(',').append(' ');
-    buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread));
+    buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();
   }
@@ -262,13 +313,19 @@ public final class IborFutureCurveNode
     private final MetaProperty<Double> additionalSpread = DirectMetaProperty.ofImmutable(
         this, "additionalSpread", IborFutureCurveNode.class, Double.TYPE);
     /**
+     * The meta-property for the {@code label} property.
+     */
+    private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
+        this, "label", IborFutureCurveNode.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "template",
         "rateKey",
-        "additionalSpread");
+        "additionalSpread",
+        "label");
 
     /**
      * Restricted constructor.
@@ -285,6 +342,8 @@ public final class IborFutureCurveNode
           return rateKey;
         case 291232890:  // additionalSpread
           return additionalSpread;
+        case 102727412:  // label
+          return label;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -329,6 +388,14 @@ public final class IborFutureCurveNode
       return additionalSpread;
     }
 
+    /**
+     * The meta-property for the {@code label} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> label() {
+      return label;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -339,6 +406,8 @@ public final class IborFutureCurveNode
           return ((IborFutureCurveNode) bean).getRateKey();
         case 291232890:  // additionalSpread
           return ((IborFutureCurveNode) bean).getAdditionalSpread();
+        case 102727412:  // label
+          return ((IborFutureCurveNode) bean).getLabel();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -363,6 +432,7 @@ public final class IborFutureCurveNode
     private IborFutureTemplate template;
     private ObservableKey rateKey;
     private double additionalSpread;
+    private String label;
 
     /**
      * Restricted constructor.
@@ -378,6 +448,7 @@ public final class IborFutureCurveNode
       this.template = beanToCopy.getTemplate();
       this.rateKey = beanToCopy.getRateKey();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
+      this.label = beanToCopy.getLabel();
     }
 
     //-----------------------------------------------------------------------
@@ -390,6 +461,8 @@ public final class IborFutureCurveNode
           return rateKey;
         case 291232890:  // additionalSpread
           return additionalSpread;
+        case 102727412:  // label
+          return label;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -406,6 +479,9 @@ public final class IborFutureCurveNode
           break;
         case 291232890:  // additionalSpread
           this.additionalSpread = (Double) newValue;
+          break;
+        case 102727412:  // label
+          this.label = (String) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -442,7 +518,8 @@ public final class IborFutureCurveNode
       return new IborFutureCurveNode(
           template,
           rateKey,
-          additionalSpread);
+          additionalSpread,
+          label);
     }
 
     //-----------------------------------------------------------------------
@@ -478,14 +555,29 @@ public final class IborFutureCurveNode
       return this;
     }
 
+    /**
+     * Sets the label to use for the node, may be empty.
+     * <p>
+     * If empty, a default label will be created when the metadata is built.
+     * The default label depends on the valuation date, so cannot be created in the node.
+     * @param label  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder label(String label) {
+      JodaBeanUtils.notNull(label, "label");
+      this.label = label;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("IborFutureCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("rateKey").append('=').append(JodaBeanUtils.toString(rateKey)).append(',').append(' ');
-      buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread));
+      buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');
+      buf.append("label").append('=').append(JodaBeanUtils.toString(label));
       buf.append('}');
       return buf.toString();
     }

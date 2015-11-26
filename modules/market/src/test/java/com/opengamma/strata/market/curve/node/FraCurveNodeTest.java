@@ -53,13 +53,17 @@ public class FraCurveNodeTest {
   private static final FraTemplate TEMPLATE = FraTemplate.of(PERIOD_TO_START, GBP_LIBOR_3M);
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit1"));
   private static final double SPREAD = 0.0015;
+  private static final String LABEL = "Label";
+  private static final String LABEL_AUTO = "5M";
 
   public void test_builder() {
     FraCurveNode test = FraCurveNode.builder()
+        .label(LABEL)
         .template(TEMPLATE)
         .rateKey(QUOTE_KEY)
         .additionalSpread(SPREAD)
         .build();
+    assertEquals(test.getLabel(), LABEL);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
@@ -67,6 +71,7 @@ public class FraCurveNodeTest {
 
   public void test_of_noSpread() {
     FraCurveNode test = FraCurveNode.of(TEMPLATE, QUOTE_KEY);
+    assertEquals(test.getLabel(), LABEL_AUTO);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), 0.0d);
     assertEquals(test.getTemplate(), TEMPLATE);
@@ -74,6 +79,15 @@ public class FraCurveNodeTest {
 
   public void test_of_withSpread() {
     FraCurveNode test = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    assertEquals(test.getLabel(), LABEL_AUTO);
+    assertEquals(test.getRateKey(), QUOTE_KEY);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
+    assertEquals(test.getTemplate(), TEMPLATE);
+  }
+
+  public void test_of_withSpreadAndLabel() {
+    FraCurveNode test = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL);
+    assertEquals(test.getLabel(), LABEL);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
@@ -129,6 +143,7 @@ public class FraCurveNodeTest {
     double approximateMaturity = TEMPLATE.getPeriodToEnd().toTotalMonths() / 12.0d;
     double df =  Math.exp(-approximateMaturity * rate);
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR), df);
+    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.PRICE_INDEX), 0d);
   }
 
   public void test_metadata() {
