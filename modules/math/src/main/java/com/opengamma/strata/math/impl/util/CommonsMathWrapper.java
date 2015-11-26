@@ -28,7 +28,6 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.ComplexNumber;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
-import com.opengamma.strata.math.impl.function.FunctionND;
 
 /**
  * Utility class for converting OpenGamma mathematical objects into
@@ -72,24 +71,6 @@ public final class CommonsMathWrapper {
   public static MultivariateFunction wrapMultivariateVector(Function<DoubleArray, Double> f) {
     ArgChecker.notNull(f, "f");
     return point -> f.apply(DoubleArray.copyOf(point));
-  }
-
-  /**
-   * Wraps a function.
-   * 
-   * @param f  an OG n-D function mapping doubles onto doubles
-   * @return a Commons multivariate real function
-   */
-  public static MultivariateFunction wrap(FunctionND<Double, Double> f) {
-    ArgChecker.notNull(f, "f");
-    return point -> {
-      int n = point.length;
-      Double[] coordinate = new Double[n];
-      for (int i = 0; i < n; i++) {
-        coordinate[i] = point[i];
-      }
-      return f.evaluate(coordinate);
-    };
   }
 
   //-------------------------------------------------------------------------

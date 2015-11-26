@@ -10,7 +10,6 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import java.util.function.Function;
 
-import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.polynomials.PolynomialFunctionLagrangeForm;
 import org.apache.commons.math3.complex.Complex;
@@ -22,7 +21,6 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.ComplexNumber;
-import com.opengamma.strata.math.impl.function.FunctionND;
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 
 /**
@@ -42,13 +40,6 @@ public class CommonsMathWrapperTest {
 
   };
   private static final ComplexNumber OG_COMPLEX = new ComplexNumber(1, 2);
-  private static final FunctionND<Double, Double> OG_FUNCTION_ND = new FunctionND<Double, Double>() {
-
-    @Override
-    protected Double evaluateFunction(final Double[] x) {
-      return x[0] * x[0] + 2 * x[1] - 3 * x[2] + x[3];
-    }
-  };
   private static final RealPolynomialFunction1D OG_POLYNOMIAL =
       new RealPolynomialFunction1D(new double[] {3, 4, -1, 5, -3});
 
@@ -65,11 +56,6 @@ public class CommonsMathWrapperTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1DFunction() {
     CommonsMathWrapper.wrapUnivariate((Function<Double, Double>) null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullNDFunction() {
-    CommonsMathWrapper.wrap((FunctionND<Double, Double>) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -116,20 +102,6 @@ public class CommonsMathWrapperTest {
     UnivariateFunction commons = CommonsMathWrapper.wrapUnivariate(OG_FUNCTION_1D);
     for (int i = 0; i < 100; i++) {
       assertEquals(OG_FUNCTION_1D.apply((double) i), commons.value(i), 1e-15);
-    }
-  }
-
-  @Test
-  public void testNDFunction() {
-    Double[] x1 = new Double[4];
-    double[] x2 = new double[4];
-    MultivariateFunction commons = CommonsMathWrapper.wrap(OG_FUNCTION_ND);
-    for (int i = 0; i < 100; i++) {
-      for (int j = 0; j < 4; j++) {
-        x1[j] = (double) i;
-        x2[j] = x1[j];
-      }
-      assertEquals(OG_FUNCTION_ND.evaluate(x1), commons.value(x2), 1e-15);
     }
   }
 
