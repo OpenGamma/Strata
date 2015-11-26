@@ -47,7 +47,6 @@ public interface ThreeLegBasisSwapConvention
   @FromString
   public static ThreeLegBasisSwapConvention of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
-    ExtendedEnum<ThreeLegBasisSwapConvention> extendedEnum = ThreeLegBasisSwapConventions.ENUM_LOOKUP;
     return extendedEnum().lookup(uniqueName);
   }
 
@@ -93,8 +92,9 @@ public interface ThreeLegBasisSwapConvention
    * of 5 years creates a swap starting on the spot date and maturing 5 years later.
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the swap, the floating rate is received from the counterparty, with the fixed rate being paid.
-   * If selling the swap, the floating rate is paid to the counterparty, with the fixed rate being received.
+   * If buying the swap, the rate of the floating flat leg is received from the counterparty,
+   * with the rate of the floating spread leg and the spread of the fixed leg being paid. 
+   * If selling the swap, the opposite occurs.
    * 
    * @param tradeDate  the date of the trade
    * @param tenor  the tenor of the swap
@@ -121,8 +121,9 @@ public interface ThreeLegBasisSwapConvention
    * and maturing 5 years later.
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the swap, the floating rate is received from the counterparty, with the fixed rate being paid.
-   * If selling the swap, the floating rate is paid to the counterparty, with the fixed rate being received.
+   * If buying the swap, the rate of the floating flat leg is received from the counterparty,
+   * with the rate of the floating spread leg and the spread of the fixed leg being paid. 
+   * If selling the swap, the opposite occurs.
    * 
    * @param tradeDate  the date of the trade
    * @param periodToStart  the period between the spot date and the start date

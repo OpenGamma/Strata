@@ -141,10 +141,6 @@ public class ThreeLegBasisSwapConventionTest {
     assertEquals(test.getProduct(), expected);
   }
 
-  public void test() {
-    System.out.println(StandardThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M.getName());
-  }
-
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   static Object[][] data_name() {
