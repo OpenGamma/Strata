@@ -8,7 +8,7 @@ package com.opengamma.strata.math.impl.interpolation;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.TreeMap;
-import java.util.function.Function;
+import java.util.function.DoubleUnaryOperator;
 
 import org.apache.commons.math3.random.Well44497b;
 import org.testng.annotations.Test;
@@ -28,7 +28,7 @@ public class NaturalCubicSplineInterpolator1DTest {
   private static final double[] COEFF = new double[] {-0.4, 0.05, 0.2, 1. };
 
   private static final Interpolator1D INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
-  private static final Function<Double, Double> CUBIC = new RealPolynomialFunction1D(COEFF);
+  private static final DoubleUnaryOperator CUBIC = new RealPolynomialFunction1D(COEFF);
   private static final double EPS = 1e-2;
   private static final Interpolator1DDataBundle MODEL;
 
@@ -36,7 +36,7 @@ public class NaturalCubicSplineInterpolator1DTest {
     final TreeMap<Double, Double> data = new TreeMap<>();
     for (int i = 0; i < 12; i++) {
       final double x = i / 10.;
-      data.put(x, CUBIC.apply(x));
+      data.put(x, CUBIC.applyAsDouble(x));
     }
     MODEL = INTERPOLATOR.getDataBundle(data);
   }
@@ -72,7 +72,7 @@ public class NaturalCubicSplineInterpolator1DTest {
   public void test() {
     for (int i = 0; i < 100; i++) {
       final double x = RANDOM.nextDouble();
-      assertEquals(CUBIC.apply(x), INTERPOLATOR.interpolate(MODEL, x), EPS);
+      assertEquals(CUBIC.applyAsDouble(x), INTERPOLATOR.interpolate(MODEL, x), EPS);
     }
   }
 

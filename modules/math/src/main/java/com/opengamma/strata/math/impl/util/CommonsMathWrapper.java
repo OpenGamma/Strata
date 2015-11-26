@@ -192,7 +192,7 @@ public final class CommonsMathWrapper {
     return new UnivariateDifferentiableFunction() {
       @Override
       public double value(double x) {
-        return f.apply(x);
+        return f.applyAsDouble(x);
       }
 
       @Override

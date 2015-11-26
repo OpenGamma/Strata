@@ -131,11 +131,11 @@ public class CommonsMathWrapperTest {
     double[] y = new double[n];
     for (int i = 0; i < n; i++) {
       x[i] = i;
-      y[i] = OG_POLYNOMIAL.apply(x[i]);
+      y[i] = OG_POLYNOMIAL.applyAsDouble(x[i]);
     }
     Function<Double, Double> unwrapped = CommonsMathWrapper.unwrap(new PolynomialFunctionLagrangeForm(x, y));
     for (int i = 0; i < 100; i++) {
-      assertEquals(unwrapped.apply(i + 0.5), OG_POLYNOMIAL.apply(i + 0.5), 1e-9);
+      assertEquals(unwrapped.apply(i + 0.5), OG_POLYNOMIAL.applyAsDouble(i + 0.5), 1e-9);
     }
   }
 

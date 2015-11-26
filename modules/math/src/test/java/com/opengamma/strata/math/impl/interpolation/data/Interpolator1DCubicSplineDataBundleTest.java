@@ -42,7 +42,7 @@ public class Interpolator1DCubicSplineDataBundleTest {
     Y = new double[n];
     for (int i = 0; i < n; i++) {
       X[i] = 2 * (i + 1);
-      Y[i] = CUBIC.apply(X[i]);
+      Y[i] = CUBIC.applyAsDouble(X[i]);
     }
     DATA = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(X, Y));
   }
@@ -67,23 +67,23 @@ public class Interpolator1DCubicSplineDataBundleTest {
     assertTrue(DATA.containsKey(2.));
     assertFalse(DATA.containsKey(3.4));
     assertEquals(DATA.firstKey(), 2., EPS);
-    assertEquals(DATA.firstValue(), CUBIC.apply(2.), EPS);
-    assertEquals(DATA.get(4.), CUBIC.apply(4.), EPS);
+    assertEquals(DATA.firstValue(), CUBIC.applyAsDouble(2.), EPS);
+    assertEquals(DATA.get(4.), CUBIC.applyAsDouble(4.), EPS);
     assertArrayEquals(DATA.getKeys(), X, 0);
     assertEquals(DATA.getLowerBoundIndex(7.), 2);
     assertEquals(DATA.getLowerBoundKey(7.), 6, EPS);
     assertArrayEquals(DATA.getValues(), Y, EPS);
     assertEquals(DATA.higherKey(7.), 8, 0);
-    assertEquals(DATA.higherValue(7.), CUBIC.apply(8.), EPS);
+    assertEquals(DATA.higherValue(7.), CUBIC.applyAsDouble(8.), EPS);
     assertEquals(DATA.lastKey(), 20., EPS);
-    assertEquals(DATA.lastValue(), CUBIC.apply(20.), EPS);
+    assertEquals(DATA.lastValue(), CUBIC.applyAsDouble(20.), EPS);
     assertEquals(DATA.size(), 10);
     final InterpolationBoundedValues boundedValues = DATA.getBoundedValues(4.);
     assertEquals(boundedValues.getLowerBoundIndex(), 1);
     assertEquals(boundedValues.getLowerBoundKey(), 4., EPS);
-    assertEquals(boundedValues.getLowerBoundValue(), CUBIC.apply(4.), EPS);
+    assertEquals(boundedValues.getLowerBoundValue(), CUBIC.applyAsDouble(4.), EPS);
     assertEquals(boundedValues.getHigherBoundKey(), 6., EPS);
-    assertEquals(boundedValues.getHigherBoundValue(), CUBIC.apply(6.), EPS);
+    assertEquals(boundedValues.getHigherBoundValue(), CUBIC.applyAsDouble(6.), EPS);
   }
 
   @Test
@@ -106,7 +106,7 @@ public class Interpolator1DCubicSplineDataBundleTest {
     double y[] = new double[n];
     for (int i = 0; i < n; i++) {
       x[i] = (i - 5);
-      y[i] = LINEAR.apply(x[i]);
+      y[i] = LINEAR.applyAsDouble(x[i]);
     }
     Interpolator1DCubicSplineDataBundle data = new Interpolator1DCubicSplineDataBundle(
         new ArrayInterpolator1DDataBundle(x, y));

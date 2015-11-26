@@ -11,6 +11,8 @@ import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.math.impl.function.DoubleFunction1D;
+
 /**
  * Abstract test.
  */
@@ -28,7 +30,7 @@ public abstract class RealSingleRootFinderTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
-    getRootFinder().checkInputs(null, 1., 2.);
+    getRootFinder().checkInputs((DoubleFunction1D) null, 1., 2.);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

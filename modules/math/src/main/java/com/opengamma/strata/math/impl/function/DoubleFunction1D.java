@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.math.impl.function;
 
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
-import java.util.function.UnaryOperator;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
@@ -16,7 +16,7 @@ import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
  * The functionality of {@link Function} is extended; this class allows arithmetic
  * operations on functions and defines a derivative function.
  */
-public interface DoubleFunction1D extends UnaryOperator<Double> {
+public interface DoubleFunction1D extends DoubleUnaryOperator {
 
   /**
    * Returns a function that calculates the first derivative.
@@ -46,8 +46,8 @@ public interface DoubleFunction1D extends UnaryOperator<Double> {
         return new DoubleFunction1D() {
 
           @Override
-          public Double apply(Double x) {
-            return (DoubleFunction1D.this.apply(x + eps) - DoubleFunction1D.this.apply(x - eps)) / 2 / eps;
+          public double applyAsDouble(double x) {
+            return (DoubleFunction1D.this.applyAsDouble(x + eps) - DoubleFunction1D.this.applyAsDouble(x - eps)) / 2 / eps;
           }
 
         };
@@ -55,8 +55,8 @@ public interface DoubleFunction1D extends UnaryOperator<Double> {
         return new DoubleFunction1D() {
 
           @Override
-          public Double apply(Double x) {
-            return (DoubleFunction1D.this.apply(x) - DoubleFunction1D.this.apply(x - eps)) / eps;
+          public double applyAsDouble(double x) {
+            return (DoubleFunction1D.this.applyAsDouble(x) - DoubleFunction1D.this.applyAsDouble(x - eps)) / eps;
           }
 
         };
@@ -64,8 +64,8 @@ public interface DoubleFunction1D extends UnaryOperator<Double> {
         return new DoubleFunction1D() {
 
           @Override
-          public Double apply(Double x) {
-            return (DoubleFunction1D.this.apply(x + eps) - DoubleFunction1D.this.apply(x)) / eps;
+          public double applyAsDouble(double x) {
+            return (DoubleFunction1D.this.applyAsDouble(x + eps) - DoubleFunction1D.this.applyAsDouble(x)) / eps;
           }
 
         };
@@ -86,8 +86,8 @@ public interface DoubleFunction1D extends UnaryOperator<Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double apply(Double x) {
-        return DoubleFunction1D.this.apply(x) + f.apply(x);
+      public double applyAsDouble(double x) {
+        return DoubleFunction1D.this.applyAsDouble(x) + f.applyAsDouble(x);
       }
 
     };
@@ -104,8 +104,8 @@ public interface DoubleFunction1D extends UnaryOperator<Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double apply(Double x) {
-        return DoubleFunction1D.this.apply(x) + a;
+      public double applyAsDouble(double x) {
+        return DoubleFunction1D.this.applyAsDouble(x) + a;
       }
 
     };
@@ -124,8 +124,8 @@ public interface DoubleFunction1D extends UnaryOperator<Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double apply(Double x) {
-        return DoubleFunction1D.this.apply(x) / f.apply(x);
+      public double applyAsDouble(double x) {
+        return DoubleFunction1D.this.applyAsDouble(x) / f.applyAsDouble(x);
       }
 
     };
@@ -142,8 +142,8 @@ public interface DoubleFunction1D extends UnaryOperator<Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double apply(Double x) {
-        return DoubleFunction1D.this.apply(x) / a;
+      public double applyAsDouble(double x) {
+        return DoubleFunction1D.this.applyAsDouble(x) / a;
       }
 
     };
@@ -161,8 +161,8 @@ public interface DoubleFunction1D extends UnaryOperator<Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double apply(Double x) {
-        return DoubleFunction1D.this.apply(x) * f.apply(x);
+      public double applyAsDouble(double x) {
+        return DoubleFunction1D.this.applyAsDouble(x) * f.applyAsDouble(x);
       }
 
     };
@@ -179,8 +179,8 @@ public interface DoubleFunction1D extends UnaryOperator<Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double apply(Double x) {
-        return DoubleFunction1D.this.apply(x) * a;
+      public double applyAsDouble(double x) {
+        return DoubleFunction1D.this.applyAsDouble(x) * a;
       }
 
     };
@@ -198,8 +198,8 @@ public interface DoubleFunction1D extends UnaryOperator<Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double apply(Double x) {
-        return DoubleFunction1D.this.apply(x) - f.apply(x);
+      public double applyAsDouble(double x) {
+        return DoubleFunction1D.this.applyAsDouble(x) - f.applyAsDouble(x);
       }
 
     };
@@ -216,8 +216,8 @@ public interface DoubleFunction1D extends UnaryOperator<Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double apply(Double x) {
-        return DoubleFunction1D.this.apply(x) - a;
+      public double applyAsDouble(double x) {
+        return DoubleFunction1D.this.applyAsDouble(x) - a;
       }
 
     };
@@ -235,7 +235,7 @@ public interface DoubleFunction1D extends UnaryOperator<Double> {
     return new DoubleFunction1D() {
 
       @Override
-      public Double apply(Double x) {
+      public double applyAsDouble(double x) {
         return f.apply(x);
       }
 
