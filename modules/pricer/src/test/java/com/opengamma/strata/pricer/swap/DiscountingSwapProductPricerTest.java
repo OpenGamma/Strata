@@ -759,9 +759,9 @@ public class DiscountingSwapProductPricerTest {
     // pv
     MultiCurrencyAmount pvComputed = SWAP_PRODUCT_PRICER.presentValue(swap, MULTI_EUR);
     DiscountingSwapLegPricer legPricer = SWAP_PRODUCT_PRICER.getLegPricer();
-    CurrencyAmount pvExpected = legPricer.presentValue(swap.getLegs().get(0), MULTI_EUR).plus(
-        legPricer.presentValue(swap.getLegs().get(1), MULTI_EUR)).plus(
-        legPricer.presentValue(swap.getLegs().get(2), MULTI_EUR));
+    CurrencyAmount pvExpected = legPricer.presentValue(swap.getLegs().get(0), MULTI_EUR)
+        .plus(legPricer.presentValue(swap.getLegs().get(1), MULTI_EUR))
+        .plus(legPricer.presentValue(swap.getLegs().get(2), MULTI_EUR));
     assertEquals(pvComputed.getAmount(EUR), pvExpected);
     // pv sensitivity
     PointSensitivityBuilder pvPointComputed = SWAP_PRODUCT_PRICER.presentValueSensitivity(swap, MULTI_EUR);

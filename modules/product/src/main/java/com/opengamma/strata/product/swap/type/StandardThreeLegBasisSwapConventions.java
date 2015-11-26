@@ -21,7 +21,6 @@ import com.opengamma.strata.basics.index.IborIndices;
  */
 final class StandardThreeLegBasisSwapConventions {
 
-  //-------------------------------------------------------------------------
   /**
    * EUR three leg basis swap of fixed, Euribor 3M and Euribor 6M.
    * The fixed leg pays yearly with day count '30U/360'.
