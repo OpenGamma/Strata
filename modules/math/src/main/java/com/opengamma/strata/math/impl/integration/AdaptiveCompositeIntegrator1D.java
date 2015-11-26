@@ -5,11 +5,12 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
+import java.util.function.Function;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Adaptive composite integrator: step size is set to be small if functional variation of integrand is large
@@ -45,7 +46,7 @@ public class AdaptiveCompositeIntegrator1D extends Integrator1D<Double, Double> 
   }
 
   @Override
-  public Double integrate(Function1D<Double, Double> f, Double lower, Double upper) {
+  public Double integrate(Function<Double, Double> f, Double lower, Double upper) {
     ArgChecker.notNull(f, "f");
     ArgChecker.notNull(lower, "lower bound");
     ArgChecker.notNull(upper, "upper bound");
@@ -60,12 +61,12 @@ public class AdaptiveCompositeIntegrator1D extends Integrator1D<Double, Double> 
     }
   }
 
-  private Double integration(Function1D<Double, Double> f, Double lower, Double upper) {
+  private Double integration(Function<Double, Double> f, Double lower, Double upper) {
     double res = _integrator.integrate(f, lower, upper);
     return integrationRec(f, lower, upper, res, MAX_IT);
   }
 
-  private double integrationRec(Function1D<Double, Double> f, double lower, double upper, double res, double counter) {
+  private double integrationRec(Function<Double, Double> f, double lower, double upper, double res, double counter) {
     double localTol = _gain * _tol;
     double half = 0.5 * (lower + upper);
     double newResDw = _integrator.integrate(f, lower, half);

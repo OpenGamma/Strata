@@ -28,7 +28,7 @@ public class CholeskyDecompositionOpenGamma extends Decomposition<CholeskyDecomp
    * {@inheritDoc}
    */
   @Override
-  public CholeskyDecompositionResult evaluate(DoubleMatrix x) {
+  public CholeskyDecompositionResult apply(DoubleMatrix x) {
     return evaluate(x, DEFAULT_SYMMETRY_THRESHOLD, DEFAULT_POSITIVITY_THRESHOLD);
   }
 

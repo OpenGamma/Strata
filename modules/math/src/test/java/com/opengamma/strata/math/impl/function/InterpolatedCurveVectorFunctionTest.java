@@ -38,17 +38,17 @@ public class InterpolatedCurveVectorFunctionTest {
     InterpolatedCurveVectorFunction vf = new InterpolatedCurveVectorFunction(knots, interpolator, knots);
     DoubleArray x = DoubleArray.of(knots.length, i -> Math.sin(knots[i]));
 
-    DoubleArray y = vf.evaluate(x);
+    DoubleArray y = vf.apply(x);
     DoubleMatrix jac = vf.calculateJacobian(x);
     assertEqualsVectors(x, y, 1e-15);
     assertEqualsMatrix(DoubleMatrix.identity(x.size()), jac, 1e-15);
 
     double[] samplePoints = new double[] {-2, -1, 0, 1, 2, 3, 4};
     vf = new InterpolatedCurveVectorFunction(samplePoints, interpolator, knots);
-    y = vf.evaluate(x);
+    y = vf.apply(x);
     jac = vf.calculateJacobian(x);
 
-    DoubleMatrix jacFD = DIFF.differentiate(vf).evaluate(x);
+    DoubleMatrix jacFD = DIFF.differentiate(vf).apply(x);
     assertEqualsMatrix(jac, jacFD, 5e-5);
   }
 
@@ -88,8 +88,8 @@ public class InterpolatedCurveVectorFunctionTest {
     VectorFunction vf2 = new InterpolatedCurveVectorFunction(samplePoints, interpolator, knots);
 
     DoubleArray knotValues = DoubleArray.of(-1.0, 1.0, -1.0, 1.0, -1.0);
-    DoubleArray y1 = vf1.evaluate(knotValues);
-    DoubleArray y2 = vf2.evaluate(knotValues);
+    DoubleArray y1 = vf1.apply(knotValues);
+    DoubleArray y2 = vf2.apply(knotValues);
     AssertMatrix.assertEqualsVectors(y1, y2, 1e-13);
 
     assertEquals(interpolator, pro.getInterpolator());
@@ -122,7 +122,7 @@ public class InterpolatedCurveVectorFunctionTest {
       DoubleArray _y = DoubleArray.of(samplePoints.length, i -> Math.sin(samplePoints[i]));
 
       @Override
-      public DoubleArray evaluate(DoubleArray x) {
+      public DoubleArray apply(DoubleArray x) {
         return _y;
       }
 
@@ -149,7 +149,7 @@ public class InterpolatedCurveVectorFunctionTest {
     DoubleArray x2 = DoubleArray.of(nKnots2, i -> Math.sin(knots2[i]));
     int nKnots = nKnots1 + nKnots2;
     DoubleArray x = x1.concat(x2);
-    DoubleArray y = vf.evaluate(x);
+    DoubleArray y = vf.apply(x);
 
     assertEquals(samplePoints.length * 3, y.size());
     DoubleMatrix jac = vf.calculateJacobian(x);
@@ -157,7 +157,7 @@ public class InterpolatedCurveVectorFunctionTest {
     assertEquals(samplePoints.length * 3, jac.rowCount());
     assertEquals(nKnots, jac.columnCount());
 
-    DoubleMatrix jacFD = DIFF.differentiate(vf).evaluate(x);
+    DoubleMatrix jacFD = DIFF.differentiate(vf).apply(x);
     assertEqualsMatrix(jac, jacFD, 1e-4);
 
   }

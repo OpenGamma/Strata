@@ -5,9 +5,10 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 
@@ -31,15 +32,15 @@ public final class NormalPriceFunction {
    * @param option  the option description
    * @return the price function
    */
-  public Function1D<NormalFunctionData, Double> getPriceFunction(EuropeanVanillaOption option) {
+  public Function<NormalFunctionData, Double> getPriceFunction(EuropeanVanillaOption option) {
     ArgChecker.notNull(option, "option");
     double strike = option.getStrike();
     double t = option.getTimeToExpiry();
-    return new Function1D<NormalFunctionData, Double>() {
+    return new Function<NormalFunctionData, Double>() {
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(NormalFunctionData data) {
+      public Double apply(NormalFunctionData data) {
         ArgChecker.notNull(data, "data");
         double forward = data.getForward();
         double numeraire = data.getNumeraire();

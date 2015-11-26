@@ -7,10 +7,11 @@ package com.opengamma.strata.math.impl.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.differentiation.ScalarFirstOrderDifferentiator;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DCubicSplineDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
@@ -26,14 +27,14 @@ public class Extrapolator1DNodeSensitivityCalculatorTest {
   private static final LinearExtrapolator1D LINEAR_EXTRAPOLATOR = new LinearExtrapolator1D(1e-6);
   private static final Interpolator1DCubicSplineDataBundle DATA;
 
-  private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> FUNCTION = new Function<Double, Double>() {
     private static final double A = -0.045;
     private static final double B = 0.03;
     private static final double C = 0.3;
     private static final double D = 0.05;
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return (A + B * x) * Math.exp(-C * x) + D;
     }
   };
@@ -43,7 +44,7 @@ public class Extrapolator1DNodeSensitivityCalculatorTest {
     final int n = t.length;
     final double[] r = new double[n];
     for (int i = 0; i < n; i++) {
-      r[i] = FUNCTION.evaluate(t[i]);
+      r[i] = FUNCTION.apply(t[i]);
     }
     DATA = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(t, r));
   }
@@ -82,16 +83,16 @@ public class Extrapolator1DNodeSensitivityCalculatorTest {
     Interpolator1D interpolator = new NaturalCubicSplineInterpolator1D();
     Interpolator1DDataBundle db = interpolator.getDataBundle(x, y);
     Double grad = interpolator.firstDerivative(db, x[n - 1]);
-    Function1D<Double, Double> func = interpolator.getFunction(db);
+    Function<Double, Double> func = interpolator.getFunction(db);
     ScalarFirstOrderDifferentiator diff = new ScalarFirstOrderDifferentiator();
-    Function1D<Double, Boolean> domain = new Function1D<Double, Boolean>() {
+    Function<Double, Boolean> domain = new Function<Double, Boolean>() {
       @Override
-      public Boolean evaluate(Double x) {
+      public Boolean apply(Double x) {
         return x <= 5.0;
       }
     };
-    Function1D<Double, Double> gradFunc = diff.differentiate(func, domain);
+    Function<Double, Double> gradFunc = diff.differentiate(func, domain);
 
-    assertEquals(gradFunc.evaluate(x[n - 1]), grad, 1e-8);
+    assertEquals(gradFunc.apply(x[n - 1]), grad, 1e-8);
   }
 }

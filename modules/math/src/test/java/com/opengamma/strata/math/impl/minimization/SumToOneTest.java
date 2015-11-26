@@ -7,13 +7,14 @@ package com.opengamma.strata.math.impl.minimization;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.apache.commons.math3.random.Well44497b;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
@@ -85,10 +86,10 @@ public class SumToOneTest {
     double[] w = new double[] {0.01, 0.5, 0.3, 0.19 };
     final int n = w.length;
     final SumToOne trans = new SumToOne(n);
-    Function1D<DoubleArray, DoubleArray> func = new Function1D<DoubleArray, DoubleArray>() {
+    Function<DoubleArray, DoubleArray> func = new Function<DoubleArray, DoubleArray>() {
 
       @Override
-      public DoubleArray evaluate(DoubleArray theta) {
+      public DoubleArray apply(DoubleArray theta) {
         return trans.transform(theta);
       }
     };
@@ -123,10 +124,10 @@ public class SumToOneTest {
   public void solverTest2() {
     double[] w = new double[] {3.0, 4.0 };
     final int n = w.length;
-    Function1D<DoubleArray, DoubleArray> func = new Function1D<DoubleArray, DoubleArray>() {
+    Function<DoubleArray, DoubleArray> func = new Function<DoubleArray, DoubleArray>() {
 
       @Override
-      public DoubleArray evaluate(DoubleArray x) {
+      public DoubleArray apply(DoubleArray x) {
         double a = x.get(0);
         double theta = x.get(1);
         double c1 = Math.cos(theta);
@@ -151,26 +152,26 @@ public class SumToOneTest {
     final int n = 5;
 
     final SumToOne trans = new SumToOne(n);
-    Function1D<DoubleArray, DoubleArray> func = new Function1D<DoubleArray, DoubleArray>() {
+    Function<DoubleArray, DoubleArray> func = new Function<DoubleArray, DoubleArray>() {
       @Override
-      public DoubleArray evaluate(DoubleArray theta) {
+      public DoubleArray apply(DoubleArray theta) {
         return trans.transform(theta);
       }
     };
 
-    Function1D<DoubleArray, DoubleMatrix> jacFunc = new Function1D<DoubleArray, DoubleMatrix>() {
+    Function<DoubleArray, DoubleMatrix> jacFunc = new Function<DoubleArray, DoubleMatrix>() {
       @Override
-      public DoubleMatrix evaluate(DoubleArray theta) {
+      public DoubleMatrix apply(DoubleArray theta) {
         return trans.jacobian(theta);
       }
     };
 
-    Function1D<DoubleArray, DoubleMatrix> fdJacFunc = DIFFER.differentiate(func);
+    Function<DoubleArray, DoubleMatrix> fdJacFunc = DIFFER.differentiate(func);
 
     for (int tries = 0; tries < 10; tries++) {
       DoubleArray vTheta = DoubleArray.of(n - 1, i -> RANDOM.nextDouble());
-      DoubleMatrix jac = jacFunc.evaluate(vTheta);
-      DoubleMatrix fdJac = fdJacFunc.evaluate(vTheta);
+      DoubleMatrix jac = jacFunc.apply(vTheta);
+      DoubleMatrix fdJac = fdJacFunc.apply(vTheta);
       for (int j = 0; j < n - 1; j++) {
         double sum = 0.0;
         for (int i = 0; i < n; i++) {

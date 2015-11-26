@@ -27,7 +27,7 @@ public class JacobianDirectionFunction implements NewtonRootFinderDirectionFunct
   public DoubleArray getDirection(DoubleMatrix estimate, DoubleArray y) {
     ArgChecker.notNull(estimate, "estimate");
     ArgChecker.notNull(y, "y");
-    DecompositionResult result = _decomposition.evaluate(estimate);
+    DecompositionResult result = _decomposition.apply(estimate);
     return result.solve(y);
   }
 

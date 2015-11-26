@@ -5,19 +5,19 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
-import org.testng.annotations.Test;
+import java.util.function.Function;
 
-import com.opengamma.strata.math.impl.function.Function1D;
+import org.testng.annotations.Test;
 
 /**
  * Abstract test.
  */
 @Test
 public abstract class MinimumBracketerTestCase {
-  private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> F = new Function<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return null;
     }
 

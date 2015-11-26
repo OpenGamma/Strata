@@ -14,7 +14,6 @@ import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Computes the cross-gamma and related figures to the rate curves parameters for rates provider.
@@ -66,8 +65,8 @@ public class CurveGammaCalculator {
       Function<NodalCurve, CurveCurrencyParameterSensitivity> sensitivitiesFn) {
 
     Delta deltaShift = new Delta(curve, sensitivitiesFn);
-    Function1D<DoubleArray, DoubleMatrix> gammaFn = fd.differentiate(deltaShift);
-    DoubleArray gamma = gammaFn.evaluate(DoubleArray.filled(1)).column(0);
+    Function<DoubleArray, DoubleMatrix> gammaFn = fd.differentiate(deltaShift);
+    DoubleArray gamma = gammaFn.apply(DoubleArray.filled(1)).column(0);
     return CurveCurrencyParameterSensitivity.of(curve.getMetadata(), curveCurrency, gamma);
   }
 
@@ -75,7 +74,7 @@ public class CurveGammaCalculator {
   /**
    * Inner class to compute the delta for a given parallel shift of the curve.
    */
-  static class Delta extends Function1D<DoubleArray, DoubleArray> {
+  static class Delta implements Function<DoubleArray, DoubleArray> {
     private final NodalCurve curve;
     private final Function<NodalCurve, CurveCurrencyParameterSensitivity> sensitivitiesFn;
 
@@ -85,7 +84,7 @@ public class CurveGammaCalculator {
     }
 
     @Override
-    public DoubleArray evaluate(DoubleArray s) {
+    public DoubleArray apply(DoubleArray s) {
       double shift = s.get(0);
       DoubleArray yieldBumped = curve.getYValues().map(v -> v + shift);
       NodalCurve curveBumped = curve.withYValues(yieldBumped);

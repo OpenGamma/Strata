@@ -5,10 +5,11 @@
  */
 package com.opengamma.strata.math.impl.rootfinding;
 
+import java.util.function.Function;
+
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Parent class for root-finders that calculate a root for a vector function
@@ -21,7 +22,7 @@ public abstract class VectorRootFinder implements SingleRootFinder<DoubleArray, 
    * Vector root finders only need a single starting point; if more than one is provided, the first is used and any other points ignored.
    */
   @Override
-  public DoubleArray getRoot(Function1D<DoubleArray, DoubleArray> function, DoubleArray... startingPoint) {
+  public DoubleArray getRoot(Function<DoubleArray, DoubleArray> function, DoubleArray... startingPoint) {
     ArgChecker.notNull(startingPoint, "starting point");
     return getRoot(function, startingPoint[0]);
   }
@@ -31,13 +32,13 @@ public abstract class VectorRootFinder implements SingleRootFinder<DoubleArray, 
    * @param x0 The starting point, not null
    * @return The vector root of this function
    */
-  public abstract DoubleArray getRoot(Function1D<DoubleArray, DoubleArray> function, DoubleArray x0);
+  public abstract DoubleArray getRoot(Function<DoubleArray, DoubleArray> function, DoubleArray x0);
 
   /**
    * @param function The function, not null
    * @param x0 The starting point, not null
    */
-  protected void checkInputs(Function1D<DoubleArray, DoubleArray> function, DoubleArray x0) {
+  protected void checkInputs(Function<DoubleArray, DoubleArray> function, DoubleArray x0) {
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(x0, "x0");
     int n = x0.size();
@@ -46,7 +47,7 @@ public abstract class VectorRootFinder implements SingleRootFinder<DoubleArray, 
         throw new IllegalArgumentException("Invalid start position x0 = " + x0.toString());
       }
     }
-    DoubleArray y = function.evaluate(x0);
+    DoubleArray y = function.apply(x0);
     int m = y.size();
     for (int i = 0; i < m; i++) {
       if (!Doubles.isFinite(y.get(i))) {

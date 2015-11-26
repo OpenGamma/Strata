@@ -8,16 +8,16 @@ package com.opengamma.strata.math.impl.interpolation.data;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 
 /**
  * 
  */
-public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleArray, LinkedHashMap<String, Interpolator1DDataBundle>> {
+public class Interpolator1DDataBundleBuilderFunction implements Function<DoubleArray, LinkedHashMap<String, Interpolator1DDataBundle>> {
 
   private final LinkedHashMap<String, double[]> _knotPoints;
   private final LinkedHashMap<String, Interpolator1D> _interpolators;
@@ -38,7 +38,7 @@ public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleAr
   }
 
   @Override
-  public LinkedHashMap<String, Interpolator1DDataBundle> evaluate(final DoubleArray x) {
+  public LinkedHashMap<String, Interpolator1DDataBundle> apply(final DoubleArray x) {
     ArgChecker.notNull(x, "null data x");
     ArgChecker.isTrue(_nNodes == x.size(), "x wrong length");
 

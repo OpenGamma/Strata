@@ -5,11 +5,12 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
+import java.util.function.Function;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Class for defining the integration of 1-D functions.
@@ -17,7 +18,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * @param <T> Type of the function output and result
  * @param <U> Type of the function inputs and integration bounds
  */
-public abstract class Integrator1D<T, U> implements Integrator<T, U, Function1D<U, T>> {
+public abstract class Integrator1D<T, U> implements Integrator<T, U, Function<U, T>> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(Integrator1D.class);
 
@@ -25,7 +26,7 @@ public abstract class Integrator1D<T, U> implements Integrator<T, U, Function1D<
    * {@inheritDoc}
    */
   @Override
-  public T integrate(Function1D<U, T> f, U[] lower, U[] upper) {
+  public T integrate(Function<U, T> f, U[] lower, U[] upper) {
     ArgChecker.notNull(f, "function was null");
     ArgChecker.notNull(lower, "lower bound array was null");
     ArgChecker.notNull(upper, "upper bound array was null");
@@ -49,6 +50,6 @@ public abstract class Integrator1D<T, U> implements Integrator<T, U, Function1D<
    * @param upper The upper bound, not null
    * @return The result of the integration
    */
-  public abstract T integrate(Function1D<U, T> f, U lower, U upper);
+  public abstract T integrate(Function<U, T> f, U lower, U upper);
 
 }

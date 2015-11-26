@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.bond;
 
 import java.time.LocalDate;
+import java.util.function.Function;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -22,7 +23,6 @@ import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.CompoundedRateType;
 import com.opengamma.strata.market.value.IssuerCurveDiscountFactors;
 import com.opengamma.strata.market.value.RepoCurveDiscountFactors;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.rootfinding.BrentSingleRootFinder;
 import com.opengamma.strata.math.impl.rootfinding.RealSingleRootFinder;
@@ -314,9 +314,9 @@ public class DiscountingFixedCouponBondProductPricer {
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    final Function1D<Double, Double> residual = new Function1D<Double, Double>() {
+    final Function<Double, Double> residual = new Function<Double, Double>() {
       @Override
-      public Double evaluate(final Double z) {
+      public Double apply(final Double z) {
         return dirtyPriceFromCurvesWithZSpread(security, provider, z, compoundedRateType, periodsPerYear) - dirtyPrice;
       }
     };
@@ -614,9 +614,9 @@ public class DiscountingFixedCouponBondProductPricer {
       return (product.getFixedRate() + (1d - cleanPrice) / maturity) / cleanPrice;
     }
 
-    final Function1D<Double, Double> priceResidual = new Function1D<Double, Double>() {
+    final Function<Double, Double> priceResidual = new Function<Double, Double>() {
       @Override
-      public Double evaluate(final Double y) {
+      public Double apply(final Double y) {
         return dirtyPriceFromYield(product, settlementDate, y) - dirtyPrice;
       }
     };

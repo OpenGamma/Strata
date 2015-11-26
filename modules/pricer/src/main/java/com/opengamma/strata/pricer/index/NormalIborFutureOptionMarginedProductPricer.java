@@ -110,7 +110,7 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
         futureOption.getExpiry(), future.getLastTradeDate(), strike, futurePrice);
 
     NormalFunctionData normalPoint = NormalFunctionData.of(futurePrice, 1.0, volatility);
-    return NORMAL_FUNCTION.getPriceFunction(option).evaluate(normalPoint);
+    return NORMAL_FUNCTION.getPriceFunction(option).apply(normalPoint);
   }
 
   @Override

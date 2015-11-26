@@ -80,7 +80,7 @@ public class ConcatenatedVectorFunction extends VectorFunction {
   }
 
   @Override
-  public DoubleArray evaluate(DoubleArray x) {
+  public DoubleArray apply(DoubleArray x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(
         x.size() == getLengthOfDomain(),
@@ -92,7 +92,7 @@ public class ConcatenatedVectorFunction extends VectorFunction {
     for (int i = 0; i < _nPartitions; i++) {
       int length = _xPartition[i];
       DoubleArray sub = x.subArray(posInput, posInput + length);
-      DoubleArray eval = _functions[i].evaluate(sub);
+      DoubleArray eval = _functions[i].apply(sub);
       eval.copyInto(y, posOutput);
       posInput += length;
       posOutput += eval.size();

@@ -188,7 +188,7 @@ public class AnalyticSpreadSensitivityCalculator {
         i -> _pricer.pvCreditSensitivity(cds, yieldCurve, creditCurve, cdsCoupon, i));
     DoubleMatrix jacT = DoubleMatrix.of(n, n,
         (i, j) -> _pricer.parSpreadCreditSensitivity(bucketCDSs[j], yieldCurve, creditCurve, i));
-    LUDecompositionResult luRes = decomp.evaluate(jacT);
+    LUDecompositionResult luRes = decomp.apply(jacT);
     DoubleArray vS = luRes.solve(vLambda);
     return vS.toArray();
   }
@@ -214,7 +214,7 @@ public class AnalyticSpreadSensitivityCalculator {
 
     double[] vLambda = new double[n];
     double[][] res = new double[m][];
-    LUDecompositionResult luRes = decomp.evaluate(jacT);
+    LUDecompositionResult luRes = decomp.apply(jacT);
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
         vLambda[j] = _pricer.pvCreditSensitivity(cds[i], yieldCurve, creditCurve, cdsCoupon[i], j);

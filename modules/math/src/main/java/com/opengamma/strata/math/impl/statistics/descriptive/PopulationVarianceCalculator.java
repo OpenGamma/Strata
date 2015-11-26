@@ -5,8 +5,9 @@
  */
 package com.opengamma.strata.math.impl.statistics.descriptive;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Calculates the population variance of a series of data.
@@ -19,16 +20,16 @@ import com.opengamma.strata.math.impl.function.Function1D;
  * $$
  * where $\overline{x}$ is the sample mean. For the sample variance, see {@link SampleVarianceCalculator}.
  */
-public class PopulationVarianceCalculator extends Function1D<double[], Double> {
+public class PopulationVarianceCalculator implements Function<double[], Double> {
 
-  private final Function1D<double[], Double> _variance = new SampleVarianceCalculator();
+  private final Function<double[], Double> _variance = new SampleVarianceCalculator();
 
   @Override
-  public Double evaluate(double[] x) {
+  public Double apply(double[] x) {
     ArgChecker.notNull(x, "x");
     int n = x.length;
     ArgChecker.isTrue(n >= 2, "Need at least two points to calculate the population variance");
-    return _variance.evaluate(x) * (n - 1) / n;
+    return _variance.apply(x) * (n - 1) / n;
   }
 
 }

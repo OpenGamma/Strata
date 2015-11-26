@@ -5,11 +5,12 @@
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 
@@ -22,10 +23,10 @@ public class ShermanMorrisonMatrixUpdateFunctionTest {
   private static final ShermanMorrisonMatrixUpdateFunction UPDATE = new ShermanMorrisonMatrixUpdateFunction(ALGEBRA);
   private static final DoubleArray V = DoubleArray.of(1, 2);
   private static final DoubleMatrix M = DoubleMatrix.copyOf(new double[][] { {3, 4}, {5, 6}});
-  private static final Function1D<DoubleArray, DoubleMatrix> J = new Function1D<DoubleArray, DoubleMatrix>() {
+  private static final Function<DoubleArray, DoubleMatrix> J = new Function<DoubleArray, DoubleMatrix>() {
     @SuppressWarnings("synthetic-access")
     @Override
-    public DoubleMatrix evaluate(DoubleArray x) {
+    public DoubleMatrix apply(DoubleArray x) {
       return ALGEBRA.getOuterProduct(x, x);
     }
   };

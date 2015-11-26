@@ -19,7 +19,7 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
 public class SVDecompositionCommons extends Decomposition<SVDecompositionResult> {
 
   @Override
-  public SVDecompositionResult evaluate(DoubleMatrix x) {
+  public SVDecompositionResult apply(DoubleMatrix x) {
     ArgChecker.notNull(x, "x");
     MatrixValidate.notNaNOrInfinite(x);
     RealMatrix commonsMatrix = CommonsMathWrapper.wrap(x);

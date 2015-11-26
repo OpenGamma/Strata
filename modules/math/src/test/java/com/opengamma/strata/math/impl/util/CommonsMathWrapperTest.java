@@ -8,7 +8,8 @@ package com.opengamma.strata.math.impl.util;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
-import org.apache.commons.math3.analysis.MultivariateFunction;
+import java.util.function.Function;
+
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.polynomials.PolynomialFunctionLagrangeForm;
 import org.apache.commons.math3.complex.Complex;
@@ -20,8 +21,6 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.ComplexNumber;
-import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.function.FunctionND;
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 
 /**
@@ -33,21 +32,14 @@ public class CommonsMathWrapperTest {
   private static final DoubleArray OG_VECTOR = DoubleArray.of(1, 2, 3);
   private static final DoubleMatrix OG_MATRIX = DoubleMatrix.copyOf(
       new double[][] { {1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
-  private static final Function1D<Double, Double> OG_FUNCTION_1D = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> OG_FUNCTION_1D = new Function<Double, Double>() {
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return x * x + 7 * x + 12;
     }
 
   };
   private static final ComplexNumber OG_COMPLEX = new ComplexNumber(1, 2);
-  private static final FunctionND<Double, Double> OG_FUNCTION_ND = new FunctionND<Double, Double>() {
-
-    @Override
-    protected Double evaluateFunction(final Double[] x) {
-      return x[0] * x[0] + 2 * x[1] - 3 * x[2] + x[3];
-    }
-  };
   private static final RealPolynomialFunction1D OG_POLYNOMIAL =
       new RealPolynomialFunction1D(new double[] {3, 4, -1, 5, -3});
 
@@ -63,12 +55,7 @@ public class CommonsMathWrapperTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1DFunction() {
-    CommonsMathWrapper.wrapUnivariate((Function1D<Double, Double>) null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullNDFunction() {
-    CommonsMathWrapper.wrap((FunctionND<Double, Double>) null);
+    CommonsMathWrapper.wrapUnivariate((Function<Double, Double>) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -114,21 +101,7 @@ public class CommonsMathWrapperTest {
   public void test1DFunction() {
     UnivariateFunction commons = CommonsMathWrapper.wrapUnivariate(OG_FUNCTION_1D);
     for (int i = 0; i < 100; i++) {
-      assertEquals(OG_FUNCTION_1D.evaluate((double) i), commons.value(i), 1e-15);
-    }
-  }
-
-  @Test
-  public void testNDFunction() {
-    Double[] x1 = new Double[4];
-    double[] x2 = new double[4];
-    MultivariateFunction commons = CommonsMathWrapper.wrap(OG_FUNCTION_ND);
-    for (int i = 0; i < 100; i++) {
-      for (int j = 0; j < 4; j++) {
-        x1[j] = (double) i;
-        x2[j] = x1[j];
-      }
-      assertEquals(OG_FUNCTION_ND.evaluate(x1), commons.value(x2), 1e-15);
+      assertEquals(OG_FUNCTION_1D.apply((double) i), commons.value(i), 1e-15);
     }
   }
 
@@ -158,11 +131,11 @@ public class CommonsMathWrapperTest {
     double[] y = new double[n];
     for (int i = 0; i < n; i++) {
       x[i] = i;
-      y[i] = OG_POLYNOMIAL.evaluate(x[i]);
+      y[i] = OG_POLYNOMIAL.applyAsDouble(x[i]);
     }
-    Function1D<Double, Double> unwrapped = CommonsMathWrapper.unwrap(new PolynomialFunctionLagrangeForm(x, y));
+    Function<Double, Double> unwrapped = CommonsMathWrapper.unwrap(new PolynomialFunctionLagrangeForm(x, y));
     for (int i = 0; i < 100; i++) {
-      assertEquals(unwrapped.evaluate(i + 0.5), OG_POLYNOMIAL.evaluate(i + 0.5), 1e-9);
+      assertEquals(unwrapped.apply(i + 0.5), OG_POLYNOMIAL.applyAsDouble(i + 0.5), 1e-9);
     }
   }
 

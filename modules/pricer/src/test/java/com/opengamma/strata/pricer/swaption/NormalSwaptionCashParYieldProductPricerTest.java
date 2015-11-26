@@ -178,8 +178,8 @@ public class NormalSwaptionCashParYieldProductPricerTest {
     double expiry = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiryDateTime());
     EuropeanVanillaOption optionRec = EuropeanVanillaOption.of(STRIKE, expiry, PutCall.PUT);
     EuropeanVanillaOption optionPay = EuropeanVanillaOption.of(STRIKE, expiry, PutCall.CALL);
-    double pvRecExpected = NORMAL.getPriceFunction(optionRec).evaluate(normalData);
-    double pvPayExpected = -NORMAL.getPriceFunction(optionPay).evaluate(normalData);
+    double pvRecExpected = NORMAL.getPriceFunction(optionRec).apply(normalData);
+    double pvPayExpected = -NORMAL.getPriceFunction(optionPay).apply(normalData);
     assertEquals(pvRecComputed.getCurrency(), USD);
     assertEquals(pvRecComputed.getAmount(), pvRecExpected, NOTIONAL * TOL);
     assertEquals(pvPayComputed.getCurrency(), USD);

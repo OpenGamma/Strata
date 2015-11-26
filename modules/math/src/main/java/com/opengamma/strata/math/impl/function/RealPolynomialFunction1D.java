@@ -19,7 +19,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * \end{align*}
  * $$
  */
-public class RealPolynomialFunction1D extends DoubleFunction1D {
+public class RealPolynomialFunction1D implements DoubleFunction1D {
 
   private final double[] _coefficients;
   private final int _n;
@@ -42,7 +42,7 @@ public class RealPolynomialFunction1D extends DoubleFunction1D {
 
   //-------------------------------------------------------------------------
   @Override
-  public Double evaluate(Double x) {
+  public double applyAsDouble(double x) {
     ArgChecker.notNull(x, "x");
     double y = _coefficients[_n - 1];
     for (int i = _n - 2; i >= 0; i--) {
@@ -83,7 +83,7 @@ public class RealPolynomialFunction1D extends DoubleFunction1D {
       }
       return new RealPolynomialFunction1D(c3);
     }
-    return super.add(f);
+    return DoubleFunction1D.super.add(f);
   }
 
   /**
@@ -161,7 +161,7 @@ public class RealPolynomialFunction1D extends DoubleFunction1D {
       }
       return new RealPolynomialFunction1D(newC);
     }
-    return super.multiply(f);
+    return DoubleFunction1D.super.multiply(f);
   }
 
   /**
@@ -213,7 +213,7 @@ public class RealPolynomialFunction1D extends DoubleFunction1D {
       }
       return new RealPolynomialFunction1D(c3);
     }
-    return super.subtract(f);
+    return DoubleFunction1D.super.subtract(f);
   }
 
   /**

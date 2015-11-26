@@ -5,17 +5,18 @@
  */
 package com.opengamma.strata.math.impl.statistics.distribution;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 import cern.jet.random.engine.RandomEngine;
 
 /**
  * 
  */
-public class StudentTTwoTailedCriticalValueCalculator extends Function1D<Double, Double> {
+public class StudentTTwoTailedCriticalValueCalculator implements Function<Double, Double> {
 
-  private final Function1D<Double, Double> _calc;
+  private final Function<Double, Double> _calc;
 
   public StudentTTwoTailedCriticalValueCalculator(double nu) {
     ArgChecker.notNegative(nu, "nu");
@@ -29,10 +30,10 @@ public class StudentTTwoTailedCriticalValueCalculator extends Function1D<Double,
   }
 
   @Override
-  public Double evaluate(Double x) {
+  public Double apply(Double x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.notNegative(x, "x");
-    return _calc.evaluate(0.5 + 0.5 * x);
+    return _calc.apply(0.5 + 0.5 * x);
   }
 
 }

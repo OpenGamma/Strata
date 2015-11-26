@@ -5,15 +5,16 @@
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * 
  */
 public interface NewtonRootFinderMatrixInitializationFunction {
 
-  DoubleMatrix getInitializedMatrix(Function1D<DoubleArray, DoubleMatrix> jacobianFunction, DoubleArray x);
+  DoubleMatrix getInitializedMatrix(Function<DoubleArray, DoubleMatrix> jacobianFunction, DoubleArray x);
 
 }

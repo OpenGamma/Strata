@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
+import java.util.function.Function;
+
 import org.apache.commons.math3.analysis.integration.TrapezoidIntegrator;
 import org.apache.commons.math3.analysis.integration.UnivariateIntegrator;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
@@ -14,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
 
 /**
@@ -41,7 +42,7 @@ public class ExtendedTrapezoidIntegrator1D extends Integrator1D<Double, Double> 
    * {@inheritDoc}
    */
   @Override
-  public Double integrate(Function1D<Double, Double> f, Double lower, Double upper) {
+  public Double integrate(Function<Double, Double> f, Double lower, Double upper) {
     ArgChecker.notNull(f, "f");
     ArgChecker.notNull(lower, "lower");
     ArgChecker.notNull(upper, "upper");

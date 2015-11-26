@@ -36,47 +36,47 @@ public class NormalPriceFunctionTest {
 
   public void testInvalid() {
     assertThrowsIllegalArg(() -> FUNCTION.getPriceFunction(null));
-    assertThrowsIllegalArg(() -> FUNCTION.getPriceFunction(ITM_CALL).evaluate((NormalFunctionData) null));
+    assertThrowsIllegalArg(() -> FUNCTION.getPriceFunction(ITM_CALL).apply((NormalFunctionData) null));
   }
 
   public void testZeroVolPrice() {
-    assertEquals(FUNCTION.getPriceFunction(ITM_CALL).evaluate(ZERO_VOL_DATA), DF * DELTA, 1e-15);
-    assertEquals(FUNCTION.getPriceFunction(OTM_CALL).evaluate(ZERO_VOL_DATA), 0, 1e-15);
-    assertEquals(FUNCTION.getPriceFunction(ITM_PUT).evaluate(ZERO_VOL_DATA), DF * DELTA, 1e-15);
-    assertEquals(FUNCTION.getPriceFunction(OTM_PUT).evaluate(ZERO_VOL_DATA), 0, 1e-15);
+    assertEquals(FUNCTION.getPriceFunction(ITM_CALL).apply(ZERO_VOL_DATA), DF * DELTA, 1e-15);
+    assertEquals(FUNCTION.getPriceFunction(OTM_CALL).apply(ZERO_VOL_DATA), 0, 1e-15);
+    assertEquals(FUNCTION.getPriceFunction(ITM_PUT).apply(ZERO_VOL_DATA), DF * DELTA, 1e-15);
+    assertEquals(FUNCTION.getPriceFunction(OTM_PUT).apply(ZERO_VOL_DATA), 0, 1e-15);
   }
 
   public void testPriceAdjoint() {
     // Price
-    double price = FUNCTION.getPriceFunction(ITM_CALL).evaluate(VOL_DATA);
+    double price = FUNCTION.getPriceFunction(ITM_CALL).apply(VOL_DATA);
     ValueDerivatives priceAdjoint = FUNCTION.getPriceAdjoint(ITM_CALL, VOL_DATA);
     assertEquals(priceAdjoint.getValue(), price, 1E-10);
     // Price with 0 volatility
-    double price0 = FUNCTION.getPriceFunction(ITM_CALL).evaluate(ZERO_VOL_DATA);
+    double price0 = FUNCTION.getPriceFunction(ITM_CALL).apply(ZERO_VOL_DATA);
     ValueDerivatives price0Adjoint = FUNCTION.getPriceAdjoint(ITM_CALL, ZERO_VOL_DATA);
     assertEquals(price0Adjoint.getValue(), price0, 1E-10);
     // Derivative forward.
     double deltaF = 0.01;
     NormalFunctionData dataFP = NormalFunctionData.of(F + deltaF, DF, SIGMA);
     NormalFunctionData dataFM = NormalFunctionData.of(F - deltaF, DF, SIGMA);
-    double priceFP = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataFP);
-    double priceFM = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataFM);
+    double priceFP = FUNCTION.getPriceFunction(ITM_CALL).apply(dataFP);
+    double priceFM = FUNCTION.getPriceFunction(ITM_CALL).apply(dataFM);
     double derivativeF_FD = (priceFP - priceFM) / (2 * deltaF);
     assertEquals(priceAdjoint.getDerivative(0), derivativeF_FD, 1E-7);
     // Derivative strike.
     double deltaK = 0.01;
     EuropeanVanillaOption optionKP = EuropeanVanillaOption.of(F - DELTA + deltaK, T, CALL);
     EuropeanVanillaOption optionKM = EuropeanVanillaOption.of(F - DELTA - deltaK, T, CALL);
-    double priceKP = FUNCTION.getPriceFunction(optionKP).evaluate(VOL_DATA);
-    double priceKM = FUNCTION.getPriceFunction(optionKM).evaluate(VOL_DATA);
+    double priceKP = FUNCTION.getPriceFunction(optionKP).apply(VOL_DATA);
+    double priceKM = FUNCTION.getPriceFunction(optionKM).apply(VOL_DATA);
     double derivativeK_FD = (priceKP - priceKM) / (2 * deltaK);
     assertEquals(priceAdjoint.getDerivative(2), derivativeK_FD, 1E-7);
     // Derivative volatility.
     double deltaV = 0.0001;
     NormalFunctionData dataVP = NormalFunctionData.of(F, DF, SIGMA + deltaV);
     NormalFunctionData dataVM = NormalFunctionData.of(F, DF, SIGMA - deltaV);
-    double priceVP = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVP);
-    double priceVM = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVM);
+    double priceVP = FUNCTION.getPriceFunction(ITM_CALL).apply(dataVP);
+    double priceVM = FUNCTION.getPriceFunction(ITM_CALL).apply(dataVM);
     double derivativeV_FD = (priceVP - priceVM) / (2 * deltaV);
     assertEquals(priceAdjoint.getDerivative(1), derivativeV_FD, 1E-6);
   }
@@ -109,8 +109,8 @@ public class NormalPriceFunctionTest {
 
       EuropeanVanillaOption optionUp = EuropeanVanillaOption.of(option.getStrike(), T + eps, option.getPutCall());
       EuropeanVanillaOption optionDw = EuropeanVanillaOption.of(option.getStrike(), T - eps, option.getPutCall());
-      double priceTimeUp = FUNCTION.getPriceFunction(optionUp).evaluate(VOL_DATA);
-      double priceTimeDw = FUNCTION.getPriceFunction(optionDw).evaluate(VOL_DATA);
+      double priceTimeUp = FUNCTION.getPriceFunction(optionUp).apply(VOL_DATA);
+      double priceTimeDw = FUNCTION.getPriceFunction(optionDw).apply(VOL_DATA);
       ref = -0.5 * (priceTimeUp - priceTimeDw) / eps;
       double theta = FUNCTION.getTheta(option, VOL_DATA);
       assertEquals(theta, ref, eps);
@@ -128,14 +128,14 @@ public class NormalPriceFunctionTest {
         ITM_CALL, ITM_PUT, OTM_CALL, OTM_PUT, ATM_CALL, ATM_PUT};
     for (EuropeanVanillaOption option : options) {
       double delta = FUNCTION.getDelta(option, ZERO_VOL_DATA);
-      double priceUp = FUNCTION.getPriceFunction(option).evaluate(dataFwUp);
-      double priceDw = FUNCTION.getPriceFunction(option).evaluate(dataFwDw);
+      double priceUp = FUNCTION.getPriceFunction(option).apply(dataFwUp);
+      double priceDw = FUNCTION.getPriceFunction(option).apply(dataFwDw);
       double refDelta = 0.5 * (priceUp - priceDw) / eps;
       assertEquals(delta, refDelta, eps);
 
       double vega = FUNCTION.getVega(option, ZERO_VOL_DATA);
-      double priceVolUp = FUNCTION.getPriceFunction(option).evaluate(dataVolUp);
-      double price = FUNCTION.getPriceFunction(option).evaluate(ZERO_VOL_DATA);
+      double priceVolUp = FUNCTION.getPriceFunction(option).apply(dataVolUp);
+      double price = FUNCTION.getPriceFunction(option).apply(ZERO_VOL_DATA);
       double refVega = (priceVolUp - price) / eps;
       assertEquals(vega, refVega, eps);
 
@@ -151,8 +151,8 @@ public class NormalPriceFunctionTest {
 
       EuropeanVanillaOption optionUp = EuropeanVanillaOption.of(option.getStrike(), T + eps, option.getPutCall());
       EuropeanVanillaOption optionDw = EuropeanVanillaOption.of(option.getStrike(), T - eps, option.getPutCall());
-      double priceTimeUp = FUNCTION.getPriceFunction(optionUp).evaluate(ZERO_VOL_DATA);
-      double priceTimeDw = FUNCTION.getPriceFunction(optionDw).evaluate(ZERO_VOL_DATA);
+      double priceTimeUp = FUNCTION.getPriceFunction(optionUp).apply(ZERO_VOL_DATA);
+      double priceTimeDw = FUNCTION.getPriceFunction(optionDw).apply(ZERO_VOL_DATA);
       double refTheta = -0.5 * (priceTimeUp - priceTimeDw) / eps;
       double theta = FUNCTION.getTheta(option, ZERO_VOL_DATA);
       assertEquals(theta, refTheta, eps);

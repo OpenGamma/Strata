@@ -5,22 +5,23 @@
  */
 package com.opengamma.strata.math.impl.function.special;
 
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
-import com.opengamma.strata.math.impl.function.Function2D;
 
 /**
  * 
  */
-public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
+public class InverseIncompleteGammaFunction implements DoubleBinaryOperator {
 //TODO either find another implementation or delete this class
 
-  private final Function1D<Double, Double> _lnGamma = new NaturalLogGammaFunction();
+  private final Function<Double, Double> _lnGamma = new NaturalLogGammaFunction();
   private static final double EPS = 1e-8;
 
   //-------------------------------------------------------------------------
   @Override
-  public Double evaluate(Double a, Double p) {
+  public double applyAsDouble(double a, double p) {
     ArgChecker.notNegativeOrZero(a, "a");
     ArgChecker.inRangeExclusive(p, 0d, 1d, "p");
     double x;
@@ -29,8 +30,8 @@ public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
     double u;
     double pp, lna1 = 0, afac = 0;
     double a1 = a - 1;
-    Function1D<Double, Double> gammaIncomplete = new IncompleteGammaFunction(a);
-    double gln = _lnGamma.evaluate(a);
+    Function<Double, Double> gammaIncomplete = new IncompleteGammaFunction(a);
+    double gln = _lnGamma.apply(a);
     if (a > 1) {
       lna1 = Math.log(a1);
       afac = Math.exp(a1 * (lna1 - 1) - gln);
@@ -53,7 +54,7 @@ public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
       if (x <= 0) {
         return 0.;
       }
-      err = gammaIncomplete.evaluate(x) - p;
+      err = gammaIncomplete.apply(x) - p;
       if (a > 1) {
         t = afac * Math.exp(-(x - a1) + a1 * (Math.log(x) - lna1));
       } else {

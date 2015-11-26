@@ -7,26 +7,26 @@ package com.opengamma.strata.math.impl.minimization;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.testng.Assert;
+import java.util.function.Function;
 
-import com.opengamma.strata.math.impl.function.Function1D;
+import org.testng.Assert;
 
 /**
  * Abstract test.
  */
 public abstract class Minimizer1DTestCase {
   private static final double EPS = 1e-5;
-  private static final Function1D<Double, Double> QUADRATIC = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> QUADRATIC = new Function<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return x * x + 7 * x + 12;
     }
 
   };
-  private static final Function1D<Double, Double> QUINTIC = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> QUINTIC = new Function<Double, Double>() {
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 1 + x * (-3 + x * (-9 + x * (-1 + x * (4 + x))));
     }
   };

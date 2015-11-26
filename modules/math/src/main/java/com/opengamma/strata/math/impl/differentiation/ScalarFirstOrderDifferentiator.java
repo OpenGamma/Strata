@@ -5,9 +5,10 @@
  */
 package com.opengamma.strata.math.impl.differentiation;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Differentiates a scalar function with respect to its argument using finite difference.
@@ -63,34 +64,34 @@ public class ScalarFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<Double, Double> differentiate(Function1D<Double, Double> function) {
+  public Function<Double, Double> differentiate(Function<Double, Double> function) {
     ArgChecker.notNull(function, "function");
     switch (differenceType) {
       case FORWARD:
-        return new Function1D<Double, Double>() {
+        return new Function<Double, Double>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public Double evaluate(Double x) {
+          public Double apply(Double x) {
             ArgChecker.notNull(x, "x");
-            return (function.evaluate(x + eps) - function.evaluate(x)) / eps;
+            return (function.apply(x + eps) - function.apply(x)) / eps;
           }
         };
       case CENTRAL:
-        return new Function1D<Double, Double>() {
+        return new Function<Double, Double>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public Double evaluate(Double x) {
+          public Double apply(Double x) {
             ArgChecker.notNull(x, "x");
-            return (function.evaluate(x + eps) - function.evaluate(x - eps)) / twoEps;
+            return (function.apply(x + eps) - function.apply(x - eps)) / twoEps;
           }
         };
       case BACKWARD:
-        return new Function1D<Double, Double>() {
+        return new Function<Double, Double>() {
           @SuppressWarnings("synthetic-access")
           @Override
-          public Double evaluate(Double x) {
+          public Double apply(Double x) {
             ArgChecker.notNull(x, "x");
-            return (function.evaluate(x) - function.evaluate(x - eps)) / eps;
+            return (function.apply(x) - function.apply(x - eps)) / eps;
           }
         };
       default:
@@ -100,9 +101,9 @@ public class ScalarFirstOrderDifferentiator
 
   //-------------------------------------------------------------------------
   @Override
-  public Function1D<Double, Double> differentiate(
-      Function1D<Double, Double> function,
-      Function1D<Double, Boolean> domain) {
+  public Function<Double, Double> differentiate(
+      Function<Double, Double> function,
+      Function<Double, Boolean> domain) {
 
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(domain, "domain");
@@ -110,33 +111,33 @@ public class ScalarFirstOrderDifferentiator
     double[] wCent = new double[] {-1. / twoEps, 0., 1. / twoEps};
     double[] wBack = new double[] {1. / twoEps, -4. / twoEps, 3. / twoEps};
 
-    return new Function1D<Double, Double>() {
+    return new Function<Double, Double>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         ArgChecker.notNull(x, "x");
-        ArgChecker.isTrue(domain.evaluate(x), "point {} is not in the function domain", x.toString());
+        ArgChecker.isTrue(domain.apply(x), "point {} is not in the function domain", x.toString());
 
         double[] y = new double[3];
         double[] w;
 
-        if (!domain.evaluate(x + eps)) {
-          if (!domain.evaluate(x - eps)) {
+        if (!domain.apply(x + eps)) {
+          if (!domain.apply(x - eps)) {
             throw new MathException("cannot get derivative at point " + x.toString());
           }
-          y[0] = function.evaluate(x - twoEps);
-          y[1] = function.evaluate(x - eps);
-          y[2] = function.evaluate(x);
+          y[0] = function.apply(x - twoEps);
+          y[1] = function.apply(x - eps);
+          y[2] = function.apply(x);
           w = wBack;
         } else {
-          if (!domain.evaluate(x - eps)) {
-            y[0] = function.evaluate(x);
-            y[1] = function.evaluate(x + eps);
-            y[2] = function.evaluate(x + twoEps);
+          if (!domain.apply(x - eps)) {
+            y[0] = function.apply(x);
+            y[1] = function.apply(x + eps);
+            y[2] = function.apply(x + twoEps);
             w = wFwd;
           } else {
-            y[0] = function.evaluate(x - eps);
-            y[2] = function.evaluate(x + eps);
+            y[0] = function.apply(x - eps);
+            y[2] = function.apply(x + eps);
             w = wCent;
           }
         }

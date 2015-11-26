@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.calibration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -23,7 +24,6 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveParameterSize;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
@@ -175,9 +175,9 @@ final class StandardCurveCalibrator implements CurveCalibrator {
       ImmutableList<CurveParameterSize> curveOrder) {
 
     // setup for calibration
-    Function1D<DoubleArray, DoubleArray> valueCalculator =
+    Function<DoubleArray, DoubleArray> valueCalculator =
         new CalibrationValue(trades, measures, providerGenerator);
-    Function1D<DoubleArray, DoubleMatrix> derivativeCalculator =
+    Function<DoubleArray, DoubleMatrix> derivativeCalculator =
         new CalibrationDerivative(trades, measures, providerGenerator, curveOrder);
 
     // calibrate

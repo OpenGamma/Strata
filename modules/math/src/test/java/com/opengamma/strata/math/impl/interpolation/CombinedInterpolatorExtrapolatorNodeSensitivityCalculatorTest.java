@@ -7,10 +7,11 @@ package com.opengamma.strata.math.impl.interpolation;
 
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
+import java.util.function.Function;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
@@ -28,10 +29,10 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorTest {
   private static final CombinedInterpolatorExtrapolator COMBINED1 = new CombinedInterpolatorExtrapolator(LINEAR);
   private static final CombinedInterpolatorExtrapolator COMBINED2 = new CombinedInterpolatorExtrapolator(LINEAR, LEFT);
   private static final CombinedInterpolatorExtrapolator COMBINED3 = new CombinedInterpolatorExtrapolator(LINEAR, LEFT, RIGHT);
-  private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> F = new Function<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 3 * x + 11;
     }
 
@@ -43,7 +44,7 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorTest {
     Y = new double[n];
     for (int i = 0; i < n; i++) {
       X[i] = i;
-      Y[i] = F.evaluate(X[i]);
+      Y[i] = F.apply(X[i]);
     }
     DATA = new ArrayInterpolator1DDataBundle(X, Y);
   }

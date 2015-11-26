@@ -5,19 +5,20 @@
  */
 package com.opengamma.strata.math.impl.linearalgebra;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Direct inversion of a tridiagonal matrix using the method from
  * "R. Usmani, Inversion of a tridiagonal Jacobi matrix, Linear Algebra Appl. 212/213 (1994) 413-414."
  */
-public class InverseTridiagonalMatrixCalculator extends Function1D<TridiagonalMatrix, DoubleMatrix> {
+public class InverseTridiagonalMatrixCalculator implements Function<TridiagonalMatrix, DoubleMatrix> {
 
   @Override
-  public DoubleMatrix evaluate(TridiagonalMatrix x) {
+  public DoubleMatrix apply(TridiagonalMatrix x) {
     ArgChecker.notNull(x, "x");
     double[] a = x.getDiagonalData();
     double[] b = x.getUpperSubDiagonalData();

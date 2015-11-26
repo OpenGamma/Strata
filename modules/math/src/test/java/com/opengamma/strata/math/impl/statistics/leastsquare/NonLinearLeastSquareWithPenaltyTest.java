@@ -8,12 +8,13 @@ package com.opengamma.strata.math.impl.statistics.leastsquare;
 import static com.opengamma.strata.math.impl.interpolation.PenaltyMatrixGenerator.getPenaltyMatrix;
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.apache.commons.math3.random.Well44497b;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 
@@ -41,18 +42,18 @@ public class NonLinearLeastSquareWithPenaltyTest {
     double[] obs = new double[] {0, 1.0, 1.0, 1.0, 0.0, 0.0};
     int n = onIndex.length;
 
-    Function1D<DoubleArray, DoubleArray> func = new Function1D<DoubleArray, DoubleArray>() {
+    Function<DoubleArray, DoubleArray> func = new Function<DoubleArray, DoubleArray>() {
 
       @Override
-      public DoubleArray evaluate(DoubleArray x) {
+      public DoubleArray apply(DoubleArray x) {
         return DoubleArray.of(n, i -> x.get(onIndex[i]));
       }
     };
 
-    Function1D<DoubleArray, DoubleMatrix> jac = new Function1D<DoubleArray, DoubleMatrix>() {
+    Function<DoubleArray, DoubleMatrix> jac = new Function<DoubleArray, DoubleMatrix>() {
 
       @Override
-      public DoubleMatrix evaluate(DoubleArray x) {
+      public DoubleMatrix apply(DoubleArray x) {
         return DoubleMatrix.of(
             n,
             nWeights,

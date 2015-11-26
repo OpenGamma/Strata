@@ -79,7 +79,7 @@ public class GaussJacobiWeightAndAbscissaFunction implements QuadratureWeightAnd
           GAMMA_FUNCTION.applyAsDouble(_alpha + n) * GAMMA_FUNCTION.applyAsDouble(_beta + n) /
               CombinatoricsUtils.factorialDouble(n) / GAMMA_FUNCTION.applyAsDouble(n + _c + 1) * d *
               Math.pow(2, _c)
-              / (derivative.evaluate(root) * previous.evaluate(root));
+              / (derivative.applyAsDouble(root) * previous.applyAsDouble(root));
     }
     return new GaussianQuadratureData(x, w);
   }

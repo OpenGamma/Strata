@@ -6,9 +6,9 @@
 package com.opengamma.strata.math.impl.statistics.distribution;
 
 import java.util.Date;
+import java.util.function.DoubleBinaryOperator;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function2D;
 import com.opengamma.strata.math.impl.function.special.InverseIncompleteGammaFunction;
 
 import cern.jet.random.ChiSquare;
@@ -36,7 +36,7 @@ import cern.jet.random.engine.RandomEngine;
  */
 public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
 
-  private final Function2D<Double, Double> _inverseFunction = new InverseIncompleteGammaFunction();
+  private final DoubleBinaryOperator _inverseFunction = new InverseIncompleteGammaFunction();
   private final ChiSquare _chiSquare;
   private final double _degrees;
 
@@ -83,7 +83,7 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
   public double getInverseCDF(Double p) {
     ArgChecker.notNull(p, "p");
     ArgChecker.isTrue(p >= 0 && p <= 1, "Probability must lie between 0 and 1");
-    return 2 * _inverseFunction.evaluate(0.5 * _degrees, p);
+    return 2 * _inverseFunction.applyAsDouble(0.5 * _degrees, p);
   }
 
   /**

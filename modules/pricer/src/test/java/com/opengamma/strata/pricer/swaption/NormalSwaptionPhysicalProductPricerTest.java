@@ -203,7 +203,7 @@ public class NormalSwaptionPhysicalProductPricerTest {
     NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(pvbp), volatility);
     double expiry = NORMAL_VOL_SWAPTION_PROVIDER_USD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
     EuropeanVanillaOption option = EuropeanVanillaOption.of(STRIKE, expiry, PutCall.PUT);
-    double pvExpected = NORMAL.getPriceFunction(option).evaluate(normalData);
+    double pvExpected = NORMAL.getPriceFunction(option).apply(normalData);
     CurrencyAmount pvComputed =
         PRICER_SWAPTION_NORMAL.presentValue(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(pvComputed.getCurrency(), USD);

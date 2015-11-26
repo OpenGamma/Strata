@@ -7,10 +7,11 @@ package com.opengamma.strata.math.impl.rootfinding;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Test.
@@ -20,43 +21,29 @@ public class NewtonRaphsonSingleRootFinderTest {
   private static final DoubleFunction1D F1 = new DoubleFunction1D() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public double applyAsDouble(double x) {
       return x * x * x - 6 * x * x + 11 * x - 106;
     }
 
     @Override
     public DoubleFunction1D derivative() {
-      return new DoubleFunction1D() {
-
-        @Override
-        public Double evaluate(final Double x) {
-          return 3 * x * x - 12 * x + 11;
-        }
-
-      };
+      return x -> 3 * x * x - 12 * x + 11;
     }
 
   };
-  private static final Function1D<Double, Double> F2 = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> F2 = new Function<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return x * x * x - 6 * x * x + 11 * x - 106;
     }
 
   };
-  private static final Function1D<Double, Double> DF1 = new Function1D<Double, Double>() {
+  private static final DoubleFunction1D DF1 = x -> 3 * x * x - 12 * x + 11;
+  private static final Function<Double, Double> DF2 = new Function<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
-      return 3 * x * x - 12 * x + 11;
-    }
-
-  };
-  private static final Function1D<Double, Double> DF2 = new Function1D<Double, Double>() {
-
-    @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 3 * x * x - 12 * x + 11;
     }
 
@@ -79,7 +66,7 @@ public class NewtonRaphsonSingleRootFinderTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction1() {
-    ROOT_FINDER.getRoot((Function1D<Double, Double>) null, X1, X2);
+    ROOT_FINDER.getRoot((Function<Double, Double>) null, X1, X2);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -159,12 +146,12 @@ public class NewtonRaphsonSingleRootFinderTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDerivative4() {
-    ROOT_FINDER.getRoot(F2, (Function1D<Double, Double>) null, X);
+    ROOT_FINDER.getRoot(F2, (Function<Double, Double>) null, X);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction5() {
-    ROOT_FINDER.getRoot((Function1D<Double, Double>) null, X);
+    ROOT_FINDER.getRoot((Function<Double, Double>) null, X);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
