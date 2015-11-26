@@ -62,7 +62,7 @@ public final class IborFutureCurveNode
    * If empty, a default label will be created when the metadata is built.
    * The default label depends on the valuation date, so cannot be created in the node.
    */
-  @PropertyDefinition(get = "private", validate = "notNull")
+  @PropertyDefinition(validate = "notNull")
   private final String label;
 
   //-------------------------------------------------------------------------
@@ -237,7 +237,7 @@ public final class IborFutureCurveNode
    * The default label depends on the valuation date, so cannot be created in the node.
    * @return the value of the property, not null
    */
-  private String getLabel() {
+  public String getLabel() {
     return label;
   }
 

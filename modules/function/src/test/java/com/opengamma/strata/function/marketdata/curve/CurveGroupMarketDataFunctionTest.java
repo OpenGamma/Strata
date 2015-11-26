@@ -301,7 +301,7 @@ public class CurveGroupMarketDataFunctionTest {
    * Tests
    */
   public void duplicateInputDataKeys() {
-    FxSwapTemplate template = FxSwapTemplate.of(Period.ZERO, FxSwapConventions.EUR_USD);
+    FxSwapTemplate template = FxSwapTemplate.of(Period.ofMonths(1), FxSwapConventions.EUR_USD);
     QuoteKey pointsKey1 = QuoteKey.of(StandardId.of("test", "1"));
     QuoteKey pointsKey2 = QuoteKey.of(StandardId.of("test", "2"));
     FxSwapCurveNode node1 = FxSwapCurveNode.of(template, pointsKey1);
