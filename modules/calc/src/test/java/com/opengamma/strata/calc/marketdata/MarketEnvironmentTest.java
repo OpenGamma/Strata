@@ -6,9 +6,11 @@
 package com.opengamma.strata.calc.marketdata;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 import org.testng.annotations.Test;
@@ -87,6 +89,7 @@ public class MarketEnvironmentTest {
         .build();
 
     MarketEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(LocalDate.of(2011, 3, 8))
         .addTimeSeries(TEST_ID1, timeSeries1)
         .addTimeSeries(TEST_ID2, timeSeries2)
         .addValue(TEST_ID1, 1d)
@@ -100,6 +103,10 @@ public class MarketEnvironmentTest {
     assertThat(marketData.containsTimeSeries(TEST_ID1)).isFalse();
     assertThat(marketData.containsTimeSeries(TEST_ID2)).isTrue();
     assertThat(marketData.getTimeSeries(TEST_ID2)).isEqualTo(timeSeries2);
+  }
+
+  public void valuationDateRequired() {
+    assertThrowsIllegalArg(() -> MarketEnvironment.builder().build(), "Valuation date must be specified");
   }
 
   private static final class TestId implements ObservableId {

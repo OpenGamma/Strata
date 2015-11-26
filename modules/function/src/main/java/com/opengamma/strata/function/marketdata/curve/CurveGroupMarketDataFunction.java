@@ -6,9 +6,9 @@
 package com.opengamma.strata.function.marketdata.curve;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static java.util.stream.Collectors.toMap;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,8 +46,10 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   // TODO Where should the root finder config come from?
   //   Should it be possible to override it for each call? Put it in MarketDataConfig?
   //   Is it a system-wide setting?
+
   /**
-   * Creates a new function for building curve groups that delegates to {@code curveBuilder} to perform calibration.
+   * Creates a new function for building curve groups that delegates to a {@link CurveCalibrator}
+   * to perform calibration.
    *
    * @param rootFinderConfig  the configuration for the root finder used when calibrating curves
    * @param measures  the measures used for calibration
@@ -58,6 +60,15 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         rootFinderConfig.getRelativeTolerance(),
         rootFinderConfig.getMaximumSteps(),
         measures);
+  }
+
+  /**
+   * Creates a new function for building curve groups that delegates to {@code curveCalibrator} to perform calibration.
+   *
+   * @param curveCalibrator  performs the calibration
+   */
+  public CurveGroupMarketDataFunction(CurveCalibrator curveCalibrator) {
+    this.curveCalibrator = curveCalibrator;
   }
 
   //-------------------------------------------------------------------------
@@ -164,10 +175,28 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * @return the underlying quotes from the input data
    */
   private static MarketData inputsByKey(List<CurveInputs> inputs) {
-    Map<? extends MarketDataKey<?>, ?> valueMap = inputs.stream()
-        .flatMap(pr -> pr.getMarketData().entrySet().stream())
-        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-    return MarketData.of(valueMap);
+    Map<MarketDataKey<?>, Object> marketDataMap = new HashMap<>();
+
+    for (CurveInputs input : inputs) {
+      Map<? extends MarketDataKey<?>, ?> inputMarketData = input.getMarketData();
+
+      for (Map.Entry<? extends MarketDataKey<?>, ?> entry : inputMarketData.entrySet()) {
+        Object existingValue = marketDataMap.get(entry.getKey());
+
+        // If the same key is used by multiple different curves the corresponding market data value must be equal
+        if (existingValue == null) {
+          marketDataMap.put(entry.getKey(), entry.getValue());
+        } else if (!existingValue.equals(entry.getValue())) {
+          throw new IllegalArgumentException(
+              Messages.format(
+                  "Multiple unequal values found for key {}. Values: {} and {}",
+                  entry.getKey(),
+                  existingValue,
+                  entry.getValue()));
+        }
+      }
+    }
+    return MarketData.of(marketDataMap);
   }
 
   private CurveGroup buildGroup(
