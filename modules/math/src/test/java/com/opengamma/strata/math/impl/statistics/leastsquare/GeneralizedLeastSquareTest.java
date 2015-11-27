@@ -20,9 +20,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.interpolation.BasisFunctionAggregation;
 import com.opengamma.strata.math.impl.interpolation.BasisFunctionGenerator;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.DoubleQuadraticInterpolator1D;
-import com.opengamma.strata.math.impl.interpolation.FlatExtrapolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
+import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.PSplineFitter;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
@@ -258,7 +257,9 @@ public class GeneralizedLeastSquareTest {
 
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
 
-    final Interpolator1D interpolator = new CombinedInterpolatorExtrapolator(new DoubleQuadraticInterpolator1D(), new FlatExtrapolator1D());
+    final Interpolator1D interpolator = new CombinedInterpolatorExtrapolator(
+        Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE);
 
     final double[] xData = new double[] {7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5, 10 };
     final double[] yData = new double[] {0.972452371,

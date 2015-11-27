@@ -5,9 +5,6 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import java.io.Serializable;
-
-import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
@@ -20,15 +17,10 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DPiecewise
  * in {@link ProductPiecewisePolynomialInterpolator1D}.
  */
 public class ProductPolynomialExtrapolator1D
-    implements CurveExtrapolator, Extrapolator1D, Serializable {
+    implements Extrapolator1D {
 
   /** The extrapolator name. */
   public static final String NAME = "ProductPolynomial";
-
-  /**
-   * The serialization version id.
-   */
-  private static final long serialVersionUID = 1L;
 
   private static final double SMALL = 1e-14;
 
@@ -52,11 +44,6 @@ public class ProductPolynomialExtrapolator1D
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public String getName() {
-    return NAME;
-  }
-
   /**
    * {@inheritDoc}
    * For small Math.abs(value), this method returns the exact value if clamped at (0,0), 

@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
@@ -15,7 +14,6 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
@@ -27,7 +25,7 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
  */
 @BeanDefinition(style = "light", constructorScope = "public")
 public final class ExponentialExtrapolator1D
-    implements CurveExtrapolator, Extrapolator1D, ImmutableBean, Serializable {
+    implements Extrapolator1D, ImmutableBean {
 
   /** The extrapolator name. */
   public static final String NAME = "Exponential";
@@ -64,11 +62,6 @@ public final class ExponentialExtrapolator1D
       return getRightSensitivities(data, value);
     }
     throw new IllegalArgumentException("Value " + value + " was within data range");
-  }
-
-  @Override
-  public String getName() {
-    return NAME;
   }
 
   private double leftExtrapolate(Interpolator1DDataBundle data, double value) {
@@ -143,11 +136,6 @@ public final class ExponentialExtrapolator1D
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
-
-  /**
-   * The serialization version id.
-   */
-  private static final long serialVersionUID = 1L;
 
   /**
    * Creates an instance.

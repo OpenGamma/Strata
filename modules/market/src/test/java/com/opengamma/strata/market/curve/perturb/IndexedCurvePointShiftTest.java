@@ -14,7 +14,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -22,7 +21,8 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.TestingCurve;
-import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
+import com.opengamma.strata.market.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 
 /**
  * Test {@link IndexedCurvePointShift}.
@@ -30,7 +30,7 @@ import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
 @Test
 public class IndexedCurvePointShiftTest {
 
-  private static final CurveInterpolator INTERPOLATOR = new LogLinearInterpolator1D();
+  private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LOG_LINEAR;
 
   public void absolute() {
     IndexedCurvePointShift shift = IndexedCurvePointShift.absolute(0, 0.1d);

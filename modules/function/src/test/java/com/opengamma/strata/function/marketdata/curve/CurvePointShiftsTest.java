@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ShiftType;
@@ -33,7 +32,8 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.perturb.CurvePointShift;
-import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
+import com.opengamma.strata.market.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 
 /**
  * Test {@link CurvePointShifts}.
@@ -45,7 +45,7 @@ public class CurvePointShiftsTest {
   private static final String TNR_1M = "1M";
   private static final String TNR_3M = "3M";
   private static final String TNR_6M = "6M";
-  private static final CurveInterpolator INTERPOLATOR = new LogLinearInterpolator1D();
+  private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LOG_LINEAR;
 
   public void absolute() {
     List<SimpleCurveNodeMetadata> nodeMetadata = ImmutableList.of(

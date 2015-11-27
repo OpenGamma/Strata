@@ -3,9 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.basics.interpolator;
+package com.opengamma.strata.market.interpolator;
 
 import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
@@ -13,9 +14,6 @@ import com.opengamma.strata.collect.named.Named;
 
 /**
  * Interface for extrapolators which extrapolate beyond the ends of a curve.
- * <p>
- * This is a marker interface implemented by legacy extrapolator implementations. At some point it will
- * be expanded to include extrapolation operations.
  */
 public interface CurveExtrapolator extends Named {
 
@@ -41,6 +39,19 @@ public interface CurveExtrapolator extends Named {
    * @return the extended enum helper
    */
   public static ExtendedEnum<CurveExtrapolator> extendedEnum() {
-    return CurveExtrapolatorHelper.ENUM_LOOKUP;
+    return CurveExtrapolators.ENUM_LOOKUP;
   }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the name that uniquely identifies this extrapolator.
+   * <p>
+   * This name is used in serialization and can be parsed using {@link #of(String)}.
+   * 
+   * @return the unique name
+   */
+  @ToString
+  @Override
+  public abstract String getName();
+
 }

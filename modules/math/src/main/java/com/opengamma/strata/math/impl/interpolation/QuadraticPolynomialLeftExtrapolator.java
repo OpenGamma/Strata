@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
@@ -16,7 +15,6 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
@@ -29,7 +27,7 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
  */
 @BeanDefinition(style = "light", constructorScope = "public")
 public final class QuadraticPolynomialLeftExtrapolator
-    implements CurveExtrapolator, Extrapolator1D, ImmutableBean, Serializable {
+    implements Extrapolator1D, ImmutableBean {
 
   /** The extrapolator name. */
   public static final String NAME = "QuadraticLeft";
@@ -48,11 +46,6 @@ public final class QuadraticPolynomialLeftExtrapolator
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public String getName() {
-    return NAME;
-  }
-
   @Override
   public double extrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
@@ -148,11 +141,6 @@ public final class QuadraticPolynomialLeftExtrapolator
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
-
-  /**
-   * The serialization version id.
-   */
-  private static final long serialVersionUID = 1L;
 
   /**
    * Creates an instance.

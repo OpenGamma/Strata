@@ -5,13 +5,12 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * Interface for extrapolators which can extrapolate beyond the ends of a set of data.
  */
-public interface Extrapolator1D extends Named {
+public interface Extrapolator1D {
 
   /**
    * Returns an extrapolated output value for the specified input value, interpolator and data bundle.
