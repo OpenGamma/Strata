@@ -12,18 +12,17 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * 
  */
-public class Interpolator1DQuadraticSplineDataBundle implements Interpolator1DDataBundle {
+public class Interpolator1DQuadraticSplineDataBundle
+    extends ForwardingInterpolator1DDataBundle {
 
-  private final Interpolator1DDataBundle _underlyingData;
   private final double[] _a;
   private final double[] _b;
 
   public Interpolator1DQuadraticSplineDataBundle(Interpolator1DDataBundle underlyingData) {
-    ArgChecker.notNull(underlyingData, "underlying data");
-    _underlyingData = underlyingData;
-    double[] x = _underlyingData.getKeys();
-    double[] h = _underlyingData.getValues();
-    int n = _underlyingData.size();
+    super(underlyingData);
+    double[] x = underlyingData.getKeys();
+    double[] h = underlyingData.getValues();
+    int n = underlyingData.size();
     double[] dx = new double[n];
     dx[0] = x[0];
     for (int i = 1; i < n; i++) {
@@ -31,7 +30,7 @@ public class Interpolator1DQuadraticSplineDataBundle implements Interpolator1DDa
     }
     _a = new double[n + 1];
     _b = new double[n + 1];
-    _a[0] = Math.sqrt(_underlyingData.firstValue() / _underlyingData.firstKey());
+    _a[0] = Math.sqrt(underlyingData.firstValue() / underlyingData.firstKey());
 
     for (int i = 1; i < n; i++) {
       _a[i] = _a[i - 1] + _b[i - 1] * dx[i - 1];
@@ -49,39 +48,9 @@ public class Interpolator1DQuadraticSplineDataBundle implements Interpolator1DDa
   }
 
   @Override
-  public boolean containsKey(double key) {
-    return _underlyingData.containsKey(key);
-  }
-
-  @Override
-  public double firstKey() {
-    return _underlyingData.firstKey();
-  }
-
-  @Override
-  public double firstValue() {
-    return _underlyingData.firstValue();
-  }
-
-  @Override
-  public double get(double key) {
-    return _underlyingData.get(key);
-  }
-
-  @Override
-  public InterpolationBoundedValues getBoundedValues(double key) {
-    return _underlyingData.getBoundedValues(key);
-  }
-
-  @Override
-  public double[] getKeys() {
-    return _underlyingData.getKeys();
-  }
-
-  @Override
   public int getLowerBoundIndex(double value) {
-    double[] keys = _underlyingData.getKeys();
-    int n = _underlyingData.size();
+    double[] keys = getUnderlying().getKeys();
+    int n = getUnderlying().size();
     if (value < keys[0]) {
       return 0;
     }
@@ -98,41 +67,6 @@ public class Interpolator1DQuadraticSplineDataBundle implements Interpolator1DDa
       index--;
     }
     return index;
-  }
-
-  @Override
-  public double getLowerBoundKey(double value) {
-    return _underlyingData.getLowerBoundKey(value);
-  }
-
-  @Override
-  public double[] getValues() {
-    return _underlyingData.getValues();
-  }
-
-  @Override
-  public double higherKey(double key) {
-    return _underlyingData.higherKey(key);
-  }
-
-  @Override
-  public double higherValue(double key) {
-    return _underlyingData.higherValue(key);
-  }
-
-  @Override
-  public double lastKey() {
-    return _underlyingData.lastKey();
-  }
-
-  @Override
-  public double lastValue() {
-    return _underlyingData.lastValue();
-  }
-
-  @Override
-  public int size() {
-    return _underlyingData.size();
   }
 
   @Override

@@ -13,10 +13,10 @@ import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWi
 /**
  * Data bundle for PiecewisePolynomialInterpolator1D
  */
-public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1DDataBundle {
+public class Interpolator1DPiecewisePoynomialDataBundle
+    extends ForwardingInterpolator1DDataBundle {
 
   private final PiecewisePolynomialResultsWithSensitivity _poly;
-  private final Interpolator1DDataBundle _underlyingData;
 
   /**
    * Constructor where coefficients for interpolant and its node sensitivity are computed 
@@ -24,10 +24,8 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
    * @param method {@link PiecewisePolynomialInterpolator}
    */
   public Interpolator1DPiecewisePoynomialDataBundle(Interpolator1DDataBundle underlyingData, PiecewisePolynomialInterpolator method) {
-    ArgChecker.notNull(underlyingData, "underlying data");
+    super(underlyingData);
     ArgChecker.notNull(method, "method");
-
-    _underlyingData = underlyingData;
     _poly = method.interpolateWithSensitivity(underlyingData.getKeys(), underlyingData.getValues());
   }
 
@@ -38,10 +36,8 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
    * @param rightCond  Condition on right endpoint
    */
   public Interpolator1DPiecewisePoynomialDataBundle(Interpolator1DDataBundle underlyingData, PiecewisePolynomialInterpolator method, double leftCond, double rightCond) {
-    ArgChecker.notNull(underlyingData, "underlying data");
+    super(underlyingData);
     ArgChecker.notNull(method, "method");
-
-    _underlyingData = underlyingData;
     double[] yValues = underlyingData.getValues();
     int nData = yValues.length;
     double[] yValuesMod = new double[nData + 2];
@@ -80,79 +76,9 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
     for (int i = 0; i < nKnots - 1; i++) {
       values[i] = coefMat.get(i, nCoefs - 1);
     }
-    values[nKnots - 1] = _underlyingData.lastValue();
+    values[nKnots - 1] = getUnderlying().lastValue();
 
     return values;
-  }
-
-  @Override
-  public boolean containsKey(double key) {
-    return _underlyingData.containsKey(key);
-  }
-
-  @Override
-  public double firstKey() {
-    return _underlyingData.firstKey();
-  }
-
-  @Override
-  public double firstValue() {
-    return _underlyingData.firstValue();
-  }
-
-  @Override
-  public double get(double key) {
-    return _underlyingData.get(key);
-  }
-
-  @Override
-  public InterpolationBoundedValues getBoundedValues(double key) {
-    return _underlyingData.getBoundedValues(key);
-  }
-
-  @Override
-  public double[] getKeys() {
-    return _underlyingData.getKeys();
-  }
-
-  @Override
-  public int getLowerBoundIndex(double value) {
-    return _underlyingData.getLowerBoundIndex(value);
-  }
-
-  @Override
-  public double getLowerBoundKey(double value) {
-    return _underlyingData.getLowerBoundKey(value);
-  }
-
-  @Override
-  public double[] getValues() {
-    return _underlyingData.getValues();
-  }
-
-  @Override
-  public double higherKey(double key) {
-    return _underlyingData.higherKey(key);
-  }
-
-  @Override
-  public double higherValue(double key) {
-    return _underlyingData.higherValue(key);
-  }
-
-  @Override
-  public double lastKey() {
-    return _underlyingData.lastKey();
-  }
-
-  @Override
-  public double lastValue() {
-    return _underlyingData.lastValue();
-  }
-
-  @Override
-  public int size() {
-    return _underlyingData.size();
   }
 
   @Override
@@ -165,7 +91,7 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
     int prime = 31;
     int result = 1;
     result = prime * result + _poly.hashCode();
-    result = prime * result + _underlyingData.hashCode();
+    result = prime * result + getUnderlying().hashCode();
     return result;
   }
 
@@ -181,7 +107,7 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
       return false;
     }
     Interpolator1DPiecewisePoynomialDataBundle other = (Interpolator1DPiecewisePoynomialDataBundle) obj;
-    if (!_underlyingData.equals(other._underlyingData)) {
+    if (!getUnderlying().equals(other.getUnderlying())) {
       return false;
     }
     if (!_poly.equals(other._poly)) {

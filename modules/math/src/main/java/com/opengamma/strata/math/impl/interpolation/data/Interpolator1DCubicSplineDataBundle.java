@@ -18,9 +18,9 @@ import com.opengamma.strata.math.impl.linearalgebra.TridiagonalMatrix;
 /**
  * 
  */
-public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBundle {
+public class Interpolator1DCubicSplineDataBundle
+    extends ForwardingInterpolator1DDataBundle {
 
-  private final Interpolator1DDataBundle _underlyingData;
   private double[] _secondDerivatives;
   private double[][] _secondDerivativesSensitivities;
   private final double _leftFirstDev;
@@ -29,8 +29,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
   private final boolean _rightNatural;
 
   public Interpolator1DCubicSplineDataBundle(Interpolator1DDataBundle underlyingData) {
-    ArgChecker.notNull(underlyingData, "underlying data");
-    _underlyingData = underlyingData;
+    super(underlyingData);
     _leftFirstDev = 0;
     _rightFirstDev = 0;
     _leftNatural = true;
@@ -46,8 +45,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
    *  set the value to Double.POSITIVE_INFINITY
    */
   public Interpolator1DCubicSplineDataBundle(Interpolator1DDataBundle underlyingData, double leftGrad, double rightGrad) {
-    ArgChecker.notNull(underlyingData, "underlying data");
-    _underlyingData = underlyingData;
+    super(underlyingData);
     if (Double.isInfinite(leftGrad)) {
       _leftFirstDev = 0;
       _leftNatural = true;
@@ -80,76 +78,6 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
     DoubleMatrix inverseTriDiag = getInverseTridiagonalMatrix(deltaX);
     DoubleArray rhsVector = getRHSVector(deltaYOverDeltaX);
     return ((DoubleArray) OG_ALGEBRA.multiply(inverseTriDiag, rhsVector)).toArray();
-  }
-
-  @Override
-  public boolean containsKey(double key) {
-    return _underlyingData.containsKey(key);
-  }
-
-  @Override
-  public double firstKey() {
-    return _underlyingData.firstKey();
-  }
-
-  @Override
-  public double firstValue() {
-    return _underlyingData.firstValue();
-  }
-
-  @Override
-  public double get(double key) {
-    return _underlyingData.get(key);
-  }
-
-  @Override
-  public InterpolationBoundedValues getBoundedValues(double key) {
-    return _underlyingData.getBoundedValues(key);
-  }
-
-  @Override
-  public double[] getKeys() {
-    return _underlyingData.getKeys();
-  }
-
-  @Override
-  public int getLowerBoundIndex(double value) {
-    return _underlyingData.getLowerBoundIndex(value);
-  }
-
-  @Override
-  public double getLowerBoundKey(double value) {
-    return _underlyingData.getLowerBoundKey(value);
-  }
-
-  @Override
-  public double[] getValues() {
-    return _underlyingData.getValues();
-  }
-
-  @Override
-  public double higherKey(double key) {
-    return _underlyingData.higherKey(key);
-  }
-
-  @Override
-  public double higherValue(double key) {
-    return _underlyingData.higherValue(key);
-  }
-
-  @Override
-  public double lastKey() {
-    return _underlyingData.lastKey();
-  }
-
-  @Override
-  public double lastValue() {
-    return _underlyingData.lastValue();
-  }
-
-  @Override
-  public int size() {
-    return _underlyingData.size();
   }
 
   public double[] getSecondDerivatives() {
@@ -257,7 +185,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
     if (index >= size()) {
       throw new IllegalArgumentException("Index was greater than number of data points");
     }
-    _underlyingData.setYValueAtIndex(index, y);
+    getUnderlying().setYValueAtIndex(index, y);
     _secondDerivatives = null;
     _secondDerivativesSensitivities = null;
   }
@@ -273,7 +201,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
     temp = Double.doubleToLongBits(_rightFirstDev);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + 1237;
-    result = prime * result + ((_underlyingData == null) ? 0 : _underlyingData.hashCode());
+    result = prime * result + ((getUnderlying() == null) ? 0 : getUnderlying().hashCode());
     return result;
   }
 
@@ -289,7 +217,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
       return false;
     }
     Interpolator1DCubicSplineDataBundle other = (Interpolator1DCubicSplineDataBundle) obj;
-    if (!Objects.equals(_underlyingData, other._underlyingData)) {
+    if (!Objects.equals(getUnderlying(), other.getUnderlying())) {
       return false;
     }
     if (Double.doubleToLongBits(_leftFirstDev) != Double.doubleToLongBits(other._leftFirstDev)) {

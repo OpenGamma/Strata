@@ -18,7 +18,7 @@ public class StepInterpolator1D extends Interpolator1D {
   @Override
   public double interpolate(final Interpolator1DDataBundle data, final double value) {
     ArgChecker.notNull(data, "data bundle");
-    return data.get(data.getLowerBoundKey(value));
+    return data.getLowerBoundValue(value);
   }
 
   @Override

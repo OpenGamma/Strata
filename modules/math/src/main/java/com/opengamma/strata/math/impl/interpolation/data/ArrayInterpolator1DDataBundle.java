@@ -87,7 +87,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
 
   @Override
   public boolean containsKey(double key) {
-    return Arrays.binarySearch(_keys, key) >= 0;
+    return indexOf(key) >= 0;
   }
 
   @Override
@@ -101,11 +101,12 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   }
 
   @Override
-  public double get(double key) {
-    int index = Arrays.binarySearch(_keys, key);
-    if (index < 0) {
-      return Double.NaN;
-    }
+  public int indexOf(double key) {
+    return Arrays.binarySearch(_keys, key);
+  }
+
+  @Override
+  public double getIndex(int index) {
     return _values[index];
   }
 
@@ -133,7 +134,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
       throw new IllegalArgumentException("Could not get lower bound index for " + value + ": highest x-value is "
           + _keys[_keys.length - 1]);
     }
-    int index = Arrays.binarySearch(_keys, value);
+    int index = indexOf(value);
     if (index >= 0) {
       // Fast break out if it's an exact match.
       return index;
@@ -155,6 +156,12 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   }
 
   @Override
+  public double getLowerBoundValue(double value) {
+    int index = getLowerBoundIndex(value);
+    return _values[index];
+  }
+
+  @Override
   public double[] getValues() {
     return _values;
   }
@@ -163,7 +170,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   public double higherKey(double key) {
     int index = getHigherIndex(key);
     if (index >= _n) {
-      return Double.NaN;
+      throw new IllegalArgumentException("Key outside valid interpolation range: " + key);
     }
     return _keys[index];
   }
@@ -172,7 +179,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   public double higherValue(double key) {
     int index = getHigherIndex(key);
     if (index >= _n) {
-      return Double.NaN;
+      throw new IllegalArgumentException("Key outside valid interpolation range: " + key);
     }
     return _values[index];
   }

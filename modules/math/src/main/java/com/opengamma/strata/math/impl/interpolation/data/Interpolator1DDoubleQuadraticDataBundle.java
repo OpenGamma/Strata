@@ -13,15 +13,14 @@ import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 /**
  * 
  */
-public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDataBundle {
+public class Interpolator1DDoubleQuadraticDataBundle
+    extends ForwardingInterpolator1DDataBundle {
 
-  private final Interpolator1DDataBundle _underlyingData;
   private RealPolynomialFunction1D[] _quadratics;
   private RealPolynomialFunction1D[] _quadraticsFirstDerivative;
 
   public Interpolator1DDoubleQuadraticDataBundle(Interpolator1DDataBundle underlyingData) {
-    ArgChecker.notNull(underlyingData, "underlying data");
-    _underlyingData = underlyingData;
+    super(underlyingData);
   }
 
   private RealPolynomialFunction1D[] getQuadratics() {
@@ -102,82 +101,12 @@ public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDa
   }
 
   @Override
-  public boolean containsKey(double key) {
-    return _underlyingData.containsKey(key);
-  }
-
-  @Override
-  public double firstKey() {
-    return _underlyingData.firstKey();
-  }
-
-  @Override
-  public double firstValue() {
-    return _underlyingData.firstValue();
-  }
-
-  @Override
-  public double get(double key) {
-    return _underlyingData.get(key);
-  }
-
-  @Override
-  public InterpolationBoundedValues getBoundedValues(double key) {
-    return _underlyingData.getBoundedValues(key);
-  }
-
-  @Override
-  public double[] getKeys() {
-    return _underlyingData.getKeys();
-  }
-
-  @Override
-  public int getLowerBoundIndex(double value) {
-    return _underlyingData.getLowerBoundIndex(value);
-  }
-
-  @Override
-  public double getLowerBoundKey(double value) {
-    return _underlyingData.getLowerBoundKey(value);
-  }
-
-  @Override
-  public double[] getValues() {
-    return _underlyingData.getValues();
-  }
-
-  @Override
-  public double higherKey(double key) {
-    return _underlyingData.higherKey(key);
-  }
-
-  @Override
-  public double higherValue(double key) {
-    return _underlyingData.higherValue(key);
-  }
-
-  @Override
-  public double lastKey() {
-    return _underlyingData.lastKey();
-  }
-
-  @Override
-  public double lastValue() {
-    return _underlyingData.lastValue();
-  }
-
-  @Override
-  public int size() {
-    return _underlyingData.size();
-  }
-
-  @Override
   public void setYValueAtIndex(int index, double y) {
     ArgChecker.notNegative(index, "index");
     if (index >= size()) {
       throw new IllegalArgumentException("Index was greater than number of data points");
     }
-    _underlyingData.setYValueAtIndex(index, y);
+    getUnderlying().setYValueAtIndex(index, y);
     if (_quadratics == null) {
       _quadratics = getQuadratics();
     }
@@ -209,7 +138,7 @@ public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDa
   public int hashCode() {
     int prime = 31;
     int result = 1;
-    result = prime * result + ((_underlyingData == null) ? 0 : _underlyingData.hashCode());
+    result = prime * result + ((getUnderlying() == null) ? 0 : getUnderlying().hashCode());
     return result;
   }
 
@@ -225,7 +154,7 @@ public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDa
       return false;
     }
     Interpolator1DDoubleQuadraticDataBundle other = (Interpolator1DDoubleQuadraticDataBundle) obj;
-    return Objects.equals(_underlyingData, other._underlyingData);
+    return Objects.equals(getUnderlying(), other.getUnderlying());
   }
 
 }

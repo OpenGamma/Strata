@@ -21,12 +21,12 @@ public class StepUpperInterpolator1D extends Interpolator1D {
   public double interpolate(final Interpolator1DDataBundle data, final double x) {
     ArgChecker.notNull(data, "data bundle");
     // For x equal to a key
-    double exactValue = data.get(x);
-    if (!Double.isNaN(exactValue)) {
-      return exactValue;
+    int index = data.indexOf(x);
+    if (index >= 0) {
+      return data.getIndex(index);
     }
     // For intermediary values, return the higher key value.
-    return data.get(data.higherKey(x));
+    return data.higherValue(x);
   }
 
   @Override

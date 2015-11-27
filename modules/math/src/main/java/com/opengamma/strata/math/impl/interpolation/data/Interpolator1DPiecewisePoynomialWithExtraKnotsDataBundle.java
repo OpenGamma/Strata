@@ -17,12 +17,12 @@ import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWi
  * For certain methods of {@link PiecewisePolynomialInterpolator} introducing extra breakpoints, {@link PiecewisePolynomialResultsWithSensitivity} is not well-defined
  * In this case, finite difference approximation is used to derive node sensitivity
  */
-public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements Interpolator1DDataBundle {
+public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle
+    extends ForwardingInterpolator1DDataBundle {
 
   private final PiecewisePolynomialResult _poly;
   private final PiecewisePolynomialResult[] _polyUp;
   private final PiecewisePolynomialResult[] _polyDw;
-  private final Interpolator1DDataBundle _underlyingData;
 
   private static final double EPS = 1.e-7;
   private static final double SMALL = 1.e-14;
@@ -33,10 +33,9 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
    * @param method {@link PiecewisePolynomialInterpolator}
    */
   public Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle(Interpolator1DDataBundle underlyingData, PiecewisePolynomialInterpolator method) {
-    ArgChecker.notNull(underlyingData, "underlying data");
+    super(underlyingData);
     ArgChecker.notNull(method, "method");
 
-    _underlyingData = underlyingData;
     _poly = method.interpolate(underlyingData.getKeys(), underlyingData.getValues());
 
     double[] yValues = underlyingData.getValues();
@@ -115,79 +114,9 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
     for (int i = 0; i < nKnots - 1; i++) {
       values[i] = coefMat.get(i, nCoefs - 1);
     }
-    values[nKnots - 1] = _underlyingData.lastValue();
+    values[nKnots - 1] = getUnderlying().lastValue();
 
     return values;
-  }
-
-  @Override
-  public boolean containsKey(double key) {
-    return _underlyingData.containsKey(key);
-  }
-
-  @Override
-  public double firstKey() {
-    return _underlyingData.firstKey();
-  }
-
-  @Override
-  public double firstValue() {
-    return _underlyingData.firstValue();
-  }
-
-  @Override
-  public double get(double key) {
-    return _underlyingData.get(key);
-  }
-
-  @Override
-  public InterpolationBoundedValues getBoundedValues(double key) {
-    return _underlyingData.getBoundedValues(key);
-  }
-
-  @Override
-  public double[] getKeys() {
-    return _underlyingData.getKeys();
-  }
-
-  @Override
-  public int getLowerBoundIndex(double value) {
-    return _underlyingData.getLowerBoundIndex(value);
-  }
-
-  @Override
-  public double getLowerBoundKey(double value) {
-    return _underlyingData.getLowerBoundKey(value);
-  }
-
-  @Override
-  public double[] getValues() {
-    return _underlyingData.getValues();
-  }
-
-  @Override
-  public double higherKey(double key) {
-    return _underlyingData.higherKey(key);
-  }
-
-  @Override
-  public double higherValue(double key) {
-    return _underlyingData.higherValue(key);
-  }
-
-  @Override
-  public double lastKey() {
-    return _underlyingData.lastKey();
-  }
-
-  @Override
-  public double lastValue() {
-    return _underlyingData.lastValue();
-  }
-
-  @Override
-  public int size() {
-    return _underlyingData.size();
   }
 
   @Override
@@ -200,7 +129,7 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
     int prime = 31;
     int result = 1;
     result = prime * result + _poly.hashCode();
-    result = prime * result + _underlyingData.hashCode();
+    result = prime * result + getUnderlying().hashCode();
     return result;
   }
 
@@ -216,7 +145,7 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
       return false;
     }
     Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle other = (Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle) obj;
-    if (!_underlyingData.equals(other._underlyingData)) {
+    if (!getUnderlying().equals(other.getUnderlying())) {
       return false;
     }
     if (!_poly.equals(other._poly)) {

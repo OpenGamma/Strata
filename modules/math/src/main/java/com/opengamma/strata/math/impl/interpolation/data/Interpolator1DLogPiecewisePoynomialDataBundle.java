@@ -57,8 +57,8 @@ public class Interpolator1DLogPiecewisePoynomialDataBundle extends Interpolator1
   }
 
   @Override
-  public double get(double key) {
-    return Math.exp(super.get(key));
+  public double getIndex(int index) {
+    return Math.exp(super.getIndex(index));
   }
 
   @Override
