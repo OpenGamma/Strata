@@ -157,6 +157,128 @@ public class NormalSwaptionPhysicalProductPricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates the present value delta of the swaption product.
+   * <p>
+   * The present value delta is given by {@code pvbp * normalDelta} where {@code normalDelta} is the first derivative 
+   * of normal price with respect to forward. 
+   * <p>
+   * The result is expressed using the currency of the swapion.
+   * 
+   * @param swaption  the product to price
+   * @param ratesProvider  the rates provider
+   * @param volatilityProvider  the normal volatility provider
+   * @return the present value delta of the swaption product
+   */
+  public CurrencyAmount presentValueDelta(
+      SwaptionProduct swaption,
+      RatesProvider ratesProvider,
+      NormalVolatilitySwaptionProvider volatilityProvider) {
+
+    ExpandedSwaption expanded = swaption.expand();
+    validate(ratesProvider, expanded, volatilityProvider);
+    ZonedDateTime expiryDateTime = expanded.getExpiryDateTime();
+    double expiry = volatilityProvider.relativeTime(expiryDateTime);
+    ExpandedSwap underlying = expanded.getUnderlying();
+    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    if (expiry < 0.0d) { // Option has expired already
+      return CurrencyAmount.of(fixedLeg.getCurrency(), 0.0d);
+    }
+    double forward = swapPricer.parRate(underlying, ratesProvider);
+    double pvbp = swapPricer.getLegPricer().pvbp(fixedLeg, ratesProvider);
+    double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
+    double tenor = volatilityProvider.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
+    double volatility = volatilityProvider.getVolatility(expiryDateTime, tenor, strike, forward);
+    NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(pvbp), volatility);
+    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiry, isCall ? PutCall.CALL : PutCall.PUT);
+    double delta = NORMAL.getDelta(option, normalData) * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d);
+    return CurrencyAmount.of(fixedLeg.getCurrency(), delta);
+  }
+
+  /**
+   * Calculates the present value gamma of the swaption product.
+   * <p>
+   * The present value gamma is given by {@code pvbp * normalGamma} where {@code normalGamma} is the second derivative 
+   * of normal price with respect to forward. 
+   * <p>
+   * The result is expressed using the currency of the swapion.
+   * 
+   * @param swaption  the product to price
+   * @param ratesProvider  the rates provider
+   * @param volatilityProvider  the normal volatility provider
+   * @return the present value gamma of the swaption product
+   */
+  public CurrencyAmount presentValueGamma(
+      SwaptionProduct swaption,
+      RatesProvider ratesProvider,
+      NormalVolatilitySwaptionProvider volatilityProvider) {
+
+    ExpandedSwaption expanded = swaption.expand();
+    validate(ratesProvider, expanded, volatilityProvider);
+    ZonedDateTime expiryDateTime = expanded.getExpiryDateTime();
+    double expiry = volatilityProvider.relativeTime(expiryDateTime);
+    ExpandedSwap underlying = expanded.getUnderlying();
+    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    if (expiry < 0.0d) { // Option has expired already
+      return CurrencyAmount.of(fixedLeg.getCurrency(), 0.0d);
+    }
+    double forward = swapPricer.parRate(underlying, ratesProvider);
+    double pvbp = swapPricer.getLegPricer().pvbp(fixedLeg, ratesProvider);
+    double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
+    double tenor = volatilityProvider.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
+    double volatility = volatilityProvider.getVolatility(expiryDateTime, tenor, strike, forward);
+    NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(pvbp), volatility);
+    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    // Payer at strike is exercise when rate > strike, i.e. call on rate
+    EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiry, isCall ? PutCall.CALL : PutCall.PUT);
+    // option required to pass the strike (in case the swap has non-constant coupon).
+    double gamma = NORMAL.getGamma(option, normalData) * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d);
+    return CurrencyAmount.of(fixedLeg.getCurrency(), gamma);
+  }
+
+  /**
+   * Calculates the present value of the swaption product.
+   * <p>
+   * The present value theta is given by {@code pvbp * normalTheta} where {@code normalTheta} is the minus of 
+   * the normal price sensitivity to {@code timeToExpiry}. 
+   * <p>
+   * The result is expressed using the currency of the swapion.
+   * 
+   * @param swaption  the product to price
+   * @param ratesProvider  the rates provider
+   * @param volatilityProvider  the normal volatility provider
+   * @return the present value theta of the swaption product
+   */
+  public CurrencyAmount presentValueTheta(
+      SwaptionProduct swaption,
+      RatesProvider ratesProvider,
+      NormalVolatilitySwaptionProvider volatilityProvider) {
+
+    ExpandedSwaption expanded = swaption.expand();
+    validate(ratesProvider, expanded, volatilityProvider);
+    ZonedDateTime expiryDateTime = expanded.getExpiryDateTime();
+    double expiry = volatilityProvider.relativeTime(expiryDateTime);
+    ExpandedSwap underlying = expanded.getUnderlying();
+    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    if (expiry < 0.0d) { // Option has expired already
+      return CurrencyAmount.of(fixedLeg.getCurrency(), 0.0d);
+    }
+    double forward = swapPricer.parRate(underlying, ratesProvider);
+    double pvbp = swapPricer.getLegPricer().pvbp(fixedLeg, ratesProvider);
+    double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
+    double tenor = volatilityProvider.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
+    double volatility = volatilityProvider.getVolatility(expiryDateTime, tenor, strike, forward);
+    NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(pvbp), volatility);
+    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    // Payer at strike is exercise when rate > strike, i.e. call on rate
+    EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiry, isCall ? PutCall.CALL : PutCall.PUT);
+    // option required to pass the strike (in case the swap has non-constant coupon).
+    double theta = NORMAL.getTheta(option, normalData) * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d);
+    return CurrencyAmount.of(fixedLeg.getCurrency(), theta);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the present value sensitivity of the swaption product.
    * <p>
    * The present value sensitivity of the product is the sensitivity of the present value to
