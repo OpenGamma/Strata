@@ -143,6 +143,117 @@ public class BlackSwaptionPhysicalProductPricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates the present value delta of the swaption product.
+   * <p>
+   * The present value delta is given by {@code pvbp * blackDelta} where {@code blackDelta} is the first derivative 
+   * of Black price with respect to forward.
+   * <p>
+   * The result is expressed using the currency of the swapion.
+   * 
+   * @param swaption  the product to price
+   * @param ratesProvider  the rates provider
+   * @param volatilityProvider  the Black volatility provider
+   * @return the present value delta of the swaption product
+   */
+  public CurrencyAmount presentValueDelta(
+      SwaptionProduct swaption,
+      RatesProvider ratesProvider,
+      BlackVolatilitySwaptionProvider volatilityProvider) {
+
+    ExpandedSwaption expanded = swaption.expand();
+    validate(ratesProvider, expanded, volatilityProvider);
+    ZonedDateTime expiryDateTime = expanded.getExpiryDateTime();
+    double expiry = volatilityProvider.relativeTime(expiryDateTime);
+    ExpandedSwap underlying = expanded.getUnderlying();
+    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    if (expiry < 0.0d) { // Option has expired already
+      return CurrencyAmount.of(fixedLeg.getCurrency(), 0.0d);
+    }
+    double forward = swapPricer.parRate(underlying, ratesProvider);
+    double pvbp = swapPricer.getLegPricer().pvbp(fixedLeg, ratesProvider);
+    double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
+    double tenor = volatilityProvider.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
+    double volatility = volatilityProvider.getVolatility(expiryDateTime, tenor, strike, forward);
+    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    // Payer at strike is exercise when rate > strike, i.e. call on rate
+    double delta = Math.abs(pvbp) * BlackFormulaRepository.delta(forward, strike, expiry, volatility, isCall);
+    return CurrencyAmount.of(fixedLeg.getCurrency(), delta * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d));
+  }
+
+  /**
+   * Calculates the present value gamma of the swaption product.
+   * <p>
+   * The present value gamma is given by {@code pvbp * blackGamma} where {@code blackGamma} is the second derivative 
+   * of Black price with respect to forward.
+   * <p>
+   * The result is expressed using the currency of the swapion.
+   * 
+   * @param swaption  the product to price
+   * @param ratesProvider  the rates provider
+   * @param volatilityProvider  the Black volatility provider
+   * @return the present value gamma of the swaption product
+   */
+  public CurrencyAmount presentValueGamma(
+      SwaptionProduct swaption,
+      RatesProvider ratesProvider,
+      BlackVolatilitySwaptionProvider volatilityProvider) {
+
+    ExpandedSwaption expanded = swaption.expand();
+    validate(ratesProvider, expanded, volatilityProvider);
+    ZonedDateTime expiryDateTime = expanded.getExpiryDateTime();
+    double expiry = volatilityProvider.relativeTime(expiryDateTime);
+    ExpandedSwap underlying = expanded.getUnderlying();
+    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    if (expiry < 0.0d) { // Option has expired already
+      return CurrencyAmount.of(fixedLeg.getCurrency(), 0.0d);
+    }
+    double forward = swapPricer.parRate(underlying, ratesProvider);
+    double pvbp = swapPricer.getLegPricer().pvbp(fixedLeg, ratesProvider);
+    double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
+    double tenor = volatilityProvider.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
+    double volatility = volatilityProvider.getVolatility(expiryDateTime, tenor, strike, forward);
+    double gamma = Math.abs(pvbp) * BlackFormulaRepository.gamma(forward, strike, expiry, volatility);
+    return CurrencyAmount.of(fixedLeg.getCurrency(), gamma * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d));
+  }
+
+  /**
+   * Calculates the present value theta of the swaption product.
+   * <p>
+   * The present value theta is is given by {@code pvbp * blackTheta} where {@code blackTheta} is the minus of the 
+   * Black price sensitivity to {@code timeToExpiry}.
+   * <p>
+   * The result is expressed using the currency of the swapion.
+   * 
+   * @param swaption  the product to price
+   * @param ratesProvider  the rates provider
+   * @param volatilityProvider  the Black volatility provider
+   * @return the present value theta of the swaption product
+   */
+  public CurrencyAmount presentValueTheta(
+      SwaptionProduct swaption,
+      RatesProvider ratesProvider,
+      BlackVolatilitySwaptionProvider volatilityProvider) {
+
+    ExpandedSwaption expanded = swaption.expand();
+    validate(ratesProvider, expanded, volatilityProvider);
+    ZonedDateTime expiryDateTime = expanded.getExpiryDateTime();
+    double expiry = volatilityProvider.relativeTime(expiryDateTime);
+    ExpandedSwap underlying = expanded.getUnderlying();
+    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    if (expiry < 0.0d) { // Option has expired already
+      return CurrencyAmount.of(fixedLeg.getCurrency(), 0.0d);
+    }
+    double forward = swapPricer.parRate(underlying, ratesProvider);
+    double pvbp = swapPricer.getLegPricer().pvbp(fixedLeg, ratesProvider);
+    double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
+    double tenor = volatilityProvider.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
+    double volatility = volatilityProvider.getVolatility(expiryDateTime, tenor, strike, forward);
+    double theta = Math.abs(pvbp) * BlackFormulaRepository.driftlessTheta(forward, strike, expiry, volatility);
+    return CurrencyAmount.of(fixedLeg.getCurrency(), theta * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the present value sensitivity of the swaption product.
    * <p>
    * The present value sensitivity of the product is the sensitivity of the present value to

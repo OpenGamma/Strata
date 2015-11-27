@@ -241,6 +241,161 @@ public class NormalSwaptionCashParYieldProductPricerTest {
     assertThrowsIllegalArg(() -> PRICER_SWAPTION.presentValue(swaption, RATE_PROVIDER, VOL_PROVIDER));
   }
 
+  //-------------------------------------------------------------------------
+  public void test_presentValueDelta() {
+    CurrencyAmount pvDeltaRecComputed =
+        PRICER_SWAPTION.presentValueDelta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvDeltaPayComputed =
+        PRICER_SWAPTION.presentValueDelta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
+    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
+    double volatility = VOL_PROVIDER.getVolatility(SWAPTION_REC_LONG.getExpiryDateTime(), SWAP_TENOR_YEAR, STRIKE, forward);
+    double discount = RATE_PROVIDER.discountFactor(USD, SETTLE_DATE);
+    NormalFunctionData normalData = NormalFunctionData.of(forward, annuityCash * discount, volatility);
+    double expiry = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiryDateTime());
+    EuropeanVanillaOption optionRec = EuropeanVanillaOption.of(STRIKE, expiry, PutCall.PUT);
+    EuropeanVanillaOption optionPay = EuropeanVanillaOption.of(STRIKE, expiry, PutCall.CALL);
+    double pvDeltaRecExpected = NORMAL.getDelta(optionRec, normalData);
+    double pvDeltaPayExpected = -NORMAL.getDelta(optionPay, normalData);
+    assertEquals(pvDeltaRecComputed.getCurrency(), USD);
+    assertEquals(pvDeltaRecComputed.getAmount(), pvDeltaRecExpected, NOTIONAL * TOL);
+    assertEquals(pvDeltaPayComputed.getCurrency(), USD);
+    assertEquals(pvDeltaPayComputed.getAmount(), pvDeltaPayExpected, NOTIONAL * TOL);
+  }
+
+  public void test_presentValueDelta_at_expiry() {
+    CurrencyAmount pvDeltaRec =
+        PRICER_SWAPTION.presentValueDelta(SWAPTION_REC_LONG_AT_EXPIRY, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvDeltaPay =
+        PRICER_SWAPTION.presentValueDelta(SWAPTION_PAY_SHORT_AT_EXPIRY, RATE_PROVIDER, VOL_PROVIDER);
+    double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
+    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
+    double discount = RATE_PROVIDER.discountFactor(USD, SETTLE_DATE);
+    assertEquals(pvDeltaRec.getAmount(), 0d, NOTIONAL * TOL);
+    assertEquals(pvDeltaPay.getAmount(), -discount * annuityCash, NOTIONAL * TOL);
+  }
+
+  public void test_presentValueDelta_after_expiry() {
+    CurrencyAmount pvDeltaRec = PRICER_SWAPTION.presentValueDelta(SWAPTION_REC_LONG_PAST, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvDeltaPay = PRICER_SWAPTION.presentValueDelta(SWAPTION_PAY_SHORT_PAST, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(pvDeltaRec.getAmount(), 0d, NOTIONAL * TOL);
+    assertEquals(pvDeltaPay.getAmount(), 0d, NOTIONAL * TOL);
+  }
+
+  public void test_presentValueDelta_parity() {
+    CurrencyAmount pvDeltaRecLong = PRICER_SWAPTION.presentValueDelta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvDeltaRecShort = PRICER_SWAPTION.presentValueDelta(SWAPTION_REC_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvDeltaPayLong = PRICER_SWAPTION.presentValueDelta(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvDeltaPayShort = PRICER_SWAPTION.presentValueDelta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(pvDeltaRecLong.getAmount(), -pvDeltaRecShort.getAmount(), NOTIONAL * TOL);
+    assertEquals(pvDeltaPayLong.getAmount(), -pvDeltaPayShort.getAmount(), NOTIONAL * TOL);
+    double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
+    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
+    double discount = RATE_PROVIDER.discountFactor(USD, SETTLE_DATE);
+    double expected = discount * annuityCash;
+    assertEquals(pvDeltaPayLong.getAmount() - pvDeltaRecLong.getAmount(), expected, NOTIONAL * TOL);
+    assertEquals(pvDeltaPayShort.getAmount() - pvDeltaRecShort.getAmount(), -expected, NOTIONAL * TOL);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_presentValueGamma() {
+    CurrencyAmount pvGammaRecComputed =
+        PRICER_SWAPTION.presentValueGamma(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvGammaPayComputed =
+        PRICER_SWAPTION.presentValueGamma(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
+    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
+    double volatility = VOL_PROVIDER.getVolatility(SWAPTION_REC_LONG.getExpiryDateTime(), SWAP_TENOR_YEAR, STRIKE, forward);
+    double discount = RATE_PROVIDER.discountFactor(USD, SETTLE_DATE);
+    NormalFunctionData normalData = NormalFunctionData.of(forward, annuityCash * discount, volatility);
+    double expiry = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiryDateTime());
+    EuropeanVanillaOption optionRec = EuropeanVanillaOption.of(STRIKE, expiry, PutCall.PUT);
+    EuropeanVanillaOption optionPay = EuropeanVanillaOption.of(STRIKE, expiry, PutCall.CALL);
+    double pvGammaRecExpected = NORMAL.getGamma(optionRec, normalData);
+    double pvGammaPayExpected = -NORMAL.getGamma(optionPay, normalData);
+    assertEquals(pvGammaRecComputed.getCurrency(), USD);
+    assertEquals(pvGammaRecComputed.getAmount(), pvGammaRecExpected, NOTIONAL * TOL);
+    assertEquals(pvGammaPayComputed.getCurrency(), USD);
+    assertEquals(pvGammaPayComputed.getAmount(), pvGammaPayExpected, NOTIONAL * TOL);
+  }
+
+  public void test_presentValueGamma_at_expiry() {
+    CurrencyAmount pvGammaRec =
+        PRICER_SWAPTION.presentValueGamma(SWAPTION_REC_LONG_AT_EXPIRY, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvGammaPay =
+        PRICER_SWAPTION.presentValueGamma(SWAPTION_PAY_SHORT_AT_EXPIRY, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(pvGammaRec.getAmount(), 0d, NOTIONAL * TOL);
+    assertEquals(pvGammaPay.getAmount(), 0d, NOTIONAL * TOL);
+  }
+
+  public void test_presentValueGamma_after_expiry() {
+    CurrencyAmount pvGammaRec = PRICER_SWAPTION.presentValueGamma(SWAPTION_REC_LONG_PAST, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvGammaPay = PRICER_SWAPTION.presentValueGamma(SWAPTION_PAY_SHORT_PAST, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(pvGammaRec.getAmount(), 0d, NOTIONAL * TOL);
+    assertEquals(pvGammaPay.getAmount(), 0d, NOTIONAL * TOL);
+  }
+
+  public void test_presentValueGamma_parity() {
+    CurrencyAmount pvGammaRecLong = PRICER_SWAPTION.presentValueGamma(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvGammaRecShort = PRICER_SWAPTION.presentValueGamma(SWAPTION_REC_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvGammaPayLong = PRICER_SWAPTION.presentValueGamma(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvGammaPayShort = PRICER_SWAPTION.presentValueGamma(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(pvGammaRecLong.getAmount(), -pvGammaRecShort.getAmount(), NOTIONAL * TOL);
+    assertEquals(pvGammaPayLong.getAmount(), -pvGammaPayShort.getAmount(), NOTIONAL * TOL);
+    assertEquals(pvGammaPayLong.getAmount(), pvGammaRecLong.getAmount(), NOTIONAL * TOL);
+    assertEquals(pvGammaPayShort.getAmount(), pvGammaRecShort.getAmount(), NOTIONAL * TOL);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_presentValueTheta() {
+    CurrencyAmount pvThetaRecComputed =
+        PRICER_SWAPTION.presentValueTheta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvThetaPayComputed =
+        PRICER_SWAPTION.presentValueTheta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
+    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
+    double volatility = VOL_PROVIDER.getVolatility(SWAPTION_REC_LONG.getExpiryDateTime(), SWAP_TENOR_YEAR, STRIKE,
+        forward);
+    double discount = RATE_PROVIDER.discountFactor(USD, SETTLE_DATE);
+    NormalFunctionData normalData = NormalFunctionData.of(forward, annuityCash * discount, volatility);
+    double expiry = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiryDateTime());
+    EuropeanVanillaOption optionRec = EuropeanVanillaOption.of(STRIKE, expiry, PutCall.PUT);
+    EuropeanVanillaOption optionPay = EuropeanVanillaOption.of(STRIKE, expiry, PutCall.CALL);
+    double pvThetaRecExpected = NORMAL.getTheta(optionRec, normalData);
+    double pvThetaPayExpected = -NORMAL.getTheta(optionPay, normalData);
+    assertEquals(pvThetaRecComputed.getCurrency(), USD);
+    assertEquals(pvThetaRecComputed.getAmount(), pvThetaRecExpected, NOTIONAL * TOL);
+    assertEquals(pvThetaPayComputed.getCurrency(), USD);
+    assertEquals(pvThetaPayComputed.getAmount(), pvThetaPayExpected, NOTIONAL * TOL);
+  }
+
+  public void test_presentValueTheta_at_expiry() {
+    CurrencyAmount pvThetaRec =
+        PRICER_SWAPTION.presentValueTheta(SWAPTION_REC_LONG_AT_EXPIRY, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvThetaPay =
+        PRICER_SWAPTION.presentValueTheta(SWAPTION_PAY_SHORT_AT_EXPIRY, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(pvThetaRec.getAmount(), 0d, NOTIONAL * TOL);
+    assertEquals(pvThetaPay.getAmount(), 0d, NOTIONAL * TOL);
+  }
+
+  public void test_presentValueTheta_after_expiry() {
+    CurrencyAmount pvThetaRec = PRICER_SWAPTION.presentValueTheta(SWAPTION_REC_LONG_PAST, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvThetaPay = PRICER_SWAPTION.presentValueTheta(SWAPTION_PAY_SHORT_PAST, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(pvThetaRec.getAmount(), 0d, NOTIONAL * TOL);
+    assertEquals(pvThetaPay.getAmount(), 0d, NOTIONAL * TOL);
+  }
+
+  public void test_presentValueTheta_parity() {
+    CurrencyAmount pvThetaRecLong = PRICER_SWAPTION.presentValueTheta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvThetaRecShort = PRICER_SWAPTION.presentValueTheta(SWAPTION_REC_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvThetaPayLong = PRICER_SWAPTION.presentValueTheta(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvThetaPayShort = PRICER_SWAPTION.presentValueTheta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(pvThetaRecLong.getAmount(), -pvThetaRecShort.getAmount(), NOTIONAL * TOL);
+    assertEquals(pvThetaPayLong.getAmount(), -pvThetaPayShort.getAmount(), NOTIONAL * TOL);
+    assertEquals(pvThetaPayLong.getAmount(), pvThetaRecLong.getAmount(), NOTIONAL * TOL);
+    assertEquals(pvThetaPayShort.getAmount(), pvThetaRecShort.getAmount(), NOTIONAL * TOL);
+  }
+
   //-------------------------------------------------------------------------  
   public void test_currencyExposure() {
     MultiCurrencyAmount computedRec = PRICER_SWAPTION.currencyExposure(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
