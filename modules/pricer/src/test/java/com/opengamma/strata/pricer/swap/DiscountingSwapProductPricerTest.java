@@ -771,15 +771,27 @@ public class DiscountingSwapProductPricerTest {
     assertEquals(pvPointComputed, pvPointExpected);
     // par rate
     double parRate = SWAP_PRODUCT_PRICER.parRate(swap, MULTI_EUR);
-    Swap swapPar = conv.toTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, parRate).getProduct();
-    MultiCurrencyAmount pvPar = SWAP_PRODUCT_PRICER.presentValue(swapPar, MULTI_EUR);
-    assertEquals(pvPar, MultiCurrencyAmount.of(EUR, 0d));
+    Swap swapParRate = conv.toTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, parRate).getProduct();
+    MultiCurrencyAmount pvParRate = SWAP_PRODUCT_PRICER.presentValue(swapParRate, MULTI_EUR);
+    assertEquals(pvParRate, MultiCurrencyAmount.of(EUR, 0d));
     // par rate sensitivity
-    PointSensitivities parPoint = SWAP_PRODUCT_PRICER.parRateSensitivity(swap, MULTI_EUR).build();
-    CurveCurrencyParameterSensitivities parSensiComputed = MULTI_EUR.curveParameterSensitivity(parPoint);
-    CurveCurrencyParameterSensitivities parSensiExpected = FINITE_DIFFERENCE_CALCULATOR.sensitivity(MULTI_EUR,
+    PointSensitivities parRatePoint = SWAP_PRODUCT_PRICER.parRateSensitivity(swap, MULTI_EUR).build();
+    CurveCurrencyParameterSensitivities parRateSensiComputed = MULTI_EUR.curveParameterSensitivity(parRatePoint);
+    CurveCurrencyParameterSensitivities parRateSensiExpected = FINITE_DIFFERENCE_CALCULATOR.sensitivity(MULTI_EUR,
         p -> CurrencyAmount.of(EUR, SWAP_PRODUCT_PRICER.parRate(swap, p)));
-    assertTrue(parSensiComputed.equalWithTolerance(parSensiExpected, TOLERANCE_RATE_DELTA));
+    assertTrue(parRateSensiComputed.equalWithTolerance(parRateSensiExpected, TOLERANCE_RATE_DELTA));
+    // par spread
+    double parSpread = SWAP_PRODUCT_PRICER.parSpread(swap, MULTI_EUR);
+    Swap swapParSpread =
+        conv.toTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD + parSpread).getProduct();
+    MultiCurrencyAmount pvParSpread = SWAP_PRODUCT_PRICER.presentValue(swapParSpread, MULTI_EUR);
+    assertEquals(pvParSpread, MultiCurrencyAmount.of(EUR, 0d));
+    // par spread sensitivity
+    PointSensitivities parSpreadPoint = SWAP_PRODUCT_PRICER.parSpreadSensitivity(swap, MULTI_EUR).build();
+    CurveCurrencyParameterSensitivities parSpreadSensiComputed = MULTI_EUR.curveParameterSensitivity(parSpreadPoint);
+    CurveCurrencyParameterSensitivities parSpreadSensiExpected = FINITE_DIFFERENCE_CALCULATOR.sensitivity(MULTI_EUR,
+        p -> CurrencyAmount.of(EUR, SWAP_PRODUCT_PRICER.parSpread(swap, p)));
+    assertTrue(parSpreadSensiComputed.equalWithTolerance(parSpreadSensiExpected, TOLERANCE_RATE_DELTA));
   }
 
 }
