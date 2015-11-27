@@ -47,9 +47,8 @@ public final class LinearExtrapolator1D
   }
 
   @Override
-  public Double extrapolate(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double extrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
 
     if (value < data.firstKey()) {
       return leftExtrapolate(data, value, interpolator);
@@ -60,9 +59,8 @@ public final class LinearExtrapolator1D
   }
 
   @Override
-  public double firstDerivative(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double firstDerivative(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
 
     if (value < data.firstKey()) {
       return leftExtrapolateDerivative(data, value, interpolator);
@@ -75,7 +73,7 @@ public final class LinearExtrapolator1D
   @Override
   public double[] getNodeSensitivitiesForValue(
       Interpolator1DDataBundle data,
-      Double value,
+      double value,
       Interpolator1D interpolator) {
 
     ArgChecker.notNull(data, "data");
@@ -88,9 +86,8 @@ public final class LinearExtrapolator1D
     throw new IllegalArgumentException("Value " + value + " was within data range");
   }
 
-  private Double leftExtrapolate(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double leftExtrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
 
     double x = data.firstKey();
     double y = data.firstValue();
@@ -99,9 +96,8 @@ public final class LinearExtrapolator1D
     return y + (value - x) * m;
   }
 
-  private Double rightExtrapolate(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double rightExtrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.lastKey();
     double y = data.lastValue();
     double eps = this.eps * (x - data.firstKey());
@@ -109,9 +105,8 @@ public final class LinearExtrapolator1D
     return y + (value - x) * m;
   }
 
-  private Double leftExtrapolateDerivative(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double leftExtrapolateDerivative(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.firstKey();
     double y = data.firstValue();
     double eps = this.eps * (data.lastKey() - x);
@@ -119,9 +114,8 @@ public final class LinearExtrapolator1D
     return m;
   }
 
-  private Double rightExtrapolateDerivative(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double rightExtrapolateDerivative(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.lastKey();
     double y = data.lastValue();
     double eps = this.eps * (x - data.firstKey());
@@ -141,7 +135,7 @@ public final class LinearExtrapolator1D
     return result;
   }
 
-  private double[] getRightSensitivities(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double[] getRightSensitivities(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     double eps = this.eps * (data.lastKey() - data.firstKey());
     double x = data.lastKey();
     double[] result = interpolator.getNodeSensitivitiesForValue(data, x - eps);

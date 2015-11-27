@@ -39,19 +39,19 @@ public final class InterpolatorExtrapolator
   }
 
   @Override
-  public Double extrapolate(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double extrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     JodaBeanUtils.notNull(data, "data");
     return interpolator.interpolate(data, value);
   }
 
   @Override
-  public double firstDerivative(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double firstDerivative(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     JodaBeanUtils.notNull(data, "data");
     return interpolator.firstDerivative(data, value);
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     JodaBeanUtils.notNull(data, "data");
     return interpolator.getNodeSensitivitiesForValue(data, value);
   }

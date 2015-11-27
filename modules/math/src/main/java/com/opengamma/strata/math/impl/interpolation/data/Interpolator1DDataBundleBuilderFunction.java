@@ -23,12 +23,12 @@ public class Interpolator1DDataBundleBuilderFunction implements Function<DoubleA
   private final LinkedHashMap<String, Interpolator1D> _interpolators;
   private final int _nNodes;
 
-  public Interpolator1DDataBundleBuilderFunction(final LinkedHashMap<String, double[]> knotPoints, final LinkedHashMap<String, Interpolator1D> interpolators) {
+  public Interpolator1DDataBundleBuilderFunction(LinkedHashMap<String, double[]> knotPoints, LinkedHashMap<String, Interpolator1D> interpolators) {
     ArgChecker.notNull(knotPoints, "null knot points");
     ArgChecker.notNull(interpolators, "null interpolators");
     int count = 0;
-    for (final Map.Entry<String, double[]> entry : knotPoints.entrySet()) {
-      final int size = entry.getValue().length;
+    for (Map.Entry<String, double[]> entry : knotPoints.entrySet()) {
+      int size = entry.getValue().length;
       ArgChecker.isTrue(size > 0, "no knot points for " + entry.getKey());
       count += size;
     }
@@ -38,19 +38,19 @@ public class Interpolator1DDataBundleBuilderFunction implements Function<DoubleA
   }
 
   @Override
-  public LinkedHashMap<String, Interpolator1DDataBundle> apply(final DoubleArray x) {
+  public LinkedHashMap<String, Interpolator1DDataBundle> apply(DoubleArray x) {
     ArgChecker.notNull(x, "null data x");
     ArgChecker.isTrue(_nNodes == x.size(), "x wrong length");
 
-    final LinkedHashMap<String, Interpolator1DDataBundle> res = new LinkedHashMap<>();
+    LinkedHashMap<String, Interpolator1DDataBundle> res = new LinkedHashMap<>();
     int index = 0;
 
-    for (final String name : _interpolators.keySet()) {
-      final Interpolator1D interpolator = _interpolators.get(name);
-      final double[] nodes = _knotPoints.get(name);
-      final double[] values = Arrays.copyOfRange(x.toArray(), index, index + nodes.length);
+    for (String name : _interpolators.keySet()) {
+      Interpolator1D interpolator = _interpolators.get(name);
+      double[] nodes = _knotPoints.get(name);
+      double[] values = Arrays.copyOfRange(x.toArray(), index, index + nodes.length);
       index += nodes.length;
-      final Interpolator1DDataBundle db = interpolator.getDataBundleFromSortedArrays(nodes, values);
+      Interpolator1DDataBundle db = interpolator.getDataBundleFromSortedArrays(nodes, values);
       res.put(name, db);
     }
 

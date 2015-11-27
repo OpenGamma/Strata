@@ -56,11 +56,6 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullInterpolateValue() {
-    INTERPOLATOR.interpolate(DATA1, null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighValue() {
     INTERPOLATOR.interpolate(DATA1, 31.);
   }

@@ -133,9 +133,8 @@ public class CombinedInterpolatorExtrapolator extends Interpolator1D {
 
   //TODO  fail earlier if there's no extrapolators?
   @Override
-  public Double interpolate(Interpolator1DDataBundle data, Double value) {
+  public double interpolate(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
 
     if (value < data.firstKey()) {
       return _leftExtrapolator.extrapolate(data, value, _interpolator);
@@ -146,9 +145,8 @@ public class CombinedInterpolatorExtrapolator extends Interpolator1D {
   }
 
   @Override
-  public double firstDerivative(Interpolator1DDataBundle data, Double value) {
+  public double firstDerivative(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
 
     if (value < data.firstKey()) {
       return _leftExtrapolator.firstDerivative(data, value, _interpolator);
@@ -159,9 +157,8 @@ public class CombinedInterpolatorExtrapolator extends Interpolator1D {
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
 
     if (value < data.firstKey()) {
       return _leftExtrapolator.getNodeSensitivitiesForValue(data, value, _interpolator);

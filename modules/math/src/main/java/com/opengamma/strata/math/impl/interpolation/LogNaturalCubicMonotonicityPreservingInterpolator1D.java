@@ -52,8 +52,7 @@ public final class LogNaturalCubicMonotonicityPreservingInterpolator1D
 
   //-------------------------------------------------------------------------
   @Override
-  public Double interpolate(Interpolator1DDataBundle data, Double value) {
-    JodaBeanUtils.notNull(value, "value");
+  public double interpolate(Interpolator1DDataBundle data, double value) {
     JodaBeanUtils.notNull(data, "data");
     ArgChecker.isTrue(data instanceof Interpolator1DLogPiecewisePoynomialDataBundle);
     Interpolator1DLogPiecewisePoynomialDataBundle polyData = (Interpolator1DLogPiecewisePoynomialDataBundle) data;
@@ -62,8 +61,7 @@ public final class LogNaturalCubicMonotonicityPreservingInterpolator1D
   }
 
   @Override
-  public double firstDerivative(Interpolator1DDataBundle data, Double value) {
-    JodaBeanUtils.notNull(value, "value");
+  public double firstDerivative(Interpolator1DDataBundle data, double value) {
     JodaBeanUtils.notNull(data, "data");
     ArgChecker.isTrue(data instanceof Interpolator1DLogPiecewisePoynomialDataBundle);
     Interpolator1DLogPiecewisePoynomialDataBundle polyData = (Interpolator1DLogPiecewisePoynomialDataBundle) data;
@@ -75,8 +73,7 @@ public final class LogNaturalCubicMonotonicityPreservingInterpolator1D
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
-    ArgChecker.notNull(value, "value");
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data bundle");
     ArgChecker.isTrue(data instanceof Interpolator1DLogPiecewisePoynomialDataBundle);
     Interpolator1DLogPiecewisePoynomialDataBundle polyData = (Interpolator1DLogPiecewisePoynomialDataBundle) data;

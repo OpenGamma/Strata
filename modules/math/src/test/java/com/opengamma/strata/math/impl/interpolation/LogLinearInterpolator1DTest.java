@@ -52,11 +52,6 @@ public class LogLinearInterpolator1DTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullData() {
-    INTERPOLATOR.interpolate(MODEL, null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowValue() {
     INTERPOLATOR.interpolate(MODEL, -2.);
   }

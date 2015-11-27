@@ -18,21 +18,19 @@ public class StepUpperInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
 
   @Override
-  public Double interpolate(final Interpolator1DDataBundle data, final Double x) {
-    ArgChecker.notNull(x, "value");
+  public double interpolate(final Interpolator1DDataBundle data, final double x) {
     ArgChecker.notNull(data, "data bundle");
     // For x equal to a key
-    Double exactValue = data.get(x);
-    if (exactValue != null) {
-      return exactValue;
+    int index = data.indexOf(x);
+    if (index >= 0) {
+      return data.getIndex(index);
     }
     // For intermediary values, return the higher key value.
-    return data.get(data.higherKey(x));
+    return data.higherValue(x);
   }
 
   @Override
-  public double firstDerivative(final Interpolator1DDataBundle data, final Double x) {
-    ArgChecker.notNull(x, "value");
+  public double firstDerivative(final Interpolator1DDataBundle data, final double x) {
     ArgChecker.notNull(data, "data bundle");
     return 0.;
   }
@@ -48,7 +46,7 @@ public class StepUpperInterpolator1D extends Interpolator1D {
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, double value) {
     return getFiniteDifferenceSensitivities(data, value);
   }
 

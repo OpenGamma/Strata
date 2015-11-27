@@ -47,11 +47,6 @@ public class NaturalCubicSplineInterpolator1DTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullInterpolateValue() {
-    INTERPOLATOR.interpolate(MODEL, null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighValue() {
     INTERPOLATOR.interpolate(MODEL, 15.);
   }

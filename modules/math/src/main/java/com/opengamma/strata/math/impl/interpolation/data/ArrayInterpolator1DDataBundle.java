@@ -14,15 +14,16 @@ import com.opengamma.strata.collect.ArgChecker;
  * parallel-sorted double arrays.
  */
 public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
+
   private final double[] _keys;
   private final double[] _values;
   private final int _n;
 
-  public ArrayInterpolator1DDataBundle(final double[] keys, final double[] values) {
+  public ArrayInterpolator1DDataBundle(double[] keys, double[] values) {
     this(keys, values, false);
   }
 
-  public ArrayInterpolator1DDataBundle(final double[] keys, final double[] values, final boolean inputsSorted) {
+  public ArrayInterpolator1DDataBundle(double[] keys, double[] values, boolean inputsSorted) {
     ArgChecker.notNull(keys, "Keys must not be null.");
     ArgChecker.notNull(values, "Values must not be null.");
     ArgChecker.isTrue((keys.length == values.length), "keys and values must be same length.");
@@ -50,18 +51,18 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
     dualArrayQuickSort(_keys, _values, 0, _n - 1);
   }
 
-  private static void dualArrayQuickSort(final double[] keys, final double[] values, final int left, final int right) {
+  private static void dualArrayQuickSort(double[] keys, double[] values, int left, int right) {
     if (right > left) {
-      final int pivot = (left + right) >> 1;
-      final int pivotNewIndex = partition(keys, values, left, right, pivot);
+      int pivot = (left + right) >> 1;
+      int pivotNewIndex = partition(keys, values, left, right, pivot);
       dualArrayQuickSort(keys, values, left, pivotNewIndex - 1);
       dualArrayQuickSort(keys, values, pivotNewIndex + 1, right);
     }
   }
 
-  private static int partition(final double[] keys, final double[] values, final int left, final int right,
-      final int pivot) {
-    final double pivotValue = keys[pivot];
+  private static int partition(double[] keys, double[] values, int left, int right,
+      int pivot) {
+    double pivotValue = keys[pivot];
     swap(keys, values, pivot, right);
     int storeIndex = left;
     for (int i = left; i < right; i++) {
@@ -74,7 +75,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
     return storeIndex;
   }
 
-  private static void swap(final double[] keys, final double[] values, final int first, final int second) {
+  private static void swap(double[] keys, double[] values, int first, int second) {
     double t = keys[first];
     keys[first] = keys[second];
     keys[second] = t;
@@ -85,35 +86,33 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   }
 
   @Override
-  public boolean containsKey(final Double key) {
-    if (key == null) {
-      return false;
-    }
-    return Arrays.binarySearch(_keys, key) >= 0;
+  public boolean containsKey(double key) {
+    return indexOf(key) >= 0;
   }
 
   @Override
-  public Double firstKey() {
+  public double firstKey() {
     return _keys[0];
   }
 
   @Override
-  public Double firstValue() {
+  public double firstValue() {
     return _values[0];
   }
 
   @Override
-  public Double get(final Double key) {
-    final int index = Arrays.binarySearch(_keys, key);
-    if (index < 0) {
-      return null;
-    }
+  public int indexOf(double key) {
+    return Arrays.binarySearch(_keys, key);
+  }
+
+  @Override
+  public double getIndex(int index) {
     return _values[index];
   }
 
   @Override
-  public InterpolationBoundedValues getBoundedValues(final Double key) {
-    final int index = getLowerBoundIndex(key);
+  public InterpolationBoundedValues getBoundedValues(double key) {
+    int index = getLowerBoundIndex(key);
     if (index == _n - 1) {
       return new InterpolationBoundedValues(index, _keys[index], _values[index], null, null);
     }
@@ -126,7 +125,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   }
 
   @Override
-  public int getLowerBoundIndex(final Double value) {
+  public int getLowerBoundIndex(double value) {
     if (value < _keys[0]) {
       throw new IllegalArgumentException("Could not get lower bound index for " + value + ": lowest x-value is "
           + _keys[0]);
@@ -135,7 +134,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
       throw new IllegalArgumentException("Could not get lower bound index for " + value + ": highest x-value is "
           + _keys[_keys.length - 1]);
     }
-    int index = Arrays.binarySearch(_keys, value);
+    int index = indexOf(value);
     if (index >= 0) {
       // Fast break out if it's an exact match.
       return index;
@@ -151,9 +150,15 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   }
 
   @Override
-  public Double getLowerBoundKey(final Double value) {
-    final int index = getLowerBoundIndex(value);
+  public double getLowerBoundKey(double value) {
+    int index = getLowerBoundIndex(value);
     return _keys[index];
+  }
+
+  @Override
+  public double getLowerBoundValue(double value) {
+    int index = getLowerBoundIndex(value);
+    return _values[index];
   }
 
   @Override
@@ -162,34 +167,34 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   }
 
   @Override
-  public Double higherKey(final Double key) {
-    final int index = getHigherIndex(key);
+  public double higherKey(double key) {
+    int index = getHigherIndex(key);
     if (index >= _n) {
-      return null;
+      throw new IllegalArgumentException("Key outside valid interpolation range: " + key);
     }
     return _keys[index];
   }
 
   @Override
-  public Double higherValue(final Double key) {
-    final int index = getHigherIndex(key);
+  public double higherValue(double key) {
+    int index = getHigherIndex(key);
     if (index >= _n) {
-      return null;
+      throw new IllegalArgumentException("Key outside valid interpolation range: " + key);
     }
     return _values[index];
   }
 
-  protected int getHigherIndex(final Double key) {
+  protected int getHigherIndex(double key) {
     return getLowerBoundIndex(key) + 1;
   }
 
   @Override
-  public Double lastKey() {
+  public double lastKey() {
     return _keys[_n - 1];
   }
 
   @Override
-  public Double lastValue() {
+  public double lastValue() {
     return _values[_n - 1];
   }
 
@@ -200,7 +205,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     result = prime * result + Arrays.hashCode(_keys);
     result = prime * result + Arrays.hashCode(_values);
@@ -208,7 +213,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -218,7 +223,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final ArrayInterpolator1DDataBundle other = (ArrayInterpolator1DDataBundle) obj;
+    ArrayInterpolator1DDataBundle other = (ArrayInterpolator1DDataBundle) obj;
     if (!Arrays.equals(_keys, other._keys)) {
       return false;
     }
@@ -229,7 +234,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   }
 
   @Override
-  public void setYValueAtIndex(final int index, final double y) {
+  public void setYValueAtIndex(int index, double y) {
     ArgChecker.notNegative(index, "index");
     if (index >= _n) {
       throw new IllegalArgumentException("Index was greater than number of data points");

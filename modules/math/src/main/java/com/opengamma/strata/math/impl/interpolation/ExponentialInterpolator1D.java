@@ -36,8 +36,7 @@ public final class ExponentialInterpolator1D
 
   //-------------------------------------------------------------------------
   @Override
-  public Double interpolate(Interpolator1DDataBundle data, Double value) {
-    JodaBeanUtils.notNull(value, "value");
+  public double interpolate(Interpolator1DDataBundle data, double value) {
     JodaBeanUtils.notNull(data, "data");
     InterpolationBoundedValues boundedValues = data.getBoundedValues(value);
     Double x1 = boundedValues.getLowerBoundKey();
@@ -51,8 +50,7 @@ public final class ExponentialInterpolator1D
   }
 
   @Override
-  public double firstDerivative(Interpolator1DDataBundle data, Double value) {
-    ArgChecker.notNull(value, "value");
+  public double firstDerivative(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data bundle");
     int lowerIndex = data.getLowerBoundIndex(value);
     if (lowerIndex == data.size() - 1) {
@@ -86,7 +84,7 @@ public final class ExponentialInterpolator1D
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, double value) {
     int size = data.size();
     double[] res = new double[size];
     Arrays.fill(res, 0.0);

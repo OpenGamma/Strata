@@ -5,9 +5,10 @@
  */
 package com.opengamma.strata.math.impl.interpolation.data;
 
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
@@ -89,10 +90,10 @@ public abstract class Interpolator1DDataBundleTestCase {
 
   @Test
   public void lowerBoundValues() {
-    assertEquals(10, DATA.get(DATA.getLowerBoundKey(1.5)), EPS);
-    assertEquals(10, DATA.get(DATA.getLowerBoundKey(1.)), EPS);
-    assertEquals(40, DATA.get(DATA.getLowerBoundKey(4.)), EPS);
-    assertEquals(50, DATA.get(DATA.getLowerBoundKey(5.)), EPS);
+    assertEquals(10, DATA.getIndex(DATA.indexOf(DATA.getLowerBoundKey(1.5))), EPS);
+    assertEquals(10, DATA.getIndex(DATA.indexOf(DATA.getLowerBoundKey(1.))), EPS);
+    assertEquals(40, DATA.getIndex(DATA.indexOf(DATA.getLowerBoundKey(4.))), EPS);
+    assertEquals(50, DATA.getIndex(DATA.indexOf(DATA.getLowerBoundKey(5.))), EPS);
   }
 
   @Test
@@ -115,19 +116,19 @@ public abstract class Interpolator1DDataBundleTestCase {
     assertEquals(50., DATA.higherValue(4.), EPS);
     assertEquals(2., DATA.higherKey(1.), EPS);
     assertEquals(20., DATA.higherValue(1.), EPS);
-    assertNull(DATA.higherKey(5.));
-    assertNull(DATA.higherValue(5.));
+    assertThrowsIllegalArg(() -> DATA.higherKey(5.));
+    assertThrowsIllegalArg(() -> DATA.higherValue(5.));
   }
 
   @Test
   public void pointLookup() {
-    assertEquals(10., DATA.get(1.), EPS);
-    assertEquals(20., DATA.get(2.), EPS);
-    assertEquals(30., DATA.get(3.), EPS);
-    assertEquals(40., DATA.get(4.), EPS);
-    assertEquals(50., DATA.get(5.), EPS);
-    assertNull(DATA.get(4.5));
-    assertNull(DATA.get(6.));
+    assertEquals(10., DATA.getIndex(DATA.indexOf(1.)), EPS);
+    assertEquals(20., DATA.getIndex(DATA.indexOf(2.)), EPS);
+    assertEquals(30., DATA.getIndex(DATA.indexOf(3.)), EPS);
+    assertEquals(40., DATA.getIndex(DATA.indexOf(4.)), EPS);
+    assertEquals(50., DATA.getIndex(DATA.indexOf(5.)), EPS);
+    assertThrows(() -> DATA.getIndex(-1), IndexOutOfBoundsException.class);
+    assertThrows(() -> DATA.getIndex(6), IndexOutOfBoundsException.class);
   }
 
   @Test

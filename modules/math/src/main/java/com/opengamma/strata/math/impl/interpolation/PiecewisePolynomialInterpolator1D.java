@@ -32,8 +32,7 @@ public abstract class PiecewisePolynomialInterpolator1D extends Interpolator1D {
   }
 
   @Override
-  public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
-    ArgChecker.notNull(value, "value");
+  public double interpolate(final Interpolator1DDataBundle data, final double value) {
     ArgChecker.notNull(data, "data bundle");
     ArgChecker.isTrue(data instanceof Interpolator1DPiecewisePoynomialDataBundle);
     final Interpolator1DPiecewisePoynomialDataBundle polyData = (Interpolator1DPiecewisePoynomialDataBundle) data;
@@ -42,8 +41,7 @@ public abstract class PiecewisePolynomialInterpolator1D extends Interpolator1D {
   }
 
   @Override
-  public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
-    ArgChecker.notNull(value, "value");
+  public double firstDerivative(final Interpolator1DDataBundle data, final double value) {
     ArgChecker.notNull(data, "data bundle");
     ArgChecker.isTrue(data instanceof Interpolator1DPiecewisePoynomialDataBundle);
     final Interpolator1DPiecewisePoynomialDataBundle polyData = (Interpolator1DPiecewisePoynomialDataBundle) data;
@@ -52,8 +50,7 @@ public abstract class PiecewisePolynomialInterpolator1D extends Interpolator1D {
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
-    ArgChecker.notNull(value, "value");
+  public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final double value) {
     ArgChecker.notNull(data, "data bundle");
     ArgChecker.isTrue(data instanceof Interpolator1DPiecewisePoynomialDataBundle);
     final Interpolator1DPiecewisePoynomialDataBundle polyData = (Interpolator1DPiecewisePoynomialDataBundle) data;
