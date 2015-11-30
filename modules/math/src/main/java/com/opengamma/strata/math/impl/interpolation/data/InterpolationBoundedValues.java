@@ -5,16 +5,12 @@
  */
 package com.opengamma.strata.math.impl.interpolation.data;
 
-import java.io.Serializable;
-
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * 
  */
-public final class InterpolationBoundedValues implements Serializable {
-
-  private static final long serialVersionUID = 1L;
+public final class InterpolationBoundedValues {
 
   private final int _lowerBoundIndex;
   private final double _lowerBoundKey;

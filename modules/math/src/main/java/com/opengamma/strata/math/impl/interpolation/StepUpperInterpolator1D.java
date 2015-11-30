@@ -15,7 +15,6 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
  * <i>x</i> with <i>x<sub>1</sub> <= x < x<sub>2</sub></i> is given by: <i>y = y<sub>1</sub></i>
  */
 public class StepUpperInterpolator1D extends Interpolator1D {
-  private static final long serialVersionUID = 1L;
 
   @Override
   public double interpolate(final Interpolator1DDataBundle data, final double x) {

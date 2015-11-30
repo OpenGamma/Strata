@@ -21,7 +21,6 @@ import java.util.OptionalDouble;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -30,6 +29,7 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.PriceIndexValuesKey;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;

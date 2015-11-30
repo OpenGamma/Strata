@@ -16,7 +16,7 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DPiecewise
  * Wrapping {@link ProductPiecewisePolynomialInterpolator}
  */
 public class ProductPiecewisePolynomialInterpolator1D extends Interpolator1D {
-  private static final long serialVersionUID = 1L;
+
   private static final PiecewisePolynomialFunction1D FUNC = new PiecewisePolynomialFunction1D();
   private final ProductPiecewisePolynomialInterpolator _interp;
   private static final double SMALL = 1e-14;

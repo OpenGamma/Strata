@@ -15,7 +15,6 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
  * All values of y must be positive. 
  */
 public class SquareLinearInterpolator1D extends Interpolator1D {
-  private static final long serialVersionUID = 1L;
 
   /* Level below which the value is consider to be 0. */
   private static final double EPS = 1.0E-10;

@@ -10,9 +10,6 @@ package com.opengamma.strata.math.impl.interpolation;
  */
 public class NonnegativityPreservingCubicSplineInterpolator1D extends PiecewisePolynomialInterpolator1D {
 
-  /** Serialization version */
-  private static final long serialVersionUID = 1L;
-
   /**
    * If the primary interpolation method is not specified, the cubic spline interpolation with natrual endpoint conditions is used
    */

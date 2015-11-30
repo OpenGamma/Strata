@@ -25,11 +25,6 @@ public class ReciprocalExtrapolator1D
   /** The extrapolator name. */
   public static final String NAME = "Reciprocal";
 
-  /**
-   * The serialization version id.
-   */
-  private static final long serialVersionUID = 1L;
-
   private static final PiecewisePolynomialFunction1D FUNC = new LinearlFunction1D();
 
   /**
@@ -40,11 +35,6 @@ public class ReciprocalExtrapolator1D
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public String getName() {
-    return NAME;
-  }
-
   private static class LinearlFunction1D extends PiecewisePolynomialFunction1D {
 
     @Override

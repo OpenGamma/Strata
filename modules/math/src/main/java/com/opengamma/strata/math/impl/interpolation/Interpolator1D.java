@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.function.Function;
@@ -19,10 +18,8 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
 /**
  * A base class for interpolation in one dimension.
  */
-public abstract class Interpolator1D
-    implements Serializable {
+public abstract class Interpolator1D {
 
-  private static final long serialVersionUID = 1L;
   private static final double EPS = 1e-6;
 
   public abstract double interpolate(Interpolator1DDataBundle data, double value);

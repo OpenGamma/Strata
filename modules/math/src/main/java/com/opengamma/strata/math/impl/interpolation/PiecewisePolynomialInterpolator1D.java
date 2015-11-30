@@ -17,9 +17,6 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DPiecewise
  */
 public abstract class PiecewisePolynomialInterpolator1D extends Interpolator1D {
 
-  /** Serialization version */
-  private static final long serialVersionUID = 1L;
-
   private PiecewisePolynomialInterpolator _baseMethod;
   private static final PiecewisePolynomialWithSensitivityFunction1D FUNC = new PiecewisePolynomialWithSensitivityFunction1D();
 

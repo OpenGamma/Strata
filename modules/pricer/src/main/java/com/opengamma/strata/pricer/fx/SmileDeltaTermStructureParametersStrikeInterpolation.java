@@ -35,9 +35,9 @@ class SmileDeltaTermStructureParametersStrikeInterpolation
    * The default interpolator: linear with flat extrapolation.
    */
   private static final Interpolator1D DEFAULT_INTERPOLATOR_STRIKE = CombinedInterpolatorExtrapolator.of(
-      CurveInterpolators.LINEAR,
-      CurveExtrapolators.FLAT,
-      CurveExtrapolators.FLAT);
+      CurveInterpolators.LINEAR.getName(),
+      CurveExtrapolators.FLAT.getName(),
+      CurveExtrapolators.FLAT.getName());
 
   /**
    * Constructor from volatility term structure. 

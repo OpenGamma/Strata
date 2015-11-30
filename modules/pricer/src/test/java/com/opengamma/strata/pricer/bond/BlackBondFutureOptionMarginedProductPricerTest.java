@@ -61,7 +61,9 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
       LegalEntityDiscountingProviderDataSets.ISSUER_REPO_ZERO_EUR;
   // vol surface
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
-      CurveInterpolators.LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
+      CurveInterpolators.LINEAR.getName(),
+      CurveExtrapolators.FLAT.getName(),
+      CurveExtrapolators.FLAT.getName());
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
   private static final DoubleArray TIME = DoubleArray.of(0.20, 0.20, 0.20, 0.20, 0.20, 0.45, 0.45, 0.45, 0.45, 0.45);
   private static final DoubleArray MONEYNESS =

@@ -13,7 +13,6 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
  * 
  */
 public class StepInterpolator1D extends Interpolator1D {
-  private static final long serialVersionUID = 1L;
 
   @Override
   public double interpolate(final Interpolator1DDataBundle data, final double value) {

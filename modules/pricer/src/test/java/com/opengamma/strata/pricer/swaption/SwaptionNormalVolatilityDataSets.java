@@ -43,8 +43,8 @@ public class SwaptionNormalVolatilityDataSets {
 
   private static final double BP1 = 1.0E-4;
 
-  private static final Interpolator1D LINEAR_FLAT =
-      CombinedInterpolatorExtrapolator.of(CurveInterpolators.LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
+  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
+      CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
 
   //     =====     Standard figures for testing     =====

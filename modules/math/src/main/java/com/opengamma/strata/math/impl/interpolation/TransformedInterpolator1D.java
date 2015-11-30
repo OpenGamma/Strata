@@ -25,7 +25,6 @@ import com.opengamma.strata.math.impl.minimization.ParameterLimitsTransform;
  */
 public class TransformedInterpolator1D extends Interpolator1D {
 
-  private static final long serialVersionUID = 1L;
   private final ParameterLimitsTransform _transform;
   private final Interpolator1D _base;
 

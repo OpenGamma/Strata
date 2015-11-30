@@ -15,9 +15,6 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DPiecewise
  */
 public class ClampedCubicSplineInterpolator1D extends PiecewisePolynomialInterpolator1D {
 
-  /** Serialization version */
-  private static final long serialVersionUID = 1L;
-
   /**
    * Default constructor where interpolation method is specified
    */
