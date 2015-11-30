@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -155,5 +156,9 @@ public class MultiCurrencyValuesArrayTest {
     for (int i = 0; i < 3; i++) {
       assertThat(convertedArray.get(i)).isEqualTo(expected[i], offset(1e-6));
     }
+  }
+
+  public void getCurrencies() {
+    assertThat(VALUES_ARRAY.getCurrencies()).isEqualTo(ImmutableSet.of(Currency.GBP, Currency.USD, Currency.EUR));
   }
 }
