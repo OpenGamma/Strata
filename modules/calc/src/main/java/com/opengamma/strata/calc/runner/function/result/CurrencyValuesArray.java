@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -63,7 +64,40 @@ public final class CurrencyValuesArray
    * @return an instance with the specified currency and values
    */
   public static CurrencyValuesArray of(Currency currency, double[] values) {
+    return new CurrencyValuesArray(currency, values.clone());
+  }
+
+  /**
+   * Returns an instance with the specified currency and values without copying the values array.
+   * <p>
+   * This method reduces the overhead of creating an instance by not making a defensive copy of the values
+   * array at the expense of safety. The caller <strong>must not</strong> mutate the array of values after passing
+   * it to this constructor. Doing so would violate the immutability of this class.
+   *
+   * @param currency  the currency of the values
+   * @param values  the currency values
+   * @return an instance with the specified currency and values
+   */
+  public static CurrencyValuesArray ofUnsafe(Currency currency, double[] values) {
     return new CurrencyValuesArray(currency, values);
+  }
+
+  /**
+   * Constructor that doesn't clone the input array to avoid unnecessary copies. The factory methods copy
+   * the input array where necessary.
+   *
+   * @param currency  the currency of the values
+   * @param values  the currency values
+   */
+  @ImmutableConstructor
+  private CurrencyValuesArray(
+      Currency currency,
+      double[] values) {
+
+    JodaBeanUtils.notNull(currency, "currency");
+    JodaBeanUtils.notNull(values, "values");
+    this.currency = currency;
+    this.values = values;
   }
 
   @Override
@@ -99,6 +133,18 @@ public final class CurrencyValuesArray
     return values[index];
   }
 
+  /**
+   * Returns the values without copying the underlying array.
+   * <p>
+   * This method returns the underlying array without copying for efficiency so the caller
+   * <strong>must not</strong> mutate it. Doing so would violate the immutability of this class.
+   *
+   * @return the currency values
+   */
+  public double[] getValuesUnsafe() {
+    return values;
+  }
+
   @Override
   public Stream<Double> stream() {
     return Arrays.stream(values).boxed();
@@ -124,15 +170,6 @@ public final class CurrencyValuesArray
    */
   public static CurrencyValuesArray.Builder builder() {
     return new CurrencyValuesArray.Builder();
-  }
-
-  private CurrencyValuesArray(
-      Currency currency,
-      double[] values) {
-    JodaBeanUtils.notNull(currency, "currency");
-    JodaBeanUtils.notNull(values, "values");
-    this.currency = currency;
-    this.values = values.clone();
   }
 
   @Override
