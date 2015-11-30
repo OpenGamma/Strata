@@ -66,9 +66,9 @@ public class CombinedInterpolatorExtrapolator extends Interpolator1D {
     ArgChecker.notNull(leftExtrapolator, "left extrapolator");
     ArgChecker.notNull(rightExtrapolator, "right extrapolator");
     return new CombinedInterpolatorExtrapolator(
-        Interpolator1DFactory.findCurveInterpolator(interpolator),
-        Interpolator1DFactory.findCurveExtrapolator(leftExtrapolator),
-        Interpolator1DFactory.findCurveExtrapolator(rightExtrapolator));
+        Interpolator1DFactory.getCurveInterpolator(interpolator),
+        Interpolator1DFactory.getCurveExtrapolator(leftExtrapolator),
+        Interpolator1DFactory.getCurveExtrapolator(rightExtrapolator));
   }
 
   /**

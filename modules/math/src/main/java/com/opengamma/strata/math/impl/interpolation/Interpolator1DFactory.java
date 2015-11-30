@@ -229,7 +229,7 @@ public final class Interpolator1DFactory {
     return s_instanceNames.get(interpolator.getClass());
   }
 
-  public static Interpolator1D findCurveInterpolator(final String interpolatorName) {
+  public static Interpolator1D getCurveInterpolator(final String interpolatorName) {
     Interpolator1D interpolator = s_staticInstances.get(interpolatorName);
     if (interpolator != null) {
       return (Interpolator1D) interpolator;
@@ -237,7 +237,7 @@ public final class Interpolator1DFactory {
     throw new IllegalArgumentException("Unknown interpolator: " + interpolatorName);
   }
 
-  public static Extrapolator1D findCurveExtrapolator(final String extrapolatorName) {
+  public static Extrapolator1D getCurveExtrapolator(final String extrapolatorName) {
     Extrapolator1D extrapolator = extrapolators.get(extrapolatorName);
     if (extrapolator != null) {
       return extrapolator;

@@ -75,6 +75,7 @@ final class ImmutableCurveInterpolator
       CurveExtrapolator extrapolatorLeft,
       CurveExtrapolator extrapolatorRight) {
 
+    // TODO: extend CurveExtrapolator interface so it can be used directly
     if (!(extrapolatorLeft instanceof ImmutableCurveExtrapolator)) {
       throw new IllegalArgumentException(
           Messages.format(
