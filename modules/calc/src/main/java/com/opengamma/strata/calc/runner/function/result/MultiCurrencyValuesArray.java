@@ -81,7 +81,7 @@ public final class MultiCurrencyValuesArray
       MultiCurrencyAmount multiCurrencyAmount = amounts.get(i);
 
       for (CurrencyAmount currencyAmount : multiCurrencyAmount.getAmounts()) {
-        double[] currencyValues = currencyValuesArray(valueMap, currencyAmount.getCurrency(), size);
+        double[] currencyValues = valueMap.computeIfAbsent(currencyAmount.getCurrency(), ccy -> new double[size]);
         currencyValues[i] = currencyAmount.getAmount();
       }
     }
@@ -89,26 +89,6 @@ public final class MultiCurrencyValuesArray
         valueMap.entrySet().stream().collect(toMap(e -> e.getKey(), e -> DoubleArray.ofUnsafe(e.getValue())));
 
     return new MultiCurrencyValuesArray(doubleArrayMap, size);
-  }
-
-  /**
-   * Returns an array from the map keyed by the specified currency. If there is no entry for the currency
-   * an array is created with the specified size and inserted into the map.
-   *
-   * @param mutableMap  the map of currency to values, new values are inserted if needed
-   * @param currency  the currency whose array is required
-   * @param size  the size of the currency arrays
-   * @return the array for the specified currency, created and inserted into the map if necessary
-   */
-  private static double[] currencyValuesArray(HashMap<Currency, double[]> mutableMap, Currency currency, int size) {
-    double[] currencyValues = mutableMap.get(currency);
-
-    if (currencyValues != null) {
-      return currencyValues;
-    }
-    double[] newArray = new double[size];
-    mutableMap.put(currency, newArray);
-    return newArray;
   }
 
   /**
