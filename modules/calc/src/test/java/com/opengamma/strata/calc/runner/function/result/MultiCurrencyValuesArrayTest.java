@@ -28,6 +28,7 @@ import com.opengamma.strata.calc.marketdata.DefaultCalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 @Test
 public class MultiCurrencyValuesArrayTest {
@@ -49,9 +50,9 @@ public class MultiCurrencyValuesArrayTest {
                   CurrencyAmount.of(Currency.EUR, 44))));
 
   public void createAndGetValues() {
-    assertThat(VALUES_ARRAY.getValues(Currency.GBP)).isEqualTo(new double[]{20, 21, 22});
-    assertThat(VALUES_ARRAY.getValues(Currency.USD)).isEqualTo(new double[]{30, 32, 33});
-    assertThat(VALUES_ARRAY.getValues(Currency.EUR)).isEqualTo(new double[]{40, 43, 44});
+    assertThat(VALUES_ARRAY.getValues(Currency.GBP)).isEqualTo(DoubleArray.of(20, 21, 22));
+    assertThat(VALUES_ARRAY.getValues(Currency.USD)).isEqualTo(DoubleArray.of(30, 32, 33));
+    assertThat(VALUES_ARRAY.getValues(Currency.EUR)).isEqualTo(DoubleArray.of(40, 43, 44));
 
     MultiCurrencyValuesArray raggedArray = MultiCurrencyValuesArray.of(
         ImmutableList.of(
@@ -64,20 +65,17 @@ public class MultiCurrencyValuesArrayTest {
             MultiCurrencyAmount.of(
                 CurrencyAmount.of(Currency.EUR, 44))));
 
-    assertThat(raggedArray.getValuesUnsafe(Currency.GBP)).isEqualTo(new double[]{0, 21, 0});
-    assertThat(raggedArray.getValuesUnsafe(Currency.USD)).isEqualTo(new double[]{0, 32, 0});
-    assertThat(raggedArray.getValuesUnsafe(Currency.EUR)).isEqualTo(new double[]{4, 43, 44});
+    assertThat(raggedArray.getValues(Currency.GBP)).isEqualTo(DoubleArray.of(0, 21, 0));
+    assertThat(raggedArray.getValues(Currency.USD)).isEqualTo(DoubleArray.of(0, 32, 0));
+    assertThat(raggedArray.getValues(Currency.EUR)).isEqualTo(DoubleArray.of(4, 43, 44));
   }
 
   public void getAllValuesUnsafe() {
-    Map<Currency, double[]> expected = ImmutableMap.of(
-        Currency.GBP, new double[]{20, 21, 22},
-        Currency.USD, new double[]{30, 32, 33},
-        Currency.EUR, new double[]{40, 43, 44});
-    // This has to be done one currency at a time or AssertJ uses equals() to compare the arrays which fails
-    assertThat(VALUES_ARRAY.getValuesUnsafe().get(Currency.GBP)).isEqualTo(expected.get(Currency.GBP));
-    assertThat(VALUES_ARRAY.getValuesUnsafe().get(Currency.USD)).isEqualTo(expected.get(Currency.USD));
-    assertThat(VALUES_ARRAY.getValuesUnsafe().get(Currency.EUR)).isEqualTo(expected.get(Currency.EUR));
+    Map<Currency, DoubleArray> expected = ImmutableMap.of(
+        Currency.GBP, DoubleArray.of(20, 21, 22),
+        Currency.USD, DoubleArray.of(30, 32, 33),
+        Currency.EUR, DoubleArray.of(40, 43, 44));
+    assertThat(VALUES_ARRAY.getValues()).isEqualTo(expected);
   }
 
   public void get() {
@@ -127,10 +125,10 @@ public class MultiCurrencyValuesArrayTest {
     DefaultCalculationMarketData marketData =
         new DefaultCalculationMarketData(marketEnvironment, MarketDataMappings.empty());
     CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.CAD, marketData);
-    double[] expected = new double[]{
+    DoubleArray expected = DoubleArray.of(
         20 * 2.00 + 30 * 1.30 + 40 * 1.4,
         21 * 2.01 + 32 * 1.31 + 43 * 1.4,
-        22 * 2.02 + 33 * 1.32 + 44 * 1.4};
+        22 * 2.02 + 33 * 1.32 + 44 * 1.4);
     assertThat(convertedArray.getValues()).isEqualTo(expected);
   }
 
