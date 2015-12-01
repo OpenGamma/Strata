@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.impl.model;
 
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -36,7 +38,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
   private static final HullWhiteOneFactorPiecewiseConstantParameters MODEL_PARAMETERS =
       HullWhiteOneFactorPiecewiseConstantParameters.of(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL =
-      new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
+      HullWhiteOneFactorPiecewiseConstantInterestRateModel.DEFAULT;
   private static final DoubleArray DCF_FIXED = DoubleArray.of(0.50, 0.48);
   private static final DoubleArray ALPHA_FIXED = DoubleArray.of(0.02, 0.04);
   private static final DoubleArray DCF_IBOR = DoubleArray.of(-1.0, -0.01, 0.01, -0.01, 0.95);
@@ -422,6 +424,16 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
       1.4290478001940943, 1.8925104710768026, 2.361305017379811, 2.8201561576361778, 3.289235677728508,
       3.7447552766260217, 4.198083407732067, 4.650327387669373 };
     assertTrue(DoubleArrayMath.fuzzyEquals(computed.row(0).toArray(), expected, TOLERANCE_RATE));
+  }
+
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverImmutableBean(MODEL);
+  }
+
+  public void test_serialization() {
+    assertSerialization(MODEL);
   }
 
   //-------------------------------------------------------------------------
