@@ -6,7 +6,7 @@
 package com.opengamma.strata.report.framework.format;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 
 /**
  * Provides standard formatters.

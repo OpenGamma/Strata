@@ -7,11 +7,11 @@ package com.opengamma.strata.pricer.impl.volatility.smile.fitting;
 
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
@@ -36,16 +36,16 @@ import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunc
 public abstract class SmileModelFitter<T extends SmileModelData> {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
   private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare(DecompositionFactory.SV_COMMONS, MA, 1e-12);
-  private static final Function1D<DoubleArray, Boolean> UNCONSTRAINED = new Function1D<DoubleArray, Boolean>() {
+  private static final Function<DoubleArray, Boolean> UNCONSTRAINED = new Function<DoubleArray, Boolean>() {
     @Override
-    public Boolean evaluate(DoubleArray x) {
+    public Boolean apply(DoubleArray x) {
       return true;
     }
   };
 
   private final VolatilityFunctionProvider<T> _model;
-  private final Function1D<DoubleArray, DoubleArray> _volFunc;
-  private final Function1D<DoubleArray, DoubleMatrix> _volAdjointFunc;
+  private final Function<DoubleArray, DoubleArray> _volFunc;
+  private final Function<DoubleArray, DoubleMatrix> _volAdjointFunc;
   private final DoubleArray _marketValues;
   private final DoubleArray _errors;
 
@@ -79,9 +79,9 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
     _marketValues = impliedVols;
     _errors = error;
     _model = model;
-    _volFunc = new Function1D<DoubleArray, DoubleArray>() {
+    _volFunc = new Function<DoubleArray, DoubleArray>() {
       @Override
-      public DoubleArray evaluate(DoubleArray x) {
+      public DoubleArray apply(DoubleArray x) {
         final T data = toSmileModelData(x);
         double[] res = new double[n];
         for (int i = 0; i < n; ++i) {
@@ -90,9 +90,9 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
         return DoubleArray.copyOf(res);
       }
     };
-    _volAdjointFunc = new Function1D<DoubleArray, DoubleMatrix>() {
+    _volAdjointFunc = new Function<DoubleArray, DoubleMatrix>() {
       @Override
-      public DoubleMatrix evaluate(DoubleArray x) {
+      public DoubleMatrix apply(DoubleArray x) {
         final T data = toSmileModelData(x);
         double[][] resAdj = new double[n][];
         for (int i = 0; i < n; ++i) {
@@ -154,7 +154,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * 
    * @return the function
    */
-  protected Function1D<DoubleArray, DoubleArray> getModelValueFunction() {
+  protected Function<DoubleArray, DoubleArray> getModelValueFunction() {
     return _volFunc;
   }
 
@@ -165,7 +165,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * 
    * @return the function
    */
-  protected Function1D<DoubleArray, DoubleMatrix> getModelJacobianFunction() {
+  protected Function<DoubleArray, DoubleMatrix> getModelJacobianFunction() {
     return _volAdjointFunc;
   }
 
@@ -209,7 +209,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @param t  the nonlinear transformation
    * @return the constraint function
    */
-  protected Function1D<DoubleArray, Boolean> getConstraintFunction(
+  protected Function<DoubleArray, Boolean> getConstraintFunction(
       @SuppressWarnings("unused") final NonLinearParameterTransforms t) {
     return UNCONSTRAINED;
   }

@@ -45,7 +45,7 @@ public class IndexRateKeyTest {
 
   public void test_toObservableId() {
     IndexRateKey test = IndexRateKey.of(GBP_LIBOR_3M, FieldName.of("Foo"));
-    IndexRateId feed = test.toObservableId(FEED);
+    IndexRateId feed = test.toMarketDataId(FEED);
     assertEquals(feed.getIndex(), GBP_LIBOR_3M);
     assertEquals(feed.getFieldName(), FieldName.of("Foo"));
     assertEquals(feed.getMarketDataType(), Double.class);

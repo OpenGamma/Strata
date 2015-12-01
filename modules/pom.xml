@@ -13,7 +13,7 @@
   </parent>  
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-parent</artifactId>
-  <version>0.8.0-SNAPSHOT</version>
+  <version>0.9.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Strata-Parent</name>
   <description>OpenGamma Strata Parent</description>
@@ -60,7 +60,6 @@
     <module>basics</module>
     <module>collect</module>
     <module>calc</module>
-    <module>source</module>
     <module>product</module>
     <module>function</module>
     <module>loader</module>
@@ -314,6 +313,15 @@
   </dependencyManagement>
 
   <!-- ==================================================================== -->
+  <distributionManagement>
+    <repository>
+      <id>og-public-release</id>
+      <name>OpenGamma public maven repository</name>
+      <url>${og-public-release.url}</url>
+    </repository>
+  </distributionManagement>
+
+  <!-- ==================================================================== -->
   <profiles>
     <!-- build source and javadoc jars -->
     <profile>
@@ -479,9 +487,8 @@
     <guava.version>18.0</guava.version>
     <joda-convert.version>1.7</joda-convert.version>
     <joda-beans.version>1.7</joda-beans.version>
-    <jool.version>0.9.6</jool.version>
-    <slf4j.version>1.7.12</slf4j.version>
-    <testng.version>6.9.4</testng.version>
+    <slf4j.version>1.7.13</slf4j.version>
+    <testng.version>6.9.9</testng.version>
     <mockito.version>1.10.19</mockito.version>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata</windowtitle>

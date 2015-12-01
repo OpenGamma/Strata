@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -26,7 +27,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.rootfinding.RidderSingleRootFinder;
 
@@ -271,9 +271,9 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
    * @return the exercise boundary
    */
   public double kappa(DoubleArray discountedCashFlow, DoubleArray alpha) {
-    final Function1D<Double, Double> swapValue = new Function1D<Double, Double>() {
+    final Function<Double, Double> swapValue = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         double error = 0.0;
         for (int loopcf = 0; loopcf < alpha.size(); loopcf++) {
           error += discountedCashFlow.get(loopcf) *
@@ -341,9 +341,9 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
    * @return the exercise boundary
    */
   public double lambda(DoubleArray discountedCashFlow, DoubleArray alpha2, DoubleArray hwH) {
-    final Function1D<Double, Double> swapValue = new Function1D<Double, Double>() {
+    final Function<Double, Double> swapValue = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         double value = 0.0;
         for (int loopcf = 0; loopcf < alpha2.size(); loopcf++) {
           value += discountedCashFlow.get(loopcf) * Math.exp(-0.5 * alpha2.get(loopcf) - hwH.get(loopcf) * x);

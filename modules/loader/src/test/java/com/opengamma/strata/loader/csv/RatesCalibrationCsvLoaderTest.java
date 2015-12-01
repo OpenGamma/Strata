@@ -18,11 +18,11 @@ import com.google.common.collect.Iterables;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
-import com.opengamma.strata.market.value.ValueType;
 
 /**
  * Test {@link RatesCalibrationCsvLoader}.
@@ -101,7 +101,7 @@ public class RatesCalibrationCsvLoaderTest {
     assertEquals(entry1.getOvernightIndices(), ImmutableSet.of());
     assertEquals(entry1.getCurveDefinition().getName(), CurveName.of("USD-3ML"));
     assertEquals(entry1.getCurveDefinition().getYValueType(), ValueType.ZERO_RATE);
-    assertEquals(entry1.getCurveDefinition().getParameterCount(), 19);
+    assertEquals(entry1.getCurveDefinition().getParameterCount(), 21);
   }
 
   //-------------------------------------------------------------------------

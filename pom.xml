@@ -13,7 +13,7 @@
   </parent>  
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-root</artifactId>
-  <version>0.8.0-SNAPSHOT</version>
+  <version>0.9.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Strata-Root</name>
   <description>OpenGamma Strata root</description>
@@ -96,6 +96,15 @@
   </build>
 
   <!-- ==================================================================== -->
+  <distributionManagement>
+    <repository>
+      <id>og-public-release</id>
+      <name>OpenGamma public maven repository</name>
+      <url>${og-public-release.url}</url>
+    </repository>
+  </distributionManagement>
+
+  <!-- ==================================================================== -->
   <profiles>
     <!-- Profile including examples only if JavaFX available -->
     <profile>
@@ -105,17 +114,6 @@
       </activation>
       <modules>
         <module>examples</module>
-      </modules>
-    </profile>
-    <!-- Profile including analytics triggered by -Dbootstrap -->
-    <profile>
-      <id>include-analytics-module</id>
-      <activation>
-        <property><name>bootstrap</name></property>
-        <file><exists>${analytics.dir.path}/pom.xml</exists></file>
-      </activation>
-      <modules>
-        <module>${analytics.dir.path}</module>
       </modules>
     </profile>
     <!-- Profile creating dist zip triggered by -Ddist -->
@@ -143,7 +141,7 @@
                   <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
                   <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>Apache v2 licensed</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
                   <additionalparam>-Xdoclint:none</additionalparam>
-                  <excludePackageNames>com.opengamma.strata.source</excludePackageNames>
+                  <excludePackageNames>com.opengamma.strata.loader.impl:com.opengamma.strata.math.impl:com.opengamma.strata.pricer.impl:com.opengamma.strata.examples</excludePackageNames>
                   <links>
                     <link>http://www.joda.org/joda-beans/apidocs</link>
                     <link>http://www.joda.org/joda-collect/apidocs</link>
@@ -187,7 +185,6 @@
     <maven.deploy.skip>true</maven.deploy.skip>
     <!-- The relative module paths, can be overridden on command line -->
     <javafx.jar.path>${java.home}/lib/ext/jfxrt.jar</javafx.jar.path>
-    <analytics.dir.path>../Analytics</analytics.dir.path>
   </properties>
 
 </project>

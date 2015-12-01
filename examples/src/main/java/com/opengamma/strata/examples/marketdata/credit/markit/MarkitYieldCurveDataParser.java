@@ -17,9 +17,9 @@ import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
+import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
 import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
-import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
+import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
 import com.opengamma.strata.product.credit.type.IsdaYieldCurveConvention;
 
 /**
@@ -42,7 +42,7 @@ public class MarkitYieldCurveDataParser {
    * @param source the source to parse
    * @return the map of parsed yield curve par rates
    */
-  public static Map<IsdaYieldCurveParRatesId, IsdaYieldCurveParRates> parse(CharSource source) {
+  public static Map<IsdaYieldCurveInputsId, IsdaYieldCurveInputs> parse(CharSource source) {
     // parse the curve data
     Map<IsdaYieldCurveConvention, List<Point>> curveData = Maps.newHashMap();
     CsvFile csv = CsvFile.of(source, true);
@@ -69,11 +69,11 @@ public class MarkitYieldCurveDataParser {
     }
 
     // convert the curve data into the result map
-    Map<IsdaYieldCurveParRatesId, IsdaYieldCurveParRates> result = Maps.newHashMap();
+    Map<IsdaYieldCurveInputsId, IsdaYieldCurveInputs> result = Maps.newHashMap();
     for (IsdaYieldCurveConvention convention : curveData.keySet()) {
       List<Point> points = curveData.get(convention);
-      result.put(IsdaYieldCurveParRatesId.of(convention.getCurrency()),
-          IsdaYieldCurveParRates.of(
+      result.put(IsdaYieldCurveInputsId.of(convention.getCurrency()),
+          IsdaYieldCurveInputs.of(
               CurveName.of(convention.getName()),
               points.stream().map(s -> s.getTenor().getPeriod()).toArray(Period[]::new),
               points.stream().map(s -> s.getDate()).toArray(LocalDate[]::new),

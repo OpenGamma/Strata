@@ -15,11 +15,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.definition.CurveParameterSize;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
-import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
-import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
+import com.opengamma.strata.market.curve.CurveParameterSize;
+import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**

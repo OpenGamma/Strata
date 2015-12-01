@@ -6,7 +6,6 @@
 package com.opengamma.strata.report.framework.expression;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 
@@ -16,9 +15,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 
 /**
  * Test {@link CurveCurrencyParameterSensitivitiesTokenEvaluator}.

@@ -18,7 +18,8 @@
 <listEntry value="com.opengamma.strata.market"/>
 <listEntry value="com.opengamma.strata.market.amount"/>
 <listEntry value="com.opengamma.strata.market.curve"/>
-<listEntry value="com.opengamma.strata.market.curve.definition"/>
+<listEntry value="com.opengamma.strata.market.curve.meta"/>
+<listEntry value="com.opengamma.strata.market.curve.node"/>
 <listEntry value="com.opengamma.strata.market.curve.perturb"/>
 <listEntry value="com.opengamma.strata.market.explain"/>
 <listEntry value="com.opengamma.strata.market.id"/>
@@ -27,6 +28,7 @@
 <listEntry value="com.opengamma.strata.market.option"/>
 <listEntry value="com.opengamma.strata.market.sensitivity"/>
 <listEntry value="com.opengamma.strata.market.surface"/>
+<listEntry value="com.opengamma.strata.market.surface.meta"/>
 <listEntry value="com.opengamma.strata.market.value"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>

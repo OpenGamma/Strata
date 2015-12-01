@@ -8,9 +8,9 @@ package com.opengamma.strata.math.impl.integration;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import org.testng.annotations.Test;
+import java.util.function.Function;
 
-import com.opengamma.strata.math.impl.function.Function1D;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -33,10 +33,10 @@ public class AdaptiveCompositeIntegrator1DTest extends Integrator1DTestCase {
     assertEquals(-0.368924186060527, localInt.integrate(sampleFunc(), 1.1, 3.), 1.e-6); // answer from quadpack
   }
 
-  private Function1D<Double, Double> sampleFunc() {
-    return new Function1D<Double, Double>() {
+  private Function<Double, Double> sampleFunc() {
+    return new Function<Double, Double>() {
       @Override
-      public Double evaluate(final Double x) {
+      public Double apply(final Double x) {
         return 100. * Math.sin(10. / x) / x / x;
       }
     };

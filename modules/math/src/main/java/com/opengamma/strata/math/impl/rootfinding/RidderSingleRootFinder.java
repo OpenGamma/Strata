@@ -5,13 +5,14 @@
  */
 package com.opengamma.strata.math.impl.rootfinding;
 
+import java.util.function.Function;
+
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.solvers.RiddersSolver;
 import org.apache.commons.math3.exception.NoBracketingException;
 import org.apache.commons.math3.exception.TooManyEvaluationsException;
 
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
 
 /**
@@ -52,7 +53,7 @@ public class RidderSingleRootFinder extends RealSingleRootFinder {
    *  if the Commons method could not converge.
    */
   @Override
-  public Double getRoot(Function1D<Double, Double> function, Double xLow, Double xHigh) {
+  public Double getRoot(Function<Double, Double> function, Double xLow, Double xHigh) {
     checkInputs(function, xLow, xHigh);
     UnivariateFunction wrapped = CommonsMathWrapper.wrapUnivariate(function);
     try {

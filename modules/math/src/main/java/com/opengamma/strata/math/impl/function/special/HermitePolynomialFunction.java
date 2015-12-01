@@ -14,12 +14,7 @@ import com.opengamma.strata.math.impl.function.DoubleFunction1D;
  */
 public class HermitePolynomialFunction extends OrthogonalPolynomialFunctionGenerator {
 
-  private static final DoubleFunction1D TWO_X = new DoubleFunction1D() {
-    @Override
-    public Double evaluate(Double x) {
-      return 2 * x;
-    }
-  };
+  private static final DoubleFunction1D TWO_X = x -> 2 * x;
 
   @Override
   public DoubleFunction1D[] getPolynomials(int n) {

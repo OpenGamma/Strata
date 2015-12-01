@@ -5,10 +5,11 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
+import java.util.function.Function;
+
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 
@@ -85,12 +86,12 @@ public class NormalImpliedVolatilityFormula {
       if (count++ > MAX_ITERATIONS) {
         BracketRoot bracketer = new BracketRoot();
         BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(EPS);
-        Function1D<Double, Double> func = new Function1D<Double, Double>() {
+        Function<Double, Double> func = new Function<Double, Double>() {
           @SuppressWarnings({"synthetic-access"})
           @Override
-          public Double evaluate(Double volatility) {
+          public Double apply(Double volatility) {
             NormalFunctionData myData = NormalFunctionData.of(data.getForward(), data.getNumeraire(), volatility);
-            return NORMAL_PRICE_FUNCTION.getPriceFunction(option).evaluate(myData) - optionPrice;
+            return NORMAL_PRICE_FUNCTION.getPriceFunction(option).apply(myData) - optionPrice;
           }
         };
         double[] range = bracketer.getBracketedPoints(func, 0.0, 10.0);

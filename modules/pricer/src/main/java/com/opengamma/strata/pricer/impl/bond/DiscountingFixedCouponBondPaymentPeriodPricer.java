@@ -18,7 +18,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.CompoundedRateType;
 import com.opengamma.strata.market.value.IssuerCurveDiscountFactors;
-import com.opengamma.strata.product.rate.bond.FixedCouponBondPaymentPeriod;
+import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
 
 /**
  * Pricer implementation for bond payment periods based on a fixed coupon.

@@ -48,11 +48,11 @@ import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
+import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
-import com.opengamma.strata.market.curve.definition.CurveNode;
-import com.opengamma.strata.market.curve.definition.IborFixingDepositCurveNode;
+import com.opengamma.strata.market.curve.CurveNode;
+import com.opengamma.strata.market.curve.node.IborFixingDepositCurveNode;
 import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.QuoteId;
 
@@ -62,7 +62,7 @@ import com.opengamma.strata.market.id.QuoteId;
  * One curve is used for Discounting and Fed Fund forward.
  * The other curve is used for Libor 3M forward. 
  * <p>
- * Curve configuration and market data loaded from XML files.
+ * Curve configuration and market data loaded from csv files.
  * Tests that the trades used for calibration have a PV of 0.
  */
 public class CalibrationCheckExample {
@@ -203,7 +203,7 @@ public class CalibrationCheckExample {
       for (CurveNode node : nodes) {
         if (!(node instanceof IborFixingDepositCurveNode)) {
           // IborFixingDeposit is not a real trade, so there is no appropriate comparison
-          trades.add(node.trade(VALUATION_DATE, MarketData.builder().addObservableValuesById(quotes).build()));
+          trades.add(node.trade(VALUATION_DATE, MarketData.builder().addValuesById(quotes).build()));
         }
       }
     }

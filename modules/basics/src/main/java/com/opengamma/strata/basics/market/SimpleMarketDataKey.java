@@ -31,10 +31,21 @@ package com.opengamma.strata.basics.market;
 public interface SimpleMarketDataKey<T> extends MarketDataKey<T> {
 
   /**
-   * Returns a market data ID identifying the same market data value as this key.
+   * Converts this key to the matching identifier.
+   * <p>
+   * Market data keys identify a piece of market data in the context of a single calculation, whereas
+   * market data identifiers are a globally unique identifier for an item of data.
+   * <p>
+   * For example, a calculation has access to a single USD discounting curve, but the system
+   * can contain multiple curve groups, each with a USD discounting curve. For cases such as curves there
+   * is a mapping step to transform keys to IDs, controlled by the market data rules.
+   * <p>
+   * The market data key for a simple item of market data contains enough information to uniquely
+   * identify the market data in the global set of data. Therefore there is no mapping step required
+   * for the data and the market data ID can be directly derived from the market data key.
    *
-   * @param marketDataFeed  the market data feed which provides the underlying data used to build the value
-   * @return a market data ID identifying the same market data value as this key
+   * @param marketDataFeed  the market data feed that is the source of the market data
+   * @return the identifier corresponding to this key
    */
   public abstract MarketDataId<T> toMarketDataId(MarketDataFeed marketDataFeed);
 

@@ -16,9 +16,9 @@ import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlParseException;
 import com.opengamma.strata.loader.fpml.FpmlTradeParser;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.rate.fra.Fra;
-import com.opengamma.strata.product.rate.fra.FraDiscountingMethod;
-import com.opengamma.strata.product.rate.fra.FraTrade;
+import com.opengamma.strata.product.fra.Fra;
+import com.opengamma.strata.product.fra.FraDiscountingMethod;
+import com.opengamma.strata.product.fra.FraTrade;
 
 /**
  * FpML parser for FRAs.

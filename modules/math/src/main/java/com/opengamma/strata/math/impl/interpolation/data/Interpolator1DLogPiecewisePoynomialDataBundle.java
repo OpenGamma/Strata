@@ -25,7 +25,7 @@ public class Interpolator1DLogPiecewisePoynomialDataBundle extends Interpolator1
    * @param underlyingData Contains sorted data (x,y)
    * @param method {@link PiecewisePolynomialInterpolator}
    */
-  public Interpolator1DLogPiecewisePoynomialDataBundle(final Interpolator1DDataBundle underlyingData, final PiecewisePolynomialInterpolator method) {
+  public Interpolator1DLogPiecewisePoynomialDataBundle(Interpolator1DDataBundle underlyingData, PiecewisePolynomialInterpolator method) {
     super(underlyingData, method);
   }
 
@@ -35,15 +35,15 @@ public class Interpolator1DLogPiecewisePoynomialDataBundle extends Interpolator1
    * @param leftCond  Condition on left endpoint
    * @param rightCond  Condition on right endpoint
    */
-  public Interpolator1DLogPiecewisePoynomialDataBundle(final Interpolator1DDataBundle underlyingData, final PiecewisePolynomialInterpolator method, final double leftCond, final double rightCond) {
+  public Interpolator1DLogPiecewisePoynomialDataBundle(Interpolator1DDataBundle underlyingData, PiecewisePolynomialInterpolator method, double leftCond, double rightCond) {
     super(underlyingData, method, leftCond, rightCond);
   }
 
   @Override
   public double[] getBreakPointsY() {
-    final double[] bareY = super.getBreakPointsY();
-    final int nKnots = bareY.length;
-    final double[] res = new double[nKnots];
+    double[] bareY = super.getBreakPointsY();
+    int nKnots = bareY.length;
+    double[] res = new double[nKnots];
 
     for (int i = 0; i < nKnots; ++i) {
       res[i] = Math.exp(bareY[i]);
@@ -52,19 +52,19 @@ public class Interpolator1DLogPiecewisePoynomialDataBundle extends Interpolator1
   }
 
   @Override
-  public Double firstValue() {
+  public double firstValue() {
     return Math.exp(super.firstValue());
   }
 
   @Override
-  public Double get(final Double key) {
-    return Math.exp(super.get(key));
+  public double getIndex(int index) {
+    return Math.exp(super.getIndex(index));
   }
 
   @Override
-  public InterpolationBoundedValues getBoundedValues(final Double key) {
-    final int index = getLowerBoundIndex(key);
-    final double[] values = getValues();
+  public InterpolationBoundedValues getBoundedValues(double key) {
+    int index = getLowerBoundIndex(key);
+    double[] values = getValues();
     if (index == size() - 1) {
       return new InterpolationBoundedValues(index, getKeys()[index], values[index], null, null);
     }
@@ -73,9 +73,9 @@ public class Interpolator1DLogPiecewisePoynomialDataBundle extends Interpolator1
 
   @Override
   public double[] getValues() {
-    final double[] bareValues = super.getValues();
-    final int nValues = bareValues.length;
-    final double[] res = new double[nValues];
+    double[] bareValues = super.getValues();
+    int nValues = bareValues.length;
+    double[] res = new double[nValues];
 
     for (int i = 0; i < nValues; ++i) {
       res[i] = Math.exp(bareValues[i]);
@@ -84,7 +84,7 @@ public class Interpolator1DLogPiecewisePoynomialDataBundle extends Interpolator1
   }
 
   @Override
-  public Double lastValue() {
+  public double lastValue() {
     return Math.exp(super.lastValue());
   }
 

@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.fx;
 
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.fx.ExpandedFxSwap;
@@ -20,7 +20,7 @@ public class FxSwapBucketedPv01Function
   @Override
   protected CurveCurrencyParameterSensitivities execute(ExpandedFxSwap product, RatesProvider provider) {
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(product, provider);
-    return provider.curveParameterSensitivity(pointSensitivity);
+    return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
   }
 
 }

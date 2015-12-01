@@ -10,7 +10,7 @@ import java.util.List;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.market.ValueType;
 
 /**
  * Helper for creating common types of curves.

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.market.ValueType;
 
 /**
  * Metadata about a curve and curve parameters.

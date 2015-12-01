@@ -6,19 +6,17 @@
 package com.opengamma.strata.function.marketdata.curve;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static java.util.stream.Collectors.toMap;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataFeed;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -26,13 +24,13 @@ import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.ParRates;
-import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
-import com.opengamma.strata.market.curve.definition.NodalCurveDefinition;
+import com.opengamma.strata.market.curve.CurveInputs;
+import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.id.CurveGroupId;
-import com.opengamma.strata.market.id.ParRatesId;
+import com.opengamma.strata.market.id.CurveInputsId;
 import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -48,8 +46,10 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   // TODO Where should the root finder config come from?
   //   Should it be possible to override it for each call? Put it in MarketDataConfig?
   //   Is it a system-wide setting?
+
   /**
-   * Creates a new function for building curve groups that delegates to {@code curveBuilder} to perform calibration.
+   * Creates a new function for building curve groups that delegates to a {@link CurveCalibrator}
+   * to perform calibration.
    *
    * @param rootFinderConfig  the configuration for the root finder used when calibrating curves
    * @param measures  the measures used for calibration
@@ -62,25 +62,29 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         measures);
   }
 
+  /**
+   * Creates a new function for building curve groups that delegates to {@code curveCalibrator} to perform calibration.
+   *
+   * @param curveCalibrator  performs the calibration
+   */
+  public CurveGroupMarketDataFunction(CurveCalibrator curveCalibrator) {
+    this.curveCalibrator = curveCalibrator;
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public MarketDataRequirements requirements(CurveGroupId id, MarketDataConfig marketDataConfig) {
-    Optional<CurveGroupDefinition> optionalGroup = marketDataConfig.get(CurveGroupDefinition.class, id.getName());
+    CurveGroupDefinition groupDefn = marketDataConfig.get(CurveGroupDefinition.class, id.getName());
 
-    if (!optionalGroup.isPresent()) {
-      return MarketDataRequirements.empty();
-    }
-    CurveGroupDefinition groupDefn = optionalGroup.get();
-
-    // request par rates for any curves that need market data
-    // no par rates are requested if the curve definition contains all the market data needed to build the curve
-    List<ParRatesId> parRatesIds = groupDefn.getEntries().stream()
+    // request input data for any curves that need market data
+    // no input data is requested if the curve definition contains all the market data needed to build the curve
+    List<CurveInputsId> curveInputsIds = groupDefn.getEntries().stream()
         .filter(entry -> requiresMarketData(entry.getCurveDefinition()))
         .map(entry -> entry.getCurveDefinition().getName())
-        .map(curveName -> ParRatesId.of(groupDefn.getName(), curveName, id.getMarketDataFeed()))
+        .map(curveName -> CurveInputsId.of(groupDefn.getName(), curveName, id.getMarketDataFeed()))
         .collect(toImmutableList());
 
-    return MarketDataRequirements.builder().addValues(parRatesIds).build();
+    return MarketDataRequirements.builder().addValues(curveInputsIds).build();
   }
 
   @Override
@@ -90,12 +94,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       MarketDataConfig marketDataConfig) {
 
     CurveGroupName groupName = id.getName();
-    Optional<CurveGroupDefinition> optionalGroup = marketDataConfig.get(CurveGroupDefinition.class, groupName);
-
-    if (!optionalGroup.isPresent()) {
-      throw new IllegalArgumentException("No configuration found for curve group " + groupName);
-    }
-    CurveGroupDefinition groupDefn = optionalGroup.get();
+    CurveGroupDefinition groupDefn = marketDataConfig.get(CurveGroupDefinition.class, groupName);
     return buildCurveGroup(groupDefn, marketData, id.getMarketDataFeed());
   }
 
@@ -118,41 +117,41 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       CalculationEnvironment marketData,
       MarketDataFeed feed) {
 
-    // find and combine all the par rates
+    // find and combine all the input data
     CurveGroupName groupName = groupDefn.getName();
 
-    List<MarketDataBox<ParRates>> parRateBoxes = groupDefn.getEntries().stream()
+    List<MarketDataBox<CurveInputs>> inputBoxes = groupDefn.getEntries().stream()
         .map(CurveGroupEntry::getCurveDefinition)
-        .map(curveDefn -> parRates(curveDefn, marketData, groupName, feed))
+        .map(curveDefn -> curveInputs(curveDefn, marketData, groupName, feed))
         .collect(toImmutableList());
-    // If any of the rates have values for multiple scenarios then we need to build a curve group for each scenario.
-    // If all rates contain a single value then we only need to build a single curve group.
-    boolean multipleValues = parRateBoxes.stream().anyMatch(MarketDataBox::isScenarioValue);
+    // If any of the inputs have values for multiple scenarios then we need to build a curve group for each scenario.
+    // If all inputs contain a single value then we only need to build a single curve group.
+    boolean multipleValues = inputBoxes.stream().anyMatch(MarketDataBox::isScenarioValue);
 
     return multipleValues ?
-        buildMultipleCurveGroups(groupDefn, marketData.getValuationDate(), parRateBoxes) :
-        buildSingleCurveGroup(groupDefn, marketData.getValuationDate(), parRateBoxes);
+        buildMultipleCurveGroups(groupDefn, marketData.getValuationDate(), inputBoxes) :
+        buildSingleCurveGroup(groupDefn, marketData.getValuationDate(), inputBoxes);
   }
 
   private MarketDataBox<CurveGroup> buildMultipleCurveGroups(
       CurveGroupDefinition groupDefn,
       MarketDataBox<LocalDate> valuationDateBox,
-      List<MarketDataBox<ParRates>> parRateBoxes) {
+      List<MarketDataBox<CurveInputs>> inputBoxes) {
 
-    int scenarioCount = scenarioCount(valuationDateBox, parRateBoxes);
+    int scenarioCount = scenarioCount(valuationDateBox, inputBoxes);
     ImmutableList.Builder<CurveGroup> builder = ImmutableList.builder();
 
     for (int i = 0; i < scenarioCount; i++) {
-      List<ParRates> parRatesList = parRatesForScenario(parRateBoxes, i);
-      MarketData ratesByKey = ratesByKey(parRatesList);
+      List<CurveInputs> curveInputsList = inputsForScenario(inputBoxes, i);
+      MarketData inputs = inputsByKey(curveInputsList);
       LocalDate valuationDate = valuationDateBox.getValue(scenarioCount);
-      builder.add(buildGroup(groupDefn, valuationDate, ratesByKey));
+      builder.add(buildGroup(groupDefn, valuationDate, inputs));
     }
     ImmutableList<CurveGroup> curveGroups = builder.build();
     return MarketDataBox.ofScenarioValues(curveGroups);
   }
 
-  private static List<ParRates> parRatesForScenario(List<MarketDataBox<ParRates>> boxes, int scenarioIndex) {
+  private static List<CurveInputs> inputsForScenario(List<MarketDataBox<CurveInputs>> boxes, int scenarioIndex) {
     return boxes.stream()
         .map(box -> box.getValue(scenarioIndex))
         .collect(toImmutableList());
@@ -161,39 +160,56 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   private MarketDataBox<CurveGroup> buildSingleCurveGroup(
       CurveGroupDefinition groupDefn,
       MarketDataBox<LocalDate> valuationDate,
-      List<MarketDataBox<ParRates>> parRateBoxes) {
+      List<MarketDataBox<CurveInputs>> inputBoxes) {
 
-    List<ParRates> parRates = parRateBoxes.stream().map(MarketDataBox::getSingleValue).collect(toImmutableList());
-    MarketData parRateValues = ratesByKey(parRates);
-    CurveGroup curveGroup = buildGroup(groupDefn, valuationDate.getSingleValue(), parRateValues);
+    List<CurveInputs> inputs = inputBoxes.stream().map(MarketDataBox::getSingleValue).collect(toImmutableList());
+    MarketData inputValues = inputsByKey(inputs);
+    CurveGroup curveGroup = buildGroup(groupDefn, valuationDate.getSingleValue(), inputValues);
     return MarketDataBox.ofSingleValue(curveGroup);
   }
 
   /**
-   * Extracts the underlying quotes from the {@link ParRates} instances and returns them in a map.
+   * Extracts the underlying quotes from the {@link CurveInputs} instances and returns them in a map.
    *
-   * @param parRates  par rates objects
-   * @return the underlying quotes from the par rates
+   * @param inputs  input data for the curve
+   * @return the underlying quotes from the input data
    */
-  private static MarketData ratesByKey(List<ParRates> parRates) {
-    Map<ObservableKey, Double> valueMap = parRates.stream()
-        .flatMap(pr -> pr.toRatesByKey().entrySet().stream())
-        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-    return MarketData.of(valueMap);
+  private static MarketData inputsByKey(List<CurveInputs> inputs) {
+    Map<MarketDataKey<?>, Object> marketDataMap = new HashMap<>();
+
+    for (CurveInputs input : inputs) {
+      Map<? extends MarketDataKey<?>, ?> inputMarketData = input.getMarketData();
+
+      for (Map.Entry<? extends MarketDataKey<?>, ?> entry : inputMarketData.entrySet()) {
+        Object existingValue = marketDataMap.get(entry.getKey());
+
+        // If the same key is used by multiple different curves the corresponding market data value must be equal
+        if (existingValue == null) {
+          marketDataMap.put(entry.getKey(), entry.getValue());
+        } else if (!existingValue.equals(entry.getValue())) {
+          throw new IllegalArgumentException(
+              Messages.format(
+                  "Multiple unequal values found for key {}. Values: {} and {}",
+                  entry.getKey(),
+                  existingValue,
+                  entry.getValue()));
+        }
+      }
+    }
+    return MarketData.of(marketDataMap);
   }
 
   private CurveGroup buildGroup(
       CurveGroupDefinition groupDefn,
       LocalDate valuationDate,
-      MarketData parRateValues) {
+      MarketData marketData) {
 
     // perform the calibration
     ImmutableRatesProvider calibratedProvider = curveCalibrator.calibrate(
         groupDefn,
         valuationDate,
-        parRateValues,
-        ImmutableMap.of(),
-        FxMatrix.empty());
+        marketData,
+        ImmutableMap.of());
 
     return CurveGroup.of(
         groupDefn.getName(),
@@ -203,14 +219,14 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
 
   private static int scenarioCount(
       MarketDataBox<LocalDate> valuationDate,
-      List<MarketDataBox<ParRates>> parRateBoxes) {
+      List<MarketDataBox<CurveInputs>> curveInputBoxes) {
 
     int scenarioCount = 0;
 
     if (valuationDate.isScenarioValue()) {
       scenarioCount = valuationDate.getScenarioCount();
     }
-    for (MarketDataBox<ParRates> box : parRateBoxes) {
+    for (MarketDataBox<CurveInputs> box : curveInputBoxes) {
       if (box.isScenarioValue()) {
         int boxScenarioCount = box.getScenarioCount();
 
@@ -237,30 +253,30 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   }
 
   /**
-   * Returns the par rates required for the curve if available.
+   * Returns the inputs required for the curve if available.
    * <p>
-   * If no market data is required to build the curve an empty set of par rates is returned.
-   * If the curve requires par rates which are available in {@code marketData} they are returned.
-   * If the curve requires par rates which are not available in {@code marketData} a failure is returned.
+   * If no market data is required to build the curve an empty set of inputs is returned.
+   * If the curve requires inputs which are available in {@code marketData} they are returned.
+   * If the curve requires inputs which are not available in {@code marketData} an exception is thrown
    *
    * @param curveDefn  the curve definition
    * @param marketData  the market data
    * @param groupName  the name of the curve group being built
    * @param feed  the market data feed that is the source of the underlying market data
-   * @return the par rates required for the curve if available.
+   * @return the input data required for the curve if available
    */
-  private MarketDataBox<ParRates> parRates(
+  private MarketDataBox<CurveInputs> curveInputs(
       NodalCurveDefinition curveDefn,
       CalculationEnvironment marketData,
       CurveGroupName groupName,
       MarketDataFeed feed) {
 
-    // only try to get par rates from the market data if the curve needs market data
+    // only try to get inputs from the market data if the curve needs market data
     if (requiresMarketData(curveDefn)) {
-      ParRatesId parRatesId = ParRatesId.of(groupName, curveDefn.getName(), feed);
-      return marketData.getValue(parRatesId);
+      CurveInputsId curveInputsId = CurveInputsId.of(groupName, curveDefn.getName(), feed);
+      return marketData.getValue(curveInputsId);
     } else {
-      return MarketDataBox.ofSingleValue(ParRates.builder().build());
+      return MarketDataBox.ofSingleValue(CurveInputs.builder().build());
     }
   }
 
@@ -268,8 +284,8 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * Checks if the curve configuration requires market data.
    * <p>
    * If the curve configuration contains all the data required to build the curve it is not necessary to
-   * request par rates for the curve points. However if market data is required for any point on the
-   * curve this function must add {@link ParRates} to its market data requirements.
+   * request input data for the curve points. However if market data is required for any point on the
+   * curve this function must add {@link CurveInputs} to its market data requirements.
    *
    * @param curveDefn  the curve definition
    * @return true if the curve requires market data for calibration

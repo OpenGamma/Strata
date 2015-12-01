@@ -20,8 +20,8 @@ import com.google.common.collect.Multiset;
 import com.google.common.primitives.Ints;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.product.rate.swap.SwapLeg;
-import com.opengamma.strata.product.rate.swap.SwapLegType;
+import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.SwapLegType;
 
 /**
  * Evaluates a token against an iterable object and returns a value.

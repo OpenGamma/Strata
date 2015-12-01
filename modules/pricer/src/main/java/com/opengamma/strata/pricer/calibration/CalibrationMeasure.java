@@ -6,7 +6,7 @@
 package com.opengamma.strata.pricer.calibration;
 
 import com.opengamma.strata.basics.Trade;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**

@@ -28,7 +28,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.market.curve.definition.CurveParameterSize;
 
 /**
  * Jacobian matrix information produced during curve calibration.

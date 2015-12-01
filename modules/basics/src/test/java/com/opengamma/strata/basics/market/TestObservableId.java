@@ -59,7 +59,7 @@ public class TestObservableId implements ObservableId {
   }
 
   @Override
-  public ObservableKey toObservableKey() {
+  public ObservableKey toMarketDataKey() {
     return TestObservableKey.of(id);
   }
 

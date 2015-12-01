@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
-import com.opengamma.strata.math.impl.function.Function1D;
+import java.util.function.Function;
 
 /**
  * Gauss-Laguerre quadrature approximates the value of integrals of the form
@@ -51,12 +51,12 @@ public class GaussLaguerreQuadratureIntegrator1D extends GaussianQuadratureInteg
    * @throws UnsupportedOperationException If the lower limit is not $-\infty$ or the upper limit is not $\infty$
    */
   @Override
-  public Function1D<Double, Double> getIntegralFunction(Function1D<Double, Double> function, Double lower, Double upper) {
+  public Function<Double, Double> getIntegralFunction(Function<Double, Double> function, Double lower, Double upper) {
     if (lower.equals(LIMITS[0]) && upper.equals(LIMITS[1])) {
-      return new Function1D<Double, Double>() {
+      return new Function<Double, Double>() {
         @Override
-        public Double evaluate(Double x) {
-          return function.evaluate(x) * Math.exp(x);
+        public Double apply(Double x) {
+          return function.apply(x) * Math.exp(x);
         }
       };
     }

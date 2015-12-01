@@ -27,15 +27,12 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
-import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.interpolator.BoundCurveInterpolator;
+import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
-import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
-import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.strata.market.interpolator.CurveInterpolator;
 
 /**
  * A curve based on interpolation between a number of nodal points.
@@ -93,13 +90,9 @@ public final class InterpolatedNodalCurve
   @PropertyDefinition(validate = "notNull")
   private final CurveExtrapolator extrapolatorRight;
   /**
-   * The underlying data bundle.
+   * The bound interpolator.
    */
-  private transient final Interpolator1DDataBundle underlyingDataBundle;  // derived and cached, not a property
-  /**
-   * The underlying interpolator.
-   */
-  private transient final Interpolator1D underlyingInterpolator;  // derived and cached, not a property
+  private transient final BoundCurveInterpolator boundInterpolator;  // derived and cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -164,8 +157,7 @@ public final class InterpolatedNodalCurve
     this.extrapolatorLeft = extrapolatorLeft;
     this.interpolator = interpolator;
     this.extrapolatorRight = extrapolatorRight;
-    underlyingInterpolator = CombinedInterpolatorExtrapolator.of(interpolator, extrapolatorLeft, extrapolatorRight);
-    underlyingDataBundle = underlyingInterpolator.getDataBundleFromSortedArrays(xValues.toArray(), yValues.toArray());
+    this.boundInterpolator = interpolator.bind(xValues, yValues, extrapolatorLeft, extrapolatorRight);
   }
 
   @ImmutableDefaults
@@ -188,18 +180,18 @@ public final class InterpolatedNodalCurve
   //-------------------------------------------------------------------------
   @Override
   public double yValue(double x) {
-    return underlyingInterpolator.interpolate(underlyingDataBundle, x);
+    return boundInterpolator.yValue(x);
   }
 
   @Override
   public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
-    DoubleArray array = DoubleArray.copyOf(underlyingInterpolator.getNodeSensitivitiesForValue(underlyingDataBundle, x));
+    DoubleArray array = boundInterpolator.yValueParameterSensitivity(x);
     return CurveUnitParameterSensitivity.of(metadata, array);
   }
 
   @Override
   public double firstDerivative(double x) {
-    return underlyingInterpolator.firstDerivative(underlyingDataBundle, x);
+    return boundInterpolator.firstDerivative(x);
   }
 
   //-------------------------------------------------------------------------

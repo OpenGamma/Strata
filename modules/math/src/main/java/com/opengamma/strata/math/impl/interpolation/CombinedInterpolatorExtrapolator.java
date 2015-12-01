@@ -5,10 +5,7 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
-import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
@@ -16,7 +13,6 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
  */
 public class CombinedInterpolatorExtrapolator extends Interpolator1D {
 
-  private static final long serialVersionUID = 1L;
   private final Interpolator1D _interpolator;
   private final Extrapolator1D _leftExtrapolator;
   private final Extrapolator1D _rightExtrapolator;
@@ -62,36 +58,36 @@ public class CombinedInterpolatorExtrapolator extends Interpolator1D {
    * @return a combined interpolator and extrapolator which uses the specified interpolator and extrapolators
    */
   public static CombinedInterpolatorExtrapolator of(
-      CurveInterpolator interpolator,
-      CurveExtrapolator leftExtrapolator,
-      CurveExtrapolator rightExtrapolator) {
+      String interpolator,
+      String leftExtrapolator,
+      String rightExtrapolator) {
 
     ArgChecker.notNull(interpolator, "interpolator");
     ArgChecker.notNull(leftExtrapolator, "left extrapolator");
     ArgChecker.notNull(rightExtrapolator, "right extrapolator");
-
-    if (!(interpolator instanceof Interpolator1D)) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "Interpolator {} is not an instance of Interpolator1D",
-              interpolator));
-    }
-    if (!(leftExtrapolator instanceof Extrapolator1D)) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "Extrapolator {} is not an instance of Extrapolator1D",
-              leftExtrapolator));
-    }
-    if (!(rightExtrapolator instanceof Extrapolator1D)) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "Extrapolator {} is not an instance of Extrapolator1D",
-              rightExtrapolator));
-    }
     return new CombinedInterpolatorExtrapolator(
-        (Interpolator1D) interpolator,
-        (Extrapolator1D) leftExtrapolator,
-        (Extrapolator1D) rightExtrapolator);
+        Interpolator1DFactory.getCurveInterpolator(interpolator),
+        Interpolator1DFactory.getCurveExtrapolator(leftExtrapolator),
+        Interpolator1DFactory.getCurveExtrapolator(rightExtrapolator));
+  }
+
+  /**
+   * Returns a combined interpolator and extrapolator which uses the specified interpolator and extrapolators.
+   *
+   * @param interpolator  the interpolator
+   * @param leftExtrapolator  the extrapolator used for points to the left of the leftmost point in the data set
+   * @param rightExtrapolator  the extrapolator used for points to the right of the rightmost point in the data set
+   * @return a combined interpolator and extrapolator which uses the specified interpolator and extrapolators
+   */
+  public static CombinedInterpolatorExtrapolator of(
+      Interpolator1D interpolator,
+      Extrapolator1D leftExtrapolator,
+      Extrapolator1D rightExtrapolator) {
+
+    ArgChecker.notNull(interpolator, "interpolator");
+    ArgChecker.notNull(leftExtrapolator, "left extrapolator");
+    ArgChecker.notNull(rightExtrapolator, "right extrapolator");
+    return new CombinedInterpolatorExtrapolator(interpolator, leftExtrapolator, rightExtrapolator);
   }
 
   @Override
@@ -133,9 +129,8 @@ public class CombinedInterpolatorExtrapolator extends Interpolator1D {
 
   //TODO  fail earlier if there's no extrapolators?
   @Override
-  public Double interpolate(Interpolator1DDataBundle data, Double value) {
+  public double interpolate(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
 
     if (value < data.firstKey()) {
       return _leftExtrapolator.extrapolate(data, value, _interpolator);
@@ -146,9 +141,8 @@ public class CombinedInterpolatorExtrapolator extends Interpolator1D {
   }
 
   @Override
-  public double firstDerivative(Interpolator1DDataBundle data, Double value) {
+  public double firstDerivative(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
 
     if (value < data.firstKey()) {
       return _leftExtrapolator.firstDerivative(data, value, _interpolator);
@@ -159,9 +153,8 @@ public class CombinedInterpolatorExtrapolator extends Interpolator1D {
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
 
     if (value < data.firstKey()) {
       return _leftExtrapolator.getNodeSensitivitiesForValue(data, value, _interpolator);

@@ -5,8 +5,9 @@
  */
 package com.opengamma.strata.math.impl.rootfinding;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * 
@@ -33,7 +34,7 @@ public class BrentSingleRootFinder extends RealSingleRootFinder {
 
   //-------------------------------------------------------------------------
   @Override
-  public Double getRoot(Function1D<Double, Double> function, Double xLower, Double xUpper) {
+  public Double getRoot(Function<Double, Double> function, Double xLower, Double xUpper) {
     checkInputs(function, xLower, xUpper);
     if (xLower.equals(xUpper)) {
       return xLower;
@@ -43,8 +44,8 @@ public class BrentSingleRootFinder extends RealSingleRootFinder {
     double x3 = xUpper;
     double delta = 0;
     double oldDelta = 0;
-    double f1 = function.evaluate(x1);
-    double f2 = function.evaluate(x2);
+    double f1 = function.apply(x1);
+    double f2 = function.apply(x2);
     double f3 = f2;
     double r1, r2, r3, r4, eps, xMid, min1, min2;
     for (int i = 0; i < MAX_ITER; i++) {
@@ -101,9 +102,9 @@ public class BrentSingleRootFinder extends RealSingleRootFinder {
       } else {
         x2 += Math.copySign(eps, xMid);
       }
-      f1 = function.evaluate(x1);
-      f2 = function.evaluate(x2);
-      f3 = function.evaluate(x3);
+      f1 = function.apply(x1);
+      f2 = function.apply(x2);
+      f3 = function.apply(x3);
     }
     throw new MathException("Could not converge to root in " + MAX_ITER + " attempts");
   }

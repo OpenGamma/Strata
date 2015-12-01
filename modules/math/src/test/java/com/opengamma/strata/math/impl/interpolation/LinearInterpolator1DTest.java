@@ -8,10 +8,10 @@ package com.opengamma.strata.math.impl.interpolation;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.TreeMap;
+import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
@@ -21,10 +21,10 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
 @Test
 public class LinearInterpolator1DTest {
   private static final Interpolator1D INTERPOLATOR = new LinearInterpolator1D();
-  private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> FUNCTION = new Function<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 2 * x - 7;
     }
   };
@@ -33,11 +33,6 @@ public class LinearInterpolator1DTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
     INTERPOLATOR.interpolate(null, 2.3);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullValue() {
-    INTERPOLATOR.interpolate(MODEL, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -66,8 +61,8 @@ public class LinearInterpolator1DTest {
     double x;
     for (int i = 0; i < 10; i++) {
       x = Double.valueOf(i);
-      data.put(x, FUNCTION.evaluate(x));
+      data.put(x, FUNCTION.apply(x));
     }
-    assertEquals(INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(data), 3.4), FUNCTION.evaluate(3.4), 1e-15);
+    assertEquals(INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(data), 3.4), FUNCTION.apply(3.4), 1e-15);
   }
 }

@@ -7,18 +7,20 @@ package com.opengamma.strata.math.impl.rootfinding;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.function.Function1D;
+import com.opengamma.strata.math.impl.function.DoubleFunction1D;
 
 /**
  * Abstract test.
  */
 @Test
 public abstract class RealSingleRootFinderTestCase {
-  protected static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
+  protected static final Function<Double, Double> F = new Function<Double, Double>() {
     @Override
-    public Double evaluate(Double x) {
+    public Double apply(Double x) {
       return x * x * x - 4 * x * x + x + 6;
     }
   };
@@ -28,7 +30,7 @@ public abstract class RealSingleRootFinderTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
-    getRootFinder().checkInputs(null, 1., 2.);
+    getRootFinder().checkInputs((DoubleFunction1D) null, 1., 2.);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

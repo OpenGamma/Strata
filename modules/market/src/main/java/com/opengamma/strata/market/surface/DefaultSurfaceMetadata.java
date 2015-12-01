@@ -27,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.market.ValueType;
 
 /**
  * Default metadata for a surface.

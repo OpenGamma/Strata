@@ -19,17 +19,16 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
-import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
+import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.FlatExtrapolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
+import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
@@ -50,10 +49,8 @@ public class InterpolatedNodalCurveTest {
   private static final DoubleArray XVALUES2 = DoubleArray.of(0d, 2d, 3d);
   private static final DoubleArray YVALUES = DoubleArray.of(5d, 7d, 8d);
   private static final DoubleArray YVALUES_BUMPED = DoubleArray.of(3d, 5d, 6d);
-  private static final CurveInterpolator INTERPOLATOR = new LogLinearInterpolator1D();
-  private static final CurveExtrapolator FLAT_EXTRAPOLATOR = new FlatExtrapolator1D();
-  private static final Interpolator1D COMBINED =
-      CombinedInterpolatorExtrapolator.of(INTERPOLATOR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
+  private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LOG_LINEAR;
+  private static final CurveExtrapolator FLAT_EXTRAPOLATOR = CurveExtrapolators.FLAT;
 
   //-------------------------------------------------------------------------
   public void test_of_CurveMetadata() {
@@ -83,16 +80,20 @@ public class InterpolatedNodalCurveTest {
   //-------------------------------------------------------------------------
   public void test_lookup() {
     InterpolatedNodalCurve test = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    Interpolator1DDataBundle bundle = COMBINED.getDataBundle(XVALUES.toArray(), YVALUES.toArray());
+    Interpolator1D combined = new CombinedInterpolatorExtrapolator(
+        Interpolator1DFactory.LOG_LINEAR_INSTANCE,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE);
+    Interpolator1DDataBundle bundle = combined.getDataBundle(XVALUES.toArray(), YVALUES.toArray());
     assertThat(test.yValue(XVALUES.get(0))).isEqualTo(YVALUES.get(0));
     assertThat(test.yValue(XVALUES.get(1))).isEqualTo(YVALUES.get(1));
     assertThat(test.yValue(XVALUES.get(2))).isEqualTo(YVALUES.get(2));
-    assertThat(test.yValue(10d)).isEqualTo(COMBINED.interpolate(bundle, 10d));
+    assertThat(test.yValue(10d)).isEqualTo(combined.interpolate(bundle, 10d));
 
     assertThat(test.yValueParameterSensitivity(10d)).isEqualTo(
-        CurveUnitParameterSensitivity.of(METADATA, DoubleArray.copyOf(COMBINED.getNodeSensitivitiesForValue(bundle, 10d))));
+        CurveUnitParameterSensitivity.of(METADATA, DoubleArray.copyOf(combined.getNodeSensitivitiesForValue(bundle, 10d))));
 
-    assertThat(test.firstDerivative(10d)).isEqualTo(COMBINED.firstDerivative(bundle, 10d));
+    assertThat(test.firstDerivative(10d)).isEqualTo(combined.firstDerivative(bundle, 10d));
   }
 
   //-------------------------------------------------------------------------

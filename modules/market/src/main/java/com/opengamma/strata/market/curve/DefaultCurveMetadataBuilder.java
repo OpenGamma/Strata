@@ -13,7 +13,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.market.ValueType;
 
 /**
  * Builder for curve metadata.

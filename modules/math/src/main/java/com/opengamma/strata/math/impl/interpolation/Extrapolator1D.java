@@ -5,13 +5,12 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * Interface for extrapolators which can extrapolate beyond the ends of a set of data.
  */
-public interface Extrapolator1D extends Named {
+public interface Extrapolator1D {
 
   /**
    * Returns an extrapolated output value for the specified input value, interpolator and data bundle.
@@ -21,7 +20,7 @@ public interface Extrapolator1D extends Named {
    * @param interpolator  the interpolator used in conjunction with this extrapolator
    * @return an extrapolated output value for the specified input value, interpolator and data bundle
    */
-  public abstract Double extrapolate(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator);
+  public abstract double extrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator);
 
   /**
    * Returns the first derivative of the data at the specified point.
@@ -31,7 +30,7 @@ public interface Extrapolator1D extends Named {
    * @param interpolator  the interpolator used in conjunction with this extrapolator
    * @return the first derivative of the data at the specified point
    */
-  public abstract double firstDerivative(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator);
+  public abstract double firstDerivative(Interpolator1DDataBundle data, double value, Interpolator1D interpolator);
 
   /**
    * Returns the node sensitivities of the data at the specified point.
@@ -43,6 +42,6 @@ public interface Extrapolator1D extends Named {
    */
   public abstract double[] getNodeSensitivitiesForValue(
       Interpolator1DDataBundle data,
-      Double value,
+      double value,
       Interpolator1D interpolator);
 }

@@ -8,7 +8,9 @@ package com.opengamma.strata.pricer.impl.credit.isda;
 /**
  */
 public class AnnuityForSpreadApproxFunction extends AnnuityForSpreadFunction {
+
   private static final AnalyticCdsPricer PRICER = new AnalyticCdsPricer();
+
   private final CdsAnalytic _cds;
   private final IsdaCompliantYieldCurve _yieldCurve;
   private final double _eta;
@@ -30,7 +32,7 @@ public class AnnuityForSpreadApproxFunction extends AnnuityForSpreadFunction {
   }
 
   @Override
-  public Double evaluate(Double spread) {
+  public Double apply(Double spread) {
     double lambda = _eta * spread / _cds.getLGD();
     IsdaCompliantCreditCurve cc = new IsdaCompliantCreditCurve(1.0, lambda);
     return PRICER.annuity(_cds, _yieldCurve, cc, CdsPriceType.CLEAN);

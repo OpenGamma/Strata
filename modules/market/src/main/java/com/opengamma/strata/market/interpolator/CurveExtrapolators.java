@@ -5,13 +5,18 @@
  */
 package com.opengamma.strata.market.interpolator;
 
-import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
+import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
  * The standard set of curve extrapolators.
  */
 public final class CurveExtrapolators {
   // TODO: Check and add Javadoc for each constant
+
+  /**
+   * The extended enum lookup from name to instance.
+   */
+  static final ExtendedEnum<CurveExtrapolator> ENUM_LOOKUP = ExtendedEnum.of(CurveExtrapolator.class);
 
   /**
    * Flat extrapolator.

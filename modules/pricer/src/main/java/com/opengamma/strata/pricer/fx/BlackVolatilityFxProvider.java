@@ -9,7 +9,7 @@ import java.time.ZonedDateTime;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
-import com.opengamma.strata.market.sensitivity.SurfaceCurrencyParameterSensitivity;
+import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 
 /**
  * Data provider of volatility for FX options in the lognormal or Black-Scholes model.

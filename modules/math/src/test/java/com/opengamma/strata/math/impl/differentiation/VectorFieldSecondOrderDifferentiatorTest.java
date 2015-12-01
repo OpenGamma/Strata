@@ -7,11 +7,12 @@ package com.opengamma.strata.math.impl.differentiation;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Test.
@@ -19,10 +20,10 @@ import com.opengamma.strata.math.impl.function.Function1D;
 @Test
 public class VectorFieldSecondOrderDifferentiatorTest {
 
-  private static Function1D<DoubleArray, DoubleArray> FUNC = new Function1D<DoubleArray, DoubleArray>() {
+  private static Function<DoubleArray, DoubleArray> FUNC = new Function<DoubleArray, DoubleArray>() {
 
     @Override
-    public DoubleArray evaluate(DoubleArray x) {
+    public DoubleArray apply(DoubleArray x) {
       double a = x.get(0);
       double theta = x.get(1);
       double c1 = Math.cos(theta);
@@ -30,10 +31,10 @@ public class VectorFieldSecondOrderDifferentiatorTest {
     }
   };
 
-  private static Function1D<DoubleArray, Boolean> DOMAIN = new Function1D<DoubleArray, Boolean>() {
+  private static Function<DoubleArray, Boolean> DOMAIN = new Function<DoubleArray, Boolean>() {
 
     @Override
-    public Boolean evaluate(DoubleArray x) {
+    public Boolean apply(DoubleArray x) {
       double a = x.get(0);
       double theta = x.get(1);
       if (a <= 0) {
@@ -46,9 +47,9 @@ public class VectorFieldSecondOrderDifferentiatorTest {
     }
   };
 
-  private static Function1D<DoubleArray, DoubleMatrix> DW1 = new Function1D<DoubleArray, DoubleMatrix>() {
+  private static Function<DoubleArray, DoubleMatrix> DW1 = new Function<DoubleArray, DoubleMatrix>() {
     @Override
-    public DoubleMatrix evaluate(DoubleArray x) {
+    public DoubleMatrix apply(DoubleArray x) {
       double a = x.get(0);
       double theta = x.get(1);
       double[][] temp = new double[2][2];
@@ -62,9 +63,9 @@ public class VectorFieldSecondOrderDifferentiatorTest {
     }
   };
 
-  private static Function1D<DoubleArray, DoubleMatrix> DW2 = new Function1D<DoubleArray, DoubleMatrix>() {
+  private static Function<DoubleArray, DoubleMatrix> DW2 = new Function<DoubleArray, DoubleMatrix>() {
     @Override
-    public DoubleMatrix evaluate(DoubleArray x) {
+    public DoubleMatrix apply(DoubleArray x) {
       double a = x.get(0);
       double theta = x.get(1);
       double[][] temp = new double[2][2];
@@ -85,11 +86,11 @@ public class VectorFieldSecondOrderDifferentiatorTest {
     DoubleArray x = DoubleArray.of(a, theta);
 
     VectorFieldSecondOrderDifferentiator fd = new VectorFieldSecondOrderDifferentiator();
-    Function1D<DoubleArray, DoubleMatrix[]> fdFuncs = fd.differentiate(FUNC);
-    DoubleMatrix[] fdValues = fdFuncs.evaluate(x);
+    Function<DoubleArray, DoubleMatrix[]> fdFuncs = fd.differentiate(FUNC);
+    DoubleMatrix[] fdValues = fdFuncs.apply(x);
 
-    DoubleMatrix t1 = DW1.evaluate(x);
-    DoubleMatrix t2 = DW2.evaluate(x);
+    DoubleMatrix t1 = DW1.apply(x);
+    DoubleMatrix t2 = DW2.apply(x);
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
         assertEquals("first observation " + i + " " + j, t1.get(i, j), fdValues[0].get(i, j), 1e-6);
@@ -101,8 +102,8 @@ public class VectorFieldSecondOrderDifferentiatorTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void outsideDomainTest() {
     VectorFieldSecondOrderDifferentiator fd = new VectorFieldSecondOrderDifferentiator();
-    Function1D<DoubleArray, DoubleMatrix[]> fdFuncs = fd.differentiate(FUNC, DOMAIN);
-    fdFuncs.evaluate(DoubleArray.of(-1.0, 0.3));
+    Function<DoubleArray, DoubleMatrix[]> fdFuncs = fd.differentiate(FUNC, DOMAIN);
+    fdFuncs.apply(DoubleArray.of(-1.0, 0.3));
   }
 
   @Test
@@ -115,12 +116,12 @@ public class VectorFieldSecondOrderDifferentiatorTest {
     x[3] = DoubleArray.of(1.2, Math.PI);
 
     VectorFieldSecondOrderDifferentiator fd = new VectorFieldSecondOrderDifferentiator();
-    Function1D<DoubleArray, DoubleMatrix[]> fdFuncs = fd.differentiate(FUNC, DOMAIN);
+    Function<DoubleArray, DoubleMatrix[]> fdFuncs = fd.differentiate(FUNC, DOMAIN);
 
     for (int k = 0; k < 4; k++) {
-      DoubleMatrix[] fdValues = fdFuncs.evaluate(x[k]);
-      DoubleMatrix t1 = DW1.evaluate(x[k]);
-      DoubleMatrix t2 = DW2.evaluate(x[k]);
+      DoubleMatrix[] fdValues = fdFuncs.apply(x[k]);
+      DoubleMatrix t1 = DW1.apply(x[k]);
+      DoubleMatrix t2 = DW2.apply(x[k]);
       for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++) {
           assertEquals("first observation " + i + " " + j, t1.get(i, j), fdValues[0].get(i, j), 1e-6);

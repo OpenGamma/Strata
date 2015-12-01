@@ -18,8 +18,9 @@ import com.opengamma.strata.math.impl.linearalgebra.TridiagonalMatrix;
 /**
  * 
  */
-public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBundle {
-  private final Interpolator1DDataBundle _underlyingData;
+public class Interpolator1DCubicSplineDataBundle
+    extends ForwardingInterpolator1DDataBundle {
+
   private double[] _secondDerivatives;
   private double[][] _secondDerivativesSensitivities;
   private final double _leftFirstDev;
@@ -27,9 +28,8 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
   private final boolean _leftNatural;
   private final boolean _rightNatural;
 
-  public Interpolator1DCubicSplineDataBundle(final Interpolator1DDataBundle underlyingData) {
-    ArgChecker.notNull(underlyingData, "underlying data");
-    _underlyingData = underlyingData;
+  public Interpolator1DCubicSplineDataBundle(Interpolator1DDataBundle underlyingData) {
+    super(underlyingData);
     _leftFirstDev = 0;
     _rightFirstDev = 0;
     _leftNatural = true;
@@ -44,9 +44,8 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
    * @param rightGrad The gradient of the function at the right most knot. <b>Note: </b>to leave this unspecified (i.e. natural with zero second derivative),
    *  set the value to Double.POSITIVE_INFINITY
    */
-  public Interpolator1DCubicSplineDataBundle(final Interpolator1DDataBundle underlyingData, final double leftGrad, final double rightGrad) {
-    ArgChecker.notNull(underlyingData, "underlying data");
-    _underlyingData = underlyingData;
+  public Interpolator1DCubicSplineDataBundle(Interpolator1DDataBundle underlyingData, double leftGrad, double rightGrad) {
+    super(underlyingData);
     if (Double.isInfinite(leftGrad)) {
       _leftFirstDev = 0;
       _leftNatural = true;
@@ -64,91 +63,21 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
   }
 
   private double[] calculateSecondDerivative() {
-    final double[] x = getKeys();
-    final double[] y = getValues();
-    final int n = x.length;
-    final double[] deltaX = new double[n - 1];
-    final double[] deltaYOverDeltaX = new double[n - 1];
-    final double[] oneOverDeltaX = new double[n - 1];
+    double[] x = getKeys();
+    double[] y = getValues();
+    int n = x.length;
+    double[] deltaX = new double[n - 1];
+    double[] deltaYOverDeltaX = new double[n - 1];
+    double[] oneOverDeltaX = new double[n - 1];
 
     for (int i = 0; i < n - 1; i++) {
       deltaX[i] = x[i + 1] - x[i];
       oneOverDeltaX[i] = 1.0 / deltaX[i];
       deltaYOverDeltaX[i] = (y[i + 1] - y[i]) * oneOverDeltaX[i];
     }
-    final DoubleMatrix inverseTriDiag = getInverseTridiagonalMatrix(deltaX);
-    final DoubleArray rhsVector = getRHSVector(deltaYOverDeltaX);
+    DoubleMatrix inverseTriDiag = getInverseTridiagonalMatrix(deltaX);
+    DoubleArray rhsVector = getRHSVector(deltaYOverDeltaX);
     return ((DoubleArray) OG_ALGEBRA.multiply(inverseTriDiag, rhsVector)).toArray();
-  }
-
-  @Override
-  public boolean containsKey(final Double key) {
-    return _underlyingData.containsKey(key);
-  }
-
-  @Override
-  public Double firstKey() {
-    return _underlyingData.firstKey();
-  }
-
-  @Override
-  public Double firstValue() {
-    return _underlyingData.firstValue();
-  }
-
-  @Override
-  public Double get(final Double key) {
-    return _underlyingData.get(key);
-  }
-
-  @Override
-  public InterpolationBoundedValues getBoundedValues(final Double key) {
-    return _underlyingData.getBoundedValues(key);
-  }
-
-  @Override
-  public double[] getKeys() {
-    return _underlyingData.getKeys();
-  }
-
-  @Override
-  public int getLowerBoundIndex(final Double value) {
-    return _underlyingData.getLowerBoundIndex(value);
-  }
-
-  @Override
-  public Double getLowerBoundKey(final Double value) {
-    return _underlyingData.getLowerBoundKey(value);
-  }
-
-  @Override
-  public double[] getValues() {
-    return _underlyingData.getValues();
-  }
-
-  @Override
-  public Double higherKey(final Double key) {
-    return _underlyingData.higherKey(key);
-  }
-
-  @Override
-  public Double higherValue(final Double key) {
-    return _underlyingData.higherValue(key);
-  }
-
-  @Override
-  public Double lastKey() {
-    return _underlyingData.lastKey();
-  }
-
-  @Override
-  public Double lastValue() {
-    return _underlyingData.lastValue();
-  }
-
-  @Override
-  public int size() {
-    return _underlyingData.size();
   }
 
   public double[] getSecondDerivatives() {
@@ -161,12 +90,12 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
   //TODO not ideal that it recomputes the inverse matrix
   public double[][] getSecondDerivativesSensitivities() {
     if (_secondDerivativesSensitivities == null) {
-      final double[] x = getKeys();
-      final double[] y = getValues();
-      final int n = x.length;
-      final double[] deltaX = new double[n - 1];
-      final double[] deltaYOverDeltaX = new double[n - 1];
-      final double[] oneOverDeltaX = new double[n - 1];
+      double[] x = getKeys();
+      double[] y = getValues();
+      int n = x.length;
+      double[] deltaX = new double[n - 1];
+      double[] deltaYOverDeltaX = new double[n - 1];
+      double[] oneOverDeltaX = new double[n - 1];
 
       for (int i = 0; i < n - 1; i++) {
         deltaX[i] = x[i + 1] - x[i];
@@ -174,17 +103,17 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
         deltaYOverDeltaX[i] = (y[i + 1] - y[i]) * oneOverDeltaX[i];
       }
 
-      final DoubleMatrix inverseTriDiag = getInverseTridiagonalMatrix(deltaX);
-      final DoubleMatrix rhsMatrix = getRHSMatrix(oneOverDeltaX);
+      DoubleMatrix inverseTriDiag = getInverseTridiagonalMatrix(deltaX);
+      DoubleMatrix rhsMatrix = getRHSMatrix(oneOverDeltaX);
       _secondDerivativesSensitivities = ((DoubleMatrix) OG_ALGEBRA.multiply(inverseTriDiag, rhsMatrix)).toArray();
     }
     return _secondDerivativesSensitivities;
   }
 
-  private DoubleMatrix getRHSMatrix(final double[] oneOverDeltaX) {
-    final int n = oneOverDeltaX.length + 1;
+  private DoubleMatrix getRHSMatrix(double[] oneOverDeltaX) {
+    int n = oneOverDeltaX.length + 1;
 
-    final double[][] res = new double[n][n];
+    double[][] res = new double[n][n];
     for (int i = 1; i < n - 1; i++) {
       res[i][i - 1] = oneOverDeltaX[i - 1];
       res[i][i] = -oneOverDeltaX[i] - oneOverDeltaX[i - 1];
@@ -202,9 +131,9 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
     return DoubleMatrix.copyOf(res);
   }
 
-  private DoubleArray getRHSVector(final double[] deltaYOverDeltaX) {
-    final int n = deltaYOverDeltaX.length + 1;
-    final double[] res = new double[n];
+  private DoubleArray getRHSVector(double[] deltaYOverDeltaX) {
+    int n = deltaYOverDeltaX.length + 1;
+    double[] res = new double[n];
 
     for (int i = 1; i < n - 1; i++) {
       res[i] = deltaYOverDeltaX[i] - deltaYOverDeltaX[i - 1];
@@ -219,12 +148,12 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
     return DoubleArray.copyOf(res);
   }
 
-  private DoubleMatrix getInverseTridiagonalMatrix(final double[] deltaX) {
-    final InverseTridiagonalMatrixCalculator invertor = new InverseTridiagonalMatrixCalculator();
-    final int n = deltaX.length + 1;
-    final double[] a = new double[n];
-    final double[] b = new double[n - 1];
-    final double[] c = new double[n - 1];
+  private DoubleMatrix getInverseTridiagonalMatrix(double[] deltaX) {
+    InverseTridiagonalMatrixCalculator invertor = new InverseTridiagonalMatrixCalculator();
+    int n = deltaX.length + 1;
+    double[] a = new double[n];
+    double[] b = new double[n - 1];
+    double[] c = new double[n - 1];
     for (int i = 1; i < n - 1; i++) {
       a[i] = (deltaX[i - 1] + deltaX[i]) / 3.0;
       b[i] = deltaX[i] / 6.0;
@@ -246,24 +175,24 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
       c[n - 2] = deltaX[n - 2] / 6.0;
     }
 
-    final TridiagonalMatrix tridiagonal = new TridiagonalMatrix(a, b, c);
-    return invertor.evaluate(tridiagonal);
+    TridiagonalMatrix tridiagonal = new TridiagonalMatrix(a, b, c);
+    return invertor.apply(tridiagonal);
   }
 
   @Override
-  public void setYValueAtIndex(final int index, final double y) {
+  public void setYValueAtIndex(int index, double y) {
     ArgChecker.notNegative(index, "index");
     if (index >= size()) {
       throw new IllegalArgumentException("Index was greater than number of data points");
     }
-    _underlyingData.setYValueAtIndex(index, y);
+    getUnderlying().setYValueAtIndex(index, y);
     _secondDerivatives = null;
     _secondDerivativesSensitivities = null;
   }
 
   @Override
   public int hashCode() {
-    final int prime = 31;
+    int prime = 31;
     int result = 1;
     long temp;
     temp = Double.doubleToLongBits(_leftFirstDev);
@@ -272,12 +201,12 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
     temp = Double.doubleToLongBits(_rightFirstDev);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + 1237;
-    result = prime * result + ((_underlyingData == null) ? 0 : _underlyingData.hashCode());
+    result = prime * result + ((getUnderlying() == null) ? 0 : getUnderlying().hashCode());
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -287,8 +216,8 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final Interpolator1DCubicSplineDataBundle other = (Interpolator1DCubicSplineDataBundle) obj;
-    if (!Objects.equals(_underlyingData, other._underlyingData)) {
+    Interpolator1DCubicSplineDataBundle other = (Interpolator1DCubicSplineDataBundle) obj;
+    if (!Objects.equals(getUnderlying(), other.getUnderlying())) {
       return false;
     }
     if (Double.doubleToLongBits(_leftFirstDev) != Double.doubleToLongBits(other._leftFirstDev)) {

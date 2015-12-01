@@ -49,7 +49,6 @@ public final class TestMarketDataMap implements CalculationMarketData {
   @Override
   public <T> MarketDataBox<T> getValue(MarketDataKey<T> key) {
     T value = (T) marketData.get(key);
-
     if (value != null) {
       return MarketDataBox.ofSingleValue(value);
     } else {
@@ -60,12 +59,7 @@ public final class TestMarketDataMap implements CalculationMarketData {
   @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key) {
     LocalDateDoubleTimeSeries timeSeries = timeSeriesMap.get(key);
-
-    if (timeSeries != null) {
-      return timeSeries;
-    } else {
-      throw new IllegalArgumentException("No time series for " + key);
-    }
+    return timeSeries == null ? LocalDateDoubleTimeSeries.empty() : timeSeries;
   }
 
 }

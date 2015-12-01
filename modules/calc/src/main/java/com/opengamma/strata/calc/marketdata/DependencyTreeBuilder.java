@@ -34,13 +34,13 @@ import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 class DependencyTreeBuilder {
 
   /** The market data supplied by the user. */
-  private final MarketEnvironment suppliedData;
+  private final CalculationEnvironment suppliedData;
 
   /** The functions that create items of market data. */
   private final Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions;
 
   /** The requirements for market data used in a set of calculations. */
-  private final CalculationRequirements requirements;
+  private final MarketDataRequirements requirements;
 
   /** Configuration specifying how market data values should be built. */
   private final MarketDataConfig marketDataConfig;
@@ -55,8 +55,8 @@ class DependencyTreeBuilder {
    * @return a tree builder that builds the dependency tree for the market data required by a set of calculations
    */
   static DependencyTreeBuilder of(
-      MarketEnvironment suppliedData,
-      CalculationRequirements requirements,
+      CalculationEnvironment suppliedData,
+      MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
       Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
 
@@ -64,8 +64,8 @@ class DependencyTreeBuilder {
   }
 
   private DependencyTreeBuilder(
-      MarketEnvironment suppliedData,
-      CalculationRequirements requirements,
+      CalculationEnvironment suppliedData,
+      MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
       Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
 
@@ -90,7 +90,7 @@ class DependencyTreeBuilder {
    * @param requirements  requirements for market data needed for a set of calculations
    * @return nodes representing the dependencies of a set of market data
    */
-  private List<MarketDataNode> dependencyNodes(CalculationRequirements requirements) {
+  private List<MarketDataNode> dependencyNodes(MarketDataRequirements requirements) {
 
     List<MarketDataNode> observableNodes =
         buildNodes(requirements.getObservables(), MarketDataNode.DataType.SINGLE_VALUE);
@@ -130,21 +130,25 @@ class DependencyTreeBuilder {
    */
   private MarketDataNode buildNode(MarketDataId<?> id, MarketDataNode.DataType dataType) {
 
-    // Observable data has special handling and is guaranteed to have a builder.
+    // Observable data has special handling and is guaranteed to have a function.
     // Supplied data definitely has no dependencies because it already exists and doesn't need to be built.
     if (id instanceof ObservableId || isSupplied(id, dataType, suppliedData)) {
       return MarketDataNode.leaf(id, dataType);
     }
-    // Find the builder that can build the data identified by the ID
+    // Find the function that can build the data identified by the ID
     @SuppressWarnings("rawtypes")
-    MarketDataFunction builder = functions.get(id.getClass());
+    MarketDataFunction function = functions.get(id.getClass());
 
-    if (builder != null) {
-      @SuppressWarnings("unchecked")
-      MarketDataRequirements requirements = builder.requirements(id, marketDataConfig);
-      return MarketDataNode.child(id, dataType, dependencyNodes(CalculationRequirements.of(requirements)));
+    if (function != null) {
+      try {
+        @SuppressWarnings("unchecked")
+        MarketDataRequirements requirements = function.requirements(id, marketDataConfig);
+        return MarketDataNode.child(id, dataType, dependencyNodes(requirements));
+      } catch (Exception e) {
+        return MarketDataNode.child(id, dataType, ImmutableList.of());
+      }
     } else {
-      // If there is no builder insert a leaf node. It will be flagged as an error when the data is built
+      // If there is no function insert a leaf node. It will be flagged as an error when the data is built
       return MarketDataNode.leaf(id, dataType);
     }
   }
@@ -159,7 +163,7 @@ class DependencyTreeBuilder {
   private static boolean isSupplied(
       MarketDataId<?> id,
       MarketDataNode.DataType dataType,
-      MarketEnvironment suppliedData) {
+      CalculationEnvironment suppliedData) {
 
     switch (dataType) {
       case TIME_SERIES:

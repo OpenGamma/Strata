@@ -13,6 +13,7 @@ import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -20,7 +21,6 @@ import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.DiscountFactorsId;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
-import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 
 /**

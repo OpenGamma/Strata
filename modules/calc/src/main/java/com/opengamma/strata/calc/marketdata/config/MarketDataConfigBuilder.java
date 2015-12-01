@@ -19,6 +19,9 @@ public final class MarketDataConfigBuilder {
   /** The configuration objects, keyed by their type and name. */
   private final Map<Class<?>, SingleTypeMarketDataConfig> values = new HashMap<>();
 
+  /** The configuration objects where there is only one instance per type. */
+  private final Map<Class<?>, Object> defaultValues = new HashMap<>();
+
   /**
    * Package-private constructor used by {@link MarketDataConfig#builder()}.
    */
@@ -35,7 +38,6 @@ public final class MarketDataConfigBuilder {
   public MarketDataConfigBuilder add(String name, Object value) {
     ArgChecker.notEmpty(name, "name");
     ArgChecker.notNull(value, "value");
-
 
     Class<?> configType = value.getClass();
     SingleTypeMarketDataConfig configs = configsForType(configType);
@@ -54,10 +56,29 @@ public final class MarketDataConfigBuilder {
     ArgChecker.notNull(name, "name");
     ArgChecker.notNull(value, "value");
 
-
     Class<?> configType = value.getClass();
     SingleTypeMarketDataConfig configs = configsForType(configType);
     values.put(configType, configs.withConfig(name.toString(), value));
+    return this;
+  }
+
+  /**
+   * Adds an item of configuration that is the default of its type.
+   * <p>
+   * There can only be one default item for each type.
+   * <p>
+   * There is a class of configuration where there is always a one value shared between all calculations.
+   * An example is the configuration which specifies which market quote to use when building FX rates for
+   * a currency pair. All calculations use the same set of FX rates obtained from the same underlying
+   * market data.
+   *
+   * @param value  the configuration value
+   * @param <T>  the type used when looking up the configuration
+   * @return this builder
+   */
+  public <T> MarketDataConfigBuilder addDefault(T value) {
+    ArgChecker.notNull(value, "value");
+    defaultValues.put(value.getClass(), value);
     return this;
   }
 
@@ -67,7 +88,7 @@ public final class MarketDataConfigBuilder {
    * @return a {@link MarketDataConfig} instance built from the data in this builder
    */
   public MarketDataConfig build() {
-    return new MarketDataConfig(values);
+    return new MarketDataConfig(values, defaultValues);
   }
 
   /**

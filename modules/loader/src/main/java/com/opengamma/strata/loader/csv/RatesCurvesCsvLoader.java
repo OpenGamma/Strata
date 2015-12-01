@@ -22,19 +22,19 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.RateIndex;
-import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
-import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.loader.LoaderUtils;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.RateCurveId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
-import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.market.interpolator.CurveExtrapolator;
+import com.opengamma.strata.market.interpolator.CurveInterpolator;
 
 /**
  * Loads a set of rates curves into memory by reading from CSV resources.

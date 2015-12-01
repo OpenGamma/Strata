@@ -40,7 +40,7 @@ public class NormalImpliedVolatilityFormulaTest {
       SIGMA[i] = FORWARD * (0.05 + 4.0 * i / 100.0);
       DATA[i] = NormalFunctionData.of(FORWARD, DF, SIGMA[i]);
       OPTIONS[i] = EuropeanVanillaOption.of(STRIKES[i], T, PutCall.CALL);
-      PRICES[i] = FUNCTION.getPriceFunction(OPTIONS[i]).evaluate(DATA[i]);
+      PRICES[i] = FUNCTION.getPriceFunction(OPTIONS[i]).apply(DATA[i]);
     }
   }
 

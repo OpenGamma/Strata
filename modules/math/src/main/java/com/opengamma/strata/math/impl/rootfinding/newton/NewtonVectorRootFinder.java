@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
+import java.util.function.Function;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +16,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.math.impl.rootfinding.VectorRootFinder;
@@ -55,7 +56,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
   }
 
   @Override
-  public DoubleArray getRoot(Function1D<DoubleArray, DoubleArray> function, DoubleArray startPosition) {
+  public DoubleArray getRoot(Function<DoubleArray, DoubleArray> function, DoubleArray startPosition) {
     VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
     return getRoot(function, jac.differentiate(function), startPosition);
   }
@@ -69,12 +70,12 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
    */
 
   @SuppressWarnings("synthetic-access")
-  public DoubleArray getRoot(Function1D<DoubleArray, DoubleArray> function,
-      Function1D<DoubleArray, DoubleMatrix> jacobianFunction, DoubleArray startPosition) {
+  public DoubleArray getRoot(Function<DoubleArray, DoubleArray> function,
+      Function<DoubleArray, DoubleMatrix> jacobianFunction, DoubleArray startPosition) {
     checkInputs(function, startPosition);
 
     DataBundle data = new DataBundle();
-    DoubleArray y = function.evaluate(startPosition);
+    DoubleArray y = function.apply(startPosition);
     data.setX(startPosition);
     data.setY(y);
     data.setG0(_algebra.getInnerProduct(y, y));
@@ -124,13 +125,13 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     return data.getX();
   }
 
-  private String getErrorMessage(DataBundle data, Function1D<DoubleArray, DoubleMatrix> jacobianFunction) {
+  private String getErrorMessage(DataBundle data, Function<DoubleArray, DoubleMatrix> jacobianFunction) {
     return "Final position:" + data.getX() + "\nlast deltaX:" + data.getDeltaX() + "\n function value:" +
-        data.getY() + "\nJacobian: \n" + jacobianFunction.evaluate(data.getX());
+        data.getY() + "\nJacobian: \n" + jacobianFunction.apply(data.getX());
   }
 
   private boolean getNextPosition(
-      Function1D<DoubleArray, DoubleArray> function,
+      Function<DoubleArray, DoubleArray> function,
       DoubleMatrix estimate,
       DataBundle data) {
 
@@ -164,18 +165,18 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     return true;
   }
 
-  protected void updatePosition(DoubleArray p, Function1D<DoubleArray, DoubleArray> function, DataBundle data) {
+  protected void updatePosition(DoubleArray p, Function<DoubleArray, DoubleArray> function, DataBundle data) {
     double lambda0 = data.getLambda0();
     DoubleArray deltaX = (DoubleArray) _algebra.scale(p, -lambda0);
     DoubleArray xNew = (DoubleArray) _algebra.add(data.getX(), deltaX);
-    DoubleArray yNew = function.evaluate(xNew);
+    DoubleArray yNew = function.apply(xNew);
     data.setDeltaX(deltaX);
     data.setDeltaY((DoubleArray) _algebra.subtract(yNew, data.getY()));
     data.setG2(data.getG1());
     data.setG1(_algebra.getInnerProduct(yNew, yNew));
   }
 
-  private void bisectBacktrack(DoubleArray p, Function1D<DoubleArray, DoubleArray> function, DataBundle data) {
+  private void bisectBacktrack(DoubleArray p, Function<DoubleArray, DoubleArray> function, DataBundle data) {
     do {
       data.setLambda0(data.getLambda0() * 0.1);
       updatePosition(p, function, data);
@@ -190,7 +191,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
 
   private void quadraticBacktrack(
       DoubleArray p,
-      Function1D<DoubleArray, DoubleArray> function,
+      Function<DoubleArray, DoubleArray> function,
       DataBundle data) {
 
     double lambda0 = data.getLambda0();
@@ -200,7 +201,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     updatePosition(p, function, data);
   }
 
-  private void cubicBacktrack(DoubleArray p, Function1D<DoubleArray, DoubleArray> function, DataBundle data) {
+  private void cubicBacktrack(DoubleArray p, Function<DoubleArray, DoubleArray> function, DataBundle data) {
     double temp1, temp2, temp3, temp4, temp5;
     double lambda0 = data.getLambda0();
     double lambda1 = data.getLambda1();

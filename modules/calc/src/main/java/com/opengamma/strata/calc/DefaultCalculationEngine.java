@@ -11,7 +11,7 @@ import java.util.List;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.config.CalculationTasksConfig;
-import com.opengamma.strata.calc.marketdata.CalculationMarketDataMap;
+import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
@@ -81,7 +81,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
       List<? extends CalculationTarget> targets,
       List<Column> columns,
       CalculationRules calculationRules,
-      MarketEnvironment marketEnvironment) {
+      CalculationEnvironment marketEnvironment) {
 
     // create the tasks to be run
     CalculationTasksConfig config = calculationRunner.createCalculationConfig(
@@ -93,7 +93,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
     // build any missing market data
-    CalculationMarketDataMap marketData = marketDataFactory.buildCalculationMarketData(
+    MarketEnvironment marketData = marketDataFactory.buildMarketData(
         tasks.getRequirements(),
         marketEnvironment,
         calculationRules.getMarketDataConfig());
@@ -107,7 +107,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
       List<? extends CalculationTarget> targets,
       List<Column> columns,
       CalculationRules calculationRules,
-      MarketEnvironment suppliedMarketData,
+      CalculationEnvironment suppliedMarketData,
       ScenarioDefinition scenarioDefinition) {
 
     // create the tasks to be run
@@ -120,7 +120,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
     // build any required scenarios from the base market data
-    CalculationMarketDataMap marketData = marketDataFactory.buildCalculationMarketData(
+    MarketEnvironment marketData = marketDataFactory.buildMarketData(
         tasks.getRequirements(),
         suppliedMarketData,
         calculationRules.getMarketDataConfig(),

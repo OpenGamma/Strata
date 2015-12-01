@@ -11,8 +11,8 @@ import java.util.function.DoubleFunction;
 import java.util.function.IntFunction;
 
 import com.google.common.base.Strings;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 
 /**
  * Formatter for curve currency parameter sensitivity.

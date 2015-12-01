@@ -11,12 +11,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.pricer.rate.datasets.ImmutableRatesProviderSimpleData;
-import com.opengamma.strata.pricer.rate.swap.SwapDummyData;
-import com.opengamma.strata.product.rate.deposit.IborFixingDepositTrade;
-import com.opengamma.strata.product.rate.deposit.TermDepositTrade;
-import com.opengamma.strata.product.rate.fra.FraTrade;
-import com.opengamma.strata.product.rate.swap.SwapTrade;
+import com.opengamma.strata.pricer.datasets.ImmutableRatesProviderSimpleData;
+import com.opengamma.strata.pricer.swap.SwapDummyData;
+import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
+import com.opengamma.strata.product.deposit.TermDepositTrade;
+import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
  * Test {@link CalibrationMeasures}.

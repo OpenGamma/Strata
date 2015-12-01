@@ -15,13 +15,12 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
  * All values of y must be positive. 
  */
 public class SquareLinearInterpolator1D extends Interpolator1D {
-  private static final long serialVersionUID = 1L;
 
   /* Level below which the value is consider to be 0. */
   private static final double EPS = 1.0E-10;
 
   @Override
-  public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
+  public double interpolate(final Interpolator1DDataBundle data, final double value) {
     ArgChecker.notNull(value, "Value to be interpolated must not be null");
     ArgChecker.notNull(data, "Data bundle must not be null");
     InterpolationBoundedValues boundedValues = data.getBoundedValues(value);
@@ -40,8 +39,7 @@ public class SquareLinearInterpolator1D extends Interpolator1D {
   }
 
   @Override
-  public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
-    ArgChecker.notNull(value, "Value to be interpolated must not be null");
+  public double firstDerivative(final Interpolator1DDataBundle data, final double value) {
     ArgChecker.notNull(data, "Data bundle must not be null");
     int lowerIndex = data.getLowerBoundIndex(value);
     int index;
@@ -73,8 +71,7 @@ public class SquareLinearInterpolator1D extends Interpolator1D {
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
-    ArgChecker.notNull(value, "Value to be interpolated must not be null");
+  public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final double value) {
     ArgChecker.notNull(data, "Data bundle must not be null");
     int n = data.size();
     double[] resultSensitivity = new double[n];

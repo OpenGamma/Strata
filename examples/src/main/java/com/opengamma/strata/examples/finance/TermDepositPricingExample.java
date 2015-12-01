@@ -31,8 +31,8 @@ import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.rate.deposit.TermDeposit;
-import com.opengamma.strata.product.rate.deposit.TermDepositTrade;
+import com.opengamma.strata.product.deposit.TermDeposit;
+import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.trade.TradeReport;
 import com.opengamma.strata.report.trade.TradeReportTemplate;
@@ -85,7 +85,7 @@ public class TermDepositPricingExample {
         columns,
         results);
 
-    TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("termdeposit-report-template");
+    TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("term-deposit-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
     tradeReport.writeAsciiTable(System.out);
   }

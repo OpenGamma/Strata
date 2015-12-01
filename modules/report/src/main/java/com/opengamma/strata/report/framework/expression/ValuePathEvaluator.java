@@ -19,8 +19,8 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.product.rate.fra.Fra;
-import com.opengamma.strata.product.rate.fra.FraTrade;
+import com.opengamma.strata.product.fra.Fra;
+import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.report.ReportCalculationResults;
 
 /**

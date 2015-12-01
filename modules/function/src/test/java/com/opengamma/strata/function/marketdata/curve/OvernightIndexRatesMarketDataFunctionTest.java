@@ -106,8 +106,11 @@ public class OvernightIndexRatesMarketDataFunctionTest {
         .build();
     OvernightIndexRatesMarketDataFunction test = new OvernightIndexRatesMarketDataFunction();
 
+    OvernightIndexRates expected = DiscountOvernightIndexRates.of(
+        USD_FED_FUND, LocalDateDoubleTimeSeries.empty(), ZeroRateDiscountFactors.of(USD, VAL_DATE, curve));
+
     OvernightIndexRatesId dfId = OvernightIndexRatesId.of(USD_FED_FUND, CURVE_GROUP_NAME, FEED);
-    assertThrows(() -> test.build(dfId, marketData, MarketDataConfig.empty()), IllegalArgumentException.class);
+    assertThat(test.build(dfId, marketData, MarketDataConfig.empty())).isEqualTo(MarketDataBox.ofSingleValue(expected));
   }
 
   public void test_unknownCurve() {

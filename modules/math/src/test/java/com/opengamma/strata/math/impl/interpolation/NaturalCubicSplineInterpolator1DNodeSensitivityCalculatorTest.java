@@ -8,11 +8,11 @@ package com.opengamma.strata.math.impl.interpolation;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 import org.apache.commons.math3.random.Well44497b;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DCubicSplineDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
@@ -26,7 +26,7 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
   private static final Interpolator1D INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
   private static final Interpolator1DDataBundle DATA1;
   private static final double EPS = 1e-7;
-  private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> FUNCTION = new Function<Double, Double>() {
 
     private static final double a = -0.045;
     private static final double b = 0.03;
@@ -34,7 +34,7 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
     private static final double d = 0.05;
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return (a + b * x) * Math.exp(-c * x) + d;
     }
 
@@ -45,7 +45,7 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
     final int n = t.length;
     final double[] r = new double[n];
     for (int i = 0; i < n; i++) {
-      r[i] = FUNCTION.evaluate(t[i]);
+      r[i] = FUNCTION.apply(t[i]);
     }
     DATA1 = INTERPOLATOR.getDataBundleFromSortedArrays(t, r);
   }
@@ -53,11 +53,6 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullInputMap() {
     INTERPOLATOR.interpolate(null, 3.);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullInterpolateValue() {
-    INTERPOLATOR.interpolate(DATA1, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -89,7 +84,7 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
     final int n = fwdTimes.length;
     final double[] rates = new double[n];
     for (int i = 0; i < n; i++) {
-      rates[i] = FUNCTION.evaluate(fwdTimes[i]);
+      rates[i] = FUNCTION.apply(fwdTimes[i]);
     }
     final Interpolator1DCubicSplineDataBundle data = new Interpolator1DCubicSplineDataBundle(INTERPOLATOR.getDataBundleFromSortedArrays(fwdTimes, rates));
     final double[] sensitivity1 = INTERPOLATOR.getNodeSensitivitiesForValue(data, 0.25);

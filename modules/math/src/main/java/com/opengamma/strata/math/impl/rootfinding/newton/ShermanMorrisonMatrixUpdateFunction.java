@@ -5,10 +5,11 @@
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 
 /**
@@ -25,7 +26,7 @@ public class ShermanMorrisonMatrixUpdateFunction implements NewtonRootFinderMatr
 
   @Override
   public DoubleMatrix getUpdatedMatrix(
-      Function1D<DoubleArray, DoubleMatrix> g,
+      Function<DoubleArray, DoubleMatrix> g,
       DoubleArray x,
       DoubleArray deltaX,
       DoubleArray deltaY,

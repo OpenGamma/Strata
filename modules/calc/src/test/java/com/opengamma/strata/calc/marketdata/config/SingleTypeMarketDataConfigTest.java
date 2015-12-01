@@ -6,7 +6,7 @@
 package com.opengamma.strata.calc.marketdata.config;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 
 import java.util.Map;
 
@@ -24,9 +24,9 @@ public class SingleTypeMarketDataConfigTest {
         .configObjects(values)
         .build();
 
-    assertThat(configs.get("foo")).hasValue(1);
-    assertThat(configs.get("bar")).hasValue(2);
-    assertThat(configs.get("baz")).isEmpty();
+    assertThat(configs.get("foo")).isEqualTo(1);
+    assertThat(configs.get("bar")).isEqualTo(2);
+    assertThrowsIllegalArg(() -> configs.get("baz"), "No configuration found with type java.lang.Integer and name baz");
   }
 
   public void addValue() {
@@ -37,15 +37,14 @@ public class SingleTypeMarketDataConfigTest {
         .build()
         .withConfig("baz", 3);
 
-    assertThat(configs.get("foo")).hasValue(1);
-    assertThat(configs.get("bar")).hasValue(2);
-    assertThat(configs.get("baz")).hasValue(3);
+    assertThat(configs.get("foo")).isEqualTo(1);
+    assertThat(configs.get("bar")).isEqualTo(2);
+    assertThat(configs.get("baz")).isEqualTo(3);
   }
 
   public void addValueWrongType() {
-    assertThrows(
+    assertThrowsIllegalArg(
         () -> SingleTypeMarketDataConfig.builder().configType(Integer.class).build().withConfig("baz", "3"),
-        IllegalArgumentException.class,
         ".* not of the required type .*");
   }
 }

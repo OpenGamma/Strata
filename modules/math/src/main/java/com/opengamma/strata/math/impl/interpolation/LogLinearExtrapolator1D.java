@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
@@ -16,7 +15,6 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
@@ -28,7 +26,7 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
  */
 @BeanDefinition(style = "light", constructorScope = "public")
 public final class LogLinearExtrapolator1D
-    implements CurveExtrapolator, Extrapolator1D, ImmutableBean, Serializable {
+    implements Extrapolator1D, ImmutableBean {
 
   /** The extrapolator name. */
   public static final String NAME = "LogLinear";
@@ -48,14 +46,8 @@ public final class LogLinearExtrapolator1D
 
   //-------------------------------------------------------------------------
   @Override
-  public String getName() {
-    return NAME;
-  }
-
-  @Override
-  public Double extrapolate(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double extrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     if (value < data.firstKey()) {
       return leftExtrapolate(data, value, interpolator);
     } else if (value > data.lastKey()) {
@@ -65,9 +57,8 @@ public final class LogLinearExtrapolator1D
   }
 
   @Override
-  public double firstDerivative(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double firstDerivative(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     if (value < data.firstKey()) {
       return leftExtrapolateDerivative(data, value, interpolator);
     } else if (value > data.lastKey()) {
@@ -77,7 +68,7 @@ public final class LogLinearExtrapolator1D
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
     if (value < data.firstKey()) {
       return getLeftSensitivities(data, value, interpolator);
@@ -87,43 +78,39 @@ public final class LogLinearExtrapolator1D
     throw new IllegalArgumentException("Value " + value + " was within data range");
   }
 
-  private Double leftExtrapolate(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double leftExtrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.firstKey();
     double y = Math.log(data.firstValue());
     double m = interpolator.firstDerivative(data, x) / interpolator.interpolate(data, x);
     return Math.exp(y + (value - x) * m);
   }
 
-  private Double rightExtrapolate(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double rightExtrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.lastKey();
     double y = Math.log(data.lastValue());
     double m = interpolator.firstDerivative(data, x) / interpolator.interpolate(data, x);
     return Math.exp(y + (value - x) * m);
   }
 
-  private Double leftExtrapolateDerivative(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double leftExtrapolateDerivative(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.firstKey();
     double y = Math.log(data.firstValue());
     double m = interpolator.firstDerivative(data, x) / interpolator.interpolate(data, x);
     return m * Math.exp(y + (value - x) * m);
   }
 
-  private Double rightExtrapolateDerivative(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double rightExtrapolateDerivative(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.lastKey();
     double y = Math.log(data.lastValue());
     double m = interpolator.firstDerivative(data, x) / interpolator.interpolate(data, x);
     return m * Math.exp(y + (value - x) * m);
   }
 
-  private double[] getLeftSensitivities(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double[] getLeftSensitivities(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     double eps = this.eps * (data.lastKey() - data.firstKey());
     double x = data.firstKey();
     double resValueInterpolator = interpolator.interpolate(data, x + eps);
@@ -140,7 +127,7 @@ public final class LogLinearExtrapolator1D
     return result;
   }
 
-  private double[] getRightSensitivities(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double[] getRightSensitivities(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     double eps = this.eps * (data.lastKey() - data.firstKey());
     double x = data.lastKey();
     double resValueInterpolator = interpolator.interpolate(data, x - eps);
@@ -175,11 +162,6 @@ public final class LogLinearExtrapolator1D
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
-
-  /**
-   * The serialization version id.
-   */
-  private static final long serialVersionUID = 1L;
 
   /**
    * Creates an instance.

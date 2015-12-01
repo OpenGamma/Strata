@@ -68,29 +68,28 @@ import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.function.calculation.rate.swap.SwapPvFunction;
+import com.opengamma.strata.function.calculation.swap.SwapPvFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
+import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.definition.CurveNode;
-import com.opengamma.strata.market.curve.definition.FixedIborSwapCurveNode;
-import com.opengamma.strata.market.curve.definition.FraCurveNode;
-import com.opengamma.strata.market.curve.definition.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.CurveNode;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
+import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
-import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
-import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
-import com.opengamma.strata.product.rate.fra.ExpandedFra;
-import com.opengamma.strata.product.rate.fra.Fra;
-import com.opengamma.strata.product.rate.fra.FraTrade;
-import com.opengamma.strata.product.rate.swap.SwapTrade;
+import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
+import com.opengamma.strata.product.fra.ExpandedFra;
+import com.opengamma.strata.product.fra.Fra;
+import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
  * Test curves.
@@ -138,7 +137,7 @@ public class CurveEndToEndTest {
     LocalDate valuationDate = date(2011, 3, 8);
 
     // Build the trades from the node instruments
-    MarketData quotes = MarketData.builder().addObservableValuesById(parRateData).build();
+    MarketData quotes = MarketData.builder().addValuesById(parRateData).build();
     Trade fra3x6Trade = fra3x6Node.trade(valuationDate, quotes);
     Trade fra6x9Trade = fra6x9Node.trade(valuationDate, quotes);
     Trade swap1yTrade = swap1yNode.trade(valuationDate, quotes);
@@ -186,7 +185,7 @@ public class CurveEndToEndTest {
 
     // Market data functions --------------------------------------------------
 
-    ParRatesMarketDataFunction parRatesFunction = new ParRatesMarketDataFunction();
+    CurveInputsMarketDataFunction parRatesFunction = new CurveInputsMarketDataFunction();
     CurveGroupMarketDataFunction curveGroupFunction = new CurveGroupMarketDataFunction(
         RootFinderConfig.defaults(), CalibrationMeasures.DEFAULT);
     DiscountCurveMarketDataFunction discountCurveFunction = new DiscountCurveMarketDataFunction();
@@ -199,7 +198,7 @@ public class CurveEndToEndTest {
     DefaultCalculationRunner calculationRunner = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
 
     DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
-        EmptyTimeSeriesProvider.INSTANCE,
+        TimeSeriesProvider.empty(),
         new MapObservableMarketDataFunction(parRateData),
         FeedIdMapping.identity(),
         parRatesFunction,
@@ -240,19 +239,6 @@ public class CurveEndToEndTest {
     return DefaultPricingRules.of(
         PricingRule.builder(FraTrade.class).functionGroup(fraGroup).build(),
         PricingRule.builder(SwapTrade.class).functionGroup(swapGroup).build());
-  }
-
-  /**
-   * Time series provider that returns an empty time series for any ID.
-   */
-  private static final class EmptyTimeSeriesProvider implements TimeSeriesProvider {
-
-    private static final TimeSeriesProvider INSTANCE = new EmptyTimeSeriesProvider();
-
-    @Override
-    public Result<LocalDateDoubleTimeSeries> timeSeries(ObservableId id) {
-      return Result.success(LocalDateDoubleTimeSeries.empty());
-    }
   }
 
   /**

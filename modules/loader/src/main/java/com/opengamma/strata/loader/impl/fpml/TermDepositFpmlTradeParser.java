@@ -13,8 +13,8 @@ import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlTradeParser;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.rate.deposit.TermDeposit;
-import com.opengamma.strata.product.rate.deposit.TermDepositTrade;
+import com.opengamma.strata.product.deposit.TermDeposit;
+import com.opengamma.strata.product.deposit.TermDepositTrade;
 
 /**
  * FpML parser for Term Deposits.

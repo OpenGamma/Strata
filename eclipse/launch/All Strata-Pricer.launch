@@ -16,25 +16,25 @@
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.strata.pricer"/>
+<listEntry value="com.opengamma.strata.pricer.bond"/>
 <listEntry value="com.opengamma.strata.pricer.calibration"/>
 <listEntry value="com.opengamma.strata.pricer.credit"/>
 <listEntry value="com.opengamma.strata.pricer.datasets"/>
+<listEntry value="com.opengamma.strata.pricer.deposit"/>
+<listEntry value="com.opengamma.strata.pricer.fra"/>
 <listEntry value="com.opengamma.strata.pricer.fx"/>
 <listEntry value="com.opengamma.strata.pricer.impl"/>
 <listEntry value="com.opengamma.strata.pricer.impl.credit.isda"/>
 <listEntry value="com.opengamma.strata.pricer.impl.credit.isda.e2e"/>
 <listEntry value="com.opengamma.strata.pricer.impl.option"/>
 <listEntry value="com.opengamma.strata.pricer.impl.rate"/>
-<listEntry value="com.opengamma.strata.pricer.impl.rate.swap"/>
+<listEntry value="com.opengamma.strata.pricer.impl.swap"/>
+<listEntry value="com.opengamma.strata.pricer.index"/>
 <listEntry value="com.opengamma.strata.pricer.rate"/>
-<listEntry value="com.opengamma.strata.pricer.rate.datasets"/>
-<listEntry value="com.opengamma.strata.pricer.rate.deposit"/>
-<listEntry value="com.opengamma.strata.pricer.rate.e2e"/>
-<listEntry value="com.opengamma.strata.pricer.rate.fra"/>
-<listEntry value="com.opengamma.strata.pricer.rate.future"/>
-<listEntry value="com.opengamma.strata.pricer.rate.swap"/>
-<listEntry value="com.opengamma.strata.pricer.rate.swaption"/>
 <listEntry value="com.opengamma.strata.pricer.sensitivity"/>
+<listEntry value="com.opengamma.strata.pricer.swap"/>
+<listEntry value="com.opengamma.strata.pricer.swap.e2e"/>
+<listEntry value="com.opengamma.strata.pricer.swaption"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <stringAttribute key="org.testng.eclipse.PRE_DEFINED_LISTENERS" value=""/>

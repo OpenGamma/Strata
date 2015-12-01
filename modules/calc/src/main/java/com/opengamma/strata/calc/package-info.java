@@ -5,7 +5,7 @@
  */
 
 /**
- * Engine API.
+ * Calculate risk measures on trades, applies scenarios and manages market data.
  * <p>
  * Defines the API for accessing the engine.
  * The engine provides a service for calculating values for risk measures for targets such as trades.

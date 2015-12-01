@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
@@ -17,7 +18,6 @@ import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.schedule.StubConvention;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * 
@@ -50,9 +50,9 @@ public class AnalyticBondPricerTest extends IsdaBaseTest {
     final double cleanPrice = defaultFreeBondCleanPrice(bond, yieldCurve);
 
     final AnalyticBondPricer bondSpreadCal = new AnalyticBondPricer();
-    final Function1D<Double, Double> bondPriceFunc = bondSpreadCal.getBondPriceForHazardRateFunction(bond, yieldCurve, CdsPriceType.CLEAN);
+    final Function<Double, Double> bondPriceFunc = bondSpreadCal.getBondPriceForHazardRateFunction(bond, yieldCurve, CdsPriceType.CLEAN);
     //now price will zero hazard rate - should get same number
-    final double price = bondPriceFunc.evaluate(0.0);
+    final double price = bondPriceFunc.apply(0.0);
     assertEquals(cleanPrice, price, 1e-15);
 
     assertEquals("Hazard rate limit", recoveryRate, bondSpreadCal.bondPriceForHazardRate(bond, yieldCurve, 1000.0, CdsPriceType.DIRTY), 2e-5);

@@ -10,21 +10,21 @@ import java.util.function.ToDoubleBiFunction;
 
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
+import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
+import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricer;
+import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.deposit.DiscountingIborFixingDepositProductPricer;
-import com.opengamma.strata.pricer.rate.deposit.DiscountingTermDepositProductPricer;
-import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
-import com.opengamma.strata.pricer.rate.future.DiscountingIborFutureTradePricer;
-import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
+import com.opengamma.strata.product.deposit.TermDepositTrade;
+import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fx.FxSwapTrade;
-import com.opengamma.strata.product.rate.deposit.IborFixingDepositTrade;
-import com.opengamma.strata.product.rate.deposit.TermDepositTrade;
-import com.opengamma.strata.product.rate.fra.FraTrade;
-import com.opengamma.strata.product.rate.future.IborFutureTrade;
-import com.opengamma.strata.product.rate.swap.SwapTrade;
+import com.opengamma.strata.product.index.IborFutureTrade;
+import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
  * Provides calibration measures for a single type of trade based on functions.

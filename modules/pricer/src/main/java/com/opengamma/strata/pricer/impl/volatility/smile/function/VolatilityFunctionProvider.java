@@ -5,9 +5,10 @@
  */
 package com.opengamma.strata.pricer.impl.volatility.smile.function;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Provides functions that return volatility and its sensitivity to volatility model parameters. 
@@ -48,7 +49,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
     double volatility = getVolatility(forward, strike, timeToExpiry, data);
     res[0] = forwardBar(forward, strike, timeToExpiry, data);
     res[1] = strikeBar(forward, strike, timeToExpiry, data);
-    Function1D<T, Double> func = getVolatilityFunction(forward, strike, timeToExpiry);
+    Function<T, Double> func = getVolatilityFunction(forward, strike, timeToExpiry);
     double[] modelAdjoint = paramBar(func, data);
     System.arraycopy(modelAdjoint, 0, res, 2, data.getNumberOfParameters());
     return ValueDerivatives.of(volatility, res);
@@ -67,17 +68,17 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
     return 0.5 * (volUp - volDown) / EPS;
   }
 
-  private Function1D<T, Double> getVolatilityFunction(double forward, double strike, double timeToExpiry) {
-    return new Function1D<T, Double>() {
+  private Function<T, Double> getVolatilityFunction(double forward, double strike, double timeToExpiry) {
+    return new Function<T, Double>() {
       @Override
-      public Double evaluate(T data) {
+      public Double apply(T data) {
         ArgChecker.notNull(data, "data");
         return getVolatility(forward, strike, timeToExpiry, data);
       }
     };
   }
 
-  private double[] paramBar(Function1D<T, Double> func, T data) {
+  private double[] paramBar(Function<T, Double> func, T data) {
     int n = data.getNumberOfParameters();
     double[] res = new double[n];
     for (int i = 0; i < n; i++) {
@@ -87,7 +88,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
   }
 
   @SuppressWarnings("unchecked")
-  private double paramBar(Function1D<T, Double> func, T data, int index) {
+  private double paramBar(Function<T, Double> func, T data, int index) {
     double mid = data.getParameter(index);
     double up = mid + EPS;
     double down = mid - EPS;
@@ -95,14 +96,14 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
       if (data.isAllowed(index, up)) {
         T dUp = (T) data.with(index, up);
         T dDown = (T) data.with(index, down);
-        return 0.5 * (func.evaluate(dUp) - func.evaluate(dDown)) / EPS;
+        return 0.5 * (func.apply(dUp) - func.apply(dDown)) / EPS;
       }
       T dDown = (T) data.with(index, down);
-      return (func.evaluate(data) - func.evaluate(dDown)) / EPS;
+      return (func.apply(data) - func.apply(dDown)) / EPS;
     }
     ArgChecker.isTrue(data.isAllowed(index, up), "No values and index {} = {} are allowed", index, mid);
     T dUp = (T) data.with(index, up);
-    return (func.evaluate(dUp) - func.evaluate(data)) / EPS;
+    return (func.apply(dUp) - func.apply(data)) / EPS;
   }
 
 }

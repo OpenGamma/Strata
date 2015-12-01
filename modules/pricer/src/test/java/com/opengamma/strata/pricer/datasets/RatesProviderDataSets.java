@@ -5,13 +5,17 @@
  */
 package com.opengamma.strata.pricer.datasets;
 
+import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
+import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
+import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 
@@ -23,13 +27,13 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
@@ -65,6 +69,12 @@ public class RatesProviderDataSets {
       0.0220, 0.0230, 0.0240, 0.0250, 0.0260, 0.0270, 0.0280, 0.0290, 0.0300);
   public static final DoubleArray RATES_3_2 = DoubleArray.of(
       0.0240, 0.0250, 0.0260, 0.0270, 0.0280, 0.0290, 0.0300, 0.0310);
+  public static final DoubleArray RATES_1_3 = DoubleArray.of(
+      0.0150, 0.0160, 0.0170, 0.0180, 0.0190, 0.0200, 0.0210, 0.0220, 0.0230, 0.0240);
+  public static final DoubleArray RATES_2_3 = DoubleArray.of(
+      0.0170, 0.0180, 0.0190, 0.0200, 0.0210, 0.0220, 0.0230, 0.0240, 0.0250);
+  public static final DoubleArray RATES_3_3 = DoubleArray.of(
+      0.0190, 0.0200, 0.0210, 0.0220, 0.0230, 0.0240, 0.0250, 0.0260);
 
   //-------------------------------------------------------------------------
   public static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
@@ -149,6 +159,38 @@ public class RatesProviderDataSets {
       .fxRateProvider(FX_MATRIX_GBP)
       .discountCurves(GBP_MULTI_CCY_MAP)
       .indexCurves(GBP_MULTI_IND_MAP)
+      .build();
+
+  //-------------------------------------------------------------------------
+  //     =====     EUR     =====     
+
+  private static final FxMatrix FX_MATRIX_EUR =
+      FxMatrix.builder().addRate(EUR, EUR, 1.00).build();
+
+  public static final CurveName EUR_DSC_NAME = CurveName.of("EUR-DSCON");
+  public static final CurveName EUR_L3_NAME = CurveName.of("EUR-LIBOR3M");
+  public static final CurveName EUR_L6_NAME = CurveName.of("EUR-LIBOR6M");
+  private static final CurveMetadata EUR_DSC_METADATA = Curves.zeroRates(EUR_DSC_NAME, ACT_360);
+  private static final CurveMetadata EUR_L3_METADATA = Curves.zeroRates(EUR_L3_NAME, ACT_360);
+  private static final CurveMetadata EUR_L6_METADATA = Curves.zeroRates(EUR_L6_NAME, ACT_360);
+
+  private static final Curve EUR_DSC =
+      InterpolatedNodalCurve.of(EUR_DSC_METADATA, TIMES_1, RATES_1_2, INTERPOLATOR);
+  private static final Curve EUR_L3 =
+      InterpolatedNodalCurve.of(EUR_L3_METADATA, TIMES_2, RATES_2_2, INTERPOLATOR);
+  private static final Curve EUR_L6 =
+      InterpolatedNodalCurve.of(EUR_L6_METADATA, TIMES_3, RATES_3_2, INTERPOLATOR);
+  private static final Map<Currency, Curve> EUR_MULTI_CCY_MAP = ImmutableMap.of(EUR, EUR_DSC);
+  private static final Map<Index, Curve> EUR_MULTI_IND_MAP = ImmutableMap.of(
+      EUR_EONIA, EUR_DSC,
+      EUR_EURIBOR_3M, EUR_L3,
+      EUR_EURIBOR_6M, EUR_L6);
+
+  public static final ImmutableRatesProvider MULTI_EUR = ImmutableRatesProvider.builder()
+      .valuationDate(VAL_DATE_2014_01_22)
+      .fxRateProvider(FX_MATRIX_EUR)
+      .discountCurves(EUR_MULTI_CCY_MAP)
+      .indexCurves(EUR_MULTI_IND_MAP)
       .build();
 
   //-------------------------------------------------------------------------

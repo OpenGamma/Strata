@@ -11,24 +11,24 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
-import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.MersenneTwister64;
-import cern.jet.random.engine.RandomEngine;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.BasisFunctionAggregation;
 import com.opengamma.strata.math.impl.interpolation.BasisFunctionGenerator;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.DoubleQuadraticInterpolator1D;
-import com.opengamma.strata.math.impl.interpolation.FlatExtrapolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
+import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.PSplineFitter;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
+
+import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
 
 /**
  * Test.
@@ -50,23 +50,23 @@ public class GeneralizedLeastSquareTest {
   private static final List<Double> SIGMA_COS_EXP;
   private static final List<double[]> X_SIN_EXP;
   private static final List<Double> Y_SIN_EXP;
-  private static final List<Function1D<Double, Double>> SIN_FUNCTIONS;
-  private static final Function1D<Double, Double> TEST_FUNCTION;
-  private static final List<Function1D<Double, Double>> BASIS_FUNCTIONS;
-  private static final List<Function1D<double[], Double>> BASIS_FUNCTIONS_2D;
-  private static Function1D<double[], Double> SIN_EXP_FUNCTION;
+  private static final List<Function<Double, Double>> SIN_FUNCTIONS;
+  private static final Function<Double, Double> TEST_FUNCTION;
+  private static final List<Function<Double, Double>> BASIS_FUNCTIONS;
+  private static final List<Function<double[], Double>> BASIS_FUNCTIONS_2D;
+  private static Function<double[], Double> SIN_EXP_FUNCTION;
 
-  private static final List<Function1D<DoubleArray, Double>> VECTOR_TRIG_FUNCTIONS;
-  private static final Function1D<DoubleArray, Double> VECTOR_TEST_FUNCTION;
+  private static final List<Function<DoubleArray, Double>> VECTOR_TRIG_FUNCTIONS;
+  private static final Function<DoubleArray, Double> VECTOR_TEST_FUNCTION;
 
   static {
     SIN_FUNCTIONS = new ArrayList<>();
     for (int i = 0; i < WEIGHTS.length; i++) {
       final int k = i;
-      final Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      final Function<Double, Double> func = new Function<Double, Double>() {
 
         @Override
-        public Double evaluate(final Double x) {
+        public Double apply(final Double x) {
           return Math.sin((2 * k + 1) * x);
         }
       };
@@ -77,9 +77,9 @@ public class GeneralizedLeastSquareTest {
     VECTOR_TRIG_FUNCTIONS = new ArrayList<>();
     for (int i = 0; i < WEIGHTS.length; i++) {
       final int k = i;
-      final Function1D<DoubleArray, Double> func = new Function1D<DoubleArray, Double>() {
+      final Function<DoubleArray, Double> func = new Function<DoubleArray, Double>() {
         @Override
-        public Double evaluate(final DoubleArray x) {
+        public Double apply(final DoubleArray x) {
           ArgChecker.isTrue(x.size() == 2);
           return Math.sin((2 * k + 1) * x.get(0)) * Math.cos((2 * k + 1) * x.get(1));
         }
@@ -88,10 +88,10 @@ public class GeneralizedLeastSquareTest {
     }
     VECTOR_TEST_FUNCTION = new BasisFunctionAggregation<>(VECTOR_TRIG_FUNCTIONS, WEIGHTS);
 
-    SIN_EXP_FUNCTION = new Function1D<double[], Double>() {
+    SIN_EXP_FUNCTION = new Function<double[], Double>() {
 
       @Override
-      public Double evaluate(final double[] x) {
+      public Double apply(final double[] x) {
         return Math.sin(Math.PI * x[0] / 10.0) * Math.exp(-x[1] / 5.);
       }
     };
@@ -106,12 +106,12 @@ public class GeneralizedLeastSquareTest {
     SIGMA_TRIG = new ArrayList<>();
     for (int i = 0; i < n; i++) {
       X[i] = i / 5.0;
-      Y[i] = TEST_FUNCTION.evaluate(X[i]);
+      Y[i] = TEST_FUNCTION.apply(X[i]);
       final double[] temp = new double[2];
       temp[0] = 2.0 * RANDOM.nextDouble();
       temp[1] = 2.0 * RANDOM.nextDouble();
       X_TRIG.add(DoubleArray.copyOf(temp));
-      Y_TRIG.add(VECTOR_TEST_FUNCTION.evaluate(X_TRIG.get(i)));
+      Y_TRIG.add(VECTOR_TEST_FUNCTION.apply(X_TRIG.get(i)));
       SIGMA[i] = 0.01;
       SIGMA_TRIG.add(0.01);
     }
@@ -124,7 +124,7 @@ public class GeneralizedLeastSquareTest {
       temp[0] = 10.0 * RANDOM.nextDouble();
       temp[1] = 10.0 * RANDOM.nextDouble();
       X_SIN_EXP.add(temp);
-      Y_SIN_EXP.add(SIN_EXP_FUNCTION.evaluate(X_SIN_EXP.get(i)));
+      Y_SIN_EXP.add(SIN_EXP_FUNCTION.apply(X_SIN_EXP.get(i)));
       SIGMA_COS_EXP.add(0.01);
     }
 
@@ -170,10 +170,10 @@ public class GeneralizedLeastSquareTest {
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
 
     final LeastSquareResults results = gls.solve(X, Y, SIGMA, BASIS_FUNCTIONS);
-    final Function1D<Double, Double> spline =
+    final Function<Double, Double> spline =
         new BasisFunctionAggregation<>(BASIS_FUNCTIONS, results.getFitParameters().toArray());
     assertEquals(0.0, results.getChiSq(), 1e-12);
-    assertEquals(-0.023605293, spline.evaluate(0.5), 1e-8);
+    assertEquals(-0.023605293, spline.apply(0.5), 1e-8);
 
     if (PRINT) {
       System.out.println("Chi^2:\t" + results.getChiSq());
@@ -181,7 +181,7 @@ public class GeneralizedLeastSquareTest {
 
       for (int i = 0; i < 101; i++) {
         final double x = 0 + i * 2.0 / 100.0;
-        System.out.println(x + "\t" + spline.evaluate(x));
+        System.out.println(x + "\t" + spline.apply(x));
       }
       for (int i = 0; i < X.length; i++) {
         System.out.println(X[i] + "\t" + Y[i]);
@@ -193,10 +193,10 @@ public class GeneralizedLeastSquareTest {
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
 
     final LeastSquareResults results = gls.solve(X_SIN_EXP, Y_SIN_EXP, SIGMA_COS_EXP, BASIS_FUNCTIONS_2D);
-    final Function1D<double[], Double> spline =
+    final Function<double[], Double> spline =
         new BasisFunctionAggregation<>(BASIS_FUNCTIONS_2D, results.getFitParameters().toArray());
     assertEquals(0.0, results.getChiSq(), 1e-16);
-    assertEquals(0.05161579, spline.evaluate(new double[] {4, 3 }), 1e-8);
+    assertEquals(0.05161579, spline.apply(new double[] {4, 3 }), 1e-8);
 
     /*
      * Print out function for debugging
@@ -217,7 +217,7 @@ public class GeneralizedLeastSquareTest {
         System.out.print(x[0]);
         for (int j = 0; j < 101; j++) {
           x[1] = -0.0 + j * 10.0 / 100.0;
-          final double y = spline.evaluate(x);
+          final double y = spline.apply(x);
           System.out.print("\t" + y);
         }
         System.out.print("\n");
@@ -229,9 +229,9 @@ public class GeneralizedLeastSquareTest {
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
 
     final GeneralizedLeastSquareResults<Double> results = gls.solve(X, Y, SIGMA, BASIS_FUNCTIONS, 1000.0, 2);
-    final Function1D<Double, Double> spline = results.getFunction();
+    final Function<Double, Double> spline = results.getFunction();
     assertEquals(2225.7, results.getChiSq(), 1e-1);
-    assertEquals(-0.758963811327287, spline.evaluate(1.1), 1e-8);
+    assertEquals(-0.758963811327287, spline.apply(1.1), 1e-8);
 
     /*
      * Print out function for debugging
@@ -242,7 +242,7 @@ public class GeneralizedLeastSquareTest {
 
       for (int i = 0; i < 101; i++) {
         final double x = 0 + i * 2.0 / 100.0;
-        System.out.println(x + "\t" + spline.evaluate(x));
+        System.out.println(x + "\t" + spline.apply(x));
       }
       for (int i = 0; i < X.length; i++) {
         System.out.println(X[i] + "\t" + Y[i]);
@@ -252,12 +252,14 @@ public class GeneralizedLeastSquareTest {
 
   public void testPSplineFit2() {
     final BasisFunctionGenerator generator = new BasisFunctionGenerator();
-    List<Function1D<Double, Double>> basisFuncs = generator.generateSet(0, 12, 100, 3);
-    List<Function1D<Double, Double>> basisFuncsLog = generator.generateSet(-5, 3, 100, 3);
+    List<Function<Double, Double>> basisFuncs = generator.generateSet(0, 12, 100, 3);
+    List<Function<Double, Double>> basisFuncsLog = generator.generateSet(-5, 3, 100, 3);
 
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
 
-    final Interpolator1D interpolator = new CombinedInterpolatorExtrapolator(new DoubleQuadraticInterpolator1D(), new FlatExtrapolator1D());
+    final Interpolator1D interpolator = new CombinedInterpolatorExtrapolator(
+        Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE);
 
     final double[] xData = new double[] {7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5, 10 };
     final double[] yData = new double[] {0.972452371,
@@ -289,13 +291,13 @@ public class GeneralizedLeastSquareTest {
     final double[] sigma = new double[n];
     Arrays.fill(sigma, 0.01);
     final GeneralizedLeastSquareResults<Double> results = gls.solve(xData, yData, sigma, basisFuncs, 1000.0, 2);
-    final Function1D<Double, Double> spline = results.getFunction();
+    final Function<Double, Double> spline = results.getFunction();
     final GeneralizedLeastSquareResults<Double> resultsLog = gls.solve(lnX, yData, sigma, basisFuncsLog, 1000.0, 2);
-    final Function1D<Double, Double> splineLog = resultsLog.getFunction();
+    final Function<Double, Double> splineLog = resultsLog.getFunction();
     final GeneralizedLeastSquareResults<Double> resultsVar = gls.solve(xData, yData2, sigma, basisFuncs, 1000.0, 2);
-    final Function1D<Double, Double> splineVar = resultsVar.getFunction();
+    final Function<Double, Double> splineVar = resultsVar.getFunction();
     final GeneralizedLeastSquareResults<Double> resultsVarLog = gls.solve(lnX, yData2, sigma, basisFuncsLog, 1000.0, 2);
-    final Function1D<Double, Double> splineVarLog = resultsVarLog.getFunction();
+    final Function<Double, Double> splineVarLog = resultsVarLog.getFunction();
 
     if (PRINT) {
       System.out.println("Chi^2:\t" + results.getChiSq());
@@ -304,9 +306,9 @@ public class GeneralizedLeastSquareTest {
       for (int i = 0; i < 101; i++) {
         final double logX = -5 + 8 * i / 100.;
         final double x = Math.exp(logX);
-        System.out.println(x + "\t" + +logX + "\t" + spline.evaluate(x) + "\t" + interpolator.interpolate(db, x) + "\t"
-            + splineLog.evaluate(logX) + "\t" + interpolator.interpolate(dbLog, logX) + "\t" + splineVar.evaluate(x) + "\t"
-            + interpolator.interpolate(dbVar, x) + "\t" + splineVarLog.evaluate(logX) + "\t" + interpolator.interpolate(dbVarLog, logX));
+        System.out.println(x + "\t" + +logX + "\t" + spline.apply(x) + "\t" + interpolator.interpolate(db, x) + "\t"
+            + splineLog.apply(logX) + "\t" + interpolator.interpolate(dbLog, logX) + "\t" + splineVar.apply(x) + "\t"
+            + interpolator.interpolate(dbVar, x) + "\t" + splineVarLog.apply(logX) + "\t" + interpolator.interpolate(dbVarLog, logX));
       }
       for (int i = 0; i < n; i++) {
         System.out.println(lnX[i] + "\t" + yData[i]);
@@ -323,8 +325,8 @@ public class GeneralizedLeastSquareTest {
         new double[] {0.001, 0.001 }, new int[] {3, 3 });
 
     assertEquals(0.0, results.getChiSq(), 1e-9);
-    final Function1D<double[], Double> spline = results.getFunction();
-    assertEquals(0.5333876489112092, spline.evaluate(new double[] {4, 3 }), 1e-8);
+    final Function<double[], Double> spline = results.getFunction();
+    assertEquals(0.5333876489112092, spline.apply(new double[] {4, 3 }), 1e-8);
 
     /*
      * Print out function for debugging
@@ -345,7 +347,7 @@ public class GeneralizedLeastSquareTest {
         System.out.print(x[0]);
         for (int j = 0; j < 101; j++) {
           x[1] = -0.0 + j * 10.0 / 100.0;
-          final double y = spline.evaluate(x);
+          final double y = spline.apply(x);
           System.out.print("\t" + y);
         }
         System.out.print("\n");

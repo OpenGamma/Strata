@@ -17,12 +17,12 @@
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.strata.function"/>
 <listEntry value="com.opengamma.strata.function.calculation"/>
+<listEntry value="com.opengamma.strata.function.calculation.deposit"/>
+<listEntry value="com.opengamma.strata.function.calculation.fra"/>
 <listEntry value="com.opengamma.strata.function.calculation.fx"/>
 <listEntry value="com.opengamma.strata.function.calculation.payment"/>
 <listEntry value="com.opengamma.strata.function.calculation.rate"/>
-<listEntry value="com.opengamma.strata.function.calculation.rate.deposit"/>
-<listEntry value="com.opengamma.strata.function.calculation.rate.fra"/>
-<listEntry value="com.opengamma.strata.function.calculation.rate.swap"/>
+<listEntry value="com.opengamma.strata.function.calculation.swap"/>
 <listEntry value="com.opengamma.strata.function.interpolator"/>
 <listEntry value="com.opengamma.strata.function.marketdata"/>
 <listEntry value="com.opengamma.strata.function.marketdata.curve"/>

@@ -30,7 +30,7 @@ public class AnnuityForSpreadIsdaFunction extends AnnuityForSpreadFunction {
   }
 
   @Override
-  public Double evaluate(Double spread) {
+  public Double apply(Double spread) {
     IsdaCompliantCreditCurve cc = _calibrator.calibrate(new double[] {spread});
     return PRICER.annuity(_cds, _yieldCurve, cc, CdsPriceType.CLEAN);
   }

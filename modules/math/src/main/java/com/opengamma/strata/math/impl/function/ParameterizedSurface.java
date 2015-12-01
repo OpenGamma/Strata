@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.math.impl.function;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.math.impl.differentiation.ScalarFieldFirstOrderDifferentiator;
@@ -28,14 +30,14 @@ public abstract class ParameterizedSurface extends ParameterizedFunction<Doubles
    * @param params The value of the parameters ($\boldsymbol{\theta}$) at which the sensitivity is calculated 
    * @return The sensitivity as a function with a DoublesPair (x,y) as its single argument and a vector as its return value
    */
-  public Function1D<DoublesPair, DoubleArray> getZParameterSensitivity(DoubleArray params) {
+  public Function<DoublesPair, DoubleArray> getZParameterSensitivity(DoubleArray params) {
 
-    return new Function1D<DoublesPair, DoubleArray>() {
+    return new Function<DoublesPair, DoubleArray>() {
       @Override
-      public DoubleArray evaluate(DoublesPair xy) {
-        Function1D<DoubleArray, Double> f = asFunctionOfParameters(xy);
-        Function1D<DoubleArray, DoubleArray> g = FIRST_ORDER_DIFF.differentiate(f);
-        return g.evaluate(params);
+      public DoubleArray apply(DoublesPair xy) {
+        Function<DoubleArray, Double> f = asFunctionOfParameters(xy);
+        Function<DoubleArray, DoubleArray> g = FIRST_ORDER_DIFF.differentiate(f);
+        return g.apply(params);
       }
     };
   }

@@ -7,10 +7,10 @@ package com.opengamma.strata.math.impl.statistics.distribution;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.apache.commons.math3.random.Well44497b;
 import org.testng.annotations.Test;
-
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Test.
@@ -20,7 +20,7 @@ public class StudentTOneTailedCriticalValueCalculatorTest {
 
   private static final Well44497b RANDOM = new Well44497b(0L);
   private static final double NU = 3;
-  private static final Function1D<Double, Double> F = new StudentTOneTailedCriticalValueCalculator(NU);
+  private static final Function<Double, Double> F = new StudentTOneTailedCriticalValueCalculator(NU);
   private static final ProbabilityDistribution<Double> T = new StudentTDistribution(NU);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -40,12 +40,12 @@ public class StudentTOneTailedCriticalValueCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
-    F.evaluate((Double) null);
+    F.apply((Double) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegative() {
-    F.evaluate(-4.);
+    F.apply(-4.);
   }
 
   @Test
@@ -54,7 +54,7 @@ public class StudentTOneTailedCriticalValueCalculatorTest {
     final double eps = 1e-5;
     for (int i = 0; i < 100; i++) {
       x = RANDOM.nextDouble();
-      assertEquals(x, F.evaluate(T.getCDF(x)), eps);
+      assertEquals(x, F.apply(T.getCDF(x)), eps);
     }
   }
 }

@@ -32,8 +32,8 @@
  * As such, OTC trades implement {@link com.opengamma.strata.product.ProductTrade ProductTrade}.
  * <p>
  * For example, consider an OTC instrument such as an interest rate swap.
- * The object model consists of a {@link com.opengamma.strata.product.rate.swap.SwapTrade SwapTrade}
- * that directly contains a {@link com.opengamma.strata.product.rate.swap.Swap Swap},
+ * The object model consists of a {@link com.opengamma.strata.product.swap.SwapTrade SwapTrade}
+ * that directly contains a {@link com.opengamma.strata.product.swap.Swap Swap},
  * where {@code SwapTrade} implements {@code ProductTrade}.
  * <p>
  * A listed trade contains a reference to the underlying security that is the basis of the trade.

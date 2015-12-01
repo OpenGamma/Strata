@@ -18,7 +18,7 @@ import com.opengamma.strata.collect.id.StandardId;
 public class IndexTest {
 
   public void test_getStandardId() {
-    assertEquals(IborIndices.GBP_LIBOR_3M.getStandardId(), StandardId.of("OpenGammaIndex", "GBP-LIBOR-3M"));
+    assertEquals(IborIndices.GBP_LIBOR_3M.getStandardId(), StandardId.of("OG-Index", "GBP-LIBOR-3M"));
   }
 
 }

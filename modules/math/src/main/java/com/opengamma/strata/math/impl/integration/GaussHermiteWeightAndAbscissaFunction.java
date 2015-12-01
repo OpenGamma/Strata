@@ -47,14 +47,14 @@ public class GaussHermiteWeightAndAbscissaFunction implements QuadratureWeightAn
     for (int i = 0; i < m; i++) {
       root = getInitialRootGuess(root, i, n, x);
       root = ROOT_FINDER.getRoot(function, derivative, root);
-      double dp = derivative.evaluate(root);
+      double dp = derivative.applyAsDouble(root);
       x[i] = -root;
       x[n - 1 - i] = root;
       w[i] = 2. / (dp * dp);
       w[n - 1 - i] = w[i];
     }
     if (odd) {
-      double dp = derivative.evaluate(0.0);
+      double dp = derivative.applyAsDouble(0.0);
       w[m] = 2. / dp / dp;
     }
     return new GaussianQuadratureData(x, w);

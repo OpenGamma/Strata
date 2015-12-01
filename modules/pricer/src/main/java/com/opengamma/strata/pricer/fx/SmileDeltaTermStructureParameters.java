@@ -52,9 +52,9 @@ class SmileDeltaTermStructureParameters {
    * The default interpolator: time square (total variance) with flat extrapolation.
    */
   private static final Interpolator1D DEFAULT_INTERPOLATOR_EXPIRY = CombinedInterpolatorExtrapolator.of(
-      CurveInterpolators.TIME_SQUARE,
-      CurveExtrapolators.FLAT,
-      CurveExtrapolators.FLAT);
+      CurveInterpolators.TIME_SQUARE.getName(),
+      CurveExtrapolators.FLAT.getName(),
+      CurveExtrapolators.FLAT.getName());
 
   /**
    * Constructor from volatility term structure.

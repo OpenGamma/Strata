@@ -8,7 +8,6 @@ package com.opengamma.strata.math.impl.statistics.descriptive;
 import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Calculates the population standard deviation of a series of data.
@@ -17,13 +16,13 @@ import com.opengamma.strata.math.impl.function.Function1D;
  */
 public class PopulationStandardDeviationCalculator implements Function<double[], Double> {
 
-  private static final Function1D<double[], Double> VARIANCE = new PopulationVarianceCalculator();
+  private static final Function<double[], Double> VARIANCE = new PopulationVarianceCalculator();
 
   @Override
   public Double apply(double[] x) {
     ArgChecker.notNull(x, "x");
     ArgChecker.isTrue(x.length > 1, "Need at least two points to calculate standard deviation");
-    return Math.sqrt(VARIANCE.evaluate(x));
+    return Math.sqrt(VARIANCE.apply(x));
   }
 
 }

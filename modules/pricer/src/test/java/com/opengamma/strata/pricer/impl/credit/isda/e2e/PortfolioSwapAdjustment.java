@@ -6,10 +6,10 @@
 package com.opengamma.strata.pricer.impl.credit.isda.e2e;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalytic;
 import com.opengamma.strata.pricer.impl.credit.isda.DoublesScheduleGenerator;
@@ -61,7 +61,7 @@ public class PortfolioSwapAdjustment {
     ArgChecker.notNull(yieldCurve, "yieldCurve");
     ArgChecker.notNull(intrinsicData, "intrinsicData");
 
-    Function1D<Double, Double> func = getHazardRateAdjFunction(indexPUF, indexCDS, indexCoupon, yieldCurve, intrinsicData);
+    Function<Double, Double> func = getHazardRateAdjFunction(indexPUF, indexCDS, indexCoupon, yieldCurve, intrinsicData);
     double x = ROOTFINDER.getRoot(func, 1.0);
     IsdaCompliantCreditCurve[] adjCC = adjustCurves(intrinsicData.getCreditCurves(), x);
     return intrinsicData.withCreditCurves(adjCC);
@@ -162,7 +162,7 @@ public class PortfolioSwapAdjustment {
       }
 
       IntrinsicIndexDataBundle modIntrinsicData = intrinsicData.withCreditCurves(modCreditCurves);
-      Function1D<Double, Double> func = getHazardRateAdjFunction(indexPUF[i], indexCDS[i], indexCoupon, yieldCurve,
+      Function<Double, Double> func = getHazardRateAdjFunction(indexPUF[i], indexCDS[i], indexCoupon, yieldCurve,
           modIntrinsicData, startKnots, endKnots);
       alpha = ROOTFINDER.getRoot(func, alpha);
       modCreditCurves = adjustCurves(modCreditCurves, alpha, startKnots, endKnots);
@@ -172,7 +172,7 @@ public class PortfolioSwapAdjustment {
     return intrinsicData.withCreditCurves(modCreditCurves);
   }
 
-  private Function1D<Double, Double> getHazardRateAdjFunction(
+  private Function<Double, Double> getHazardRateAdjFunction(
       double indexPUF,
       CdsAnalytic indexCDS,
       double indexCoupon,
@@ -181,16 +181,16 @@ public class PortfolioSwapAdjustment {
 
     IsdaCompliantCreditCurve[] creditCurves = intrinsicData.getCreditCurves();
     double clean = intrinsicData.getIndexFactor() * indexPUF;
-    return new Function1D<Double, Double>() {
+    return new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         IsdaCompliantCreditCurve[] adjCurves = adjustCurves(creditCurves, x);
         return _pricer.indexPV(indexCDS, indexCoupon, yieldCurve, intrinsicData.withCreditCurves(adjCurves)) - clean;
       }
     };
   }
 
-  private Function1D<Double, Double> getHazardRateAdjFunction(
+  private Function<Double, Double> getHazardRateAdjFunction(
       double indexPUF,
       CdsAnalytic indexCDS,
       double indexCoupon,
@@ -201,9 +201,9 @@ public class PortfolioSwapAdjustment {
 
     IsdaCompliantCreditCurve[] creditCurves = intrinsicData.getCreditCurves();
     double clean = intrinsicData.getIndexFactor() * indexPUF;
-    return new Function1D<Double, Double>() {
+    return new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         IsdaCompliantCreditCurve[] adjCurves = adjustCurves(creditCurves, x, firstKnots, lastKnots);
         return _pricer.indexPV(indexCDS, indexCoupon, yieldCurve, intrinsicData.withCreditCurves(adjCurves)) - clean;
       }

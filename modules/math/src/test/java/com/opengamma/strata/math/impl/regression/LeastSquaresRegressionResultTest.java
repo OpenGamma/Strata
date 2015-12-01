@@ -9,10 +9,10 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
+import java.util.function.DoubleBinaryOperator;
+
 import org.apache.commons.math3.random.Well44497b;
 import org.testng.annotations.Test;
-
-import com.opengamma.strata.math.impl.function.Function2D;
 
 /**
  * Test.
@@ -27,22 +27,8 @@ public class LeastSquaresRegressionResultTest {
   private static final double BETA_0 = 3.9;
   private static final double BETA_1 = -1.4;
   private static final double BETA_2 = 4.6;
-  private static final Function2D<Double, Double> F1 = new Function2D<Double, Double>() {
-
-    @Override
-    public Double evaluate(final Double x1, final Double x2) {
-      return x1 * BETA_1 + x2 * BETA_2;
-    }
-
-  };
-  private static final Function2D<Double, Double> F2 = new Function2D<Double, Double>() {
-
-    @Override
-    public Double evaluate(final Double x1, final Double x2) {
-      return BETA_0 + x1 * BETA_1 + x2 * BETA_2;
-    }
-
-  };
+  private static final DoubleBinaryOperator F1 = (x1, x2) -> x1 * BETA_1 + x2 * BETA_2;
+  private static final DoubleBinaryOperator F2 = (x1, x2) -> BETA_0 + x1 * BETA_1 + x2 * BETA_2;
   private static final double EPS = 1e-9;
 
   static {
@@ -53,8 +39,8 @@ public class LeastSquaresRegressionResultTest {
     for (int i = 0; i < n; i++) {
       x[i][0] = RANDOM.nextDouble();
       x[i][1] = RANDOM.nextDouble();
-      y1[i] = F1.evaluate(x[i][0], x[i][1]);
-      y2[i] = F2.evaluate(x[i][0], x[i][1]);
+      y1[i] = F1.applyAsDouble(x[i][0], x[i][1]);
+      y2[i] = F2.applyAsDouble(x[i][0], x[i][1]);
     }
     NO_INTERCEPT = REGRESSION.regress(x, null, y1, false);
     INTERCEPT = REGRESSION.regress(x, null, y2, true);
@@ -85,8 +71,8 @@ public class LeastSquaresRegressionResultTest {
     double[] z;
     for (int i = 0; i < 10; i++) {
       z = new double[] {RANDOM.nextDouble(), RANDOM.nextDouble() };
-      assertEquals(F1.evaluate(z[0], z[1]), NO_INTERCEPT.getPredictedValue(z), EPS);
-      assertEquals(F2.evaluate(z[0], z[1]), INTERCEPT.getPredictedValue(z), EPS);
+      assertEquals(F1.applyAsDouble(z[0], z[1]), NO_INTERCEPT.getPredictedValue(z), EPS);
+      assertEquals(F2.applyAsDouble(z[0], z[1]), INTERCEPT.getPredictedValue(z), EPS);
     }
   }
 

@@ -5,22 +5,26 @@
  */
 package com.opengamma.strata.math.impl.interpolation.data;
 
-import java.io.Serializable;
-
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * 
  */
-public final class InterpolationBoundedValues implements Serializable {
-  private static final long serialVersionUID = 1L;
+public final class InterpolationBoundedValues {
+
   private final int _lowerBoundIndex;
-  private final Double _lowerBoundKey;
-  private final Double _lowerBoundValue;
+  private final double _lowerBoundKey;
+  private final double _lowerBoundValue;
   private final Double _higherBoundKey;
   private final Double _higherBoundValue;
 
-  public InterpolationBoundedValues(final int lowerBoundIndex, final Double lowerBoundKey, final Double lowerBoundValue, final Double higherKey, final Double higherValue) {
+  public InterpolationBoundedValues(
+      int lowerBoundIndex,
+      double lowerBoundKey,
+      double lowerBoundValue,
+      Double higherKey,
+      Double higherValue) {
+
     ArgChecker.notNegative(lowerBoundIndex, "lower bound index");
     _lowerBoundIndex = lowerBoundIndex;
     _lowerBoundKey = lowerBoundKey;
@@ -32,14 +36,14 @@ public final class InterpolationBoundedValues implements Serializable {
   /**
    * @return the _lowerBoundKey
    */
-  public Double getLowerBoundKey() {
+  public double getLowerBoundKey() {
     return _lowerBoundKey;
   }
 
   /**
    * @return the _lowerBoundValue
    */
-  public Double getLowerBoundValue() {
+  public double getLowerBoundValue() {
     return _lowerBoundValue;
   }
 

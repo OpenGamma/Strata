@@ -7,11 +7,12 @@ package com.opengamma.strata.math.impl.interpolation;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 import com.opengamma.strata.math.impl.regression.LeastSquaresRegressionResult;
 import com.opengamma.strata.math.impl.statistics.descriptive.MeanCalculator;
@@ -24,8 +25,8 @@ import com.opengamma.strata.math.impl.statistics.descriptive.SampleStandardDevia
 public class PolynomialsLeastSquaresFitterTest {
   private static final double EPS = 1e-14;
 
-  private final Function1D<double[], Double> _meanCal = new MeanCalculator();
-  private final Function1D<double[], Double> _stdCal = new SampleStandardDeviationCalculator();
+  private final Function<double[], Double> _meanCal = new MeanCalculator();
+  private final Function<double[], Double> _stdCal = new SampleStandardDeviationCalculator();
 
   /**
    * Checks coefficients of polynomial f(x) are recovered and residuals, { y_i -f(x_i) }, are accurate
@@ -45,18 +46,18 @@ public class PolynomialsLeastSquaresFitterTest {
 
     for (int i = 0; i < nPts; ++i) {
       xValues[i] = -5. + 10 * i / (nPts - 1);
-      yValues[i] = func.evaluate(xValues[i]);
+      yValues[i] = func.applyAsDouble(xValues[i]);
     }
 
     double[] yValuesNorm = new double[nPts];
 
-    final double mean = _meanCal.evaluate(xValues);
-    final double std = _stdCal.evaluate(xValues);
+    final double mean = _meanCal.apply(xValues);
+    final double std = _stdCal.apply(xValues);
     final double ratio = mean / std;
 
     for (int i = 0; i < nPts; ++i) {
       final double tmp = xValues[i] / std - ratio;
-      yValuesNorm[i] = func.evaluate(tmp);
+      yValuesNorm[i] = func.applyAsDouble(tmp);
     }
 
     /**
@@ -75,7 +76,7 @@ public class PolynomialsLeastSquaresFitterTest {
     func = new RealPolynomialFunction1D(coeffResult);
     double[] yValuesFit = new double[nPts];
     for (int i = 0; i < nPts; ++i) {
-      yValuesFit[i] = func.evaluate(xValues[i]);
+      yValuesFit[i] = func.applyAsDouble(xValues[i]);
     }
 
     for (int i = 0; i < nPts; ++i) {
@@ -100,7 +101,7 @@ public class PolynomialsLeastSquaresFitterTest {
     coeffResult = resultVer.getCoeff();
     func = new RealPolynomialFunction1D(coeffResult);
     for (int i = 0; i < nPts; ++i) {
-      yValuesFit[i] = func.evaluate(xValues[i]);
+      yValuesFit[i] = func.applyAsDouble(xValues[i]);
     }
 
     assertEquals(nPts - (degree + 1), resultVer.getDof(), 0);
@@ -133,7 +134,7 @@ public class PolynomialsLeastSquaresFitterTest {
     func = new RealPolynomialFunction1D(coeffResult);
     for (int i = 0; i < nPts; ++i) {
       final double tmp = xValues[i] / std - ratio;
-      yValuesFit[i] = func.evaluate(tmp);
+      yValuesFit[i] = func.applyAsDouble(tmp);
     }
 
     for (int i = 0; i < nPts; ++i) {

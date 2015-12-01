@@ -34,12 +34,12 @@ public class RealPolynomialFunction1DTest {
   @Test
   public void testEvaluate() {
     final double x = RANDOM.nextDouble();
-    assertEquals(C[3] * Math.pow(x, 3) + C[2] * Math.pow(x, 2) + C[1] * x + C[0], F.evaluate(x), EPS);
+    assertEquals(C[3] * Math.pow(x, 3) + C[2] * Math.pow(x, 2) + C[1] * x + C[0], F.applyAsDouble(x), EPS);
   }
 
   @Test
   public void testDerivative() {
     final double x = RANDOM.nextDouble();
-    assertEquals(3 * C[3] * Math.pow(x, 2) + 2 * C[2] * x + C[1], F.derivative().evaluate(x), EPS);
+    assertEquals(3 * C[3] * Math.pow(x, 2) + 2 * C[2] * x + C[1], F.derivative().applyAsDouble(x), EPS);
   }
 }

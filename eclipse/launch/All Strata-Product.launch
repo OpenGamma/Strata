@@ -16,24 +16,26 @@
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.strata.product"/>
+<listEntry value="com.opengamma.strata.product.bond"/>
+<listEntry value="com.opengamma.strata.product.bond.type"/>
 <listEntry value="com.opengamma.strata.product.credit"/>
 <listEntry value="com.opengamma.strata.product.credit.type"/>
+<listEntry value="com.opengamma.strata.product.deposit"/>
+<listEntry value="com.opengamma.strata.product.deposit.type"/>
 <listEntry value="com.opengamma.strata.product.equity"/>
+<listEntry value="com.opengamma.strata.product.fra"/>
+<listEntry value="com.opengamma.strata.product.fra.type"/>
 <listEntry value="com.opengamma.strata.product.future"/>
 <listEntry value="com.opengamma.strata.product.fx"/>
 <listEntry value="com.opengamma.strata.product.fx.type"/>
+<listEntry value="com.opengamma.strata.product.index"/>
+<listEntry value="com.opengamma.strata.product.index.type"/>
 <listEntry value="com.opengamma.strata.product.payment"/>
 <listEntry value="com.opengamma.strata.product.rate"/>
-<listEntry value="com.opengamma.strata.product.rate.bond"/>
-<listEntry value="com.opengamma.strata.product.rate.deposit"/>
-<listEntry value="com.opengamma.strata.product.rate.deposit.type"/>
-<listEntry value="com.opengamma.strata.product.rate.fra"/>
-<listEntry value="com.opengamma.strata.product.rate.fra.type"/>
-<listEntry value="com.opengamma.strata.product.rate.future"/>
-<listEntry value="com.opengamma.strata.product.rate.future.type"/>
-<listEntry value="com.opengamma.strata.product.rate.swap"/>
-<listEntry value="com.opengamma.strata.product.rate.swap.type"/>
-<listEntry value="com.opengamma.strata.product.rate.swaption"/>
+<listEntry value="com.opengamma.strata.product.swap"/>
+<listEntry value="com.opengamma.strata.product.swap.type"/>
+<listEntry value="com.opengamma.strata.product.swaption"/>
+<listEntry value="com.opengamma.strata.product.swaption.type"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <stringAttribute key="org.testng.eclipse.PRE_DEFINED_LISTENERS" value=""/>

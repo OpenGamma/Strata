@@ -20,18 +20,18 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
-import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.curve.SimpleCurveNodeMetadata;
-import com.opengamma.strata.market.curve.definition.CurveNode;
-import com.opengamma.strata.market.curve.definition.InterpolatedNodalCurveDefinition;
-import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
+import com.opengamma.strata.market.interpolator.CurveExtrapolator;
+import com.opengamma.strata.market.interpolator.CurveInterpolator;
 
 /**
  * Represents curve settings, used when loading curves.

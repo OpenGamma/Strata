@@ -13,7 +13,6 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.tuple.DoublesPair;
-import com.opengamma.strata.math.impl.function.Function;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
@@ -21,30 +20,26 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
  */
 @Test
 public class GridInterpolator2DSensitivityTest {
+
   private static final Interpolator1D LINEAR_1D = new LinearInterpolator1D();
   private static final GridInterpolator2D INTERPOLATOR;
   private static final Map<DoublesPair, Double> DATA;
   private static final Map<Double, Interpolator1DDataBundle> DATA_BUNDLE;
-  protected static final Function<Double, Double> COS_EXP_FUNCTION = new Function<Double, Double>() {
-
-    @Override
-    public Double evaluate(final Double... x) {
-      return Math.sin(Math.PI * x[0] / 10.0) * Math.exp(-x[1] / 5.);
-    }
-  };
 
   static {
     DATA = new HashMap<>();
     for (int i = 0; i < 11; i++) {
       for (int j = 0; j < 11; j++) {
-        final double x = i;
-        final double y = j;
-        DATA.put(DoublesPair.of(x, y), COS_EXP_FUNCTION.evaluate(x, y));
+        DATA.put(DoublesPair.of(i, j), calc(i, j));
       }
     }
 
     INTERPOLATOR = new GridInterpolator2D(LINEAR_1D, LINEAR_1D);
     DATA_BUNDLE = INTERPOLATOR.getDataBundle(DATA);
+  }
+
+  private static double calc(double x, double y) {
+    return Math.sin(Math.PI * x / 10.0) * Math.exp(-y / 5.);
   }
 
   @Test

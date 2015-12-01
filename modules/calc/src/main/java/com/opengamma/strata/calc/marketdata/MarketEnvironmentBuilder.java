@@ -9,6 +9,7 @@ import static java.util.stream.Collectors.toMap;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.opengamma.strata.basics.market.MarketDataId;
@@ -16,6 +17,8 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.result.Failure;
+import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
@@ -35,6 +38,12 @@ public final class MarketEnvironmentBuilder {
   /** Time series of observable market data values, keyed by ID. */
   private final Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = new HashMap<>();
 
+  /** Details of failures when building single market data values. */
+  private final Map<MarketDataId<?>, Failure> valueFailures = new HashMap<>();
+
+  /** Details of failures when building time series of market data values. */
+  private final Map<MarketDataId<?>, Failure> timeSeriesFailures = new HashMap<>();
+
   /**
    * Creates an empty builder.
    */
@@ -48,17 +57,23 @@ public final class MarketEnvironmentBuilder {
    * @param scenarioCount  the number of scenarios for which this builder contains market data
    * @param values  the single value market data items, keyed by ID
    * @param timeSeries  time series of observable market data values, keyed by ID
+   * @param valueFailures  details of failures encountered when building market data values
+   * @param timeSeriesFailures  details of failures encountered when building time series
    */
   MarketEnvironmentBuilder(
       MarketDataBox<LocalDate> valuationDate,
       int scenarioCount,
       Map<? extends MarketDataId<?>, MarketDataBox<?>> values,
-      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
+      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries,
+      Map<MarketDataId<?>, Failure> valueFailures,
+      Map<MarketDataId<?>, Failure> timeSeriesFailures) {
 
     this.valuationDate = ArgChecker.notNull(valuationDate, "valuationDate");
     this.scenarioCount = scenarioCount;
     this.values.putAll(values);
     this.timeSeries.putAll(timeSeries);
+    this.valueFailures.putAll(valueFailures);
+    this.timeSeriesFailures.putAll(timeSeriesFailures);
   }
 
   /**
@@ -77,6 +92,61 @@ public final class MarketEnvironmentBuilder {
   }
 
   /**
+   * Adds a single item of market data, replacing any existing value with the same ID.
+   *
+   * @param id  the ID of the market data
+   * @param value  the market data value
+   * @param <T>  the type of the market data value
+   * @return this builder
+   */
+  public <T> MarketEnvironmentBuilder addValue(MarketDataId<T> id, MarketDataBox<T> value) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(value, "value");
+    updateScenarioCount(value);
+    values.put(id, value);
+    valueFailures.remove(id);
+    return this;
+  }
+
+  /**
+   * Adds multiple values for an item of market data, one for each scenario.
+   *
+   * @param id  the ID of the market data
+   * @param values  the market data values, one for each scenario
+   * @param <T>  the type of the market data values
+   * @return this builder
+   */
+  public <T> MarketEnvironmentBuilder addValue(MarketDataId<T> id, List<T> values) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(values, "values");
+    MarketDataBox<T> box = MarketDataBox.ofScenarioValues(values);
+    updateScenarioCount(box);
+    this.values.put(id, box);
+    valueFailures.remove(id);
+    return this;
+  }
+
+  /**
+   * Adds a single item of market data, replacing any existing value with the same ID.
+   * <p>
+   * The type of the value is checked to ensure it is compatible with the ID.
+   *
+   * @param id  the ID of the market data
+   * @param value  the market data value
+   * @return this builder
+   */
+  MarketEnvironmentBuilder addValueUnsafe(MarketDataId<?> id, MarketDataBox<?> value) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(value, "value");
+    updateScenarioCount(value);
+    checkType(id, value);
+    values.put(id, value);
+    return this;
+  }
+
+  //--------------------------------------------------------------------------------------------------
+
+  /**
    * Adds multiple items of market data, replacing any existing values with the same IDs.
    *
    * @param values  the items of market data, keyed by ID
@@ -91,21 +161,58 @@ public final class MarketEnvironmentBuilder {
     return this;
   }
 
+  //--------------------------------------------------------------------------------------------------
+
   /**
-   * Adds multiple items of market data, replacing any existing values with the same IDs.
+   * Adds a result for a single item of market data, replacing any existing value with the same ID.
    *
-   * @param values  the items of market data, keyed by ID
+   * @param id  the ID of the market data
+   * @param result  a result containing the market data value or details of why it could not be provided
+   * @param <T>  the type of the market data value
    * @return this builder
    */
-  public MarketEnvironmentBuilder addBoxedValues(Map<? extends MarketDataId<?>, ? extends MarketDataBox<?>> values) {
-    ArgChecker.notNull(values, "values");
-    values.entrySet().forEach(e -> {
-      checkType(e.getKey(), e.getValue());
-      updateScenarioCount(e.getValue());
-    });
-    this.values.putAll(values);
+  public <T> MarketEnvironmentBuilder addResult(MarketDataId<T> id, Result<MarketDataBox<T>> result) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(result, "result");
+
+    if (result.isSuccess()) {
+      MarketDataBox<T> box = result.getValue();
+      updateScenarioCount(box);
+      values.put(id, box);
+      valueFailures.remove(id);
+    } else {
+      valueFailures.put(id, result.getFailure());
+      values.remove(id);
+    }
     return this;
   }
+
+  /**
+   * Adds a result for a single item of market data, replacing any existing value with the same ID.
+   *
+   * @param id  the ID of the market data
+   * @param result  a result containing the market data value or details of why it could not be provided
+   * @param <T>  the type of the market data value
+   * @return this builder
+   */
+  public <T> MarketEnvironmentBuilder addResultUnsafe(MarketDataId<T> id, Result<MarketDataBox<?>> result) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(result, "result");
+
+    if (result.isSuccess()) {
+      MarketDataBox<?> box = result.getValue();
+      checkType(id, box);
+      updateScenarioCount(box);
+      values.put(id, box);
+      valueFailures.remove(id);
+    } else {
+      valueFailures.put(id, result.getFailure());
+      values.remove(id);
+    }
+    return this;
+  }
+
+  //--------------------------------------------------------------------------------------------------
 
   /**
    * Adds a time series of observable market data values, replacing any existing time series with the same ID.
@@ -130,6 +237,27 @@ public final class MarketEnvironmentBuilder {
   public MarketEnvironmentBuilder addTimeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> series) {
     ArgChecker.notNull(series, "series");
     timeSeries.putAll(series);
+    return this;
+  }
+
+  /**
+   * Adds a time series of observable market data values, replacing any existing time series with the same ID.
+   *
+   * @param id  the ID of the values
+   * @param result  a time series of observable market data values
+   * @return this builder
+   */
+  public MarketEnvironmentBuilder addTimeSeriesResult(ObservableId id, Result<LocalDateDoubleTimeSeries> result) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(result, "result");
+
+    if (result.isSuccess()) {
+      timeSeries.put(id, result.getValue());
+      timeSeriesFailures.remove(id);
+    } else {
+      timeSeriesFailures.put(id, result.getFailure());
+      timeSeries.remove(id);
+    }
     return this;
   }
 
@@ -163,6 +291,36 @@ public final class MarketEnvironmentBuilder {
     return this;
   }
 
+  //--------------------------------------------------------------------------------------------------
+
+  /**
+   * Sets the market data values in this builder, replacing the existing set.
+   *
+   * @param values  the market data values
+   * @return this builder
+   */
+  public MarketEnvironmentBuilder values(Map<? extends MarketDataId<?>, MarketDataBox<?>> values) {
+    ArgChecker.notNull(values, "values");
+    this.values.clear();
+    this.values.putAll(values);
+    return this;
+  }
+
+  /**
+   * Sets the time series in this builder, replacing the existing set.
+   *
+   * @param timeSeries  the time series
+   * @return this builder
+   */
+  public MarketEnvironmentBuilder timeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
+    ArgChecker.notNull(timeSeries, "timeSeries");
+    this.timeSeries.clear();
+    this.timeSeries.putAll(timeSeries);
+    return this;
+  }
+
+  //--------------------------------------------------------------------------------------------------
+
   /**
    * Builds a set of market data from the data in this builder.
    * <p>
@@ -172,7 +330,11 @@ public final class MarketEnvironmentBuilder {
    * @return a set of market data from the data in this builder
    */
   public MarketEnvironment build() {
-    return new MarketEnvironment(valuationDate, scenarioCount, values, timeSeries);
+    if (valuationDate.getScenarioCount() == 0) {
+      // This isn't checked in MarketEnvironment otherwise it would be impossible to have an empty environment
+      throw new IllegalArgumentException("Valuation date must be specified");
+    }
+    return new MarketEnvironment(valuationDate, scenarioCount, values, timeSeries, valueFailures, timeSeriesFailures);
   }
 
   private static Map.Entry<? extends MarketDataId<?>, ?> checkTypes(Map.Entry<? extends MarketDataId<?>, ?> entry) {
