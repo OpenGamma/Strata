@@ -11,13 +11,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.io.IniFile;
 import com.opengamma.strata.collect.io.PropertySet;
-import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.io.ResourceConfig;
 
 /**
  * Internal loader of currency and currency pair data.
@@ -27,19 +26,23 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 final class CurrencyDataLoader {
 
   /**
+   * The logger.
+   */
+  private static final Logger log = Logger.getLogger(CurrencyDataLoader.class.getName());
+  /**
    * INI file for currency data.
    */
-  private static final String CURRENCY_INI = "com/opengamma/strata/basics/currency/Currency.ini";
+  private static final String CURRENCY_INI = "Currency.ini";
   /**
    * INI file for currency pair data.
    */
-  private static final String PAIR_INI = "com/opengamma/strata/basics/currency/CurrencyPair.ini";
+  private static final String PAIR_INI = "CurrencyPair.ini";
   /**
    * INI file containing a list of general currency data.
    * This in includes a list of currencies in priority order used to choose the base currency of the market
-   * convention pair for pairs that aren't configured in CurrencyPair.ini.
+   * convention pair for pairs that aren't configured in currency-pair.ini.
    */
-  private static final String CURRENCY_DATA_INI = "com/opengamma/strata/basics/currency/CurrencyData.ini";
+  private static final String CURRENCY_DATA_INI = "CurrencyData.ini";
 
   // restricted constructor
   private CurrencyDataLoader() {
@@ -54,14 +57,12 @@ final class CurrencyDataLoader {
    */
   static ImmutableMap<String, Currency> loadCurrencies(boolean loadHistoric) {
     try {
-      IniFile ini = IniFile.ofChained(
-          ResourceLocator.streamOfClasspathResources(CURRENCY_INI).map(ResourceLocator::getCharSource));
+      IniFile ini = ResourceConfig.combinedIniFile(ResourceConfig.orderedResources(CURRENCY_INI));
       return parseCurrencies(ini, loadHistoric);
 
     } catch (RuntimeException ex) {
       // logging used because this is loaded in a static variable
-      Logger logger = Logger.getLogger(CurrencyDataLoader.class.getName());
-      logger.severe(Throwables.getStackTraceAsString(ex));
+      log.severe(Throwables.getStackTraceAsString(ex));
       // return an empty instance to avoid ExceptionInInitializerError
       return ImmutableMap.of();
     }
@@ -94,14 +95,12 @@ final class CurrencyDataLoader {
    */
   static ImmutableMap<CurrencyPair, Integer> loadPairs() {
     try {
-      IniFile ini = IniFile.ofChained(
-          ResourceLocator.streamOfClasspathResources(PAIR_INI).map(ResourceLocator::getCharSource));
+      IniFile ini = ResourceConfig.combinedIniFile(ResourceConfig.orderedResources(PAIR_INI));
       return parsePairs(ini);
 
     } catch (RuntimeException ex) {
       // logging used because this is loaded in a static variable
-      Logger logger = Logger.getLogger(CurrencyDataLoader.class.getName());
-      logger.severe(Throwables.getStackTraceAsString(ex));
+      log.severe(Throwables.getStackTraceAsString(ex));
       // return an empty instance to avoid ExceptionInInitializerError
       return ImmutableMap.of();
     }
@@ -130,8 +129,7 @@ final class CurrencyDataLoader {
    */
   static ImmutableMap<Currency, Integer> loadOrdering() {
     try {
-      Stream<ResourceLocator> resourceLocators = ResourceLocator.streamOfClasspathResources(CURRENCY_DATA_INI);
-      IniFile ini = IniFile.ofChained(resourceLocators.map(ResourceLocator::getCharSource));
+      IniFile ini = ResourceConfig.combinedIniFile(ResourceConfig.orderedResources(CURRENCY_DATA_INI));
       PropertySet section = ini.section("marketConventionPriority");
       String list = section.value("ordering");
       // The currency ordering is defined as a comma-separated list
@@ -148,8 +146,7 @@ final class CurrencyDataLoader {
       return orderBuilder.build();
     } catch (Exception ex) {
       // logging used because this is loaded in a static variable
-      Logger logger = Logger.getLogger(CurrencyDataLoader.class.getName());
-      logger.severe(Throwables.getStackTraceAsString(ex));
+      log.severe(Throwables.getStackTraceAsString(ex));
       // return an empty instance to avoid ExceptionInInitializerError
       return ImmutableMap.of();
     }

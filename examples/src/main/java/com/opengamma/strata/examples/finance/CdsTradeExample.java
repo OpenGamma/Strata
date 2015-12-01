@@ -10,16 +10,15 @@ import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.product.credit.RestructuringClause.NO_RESTRUCTURING_2014;
 import static com.opengamma.strata.product.credit.SeniorityLevel.SENIOR_UNSECURED_FOREIGN;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
 import org.joda.beans.ser.JodaBeanSer;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.CharStreams;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.Unchecked;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
 import com.opengamma.strata.examples.report.TradePortfolio;
@@ -30,9 +29,14 @@ import com.opengamma.strata.product.credit.type.CdsConventions;
 
 /**
  * An example application showing how to load the example portfolio from the classpath
- * as well as build an equivalent portfolio using the Strata API.
+ * as well as build an equivalent portfolio using the API.
  */
 public class CdsTradeExample {
+
+  /**
+   * Resource name.
+   */
+  private static final String CDS_PORTFOLIO_XML = "example-portfolios/cds-portfolio.xml";
 
   /**
    * Runs the example, serializing and deserializing the portfolio and printing to the screen.
@@ -66,13 +70,7 @@ public class CdsTradeExample {
   }
 
   public static String loadExamplePortfolio() {
-    String resourceName = "example-portfolios/cds-portfolio.xml";
-    try {
-      ResourceLocator resourceLocator = ResourceLocator.streamOfClasspathResources(resourceName).findFirst().get();
-      return CharStreams.toString(resourceLocator.getCharSource().openStream());
-    } catch (IOException e) {
-      throw new RuntimeException("Error loading from file " + resourceName, e);
-    }
+    return Unchecked.wrap(() -> ResourceLocator.ofClasspath(CDS_PORTFOLIO_XML).getCharSource().read());
   }
 
   public static CdsTrade comp01 =

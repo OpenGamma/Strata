@@ -23,9 +23,8 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.IniFile;
-import com.opengamma.strata.collect.io.PropertiesFile;
 import com.opengamma.strata.collect.io.PropertySet;
-import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.io.ResourceConfig;
 
 /**
  * Manager for extended enums controlled by code or configuration.
@@ -33,19 +32,15 @@ import com.opengamma.strata.collect.io.ResourceLocator;
  * The standard Java {@code Enum} is a fixed set of constants defined at compile time.
  * In many scenarios this can be too limiting and this class provides an alternative.
  * <p>
- * A configuration file is used to define the set of named instances via provider classes.
+ * An INI configuration file is used to define the set of named instances.
+ * For more information on the process of loading the configuration file, see {@link ResourceConfig}.
+ * <p>
+ * The named instances are loaded via provider classes.
  * A provider class is either an implementation of {@link NamedLookup} or a class
  * providing {@code public static final} enum constants.
  * <p>
  * The configuration file also supports the notion of alternate names (aliases).
  * This allows many different names to be used to lookup the same instance.
- * <p>
- * The configuration file is found in the classpath. It has the same package location as the enum type
- * and is a chained {@linkplain IniFile#ofChained(java.util.stream.Stream) INI file}.
- * <p>
- * A chained INI file allows multiple files to be on the classpath.
- * A 'chain' section includes a 'priority' value to specify the order to load the files.
- * The 'chainNextFile' and 'chainRemoveSections' keys provide fine grained control.
  * <p>
  * Three sections control the loading of additional information.
  * <p>
@@ -64,7 +59,7 @@ import com.opengamma.strata.collect.io.ResourceLocator;
  * There may be multiple external <i>groups</i> to handle different external providers of data.
  * For example, the mapping used by FpML may differ from that used by Bloomberg.
  * <p>
- * Each 'externals' section has a name of the form 'externals.XXX', where 'XXX' is the name of the group.
+ * Each 'externals' section has a name of the form 'externals.Foo', where 'Foo' is the name of the group.
  * Each property line in the section is of the same format as the 'alternates' section.
  * It maps the external name to the standard name.
  * <p>
@@ -76,6 +71,10 @@ import com.opengamma.strata.collect.io.ResourceLocator;
  */
 public final class ExtendedEnum<T extends Named> {
 
+  /**
+   * The logger.
+   */
+  private static final Logger log = Logger.getLogger(ExtendedEnum.class.getName());
   /**
    * Section name used for providers.
    */
@@ -113,8 +112,8 @@ public final class ExtendedEnum<T extends Named> {
    * Obtains an extended enum instance.
    * <p>
    * Calling this method loads configuration files to determine the extended enum values.
-   * The configuration file has the same location as the specified type and is a
-   * {@linkplain PropertiesFile properties file} with the suffix '.properties'.
+   * The configuration file has the same simple name as the specified type and is a
+   * {@linkplain IniFile INI file} with the suffix '.ini'.
    * See class-level documentation for more information.
    * 
    * @param <R>  the type of the enum
@@ -124,19 +123,18 @@ public final class ExtendedEnum<T extends Named> {
   public static <R extends Named> ExtendedEnum<R> of(Class<R> type) {
     try {
       // load all matching files
-      String name = type.getName().replace('.', '/') + ".ini";
-      IniFile config = IniFile.ofChained(
-          ResourceLocator.streamOfClasspathResources(name).map(ResourceLocator::getCharSource));
+      String name = type.getSimpleName() + ".ini";
+      IniFile config = ResourceConfig.combinedIniFile(name);
       // parse files
       ImmutableList<NamedLookup<R>> lookups = parseProviders(config, type);
       ImmutableMap<String, String> alternateNames = parseAlternates(config);
       ImmutableMap<String, ImmutableMap<String, String>> externalNames = parseExternals(config);
+      log.fine(() -> "Loaded extended enum: " + name + ", providers: " + lookups);
       return new ExtendedEnum<>(type, lookups, alternateNames, externalNames);
 
     } catch (RuntimeException ex) {
       // logging used because this is loaded in a static variable
-      Logger logger = Logger.getLogger(ExtendedEnum.class.getName());
-      logger.severe("Failed to load ExtendedEnum for " + type + ": " + Throwables.getStackTraceAsString(ex));
+      log.severe("Failed to load ExtendedEnum for " + type + ": " + Throwables.getStackTraceAsString(ex));
       // return an empty instance to avoid ExceptionInInitializerError
       return new ExtendedEnum<>(type, ImmutableList.of(), ImmutableMap.of(), ImmutableMap.of());
     }

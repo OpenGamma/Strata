@@ -32,7 +32,7 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.io.IniFile;
 import com.opengamma.strata.collect.io.PropertySet;
-import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.io.ResourceConfig;
 import com.opengamma.strata.collect.named.Named;
 
 /**
@@ -58,6 +58,10 @@ import com.opengamma.strata.collect.named.Named;
 public final class FloatingRateName
     implements ImmutableBean, Named, Serializable {
 
+  /**
+   * INI file for floating rate names.
+   */
+  private static final String FLOATING_RATE_NAME_INI = "FloatingRateName.ini";
   /**
    * The map of known instances.
    */
@@ -107,8 +111,7 @@ public final class FloatingRateName
    */
   static ImmutableMap<String, FloatingRateName> loadIndices() {
     try {
-      String name = FloatingRateName.class.getName().replace('.', '/') + ".ini";
-      IniFile ini = IniFile.ofChained(ResourceLocator.streamOfClasspathResources(name).map(ResourceLocator::getCharSource));
+      IniFile ini = ResourceConfig.combinedIniFile(FLOATING_RATE_NAME_INI);
       return parseIndices(ini);
 
     } catch (RuntimeException ex) {
