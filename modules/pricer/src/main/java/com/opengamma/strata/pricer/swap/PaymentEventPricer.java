@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.swap;
 
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.impl.swap.DispatchingPaymentEventPricer;
@@ -104,4 +105,22 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
       RatesProvider provider,
       ExplainMapBuilder builder);
 
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the currency exposure of a single payment event.
+   * 
+   * @param event  the event to price
+   * @param provider  the rates provider
+   * @return the currency exposure
+   */
+  public abstract MultiCurrencyAmount currencyExposure(T event, RatesProvider provider);
+
+  /**
+   * Calculates the current cash of a single payment event.
+   * 
+   * @param event  the event to price
+   * @param provider  the rates provider
+   * @return the current cash
+   */
+  public abstract double currentCash(T event, RatesProvider provider);
 }

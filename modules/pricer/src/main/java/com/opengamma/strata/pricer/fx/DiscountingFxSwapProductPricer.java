@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.fx;
 
+import java.time.LocalDate;
+
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
@@ -138,5 +140,18 @@ public class DiscountingFxSwapProductPricer {
     PointSensitivities dpvdrConverted = dpvdr.convertedTo(counterPaymentNear.getCurrency(), provider);    
     return  result.combinedWith(dpvdrConverted.multipliedBy(pvCounterCcyBar));
   }
-
+  
+  /**
+   * Calculates the current cash of the FX swap product.
+   * 
+   * @param product  the product to price
+   * @param valuationDate  the valuation date
+   * @return the current cash
+   */
+  public MultiCurrencyAmount currentCash(FxSwapProduct product, LocalDate valuationDate) {
+    ExpandedFxSwap fx = product.expand();
+    MultiCurrencyAmount farPv = fxPricer.currentCash(fx.getFarLeg(), valuationDate);
+    MultiCurrencyAmount nearPv = fxPricer.currentCash(fx.getNearLeg(), valuationDate);
+    return nearPv.plus(farPv);
+  }
 }

@@ -6,10 +6,12 @@
 package com.opengamma.strata.pricer.fra;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.fra.ExpandedFra;
 import com.opengamma.strata.product.fra.FraProduct;
 import com.opengamma.strata.product.fra.FraTrade;
 
@@ -112,6 +114,32 @@ public class DiscountingFraTradePricer {
    */
   public CashFlows cashFlows(FraTrade trade, RatesProvider provider) {
     return productPricer.cashFlows(trade.getProduct(), provider);
+  }
+
+  /**
+   * Calculates the currency exposure of the FRA trade.
+   * 
+   * @param trade  the trade to price
+   * @param provider  the rates provider
+   * @return the currency exposure
+   */
+  public MultiCurrencyAmount currencyExposure(FraTrade trade, RatesProvider provider) {
+    return MultiCurrencyAmount.of(presentValue(trade, provider));
+  }
+
+  /**
+   * Calculates the current cash of the FRA trade.
+   * 
+   * @param trade  the trade to price
+   * @param provider  the rates provider
+   * @return the current cash
+   */
+  public CurrencyAmount currentCash(FraTrade trade, RatesProvider provider) {
+    ExpandedFra fra = trade.getProduct().expand();
+    if (fra.getPaymentDate().isEqual(provider.getValuationDate())) {
+      return productPricer.presentValue(fra, provider);
+    }
+    return CurrencyAmount.zero(fra.getCurrency());
   }
 
 }

@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -449,6 +450,36 @@ public class DiscountingRatePaymentPeriodPricer
     builder.put(ExplainKey.SPREAD, accrualPeriod.getSpread());
     builder.put(ExplainKey.PAY_OFF_RATE, accrualPeriod.getNegativeRateMethod().adjust(payOffRate));
     builder.put(ExplainKey.UNIT_AMOUNT, ua);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public MultiCurrencyAmount currencyExposure(RatePaymentPeriod period, RatesProvider provider) {
+    double df = provider.discountFactor(period.getCurrency(), period.getPaymentDate());
+    if (period.getFxReset().isPresent()) {
+      FxReset fxReset = period.getFxReset().get();
+      FxIndexRates rates = provider.fxIndexRates(fxReset.getIndex());
+      if (!fxReset.getFixingDate().isAfter(provider.getValuationDate()) &&
+          rates.getTimeSeries().get(fxReset.getFixingDate()).isPresent()) {
+        double fxRate = rates.rate(fxReset.getReferenceCurrency(), fxReset.getFixingDate());
+        return MultiCurrencyAmount.of(period.getCurrency(),
+            accrualWithNotional(period, period.getNotional() * fxRate * df, provider));
+      }
+      LocalDate maturityDate = rates.getIndex().calculateMaturityFromFixing(fxReset.getFixingDate());
+      double fxRateSpotSensitivity = rates.getFxForwardRates()
+          .rateFxSpotSensitivity(fxReset.getReferenceCurrency(), maturityDate);
+      return MultiCurrencyAmount.of(fxReset.getReferenceCurrency(),
+          accrualWithNotional(period, period.getNotional() * fxRateSpotSensitivity * df, provider));
+    }
+    return MultiCurrencyAmount.of(period.getCurrency(), accrualWithNotional(period, period.getNotional() * df, provider));
+  }
+
+  @Override
+  public double currentCash(RatePaymentPeriod period, RatesProvider provider) {
+    if (provider.getValuationDate().isEqual(period.getPaymentDate())) {
+      return forecastValue(period, provider);
+    }
+    return 0d;
   }
 
   //-------------------------------------------------------------------------

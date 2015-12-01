@@ -39,6 +39,7 @@ import static com.opengamma.strata.product.swap.SwapLegType.FIXED;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
@@ -52,6 +53,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
@@ -116,6 +118,7 @@ public class DiscountingSwapLegPricerTest {
   private static final DiscountingSwapLegPricer PRICER_LEG = DiscountingSwapLegPricer.DEFAULT;
   private static final ImmutableRatesProvider RATES_GBP = RatesProviderDataSets.MULTI_GBP;
   private static final ImmutableRatesProvider RATES_USD = RatesProviderDataSets.MULTI_USD;
+  private static final ImmutableRatesProvider RATES_GBP_USD = RatesProviderDataSets.MULTI_GBP_USD;
   private static final double FD_SHIFT = 1.0E-7;
   private static final RatesFiniteDifferenceSensitivityCalculator FINITE_DIFFERENCE_CALCULATOR =
       new RatesFiniteDifferenceSensitivityCalculator(FD_SHIFT);
@@ -736,4 +739,53 @@ public class DiscountingSwapLegPricerTest {
     assertEquals(computed, expected);
   }
 
+  //-------------------------------------------------------------------------
+  public void test_currencyExposure() {
+    ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC_GBP;
+    PointSensitivities point = PRICER_LEG.presentValueSensitivity(expSwapLeg, RATES_GBP).build();
+    MultiCurrencyAmount expected = RATES_GBP.currencyExposure(point).plus(PRICER_LEG.presentValue(expSwapLeg, RATES_GBP));
+    MultiCurrencyAmount computed = PRICER_LEG.currencyExposure(expSwapLeg, RATES_GBP);
+    assertEquals(computed, expected);
+  }
+
+  public void test_currencyExposure_fx() {
+    ExpandedSwapLeg expSwapLeg = FIXED_FX_RESET_EXPANDED_SWAP_LEG_PAY_GBP;
+    PointSensitivities point = PRICER_LEG.presentValueSensitivity(expSwapLeg, RATES_GBP_USD).build();
+    MultiCurrencyAmount expected = RATES_GBP_USD.currencyExposure(point.convertedTo(USD, RATES_GBP_USD))
+        .plus(PRICER_LEG.presentValue(expSwapLeg, RATES_GBP_USD));
+    MultiCurrencyAmount computed = PRICER_LEG.currencyExposure(expSwapLeg, RATES_GBP_USD);
+    assertEquals(computed.getAmount(USD).getAmount(), expected.getAmount(USD).getAmount(), EPS * NOTIONAL);
+    assertFalse(computed.contains(GBP)); // 0 GBP
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_currentCash_zero() {
+    ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC_GBP;
+    CurrencyAmount computed = PRICER_LEG.currentCash(expSwapLeg, RATES_GBP);
+    assertEquals(computed, CurrencyAmount.zero(expSwapLeg.getCurrency()));
+  }
+
+  public void test_currentCash_payEvent() {
+    ExpandedSwapLeg expSwapLeg = FIXED_EXPANDED_SWAP_LEG_PAY_USD;
+    LocalDate paymentDate = expSwapLeg.getPaymentEvents().get(0).getPaymentDate();
+    RatesProvider prov = new MockRatesProvider(paymentDate);
+    PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
+    double expected = 1234d;
+    when(mockEvent.currentCash(expSwapLeg.getPaymentEvents().get(0), prov)).thenReturn(expected);
+    DiscountingSwapLegPricer pricer = new DiscountingSwapLegPricer(PaymentPeriodPricer.instance(), mockEvent);
+    CurrencyAmount computed = pricer.currentCash(expSwapLeg, prov);
+    assertEquals(computed, CurrencyAmount.of(expSwapLeg.getCurrency(), expected));
+  }
+
+  public void test_currentCash_payPeriod() {
+    ExpandedSwapLeg expSwapLeg = FIXED_EXPANDED_SWAP_LEG_PAY_USD;
+    LocalDate paymentDate = expSwapLeg.getPaymentPeriods().get(0).getPaymentDate();
+    RatesProvider prov = new MockRatesProvider(paymentDate);
+    PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
+    double expected = 1234d;
+    when(mockPeriod.currentCash(expSwapLeg.getPaymentPeriods().get(0), prov)).thenReturn(expected);
+    DiscountingSwapLegPricer pricer = new DiscountingSwapLegPricer(mockPeriod, PaymentEventPricer.instance());
+    CurrencyAmount computed = pricer.currentCash(expSwapLeg, prov);
+    assertEquals(computed, CurrencyAmount.of(expSwapLeg.getCurrency(), expected));
+  }
 }

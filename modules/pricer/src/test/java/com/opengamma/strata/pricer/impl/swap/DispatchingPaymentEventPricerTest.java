@@ -12,6 +12,8 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.PaymentEventPricer;
@@ -103,4 +105,61 @@ public class DispatchingPaymentEventPricerTest {
     assertThrowsIllegalArg(() -> test.forecastValueSensitivity(mockPaymentEvent, MOCK_PROV));
   }
 
+  //-------------------------------------------------------------------------
+  public void test_currencyExposure_NotionalExchange() {
+    MultiCurrencyAmount expected = MultiCurrencyAmount.of(Currency.GBP, 0.0123d);
+    PaymentEventPricer<NotionalExchange> mockCalledFn = mock(PaymentEventPricer.class);
+    when(mockCalledFn.currencyExposure(SwapDummyData.NOTIONAL_EXCHANGE_REC_GBP, MOCK_PROV))
+        .thenReturn(expected);
+    DispatchingPaymentEventPricer test = new DispatchingPaymentEventPricer(
+        mockCalledFn,
+        MOCK_FX_NOTIONAL_EXG);
+    assertEquals(test.currencyExposure(SwapDummyData.NOTIONAL_EXCHANGE_REC_GBP, MOCK_PROV), expected);
+  }
+
+  public void test_currencyExposure_FxResetNotionalExchange() {
+    MultiCurrencyAmount expected = MultiCurrencyAmount.of(Currency.GBP, 0.0123d);
+    PaymentEventPricer<FxResetNotionalExchange> mockCalledFn = mock(PaymentEventPricer.class);
+    when(mockCalledFn.currencyExposure(SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE_REC_USD, MOCK_PROV))
+        .thenReturn(expected);
+    DispatchingPaymentEventPricer test = new DispatchingPaymentEventPricer(
+        MOCK_NOTIONAL_EXG,
+        mockCalledFn);
+    assertEquals(test.currencyExposure(SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE_REC_USD, MOCK_PROV), expected);
+  }
+
+  public void test_currencyExposure_unknownType() {
+    PaymentEvent mockPaymentEvent = mock(PaymentEvent.class);
+    DispatchingPaymentEventPricer test = DispatchingPaymentEventPricer.DEFAULT;
+    assertThrowsIllegalArg(() -> test.currencyExposure(mockPaymentEvent, MOCK_PROV));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_currentCash_NotionalExchange() {
+    double expected = 0.0123d;
+    PaymentEventPricer<NotionalExchange> mockCalledFn = mock(PaymentEventPricer.class);
+    when(mockCalledFn.currentCash(SwapDummyData.NOTIONAL_EXCHANGE_REC_GBP, MOCK_PROV))
+        .thenReturn(expected);
+    DispatchingPaymentEventPricer test = new DispatchingPaymentEventPricer(
+        mockCalledFn,
+        MOCK_FX_NOTIONAL_EXG);
+    assertEquals(test.currentCash(SwapDummyData.NOTIONAL_EXCHANGE_REC_GBP, MOCK_PROV), expected, 0d);
+  }
+
+  public void test_currentCash_FxResetNotionalExchange() {
+    double expected = 0.0123d;
+    PaymentEventPricer<FxResetNotionalExchange> mockCalledFn = mock(PaymentEventPricer.class);
+    when(mockCalledFn.currentCash(SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE_REC_USD, MOCK_PROV))
+        .thenReturn(expected);
+    DispatchingPaymentEventPricer test = new DispatchingPaymentEventPricer(
+        MOCK_NOTIONAL_EXG,
+        mockCalledFn);
+    assertEquals(test.currentCash(SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE_REC_USD, MOCK_PROV), expected, 0d);
+  }
+
+  public void test_currentCash_unknownType() {
+    PaymentEvent mockPaymentEvent = mock(PaymentEvent.class);
+    DispatchingPaymentEventPricer test = DispatchingPaymentEventPricer.DEFAULT;
+    assertThrowsIllegalArg(() -> test.currentCash(mockPaymentEvent, MOCK_PROV));
+  }
 }

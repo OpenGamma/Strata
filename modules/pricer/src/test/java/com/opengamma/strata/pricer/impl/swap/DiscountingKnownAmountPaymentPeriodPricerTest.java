@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.impl.swap;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.testng.Assert.assertEquals;
 
@@ -13,21 +14,28 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
+import com.opengamma.strata.market.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
+import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 import com.opengamma.strata.product.swap.KnownAmountPaymentPeriod;
@@ -64,6 +72,15 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
       .startDate(DATE_1)
       .endDate(DATE_2)
       .build();
+
+  private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.DOUBLE_QUADRATIC;
+  private static final Curve DISCOUNT_CURVE_GBP;
+  static {
+    DoubleArray time_gbp = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0);
+    DoubleArray rate_gbp = DoubleArray.of(0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210);
+    DISCOUNT_CURVE_GBP = InterpolatedNodalCurve.of(
+        Curves.zeroRates("GBP-Discount", ACT_ACT_ISDA), time_gbp, rate_gbp, INTERPOLATOR);
+  }
 
   //-------------------------------------------------------------------------
   public void test_presentValue() {
@@ -198,6 +215,37 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0, TOLERANCE_PV);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), PERIOD_PAST.getCurrency());
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0 * DISCOUNT_FACTOR, TOLERANCE_PV);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_currencyExposure() {
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
+        .build();
+    MultiCurrencyAmount computed = PRICER.currencyExposure(PERIOD, prov);
+    PointSensitivities point = PRICER.presentValueSensitivity(PERIOD, prov).build();
+    MultiCurrencyAmount expected = prov.currencyExposure(point)
+        .plus(CurrencyAmount.of(GBP, PRICER.presentValue(PERIOD, prov)));
+    assertEquals(computed, expected);
+  }
+
+  public void test_currentCash_zero() {
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
+        .build();
+    double computed = PRICER.currentCash(PERIOD, prov);
+    assertEquals(computed, 0d);
+  }
+
+  public void test_currentCash_onPayment() {
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
+        .valuationDate(PERIOD.getPaymentDate())
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
+        .build();
+    double computed = PRICER.currentCash(PERIOD, prov);
+    assertEquals(computed, AMOUNT_1000);
   }
 
   //-------------------------------------------------------------------------

@@ -15,7 +15,9 @@ import java.time.LocalDate;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.Curves;
@@ -92,6 +94,32 @@ public class RatesProviderFxDataSets {
             .put(KRW, KRW_DSC)
             .build())
         .fxRateProvider(FX_MATRIX)
+        .build();
+  }
+
+  /**
+   * Create a yield curve bundle with three curves.
+   * One called "Discounting EUR" with a constant rate of 2.50%, one called "Discounting USD"
+   * with a constant rate of 1.00% and one called "Discounting GBP" with a constant rate of 2.00%;
+   * "Discounting KRW" with a constant rate of 3.21%;
+   * 
+   * @param valuationDate  the valuation date
+   * @param fxIndex  the FX index
+   * @param spotRate  the spot rate for the index
+   * @return the provider
+   */
+  public static RatesProvider createProvider(LocalDate valuationDate, FxIndex fxIndex, double spotRate) {
+    return ImmutableRatesProvider.builder()
+        .valuationDate(valuationDate)
+        .discountCurves(ImmutableMap.<Currency, Curve>builder()
+            .put(EUR, EUR_DSC)
+            .put(USD, USD_DSC)
+            .put(GBP, GBP_DSC)
+            .put(KRW, KRW_DSC)
+            .build())
+        .fxRateProvider(FX_MATRIX)
+        .timeSeries(ImmutableMap.of(fxIndex, LocalDateDoubleTimeSeries.builder().put(
+            fxIndex.calculateFixingFromMaturity(valuationDate), spotRate).build()))
         .build();
   }
 

@@ -12,6 +12,7 @@ import java.util.function.BiFunction;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.amount.CashFlows;
@@ -459,4 +460,70 @@ public class DiscountingSwapLegPricer {
     builder.put(ExplainKey.PRESENT_VALUE, presentValue(leg, provider));
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the currency exposure of the swap leg.
+   * 
+   * @param leg  the leg to price
+   * @param provider  the rates provider
+   * @return the currency exposure of the swap leg
+   */
+  public MultiCurrencyAmount currencyExposure(SwapLeg leg, RatesProvider provider) {
+    ExpandedSwapLeg expanded = leg.expand();
+    return currencyExposurePeriodsInternal(expanded, provider).plus(currencyExposureEventsInternal(expanded, provider));
+  }
+
+  private MultiCurrencyAmount currencyExposurePeriodsInternal(ExpandedSwapLeg leg, RatesProvider provider) {
+    MultiCurrencyAmount total = MultiCurrencyAmount.empty();
+    for (PaymentPeriod period : leg.getPaymentPeriods()) {
+      if (!period.getPaymentDate().isBefore(provider.getValuationDate())) {
+        total = total.plus(paymentPeriodPricer.currencyExposure(period, provider));
+      }
+    }
+    return total;
+  }
+
+  private MultiCurrencyAmount currencyExposureEventsInternal(ExpandedSwapLeg leg, RatesProvider provider) {
+    MultiCurrencyAmount total = MultiCurrencyAmount.empty();
+    for (PaymentEvent event : leg.getPaymentEvents()) {
+      if (!event.getPaymentDate().isBefore(provider.getValuationDate())) {
+        total = total.plus(paymentEventPricer.currencyExposure(event, provider));
+      }
+    }
+    return total;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the current cash of the swap leg.
+   * 
+   * @param leg  the leg to price
+   * @param provider  the rates provider
+   * @return the current cash of the swap leg
+   */
+  public CurrencyAmount currentCash(SwapLeg leg, RatesProvider provider) {
+    ExpandedSwapLeg expanded = leg.expand();
+    return CurrencyAmount.of(leg.getCurrency(),
+        currentCashPeriodsInternal(expanded, provider) + (currentCashEventsInternal(expanded, provider)));
+  }
+
+  private double currentCashPeriodsInternal(ExpandedSwapLeg leg, RatesProvider provider) {
+    double total = 0d;
+    for (PaymentPeriod period : leg.getPaymentPeriods()) {
+      if (!period.getPaymentDate().isBefore(provider.getValuationDate())) {
+        total += paymentPeriodPricer.currentCash(period, provider);
+      }
+    }
+    return total;
+  }
+
+  private double currentCashEventsInternal(ExpandedSwapLeg leg, RatesProvider provider) {
+    double total = 0d;
+    for (PaymentEvent event : leg.getPaymentEvents()) {
+      if (!event.getPaymentDate().isBefore(provider.getValuationDate())) {
+        total += paymentEventPricer.currentCash(event, provider);
+      }
+    }
+    return total;
+  }
 }

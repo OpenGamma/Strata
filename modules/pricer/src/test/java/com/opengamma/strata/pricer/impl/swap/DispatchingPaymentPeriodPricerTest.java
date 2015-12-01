@@ -16,6 +16,7 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -82,6 +83,38 @@ public class DispatchingPaymentPeriodPricerTest {
     assertThrowsIllegalArg(() -> test.forecastValueSensitivity(mockPaymentPeriod, MOCK_PROV));
   }
 
+  //-------------------------------------------------------------------------
+  public void test_currencyExposure_RatePaymentPeriod() {
+    MultiCurrencyAmount expected = MultiCurrencyAmount.of(GBP, 0.0123d);
+    PaymentPeriodPricer<RatePaymentPeriod> mockNotionalExchangeFn = mock(PaymentPeriodPricer.class);
+    when(mockNotionalExchangeFn.currencyExposure(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV))
+        .thenReturn(expected);
+    DispatchingPaymentPeriodPricer test = new DispatchingPaymentPeriodPricer(mockNotionalExchangeFn, MOCK_KNOWN);
+    assertEquals(test.currencyExposure(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV), expected);
+  }
+
+  public void test_currencyExposure_unknownType() {
+    PaymentPeriod mockPaymentPeriod = mock(PaymentPeriod.class);
+    DispatchingPaymentPeriodPricer test = DispatchingPaymentPeriodPricer.DEFAULT;
+    assertThrowsIllegalArg(() -> test.currencyExposure(mockPaymentPeriod, MOCK_PROV));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_currentCash_RatePaymentPeriod() {
+    double expected = 0.0123d;
+    PaymentPeriodPricer<RatePaymentPeriod> mockNotionalExchangeFn = mock(PaymentPeriodPricer.class);
+    when(mockNotionalExchangeFn.currentCash(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV))
+        .thenReturn(expected);
+    DispatchingPaymentPeriodPricer test = new DispatchingPaymentPeriodPricer(mockNotionalExchangeFn, MOCK_KNOWN);
+    assertEquals(test.currentCash(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV), expected, 0d);
+  }
+
+  public void test_currentCash_unknownType() {
+    PaymentPeriod mockPaymentPeriod = mock(PaymentPeriod.class);
+    DispatchingPaymentPeriodPricer test = DispatchingPaymentPeriodPricer.DEFAULT;
+    assertThrowsIllegalArg(() -> test.currentCash(mockPaymentPeriod, MOCK_PROV));
+  }
+
   //------------------------------------------------------------------------- 
   public void coverage() {
     DispatchingPaymentPeriodPricer test = new DispatchingPaymentPeriodPricer(
@@ -127,6 +160,14 @@ public class DispatchingPaymentPeriodPricerTest {
     ignoreThrows(() -> test.explainPresentValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV, explain));
     ignoreThrows(() -> test.explainPresentValue(kapp, MOCK_PROV, explain));
     ignoreThrows(() -> test.explainPresentValue(mockPaymentPeriod, MOCK_PROV, explain));
+
+    ignoreThrows(() -> test.currencyExposure(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV));
+    ignoreThrows(() -> test.currencyExposure(kapp, MOCK_PROV));
+    ignoreThrows(() -> test.currencyExposure(mockPaymentPeriod, MOCK_PROV));
+
+    ignoreThrows(() -> test.currentCash(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV));
+    ignoreThrows(() -> test.currentCash(kapp, MOCK_PROV));
+    ignoreThrows(() -> test.currentCash(mockPaymentPeriod, MOCK_PROV));
   }
 
 }

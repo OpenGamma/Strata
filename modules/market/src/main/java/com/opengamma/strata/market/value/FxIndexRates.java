@@ -57,6 +57,13 @@ public interface FxIndexRates
    */
   public abstract LocalDateDoubleTimeSeries getTimeSeries();
 
+  /**
+   * Gets the underlying FX forward rates.  
+   * 
+   * @return the FX forward rates
+   */
+  public abstract FxForwardRates getFxForwardRates();
+
   //-------------------------------------------------------------------------
   /**
    * Gets the historic or forward rate at the specified fixing date.

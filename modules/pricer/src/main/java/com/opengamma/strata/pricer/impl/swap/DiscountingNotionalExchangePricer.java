@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -81,6 +82,20 @@ public class DiscountingNotionalExchangePricer
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.of(currency, forecastValue(event, provider)));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.of(currency, presentValue(event, provider)));
     }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public MultiCurrencyAmount currencyExposure(NotionalExchange event, RatesProvider provider) {
+    return MultiCurrencyAmount.of(CurrencyAmount.of(event.getCurrency(), presentValue(event, provider)));
+  }
+
+  @Override
+  public double currentCash(NotionalExchange event, RatesProvider provider) {
+    if (provider.getValuationDate().isEqual(event.getPaymentDate())) {
+      return forecastValue(event, provider);
+    }
+    return 0d;
   }
 
 }

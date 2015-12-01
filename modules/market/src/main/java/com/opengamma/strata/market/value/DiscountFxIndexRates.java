@@ -62,7 +62,7 @@ public final class DiscountFxIndexRates
   /**
    * The underlying FX forward rates.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final FxForwardRates fxForwardRates;
 
   //-------------------------------------------------------------------------
@@ -245,6 +245,7 @@ public final class DiscountFxIndexRates
    * Gets the underlying FX forward rates.
    * @return the value of the property, not null
    */
+  @Override
   public FxForwardRates getFxForwardRates() {
     return fxForwardRates;
   }

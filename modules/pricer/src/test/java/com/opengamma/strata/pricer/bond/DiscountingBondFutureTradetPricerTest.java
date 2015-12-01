@@ -14,6 +14,7 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
@@ -165,6 +166,21 @@ public class DiscountingBondFutureTradetPricerTest {
     CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, (p) -> CurrencyAmount.of(USD,
         TRADE_PRICER.parSpreadWithZSpread(FUTURE_TRADE, (p), REFERENCE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR)));
     assertTrue(computed.equalWithTolerance(expected, 10.0 * EPS * NOTIONAL * QUANTITY));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_currencyExposure() {
+    MultiCurrencyAmount ceComputed = TRADE_PRICER.currencyExposure(FUTURE_TRADE, PROVIDER, REFERENCE_PRICE);
+    CurrencyAmount pv = TRADE_PRICER.presentValue(FUTURE_TRADE, PROVIDER, REFERENCE_PRICE);
+    assertEquals(ceComputed, MultiCurrencyAmount.of(pv));
+  }
+
+  public void test_currencyExposureWithZSpread() {
+    MultiCurrencyAmount ceComputed = TRADE_PRICER.currencyExposureWithZSpread(
+        FUTURE_TRADE, PROVIDER, REFERENCE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
+    CurrencyAmount pv = TRADE_PRICER.presentValueWithZSpread(
+        FUTURE_TRADE, PROVIDER, REFERENCE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
+    assertEquals(ceComputed, MultiCurrencyAmount.of(pv));
   }
 
   //-------------------------------------------------------------------------

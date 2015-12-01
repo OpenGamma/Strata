@@ -148,8 +148,8 @@ public class RatesProviderDataSets {
       InterpolatedNodalCurve.of(GBP_L3_METADATA, TIMES_2, RATES_2_2, INTERPOLATOR);
   private static final Curve GBP_L6 =
       InterpolatedNodalCurve.of(GBP_L6_METADATA, TIMES_3, RATES_3_2, INTERPOLATOR);
-  private static final Map<Currency, Curve> GBP_MULTI_CCY_MAP = ImmutableMap.of(GBP, GBP_DSC);
-  private static final Map<Index, Curve> GBP_MULTI_IND_MAP = ImmutableMap.of(
+  public static final Map<Currency, Curve> GBP_MULTI_CCY_MAP = ImmutableMap.of(GBP, GBP_DSC);
+  public static final Map<Index, Curve> GBP_MULTI_IND_MAP = ImmutableMap.of(
       GBP_SONIA, GBP_DSC,
       GBP_LIBOR_3M, GBP_L3,
       GBP_LIBOR_6M, GBP_L6);
@@ -196,10 +196,10 @@ public class RatesProviderDataSets {
   //-------------------------------------------------------------------------
   //     =====     GBP + USD      =====        
 
-  private static final FxMatrix FX_MATRIX_GBP_USD =
+  public static final FxMatrix FX_MATRIX_GBP_USD =
       FxMatrix.builder().addRate(GBP, USD, 1.50).build();
 
-  private static final Map<Currency, Curve> GBP_USD_MULTI_CCY_MAP = new HashMap<>();
+  public static final Map<Currency, Curve> GBP_USD_MULTI_CCY_MAP = new HashMap<>();
   static {
     GBP_USD_MULTI_CCY_MAP.put(GBP, GBP_DSC);
     GBP_USD_MULTI_CCY_MAP.put(USD, USD_DSC);

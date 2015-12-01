@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.product.ProductTrade;
 import com.opengamma.strata.product.TradeInfo;
 
@@ -52,6 +53,14 @@ public final class FxVanillaOptionTrade
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final FxVanillaOption product;
+  /**
+   * The premium of the FX option.
+   * <p>
+   * The premium sign should be compatible with the product Long/Short flag.
+   * This means that the premium is negative for long and positive for short.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Payment premium;
 
   //-------------------------------------------------------------------------
   @SuppressWarnings({"rawtypes", "unchecked"})
@@ -89,10 +98,13 @@ public final class FxVanillaOptionTrade
 
   private FxVanillaOptionTrade(
       TradeInfo tradeInfo,
-      FxVanillaOption product) {
+      FxVanillaOption product,
+      Payment premium) {
     JodaBeanUtils.notNull(product, "product");
+    JodaBeanUtils.notNull(premium, "premium");
     this.tradeInfo = tradeInfo;
     this.product = product;
+    this.premium = premium;
   }
 
   @Override
@@ -136,6 +148,18 @@ public final class FxVanillaOptionTrade
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the premium of the FX option.
+   * <p>
+   * The premium sign should be compatible with the product Long/Short flag.
+   * This means that the premium is negative for long and positive for short.
+   * @return the value of the property, not null
+   */
+  public Payment getPremium() {
+    return premium;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -151,7 +175,8 @@ public final class FxVanillaOptionTrade
     if (obj != null && obj.getClass() == this.getClass()) {
       FxVanillaOptionTrade other = (FxVanillaOptionTrade) obj;
       return JodaBeanUtils.equal(tradeInfo, other.tradeInfo) &&
-          JodaBeanUtils.equal(product, other.product);
+          JodaBeanUtils.equal(product, other.product) &&
+          JodaBeanUtils.equal(premium, other.premium);
     }
     return false;
   }
@@ -161,15 +186,17 @@ public final class FxVanillaOptionTrade
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(tradeInfo);
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
+    hash = hash * 31 + JodaBeanUtils.hashCode(premium);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("FxVanillaOptionTrade{");
     buf.append("tradeInfo").append('=').append(tradeInfo).append(',').append(' ');
-    buf.append("product").append('=').append(JodaBeanUtils.toString(product));
+    buf.append("product").append('=').append(product).append(',').append(' ');
+    buf.append("premium").append('=').append(JodaBeanUtils.toString(premium));
     buf.append('}');
     return buf.toString();
   }
@@ -195,12 +222,18 @@ public final class FxVanillaOptionTrade
     private final MetaProperty<FxVanillaOption> product = DirectMetaProperty.ofImmutable(
         this, "product", FxVanillaOptionTrade.class, FxVanillaOption.class);
     /**
+     * The meta-property for the {@code premium} property.
+     */
+    private final MetaProperty<Payment> premium = DirectMetaProperty.ofImmutable(
+        this, "premium", FxVanillaOptionTrade.class, Payment.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "tradeInfo",
-        "product");
+        "product",
+        "premium");
 
     /**
      * Restricted constructor.
@@ -215,6 +248,8 @@ public final class FxVanillaOptionTrade
           return tradeInfo;
         case -309474065:  // product
           return product;
+        case -318452137:  // premium
+          return premium;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -251,6 +286,14 @@ public final class FxVanillaOptionTrade
       return product;
     }
 
+    /**
+     * The meta-property for the {@code premium} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Payment> premium() {
+      return premium;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -259,6 +302,8 @@ public final class FxVanillaOptionTrade
           return ((FxVanillaOptionTrade) bean).getTradeInfo();
         case -309474065:  // product
           return ((FxVanillaOptionTrade) bean).getProduct();
+        case -318452137:  // premium
+          return ((FxVanillaOptionTrade) bean).getPremium();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -282,6 +327,7 @@ public final class FxVanillaOptionTrade
 
     private TradeInfo tradeInfo;
     private FxVanillaOption product;
+    private Payment premium;
 
     /**
      * Restricted constructor.
@@ -297,6 +343,7 @@ public final class FxVanillaOptionTrade
     private Builder(FxVanillaOptionTrade beanToCopy) {
       this.tradeInfo = beanToCopy.getTradeInfo();
       this.product = beanToCopy.getProduct();
+      this.premium = beanToCopy.getPremium();
     }
 
     //-----------------------------------------------------------------------
@@ -307,6 +354,8 @@ public final class FxVanillaOptionTrade
           return tradeInfo;
         case -309474065:  // product
           return product;
+        case -318452137:  // premium
+          return premium;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -320,6 +369,9 @@ public final class FxVanillaOptionTrade
           break;
         case -309474065:  // product
           this.product = (FxVanillaOption) newValue;
+          break;
+        case -318452137:  // premium
+          this.premium = (Payment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -355,7 +407,8 @@ public final class FxVanillaOptionTrade
     public FxVanillaOptionTrade build() {
       return new FxVanillaOptionTrade(
           tradeInfo,
-          product);
+          product,
+          premium);
     }
 
     //-----------------------------------------------------------------------
@@ -384,13 +437,28 @@ public final class FxVanillaOptionTrade
       return this;
     }
 
+    /**
+     * Sets the premium of the FX option.
+     * <p>
+     * The premium sign should be compatible with the product Long/Short flag.
+     * This means that the premium is negative for long and positive for short.
+     * @param premium  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder premium(Payment premium) {
+      JodaBeanUtils.notNull(premium, "premium");
+      this.premium = premium;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("FxVanillaOptionTrade.Builder{");
       buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
-      buf.append("product").append('=').append(JodaBeanUtils.toString(product));
+      buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
+      buf.append("premium").append('=').append(JodaBeanUtils.toString(premium));
       buf.append('}');
       return buf.toString();
     }

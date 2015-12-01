@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.impl.swap;
 
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.NOTIONAL_EXCHANGE_REC_GBP;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -17,16 +19,25 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.Curves;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
+import com.opengamma.strata.market.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 import com.opengamma.strata.product.swap.NotionalExchange;
@@ -41,6 +52,15 @@ public class DiscountingNotionalExchangePricerTest {
   private static final DayCount DAY_COUNT = DayCounts.ACT_360;
   private static final double DISCOUNT_FACTOR = 0.98d;
   private static final double TOLERANCE = 1.0e-10;
+
+  private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.DOUBLE_QUADRATIC;
+  private static final Curve DISCOUNT_CURVE_GBP;
+  static {
+    DoubleArray time_gbp = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0);
+    DoubleArray rate_gbp = DoubleArray.of(0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210);
+    DISCOUNT_CURVE_GBP = InterpolatedNodalCurve.of(
+        Curves.zeroRates("GBP-Discount", ACT_ACT_ISDA), time_gbp, rate_gbp, INTERPOLATOR);
+  }
 
   //-------------------------------------------------------------------------
   public void test_presentValue() {
@@ -146,6 +166,41 @@ public class DiscountingNotionalExchangePricerTest {
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0d, TOLERANCE);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0d * DISCOUNT_FACTOR, TOLERANCE);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_currencyExposure() {
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
+        .build();
+    DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
+    MultiCurrencyAmount computed = test.currencyExposure(NOTIONAL_EXCHANGE_REC_GBP, prov);
+    PointSensitivities point = test.presentValueSensitivity(NOTIONAL_EXCHANGE_REC_GBP, prov).build();
+    MultiCurrencyAmount expected = prov.currencyExposure(point).plus(
+        CurrencyAmount.of(NOTIONAL_EXCHANGE_REC_GBP.getCurrency(), test.presentValue(NOTIONAL_EXCHANGE_REC_GBP, prov)));
+    assertEquals(computed, expected);
+  }
+
+  public void test_currentCash_zero() {
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
+        .build();
+    DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
+    double computed = test.currentCash(NOTIONAL_EXCHANGE_REC_GBP, prov);
+    assertEquals(computed, 0d);
+  }
+
+  public void test_currentCash_onPayment() {
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
+        .valuationDate(NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate())
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
+        .build();
+    DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
+    double notional = NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount();
+    double computed = test.currentCash(NOTIONAL_EXCHANGE_REC_GBP, prov);
+    assertEquals(computed, notional);
   }
 
   //-------------------------------------------------------------------------

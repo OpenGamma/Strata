@@ -213,4 +213,17 @@ public class DiscountingFxNdfProductPricerTest {
     assertTrue(sensiNDF.equalWithTolerance(sensiFX.convertedTo(USD, PROVIDER), NOMINAL_USD * TOL));
   }
 
+  //-------------------------------------------------------------------------
+  public void test_currentCash_zero() {
+    CurrencyAmount computed = PRICER.currentCash(NDF, PROVIDER);
+    assertEquals(computed, CurrencyAmount.zero(NDF.getSettlementCurrency()));
+  }
+
+  public void test_currentCash_onPayment() {
+    double rate = 1111.2;
+    LocalDate paymentDate = NDF.getPaymentDate();
+    RatesProvider provider = RatesProviderFxDataSets.createProvider(paymentDate, NDF.getIndex(), rate);
+    CurrencyAmount computed = PRICER.currentCash(NDF, provider);
+    assertEquals(computed, CurrencyAmount.of(NDF.getSettlementCurrency(), NOMINAL_USD * (1d - FX_RATE / rate)));
+  }
 }

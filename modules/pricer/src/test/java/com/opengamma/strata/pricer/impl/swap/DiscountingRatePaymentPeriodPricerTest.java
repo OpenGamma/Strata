@@ -10,26 +10,38 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.FX_MATRIX_GBP_USD;
+import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.GBP_USD_MULTI_CCY_MAP;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_GBP_USD;
+import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.VAL_DATE_2014_01_22;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
@@ -60,7 +72,7 @@ import com.opengamma.strata.product.swap.RatePaymentPeriod;
 @Test
 public class DiscountingRatePaymentPeriodPricerTest {
 
-  private static final LocalDate VAL_DATE = LocalDate.of(2014, 1, 22);
+  private static final LocalDate VAL_DATE = VAL_DATE_2014_01_22;
   private static final DayCount DAY_COUNT = DayCounts.ACT_360;
   private static final LocalDate FX_DATE_1 = LocalDate.of(2014, 1, 22);
   private static final LocalDate CPN_DATE_1 = LocalDate.of(2014, 1, 24);
@@ -85,6 +97,9 @@ public class DiscountingRatePaymentPeriodPricerTest {
   private static final double EPS_FD = 1.0e-7;
   private static final RatesFiniteDifferenceSensitivityCalculator CAL_FD =
       new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
+
+  private static final double FX_RATE = FX_MATRIX_GBP_USD.fxRate(GBP, USD);
+  private static final FxMatrix FX_MATRIX_BUMP = FxMatrix.of(GBP, USD, FX_MATRIX_GBP_USD.fxRate(GBP, USD) + EPS_FD);
 
   private static final RateAccrualPeriod ACCRUAL_PERIOD_1 = RateAccrualPeriod.builder()
       .startDate(CPN_DATE_1)
@@ -794,6 +809,143 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(explainAccrual.get(ExplainKey.FIXED_RATE).get(), RATE_1, TOLERANCE_PV);
     assertEquals(explainAccrual.get(ExplainKey.PAY_OFF_RATE).get(), payOffRate, TOLERANCE_PV);
     assertEquals(explainAccrual.get(ExplainKey.UNIT_AMOUNT).get(), ua, TOLERANCE_PV);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_currencyExposure_fx() {
+    DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
+    LocalDate valuationDate = VAL_DATE.minusWeeks(1);
+    ImmutableRatesProvider provider = ImmutableRatesProvider.builder()
+        .valuationDate(valuationDate)
+        .fxRateProvider(FX_MATRIX_GBP_USD)
+        .discountCurves(GBP_USD_MULTI_CCY_MAP)
+        .build();
+    // USD
+    MultiCurrencyAmount computedUSD = pricer.currencyExposure(PAYMENT_PERIOD_FULL_GS_FX_USD, provider);
+    PointSensitivities pointUSD = pricer.presentValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_USD, provider).build();
+    MultiCurrencyAmount expectedUSD = provider.currencyExposure(pointUSD.convertedTo(GBP, provider)).plus(CurrencyAmount.of(
+        PAYMENT_PERIOD_FULL_GS_FX_USD.getCurrency(), pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provider)));
+    assertEquals(computedUSD.getAmount(GBP).getAmount(), expectedUSD.getAmount(GBP).getAmount(), TOLERANCE_PV);
+    assertFalse(computedUSD.contains(USD)); // 0 USD
+    // GBP
+    MultiCurrencyAmount computedGBP = pricer.currencyExposure(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider);
+    PointSensitivities pointGBP = pricer.presentValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider).build();
+    MultiCurrencyAmount expectedGBP = provider.currencyExposure(pointGBP.convertedTo(USD, provider)).plus(CurrencyAmount.of(
+        PAYMENT_PERIOD_FULL_GS_FX_GBP.getCurrency(), pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider)));
+    assertEquals(computedGBP.getAmount(USD).getAmount(), expectedGBP.getAmount(USD).getAmount(), TOLERANCE_PV);
+    assertFalse(computedGBP.contains(GBP)); // 0 GBP
+    // FD approximation
+    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder()
+        .valuationDate(valuationDate)
+        .fxRateProvider(FX_MATRIX_BUMP)
+        .discountCurves(GBP_USD_MULTI_CCY_MAP)
+        .build();
+    double expectedFdUSD = (pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provUp) -
+        pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provider)) / EPS_FD;
+    assertEquals(computedUSD.getAmount(GBP).getAmount(), expectedFdUSD, EPS_FD * NOTIONAL_100);
+    double expectedFdGBP = -(pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_GBP, provUp) -
+        pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider)) * FX_RATE * FX_RATE / EPS_FD;
+    assertEquals(computedGBP.getAmount(USD).getAmount(), expectedFdGBP, EPS_FD * NOTIONAL_100);
+  }
+
+  public void test_currencyExposure_fx_betweenFixingAndPayment() {
+    DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
+    LocalDate valuationDate = VAL_DATE.plusWeeks(1);
+    Map<Index, LocalDateDoubleTimeSeries> ts =
+        ImmutableMap.of(FxIndices.GBP_USD_WM, LocalDateDoubleTimeSeries.of(LocalDate.of(2014, 1, 22), 1.55));
+    ImmutableRatesProvider provider = ImmutableRatesProvider.builder()
+        .valuationDate(valuationDate)
+        .fxRateProvider(FX_MATRIX_GBP_USD)
+        .discountCurves(GBP_USD_MULTI_CCY_MAP)
+        .timeSeries(ts)
+        .build();
+    // USD
+    MultiCurrencyAmount computedUSD = pricer.currencyExposure(PAYMENT_PERIOD_FULL_GS_FX_USD, provider);
+    PointSensitivities pointUSD = pricer.presentValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_USD, provider).build();
+    MultiCurrencyAmount expectedUSD = provider.currencyExposure(pointUSD.convertedTo(GBP, provider)).plus(
+        CurrencyAmount.of(
+            PAYMENT_PERIOD_FULL_GS_FX_USD.getCurrency(), pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provider)));
+    assertEquals(computedUSD.getAmount(USD).getAmount(), expectedUSD.getAmount(USD).getAmount(), TOLERANCE_PV);
+    assertFalse(computedUSD.contains(GBP)); // 0 GBP
+    // GBP
+    MultiCurrencyAmount computedGBP = pricer.currencyExposure(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider);
+    PointSensitivities pointGBP = pricer.presentValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider).build();
+    MultiCurrencyAmount expectedGBP = provider.currencyExposure(pointGBP.convertedTo(USD, provider)).plus(
+        CurrencyAmount.of(
+            PAYMENT_PERIOD_FULL_GS_FX_GBP.getCurrency(), pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider)));
+    assertEquals(computedGBP.getAmount(GBP).getAmount(), expectedGBP.getAmount(GBP).getAmount(), TOLERANCE_PV);
+    assertFalse(computedGBP.contains(USD)); // 0 USD
+    // FD approximation
+    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder()
+        .valuationDate(valuationDate)
+        .fxRateProvider(FX_MATRIX_BUMP)
+        .discountCurves(GBP_USD_MULTI_CCY_MAP)
+        .timeSeries(ts)
+        .build();
+    double expectedFdUSD = (pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provUp) -
+        pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provider)) / EPS_FD;
+    assertTrue(!computedUSD.contains(GBP) && DoubleMath.fuzzyEquals(expectedFdUSD, 0d, TOLERANCE_PV));
+    double expectedFdGBP = -(pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_GBP, provUp) -
+        pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider)) * FX_RATE * FX_RATE / EPS_FD;
+    assertTrue(!computedGBP.contains(USD) && DoubleMath.fuzzyEquals(expectedFdGBP, 0d, TOLERANCE_PV));
+  }
+
+  public void test_currencyExposure_fx_onFixing_noTimeSeries() {
+    DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
+    ImmutableRatesProvider provider = MULTI_GBP_USD;
+    // USD
+    MultiCurrencyAmount computedUSD = pricer.currencyExposure(PAYMENT_PERIOD_FULL_GS_FX_USD, provider);
+    PointSensitivities pointUSD = pricer.presentValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_USD, provider).build();
+    MultiCurrencyAmount expectedUSD = provider.currencyExposure(pointUSD.convertedTo(GBP, provider)).plus(
+        CurrencyAmount.of(
+            PAYMENT_PERIOD_FULL_GS_FX_USD.getCurrency(), pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provider)));
+    assertEquals(computedUSD.getAmount(GBP).getAmount(), expectedUSD.getAmount(GBP).getAmount(), TOLERANCE_PV);
+    assertFalse(computedUSD.contains(USD)); // 0 GBP
+    // GBP
+    MultiCurrencyAmount computedGBP = pricer.currencyExposure(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider);
+    PointSensitivities pointGBP = pricer.presentValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider).build();
+    MultiCurrencyAmount expectedGBP = provider.currencyExposure(pointGBP.convertedTo(USD, provider)).plus(CurrencyAmount.of(
+            PAYMENT_PERIOD_FULL_GS_FX_GBP.getCurrency(), pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider)));
+    assertEquals(computedGBP.getAmount(USD).getAmount(), expectedGBP.getAmount(USD).getAmount(), TOLERANCE_PV);
+    assertFalse(computedGBP.contains(GBP)); // 0 GBP
+    // FD approximation
+    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .fxRateProvider(FX_MATRIX_BUMP)
+        .discountCurves(GBP_USD_MULTI_CCY_MAP)
+        .build();
+    double expectedFdUSD = (pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provUp) -
+        pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provider)) / EPS_FD;
+    assertEquals(computedUSD.getAmount(GBP).getAmount(), expectedFdUSD, EPS_FD * NOTIONAL_100);
+    double expectedFdGBP = -(pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_GBP, provUp) -
+        pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider)) * FX_RATE * FX_RATE / EPS_FD;
+    assertEquals(computedGBP.getAmount(USD).getAmount(), expectedFdGBP, EPS_FD * NOTIONAL_100);
+  }
+
+  public void test_currencyExposure_single() {
+    DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
+    ImmutableRatesProvider provider = MULTI_GBP_USD;
+    MultiCurrencyAmount computed = pricer.currencyExposure(PAYMENT_PERIOD_COMPOUNDING_STRAIGHT, provider);
+    PointSensitivities point = pricer.presentValueSensitivity(PAYMENT_PERIOD_COMPOUNDING_STRAIGHT, provider).build();
+    MultiCurrencyAmount expected = provider.currencyExposure(point)
+        .plus(CurrencyAmount.of(PAYMENT_PERIOD_COMPOUNDING_STRAIGHT.getCurrency(),
+            pricer.presentValue(PAYMENT_PERIOD_COMPOUNDING_STRAIGHT, provider)));
+    assertEquals(computed.size(), expected.size());
+    assertEquals(computed.getAmount(USD).getAmount(), expected.getAmount(USD).getAmount(), TOLERANCE_PV);
+  }
+
+  public void test_currentCash_zero() {
+    DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
+    ImmutableRatesProvider provider = MULTI_GBP_USD;
+    double computed = pricer.currentCash(PAYMENT_PERIOD_COMPOUNDING_FLAT, provider);
+    assertEquals(computed, 0d);
+  }
+
+  public void test_currentCash_onPayment() {
+    DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
+    RatesProvider provider = createProvider(PAYMENT_PERIOD_1.getPaymentDate());
+    double computed = pricer.currentCash(PAYMENT_PERIOD_1, provider);
+    assertEquals(computed, RATE_1 * ACCRUAL_FACTOR_1 * NOTIONAL_100);
   }
 
   //-------------------------------------------------------------------------
