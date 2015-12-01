@@ -8,7 +8,6 @@ package com.opengamma.strata.calc.runner.function.result;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
@@ -62,17 +61,6 @@ public final class CurrencyValuesArray
    * @param values  the currency values
    * @return an instance with the specified currency and values
    */
-  public static CurrencyValuesArray of(Currency currency, double[] values) {
-    return new CurrencyValuesArray(currency, DoubleArray.copyOf(values));
-  }
-
-  /**
-   * Returns an instance with the specified currency and values.
-   *
-   * @param currency  the currency of the values
-   * @param values  the currency values
-   * @return an instance with the specified currency and values
-   */
   public static CurrencyValuesArray of(Currency currency, DoubleArray values) {
     return new CurrencyValuesArray(currency, values);
   }
@@ -84,11 +72,8 @@ public final class CurrencyValuesArray
     }
     MarketDataBox<FxRate> rates = marketData.getValue(FxRateKey.of(currency, reportingCurrency));
     checkNumberOfRates(rates.getScenarioCount());
-    double[] convertedValues = IntStream.range(0, values.size())
-        .mapToDouble(i -> rates.getValue(i).convert(values.get(i), currency, reportingCurrency))
-        .toArray();
-    return new CurrencyValuesArray(reportingCurrency, DoubleArray.ofUnsafe(convertedValues));
-  }
+    DoubleArray convertedValues = values.mapWithIndex((i, v) -> rates.getValue(i).convert(v, currency, reportingCurrency));
+    return new CurrencyValuesArray(reportingCurrency, convertedValues);  }
 
   private void checkNumberOfRates(int rateCount) {
     if (rateCount != 1 && values.size() != rateCount) {

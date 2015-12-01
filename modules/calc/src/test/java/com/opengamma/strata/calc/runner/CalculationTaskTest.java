@@ -39,6 +39,7 @@ import com.opengamma.strata.calc.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 
@@ -81,7 +82,7 @@ public class CalculationTaskTest {
    * the FX rates are available in the market data. The reporting currency is taken from the reporting rules.
    */
   public void convertResultCurrencyUsingReportingRules() {
-    double[] values = {1, 2, 3};
+    DoubleArray values = DoubleArray.of(1, 2, 3);
     List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
@@ -93,7 +94,7 @@ public class CalculationTaskTest {
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list);
     CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
 
-    double[] expectedValues = {1 * 1.61, 2 * 1.62, 3 * 1.63};
+    DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
     CurrencyValuesArray expectedArray = CurrencyValuesArray.of(Currency.USD, expectedValues);
 
     CalculationResult calculationResult = task.execute(marketData);
@@ -106,7 +107,7 @@ public class CalculationTaskTest {
    * the FX rates are available in the market data. The default reporting currency is taken from the function.
    */
   public void convertResultCurrencyUsingDefaultReportingCurrency() {
-    double[] values = {1, 2, 3};
+    DoubleArray values = DoubleArray.of(1, 2, 3);
     List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
@@ -118,7 +119,7 @@ public class CalculationTaskTest {
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, Currency.USD);
     CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, ReportingRules.empty());
 
-    double[] expectedValues = {1 * 1.61, 2 * 1.62, 3 * 1.63};
+    DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
     CurrencyValuesArray expectedArray = CurrencyValuesArray.of(Currency.USD, expectedValues);
 
     CalculationResult calculationResult = task.execute(marketData);
@@ -156,7 +157,7 @@ public class CalculationTaskTest {
    * Test a failure is returned for a convertible value if there is no reporting currency.
    */
   public void convertResultCurrencyNoReportingCurrency() {
-    double[] values = {1, 2, 3};
+    DoubleArray values = DoubleArray.of(1, 2, 3);
     List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
@@ -191,7 +192,7 @@ public class CalculationTaskTest {
    * Test that a failure is returned if currency conversion fails.
    */
   public void convertResultCurrencyConversionFails() {
-    double[] values = {1, 2, 3};
+    DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
     // Market data doesn't include FX rates, conversion to USD will fail
     CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();

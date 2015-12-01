@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.DefaultCalculationMarketData;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 @Test
 public class CurrencyValuesArrayTest {
@@ -30,7 +31,7 @@ public class CurrencyValuesArrayTest {
    * Test that values are converted to the reporting currency using the rates in the market data.
    */
   public void convert() {
-    double[] values = {1, 2, 3};
+    DoubleArray values = DoubleArray.of(1, 2, 3);
     List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
@@ -43,7 +44,7 @@ public class CurrencyValuesArrayTest {
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
     CurrencyValuesArray convertedList = list.convertedTo(Currency.USD, calculationMarketData);
-    double[] expectedValues = {1 * 1.61, 2 * 1.62, 3 * 1.63};
+    DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
     CurrencyValuesArray expectedList = CurrencyValuesArray.of(Currency.USD, expectedValues);
     assertThat(convertedList).isEqualTo(expectedList);
   }
@@ -52,7 +53,7 @@ public class CurrencyValuesArrayTest {
    * Test that no conversion is done and no rates are used if the values are already in the reporting currency.
    */
   public void noConversionNecessary() {
-    double[] values = {1, 2, 3};
+    DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
     CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
@@ -66,7 +67,7 @@ public class CurrencyValuesArrayTest {
    * Test the expected exception is thrown when there are no FX rates available to convert the values.
    */
   public void missingFxRates() {
-    double[] values = {1, 2, 3};
+    DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
     CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
@@ -82,7 +83,7 @@ public class CurrencyValuesArrayTest {
    * Test the expected exception is thrown if there are not the same number of rates as there are values.
    */
   public void wrongNumberOfFxRates() {
-    double[] values = {1, 2, 3};
+    DoubleArray values = DoubleArray.of(1, 2, 3);
     List<FxRate> rates = ImmutableList.of(1.61, 1.62).stream()
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
