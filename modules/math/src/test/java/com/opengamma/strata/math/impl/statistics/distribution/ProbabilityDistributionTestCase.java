@@ -7,11 +7,12 @@ package com.opengamma.strata.math.impl.statistics.distribution;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 /**
  * Abstract test.

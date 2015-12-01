@@ -31,11 +31,6 @@ public class TimeSquareInterpolator1DTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullValue() {
-    INTERPOLATOR.interpolate(DATA, null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void lowValue() {
     INTERPOLATOR.interpolate(DATA, -4.);
   }

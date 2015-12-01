@@ -35,7 +35,6 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
-import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
@@ -48,6 +47,7 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
@@ -104,8 +104,8 @@ public class BlackSwaptionCashParYieldProductPricerTest {
       .valuationDate(VALUATION)
       .build();
   // surface
-  private static final Interpolator1D LINEAR_FLAT =
-      CombinedInterpolatorExtrapolator.of(CurveInterpolators.LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
+  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
+      CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
   private static final DoubleArray EXPIRY = DoubleArray.of(0.5, 1.0, 5.0, 0.5, 1.0, 5.0);
   private static final DoubleArray TENOR = DoubleArray.of(2, 2, 2, 10, 10, 10);

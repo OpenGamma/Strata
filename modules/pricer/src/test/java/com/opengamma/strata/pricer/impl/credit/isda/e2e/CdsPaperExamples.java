@@ -283,7 +283,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
     }
     DoubleMatrix jacT = DoubleMatrix.copyOf(res);
     LUDecompositionCommons decomp = new LUDecompositionCommons();
-    LUDecompositionResult luRes = decomp.evaluate(jacT);
+    LUDecompositionResult luRes = decomp.apply(jacT);
 
     System.out.print("CDS Maturity");
     for (int i = 0; i < nPillars; i++) {
@@ -438,7 +438,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
     double[][] temp = ANALYTIC_SPREAD_SENSE_CAL.bucketedCS01FromCreditCurve(PILLAR_CDSS, coupons, PILLAR_CDSS, YIELD_CURVE,
         CREDIT_CURVE);
     DoubleMatrix jacT = MA.getTranspose(DoubleMatrix.copyOf(temp));
-    LUDecompositionResult decRes = decomp.evaluate(jacT);
+    LUDecompositionResult decRes = decomp.apply(jacT);
 
     int nMat = MATURITIES_6M_STEP.length;
 

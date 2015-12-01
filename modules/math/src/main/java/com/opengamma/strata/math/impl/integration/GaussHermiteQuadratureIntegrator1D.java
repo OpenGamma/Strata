@@ -5,8 +5,9 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Gauss-Hermite quadrature approximates the value of integrals of the form
@@ -55,15 +56,15 @@ public class GaussHermiteQuadratureIntegrator1D extends GaussianQuadratureIntegr
    * @throws UnsupportedOperationException If the lower limit is not $-\infty$ or the upper limit is not $\infty$
    */
   @Override
-  public Function1D<Double, Double> getIntegralFunction(Function1D<Double, Double> function, Double lower, Double upper) {
+  public Function<Double, Double> getIntegralFunction(Function<Double, Double> function, Double lower, Double upper) {
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(lower, "lower");
     ArgChecker.notNull(upper, "upper");
     if (lower.equals(LIMITS[0]) && upper.equals(LIMITS[1])) {
-      return new Function1D<Double, Double>() {
+      return new Function<Double, Double>() {
         @Override
-        public Double evaluate(Double x) {
-          return Math.exp(x * x) * function.evaluate(x);
+        public Double apply(Double x) {
+          return Math.exp(x * x) * function.apply(x);
         }
       };
     }

@@ -5,11 +5,12 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
+import java.util.function.Function;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 
@@ -1020,16 +1021,16 @@ public final class BlackFormulaRepository {
 
     boolean isCall = strike >= forward;
 
-    Function1D<Double, Double> priceFunc = new Function1D<Double, Double>() {
+    Function<Double, Double> priceFunc = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         return price(forward, strike, timeToExpiry, x, isCall);
       }
     };
 
-    Function1D<Double, Double> vegaFunc = new Function1D<Double, Double>() {
+    Function<Double, Double> vegaFunc = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         return vega(forward, strike, timeToExpiry, x);
       }
     };
@@ -1078,9 +1079,9 @@ public final class BlackFormulaRepository {
 
     double sigma = 0.3;
 
-    Function1D<Double, Double> priceFunc = new Function1D<Double, Double>() {
+    Function<Double, Double> priceFunc = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         double modelPrice = 0d;
         for (SimpleOptionData option : data) {
           modelPrice += price(option, x);
@@ -1089,9 +1090,9 @@ public final class BlackFormulaRepository {
       }
     };
 
-    Function1D<Double, Double> vegaFunc = new Function1D<Double, Double>() {
+    Function<Double, Double> vegaFunc = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         double vega = 0d;
         for (SimpleOptionData option : data) {
           vega += vega(option, x);

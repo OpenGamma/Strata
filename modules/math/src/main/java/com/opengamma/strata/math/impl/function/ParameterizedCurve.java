@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.math.impl.function;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.differentiation.ScalarFieldFirstOrderDifferentiator;
 
@@ -27,15 +29,15 @@ public abstract class ParameterizedCurve extends ParameterizedFunction<Double, D
    * @param params  the value of the parameters ($\boldsymbol{\theta}$) at which the sensitivity is calculated 
    * @return the sensitivity as a function with a Double (x) as its single argument and a vector as its return value
    */
-  public Function1D<Double, DoubleArray> getYParameterSensitivity(DoubleArray params) {
+  public Function<Double, DoubleArray> getYParameterSensitivity(DoubleArray params) {
 
-    return new Function1D<Double, DoubleArray>() {
+    return new Function<Double, DoubleArray>() {
 
       @Override
-      public DoubleArray evaluate(Double x) {
-        Function1D<DoubleArray, Double> f = asFunctionOfParameters(x);
-        Function1D<DoubleArray, DoubleArray> g = FIRST_ORDER_DIFF.differentiate(f);
-        return g.evaluate(params);
+      public DoubleArray apply(Double x) {
+        Function<DoubleArray, Double> f = asFunctionOfParameters(x);
+        Function<DoubleArray, DoubleArray> g = FIRST_ORDER_DIFF.differentiate(f);
+        return g.apply(params);
       }
     };
   }

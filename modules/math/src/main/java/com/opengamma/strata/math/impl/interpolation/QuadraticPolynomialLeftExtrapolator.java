@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
@@ -16,7 +15,6 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
@@ -29,7 +27,7 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
  */
 @BeanDefinition(style = "light", constructorScope = "public")
 public final class QuadraticPolynomialLeftExtrapolator
-    implements CurveExtrapolator, Extrapolator1D, ImmutableBean, Serializable {
+    implements Extrapolator1D, ImmutableBean {
 
   /** The extrapolator name. */
   public static final String NAME = "QuadraticLeft";
@@ -49,14 +47,8 @@ public final class QuadraticPolynomialLeftExtrapolator
 
   //-------------------------------------------------------------------------
   @Override
-  public String getName() {
-    return NAME;
-  }
-
-  @Override
-  public Double extrapolate(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double extrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     if (data.firstKey() == 0.) {
       throw new IllegalArgumentException("The trivial point at key=0. is already included");
     }
@@ -69,9 +61,8 @@ public final class QuadraticPolynomialLeftExtrapolator
   }
 
   @Override
-  public double firstDerivative(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double firstDerivative(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     if (data.firstKey() == 0.) {
       throw new IllegalArgumentException("The trivial point at key=0. is already included");
     }
@@ -84,7 +75,7 @@ public final class QuadraticPolynomialLeftExtrapolator
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
     if (data.firstKey() == 0.) {
       throw new IllegalArgumentException("The trivial point at key=0. is already included");
@@ -97,9 +88,8 @@ public final class QuadraticPolynomialLeftExtrapolator
     throw new IllegalArgumentException("Value " + value + " was within data range");
   }
 
-  private Double leftExtrapolate(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double leftExtrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.firstKey();
     double y = data.firstValue();
     double m = interpolator.firstDerivative(data, x);
@@ -108,9 +98,8 @@ public final class QuadraticPolynomialLeftExtrapolator
     return quadCoef * value * value + linCoef * value + 1.;
   }
 
-  private Double leftExtrapolateDerivative(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double leftExtrapolateDerivative(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.firstKey();
     double y = data.firstValue();
     double m = interpolator.firstDerivative(data, x);
@@ -119,7 +108,7 @@ public final class QuadraticPolynomialLeftExtrapolator
     return 2. * quadCoef * value + linCoef;
   }
 
-  private double[] getLeftSensitivities(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  private double[] getLeftSensitivities(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     double eps = this.eps * (data.lastKey() - data.firstKey());
     double x = data.firstKey();
     double[] result = interpolator.getNodeSensitivitiesForValue(data, x + eps);
@@ -152,11 +141,6 @@ public final class QuadraticPolynomialLeftExtrapolator
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
-
-  /**
-   * The serialization version id.
-   */
-  private static final long serialVersionUID = 1L;
 
   /**
    * Creates an instance.

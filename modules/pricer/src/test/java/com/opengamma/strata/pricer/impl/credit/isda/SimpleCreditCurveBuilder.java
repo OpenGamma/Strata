@@ -7,10 +7,10 @@ package com.opengamma.strata.pricer.impl.credit.isda;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.function.Function;
 
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.rootfinding.BrentSingleRootFinder;
 import com.opengamma.strata.math.impl.rootfinding.RealSingleRootFinder;
@@ -141,7 +141,7 @@ public class SimpleCreditCurveBuilder extends IsdaCompliantCreditCurveBuilder {
     return calibrateCreditCurve(cds, couponRates, yieldCurve);
   }
 
-  private class CDSPricer extends Function1D<Double, Double> {
+  private class CDSPricer implements Function<Double, Double> {
 
     private final int _index;
     private final CdsAnalytic _cds;
@@ -161,7 +161,7 @@ public class SimpleCreditCurveBuilder extends IsdaCompliantCreditCurveBuilder {
     }
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       final IsdaCompliantCreditCurve cc = _creditCurve.withRate(x, _index);
       return _pricer.pv(_cds, _yieldCurve, cc, _spread) - _pointsUpfront;
     }

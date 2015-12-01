@@ -56,9 +56,9 @@ public class SmileDeltaTermStructureParametersStrikeInterpolationTest {
     }
   }
   private static final Interpolator1D INTERPOLATOR_STRIKE = CombinedInterpolatorExtrapolator.of(
-      CurveInterpolators.LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
+      CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final Interpolator1D INTERPOLATOR_TIME = CombinedInterpolatorExtrapolator.of(
-      CurveInterpolators.TIME_SQUARE, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
+      CurveInterpolators.TIME_SQUARE.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = new SmileDeltaTermStructureParametersStrikeInterpolation(VOLATILITY_TERM, INTERPOLATOR_STRIKE);
 
   private static final double TOLERANCE_VOL = 1.0E-10;

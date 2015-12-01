@@ -31,7 +31,7 @@ public class ConcatenatedVectorFunctionTest {
     F[0] = new VectorFunction() {
 
       @Override
-      public DoubleArray evaluate(DoubleArray x) {
+      public DoubleArray apply(DoubleArray x) {
         return DoubleArray.filled(1, x.get(0) + 2 * x.get(1));
       }
 
@@ -54,7 +54,7 @@ public class ConcatenatedVectorFunctionTest {
     F[1] = new VectorFunction() {
 
       @Override
-      public DoubleArray evaluate(DoubleArray x) {
+      public DoubleArray apply(DoubleArray x) {
         double x1 = x.get(0);
         double x2 = x.get(1);
         double y1 = x1 * x2;
@@ -87,7 +87,7 @@ public class ConcatenatedVectorFunctionTest {
     F[2] = new VectorFunction() {
 
       @Override
-      public DoubleArray evaluate(DoubleArray x) {
+      public DoubleArray apply(DoubleArray x) {
         double x1 = x.get(0);
         double y1 = x1;
         double y2 = Math.sin(x1);
@@ -132,7 +132,7 @@ public class ConcatenatedVectorFunctionTest {
   public void functionsTest() {
 
     for (int i = 0; i < 3; i++) {
-      DoubleArray y = F[i].evaluate(X[i]);
+      DoubleArray y = F[i].apply(X[i]);
       DoubleMatrix jac = F[i].calculateJacobian(X[i]);
       AssertMatrix.assertEqualsVectors(Y_EXP[i], y, 1e-15);
       AssertMatrix.assertEqualsMatrix(JAC_EXP[i], jac, 1e-15);
@@ -144,11 +144,11 @@ public class ConcatenatedVectorFunctionTest {
     DoubleArray cx = X[0].concat(X[1]).concat(X[2]);
     DoubleArray cyExp = Y_EXP[0].concat(Y_EXP[1]).concat(Y_EXP[2]);
     ConcatenatedVectorFunction cf = new ConcatenatedVectorFunction(F);
-    DoubleArray cy = cf.evaluate(cx);
+    DoubleArray cy = cf.apply(cx);
     AssertMatrix.assertEqualsVectors(cyExp, cy, 1e-15);
 
     DoubleMatrix cJac = cf.calculateJacobian(cx);
-    DoubleMatrix fdJac = DIFF.differentiate(cf).evaluate(cx);
+    DoubleMatrix fdJac = DIFF.differentiate(cf).apply(cx);
     AssertMatrix.assertEqualsMatrix(fdJac, cJac, 1e-10);
   }
 

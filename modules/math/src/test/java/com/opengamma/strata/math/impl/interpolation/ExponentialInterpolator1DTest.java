@@ -8,13 +8,12 @@ package com.opengamma.strata.math.impl.interpolation;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.FunctionUtils;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
@@ -30,11 +29,6 @@ public class ExponentialInterpolator1DTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
     INTERPOLATOR.interpolate(null, 2.);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullData() {
-    INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(Collections.<Double, Double>emptyMap()), null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -65,35 +59,35 @@ public class ExponentialInterpolator1DTest {
     /* positive */
     double a1 = 3.5;
     double b1 = 1.4;
-    Function1D<Double, Double> func1 = createExpFunction(a1, b1);
+    Function<Double, Double> func1 = createExpFunction(a1, b1);
     double[] xData1 = new double[] {-2.2, -3.0 / 11.0, 0.0, 0.01, 3.0, 9.5 };
     double[] keys1 = new double[] {-2.05, -2.1, -1.8, -1.0 / 11.0, 0.05, 0.5, 4.5, 8.25, 9.2 };
     int dataSize1 = xData1.length;
     double[] yData1 = new double[dataSize1];
     for (int i = 0; i < dataSize1; ++i) {
-      yData1[i] = func1.evaluate(xData1[i]);
+      yData1[i] = func1.apply(xData1[i]);
     }
     int keySize1 = keys1.length;
     double[] expectedValues1 = new double[keySize1];
     for (int i = 0; i < keySize1; ++i) {
-      expectedValues1[i] = func1.evaluate(keys1[i]);
+      expectedValues1[i] = func1.apply(keys1[i]);
     }
     testInterpolation(xData1, yData1, keys1, expectedValues1, false);
     /* negative */
     double a2 = -1.82;
     double b2 = 0.2;
-    Function1D<Double, Double> func2 = createExpFunction(a2, b2);
+    Function<Double, Double> func2 = createExpFunction(a2, b2);
     double[] xData2 = new double[] {-2.2, -3.0 / 11.0, 0.0, 0.01, 3.0, 12.5 };
     double[] keys2 = new double[] {-2.1, -1.8, -1.0 / 11.0, 0.05, 0.5, 4.5, 8.25 };
     int dataSize2 = xData2.length;
     double[] yData2 = new double[dataSize2];
     for (int i = 0; i < dataSize2; ++i) {
-      yData2[i] = func2.evaluate(xData2[i]);
+      yData2[i] = func2.apply(xData2[i]);
     }
     int keySize2 = keys2.length;
     double[] expectedValues2 = new double[keySize2];
     for (int i = 0; i < keySize2; ++i) {
-      expectedValues2[i] = func2.evaluate(keys2[i]);
+      expectedValues2[i] = func2.apply(keys2[i]);
     }
     testInterpolation(xData2, yData2, keys2, expectedValues2, false);
   }
@@ -111,15 +105,15 @@ public class ExponentialInterpolator1DTest {
     double[] b1 = new double[nIntervals];
     double[] yData1 = new double[nIntervals + 1];
     // introducing b1 and yData1 such that the piecewise function becomes continuous
-    Function1D<Double, Double>[] func1 = new Function1D[nIntervals];
+    Function<Double, Double>[] func1 = new Function[nIntervals];
     b1[0] = 1.4;
     func1[0] = createExpFunction(a1[0], b1[0]);
-    yData1[0] = func1[0].evaluate(xData1[0]);
-    yData1[1] = func1[0].evaluate(xData1[1]);
+    yData1[0] = func1[0].apply(xData1[0]);
+    yData1[1] = func1[0].apply(xData1[1]);
     for (int i = 1; i < nIntervals; ++i) {
       b1[i] = b1[i - 1] - Math.log(a1[i] / a1[i - 1]) / xData1[i];
       func1[i] = createExpFunction(a1[i], b1[i]);
-      yData1[i + 1] = func1[i].evaluate(xData1[i + 1]);
+      yData1[i + 1] = func1[i].apply(xData1[i + 1]);
     }
     double[] keys1 = new double[] {-2.05, -2.1, -1.8, -1.0 / 11.0, 0.0, 0.05,
       0.5, 1.2, 3.3, 4.5, 5.2, 7.33, 8.25, 9.2 };
@@ -127,7 +121,7 @@ public class ExponentialInterpolator1DTest {
     double[] expectedValues1 = new double[keySize1];
     for (int i = 0; i < keySize1; ++i) {
       int index = FunctionUtils.getLowerBoundIndex(DoubleArray.copyOf(xData1), keys1[i]);
-      expectedValues1[i] = func1[index].evaluate(keys1[i]);
+      expectedValues1[i] = func1[index].apply(keys1[i]);
     }
     testInterpolation(xData1, yData1, keys1, expectedValues1, false);
     /* negative */
@@ -137,15 +131,15 @@ public class ExponentialInterpolator1DTest {
     double[] b2 = new double[nIntervals];
     double[] yData2 = new double[nIntervals + 1];
     // introducing b2 and yData2 such that the piecewise function becomes continuous
-    Function1D<Double, Double>[] func2 = new Function1D[nIntervals];
+    Function<Double, Double>[] func2 = new Function[nIntervals];
     b2[0] = 1.4;
     func2[0] = createExpFunction(a2[0], b2[0]);
-    yData2[0] = func2[0].evaluate(xData2[0]);
-    yData2[1] = func2[0].evaluate(xData2[1]);
+    yData2[0] = func2[0].apply(xData2[0]);
+    yData2[1] = func2[0].apply(xData2[1]);
     for (int i = 1; i < nIntervals; ++i) {
       b2[i] = b2[i - 1] - Math.log(a2[i] / a2[i - 1]) / xData2[i];
       func2[i] = createExpFunction(a2[i], b2[i]);
-      yData2[i + 1] = func2[i].evaluate(xData2[i + 1]);
+      yData2[i + 1] = func2[i].apply(xData2[i + 1]);
     }
     double[] keys2 = new double[] {-2.05, -2.2, -1.8, -1.0 / 22.0, 0.0, 0.05,
       0.5, 2.2, 3.3, 4.5, 5.2, 7.33, 8.25, 9.2 };
@@ -153,7 +147,7 @@ public class ExponentialInterpolator1DTest {
     double[] expectedValues2 = new double[keySize2];
     for (int i = 0; i < keySize2; ++i) {
       int index = FunctionUtils.getLowerBoundIndex(DoubleArray.copyOf(xData2), keys2[i]);
-      expectedValues2[i] = func2[index].evaluate(keys2[i]);
+      expectedValues2[i] = func2[index].apply(keys2[i]);
     }
     testInterpolation(xData2, yData2, keys2, expectedValues2, false);
   }
@@ -166,35 +160,35 @@ public class ExponentialInterpolator1DTest {
     /* positive */
     double a1 = 2.5;
     double b1 = 0.0;
-    Function1D<Double, Double> func1 = createExpFunction(a1, b1);
+    Function<Double, Double> func1 = createExpFunction(a1, b1);
     double[] xData1 = new double[] {-2.2, -1.1, -0.5, -3.0 / 11.0, 0.0, 0.01, 1.05, 2.6, 3.4, 5.1 };
     double[] keys1 = new double[] {-2.1, -1.8, -1.0 / 11.0, 0.05, 0.5, 4.5 };
     int dataSize1 = xData1.length;
     double[] yData1 = new double[dataSize1];
     for (int i = 0; i < dataSize1; ++i) {
-      yData1[i] = func1.evaluate(xData1[i]);
+      yData1[i] = func1.apply(xData1[i]);
     }
     int keySize1 = keys1.length;
     double[] expectedValues1 = new double[keySize1];
     for (int i = 0; i < keySize1; ++i) {
-      expectedValues1[i] = func1.evaluate(keys1[i]);
+      expectedValues1[i] = func1.apply(keys1[i]);
     }
     testInterpolation(xData1, yData1, keys1, expectedValues1, false);
     /* negative */
     double a2 = -3.82;
     double b2 = 0.0;
-    Function1D<Double, Double> func2 = createExpFunction(a2, b2);
+    Function<Double, Double> func2 = createExpFunction(a2, b2);
     double[] xData2 = new double[] {-12.0, 0.15, 1.1, 3.0, 9.2, 12.5 };
     double[] keys2 = new double[] {-11.0, -5.41, 0.5, 2.22, 4.5, 5.78, 7.4, 10.1, 11.25 };
     int dataSize2 = xData2.length;
     double[] yData2 = new double[dataSize2];
     for (int i = 0; i < dataSize2; ++i) {
-      yData2[i] = func2.evaluate(xData2[i]);
+      yData2[i] = func2.apply(xData2[i]);
     }
     int keySize2 = keys2.length;
     double[] expectedValues2 = new double[keySize2];
     for (int i = 0; i < keySize2; ++i) {
-      expectedValues2[i] = func2.evaluate(keys2[i]);
+      expectedValues2[i] = func2.apply(keys2[i]);
     }
     testInterpolation(xData2, yData2, keys2, expectedValues2, false);
   }
@@ -305,10 +299,10 @@ public class ExponentialInterpolator1DTest {
     assertEquals(expected, obtained, Math.max(Math.abs(expected), 1.0) * relativeTol);
   }
 
-  private Function1D<Double, Double> createExpFunction(final double a, final double b) {
-    return new Function1D<Double, Double>() {
+  private Function<Double, Double> createExpFunction(final double a, final double b) {
+    return new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double value) {
+      public Double apply(Double value) {
         return a * Math.exp(b * value);
       }
     };

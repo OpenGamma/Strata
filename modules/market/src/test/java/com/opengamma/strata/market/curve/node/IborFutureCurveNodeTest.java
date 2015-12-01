@@ -45,11 +45,13 @@ public class IborFutureCurveNodeTest {
   private static final IborFutureTemplate TEMPLATE = IborFutureTemplate.of(PERIOD_TO_START, NUMBER, CONVENTION);
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "OG-EDH6"));
   private static final double SPREAD = 0.0001;
+  private static final String LABEL = "Label";
 
   private static final double TOLERANCE_RATE = 1.0E-8;
 
   public void test_builder() {
     IborFutureCurveNode test = IborFutureCurveNode.builder()
+        .label(LABEL)
         .template(TEMPLATE)
         .rateKey(QUOTE_KEY)
         .additionalSpread(SPREAD)
@@ -66,8 +68,15 @@ public class IborFutureCurveNodeTest {
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
-  public void test_of_spread() {
+  public void test_of_withSpread() {
     IborFutureCurveNode test = IborFutureCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    assertEquals(test.getRateKey(), QUOTE_KEY);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
+    assertEquals(test.getTemplate(), TEMPLATE);
+  }
+
+  public void test_of_withSpreadAndLabel() {
+    IborFutureCurveNode test = IborFutureCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
@@ -114,11 +123,12 @@ public class IborFutureCurveNodeTest {
   }
 
   public void test_metadata() {
-    IborFutureCurveNode node = IborFutureCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    IborFutureCurveNode node = IborFutureCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL);
     LocalDate date = LocalDate.of(2015, 10, 20);
     LocalDate referenceDate = TEMPLATE.referenceDate(date);
     LocalDate maturityDate = TEMPLATE.getConvention().getIndex().calculateMaturityFromEffective(referenceDate);
     CurveParameterMetadata metadata = node.metadata(date);
+    assertEquals(metadata.getLabel(), LABEL);
     assertTrue(metadata instanceof YearMonthCurveNodeMetadata);
     assertEquals(((YearMonthCurveNodeMetadata) metadata).getDate(), maturityDate);
     assertEquals(((YearMonthCurveNodeMetadata) metadata).getYearMonth(), YearMonth.from(referenceDate));

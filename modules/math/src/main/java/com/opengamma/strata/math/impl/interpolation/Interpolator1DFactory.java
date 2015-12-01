@@ -8,9 +8,6 @@ package com.opengamma.strata.math.impl.interpolation;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
-import com.opengamma.strata.basics.interpolator.CurveInterpolator;
-
 /**
  * 
  */
@@ -145,12 +142,12 @@ public final class Interpolator1DFactory {
 
   private static final Map<String, Interpolator1D> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
-  private static final Map<String, CurveExtrapolator> extrapolators;
+  private static final Map<String, Extrapolator1D> extrapolators;
 
   static {
     Map<String, Interpolator1D> staticInstances = new HashMap<>();
     Map<Class<?>, String> instanceNames = new HashMap<>();
-    Map<String, CurveExtrapolator> extrapolatorMap = new HashMap<>();
+    Map<String, Extrapolator1D> extrapolatorMap = new HashMap<>();
 
     staticInstances.put(LINEAR, LINEAR_INSTANCE);
     instanceNames.put(LinearInterpolator1D.class, LINEAR);
@@ -232,16 +229,16 @@ public final class Interpolator1DFactory {
     return s_instanceNames.get(interpolator.getClass());
   }
 
-  public static CurveInterpolator findCurveInterpolator(final String interpolatorName) {
+  public static Interpolator1D getCurveInterpolator(final String interpolatorName) {
     Interpolator1D interpolator = s_staticInstances.get(interpolatorName);
     if (interpolator != null) {
-      return (CurveInterpolator) interpolator;
+      return (Interpolator1D) interpolator;
     }
     throw new IllegalArgumentException("Unknown interpolator: " + interpolatorName);
   }
 
-  public static CurveExtrapolator findCurveExtrapolator(final String extrapolatorName) {
-    CurveExtrapolator extrapolator = extrapolators.get(extrapolatorName);
+  public static Extrapolator1D getCurveExtrapolator(final String extrapolatorName) {
+    Extrapolator1D extrapolator = extrapolators.get(extrapolatorName);
     if (extrapolator != null) {
       return extrapolator;
     }

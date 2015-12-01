@@ -10,11 +10,12 @@ import static com.opengamma.strata.basics.PutCall.PUT;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.value.ValueDerivatives;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.integration.GaussHermiteQuadratureIntegrator1D;
 import com.opengamma.strata.math.impl.integration.RungeKuttaIntegrator1D;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
@@ -8687,12 +8688,12 @@ public class BlackFormulaRepositoryTest {
     double vol = 0.35;
     double expected = BlackFormulaRepository.price(fwd, strike, t, vol, true);
 
-    Function1D<Double, Double> func = getBlackIntergrand(fwd, strike, t, vol);
+    Function<Double, Double> func = getBlackIntergrand(fwd, strike, t, vol);
 
-    Function1D<Double, Double> fullIntergrand = new Function1D<Double, Double>() {
+    Function<Double, Double> fullIntergrand = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
-        return func.evaluate(x) * Math.exp(-x * x);
+      public Double apply(Double x) {
+        return func.apply(x) * Math.exp(-x * x);
       }
     };
 
@@ -8705,14 +8706,14 @@ public class BlackFormulaRepositoryTest {
     assertEquals("Gauss Hermite", expected, resGH, 1e-2); //terrible accuracy even with 40 points 
   }
 
-  private Function1D<Double, Double> getBlackIntergrand(double fwd, double k, double t, double vol) {
+  private Function<Double, Double> getBlackIntergrand(double fwd, double k, double t, double vol) {
     double rootPI = Math.sqrt(Math.PI);
     double sigmaSqrTO2 = vol * vol * t / 2;
     double sigmaRoot2T = vol * Math.sqrt(2 * t);
 
-    return new Function1D<Double, Double>() {
+    return new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         double s = fwd * Math.exp(-sigmaSqrTO2 + sigmaRoot2T * x);
         return Math.max(s - k, 0) / rootPI;
       }

@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
@@ -15,7 +14,6 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
@@ -27,16 +25,15 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
  */
 @BeanDefinition(style = "light", constructorScope = "public")
 public final class ExponentialExtrapolator1D
-    implements CurveExtrapolator, Extrapolator1D, ImmutableBean, Serializable {
+    implements Extrapolator1D, ImmutableBean {
 
   /** The extrapolator name. */
   public static final String NAME = "Exponential";
 
   //-------------------------------------------------------------------------
   @Override
-  public Double extrapolate(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double extrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     JodaBeanUtils.notNull(data, "data");
-    JodaBeanUtils.notNull(value, "value");
     if (value < data.firstKey()) {
       return leftExtrapolate(data, value);
     } else if (value > data.lastKey()) {
@@ -46,9 +43,8 @@ public final class ExponentialExtrapolator1D
   }
 
   @Override
-  public double firstDerivative(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double firstDerivative(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     if (value < data.firstKey()) {
       return leftExtrapolateDerivative(data, value);
     } else if (value > data.lastKey()) {
@@ -58,7 +54,7 @@ public final class ExponentialExtrapolator1D
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     ArgChecker.notNull(data, "data");
     if (value < data.firstKey()) {
       return getLeftSensitivities(data, value);
@@ -68,41 +64,32 @@ public final class ExponentialExtrapolator1D
     throw new IllegalArgumentException("Value " + value + " was within data range");
   }
 
-  @Override
-  public String getName() {
-    return NAME;
-  }
-
-  private Double leftExtrapolate(Interpolator1DDataBundle data, Double value) {
+  private double leftExtrapolate(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.firstKey();
     double y = data.firstValue();
     double m = Math.log(y) / x;
     return Math.exp(m * value);
   }
 
-  private Double rightExtrapolate(Interpolator1DDataBundle data, Double value) {
+  private double rightExtrapolate(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.lastKey();
     double y = data.lastValue();
     double m = Math.log(y) / x;
     return Math.exp(m * value);
   }
 
-  private Double leftExtrapolateDerivative(Interpolator1DDataBundle data, Double value) {
+  private double leftExtrapolateDerivative(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.firstKey();
     double y = data.firstValue();
     double m = Math.log(y) / x;
     return m * Math.exp(m * value);
   }
 
-  private Double rightExtrapolateDerivative(Interpolator1DDataBundle data, Double value) {
+  private double rightExtrapolateDerivative(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.lastKey();
     double y = data.lastValue();
     double m = Math.log(y) / x;
@@ -111,7 +98,6 @@ public final class ExponentialExtrapolator1D
 
   private double[] getLeftSensitivities(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.firstKey();
     double y = data.firstValue();
     double m = Math.log(y) / x;
@@ -121,9 +107,8 @@ public final class ExponentialExtrapolator1D
     return result;
   }
 
-  private double[] getRightSensitivities(Interpolator1DDataBundle data, Double value) {
+  private double[] getRightSensitivities(Interpolator1DDataBundle data, double value) {
     ArgChecker.notNull(data, "data");
-    ArgChecker.notNull(value, "value");
     double x = data.lastKey();
     double y = data.lastValue();
     double m = Math.log(y) / x;
@@ -151,11 +136,6 @@ public final class ExponentialExtrapolator1D
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
-
-  /**
-   * The serialization version id.
-   */
-  private static final long serialVersionUID = 1L;
 
   /**
    * Creates an instance.

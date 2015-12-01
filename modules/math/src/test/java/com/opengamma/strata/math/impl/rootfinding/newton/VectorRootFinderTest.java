@@ -8,11 +8,12 @@ package com.opengamma.strata.math.impl.rootfinding.newton;
 import static com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.rootfinding.VectorRootFinder;
 
 /**
@@ -23,10 +24,10 @@ public abstract class VectorRootFinderTest {
   static final double EPS = 1e-6;
   static final double TOLERANCE = 1e-8;
   static final int MAXSTEPS = 100;
-  static final Function1D<DoubleArray, DoubleArray> LINEAR = new Function1D<DoubleArray, DoubleArray>() {
+  static final Function<DoubleArray, DoubleArray> LINEAR = new Function<DoubleArray, DoubleArray>() {
 
     @Override
-    public DoubleArray evaluate(final DoubleArray x) {
+    public DoubleArray apply(final DoubleArray x) {
       final double[] data = x.toArray();
       if (data.length != 2) {
         throw new IllegalArgumentException("This test is for 2-d vector only");
@@ -36,10 +37,10 @@ public abstract class VectorRootFinderTest {
           2 * data[0] - data[1] - 3.0);
     }
   };
-  static final Function1D<DoubleArray, DoubleArray> FUNCTION2D = new Function1D<DoubleArray, DoubleArray>() {
+  static final Function<DoubleArray, DoubleArray> FUNCTION2D = new Function<DoubleArray, DoubleArray>() {
 
     @Override
-    public DoubleArray evaluate(final DoubleArray x) {
+    public DoubleArray apply(final DoubleArray x) {
       final double[] data = x.toArray();
       if (data.length != 2) {
         throw new IllegalArgumentException("This test is for 2-d vector only");
@@ -49,10 +50,10 @@ public abstract class VectorRootFinderTest {
           data[0] * data[0] + data[1] * data[1] - 2.0);
     }
   };
-  static final Function1D<DoubleArray, DoubleMatrix> JACOBIAN2D = new Function1D<DoubleArray, DoubleMatrix>() {
+  static final Function<DoubleArray, DoubleMatrix> JACOBIAN2D = new Function<DoubleArray, DoubleMatrix>() {
 
     @Override
-    public DoubleMatrix evaluate(final DoubleArray x) {
+    public DoubleMatrix apply(final DoubleArray x) {
       if (x.size() != 2) {
         throw new IllegalArgumentException("This test is for 2-d vector only");
       }
@@ -70,10 +71,10 @@ public abstract class VectorRootFinderTest {
 
   };
 
-  static final Function1D<DoubleArray, DoubleArray> FUNCTION3D = new Function1D<DoubleArray, DoubleArray>() {
+  static final Function<DoubleArray, DoubleArray> FUNCTION3D = new Function<DoubleArray, DoubleArray>() {
 
     @Override
-    public DoubleArray evaluate(final DoubleArray x) {
+    public DoubleArray apply(final DoubleArray x) {
       if (x.size() != 3) {
         throw new IllegalArgumentException("This test is for 3-d vector only");
       }
@@ -83,10 +84,10 @@ public abstract class VectorRootFinderTest {
           OG_ALGEBRA.getInnerProduct(x, x) - 2.0);
     }
   };
-  static final Function1D<DoubleArray, DoubleMatrix> JACOBIAN3D = new Function1D<DoubleArray, DoubleMatrix>() {
+  static final Function<DoubleArray, DoubleMatrix> JACOBIAN3D = new Function<DoubleArray, DoubleMatrix>() {
 
     @Override
-    public DoubleMatrix evaluate(final DoubleArray x) {
+    public DoubleMatrix apply(final DoubleArray x) {
       if (x.size() != 3) {
         throw new IllegalArgumentException("This test is for 3-d vector only");
       }
@@ -108,7 +109,7 @@ public abstract class VectorRootFinderTest {
   };
 
   static final double[] TIME_GRID = new double[] {0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0 };
-  static final Function1D<Double, Double> DUMMY_YIELD_CURVE = new Function1D<Double, Double>() {
+  static final Function<Double, Double> DUMMY_YIELD_CURVE = new Function<Double, Double>() {
 
     private static final double a = -0.03;
     private static final double b = 0.02;
@@ -116,11 +117,11 @@ public abstract class VectorRootFinderTest {
     private static final double d = 0.05;
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return Math.exp(-x * ((a + b * x) * Math.exp(-c * x) + d));
     }
   };
-  static final Function1D<DoubleArray, DoubleArray> SWAP_RATES = new Function1D<DoubleArray, DoubleArray>() {
+  static final Function<DoubleArray, DoubleArray> SWAP_RATES = new Function<DoubleArray, DoubleArray>() {
 
     private final int n = TIME_GRID.length;
     private double[] _swapRates = null;
@@ -133,14 +134,14 @@ public abstract class VectorRootFinderTest {
       double acc = 0.0;
       double pi;
       for (int i = 0; i < n; i++) {
-        pi = DUMMY_YIELD_CURVE.evaluate(TIME_GRID[i]);
+        pi = DUMMY_YIELD_CURVE.apply(TIME_GRID[i]);
         acc += (TIME_GRID[i] - (i == 0 ? 0.0 : TIME_GRID[i - 1])) * pi;
         _swapRates[i] = (1.0 - pi) / acc;
       }
     }
 
     @Override
-    public DoubleArray evaluate(final DoubleArray x) {
+    public DoubleArray apply(final DoubleArray x) {
       calculateSwapRates();
       final double[] yield = x.toArray();
       final double[] diff = new double[n];
@@ -158,7 +159,7 @@ public abstract class VectorRootFinderTest {
   private static final VectorRootFinder DUMMY = new VectorRootFinder() {
 
     @Override
-    public DoubleArray getRoot(final Function1D<DoubleArray, DoubleArray> function, final DoubleArray x) {
+    public DoubleArray getRoot(final Function<DoubleArray, DoubleArray> function, final DoubleArray x) {
       checkInputs(function, x);
       return null;
     }
@@ -208,7 +209,7 @@ public abstract class VectorRootFinderTest {
     final DoubleArray x0 = DoubleArray.copyOf(flatCurve);
     final DoubleArray x1 = rootFinder.getRoot(SWAP_RATES, x0);
     for (int i = 0; i < n; i++) {
-      assertEquals(-Math.log(DUMMY_YIELD_CURVE.evaluate(TIME_GRID[i])) / TIME_GRID[i], x1.get(i), eps);
+      assertEquals(-Math.log(DUMMY_YIELD_CURVE.apply(TIME_GRID[i])) / TIME_GRID[i], x1.get(i), eps);
     }
   }
 

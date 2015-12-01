@@ -10,6 +10,7 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.testng.annotations.Test;
@@ -18,7 +19,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SmileModelData;
@@ -212,12 +212,12 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
 
   private void testJacobian(DoubleArray x) {
     int n = x.size();
-    Function1D<DoubleArray, DoubleArray> func = _fitter.getModelValueFunction();
-    Function1D<DoubleArray, DoubleMatrix> jacFunc = _fitter.getModelJacobianFunction();
+    Function<DoubleArray, DoubleArray> func = _fitter.getModelValueFunction();
+    Function<DoubleArray, DoubleMatrix> jacFunc = _fitter.getModelJacobianFunction();
     VectorFieldFirstOrderDifferentiator differ = new VectorFieldFirstOrderDifferentiator();
-    Function1D<DoubleArray, DoubleMatrix> jacFuncFD = differ.differentiate(func);
-    DoubleMatrix jac = jacFunc.evaluate(x);
-    DoubleMatrix jacFD = jacFuncFD.evaluate(x);
+    Function<DoubleArray, DoubleMatrix> jacFuncFD = differ.differentiate(func);
+    DoubleMatrix jac = jacFunc.apply(x);
+    DoubleMatrix jacFD = jacFuncFD.apply(x);
     int rows = jacFD.rowCount();
     int cols = jacFD.columnCount();
 

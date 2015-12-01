@@ -6,9 +6,9 @@
 package com.opengamma.strata.math.impl.integration;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.special.OrthogonalPolynomialFunctionGenerator;
 
 /**
@@ -51,11 +51,11 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
    * {@inheritDoc}
    */
   @Override
-  public Double integrate(Function1D<Double, Double> function, Double lower, Double upper) {
+  public Double integrate(Function<Double, Double> function, Double lower, Double upper) {
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(lower, "lower");
     ArgChecker.notNull(upper, "upper");
-    Function1D<Double, Double> integral = getIntegralFunction(function, lower, upper);
+    Function<Double, Double> integral = getIntegralFunction(function, lower, upper);
     return integrateFromPolyFunc(integral);
   }
 
@@ -70,14 +70,14 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
    *  This should be well approximated by a polynomial.
    * @return The integral 
    */
-  public double integrateFromPolyFunc(Function1D<Double, Double> polyFunction) {
+  public double integrateFromPolyFunc(Function<Double, Double> polyFunction) {
     ArgChecker.notNull(polyFunction, "polyFunction");
     double[] abscissas = _quadrature.getAbscissas();
     int n = abscissas.length;
     double[] weights = _quadrature.getWeights();
     double sum = 0;
     for (int i = 0; i < n; i++) {
-      sum += polyFunction.evaluate(abscissas[i]) * weights[i];
+      sum += polyFunction.apply(abscissas[i]) * weights[i];
     }
     return sum;
   }
@@ -94,8 +94,8 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
    * @param upper The upper integration limit, not null
    * @return A function in the appropriate form for integration
    */
-  public abstract Function1D<Double, Double> getIntegralFunction(
-      Function1D<Double, Double> function,
+  public abstract Function<Double, Double> getIntegralFunction(
+      Function<Double, Double> function,
       Double lower,
       Double upper);
 

@@ -32,11 +32,6 @@ public class DoubleQuadraticInterpolator1DTest {
     INTERPOLATOR.interpolate(null, 2.3);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullValue() {
-    INTERPOLATOR.interpolate(DATA, null);
-  }
-
   @Test
   public void testDataBundleType1() {
     assertEquals(INTERPOLATOR.getDataBundle(X_DATA, Y_DATA).getClass(), Interpolator1DDoubleQuadraticDataBundle.class);

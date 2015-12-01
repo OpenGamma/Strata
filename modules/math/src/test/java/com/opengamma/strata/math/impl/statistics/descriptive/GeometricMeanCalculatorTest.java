@@ -11,14 +11,12 @@ import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.function.Function1D;
-
 /**
  * Test.
  */
 @Test
 public class GeometricMeanCalculatorTest {
-  private static final Function1D<double[], Double> ARITHMETIC = new MeanCalculator();
+  private static final Function<double[], Double> ARITHMETIC = new MeanCalculator();
   private static final Function<double[], Double> GEOMETRIC = new GeometricMeanCalculator();
   private static final int N = 100;
   private static final double[] FLAT = new double[N];
@@ -46,6 +44,6 @@ public class GeometricMeanCalculatorTest {
   @Test
   public void test() {
     assertEquals(GEOMETRIC.apply(FLAT), 2, 0);
-    assertEquals(GEOMETRIC.apply(X), Math.exp(ARITHMETIC.evaluate(LN_X)), 1e-15);
+    assertEquals(GEOMETRIC.apply(X), Math.exp(ARITHMETIC.apply(LN_X)), 1e-15);
   }
 }

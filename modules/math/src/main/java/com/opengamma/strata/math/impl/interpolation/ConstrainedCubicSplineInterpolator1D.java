@@ -10,9 +10,6 @@ package com.opengamma.strata.math.impl.interpolation;
  */
 public class ConstrainedCubicSplineInterpolator1D extends PiecewisePolynomialInterpolator1D {
 
-  /** Serialization version */
-  private static final long serialVersionUID = 1L;
-
   /**
    * Default constructor where the interpolation method is fixed
    */

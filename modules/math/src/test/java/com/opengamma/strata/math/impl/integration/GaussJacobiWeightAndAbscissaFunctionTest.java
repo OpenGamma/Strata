@@ -8,9 +8,9 @@ package com.opengamma.strata.math.impl.integration;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import org.testng.annotations.Test;
+import java.util.function.Function;
 
-import com.opengamma.strata.math.impl.function.Function1D;
+import org.testng.annotations.Test;
 
 /**
  * Test.
@@ -41,17 +41,17 @@ public class GaussJacobiWeightAndAbscissaFunctionTest extends WeightAndAbscissaF
     final double[] w3 = f3.getWeights();
     final double[] x3 = f3.getAbscissas();
     final double chebyshevWeight = Math.PI / n;
-    final Function1D<Integer, Double> chebyshevAbscissa = new Function1D<Integer, Double>() {
+    final Function<Integer, Double> chebyshevAbscissa = new Function<Integer, Double>() {
 
       @Override
-      public Double evaluate(final Integer x) {
+      public Double apply(final Integer x) {
         return -Math.cos(Math.PI * (x + 0.5) / n);
       }
 
     };
     for (int i = 0; i < n; i++) {
       assertEquals(chebyshevWeight, w3[i], EPS);
-      assertEquals(chebyshevAbscissa.evaluate(i), -x3[i], EPS);
+      assertEquals(chebyshevAbscissa.apply(i), -x3[i], EPS);
     }
   }
 

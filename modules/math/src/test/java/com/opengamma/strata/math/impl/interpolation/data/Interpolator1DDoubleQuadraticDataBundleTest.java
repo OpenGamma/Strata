@@ -33,7 +33,7 @@ public class Interpolator1DDoubleQuadraticDataBundleTest {
     Y = new double[n];
     for (int i = 0; i < n; i++) {
       X[i] = 3 * i;
-      Y[i] = QUADRATIC.evaluate(X[i]);
+      Y[i] = QUADRATIC.applyAsDouble(X[i]);
     }
     DATA = new Interpolator1DDoubleQuadraticDataBundle(new ArrayInterpolator1DDataBundle(X, Y));
   }
@@ -58,23 +58,23 @@ public class Interpolator1DDoubleQuadraticDataBundleTest {
     assertTrue(DATA.containsKey(3.));
     assertFalse(DATA.containsKey(2.));
     assertEquals(DATA.firstKey(), 0., EPS);
-    assertEquals(DATA.firstValue(), QUADRATIC.evaluate(0.), EPS);
-    assertEquals(DATA.get(6.), QUADRATIC.evaluate(6.), EPS);
+    assertEquals(DATA.firstValue(), QUADRATIC.applyAsDouble(0.), EPS);
+    assertEquals(DATA.getIndex(DATA.indexOf(6.)), QUADRATIC.applyAsDouble(6.), EPS);
     assertArrayEquals(DATA.getKeys(), X, 0);
     assertEquals(DATA.getLowerBoundIndex(11.), 3);
     assertEquals(DATA.getLowerBoundKey(7.), 6, EPS);
     assertArrayEquals(DATA.getValues(), Y, EPS);
     assertEquals(DATA.higherKey(7.), 9, 0);
-    assertEquals(DATA.higherValue(7.), QUADRATIC.evaluate(9.), EPS);
+    assertEquals(DATA.higherValue(7.), QUADRATIC.applyAsDouble(9.), EPS);
     assertEquals(DATA.lastKey(), 27., EPS);
-    assertEquals(DATA.lastValue(), QUADRATIC.evaluate(27.), EPS);
+    assertEquals(DATA.lastValue(), QUADRATIC.applyAsDouble(27.), EPS);
     assertEquals(DATA.size(), 10);
     final InterpolationBoundedValues boundedValues = DATA.getBoundedValues(4.);
     assertEquals(boundedValues.getLowerBoundIndex(), 1);
     assertEquals(boundedValues.getLowerBoundKey(), 3., EPS);
-    assertEquals(boundedValues.getLowerBoundValue(), QUADRATIC.evaluate(3.), EPS);
+    assertEquals(boundedValues.getLowerBoundValue(), QUADRATIC.applyAsDouble(3.), EPS);
     assertEquals(boundedValues.getHigherBoundKey(), 6., EPS);
-    assertEquals(boundedValues.getHigherBoundValue(), QUADRATIC.evaluate(6.), EPS);
+    assertEquals(boundedValues.getHigherBoundValue(), QUADRATIC.applyAsDouble(6.), EPS);
   }
 
   @Test

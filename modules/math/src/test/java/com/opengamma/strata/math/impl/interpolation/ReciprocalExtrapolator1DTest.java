@@ -296,11 +296,9 @@ public class ReciprocalExtrapolator1DTest {
     extrap1D.getNodeSensitivitiesForValue(data, 5.2, interpolator1D);
   }
 
-  private static final double[] S_ARR = new double[] {1., 2., 3., 4. };
   private static final ProductPiecewisePolynomialInterpolator1D S_INTERP = new ProductPiecewisePolynomialInterpolator1D(
       INTERP_SENSE[0]);
   private static final ReciprocalExtrapolator1D S_EXTRAP = new ReciprocalExtrapolator1D();
-  private static final Interpolator1DDataBundle S_DATA = S_INTERP.getDataBundle(S_ARR, S_ARR);
 
   /**
    * data bundle is null
@@ -308,14 +306,6 @@ public class ReciprocalExtrapolator1DTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullDataInterpTest() {
     S_EXTRAP.extrapolate(null, 5.0, S_INTERP);
-  }
-
-  /**
-   * Double value is null
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullValueInterpTest() {
-    S_EXTRAP.extrapolate(S_DATA, null, S_INTERP);
   }
 
   /**
@@ -327,14 +317,6 @@ public class ReciprocalExtrapolator1DTest {
   }
 
   /**
-   * Double value is null
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullValueDerivTest() {
-    S_EXTRAP.firstDerivative(S_DATA, null, S_INTERP);
-  }
-
-  /**
    * data bundle is null
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -342,11 +324,4 @@ public class ReciprocalExtrapolator1DTest {
     S_EXTRAP.getNodeSensitivitiesForValue(null, 5.0, S_INTERP);
   }
 
-  /**
-   * Double value is null
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullValueSenseTest() {
-    S_EXTRAP.getNodeSensitivitiesForValue(S_DATA, null, S_INTERP);
-  }
 }

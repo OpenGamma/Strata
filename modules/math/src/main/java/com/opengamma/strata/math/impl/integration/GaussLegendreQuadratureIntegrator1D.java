@@ -5,8 +5,9 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
+import java.util.function.Function;
+
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Gauss-Legendre quadrature approximates the value of integrals of the form
@@ -48,16 +49,16 @@ public class GaussLegendreQuadratureIntegrator1D extends GaussianQuadratureInteg
    * $$
    */
   @Override
-  public Function1D<Double, Double> getIntegralFunction(Function1D<Double, Double> function, Double lower, Double upper) {
+  public Function<Double, Double> getIntegralFunction(Function<Double, Double> function, Double lower, Double upper) {
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(lower, "lower");
     ArgChecker.notNull(upper, "upper");
     double m = (upper - lower) / 2;
     double c = (upper + lower) / 2;
-    return new Function1D<Double, Double>() {
+    return new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
-        return m * function.evaluate(m * x + c);
+      public Double apply(Double x) {
+        return m * function.apply(m * x + c);
       }
     };
   }

@@ -42,8 +42,8 @@ import com.opengamma.strata.product.index.IborFutureOption;
 @Test
 public class NormalIborFutureOptionMarginedProductPricerTest {
 
-  private static final Interpolator1D LINEAR_FLAT =
-      CombinedInterpolatorExtrapolator.of(CurveInterpolators.LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
+  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
+      CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
   private static final DoubleArray TIMES =
       DoubleArray.of(0.25, 0.50, 1.00, 0.25, 0.50, 1.00, 0.25, 0.50, 1.00, 0.25, 0.50, 1.00);
@@ -88,7 +88,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
     double normalVol = PARAMETERS_PRICE.zValue(expiryTime, priceSimpleMoneyness);
     EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiryTime, FUTURE_OPTION_PRODUCT.getPutCall());
     NormalFunctionData normalPoint = NormalFunctionData.of(futurePrice, 1.0, normalVol);
-    double optionPriceExpected = NORMAL_FUNCTION.getPriceFunction(option).evaluate(normalPoint);
+    double optionPriceExpected = NORMAL_FUNCTION.getPriceFunction(option).apply(normalPoint);
     double optionPriceComputed = OPTION_PRICER.price(FUTURE_OPTION_PRODUCT, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     assertEquals(optionPriceComputed, optionPriceExpected, TOLERANCE_PRICE);
   }

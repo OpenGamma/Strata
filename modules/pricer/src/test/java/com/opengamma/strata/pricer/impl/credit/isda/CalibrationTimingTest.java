@@ -104,7 +104,7 @@ public class CalibrationTimingTest extends IsdaBaseTest {
       }
     }
     YC_COVAR = DoubleMatrix.copyOf(temp);
-    CholeskyDecompositionResult res = CHOLESKY.evaluate(YC_COVAR);
+    CholeskyDecompositionResult res = CHOLESKY.apply(YC_COVAR);
     YC_COVAR_SQR = res.getL();
 
     // setup credit curve stuff
@@ -136,7 +136,7 @@ public class CalibrationTimingTest extends IsdaBaseTest {
       }
     }
     CC_COVAR = DoubleMatrix.copyOf(temp);
-    res = CHOLESKY.evaluate(CC_COVAR);
+    res = CHOLESKY.apply(CC_COVAR);
     CC_COVAR_SQR = res.getL();
 
   }

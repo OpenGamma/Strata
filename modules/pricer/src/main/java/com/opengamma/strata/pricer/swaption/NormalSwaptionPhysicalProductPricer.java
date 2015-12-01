@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.swaption;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.function.Function;
 
 import com.opengamma.strata.basics.LongShort;
 import com.opengamma.strata.basics.PayReceive;
@@ -17,7 +18,6 @@ import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
 import com.opengamma.strata.pricer.impl.option.NormalFunctionData;
 import com.opengamma.strata.pricer.impl.option.NormalPriceFunction;
@@ -105,8 +105,8 @@ public class NormalSwaptionPhysicalProductPricer {
     // Payer at strike is exercise when rate > strike, i.e. call on rate
     EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiry, isCall ? PutCall.CALL : PutCall.PUT);
     // option required to pass the strike (in case the swap has non-constant coupon).
-    Function1D<NormalFunctionData, Double> func = NORMAL.getPriceFunction(option);
-    double pv = func.evaluate(normalData) * ((expanded.getLongShort() == LongShort.LONG) ? 1.0 : -1.0);
+    Function<NormalFunctionData, Double> func = NORMAL.getPriceFunction(option);
+    double pv = func.apply(normalData) * ((expanded.getLongShort() == LongShort.LONG) ? 1.0 : -1.0);
     return CurrencyAmount.of(fixedLeg.getCurrency(), pv);
   }
 

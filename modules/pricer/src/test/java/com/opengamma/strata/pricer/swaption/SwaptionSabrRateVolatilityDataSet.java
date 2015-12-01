@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -24,6 +23,7 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.surface.ConstantNodalSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
@@ -35,7 +35,6 @@ import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMe
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrHaganVolatilityFunctionProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -49,9 +48,9 @@ public class SwaptionSabrRateVolatilityDataSet {
   /*
    * Interpolators
    */
-  private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
+  private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
-      CurveInterpolators.LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
+      CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
 
   /*

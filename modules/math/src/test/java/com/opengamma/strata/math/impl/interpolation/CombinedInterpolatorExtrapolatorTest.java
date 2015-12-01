@@ -7,10 +7,11 @@ package com.opengamma.strata.math.impl.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.function.Function;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
@@ -29,10 +30,10 @@ public class CombinedInterpolatorExtrapolatorTest {
   private static final CombinedInterpolatorExtrapolator COMBINED1 = new CombinedInterpolatorExtrapolator(INTERPOLATOR);
   private static final CombinedInterpolatorExtrapolator COMBINED2 = new CombinedInterpolatorExtrapolator(INTERPOLATOR, LEFT_EXTRAPOLATOR);
   private static final CombinedInterpolatorExtrapolator COMBINED3 = new CombinedInterpolatorExtrapolator(INTERPOLATOR, LEFT_EXTRAPOLATOR, RIGHT_EXTRAPOLATOR);
-  private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> F = new Function<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return 3 * x + 11;
     }
 
@@ -44,7 +45,7 @@ public class CombinedInterpolatorExtrapolatorTest {
     Y = new double[n];
     for (int i = 0; i < n; i++) {
       X[i] = i;
-      Y[i] = F.evaluate(X[i]);
+      Y[i] = F.apply(X[i]);
     }
     DATA = INTERPOLATOR.getDataBundleFromSortedArrays(X, Y);
   }
@@ -84,15 +85,10 @@ public class CombinedInterpolatorExtrapolatorTest {
     COMBINED1.interpolate(null, 2.3);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullValue() {
-    COMBINED1.interpolate(DATA, null);
-  }
-
   @Test
   public void testInterpolatorOnly() {
     final double x = 6.7;
-    assertEquals(COMBINED1.interpolate(DATA, x), F.evaluate(x), 1e-15);
+    assertEquals(COMBINED1.interpolate(DATA, x), F.apply(x), 1e-15);
     try {
       COMBINED1.interpolate(DATA, x - 100);
       Assert.fail();
@@ -125,17 +121,17 @@ public class CombinedInterpolatorExtrapolatorTest {
   @Test
   public void testOneExtrapolator() {
     final double x = 3.6;
-    assertEquals(COMBINED2.interpolate(DATA, x), F.evaluate(x), 1e-15);
-    assertEquals(COMBINED2.interpolate(DATA, x - 100), F.evaluate(0.), 1e-15);
-    assertEquals(COMBINED2.interpolate(DATA, x + 100), F.evaluate(9.), 1e-15);
+    assertEquals(COMBINED2.interpolate(DATA, x), F.apply(x), 1e-15);
+    assertEquals(COMBINED2.interpolate(DATA, x - 100), F.apply(0.), 1e-15);
+    assertEquals(COMBINED2.interpolate(DATA, x + 100), F.apply(9.), 1e-15);
   }
 
   @Test
   public void testTwoExtrapolators() {
     final double x = 3.6;
-    assertEquals(COMBINED3.interpolate(DATA, x), F.evaluate(x), 1e-15);
-    assertEquals(COMBINED3.interpolate(DATA, x - 100), F.evaluate(0.), 1e-15);
-    assertEquals(COMBINED3.interpolate(DATA, x + 100), F.evaluate(x + 100), 1e-5);
+    assertEquals(COMBINED3.interpolate(DATA, x), F.apply(x), 1e-15);
+    assertEquals(COMBINED3.interpolate(DATA, x - 100), F.apply(0.), 1e-15);
+    assertEquals(COMBINED3.interpolate(DATA, x + 100), F.apply(x + 100), 1e-5);
   }
 
   @Test

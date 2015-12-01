@@ -6,9 +6,9 @@
 package com.opengamma.strata.math.impl.statistics.distribution;
 
 import java.util.Date;
+import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.special.GammaFunction;
 import com.opengamma.strata.math.impl.function.special.InverseIncompleteBetaFunction;
 
@@ -29,7 +29,7 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
   // TODO need a better seed
   private final double _degFreedom;
   private final StudentT _dist;
-  private final Function1D<Double, Double> _beta;
+  private final Function<Double, Double> _beta;
 
   /**
    * @param degFreedom The number of degrees of freedom, not negative or zero
@@ -91,7 +91,7 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
   public double getInverseCDF(Double p) {
     ArgChecker.notNull(p, "p");
     ArgChecker.isTrue(p >= 0 && p <= 1, "Probability must be >= 0 and <= 1");
-    double x = _beta.evaluate(2 * Math.min(p, 1 - p));
+    double x = _beta.apply(2 * Math.min(p, 1 - p));
     return Math.signum(p - 0.5) * Math.sqrt(_degFreedom * (1. / x - 1));
   }
 

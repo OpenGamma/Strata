@@ -46,13 +46,17 @@ public class IborIborSwapCurveNodeTest {
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "USD-BS36-10Y"));
   private static final QuoteKey QUOTE_KEY2 = QuoteKey.of(StandardId.of("OG-Ticker", "Test"));
   private static final double SPREAD = 0.0015;
+  private static final String LABEL = "Label";
+  private static final String LABEL_AUTO = "10Y";
 
   public void test_builder() {
     IborIborSwapCurveNode test = IborIborSwapCurveNode.builder()
+        .label(LABEL)
         .template(TEMPLATE)
         .rateKey(QUOTE_KEY)
         .additionalSpread(SPREAD)
         .build();
+    assertEquals(test.getLabel(), LABEL);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
@@ -60,6 +64,7 @@ public class IborIborSwapCurveNodeTest {
 
   public void test_of_noSpread() {
     IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY);
+    assertEquals(test.getLabel(), LABEL_AUTO);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), 0.0d);
     assertEquals(test.getTemplate(), TEMPLATE);
@@ -67,6 +72,15 @@ public class IborIborSwapCurveNodeTest {
 
   public void test_of_withSpread() {
     IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    assertEquals(test.getLabel(), LABEL_AUTO);
+    assertEquals(test.getRateKey(), QUOTE_KEY);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
+    assertEquals(test.getTemplate(), TEMPLATE);
+  }
+
+  public void test_of_withSpreadAndLabel() {
+    IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL);
+    assertEquals(test.getLabel(), LABEL);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);

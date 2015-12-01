@@ -49,7 +49,7 @@ public class DoublesVectorFunctionProviderTest {
 
     //sample the curve at x = -1, 0, and 1 
     VectorFunction f = pro.from(new Double[] {-1.0, 0.0, 1.0 });
-    DoubleArray y = f.evaluate(parms);
+    DoubleArray y = f.apply(parms);
     AssertMatrix.assertEqualsVectors(DoubleArray.of(-2.5, -2.0, -0.5), y, 1e-15);
 
     final List<Double> l = new ArrayList<>(3);
@@ -57,7 +57,7 @@ public class DoublesVectorFunctionProviderTest {
     l.add(2.0);
     l.add(4.0);
     f = pro.from(l);
-    y = f.evaluate(parms);
+    y = f.apply(parms);
     AssertMatrix.assertEqualsVectors(DoubleArray.of(-2.0, 2.0, 10.0), y, 1e-15);
   }
 

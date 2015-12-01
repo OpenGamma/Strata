@@ -5,11 +5,12 @@
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * Test.
@@ -19,9 +20,9 @@ public class BroydenMatrixUpdateFunctionTest {
   private static final BroydenMatrixUpdateFunction UPDATE = new BroydenMatrixUpdateFunction();
   private static final DoubleArray V = DoubleArray.of(1, 2);
   private static final DoubleMatrix M = DoubleMatrix.copyOf(new double[][] { {3, 4}, {5, 6}});
-  private static final Function1D<DoubleArray, DoubleMatrix> J = new Function1D<DoubleArray, DoubleMatrix>() {
+  private static final Function<DoubleArray, DoubleMatrix> J = new Function<DoubleArray, DoubleMatrix>() {
     @Override
-    public DoubleMatrix evaluate(final DoubleArray x) {
+    public DoubleMatrix apply(final DoubleArray x) {
       return M;
     }
   };

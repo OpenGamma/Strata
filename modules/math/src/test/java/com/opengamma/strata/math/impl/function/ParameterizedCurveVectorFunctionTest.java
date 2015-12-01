@@ -47,13 +47,13 @@ public class ParameterizedCurveVectorFunctionTest {
     assertEquals(2, f.getLengthOfDomain());
     assertEquals(3, f.getLengthOfRange());
     final DoubleArray x = DoubleArray.of(0.5, 2.0); //the parameters a & b
-    final DoubleArray y = f.evaluate(x);
+    final DoubleArray y = f.apply(x);
     assertEquals(0.5 * Math.sinh(-2.0), y.get(0), 1e-14);
     assertEquals(0.0, y.get(1), 1e-14);
     assertEquals(0.5 * Math.sinh(2.0), y.get(2), 1e-14);
 
     final DoubleMatrix jac = f.calculateJacobian(x);
-    final DoubleMatrix fdJac = (new VectorFieldFirstOrderDifferentiator().differentiate(f)).evaluate(x);
+    final DoubleMatrix fdJac = (new VectorFieldFirstOrderDifferentiator().differentiate(f)).apply(x);
     AssertMatrix.assertEqualsMatrix(fdJac, jac, 1e-9);
   }
 }

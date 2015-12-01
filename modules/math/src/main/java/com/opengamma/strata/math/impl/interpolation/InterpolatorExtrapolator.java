@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
@@ -15,43 +14,36 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * Extrapolator that does no extrapolation itself and delegates to the interpolator for all operations.
  * <p>
- * This reproduces the old behaviour in {@link CombinedInterpolatorExtrapolator} when the extrapolators were
- * null. This extrapolator is used in place of a null extrapolator which allows the extrapolators to be non-null
+ * This extrapolator is used in place of a null extrapolator which allows the extrapolators to be non-null
  * and makes for simpler and cleaner code where the extrapolators are used.
  */
 @BeanDefinition(style = "light", constructorScope = "public")
 public final class InterpolatorExtrapolator
-    implements CurveExtrapolator, Extrapolator1D, ImmutableBean, Serializable {
+    implements Extrapolator1D, ImmutableBean {
 
   /** The interpolator name. */
   public static final String NAME = "Interpolator";
 
   //-------------------------------------------------------------------------
   @Override
-  public String getName() {
-    return NAME;
-  }
-
-  @Override
-  public Double extrapolate(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double extrapolate(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     JodaBeanUtils.notNull(data, "data");
     return interpolator.interpolate(data, value);
   }
 
   @Override
-  public double firstDerivative(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double firstDerivative(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     JodaBeanUtils.notNull(data, "data");
     return interpolator.firstDerivative(data, value);
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value, Interpolator1D interpolator) {
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, double value, Interpolator1D interpolator) {
     JodaBeanUtils.notNull(data, "data");
     return interpolator.getNodeSensitivitiesForValue(data, value);
   }
@@ -74,11 +66,6 @@ public final class InterpolatorExtrapolator
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
-
-  /**
-   * The serialization version id.
-   */
-  private static final long serialVersionUID = 1L;
 
   /**
    * Creates an instance.

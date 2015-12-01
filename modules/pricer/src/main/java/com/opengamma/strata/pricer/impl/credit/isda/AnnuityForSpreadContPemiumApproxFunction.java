@@ -39,7 +39,7 @@ public class AnnuityForSpreadContPemiumApproxFunction extends AnnuityForSpreadFu
   }
 
   @Override
-  public Double evaluate(Double spread) {
+  public Double apply(Double spread) {
     double lambda = _eta * spread / _lgd;
     return annuity(lambda);
   }

@@ -37,11 +37,6 @@ public class StepInterpolator1DTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullValue() {
-    INTERPOLATOR.interpolate(DATA, null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowValue() {
     INTERPOLATOR.interpolate(DATA, -3.);
   }

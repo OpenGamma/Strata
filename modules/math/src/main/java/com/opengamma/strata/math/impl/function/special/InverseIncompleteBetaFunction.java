@@ -5,21 +5,22 @@
  */
 package com.opengamma.strata.math.impl.function.special;
 
+import java.util.function.Function;
+
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
-import com.opengamma.strata.math.impl.function.Function1D;
 
 /**
  * 
  */
-public class InverseIncompleteBetaFunction extends Function1D<Double, Double> {
+public class InverseIncompleteBetaFunction implements Function<Double, Double> {
 //TODO either find another implementation or delete this class
 
   private final double _a;
   private final double _b;
-  private final Function1D<Double, Double> _lnGamma = new NaturalLogGammaFunction();
-  private final Function1D<Double, Double> _beta;
+  private final Function<Double, Double> _lnGamma = new NaturalLogGammaFunction();
+  private final Function<Double, Double> _beta;
   private static final double EPS = 1e-9;
 
   public InverseIncompleteBetaFunction(double a, double b) {
@@ -32,7 +33,7 @@ public class InverseIncompleteBetaFunction extends Function1D<Double, Double> {
 
   //-------------------------------------------------------------------------
   @Override
-  public Double evaluate(Double x) {
+  public Double apply(Double x) {
     ArgChecker.inRangeInclusive(x, 0d, 1d, "x");
     double pp, p, t, h, w, lnA, lnB, u, a1 = _a - 1;
     double b1 = _b - 1;
@@ -61,13 +62,13 @@ public class InverseIncompleteBetaFunction extends Function1D<Double, Double> {
         p = 1 - Math.pow(_b * w * (1 - x), 1. / _b);
       }
     }
-    double afac = -_lnGamma.evaluate(_a) - _lnGamma.evaluate(_b) + _lnGamma.evaluate(_a + _b);
+    double afac = -_lnGamma.apply(_a) - _lnGamma.apply(_b) + _lnGamma.apply(_a + _b);
     double error;
     for (int j = 0; j < 10; j++) {
       if (DoubleMath.fuzzyEquals(p, 0d, 1e-16) || DoubleMath.fuzzyEquals(p, (double) 1, 1e-16)) {
         throw new MathException("a or b too small for accurate evaluation");
       }
-      error = _beta.evaluate(p) - x;
+      error = _beta.apply(p) - x;
       t = Math.exp(a1 * Math.log(p) + b1 * Math.log(1 - p) + afac);
       u = error / t;
       t = u / (1 - 0.5 * Math.min(1, u * (a1 / p - b1 / (1 - p))));

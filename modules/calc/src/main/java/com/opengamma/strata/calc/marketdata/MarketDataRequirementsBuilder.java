@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
@@ -27,6 +28,9 @@ public final class MarketDataRequirementsBuilder {
 
   /** IDs identifying the time series of market data values required for the calculations. */
   private final Set<ObservableId> timeSeries = new HashSet<>();
+
+  /** The currencies used in the outputs of the calculations. */
+  private final Set<Currency> outputCurrencies = new HashSet<>();
 
   /**
    * Adds requirements for time series of observable market data.
@@ -81,6 +85,19 @@ public final class MarketDataRequirementsBuilder {
   }
 
   /**
+   * Adds the output currencies.
+   * <p>
+   * These are used to ensure that FX rate market data is available for currency conversion.
+   *
+   * @param currencies  the output currencies
+   * @return this builder
+   */
+  public MarketDataRequirementsBuilder addOutputCurrencies(Currency... currencies) {
+    outputCurrencies.addAll(Arrays.asList(currencies));
+    return this;
+  }
+
+  /**
    * Adds all requirements from an instance of {@code MarketDataRequirements} to this builder.
    *
    * @param requirements  a set of requirements
@@ -89,6 +106,7 @@ public final class MarketDataRequirementsBuilder {
   public MarketDataRequirementsBuilder addRequirements(MarketDataRequirements requirements) {
     ArgChecker.notNull(requirements, "requirements");
     observables.addAll(requirements.getObservables());
+    outputCurrencies.addAll(requirements.getOutputCurrencies());
     nonObservables.addAll(requirements.getNonObservables());
     timeSeries.addAll(requirements.getTimeSeries());
     return this;
@@ -100,6 +118,6 @@ public final class MarketDataRequirementsBuilder {
    * @return a set of market data requirements built from the data in this builder
    */
   public MarketDataRequirements build() {
-    return new MarketDataRequirements(observables, nonObservables, timeSeries);
+    return new MarketDataRequirements(observables, nonObservables, timeSeries, outputCurrencies);
   }
 }

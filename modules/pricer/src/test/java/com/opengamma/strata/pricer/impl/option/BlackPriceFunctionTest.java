@@ -40,76 +40,76 @@ public class BlackPriceFunctionTest {
 
   public void testATMPrice() {
     final double sigmaRootT = ATM_DATA.getBlackVolatility() * Math.sqrt(ATM_CALL.getTimeToExpiry());
-    assertEquals(DF * F * (2 * NORMAL.getCDF(sigmaRootT / 2) - 1), FUNCTION.getPriceFunction(ATM_CALL).evaluate(ATM_DATA), 1e-14);
+    assertEquals(DF * F * (2 * NORMAL.getCDF(sigmaRootT / 2) - 1), FUNCTION.getPriceFunction(ATM_CALL).apply(ATM_DATA), 1e-14);
   }
 
   public void testZeroVolPrice() {
-    assertEquals(DF * DELTA, FUNCTION.getPriceFunction(ITM_CALL).evaluate(ZERO_VOL_DATA), 1e-15);
-    assertEquals(0, FUNCTION.getPriceFunction(OTM_CALL).evaluate(ZERO_VOL_DATA), 1e-15);
-    assertEquals(DF * DELTA, FUNCTION.getPriceFunction(ITM_PUT).evaluate(ZERO_VOL_DATA), 1e-15);
-    assertEquals(0, FUNCTION.getPriceFunction(OTM_PUT).evaluate(ZERO_VOL_DATA), 1e-15);
+    assertEquals(DF * DELTA, FUNCTION.getPriceFunction(ITM_CALL).apply(ZERO_VOL_DATA), 1e-15);
+    assertEquals(0, FUNCTION.getPriceFunction(OTM_CALL).apply(ZERO_VOL_DATA), 1e-15);
+    assertEquals(DF * DELTA, FUNCTION.getPriceFunction(ITM_PUT).apply(ZERO_VOL_DATA), 1e-15);
+    assertEquals(0, FUNCTION.getPriceFunction(OTM_PUT).apply(ZERO_VOL_DATA), 1e-15);
   }
 
   public void priceAdjoint() {
     // Price
-    double price = FUNCTION.getPriceFunction(ITM_CALL).evaluate(ATM_DATA);
+    double price = FUNCTION.getPriceFunction(ITM_CALL).apply(ATM_DATA);
     ValueDerivatives priceAdjoint = FUNCTION.getPriceAdjoint(ITM_CALL, ATM_DATA);
     assertEquals(price, priceAdjoint.getValue(), 1E-10);
     // Price with 0 volatility
-    double price0 = FUNCTION.getPriceFunction(ITM_CALL).evaluate(ZERO_VOL_DATA);
+    double price0 = FUNCTION.getPriceFunction(ITM_CALL).apply(ZERO_VOL_DATA);
     ValueDerivatives price0Adjoint = FUNCTION.getPriceAdjoint(ITM_CALL, ZERO_VOL_DATA);
     assertEquals(price0, price0Adjoint.getValue(), 1E-10);
     // Derivative forward.
     double deltaF = 0.01;
     BlackFunctionData dataFP = BlackFunctionData.of(F + deltaF, DF, SIGMA);
     BlackFunctionData dataFM = BlackFunctionData.of(F - deltaF, DF, SIGMA);
-    double priceFP = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataFP);
-    double priceFM = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataFM);
+    double priceFP = FUNCTION.getPriceFunction(ITM_CALL).apply(dataFP);
+    double priceFM = FUNCTION.getPriceFunction(ITM_CALL).apply(dataFM);
     double derivativeF_FD = (priceFP - priceFM) / (2 * deltaF);
     assertEquals(derivativeF_FD, priceAdjoint.getDerivative(0), 1E-7);
     // Derivative strike.
     double deltaK = 0.01;
     EuropeanVanillaOption optionKP = EuropeanVanillaOption.of(F - DELTA + deltaK, T, CALL);
     EuropeanVanillaOption optionKM = EuropeanVanillaOption.of(F - DELTA - deltaK, T, CALL);
-    double priceKP = FUNCTION.getPriceFunction(optionKP).evaluate(ATM_DATA);
-    double priceKM = FUNCTION.getPriceFunction(optionKM).evaluate(ATM_DATA);
+    double priceKP = FUNCTION.getPriceFunction(optionKP).apply(ATM_DATA);
+    double priceKM = FUNCTION.getPriceFunction(optionKM).apply(ATM_DATA);
     double derivativeK_FD = (priceKP - priceKM) / (2 * deltaK);
     assertEquals(derivativeK_FD, priceAdjoint.getDerivative(2), 1E-7);
     // Derivative volatility.
     double deltaV = 0.0001;
     BlackFunctionData dataVP = BlackFunctionData.of(F, DF, SIGMA + deltaV);
     BlackFunctionData dataVM = BlackFunctionData.of(F, DF, SIGMA - deltaV);
-    double priceVP = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVP);
-    double priceVM = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVM);
+    double priceVP = FUNCTION.getPriceFunction(ITM_CALL).apply(dataVP);
+    double priceVM = FUNCTION.getPriceFunction(ITM_CALL).apply(dataVM);
     double derivativeV_FD = (priceVP - priceVM) / (2 * deltaV);
     assertEquals(derivativeV_FD, priceAdjoint.getDerivative(1), 1E-6);
   }
 
   public void testPriceAdjointStrike0() {
     // Price
-    double price = FUNCTION.getPriceFunction(CALL_0).evaluate(ATM_DATA);
+    double price = FUNCTION.getPriceFunction(CALL_0).apply(ATM_DATA);
     ValueDerivatives priceAdjoint = FUNCTION.getPriceAdjoint(CALL_0, ATM_DATA);
     assertEquals(price, priceAdjoint.getValue(), 1E-10);
     // Derivative forward.
     double deltaF = 0.01;
     BlackFunctionData dataFP = BlackFunctionData.of(F + deltaF, DF, SIGMA);
     BlackFunctionData dataFM = BlackFunctionData.of(F - deltaF, DF, SIGMA);
-    double priceFP = FUNCTION.getPriceFunction(CALL_0).evaluate(dataFP);
-    double priceFM = FUNCTION.getPriceFunction(CALL_0).evaluate(dataFM);
+    double priceFP = FUNCTION.getPriceFunction(CALL_0).apply(dataFP);
+    double priceFM = FUNCTION.getPriceFunction(CALL_0).apply(dataFM);
     double derivativeF_FD = (priceFP - priceFM) / (2 * deltaF);
     assertEquals(derivativeF_FD, priceAdjoint.getDerivative(0), 1E-7);
     // Derivative strike.
     double deltaK = 0.01;
     EuropeanVanillaOption optionKP = EuropeanVanillaOption.of(0.0 + deltaK, T, CALL);
-    double priceKP = FUNCTION.getPriceFunction(optionKP).evaluate(ATM_DATA);
+    double priceKP = FUNCTION.getPriceFunction(optionKP).apply(ATM_DATA);
     double derivativeK_FD = (priceKP - price) / (deltaK);
     assertEquals(derivativeK_FD, priceAdjoint.getDerivative(2), 1E-7);
     // Derivative volatility.
     double deltaV = 0.0001;
     BlackFunctionData dataVP = BlackFunctionData.of(F, DF, SIGMA + deltaV);
     BlackFunctionData dataVM = BlackFunctionData.of(F, DF, SIGMA - deltaV);
-    double priceVP = FUNCTION.getPriceFunction(CALL_0).evaluate(dataVP);
-    double priceVM = FUNCTION.getPriceFunction(CALL_0).evaluate(dataVM);
+    double priceVP = FUNCTION.getPriceFunction(CALL_0).apply(dataVP);
+    double priceVM = FUNCTION.getPriceFunction(CALL_0).apply(dataVM);
     double derivativeV_FD = (priceVP - priceVM) / (2 * deltaV);
     assertEquals(derivativeV_FD, priceAdjoint.getDerivative(1), 1E-6);
   }

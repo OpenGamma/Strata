@@ -69,7 +69,7 @@ public class GaussLaguerreWeightAndAbscissaFunction implements QuadratureWeightA
       x[i] = root;
       w[i] =
           -GAMMA_FUNCTION.applyAsDouble(_alpha + n) / CombinatoricsUtils.factorialDouble(n) /
-              (derivative.evaluate(root) * p1.evaluate(root));
+              (derivative.applyAsDouble(root) * p1.applyAsDouble(root));
     }
     return new GaussianQuadratureData(x, w);
   }

@@ -7,9 +7,9 @@ package com.opengamma.strata.math.impl.function.special;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.testng.annotations.Test;
+import java.util.function.Function;
 
-import com.opengamma.strata.math.impl.function.Function1D;
+import org.testng.annotations.Test;
 
 /**
  * Test.
@@ -17,7 +17,7 @@ import com.opengamma.strata.math.impl.function.Function1D;
 @Test
 public class IncompleteGammaFunctionTest {
   private static final double A = 1;
-  private static final Function1D<Double, Double> FUNCTION = new IncompleteGammaFunction(A);
+  private static final Function<Double, Double> FUNCTION = new IncompleteGammaFunction(A);
   private static final double EPS = 1e-9;
   private static final int MAX_ITER = 10000;
 
@@ -43,21 +43,21 @@ public class IncompleteGammaFunctionTest {
 
   @Test
   public void testLimits() {
-    assertEquals(FUNCTION.evaluate(0.), 0, EPS);
-    assertEquals(FUNCTION.evaluate(100.), 1, EPS);
+    assertEquals(FUNCTION.apply(0.), 0, EPS);
+    assertEquals(FUNCTION.apply(100.), 1, EPS);
   }
 
   @Test
   public void test() {
-    final Function1D<Double, Double> f = new Function1D<Double, Double>() {
+    final Function<Double, Double> f = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(final Double x) {
+      public Double apply(final Double x) {
         return 1 - Math.exp(-x);
       }
 
     };
     final double x = 4.6;
-    assertEquals(f.evaluate(x), FUNCTION.evaluate(x), EPS);
+    assertEquals(f.apply(x), FUNCTION.apply(x), EPS);
   }
 }

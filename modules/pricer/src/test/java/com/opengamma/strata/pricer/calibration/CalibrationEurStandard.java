@@ -25,8 +25,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
-import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
@@ -41,9 +39,11 @@ import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FixedOvernightSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.curve.node.IborFixingDepositCurveNode;
+import com.opengamma.strata.market.interpolator.CurveExtrapolator;
+import com.opengamma.strata.market.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
-import com.opengamma.strata.math.impl.interpolation.FlatExtrapolator1D;
-import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
 import com.opengamma.strata.product.fra.type.FraTemplate;
@@ -85,8 +85,8 @@ public class CalibrationEurStandard {
     TS.put(EUR_EURIBOR_6M, TS_EMTPY);
     TS.put(EUR_EONIA, TS_EMTPY);
   }
-  private static final CurveInterpolator INTERPOLATOR_LINEAR = new LinearInterpolator1D();
-  private static final CurveExtrapolator EXTRAPOLATOR_FLAT = new FlatExtrapolator1D();
+  private static final CurveInterpolator INTERPOLATOR_LINEAR = CurveInterpolators.LINEAR;
+  private static final CurveExtrapolator EXTRAPOLATOR_FLAT = CurveExtrapolators.FLAT;
 
   private static final CalibrationMeasures CALIBRATION_MEASURES = CalibrationMeasures.DEFAULT;
   private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100, CALIBRATION_MEASURES);

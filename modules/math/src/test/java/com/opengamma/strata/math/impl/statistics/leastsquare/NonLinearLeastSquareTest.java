@@ -8,12 +8,13 @@ package com.opengamma.strata.math.impl.statistics.leastsquare;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.function.Function;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.Function1D;
 import com.opengamma.strata.math.impl.function.ParameterizedFunction;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionResult;
@@ -35,19 +36,19 @@ public class NonLinearLeastSquareTest {
   private static final DoubleArray SIGMA;
   private static final NonLinearLeastSquare LS;
 
-  private static final Function1D<Double, Double> TARGET = new Function1D<Double, Double>() {
+  private static final Function<Double, Double> TARGET = new Function<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       return Math.sin(x);
     }
   };
 
-  private static final Function1D<DoubleArray, DoubleArray> FUNCTION = new Function1D<DoubleArray, DoubleArray>() {
+  private static final Function<DoubleArray, DoubleArray> FUNCTION = new Function<DoubleArray, DoubleArray>() {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public DoubleArray evaluate(final DoubleArray a) {
+    public DoubleArray apply(final DoubleArray a) {
       ArgChecker.isTrue(a.size() == 4, "four parameters");
       final int n = X.size();
       final double[] res = new double[n];
@@ -93,11 +94,11 @@ public class NonLinearLeastSquareTest {
     }
   };
 
-  private static final Function1D<DoubleArray, DoubleMatrix> GRAD = new Function1D<DoubleArray, DoubleMatrix>() {
+  private static final Function<DoubleArray, DoubleMatrix> GRAD = new Function<DoubleArray, DoubleMatrix>() {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public DoubleMatrix evaluate(final DoubleArray a) {
+    public DoubleMatrix apply(final DoubleArray a) {
       final int n = X.size();
       final int m = a.size();
       final double[][] res = new double[n][m];
@@ -114,7 +115,7 @@ public class NonLinearLeastSquareTest {
 
   static {
     X = DoubleArray.of(20, i -> -Math.PI + i * Math.PI / 10);
-    Y = DoubleArray.of(20, i -> TARGET.evaluate(X.get(i)));
+    Y = DoubleArray.of(20, i -> TARGET.apply(X.get(i)));
     SIGMA = DoubleArray.of(20, i -> 0.1 * Math.exp(Math.abs(X.get(i)) / Math.PI));
     LS = new NonLinearLeastSquare();
   }
@@ -182,7 +183,7 @@ public class NonLinearLeastSquareTest {
     final DoubleArray delta = (DoubleArray) ma.subtract(res.getFitParameters(), trueValues);
 
     final LUDecompositionCommons decmp = new LUDecompositionCommons();
-    final LUDecompositionResult decmpRes = decmp.evaluate(res.getCovariance());
+    final LUDecompositionResult decmpRes = decmp.apply(res.getCovariance());
     final DoubleMatrix invCovariance = decmpRes.solve(DoubleMatrix.identity(4));
 
     double z = ma.getInnerProduct(delta, ma.multiply(invCovariance, delta));

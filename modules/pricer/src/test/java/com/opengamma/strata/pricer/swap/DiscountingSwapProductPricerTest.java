@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.swap;
 
 import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
+import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
@@ -18,6 +19,7 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_EUR;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_USD;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_EXPANDED_SWAP_LEG_PAY;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_EXPANDED_SWAP_LEG_PAY_USD;
@@ -61,7 +63,6 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.PriceIndex;
-import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;
@@ -74,6 +75,7 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -103,6 +105,8 @@ import com.opengamma.strata.product.swap.type.IborIborSwapConvention;
 import com.opengamma.strata.product.swap.type.IborIborSwapTemplate;
 import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
 import com.opengamma.strata.product.swap.type.ImmutableIborIborSwapConvention;
+import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapConvention;
+import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapConventions;
 
 /**
  * Tests {@link DiscountingSwapProductPricer}.
@@ -800,4 +804,48 @@ public class DiscountingSwapProductPricerTest {
     MultiCurrencyAmount fromTrade = SWAP_TRADE_PRICER.currentCash(trade, prov);
     assertEquals(fromTrade, computed);
   }
+
+  //-------------------------------------------------------------------------
+  public void three_leg_swap() {
+    ThreeLegBasisSwapConvention conv = ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M;
+    LocalDate tradeDate = LocalDate.of(2014, 1, 22);
+    Swap swap = conv.toTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD).getProduct();
+    // pv
+    MultiCurrencyAmount pvComputed = SWAP_PRODUCT_PRICER.presentValue(swap, MULTI_EUR);
+    DiscountingSwapLegPricer legPricer = SWAP_PRODUCT_PRICER.getLegPricer();
+    CurrencyAmount pvExpected = legPricer.presentValue(swap.getLegs().get(0), MULTI_EUR)
+        .plus(legPricer.presentValue(swap.getLegs().get(1), MULTI_EUR))
+        .plus(legPricer.presentValue(swap.getLegs().get(2), MULTI_EUR));
+    assertEquals(pvComputed.getAmount(EUR), pvExpected);
+    // pv sensitivity
+    PointSensitivityBuilder pvPointComputed = SWAP_PRODUCT_PRICER.presentValueSensitivity(swap, MULTI_EUR);
+    PointSensitivityBuilder pvPointExpected = legPricer.presentValueSensitivity(swap.getLegs().get(0), MULTI_EUR)
+        .combinedWith(legPricer.presentValueSensitivity(swap.getLegs().get(1), MULTI_EUR))
+        .combinedWith(legPricer.presentValueSensitivity(swap.getLegs().get(2), MULTI_EUR));
+    assertEquals(pvPointComputed, pvPointExpected);
+    // par rate
+    double parRate = SWAP_PRODUCT_PRICER.parRate(swap, MULTI_EUR);
+    Swap swapParRate = conv.toTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, parRate).getProduct();
+    MultiCurrencyAmount pvParRate = SWAP_PRODUCT_PRICER.presentValue(swapParRate, MULTI_EUR);
+    assertEquals(pvParRate, MultiCurrencyAmount.of(EUR, 0d));
+    // par rate sensitivity
+    PointSensitivities parRatePoint = SWAP_PRODUCT_PRICER.parRateSensitivity(swap, MULTI_EUR).build();
+    CurveCurrencyParameterSensitivities parRateSensiComputed = MULTI_EUR.curveParameterSensitivity(parRatePoint);
+    CurveCurrencyParameterSensitivities parRateSensiExpected = FINITE_DIFFERENCE_CALCULATOR.sensitivity(MULTI_EUR,
+        p -> CurrencyAmount.of(EUR, SWAP_PRODUCT_PRICER.parRate(swap, p)));
+    assertTrue(parRateSensiComputed.equalWithTolerance(parRateSensiExpected, TOLERANCE_RATE_DELTA));
+    // par spread
+    double parSpread = SWAP_PRODUCT_PRICER.parSpread(swap, MULTI_EUR);
+    Swap swapParSpread =
+        conv.toTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD + parSpread).getProduct();
+    MultiCurrencyAmount pvParSpread = SWAP_PRODUCT_PRICER.presentValue(swapParSpread, MULTI_EUR);
+    assertEquals(pvParSpread, MultiCurrencyAmount.of(EUR, 0d));
+    // par spread sensitivity
+    PointSensitivities parSpreadPoint = SWAP_PRODUCT_PRICER.parSpreadSensitivity(swap, MULTI_EUR).build();
+    CurveCurrencyParameterSensitivities parSpreadSensiComputed = MULTI_EUR.curveParameterSensitivity(parSpreadPoint);
+    CurveCurrencyParameterSensitivities parSpreadSensiExpected = FINITE_DIFFERENCE_CALCULATOR.sensitivity(MULTI_EUR,
+        p -> CurrencyAmount.of(EUR, SWAP_PRODUCT_PRICER.parSpread(swap, p)));
+    assertTrue(parSpreadSensiComputed.equalWithTolerance(parSpreadSensiExpected, TOLERANCE_RATE_DELTA));
+  }
+
 }

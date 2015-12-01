@@ -10,12 +10,12 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.DoubleBinaryOperator;
 
 import org.apache.commons.math3.random.Well44497b;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.tuple.DoublesPair;
-import com.opengamma.strata.math.impl.function.Function2D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
@@ -26,14 +26,7 @@ public class GridInterpolator2DTest {
 
   private static final Well44497b RANDOM = new Well44497b(0L);
   private static final Map<DoublesPair, Double> FLAT_DATA = new HashMap<>();
-  private static final Function2D<Double, Double> F = new Function2D<Double, Double>() {
-
-    @Override
-    public Double evaluate(final Double x, final Double y) {
-      return 2 * x - 3.5 * y - 3;
-    }
-
-  };
+  private static final DoubleBinaryOperator F = (x, y) -> 2 * x - 3.5 * y - 3;
   private static final Interpolator1D INTERPOLATOR_1D = new LinearInterpolator1D();
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
   private static final Map<Double, Interpolator1DDataBundle> FLAT_DATA_BUNDLE;
@@ -100,9 +93,11 @@ public class GridInterpolator2DTest {
     assertEquals(INTERPOLATOR_2D.interpolate(FLAT_DATA_BUNDLE, DoublesPair.of(2.5, 5.4)), 0., EPS);
     final Map<DoublesPair, Double> nonTrivial = new HashMap<>();
     for (final DoublesPair pair : FLAT_DATA.keySet()) {
-      nonTrivial.put(pair, F.evaluate(pair.getFirst(), pair.getSecond()));
+      nonTrivial.put(pair, F.applyAsDouble(pair.getFirst(), pair.getSecond()));
     }
     final DoublesPair pair = DoublesPair.of(RANDOM.nextDouble() + 2, RANDOM.nextDouble() + 4);
-    assertEquals(INTERPOLATOR_2D.interpolate(INTERPOLATOR_2D.getDataBundle(nonTrivial), pair), F.evaluate(pair.getFirst(), pair.getSecond()), EPS);
+    assertEquals(
+        INTERPOLATOR_2D.interpolate(INTERPOLATOR_2D.getDataBundle(nonTrivial), pair),
+        F.applyAsDouble(pair.getFirst(), pair.getSecond()), EPS);
   }
 }
