@@ -66,6 +66,18 @@ public class DispatchingPaymentPeriodPricer
   }
 
   @Override
+  public double presentValueCashFlowEquivalent(PaymentPeriod paymentPeriod, RatesProvider provider) {
+    // dispatch by runtime type
+    if (paymentPeriod instanceof RatePaymentPeriod) {
+      return ratePaymentPeriodPricer.presentValueCashFlowEquivalent((RatePaymentPeriod) paymentPeriod, provider);
+    } else if (paymentPeriod instanceof KnownAmountPaymentPeriod) {
+      return knownAmountPaymentPeriodPricer.presentValueCashFlowEquivalent((KnownAmountPaymentPeriod) paymentPeriod, provider);
+    } else {
+      throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
+    }
+  }
+
+  @Override
   public PointSensitivityBuilder presentValueSensitivity(PaymentPeriod paymentPeriod,
       RatesProvider provider) {
     // dispatch by runtime type
@@ -73,6 +85,21 @@ public class DispatchingPaymentPeriodPricer
       return ratePaymentPeriodPricer.presentValueSensitivity((RatePaymentPeriod) paymentPeriod, provider);
     } else if (paymentPeriod instanceof KnownAmountPaymentPeriod) {
       return knownAmountPaymentPeriodPricer.presentValueSensitivity((KnownAmountPaymentPeriod) paymentPeriod, provider);
+    } else {
+      throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
+    }
+  }
+
+  @Override
+  public PointSensitivityBuilder presentValueSensitivityCashFlowEquivalent(PaymentPeriod paymentPeriod,
+      RatesProvider provider) {
+    // dispatch by runtime type
+    if (paymentPeriod instanceof RatePaymentPeriod) {
+      return ratePaymentPeriodPricer.presentValueSensitivityCashFlowEquivalent(
+          (RatePaymentPeriod) paymentPeriod, provider);
+    } else if (paymentPeriod instanceof KnownAmountPaymentPeriod) {
+      return knownAmountPaymentPeriodPricer.presentValueSensitivityCashFlowEquivalent(
+          (KnownAmountPaymentPeriod) paymentPeriod, provider);
     } else {
       throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
     }

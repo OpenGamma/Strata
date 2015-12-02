@@ -29,9 +29,10 @@ import com.opengamma.strata.product.index.IborFuture;
  */
 @Test
 public class HullWhiteIborFutureProductPricerTest {
+  private static final LocalDate VALUATION = LocalDate.of(2011, 5, 12);
   private static final HullWhiteOneFactorPiecewiseConstantParametersProvider HW_PROVIDER =
-      HullWhiteIborFutureDataSet.HULL_WHITE_PARAMETER_PROVIDER;
-  private static final ImmutableRatesProvider RATE_PROVIDER = HullWhiteIborFutureDataSet.RATE_PROVIDER;
+      HullWhiteIborFutureDataSet.createHullWhiteProvider(VALUATION);
+  private static final ImmutableRatesProvider RATE_PROVIDER = HullWhiteIborFutureDataSet.createRatesProvider(VALUATION);
   private static final IborFuture PRODUCT = HullWhiteIborFutureDataSet.IBOR_FUTURE;
 
   private static final double TOL = 1.0e-13;

@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -22,6 +23,7 @@ import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.PaymentPeriodPricer;
+import com.opengamma.strata.product.rate.IborRateObservation;
 import com.opengamma.strata.product.rate.RateObservation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FxReset;
@@ -35,7 +37,7 @@ import com.opengamma.strata.product.swap.RatePaymentPeriod;
  * Where necessary, the accrual periods are compounded.
  */
 public class DiscountingRatePaymentPeriodPricer
-    implements PaymentPeriodPricer<RatePaymentPeriod> {
+    implements PaymentPeriodPricer<RatePaymentPeriod> { 
 
   /**
    * Default implementation.
@@ -72,6 +74,23 @@ public class DiscountingRatePaymentPeriodPricer
     // fxRate is 1 if no FX conversion
     double notional = period.getNotional() * fxRate(period, provider);
     return accrualWithNotional(period, notional, provider);
+  }
+
+  @Override
+  public double presentValueCashFlowEquivalent(RatePaymentPeriod period, RatesProvider provider) {
+    ArgChecker.isTrue(period.getAccrualPeriods().size() == 1, "rate payment should not be compounding");
+    RateAccrualPeriod accrualPeriod = period.getAccrualPeriods().get(0);
+    ArgChecker.isTrue(accrualPeriod.getRateObservation() instanceof IborRateObservation,
+        "RateObservation should be IborRateObservation");
+    IborRateObservation obs = ((IborRateObservation) accrualPeriod.getRateObservation());
+    IborIndex index = obs.getIndex();
+    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(obs.getFixingDate());
+    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
+    double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
+    double betaDf = (1d + fixingYearFraction * provider.iborIndexRates(index).rate(obs.getFixingDate()))
+        * provider.discountFactor(period.getCurrency(), period.getPaymentDate());
+    double notional = period.getNotional() * fxRate(period, provider);
+    return betaDf * notional;
   }
 
   @Override
@@ -253,6 +272,31 @@ public class DiscountingRatePaymentPeriodPricer
     double notional = period.getNotional() * fxRate(period, provider);
     sensiAccrual = sensiAccrual.multipliedBy(notional);
     return sensiFx.combinedWith(sensiAccrual);
+  }
+
+  @Override
+  public PointSensitivityBuilder presentValueSensitivityCashFlowEquivalent(RatePaymentPeriod period,
+      RatesProvider provider) {
+    ArgChecker.isTrue(period.getAccrualPeriods().size() == 1, "rate payment should not be compounding");
+    RateAccrualPeriod accrualPeriod = period.getAccrualPeriods().get(0);
+    ArgChecker.isTrue(accrualPeriod.getRateObservation() instanceof IborRateObservation,
+        "RateObservation should be IborRateObservation");
+    IborRateObservation obs = ((IborRateObservation) accrualPeriod.getRateObservation());
+    IborIndex index = obs.getIndex();
+    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(obs.getFixingDate());
+    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
+    double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
+    Currency currency = period.getCurrency();
+    LocalDate paymentDate = period.getPaymentDate();
+    double betaDf = (1d + fixingYearFraction * provider.iborIndexRates(index).rate(obs.getFixingDate()))
+        * provider.discountFactor(currency, paymentDate);
+    double notional = period.getNotional() * fxRate(period, provider);
+    PointSensitivityBuilder betaDfIborSensi = provider.iborIndexRates(index).ratePointSensitivity(obs.getFixingDate())
+        .multipliedBy(notional * fixingYearFraction * provider.discountFactor(currency, paymentDate));
+    PointSensitivityBuilder betaDfDScSensi = provider.discountFactors(currency).zeroRatePointSensitivity(paymentDate)
+        .multipliedBy(notional * (1d + fixingYearFraction * provider.iborIndexRates(index).rate(obs.getFixingDate())));
+    PointSensitivityBuilder sensiFx = fxRateSensitivity(period, provider).multipliedBy(betaDf);
+    return betaDfIborSensi.combinedWith(betaDfDScSensi).combinedWith(sensiFx);
   }
 
   @Override

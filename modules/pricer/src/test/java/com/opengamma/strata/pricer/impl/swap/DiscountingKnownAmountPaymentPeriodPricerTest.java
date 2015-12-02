@@ -97,6 +97,21 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
     assertEquals(pvComputed, 0, TOLERANCE_PV);
   }
 
+  public void test_presentValueCashFlowEquivalent() {
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
+
+    double pvExpected = AMOUNT_1000 * DISCOUNT_FACTOR;
+    double pvComputed = PRICER.presentValueCashFlowEquivalent(PERIOD, prov);
+    assertEquals(pvComputed, pvExpected, TOLERANCE_PV);
+  }
+
+  public void test_presentValueCashFlowEquivalent_inPast() {
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
+
+    double pvComputed = PRICER.presentValueCashFlowEquivalent(PERIOD_PAST, prov);
+    assertEquals(pvComputed, 0, TOLERANCE_PV);
+  }
+
   //-------------------------------------------------------------------------
   public void test_forecastValue() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
@@ -132,6 +147,19 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
 
     PointSensitivities computed = PRICER.presentValueSensitivity(PERIOD_PAST, prov)
         .build();
+    assertEquals(computed, PointSensitivities.empty());
+  }
+
+  public void test_presentValueSensitivityCashFlowEquivalent() {
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
+    PointSensitivities computed = PRICER.presentValueSensitivityCashFlowEquivalent(PERIOD, prov).build();
+    PointSensitivities expected = PRICER.presentValueSensitivity(PERIOD, prov).build();
+    assertEquals(computed, expected);
+  }
+
+  public void test_presentValueSensitivityCashFlowEquivalent_inPast() {
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
+    PointSensitivities computed = PRICER.presentValueSensitivityCashFlowEquivalent(PERIOD_PAST, prov).build();
     assertEquals(computed, PointSensitivities.empty());
   }
 
