@@ -40,7 +40,8 @@ public final class QuotesArrayKey
    * For example, 'Bloomberg~AAPL'.
    */
   @PropertyDefinition(validate = "notNull")
-  private final StandardId id;
+  private final StandardId standardId;
+
   /**
    * The field name in the market data record that is required.
    * For example, {@link FieldName#MARKET_VALUE}.
@@ -57,9 +58,18 @@ public final class QuotesArrayKey
     return new QuotesArrayKey(id, fieldName);
   }
 
+  /**
+   * Returns a key identifying the same market data as the quote key.
+   *
+   * @return a key identifying the same market data as the quote key
+   */
+  public static QuotesArrayKey of(QuoteKey quoteKey) {
+    return new QuotesArrayKey(quoteKey.getStandardId(), quoteKey.getFieldName());
+  }
+
   @Override
   public QuoteKey getMarketDataKey() {
-    return QuoteKey.of(id, fieldName);
+    return QuoteKey.of(standardId, fieldName);
   }
 
   @Override
@@ -101,11 +111,11 @@ public final class QuotesArrayKey
   }
 
   private QuotesArrayKey(
-      StandardId id,
+      StandardId standardId,
       FieldName fieldName) {
-    JodaBeanUtils.notNull(id, "id");
+    JodaBeanUtils.notNull(standardId, "standardId");
     JodaBeanUtils.notNull(fieldName, "fieldName");
-    this.id = id;
+    this.standardId = standardId;
     this.fieldName = fieldName;
   }
 
@@ -130,8 +140,8 @@ public final class QuotesArrayKey
    * For example, 'Bloomberg~AAPL'.
    * @return the value of the property, not null
    */
-  public StandardId getId() {
-    return id;
+  public StandardId getStandardId() {
+    return standardId;
   }
 
   //-----------------------------------------------------------------------
@@ -160,7 +170,7 @@ public final class QuotesArrayKey
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       QuotesArrayKey other = (QuotesArrayKey) obj;
-      return JodaBeanUtils.equal(id, other.id) &&
+      return JodaBeanUtils.equal(standardId, other.standardId) &&
           JodaBeanUtils.equal(fieldName, other.fieldName);
     }
     return false;
@@ -169,7 +179,7 @@ public final class QuotesArrayKey
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(id);
+    hash = hash * 31 + JodaBeanUtils.hashCode(standardId);
     hash = hash * 31 + JodaBeanUtils.hashCode(fieldName);
     return hash;
   }
@@ -178,7 +188,7 @@ public final class QuotesArrayKey
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("QuotesArrayKey{");
-    buf.append("id").append('=').append(id).append(',').append(' ');
+    buf.append("standardId").append('=').append(standardId).append(',').append(' ');
     buf.append("fieldName").append('=').append(JodaBeanUtils.toString(fieldName));
     buf.append('}');
     return buf.toString();
@@ -195,10 +205,10 @@ public final class QuotesArrayKey
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code id} property.
+     * The meta-property for the {@code standardId} property.
      */
-    private final MetaProperty<StandardId> id = DirectMetaProperty.ofImmutable(
-        this, "id", QuotesArrayKey.class, StandardId.class);
+    private final MetaProperty<StandardId> standardId = DirectMetaProperty.ofImmutable(
+        this, "standardId", QuotesArrayKey.class, StandardId.class);
     /**
      * The meta-property for the {@code fieldName} property.
      */
@@ -209,7 +219,7 @@ public final class QuotesArrayKey
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "id",
+        "standardId",
         "fieldName");
 
     /**
@@ -221,8 +231,8 @@ public final class QuotesArrayKey
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3355:  // id
-          return id;
+        case -1284477768:  // standardId
+          return standardId;
         case 1265009317:  // fieldName
           return fieldName;
       }
@@ -246,11 +256,11 @@ public final class QuotesArrayKey
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code id} property.
+     * The meta-property for the {@code standardId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<StandardId> id() {
-      return id;
+    public MetaProperty<StandardId> standardId() {
+      return standardId;
     }
 
     /**
@@ -265,8 +275,8 @@ public final class QuotesArrayKey
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 3355:  // id
-          return ((QuotesArrayKey) bean).getId();
+        case -1284477768:  // standardId
+          return ((QuotesArrayKey) bean).getStandardId();
         case 1265009317:  // fieldName
           return ((QuotesArrayKey) bean).getFieldName();
       }
@@ -290,7 +300,7 @@ public final class QuotesArrayKey
    */
   public static final class Builder extends DirectFieldsBeanBuilder<QuotesArrayKey> {
 
-    private StandardId id;
+    private StandardId standardId;
     private FieldName fieldName;
 
     /**
@@ -304,7 +314,7 @@ public final class QuotesArrayKey
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(QuotesArrayKey beanToCopy) {
-      this.id = beanToCopy.getId();
+      this.standardId = beanToCopy.getStandardId();
       this.fieldName = beanToCopy.getFieldName();
     }
 
@@ -312,8 +322,8 @@ public final class QuotesArrayKey
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3355:  // id
-          return id;
+        case -1284477768:  // standardId
+          return standardId;
         case 1265009317:  // fieldName
           return fieldName;
         default:
@@ -324,8 +334,8 @@ public final class QuotesArrayKey
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 3355:  // id
-          this.id = (StandardId) newValue;
+        case -1284477768:  // standardId
+          this.standardId = (StandardId) newValue;
           break;
         case 1265009317:  // fieldName
           this.fieldName = (FieldName) newValue;
@@ -363,7 +373,7 @@ public final class QuotesArrayKey
     @Override
     public QuotesArrayKey build() {
       return new QuotesArrayKey(
-          id,
+          standardId,
           fieldName);
     }
 
@@ -371,12 +381,12 @@ public final class QuotesArrayKey
     /**
      * Sets the ID of the market data that is required, typically an ID from an external data provider.
      * For example, 'Bloomberg~AAPL'.
-     * @param id  the new value, not null
+     * @param standardId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder id(StandardId id) {
-      JodaBeanUtils.notNull(id, "id");
-      this.id = id;
+    public Builder standardId(StandardId standardId) {
+      JodaBeanUtils.notNull(standardId, "standardId");
+      this.standardId = standardId;
       return this;
     }
 
@@ -397,7 +407,7 @@ public final class QuotesArrayKey
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("QuotesArrayKey.Builder{");
-      buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
+      buf.append("standardId").append('=').append(JodaBeanUtils.toString(standardId)).append(',').append(' ');
       buf.append("fieldName").append('=').append(JodaBeanUtils.toString(fieldName));
       buf.append('}');
       return buf.toString();

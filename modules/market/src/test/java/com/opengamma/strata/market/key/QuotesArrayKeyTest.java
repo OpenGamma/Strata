@@ -21,7 +21,9 @@ public class QuotesArrayKeyTest {
   private static final QuotesArrayKey KEY = QuotesArrayKey.of(StandardId.of("test", "1"), FieldName.of("fieldName"));
 
   public void getMarketDataKey() {
-    assertThat(KEY.getMarketDataKey()).isEqualTo(QuoteKey.of(StandardId.of("test", "1"), FieldName.of("fieldName")));
+    QuoteKey quoteKey = QuoteKey.of(StandardId.of("test", "1"), FieldName.of("fieldName"));
+    assertThat(KEY.getMarketDataKey()).isEqualTo(quoteKey);
+    assertThat(QuotesArrayKey.of(quoteKey)).isEqualTo(KEY);
   }
 
   public void getMarketDataType() {
