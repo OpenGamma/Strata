@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.calc.marketdata.scenario;
 
+import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 
 /**

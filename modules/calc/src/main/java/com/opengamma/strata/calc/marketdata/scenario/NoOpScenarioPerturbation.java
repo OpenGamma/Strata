@@ -18,6 +18,8 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.market.MarketDataBox;
+
 /**
  * A scenario perturbation that returns its input unchanged and has a scenario count of one.
  * 

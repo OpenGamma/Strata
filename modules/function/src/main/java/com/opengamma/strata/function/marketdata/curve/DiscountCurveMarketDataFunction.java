@@ -7,11 +7,11 @@ package com.opengamma.strata.function.marketdata.curve;
 
 import java.util.Optional;
 
+import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
-import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;

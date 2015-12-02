@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.calc.marketdata.scenario;
 
+import com.opengamma.strata.basics.market.MarketDataBox;
+
 /**
  * Describes a perturbation applied to a market data box to create market data for use in one or more scenarios.
  * <p>

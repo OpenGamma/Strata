@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.marketdata.scenario;
+package com.opengamma.strata.basics.market;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
@@ -27,77 +27,52 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
-import com.opengamma.strata.basics.market.ScenarioValuesList;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.function.ObjIntFunction;
 
 /**
- * A market data box containing an object which can provide market data for multiple scenarios.
+ * A market data box containing a single value which is used in all scenarios.
+ * <p>
+ * A market data box containing a single value can therefore be used with any number of scenarios.
  * 
  * @param <T>  the type of data held in the box
  */
 @BeanDefinition
-public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketDataBox<T> {
+public final class SingleMarketDataBox<T> implements ImmutableBean, MarketDataBox<T> {
 
-  /** The market data value which provides data for multiple scenarios. */
+  /** The market data value used in all scenarios. */
   @PropertyDefinition(validate = "notNull")
-  private final ScenarioMarketDataValue<T> value;
-
-  @Override
-  public T getSingleValue() {
-    if (isSingleValue()) {
-      return value.getValue(0);
-    }
-    throw new IllegalStateException("This box does not contain a single value");
-  }
+  private final T value;
 
   @Override
   public T getValue(int scenarioIndex) {
-    ArgChecker.inRange(scenarioIndex, 0, value.getScenarioCount(), "scenarioIndex");
-    return value.getValue(scenarioIndex);
+    ArgChecker.notNegative(scenarioIndex, "scenarioIndex");
+    return value;
+  }
+
+  @Override
+  public ScenarioMarketDataValue<T> getScenarioValue() {
+    throw new IllegalStateException("This box does not contain a scenario value");
   }
 
   @Override
   public boolean isSingleValue() {
-    return value.getScenarioCount() == 1;
+    return true;
   }
-
+  
   /**
-   * Returns a market data box containing the value.
+   * Returns a market data box containing a single market data value.
    * 
-   * @param value a market data value which can provide data for multiple scenarios
-   * @return a market data box containing the value
+   * @param value  the market data value
+   * @return a market data box containing a single market data value
    */
-  public static <T> ScenarioMarketDataBox<T> of(ScenarioMarketDataValue<T> value) {
-    return new ScenarioMarketDataBox<>(value);
-  }
-
-  /**
-   * Returns a scenario market data box containing single market data values, one for each scenario.
-   *
-   * @param values  single market data values, one for each scenario
-   * @return a scenario market data box containing single market data values, one for each scenario
-   */
-  @SafeVarargs
-  public static <T> ScenarioMarketDataBox<T> of(T... values) {
-    return new ScenarioMarketDataBox<>(ScenarioValuesList.of(values));
-  }
-
-  /**
-   * Returns a scenario market data box containing single market data values, one for each scenario.
-   *
-   * @param values  single market data values, one for each scenario
-   * @return a scenario market data box containing single market data values, one for each scenario
-   */
-  public static <T> ScenarioMarketDataBox<T> of(List<T> values) {
-    return new ScenarioMarketDataBox<>(ScenarioValuesList.of(values));
+  public static <T> SingleMarketDataBox<T> of(T value) {
+    return new SingleMarketDataBox<>(value);
   }
 
   @Override
   public <R> MarketDataBox<R> apply(Function<T, R> fn) {
-    return applyToScenarios(i -> fn.apply(value.getValue(i)));
+    return MarketDataBox.ofSingleValue(fn.apply(value));
   }
 
   @Override
@@ -107,87 +82,68 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
         combineWithMultiple(other, fn);
   }
 
-  private <R, U> MarketDataBox<R> combineWithMultiple(MarketDataBox<U> other, BiFunction<T, U, R> fn) {
+  private <U, R> MarketDataBox<R> combineWithMultiple(MarketDataBox<U> other, BiFunction<T, U, R> fn) {
     ScenarioMarketDataValue<U> otherValue = other.getScenarioValue();
+    int scenarioCount = otherValue.getScenarioCount();
 
-    if (otherValue.getScenarioCount() != value.getScenarioCount()) {
-      String message = Messages.format(
-          "Scenario values must have the same number of scenarios. {} has {} scenarios, {} has {}",
-          value,
-          value.getScenarioCount(),
-          otherValue,
-          otherValue.getScenarioCount());
-      throw new IllegalArgumentException(message);
-    }
-    return applyToScenarios(i -> fn.apply(value.getValue(i), otherValue.getValue(i)));
+    List<R> values = IntStream.range(0, scenarioCount)
+        .mapToObj(i -> fn.apply(value, other.getValue(i)))
+        .collect(toImmutableList());
+    return MarketDataBox.ofScenarioValues(values);
   }
 
   private <U, R> MarketDataBox<R> combineWithSingle(MarketDataBox<U> other, BiFunction<T, U, R> fn) {
     U otherValue = other.getSingleValue();
-    return applyToScenarios(i -> fn.apply(value.getValue(i), otherValue));
-  }
-
-  private <R> MarketDataBox<R> applyToScenarios(Function<Integer, R> fn) {
-    List<R> results = IntStream.range(0, value.getScenarioCount())
-        .mapToObj(fn::apply)
-        .collect(toImmutableList());
-    return MarketDataBox.ofScenarioValues(results);
+    return MarketDataBox.ofSingleValue(fn.apply(value, otherValue));
   }
 
   @Override
-  public ScenarioMarketDataValue<T> getScenarioValue() {
+  public T getSingleValue() {
     return value;
   }
 
   @Override
   public int getScenarioCount() {
-    return value.getScenarioCount();
-  }
-
-  @Override
-  public Class<?> getMarketDataType() {
-    return value.getValue(0).getClass();
+    return 1;
   }
 
   @Override
   public <R> MarketDataBox<R> apply(int scenarioCount, ObjIntFunction<T, R> fn) {
-    if (scenarioCount != getScenarioCount()) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "Scenario count {} does not equal the scenario count of the value {}",
-              scenarioCount,
-              getScenarioCount()));
-    }
     List<R> perturbedValues = IntStream.range(0, scenarioCount)
-        .mapToObj(idx -> fn.apply(getValue(idx), idx))
+        .mapToObj(idx -> fn.apply(value, idx))
         .collect(toImmutableList());
     return MarketDataBox.ofScenarioValues(perturbedValues);
   }
 
+  @Override
+  public Class<?> getMarketDataType() {
+    return value.getClass();
+  }
+  
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code ScenarioMarketDataBox}.
+   * The meta-bean for {@code SingleMarketDataBox}.
    * @return the meta-bean, not null
    */
   @SuppressWarnings("rawtypes")
-  public static ScenarioMarketDataBox.Meta meta() {
-    return ScenarioMarketDataBox.Meta.INSTANCE;
+  public static SingleMarketDataBox.Meta meta() {
+    return SingleMarketDataBox.Meta.INSTANCE;
   }
 
   /**
-   * The meta-bean for {@code ScenarioMarketDataBox}.
+   * The meta-bean for {@code SingleMarketDataBox}.
    * @param <R>  the bean's generic type
    * @param cls  the bean's generic type
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R> ScenarioMarketDataBox.Meta<R> metaScenarioMarketDataBox(Class<R> cls) {
-    return ScenarioMarketDataBox.Meta.INSTANCE;
+  public static <R> SingleMarketDataBox.Meta<R> metaSingleMarketDataBox(Class<R> cls) {
+    return SingleMarketDataBox.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(ScenarioMarketDataBox.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(SingleMarketDataBox.Meta.INSTANCE);
   }
 
   /**
@@ -195,20 +151,20 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
    * @param <T>  the type
    * @return the builder, not null
    */
-  public static <T> ScenarioMarketDataBox.Builder<T> builder() {
-    return new ScenarioMarketDataBox.Builder<T>();
+  public static <T> SingleMarketDataBox.Builder<T> builder() {
+    return new SingleMarketDataBox.Builder<T>();
   }
 
-  private ScenarioMarketDataBox(
-      ScenarioMarketDataValue<T> value) {
+  private SingleMarketDataBox(
+      T value) {
     JodaBeanUtils.notNull(value, "value");
     this.value = value;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public ScenarioMarketDataBox.Meta<T> metaBean() {
-    return ScenarioMarketDataBox.Meta.INSTANCE;
+  public SingleMarketDataBox.Meta<T> metaBean() {
+    return SingleMarketDataBox.Meta.INSTANCE;
   }
 
   @Override
@@ -223,10 +179,10 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the market data value which provides data for multiple scenarios.
+   * Gets the market data value used in all scenarios.
    * @return the value of the property, not null
    */
-  public ScenarioMarketDataValue<T> getValue() {
+  public T getValue() {
     return value;
   }
 
@@ -245,7 +201,7 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ScenarioMarketDataBox<?> other = (ScenarioMarketDataBox<?>) obj;
+      SingleMarketDataBox<?> other = (SingleMarketDataBox<?>) obj;
       return JodaBeanUtils.equal(value, other.value);
     }
     return false;
@@ -261,7 +217,7 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
-    buf.append("ScenarioMarketDataBox{");
+    buf.append("SingleMarketDataBox{");
     buf.append("value").append('=').append(JodaBeanUtils.toString(value));
     buf.append('}');
     return buf.toString();
@@ -269,7 +225,7 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code ScenarioMarketDataBox}.
+   * The meta-bean for {@code SingleMarketDataBox}.
    * @param <T>  the type
    */
   public static final class Meta<T> extends DirectMetaBean {
@@ -283,8 +239,8 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
      * The meta-property for the {@code value} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ScenarioMarketDataValue<T>> value = DirectMetaProperty.ofImmutable(
-        this, "value", ScenarioMarketDataBox.class, (Class) ScenarioMarketDataValue.class);
+    private final MetaProperty<T> value = (DirectMetaProperty) DirectMetaProperty.ofImmutable(
+        this, "value", SingleMarketDataBox.class, Object.class);
     /**
      * The meta-properties.
      */
@@ -308,14 +264,14 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
     }
 
     @Override
-    public ScenarioMarketDataBox.Builder<T> builder() {
-      return new ScenarioMarketDataBox.Builder<T>();
+    public SingleMarketDataBox.Builder<T> builder() {
+      return new SingleMarketDataBox.Builder<T>();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends ScenarioMarketDataBox<T>> beanType() {
-      return (Class) ScenarioMarketDataBox.class;
+    public Class<? extends SingleMarketDataBox<T>> beanType() {
+      return (Class) SingleMarketDataBox.class;
     }
 
     @Override
@@ -328,7 +284,7 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
      * The meta-property for the {@code value} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ScenarioMarketDataValue<T>> value() {
+    public MetaProperty<T> value() {
       return value;
     }
 
@@ -337,7 +293,7 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 111972721:  // value
-          return ((ScenarioMarketDataBox<?>) bean).getValue();
+          return ((SingleMarketDataBox<?>) bean).getValue();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -355,12 +311,12 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code ScenarioMarketDataBox}.
+   * The bean-builder for {@code SingleMarketDataBox}.
    * @param <T>  the type
    */
-  public static final class Builder<T> extends DirectFieldsBeanBuilder<ScenarioMarketDataBox<T>> {
+  public static final class Builder<T> extends DirectFieldsBeanBuilder<SingleMarketDataBox<T>> {
 
-    private ScenarioMarketDataValue<T> value;
+    private T value;
 
     /**
      * Restricted constructor.
@@ -372,7 +328,7 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(ScenarioMarketDataBox<T> beanToCopy) {
+    private Builder(SingleMarketDataBox<T> beanToCopy) {
       this.value = beanToCopy.getValue();
     }
 
@@ -392,7 +348,7 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
     public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 111972721:  // value
-          this.value = (ScenarioMarketDataValue<T>) newValue;
+          this.value = (T) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -425,18 +381,18 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
     }
 
     @Override
-    public ScenarioMarketDataBox<T> build() {
-      return new ScenarioMarketDataBox<T>(
+    public SingleMarketDataBox<T> build() {
+      return new SingleMarketDataBox<T>(
           value);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the market data value which provides data for multiple scenarios.
+     * Sets the market data value used in all scenarios.
      * @param value  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder<T> value(ScenarioMarketDataValue<T> value) {
+    public Builder<T> value(T value) {
       JodaBeanUtils.notNull(value, "value");
       this.value = value;
       return this;
@@ -446,7 +402,7 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
-      buf.append("ScenarioMarketDataBox.Builder{");
+      buf.append("SingleMarketDataBox.Builder{");
       buf.append("value").append('=').append(JodaBeanUtils.toString(value));
       buf.append('}');
       return buf.toString();

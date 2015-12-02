@@ -23,7 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.index.RateIndex;
-import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
+import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataFilter;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.id.RateIndexCurveId;

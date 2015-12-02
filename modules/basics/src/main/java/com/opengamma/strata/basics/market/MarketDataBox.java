@@ -3,17 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.marketdata.scenario;
+package com.opengamma.strata.basics.market;
 
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.marketdata.ScenarioMarketDataKey;
 import com.opengamma.strata.collect.function.ObjIntFunction;
-import com.opengamma.strata.collect.result.Result;
 
 /**
  * A box which can provide values for an item of market data used in scenarios.
@@ -36,7 +32,7 @@ import com.opengamma.strata.collect.result.Result;
  * In some cases a function might need to access the data for all scenarios at the same time. For example, if
  * part of the calculation is the same for all scenarios it can be done once and reused instead of recalculated
  * for each scenario. In this case a {@link ScenarioMarketDataKey} should be used to retrieve the scenario
- * value from the {@link CalculationMarketData}.
+ * value from the market data container.
  * 
  * @param <T>  the type of data held in the box
  */
@@ -149,7 +145,7 @@ public interface MarketDataBox<T> {
   }
 
   /**
-   * Applies a function to the contents of the box and returns another box wrapped in a {@link Result}.
+   * Applies a function to the contents of the box and returns another box.
    * <p>
    * The box implementation takes care of checking whether it contains a single value or a scenario value,
    * applying the function to the value for each scenario and packing the return value into a box.

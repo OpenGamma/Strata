@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.TestHelper.assertThrows;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
 
 @Test

@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.calc.marketdata;
 
+import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
-import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.calc.runner.NoMatchingRuleId;
 
 /**

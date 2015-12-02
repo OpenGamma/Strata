@@ -3,11 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.marketdata;
-
-import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
-import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
+package com.opengamma.strata.basics.market;
 
 /**
  * Market data key used by functions that need access to objects containing market data for multiple scenarios.

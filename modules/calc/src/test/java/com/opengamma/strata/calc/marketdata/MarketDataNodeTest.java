@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.market.FieldName;
+import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
@@ -23,7 +24,6 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
-import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.tuple.Pair;
 

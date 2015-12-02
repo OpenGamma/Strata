@@ -18,6 +18,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -29,7 +30,6 @@ import com.opengamma.strata.calc.marketdata.function.ObservableMarketDataFunctio
 import com.opengamma.strata.calc.marketdata.function.TimeSeriesProvider;
 import com.opengamma.strata.calc.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.calc.marketdata.mapping.MissingDataAwareFeedIdMapping;
-import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.collect.result.FailureReason;
