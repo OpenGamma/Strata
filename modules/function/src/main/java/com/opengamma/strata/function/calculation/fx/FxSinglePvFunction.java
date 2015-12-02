@@ -12,8 +12,7 @@ import com.opengamma.strata.product.fx.ExpandedFxSingle;
 /**
  * Calculates the present value of an {@code FxSingleTrade} for each of a set of scenarios.
  */
-public class FxSinglePvFunction
-    extends AbstractFxSingleFunction<MultiCurrencyAmount> {
+public class FxSinglePvFunction extends MultiCurrencyAmountFxSingleFunction {
 
   @Override
   protected MultiCurrencyAmount execute(ExpandedFxSingle product, RatesProvider provider) {

@@ -14,8 +14,7 @@ import com.opengamma.strata.product.swap.ExpandedSwap;
  * Calculates PV01, the present value sensitivity of a {@code SwapTrade} for each of a set of scenarios.
  * This operates by algorithmic differentiation (AD).
  */
-public class SwapPv01Function
-    extends AbstractSwapFunction<MultiCurrencyAmount> {
+public class SwapPv01Function extends MultiCurrencyAmountSwapFunction {
 
   @Override
   protected MultiCurrencyAmount execute(ExpandedSwap product, RatesProvider provider) {

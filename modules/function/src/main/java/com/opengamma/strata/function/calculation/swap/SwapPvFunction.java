@@ -12,8 +12,7 @@ import com.opengamma.strata.product.swap.ExpandedSwap;
 /**
  * Calculates the present value of a {@code SwapTrade} for each of a set of scenarios.
  */
-public class SwapPvFunction
-    extends AbstractSwapFunction<MultiCurrencyAmount> {
+public class SwapPvFunction extends MultiCurrencyAmountSwapFunction {
 
   @Override
   protected MultiCurrencyAmount execute(ExpandedSwap product, RatesProvider provider) {

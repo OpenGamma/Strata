@@ -8,6 +8,7 @@ package com.opengamma.strata.calc.runner.function.result;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +67,16 @@ public final class MultiCurrencyValuesArray
   /** The number of values for each currency. */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final int size;
+
+  /**
+   * Returns an instance containing the values from the amounts.
+   *
+   * @param amounts  the amounts containing the currency amounts
+   * @return an instance containing the values from the list of amounts
+   */
+  public static MultiCurrencyValuesArray of(MultiCurrencyAmount... amounts) {
+    return of(Arrays.asList(amounts));
+  }
 
   /**
    * Returns an instance containing the values from the list of amounts.

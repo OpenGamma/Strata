@@ -146,13 +146,14 @@ public class MultiCurrencyValuesArrayTest {
     DefaultCalculationMarketData marketData =
         new DefaultCalculationMarketData(marketEnvironment, MarketDataMappings.empty());
     CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.GBP, marketData);
+    assertThat(convertedArray.getCurrency()).isEqualTo(Currency.GBP);
     double[] expected = new double[]{
         20 + 30 / 1.50 + 40 * 0.7,
         21 + 32 / 1.51 + 43 * 0.7,
         22 + 33 / 1.52 + 44 * 0.7};
 
     for (int i = 0; i < 3; i++) {
-      assertThat(convertedArray.get(i)).isEqualTo(expected[i], offset(1e-6));
+      assertThat(convertedArray.get(i).getAmount()).isEqualTo(expected[i], offset(1e-6));
     }
   }
 
