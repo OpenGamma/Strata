@@ -3,12 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.marketdata.scenario;
+package com.opengamma.strata.basics.market;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
 import com.opengamma.strata.collect.function.ObjIntFunction;
 
 /**

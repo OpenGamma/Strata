@@ -11,6 +11,7 @@ import static org.mockito.Mockito.mock;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
@@ -18,7 +19,6 @@ import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.ObservableMarketDataFunction;
 import com.opengamma.strata.calc.marketdata.function.TimeSeriesProvider;
 import com.opengamma.strata.calc.marketdata.mapping.FeedIdMapping;
-import com.opengamma.strata.calc.marketdata.scenario.MarketDataBox;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.collect.TestHelper;
