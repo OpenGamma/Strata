@@ -20,7 +20,7 @@ import com.opengamma.strata.product.fx.FxNdfTrade;
 /**
  * Function which calculates values of a measure for an {@link FxNdfTrade} and returns a {@link MultiCurrencyAmount}.
  */
-public abstract class FxNdfMultCurrencyAmountFunction extends AbstractFxNdfFunction<MultiCurrencyAmount> {
+public abstract class MultiCurrencyAmountFxNdfFunction extends AbstractFxNdfFunction<MultiCurrencyAmount> {
 
   @Override
   public ScenarioResult<MultiCurrencyAmount> execute(FxNdfTrade trade, CalculationMarketData marketData) {
