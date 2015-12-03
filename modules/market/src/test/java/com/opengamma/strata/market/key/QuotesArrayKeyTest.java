@@ -13,7 +13,8 @@ import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.market.value.QuotesArray;
+import com.opengamma.strata.market.key.scenario.QuotesArrayKey;
+import com.opengamma.strata.market.value.scenario.QuotesArray;
 
 @Test
 public class QuotesArrayKeyTest {
