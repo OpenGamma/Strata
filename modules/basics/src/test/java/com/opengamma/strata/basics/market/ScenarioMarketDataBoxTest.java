@@ -3,15 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.marketdata.scenario;
+package com.opengamma.strata.basics.market;
 
-import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
-
-import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
 
 @Test
 public class ScenarioMarketDataBoxTest {

@@ -26,7 +26,7 @@ public class QuotesArrayTest {
   }
 
   public void getValues() {
-    assertThat(ARRAY.getValues()).isEqualTo(DoubleArray.of(1d, 2d, 3d));
+    assertThat(ARRAY.getQuotes()).isEqualTo(DoubleArray.of(1d, 2d, 3d));
   }
 
   public void getScenarioCount() {

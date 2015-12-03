@@ -33,6 +33,6 @@ public class QuotesArrayKeyTest {
   public void createScenarioValue() {
     MarketDataBox<Double> box = MarketDataBox.ofScenarioValues(1d, 2d, 3d);
     QuotesArray quotesArray = KEY.createScenarioValue(box);
-    assertThat(quotesArray.getValues()).isEqualTo(DoubleArray.of(1d, 2d, 3d));
+    assertThat(quotesArray.getQuotes()).isEqualTo(DoubleArray.of(1d, 2d, 3d));
   }
 }
