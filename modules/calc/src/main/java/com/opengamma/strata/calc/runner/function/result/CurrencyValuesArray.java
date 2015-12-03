@@ -33,6 +33,7 @@ import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
+import org.joda.beans.BeanBuilder;
 
 /**
  * An array of currency values in one currency representing the result of the same calculation
@@ -43,7 +44,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * <p>
  * Instances of this class will be automatically converted to the reporting currency by the calculation engine.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class CurrencyValuesArray
     implements CurrencyConvertible<CurrencyValuesArray>, ScenarioResult<CurrencyAmount>, ImmutableBean {
 
@@ -115,14 +116,6 @@ public final class CurrencyValuesArray
     JodaBeanUtils.registerMetaBean(CurrencyValuesArray.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static CurrencyValuesArray.Builder builder() {
-    return new CurrencyValuesArray.Builder();
-  }
-
   private CurrencyValuesArray(
       Currency currency,
       DoubleArray values) {
@@ -166,14 +159,6 @@ public final class CurrencyValuesArray
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -251,7 +236,7 @@ public final class CurrencyValuesArray
     }
 
     @Override
-    public CurrencyValuesArray.Builder builder() {
+    public BeanBuilder<? extends CurrencyValuesArray> builder() {
       return new CurrencyValuesArray.Builder();
     }
 
@@ -309,7 +294,7 @@ public final class CurrencyValuesArray
   /**
    * The bean-builder for {@code CurrencyValuesArray}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<CurrencyValuesArray> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CurrencyValuesArray> {
 
     private Currency currency;
     private DoubleArray values;
@@ -318,15 +303,6 @@ public final class CurrencyValuesArray
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(CurrencyValuesArray beanToCopy) {
-      this.currency = beanToCopy.getCurrency();
-      this.values = beanToCopy.getValues();
     }
 
     //-----------------------------------------------------------------------
@@ -386,29 +362,6 @@ public final class CurrencyValuesArray
       return new CurrencyValuesArray(
           currency,
           values);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the currency of the values.
-     * @param currency  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder currency(Currency currency) {
-      JodaBeanUtils.notNull(currency, "currency");
-      this.currency = currency;
-      return this;
-    }
-
-    /**
-     * Sets the currency values.
-     * @param values  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder values(DoubleArray values) {
-      JodaBeanUtils.notNull(values, "values");
-      this.values = values;
-      return this;
     }
 
     //-----------------------------------------------------------------------

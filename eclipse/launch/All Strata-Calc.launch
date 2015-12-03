@@ -15,9 +15,6 @@
 <stringAttribute key="org.testng.eclipse.LOG_LEVEL" value="2"/>
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
-<listEntry value="com.opengamma.strata.calc.calculation"/>
-<listEntry value="com.opengamma.strata.calc.calculation.function"/>
-<listEntry value="com.opengamma.strata.calc.calculation.function.result"/>
 <listEntry value="com.opengamma.strata.calc.config"/>
 <listEntry value="com.opengamma.strata.calc.config.pricing"/>
 <listEntry value="com.opengamma.strata.calc.marketdata"/>
@@ -25,6 +22,9 @@
 <listEntry value="com.opengamma.strata.calc.marketdata.function"/>
 <listEntry value="com.opengamma.strata.calc.marketdata.mapping"/>
 <listEntry value="com.opengamma.strata.calc.marketdata.scenario"/>
+<listEntry value="com.opengamma.strata.calc.runner"/>
+<listEntry value="com.opengamma.strata.calc.runner.function"/>
+<listEntry value="com.opengamma.strata.calc.runner.function.result"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <stringAttribute key="org.testng.eclipse.PRE_DEFINED_LISTENERS" value=""/>
