@@ -12,7 +12,6 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
@@ -21,7 +20,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
+import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.collect.CollectProjectAssertions;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
@@ -67,7 +66,8 @@ public class SwapAccruedInterestFunctionTest {
     CurrencyAmount expected = CurrencyAmount.of(ccy, DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(rpp2, prov));
 
     Object execute = test.execute(trade, md);
-    assertThat(execute).isEqualTo(FxConvertibleList.of(ImmutableList.of(MultiCurrencyAmount.of(expected))));
+    MultiCurrencyValuesArray expectedArray = MultiCurrencyValuesArray.of(MultiCurrencyAmount.of(expected));
+    assertThat(execute).isEqualTo(expectedArray);
   }
 
 }

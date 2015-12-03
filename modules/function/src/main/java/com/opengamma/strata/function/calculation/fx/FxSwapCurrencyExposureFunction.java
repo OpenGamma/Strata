@@ -12,8 +12,7 @@ import com.opengamma.strata.product.fx.ExpandedFxSwap;
 /**
  * Calculates the currency exposure of an {@code FxSwapTrade} for each of a set of scenarios.
  */
-public class FxSwapCurrencyExposureFunction
-    extends AbstractFxSwapFunction<MultiCurrencyAmount> {
+public class FxSwapCurrencyExposureFunction extends MultiCurrencyAmountFxSwapFunction {
 
   @Override
   protected MultiCurrencyAmount execute(ExpandedFxSwap product, RatesProvider provider) {

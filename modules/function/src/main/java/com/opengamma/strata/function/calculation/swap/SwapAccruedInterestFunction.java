@@ -12,8 +12,7 @@ import com.opengamma.strata.product.swap.ExpandedSwap;
 /**
  * Calculates the accrued interest for a {@code SwapTrade} for each of a set of scenarios.
  */
-public class SwapAccruedInterestFunction
-    extends AbstractSwapFunction<MultiCurrencyAmount> {
+public class SwapAccruedInterestFunction extends MultiCurrencyAmountSwapFunction {
 
   @Override
   protected MultiCurrencyAmount execute(ExpandedSwap product, RatesProvider provider) {

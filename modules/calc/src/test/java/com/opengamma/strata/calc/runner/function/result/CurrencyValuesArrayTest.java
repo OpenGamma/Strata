@@ -7,7 +7,10 @@ package com.opengamma.strata.calc.runner.function.result;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -16,6 +19,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataFeed;
@@ -26,6 +30,19 @@ import com.opengamma.strata.collect.array.DoubleArray;
 
 @Test
 public class CurrencyValuesArrayTest {
+
+  public void create() {
+    DoubleArray values = DoubleArray.of(1, 2, 3);
+    CurrencyValuesArray test = CurrencyValuesArray.of(Currency.GBP, values);
+    assertThat(test.getCurrency()).isEqualTo(Currency.GBP);
+    assertThat(test.getValues()).isEqualTo(values);
+    assertThat(test.size()).isEqualTo(3);
+    assertThat(test.get(0)).isEqualTo(CurrencyAmount.of(Currency.GBP, 1));
+    assertThat(test.get(1)).isEqualTo(CurrencyAmount.of(Currency.GBP, 2));
+    assertThat(test.get(2)).isEqualTo(CurrencyAmount.of(Currency.GBP, 3));
+    assertThat(test.stream().collect(toList())).isEqualTo(ImmutableList.of(
+        CurrencyAmount.of(Currency.GBP, 1), CurrencyAmount.of(Currency.GBP, 2), CurrencyAmount.of(Currency.GBP, 3)));
+  }
 
   /**
    * Test that values are converted to the reporting currency using the rates in the market data.
@@ -99,6 +116,15 @@ public class CurrencyValuesArrayTest {
         () -> list.convertedTo(Currency.USD, calculationMarketData),
         IllegalArgumentException.class,
         "Number of rates .* must be 1 or the same as the number of values .*");
+  }
+
+  public void coverage() {
+    DoubleArray values = DoubleArray.of(1, 2, 3);
+    CurrencyValuesArray test = CurrencyValuesArray.of(Currency.GBP, values);
+    coverImmutableBean(test);
+    DoubleArray values2 = DoubleArray.of(1, 2, 3);
+    CurrencyValuesArray test2 = CurrencyValuesArray.of(Currency.GBP, values2);
+    coverBeanEquals(test, test2);
   }
 
 }

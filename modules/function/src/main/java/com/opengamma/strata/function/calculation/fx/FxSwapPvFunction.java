@@ -12,8 +12,7 @@ import com.opengamma.strata.product.fx.ExpandedFxSwap;
 /**
  * Calculates the present value of an {@code FxSwapTrade} for each of a set of scenarios.
  */
-public class FxSwapPvFunction
-    extends AbstractFxSwapFunction<MultiCurrencyAmount> {
+public class FxSwapPvFunction extends MultiCurrencyAmountFxSwapFunction {
 
   @Override
   protected MultiCurrencyAmount execute(ExpandedFxSwap product, RatesProvider provider) {

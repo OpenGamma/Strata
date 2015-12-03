@@ -6,6 +6,9 @@
 package com.opengamma.strata.calc.runner.function.result;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
@@ -65,9 +68,11 @@ public class MultiCurrencyValuesArrayTest {
             MultiCurrencyAmount.of(
                 CurrencyAmount.of(Currency.EUR, 44))));
 
+    assertThat(raggedArray.size()).isEqualTo(3);
     assertThat(raggedArray.getValues(Currency.GBP)).isEqualTo(DoubleArray.of(0, 21, 0));
     assertThat(raggedArray.getValues(Currency.USD)).isEqualTo(DoubleArray.of(0, 32, 0));
     assertThat(raggedArray.getValues(Currency.EUR)).isEqualTo(DoubleArray.of(4, 43, 44));
+    assertThrowsIllegalArg(() -> raggedArray.getValues(Currency.AUD));
   }
 
   public void getAllValuesUnsafe() {
@@ -146,13 +151,14 @@ public class MultiCurrencyValuesArrayTest {
     DefaultCalculationMarketData marketData =
         new DefaultCalculationMarketData(marketEnvironment, MarketDataMappings.empty());
     CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.GBP, marketData);
+    assertThat(convertedArray.getCurrency()).isEqualTo(Currency.GBP);
     double[] expected = new double[]{
         20 + 30 / 1.50 + 40 * 0.7,
         21 + 32 / 1.51 + 43 * 0.7,
         22 + 33 / 1.52 + 44 * 0.7};
 
     for (int i = 0; i < 3; i++) {
-      assertThat(convertedArray.get(i)).isEqualTo(expected[i], offset(1e-6));
+      assertThat(convertedArray.get(i).getAmount()).isEqualTo(expected[i], offset(1e-6));
     }
   }
 
@@ -182,4 +188,19 @@ public class MultiCurrencyValuesArrayTest {
   public void getCurrencies() {
     assertThat(VALUES_ARRAY.getCurrencies()).isEqualTo(ImmutableSet.of(Currency.GBP, Currency.USD, Currency.EUR));
   }
+
+  public void coverage() {
+    coverImmutableBean(VALUES_ARRAY);
+    MultiCurrencyValuesArray test2 = MultiCurrencyValuesArray.of(
+        MultiCurrencyAmount.of(
+            CurrencyAmount.of(Currency.GBP, 21),
+            CurrencyAmount.of(Currency.USD, 31),
+            CurrencyAmount.of(Currency.EUR, 41)),
+        MultiCurrencyAmount.of(
+            CurrencyAmount.of(Currency.GBP, 22),
+            CurrencyAmount.of(Currency.USD, 33),
+            CurrencyAmount.of(Currency.EUR, 44)));
+    coverBeanEquals(VALUES_ARRAY, test2);
+  }
+
 }

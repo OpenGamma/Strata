@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import org.joda.beans.BeanBuilder;
 
 /**
  * A container for multiple results produced by performing a single calculation across multiple scenarios.
@@ -37,7 +38,7 @@ import com.google.common.collect.ImmutableList;
  * 
  * @param <T>  the type of the result
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class DefaultScenarioResult<T> implements ScenarioResult<T>, ImmutableBean, Serializable {
 
   /** The individual results. */
@@ -111,15 +112,6 @@ public final class DefaultScenarioResult<T> implements ScenarioResult<T>, Immuta
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @param <T>  the type
-   * @return the builder, not null
-   */
-  public static <T> DefaultScenarioResult.Builder<T> builder() {
-    return new DefaultScenarioResult.Builder<T>();
-  }
-
   private DefaultScenarioResult(
       List<T> results) {
     JodaBeanUtils.notNull(results, "results");
@@ -152,14 +144,6 @@ public final class DefaultScenarioResult<T> implements ScenarioResult<T>, Immuta
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder<T> toBuilder() {
-    return new Builder<T>(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -229,7 +213,7 @@ public final class DefaultScenarioResult<T> implements ScenarioResult<T>, Immuta
     }
 
     @Override
-    public DefaultScenarioResult.Builder<T> builder() {
+    public BeanBuilder<? extends DefaultScenarioResult<T>> builder() {
       return new DefaultScenarioResult.Builder<T>();
     }
 
@@ -279,7 +263,7 @@ public final class DefaultScenarioResult<T> implements ScenarioResult<T>, Immuta
    * The bean-builder for {@code DefaultScenarioResult}.
    * @param <T>  the type
    */
-  public static final class Builder<T> extends DirectFieldsBeanBuilder<DefaultScenarioResult<T>> {
+  private static final class Builder<T> extends DirectFieldsBeanBuilder<DefaultScenarioResult<T>> {
 
     private List<T> results = ImmutableList.of();
 
@@ -287,14 +271,6 @@ public final class DefaultScenarioResult<T> implements ScenarioResult<T>, Immuta
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(DefaultScenarioResult<T> beanToCopy) {
-      this.results = beanToCopy.getResults();
     }
 
     //-----------------------------------------------------------------------
@@ -349,28 +325,6 @@ public final class DefaultScenarioResult<T> implements ScenarioResult<T>, Immuta
     public DefaultScenarioResult<T> build() {
       return new DefaultScenarioResult<T>(
           results);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the individual results.
-     * @param results  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder<T> results(List<T> results) {
-      JodaBeanUtils.notNull(results, "results");
-      this.results = results;
-      return this;
-    }
-
-    /**
-     * Sets the {@code results} property in the builder
-     * from an array of objects.
-     * @param results  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder<T> results(T... results) {
-      return results(ImmutableList.copyOf(results));
     }
 
     //-----------------------------------------------------------------------

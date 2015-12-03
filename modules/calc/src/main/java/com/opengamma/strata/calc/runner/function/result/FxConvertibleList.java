@@ -33,6 +33,7 @@ import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.function.CalculationMultiFunction;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
+import org.joda.beans.BeanBuilder;
 
 /**
  * A list of currency values representing the result of the same calculation performed for multiple scenarios.
@@ -45,7 +46,7 @@ import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
  * <p>
  * Instances of this class will be automatically converted to the reporting currency by the calculation engine.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class FxConvertibleList
     implements CurrencyConvertible<ScenarioResult<?>>, ScenarioResult<FxConvertible<?>>, ImmutableBean {
 
@@ -101,14 +102,6 @@ public final class FxConvertibleList
     JodaBeanUtils.registerMetaBean(FxConvertibleList.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static FxConvertibleList.Builder builder() {
-    return new FxConvertibleList.Builder();
-  }
-
   private FxConvertibleList(
       List<? extends FxConvertible<?>> values) {
     JodaBeanUtils.notNull(values, "values");
@@ -140,14 +133,6 @@ public final class FxConvertibleList
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -215,7 +200,7 @@ public final class FxConvertibleList
     }
 
     @Override
-    public FxConvertibleList.Builder builder() {
+    public BeanBuilder<? extends FxConvertibleList> builder() {
       return new FxConvertibleList.Builder();
     }
 
@@ -263,7 +248,7 @@ public final class FxConvertibleList
   /**
    * The bean-builder for {@code FxConvertibleList}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<FxConvertibleList> {
+  private static final class Builder extends DirectFieldsBeanBuilder<FxConvertibleList> {
 
     private List<? extends FxConvertible<?>> values = ImmutableList.of();
 
@@ -271,14 +256,6 @@ public final class FxConvertibleList
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(FxConvertibleList beanToCopy) {
-      this.values = ImmutableList.copyOf(beanToCopy.getValues());
     }
 
     //-----------------------------------------------------------------------
@@ -333,28 +310,6 @@ public final class FxConvertibleList
     public FxConvertibleList build() {
       return new FxConvertibleList(
           values);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the currency values.
-     * @param values  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder values(List<? extends FxConvertible<?>> values) {
-      JodaBeanUtils.notNull(values, "values");
-      this.values = values;
-      return this;
-    }
-
-    /**
-     * Sets the {@code values} property in the builder
-     * from an array of objects.
-     * @param values  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder values(FxConvertible<?>... values) {
-      return values(ImmutableList.copyOf(values));
     }
 
     //-----------------------------------------------------------------------

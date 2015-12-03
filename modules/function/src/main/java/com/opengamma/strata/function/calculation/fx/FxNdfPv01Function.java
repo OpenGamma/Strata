@@ -14,8 +14,7 @@ import com.opengamma.strata.product.fx.ExpandedFxNdf;
  * Calculates PV01, the present value sensitivity of a {@code FxNdfTrade}.
  * This operates by algorithmic differentiation (AD).
  */
-public class FxNdfPv01Function
-    extends AbstractFxNdfFunction<MultiCurrencyAmount> {
+public class FxNdfPv01Function extends MultiCurrencyAmountFxNdfFunction {
 
   @Override
   protected MultiCurrencyAmount execute(ExpandedFxNdf product, RatesProvider provider) {

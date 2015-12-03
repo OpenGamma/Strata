@@ -17,7 +17,6 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
@@ -30,7 +29,7 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
-import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
+import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.collect.CollectProjectAssertions;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
@@ -93,7 +92,7 @@ public class FxSwapFunctionGroupsTest {
         valDate,
         ImmutableMap.of(DiscountFactorsKey.of(ccy1), df1, DiscountFactorsKey.of(ccy2), df2),
         ImmutableMap.of());
-    assertThat(function.execute(TRADE, md)).isEqualTo(FxConvertibleList.of(ImmutableList.of(MultiCurrencyAmount.empty())));
+    assertThat(function.execute(TRADE, md)).isEqualTo(MultiCurrencyValuesArray.of(MultiCurrencyAmount.empty()));
   }
 
   //-------------------------------------------------------------------------

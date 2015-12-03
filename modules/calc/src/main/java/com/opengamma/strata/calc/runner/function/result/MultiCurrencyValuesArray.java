@@ -8,6 +8,7 @@ package com.opengamma.strata.calc.runner.function.result;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +18,10 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -55,7 +58,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * <p>
  * Instances of this class will be automatically converted to the reporting currency by the calculation engine.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class MultiCurrencyValuesArray
     implements CurrencyConvertible<CurrencyValuesArray>, ScenarioResult<MultiCurrencyAmount>, ImmutableBean {
 
@@ -64,8 +67,17 @@ public final class MultiCurrencyValuesArray
   private final ImmutableMap<Currency, DoubleArray> values;
 
   /** The number of values for each currency. */
-  @PropertyDefinition(validate = "notNull", get = "private")
   private final int size;
+
+  /**
+   * Returns an instance containing the values from the amounts.
+   *
+   * @param amounts  the amounts containing the currency amounts
+   * @return an instance containing the values from the list of amounts
+   */
+  public static MultiCurrencyValuesArray of(MultiCurrencyAmount... amounts) {
+    return of(Arrays.asList(amounts));
+  }
 
   /**
    * Returns an instance containing the values from the list of amounts.
@@ -88,7 +100,19 @@ public final class MultiCurrencyValuesArray
     Map<Currency, DoubleArray> doubleArrayMap =
         valueMap.entrySet().stream().collect(toMap(e -> e.getKey(), e -> DoubleArray.ofUnsafe(e.getValue())));
 
-    return new MultiCurrencyValuesArray(doubleArrayMap, size);
+    return new MultiCurrencyValuesArray(doubleArrayMap);
+  }
+
+  @ImmutableConstructor
+  private MultiCurrencyValuesArray(Map<Currency, DoubleArray> values) {
+    this.values = ImmutableMap.copyOf(values);
+
+    if (values.isEmpty()) {
+      size = 0;
+    } else {
+      // All currencies must have the same number of values so we can just take the size of the first
+      size = values.values().iterator().next().size();
+    }
   }
 
   /**
@@ -130,7 +154,7 @@ public final class MultiCurrencyValuesArray
    * Returns a {@link MultiCurrencyAmount} at the specified index.
    * <p>
    * This method is not very efficient for large sizes as a new object must be created at each index.
-   * Prefer {@link #getValues(Currency)} and {@link #getValuesUnsafe(Currency)}
+   * Consider using {@link #getValues(Currency)} instead.
    *
    * @param index  the index of the result that should be returned
    * @return a multi currency amount containing the currency values at the specified index
@@ -147,7 +171,7 @@ public final class MultiCurrencyValuesArray
    * Returns a stream of {@link MultiCurrencyAmount} instances containing the values from this object.
    * <p>
    * This method is not very efficient for large sizes as a new object must be created for each value.
-   * Prefer {@link #getValues(Currency)} and {@link #getValuesUnsafe(Currency)}
+   * Consider using {@link #getValues(Currency)} instead.
    *
    * @return a stream of multi currency amounts containing the currency values from this object
    */
@@ -201,23 +225,6 @@ public final class MultiCurrencyValuesArray
     JodaBeanUtils.registerMetaBean(MultiCurrencyValuesArray.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static MultiCurrencyValuesArray.Builder builder() {
-    return new MultiCurrencyValuesArray.Builder();
-  }
-
-  private MultiCurrencyValuesArray(
-      Map<Currency, DoubleArray> values,
-      int size) {
-    JodaBeanUtils.notNull(values, "values");
-    JodaBeanUtils.notNull(size, "size");
-    this.values = ImmutableMap.copyOf(values);
-    this.size = size;
-  }
-
   @Override
   public MultiCurrencyValuesArray.Meta metaBean() {
     return MultiCurrencyValuesArray.Meta.INSTANCE;
@@ -243,23 +250,6 @@ public final class MultiCurrencyValuesArray
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Gets the number of values for each currency.
-   * @return the value of the property, not null
-   */
-  private int getSize() {
-    return size;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -267,8 +257,7 @@ public final class MultiCurrencyValuesArray
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MultiCurrencyValuesArray other = (MultiCurrencyValuesArray) obj;
-      return JodaBeanUtils.equal(values, other.values) &&
-          (size == other.size);
+      return JodaBeanUtils.equal(values, other.values);
     }
     return false;
   }
@@ -277,16 +266,14 @@ public final class MultiCurrencyValuesArray
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(values);
-    hash = hash * 31 + JodaBeanUtils.hashCode(size);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(64);
     buf.append("MultiCurrencyValuesArray{");
-    buf.append("values").append('=').append(values).append(',').append(' ');
-    buf.append("size").append('=').append(JodaBeanUtils.toString(size));
+    buf.append("values").append('=').append(JodaBeanUtils.toString(values));
     buf.append('}');
     return buf.toString();
   }
@@ -308,17 +295,11 @@ public final class MultiCurrencyValuesArray
     private final MetaProperty<ImmutableMap<Currency, DoubleArray>> values = DirectMetaProperty.ofImmutable(
         this, "values", MultiCurrencyValuesArray.class, (Class) ImmutableMap.class);
     /**
-     * The meta-property for the {@code size} property.
-     */
-    private final MetaProperty<Integer> size = DirectMetaProperty.ofImmutable(
-        this, "size", MultiCurrencyValuesArray.class, Integer.TYPE);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "values",
-        "size");
+        "values");
 
     /**
      * Restricted constructor.
@@ -331,14 +312,12 @@ public final class MultiCurrencyValuesArray
       switch (propertyName.hashCode()) {
         case -823812830:  // values
           return values;
-        case 3530753:  // size
-          return size;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public MultiCurrencyValuesArray.Builder builder() {
+    public BeanBuilder<? extends MultiCurrencyValuesArray> builder() {
       return new MultiCurrencyValuesArray.Builder();
     }
 
@@ -361,22 +340,12 @@ public final class MultiCurrencyValuesArray
       return values;
     }
 
-    /**
-     * The meta-property for the {@code size} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Integer> size() {
-      return size;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -823812830:  // values
           return ((MultiCurrencyValuesArray) bean).getValues();
-        case 3530753:  // size
-          return ((MultiCurrencyValuesArray) bean).getSize();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -396,24 +365,14 @@ public final class MultiCurrencyValuesArray
   /**
    * The bean-builder for {@code MultiCurrencyValuesArray}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<MultiCurrencyValuesArray> {
+  private static final class Builder extends DirectFieldsBeanBuilder<MultiCurrencyValuesArray> {
 
     private Map<Currency, DoubleArray> values = ImmutableMap.of();
-    private int size;
 
     /**
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(MultiCurrencyValuesArray beanToCopy) {
-      this.values = beanToCopy.getValues();
-      this.size = beanToCopy.getSize();
     }
 
     //-----------------------------------------------------------------------
@@ -422,8 +381,6 @@ public final class MultiCurrencyValuesArray
       switch (propertyName.hashCode()) {
         case -823812830:  // values
           return values;
-        case 3530753:  // size
-          return size;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -435,9 +392,6 @@ public final class MultiCurrencyValuesArray
       switch (propertyName.hashCode()) {
         case -823812830:  // values
           this.values = (Map<Currency, DoubleArray>) newValue;
-          break;
-        case 3530753:  // size
-          this.size = (Integer) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -472,40 +426,15 @@ public final class MultiCurrencyValuesArray
     @Override
     public MultiCurrencyValuesArray build() {
       return new MultiCurrencyValuesArray(
-          values,
-          size);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the currency values, keyed by currency.
-     * @param values  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder values(Map<Currency, DoubleArray> values) {
-      JodaBeanUtils.notNull(values, "values");
-      this.values = values;
-      return this;
-    }
-
-    /**
-     * Sets the number of values for each currency.
-     * @param size  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder size(int size) {
-      JodaBeanUtils.notNull(size, "size");
-      this.size = size;
-      return this;
+          values);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(64);
       buf.append("MultiCurrencyValuesArray.Builder{");
-      buf.append("values").append('=').append(JodaBeanUtils.toString(values)).append(',').append(' ');
-      buf.append("size").append('=').append(JodaBeanUtils.toString(size));
+      buf.append("values").append('=').append(JodaBeanUtils.toString(values));
       buf.append('}');
       return buf.toString();
     }
