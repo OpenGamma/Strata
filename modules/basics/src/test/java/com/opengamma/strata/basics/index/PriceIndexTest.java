@@ -74,7 +74,6 @@ public class PriceIndexTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(PriceIndices.class);
-    coverPrivateConstructor(StandardPriceIndices.class);
     coverImmutableBean((ImmutableBean) PriceIndices.US_CPI_U);
     coverBeanEquals((ImmutableBean) PriceIndices.US_CPI_U, (ImmutableBean) ImmutablePriceIndex.builder()
         .name("Test")

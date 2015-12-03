@@ -26,31 +26,31 @@ public final class OvernightIndices {
    * <p>
    * SONIA is an "Overnight" index.
    */
-  public static final OvernightIndex GBP_SONIA = OvernightIndex.of(StandardOvernightIndices.GBP_SONIA.getName());
+  public static final OvernightIndex GBP_SONIA = OvernightIndex.of("GBP-SONIA");
   /**
    * The TOIS index for CHF.
    * <p>
    * TOIS is a "Tomorrow/Next" index.
    */
-  public static final OvernightIndex CHF_TOIS = OvernightIndex.of(StandardOvernightIndices.CHF_TOIS.getName());
+  public static final OvernightIndex CHF_TOIS = OvernightIndex.of("CHF-TOIS");
   /**
    * The EONIA index for EUR.
    * <p>
    * EONIA is an "Overnight" index.
    */
-  public static final OvernightIndex EUR_EONIA = OvernightIndex.of(StandardOvernightIndices.EUR_EONIA.getName());
+  public static final OvernightIndex EUR_EONIA = OvernightIndex.of("EUR-EONIA");
   /**
    * The TONAR index for JPY.
    * <p>
    * TONAR is an "Overnight" index.
    */
-  public static final OvernightIndex JPY_TONAR = OvernightIndex.of(StandardOvernightIndices.JPY_TONAR.getName());
+  public static final OvernightIndex JPY_TONAR = OvernightIndex.of("JPY-TONAR");
   /**
    * The FED_FUND index for USD.
    * <p>
    * FED_FUND is an "Overnight" index.
    */
-  public static final OvernightIndex USD_FED_FUND = OvernightIndex.of(StandardOvernightIndices.USD_FED_FUND.getName());
+  public static final OvernightIndex USD_FED_FUND = OvernightIndex.of("USD-FED-FUND");
 
   //-------------------------------------------------------------------------
   /**

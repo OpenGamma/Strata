@@ -24,43 +24,43 @@ public final class FxIndices {
    * The FX index for conversion from EUR to CHF, as defined by the European Central Bank
    * "Euro foreign exchange reference rates".
    */
-  public static final FxIndex EUR_CHF_ECB = FxIndex.of(StandardFxIndices.EUR_CHF_ECB.getName());
+  public static final FxIndex EUR_CHF_ECB = FxIndex.of("EUR/CHF-ECB");
   /**
    * The FX index for conversion from EUR to GBP, as defined by the European Central Bank
    * "Euro foreign exchange reference rates".
    */
-  public static final FxIndex EUR_GBP_ECB = FxIndex.of(StandardFxIndices.EUR_GBP_ECB.getName());
+  public static final FxIndex EUR_GBP_ECB = FxIndex.of("EUR/GBP-ECB");
   /**
    * The FX index for conversion from EUR to JPY, as defined by the European Central Bank
    * "Euro foreign exchange reference rates".
    */
-  public static final FxIndex EUR_JPY_ECB = FxIndex.of(StandardFxIndices.EUR_JPY_ECB.getName());
+  public static final FxIndex EUR_JPY_ECB = FxIndex.of("EUR/JPY-ECB");
   /**
    * The FX index for conversion from EUR to USD, as defined by the European Central Bank
    * "Euro foreign exchange reference rates".
    */
-  public static final FxIndex EUR_USD_ECB = FxIndex.of(StandardFxIndices.EUR_USD_ECB.getName());
+  public static final FxIndex EUR_USD_ECB = FxIndex.of("EUR/USD-ECB");
 
   /**
    * The FX index for conversion from USD to CHF, as defined by the WM company
    * "Closing Spot rates".
    */
-  public static final FxIndex USD_CHF_WM = FxIndex.of(StandardFxIndices.USD_CHF_WM.getName());
+  public static final FxIndex USD_CHF_WM = FxIndex.of("USD/CHF-WM");
   /**
    * The FX index for conversion from GBP to USD, as defined by the WM company
    * "Closing Spot rates".
    */
-  public static final FxIndex GBP_USD_WM = FxIndex.of(StandardFxIndices.GBP_USD_WM.getName());
+  public static final FxIndex GBP_USD_WM = FxIndex.of("GBP/USD-WM");
   /**
    * The FX index for conversion from EUR to GBP, as defined by the WM company
    * "Closing Spot rates".
    */
-  public static final FxIndex EUR_USD_WM = FxIndex.of(StandardFxIndices.EUR_USD_WM.getName());
+  public static final FxIndex EUR_USD_WM = FxIndex.of("EUR/USD-WM");
   /**
    * The FX index for conversion from USD to JPY, as defined by the WM company
    * "Closing Spot rates".
    */
-  public static final FxIndex USD_JPY_WM = FxIndex.of(StandardFxIndices.USD_JPY_WM.getName());
+  public static final FxIndex USD_JPY_WM = FxIndex.of("USD/JPY-WM");
 
   //-------------------------------------------------------------------------
   /**

@@ -238,6 +238,29 @@ public final class DaysAdjustment
 
   //-------------------------------------------------------------------------
   /**
+   * Normalizes the adjustment.
+   * <p>
+   * If the number of days is zero, the calendar is set no 'NoHolidays'.
+   * If the number of days is non-zero and the calendar equals the adjustment calendar,
+   * the adjustment is removed.
+   * 
+   * @return the normalized adjustment
+   */
+  public DaysAdjustment normalize() {
+    if (days == 0) {
+      if (!calendar.equals(HolidayCalendars.NO_HOLIDAYS)) {
+        return DaysAdjustment.ofCalendarDays(days, adjustment);
+      }
+      return this;
+    }
+    if (calendar.equals(adjustment.getCalendar())) {
+      return DaysAdjustment.ofBusinessDays(days, calendar);
+    }
+    return this;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Returns a string describing the adjustment.
    * 
    * @return the descriptive string

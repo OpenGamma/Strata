@@ -185,6 +185,22 @@ public class DaysAdjustmentTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_normalize() {
+    DaysAdjustment zeroDays = DaysAdjustment.ofCalendarDays(0, BDA_FOLLOW_SAT_SUN);
+    DaysAdjustment zeroDaysWithCalendar = DaysAdjustment.ofBusinessDays(0, HOLCAL_WED_THU, BDA_FOLLOW_SAT_SUN);
+    DaysAdjustment twoDays = DaysAdjustment.ofCalendarDays(2, BDA_FOLLOW_SAT_SUN);
+    DaysAdjustment twoDaysWithCalendar = DaysAdjustment.ofBusinessDays(2, HOLCAL_WED_THU, BDA_FOLLOW_SAT_SUN);
+    DaysAdjustment twoDaysWithSameCalendar = DaysAdjustment.ofBusinessDays(2, HOLCAL_SAT_SUN, BDA_FOLLOW_SAT_SUN);
+    DaysAdjustment twoDaysWithNoAdjust = DaysAdjustment.ofBusinessDays(2, HOLCAL_SAT_SUN);
+    assertEquals(zeroDays.normalize(), zeroDays);
+    assertEquals(zeroDaysWithCalendar.normalize(), zeroDays);
+    assertEquals(twoDays.normalize(), twoDays);
+    assertEquals(twoDaysWithCalendar.normalize(), twoDaysWithCalendar);
+    assertEquals(twoDaysWithSameCalendar.normalize(), twoDaysWithNoAdjust);
+    assertEquals(twoDaysWithNoAdjust.normalize(), twoDaysWithNoAdjust);
+  }
+
+  //-------------------------------------------------------------------------
   public void equals() {
     DaysAdjustment a = DaysAdjustment.ofBusinessDays(3, HOLCAL_NONE, BDA_FOLLOW_SAT_SUN);
     DaysAdjustment b = DaysAdjustment.ofBusinessDays(4, HOLCAL_NONE, BDA_FOLLOW_SAT_SUN);
