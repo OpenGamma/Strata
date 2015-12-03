@@ -3,7 +3,7 @@
  * <p>
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.key;
+package com.opengamma.strata.market.key.scenario;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,7 +13,7 @@ import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.market.key.scenario.QuotesArrayKey;
+import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.scenario.QuotesArray;
 
 @Test

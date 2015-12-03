@@ -3,7 +3,7 @@
  * <p>
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.value;
+package com.opengamma.strata.market.value.scenario;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,7 +11,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.value.scenario.QuotesArray;
 
 @Test
 public class QuotesArrayTest {
