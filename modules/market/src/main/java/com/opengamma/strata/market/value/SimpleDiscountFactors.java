@@ -201,7 +201,9 @@ public final class SimpleDiscountFactors
   @Override
   public CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate date) {
     double relativeYearFraction = relativeYearFraction(date);
-    return CurveUnitParameterSensitivities.of(curve.yValueParameterSensitivity(relativeYearFraction));
+    double discountFactor = discountFactor(relativeYearFraction);
+    return CurveUnitParameterSensitivities.of(curve.yValueParameterSensitivity(relativeYearFraction).multipliedBy(
+        -1d / relativeYearFraction / discountFactor));
   }
 
   @Override

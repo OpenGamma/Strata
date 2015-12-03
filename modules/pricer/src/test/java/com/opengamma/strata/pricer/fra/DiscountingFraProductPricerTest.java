@@ -43,6 +43,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.IborIndexRates;
+import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -622,6 +623,31 @@ public class DiscountingFraProductPricerTest {
 
     when(mockDf.discountFactor(fraExp.getPaymentDate())).thenReturn(DISCOUNT_FACTOR);
     return prov;
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_presentValueSensitivity_zeroCurve_FD() {
+    double eps = 1.0e-6;
+    ImmutableRatesProvider prov = RatesProviderDataSets.MULTI_GBP_USD;
+    RatesFiniteDifferenceSensitivityCalculator cal = new RatesFiniteDifferenceSensitivityCalculator(eps);
+    DiscountingFraProductPricer pricer = DiscountingFraProductPricer.DEFAULT;
+    ExpandedFra fraExp = FRA.expand();
+    PointSensitivities point = pricer.presentValueSensitivity(fraExp, prov);
+    CurveCurrencyParameterSensitivities computed = prov.curveParameterSensitivity(point);
+    CurveCurrencyParameterSensitivities expected = cal.sensitivity(prov, p -> pricer.presentValue(fraExp, p));
+    assertTrue(computed.equalWithTolerance(expected, eps * FRA.getNotional()));
+  }
+
+  public void test_presentValueSensitivity_dfCurve_FD() {
+    double eps = 1.0e-6;
+    ImmutableRatesProvider prov = RatesProviderDataSets.MULTI_GBP_USD_SIMPLE;
+    RatesFiniteDifferenceSensitivityCalculator cal = new RatesFiniteDifferenceSensitivityCalculator(eps);
+    DiscountingFraProductPricer pricer = DiscountingFraProductPricer.DEFAULT;
+    ExpandedFra fraExp = FRA.expand();
+    PointSensitivities point = pricer.presentValueSensitivity(fraExp, prov);
+    CurveCurrencyParameterSensitivities computed = prov.curveParameterSensitivity(point);
+    CurveCurrencyParameterSensitivities expected = cal.sensitivity(prov, p -> pricer.presentValue(fraExp, p));
+    assertTrue(computed.equalWithTolerance(expected, eps * FRA.getNotional()));
   }
 
   //-------------------------------------------------------------------------

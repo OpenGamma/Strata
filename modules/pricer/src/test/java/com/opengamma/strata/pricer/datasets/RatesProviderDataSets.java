@@ -75,6 +75,50 @@ public class RatesProviderDataSets {
       0.0170, 0.0180, 0.0190, 0.0200, 0.0210, 0.0220, 0.0230, 0.0240, 0.0250);
   public static final DoubleArray RATES_3_3 = DoubleArray.of(
       0.0190, 0.0200, 0.0210, 0.0220, 0.0230, 0.0240, 0.0250, 0.0260);
+  public static final DoubleArray RATES_1_1_SIMPLE ;
+  public static final DoubleArray RATES_2_1_SIMPLE;
+  public static final DoubleArray RATES_3_1_SIMPLE ;
+  public static final DoubleArray RATES_1_2_SIMPLE ;
+  public static final DoubleArray RATES_2_2_SIMPLE ;
+  public static final DoubleArray RATES_3_2_SIMPLE ;
+  public static final DoubleArray RATES_1_3_SIMPLE ;
+  public static final DoubleArray RATES_2_3_SIMPLE;
+  public static final DoubleArray RATES_3_3_SIMPLE ;
+  static {
+    double[] simple11 = new double[TIMES_1.size()];
+    double[] simple12 = new double[TIMES_1.size()];
+    double[] simple13 = new double[TIMES_1.size()];
+    double[] simple21 = new double[TIMES_2.size()];
+    double[] simple22 = new double[TIMES_2.size()];
+    double[] simple23 = new double[TIMES_2.size()];
+    double[] simple31 = new double[TIMES_3.size()];
+    double[] simple32 = new double[TIMES_3.size()];
+    double[] simple33 = new double[TIMES_3.size()];
+    for (int i = 0; i < TIMES_1.size(); ++i) {
+      simple11[i] = Math.exp(-TIMES_1.get(i) * RATES_1_1.get(i));
+      simple12[i] = Math.exp(-TIMES_1.get(i) * RATES_1_2.get(i));
+      simple13[i] = Math.exp(-TIMES_1.get(i) * RATES_1_3.get(i));
+    }
+    for (int i = 0; i < TIMES_2.size(); ++i) {
+      simple21[i] = Math.exp(-TIMES_2.get(i) * RATES_2_1.get(i));
+      simple22[i] = Math.exp(-TIMES_2.get(i) * RATES_2_2.get(i));
+      simple23[i] = Math.exp(-TIMES_2.get(i) * RATES_2_3.get(i));
+    }
+    for (int i = 0; i < TIMES_3.size(); ++i) {
+      simple31[i] = Math.exp(-TIMES_3.get(i) * RATES_3_1.get(i));
+      simple32[i] = Math.exp(-TIMES_3.get(i) * RATES_3_2.get(i));
+      simple33[i] = Math.exp(-TIMES_3.get(i) * RATES_3_3.get(i));
+    }
+    RATES_1_1_SIMPLE = DoubleArray.copyOf(simple11);
+    RATES_1_2_SIMPLE = DoubleArray.copyOf(simple12);
+    RATES_1_3_SIMPLE = DoubleArray.copyOf(simple13);
+    RATES_2_1_SIMPLE = DoubleArray.copyOf(simple21);
+    RATES_2_2_SIMPLE = DoubleArray.copyOf(simple22);
+    RATES_2_3_SIMPLE = DoubleArray.copyOf(simple23);
+    RATES_3_1_SIMPLE = DoubleArray.copyOf(simple31);
+    RATES_3_2_SIMPLE = DoubleArray.copyOf(simple32);
+    RATES_3_3_SIMPLE = DoubleArray.copyOf(simple33);
+  }
 
   //-------------------------------------------------------------------------
   public static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
@@ -93,6 +137,9 @@ public class RatesProviderDataSets {
   private static final CurveMetadata USD_DSC_METADATA = Curves.zeroRates(USD_DSC_NAME, ACT_360);
   private static final CurveMetadata USD_L3_METADATA = Curves.zeroRates(USD_L3_NAME, ACT_360);
   private static final CurveMetadata USD_L6_METADATA = Curves.zeroRates(USD_L6_NAME, ACT_360);
+  private static final CurveMetadata USD_DSC_METADATA_SIMPLE = Curves.discountFactors(USD_DSC_NAME, ACT_360);
+  private static final CurveMetadata USD_L3_METADATA_SIMPLE = Curves.discountFactors(USD_L3_NAME, ACT_360);
+  private static final CurveMetadata USD_L6_METADATA_SIMPLE = Curves.discountFactors(USD_L6_NAME, ACT_360);
 
   private static final Curve USD_SINGLE_CURVE =
       InterpolatedNodalCurve.of(USD_SINGLE_METADATA, TIMES_1, RATES_1_1, INTERPOLATOR);
@@ -116,6 +163,12 @@ public class RatesProviderDataSets {
       InterpolatedNodalCurve.of(USD_L3_METADATA, TIMES_2, RATES_2_1, INTERPOLATOR);
   private static final Curve USD_L6 =
       InterpolatedNodalCurve.of(USD_L6_METADATA, TIMES_3, RATES_3_1, INTERPOLATOR);
+  private static final Curve USD_DSC_SIMPLE =
+      InterpolatedNodalCurve.of(USD_DSC_METADATA_SIMPLE, TIMES_1, RATES_1_1_SIMPLE, INTERPOLATOR);
+  private static final Curve USD_L3_SIMPLE =
+      InterpolatedNodalCurve.of(USD_L3_METADATA_SIMPLE, TIMES_2, RATES_2_1_SIMPLE, INTERPOLATOR);
+  private static final Curve USD_L6_SIMPLE =
+      InterpolatedNodalCurve.of(USD_L6_METADATA_SIMPLE, TIMES_3, RATES_3_1_SIMPLE, INTERPOLATOR);
   private static final Map<Currency, Curve> USD_MULTI_CCY_MAP = ImmutableMap.of(USD, USD_DSC);
   private static final Map<Index, Curve> USD_MULTI_IND_MAP = ImmutableMap.of(
       USD_FED_FUND, USD_DSC,
@@ -141,6 +194,9 @@ public class RatesProviderDataSets {
   private static final CurveMetadata GBP_DSC_METADATA = Curves.zeroRates(GBP_DSC_NAME, ACT_360);
   private static final CurveMetadata GBP_L3_METADATA = Curves.zeroRates(GBP_L3_NAME, ACT_360);
   private static final CurveMetadata GBP_L6_METADATA = Curves.zeroRates(GBP_L6_NAME, ACT_360);
+  private static final CurveMetadata GBP_DSC_METADATA_SIMPLE = Curves.discountFactors(GBP_DSC_NAME, ACT_360);
+  private static final CurveMetadata GBP_L3_METADATA_SIMPLE = Curves.discountFactors(GBP_L3_NAME, ACT_360);
+  private static final CurveMetadata GBP_L6_METADATA_SIMPLE = Curves.discountFactors(GBP_L6_NAME, ACT_360);
 
   private static final Curve GBP_DSC =
       InterpolatedNodalCurve.of(GBP_DSC_METADATA, TIMES_1, RATES_1_2, INTERPOLATOR);
@@ -148,6 +204,12 @@ public class RatesProviderDataSets {
       InterpolatedNodalCurve.of(GBP_L3_METADATA, TIMES_2, RATES_2_2, INTERPOLATOR);
   private static final Curve GBP_L6 =
       InterpolatedNodalCurve.of(GBP_L6_METADATA, TIMES_3, RATES_3_2, INTERPOLATOR);
+  private static final Curve GBP_DSC_SIMPLE =
+      InterpolatedNodalCurve.of(GBP_DSC_METADATA_SIMPLE, TIMES_1, RATES_1_2_SIMPLE, INTERPOLATOR);
+  private static final Curve GBP_L3_SIMPLE =
+      InterpolatedNodalCurve.of(GBP_L3_METADATA_SIMPLE, TIMES_2, RATES_2_2_SIMPLE, INTERPOLATOR);
+  private static final Curve GBP_L6_SIMPLE =
+      InterpolatedNodalCurve.of(GBP_L6_METADATA_SIMPLE, TIMES_3, RATES_3_2_SIMPLE, INTERPOLATOR);
   public static final Map<Currency, Curve> GBP_MULTI_CCY_MAP = ImmutableMap.of(GBP, GBP_DSC);
   public static final Map<Index, Curve> GBP_MULTI_IND_MAP = ImmutableMap.of(
       GBP_SONIA, GBP_DSC,
@@ -198,7 +260,7 @@ public class RatesProviderDataSets {
 
   public static final FxMatrix FX_MATRIX_GBP_USD =
       FxMatrix.builder().addRate(GBP, USD, 1.50).build();
-
+  // zero rate curves
   public static final Map<Currency, Curve> GBP_USD_MULTI_CCY_MAP = new HashMap<>();
   static {
     GBP_USD_MULTI_CCY_MAP.put(GBP, GBP_DSC);
@@ -219,5 +281,25 @@ public class RatesProviderDataSets {
       .discountCurves(GBP_USD_MULTI_CCY_MAP)
       .indexCurves(GBP_USD_MULTI_IND_MAP)
       .build();
-
+  // discount factor curves
+  private static final Map<Currency, Curve> GBP_USD_MULTI_CCY_MAP_SIMPLE = new HashMap<>();
+  static {
+    GBP_USD_MULTI_CCY_MAP_SIMPLE.put(GBP, GBP_DSC_SIMPLE);
+    GBP_USD_MULTI_CCY_MAP_SIMPLE.put(USD, USD_DSC_SIMPLE);
+  }
+  private static final Map<Index, Curve> GBP_USD_MULTI_IND_MAP_SIMPLE = new HashMap<>();
+  static {
+    GBP_USD_MULTI_IND_MAP_SIMPLE.put(GBP_SONIA, GBP_DSC_SIMPLE);
+    GBP_USD_MULTI_IND_MAP_SIMPLE.put(GBP_LIBOR_3M, GBP_L3_SIMPLE);
+    GBP_USD_MULTI_IND_MAP_SIMPLE.put(GBP_LIBOR_6M, GBP_L6_SIMPLE);
+    GBP_USD_MULTI_IND_MAP_SIMPLE.put(USD_FED_FUND, USD_DSC_SIMPLE);
+    GBP_USD_MULTI_IND_MAP_SIMPLE.put(USD_LIBOR_3M, USD_L3_SIMPLE);
+    GBP_USD_MULTI_IND_MAP_SIMPLE.put(USD_LIBOR_6M, USD_L6_SIMPLE);
+  }
+  public static final ImmutableRatesProvider MULTI_GBP_USD_SIMPLE = ImmutableRatesProvider.builder()
+      .valuationDate(VAL_DATE_2014_01_22)
+      .fxRateProvider(FX_MATRIX_GBP_USD)
+      .discountCurves(GBP_USD_MULTI_CCY_MAP_SIMPLE)
+      .indexCurves(GBP_USD_MULTI_IND_MAP_SIMPLE)
+      .build();
 }

@@ -134,7 +134,8 @@ public class IborFixingDepositCurveNodeTest {
     double rate = 0.035;
     MarketData marketData = MarketData.builder().addValue(QUOTE_KEY, rate).build();
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.ZERO_RATE), rate);
-    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR), 0d);
+    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR),
+        Math.exp(-rate * 0.25d), 1.0E-12);
   }
 
   public void test_metadata() {

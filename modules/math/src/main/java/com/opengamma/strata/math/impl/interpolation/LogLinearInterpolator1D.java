@@ -54,7 +54,11 @@ public final class LogLinearInterpolator1D
     Double x1 = boundedValues.getLowerBoundKey();
     Double y1 = boundedValues.getLowerBoundValue();
     if (data.getLowerBoundIndex(value) == data.size() - 1) {
-      return 0.;
+      Double x2 = x1;
+      Double y2 = y1;
+      x1 = data.getKeys()[data.size() - 2];
+      y1 = data.getValues()[data.size() - 2];
+      return y2 * Math.log(y2 / y1) / (x2 - x1);
     }
     Double x2 = boundedValues.getHigherBoundKey();
     Double y2 = boundedValues.getHigherBoundValue();

@@ -13,6 +13,7 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.FX_MATRIX_GBP_USD;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.GBP_USD_MULTI_CCY_MAP;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_GBP_USD;
+import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_GBP_USD_SIMPLE;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.VAL_DATE_2014_01_22;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.mockito.Mockito.mock;
@@ -510,6 +511,50 @@ public class DiscountingRatePaymentPeriodPricerTest {
   public void test_presentValueSensitivity_compoundNone_fx() {
     DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
     ImmutableRatesProvider provider = MULTI_GBP_USD;
+    PointSensitivityBuilder pointSensiComputedUSD =
+        pricer.presentValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_USD, provider);
+    CurveCurrencyParameterSensitivities sensiComputedUSD =
+        provider.curveParameterSensitivity(pointSensiComputedUSD.build().normalized());
+    CurveCurrencyParameterSensitivities sensiExpectedUSD = CAL_FD.sensitivity(
+        provider, (p) -> CurrencyAmount.of(USD, pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, (p))));
+    assertTrue(sensiComputedUSD.equalWithTolerance(
+        sensiExpectedUSD, EPS_FD * PAYMENT_PERIOD_FULL_GS_FX_USD.getNotional()));
+
+    PointSensitivityBuilder pointSensiComputedGBP =
+        pricer.presentValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider);
+    CurveCurrencyParameterSensitivities sensiComputedGBP =
+        provider.curveParameterSensitivity(pointSensiComputedGBP.build().normalized());
+    CurveCurrencyParameterSensitivities sensiExpectedGBP = CAL_FD.sensitivity(
+        provider, (p) -> CurrencyAmount.of(GBP, pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_GBP, (p))));
+    assertTrue(sensiComputedGBP.equalWithTolerance(
+        sensiExpectedGBP, EPS_FD * PAYMENT_PERIOD_FULL_GS_FX_GBP.getNotional()));
+  }
+
+  public void test_forecastValueSensitivity_compoundNone_fx_dfCurve() {
+    DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
+    ImmutableRatesProvider provider = MULTI_GBP_USD_SIMPLE;
+    PointSensitivityBuilder pointSensiComputedUSD =
+        pricer.forecastValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_USD, provider);
+    CurveCurrencyParameterSensitivities sensiComputedUSD =
+        provider.curveParameterSensitivity(pointSensiComputedUSD.build().normalized());
+    CurveCurrencyParameterSensitivities sensiExpectedUSD = CAL_FD.sensitivity(
+        provider, (p) -> CurrencyAmount.of(USD, pricer.forecastValue(PAYMENT_PERIOD_FULL_GS_FX_USD, (p))));
+    assertTrue(sensiComputedUSD.equalWithTolerance(
+        sensiExpectedUSD, EPS_FD * PAYMENT_PERIOD_FULL_GS_FX_USD.getNotional()));
+
+    PointSensitivityBuilder pointSensiComputedGBP =
+        pricer.forecastValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider);
+    CurveCurrencyParameterSensitivities sensiComputedGBP =
+        provider.curveParameterSensitivity(pointSensiComputedGBP.build().normalized());
+    CurveCurrencyParameterSensitivities sensiExpectedGBP = CAL_FD.sensitivity(
+        provider, (p) -> CurrencyAmount.of(GBP, pricer.forecastValue(PAYMENT_PERIOD_FULL_GS_FX_GBP, (p))));
+    assertTrue(sensiComputedGBP.equalWithTolerance(
+        sensiExpectedGBP, EPS_FD * PAYMENT_PERIOD_FULL_GS_FX_GBP.getNotional()));
+  }
+
+  public void test_presentValueSensitivity_compoundNone_fx_dfCurve() {
+    DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
+    ImmutableRatesProvider provider = MULTI_GBP_USD_SIMPLE;
     PointSensitivityBuilder pointSensiComputedUSD =
         pricer.presentValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_USD, provider);
     CurveCurrencyParameterSensitivities sensiComputedUSD =

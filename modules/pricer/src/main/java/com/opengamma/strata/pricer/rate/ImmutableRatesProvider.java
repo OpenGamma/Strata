@@ -50,7 +50,6 @@ import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.OvernightIndexRates;
 import com.opengamma.strata.market.value.PriceIndexValues;
-import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 
 /**
  * The default immutable rates provider, used to calculate analytic measures.
@@ -180,7 +179,7 @@ public final class ImmutableRatesProvider
   public IborIndexRates iborIndexRates(IborIndex index) {
     LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
     Curve curve = indexCurve(index);
-    DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), curve);
+    DiscountFactors dfc = DiscountFactors.of(index.getCurrency(), getValuationDate(), curve);
     return DiscountIborIndexRates.of(index, timeSeries, dfc);
   }
 
@@ -188,7 +187,7 @@ public final class ImmutableRatesProvider
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
     LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
     Curve curve = indexCurve(index);
-    DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), curve);
+    DiscountFactors dfc = DiscountFactors.of(index.getCurrency(), getValuationDate(), curve);
     return DiscountOvernightIndexRates.of(index, timeSeries, dfc);
   }
 

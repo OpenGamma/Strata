@@ -208,8 +208,9 @@ public class SimpleDiscountFactorsTest {
   public void test_unitParameterSensitivity() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
+    double discountFactor = CURVE.yValue(relativeYearFraction);
     CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CURVE.yValueParameterSensitivity(relativeYearFraction));
+        CURVE.yValueParameterSensitivity(relativeYearFraction).multipliedBy(-1d/discountFactor/relativeYearFraction));
     assertEquals(test.unitParameterSensitivity(DATE_AFTER), expected);
   }
 
