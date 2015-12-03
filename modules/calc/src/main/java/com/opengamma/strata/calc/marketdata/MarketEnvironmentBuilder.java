@@ -15,6 +15,7 @@ import java.util.Map;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Failure;
@@ -120,6 +121,24 @@ public final class MarketEnvironmentBuilder {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(values, "values");
     MarketDataBox<T> box = MarketDataBox.ofScenarioValues(values);
+    updateScenarioCount(box);
+    this.values.put(id, box);
+    valueFailures.remove(id);
+    return this;
+  }
+
+  /**
+   * Adds multiple values for an item of market data, one for each scenario.
+   *
+   * @param id  the ID of the market data
+   * @param value  the market data values, one for each scenario
+   * @param <T>  the type of the market data values
+   * @return this builder
+   */
+  public <T> MarketEnvironmentBuilder addValue(MarketDataId<T> id, ScenarioMarketDataValue<T> value) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(value, "values");
+    MarketDataBox<T> box = MarketDataBox.ofScenarioValue(value);
     updateScenarioCount(box);
     this.values.put(id, box);
     valueFailures.remove(id);
