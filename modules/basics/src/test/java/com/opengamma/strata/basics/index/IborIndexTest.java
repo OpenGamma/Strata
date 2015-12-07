@@ -228,7 +228,6 @@ public class IborIndexTest {
         .build();
     coverImmutableBean(index);
     coverPrivateConstructor(IborIndices.class);
-    coverPrivateConstructor(StandardIborIndices.class);
   }
 
   public void test_jodaConvert() {

@@ -24,37 +24,37 @@ public final class PriceIndices {
    * The harmonized consumer price index for the United Kingdom,
    * "Non-revised Harmonised Index of Consumer Prices".
    */
-  public static final PriceIndex GB_HICP = PriceIndex.of(StandardPriceIndices.GB_HICP.getName());
+  public static final PriceIndex GB_HICP = PriceIndex.of("GB-HICP");
   /**
    * The retail price index for the United Kingdom,
    * "Non-revised Retail Price Index All Items in the United Kingdom".
    */
-  public static final PriceIndex GB_RPI = PriceIndex.of(StandardPriceIndices.GB_RPI.getName());
+  public static final PriceIndex GB_RPI = PriceIndex.of("GB-RPI");
   /**
    * The retail price index for the United Kingdom excluding mortgage interest payments,
    * "Non-revised Retail Price Index Excluding Mortgage Interest Payments in the United Kingdom".
    */
-  public static final PriceIndex GB_RPIX = PriceIndex.of(StandardPriceIndices.GB_RPIX.getName());
+  public static final PriceIndex GB_RPIX = PriceIndex.of("GB-RPIX");
   /**
    * The consumer price index for Switzerland,
    * "Non-revised Consumer Price Index".
    */
-  public static final PriceIndex CH_CPI = PriceIndex.of(StandardPriceIndices.CH_CPI.getName());
+  public static final PriceIndex CH_CPI = PriceIndex.of("CH-CPI");
   /**
    * The consumer price index for Europe,
    * "Non-revised Harmonised Index of Consumer Prices All Items".
    */
-  public static final PriceIndex EU_HICP_AI = PriceIndex.of(StandardPriceIndices.EU_HICP_AI.getName());
+  public static final PriceIndex EU_HICP_AI = PriceIndex.of("EU-HICP-AI");
   /**
    * The consumer price index for Japan excluding fresh food,
    * "Non-revised Consumer Price Index Nationwide General Excluding Fresh Food".
    */
-  public static final PriceIndex JP_CPI_EXF = PriceIndex.of(StandardPriceIndices.JP_CPI_EXF.getName());
+  public static final PriceIndex JP_CPI_EXF = PriceIndex.of("JP-CPI-EXF");
   /**
    * The consumer price index for US Urban consumers,
    * "Non-revised index of Consumer Prices for All Urban Consumers (CPI-U) before seasonal adjustment".
    */
-  public static final PriceIndex US_CPI_U = PriceIndex.of(StandardPriceIndices.US_CPI_U.getName());
+  public static final PriceIndex US_CPI_U = PriceIndex.of("US-CPI-U");
 
   //-------------------------------------------------------------------------
   /**

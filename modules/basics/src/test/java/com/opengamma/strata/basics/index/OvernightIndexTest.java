@@ -167,7 +167,6 @@ public class OvernightIndexTest {
         .build();
     coverImmutableBean(index);
     coverPrivateConstructor(OvernightIndices.class);
-    coverPrivateConstructor(StandardOvernightIndices.class);
   }
 
   public void test_jodaConvert() {

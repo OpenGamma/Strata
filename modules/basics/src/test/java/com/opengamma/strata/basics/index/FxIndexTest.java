@@ -8,7 +8,7 @@ package com.opengamma.strata.basics.index;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.strata.basics.index.StandardFxIndices.EUR_CHF_ECB;
+import static com.opengamma.strata.basics.index.FxIndices.EUR_CHF_ECB;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -128,7 +128,6 @@ public class FxIndexTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(FxIndices.class);
-    coverPrivateConstructor(StandardFxIndices.class);
     coverImmutableBean((ImmutableBean) EUR_CHF_ECB);
   }
 
