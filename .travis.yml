@@ -12,6 +12,5 @@ cache:
 install:
   - mvn --version
 script:
-  - mvn install -e -B -Dstrict
-  - rm -rf $HOME/.m2/repository/com/opengamma/analytics
+  - mvn install -e -B -T 2 -Dstrict
   - rm -rf $HOME/.m2/repository/com/opengamma/strata
