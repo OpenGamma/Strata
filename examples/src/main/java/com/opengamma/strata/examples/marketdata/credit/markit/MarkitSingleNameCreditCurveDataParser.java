@@ -57,7 +57,7 @@ public class MarkitSingleNameCreditCurveDataParser {
 
   // Markit date format with the month in full caps. e.g. 11-JUL-14
   private static final DateTimeFormatter DATE_FORMAT = new DateTimeFormatterBuilder()
-      .parseCaseInsensitive().appendPattern("dd-MMM-yy").toFormatter(Locale.ENGLISH);
+      .parseCaseInsensitive().appendPattern("dd-MMM-uu").toFormatter(Locale.ENGLISH);
 
   // Index used to access the specified columns of string data in the file
   private static final int DATE = 0;

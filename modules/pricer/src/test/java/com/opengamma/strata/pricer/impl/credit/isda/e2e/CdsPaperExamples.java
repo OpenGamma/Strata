@@ -14,6 +14,7 @@ import java.time.Month;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Locale;
 
 import org.testng.annotations.Test;
 
@@ -46,7 +47,7 @@ import com.opengamma.strata.pricer.impl.credit.isda.MarketQuoteConverter;
 @Test(enabled = false)
 public class CdsPaperExamples extends IsdaBaseTest {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
-  private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd-MMM-yy");
+  private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd-MMM-uu", Locale.ENGLISH);
 
   private static final MarketQuoteConverter PUF_CONVERTER = new MarketQuoteConverter();
   private static final FiniteDifferenceSpreadSensitivityCalculator FD_SPREAD_SENSE_CAL = new FiniteDifferenceSpreadSensitivityCalculator();
@@ -605,7 +606,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
     for (int i = 0; i < nRows; i++) {
       out.append("\\multicolumn{1}{|c|}{" + rowHeadings[i] + "}");
       for (int j = 0; j < nColumns; j++) {
-        out.append(String.format(format, data[i][j]));
+        out.append(String.format(Locale.ENGLISH, format, data[i][j]));
       }
       out.append("\\\\\n");
     }

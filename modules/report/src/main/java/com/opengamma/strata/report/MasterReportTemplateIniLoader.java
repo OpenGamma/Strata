@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.report;
 
+import java.util.Locale;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
@@ -40,14 +41,14 @@ class MasterReportTemplateIniLoader {
    */
   public static ReportTemplate load(IniFile iniFile) {
     String settingsSectionKey = iniFile.sections().stream()
-        .filter(k -> k.toLowerCase().equals(ReportTemplateIniLoader.SETTINGS_SECTION))
+        .filter(k -> k.toLowerCase(Locale.ENGLISH).equals(ReportTemplateIniLoader.SETTINGS_SECTION))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException(Messages.format(
             "Report template INI file must contain a {} section", ReportTemplateIniLoader.SETTINGS_SECTION)));
     PropertySet settingsSection = iniFile.section(settingsSectionKey);
     String reportType = settingsSection.value(ReportTemplateIniLoader.SETTINGS_REPORT_TYPE);
     ReportTemplateIniLoader<? extends ReportTemplate> iniLoader = LOADERS.stream()
-        .filter(loader -> loader.getReportType().toLowerCase().equals(reportType.toLowerCase()))
+        .filter(loader -> loader.getReportType().equalsIgnoreCase(reportType))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException(Messages.format("Unsupported report type: {}", reportType)));
     return iniLoader.load(iniFile);

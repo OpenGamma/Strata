@@ -6,6 +6,7 @@
 package com.opengamma.strata.examples.data;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import com.opengamma.strata.collect.io.IniFile;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -30,7 +31,7 @@ public final class ExampleData {
    * @return the loaded results
    */
   public static String loadExpectedResults(String name) {
-    String classpathResourceName = String.format("classpath:goldencopy/%s.txt", name);
+    String classpathResourceName = String.format(Locale.ENGLISH, "classpath:goldencopy/%s.txt", name);
     ResourceLocator resourceLocator = ResourceLocator.of(classpathResourceName);
     try {
       return resourceLocator.getCharSource().read().trim();
@@ -46,7 +47,7 @@ public final class ExampleData {
    * @return the loaded report template
    */
   public static TradeReportTemplate loadTradeReportTemplate(String templateName) {
-    String resourceName = String.format("classpath:example-reports/%s.ini", templateName);
+    String resourceName = String.format(Locale.ENGLISH, "classpath:example-reports/%s.ini", templateName);
     ResourceLocator resourceLocator = ResourceLocator.of(resourceName);
     IniFile ini = IniFile.of(resourceLocator.getCharSource());
     return TradeReportTemplate.load(ini);

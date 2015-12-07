@@ -10,10 +10,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
@@ -34,25 +34,25 @@ public class IsdaModelDatasetsSheetReader extends IsdaModelDatasets {
   private String[] _headers;
 
   // header fields we expect in the file (lowercased when loaded)
-  private static final String TODAY_HEADER = "today".toLowerCase();
+  private static final String TODAY_HEADER = "today";
   @SuppressWarnings("unused")
-  private static final String CURVE_INSTRUMENT_START_DATE = "curve instrument start date".toLowerCase();
-  private static final String START_DATE_HEADER = "start date".toLowerCase();
-  private static final String END_DATE_HEADER = "end date".toLowerCase();
-  private static final String SPREAD_HEADER = "spread".toLowerCase();
+  private static final String CURVE_INSTRUMENT_START_DATE = "curve instrument start date";
+  private static final String START_DATE_HEADER = "start date";
+  private static final String END_DATE_HEADER = "end date";
+  private static final String SPREAD_HEADER = "spread";
   @SuppressWarnings("unused")
-  private static final String CLEAN_PRICE_HEADER = "clean price".toLowerCase();
+  private static final String CLEAN_PRICE_HEADER = "clean price";
   @SuppressWarnings("unused")
-  private static final String CLEAN_PRICE_NOACC_HEADER = "clean price (no acc on default)".toLowerCase();
+  private static final String CLEAN_PRICE_NOACC_HEADER = "clean price (no acc on default)";
   @SuppressWarnings("unused")
-  private static final String DIRTY_PRICE_NOACC_HEADER = "dirty price (no acc on default)".toLowerCase();
-  private static final String PREMIUM_LEG_HEADER = "premium leg".toLowerCase();
-  private static final String PROTECTION_LEG_HEADER = "protection leg".toLowerCase();
-  private static final String DEFAULT_ACC_HEADER = "default acc".toLowerCase();
-  private static final String ACC_PREMIUM_HEADER = "accrued premium".toLowerCase();
-  private static final String ACC_DAYS_HEADER = "accrued days".toLowerCase();
+  private static final String DIRTY_PRICE_NOACC_HEADER = "dirty price (no acc on default)";
+  private static final String PREMIUM_LEG_HEADER = "premium leg";
+  private static final String PROTECTION_LEG_HEADER = "protection leg";
+  private static final String DEFAULT_ACC_HEADER = "default acc";
+  private static final String ACC_PREMIUM_HEADER = "accrued premium";
+  private static final String ACC_DAYS_HEADER = "accrued days";
 
-  private static final DateTimeFormatter DATE_TIME_PARSER = new DateTimeFormatterBuilder().appendPattern("dd-MMM-yy").toFormatter();
+  private static final DateTimeFormatter DATE_TIME_PARSER = DateTimeFormatter.ofPattern("dd-MMM-uu", Locale.ENGLISH);
 
   // component parts of the resultant ISDA_Results instances
   private LocalDate[] _parSpreadDates; // assume in ascending order
@@ -166,7 +166,7 @@ public class IsdaModelDatasetsSheetReader extends IsdaModelDatasets {
         parSpreadDates.add(date);
         continue;
       } catch (Exception ex) {
-        columns[i] = columns[i].toLowerCase(); // lowercase non dates
+        columns[i] = columns[i].toLowerCase(Locale.ENGLISH); // lowercase non dates
       }
     }
     _parSpreadDates = parSpreadDates.toArray(new LocalDate[parSpreadDates.size()]);

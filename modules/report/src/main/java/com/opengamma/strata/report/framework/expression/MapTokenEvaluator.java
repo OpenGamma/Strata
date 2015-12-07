@@ -6,6 +6,7 @@
 package com.opengamma.strata.report.framework.expression;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ public class MapTokenEvaluator extends TokenEvaluator<Map<?, ?>> {
   @Override
   public Set<String> tokens(Map<?, ?> map) {
     return map.keySet().stream()
-        .map(k -> k.toString().toLowerCase())
+        .map(k -> k.toString().toLowerCase(Locale.ENGLISH))
         .collect(Collectors.toSet());
   }
 

@@ -13,6 +13,7 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -76,7 +77,7 @@ public final class FpmlDocument {
   /**
    * The FpML date parser.
    */
-  private static final DateTimeFormatter FPML_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd[XXX]");
+  private static final DateTimeFormatter FPML_DATE_FORMAT = DateTimeFormatter.ofPattern("uuuu-MM-dd[XXX]", Locale.ENGLISH);
   /**
    * The map of frequencies, designed to normalize and reduce object creation.
    */

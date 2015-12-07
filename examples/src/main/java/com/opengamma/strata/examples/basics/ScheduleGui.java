@@ -7,6 +7,7 @@ package com.opengamma.strata.examples.basics;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.ZoneId;
 
 import org.joda.beans.Bean;
 import org.joda.beans.MetaProperty;
@@ -66,7 +67,7 @@ public class ScheduleGui extends Application {
   //-------------------------------------------------------------------------
   @Override
   public void start(Stage primaryStage) {
-    LocalDate today = LocalDate.now();
+    LocalDate today = LocalDate.now(ZoneId.systemDefault());
 
     // setup GUI elements
     Label startLbl = new Label("Start date:");

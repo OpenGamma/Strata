@@ -76,6 +76,11 @@ import com.google.common.collect.ImmutableSortedSet;
  */
 public class TestHelper {
 
+  /**
+   * UTF-8 encoding name.
+   */
+  private static final String UTF_8 = "UTF-8";
+
   //-------------------------------------------------------------------------
   /**
    * Creates a {@code LocalDate}, intended for static import.
@@ -347,7 +352,7 @@ public class TestHelper {
     // but that should be done only if synchronized is insufficient
     assertNotNull(runner, "caputureSystemOut() called with null Runnable");
     ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-    PrintStream ps = new PrintStream(baos);
+    PrintStream ps = Unchecked.wrap(() -> new PrintStream(baos, false, UTF_8));
     PrintStream old = System.out;
     try {
       System.setOut(ps);
@@ -356,7 +361,7 @@ public class TestHelper {
     } finally {
       System.setOut(old);
     }
-    return baos.toString();
+    return Unchecked.wrap(() -> baos.toString(UTF_8));
   }
 
   /**
@@ -378,7 +383,7 @@ public class TestHelper {
     // but that should be done only if synchronized is insufficient
     assertNotNull(runner, "caputureSystemErr() called with null Runnable");
     ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-    PrintStream ps = new PrintStream(baos);
+    PrintStream ps = Unchecked.wrap(() -> new PrintStream(baos, false, UTF_8));
     PrintStream old = System.err;
     try {
       System.setErr(ps);
@@ -387,7 +392,7 @@ public class TestHelper {
     } finally {
       System.setErr(old);
     }
-    return baos.toString();
+    return Unchecked.wrap(() -> baos.toString(UTF_8));
   }
 
   //-------------------------------------------------------------------------
@@ -794,18 +799,19 @@ public class TestHelper {
           .put(Character.TYPE, Arrays.asList(' ', 'A', 'z'))
           .put(Boolean.class, Arrays.asList(Boolean.TRUE, Boolean.FALSE))
           .put(Boolean.TYPE, Arrays.asList(Boolean.TRUE, Boolean.FALSE))
-          .put(LocalDate.class, Arrays.asList(LocalDate.now(), LocalDate.of(2012, 6, 30)))
-          .put(LocalTime.class, Arrays.asList(LocalTime.now(), LocalTime.of(11, 30)))
-          .put(LocalDateTime.class, Arrays.asList(LocalDateTime.now(), LocalDateTime.of(2012, 6, 30, 11, 30)))
-          .put(OffsetTime.class, Arrays.asList(OffsetTime.now(), OffsetTime.of(11, 30, 0, 0, ZoneOffset.ofHours(1))))
+          .put(LocalDate.class, Arrays.asList(LocalDate.now(ZoneOffset.UTC), LocalDate.of(2012, 6, 30)))
+          .put(LocalTime.class, Arrays.asList(LocalTime.now(ZoneOffset.UTC), LocalTime.of(11, 30)))
+          .put(LocalDateTime.class, Arrays.asList(LocalDateTime.now(ZoneOffset.UTC), LocalDateTime.of(2012, 6, 30, 11, 30)))
+          .put(OffsetTime.class, Arrays.asList(
+              OffsetTime.now(ZoneOffset.UTC), OffsetTime.of(11, 30, 0, 0, ZoneOffset.ofHours(1))))
           .put(OffsetDateTime.class, Arrays.asList(
-              OffsetDateTime.now(), OffsetDateTime.of(2012, 6, 30, 11, 30, 0, 0, ZoneOffset.ofHours(1))))
+              OffsetDateTime.now(ZoneOffset.UTC), OffsetDateTime.of(2012, 6, 30, 11, 30, 0, 0, ZoneOffset.ofHours(1))))
           .put(ZonedDateTime.class, Arrays.asList(
-              ZonedDateTime.now(), ZonedDateTime.of(2012, 6, 30, 11, 30, 0, 0, ZoneId.systemDefault())))
+              ZonedDateTime.now(ZoneOffset.UTC), ZonedDateTime.of(2012, 6, 30, 11, 30, 0, 0, ZoneId.systemDefault())))
           .put(Instant.class, Arrays.asList(Instant.now(), Instant.EPOCH))
-          .put(Year.class, Arrays.asList(Year.now(), Year.of(2012)))
-          .put(YearMonth.class, Arrays.asList(YearMonth.now(), YearMonth.of(2012, 6)))
-          .put(MonthDay.class, Arrays.asList(MonthDay.now(), MonthDay.of(12, 25)))
+          .put(Year.class, Arrays.asList(Year.now(ZoneOffset.UTC), Year.of(2012)))
+          .put(YearMonth.class, Arrays.asList(YearMonth.now(ZoneOffset.UTC), YearMonth.of(2012, 6)))
+          .put(MonthDay.class, Arrays.asList(MonthDay.now(ZoneOffset.UTC), MonthDay.of(12, 25)))
           .put(Month.class, Arrays.asList(Month.JULY, Month.DECEMBER))
           .put(DayOfWeek.class, Arrays.asList(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY))
           .put(URI.class, Arrays.asList(URI.create("http://www.opengamma.com"), URI.create("http://www.joda.org")))

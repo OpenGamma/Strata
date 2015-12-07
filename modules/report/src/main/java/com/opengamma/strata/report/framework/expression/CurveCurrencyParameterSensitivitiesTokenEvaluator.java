@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -63,7 +64,7 @@ public class CurveCurrencyParameterSensitivitiesTokenEvaluator
         sensitivity.getCurrency().getCode(),
         sensitivity.getCurveName().toString())
         .stream()
-        .map(String::toLowerCase);
+        .map(v -> v.toLowerCase(Locale.ENGLISH));
   }
 
   private boolean matchesToken(CurveCurrencyParameterSensitivity sensitivity, String token) {

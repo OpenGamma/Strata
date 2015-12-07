@@ -13,6 +13,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Arrays;
+import java.util.Locale;
 
 import org.testng.annotations.Test;
 
@@ -178,7 +179,7 @@ public class CdsAnalyticsDemo extends IsdaBaseTest {
 
     //In this case the credit quality is good (hazard rate of 0.7%), so a coupon of 100bps is too high; the result
     //is a negative Points-Up-Front of -1.87%, and a corresponding quoted spread of 41.5bps
-    System.out.format("PUF: %.4f%%, Quoted Spread: %.3fbps\n", puf * ONE_HUNDRED, spread * TEN_THOUSAND);
+    System.out.format(Locale.ENGLISH, "PUF: %.4f%%, Quoted Spread: %.3fbps\n", puf * ONE_HUNDRED, spread * TEN_THOUSAND);
 
     //a CDS has a market quoted given as PUF and an equivalent quoted spread is required - this requires solving for the
     //hazard rate
@@ -199,8 +200,11 @@ public class CdsAnalyticsDemo extends IsdaBaseTest {
     for (int i = 0; i < 21; i++) {
       final PointsUpFront pufQuote = new PointsUpFront(coupon, (-2.0 + 4.0 * i / 20.0) * ONE_PC);
       final CdsQuotedSpread spreadQuote = converter.convert(cds, pufQuote, YIELD_CURVE);
-      System.out.format("PUF: %.4f%%, Quoted Spread: %.3fbps\n", pufQuote.getPointsUpFront() * ONE_HUNDRED,
-          spreadQuote.getQuotedSpread() * TEN_THOUSAND);
+      System.out
+          .format(
+              Locale.ENGLISH, "PUF: %.4f%%," + "Quoted Spread: %.3fbps\n",
+              pufQuote.getPointsUpFront() * ONE_HUNDRED,
+              spreadQuote.getQuotedSpread() * TEN_THOUSAND);
     }
 
   }
@@ -222,25 +226,25 @@ public class CdsAnalyticsDemo extends IsdaBaseTest {
     //accured for the buyer of protection is conventionally shown as negative amount (e.g. on BBG CDSW) 
     //Here we show it as an absolute value which is consistent with is ISDA C code and the Markit calculator 
     final double accruedAmount = notional * cds.getAccruedPremium(coupon);
-    System.out.format("Accrued Amt: %.2f\n", accruedAmount);
+    System.out.format(Locale.ENGLISH, "Accrued Amt: %.2f\n", accruedAmount);
 
     final double tradeLevel = 75 * ONE_BP;
     final MarketQuoteConverter converter = new MarketQuoteConverter();
     final double puf = converter.quotedSpreadToPUF(cds, coupon, YIELD_CURVE, tradeLevel);
 
     final double principle = notional * puf;
-    System.out.format("Principle: %.2f\n", principle);
+    System.out.format(Locale.ENGLISH, "Principle: %.2f\n", principle);
 
     //The cash settlement is the amount actually paid (to enter the CDS contract) on the cash settlement date (3-Jul_2014)
     //here we subtract a positive accrued amount rather than add a negative accrued 
     final double cashSettlement = principle - accruedAmount;
-    System.out.format("cash Settlement: %.2f\n", cashSettlement);
+    System.out.format(Locale.ENGLISH, "cash Settlement: %.2f\n", cashSettlement);
 
     //The market value is the value of the CDS on the trade date
     final LocalDate cashSettleDate = DEFAULT_CALENDAR.shift(TRADE_DATE, 3); // 3-Jul-2014
     final double df = YIELD_CURVE.getDiscountFactor(ACT365F.yearFraction(TRADE_DATE, cashSettleDate));
     final double marketValue = df * cashSettlement;
-    System.out.format("Market value: %.2f\n", marketValue);
+    System.out.format(Locale.ENGLISH, "Market value: %.2f\n", marketValue);
 
     //can do all this explicitly with a credit curve and pricer 
     final IsdaCompliantCreditCurveBuilder creditCurveBuilder = new FastCreditCurveBuilder();
@@ -258,10 +262,10 @@ public class CdsAnalyticsDemo extends IsdaBaseTest {
     //premium leg per unit of coupon (and unit notional) - often quoted per basis point of coupon 
     //AKA RPV01 or duration (its value should be slightly less than the CDS time to maturity)  
     final double annuity = pricer.annuity(cds, YIELD_CURVE, fittedConstCreditCurve);
-    System.out.format("annuity: %.3f, time to maturity: %.3f\n", annuity, cds.getProtectionEnd());
+    System.out.format(Locale.ENGLISH, "annuity: %.3f, time to maturity: %.3f\n", annuity, cds.getProtectionEnd());
 
     final double protectionLeg = notional * pricer.protectionLeg(cds, YIELD_CURVE, fittedConstCreditCurve);
-    System.out.format("Protection leg: %.2f\n", protectionLeg);
+    System.out.format(Locale.ENGLISH, "Protection leg: %.2f\n", protectionLeg);
 
     //this can be a useful way of expressing the principle 
     final double principle3 = notional * (tradeLevel - coupon) * annuity;
@@ -308,7 +312,7 @@ public class CdsAnalyticsDemo extends IsdaBaseTest {
     final double puf1 = protLeg - coupon * annuity;
     final double puf2 = (parSpread - coupon) * annuity;
     assertEquals(puf1, puf2, 1e-15);
-    System.out.format("4Y par spread: %.3f, PUF: %.3f%%\n", parSpread * TEN_THOUSAND, puf1 * ONE_HUNDRED);
+    System.out.format(Locale.ENGLISH, "4Y par spread: %.3f, PUF: %.3f%%\n", parSpread * TEN_THOUSAND, puf1 * ONE_HUNDRED);
 
     //this should be cut and pasted into Excel to view the curve 
     final int nSamples = 100;
@@ -396,6 +400,7 @@ public class CdsAnalyticsDemo extends IsdaBaseTest {
     System.out.println("Par Spread\tPUF\tQuoted Spread");
     for (int i = 0; i < n; i++) {
       System.out.format(
+          Locale.ENGLISH,
           "%.0fbps\t%.3f%%\t%.3fbps\n", parSpreads[i] * TEN_THOUSAND, puf[i] * ONE_HUNDRED, quotedSpreads[i] * TEN_THOUSAND);
     }
   }
@@ -474,12 +479,12 @@ public class CdsAnalyticsDemo extends IsdaBaseTest {
     //number (a forward finite difference) which is quoted on CDSW and Markit calculator 
     final double cs01 = notional * ONE_BP * sensCal.parallelCS01(cds5Y, quotedSpread, YIELD_CURVE, ONE_BP);
     final double anCS01 = notional * ONE_BP * anSensCal.parallelCS01(cds5Y, quotedSpread, YIELD_CURVE);
-    System.out.format("CS01: %.2f, analytic sense:  %.2f \n", cs01, anCS01);
+    System.out.format(Locale.ENGLISH, "CS01: %.2f, analytic sense:  %.2f \n", cs01, anCS01);
 
     //we can also compute a CS01 directly from PUF
     final MarketQuoteConverter converter = new MarketQuoteConverter();
     final PointsUpFront puf = converter.convert(cds5Y, (CdsQuotedSpread) quotedSpread, YIELD_CURVE);
-    System.out.format("PUF:  %.2f%%\n", puf.getPointsUpFront() * ONE_HUNDRED);
+    System.out.format(Locale.ENGLISH, "PUF:  %.2f%%\n", puf.getPointsUpFront() * ONE_HUNDRED);
 
     //this converted the PUF to a quoted spread behind the
     final double cs01FromPUF = notional * ONE_BP * sensCal.parallelCS01(cds5Y, puf, YIELD_CURVE, ONE_BP);

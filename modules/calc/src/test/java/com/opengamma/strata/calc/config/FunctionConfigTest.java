@@ -9,6 +9,8 @@ import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import java.util.Locale;
+
 import org.testng.annotations.Test;
 
 import com.google.common.base.Strings;
@@ -103,7 +105,7 @@ public class FunctionConfigTest {
 
     @Override
     public String execute(TestTarget target, CalculationMarketData marketData) {
-      return target.str.toUpperCase();
+      return target.str.toUpperCase(Locale.ENGLISH);
     }
   }
 
