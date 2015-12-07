@@ -12,6 +12,7 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.common.collect.ImmutableMap;
@@ -92,7 +93,7 @@ final class IborIndexCsvLookup
           map.put(parsed.getName(), parsed);
         }
       } catch (RuntimeException ex) {
-        log.severe("Error processing resource as Ibor Index CSV file: " + resource + ex.getMessage());
+        log.log(Level.SEVERE, "Error processing resource as Ibor Index CSV file: " + resource, ex);
         return ImmutableMap.of();
       }
     }

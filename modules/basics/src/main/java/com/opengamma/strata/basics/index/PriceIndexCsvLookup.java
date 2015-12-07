@@ -8,6 +8,7 @@ package com.opengamma.strata.basics.index;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.common.collect.ImmutableMap;
@@ -72,7 +73,7 @@ final class PriceIndexCsvLookup
           map.put(parsed.getName(), parsed);
         }
       } catch (RuntimeException ex) {
-        log.severe("Error processing resource as Price Index CSV file: " + resource + ex.getMessage());
+        log.log(Level.SEVERE, "Error processing resource as Price Index CSV file: " + resource, ex);
         return ImmutableMap.of();
       }
     }
