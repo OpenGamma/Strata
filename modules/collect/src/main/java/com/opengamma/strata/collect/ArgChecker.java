@@ -727,14 +727,14 @@ public final class ArgChecker {
    */
   public static int notNegativeOrZero(int argument, String name) {
     if (argument <= 0) {
-      throw new IllegalArgumentException(notNegativeOrZeroMsg(name));
+      throw new IllegalArgumentException(notNegativeOrZeroMsg(name, argument));
     }
     return argument;
   }
 
   // extracted to aid inlining performance
-  private static String notNegativeOrZeroMsg(String name) {
-    return "Argument '" + name + "' must not be negative or zero";
+  private static String notNegativeOrZeroMsg(String name, double argument) {
+    return "Argument '" + name + "' must not be negative or zero but has value " + argument;
   }
 
   /**
@@ -753,7 +753,7 @@ public final class ArgChecker {
    */
   public static long notNegativeOrZero(long argument, String name) {
     if (argument <= 0) {
-      throw new IllegalArgumentException(notNegativeOrZeroMsg(name));
+      throw new IllegalArgumentException(notNegativeOrZeroMsg(name, argument));
     }
     return argument;
   }
@@ -774,7 +774,7 @@ public final class ArgChecker {
    */
   public static double notNegativeOrZero(double argument, String name) {
     if (argument <= 0) {
-      throw new IllegalArgumentException(notNegativeOrZeroMsg(name));
+      throw new IllegalArgumentException(notNegativeOrZeroMsg(name, argument));
     }
     return argument;
   }
@@ -800,7 +800,7 @@ public final class ArgChecker {
       throw new IllegalArgumentException("Argument '" + name + "' must not be zero");
     }
     if (argument < 0) {
-      throw new IllegalArgumentException("Argument '" + name + "' must be greater than zero");
+      throw new IllegalArgumentException("Argument '" + name + "' must be greater than zero but has value " + argument);
     }
     return argument;
   }
