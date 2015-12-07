@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.calc.marketdata.scenario;
 
-
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;

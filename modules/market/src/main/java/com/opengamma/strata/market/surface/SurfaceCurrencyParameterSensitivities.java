@@ -56,7 +56,8 @@ public final class SurfaceCurrencyParameterSensitivities
   /**
   * An empty instance.
   */
-  private static final SurfaceCurrencyParameterSensitivities EMPTY = new SurfaceCurrencyParameterSensitivities(ImmutableList.of());
+  private static final SurfaceCurrencyParameterSensitivities EMPTY =
+      new SurfaceCurrencyParameterSensitivities(ImmutableList.of());
 
   /**
   * The parameter sensitivities.

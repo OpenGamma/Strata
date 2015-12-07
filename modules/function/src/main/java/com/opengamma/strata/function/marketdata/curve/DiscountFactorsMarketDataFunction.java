@@ -64,10 +64,10 @@ public class DiscountFactorsMarketDataFunction
 
   // create the instance of DiscountFactors
   private DiscountFactors createDiscountFactors(
-      Currency currency, 
-      LocalDate valuationDate, 
+      Currency currency,
+      LocalDate valuationDate,
       Curve curve) {
-    
+
     return DiscountFactors.of(currency, valuationDate, curve);
   }
 

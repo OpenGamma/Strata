@@ -198,7 +198,7 @@ public class SabrSwaptionCashParYieldProductPricer {
     double sign = (expanded.getLongShort() == LongShort.LONG) ? 1d : -1d;
     return forwardSensi.multipliedBy(
         sign * discountSettle * (annuityCash * (delta + vega * volatilityAdj.getDerivative(0))
-        + annuityCashDr * price)).combinedWith(discountSettleSensi.multipliedBy(sign * annuityCash * price));
+            + annuityCashDr * price)).combinedWith(discountSettleSensi.multipliedBy(sign * annuityCash * price));
   }
 
   //-------------------------------------------------------------------------

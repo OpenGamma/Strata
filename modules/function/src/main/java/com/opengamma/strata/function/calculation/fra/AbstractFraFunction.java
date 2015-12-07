@@ -113,7 +113,6 @@ public abstract class AbstractFraFunction<T>
         .collect(toScenarioResult(isConvertCurrencies()));
   }
 
-
   @Override
   public Optional<Currency> defaultReportingCurrency(FraTrade target) {
     return Optional.of(target.getProduct().getCurrency());

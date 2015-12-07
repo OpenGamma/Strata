@@ -8,3 +8,4 @@
  * Calculation functions for payment products.
  */
 package com.opengamma.strata.function.calculation.payment;
+

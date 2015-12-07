@@ -38,6 +38,7 @@ public interface FxIndexRates
   public default FxIndexRatesKey getKey() {
     return FxIndexRatesKey.of(getIndex());
   }
+
   /**
    * Gets the FX index.
    * <p>

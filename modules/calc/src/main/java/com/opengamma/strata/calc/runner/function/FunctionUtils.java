@@ -82,7 +82,10 @@ public final class FunctionUtils {
     return Collector.of(
         ArrayList<T>::new,
         (a, b) -> a.add(b),
-        (l, r) -> { l.addAll(r); return l; },
+        (l, r) -> {
+          l.addAll(r);
+          return l;
+        },
         list -> buildResult(list, convertCurrencies));
   }
 
@@ -100,7 +103,10 @@ public final class FunctionUtils {
     return Collector.of(
         ArrayList<MultiCurrencyAmount>::new,
         (a, b) -> a.add(b),
-        (l, r) -> { l.addAll(r); return l; },
+        (l, r) -> {
+          l.addAll(r);
+          return l;
+        },
         list -> MultiCurrencyValuesArray.of(list));
   }
 

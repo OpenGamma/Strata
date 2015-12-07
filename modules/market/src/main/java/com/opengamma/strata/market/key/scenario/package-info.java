@@ -8,3 +8,4 @@
  * Keys identifying containers of market data used to hold data for multiple scenarios.
  */
 package com.opengamma.strata.market.key.scenario;
+

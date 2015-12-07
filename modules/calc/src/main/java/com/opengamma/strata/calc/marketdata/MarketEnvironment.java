@@ -151,7 +151,6 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
     return timeSeries.containsKey(id);
   }
 
-
   @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
     LocalDateDoubleTimeSeries timeSeries = this.timeSeries.get(id);
@@ -178,13 +177,13 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
   public MarketEnvironment filter(MarketDataRequirements requirements) {
 
     Map<MarketDataId<?>, MarketDataBox<?>> values = this.values.entrySet().stream()
-            .filter(tp -> requirements.getNonObservables().contains(tp.getKey()) ||
-                requirements.getObservables().contains(tp.getKey()))
-            .collect(entriesToImmutableMap());
+        .filter(tp -> requirements.getNonObservables().contains(tp.getKey()) ||
+            requirements.getObservables().contains(tp.getKey()))
+        .collect(entriesToImmutableMap());
 
     Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = this.timeSeries.entrySet().stream()
-            .filter(tp -> requirements.getTimeSeries().contains(tp.getKey()))
-            .collect(entriesToImmutableMap());
+        .filter(tp -> requirements.getTimeSeries().contains(tp.getKey()))
+        .collect(entriesToImmutableMap());
 
     return toBuilder()
         .values(values)

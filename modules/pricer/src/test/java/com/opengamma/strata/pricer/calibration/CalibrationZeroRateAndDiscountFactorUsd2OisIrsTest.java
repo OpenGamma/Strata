@@ -255,7 +255,7 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
           .name(CURVE_GROUP_NAME)
           .addCurve(DSC_CURVE_DEFN, USD, USD_FED_FUND)
           .addForwardCurve(FWD3_CURVE_DEFN, USD_LIBOR_3M).build();
-  
+
   private static final CurveGroupDefinition GROUP_1 =
       CurveGroupDefinition.builder()
           .name(CurveGroupName.of("USD-DSCON"))
@@ -320,14 +320,14 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
       assertEquals(pvIrs.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
   }
-  
+
   public void calibration_market_quote_sensitivity_one_group() {
     double shift = 1.0E-6;
     Function<MarketData, ImmutableRatesProvider> f =
         marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, marketData, TS);
     calibration_market_quote_sensitivity_check(f, CURVE_GROUP_CONFIG, shift);
   }
-  
+
   public void calibration_market_quote_sensitivity_two_group() {
     double shift = 1.0E-6;
     Function<MarketData, ImmutableRatesProvider> calibrator =

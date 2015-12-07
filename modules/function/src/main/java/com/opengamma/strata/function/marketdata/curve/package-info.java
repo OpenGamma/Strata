@@ -8,3 +8,4 @@
  * Market data functions used for building curves and related market data types.
  */
 package com.opengamma.strata.function.marketdata.curve;
+

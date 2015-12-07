@@ -150,7 +150,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
     } else {
       for (DoublesPair pair : pairs) {
         GenericVolatilitySurfaceYearFractionMetadata parameterMetadata =
-          GenericVolatilitySurfaceYearFractionMetadata.of(pair.getFirst(), LogMoneynessStrike.of(pair.getSecond()));
+            GenericVolatilitySurfaceYearFractionMetadata.of(pair.getFirst(), LogMoneynessStrike.of(pair.getSecond()));
         sortedMetaList.add(parameterMetadata);
       }
     }

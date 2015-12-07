@@ -211,7 +211,7 @@ public final class SabrVolatilitySwaptionProvider implements ImmutableBean {
         parameters.getNuSurface(), sensitivity.getCurrency(), sensitivity.getNuSensitivity(), expiryTenor);
     return SurfaceCurrencyParameterSensitivities.of(alphaSensi, betaSensi, rhoSensi, nuSensi);
   }
-  
+
   private SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(
       NodalSurface surface, Currency currency, double factor, DoublesPair expiryTenor) {
     Map<DoublesPair, Double> sensiMap = surface.zValueParameterSensitivity(expiryTenor);

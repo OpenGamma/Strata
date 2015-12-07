@@ -8,3 +8,4 @@
  * Market data filters and perturbations that apply to curves and related market data types.
  */
 package com.opengamma.strata.function.marketdata.scenario.curve;
+

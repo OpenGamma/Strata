@@ -291,7 +291,11 @@ final class SwapFpmlTradeParser
   }
 
   // parse swap rate calculation
-  private RateCalculation parseSwapCalculation(XmlElement legEl, XmlElement calcEl, PeriodicSchedule accrualSchedule, FpmlDocument document) {
+  private RateCalculation parseSwapCalculation(
+      XmlElement legEl,
+      XmlElement calcEl,
+      PeriodicSchedule accrualSchedule,
+      FpmlDocument document) {
     // supported elements:
     //  'calculationPeriodAmount/calculation/fixedRateSchedule'
     //  'calculationPeriodAmount/calculation/floatingRateCalculation'

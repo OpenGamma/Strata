@@ -8,3 +8,4 @@
  * Configuration that specifies how market data values should be built by the market data functions.
  */
 package com.opengamma.strata.calc.marketdata.config;
+

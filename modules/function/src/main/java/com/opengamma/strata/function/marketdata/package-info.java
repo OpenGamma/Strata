@@ -8,3 +8,4 @@
  * Market data functions.
  */
 package com.opengamma.strata.function.marketdata;
+

@@ -8,3 +8,4 @@
  * Types for converting market data keys to market data IDs.
  */
 package com.opengamma.strata.calc.marketdata.mapping;
+

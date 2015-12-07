@@ -8,3 +8,4 @@
  * Base package for calculation functions.
  */
 package com.opengamma.strata.function.calculation;
+

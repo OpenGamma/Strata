@@ -110,7 +110,7 @@ public class ImmutableRatesProviderGenerator
   public ImmutableRatesProvider generate(
       DoubleArray parameters,
       Map<CurveName, JacobianCalibrationMatrix> jacobians) {
-    
+
     // collect curves for child provider based on existing provider
     Map<Currency, Curve> discountCurves = new HashMap<>();
     Map<Index, Curve> indexCurves = new HashMap<>();

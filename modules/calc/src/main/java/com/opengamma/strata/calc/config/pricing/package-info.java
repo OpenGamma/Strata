@@ -8,3 +8,4 @@
  * Configuration types for specifying how calculations should be performed.
  */
 package com.opengamma.strata.calc.config.pricing;
+

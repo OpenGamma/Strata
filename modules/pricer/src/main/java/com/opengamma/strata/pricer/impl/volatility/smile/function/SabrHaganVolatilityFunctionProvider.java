@@ -73,7 +73,7 @@ public final class SabrHaganVolatilityFunctionProvider
     if (strike < cutoff) {
       Logger s_logger = LoggerFactory.getLogger(SabrHaganVolatilityFunctionProvider.class);
       s_logger.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}", new Object[] {
-        strike, cutoff, cutoff });
+          strike, cutoff, cutoff});
       k = cutoff;
     } else {
       k = strike;
@@ -146,15 +146,15 @@ public final class SabrHaganVolatilityFunctionProvider
       Logger s_logger = LoggerFactory.getLogger(SabrHaganVolatilityFunctionProvider.class);
       s_logger.info(
           "Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}",
-          new Object[] {k, cutoff, cutoff });
+          new Object[] {k, cutoff, cutoff});
       k = cutoff;
     }
 
-     double beta = data.getBeta();
-     double betaStar = 1 - beta;
-     double rho = data.getRho();
-     double nu = data.getNu();
-     double rhoStar = 1.0 - rho;
+    double beta = data.getBeta();
+    double betaStar = 1 - beta;
+    double rho = data.getRho();
+    double nu = data.getNu();
+    double rhoStar = 1.0 - rho;
 
     if (alpha == 0.0) {
       Arrays.fill(volatilityAdjoint, 0.0);

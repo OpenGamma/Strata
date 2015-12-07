@@ -75,7 +75,8 @@ public final class CurrencyValuesArray
     MarketDataBox<FxRate> rates = marketData.getValue(FxRateKey.of(currency, reportingCurrency));
     checkNumberOfRates(rates.getScenarioCount());
     DoubleArray convertedValues = values.mapWithIndex((i, v) -> rates.getValue(i).convert(v, currency, reportingCurrency));
-    return new CurrencyValuesArray(reportingCurrency, convertedValues);  }
+    return new CurrencyValuesArray(reportingCurrency, convertedValues);
+  }
 
   private void checkNumberOfRates(int rateCount) {
     if (rateCount != 1 && values.size() != rateCount) {

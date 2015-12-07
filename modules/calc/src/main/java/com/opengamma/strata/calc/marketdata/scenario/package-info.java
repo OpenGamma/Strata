@@ -8,3 +8,4 @@
  * Types that define scenarios which allow perturbations to be applied to market data.
  */
 package com.opengamma.strata.calc.marketdata.scenario;
+

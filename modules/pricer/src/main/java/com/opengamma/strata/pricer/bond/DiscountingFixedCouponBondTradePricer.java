@@ -219,10 +219,24 @@ public class DiscountingFixedCouponBondTradePricer {
     double pvDiff = 0d;
     if (standardSettlementDate.isAfter(tradeSettlementDate)) {
       pvDiff = productPricer.presentValueCouponWithZSpread(
-          expanded, discountFactors, tradeSettlementDate, standardSettlementDate, zSpread, compoundedRateType, periodsPerYear, exCoupon);
+          expanded,
+          discountFactors,
+          tradeSettlementDate,
+          standardSettlementDate,
+          zSpread,
+          compoundedRateType,
+          periodsPerYear,
+          exCoupon);
     } else {
       pvDiff = -productPricer.presentValueCouponWithZSpread(
-          expanded, discountFactors, standardSettlementDate, tradeSettlementDate, zSpread, compoundedRateType, periodsPerYear, exCoupon);
+          expanded,
+          discountFactors,
+          standardSettlementDate,
+          tradeSettlementDate,
+          zSpread,
+          compoundedRateType,
+          periodsPerYear,
+          exCoupon);
     }
     return presentValueFromProductPresentValue(trade, provider, CurrencyAmount.of(currency, pvStandard + pvDiff));
   }
@@ -300,7 +314,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * @return the currency exposure of the fixed coupon bond trade
    */
   public MultiCurrencyAmount currencyExposure(FixedCouponBondTrade trade, LegalEntityDiscountingProvider provider) {
-    
+
     return MultiCurrencyAmount.of(presentValue(trade, provider));
   }
 
@@ -320,7 +334,7 @@ public class DiscountingFixedCouponBondTradePricer {
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
-    
+
     return MultiCurrencyAmount.of(presentValueWithZSpread(trade, provider, zSpread, compoundedRateType, periodsPerYear));
   }
 

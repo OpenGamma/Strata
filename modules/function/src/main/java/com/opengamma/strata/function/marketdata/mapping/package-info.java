@@ -8,3 +8,4 @@
  * Mappings between market data keys and IDs.
  */
 package com.opengamma.strata.function.marketdata.mapping;
+

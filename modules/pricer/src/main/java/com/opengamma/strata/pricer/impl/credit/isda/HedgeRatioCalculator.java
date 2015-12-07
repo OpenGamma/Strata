@@ -118,8 +118,14 @@ public class HedgeRatioCalculator {
    * @return the hedge ratios,
    *  since we use a unit notional, the ratios should be multiplied by -notional to give the hedge notional amounts
    */
-  public DoubleArray getHedgeRatios(CdsAnalytic cds, double coupon, CdsAnalytic[] hedgeCDSs, double[] hedgeCDSCoupons, double[] hegdeCDSPUF,
+  public DoubleArray getHedgeRatios(
+      CdsAnalytic cds,
+      double coupon,
+      CdsAnalytic[] hedgeCDSs,
+      double[] hedgeCDSCoupons,
+      double[] hegdeCDSPUF,
       IsdaCompliantYieldCurve yieldCurve) {
+
     IsdaCompliantCreditCurve cc = _builder.calibrateCreditCurve(hedgeCDSs, hedgeCDSCoupons, yieldCurve, hegdeCDSPUF);
     return getHedgeRatios(cds, coupon, hedgeCDSs, hedgeCDSCoupons, cc, yieldCurve);
   }
@@ -148,8 +154,14 @@ public class HedgeRatioCalculator {
    * @return the hedge ratios,
    *  since we use a unit notional, the ratios should be multiplied by -notional to give the hedge notional amounts
    */
-  public DoubleArray getHedgeRatios(CdsAnalytic cds, double coupon, CdsAnalytic[] hedgeCDSs, double[] hedgeCDSCoupons, IsdaCompliantCreditCurve creditCurve,
+  public DoubleArray getHedgeRatios(
+      CdsAnalytic cds,
+      double coupon,
+      CdsAnalytic[] hedgeCDSs,
+      double[] hedgeCDSCoupons,
+      IsdaCompliantCreditCurve creditCurve,
       IsdaCompliantYieldCurve yieldCurve) {
+
     DoubleArray cdsSense = getCurveSensitivities(cds, coupon, creditCurve, yieldCurve);
     DoubleMatrix hedgeSense = getCurveSensitivities(hedgeCDSs, hedgeCDSCoupons, creditCurve, yieldCurve);
     return getHedgeRatios(cdsSense, hedgeSense);

@@ -8,3 +8,4 @@
  * Calculation functions for rate products.
  */
 package com.opengamma.strata.function.calculation.rate;
+

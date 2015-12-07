@@ -23,22 +23,22 @@ import com.opengamma.strata.math.impl.interpolation.ReciprocalExtrapolator1D;
 final class StandardCurveExtrapolators {
 
   // Flat extrapolator.
-  public static final CurveExtrapolator FLAT = 
+  public static final CurveExtrapolator FLAT =
       new ImmutableCurveExtrapolator("Flat", new FlatExtrapolator1D());
   // Linear extrapolator.
-  public static final CurveExtrapolator LINEAR = 
+  public static final CurveExtrapolator LINEAR =
       new ImmutableCurveExtrapolator("Linear", new LinearExtrapolator1D());
   // Log linear extrapolator.
-  public static final CurveExtrapolator LOG_LINEAR = 
+  public static final CurveExtrapolator LOG_LINEAR =
       new ImmutableCurveExtrapolator("LogLinear", new LogLinearExtrapolator1D());
   // Quadratic left extrapolator.
-  public static final CurveExtrapolator QUADRATIC_LEFT = 
+  public static final CurveExtrapolator QUADRATIC_LEFT =
       new ImmutableCurveExtrapolator("QuadraticLeft", new QuadraticPolynomialLeftExtrapolator());
   // Product polynomial extrapolator.
-  public static final CurveExtrapolator PRODUCT_POLYNOMIAL = 
+  public static final CurveExtrapolator PRODUCT_POLYNOMIAL =
       new ImmutableCurveExtrapolator("ProductPolynomial", new ProductPolynomialExtrapolator1D());
   // Reciprocal extrapolator.
-  public static final CurveExtrapolator RECIPROCAL = 
+  public static final CurveExtrapolator RECIPROCAL =
       new ImmutableCurveExtrapolator("Reciprocal", new ReciprocalExtrapolator1D());
   // Extrapolator that does no extrapolation and delegates to the interpolator.
   public static final CurveExtrapolator INTERPOLATOR =

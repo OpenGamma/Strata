@@ -8,3 +8,4 @@
  * Integration functions that combine the calculation engine with the analytic pricer.
  */
 package com.opengamma.strata.function;
+

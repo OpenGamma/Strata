@@ -797,7 +797,7 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
     double[] termFixedBar = new double[sizeFixed];
     for (int loopcf = 0; loopcf < sizeFixed; loopcf++) {
       termFixedBar[loopcf] = gBar - alphaFixed.get(loopcf) * dgBar + alphaFixed.get(loopcf) * alphaFixed.get(loopcf) * dg2Bar;
-      alphaFixedBar[loopcf] = termFixed[loopcf] * (-x - alphaFixed.get(loopcf)) * termFixedBar[loopcf] 
+      alphaFixedBar[loopcf] = termFixed[loopcf] * (-x - alphaFixed.get(loopcf)) * termFixedBar[loopcf]
           - termFixed[loopcf] * dgBar + 2d * alphaFixed.get(loopcf) * termFixed[loopcf] * dg2Bar;
     }
     double[] alphaIborBar = new double[sizeIbor];

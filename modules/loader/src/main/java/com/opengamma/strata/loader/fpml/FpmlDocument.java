@@ -426,7 +426,8 @@ public final class FpmlDocument {
         baseEl.getChild("businessDayConvention").getContent());
     Optional<XmlElement> centersEl = baseEl.findChild("businessCenters");
     Optional<XmlElement> centersRefEl = baseEl.findChild("businessCentersReference");
-    HolidayCalendar calendar = (centersEl.isPresent() || centersRefEl.isPresent() ? parseBusinessCenters(baseEl) : HolidayCalendars.NO_HOLIDAYS);
+    HolidayCalendar calendar =
+        (centersEl.isPresent() || centersRefEl.isPresent() ? parseBusinessCenters(baseEl) : HolidayCalendars.NO_HOLIDAYS);
     return BusinessDayAdjustment.of(bdc, calendar);
   }
 
@@ -443,7 +444,8 @@ public final class FpmlDocument {
     // FpML 'businessCenters' content: ('businessCenter+')
     // Each 'businessCenter' is a location treated as a holiday calendar
     Optional<XmlElement> optionalBusinessCentersEl = baseEl.findChild("businessCenters");
-    XmlElement businessCentersEl = optionalBusinessCentersEl.orElseGet(() -> lookupReference(baseEl.getChild("businessCentersReference")));
+    XmlElement businessCentersEl =
+        optionalBusinessCentersEl.orElseGet(() -> lookupReference(baseEl.getChild("businessCentersReference")));
     HolidayCalendar calendar = HolidayCalendars.NO_HOLIDAYS;
     for (XmlElement businessCenterEl : businessCentersEl.getChildren("businessCenter")) {
       calendar = calendar.combineWith(parseBusinessCenter(businessCenterEl));

@@ -9,3 +9,4 @@
  * data, one for each scenario.
  */
 package com.opengamma.strata.market.value.scenario;
+

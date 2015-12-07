@@ -139,7 +139,7 @@ public class DiscountingPaymentPricer {
    * @return the point sensitivity of the present value
    */
   public PointSensitivityBuilder presentValueSensitivity(
-      Payment payment, 
+      Payment payment,
       DiscountFactors discountFactors,
       double zSpread,
       CompoundedRateType compoundedRateType,

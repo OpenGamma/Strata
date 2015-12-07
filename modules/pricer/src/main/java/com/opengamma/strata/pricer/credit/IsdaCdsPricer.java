@@ -184,7 +184,12 @@ public class IsdaCdsPricer {
     }
 
     // bootstraps a credit curve from par rates
-    public static NodalCurve of(LocalDate valuationDate, IsdaCreditCurveInputs creditCurveInputs, NodalCurve yieldCurve, double recoveryRate) {
+    public static NodalCurve of(
+        LocalDate valuationDate,
+        IsdaCreditCurveInputs creditCurveInputs,
+        NodalCurve yieldCurve,
+        double recoveryRate) {
+
       IsdaCompliantCreditCurve creditCurve = IsdaCdsHelper.createIsdaCreditCurve(valuationDate, creditCurveInputs, yieldCurve,
           recoveryRate);
       IsdaCompliantCurve underlying = creditCurve;

@@ -92,7 +92,6 @@ public final class FxOptionSensitivity
     return new FxOptionSensitivity(currencyPair, expiryDateTime, strike, forward, currency, sensitivity);
   }
 
-
   //-------------------------------------------------------------------------
   @Override
   public FxOptionSensitivity withCurrency(Currency currency) {

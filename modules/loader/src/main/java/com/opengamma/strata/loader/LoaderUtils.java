@@ -16,7 +16,7 @@ import com.opengamma.strata.collect.Messages;
  * Contains utilities for loading market data from input files.
  */
 public final class LoaderUtils {
-  
+
   /**
    * Attempts to locate a rate index by reference name.
    * <p>

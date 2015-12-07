@@ -8,3 +8,4 @@
  * Calculation functions for futures products.
  */
 package com.opengamma.strata.function.calculation.future;
+

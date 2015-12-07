@@ -132,15 +132,15 @@ public class DiscountingFxSwapProductPricer {
     // backward sweep
     double psBar = 1d;
     double pvCounterCcyBar = -1d / (notionalBaseCcy * dfEnd) * psBar;
-    double dfEndBar = - ps / dfEnd * psBar;
+    double dfEndBar = -ps / dfEnd * psBar;
     ZeroRateSensitivity ddfEnddr = provider.discountFactors(counterPaymentNear.getCurrency())
         .zeroRatePointSensitivity(fx.getFarLeg().getPaymentDate());
     PointSensitivities result = ddfEnddr.multipliedBy(dfEndBar).build();
     PointSensitivities dpvdr = presentValueSensitivity(fx, provider);
-    PointSensitivities dpvdrConverted = dpvdr.convertedTo(counterPaymentNear.getCurrency(), provider);    
-    return  result.combinedWith(dpvdrConverted.multipliedBy(pvCounterCcyBar));
+    PointSensitivities dpvdrConverted = dpvdr.convertedTo(counterPaymentNear.getCurrency(), provider);
+    return result.combinedWith(dpvdrConverted.multipliedBy(pvCounterCcyBar));
   }
-  
+
   /**
    * Calculates the current cash of the FX swap product.
    * 

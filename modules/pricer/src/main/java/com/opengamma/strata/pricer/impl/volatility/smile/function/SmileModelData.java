@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.volatility.smile.function;
 
-
 /**
  * A data bundle of a volatility model. 
  * <p>

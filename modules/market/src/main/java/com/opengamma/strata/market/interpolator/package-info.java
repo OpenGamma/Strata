@@ -17,3 +17,4 @@
  * This should be regarded as an implementation detail and is likely to change.
  */
 package com.opengamma.strata.market.interpolator;
+

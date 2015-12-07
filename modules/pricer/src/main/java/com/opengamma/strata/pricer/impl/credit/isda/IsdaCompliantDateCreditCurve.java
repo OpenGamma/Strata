@@ -67,7 +67,7 @@ public class IsdaCompliantDateCreditCurve
    * @param dates  the knot dates on the curve. These must be ascending with the first date after the baseDate, not null
    * @param rates  the continually compounded zero hazard rates at given knot dates, not null
    */
-  public IsdaCompliantDateCreditCurve(final LocalDate baseDate, final LocalDate[] dates, final double[] rates) {
+  public IsdaCompliantDateCreditCurve(LocalDate baseDate, LocalDate[] dates, double[] rates) {
     this(baseDate, dates, rates, ACT_365);
   }
 
@@ -80,14 +80,19 @@ public class IsdaCompliantDateCreditCurve
    * @param rates  the continually compounded zero hazard rates at given knot dates, not null
    * @param dayCount  the day-count-convention, not null
    */
-  public IsdaCompliantDateCreditCurve(final LocalDate baseDate, final LocalDate[] dates, final double[] rates, final DayCount dayCount) {
+  public IsdaCompliantDateCreditCurve(LocalDate baseDate, LocalDate[] dates, double[] rates, DayCount dayCount) {
     super(checkAndGetTimes(baseDate, dates, rates, dayCount), rates);
     this.baseDate = baseDate;
     this.dates = dates;
     this.dayCount = dayCount;
   }
 
-  private IsdaCompliantDateCreditCurve(final LocalDate baseDate, final LocalDate[] dates, final DayCount dayCount, final IsdaCompliantCreditCurve baseCurve) {
+  private IsdaCompliantDateCreditCurve(
+      LocalDate baseDate,
+      LocalDate[] dates,
+      DayCount dayCount,
+      IsdaCompliantCreditCurve baseCurve) {
+
     super(baseCurve);
     this.baseDate = baseDate;
     this.dates = dates;
@@ -114,7 +119,7 @@ public class IsdaCompliantDateCreditCurve
   }
 
   @Override
-  public double getZeroRate(final LocalDate date) {
+  public double getZeroRate(LocalDate date) {
     double t = dayCount.yearFraction(baseDate, date);
     return getZeroRate(t);
   }

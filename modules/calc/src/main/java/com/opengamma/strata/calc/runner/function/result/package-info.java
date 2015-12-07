@@ -11,3 +11,4 @@
  * to the reporting currency.
  */
 package com.opengamma.strata.calc.runner.function.result;
+

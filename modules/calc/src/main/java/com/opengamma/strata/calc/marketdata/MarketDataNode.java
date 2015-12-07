@@ -193,7 +193,7 @@ class MarketDataNode {
     String nodeDescription = (id == null) ? "Root" : (id + " " + dataType);
     builder.append('\n').append(indent).append(nodeDescription);
 
-    for (Iterator<MarketDataNode> it = dependencies.iterator(); it.hasNext(); ) {
+    for (Iterator<MarketDataNode> it = dependencies.iterator(); it.hasNext();) {
       MarketDataNode child = it.next();
       String newIndent;
       String newChildIndent;

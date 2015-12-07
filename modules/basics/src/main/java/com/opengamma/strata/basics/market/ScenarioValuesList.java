@@ -37,7 +37,7 @@ public final class ScenarioValuesList<T> implements ScenarioMarketDataValue<T>, 
   /** The market data values, one for each scenario. */
   @PropertyDefinition(validate = "notEmpty")
   private final ImmutableList<T> values;
-  
+
   @Override
   public T getValue(int scenarioIndex) {
     ArgChecker.inRange(scenarioIndex, 0, values.size(), "scenarioIndex");

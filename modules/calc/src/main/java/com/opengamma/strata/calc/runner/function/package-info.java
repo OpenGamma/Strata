@@ -8,3 +8,4 @@
  * Contains the interfaces implemented by functions that perform calculations in the calculation engine.
  */
 package com.opengamma.strata.calc.runner.function;
+

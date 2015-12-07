@@ -8,3 +8,4 @@
  * Configuration types for the calculation engine.
  */
 package com.opengamma.strata.calc.config;
+

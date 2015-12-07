@@ -8,3 +8,4 @@
  * Market data containers used by the calculation engine.
  */
 package com.opengamma.strata.calc.marketdata;
+

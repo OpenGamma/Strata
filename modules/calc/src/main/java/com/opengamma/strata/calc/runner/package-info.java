@@ -8,3 +8,4 @@
  * Types used when running calculations.
  */
 package com.opengamma.strata.calc.runner;
+

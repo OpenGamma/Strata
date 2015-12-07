@@ -9,3 +9,4 @@
  * build the market data used in calculations.
  */
 package com.opengamma.strata.calc.marketdata.function;
+

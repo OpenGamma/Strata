@@ -246,7 +246,8 @@ public class ForwardOvernightCompoundedRateObservationFn
     // Calculate the total rate sensitivity
     private PointSensitivityBuilder calculateRateSensitivity() {
       double factor = pastCompositionFactor() * valuationCompositionFactor() / accrualFactorTotal;
-      ObjDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityNonCutoff = compositionFactorAndSensitivityNonCutoff();
+      ObjDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityNonCutoff =
+          compositionFactorAndSensitivityNonCutoff();
       ObjDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityCutoff = compositionFactorAndSensitivityCutoff();
 
       PointSensitivityBuilder combinedPointSensitivity = compositionFactorAndSensitivityNonCutoff.getFirst().

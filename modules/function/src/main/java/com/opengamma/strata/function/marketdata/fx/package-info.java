@@ -8,3 +8,4 @@
  * Types for configuring and creating FX market data.
  */
 package com.opengamma.strata.function.marketdata.fx;
+

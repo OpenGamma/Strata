@@ -75,15 +75,15 @@ public class RatesProviderDataSets {
       0.0170, 0.0180, 0.0190, 0.0200, 0.0210, 0.0220, 0.0230, 0.0240, 0.0250);
   public static final DoubleArray RATES_3_3 = DoubleArray.of(
       0.0190, 0.0200, 0.0210, 0.0220, 0.0230, 0.0240, 0.0250, 0.0260);
-  public static final DoubleArray RATES_1_1_SIMPLE ;
+  public static final DoubleArray RATES_1_1_SIMPLE;
   public static final DoubleArray RATES_2_1_SIMPLE;
-  public static final DoubleArray RATES_3_1_SIMPLE ;
-  public static final DoubleArray RATES_1_2_SIMPLE ;
-  public static final DoubleArray RATES_2_2_SIMPLE ;
-  public static final DoubleArray RATES_3_2_SIMPLE ;
-  public static final DoubleArray RATES_1_3_SIMPLE ;
+  public static final DoubleArray RATES_3_1_SIMPLE;
+  public static final DoubleArray RATES_1_2_SIMPLE;
+  public static final DoubleArray RATES_2_2_SIMPLE;
+  public static final DoubleArray RATES_3_2_SIMPLE;
+  public static final DoubleArray RATES_1_3_SIMPLE;
   public static final DoubleArray RATES_2_3_SIMPLE;
-  public static final DoubleArray RATES_3_3_SIMPLE ;
+  public static final DoubleArray RATES_3_3_SIMPLE;
   static {
     double[] simple11 = new double[TIMES_1.size()];
     double[] simple12 = new double[TIMES_1.size()];
