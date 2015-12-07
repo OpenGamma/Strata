@@ -40,6 +40,7 @@ import com.opengamma.strata.market.curve.node.FxSwapCurveNode;
 import com.opengamma.strata.market.curve.node.IborFixingDepositCurveNode;
 import com.opengamma.strata.market.curve.node.IborIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.TermDepositCurveNode;
+import com.opengamma.strata.market.curve.node.ThreeLegBasisSwapCurveNode;
 import com.opengamma.strata.market.curve.node.XCcyIborIborSwapCurveNode;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.RateCurveId;
@@ -59,6 +60,8 @@ import com.opengamma.strata.product.swap.type.FixedOvernightSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 import com.opengamma.strata.product.swap.type.IborIborSwapConvention;
 import com.opengamma.strata.product.swap.type.IborIborSwapTemplate;
+import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapConvention;
+import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapTemplate;
 import com.opengamma.strata.product.swap.type.XCcyIborIborSwapConvention;
 import com.opengamma.strata.product.swap.type.XCcyIborIborSwapTemplate;
 
@@ -288,6 +291,9 @@ public final class RatesCalibrationCsvLoader {
     if ("BAS".equalsIgnoreCase(typeStr) || "IborIborSwap".equalsIgnoreCase(typeStr)) {
       return curveIborIborCurveNode(conventionStr, timeStr, label, quoteKey, spread);
     }
+    if ("BS3".equalsIgnoreCase(typeStr) || "ThreeLegBasisSwap".equalsIgnoreCase(typeStr)) {
+      return curveThreeLegBasisCurveNode(conventionStr, timeStr, label, quoteKey, spread);
+    }
     if ("XCS".equalsIgnoreCase(typeStr) || "XCcyIborIborSwap".equalsIgnoreCase(typeStr)) {
       return curveXCcyIborIborCurveNode(conventionStr, timeStr, label, quoteKey, spread);
     }
@@ -396,6 +402,23 @@ public final class RatesCalibrationCsvLoader {
     IborIborSwapConvention convention = IborIborSwapConvention.of(conventionStr);
     IborIborSwapTemplate template = IborIborSwapTemplate.of(Tenor.of(periodToEnd), convention);
     return IborIborSwapCurveNode.of(template, quoteKey, spread, label);
+  }
+
+  private static CurveNode curveThreeLegBasisCurveNode(
+      String conventionStr,
+      String timeStr,
+      String label,
+      QuoteKey quoteKey,
+      double spread) {
+
+    Matcher matcher = SIMPLE_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    if (!matcher.matches()) {
+      throw new IllegalArgumentException(Messages.format("Invalid time format for Three legs basis swap: {}", timeStr));
+    }
+    Period periodToEnd = Period.parse("P" + matcher.group(1));
+    ThreeLegBasisSwapConvention convention = ThreeLegBasisSwapConvention.of(conventionStr);
+    ThreeLegBasisSwapTemplate template = ThreeLegBasisSwapTemplate.of(Tenor.of(periodToEnd), convention);
+    return ThreeLegBasisSwapCurveNode.of(template, quoteKey, spread, label);
   }
 
   private static CurveNode curveXCcyIborIborCurveNode(
