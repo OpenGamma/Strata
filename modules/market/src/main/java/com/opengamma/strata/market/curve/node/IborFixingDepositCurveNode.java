@@ -152,6 +152,10 @@ public final class IborFixingDepositCurveNode
     if (ValueType.ZERO_RATE.equals(valueType)) {
       return marketData.getValue(rateKey);
     }
+    if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
+      double approximateMaturity = template.getDepositPeriod().toTotalMonths() / 12.0d;
+      return Math.exp(-approximateMaturity * marketData.getValue(rateKey));
+    }
     return 0d;
   }
 

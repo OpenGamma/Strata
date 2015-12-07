@@ -175,8 +175,7 @@ final class StandardCurveCalibrator implements CurveCalibrator {
       ImmutableList<CurveParameterSize> curveOrder) {
 
     // setup for calibration
-    Function<DoubleArray, DoubleArray> valueCalculator =
-        new CalibrationValue(trades, measures, providerGenerator);
+    Function<DoubleArray, DoubleArray> valueCalculator = new CalibrationValue(trades, measures, providerGenerator);
     Function<DoubleArray, DoubleMatrix> derivativeCalculator =
         new CalibrationDerivative(trades, measures, providerGenerator, curveOrder);
 
