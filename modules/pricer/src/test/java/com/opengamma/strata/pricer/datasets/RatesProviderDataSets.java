@@ -188,9 +188,9 @@ public class RatesProviderDataSets {
   private static final FxMatrix FX_MATRIX_GBP =
       FxMatrix.builder().addRate(GBP, GBP, 1.00).build();
 
-  public static final CurveName GBP_DSC_NAME = CurveName.of("USD-DSCON");
-  public static final CurveName GBP_L3_NAME = CurveName.of("USD-LIBOR3M");
-  public static final CurveName GBP_L6_NAME = CurveName.of("USD-LIBOR6M");
+  public static final CurveName GBP_DSC_NAME = CurveName.of("GBP-DSCON");
+  public static final CurveName GBP_L3_NAME = CurveName.of("GBP-LIBOR3M");
+  public static final CurveName GBP_L6_NAME = CurveName.of("GBP-LIBOR6M");
   private static final CurveMetadata GBP_DSC_METADATA = Curves.zeroRates(GBP_DSC_NAME, ACT_360);
   private static final CurveMetadata GBP_L3_METADATA = Curves.zeroRates(GBP_L3_NAME, ACT_360);
   private static final CurveMetadata GBP_L6_METADATA = Curves.zeroRates(GBP_L6_NAME, ACT_360);

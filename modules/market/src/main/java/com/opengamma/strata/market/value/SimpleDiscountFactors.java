@@ -203,7 +203,7 @@ public final class SimpleDiscountFactors
     double relativeYearFraction = relativeYearFraction(date);
     double discountFactor = discountFactor(relativeYearFraction);
     return CurveUnitParameterSensitivities.of(curve.yValueParameterSensitivity(relativeYearFraction).multipliedBy(
-        -1d / relativeYearFraction / discountFactor));
+        -1d / (relativeYearFraction * discountFactor)));
   }
 
   @Override

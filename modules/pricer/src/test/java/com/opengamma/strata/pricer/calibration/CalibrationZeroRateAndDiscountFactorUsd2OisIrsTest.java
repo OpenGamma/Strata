@@ -356,7 +356,7 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
       ImmutableMarketData marketData = ImmutableMarketData.of(map);
       ImmutableRatesProvider rpShifted = calibrator.apply(marketData);
       double pvS = SWAP_PRICER.presentValue(trade.getProduct(), rpShifted).getAmount(USD).getAmount();
-      assertEquals(mqsDscComputed[i], (pvS - pv0) / shift, notional * shift * 10d);
+      assertEquals(mqsDscComputed[i], (pvS - pv0) / shift, TOLERANCE_PV_DELTA);
     }
     double[] mqsFwd3Computed = mqs.getSensitivity(FWD3_CURVE_NAME, USD).getSensitivity().toArray();
     for (int i = 0; i < FWD3_NB_NODES; i++) {
@@ -365,7 +365,7 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
       ImmutableMarketData marketData = ImmutableMarketData.of(map);
       ImmutableRatesProvider rpShifted = calibrator.apply(marketData);
       double pvS = SWAP_PRICER.presentValue(trade.getProduct(), rpShifted).getAmount(USD).getAmount();
-      assertEquals(mqsFwd3Computed[i], (pvS - pv0) / shift, notional * shift * 10d);
+      assertEquals(mqsFwd3Computed[i], (pvS - pv0) / shift, TOLERANCE_PV_DELTA);
     }
   }
 
