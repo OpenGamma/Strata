@@ -27,6 +27,11 @@ public class CurveInfoTypeTest {
     assertEquals(test.toString(), "Jacobian");
   }
 
+  public void test_COMPOUNDING_PER_YEAR() {
+    CurveInfoType<Integer> test = CurveInfoType.COMPOUNDING_PER_YEAR;
+    assertEquals(test.toString(), "CompoundingPerYear");
+  }
+
   public void coverage() {
     CurveInfoType<String> test = CurveInfoType.of("Foo");
     assertEquals(test.toString(), "Foo");

@@ -26,6 +26,10 @@ public final class CurveInfoType<T>
    * Key used to access information about the {@link JacobianCalibrationMatrix}.
    */
   public static final CurveInfoType<JacobianCalibrationMatrix> JACOBIAN = CurveInfoType.of("Jacobian");
+  /**
+   * Key used to access information about the number of compounding per year, as an {@link Integer}.
+   */
+  public static final CurveInfoType<Integer> COMPOUNDING_PER_YEAR = CurveInfoType.of("CompoundingPerYear");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
