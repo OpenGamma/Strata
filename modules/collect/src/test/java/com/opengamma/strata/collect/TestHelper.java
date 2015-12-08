@@ -345,7 +345,7 @@ public class TestHelper {
    * <p>
    * For example:
    * <pre>
-   *  String sysOut = caputureSystemOut(() -> myCode);
+   *  String sysOut = captureSystemOut(() -> myCode);
    * </pre>
    * 
    * @param runner  the lambda containing the code to test
@@ -376,7 +376,7 @@ public class TestHelper {
    * <p>
    * For example:
    * <pre>
-   *  String sysErr = caputureSystemErr(() -> myCode);
+   *  String sysErr = captureSystemErr(() -> myCode);
    * </pre>
    * 
    * @param runner  the lambda containing the code to test
@@ -407,7 +407,7 @@ public class TestHelper {
    * <p>
    * For example:
    * <pre>
-   *  String log = caputureLog(Foo.class, () -> myCode);
+   *  String log = captureLog(Foo.class, () -> myCode);
    * </pre>
    * 
    * @param loggerClass  the class defining the logger to trap
