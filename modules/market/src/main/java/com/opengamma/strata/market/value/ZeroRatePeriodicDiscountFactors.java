@@ -7,10 +7,24 @@ package com.opengamma.strata.market.value;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
@@ -25,22 +39,6 @@ import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.ImmutableConstructor;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-
 /**
  * Provides access to discount factors for a currency based on a zero rate periodically-compounded curve.
  * <p>
@@ -51,7 +49,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  */
 @BeanDefinition(builderScope = "private")
 public final class ZeroRatePeriodicDiscountFactors
-implements DiscountFactors, ImmutableBean, Serializable {
+    implements DiscountFactors, ImmutableBean, Serializable {
 
   /**
    * Year fraction used as an effective zero.
@@ -75,7 +73,7 @@ implements DiscountFactors, ImmutableBean, Serializable {
   @PropertyDefinition(validate = "notNull")
   private final Curve curve;
   /**
-   * The number of compounding period per year of the zero-coupon rate.
+   * The number of compounding periods per year of the zero-coupon rate.
    */
   private final int frequency;  // cached, not a property
   /**
@@ -89,7 +87,8 @@ implements DiscountFactors, ImmutableBean, Serializable {
    * <p>
    * The curve is specified by an instance of {@link Curve}, such as {@link InterpolatedNodalCurve}.
    * The curve must contain {@linkplain ValueType#YEAR_FRACTION year fractions}
-   * against {@linkplain ValueType#ZERO_RATE zero rates}, and the day count and the compounding per year must be present.
+   * against {@linkplain ValueType#ZERO_RATE zero rates}.
+   * The day count and compounding periods per year must be present in the metadata.
    * 
    * @param currency  the currency
    * @param valuationDate  the valuation date for which the curve is valid
@@ -99,8 +98,6 @@ implements DiscountFactors, ImmutableBean, Serializable {
   public static ZeroRatePeriodicDiscountFactors of(Currency currency, LocalDate valuationDate, Curve underlyingCurve) {
     return new ZeroRatePeriodicDiscountFactors(currency, valuationDate, underlyingCurve);
   }
-
-  //-------------------------------------------------------------------------
 
   @ImmutableConstructor
   private ZeroRatePeriodicDiscountFactors(
@@ -112,8 +109,8 @@ implements DiscountFactors, ImmutableBean, Serializable {
     ArgChecker.notNull(valuationDate, "valuationDate");
     ArgChecker.notNull(curve, "curve");
     Optional<Integer> frequencyOpt = curve.getMetadata().findInfo(CurveInfoType.COMPOUNDING_PER_YEAR);
-    ArgChecker.isTrue(frequencyOpt.isPresent(), "coumponding per year should be present for periodicaly compounded curve ");
-    ArgChecker.isTrue(frequencyOpt.get() > 0, "coumponding per year should be positive");
+    ArgChecker.isTrue(frequencyOpt.isPresent(), "Compounding per year must be present for periodicaly compounded curve ");
+    ArgChecker.isTrue(frequencyOpt.get() > 0, "Compounding per year must be positive");
     curve.getMetadata().getXValueType().checkEquals(
         ValueType.YEAR_FRACTION, "Incorrect x-value type for zero-rate discount curve");
     curve.getMetadata().getYValueType().checkEquals(
@@ -171,7 +168,7 @@ implements DiscountFactors, ImmutableBean, Serializable {
   // calculates the discount factor at a given time
   private double discountFactor(double relativeYearFraction) {
     // convert zero rate periodically compounded to discount factor
-    return Math.pow(1.0d + curve.yValue(relativeYearFraction) / frequency, -relativeYearFraction * frequency);
+    return Math.pow(1d + curve.yValue(relativeYearFraction) / frequency, -relativeYearFraction * frequency);
   }
 
   // calculate the relative time between the valuation date and the specified date
@@ -194,6 +191,7 @@ implements DiscountFactors, ImmutableBean, Serializable {
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
+
     double relativeYearFraction = relativeYearFraction(date);
     double discountFactor = discountFactorWithSpread(date, zSpread, compoundedRateType, periodPerYear);
     return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, -discountFactor * relativeYearFraction);

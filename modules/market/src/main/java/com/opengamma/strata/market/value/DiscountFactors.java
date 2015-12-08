@@ -50,7 +50,7 @@ public interface DiscountFactors
     }
     if (curve.getMetadata().getYValueType().equals(ValueType.ZERO_RATE)) {
       Optional<Integer> frequencyOpt = curve.getMetadata().findInfo(CurveInfoType.COMPOUNDING_PER_YEAR);
-      if(frequencyOpt.isPresent()){
+      if (frequencyOpt.isPresent()) {
         return ZeroRatePeriodicDiscountFactors.of(currency, valuationDate, curve);
       }
       return ZeroRateDiscountFactors.of(currency, valuationDate, curve);
