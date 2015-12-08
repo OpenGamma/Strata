@@ -341,6 +341,19 @@ public final class MarketEnvironmentBuilder {
   //--------------------------------------------------------------------------------------------------
 
   /**
+   * Returns true if this builder contains a value for the ID.
+   *
+   * @param id  an ID
+   * @return true if this builder contains a value for the ID
+   */
+  @SuppressWarnings("unchecked")
+  public boolean containsValue(MarketDataId<?> id) {
+    return values.containsKey(id);
+  }
+
+  //--------------------------------------------------------------------------------------------------
+
+  /**
    * Builds a set of market data from the data in this builder.
    * <p>
    * It is possible to continue to add more data to a builder after calling {@code build()}. Any
@@ -355,6 +368,8 @@ public final class MarketEnvironmentBuilder {
     }
     return new MarketEnvironment(valuationDate, scenarioCount, values, timeSeries, valueFailures, timeSeriesFailures);
   }
+
+  //--------------------------------------------------------------------------------------------------
 
   private static Map.Entry<? extends MarketDataId<?>, ?> checkTypes(Map.Entry<? extends MarketDataId<?>, ?> entry) {
     if (!entry.getKey().getMarketDataType().isInstance(entry.getValue())) {
@@ -396,10 +411,10 @@ public final class MarketEnvironmentBuilder {
     if (scenarioCount != this.scenarioCount) {
       throw new IllegalArgumentException(
           Messages.format(
-              "Cannot add value {} with {} scenarios to an environment with {} scenarios",
-              box,
+              "Cannot add a value with {} scenarios to an environment with {} scenarios, value = {}",
               scenarioCount,
-              this.scenarioCount));
+              this.scenarioCount,
+              box));
     }
   }
 }
