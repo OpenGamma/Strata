@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.value;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.Messages;
@@ -14,6 +15,7 @@ import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
@@ -45,13 +47,17 @@ public interface DiscountFactors
   public static DiscountFactors of(Currency currency, LocalDate valuationDate, Curve curve) {
     if (curve.getMetadata().getYValueType().equals(ValueType.DISCOUNT_FACTOR)) {
       return SimpleDiscountFactors.of(currency, valuationDate, curve);
-    } else if (curve.getMetadata().getYValueType().equals(ValueType.ZERO_RATE)) {
-      return ZeroRateDiscountFactors.of(currency, valuationDate, curve);
-    } else {
-      throw new IllegalArgumentException(Messages.format(
-          "Unknown value type in discount curve, must be 'DiscountFactor' or 'ZeroRate' but was '{}'",
-          curve.getMetadata().getYValueType()));
     }
+    if (curve.getMetadata().getYValueType().equals(ValueType.ZERO_RATE)) {
+      Optional<Integer> frequencyOpt = curve.getMetadata().findInfo(CurveInfoType.COMPOUNDING_PER_YEAR);
+      if (frequencyOpt.isPresent()) {
+        return ZeroRatePeriodicDiscountFactors.of(currency, valuationDate, curve);
+      }
+      return ZeroRateDiscountFactors.of(currency, valuationDate, curve);
+    }
+    throw new IllegalArgumentException(Messages.format(
+        "Unknown value type in discount curve, must be 'DiscountFactor' or 'ZeroRate' but was '{}'",
+        curve.getMetadata().getYValueType()));
   }
 
   //-------------------------------------------------------------------------
