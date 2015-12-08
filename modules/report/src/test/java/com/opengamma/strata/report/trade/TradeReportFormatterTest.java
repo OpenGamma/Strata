@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -65,7 +66,7 @@ public class TradeReportFormatterTest {
     return TradeReport.builder()
         .columnHeaders("col0", "col1")
         .data(table)
-        .valuationDate(LocalDate.now())
+        .valuationDate(LocalDate.now(ZoneOffset.UTC))
         .runInstant(Instant.now())
         .build();
   }

@@ -13,6 +13,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -96,7 +97,7 @@ public class ValuePathEvaluatorTest {
         trade("cpty2", 10_000_000),
         trade("cpty3", 100_000_000));
     Results results = Results.of(3, 1, resultValues);
-    return ReportCalculationResults.of(LocalDate.now(), trades, columns, results);
+    return ReportCalculationResults.of(LocalDate.now(ZoneOffset.UTC), trades, columns, results);
   }
 
   private static Trade trade(String counterparty, double notional) {

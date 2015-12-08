@@ -13,6 +13,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -250,7 +251,6 @@ public class GuavateTest {
   //-------------------------------------------------------------------------
 
   public void test_mapEntriesToImmutableMap() {
-
     Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4, "e", 5);
     Map<String, Integer> expected = ImmutableMap.of("a", 1, "c", 3, "e", 5);
     ImmutableMap<String, Integer> output =
@@ -262,14 +262,13 @@ public class GuavateTest {
   }
 
   public void test_pairsToImmutableMap() {
-
     Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4);
     Map<String, Double> expected = ImmutableMap.of("A", 1.0, "B", 4.0, "C", 9.0, "D", 16.0);
 
     ImmutableMap<String, Double> output =
         input.entrySet()
             .stream()
-            .map(e -> Pair.of(e.getKey().toUpperCase(), Math.pow(e.getValue(), 2)))
+            .map(e -> Pair.of(e.getKey().toUpperCase(Locale.ENGLISH), Math.pow(e.getValue(), 2)))
             .collect(pairsToImmutableMap());
     assertEquals(output, expected);
   }

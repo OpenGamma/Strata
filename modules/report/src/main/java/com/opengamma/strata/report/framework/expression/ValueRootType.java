@@ -71,7 +71,7 @@ public enum ValueRootType {
    */
   public static ValueRootType parseToken(String rootString) {
     return Arrays.stream(values())
-        .filter(val -> val.token.toLowerCase().equals(rootString.toLowerCase()))
+        .filter(val -> val.token.equalsIgnoreCase(rootString))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException(
             Messages.format("Invalid root: {}. Value path must start with one of: {}", rootString, VALID_ROOTS)));

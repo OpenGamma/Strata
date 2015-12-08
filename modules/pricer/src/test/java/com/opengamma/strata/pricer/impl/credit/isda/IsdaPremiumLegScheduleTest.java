@@ -14,6 +14,7 @@ import java.time.Month;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.JulianFields;
+import java.util.Locale;
 
 import org.testng.annotations.Test;
 
@@ -183,7 +184,7 @@ public class IsdaPremiumLegScheduleTest {
 
     final IsdaPremiumLegSchedule schedule = new IsdaPremiumLegSchedule(startDate, endDate, paymentInt, stub, FOLLOWING, CALENDAR, true);
 
-    final DateTimeFormatter formatt = DateTimeFormatter.ofPattern("dd-MMM-yy");
+    final DateTimeFormatter formatt = DateTimeFormatter.ofPattern("dd-MMM-uu", Locale.ENGLISH);
 
     final int n = schedule.getNumPayments();
 
@@ -204,7 +205,7 @@ public class IsdaPremiumLegScheduleTest {
       final int days = (int) (secondJulianDate - firstJulianDate);
       System.out.print(days + " & ");
       final double premium = notional * coupon * ACT360.yearFraction(start, end);
-      System.out.format("%.2f" + " \\\\" + "\n", premium);
+      System.out.format(Locale.ENGLISH, "%.2f" + " \\\\" + "\n", premium);
     }
     System.out.println("\\hline");
     System.out.println("\\end{tabular}");

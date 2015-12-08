@@ -6,6 +6,8 @@
 
 package com.opengamma.strata.math.impl;
 
+import java.util.Locale;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -249,7 +251,7 @@ public class FuzzyEquals {
 
   private static void DEBUG_PRINT(String str, double a, double b)
   {
-    s_log.debug(String.format(str, a, b));
+    s_log.debug(String.format(Locale.ENGLISH, str, a, b));
   }
 
   private static double float64_t_machineEpsilon() {

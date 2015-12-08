@@ -8,9 +8,11 @@ package com.opengamma.strata.examples.finance;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -123,7 +125,7 @@ public class CurveScenarioExample {
     double pvBase = ((CurrencyAmount) pvList.get(0)).getAmount();
     double pvShifted = ((CurrencyAmount) pvList.get(1)).getAmount();
     double pv01Base = ((CurrencyAmount) pv01List.get(0)).getAmount();
-    NumberFormat numberFormat = new DecimalFormat("###,##0.00");
+    NumberFormat numberFormat = new DecimalFormat("###,##0.00", new DecimalFormatSymbols(Locale.ENGLISH));
 
     System.out.println("                         PV (base) = " + numberFormat.format(pvBase));
     System.out.println("             PV (1 bp curve shift) = " + numberFormat.format(pvShifted));

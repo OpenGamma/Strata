@@ -8,6 +8,7 @@ package com.opengamma.strata.examples.marketdata;
 import java.io.File;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -63,7 +64,7 @@ public class JarMarketDataBuilder extends ExampleMarketDataBuilder {
 
   @Override
   protected ResourceLocator getResource(String subdirectoryName, String resourceName) {
-    String fullLocation = String.format("%s%s/%s", rootPath, subdirectoryName, resourceName);
+    String fullLocation = String.format(Locale.ENGLISH, "%s%s/%s", rootPath, subdirectoryName, resourceName);
     try (JarFile jar = new JarFile(jarFile)) {
       JarEntry entry = jar.getJarEntry(fullLocation);
       if (entry == null) {

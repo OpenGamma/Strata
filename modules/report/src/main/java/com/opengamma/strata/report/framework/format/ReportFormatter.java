@@ -8,6 +8,7 @@ package com.opengamma.strata.report.framework.format;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -54,7 +55,7 @@ public abstract class ReportFormatter<R extends Report> {
    */
   @SuppressWarnings("resource")
   public void writeCsv(R report, OutputStream out) {
-    OutputStreamWriter outputWriter = new OutputStreamWriter(out);
+    OutputStreamWriter outputWriter = new OutputStreamWriter(out, StandardCharsets.UTF_8);
     CsvOutput csvOut = new CsvOutput(outputWriter);
     csvOut.writeLine(report.getColumnHeaders());
     IntStream.range(0, report.getRowCount())
@@ -76,7 +77,7 @@ public abstract class ReportFormatter<R extends Report> {
         .toArray(ASCIITableHeader[]::new);
     String[][] table = formatTable(report, ReportOutputFormat.ASCII_TABLE);
     String asciiTable = AsciiTableInstance.get().getTable(headers, table);
-    PrintWriter pw = new PrintWriter(out);
+    PrintWriter pw = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
     pw.println(asciiTable);
     pw.flush();
   }

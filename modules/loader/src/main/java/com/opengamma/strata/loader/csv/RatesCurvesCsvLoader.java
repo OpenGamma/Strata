@@ -256,11 +256,11 @@ public final class RatesCurvesCsvLoader {
   // parses the identifier
   private static RateCurveId createRateCurveId(CurveGroupName curveGroup, String curveTypeStr, String referenceStr) {
     // discount and forward curves are supported
-    if (FORWARD.equals(curveTypeStr.toLowerCase())) {
+    if (FORWARD.equals(curveTypeStr.toLowerCase(Locale.ENGLISH))) {
       RateIndex index = (RateIndex) LoaderUtils.findIndex(referenceStr);
       return RateIndexCurveId.of(index, curveGroup);
 
-    } else if (DISCOUNT.equals(curveTypeStr.toLowerCase())) {
+    } else if (DISCOUNT.equals(curveTypeStr.toLowerCase(Locale.ENGLISH))) {
       Currency ccy = Currency.of(referenceStr);
       return DiscountCurveId.of(ccy, curveGroup);
 

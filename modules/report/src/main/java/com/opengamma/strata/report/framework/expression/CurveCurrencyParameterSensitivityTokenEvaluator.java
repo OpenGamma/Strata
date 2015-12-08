@@ -6,6 +6,7 @@
 package com.opengamma.strata.report.framework.expression;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
@@ -29,8 +30,8 @@ public class CurveCurrencyParameterSensitivityTokenEvaluator extends TokenEvalua
   @Override
   public Set<String> tokens(CurveCurrencyParameterSensitivity sensitivity) {
     return ImmutableSet.of(
-        sensitivity.getCurrency().getCode().toLowerCase(),
-        sensitivity.getCurveName().toString().toLowerCase());
+        sensitivity.getCurrency().getCode().toLowerCase(Locale.ENGLISH),
+        sensitivity.getCurveName().toString().toLowerCase(Locale.ENGLISH));
   }
 
   @Override

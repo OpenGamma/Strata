@@ -6,9 +6,12 @@
 package com.opengamma.strata.examples.report;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 
 import org.joda.beans.ser.JodaBeanSer;
 
@@ -35,7 +38,7 @@ public abstract class JodaBeanParameterConverter<T>
   public T convert(String fileName) {
     try {
       File f = new File(fileName);
-      try (FileReader reader = new FileReader(f)) {
+      try (Reader reader = new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8)) {
         return JodaBeanSer.PRETTY.xmlReader().read(reader, getExpectedType());
       }
     } catch (RuntimeException | IOException ex) {

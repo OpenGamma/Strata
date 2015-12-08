@@ -7,6 +7,7 @@ package com.opengamma.strata.report.trade;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import com.opengamma.strata.collect.io.IniFile;
 import com.opengamma.strata.collect.io.PropertySet;
@@ -50,7 +51,7 @@ public class TradeReportTemplateIniLoader
   public TradeReportTemplate load(IniFile iniFile) {
     List<TradeReportColumn> reportColumns = new ArrayList<TradeReportColumn>();
     for (String columnName : iniFile.sections()) {
-      if (columnName.toLowerCase().equals(SETTINGS_SECTION)) {
+      if (columnName.toLowerCase(Locale.ENGLISH).equals(SETTINGS_SECTION)) {
         continue;
       }
       PropertySet properties = iniFile.section(columnName);

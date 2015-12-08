@@ -8,10 +8,12 @@ package com.opengamma.strata.examples.finance;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.SortedMap;
 
@@ -193,7 +195,7 @@ public class HistoricalScenarioExample {
   }
 
   private static void outputPnl(List<LocalDate> scenarioDates, ScenarioResult<?> scenarioValuations) {
-    NumberFormat numberFormat = new DecimalFormat("0.00");
+    NumberFormat numberFormat = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.ENGLISH));
     double basePv = ((CurrencyAmount) scenarioValuations.get(0)).getAmount();
     System.out.println("Base PV (USD): " + numberFormat.format(basePv));
     System.out.println();

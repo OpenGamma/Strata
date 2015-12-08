@@ -8,6 +8,7 @@ package com.opengamma.strata.report.framework.expression;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -76,7 +77,7 @@ public class IterableTokenEvaluator extends TokenEvaluator<Iterable<?>> {
 
   @Override
   public EvaluationResult evaluate(Iterable<?> iterable, String firstToken, List<String> remainingTokens) {
-    String token = firstToken.toLowerCase();
+    String token = firstToken.toLowerCase(Locale.ENGLISH);
     Integer index = Ints.tryParse(token);
 
     if (index != null) {
@@ -112,7 +113,7 @@ public class IterableTokenEvaluator extends TokenEvaluator<Iterable<?>> {
         .map(Property::get)
         .filter(v -> v != null)
         .map(Object::toString)
-        .map(String::toLowerCase)
+        .map(v -> v.toLowerCase(Locale.ENGLISH))
         .collect(toImmutableSet());
   }
 

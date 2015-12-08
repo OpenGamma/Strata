@@ -6,7 +6,9 @@
 package com.opengamma.strata.report.framework.format;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -23,7 +25,8 @@ class DoubleValueFormatter
   /**
    * The decimal format.
    */
-  private static final DecimalFormat FULL_AMOUNT_FORMAT = new DecimalFormat("#.##########");
+  private static final DecimalFormat FULL_AMOUNT_FORMAT =
+      new DecimalFormat("#.##########", new DecimalFormatSymbols(Locale.ENGLISH));
   /**
    * The format cache.
    */
@@ -59,7 +62,7 @@ class DoubleValueFormatter
   //-------------------------------------------------------------------------
   private DecimalFormat getDecimalPlacesFormat(int decimalPlaces) {
     if (!displayFormatCache.containsKey(decimalPlaces)) {
-      DecimalFormat format = new DecimalFormat("#,##0;(#,##0)");
+      DecimalFormat format = new DecimalFormat("#,##0;(#,##0)", new DecimalFormatSymbols(Locale.ENGLISH));
       format.setMinimumFractionDigits(decimalPlaces);
       format.setMaximumFractionDigits(decimalPlaces);
       displayFormatCache.put(decimalPlaces, format);

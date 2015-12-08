@@ -43,7 +43,7 @@ public final class YearMonthCurveNodeMetadata
   /**
    * Formatter for Jan15.
    */
-  private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMMyy").withLocale(Locale.ENGLISH);
+  private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMMuu", Locale.ENGLISH);
 
   /**
    * The date of the curve node.

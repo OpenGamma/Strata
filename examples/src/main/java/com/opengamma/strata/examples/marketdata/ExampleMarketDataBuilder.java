@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -132,7 +133,7 @@ public abstract class ExampleMarketDataBuilder {
     if (url == null) {
       throw new IllegalArgumentException(Messages.format("Classpath resource not found: {}", qualifiedRoot));
     }
-    if (url.getProtocol() != null && "jar".equals(url.getProtocol().toLowerCase())) {
+    if (url.getProtocol() != null && "jar".equals(url.getProtocol().toLowerCase(Locale.ENGLISH))) {
       // Inside a JAR
       int classSeparatorIdx = url.getFile().indexOf("!");
       if (classSeparatorIdx == -1) {
@@ -306,6 +307,7 @@ public abstract class ExampleMarketDataBuilder {
     }
 
     String creditMarketDataDateDirectory = String.format(
+        Locale.ENGLISH,
         "%s/%s",
         CREDIT_DIR,
         marketDataDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
@@ -357,7 +359,9 @@ public abstract class ExampleMarketDataBuilder {
       CharSource inputStaticDataSource = singleNameStaticDataResource.getCharSource();
       MarkitSingleNameCreditCurveDataParser.parse(builder, inputCreditCurvesSource, inputStaticDataSource);
     } catch (Exception ex) {
-      throw new RuntimeException(String.format("Unable to read single name spread curves: exception at %s/%s",
+      throw new RuntimeException(String.format(
+          Locale.ENGLISH,
+          "Unable to read single name spread curves: exception at %s/%s",
           creditMarketDataDateDirectory, SINGLE_NAME_CREDIT_CURVES_FILE), ex);
     }
   }
