@@ -22,12 +22,7 @@ public class IntegratorRepeated2DTest {
   public void integrate() {
 
     // Test function.
-    BiFunction<Double, Double, Double> f = new BiFunction<Double, Double, Double>() {
-      @Override
-      public Double apply(Double x1, Double x2) {
-        return x1 + Math.sin(x2);
-      }
-    };
+    BiFunction<Double, Double, Double> f = (x1, x2) -> x1 + Math.sin(x2);
 
     double absTol = 1.0E-6;
     double relTol = 1.0E-6;
@@ -39,16 +34,21 @@ public class IntegratorRepeated2DTest {
     Double[] upper;
     double result, resultExpected;
     // First set of limits.
-    lower = new Double[] {0.0, 1.0 };
-    upper = new Double[] {2.0, 10.0 };
+    lower = new Double[] {0.0, 1.0};
+    upper = new Double[] {2.0, 10.0};
     result = integrator2D.integrate(f, lower, upper);
-    resultExpected = (upper[0] * upper[0] - lower[0] * lower[0]) / 2.0 * (upper[1] - lower[1]) + (upper[0] - lower[0]) * (-Math.cos(upper[1]) + Math.cos(lower[1]));
+    resultExpected =
+        (upper[0] * upper[0] - lower[0] * lower[0]) / 2.0 * (upper[1] - lower[1]) +
+            (upper[0] - lower[0]) * (-Math.cos(upper[1]) + Math.cos(lower[1]));
     assertEquals("Integration 2D - repeated 1D", resultExpected, result, 1E-8);
     // Second set of limits.
-    lower = new Double[] {0.25, 5.25 };
-    upper = new Double[] {25.25, 35.25 };
+    lower = new Double[] {0.25, 5.25};
+    upper = new Double[] {25.25, 35.25};
     result = integrator2D.integrate(f, lower, upper);
-    resultExpected = (upper[0] * upper[0] - lower[0] * lower[0]) / 2.0 * (upper[1] - lower[1]) + (upper[0] - lower[0]) * (-Math.cos(upper[1]) + Math.cos(lower[1]));
+    resultExpected =
+        (upper[0] * upper[0] - lower[0] * lower[0]) / 2.0 * (upper[1] - lower[1]) +
+            (upper[0] - lower[0]) * (-Math.cos(upper[1]) + Math.cos(lower[1]));
     assertEquals("Integration 2D - repeated 1D", resultExpected, result, 1E-6);
   }
+
 }
