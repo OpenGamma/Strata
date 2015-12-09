@@ -127,23 +127,28 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   public void pointAndParameterFx() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
-        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
+        .discountCurve(GBP, DISCOUNT_CURVE_GBP)
+        .discountCurve(USD, DISCOUNT_CURVE_USD)
         .build();
     ImmutableRatesProvider test_gbp_up = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
-        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_UP, USD, DISCOUNT_CURVE_USD))
+        .discountCurve(GBP, DISCOUNT_CURVE_GBP_UP)
+        .discountCurve(USD, DISCOUNT_CURVE_USD)
         .build();
     ImmutableRatesProvider test_gbp_dw = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
-        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_DOWN, USD, DISCOUNT_CURVE_USD))
+        .discountCurve(GBP, DISCOUNT_CURVE_GBP_DOWN)
+        .discountCurve(USD, DISCOUNT_CURVE_USD)
         .build();
     ImmutableRatesProvider test_usd_up = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
-        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD_UP))
+        .discountCurve(GBP, DISCOUNT_CURVE_GBP)
+        .discountCurve(USD, DISCOUNT_CURVE_USD_UP)
         .build();
     ImmutableRatesProvider test_usd_dw = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
-        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD_DOWN))
+        .discountCurve(GBP, DISCOUNT_CURVE_GBP)
+        .discountCurve(USD, DISCOUNT_CURVE_USD_DOWN)
         .build();
     LocalDate matuirtyDate = GBP_USD_WM.calculateMaturityFromFixing(VAL_DATE);
     double maturityTime = DAY_COUNT.relativeYearFraction(VAL_DATE, matuirtyDate);

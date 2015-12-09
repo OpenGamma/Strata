@@ -17,7 +17,6 @@ import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 
 import java.time.LocalDate;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curves;
@@ -411,12 +410,11 @@ public class StandardDataSets {
     // data from group 1
     return ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
         .fxRateProvider(FX_MATRIX)
-        .discountCurves(ImmutableMap.of(USD, GROUP1_USD_DSC))
-        .indexCurves(ImmutableMap.of(
-            USD_FED_FUND, GROUP1_USD_ON,
-            USD_LIBOR_1M, GROUP1_USD_L1M,
-            USD_LIBOR_3M, GROUP1_USD_L3M,
-            USD_LIBOR_6M, GROUP1_USD_L6M))
+        .discountCurve(USD, GROUP1_USD_DSC)
+        .overnightIndexCurve(USD_FED_FUND, GROUP1_USD_ON)
+        .iborIndexCurve(USD_LIBOR_1M, GROUP1_USD_L1M)
+        .iborIndexCurve(USD_LIBOR_3M, GROUP1_USD_L3M)
+        .iborIndexCurve(USD_LIBOR_6M, GROUP1_USD_L6M)
         .build();
   }
 
@@ -430,14 +428,12 @@ public class StandardDataSets {
     // data from group 2
     return ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
         .fxRateProvider(FX_MATRIX_EUR_USD)
-        .discountCurves(ImmutableMap.of(
-            EUR, GROUP2_EUR_DSC,
-            USD, GROUP2_USD_DSC))
-        .indexCurves(ImmutableMap.of(
-            EUR_EONIA, GROUP2_EUR_ON,
-            EUR_EURIBOR_3M, GROUP2_EUR_L3M,
-            USD_FED_FUND, GROUP2_USD_ON,
-            USD_LIBOR_3M, GROUP2_USD_L3M))
+        .discountCurve(EUR, GROUP2_EUR_DSC)
+        .discountCurve(USD, GROUP2_USD_DSC)
+        .overnightIndexCurve(EUR_EONIA, GROUP2_EUR_ON)
+        .iborIndexCurve(EUR_EURIBOR_3M, GROUP2_EUR_L3M)
+        .overnightIndexCurve(USD_FED_FUND, GROUP2_USD_ON)
+        .iborIndexCurve(USD_LIBOR_3M, GROUP2_USD_L3M)
         .build();
   }
 

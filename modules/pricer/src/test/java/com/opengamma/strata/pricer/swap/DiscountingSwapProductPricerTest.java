@@ -49,7 +49,6 @@ import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Map;
 
 import org.testng.annotations.Test;
 
@@ -61,7 +60,6 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
@@ -782,13 +780,9 @@ public class DiscountingSwapProductPricerTest {
   public void test_currentCash_onPayment() {
     SwapTrade trade = GBP_FIXED_1Y_LIBOR_3M.toTrade(MULTI_USD.getValuationDate(), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD);
     ExpandedSwap expanded = trade.getProduct().expand();
-    Map<Index, LocalDateDoubleTimeSeries> ts =
-        ImmutableMap.of(GBP_LIBOR_3M, LocalDateDoubleTimeSeries.of(LocalDate.of(2016, 10, 24), 0.003));
     ImmutableRatesProvider prov =
-        ImmutableRatesProvider.builder(expanded.getLegs().get(0).getPaymentPeriods().get(2).getPaymentDate())
-            .discountCurves(RatesProviderDataSets.GBP_MULTI_CCY_MAP)
-            .indexCurves(RatesProviderDataSets.GBP_MULTI_IND_MAP)
-            .timeSeries(ts)
+        RatesProviderDataSets.MULTI_GBP.toBuilder(expanded.getLegs().get(0).getPaymentPeriods().get(2).getPaymentDate())
+            .timeSeries(GBP_LIBOR_3M, LocalDateDoubleTimeSeries.of(LocalDate.of(2016, 10, 24), 0.003))
             .build();
     MultiCurrencyAmount computed = SWAP_PRODUCT_PRICER.currentCash(expanded, prov);
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(

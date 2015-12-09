@@ -21,19 +21,16 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
-import java.util.Map;
 import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -72,14 +69,11 @@ public class CurveGammaCalculatorTest {
       RatesProviderDataSets.TIMES_1,
       RatesProviderDataSets.RATES_1_1,
       RatesProviderDataSets.INTERPOLATOR);
-  private static final Map<Currency, Curve> USD_SINGLE_CCY_MAP = ImmutableMap.of(USD, USD_SINGLE_CURVE);
-  private static final Map<Index, Curve> USD_SINGLE_IND_MAP = ImmutableMap.of(
-      USD_FED_FUND, USD_SINGLE_CURVE,
-      USD_LIBOR_3M, USD_SINGLE_CURVE,
-      USD_LIBOR_6M, USD_SINGLE_CURVE);
   private static final ImmutableRatesProvider SINGLE = ImmutableRatesProvider.builder(VAL_DATE_2015_04_27)
-      .discountCurves(USD_SINGLE_CCY_MAP)
-      .indexCurves(USD_SINGLE_IND_MAP)
+      .discountCurve(USD, USD_SINGLE_CURVE)
+      .overnightIndexCurve(USD_FED_FUND, USD_SINGLE_CURVE)
+      .iborIndexCurve(USD_LIBOR_3M, USD_SINGLE_CURVE)
+      .iborIndexCurve(USD_LIBOR_6M, USD_SINGLE_CURVE)
       .build();
   private static final Currency SINGLE_CURRENCY = Currency.USD;
   // Conventions

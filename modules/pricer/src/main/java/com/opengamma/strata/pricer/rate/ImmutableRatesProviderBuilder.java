@@ -83,46 +83,6 @@ public final class ImmutableRatesProviderBuilder {
   }
 
   //-------------------------------------------------------------------------
-//  /**
-//   * Adds discount factors to the provider.
-//   * <p>
-//   * This adds the specified discount factors to the provider.
-//   * The valuation date of the discount factors must match the valuation date of the builder.
-//   * This operates using {@link Map#put(Object, Object)} semantics using the currency as the key.
-//   * 
-//   * @param discountFactors  the discount factors
-//   * @return this, for chaining
-//   * @throws IllegalArgumentException if the valuation date does not match
-//   */
-//  public ImmutableRatesProviderBuilder discountFactors(DiscountFactors... discountFactors) {
-//    ArgChecker.notNull(discountFactors, "discountFactors");
-//    for (DiscountFactors df : discountFactors) {
-//      checkValuationDate(df.getValuationDate());
-//      this.discountFactors.put(df.getCurrency(), df);
-//    }
-//    return this;
-//  }
-//
-//  /**
-//   * Adds discount factors to the provider.
-//   * <p>
-//   * This adds the specified discount factors to the provider.
-//   * The valuation date of the discount factors must match the valuation date of the builder.
-//   * This operates using {@link Map#putAll(Map)} semantics using the currency as the key.
-//   * 
-//   * @param discountFactors  the discount factors
-//   * @return this, for chaining
-//   * @throws IllegalArgumentException if the valuation date does not match
-//   */
-//  public ImmutableRatesProviderBuilder discountFactors(Map<Currency, DiscountFactors> discountFactors) {
-//    ArgChecker.notNull(discountFactors, "discountFactors");
-//    for (DiscountFactors df : discountFactors.values()) {
-//      checkValuationDate(df.getValuationDate());
-//      this.discountFactors.put(df.getCurrency(), df);
-//    }
-//    return this;
-//  }
-
   /**
    * Adds a discount curve to the provider.
    * <p>
@@ -158,46 +118,6 @@ public final class ImmutableRatesProviderBuilder {
   }
 
   //-------------------------------------------------------------------------
-//  /**
-//   * Adds Ibor index values to the provider.
-//   * <p>
-//   * This adds the specified Ibor index values to the provider.
-//   * The valuation date of the Ibor index values must match the valuation date of the builder.
-//   * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
-//   * 
-//   * @param iborIndexRates  the Ibor index values
-//   * @return this, for chaining
-//   * @throws IllegalArgumentException if the valuation date does not match
-//   */
-//  public ImmutableRatesProviderBuilder iborIndexRates(IborIndexRates... iborIndexRates) {
-//    ArgChecker.notNull(iborIndexRates, "iborIndexRates");
-//    for (IborIndexRates rates : iborIndexRates) {
-//      checkValuationDate(rates.getValuationDate());
-//      this.iborIndexRates.put(rates.getIndex(), rates);
-//    }
-//    return this;
-//  }
-//
-//  /**
-//   * Adds Ibor index values to the provider.
-//   * <p>
-//   * This adds the specified Ibor index values to the provider.
-//   * The valuation date of the Ibor index values must match the valuation date of the builder.
-//   * This operates using {@link Map#putAll(Map)} semantics using the index as the key.
-//   * 
-//   * @param iborIndexRates  the Ibor index values
-//   * @return this, for chaining
-//   * @throws IllegalArgumentException if the valuation date does not match
-//   */
-//  public ImmutableRatesProviderBuilder iborIndexRates(Map<IborIndex, IborIndexRates> iborIndexRates) {
-//    ArgChecker.notNull(iborIndexRates, "iborIndexRates");
-//    for (IborIndexRates rates : iborIndexRates.values()) {
-//      checkValuationDate(rates.getValuationDate());
-//      this.iborIndexRates.put(rates.getIndex(), rates);
-//    }
-//    return this;
-//  }
-
   /**
    * Adds an Ibor index forward curve to the provider.
    * <p>
@@ -240,46 +160,6 @@ public final class ImmutableRatesProviderBuilder {
   }
 
   //-------------------------------------------------------------------------
-//  /**
-//   * Adds Overnight index values to the provider.
-//   * <p>
-//   * This adds the specified Overnight index values to the provider.
-//   * The valuation date of the Overnight index values must match the valuation date of the builder.
-//   * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
-//   * 
-//   * @param overnightIndexRates  the Overnight index values
-//   * @return this, for chaining
-//   * @throws IllegalArgumentException if the valuation date does not match
-//   */
-//  public ImmutableRatesProviderBuilder overnightIndexRates(OvernightIndexRates... overnightIndexRates) {
-//    ArgChecker.notNull(overnightIndexRates, "overnightIndexRates");
-//    for (OvernightIndexRates rates : overnightIndexRates) {
-//      checkValuationDate(rates.getValuationDate());
-//      this.overnightIndexRates.put(rates.getIndex(), rates);
-//    }
-//    return this;
-//  }
-//
-//  /**
-//   * Adds Overnight index values to the provider.
-//   * <p>
-//   * This adds the specified Overnight index values to the provider.
-//   * The valuation date of the Overnight index values must match the valuation date of the builder.
-//   * This operates using {@link Map#putAll(Map)} semantics using the index as the key.
-//   * 
-//   * @param overnightIndexRates  the Overnight index values
-//   * @return this, for chaining
-//   * @throws IllegalArgumentException if the valuation date does not match
-//   */
-//  public ImmutableRatesProviderBuilder overnightIndexRates(Map<OvernightIndex, OvernightIndexRates> overnightIndexRates) {
-//    ArgChecker.notNull(overnightIndexRates, "overnightIndexRates");
-//    for (OvernightIndexRates rates : overnightIndexRates.values()) {
-//      checkValuationDate(rates.getValuationDate());
-//      this.overnightIndexRates.put(rates.getIndex(), rates);
-//    }
-//    return this;
-//  }
-
   /**
    * Adds an Overnight index forward curve to the provider.
    * <p>

@@ -19,7 +19,6 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -171,7 +170,7 @@ public class DiscountingNotionalExchangePricerTest {
   //-------------------------------------------------------------------------
   public void test_currencyExposure() {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
-        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
+        .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .build();
     DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
     MultiCurrencyAmount computed = test.currencyExposure(NOTIONAL_EXCHANGE_REC_GBP, prov);
@@ -183,7 +182,7 @@ public class DiscountingNotionalExchangePricerTest {
 
   public void test_currentCash_zero() {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
-        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
+        .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .build();
     DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
     double computed = test.currentCash(NOTIONAL_EXCHANGE_REC_GBP, prov);
@@ -192,7 +191,7 @@ public class DiscountingNotionalExchangePricerTest {
 
   public void test_currentCash_onPayment() {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate())
-        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
+        .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .build();
     DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
     double notional = NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount();

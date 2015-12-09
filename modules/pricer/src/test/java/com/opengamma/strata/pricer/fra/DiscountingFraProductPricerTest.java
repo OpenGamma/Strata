@@ -22,7 +22,6 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
@@ -489,8 +488,8 @@ public class DiscountingFraProductPricerTest {
     InterpolatedNodalCurve indexCurve =
         InterpolatedNodalCurve.of(Curves.zeroRates("GBP-GBPIBOR3M", DAY_COUNT), time_index, rate_index, interp);
     IMM_PROV = ImmutableRatesProvider.builder(VAL_DATE)
-        .discountCurves(ImmutableMap.of(GBP, dscCurve))
-        .indexCurves(ImmutableMap.of(GBP_LIBOR_3M, indexCurve))
+        .discountCurve(GBP, dscCurve)
+        .iborIndexCurve(GBP_LIBOR_3M, indexCurve)
         .build();
   }
 

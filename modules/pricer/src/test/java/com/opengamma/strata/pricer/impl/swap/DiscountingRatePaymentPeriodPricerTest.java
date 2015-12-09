@@ -11,7 +11,6 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.FX_MATRIX_GBP_USD;
-import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.GBP_USD_MULTI_CCY_MAP;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_GBP_USD;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_GBP_USD_SIMPLE;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.VAL_DATE_2014_01_22;
@@ -25,13 +24,11 @@ import static org.testng.Assert.assertTrue;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -41,7 +38,6 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.explain.ExplainKey;
@@ -53,6 +49,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.FxIndexRates;
+import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -860,10 +857,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   public void test_currencyExposure_fx() {
     DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
     LocalDate valuationDate = VAL_DATE.minusWeeks(1);
-    ImmutableRatesProvider provider = ImmutableRatesProvider.builder(valuationDate)
-        .fxRateProvider(FX_MATRIX_GBP_USD)
-        .discountCurves(GBP_USD_MULTI_CCY_MAP)
-        .build();
+    ImmutableRatesProvider provider = RatesProviderDataSets.MULTI_GBP_USD.toBuilder(valuationDate).build();
     // USD
     MultiCurrencyAmount computedUSD = pricer.currencyExposure(PAYMENT_PERIOD_FULL_GS_FX_USD, provider);
     PointSensitivities pointUSD = pricer.presentValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_USD, provider).build();
@@ -879,9 +873,8 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(computedGBP.getAmount(USD).getAmount(), expectedGBP.getAmount(USD).getAmount(), TOLERANCE_PV);
     assertFalse(computedGBP.contains(GBP)); // 0 GBP
     // FD approximation
-    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder(valuationDate)
+    ImmutableRatesProvider provUp = RatesProviderDataSets.MULTI_GBP_USD.toBuilder(valuationDate)
         .fxRateProvider(FX_MATRIX_BUMP)
-        .discountCurves(GBP_USD_MULTI_CCY_MAP)
         .build();
     double expectedFdUSD = (pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provUp) -
         pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provider)) / EPS_FD;
@@ -894,12 +887,9 @@ public class DiscountingRatePaymentPeriodPricerTest {
   public void test_currencyExposure_fx_betweenFixingAndPayment() {
     DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
     LocalDate valuationDate = VAL_DATE.plusWeeks(1);
-    Map<Index, LocalDateDoubleTimeSeries> ts =
-        ImmutableMap.of(FxIndices.GBP_USD_WM, LocalDateDoubleTimeSeries.of(LocalDate.of(2014, 1, 22), 1.55));
-    ImmutableRatesProvider provider = ImmutableRatesProvider.builder(valuationDate)
-        .fxRateProvider(FX_MATRIX_GBP_USD)
-        .discountCurves(GBP_USD_MULTI_CCY_MAP)
-        .timeSeries(ts)
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(LocalDate.of(2014, 1, 22), 1.55);
+    ImmutableRatesProvider provider = RatesProviderDataSets.MULTI_GBP_USD.toBuilder(valuationDate)
+        .timeSeries(FxIndices.GBP_USD_WM, ts)
         .build();
     // USD
     MultiCurrencyAmount computedUSD = pricer.currencyExposure(PAYMENT_PERIOD_FULL_GS_FX_USD, provider);
@@ -918,10 +908,9 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(computedGBP.getAmount(GBP).getAmount(), expectedGBP.getAmount(GBP).getAmount(), TOLERANCE_PV);
     assertFalse(computedGBP.contains(USD)); // 0 USD
     // FD approximation
-    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder(valuationDate)
+    ImmutableRatesProvider provUp = RatesProviderDataSets.MULTI_GBP_USD.toBuilder(valuationDate)
         .fxRateProvider(FX_MATRIX_BUMP)
-        .discountCurves(GBP_USD_MULTI_CCY_MAP)
-        .timeSeries(ts)
+        .timeSeries(FxIndices.GBP_USD_WM, ts)
         .build();
     double expectedFdUSD = (pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provUp) -
         pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provider)) / EPS_FD;
@@ -950,9 +939,8 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(computedGBP.getAmount(USD).getAmount(), expectedGBP.getAmount(USD).getAmount(), TOLERANCE_PV);
     assertFalse(computedGBP.contains(GBP)); // 0 GBP
     // FD approximation
-    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder(VAL_DATE)
+    ImmutableRatesProvider provUp = RatesProviderDataSets.MULTI_GBP_USD.toBuilder(VAL_DATE)
         .fxRateProvider(FX_MATRIX_BUMP)
-        .discountCurves(GBP_USD_MULTI_CCY_MAP)
         .build();
     double expectedFdUSD = (pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provUp) -
         pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provider)) / EPS_FD;

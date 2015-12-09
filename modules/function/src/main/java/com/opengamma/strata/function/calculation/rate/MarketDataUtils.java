@@ -10,7 +10,6 @@ import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import java.util.Set;
 import java.util.function.Function;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.calc.marketdata.SingleCalculationMarketData;
@@ -52,7 +51,7 @@ public final class MarketDataUtils {
     // market data into a new rates provider.
 
     return ImmutableRatesProvider.builder(marketData.getValuationDate())
-        .discountCurves(ImmutableMap.of(currency, curveOverride))
+        .discountCurve(currency, curveOverride)
         .indexCurves(indices.stream()
             .collect(toImmutableMap(Function.identity(), k -> curveOverride)))
         .timeSeries(indices.stream()

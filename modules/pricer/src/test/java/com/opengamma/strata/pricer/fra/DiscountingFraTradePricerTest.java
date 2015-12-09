@@ -16,7 +16,6 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -75,11 +74,8 @@ public class DiscountingFraTradePricerTest {
         .tradeInfo(TradeInfo.builder().tradeDate(paymentDate).build())
         .product(FRA)
         .build();
-    ImmutableRatesProvider ratesProvider = ImmutableRatesProvider.builder(paymentDate)
-        .discountCurves(RatesProviderDataSets.GBP_MULTI_CCY_MAP)
-        .indexCurves(RatesProviderDataSets.GBP_MULTI_IND_MAP)
-        .timeSeries(
-            ImmutableMap.of(GBP_LIBOR_3M, LocalDateDoubleTimeSeries.builder().put(paymentDate, publishedRate).build()))
+    ImmutableRatesProvider ratesProvider = RatesProviderDataSets.MULTI_GBP.toBuilder(paymentDate)
+        .timeSeries(GBP_LIBOR_3M, LocalDateDoubleTimeSeries.of(paymentDate, publishedRate))
         .build();
     assertEquals(PRICER_TRADE.currentCash(trade, ratesProvider), CurrencyAmount.of(FRA.getCurrency(),
         (publishedRate - FRA.getFixedRate()) / (1d + publishedRate * EXPANDED.getYearFraction()) *

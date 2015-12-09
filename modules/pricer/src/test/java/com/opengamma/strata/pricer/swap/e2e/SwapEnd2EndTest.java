@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -778,17 +777,11 @@ public class SwapEnd2EndTest {
     // StandardDataSets.providerUsdDscOnL1L3L6() with locked holidays and time-series
     return ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(StandardDataSets.FX_MATRIX)
-        .discountCurves(ImmutableMap.of(USD, StandardDataSets.GROUP1_USD_DSC))
-        .indexCurves(ImmutableMap.of(
-            USD_FED_FUND, StandardDataSets.GROUP1_USD_ON,
-            USD_LIBOR_1M, StandardDataSets.GROUP1_USD_L1M,
-            USD_LIBOR_3M, StandardDataSets.GROUP1_USD_L3M,
-            USD_LIBOR_6M, StandardDataSets.GROUP1_USD_L6M))
-        .timeSeries(ImmutableMap.of(
-            USD_LIBOR_1M, TS_USDLIBOR1M,
-            USD_LIBOR_3M, TS_USDLIBOR3M,
-            USD_LIBOR_6M, TS_USDLIBOR6M,
-            USD_FED_FUND, TS_USDON))
+        .discountCurve(USD, StandardDataSets.GROUP1_USD_DSC)
+        .overnightIndexCurve(USD_FED_FUND, StandardDataSets.GROUP1_USD_ON, TS_USDON)
+        .iborIndexCurve(USD_LIBOR_1M, StandardDataSets.GROUP1_USD_L1M, TS_USDLIBOR1M)
+        .iborIndexCurve(USD_LIBOR_3M, StandardDataSets.GROUP1_USD_L3M, TS_USDLIBOR3M)
+        .iborIndexCurve(USD_LIBOR_6M, StandardDataSets.GROUP1_USD_L6M, TS_USDLIBOR6M)
         .build();
   }
 

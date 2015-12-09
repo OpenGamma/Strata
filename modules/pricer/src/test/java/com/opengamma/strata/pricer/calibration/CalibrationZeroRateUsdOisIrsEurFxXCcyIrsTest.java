@@ -366,7 +366,6 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
           .addForwardCurve(EUR_FWD3_CURVE_DEFN, EUR_EURIBOR_3M).build();
   private static final ImmutableRatesProvider KNOWN_DATA = ImmutableRatesProvider.builder(VAL_DATE)
       .fxRateProvider(new MarketDataFxRateProvider(ALL_QUOTES))
-      .timeSeries(TS)
       .build();
 
   //-------------------------------------------------------------------------

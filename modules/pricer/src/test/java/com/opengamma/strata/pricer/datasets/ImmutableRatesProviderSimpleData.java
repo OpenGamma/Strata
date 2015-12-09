@@ -10,11 +10,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curves;
@@ -43,17 +39,14 @@ public class ImmutableRatesProviderSimpleData {
     InterpolatedNodalCurve indexCurve =
         InterpolatedNodalCurve.of(Curves.zeroRates("EUR-EURIBOR6M", ACT_365F), time_index, rate_index, interp);
     IMM_PROV_EUR_NOFIX = ImmutableRatesProvider.builder(VAL_DATE)
-        .discountCurves(ImmutableMap.of(EUR, dscCurve))
-        .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, indexCurve))
+        .discountCurve(EUR, dscCurve)
+        .iborIndexCurve(EUR_EURIBOR_6M, indexCurve)
         .build();
-    Map<Index, LocalDateDoubleTimeSeries> ts = new HashMap<>();
     LocalDateDoubleTimeSeries tsE6 = LocalDateDoubleTimeSeries.builder()
         .put(EUR_EURIBOR_6M.calculateFixingFromEffective(VAL_DATE), 0.012345).build();
-    ts.put(EUR_EURIBOR_6M, tsE6);
     IMM_PROV_EUR_FIX = ImmutableRatesProvider.builder(VAL_DATE)
-        .discountCurves(ImmutableMap.of(EUR, dscCurve))
-        .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, indexCurve))
-        .timeSeries(ts)
+        .discountCurve(EUR, dscCurve)
+        .iborIndexCurve(EUR_EURIBOR_6M, indexCurve, tsE6)
         .build();
   }
 

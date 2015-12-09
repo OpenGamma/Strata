@@ -548,7 +548,7 @@ public class DiscountingSwapLegPricerTest {
     Map<Currency, Curve> dscCurve = RATES_GBP.getDiscountCurves();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
-        .timeSeries(ImmutableMap.of(GB_RPI, ts))
+        .timeSeries(GB_RPI, ts)
         .priceIndexValues(map)
         .discountCurves(dscCurve)
         .build();
@@ -590,7 +590,7 @@ public class DiscountingSwapLegPricerTest {
     Map<Currency, Curve> dscCurve = RATES_GBP.getDiscountCurves();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
-        .timeSeries(ImmutableMap.of(GB_RPI, ts))
+        .timeSeries(GB_RPI, ts)
         .priceIndexValues(map)
         .discountCurves(dscCurve)
         .build();

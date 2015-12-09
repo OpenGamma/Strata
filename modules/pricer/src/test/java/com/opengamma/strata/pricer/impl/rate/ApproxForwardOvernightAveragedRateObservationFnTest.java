@@ -20,7 +20,6 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -1084,11 +1083,13 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
 
   //-------------------------------------------------------------------------
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.DOUBLE_QUADRATIC;
-  private static LocalDateDoubleTimeSeriesBuilder TIME_SERIES_BUILDER = LocalDateDoubleTimeSeries.builder();
+  private static final LocalDateDoubleTimeSeries TIME_SERIES;
   static {
+    LocalDateDoubleTimeSeriesBuilder builder = LocalDateDoubleTimeSeries.builder();
     for (int i = 0; i < FIXING_DATES.length; i++) {
-      TIME_SERIES_BUILDER.put(FIXING_DATES[i], FIXING_RATES[i]);
+      builder.put(FIXING_DATES[i], FIXING_RATES[i]);
     }
+    TIME_SERIES = builder.build();
   }
   private static final RatesFiniteDifferenceSensitivityCalculator CAL_FD =
       new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
@@ -1105,8 +1106,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       Curve fedFundCurve = InterpolatedNodalCurve.of(
           Curves.zeroRates("USD-Fed-Fund", ACT_ACT_ISDA), time_usd, rate_usd, INTERPOLATOR);
       ImmutableRatesProvider prov = ImmutableRatesProvider.builder(valuationDate[loopvaldate])
-          .indexCurves(ImmutableMap.of(USD_FED_FUND, fedFundCurve))
-          .timeSeries(ImmutableMap.of(USD_FED_FUND, TIME_SERIES_BUILDER.build()))
+          .overnightIndexCurve(USD_FED_FUND, fedFundCurve, TIME_SERIES)
           .build();
       PointSensitivityBuilder sensitivityBuilderComputed =
           OBS_FN_APPROX_FWD.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
@@ -1131,8 +1131,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       Curve fedFundCurve = InterpolatedNodalCurve.of(
           Curves.zeroRates("USD-Fed-Fund", ACT_ACT_ISDA), time_usd, rate_usd, INTERPOLATOR);
       ImmutableRatesProvider prov = ImmutableRatesProvider.builder(valuationDate[loopvaldate])
-          .indexCurves(ImmutableMap.of(USD_FED_FUND, fedFundCurve))
-          .timeSeries(ImmutableMap.of(USD_FED_FUND, TIME_SERIES_BUILDER.build()))
+          .overnightIndexCurve(USD_FED_FUND, fedFundCurve, TIME_SERIES)
           .build();
       PointSensitivityBuilder sensitivityBuilderComputed =
           OBS_FN_APPROX_FWD.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
