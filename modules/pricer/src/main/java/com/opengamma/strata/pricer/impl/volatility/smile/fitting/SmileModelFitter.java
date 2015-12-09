@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.volatility.smile.fitting;
 
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.function.Function;
 
@@ -96,8 +95,8 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
         final T data = toSmileModelData(x);
         double[][] resAdj = new double[n][];
         for (int i = 0; i < n; ++i) {
-          double[] deriv = _model.getVolatilityAdjoint(forward, strikes.get(i), timeToExpiry, data).getDerivatives();
-          resAdj[i] = Arrays.copyOfRange(deriv, 2, deriv.length);
+          DoubleArray deriv = _model.getVolatilityAdjoint(forward, strikes.get(i), timeToExpiry, data).getDerivatives();
+          resAdj[i] = deriv.subArray(2).toArrayUnsafe();
         }
         return DoubleMatrix.copyOf(resAdj);
       }

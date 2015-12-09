@@ -109,7 +109,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     ValueDerivatives factorDeriv =
         MODEL.futuresConvexityFactorAdjoint(MODEL_PARAMETERS, tradeLastTime, fixStartTime, fixEndTime);
     double factor2 = factorDeriv.getValue();
-    double[] sigmaBar = factorDeriv.getDerivatives();
+    double[] sigmaBar = factorDeriv.getDerivatives().toArray();
     assertEquals(factor, factor2, TOLERANCE_RATE);
     double[] sigmaBarExpected = new double[nbSigma];
     double shift = 1E-6;
@@ -198,7 +198,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     int nbVolatility = VOLATILITY.size();
     ValueDerivatives alphaDeriv = MODEL.alphaAdjoint(MODEL_PARAMETERS, expiry1, expiry2, numeraire, maturity);
     double alpha = alphaDeriv.getValue();
-    double[] alphaDerivatives = alphaDeriv.getDerivatives();
+    double[] alphaDerivatives = alphaDeriv.getDerivatives().toArray();
     double alpha2 = MODEL.alpha(MODEL_PARAMETERS, expiry1, expiry2, numeraire, maturity);
     assertEquals(alpha2, alpha, 1.0E-10);
     double shiftVol = 1.0E-6;
@@ -276,7 +276,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     double x = 0.0;
     ValueDerivatives computed = MODEL.swapRateDdcff1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
     double swapRateComputed = computed.getValue();
-    double[] ddcffComputed = computed.getDerivatives();
+    double[] ddcffComputed = computed.getDerivatives().toArray();
     double swapRateExpected = MODEL.swapRate(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
     assertEquals(swapRateComputed, swapRateExpected, TOLERANCE_RATE);
     double[] ddcffExpected = new double[DCF_FIXED.size()];
@@ -299,7 +299,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
       ddcfiExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
     }
     double[] ddcfiComputed = MODEL.swapRateDdcfi1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR)
-        .getDerivatives();
+        .getDerivatives().toArray();
     assertTrue(DoubleArrayMath.fuzzyEquals(ddcfiExpected, ddcfiComputed, TOLERANCE_RATE_DELTA));
   }
 
@@ -308,7 +308,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     double x = 0.0;
     ValueDerivatives computed = MODEL.swapRateDaf1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
     double swapRateComputed = computed.getValue();
-    double[] dafComputed = computed.getDerivatives();
+    double[] dafComputed = computed.getDerivatives().toArray();
     double swapRateExpected = MODEL.swapRate(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
     assertEquals(swapRateComputed, swapRateExpected, TOLERANCE_RATE);
     double[] dafExpected = new double[ALPHA_FIXED.size()];
@@ -330,7 +330,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
       double swapRateMinus = MODEL.swapRate(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, DoubleArray.copyOf(aiBumped));
       daiExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
     }
-    double[] daiComputed = MODEL.swapRateDai1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR).getDerivatives();
+    double[] daiComputed = MODEL.swapRateDai1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR).getDerivatives().toArray();
     assertTrue(DoubleArrayMath.fuzzyEquals(daiExpected, daiComputed, TOLERANCE_RATE_DELTA));
   }
 

@@ -9,6 +9,7 @@ import java.util.function.Function;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * Provides functions that return volatility and its sensitivity to volatility model parameters. 
@@ -52,7 +53,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
     Function<T, Double> func = getVolatilityFunction(forward, strike, timeToExpiry);
     double[] modelAdjoint = paramBar(func, data);
     System.arraycopy(modelAdjoint, 0, res, 2, data.getNumberOfParameters());
-    return ValueDerivatives.of(volatility, res);
+    return ValueDerivatives.of(volatility, DoubleArray.ofUnsafe(res));
   }
 
   //-------------------------------------------------------------------------

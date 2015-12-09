@@ -144,8 +144,8 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
     LocalDate fixingStartDate = index.calculateEffectiveFromFixing(future.getFixingDate());
     LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
     double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
-    DoubleArray convexityDeriv = DoubleArray.copyOf(hwProvider.futuresConvexityFactorAdjoint(
-        future.getLastTradeDate(), fixingStartDate, fixingEndDate).getDerivatives());
+    DoubleArray convexityDeriv = hwProvider.futuresConvexityFactorAdjoint(
+        future.getLastTradeDate(), fixingStartDate, fixingEndDate).getDerivatives();
     convexityDeriv = convexityDeriv.multipliedBy(-forward - 1d / fixingYearFraction);
     return convexityDeriv;
   }

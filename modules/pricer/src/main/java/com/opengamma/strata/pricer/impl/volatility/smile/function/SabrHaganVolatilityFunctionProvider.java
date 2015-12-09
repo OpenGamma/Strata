@@ -6,7 +6,6 @@
 package com.opengamma.strata.pricer.impl.volatility.smile.function;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -26,6 +25,7 @@ import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * The Hagan SABR volatility function provider.
@@ -135,10 +135,6 @@ public final class SabrHaganVolatilityFunctionProvider
     ArgChecker.isTrue(forward > 0.0, "forward must be greater than zero");
     ArgChecker.isTrue(strike > 0.0, "strike must be greater than zero");
     ArgChecker.isTrue(timeToExpiry >= 0.0, "timeToExpiry must be greater than zero");
-    /**
-     * The array storing the derivatives.
-     */
-    double[] volatilityAdjoint = new double[6];
     double alpha = data.getAlpha();
     double cutoff = forward * CUTOFF_MONEYNESS;
     double k = strike;
@@ -157,15 +153,15 @@ public final class SabrHaganVolatilityFunctionProvider
     double rhoStar = 1.0 - rho;
 
     if (alpha == 0.0) {
-      Arrays.fill(volatilityAdjoint, 0.0);
+      double alphaBar;
       if (DoubleMath.fuzzyEquals(forward, k, ATM_EPS)) { //TODO should this is relative
-        volatilityAdjoint[2] = (1 + (2 - 3 * rho * rho) * nu * nu / 24 * timeToExpiry) / Math.pow(forward, betaStar);
+        alphaBar = (1 + (2 - 3 * rho * rho) * nu * nu / 24 * timeToExpiry) / Math.pow(forward, betaStar);
       } else {
         //for non-atm options the alpha sensitivity at alpha = 0 is infinite. Returning this will most likely break calibrations,
         // so we return an arbitrary large number
-        volatilityAdjoint[2] = 1e7;
+        alphaBar = 1e7;
       }
-      return ValueDerivatives.of(0d, volatilityAdjoint);
+      return ValueDerivatives.of(0d, DoubleArray.of(0, 0, alphaBar, 0, 0, 0));
     }
 
     // Implementation note: Forward sweep.
@@ -285,14 +281,7 @@ public final class SabrHaganVolatilityFunctionProvider
         (betaStar / 12 * (lnrfK * lnrfK) + Math.pow(betaStar, 3) / 480 * Math.pow(lnrfK, 4)) * sf1Bar
         + (-betaStar * alpha * alpha / sfK / sfK / 12 + rho * nu * alpha / 4 / sfK) * timeToExpiry * sf2Bar;
 
-    volatilityAdjoint[0] = forwardBar;
-    volatilityAdjoint[1] = strikeBar;
-    volatilityAdjoint[2] = alphaBar;
-    volatilityAdjoint[3] = betaBar;
-    volatilityAdjoint[4] = rhoBar;
-    volatilityAdjoint[5] = nuBar;
-
-    return ValueDerivatives.of(volatility, volatilityAdjoint);
+    return ValueDerivatives.of(volatility, DoubleArray.of(forwardBar, strikeBar, alphaBar, betaBar, rhoBar, nuBar));
   }
 
   /**

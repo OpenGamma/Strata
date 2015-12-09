@@ -115,8 +115,8 @@ public class SabrInterestRateParametersTest {
         FUNCTION.getVolatility(forward, strike, expiry, data));
     assertEquals(PARAMETERS.getVolatility(DoubleArray.of(expiry, tenor, strike, forward)),
         FUNCTION.getVolatility(forward, strike, expiry, data));
-    double[] adjCmp = PARAMETERS.getVolatilityAdjoint(expiry, tenor, strike, forward).getDerivatives();
-    double[] adjExp = FUNCTION.getVolatilityAdjoint(forward, strike, expiry, data).getDerivatives();
+    double[] adjCmp = PARAMETERS.getVolatilityAdjoint(expiry, tenor, strike, forward).getDerivatives().toArray();
+    double[] adjExp = FUNCTION.getVolatilityAdjoint(forward, strike, expiry, data).getDerivatives().toArray();
     for (int i = 0; i < 6; ++i) {
       assertEquals(adjCmp[i], adjExp[i]);
     }
@@ -156,8 +156,8 @@ public class SabrInterestRateParametersTest {
         FUNCTION.getVolatility(forward + shift, strike + shift, expiry, data));
     assertEquals(params.getVolatility(DoubleArray.of(expiry, tenor, strike, forward)),
         FUNCTION.getVolatility(forward + shift, strike + shift, expiry, data));
-    double[] adjCmp = params.getVolatilityAdjoint(expiry, tenor, strike, forward).getDerivatives();
-    double[] adjExp = FUNCTION.getVolatilityAdjoint(forward + shift, strike + shift, expiry, data).getDerivatives();
+    double[] adjCmp = params.getVolatilityAdjoint(expiry, tenor, strike, forward).getDerivatives().toArray();
+    double[] adjExp = FUNCTION.getVolatilityAdjoint(forward + shift, strike + shift, expiry, data).getDerivatives().toArray();
     for (int i = 0; i < 4; ++i) {
       assertEquals(adjCmp[i], adjExp[i]);
     }

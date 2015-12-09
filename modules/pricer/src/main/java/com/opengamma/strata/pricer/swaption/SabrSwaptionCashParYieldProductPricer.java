@@ -15,6 +15,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
@@ -234,12 +235,21 @@ public class SabrSwaptionCashParYieldProductPricer {
     double annuityCash = swapPricer.getLegPricer().annuityCash(fixedLeg, forward);
     double discountSettle = ratesProvider.discountFactor(
         fixedLeg.getCurrency(), ((CashSettlement) expanded.getSwaptionSettlement()).getSettlementDate());
-    double[] derivative =
+    DoubleArray derivative =
         volatilityProvider.getParameters().getVolatilityAdjoint(expiry, tenor, strike, forward).getDerivatives();
     double vega = annuityCash * discountSettle * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d) *
         BlackFormulaRepository.vega(forward + shift, strike + shift, expiry, volatility);
-    return SwaptionSabrSensitivity.of(volatilityProvider.getConvention(), expiryDateTime, tenor, strike, forward,
-        fixedLeg.getCurrency(), vega * derivative[2], vega * derivative[3], vega * derivative[4], vega * derivative[5]);
+    return SwaptionSabrSensitivity.of(
+        volatilityProvider.getConvention(),
+        expiryDateTime,
+        tenor,
+        strike,
+        forward,
+        fixedLeg.getCurrency(),
+        vega * derivative.get(2),
+        vega * derivative.get(3),
+        vega * derivative.get(4),
+        vega * derivative.get(5));
   }
 
   //-------------------------------------------------------------------------
