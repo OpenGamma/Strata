@@ -68,8 +68,7 @@ public class DiscountingIborFixingDepositTradePricerTest {
     DoubleArray rate_index = DoubleArray.of(0.0180, 0.0180, 0.0175, 0.0165);
     InterpolatedNodalCurve indexCurve =
         InterpolatedNodalCurve.of(Curves.zeroRates("EUR-EURIBOR6M", ACT_ACT_ISDA), time_index, rate_index, interp);
-    IMM_PROV = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    IMM_PROV = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurves(ImmutableMap.of(EUR, dscCurve))
         .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, indexCurve))
         .build();

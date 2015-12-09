@@ -148,8 +148,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
       .underlying(SWAP_PAY_PAST)
       .build();
   // volatility and rate providers
-  private static final ImmutableRatesProvider RATE_PROVIDER = RatesProviderDataSets.MULTI_USD.toBuilder()
-      .valuationDate(VAL_DATE)
+  private static final ImmutableRatesProvider RATE_PROVIDER = RatesProviderDataSets.MULTI_USD.toBuilder(VAL_DATE)
       .build();
   private static final NormalVolatilityExpiryTenorSwaptionProvider VOL_PROVIDER =
       SwaptionNormalVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_STD;

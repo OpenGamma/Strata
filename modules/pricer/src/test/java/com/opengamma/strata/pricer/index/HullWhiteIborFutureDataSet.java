@@ -69,11 +69,10 @@ public class HullWhiteIborFutureDataSet {
   private static final InterpolatedNodalCurve FWD3_CURVE =
       InterpolatedNodalCurve.of(META_FWD3, FWD3_TIME, FWD3_RATE, INTERPOLATOR);
   /**  Rates provider  */
-  public static final ImmutableRatesProvider RATE_PROVIDER = ImmutableRatesProvider.builder()
+  public static final ImmutableRatesProvider RATE_PROVIDER = ImmutableRatesProvider.builder(VAL_DATE)
       .discountCurves(ImmutableMap.of(EUR, DSC_CURVE))
       .indexCurves(ImmutableMap.of(EUR_EURIBOR_3M, FWD3_CURVE))
       .fxRateProvider(FxMatrix.empty())
-      .valuationDate(VAL_DATE)
       .build();
 
   /*

@@ -860,8 +860,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   public void test_currencyExposure_fx() {
     DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
     LocalDate valuationDate = VAL_DATE.minusWeeks(1);
-    ImmutableRatesProvider provider = ImmutableRatesProvider.builder()
-        .valuationDate(valuationDate)
+    ImmutableRatesProvider provider = ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(FX_MATRIX_GBP_USD)
         .discountCurves(GBP_USD_MULTI_CCY_MAP)
         .build();
@@ -880,8 +879,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(computedGBP.getAmount(USD).getAmount(), expectedGBP.getAmount(USD).getAmount(), TOLERANCE_PV);
     assertFalse(computedGBP.contains(GBP)); // 0 GBP
     // FD approximation
-    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder()
-        .valuationDate(valuationDate)
+    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(FX_MATRIX_BUMP)
         .discountCurves(GBP_USD_MULTI_CCY_MAP)
         .build();
@@ -898,8 +896,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     LocalDate valuationDate = VAL_DATE.plusWeeks(1);
     Map<Index, LocalDateDoubleTimeSeries> ts =
         ImmutableMap.of(FxIndices.GBP_USD_WM, LocalDateDoubleTimeSeries.of(LocalDate.of(2014, 1, 22), 1.55));
-    ImmutableRatesProvider provider = ImmutableRatesProvider.builder()
-        .valuationDate(valuationDate)
+    ImmutableRatesProvider provider = ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(FX_MATRIX_GBP_USD)
         .discountCurves(GBP_USD_MULTI_CCY_MAP)
         .timeSeries(ts)
@@ -921,8 +918,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(computedGBP.getAmount(GBP).getAmount(), expectedGBP.getAmount(GBP).getAmount(), TOLERANCE_PV);
     assertFalse(computedGBP.contains(USD)); // 0 USD
     // FD approximation
-    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder()
-        .valuationDate(valuationDate)
+    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(FX_MATRIX_BUMP)
         .discountCurves(GBP_USD_MULTI_CCY_MAP)
         .timeSeries(ts)
@@ -954,8 +950,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(computedGBP.getAmount(USD).getAmount(), expectedGBP.getAmount(USD).getAmount(), TOLERANCE_PV);
     assertFalse(computedGBP.contains(GBP)); // 0 GBP
     // FD approximation
-    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX_BUMP)
         .discountCurves(GBP_USD_MULTI_CCY_MAP)
         .build();

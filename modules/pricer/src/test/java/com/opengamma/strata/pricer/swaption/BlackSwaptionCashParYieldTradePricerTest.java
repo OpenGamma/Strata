@@ -85,8 +85,7 @@ public class BlackSwaptionCashParYieldTradePricerTest {
       .premium(PREMIUM_PAST_PAY)
       .build();
 
-  private static final ImmutableRatesProvider RATE_PROVIDER = RatesProviderDataSets.MULTI_USD.toBuilder()
-      .valuationDate(VAL_DATE)
+  private static final ImmutableRatesProvider RATE_PROVIDER = RatesProviderDataSets.MULTI_USD.toBuilder(VAL_DATE)
       .build();
   private static final BlackVolatilityExpiryTenorSwaptionProvider VOL_PROVIDER =
       SwaptionBlackVolatilityDataSets.BLACK_VOL_CST_SWAPTION_PROVIDER_USD;

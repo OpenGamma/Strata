@@ -149,8 +149,7 @@ public class RatesProviderDataSets {
       USD_LIBOR_3M, USD_SINGLE_CURVE,
       USD_LIBOR_6M, USD_SINGLE_CURVE);
 
-  public static final ImmutableRatesProvider SINGLE_USD = ImmutableRatesProvider.builder()
-      .valuationDate(VAL_DATE_2014_01_22)
+  public static final ImmutableRatesProvider SINGLE_USD = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
       .fxRateProvider(FX_MATRIX_USD)
       .discountCurves(USD_SINGLE_CCY_MAP)
       .indexCurves(USD_SINGLE_IND_MAP)
@@ -175,8 +174,7 @@ public class RatesProviderDataSets {
       USD_LIBOR_3M, USD_L3,
       USD_LIBOR_6M, USD_L6);
 
-  public static final ImmutableRatesProvider MULTI_USD = ImmutableRatesProvider.builder()
-      .valuationDate(VAL_DATE_2014_01_22)
+  public static final ImmutableRatesProvider MULTI_USD = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
       .fxRateProvider(FX_MATRIX_USD)
       .discountCurves(USD_MULTI_CCY_MAP)
       .indexCurves(USD_MULTI_IND_MAP)
@@ -216,8 +214,7 @@ public class RatesProviderDataSets {
       GBP_LIBOR_3M, GBP_L3,
       GBP_LIBOR_6M, GBP_L6);
 
-  public static final ImmutableRatesProvider MULTI_GBP = ImmutableRatesProvider.builder()
-      .valuationDate(VAL_DATE_2014_01_22)
+  public static final ImmutableRatesProvider MULTI_GBP = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
       .fxRateProvider(FX_MATRIX_GBP)
       .discountCurves(GBP_MULTI_CCY_MAP)
       .indexCurves(GBP_MULTI_IND_MAP)
@@ -248,8 +245,7 @@ public class RatesProviderDataSets {
       EUR_EURIBOR_3M, EUR_L3,
       EUR_EURIBOR_6M, EUR_L6);
 
-  public static final ImmutableRatesProvider MULTI_EUR = ImmutableRatesProvider.builder()
-      .valuationDate(VAL_DATE_2014_01_22)
+  public static final ImmutableRatesProvider MULTI_EUR = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
       .fxRateProvider(FX_MATRIX_EUR)
       .discountCurves(EUR_MULTI_CCY_MAP)
       .indexCurves(EUR_MULTI_IND_MAP)
@@ -275,8 +271,7 @@ public class RatesProviderDataSets {
     GBP_USD_MULTI_IND_MAP.put(USD_LIBOR_3M, USD_L3);
     GBP_USD_MULTI_IND_MAP.put(USD_LIBOR_6M, USD_L6);
   }
-  public static final ImmutableRatesProvider MULTI_GBP_USD = ImmutableRatesProvider.builder()
-      .valuationDate(VAL_DATE_2014_01_22)
+  public static final ImmutableRatesProvider MULTI_GBP_USD = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
       .fxRateProvider(FX_MATRIX_GBP_USD)
       .discountCurves(GBP_USD_MULTI_CCY_MAP)
       .indexCurves(GBP_USD_MULTI_IND_MAP)
@@ -296,10 +291,10 @@ public class RatesProviderDataSets {
     GBP_USD_MULTI_IND_MAP_SIMPLE.put(USD_LIBOR_3M, USD_L3_SIMPLE);
     GBP_USD_MULTI_IND_MAP_SIMPLE.put(USD_LIBOR_6M, USD_L6_SIMPLE);
   }
-  public static final ImmutableRatesProvider MULTI_GBP_USD_SIMPLE = ImmutableRatesProvider.builder()
-      .valuationDate(VAL_DATE_2014_01_22)
+  public static final ImmutableRatesProvider MULTI_GBP_USD_SIMPLE = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
       .fxRateProvider(FX_MATRIX_GBP_USD)
       .discountCurves(GBP_USD_MULTI_CCY_MAP_SIMPLE)
       .indexCurves(GBP_USD_MULTI_IND_MAP_SIMPLE)
       .build();
+
 }

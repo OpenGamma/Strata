@@ -170,8 +170,7 @@ public class DiscountingNotionalExchangePricerTest {
 
   //-------------------------------------------------------------------------
   public void test_currencyExposure() {
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
         .build();
     DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
@@ -183,8 +182,7 @@ public class DiscountingNotionalExchangePricerTest {
   }
 
   public void test_currentCash_zero() {
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
         .build();
     DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
@@ -193,8 +191,7 @@ public class DiscountingNotionalExchangePricerTest {
   }
 
   public void test_currentCash_onPayment() {
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate())
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate())
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
         .build();
     DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();

@@ -976,8 +976,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       Curve fedFundCurve = InterpolatedNodalCurve.of(
           Curves.zeroRates("USD-Fed-Fund", ACT_ACT_ISDA), time_usd, rate_usd, INTERPOLATOR);
-      ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-          .valuationDate(valuationDate[loopvaldate])
+      ImmutableRatesProvider prov = ImmutableRatesProvider.builder(valuationDate[loopvaldate])
           .indexCurves(ImmutableMap.of(USD_FED_FUND, fedFundCurve))
           .timeSeries(ImmutableMap.of(USD_FED_FUND, TIME_SERIES_BUILDER.build()))
           .build();
@@ -1003,8 +1002,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       Curve fedFundCurve = InterpolatedNodalCurve.of(
           Curves.zeroRates("USD-Fed-Fund", ACT_ACT_ISDA), time_usd, rate_usd, INTERPOLATOR);
-      ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-          .valuationDate(valuationDate[loopvaldate])
+      ImmutableRatesProvider prov = ImmutableRatesProvider.builder(valuationDate[loopvaldate])
           .indexCurves(ImmutableMap.of(USD_FED_FUND, fedFundCurve))
           .timeSeries(ImmutableMap.of(USD_FED_FUND, TIME_SERIES_BUILDER.build()))
           .build();

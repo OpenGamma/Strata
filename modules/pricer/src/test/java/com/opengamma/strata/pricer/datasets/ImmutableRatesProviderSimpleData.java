@@ -42,8 +42,7 @@ public class ImmutableRatesProviderSimpleData {
     DoubleArray rate_index = DoubleArray.of(0.0180, 0.0180, 0.0175, 0.0165);
     InterpolatedNodalCurve indexCurve =
         InterpolatedNodalCurve.of(Curves.zeroRates("EUR-EURIBOR6M", ACT_365F), time_index, rate_index, interp);
-    IMM_PROV_EUR_NOFIX = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    IMM_PROV_EUR_NOFIX = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurves(ImmutableMap.of(EUR, dscCurve))
         .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, indexCurve))
         .build();
@@ -51,8 +50,7 @@ public class ImmutableRatesProviderSimpleData {
     LocalDateDoubleTimeSeries tsE6 = LocalDateDoubleTimeSeries.builder()
         .put(EUR_EURIBOR_6M.calculateFixingFromEffective(VAL_DATE), 0.012345).build();
     ts.put(EUR_EURIBOR_6M, tsE6);
-    IMM_PROV_EUR_FIX = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    IMM_PROV_EUR_FIX = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurves(ImmutableMap.of(EUR, dscCurve))
         .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, indexCurve))
         .timeSeries(ts)

@@ -219,8 +219,7 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_currencyExposure() {
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
         .build();
     MultiCurrencyAmount computed = PRICER.currencyExposure(PERIOD, prov);
@@ -231,8 +230,7 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
   }
 
   public void test_currentCash_zero() {
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
         .build();
     double computed = PRICER.currentCash(PERIOD, prov);
@@ -240,8 +238,7 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
   }
 
   public void test_currentCash_onPayment() {
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(PERIOD.getPaymentDate())
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(PERIOD.getPaymentDate())
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
         .build();
     double computed = PRICER.currentCash(PERIOD, prov);

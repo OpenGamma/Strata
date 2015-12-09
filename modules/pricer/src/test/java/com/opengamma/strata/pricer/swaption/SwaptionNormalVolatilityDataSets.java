@@ -66,7 +66,7 @@ public class SwaptionNormalVolatilityDataSets {
   private static final NodalSurface SURFACE_STD =
       InterpolatedNodalSurface.of(METADATA, TIMES, TENOR, NORMAL_VOL, INTERPOLATOR_2D);
 
-  private static final LocalDate VAL_DATE_STD = RatesProviderDataSets.VAL_DATE_2014_01_22;
+  private static final LocalDate VALDATE_STD = RatesProviderDataSets.VAL_DATE_2014_01_22;
   private static final LocalTime VAL_TIME_STD = LocalTime.of(13, 45);
   private static final ZoneId VAL_ZONE_STD = ZoneId.of("Europe/London");
   private static final BusinessDayAdjustment MOD_FOL_US = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY);
@@ -78,7 +78,7 @@ public class SwaptionNormalVolatilityDataSets {
       ImmutableFixedIborSwapConvention.of("USD-Swap", USD_FIXED_1Y_30U360, USD_IBOR_LIBOR3M);
   public static final NormalVolatilityExpiryTenorSwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD_STD =
       NormalVolatilityExpiryTenorSwaptionProvider.of(SURFACE_STD, USD_1Y_LIBOR3M, DayCounts.ACT_365F,
-          VAL_DATE_STD, VAL_TIME_STD, VAL_ZONE_STD);
+          VALDATE_STD, VAL_TIME_STD, VAL_ZONE_STD);
 
   /**
    * Returns the swaption normal volatility surface shifted by a given amount. The shift is parallel.
@@ -89,7 +89,7 @@ public class SwaptionNormalVolatilityDataSets {
     DoubleArray volShifted = NORMAL_VOL.map(v -> v + shift);
     return NormalVolatilityExpiryTenorSwaptionProvider.of(
         InterpolatedNodalSurface.of(METADATA, TIMES, TENOR, volShifted, INTERPOLATOR_2D),
-        USD_1Y_LIBOR3M, DayCounts.ACT_365F, VAL_DATE_STD, VAL_TIME_STD, VAL_ZONE_STD);
+        USD_1Y_LIBOR3M, DayCounts.ACT_365F, VALDATE_STD, VAL_TIME_STD, VAL_ZONE_STD);
   }
 
   public static NormalVolatilityExpiryTenorSwaptionProvider normalVolSwaptionProviderUsdStd(LocalDate valuationDate) {
@@ -107,7 +107,7 @@ public class SwaptionNormalVolatilityDataSets {
 
   public static final NormalVolatilityExpiryTenorSwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD_FLAT =
       NormalVolatilityExpiryTenorSwaptionProvider.of(SURFACE_FLAT, USD_1Y_LIBOR3M, DayCounts.ACT_365F,
-          VAL_DATE_STD, VAL_TIME_STD, VAL_ZONE_STD);
+          VALDATE_STD, VAL_TIME_STD, VAL_ZONE_STD);
 
   //     =====     Market data as of 2014-03-20     =====
 

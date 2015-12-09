@@ -246,8 +246,7 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE_INFLATION)
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
@@ -299,8 +298,7 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE_INFLATION)
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
@@ -396,8 +394,7 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE_INFLATION)
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
@@ -455,8 +452,7 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE_INFLATION)
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
@@ -566,8 +562,7 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE_INFLATION)
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
@@ -618,8 +613,7 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE_INFLATION)
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
@@ -790,12 +784,12 @@ public class DiscountingSwapProductPricerTest {
     ExpandedSwap expanded = trade.getProduct().expand();
     Map<Index, LocalDateDoubleTimeSeries> ts =
         ImmutableMap.of(GBP_LIBOR_3M, LocalDateDoubleTimeSeries.of(LocalDate.of(2016, 10, 24), 0.003));
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(expanded.getLegs().get(0).getPaymentPeriods().get(2).getPaymentDate())
-        .discountCurves(RatesProviderDataSets.GBP_MULTI_CCY_MAP)
-        .indexCurves(RatesProviderDataSets.GBP_MULTI_IND_MAP)
-        .timeSeries(ts)
-        .build();
+    ImmutableRatesProvider prov =
+        ImmutableRatesProvider.builder(expanded.getLegs().get(0).getPaymentPeriods().get(2).getPaymentDate())
+            .discountCurves(RatesProviderDataSets.GBP_MULTI_CCY_MAP)
+            .indexCurves(RatesProviderDataSets.GBP_MULTI_IND_MAP)
+            .timeSeries(ts)
+            .build();
     MultiCurrencyAmount computed = SWAP_PRODUCT_PRICER.currentCash(expanded, prov);
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(
         SWAP_PRODUCT_PRICER.getLegPricer().currentCash(expanded.getLegs().get(0), prov)

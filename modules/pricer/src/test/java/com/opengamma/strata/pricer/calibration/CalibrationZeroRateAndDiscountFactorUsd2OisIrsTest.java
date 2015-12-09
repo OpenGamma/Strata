@@ -266,8 +266,7 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
           .name(CurveGroupName.of("USD-LIBOR3M"))
           .addForwardCurve(FWD3_CURVE_DEFN, USD_LIBOR_3M)
           .build();
-  private static final ImmutableRatesProvider KNOWN_DATA = ImmutableRatesProvider.builder()
-      .valuationDate(VAL_DATE)
+  private static final ImmutableRatesProvider KNOWN_DATA = ImmutableRatesProvider.builder(VAL_DATE)
       .timeSeries(TS)
       .build();
 

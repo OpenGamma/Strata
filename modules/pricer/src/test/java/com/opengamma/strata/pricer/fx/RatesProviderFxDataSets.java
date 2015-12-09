@@ -85,8 +85,7 @@ public class RatesProviderFxDataSets {
    * @return the provider
    */
   public static RatesProvider createProvider() {
-    return ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE_2014_01_22)
+    return ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
         .discountCurves(ImmutableMap.<Currency, Curve>builder()
             .put(EUR, EUR_DSC)
             .put(USD, USD_DSC)
@@ -109,8 +108,7 @@ public class RatesProviderFxDataSets {
    * @return the provider
    */
   public static RatesProvider createProvider(LocalDate valuationDate, FxIndex fxIndex, double spotRate) {
-    return ImmutableRatesProvider.builder()
-        .valuationDate(valuationDate)
+    return ImmutableRatesProvider.builder(valuationDate)
         .discountCurves(ImmutableMap.<Currency, Curve>builder()
             .put(EUR, EUR_DSC)
             .put(USD, USD_DSC)
@@ -125,8 +123,7 @@ public class RatesProviderFxDataSets {
 
   public static RatesProvider createProviderEURUSD() {
     FxMatrix fxMatrix = FxMatrix.builder().addRate(USD, EUR, 1.0d / EUR_USD).build();
-    return ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE_2014_01_22)
+    return ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
         .discountCurves(ImmutableMap.<Currency, Curve>builder()
             .put(EUR, EUR_DSC)
             .put(USD, USD_DSC)

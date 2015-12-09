@@ -78,8 +78,7 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
   private static final CurveMetadata USD_FWD3_METADATA = Curves.zeroRates(USD_FWD3_NAME, ACT_ACT_ISDA);
   private static final InterpolatedNodalCurve USD_FWD3 =
       InterpolatedNodalCurve.of(USD_FWD3_METADATA, USD_FWD3_TIME, USD_FWD3_RATE, INTERPOLATOR);
-  private static final ImmutableRatesProvider PROVIDER = ImmutableRatesProvider.builder()
-      .valuationDate(VAL_DATE)
+  private static final ImmutableRatesProvider PROVIDER = ImmutableRatesProvider.builder(VAL_DATE)
       .discountCurves(ImmutableMap.of(USD, USD_DSC))
       .indexCurves(ImmutableMap.of(USD_LIBOR_3M, USD_FWD3))
       .build();

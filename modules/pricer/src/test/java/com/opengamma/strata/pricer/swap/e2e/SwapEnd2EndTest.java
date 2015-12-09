@@ -776,8 +776,7 @@ public class SwapEnd2EndTest {
   // rates provider
   static RatesProvider provider() {
     // StandardDataSets.providerUsdDscOnL1L3L6() with locked holidays and time-series
-    return ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    return ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(StandardDataSets.FX_MATRIX)
         .discountCurves(ImmutableMap.of(USD, StandardDataSets.GROUP1_USD_DSC))
         .indexCurves(ImmutableMap.of(

@@ -99,10 +99,9 @@ public class BlackSwaptionCashParYieldProductPricerTest {
   private static final CurveName FWD6_NAME = CurveName.of("EUR EURIBOR 6M");
   private static final CurveMetadata META_FWD6 = Curves.zeroRates(FWD6_NAME, ACT_ACT_ISDA);
   private static final InterpolatedNodalCurve FWD6_CURVE = InterpolatedNodalCurve.of(META_FWD6, FWD6_TIME, FWD6_RATE, INTERPOLATOR); 
-  private static final ImmutableRatesProvider RATE_PROVIDER = ImmutableRatesProvider.builder()
+  private static final ImmutableRatesProvider RATE_PROVIDER = ImmutableRatesProvider.builder(VAL_DATE)
       .discountCurves(ImmutableMap.of(EUR, DSC_CURVE))
       .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, FWD6_CURVE))
-      .valuationDate(VAL_DATE)
       .build();
   // surface
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
@@ -230,16 +229,15 @@ public class BlackSwaptionCashParYieldProductPricerTest {
       .underlying(SWAP_PAY)
       .build();
   // providers used for specific tests
-  private static final ImmutableRatesProvider RATES_PROVIDER_AT_MATURITY = ImmutableRatesProvider.builder()
+  private static final ImmutableRatesProvider RATES_PROVIDER_AT_MATURITY = ImmutableRatesProvider.builder(MATURITY)
       .discountCurves(ImmutableMap.of(EUR, DSC_CURVE))
       .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, FWD6_CURVE))
-      .valuationDate(MATURITY)
       .build();
-  private static final ImmutableRatesProvider RATES_PROVIDER_AFTER_MATURITY = ImmutableRatesProvider.builder()
-      .discountCurves(ImmutableMap.of(EUR, DSC_CURVE))
-      .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, FWD6_CURVE))
-      .valuationDate(MATURITY.plusDays(1))
-      .build();
+  private static final ImmutableRatesProvider RATES_PROVIDER_AFTER_MATURITY =
+      ImmutableRatesProvider.builder(MATURITY.plusDays(1))
+          .discountCurves(ImmutableMap.of(EUR, DSC_CURVE))
+          .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, FWD6_CURVE))
+          .build();
   private static final BlackVolatilityExpiryTenorSwaptionProvider VOL_PROVIDER_AT_MATURITY =
       BlackVolatilityExpiryTenorSwaptionProvider.of(SURFACE, SWAP_CONVENTION, ACT_ACT_ISDA, MATURITY);
   private static final BlackVolatilityExpiryTenorSwaptionProvider VOL_PROVIDER_AFTER_MATURITY =

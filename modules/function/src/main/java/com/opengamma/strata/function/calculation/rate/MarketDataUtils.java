@@ -51,8 +51,7 @@ public final class MarketDataUtils {
     // TODO - we should be able to replace curves more easily than having to pick out all the
     // market data into a new rates provider.
 
-    return ImmutableRatesProvider.builder()
-        .valuationDate(marketData.getValuationDate())
+    return ImmutableRatesProvider.builder(marketData.getValuationDate())
         .discountCurves(ImmutableMap.of(currency, curveOverride))
         .indexCurves(indices.stream()
             .collect(toImmutableMap(Function.identity(), k -> curveOverride)))

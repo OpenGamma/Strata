@@ -77,8 +77,7 @@ public class CurveGammaCalculatorTest {
       USD_FED_FUND, USD_SINGLE_CURVE,
       USD_LIBOR_3M, USD_SINGLE_CURVE,
       USD_LIBOR_6M, USD_SINGLE_CURVE);
-  private static final ImmutableRatesProvider SINGLE = ImmutableRatesProvider.builder()
-      .valuationDate(VAL_DATE_2015_04_27)
+  private static final ImmutableRatesProvider SINGLE = ImmutableRatesProvider.builder(VAL_DATE_2015_04_27)
       .discountCurves(USD_SINGLE_CCY_MAP)
       .indexCurves(USD_SINGLE_IND_MAP)
       .build();

@@ -71,8 +71,7 @@ public class DiscountingTermDepositProductPricerTest {
     DoubleArray rate_eur = DoubleArray.of(0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210);
     InterpolatedNodalCurve dscCurve =
         InterpolatedNodalCurve.of(Curves.zeroRates("EUR-Discount", ACT_360), time_eur, rate_eur, interp);
-    IMM_PROV = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    IMM_PROV = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurves(ImmutableMap.of(EUR, dscCurve))
         .build();
   }

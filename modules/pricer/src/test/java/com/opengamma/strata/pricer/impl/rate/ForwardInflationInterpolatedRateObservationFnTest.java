@@ -153,8 +153,7 @@ public class ForwardInflationInterpolatedRateObservationFnTest {
         DoubleArray.of(rateStart, rateStartInterp, rateEnd, rateEndInterp),
         INTERPOLATOR);
     ForwardPriceIndexValues values = ForwardPriceIndexValues.of(GB_RPIX, VAL_DATE, timeSeries, curve);
-    return ImmutableRatesProvider.builder()
-        .valuationDate(DUMMY_ACCRUAL_END_DATE)
+    return ImmutableRatesProvider.builder(VAL_DATE)
         .priceIndexValues(ImmutableMap.of(GB_RPIX, values))
         .build();
   }

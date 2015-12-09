@@ -409,15 +409,14 @@ public class StandardDataSets {
    */
   public static ImmutableRatesProvider providerUsdDscOnL1L3L6() {
     // data from group 1
-    return ImmutableRatesProvider.builder()
-        .valuationDate(StandardDataSets.VAL_DATE_2014_01_22)
+    return ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
         .fxRateProvider(FX_MATRIX)
-        .discountCurves(ImmutableMap.of(USD, StandardDataSets.GROUP1_USD_DSC))
+        .discountCurves(ImmutableMap.of(USD, GROUP1_USD_DSC))
         .indexCurves(ImmutableMap.of(
-            USD_FED_FUND, StandardDataSets.GROUP1_USD_ON,
-            USD_LIBOR_1M, StandardDataSets.GROUP1_USD_L1M,
-            USD_LIBOR_3M, StandardDataSets.GROUP1_USD_L3M,
-            USD_LIBOR_6M, StandardDataSets.GROUP1_USD_L6M))
+            USD_FED_FUND, GROUP1_USD_ON,
+            USD_LIBOR_1M, GROUP1_USD_L1M,
+            USD_LIBOR_3M, GROUP1_USD_L3M,
+            USD_LIBOR_6M, GROUP1_USD_L6M))
         .build();
   }
 
@@ -429,17 +428,16 @@ public class StandardDataSets {
    */
   public static ImmutableRatesProvider providerUsdEurDscL3() {
     // data from group 2
-    return ImmutableRatesProvider.builder()
-        .valuationDate(StandardDataSets.VAL_DATE_2014_01_22)
+    return ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
         .fxRateProvider(FX_MATRIX_EUR_USD)
         .discountCurves(ImmutableMap.of(
-            EUR, StandardDataSets.GROUP2_EUR_DSC,
-            USD, StandardDataSets.GROUP2_USD_DSC))
+            EUR, GROUP2_EUR_DSC,
+            USD, GROUP2_USD_DSC))
         .indexCurves(ImmutableMap.of(
-            EUR_EONIA, StandardDataSets.GROUP2_EUR_ON,
-            EUR_EURIBOR_3M, StandardDataSets.GROUP2_EUR_L3M,
-            USD_FED_FUND, StandardDataSets.GROUP2_USD_ON,
-            USD_LIBOR_3M, StandardDataSets.GROUP2_USD_L3M))
+            EUR_EONIA, GROUP2_EUR_ON,
+            EUR_EURIBOR_3M, GROUP2_EUR_L3M,
+            USD_FED_FUND, GROUP2_USD_ON,
+            USD_LIBOR_3M, GROUP2_USD_L3M))
         .build();
   }
 

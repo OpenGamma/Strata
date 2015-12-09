@@ -70,8 +70,7 @@ public class ImmutableRatesProviderTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(PREV_DATE, 0.62d);
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .timeSeries(ImmutableMap.of(GBP_USD_WM, ts))
         .build();
     assertEquals(test.getValuationDate(), VAL_DATE);
@@ -80,16 +79,14 @@ public class ImmutableRatesProviderTest {
 
   //-------------------------------------------------------------------------
   public void test_discountFactors() {
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .build();
     assertEquals(test.discountFactors(GBP).getCurrency(), GBP);
   }
 
   public void test_discountFactors_notKnown() {
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .build();
     assertThrowsIllegalArg(() -> test.discountFactors(GBP));
     assertThrowsIllegalArg(() -> test.discountFactor(GBP, LocalDate.of(2014, 7, 30)));
@@ -97,8 +94,7 @@ public class ImmutableRatesProviderTest {
 
   //-------------------------------------------------------------------------
   public void test_fxRate_separate() {
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
         .build();
     assertEquals(test.fxRate(USD, GBP), 1 / FX_GBP_USD, 0d);
@@ -106,8 +102,7 @@ public class ImmutableRatesProviderTest {
   }
 
   public void test_fxRate_pair() {
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
         .build();
     assertEquals(test.fxRate(CurrencyPair.of(USD, GBP)), 1 / FX_GBP_USD, 0d);
@@ -116,8 +111,7 @@ public class ImmutableRatesProviderTest {
   //-------------------------------------------------------------------------
   public void test_fxIndexRates() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(VAL_DATE, 0.62d);
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .timeSeries(ImmutableMap.of(GBP_USD_WM, ts))
@@ -128,8 +122,7 @@ public class ImmutableRatesProviderTest {
 
   //-------------------------------------------------------------------------
   public void test_fxForwardRates() {
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .build();
@@ -144,8 +137,7 @@ public class ImmutableRatesProviderTest {
   //-------------------------------------------------------------------------
   public void test_iborIndexRates() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(VAL_DATE, 0.62d);
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .indexCurves(ImmutableMap.of(USD_LIBOR_3M, USD_LIBOR_CURVE))
         .timeSeries(ImmutableMap.of(USD_LIBOR_3M, ts))
         .build();
@@ -156,8 +148,7 @@ public class ImmutableRatesProviderTest {
   //-------------------------------------------------------------------------
   public void test_overnightIndexRates() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(VAL_DATE, 0.62d);
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .indexCurves(ImmutableMap.of(USD_FED_FUND, FED_FUND_CURVE))
         .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
         .build();
@@ -167,28 +158,24 @@ public class ImmutableRatesProviderTest {
 
   //-------------------------------------------------------------------------
   public void test_priceIndexValues() {
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .priceIndexValues(ImmutableMap.of(GB_RPI, GBPRI_CURVE))
         .build();
     assertEquals(test.priceIndexValues(GB_RPI).getIndex(), GB_RPI);
   }
 
   public void test_priceIndexValues_notKnown() {
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .build();
     assertThrowsIllegalArg(() -> test.priceIndexValues(GB_RPI));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .build();
     coverImmutableBean(test);
-    ImmutableRatesProvider test2 = ImmutableRatesProvider.builder()
-        .valuationDate(LocalDate.of(2014, 6, 27))
+    ImmutableRatesProvider test2 = ImmutableRatesProvider.builder(LocalDate.of(2014, 6, 27))
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
         .build();
     coverBeanEquals(test, test2);

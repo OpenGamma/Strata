@@ -18,7 +18,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
@@ -76,9 +75,7 @@ public class DiscountingFraTradePricerTest {
         .tradeInfo(TradeInfo.builder().tradeDate(paymentDate).build())
         .product(FRA)
         .build();
-    ImmutableRatesProvider ratesProvider = ImmutableRatesProvider.builder()
-        .valuationDate(paymentDate)
-        .fxRateProvider(FxMatrix.empty())
+    ImmutableRatesProvider ratesProvider = ImmutableRatesProvider.builder(paymentDate)
         .discountCurves(RatesProviderDataSets.GBP_MULTI_CCY_MAP)
         .indexCurves(RatesProviderDataSets.GBP_MULTI_IND_MAP)
         .timeSeries(

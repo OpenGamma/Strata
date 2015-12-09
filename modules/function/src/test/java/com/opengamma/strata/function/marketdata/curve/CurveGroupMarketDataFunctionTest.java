@@ -337,7 +337,7 @@ public class CurveGroupMarketDataFunctionTest {
           MarketData marketData,
           Map<Index, LocalDateDoubleTimeSeries> timeSeries) {
 
-        return ImmutableRatesProvider.builder().valuationDate(LocalDate.of(2011, 3, 8)).build();
+        return ImmutableRatesProvider.builder(LocalDate.of(2011, 3, 8)).build();
       }
 
       @Override
@@ -346,7 +346,7 @@ public class CurveGroupMarketDataFunctionTest {
           ImmutableRatesProvider knownData,
           MarketData marketData) {
 
-        return ImmutableRatesProvider.builder().valuationDate(LocalDate.of(2011, 3, 8)).build();
+        return ImmutableRatesProvider.builder(LocalDate.of(2011, 3, 8)).build();
       }
     };
     CurveGroupMarketDataFunction fn = new CurveGroupMarketDataFunction(curveCalibrator);

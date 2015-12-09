@@ -155,10 +155,9 @@ public class SwaptionSabrRateVolatilityDataSet {
    * @return the rates provider
    */
   public static ImmutableRatesProvider getRatesProviderUsd(LocalDate valuationDate) {
-    return ImmutableRatesProvider.builder()
+    return ImmutableRatesProvider.builder(valuationDate)
         .discountCurves(ImmutableMap.of(USD, CURVE_DSC_USD))
         .indexCurves(ImmutableMap.of(USD_LIBOR_3M, CURVE_FWD_USD))
-        .valuationDate(valuationDate)
         .build();
   }
 
@@ -258,10 +257,9 @@ public class SwaptionSabrRateVolatilityDataSet {
    * @return the rates provider
    */
   public static ImmutableRatesProvider getRatesProviderEur(LocalDate valuationDate) {
-    return ImmutableRatesProvider.builder()
+    return ImmutableRatesProvider.builder(valuationDate)
         .discountCurves(ImmutableMap.of(EUR, CURVE_DSC_EUR))
         .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, CURVE_FWD_EUR))
-        .valuationDate(valuationDate)
         .build();
   }
 

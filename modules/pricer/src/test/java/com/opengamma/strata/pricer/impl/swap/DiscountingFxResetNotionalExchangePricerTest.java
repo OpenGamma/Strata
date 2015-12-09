@@ -94,8 +94,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .build();
@@ -126,8 +125,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
 
   //-------------------------------------------------------------------------
   public void test_forecastValueSensitivity() {
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .build();
@@ -198,8 +196,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
   //-------------------------------------------------------------------------
   public void test_currencyExposure() {
     double eps = 1.0e-14;
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .build();
@@ -220,8 +217,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     assertEquals(computedGBP.getAmount(GBP).getAmount(), expectedGBP.getAmount(GBP).getAmount(), eps * NOTIONAL);
     // FD approximation
     FxMatrix fxMatrixUp = FxMatrix.of(GBP, USD, FX_RATE + EPS_FD);
-    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(fxMatrixUp)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .build();
@@ -254,8 +250,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         .build();
     Map<Index, LocalDateDoubleTimeSeries> ts =
         ImmutableMap.of(FxIndices.GBP_USD_WM, LocalDateDoubleTimeSeries.of(LocalDate.of(2014, 6, 27), 1.65));
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(valuationDate)
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .timeSeries(ts)
@@ -277,8 +272,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     assertEquals(computedGBP.getAmount(USD).getAmount(), expectedGBP.getAmount(USD).getAmount(), eps * NOTIONAL);
     // FD approximation
     FxMatrix fxMatrixUp = FxMatrix.of(GBP, USD, FX_RATE + EPS_FD);
-    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder()
-        .valuationDate(valuationDate)
+    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(fxMatrixUp)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .timeSeries(ts)
@@ -310,8 +304,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         .index(FxIndices.GBP_USD_WM)
         .fixingDate(fixingDate)
         .build();
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(valuationDate)
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .build();
@@ -332,8 +325,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     assertEquals(computedGBP.getAmount(GBP).getAmount(), expectedGBP.getAmount(GBP).getAmount(), eps * NOTIONAL);
     // FD approximation
     FxMatrix fxMatrixUp = FxMatrix.of(GBP, USD, FX_RATE + EPS_FD);
-    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder()
-        .valuationDate(valuationDate)
+    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(fxMatrixUp)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .build();
@@ -346,8 +338,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
   }
 
   public void test_currentCash_zero() {
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .build();
@@ -358,8 +349,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
 
   public void test_currentCash_onPayment() {
     double eps = 1.0e-14;
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getPaymentDate())
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getPaymentDate())
         .fxRateProvider(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .build();
