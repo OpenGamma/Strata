@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -84,13 +85,24 @@ public final class CurveGroupDefinition
   }
 
   /**
+   * Returns a curve group definition with the specified name and containing the specified entries.
+   *
+   * @param name  the name of the curve group
+   * @param entries  entries describing the curves in the group
+   * @return a curve group definition with the specified name and containing the specified entries
+   */
+  public static CurveGroupDefinition of(CurveGroupName name, Collection<CurveGroupEntry> entries) {
+    return new CurveGroupDefinition(name, entries);
+  }
+
+  /**
    * Package-private constructor used by the builder.
    *
    * @param name  the name of the curve group
    * @param entries  details of the curves in the group
    */
   @ImmutableConstructor
-  CurveGroupDefinition(CurveGroupName name, List<CurveGroupEntry> entries) {
+  CurveGroupDefinition(CurveGroupName name, Collection<CurveGroupEntry> entries) {
     this.name = ArgChecker.notNull(name, "name");
     this.entries = ImmutableList.copyOf(entries);
     entriesByName = entries.stream().collect(toImmutableMap(entry -> entry.getCurveDefinition().getName(), entry -> entry));
