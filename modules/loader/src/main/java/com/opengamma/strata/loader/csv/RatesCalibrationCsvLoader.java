@@ -38,6 +38,7 @@ import com.opengamma.strata.market.curve.node.FixedOvernightSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.curve.node.FxSwapCurveNode;
 import com.opengamma.strata.market.curve.node.IborFixingDepositCurveNode;
+import com.opengamma.strata.market.curve.node.IborFutureCurveNode;
 import com.opengamma.strata.market.curve.node.IborIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.TermDepositCurveNode;
 import com.opengamma.strata.market.curve.node.ThreeLegBasisSwapCurveNode;
@@ -54,6 +55,8 @@ import com.opengamma.strata.product.fra.type.FraConvention;
 import com.opengamma.strata.product.fra.type.FraTemplate;
 import com.opengamma.strata.product.fx.type.FxSwapConvention;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
+import com.opengamma.strata.product.index.type.IborFutureConvention;
+import com.opengamma.strata.product.index.type.IborFutureTemplate;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.product.swap.type.FixedOvernightSwapConvention;
@@ -126,6 +129,8 @@ public final class RatesCalibrationCsvLoader {
 
   // Regex to parse FRA time string
   private static final Pattern FRA_TIME_REGEX = Pattern.compile("P?([0-9]+)M? ?X ?P?([0-9]+)M?");
+  // Regex to parse FRA time string
+  private static final Pattern FUT_TIME_REGEX = Pattern.compile("P?((?:[0-9]+D)?(?:[0-9]+W)?(?:[0-9]+M)?) ?[+] ?([0-9]+)");
   // Regex to parse simple time string
   private static final Pattern SIMPLE_TIME_REGEX = Pattern.compile("P?(([0-9]+M)?([0-9]+Y)?)");
 
@@ -282,6 +287,9 @@ public final class RatesCalibrationCsvLoader {
     if ("FRA".equalsIgnoreCase(typeStr)) {
       return curveFraCurveNode(conventionStr, timeStr, label, quoteKey, spread);
     }
+    if ("IFU".equalsIgnoreCase(typeStr) || "IborFuture".equalsIgnoreCase(typeStr)) {
+      return curveIborFuturesCurveNode(conventionStr, timeStr, label, quoteKey, spread);
+    }
     if ("OIS".equalsIgnoreCase(typeStr) || "FixedOvernightSwap".equalsIgnoreCase(typeStr)) {
       return curveFixedOvernightCurveNode(conventionStr, timeStr, label, quoteKey, spread);
     }
@@ -350,6 +358,24 @@ public final class RatesCalibrationCsvLoader {
     FraConvention convention = FraConvention.of(conventionStr);
     FraTemplate template = FraTemplate.of(periodToStart, periodToEnd, convention);
     return FraCurveNode.of(template, quoteKey, spread, label);
+  }
+
+  private static CurveNode curveIborFuturesCurveNode(
+      String conventionStr,
+      String timeStr,
+      String label,
+      QuoteKey quoteKey,
+      double spread) {
+
+    Matcher matcher = FUT_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    if (!matcher.matches()) {
+      throw new IllegalArgumentException(Messages.format("Invalid time format for Ibor Futures: {}", timeStr));
+    }
+    Period periodToStart = Period.parse("P" + matcher.group(1));
+    int sequenceNumber = Integer.parseInt(matcher.group(2));
+    IborFutureConvention convention = IborFutureConvention.of(conventionStr);
+    IborFutureTemplate template = IborFutureTemplate.of(periodToStart, sequenceNumber, convention);
+    return IborFutureCurveNode.of(template, quoteKey, spread, label);
   }
 
   //-------------------------------------------------------------------------
