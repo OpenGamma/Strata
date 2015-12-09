@@ -49,6 +49,10 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.joda.beans.Bean;
@@ -341,7 +345,7 @@ public class TestHelper {
    * <p>
    * For example:
    * <pre>
-   *  String sysOut = caputureSystemOut(() -> myCode);
+   *  String sysOut = captureSystemOut(() -> myCode);
    * </pre>
    * 
    * @param runner  the lambda containing the code to test
@@ -372,7 +376,7 @@ public class TestHelper {
    * <p>
    * For example:
    * <pre>
-   *  String sysErr = caputureSystemerr(() -> myCode);
+   *  String sysErr = captureSystemErr(() -> myCode);
    * </pre>
    * 
    * @param runner  the lambda containing the code to test
@@ -393,6 +397,55 @@ public class TestHelper {
       System.setErr(old);
     }
     return Unchecked.wrap(() -> baos.toString(UTF_8));
+  }
+
+  /**
+   * Capture log for testing.
+   * <p>
+   * This returns the output from calls to the java logger.
+   * This is thread-safe, providing that no other utility alters the logger.
+   * <p>
+   * For example:
+   * <pre>
+   *  String log = captureLog(Foo.class, () -> myCode);
+   * </pre>
+   * 
+   * @param loggerClass  the class defining the logger to trap
+   * @param runner  the lambda containing the code to test
+   * @return the captured output
+   */
+  public static synchronized List<LogRecord> caputureLog(Class<?> loggerClass, Runnable runner) {
+    assertNotNull(loggerClass, "caputureLog() called with null Class");
+    assertNotNull(runner, "caputureLog() called with null Runnable");
+    
+    Logger logger = Logger.getLogger(loggerClass.getName());
+    LogHandler handler = new LogHandler();
+    try {
+      handler.setLevel(Level.ALL);
+      logger.setUseParentHandlers(false);
+      logger.addHandler(handler);
+      runner.run();
+      return handler.records;
+    } finally {
+      logger.removeHandler(handler);
+    }
+  }
+
+  private static class LogHandler extends Handler {
+    List<LogRecord> records = new ArrayList<>();
+
+    @Override
+    public void publish(LogRecord record) {
+      records.add(record);
+    }
+
+    @Override
+    public void close() {
+    }
+
+    @Override
+    public void flush() {
+    }
   }
 
   //-------------------------------------------------------------------------

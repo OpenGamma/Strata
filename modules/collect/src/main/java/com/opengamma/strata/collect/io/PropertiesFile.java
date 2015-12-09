@@ -29,6 +29,7 @@ import com.opengamma.strata.collect.Unchecked;
  * The key is separated from the value using the '=' symbol.
  * Duplicate keys are allowed.
  * For example 'key = value'.
+ * The equals sign and value may be omitted, in which case the value is an empty string.
  * <p>
  * Keys and values are trimmed.
  * Blank lines are ignored.
@@ -83,11 +84,8 @@ public final class PropertiesFile {
         continue;
       }
       int equalsPosition = line.indexOf('=');
-      if (equalsPosition < 0) {
-        throw new IllegalArgumentException("Invalid properties file, expected key=value property, line " + lineNum);
-      }
-      String key = line.substring(0, equalsPosition).trim();
-      String value = line.substring(equalsPosition + 1).trim();
+      String key = (equalsPosition < 0 ? line.trim() : line.substring(0, equalsPosition).trim());
+      String value = (equalsPosition < 0 ? "" : line.substring(equalsPosition + 1).trim());
       if (key.length() == 0) {
         throw new IllegalArgumentException("Invalid properties file, empty key, line " + lineNum);
       }

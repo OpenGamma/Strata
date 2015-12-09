@@ -109,6 +109,21 @@ public class IniFileTest {
     assertEquals(test.toString(), "{section={a=[x, y]}}");
   }
 
+  public void test_of_propertyNoEquals() {
+    IniFile test = IniFile.of(CharSource.wrap("[section]\na\n"));
+    Multimap<String, String> keyValues1 = ArrayListMultimap.create();
+    keyValues1.put("a", "");
+    assertEquals(test.asMap(), ImmutableMap.of("section", PropertySet.of(keyValues1)));
+
+    assertEquals(test.section("section"), PropertySet.of(keyValues1));
+    assertEquals(test.section("section").contains("a"), true);
+    assertEquals(test.section("section").valueList("a"), ImmutableList.of(""));
+    assertEquals(test.section("section").contains("b"), false);
+    assertEquals(test.section("section").keys(), ImmutableSet.of("a"));
+    assertEquals(test.section("section").asMultimap(), ImmutableListMultimap.of("a", ""));
+    assertEquals(test.toString(), "{section={a=[]}}");
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_invalid_propertyAtStart() {
     String invalid =
@@ -120,14 +135,6 @@ public class IniFileTest {
   public void test_of_invalid_badSection() {
     String invalid = "" +
         "[section\n" +
-        "b\n";
-    IniFile.of(CharSource.wrap(invalid));
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_of_invalid_propertyNoEquals() {
-    String invalid = "" +
-        "[section]\n" +
         "b\n";
     IniFile.of(CharSource.wrap(invalid));
   }

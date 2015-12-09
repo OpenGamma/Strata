@@ -49,11 +49,11 @@ public class PropertiesFileTest {
     assertEquals(test.toString(), "{a=[x, y]}");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_of_invalid_propertyNoEquals() {
-    String invalid =
-        "b\n";
-    PropertiesFile.of(CharSource.wrap(invalid));
+  public void test_of_propertyNoEquals() {
+    PropertiesFile test = PropertiesFile.of(CharSource.wrap("b\n"));
+    Multimap<String, String> keyValues = ImmutableListMultimap.of("b", "");
+    assertEquals(test.getProperties(), PropertySet.of(keyValues));
+    assertEquals(test.toString(), "{b=[]}");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

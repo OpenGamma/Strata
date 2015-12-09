@@ -30,6 +30,7 @@ import com.opengamma.strata.collect.Unchecked;
  * The key is separated from the value using the '=' symbol.
  * Duplicate keys are allowed.
  * For example 'key = value'.
+ * The equals sign and value may be omitted, in which case the value is an empty string.
  * <p>
  * All properties are grouped into named sections.
  * The section name occurs on a line by itself surrounded by square brackets.
@@ -120,11 +121,8 @@ public final class IniFile {
 
       } else {
         int equalsPosition = line.indexOf('=');
-        if (equalsPosition < 0) {
-          throw new IllegalArgumentException("Invalid INI file, expected key=value property, line " + lineNum);
-        }
-        String key = line.substring(0, equalsPosition).trim();
-        String value = line.substring(equalsPosition + 1).trim();
+        String key = (equalsPosition < 0 ? line.trim() : line.substring(0, equalsPosition).trim());
+        String value = (equalsPosition < 0 ? "" : line.substring(equalsPosition + 1).trim());
         if (key.length() == 0) {
           throw new IllegalArgumentException("Invalid INI file, empty key, line " + lineNum);
         }
