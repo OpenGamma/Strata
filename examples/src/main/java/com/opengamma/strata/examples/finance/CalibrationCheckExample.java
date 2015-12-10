@@ -70,7 +70,7 @@ public class CalibrationCheckExample {
   /**
    * The valuation date.
    */
-  private static final LocalDate VALUATION_DATE = LocalDate.of(2015, 7, 21);
+  private static final LocalDate VAL_DATE = LocalDate.of(2015, 7, 21);
   /**
    * The empty time-series.
    */
@@ -179,12 +179,12 @@ public class CalibrationCheckExample {
   // Compute the PV results for the instruments used in calibration from the config
   private static Pair<List<Trade>, Results> getResults() {
     // load quotes
-    ImmutableMap<QuoteId, Double> quotes = QuotesCsvLoader.load(VALUATION_DATE, QUOTES_RESOURCE);
+    ImmutableMap<QuoteId, Double> quotes = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE);
 
     // create the market data builder and populate with known data
     MarketEnvironmentBuilder snapshotBuilder =
         MarketEnvironment.builder()
-            .valuationDate(VALUATION_DATE)
+            .valuationDate(VAL_DATE)
             .addTimeSeries(IndexRateId.of(USD_LIBOR_3M), TS_EMTPY)
             .addTimeSeries(IndexRateId.of(USD_FED_FUND), TS_EMTPY)
             .addValues(quotes);
@@ -203,7 +203,7 @@ public class CalibrationCheckExample {
       for (CurveNode node : nodes) {
         if (!(node instanceof IborFixingDepositCurveNode)) {
           // IborFixingDeposit is not a real trade, so there is no appropriate comparison
-          trades.add(node.trade(VALUATION_DATE, MarketData.builder().addValuesById(quotes).build()));
+          trades.add(node.trade(VAL_DATE, MarketData.builder().addValuesById(quotes).build()));
         }
       }
     }
