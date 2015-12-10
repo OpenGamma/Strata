@@ -66,7 +66,7 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 @Test
 public class CalibrationDiscountingSimple1Test {
 
-  private static final LocalDate VALUATION_DATE = LocalDate.of(2015, 7, 21);
+  private static final LocalDate VAL_DATE = LocalDate.of(2015, 7, 21);
 
   private static final CurveInterpolator INTERPOLATOR_LINEAR = CurveInterpolators.LINEAR;
   private static final CurveExtrapolator EXTRAPOLATOR_FLAT = CurveExtrapolators.FLAT;
@@ -184,12 +184,12 @@ public class CalibrationDiscountingSimple1Test {
   //-------------------------------------------------------------------------
   public void calibration_present_value() {
     ImmutableRatesProvider result2 =
-        CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VALUATION_DATE, ALL_QUOTES, TS);
+        CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VAL_DATE, ALL_QUOTES, TS);
     // Test PV
     CurveNode[] fwd3Nodes = CURVES_NODES.get(0).get(0);
     List<Trade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.length; i++) {
-      fwd3Trades.add(fwd3Nodes[i].trade(VALUATION_DATE, ALL_QUOTES));
+      fwd3Trades.add(fwd3Nodes[i].trade(VAL_DATE, ALL_QUOTES));
     }
     // Fixing 
     CurrencyAmount pvFixing2 =
@@ -221,7 +221,7 @@ public class CalibrationDiscountingSimple1Test {
       startTime = System.currentTimeMillis();
       for (int looprep = 0; looprep < nbTests; looprep++) {
         ImmutableRatesProvider result =
-            CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VALUATION_DATE, ALL_QUOTES, TS);
+            CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VAL_DATE, ALL_QUOTES, TS);
         count += result.getDiscountCurves().size() + result.getIndexCurves().size();
       }
       endTime = System.currentTimeMillis();

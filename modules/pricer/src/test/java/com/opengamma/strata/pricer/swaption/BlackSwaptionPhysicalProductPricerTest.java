@@ -57,9 +57,9 @@ import com.opengamma.strata.product.swaption.SwaptionSettlement;
 @Test
 public class BlackSwaptionPhysicalProductPricerTest {
 
-  private static final LocalDate VALUATION_DATE = LocalDate.of(2015, 8, 7);
-  private static final LocalDate SWAPTION_EXERCISE_DATE = VALUATION_DATE.plusYears(5);
-  private static final LocalDate SWAPTION_PAST_EXERCISE_DATE = VALUATION_DATE.minusYears(1);
+  private static final LocalDate VAL_DATE = LocalDate.of(2015, 8, 7);
+  private static final LocalDate SWAPTION_EXERCISE_DATE = VAL_DATE.plusYears(5);
+  private static final LocalDate SWAPTION_PAST_EXERCISE_DATE = VAL_DATE.minusYears(1);
   private static final LocalTime SWAPTION_EXPIRY_TIME = LocalTime.of(11, 0);
   private static final ZoneId SWAPTION_EXPIRY_ZONE = ZoneId.of("America/New_York");
   private static final LocalDate SWAP_EFFECTIVE_DATE = USD_LIBOR_3M.calculateEffectiveFromFixing(SWAPTION_EXERCISE_DATE);
@@ -69,14 +69,14 @@ public class BlackSwaptionPhysicalProductPricerTest {
   private static final double STRIKE = 0.01;
   private static final double NOTIONAL = 100_000_000;
   private static final Swap SWAP_REC = USD_FIXED_6M_LIBOR_3M
-      .toTrade(VALUATION_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, SELL, NOTIONAL, STRIKE).getProduct();
+      .toTrade(VAL_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, SELL, NOTIONAL, STRIKE).getProduct();
   private static final Swap SWAP_PAY = USD_FIXED_6M_LIBOR_3M
-      .toTrade(VALUATION_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, BUY, NOTIONAL, STRIKE).getProduct();
+      .toTrade(VAL_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, BUY, NOTIONAL, STRIKE).getProduct();
   //Only for ArgChecker, not real convention
   private static final IborIborSwapConvention USD_LIBOR_3M_LIBOR_3M = ImmutableIborIborSwapConvention.of(
       "USD-Swap", USD_FIXED_6M_LIBOR_3M.getFloatingLeg(), USD_FIXED_6M_LIBOR_3M.getFloatingLeg());
   private static final Swap SWAP_BASIS = USD_LIBOR_3M_LIBOR_3M
-      .toTrade(VALUATION_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, BUY, NOTIONAL, STRIKE).getProduct();
+      .toTrade(VAL_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, BUY, NOTIONAL, STRIKE).getProduct();
   private static final Swap SWAP_PAST = USD_FIXED_6M_LIBOR_3M // Only for checks; no actual computation on that swap
       .toTrade(SWAPTION_PAST_EXERCISE_DATE, SWAPTION_PAST_EXERCISE_DATE, SWAPTION_PAST_EXERCISE_DATE.plusYears(10),
           BUY, NOTIONAL, STRIKE).getProduct();
@@ -128,7 +128,7 @@ public class BlackSwaptionPhysicalProductPricerTest {
       .build();
   private static final Swaption SWAPTION_REC_AT_EXPIRY = Swaption.builder()
       .swaptionSettlement(PHYSICAL_SETTLE)
-      .expiryDate(AdjustableDate.of(VALUATION_DATE))
+      .expiryDate(AdjustableDate.of(VAL_DATE))
       .expiryTime(SWAPTION_EXPIRY_TIME)
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG)
@@ -136,7 +136,7 @@ public class BlackSwaptionPhysicalProductPricerTest {
       .build();
   private static final Swaption SWAPTION_PAY_AT_EXPIRY = Swaption.builder()
       .swaptionSettlement(PHYSICAL_SETTLE)
-      .expiryDate(AdjustableDate.of(VALUATION_DATE))
+      .expiryDate(AdjustableDate.of(VAL_DATE))
       .expiryTime(SWAPTION_EXPIRY_TIME)
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG)
@@ -160,7 +160,7 @@ public class BlackSwaptionPhysicalProductPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(FD_SHIFT);
 
   private static final ImmutableRatesProvider MULTI_USD = RatesProviderDataSets.MULTI_USD.toBuilder()
-      .valuationDate(VALUATION_DATE)
+      .valuationDate(VAL_DATE)
       .build();
   private static final BlackVolatilityExpiryTenorSwaptionProvider BLACK_VOL_CST_SWAPTION_PROVIDER_USD =
       SwaptionBlackVolatilityDataSets.BLACK_VOL_CST_SWAPTION_PROVIDER_USD;
@@ -317,9 +317,9 @@ public class BlackSwaptionPhysicalProductPricerTest {
     NodalSurface surfaceDw = ConstantNodalSurface.of(
         SwaptionBlackVolatilityDataSets.META_DATA, SwaptionBlackVolatilityDataSets.VOLATILITY - shiftVol);
     CurrencyAmount pvP = PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_PAY, MULTI_USD,
-        BlackVolatilityExpiryTenorSwaptionProvider.of(surfaceUp, USD_FIXED_6M_LIBOR_3M, ACT_365F, VALUATION_DATE));
+        BlackVolatilityExpiryTenorSwaptionProvider.of(surfaceUp, USD_FIXED_6M_LIBOR_3M, ACT_365F, VAL_DATE));
     CurrencyAmount pvM = PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_PAY, MULTI_USD,
-        BlackVolatilityExpiryTenorSwaptionProvider.of(surfaceDw, USD_FIXED_6M_LIBOR_3M, ACT_365F, VALUATION_DATE));
+        BlackVolatilityExpiryTenorSwaptionProvider.of(surfaceDw, USD_FIXED_6M_LIBOR_3M, ACT_365F, VAL_DATE));
     double pvnvsFd = (pvP.getAmount() - pvM.getAmount()) / (2 * shiftVol);
     SwaptionSensitivity pvnvsAd = PRICER_SWAPTION_BLACK
         .presentValueSensitivityBlackVolatility(SWAPTION_LONG_PAY, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD);

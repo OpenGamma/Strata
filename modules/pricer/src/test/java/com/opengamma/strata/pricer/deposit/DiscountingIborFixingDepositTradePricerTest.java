@@ -38,7 +38,7 @@ import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
 @Test
 public class DiscountingIborFixingDepositTradePricerTest {
 
-  private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 1, 16);
+  private static final LocalDate VAL_DATE = LocalDate.of(2014, 1, 16);
   
   private static final LocalDate START_DATE = LocalDate.of(2014, 1, 24);
   private static final LocalDate END_DATE = LocalDate.of(2014, 7, 24);
@@ -69,7 +69,7 @@ public class DiscountingIborFixingDepositTradePricerTest {
     InterpolatedNodalCurve indexCurve =
         InterpolatedNodalCurve.of(Curves.zeroRates("EUR-EURIBOR6M", ACT_ACT_ISDA), time_index, rate_index, interp);
     IMM_PROV = ImmutableRatesProvider.builder()
-        .valuationDate(VALUATION_DATE)
+        .valuationDate(VAL_DATE)
         .discountCurves(ImmutableMap.of(EUR, dscCurve))
         .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, indexCurve))
         .build();

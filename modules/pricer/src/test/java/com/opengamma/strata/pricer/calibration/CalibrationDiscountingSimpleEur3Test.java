@@ -43,7 +43,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class CalibrationDiscountingSimpleEur3Test {
 
-  private static final LocalDate VALUATION_DATE = LocalDate.of(2015, 7, 24);
+  private static final LocalDate VAL_DATE = LocalDate.of(2015, 7, 24);
 
   /** Data for EUR-DSCON curve */
   /* Market values */
@@ -90,7 +90,7 @@ public class CalibrationDiscountingSimpleEur3Test {
   //-------------------------------------------------------------------------
   public void calibration_present_value() {
     ImmutableRatesProvider result =
-        CalibrationEurStandard.calibrateEurStandard(VALUATION_DATE,
+        CalibrationEurStandard.calibrateEurStandard(VAL_DATE,
             DSC_MARKET_QUOTES, DSC_OIS_TENORS,
             FWD3_FIXING_QUOTE, FWD3_FRA_QUOTES, FWD3_IRS_QUOTES, FWD3_FRA_TENORS, FWD3_IRS_TENORS,
             FWD6_FIXING_QUOTE, FWD6_FRA_QUOTES, FWD6_IRS_QUOTES, FWD6_FRA_TENORS, FWD6_IRS_TENORS);
@@ -120,7 +120,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     ImmutableList<CurveNode> dscNodes = entries.get(0).getCurveDefinition().getNodes();
     List<Trade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.size(); i++) {
-      dscTrades.add(dscNodes.get(i).trade(VALUATION_DATE, allQuotes));
+      dscTrades.add(dscNodes.get(i).trade(VAL_DATE, allQuotes));
     }
     // OIS
     for (int i = 0; i < DSC_MARKET_QUOTES.length; i++) {
@@ -132,7 +132,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     ImmutableList<CurveNode> fwd3Nodes = entries.get(1).getCurveDefinition().getNodes();
     List<Trade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.size(); i++) {
-      fwd3Trades.add(fwd3Nodes.get(i).trade(VALUATION_DATE, allQuotes));
+      fwd3Trades.add(fwd3Nodes.get(i).trade(VAL_DATE, allQuotes));
     }
     // FRA
     for (int i = 0; i < FWD3_FRA_QUOTES.length; i++) {
@@ -150,7 +150,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     ImmutableList<CurveNode> fwd6Nodes = entries.get(2).getCurveDefinition().getNodes();
     List<Trade> fwd6Trades = new ArrayList<>();
     for (int i = 0; i < fwd6Nodes.size(); i++) {
-      fwd6Trades.add(fwd6Nodes.get(i).trade(VALUATION_DATE, allQuotes));
+      fwd6Trades.add(fwd6Nodes.get(i).trade(VAL_DATE, allQuotes));
     }
     // IRS
     for (int i = 0; i < FWD6_IRS_QUOTES.length; i++) {
@@ -163,7 +163,7 @@ public class CalibrationDiscountingSimpleEur3Test {
   //-------------------------------------------------------------------------
   public void calibration_transition_coherence_par_rate() {
     ImmutableRatesProvider provider =
-        CalibrationEurStandard.calibrateEurStandard(VALUATION_DATE,
+        CalibrationEurStandard.calibrateEurStandard(VAL_DATE,
             DSC_MARKET_QUOTES, DSC_OIS_TENORS,
             FWD3_FIXING_QUOTE, FWD3_FRA_QUOTES, FWD3_IRS_QUOTES, FWD3_FRA_TENORS, FWD3_IRS_TENORS,
             FWD6_FIXING_QUOTE, FWD6_FRA_QUOTES, FWD6_IRS_QUOTES, FWD6_FRA_TENORS, FWD6_IRS_TENORS);
@@ -196,7 +196,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     ImmutableList<CurveNode> dscNodes = entries.get(0).getCurveDefinition().getNodes();
     List<Trade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.size(); i++) {
-      dscTrades.add(dscNodes.get(i).trade(VALUATION_DATE, allQuotes));
+      dscTrades.add(dscNodes.get(i).trade(VAL_DATE, allQuotes));
     }
     // OIS
     for (int loopnode = 0; loopnode < DSC_MARKET_QUOTES.length; loopnode++) {
@@ -218,7 +218,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     ImmutableList<CurveNode> fwd3Nodes = entries.get(1).getCurveDefinition().getNodes();
     List<Trade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.size(); i++) {
-      fwd3Trades.add(fwd3Nodes.get(i).trade(VALUATION_DATE, allQuotes));
+      fwd3Trades.add(fwd3Nodes.get(i).trade(VAL_DATE, allQuotes));
     }
     for (int loopnode = 0; loopnode < fwd3MarketQuotes.length; loopnode++) {
       PointSensitivities pts = null;
@@ -254,7 +254,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     ImmutableList<CurveNode> fwd6Nodes = entries.get(2).getCurveDefinition().getNodes();
     List<Trade> fwd6Trades = new ArrayList<>();
     for (int i = 0; i < fwd6Nodes.size(); i++) {
-      fwd6Trades.add(fwd6Nodes.get(i).trade(VALUATION_DATE, allQuotes));
+      fwd6Trades.add(fwd6Nodes.get(i).trade(VAL_DATE, allQuotes));
     }
     for (int loopnode = 0; loopnode < fwd6MarketQuotes.length; loopnode++) {
       PointSensitivities pts = null;

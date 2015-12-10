@@ -42,8 +42,8 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
 @Test
 public class BlackSwaptionPhysicalTradePricerTest {
 
-  private static final LocalDate VALUATION_DATE = LocalDate.of(2015, 8, 7);
-  private static final LocalDate SWAPTION_EXERCISE_DATE = VALUATION_DATE.plusYears(5);
+  private static final LocalDate VAL_DATE = LocalDate.of(2015, 8, 7);
+  private static final LocalDate SWAPTION_EXERCISE_DATE = VAL_DATE.plusYears(5);
   private static final LocalTime SWAPTION_EXPIRY_TIME = LocalTime.of(11, 0);
   private static final ZoneId SWAPTION_EXPIRY_ZONE = ZoneId.of("America/New_York");
   private static final LocalDate SWAP_EFFECTIVE_DATE = USD_LIBOR_3M
@@ -54,7 +54,7 @@ public class BlackSwaptionPhysicalTradePricerTest {
   private static final double STRIKE = 0.01;
   private static final double NOTIONAL = 100_000_000;
   private static final Swap SWAP_REC = USD_FIXED_6M_LIBOR_3M
-      .toTrade(VALUATION_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, SELL, NOTIONAL, STRIKE).getProduct();
+      .toTrade(VAL_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, SELL, NOTIONAL, STRIKE).getProduct();
   private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
 
   private static final double PREMIUM_AMOUNT = 100_000;
@@ -72,13 +72,13 @@ public class BlackSwaptionPhysicalTradePricerTest {
       .product(SWAPTION_LONG_REC)
       .premium(PREMIUM_FWD_PAY)
       .build();
-  private static final Payment PREMIUM_TRA_PAY = Payment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VALUATION_DATE);
+  private static final Payment PREMIUM_TRA_PAY = Payment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VAL_DATE);
   private static final SwaptionTrade SWAPTION_PRETOD_LONG_REC = SwaptionTrade.builder()
       .product(SWAPTION_LONG_REC)
       .premium(PREMIUM_TRA_PAY)
       .build();
   private static final Payment PREMIUM_PAST_PAY =
-      Payment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VALUATION_DATE.minusDays(1));
+      Payment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VAL_DATE.minusDays(1));
   private static final SwaptionTrade SWAPTION_PREPAST_LONG_REC = SwaptionTrade.builder()
       .product(SWAPTION_LONG_REC)
       .premium(PREMIUM_PAST_PAY)
@@ -91,7 +91,7 @@ public class BlackSwaptionPhysicalTradePricerTest {
   private static final DiscountingPaymentPricer PRICER_PAYMENT = DiscountingPaymentPricer.DEFAULT;
 
   private static final ImmutableRatesProvider MULTI_USD = RatesProviderDataSets.MULTI_USD.toBuilder()
-      .valuationDate(VALUATION_DATE)
+      .valuationDate(VAL_DATE)
       .build();
   private static final BlackVolatilityExpiryTenorSwaptionProvider BLACK_VOL_SWAPTION_PROVIDER_USD =
       SwaptionBlackVolatilityDataSets.BLACK_VOL_SWAPTION_PROVIDER_USD_STD;
@@ -141,17 +141,17 @@ public class BlackSwaptionPhysicalTradePricerTest {
 
   //-------------------------------------------------------------------------
   public void current_cash_forward() {
-    CurrencyAmount ccTrade = PRICER_SWAPTION_BLACK_TRADE.currentCash(SWAPTION_PREFWD_LONG_REC, VALUATION_DATE);
+    CurrencyAmount ccTrade = PRICER_SWAPTION_BLACK_TRADE.currentCash(SWAPTION_PREFWD_LONG_REC, VAL_DATE);
     assertEquals(ccTrade.getAmount(), 0, TOLERANCE_PV);
   }
 
   public void current_cash_vd() {
-    CurrencyAmount ccTrade = PRICER_SWAPTION_BLACK_TRADE.currentCash(SWAPTION_PRETOD_LONG_REC, VALUATION_DATE);
+    CurrencyAmount ccTrade = PRICER_SWAPTION_BLACK_TRADE.currentCash(SWAPTION_PRETOD_LONG_REC, VAL_DATE);
     assertEquals(ccTrade.getAmount(), -PREMIUM_AMOUNT, TOLERANCE_PV);
   }
 
   public void current_cash_past() {
-    CurrencyAmount ccTrade = PRICER_SWAPTION_BLACK_TRADE.currentCash(SWAPTION_PREPAST_LONG_REC, VALUATION_DATE);
+    CurrencyAmount ccTrade = PRICER_SWAPTION_BLACK_TRADE.currentCash(SWAPTION_PREPAST_LONG_REC, VAL_DATE);
     assertEquals(ccTrade.getAmount(), 0, TOLERANCE_PV);
   }
 

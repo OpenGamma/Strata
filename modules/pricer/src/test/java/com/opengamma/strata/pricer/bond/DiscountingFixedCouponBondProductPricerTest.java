@@ -66,7 +66,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
   // fixed coupon bond
   private static final StandardId SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BOND1");
   private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT1");
-  private static final LocalDate VALUATION = date(2016, 4, 25);
+  private static final LocalDate VAL_DATE = date(2016, 4, 25);
   private static final YieldConvention YIELD_CONVENTION = YieldConvention.GERMAN_BONDS;
   private static final double NOTIONAL = 1.0e7;
   private static final double FIXED_RATE = 0.015;
@@ -112,13 +112,13 @@ public class DiscountingFixedCouponBondProductPricerTest {
   private static final CurveMetadata METADATA_REPO = Curves.zeroRates(NAME_REPO, ACT_365F);
   private static final InterpolatedNodalCurve CURVE_REPO = InterpolatedNodalCurve.of(
       METADATA_REPO, DoubleArray.of(0.1, 2.0, 10.0), DoubleArray.of(0.05, 0.06, 0.09), INTERPOLATOR);
-  private static final DiscountFactors DSC_FACTORS_REPO = ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO);
+  private static final DiscountFactors DSC_FACTORS_REPO = ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO);
   private static final BondGroup GROUP_REPO = BondGroup.of("GOVT1 BOND1");
   private static final CurveName NAME_ISSUER = CurveName.of("TestIssuerCurve");
   private static final CurveMetadata METADATA_ISSUER = Curves.zeroRates(NAME_ISSUER, ACT_365F);
   private static final InterpolatedNodalCurve CURVE_ISSUER = InterpolatedNodalCurve.of(
       METADATA_ISSUER, DoubleArray.of(0.2, 9.0, 15.0), DoubleArray.of(0.03, 0.05, 0.13), INTERPOLATOR);
-  private static final DiscountFactors DSC_FACTORS_ISSUER = ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_ISSUER);
+  private static final DiscountFactors DSC_FACTORS_ISSUER = ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_ISSUER);
   private static final LegalEntityGroup GROUP_ISSUER = LegalEntityGroup.of("GOVT1");
   private static final LegalEntityDiscountingProvider PROVIDER = LegalEntityDiscountingProvider.builder()
       .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
@@ -127,7 +127,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
       .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
           Pair.<BondGroup, Currency>of(GROUP_REPO, EUR), DSC_FACTORS_REPO))
       .bondMap(ImmutableMap.<StandardId, BondGroup>of(SECURITY_ID, GROUP_REPO))
-      .valuationDate(VALUATION)
+      .valuationDate(VAL_DATE)
       .build();
 
   private static final double Z_SPREAD = 0.035;
@@ -248,7 +248,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
   public void test_dirtyPriceFromCurves() {
     double computed = PRICER.dirtyPriceFromCurves(BOND_SECURITY, PROVIDER);
     CurrencyAmount pv = PRICER.presentValue(PRODUCT, PROVIDER);
-    LocalDate settlement = DATE_OFFSET.adjust(VALUATION);
+    LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE);
     double df = DSC_FACTORS_REPO.discountFactor(settlement);
     assertEquals(computed, pv.getAmount() / df / NOTIONAL);
   }
@@ -257,7 +257,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
     double computed = PRICER.dirtyPriceFromCurvesWithZSpread(
         BOND_SECURITY, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount pv = PRICER.presentValueWithZSpread(PRODUCT, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
-    LocalDate settlement = DATE_OFFSET.adjust(VALUATION);
+    LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE);
     double df = DSC_FACTORS_REPO.discountFactor(settlement);
     assertEquals(computed, pv.getAmount() / df / NOTIONAL);
   }
@@ -267,14 +267,14 @@ public class DiscountingFixedCouponBondProductPricerTest {
         BOND_SECURITY, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyAmount pv = PRICER.presentValueWithZSpread(
         PRODUCT, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    LocalDate settlement = DATE_OFFSET.adjust(VALUATION);
+    LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE);
     double df = DSC_FACTORS_REPO.discountFactor(settlement);
     assertEquals(computed, pv.getAmount() / df / NOTIONAL);
   }
 
   public void test_dirtyPriceFromCleanPrice_cleanPriceFromDirtyPrice() {
     double dirtyPrice = PRICER.dirtyPriceFromCurves(BOND_SECURITY, PROVIDER);
-    LocalDate settlement = DATE_OFFSET.adjust(VALUATION);
+    LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE);
     double cleanPrice = PRICER.cleanPriceFromDirtyPrice(PRODUCT, settlement, dirtyPrice);
     double accruedInterest = PRICER.accruedInterest(PRODUCT, settlement);
     assertEquals(cleanPrice, dirtyPrice - accruedInterest / NOTIONAL, NOTIONAL * TOL);

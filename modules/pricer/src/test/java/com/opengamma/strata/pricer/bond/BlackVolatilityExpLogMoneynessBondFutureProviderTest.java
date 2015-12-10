@@ -90,15 +90,15 @@ public class BlackVolatilityExpLogMoneynessBondFutureProviderTest {
   private static final InterpolatedNodalSurface SURFACE =
       InterpolatedNodalSurface.of(METADATA, TIME, MONEYNESS, VOL, INTERPOLATOR_2D);
   private static final StandardId FUTURE_SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BOND-FUT");
-  private static final LocalDate VALUATION_DATE = date(2015, 2, 17);
-  private static final LocalTime VALUATION_TIME = LocalTime.of(13, 45);
+  private static final LocalDate VAL_DATE = date(2015, 2, 17);
+  private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
-  private static final ZonedDateTime VALUATION_DATE_TIME = VALUATION_DATE.atTime(VALUATION_TIME).atZone(LONDON_ZONE);
+  private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE);
   private static final BlackVolatilityExpLogMoneynessBondFutureProvider PROVIDER_WITH_PARAM =
       BlackVolatilityExpLogMoneynessBondFutureProvider.of(
-          SURFACE_WITH_PARAM, FUTURE_SECURITY_ID, ACT_365F, VALUATION_DATE_TIME);
+          SURFACE_WITH_PARAM, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);
   private static final BlackVolatilityExpLogMoneynessBondFutureProvider PROVIDER =
-      BlackVolatilityExpLogMoneynessBondFutureProvider.of(SURFACE, FUTURE_SECURITY_ID, ACT_365F, VALUATION_DATE_TIME);
+      BlackVolatilityExpLogMoneynessBondFutureProvider.of(SURFACE, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);
 
   private static final ZonedDateTime[] TEST_OPTION_EXPIRY = new ZonedDateTime[] {
     dateUtc(2015, 2, 17), dateUtc(2015, 5, 17), dateUtc(2015, 6, 17), dateUtc(2017, 2, 17) };
@@ -114,7 +114,7 @@ public class BlackVolatilityExpLogMoneynessBondFutureProviderTest {
 
   //-------------------------------------------------------------------------
   public void test_valuationDate() {
-    assertEquals(PROVIDER_WITH_PARAM.getValuationDateTime(), VALUATION_DATE_TIME);
+    assertEquals(PROVIDER_WITH_PARAM.getValuationDateTime(), VAL_DATE_TIME);
   }
 
   public void test_futureId() {
@@ -150,9 +150,9 @@ public class BlackVolatilityExpLogMoneynessBondFutureProviderTest {
         InterpolatedNodalSurface paramDw = InterpolatedNodalSurface.of(
             METADATA_WITH_PARAM, TIME, MONEYNESS, DoubleArray.copyOf(volDataDw), INTERPOLATOR_2D);
       BlackVolatilityExpLogMoneynessBondFutureProvider provUp = BlackVolatilityExpLogMoneynessBondFutureProvider.of(
-          paramUp, FUTURE_SECURITY_ID, ACT_365F, VALUATION_DATE_TIME);
+          paramUp, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);
       BlackVolatilityExpLogMoneynessBondFutureProvider provDw = BlackVolatilityExpLogMoneynessBondFutureProvider.of(
-          paramDw, FUTURE_SECURITY_ID, ACT_365F, VALUATION_DATE_TIME);
+          paramDw, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);
       double volUp = provUp.getVolatility(
           TEST_OPTION_EXPIRY[i], TEST_FUTURE_EXPIRY[i], TEST_STRIKE_PRICE[i], TEST_FUTURE_PRICE[i]);
       double volDw = provDw.getVolatility(
@@ -177,10 +177,10 @@ public class BlackVolatilityExpLogMoneynessBondFutureProviderTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     BlackVolatilityExpLogMoneynessBondFutureProvider test1 = BlackVolatilityExpLogMoneynessBondFutureProvider.of(
-        SURFACE_WITH_PARAM, FUTURE_SECURITY_ID, ACT_365F, VALUATION_DATE_TIME);
+        SURFACE_WITH_PARAM, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);
     coverImmutableBean(test1);
     BlackVolatilityExpLogMoneynessBondFutureProvider test2 = BlackVolatilityExpLogMoneynessBondFutureProvider.of(
-        SURFACE_WITH_PARAM, FUTURE_SECURITY_ID, ACT_360, VALUATION_DATE_TIME.plusDays(1));
+        SURFACE_WITH_PARAM, FUTURE_SECURITY_ID, ACT_360, VAL_DATE_TIME.plusDays(1));
     coverBeanEquals(test1, test2);
   }
 

@@ -52,14 +52,14 @@ public class BlackVolatilitySurfaceFxProviderTest {
   private static final DoubleArray VOLS = DoubleArray.of(0.011, 0.012, 0.013, 0.012, 0.013, 0.014, 0.010, 0.012, 0.014);
   private static final InterpolatedNodalSurface SURFACE =
       InterpolatedNodalSurface.of(DefaultSurfaceMetadata.of("Test"), TIMES, STRIKES, VOLS, INTERPOLATOR_2D);
-  private static final LocalDate VALUATION_DATE = date(2015, 2, 17);
-  private static final LocalTime VALUATION_TIME = LocalTime.of(13, 45);
+  private static final LocalDate VAL_DATE = date(2015, 2, 17);
+  private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
-  private static final ZonedDateTime VALUATION_DATE_TIME = VALUATION_DATE.atTime(VALUATION_TIME).atZone(LONDON_ZONE);
+  private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE);
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, GBP);
 
   private static final BlackVolatilitySurfaceFxProvider PROVIDER =
-      BlackVolatilitySurfaceFxProvider.of(SURFACE, CURRENCY_PAIR, ACT_365F, VALUATION_DATE_TIME);
+      BlackVolatilitySurfaceFxProvider.of(SURFACE, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
 
   private static final LocalTime TIME = LocalTime.of(11, 45);
   private static final ZonedDateTime[] TEST_EXPIRY = new ZonedDateTime[] {
@@ -81,9 +81,9 @@ public class BlackVolatilitySurfaceFxProviderTest {
         .currencyPair(CURRENCY_PAIR)
         .dayCount(ACT_365F)
         .surface(SURFACE)
-        .valuationDateTime(VALUATION_DATE_TIME)
+        .valuationDateTime(VAL_DATE_TIME)
         .build();
-    assertEquals(test.getValuationDateTime(), VALUATION_DATE_TIME);
+    assertEquals(test.getValuationDateTime(), VAL_DATE_TIME);
     assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getSurface(), SURFACE);
@@ -156,7 +156,7 @@ public class BlackVolatilitySurfaceFxProviderTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     BlackVolatilitySurfaceFxProvider test1 =
-        BlackVolatilitySurfaceFxProvider.of(SURFACE, CURRENCY_PAIR, ACT_365F, VALUATION_DATE_TIME);
+        BlackVolatilitySurfaceFxProvider.of(SURFACE, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
     coverImmutableBean(test1);
     BlackVolatilitySurfaceFxProvider test2 = BlackVolatilitySurfaceFxProvider.of(
         SURFACE,
@@ -191,9 +191,9 @@ public class BlackVolatilitySurfaceFxProviderTest {
     NodalSurface surfaceUp = surface.withZValues(zValues.with(index, zValues.get(index) + EPS));
     NodalSurface surfaceDw = surface.withZValues(zValues.with(index, zValues.get(index) - EPS));
     BlackVolatilitySurfaceFxProvider provUp =
-        BlackVolatilitySurfaceFxProvider.of(surfaceUp, CURRENCY_PAIR, ACT_365F, VALUATION_DATE_TIME);
+        BlackVolatilitySurfaceFxProvider.of(surfaceUp, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
     BlackVolatilitySurfaceFxProvider provDw =
-        BlackVolatilitySurfaceFxProvider.of(surfaceDw, CURRENCY_PAIR, ACT_365F, VALUATION_DATE_TIME);
+        BlackVolatilitySurfaceFxProvider.of(surfaceDw, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
     double volUp = provUp.getVolatility(pair, expiry, strike, forward);
     double volDw = provDw.getVolatility(pair, expiry, strike, forward);
     return 0.5 * (volUp - volDw) / EPS;

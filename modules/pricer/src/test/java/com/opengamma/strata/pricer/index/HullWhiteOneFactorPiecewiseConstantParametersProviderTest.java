@@ -37,20 +37,20 @@ public class HullWhiteOneFactorPiecewiseConstantParametersProviderTest {
   private static final DoubleArray VOLATILITY_TIME = DoubleArray.of(0.5, 1.0, 2.0, 5.0);
   private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS =
       HullWhiteOneFactorPiecewiseConstantParameters.of(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
-  private static final LocalDate VALUATION = LocalDate.of(2015, 2, 14);
+  private static final LocalDate VAL_DATE = LocalDate.of(2015, 2, 14);
   private static final LocalTime TIME = LocalTime.of(14, 00);
   private static final ZoneId ZONE = ZoneId.of("GMT+05");
 
   public void test_of_LocalDate() {
     HullWhiteOneFactorPiecewiseConstantParametersProvider test =
-        HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VALUATION);
+        HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VAL_DATE);
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.getParameters(), PARAMETERS);
-    assertEquals(test.getValuationDateTime(), VALUATION.atTime(LocalTime.NOON).atZone(ZoneOffset.UTC));
+    assertEquals(test.getValuationDateTime(), VAL_DATE.atTime(LocalTime.NOON).atZone(ZoneOffset.UTC));
   }
 
   public void test_of_ZonedDateTime() {
-    ZonedDateTime dataTime = VALUATION.atTime(TIME).atZone(ZONE);
+    ZonedDateTime dataTime = VAL_DATE.atTime(TIME).atZone(ZONE);
     HullWhiteOneFactorPiecewiseConstantParametersProvider test =
         HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, dataTime);
     assertEquals(test.getDayCount(), ACT_360);
@@ -60,42 +60,42 @@ public class HullWhiteOneFactorPiecewiseConstantParametersProviderTest {
 
   public void test_of_LocalDateAndTime() {
     HullWhiteOneFactorPiecewiseConstantParametersProvider test =
-        HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VALUATION, TIME, ZONE);
+        HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VAL_DATE, TIME, ZONE);
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.getParameters(), PARAMETERS);
-    assertEquals(test.getValuationDateTime(), VALUATION.atTime(TIME).atZone(ZONE));
+    assertEquals(test.getValuationDateTime(), VAL_DATE.atTime(TIME).atZone(ZONE));
   }
 
   public void test_futuresConvexityFactor() {
     HullWhiteOneFactorPiecewiseConstantParametersProvider provider =
-        HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VALUATION);
+        HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VAL_DATE);
     LocalDate data1 = LocalDate.of(2014, 5, 14);
     LocalDate data2 = LocalDate.of(2014, 5, 20);
     LocalDate data3 = LocalDate.of(2014, 8, 20);
     double computed = provider.futuresConvexityFactor(data1, data2, data3);
     double expected = HullWhiteOneFactorPiecewiseConstantInterestRateModel.DEFAULT.futuresConvexityFactor(PARAMETERS,
-        ACT_360.relativeYearFraction(VALUATION, data1), ACT_360.relativeYearFraction(VALUATION, data2),
-        ACT_360.relativeYearFraction(VALUATION, data3));
+        ACT_360.relativeYearFraction(VAL_DATE, data1), ACT_360.relativeYearFraction(VAL_DATE, data2),
+        ACT_360.relativeYearFraction(VAL_DATE, data3));
     assertEquals(computed, expected);
   }
 
   public void test_futuresConvexityFactorAdjoint() {
     HullWhiteOneFactorPiecewiseConstantParametersProvider provider =
-        HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VALUATION);
+        HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VAL_DATE);
     LocalDate data1 = LocalDate.of(2014, 5, 14);
     LocalDate data2 = LocalDate.of(2014, 5, 20);
     LocalDate data3 = LocalDate.of(2014, 8, 20);
     ValueDerivatives computed = provider.futuresConvexityFactorAdjoint(data1, data2, data3);
     ValueDerivatives expected = HullWhiteOneFactorPiecewiseConstantInterestRateModel.DEFAULT
-        .futuresConvexityFactorAdjoint(PARAMETERS, ACT_360.relativeYearFraction(VALUATION, data1),
-            ACT_360.relativeYearFraction(VALUATION, data2), ACT_360.relativeYearFraction(VALUATION, data3));
+        .futuresConvexityFactorAdjoint(PARAMETERS, ACT_360.relativeYearFraction(VAL_DATE, data1),
+            ACT_360.relativeYearFraction(VAL_DATE, data2), ACT_360.relativeYearFraction(VAL_DATE, data3));
     assertEquals(computed, expected);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     HullWhiteOneFactorPiecewiseConstantParametersProvider test1 =
-        HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VALUATION);
+        HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VAL_DATE);
     coverImmutableBean(test1);
     HullWhiteOneFactorPiecewiseConstantParameters params = HullWhiteOneFactorPiecewiseConstantParameters.of(
         0.02, DoubleArray.of(0.01, 0.011, 0.014), DoubleArray.of(0.5, 5.0));
@@ -106,7 +106,7 @@ public class HullWhiteOneFactorPiecewiseConstantParametersProviderTest {
 
   public void test_serialization() {
     HullWhiteOneFactorPiecewiseConstantParametersProvider test =
-        HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VALUATION);
+        HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VAL_DATE);
     assertSerialization(test);
   }
 }

@@ -38,7 +38,8 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
  */
 @Test
 public class SabrSwaptionCashParYieldTradePricerTest {
-  private static final LocalDate VALUATION = LocalDate.of(2014, 1, 22);
+
+  private static final LocalDate VAL_DATE = LocalDate.of(2014, 1, 22);
   // swaption trades
   private static final double NOTIONAL = 100000000; //100m
   private static final double RATE = 0.0350;
@@ -68,22 +69,22 @@ public class SabrSwaptionCashParYieldTradePricerTest {
       .product(SWAPTION_LONG_REC)
       .premium(PREMIUM_FWD_PAY)
       .build();
-  private static final Payment PREMIUM_TRA_PAY = Payment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VALUATION);
+  private static final Payment PREMIUM_TRA_PAY = Payment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VAL_DATE);
   private static final SwaptionTrade SWAPTION_PRETOD_LONG_REC = SwaptionTrade.builder()
       .product(SWAPTION_LONG_REC)
       .premium(PREMIUM_TRA_PAY)
       .build();
   private static final Payment PREMIUM_PAST_PAY =
-      Payment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VALUATION.minusDays(1));
+      Payment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VAL_DATE.minusDays(1));
   private static final SwaptionTrade SWAPTION_PREPAST_LONG_REC = SwaptionTrade.builder()
       .product(SWAPTION_LONG_REC)
       .premium(PREMIUM_PAST_PAY)
       .build();
   // providers
   private static final ImmutableRatesProvider RATE_PROVIDER =
-      SwaptionSabrRateVolatilityDataSet.getRatesProviderUsd(VALUATION);
+      SwaptionSabrRateVolatilityDataSet.getRatesProviderUsd(VAL_DATE);
   private static final SabrVolatilitySwaptionProvider VOL_PROVIDER =
-      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderUsd(VALUATION, true);
+      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderUsd(VAL_DATE, true);
 
   private static final double TOL = 1.0e-12;
   private static final SabrSwaptionCashParYieldTradePricer PRICER = SabrSwaptionCashParYieldTradePricer.DEFAULT;
@@ -129,17 +130,17 @@ public class SabrSwaptionCashParYieldTradePricerTest {
 
   //-------------------------------------------------------------------------
   public void current_cash_forward() {
-    CurrencyAmount ccTrade = PRICER.currentCash(SWAPTION_PREFWD_LONG_REC, VALUATION);
+    CurrencyAmount ccTrade = PRICER.currentCash(SWAPTION_PREFWD_LONG_REC, VAL_DATE);
     assertEquals(ccTrade.getAmount(), 0, NOTIONAL * TOL);
   }
 
   public void current_cash_vd() {
-    CurrencyAmount ccTrade = PRICER.currentCash(SWAPTION_PRETOD_LONG_REC, VALUATION);
+    CurrencyAmount ccTrade = PRICER.currentCash(SWAPTION_PRETOD_LONG_REC, VAL_DATE);
     assertEquals(ccTrade.getAmount(), -PREMIUM_AMOUNT, NOTIONAL * TOL);
   }
 
   public void current_cash_past() {
-    CurrencyAmount ccTrade = PRICER.currentCash(SWAPTION_PREPAST_LONG_REC, VALUATION);
+    CurrencyAmount ccTrade = PRICER.currentCash(SWAPTION_PREPAST_LONG_REC, VAL_DATE);
     assertEquals(ccTrade.getAmount(), 0, NOTIONAL * TOL);
   }
 

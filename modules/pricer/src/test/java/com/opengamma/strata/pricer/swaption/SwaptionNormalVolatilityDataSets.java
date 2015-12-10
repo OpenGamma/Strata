@@ -66,9 +66,9 @@ public class SwaptionNormalVolatilityDataSets {
   private static final NodalSurface SURFACE_STD =
       InterpolatedNodalSurface.of(METADATA, TIMES, TENOR, NORMAL_VOL, INTERPOLATOR_2D);
 
-  private static final LocalDate VALUATION_DATE_STD = RatesProviderDataSets.VAL_DATE_2014_01_22;
-  private static final LocalTime VALUATION_TIME_STD = LocalTime.of(13, 45);
-  private static final ZoneId VALUATION_ZONE_STD = ZoneId.of("Europe/London");
+  private static final LocalDate VAL_DATE_STD = RatesProviderDataSets.VAL_DATE_2014_01_22;
+  private static final LocalTime VAL_TIME_STD = LocalTime.of(13, 45);
+  private static final ZoneId VAL_ZONE_STD = ZoneId.of("Europe/London");
   private static final BusinessDayAdjustment MOD_FOL_US = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY);
   private static final FixedRateSwapLegConvention USD_FIXED_1Y_30U360 =
       FixedRateSwapLegConvention.of(USD, THIRTY_U_360, Frequency.P6M, MOD_FOL_US);
@@ -78,7 +78,7 @@ public class SwaptionNormalVolatilityDataSets {
       ImmutableFixedIborSwapConvention.of("USD-Swap", USD_FIXED_1Y_30U360, USD_IBOR_LIBOR3M);
   public static final NormalVolatilityExpiryTenorSwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD_STD =
       NormalVolatilityExpiryTenorSwaptionProvider.of(SURFACE_STD, USD_1Y_LIBOR3M, DayCounts.ACT_365F,
-          VALUATION_DATE_STD, VALUATION_TIME_STD, VALUATION_ZONE_STD);
+          VAL_DATE_STD, VAL_TIME_STD, VAL_ZONE_STD);
 
   /**
    * Returns the swaption normal volatility surface shifted by a given amount. The shift is parallel.
@@ -89,12 +89,12 @@ public class SwaptionNormalVolatilityDataSets {
     DoubleArray volShifted = NORMAL_VOL.map(v -> v + shift);
     return NormalVolatilityExpiryTenorSwaptionProvider.of(
         InterpolatedNodalSurface.of(METADATA, TIMES, TENOR, volShifted, INTERPOLATOR_2D),
-        USD_1Y_LIBOR3M, DayCounts.ACT_365F, VALUATION_DATE_STD, VALUATION_TIME_STD, VALUATION_ZONE_STD);
+        USD_1Y_LIBOR3M, DayCounts.ACT_365F, VAL_DATE_STD, VAL_TIME_STD, VAL_ZONE_STD);
   }
 
   public static NormalVolatilityExpiryTenorSwaptionProvider normalVolSwaptionProviderUsdStd(LocalDate valuationDate) {
     return NormalVolatilityExpiryTenorSwaptionProvider.of(SURFACE_STD, USD_1Y_LIBOR3M, DayCounts.ACT_365F,
-        valuationDate, VALUATION_TIME_STD, VALUATION_ZONE_STD);
+        valuationDate, VAL_TIME_STD, VAL_ZONE_STD);
   }
 
   //     =====     Flat volatilities for testing     =====
@@ -107,7 +107,7 @@ public class SwaptionNormalVolatilityDataSets {
 
   public static final NormalVolatilityExpiryTenorSwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD_FLAT =
       NormalVolatilityExpiryTenorSwaptionProvider.of(SURFACE_FLAT, USD_1Y_LIBOR3M, DayCounts.ACT_365F,
-          VALUATION_DATE_STD, VALUATION_TIME_STD, VALUATION_ZONE_STD);
+          VAL_DATE_STD, VAL_TIME_STD, VAL_ZONE_STD);
 
   //     =====     Market data as of 2014-03-20     =====
 
@@ -136,12 +136,12 @@ public class SwaptionNormalVolatilityDataSets {
   private static final NodalSurface SURFACE_20150320 =
       InterpolatedNodalSurface.of(METADATA, TIMES_20150320, TENORS_20150320, NORMAL_VOL_20150320, INTERPOLATOR_2D);
 
-  private static final LocalDate VALUATION_DATE_20150320 = LocalDate.of(2015, 3, 20);
-  private static final LocalTime VALUATION_TIME_20150320 = LocalTime.of(18, 00);
-  private static final ZoneId VALUATION_ZONE_20150320 = ZoneId.of("Europe/London");
+  private static final LocalDate VAL_DATE_20150320 = LocalDate.of(2015, 3, 20);
+  private static final LocalTime VAL_TIME_20150320 = LocalTime.of(18, 00);
+  private static final ZoneId VAL_ZONE_20150320 = ZoneId.of("Europe/London");
 
   public static final NormalVolatilityExpiryTenorSwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD_20150320 =
       NormalVolatilityExpiryTenorSwaptionProvider.of(SURFACE_20150320, USD_1Y_LIBOR3M, DayCounts.ACT_365F,
-          VALUATION_DATE_20150320, VALUATION_TIME_20150320, VALUATION_ZONE_20150320);
+          VAL_DATE_20150320, VAL_TIME_20150320, VAL_ZONE_20150320);
 
 }

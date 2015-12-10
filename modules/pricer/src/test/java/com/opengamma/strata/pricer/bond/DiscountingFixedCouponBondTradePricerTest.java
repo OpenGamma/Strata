@@ -72,7 +72,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
   private static final StandardId SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BOND1");
   private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT1");
   private static final LocalDate SETTLEMENT = date(2016, 4, 29); // after coupon date
-  private static final LocalDate VALUATION = date(2016, 4, 25);
+  private static final LocalDate VAL_DATE = date(2016, 4, 25);
   private static final LocalDate TRADE_BEFORE = date(2016, 3, 18);
   private static final LocalDate SETTLE_BEFORE = date(2016, 3, 22); // before coupon date
   private static final LocalDate TRADE_ON_COUPON = date(2016, 4, 8);
@@ -82,7 +82,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
   private static final LocalDate TRADE_ON_DETACHMENT = date(2016, 4, 4);
   private static final LocalDate SETTLE_ON_DETACHMENT = date(2016, 4, 7); // detachment date
   private static final TradeInfo TRADE_INFO = TradeInfo.builder()
-      .tradeDate(VALUATION)
+      .tradeDate(VAL_DATE)
       .settlementDate(SETTLEMENT)
       .build();
   private static final TradeInfo TRADE_INFO_BEFORE = TradeInfo.builder()
@@ -172,7 +172,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
   private static final InterpolatedNodalCurve CURVE_ISSUER = InterpolatedNodalCurve.of(
       METADATA_ISSUER, DoubleArray.of(0.2, 9.0, 15.0), DoubleArray.of(0.03, 0.05, 0.13), INTERPOLATOR);
   private static final LegalEntityGroup GROUP_ISSUER = LegalEntityGroup.of("GOVT1");
-  private static final LegalEntityDiscountingProvider PROVIDER = createRatesProvider(VALUATION);
+  private static final LegalEntityDiscountingProvider PROVIDER = createRatesProvider(VAL_DATE);
   private static final LegalEntityDiscountingProvider PROVIDER_BEFORE = createRatesProvider(TRADE_BEFORE);
 
   private static final double Z_SPREAD = 0.035;
@@ -193,7 +193,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
     CurrencyAmount computedTrade = TRADE_PRICER.presentValue(TRADE, PROVIDER);
     CurrencyAmount computedProduct = PRODUCT_PRICER.presentValue(PRODUCT, PROVIDER, SETTLEMENT);
     CurrencyAmount pvPayment =
-        PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO));
+        PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO));
     assertEquals(computedTrade.getAmount(),
         computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), NOTIONAL * QUANTITY * TOL);
   }
@@ -204,7 +204,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
     CurrencyAmount computedProduct =
         PRODUCT_PRICER.presentValueWithZSpread(PRODUCT, PROVIDER, Z_SPREAD, CONTINUOUS, 0, SETTLEMENT);
     CurrencyAmount pvPayment =
-        PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO));
+        PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO));
     assertEquals(computedTrade.getAmount(),
         computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), NOTIONAL * QUANTITY * TOL);
   }
@@ -215,7 +215,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
     CurrencyAmount computedProduct = PRODUCT_PRICER.presentValueWithZSpread(
         PRODUCT, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR, SETTLEMENT);
     CurrencyAmount pvPayment =
-        PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO));
+        PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO));
     assertEquals(computedTrade.getAmount(),
         computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), NOTIONAL * QUANTITY * TOL);
   }
@@ -224,7 +224,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
     CurrencyAmount computedTrade = TRADE_PRICER.presentValue(TRADE_NO_EXCOUPON, PROVIDER);
     CurrencyAmount computedProduct = PRODUCT_PRICER.presentValue(PRODUCT_NO_EXCOUPON, PROVIDER, SETTLEMENT);
     CurrencyAmount pvPayment =
-        PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO));
+        PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO));
     assertEquals(computedTrade.getAmount(),
         computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), NOTIONAL * QUANTITY * TOL);
   }
@@ -235,7 +235,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
     CurrencyAmount computedProduct = PRODUCT_PRICER.presentValueWithZSpread(
         PRODUCT_NO_EXCOUPON, PROVIDER, Z_SPREAD, CONTINUOUS, 0, SETTLEMENT);
     CurrencyAmount pvPayment =
-        PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO));
+        PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO));
     assertEquals(computedTrade.getAmount(),
         computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), NOTIONAL * QUANTITY * TOL);
   }
@@ -246,7 +246,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
     CurrencyAmount computedProduct = PRODUCT_PRICER.presentValueWithZSpread(
         PRODUCT_NO_EXCOUPON, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR, SETTLEMENT);
     CurrencyAmount pvPayment =
-        PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO));
+        PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO));
     assertEquals(computedTrade.getAmount(),
         computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), NOTIONAL * QUANTITY * TOL);
   }
@@ -395,11 +395,11 @@ public class DiscountingFixedCouponBondTradePricerTest {
   public void test_presentValueFromCleanPrice() {
     double cleanPrice = 0.985;
     CurrencyAmount computed = TRADE_PRICER.presentValueFromCleanPrice(TRADE, PROVIDER, cleanPrice);
-    LocalDate standardSettlement = PRODUCT.getSettlementDateOffset().adjust(VALUATION);
-    double df = ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO).discountFactor(standardSettlement);
+    LocalDate standardSettlement = PRODUCT.getSettlementDateOffset().adjust(VAL_DATE);
+    double df = ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO).discountFactor(standardSettlement);
     double accruedInterest = PRODUCT_PRICER.accruedInterest(PRODUCT, standardSettlement);
     double pvPayment = PRICER_NOMINAL
-        .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO)).getAmount();
+        .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO)).getAmount();
     double expected = QUANTITY * (cleanPrice * df * NOTIONAL + accruedInterest * df) + pvPayment;
     assertEquals(computed.getCurrency(), EUR);
     assertEquals(computed.getAmount(), expected, NOTIONAL * QUANTITY * TOL);
@@ -409,11 +409,11 @@ public class DiscountingFixedCouponBondTradePricerTest {
     double cleanPrice = 0.985;
     CurrencyAmount computed = TRADE_PRICER.presentValueFromCleanPriceWithZSpread(
         TRADE, PROVIDER, cleanPrice, Z_SPREAD, CONTINUOUS, 0);
-    LocalDate standardSettlement = PRODUCT.getSettlementDateOffset().adjust(VALUATION);
-    double df = ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO).discountFactor(standardSettlement);
+    LocalDate standardSettlement = PRODUCT.getSettlementDateOffset().adjust(VAL_DATE);
+    double df = ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO).discountFactor(standardSettlement);
     double accruedInterest = PRODUCT_PRICER.accruedInterest(PRODUCT, standardSettlement);
     double pvPayment = PRICER_NOMINAL
-        .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO)).getAmount();
+        .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO)).getAmount();
     double expected = QUANTITY * (cleanPrice * df * NOTIONAL + accruedInterest * df) + pvPayment;
     assertEquals(computed.getCurrency(), EUR);
     assertEquals(computed.getAmount(), expected, NOTIONAL * QUANTITY * TOL);
@@ -423,11 +423,11 @@ public class DiscountingFixedCouponBondTradePricerTest {
     double cleanPrice = 0.985;
     CurrencyAmount computed = TRADE_PRICER.presentValueFromCleanPriceWithZSpread(
         TRADE, PROVIDER, cleanPrice, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    LocalDate standardSettlement = PRODUCT.getSettlementDateOffset().adjust(VALUATION);
-    double df = ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO).discountFactor(standardSettlement);
+    LocalDate standardSettlement = PRODUCT.getSettlementDateOffset().adjust(VAL_DATE);
+    double df = ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO).discountFactor(standardSettlement);
     double accruedInterest = PRODUCT_PRICER.accruedInterest(PRODUCT, standardSettlement);
     double pvPayment = PRICER_NOMINAL
-        .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO)).getAmount();
+        .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO)).getAmount();
     double expected = QUANTITY * (cleanPrice * df * NOTIONAL + accruedInterest * df) + pvPayment;
     assertEquals(computed.getCurrency(), EUR);
     assertEquals(computed.getAmount(), expected, NOTIONAL * QUANTITY * TOL);
@@ -436,11 +436,11 @@ public class DiscountingFixedCouponBondTradePricerTest {
   public void test_presentValueFromCleanPrice_noExcoupon() {
     double cleanPrice = 0.985;
     CurrencyAmount computed = TRADE_PRICER.presentValueFromCleanPrice(TRADE_NO_EXCOUPON, PROVIDER, cleanPrice);
-    LocalDate standardSettlement = PRODUCT_NO_EXCOUPON.getSettlementDateOffset().adjust(VALUATION);
-    double df = ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO).discountFactor(standardSettlement);
+    LocalDate standardSettlement = PRODUCT_NO_EXCOUPON.getSettlementDateOffset().adjust(VAL_DATE);
+    double df = ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO).discountFactor(standardSettlement);
     double accruedInterest = PRODUCT_PRICER.accruedInterest(PRODUCT_NO_EXCOUPON, standardSettlement);
     double pvPayment = PRICER_NOMINAL
-        .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO)).getAmount();
+        .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO)).getAmount();
     double expected = QUANTITY * (cleanPrice * df * NOTIONAL + accruedInterest * df) + pvPayment;
     assertEquals(computed.getCurrency(), EUR);
     assertEquals(computed.getAmount(), expected, NOTIONAL * QUANTITY * TOL);
@@ -450,11 +450,11 @@ public class DiscountingFixedCouponBondTradePricerTest {
     double cleanPrice = 0.985;
     CurrencyAmount computed = TRADE_PRICER.presentValueFromCleanPriceWithZSpread(
         TRADE_NO_EXCOUPON, PROVIDER, cleanPrice, Z_SPREAD, CONTINUOUS, 0);
-    LocalDate standardSettlement = PRODUCT_NO_EXCOUPON.getSettlementDateOffset().adjust(VALUATION);
-    double df = ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO).discountFactor(standardSettlement);
+    LocalDate standardSettlement = PRODUCT_NO_EXCOUPON.getSettlementDateOffset().adjust(VAL_DATE);
+    double df = ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO).discountFactor(standardSettlement);
     double accruedInterest = PRODUCT_PRICER.accruedInterest(PRODUCT_NO_EXCOUPON, standardSettlement);
     double pvPayment = PRICER_NOMINAL
-        .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO)).getAmount();
+        .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO)).getAmount();
     double expected = QUANTITY * (cleanPrice * df * NOTIONAL + accruedInterest * df) + pvPayment;
     assertEquals(computed.getCurrency(), EUR);
     assertEquals(computed.getAmount(), expected, NOTIONAL * QUANTITY * TOL);
@@ -464,11 +464,11 @@ public class DiscountingFixedCouponBondTradePricerTest {
     double cleanPrice = 0.985;
     CurrencyAmount computed = TRADE_PRICER.presentValueFromCleanPriceWithZSpread(
         TRADE_NO_EXCOUPON, PROVIDER, cleanPrice, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    LocalDate standardSettlement = PRODUCT_NO_EXCOUPON.getSettlementDateOffset().adjust(VALUATION);
-    double df = ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO).discountFactor(standardSettlement);
+    LocalDate standardSettlement = PRODUCT_NO_EXCOUPON.getSettlementDateOffset().adjust(VAL_DATE);
+    double df = ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO).discountFactor(standardSettlement);
     double accruedInterest = PRODUCT_PRICER.accruedInterest(PRODUCT_NO_EXCOUPON, standardSettlement);
     double pvPayment = PRICER_NOMINAL
-        .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VALUATION, CURVE_REPO)).getAmount();
+        .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO)).getAmount();
     double expected = QUANTITY * (cleanPrice * df * NOTIONAL + accruedInterest * df) + pvPayment;
     assertEquals(computed.getCurrency(), EUR);
     assertEquals(computed.getAmount(), expected, NOTIONAL * QUANTITY * TOL);
@@ -1029,7 +1029,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
   }
 
   public void test_currentCash_zero() {
-    CurrencyAmount ccComputed = TRADE_PRICER.currentCash(TRADE, VALUATION);
+    CurrencyAmount ccComputed = TRADE_PRICER.currentCash(TRADE, VAL_DATE);
     assertEquals(ccComputed, CurrencyAmount.zero(EUR));
   }
 

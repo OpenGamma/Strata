@@ -42,15 +42,15 @@ import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
 public class DiscountingFixedCouponBondPaymentPeriodPricerTest {
 
   // issuer curves
-  private static final LocalDate VALUATION = date(2015, 1, 28);
-  private static final LocalDate VALUATION_AFTER = date(2015, 8, 28);
+  private static final LocalDate VAL_DATE = date(2015, 1, 28);
+  private static final LocalDate VAL_DATE_AFTER = date(2015, 8, 28);
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final CurveName NAME = CurveName.of("TestCurve");
   private static final CurveMetadata METADATA = Curves.zeroRates(NAME, ACT_365F);
   private static final InterpolatedNodalCurve CURVE =
       InterpolatedNodalCurve.of(METADATA, DoubleArray.of(0, 10), DoubleArray.of(0.1, 0.18), INTERPOLATOR);
-  private static final DiscountFactors DSC_FACTORS = ZeroRateDiscountFactors.of(GBP, VALUATION, CURVE);
-  private static final DiscountFactors DSC_FACTORS_AFTER = ZeroRateDiscountFactors.of(GBP, VALUATION_AFTER, CURVE);
+  private static final DiscountFactors DSC_FACTORS = ZeroRateDiscountFactors.of(GBP, VAL_DATE, CURVE);
+  private static final DiscountFactors DSC_FACTORS_AFTER = ZeroRateDiscountFactors.of(GBP, VAL_DATE_AFTER, CURVE);
   private static final LegalEntityGroup GROUP = LegalEntityGroup.of("ISSUER1");
   private static final IssuerCurveDiscountFactors ISSUER_CURVE = IssuerCurveDiscountFactors.of(DSC_FACTORS, GROUP);
   private static final IssuerCurveDiscountFactors ISSUER_CURVE_AFTER =
