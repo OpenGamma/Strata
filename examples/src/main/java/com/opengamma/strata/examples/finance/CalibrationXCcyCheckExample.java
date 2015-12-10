@@ -72,7 +72,7 @@ public class CalibrationXCcyCheckExample {
   /**
    * The valuation date.
    */
-  private static final LocalDate VALUATION_DATE = LocalDate.of(2015, 11, 2);
+  private static final LocalDate VAL_DATE = LocalDate.of(2015, 11, 2);
   /**
    * The tolerance to use.
    */
@@ -182,12 +182,12 @@ public class CalibrationXCcyCheckExample {
   // Compute the PV results for the instruments used in calibration from the config
   private static Pair<List<Trade>, Results> getResults() {
     // load quotes and FX rates
-    Map<QuoteId, Double> quotes = QuotesCsvLoader.load(VALUATION_DATE, QUOTES_RESOURCE);
-    Map<FxRateId, FxRate> fxRates = FxRatesCsvLoader.load(VALUATION_DATE, FX_RATES_RESOURCE);
+    Map<QuoteId, Double> quotes = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE);
+    Map<FxRateId, FxRate> fxRates = FxRatesCsvLoader.load(VAL_DATE, FX_RATES_RESOURCE);
 
     // create the market data used for calculations
     MarketEnvironment marketEnvironment = MarketEnvironment.builder()
-        .valuationDate(VALUATION_DATE)
+        .valuationDate(VAL_DATE)
         .addValues(quotes)
         .addValues(fxRates)
         .build();
@@ -214,7 +214,7 @@ public class CalibrationXCcyCheckExample {
       for (CurveNode node : nodes) {
         if (!(node instanceof IborFixingDepositCurveNode)) {
           // IborFixingDeposit is not a real trade, so there is no appropriate comparison
-          trades.add(node.trade(VALUATION_DATE, marketData));
+          trades.add(node.trade(VAL_DATE, marketData));
         }
       }
     }

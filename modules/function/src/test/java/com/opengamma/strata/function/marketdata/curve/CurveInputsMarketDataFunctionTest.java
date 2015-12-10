@@ -50,7 +50,7 @@ import com.opengamma.strata.product.fra.type.FraTemplate;
 @Test
 public class CurveInputsMarketDataFunctionTest {
 
-  private static final LocalDate VALUATION_DATE = date(2011, 3, 8);
+  private static final LocalDate VAL_DATE = date(2011, 3, 8);
 
   /**
    * Test that the curve node requirements are extracted and returned.
@@ -161,7 +161,7 @@ public class CurveInputsMarketDataFunctionTest {
     QuoteId idC = QuoteId.of(StandardId.of("test", "c"));
 
     MarketEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(VALUATION_DATE)
+        .valuationDate(VAL_DATE)
         .addValue(idA, 1d)
         .addValue(idB, 2d)
         .addValue(idC, 3d)
@@ -177,9 +177,9 @@ public class CurveInputsMarketDataFunctionTest {
     assertThat(curveInputs.getMarketData().get(idC.toMarketDataKey())).isEqualTo(3d);
 
     List<CurveParameterMetadata> expectedMetadata = ImmutableList.of(
-        node1x4.metadata(VALUATION_DATE),
-        node2x5.metadata(VALUATION_DATE),
-        node3x6.metadata(VALUATION_DATE));
+        node1x4.metadata(VAL_DATE),
+        node2x5.metadata(VAL_DATE),
+        node3x6.metadata(VAL_DATE));
     assertThat(curveInputs.getCurveMetadata().getParameterMetadata()).hasValue(expectedMetadata);
   }
 
