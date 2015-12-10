@@ -5,12 +5,12 @@
  */
 package com.opengamma.strata.market.curve;
 
-import static java.util.stream.Collectors.toMap;
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -27,13 +27,12 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.collect.Messages;
 
 /**
  * A group of curves.
@@ -46,6 +45,8 @@ import com.opengamma.strata.collect.Messages;
 @BeanDefinition
 public final class CurveGroup
     implements ImmutableBean, Serializable {
+
+  private static final Logger log = LoggerFactory.getLogger(CurveGroup.class);
 
   /**
    * The name of the curve group.
@@ -60,7 +61,7 @@ public final class CurveGroup
   /**
    * The forward curves in the group, keyed by index.
    */
-  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends Index, Curve>")
+  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends Index, ? extends Curve>")
   private final ImmutableMap<Index, Curve> forwardCurves;
 
   //-------------------------------------------------------------------------
@@ -93,37 +94,32 @@ public final class CurveGroup
   /**
    * Creates a curve group using a curve group definition and a list of existing curves.
    * <p>
-   * The list of curves must contain all curves named in the curve group definition.
+   * If there are curves named in the definition which are not present in the curves the group is built using
+   * whatever curves are available.
    *
    * @param curveGroupDefinition  the definition of a curve group
    * @param curves  some curves
    * @return a curve group built from the definition and the list of curves
-   * @throws IllegalArgumentException if there are any curves named in the definition which are not present in the list
    */
-  public static CurveGroup ofCurves(CurveGroupDefinition curveGroupDefinition, List<Curve> curves) {
+  public static CurveGroup ofCurves(CurveGroupDefinition curveGroupDefinition, Collection<? extends Curve> curves) {
     Map<Currency, Curve> discountCurves = new HashMap<>();
     Map<Index, Curve> forwardCurves = new HashMap<>();
+    // The immutable curve builder in toImmutableMap ensures the same curve doesn't appear twice
     Map<CurveName, Curve> curveMap =
-        curves.stream().collect(toMap(curve -> curve.getMetadata().getCurveName(), curve -> curve));
+        curves.stream().collect(toImmutableMap(curve -> curve.getMetadata().getCurveName(), curve -> curve));
 
     for (CurveGroupEntry entry : curveGroupDefinition.getEntries()) {
       CurveName curveName = entry.getCurveName();
       Curve curve = curveMap.get(curveName);
 
       if (curve == null) {
-        throw new IllegalArgumentException(
-            Messages.format(
-                "No curve found named '{}' when building curve group '{}'",
-                curveName,
-                curveGroupDefinition.getName()));
+        log.debug("No curve found named '{}' when building curve group '{}'", curveName, curveGroupDefinition.getName());
+        continue;
       }
       for (Currency currency : entry.getDiscountCurrencies()) {
         discountCurves.put(currency, curve);
       }
-      for (IborIndex index : entry.getIborIndices()) {
-        forwardCurves.put(index, curve);
-      }
-      for (OvernightIndex index : entry.getOvernightIndices()) {
+      for (Index index : entry.getIndices()) {
         forwardCurves.put(index, curve);
       }
     }
@@ -185,7 +181,7 @@ public final class CurveGroup
   private CurveGroup(
       CurveGroupName name,
       Map<Currency, Curve> discountCurves,
-      Map<? extends Index, Curve> forwardCurves) {
+      Map<? extends Index, ? extends Curve> forwardCurves) {
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(discountCurves, "discountCurves");
     JodaBeanUtils.notNull(forwardCurves, "forwardCurves");
@@ -407,7 +403,7 @@ public final class CurveGroup
 
     private CurveGroupName name;
     private Map<Currency, Curve> discountCurves = ImmutableMap.of();
-    private Map<? extends Index, Curve> forwardCurves = ImmutableMap.of();
+    private Map<? extends Index, ? extends Curve> forwardCurves = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -451,7 +447,7 @@ public final class CurveGroup
           this.discountCurves = (Map<Currency, Curve>) newValue;
           break;
         case -850086775:  // forwardCurves
-          this.forwardCurves = (Map<? extends Index, Curve>) newValue;
+          this.forwardCurves = (Map<? extends Index, ? extends Curve>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -519,7 +515,7 @@ public final class CurveGroup
      * @param forwardCurves  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder forwardCurves(Map<? extends Index, Curve> forwardCurves) {
+    public Builder forwardCurves(Map<? extends Index, ? extends Curve> forwardCurves) {
       JodaBeanUtils.notNull(forwardCurves, "forwardCurves");
       this.forwardCurves = forwardCurves;
       return this;

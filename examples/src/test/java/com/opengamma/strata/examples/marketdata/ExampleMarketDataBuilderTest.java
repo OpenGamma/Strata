@@ -30,6 +30,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.market.FxRateId;
+import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.calc.config.MarketDataRule;
@@ -39,8 +40,9 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
+import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.id.DiscountCurveId;
+import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.IsdaIndexCreditCurveInputsId;
 import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
@@ -48,7 +50,6 @@ import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveInputsId;
 import com.opengamma.strata.market.id.IsdaSingleNameRecoveryRateId;
 import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
 import com.opengamma.strata.market.id.QuoteId;
-import com.opengamma.strata.market.id.RateIndexCurveId;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
 import com.opengamma.strata.product.credit.RestructuringClause;
 import com.opengamma.strata.product.credit.SeniorityLevel;
@@ -77,12 +78,7 @@ public class ExampleMarketDataBuilderTest {
       IndexRateId.of(IborIndices.GBP_LIBOR_3M));
 
   private static final Set<MarketDataId<?>> VALUES = ImmutableSet.of(
-      DiscountCurveId.of(Currency.USD, DEFAULT_CURVE_GROUP),
-      RateIndexCurveId.of(IborIndices.USD_LIBOR_3M, DEFAULT_CURVE_GROUP),
-      RateIndexCurveId.of(IborIndices.USD_LIBOR_6M, DEFAULT_CURVE_GROUP),
-      RateIndexCurveId.of(OvernightIndices.USD_FED_FUND, DEFAULT_CURVE_GROUP),
-      DiscountCurveId.of(Currency.GBP, DEFAULT_CURVE_GROUP),
-      RateIndexCurveId.of(IborIndices.GBP_LIBOR_3M, DEFAULT_CURVE_GROUP),
+      CurveGroupId.of(DEFAULT_CURVE_GROUP),
       FxRateId.of(Currency.USD, Currency.GBP),
       QuoteId.of(StandardId.of("OG-Future", "Eurex-FGBL-Mar14")),
       QuoteId.of(StandardId.of("OG-FutOpt", "Eurex-OGBL-Mar14-C150")),
@@ -247,6 +243,16 @@ public class ExampleMarketDataBuilderTest {
     for (MarketDataId<?> id : VALUES) {
       assertTrue(snapshot.containsValue(id), "Id not found: " + id);
     }
+    MarketDataBox<CurveGroup> curveGroupBox = snapshot.getValue(CurveGroupId.of(DEFAULT_CURVE_GROUP));
+    assertTrue(curveGroupBox.isSingleValue());
+    CurveGroup curveGroup = curveGroupBox.getSingleValue();
+    assertTrue(curveGroup.findDiscountCurve(Currency.USD).isPresent());
+    assertTrue(curveGroup.findDiscountCurve(Currency.GBP).isPresent());
+    assertTrue(curveGroup.findForwardCurve(IborIndices.USD_LIBOR_3M).isPresent());
+    assertTrue(curveGroup.findForwardCurve(IborIndices.GBP_LIBOR_3M).isPresent());
+    assertTrue(curveGroup.findForwardCurve(IborIndices.USD_LIBOR_6M).isPresent());
+    assertTrue(curveGroup.findForwardCurve(OvernightIndices.USD_FED_FUND).isPresent());
+
     assertEquals(snapshot.getValues().size(), VALUES.size(),
         Messages.format("Snapshot contained unexpected market data: {}",
             Sets.difference(snapshot.getValues().keySet(), VALUES)));

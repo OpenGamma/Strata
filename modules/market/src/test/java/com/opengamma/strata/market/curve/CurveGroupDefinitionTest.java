@@ -65,17 +65,16 @@ public class CurveGroupDefinitionTest {
   private static final CurveGroupEntry ENTRY1 = CurveGroupEntry.builder()
       .curveName(CURVE_NAME1)
       .discountCurrencies(GBP)
-      .iborIndices(GBP_LIBOR_1W)
-      .overnightIndices(GBP_SONIA)
+      .indices(GBP_LIBOR_1W, GBP_SONIA)
       .build();
   private static final CurveGroupEntry ENTRY2 = CurveGroupEntry.builder()
       .curveName(CURVE_NAME2)
-      .iborIndices(GBP_LIBOR_1M, GBP_LIBOR_3M)
+      .indices(GBP_LIBOR_1M, GBP_LIBOR_3M)
       .build();
   private static final CurveGroupEntry ENTRY3 = CurveGroupEntry.builder()
       .curveName(CURVE_NAME1)
       .discountCurrencies(GBP)
-      .iborIndices(GBP_LIBOR_1M, GBP_LIBOR_3M)
+      .indices(GBP_LIBOR_1M, GBP_LIBOR_3M)
       .build();
 
   public void test_builder1() {

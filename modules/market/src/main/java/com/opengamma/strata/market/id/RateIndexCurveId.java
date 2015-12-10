@@ -36,14 +36,14 @@ import com.opengamma.strata.market.key.RateIndexCurveKey;
  * Current and historical values for the index are identified with a {@link IndexRateId}.
  */
 @BeanDefinition(builderScope = "private")
-public final class RateIndexCurveId implements RateCurveId, ImmutableBean, Serializable {
+public final class RateIndexCurveId implements RateCurveId, IndexCurveId, ImmutableBean, Serializable {
 
   /** The index of the curve. */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final RateIndex index;
 
   /** The name of the curve group containing the curve. */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final CurveGroupName curveGroupName;
 
   /** The market data feed which provides quotes used to build the curve. */
@@ -134,6 +134,7 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean, Seria
    * Gets the index of the curve.
    * @return the value of the property, not null
    */
+  @Override
   public RateIndex getIndex() {
     return index;
   }
@@ -143,6 +144,7 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean, Seria
    * Gets the name of the curve group containing the curve.
    * @return the value of the property, not null
    */
+  @Override
   public CurveGroupName getCurveGroupName() {
     return curveGroupName;
   }

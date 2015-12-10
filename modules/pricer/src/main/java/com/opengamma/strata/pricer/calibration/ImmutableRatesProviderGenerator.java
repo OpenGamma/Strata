@@ -82,8 +82,7 @@ public class ImmutableRatesProviderGenerator
       CurveGroupEntry entry = groupDefn.findEntry(curveName).get();
       Set<Currency> ccy = entry.getDiscountCurrencies();
       discountNames.putAll(curveName, ccy);
-      indexNames.putAll(curveName, entry.getIborIndices());
-      indexNames.putAll(curveName, entry.getOvernightIndices());
+      indexNames.putAll(curveName, entry.getIndices());
     }
     return new ImmutableRatesProviderGenerator(knownProvider, curveDefns, discountNames, indexNames);
   }

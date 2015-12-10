@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.loader.csv;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.time.Period;
 import java.util.ArrayList;
@@ -14,12 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.FieldName;
@@ -28,8 +26,6 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.CurveGroupDefinitionBuilder;
-import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
@@ -43,9 +39,6 @@ import com.opengamma.strata.market.curve.node.IborIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.TermDepositCurveNode;
 import com.opengamma.strata.market.curve.node.ThreeLegBasisSwapCurveNode;
 import com.opengamma.strata.market.curve.node.XCcyIborIborSwapCurveNode;
-import com.opengamma.strata.market.id.DiscountCurveId;
-import com.opengamma.strata.market.id.RateCurveId;
-import com.opengamma.strata.market.id.RateIndexCurveId;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositConvention;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
@@ -146,7 +139,7 @@ public final class RatesCalibrationCsvLoader {
    * @return the loaded curves, mapped by an identifying key
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
-  public static ImmutableMap<CurveGroupName, CurveGroupDefinition> load(
+  public static List<CurveGroupDefinition> load(
       ResourceLocator groupsResource,
       ResourceLocator settingsResource,
       ResourceLocator... curveResources) {
@@ -165,64 +158,31 @@ public final class RatesCalibrationCsvLoader {
    * @return the loaded curves, mapped by an identifying key
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
-  public static ImmutableMap<CurveGroupName, CurveGroupDefinition> load(
+  public static List<CurveGroupDefinition> load(
       ResourceLocator groupsResource,
       ResourceLocator settingsResource,
       Collection<ResourceLocator> curveResources) {
 
     // load curve groups and settings
-    Map<CurveName, Set<RateCurveId>> curveGroups = RatesCurvesCsvLoader.loadCurveGroups(groupsResource);
+    List<CurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.loadCurveGroups(groupsResource);
     Map<CurveName, LoadedCurveSettings> settingsMap = RatesCurvesCsvLoader.loadCurveSettings(settingsResource);
 
     // load curves
     // builder ensures keys can only be seen once
-    ImmutableMap.Builder<CurveName, NodalCurveDefinition> curvesBuilder = new ImmutableMap.Builder<>();
-    for (ResourceLocator curvesResource : curveResources) {
-      curvesBuilder.putAll(loadSingle(curvesResource, settingsMap));
-    }
-    ImmutableMap<CurveName, NodalCurveDefinition> curves = curvesBuilder.build();
-    return mapGroups(curveGroups, curves);
-  }
+    List<NodalCurveDefinition> curveDefinitions = curveResources.stream()
+        .flatMap(res -> loadSingle(res, settingsMap).stream())
+        .collect(toImmutableList());
 
-  // uses the curve groups to form the resolved map of curve id to curve
-  private static ImmutableMap<CurveGroupName, CurveGroupDefinition> mapGroups(
-      Map<CurveName, Set<RateCurveId>> curveGroupMappings,
-      Map<CurveName, NodalCurveDefinition> curves) {
-
-    Map<CurveGroupName, CurveGroupDefinitionBuilder> resultBuilder = new HashMap<>();
-    for (Map.Entry<CurveName, NodalCurveDefinition> entry : curves.entrySet()) {
-      CurveName curveName = entry.getKey();
-      Set<RateCurveId> curveUses = curveGroupMappings.get(curveName);
-      // ignore if curve not mapped in any group
-      if (curveUses != null) {
-        for (RateCurveId curveUse : curveUses) {
-          if (curveUse instanceof DiscountCurveId) {
-            DiscountCurveId discountCurveId = (DiscountCurveId) curveUse;
-            CurveGroupName groupName = discountCurveId.getCurveGroupName();
-            CurveGroupDefinitionBuilder builder =
-                resultBuilder.computeIfAbsent(groupName, k -> CurveGroupDefinition.builder().name(groupName));
-            builder.addDiscountCurve(entry.getValue(), discountCurveId.getCurrency());
-          } else if (curveUse instanceof RateIndexCurveId) {
-            RateIndexCurveId rateCurveId = (RateIndexCurveId) curveUse;
-            CurveGroupName groupName = rateCurveId.getCurveGroupName();
-            CurveGroupDefinitionBuilder builder =
-                resultBuilder.computeIfAbsent(groupName, k -> CurveGroupDefinition.builder().name(groupName));
-            builder.addForwardCurve(entry.getValue(), rateCurveId.getIndex());
-          } else {
-            throw new IllegalArgumentException(
-                Messages.format("Unknown RateCurveId subclass: {}", curveUse.getClass().getName()));
-          }
-        }
-      }
-    }
-    return resultBuilder.entrySet().stream()
-        .collect(toImmutableMap(e -> e.getKey(), e -> e.getValue().build()));
+    // Add the curve definitions to the curve group definitions
+    return curveGroups.stream()
+        .map(groupDefinition -> groupDefinition.withCurveDefinitions(curveDefinitions))
+        .collect(toImmutableList());
   }
 
   //-------------------------------------------------------------------------
   // loads a single curves CSV file
   // requestedDate can be null, meaning load all dates
-  private static Map<CurveName, NodalCurveDefinition> loadSingle(
+  private static List<NodalCurveDefinition> loadSingle(
       ResourceLocator resource,
       Map<CurveName, LoadedCurveSettings> settingsMap) {
 
@@ -245,25 +205,27 @@ public final class RatesCalibrationCsvLoader {
       QuoteKey quoteKey = QuoteKey.of(quoteId, quoteField);
       double spread = spreadStr.isEmpty() ? 0d : Double.parseDouble(spreadStr);
 
-      List<CurveNode> curveNodes = allNodes.computeIfAbsent(curveName, k -> new ArrayList<CurveNode>());
+      List<CurveNode> curveNodes = allNodes.computeIfAbsent(curveName, k -> new ArrayList<>());
       curveNodes.add(createCurveNode(typeStr, conventionStr, timeStr, label, quoteKey, spread));
     }
     return buildCurveDefinition(settingsMap, allNodes);
   }
 
   // build the curves
-  private static Map<CurveName, NodalCurveDefinition> buildCurveDefinition(
+  private static List<NodalCurveDefinition> buildCurveDefinition(
       Map<CurveName, LoadedCurveSettings> settingsMap,
       Map<CurveName, List<CurveNode>> allNodes) {
 
-    ImmutableMap.Builder<CurveName, NodalCurveDefinition> results = ImmutableMap.builder();
+    ImmutableList.Builder<NodalCurveDefinition> results = ImmutableList.builder();
+
     for (Map.Entry<CurveName, List<CurveNode>> entry : allNodes.entrySet()) {
       CurveName name = entry.getKey();
       LoadedCurveSettings settings = settingsMap.get(name);
+
       if (settings == null) {
         throw new IllegalArgumentException(Messages.format("Missing settings for curve: {}", name));
       }
-      results.put(name, settings.createCurveDefinition(entry.getValue()));
+      results.add(settings.createCurveDefinition(entry.getValue()));
     }
     return results.build();
   }
@@ -282,7 +244,7 @@ public final class RatesCalibrationCsvLoader {
       return curveTermDepositCurveNode(conventionStr, timeStr, label, quoteKey, spread);
     }
     if ("FIX".equalsIgnoreCase(typeStr) || "IborFixingDeposit".equalsIgnoreCase(typeStr)) {
-      return curveIborFixingDepositCurveNode(conventionStr, timeStr, label, quoteKey, spread);
+      return curveIborFixingDepositCurveNode(conventionStr, label, quoteKey, spread);
     }
     if ("FRA".equalsIgnoreCase(typeStr)) {
       return curveFraCurveNode(conventionStr, timeStr, label, quoteKey, spread);
@@ -330,7 +292,6 @@ public final class RatesCalibrationCsvLoader {
 
   private static CurveNode curveIborFixingDepositCurveNode(
       String conventionStr,
-      String timeStr,
       String label,
       QuoteKey quoteKey,
       double spread) {
