@@ -152,7 +152,7 @@ public final class CurveGroupDefinition
    * If the curve is not found, optional empty is returned.
    *
    * @param curveName  the name of the curve
-   * @return the entry for the curve group with the specified name
+   * @return the entry for the curve with the specified name
    */
   public Optional<CurveGroupEntry> findEntry(CurveName curveName) {
     return Optional.ofNullable(entriesByName.get(curveName));
@@ -164,7 +164,7 @@ public final class CurveGroupDefinition
    * If the curve is not found, optional empty is returned.
    *
    * @param curveName  the name of the curve
-   * @return the entry for the curve group with the specified name
+   * @return the definition for the curve with the specified name
    */
   public Optional<NodalCurveDefinition> findDefinition(CurveName curveName) {
     return Optional.ofNullable(curveDefinitionsByName.get(curveName));

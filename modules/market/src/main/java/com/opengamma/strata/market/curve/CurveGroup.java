@@ -84,7 +84,7 @@ public final class CurveGroup
    * @param curveGroupDefinition  the definition of a curve group
    * @param curves  some curves
    * @return a curve group built from the definition and the list of curves
-   * @throws IllegalArgumentException if there are any curves named in the definition which are not present in the list
+   * @throws IllegalArgumentException if there are any curves named in the definition but not included in the curves
    */
   public static CurveGroup ofCurves(CurveGroupDefinition curveGroupDefinition, Curve... curves) {
     return ofCurves(curveGroupDefinition, Arrays.asList(curves));
