@@ -25,8 +25,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveNode;
+import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
@@ -115,9 +115,9 @@ public class CalibrationDiscountingSimpleEur3Test {
     CurveGroupDefinition config = CalibrationEurStandard.config(DSC_OIS_TENORS, dscIdValues,
         FWD3_FRA_TENORS, FWD3_IRS_TENORS, fwd3IdValue, FWD6_FRA_TENORS, FWD6_IRS_TENORS, fwd6IdValue);
 
-    ImmutableList<CurveGroupEntry> entries = config.getEntries();
+    ImmutableList<NodalCurveDefinition> definitions = config.getCurveDefinitions();
     // Test PV Dsc
-    ImmutableList<CurveNode> dscNodes = entries.get(0).getCurveDefinition().getNodes();
+    ImmutableList<CurveNode> dscNodes = definitions.get(0).getNodes();
     List<Trade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.size(); i++) {
       dscTrades.add(dscNodes.get(i).trade(VAL_DATE, allQuotes));
@@ -129,7 +129,7 @@ public class CalibrationDiscountingSimpleEur3Test {
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd3
-    ImmutableList<CurveNode> fwd3Nodes = entries.get(1).getCurveDefinition().getNodes();
+    ImmutableList<CurveNode> fwd3Nodes = definitions.get(1).getNodes();
     List<Trade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.size(); i++) {
       fwd3Trades.add(fwd3Nodes.get(i).trade(VAL_DATE, allQuotes));
@@ -147,7 +147,7 @@ public class CalibrationDiscountingSimpleEur3Test {
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd6
-    ImmutableList<CurveNode> fwd6Nodes = entries.get(2).getCurveDefinition().getNodes();
+    ImmutableList<CurveNode> fwd6Nodes = definitions.get(2).getNodes();
     List<Trade> fwd6Trades = new ArrayList<>();
     for (int i = 0; i < fwd6Nodes.size(); i++) {
       fwd6Trades.add(fwd6Nodes.get(i).trade(VAL_DATE, allQuotes));
@@ -191,9 +191,9 @@ public class CalibrationDiscountingSimpleEur3Test {
     CurveGroupDefinition config = CalibrationEurStandard.config(DSC_OIS_TENORS, dscIdValues,
         FWD3_FRA_TENORS, FWD3_IRS_TENORS, fwd3IdValue, FWD6_FRA_TENORS, FWD6_IRS_TENORS, fwd6IdValue);
 
-    ImmutableList<CurveGroupEntry> entries = config.getEntries();
-    // Test PV Dsc
-    ImmutableList<CurveNode> dscNodes = entries.get(0).getCurveDefinition().getNodes();
+    ImmutableList<NodalCurveDefinition> definitions = config.getCurveDefinitions();
+// Test PV Dsc
+    ImmutableList<CurveNode> dscNodes = definitions.get(0).getNodes();
     List<Trade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.size(); i++) {
       dscTrades.add(dscNodes.get(i).trade(VAL_DATE, allQuotes));
@@ -215,7 +215,7 @@ public class CalibrationDiscountingSimpleEur3Test {
       }
     }
     // Test PV Fwd3
-    ImmutableList<CurveNode> fwd3Nodes = entries.get(1).getCurveDefinition().getNodes();
+    ImmutableList<CurveNode> fwd3Nodes = definitions.get(1).getNodes();
     List<Trade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.size(); i++) {
       fwd3Trades.add(fwd3Nodes.get(i).trade(VAL_DATE, allQuotes));
@@ -251,7 +251,7 @@ public class CalibrationDiscountingSimpleEur3Test {
       }
     }
     // Test PV Fwd6
-    ImmutableList<CurveNode> fwd6Nodes = entries.get(2).getCurveDefinition().getNodes();
+    ImmutableList<CurveNode> fwd6Nodes = definitions.get(2).getNodes();
     List<Trade> fwd6Trades = new ArrayList<>();
     for (int i = 0; i < fwd6Nodes.size(); i++) {
       fwd6Trades.add(fwd6Nodes.get(i).trade(VAL_DATE, allQuotes));

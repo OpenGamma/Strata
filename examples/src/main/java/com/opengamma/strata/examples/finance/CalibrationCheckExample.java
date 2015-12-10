@@ -7,9 +7,9 @@ package com.opengamma.strata.examples.finance;
 
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,9 +49,7 @@ import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilde
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.node.IborFixingDepositCurveNode;
 import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.QuoteId;
@@ -194,19 +192,14 @@ public class CalibrationCheckExample {
     ImmutableMap<CurveGroupName, CurveGroupDefinition> defns =
         RatesCalibrationCsvLoader.load(GROUPS_RESOURCE, SETTINGS_RESOURCE, CALIBRATION_RESOURCE);
     CurveGroupDefinition curveGroupDefinition = defns.get(CURVE_GROUP_NAME);
-    
+
     // extract the trades used for calibration
-    List<Trade> trades = new ArrayList<>();
-    ImmutableList<CurveGroupEntry> curveGroups = curveGroupDefinition.getEntries();
-    for (CurveGroupEntry entry : curveGroups) {
-      ImmutableList<CurveNode> nodes = entry.getCurveDefinition().getNodes();
-      for (CurveNode node : nodes) {
-        if (!(node instanceof IborFixingDepositCurveNode)) {
-          // IborFixingDeposit is not a real trade, so there is no appropriate comparison
-          trades.add(node.trade(VAL_DATE, MarketData.builder().addValuesById(quotes).build()));
-        }
-      }
-    }
+    List<Trade> trades = curveGroupDefinition.getCurveDefinitions().stream()
+        .flatMap(defn -> defn.getNodes().stream())
+        // IborFixingDeposit is not a real trade, so there is no appropriate comparison
+        .filter(node -> !(node instanceof IborFixingDepositCurveNode))
+        .map(node -> node.trade(VAL_DATE, MarketData.builder().addValuesById(quotes).build()))
+        .collect(toImmutableList());
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(

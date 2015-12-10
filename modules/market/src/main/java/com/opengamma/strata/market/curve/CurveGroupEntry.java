@@ -27,6 +27,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * A single entry in the curve group definition.
@@ -47,10 +48,10 @@ public final class CurveGroupEntry
     implements ImmutableBean, Serializable {
 
   /**
-   * The curve definition.
+   * The curve name.
    */
   @PropertyDefinition(validate = "notNull")
-  private final NodalCurveDefinition curveDefinition;
+  private final CurveName curveName;
   /**
    * The currencies for which the curve provides discount rates.
    * This is empty if the curve is not used for Ibor rates.
@@ -74,14 +75,21 @@ public final class CurveGroupEntry
   /**
    * Merges the specified entry with this entry, returning a new entry.
    * <p>
-   * The two entries must have the same curve definition.
+   * The two entries must have the same curve name.
    * 
    * @param newEntry  the new entry
    * @return the merged entry
    */
   CurveGroupEntry merge(CurveGroupEntry newEntry) {
+    if (!curveName.equals(newEntry.curveName)) {
+      throw new IllegalArgumentException(
+          Messages.format(
+              "A CurveGroupEntry can only be merged with an entry with the same curve name. name: {}, other name: {}",
+              curveName,
+              newEntry.curveName));
+    }
     return CurveGroupEntry.builder()
-        .curveDefinition(curveDefinition)
+        .curveName(curveName)
         .discountCurrencies(Sets.union(discountCurrencies, newEntry.discountCurrencies))
         .iborIndices(Sets.union(iborIndices, newEntry.iborIndices))
         .overnightIndices(Sets.union(overnightIndices, newEntry.overnightIndices))
@@ -116,15 +124,15 @@ public final class CurveGroupEntry
   }
 
   private CurveGroupEntry(
-      NodalCurveDefinition curveDefinition,
+      CurveName curveName,
       Set<Currency> discountCurrencies,
       Set<IborIndex> iborIndices,
       Set<OvernightIndex> overnightIndices) {
-    JodaBeanUtils.notNull(curveDefinition, "curveDefinition");
+    JodaBeanUtils.notNull(curveName, "curveName");
     JodaBeanUtils.notNull(discountCurrencies, "discountCurrencies");
     JodaBeanUtils.notNull(iborIndices, "iborIndices");
     JodaBeanUtils.notNull(overnightIndices, "overnightIndices");
-    this.curveDefinition = curveDefinition;
+    this.curveName = curveName;
     this.discountCurrencies = ImmutableSet.copyOf(discountCurrencies);
     this.iborIndices = ImmutableSet.copyOf(iborIndices);
     this.overnightIndices = ImmutableSet.copyOf(overnightIndices);
@@ -147,11 +155,11 @@ public final class CurveGroupEntry
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curve definition.
+   * Gets the curve name.
    * @return the value of the property, not null
    */
-  public NodalCurveDefinition getCurveDefinition() {
-    return curveDefinition;
+  public CurveName getCurveName() {
+    return curveName;
   }
 
   //-----------------------------------------------------------------------
@@ -200,7 +208,7 @@ public final class CurveGroupEntry
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveGroupEntry other = (CurveGroupEntry) obj;
-      return JodaBeanUtils.equal(curveDefinition, other.curveDefinition) &&
+      return JodaBeanUtils.equal(curveName, other.curveName) &&
           JodaBeanUtils.equal(discountCurrencies, other.discountCurrencies) &&
           JodaBeanUtils.equal(iborIndices, other.iborIndices) &&
           JodaBeanUtils.equal(overnightIndices, other.overnightIndices);
@@ -211,7 +219,7 @@ public final class CurveGroupEntry
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(curveDefinition);
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveName);
     hash = hash * 31 + JodaBeanUtils.hashCode(discountCurrencies);
     hash = hash * 31 + JodaBeanUtils.hashCode(iborIndices);
     hash = hash * 31 + JodaBeanUtils.hashCode(overnightIndices);
@@ -222,7 +230,7 @@ public final class CurveGroupEntry
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("CurveGroupEntry{");
-    buf.append("curveDefinition").append('=').append(curveDefinition).append(',').append(' ');
+    buf.append("curveName").append('=').append(curveName).append(',').append(' ');
     buf.append("discountCurrencies").append('=').append(discountCurrencies).append(',').append(' ');
     buf.append("iborIndices").append('=').append(iborIndices).append(',').append(' ');
     buf.append("overnightIndices").append('=').append(JodaBeanUtils.toString(overnightIndices));
@@ -241,10 +249,10 @@ public final class CurveGroupEntry
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code curveDefinition} property.
+     * The meta-property for the {@code curveName} property.
      */
-    private final MetaProperty<NodalCurveDefinition> curveDefinition = DirectMetaProperty.ofImmutable(
-        this, "curveDefinition", CurveGroupEntry.class, NodalCurveDefinition.class);
+    private final MetaProperty<CurveName> curveName = DirectMetaProperty.ofImmutable(
+        this, "curveName", CurveGroupEntry.class, CurveName.class);
     /**
      * The meta-property for the {@code discountCurrencies} property.
      */
@@ -268,7 +276,7 @@ public final class CurveGroupEntry
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "curveDefinition",
+        "curveName",
         "discountCurrencies",
         "iborIndices",
         "overnightIndices");
@@ -282,8 +290,8 @@ public final class CurveGroupEntry
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1257770078:  // curveDefinition
-          return curveDefinition;
+        case 771153946:  // curveName
+          return curveName;
         case -538086256:  // discountCurrencies
           return discountCurrencies;
         case -118808757:  // iborIndices
@@ -311,11 +319,11 @@ public final class CurveGroupEntry
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code curveDefinition} property.
+     * The meta-property for the {@code curveName} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<NodalCurveDefinition> curveDefinition() {
-      return curveDefinition;
+    public MetaProperty<CurveName> curveName() {
+      return curveName;
     }
 
     /**
@@ -346,8 +354,8 @@ public final class CurveGroupEntry
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -1257770078:  // curveDefinition
-          return ((CurveGroupEntry) bean).getCurveDefinition();
+        case 771153946:  // curveName
+          return ((CurveGroupEntry) bean).getCurveName();
         case -538086256:  // discountCurrencies
           return ((CurveGroupEntry) bean).getDiscountCurrencies();
         case -118808757:  // iborIndices
@@ -375,7 +383,7 @@ public final class CurveGroupEntry
    */
   public static final class Builder extends DirectFieldsBeanBuilder<CurveGroupEntry> {
 
-    private NodalCurveDefinition curveDefinition;
+    private CurveName curveName;
     private Set<Currency> discountCurrencies = ImmutableSet.of();
     private Set<IborIndex> iborIndices = ImmutableSet.of();
     private Set<OvernightIndex> overnightIndices = ImmutableSet.of();
@@ -391,7 +399,7 @@ public final class CurveGroupEntry
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(CurveGroupEntry beanToCopy) {
-      this.curveDefinition = beanToCopy.getCurveDefinition();
+      this.curveName = beanToCopy.getCurveName();
       this.discountCurrencies = beanToCopy.getDiscountCurrencies();
       this.iborIndices = beanToCopy.getIborIndices();
       this.overnightIndices = beanToCopy.getOvernightIndices();
@@ -401,8 +409,8 @@ public final class CurveGroupEntry
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1257770078:  // curveDefinition
-          return curveDefinition;
+        case 771153946:  // curveName
+          return curveName;
         case -538086256:  // discountCurrencies
           return discountCurrencies;
         case -118808757:  // iborIndices
@@ -418,8 +426,8 @@ public final class CurveGroupEntry
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -1257770078:  // curveDefinition
-          this.curveDefinition = (NodalCurveDefinition) newValue;
+        case 771153946:  // curveName
+          this.curveName = (CurveName) newValue;
           break;
         case -538086256:  // discountCurrencies
           this.discountCurrencies = (Set<Currency>) newValue;
@@ -463,7 +471,7 @@ public final class CurveGroupEntry
     @Override
     public CurveGroupEntry build() {
       return new CurveGroupEntry(
-          curveDefinition,
+          curveName,
           discountCurrencies,
           iborIndices,
           overnightIndices);
@@ -471,13 +479,13 @@ public final class CurveGroupEntry
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the curve definition.
-     * @param curveDefinition  the new value, not null
+     * Sets the curve name.
+     * @param curveName  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder curveDefinition(NodalCurveDefinition curveDefinition) {
-      JodaBeanUtils.notNull(curveDefinition, "curveDefinition");
-      this.curveDefinition = curveDefinition;
+    public Builder curveName(CurveName curveName) {
+      JodaBeanUtils.notNull(curveName, "curveName");
+      this.curveName = curveName;
       return this;
     }
 
@@ -552,7 +560,7 @@ public final class CurveGroupEntry
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("CurveGroupEntry.Builder{");
-      buf.append("curveDefinition").append('=').append(JodaBeanUtils.toString(curveDefinition)).append(',').append(' ');
+      buf.append("curveName").append('=').append(JodaBeanUtils.toString(curveName)).append(',').append(' ');
       buf.append("discountCurrencies").append('=').append(JodaBeanUtils.toString(discountCurrencies)).append(',').append(' ');
       buf.append("iborIndices").append('=').append(JodaBeanUtils.toString(iborIndices)).append(',').append(' ');
       buf.append("overnightIndices").append('=').append(JodaBeanUtils.toString(overnightIndices));

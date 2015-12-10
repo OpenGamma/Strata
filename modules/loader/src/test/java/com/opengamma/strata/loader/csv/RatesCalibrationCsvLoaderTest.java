@@ -23,6 +23,7 @@ import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.NodalCurveDefinition;
 
 /**
  * Test {@link RatesCalibrationCsvLoader}.
@@ -83,25 +84,27 @@ public class RatesCalibrationCsvLoaderTest {
 
     CurveGroupEntry entry0 = defn.getEntries().get(0);
     CurveGroupEntry entry1 = defn.getEntries().get(1);
-    if (entry0.getCurveDefinition().getName().equals(CurveName.of("USD-3ML"))) {
+    if (entry0.getCurveName().equals(CurveName.of("USD-3ML"))) {
       CurveGroupEntry temp = entry0;
       entry0 = entry1;
       entry1 = temp;
     }
+    NodalCurveDefinition defn0 = defn.findDefinition(entry0.getCurveName()).get();
+    NodalCurveDefinition defn1 = defn.findDefinition(entry1.getCurveName()).get();
 
     assertEquals(entry0.getDiscountCurrencies(), ImmutableSet.of(Currency.USD));
     assertEquals(entry0.getIborIndices(), ImmutableSet.of());
     assertEquals(entry0.getOvernightIndices(), ImmutableSet.of());
-    assertEquals(entry0.getCurveDefinition().getName(), CurveName.of("USD-Disc"));
-    assertEquals(entry0.getCurveDefinition().getYValueType(), ValueType.ZERO_RATE);
-    assertEquals(entry0.getCurveDefinition().getParameterCount(), 15);
+    assertEquals(defn0.getName(), CurveName.of("USD-Disc"));
+    assertEquals(defn0.getYValueType(), ValueType.ZERO_RATE);
+    assertEquals(defn0.getParameterCount(), 15);
 
     assertEquals(entry1.getDiscountCurrencies(), ImmutableSet.of());
     assertEquals(entry1.getIborIndices(), ImmutableSet.of(IborIndices.USD_LIBOR_3M));
     assertEquals(entry1.getOvernightIndices(), ImmutableSet.of());
-    assertEquals(entry1.getCurveDefinition().getName(), CurveName.of("USD-3ML"));
-    assertEquals(entry1.getCurveDefinition().getYValueType(), ValueType.ZERO_RATE);
-    assertEquals(entry1.getCurveDefinition().getParameterCount(), 25);
+    assertEquals(defn1.getName(), CurveName.of("USD-3ML"));
+    assertEquals(defn1.getYValueType(), ValueType.ZERO_RATE);
+    assertEquals(defn1.getParameterCount(), 25);
   }
 
   //-------------------------------------------------------------------------

@@ -5,8 +5,9 @@
  */
 package com.opengamma.strata.examples.finance;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -49,9 +50,7 @@ import com.opengamma.strata.loader.csv.FxRatesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.node.IborFixingDepositCurveNode;
 import com.opengamma.strata.market.id.QuoteId;
 
@@ -205,19 +204,12 @@ public class CalibrationXCcyCheckExample {
     CurveGroupDefinition curveGroupDefinition = defns.get(CURVE_GROUP_NAME);
 
     // extract the trades used for calibration
-    List<Trade> trades = new ArrayList<>();
-    List<CurveGroupEntry> curveGroups = curveGroupDefinition.getEntries();
-
-    for (CurveGroupEntry entry : curveGroups) {
-      List<CurveNode> nodes = entry.getCurveDefinition().getNodes();
-
-      for (CurveNode node : nodes) {
-        if (!(node instanceof IborFixingDepositCurveNode)) {
-          // IborFixingDeposit is not a real trade, so there is no appropriate comparison
-          trades.add(node.trade(VAL_DATE, marketData));
-        }
-      }
-    }
+    List<Trade> trades = curveGroupDefinition.getCurveDefinitions().stream()
+        .flatMap(defn -> defn.getNodes().stream())
+        // IborFixingDeposit is not a real trade, so there is no appropriate comparison
+        .filter(node -> !(node instanceof IborFixingDepositCurveNode))
+        .map(node -> node.trade(VAL_DATE, marketData))
+        .collect(toImmutableList());
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(Column.of(Measure.PRESENT_VALUE));
