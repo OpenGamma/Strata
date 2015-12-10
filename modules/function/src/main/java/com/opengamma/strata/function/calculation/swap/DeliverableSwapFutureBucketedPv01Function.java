@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.swap;
 
-import com.opengamma.strata.calc.marketdata.SingleCalculationMarketData;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -19,7 +19,7 @@ public class DeliverableSwapFutureBucketedPv01Function
     extends AbstractDeliverableSwapFutureFunction<CurveCurrencyParameterSensitivities> {
 
   @Override
-  protected CurveCurrencyParameterSensitivities execute(DeliverableSwapFutureTrade trade, SingleCalculationMarketData marketData) {
+  protected CurveCurrencyParameterSensitivities execute(DeliverableSwapFutureTrade trade, MarketData marketData) {
     MarketDataRatesProvider provider = new MarketDataRatesProvider(marketData);
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(trade, provider);
     return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);

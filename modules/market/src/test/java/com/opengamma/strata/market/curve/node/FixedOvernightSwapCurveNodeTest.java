@@ -22,6 +22,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
@@ -95,7 +96,7 @@ public class FixedOvernightSwapCurveNodeTest {
     FixedOvernightSwapCurveNode node = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     double rate = 0.125;
-    MarketData marketData = MarketData.builder().addValue(QUOTE_KEY, rate).build();
+    MarketData marketData = ImmutableMarketData.builder(tradeDate).addValue(QUOTE_KEY, rate).build();
     SwapTrade trade = node.trade(tradeDate, marketData);
     SwapTrade expected = TEMPLATE.toTrade(tradeDate, BUY, 1, rate + SPREAD);
     assertEquals(trade, expected);
@@ -106,7 +107,7 @@ public class FixedOvernightSwapCurveNodeTest {
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     QuoteKey key = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
-    MarketData marketData = MarketData.builder().addValue(key, rate).build();
+    MarketData marketData = ImmutableMarketData.builder(valuationDate).addValue(key, rate).build();
     assertThrowsIllegalArg(() -> node.trade(valuationDate, marketData));
   }
 
@@ -114,7 +115,7 @@ public class FixedOvernightSwapCurveNodeTest {
     FixedOvernightSwapCurveNode node = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    MarketData marketData = MarketData.builder().addValue(QUOTE_KEY, rate).build();
+    MarketData marketData = ImmutableMarketData.builder(valuationDate).addValue(QUOTE_KEY, rate).build();
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.ZERO_RATE), rate);
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR),
         Math.exp(-rate * TENOR_10Y.getPeriod().toTotalMonths() / 12d), 1.0E-12);

@@ -16,7 +16,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
+import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
@@ -77,7 +77,7 @@ public abstract class AbstractBulletPaymentFunction<T>
   public ScenarioResult<T> execute(BulletPaymentTrade trade, CalculationMarketData marketData) {
     Payment product = trade.getProduct().expandToPayment();
     return IntStream.range(0, marketData.getScenarioCount())
-        .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
+        .mapToObj(index -> new SingleCalculationMarketData(marketData, index))
         .map(MarketDataRatesProvider::new)
         .map(provider -> execute(product, provider))
         .collect(toScenarioResult(isConvertCurrencies()));

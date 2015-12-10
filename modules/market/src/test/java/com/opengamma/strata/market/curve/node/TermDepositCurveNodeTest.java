@@ -13,6 +13,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -27,6 +28,7 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
@@ -47,6 +49,7 @@ import com.opengamma.strata.product.deposit.type.TermDepositTemplate;
 @Test
 public class TermDepositCurveNodeTest {
 
+  private static final LocalDate VAL_DATE = date(2015, 6, 30);
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA);
   private static final TermDepositConvention CONVENTION = TermDepositConventions.EUR_DEPOSIT;
@@ -106,7 +109,7 @@ public class TermDepositCurveNodeTest {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    MarketData marketData = MarketData.builder().addValue(QUOTE_KEY, rate).build();
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, rate).build();
     TermDepositTrade trade = node.trade(valuationDate, marketData);
     LocalDate startDateExpected = PLUS_TWO_DAYS.adjust(valuationDate);
     LocalDate endDateExpected = startDateExpected.plus(DEPOSIT_PERIOD);
@@ -132,7 +135,7 @@ public class TermDepositCurveNodeTest {
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     QuoteKey key = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
-    MarketData marketData = MarketData.builder().addValue(key, rate).build();
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(key, rate).build();
     assertThrowsIllegalArg(() -> node.trade(valuationDate, marketData));
   }
 
@@ -140,7 +143,7 @@ public class TermDepositCurveNodeTest {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    MarketData marketData = MarketData.builder().addValue(QUOTE_KEY, rate).build();
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, rate).build();
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.ZERO_RATE), rate);
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR),
         Math.exp(-rate * 0.25), 1.0e-12);

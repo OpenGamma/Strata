@@ -16,9 +16,9 @@ import com.google.common.collect.Iterables;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.marketdata.SingleCalculationMarketData;
-import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
+import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.function.calculation.rate.MarketDataUtils;
@@ -49,7 +49,7 @@ public class FraBucketedGammaPv01Function
   public ScenarioResult<CurveCurrencyParameterSensitivities> execute(FraTrade trade, CalculationMarketData marketData) {
     ExpandedFra expandedFra = trade.getProduct().expand();
     return IntStream.range(0, marketData.getScenarioCount())
-        .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
+        .mapToObj(index -> new SingleCalculationMarketData(marketData, index))
         .map(md -> execute(trade.getProduct(), expandedFra, md))
         .collect(toScenarioResult());
   }
@@ -64,7 +64,7 @@ public class FraBucketedGammaPv01Function
   private CurveCurrencyParameterSensitivities execute(
       Fra fra,
       ExpandedFra expandedFra,
-      SingleCalculationMarketData marketData) {
+      MarketData marketData) {
 
     // find the curve and check it is valid
     Currency currency = expandedFra.getCurrency();
@@ -83,7 +83,7 @@ public class FraBucketedGammaPv01Function
   }
 
   // finds the discount curve and ensures it is a NodalCurve
-  private NodalCurve findNodalCurve(SingleCalculationMarketData marketData, Currency currency) {
+  private NodalCurve findNodalCurve(MarketData marketData, Currency currency) {
     Curve curve = marketData.getValue(DiscountCurveKey.of(currency));
     if (!(curve instanceof NodalCurve)) {
       throw new IllegalArgumentException(Messages.format(
@@ -93,7 +93,7 @@ public class FraBucketedGammaPv01Function
   }
 
   // validates that the indices all resolve to the single specified curve
-  private void validateSingleCurve(Set<IborIndex> indices, SingleCalculationMarketData marketData, NodalCurve nodalCurve) {
+  private void validateSingleCurve(Set<IborIndex> indices, MarketData marketData, NodalCurve nodalCurve) {
     Set<RateIndexCurveKey> differentForwardCurves = indices.stream()
         .map(RateIndexCurveKey::of)
         .filter(k -> !nodalCurve.equals(marketData.getValue(k)))
@@ -110,7 +110,7 @@ public class FraBucketedGammaPv01Function
       ExpandedFra expandedFra,
       Currency currency,
       Set<? extends Index> indices,
-      SingleCalculationMarketData marketData,
+      MarketData marketData,
       NodalCurve bumpedCurve) {
 
     RatesProvider ratesProvider = MarketDataUtils.toSingleCurveRatesProvider(marketData, currency, indices, bumpedCurve);

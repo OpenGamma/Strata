@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.calc.CalculationEngine;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
@@ -198,7 +198,7 @@ public class CalibrationCheckExample {
         .flatMap(defn -> defn.getNodes().stream())
         // IborFixingDeposit is not a real trade, so there is no appropriate comparison
         .filter(node -> !(node instanceof IborFixingDepositCurveNode))
-        .map(node -> node.trade(VAL_DATE, MarketData.builder().addValuesById(quotes).build()))
+        .map(node -> node.trade(VAL_DATE, ImmutableMarketData.builder(VAL_DATE).addValuesById(quotes).build()))
         .collect(toImmutableList());
 
     // the columns, specifying the measures to be calculated

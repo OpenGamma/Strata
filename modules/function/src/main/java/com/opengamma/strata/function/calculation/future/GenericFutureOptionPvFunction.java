@@ -6,7 +6,7 @@
 package com.opengamma.strata.function.calculation.future;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.calc.marketdata.SingleCalculationMarketData;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.future.GenericFutureOption;
 import com.opengamma.strata.product.future.GenericFutureOptionTrade;
@@ -18,7 +18,7 @@ public class GenericFutureOptionPvFunction
     extends AbstractGenericFutureOptionFunction<CurrencyAmount> {
 
   @Override
-  protected CurrencyAmount execute(GenericFutureOptionTrade trade, SingleCalculationMarketData marketData) {
+  protected CurrencyAmount execute(GenericFutureOptionTrade trade, MarketData marketData) {
     QuoteKey key = QuoteKey.of(trade.getSecurity().getStandardId());
     GenericFutureOption product = trade.getProduct();
     double price = marketData.getValue(key);

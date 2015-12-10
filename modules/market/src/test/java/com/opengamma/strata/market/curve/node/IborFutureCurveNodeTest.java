@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -21,6 +22,7 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
@@ -39,6 +41,7 @@ import com.opengamma.strata.product.index.type.IborFutureTemplate;
 @Test
 public class IborFutureCurveNodeTest {
 
+  private static final LocalDate VAL_DATE = date(2015, 6, 30);
   private static final IborFutureConvention CONVENTION = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM;
   private static final Period PERIOD_TO_START = Period.ofMonths(2);
   private static final int NUMBER = 2;
@@ -94,7 +97,7 @@ public class IborFutureCurveNodeTest {
     IborFutureCurveNode node = IborFutureCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate date = LocalDate.of(2015, 10, 20);
     double price = 0.99;
-    MarketData marketData = MarketData.builder().addValue(QUOTE_KEY, price).build();
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, price).build();
     IborFutureTrade trade = node.trade(date, marketData);
     IborFutureTrade expected = TEMPLATE.toTrade(date, 1L, 1.0, price + SPREAD);
     assertEquals(trade, expected);
@@ -105,7 +108,7 @@ public class IborFutureCurveNodeTest {
     LocalDate date = LocalDate.of(2015, 10, 20);
     double price = 0.99;
     QuoteKey key = QuoteKey.of(StandardId.of("OG-Ticker", "Unknown"));
-    MarketData marketData = MarketData.builder().addValue(key, price).build();
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(key, price).build();
     assertThrowsIllegalArg(() -> node.trade(date, marketData));
   }
 
@@ -113,7 +116,7 @@ public class IborFutureCurveNodeTest {
     IborFutureCurveNode node = IborFutureCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate date = LocalDate.of(2015, 10, 20);
     double price = 0.99;
-    MarketData marketData = MarketData.builder().addValue(QUOTE_KEY, price).build();
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, price).build();
     assertEquals(node.initialGuess(date, marketData, ValueType.ZERO_RATE), 1.0 - price, TOLERANCE_RATE);
     double approximateMaturity =
         TEMPLATE.getMinimumPeriod().plus(TEMPLATE.getConvention().getIndex().getTenor()).toTotalMonths() / 12.0d;

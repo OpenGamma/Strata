@@ -19,7 +19,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
+import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.collect.CollectProjectAssertions;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
@@ -52,7 +52,7 @@ public class SwapAccruedInterestFunctionTest {
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of());
     CollectProjectAssertions.assertThat(test.defaultReportingCurrency(trade)).hasValue(ccy);
     TestMarketDataMap md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
-    MarketDataRatesProvider prov = new MarketDataRatesProvider(new DefaultSingleCalculationMarketData(md, 0));
+    MarketDataRatesProvider prov = new MarketDataRatesProvider(new SingleCalculationMarketData(md, 0));
 
     ExpandedSwapLeg expandedLeg = FIXED_RATECALC_SWAP_LEG.expand();
     RatePaymentPeriod rpp = (RatePaymentPeriod) expandedLeg.getPaymentPeriods().get(expandedLeg.getPaymentPeriods().size() - 1);

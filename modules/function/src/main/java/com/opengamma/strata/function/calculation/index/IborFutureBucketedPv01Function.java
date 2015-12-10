@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.index;
 
-import com.opengamma.strata.calc.marketdata.SingleCalculationMarketData;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -19,7 +19,7 @@ public class IborFutureBucketedPv01Function
     extends AbstractIborFutureFunction<CurveCurrencyParameterSensitivities> {
 
   @Override
-  protected CurveCurrencyParameterSensitivities execute(IborFutureTrade trade, SingleCalculationMarketData marketData) {
+  protected CurveCurrencyParameterSensitivities execute(IborFutureTrade trade, MarketData marketData) {
     MarketDataRatesProvider provider = new MarketDataRatesProvider(marketData);
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(trade, provider);
     return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);

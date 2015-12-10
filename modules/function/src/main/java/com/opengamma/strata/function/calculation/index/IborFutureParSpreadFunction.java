@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.index;
 
-import com.opengamma.strata.calc.marketdata.SingleCalculationMarketData;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.index.IborFutureTrade;
@@ -17,7 +17,7 @@ public class IborFutureParSpreadFunction
     extends AbstractIborFutureFunction<Double> {
 
   @Override
-  protected Double execute(IborFutureTrade trade, SingleCalculationMarketData marketData) {
+  protected Double execute(IborFutureTrade trade, MarketData marketData) {
     QuoteKey key = QuoteKey.of(trade.getSecurity().getStandardId());
     double price = marketData.getValue(key) / 100;  // convert market quote to value needed
     return pricer().parSpread(trade, new MarketDataRatesProvider(marketData), price);
