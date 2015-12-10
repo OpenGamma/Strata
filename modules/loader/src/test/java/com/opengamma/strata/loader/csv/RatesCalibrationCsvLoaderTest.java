@@ -89,8 +89,8 @@ public class RatesCalibrationCsvLoaderTest {
       entry0 = entry1;
       entry1 = temp;
     }
-    NodalCurveDefinition defn0 = defn.findDefinition(entry0.getCurveName()).get();
-    NodalCurveDefinition defn1 = defn.findDefinition(entry1.getCurveName()).get();
+    NodalCurveDefinition defn0 = defn.findCurveDefinition(entry0.getCurveName()).get();
+    NodalCurveDefinition defn1 = defn.findCurveDefinition(entry1.getCurveName()).get();
 
     assertEquals(entry0.getDiscountCurrencies(), ImmutableSet.of(Currency.USD));
     assertEquals(entry0.getIborIndices(), ImmutableSet.of());

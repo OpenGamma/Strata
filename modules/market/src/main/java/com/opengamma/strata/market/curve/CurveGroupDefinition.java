@@ -166,7 +166,7 @@ public final class CurveGroupDefinition
    * @param curveName  the name of the curve
    * @return the definition for the curve with the specified name
    */
-  public Optional<NodalCurveDefinition> findDefinition(CurveName curveName) {
+  public Optional<NodalCurveDefinition> findCurveDefinition(CurveName curveName) {
     return Optional.ofNullable(curveDefinitionsByName.get(curveName));
   }
 

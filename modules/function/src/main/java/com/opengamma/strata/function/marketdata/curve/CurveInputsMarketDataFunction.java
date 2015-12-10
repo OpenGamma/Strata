@@ -44,7 +44,7 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
   @Override
   public MarketDataRequirements requirements(CurveInputsId id, MarketDataConfig marketDataConfig) {
     CurveGroupDefinition groupConfig = marketDataConfig.get(CurveGroupDefinition.class, id.getCurveGroupName());
-    Optional<NodalCurveDefinition> optionalDefinition = groupConfig.findDefinition(id.getCurveName());
+    Optional<NodalCurveDefinition> optionalDefinition = groupConfig.findCurveDefinition(id.getCurveName());
 
     if (!optionalDefinition.isPresent()) {
       return MarketDataRequirements.empty();
@@ -72,7 +72,7 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
     CurveGroupName groupName = id.getCurveGroupName();
     CurveName curveName = id.getCurveName();
     CurveGroupDefinition groupDefn = marketDataConfig.get(CurveGroupDefinition.class, groupName);
-    Optional<NodalCurveDefinition> optionalDefinition = groupDefn.findDefinition(id.getCurveName());
+    Optional<NodalCurveDefinition> optionalDefinition = groupDefn.findCurveDefinition(id.getCurveName());
 
     if (!optionalDefinition.isPresent()) {
       throw new IllegalArgumentException(Messages.format("No curve named '{}' found in group '{}'", curveName, groupName));

@@ -89,9 +89,9 @@ public class CurveGroupDefinitionTest {
     assertEquals(test.findEntry(CurveName.of("Test")), Optional.of(ENTRY1));
     assertEquals(test.findEntry(CurveName.of("Test2")), Optional.of(ENTRY2));
     assertEquals(test.findEntry(CurveName.of("Rubbish")), Optional.empty());
-    assertEquals(test.findDefinition(CurveName.of("Test")), Optional.of(CURVE_DEFN1));
-    assertEquals(test.findDefinition(CurveName.of("Test2")), Optional.of(CURVE_DEFN2));
-    assertEquals(test.findDefinition(CurveName.of("Rubbish")), Optional.empty());
+    assertEquals(test.findCurveDefinition(CurveName.of("Test")), Optional.of(CURVE_DEFN1));
+    assertEquals(test.findCurveDefinition(CurveName.of("Test2")), Optional.of(CURVE_DEFN2));
+    assertEquals(test.findCurveDefinition(CurveName.of("Rubbish")), Optional.empty());
   }
 
   public void test_builder2() {
@@ -104,9 +104,9 @@ public class CurveGroupDefinitionTest {
     assertEquals(test.findEntry(CurveName.of("Test")), Optional.of(ENTRY3));
     assertEquals(test.findEntry(CurveName.of("Test2")), Optional.empty());
     assertEquals(test.findEntry(CurveName.of("Rubbish")), Optional.empty());
-    assertEquals(test.findDefinition(CurveName.of("Test")), Optional.of(CURVE_DEFN1));
-    assertEquals(test.findDefinition(CurveName.of("Test2")), Optional.empty());
-    assertEquals(test.findDefinition(CurveName.of("Rubbish")), Optional.empty());
+    assertEquals(test.findCurveDefinition(CurveName.of("Test")), Optional.of(CURVE_DEFN1));
+    assertEquals(test.findCurveDefinition(CurveName.of("Test2")), Optional.empty());
+    assertEquals(test.findCurveDefinition(CurveName.of("Rubbish")), Optional.empty());
   }
 
   public void test_builder3() {
