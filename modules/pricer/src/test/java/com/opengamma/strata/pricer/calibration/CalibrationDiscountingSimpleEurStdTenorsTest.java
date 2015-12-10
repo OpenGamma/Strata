@@ -36,11 +36,11 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FixedOvernightSwapCurveNode;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
@@ -217,9 +217,9 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
     ImmutableRatesProvider result =
         CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, TS);
 
-    ImmutableList<CurveGroupEntry> entries = CURVE_GROUP_CONFIG.getEntries();
+    ImmutableList<NodalCurveDefinition> definitions = CURVE_GROUP_CONFIG.getCurveDefinitions();
     // Test PV Dsc
-    ImmutableList<CurveNode> dscNodes = entries.get(0).getCurveDefinition().getNodes();
+    ImmutableList<CurveNode> dscNodes = definitions.get(0).getNodes();
     List<Trade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.size(); i++) {
       dscTrades.add(dscNodes.get(i).trade(VAL_DATE, ALL_QUOTES));
@@ -231,7 +231,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd3
-    ImmutableList<CurveNode> fwd3Nodes = entries.get(1).getCurveDefinition().getNodes();
+    ImmutableList<CurveNode> fwd3Nodes = definitions.get(1).getNodes();
     List<Trade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.size(); i++) {
       fwd3Trades.add(fwd3Nodes.get(i).trade(VAL_DATE, ALL_QUOTES));
@@ -243,7 +243,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd6
-    ImmutableList<CurveNode> fwd6Nodes = entries.get(2).getCurveDefinition().getNodes();
+    ImmutableList<CurveNode> fwd6Nodes = definitions.get(2).getNodes();
     List<Trade> fwd6Trades = new ArrayList<>();
     for (int i = 0; i < fwd6Nodes.size(); i++) {
       fwd6Trades.add(fwd6Nodes.get(i).trade(VAL_DATE, ALL_QUOTES));

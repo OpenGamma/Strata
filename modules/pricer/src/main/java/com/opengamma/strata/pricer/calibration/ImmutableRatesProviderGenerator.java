@@ -74,13 +74,16 @@ public class ImmutableRatesProviderGenerator
     List<NodalCurveDefinition> curveDefns = new ArrayList<>();
     SetMultimap<CurveName, Currency> discountNames = HashMultimap.create();
     SetMultimap<CurveName, Index> indexNames = HashMultimap.create();
-    for (CurveGroupEntry entry : groupDefn.getEntries()) {
-      NodalCurveDefinition curveDefn = entry.getCurveDefinition();
+
+    for (NodalCurveDefinition curveDefn : groupDefn.getCurveDefinitions()) {
       curveDefns.add(curveDefn);
+      CurveName curveName = curveDefn.getName();
+      // A curve group is guaranteed to include an entry for every definition
+      CurveGroupEntry entry = groupDefn.findEntry(curveName).get();
       Set<Currency> ccy = entry.getDiscountCurrencies();
-      discountNames.putAll(curveDefn.getName(), ccy);
-      indexNames.putAll(curveDefn.getName(), entry.getIborIndices());
-      indexNames.putAll(curveDefn.getName(), entry.getOvernightIndices());
+      discountNames.putAll(curveName, ccy);
+      indexNames.putAll(curveName, entry.getIborIndices());
+      indexNames.putAll(curveName, entry.getOvernightIndices());
     }
     return new ImmutableRatesProviderGenerator(knownProvider, curveDefns, discountNames, indexNames);
   }

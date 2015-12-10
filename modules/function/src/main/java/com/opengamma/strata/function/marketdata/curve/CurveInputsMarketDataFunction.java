@@ -28,7 +28,6 @@ import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -45,17 +44,17 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
   @Override
   public MarketDataRequirements requirements(CurveInputsId id, MarketDataConfig marketDataConfig) {
     CurveGroupDefinition groupConfig = marketDataConfig.get(CurveGroupDefinition.class, id.getCurveGroupName());
-    Optional<CurveGroupEntry> optionalEntry = groupConfig.findEntry(id.getCurveName());
+    Optional<NodalCurveDefinition> optionalDefinition = groupConfig.findCurveDefinition(id.getCurveName());
 
-    if (!optionalEntry.isPresent()) {
+    if (!optionalDefinition.isPresent()) {
       return MarketDataRequirements.empty();
     }
-    CurveGroupEntry entry = optionalEntry.get();
+    NodalCurveDefinition definition = optionalDefinition.get();
 
-    if (!(entry.getCurveDefinition() instanceof InterpolatedNodalCurveDefinition)) {
+    if (!(definition instanceof InterpolatedNodalCurveDefinition)) {
       return MarketDataRequirements.empty();
     }
-    InterpolatedNodalCurveDefinition curveDefn = (InterpolatedNodalCurveDefinition) entry.getCurveDefinition();
+    InterpolatedNodalCurveDefinition curveDefn = (InterpolatedNodalCurveDefinition) definition;
     MarketDataFeed marketDataFeed = id.getMarketDataFeed();
     Set<? extends SimpleMarketDataKey<?>> requirementKeys = nodeRequirements(curveDefn);
     Set<MarketDataId<?>> requirements = requirementKeys.stream()
@@ -73,13 +72,12 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
     CurveGroupName groupName = id.getCurveGroupName();
     CurveName curveName = id.getCurveName();
     CurveGroupDefinition groupDefn = marketDataConfig.get(CurveGroupDefinition.class, groupName);
-    Optional<CurveGroupEntry> optionalEntry = groupDefn.findEntry(curveName);
+    Optional<NodalCurveDefinition> optionalDefinition = groupDefn.findCurveDefinition(id.getCurveName());
 
-    if (!optionalEntry.isPresent()) {
+    if (!optionalDefinition.isPresent()) {
       throw new IllegalArgumentException(Messages.format("No curve named '{}' found in group '{}'", curveName, groupName));
     }
-    CurveGroupEntry entry = optionalEntry.get();
-    NodalCurveDefinition curveDefn = entry.getCurveDefinition();
+    NodalCurveDefinition curveDefn = optionalDefinition.get();
     MarketDataFeed marketDataFeed = id.getMarketDataFeed();
     Set<? extends SimpleMarketDataKey<?>> requirements = nodeRequirements(curveDefn);
     Map<? extends MarketDataKey<?>, MarketDataBox<?>> marketDataValues =

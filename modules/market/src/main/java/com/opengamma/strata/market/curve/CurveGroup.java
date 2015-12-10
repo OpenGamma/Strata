@@ -5,7 +5,12 @@
  */
 package com.opengamma.strata.market.curve;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -25,13 +30,18 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * A group of curves.
  * <p>
  * This is used to hold a group of related curves, typically forming a logical set.
  * It is often used to hold the results of a curve calibration.
+ * <p>
+ * Curve groups can also be created from a set of existing curves.
  */
 @BeanDefinition
 public final class CurveGroup
@@ -64,6 +74,60 @@ public final class CurveGroup
    */
   public static CurveGroup of(CurveGroupName name, Map<Currency, Curve> discountCurves, Map<Index, Curve> forwardCurves) {
     return new CurveGroup(name, discountCurves, forwardCurves);
+  }
+
+  /**
+   * Creates a curve group using a curve group definition and some existing curves.
+   * <p>
+   * The curves must include all curves named in the curve group definition.
+   *
+   * @param curveGroupDefinition  the definition of a curve group
+   * @param curves  some curves
+   * @return a curve group built from the definition and the list of curves
+   * @throws IllegalArgumentException if there are any curves named in the definition but not included in the curves
+   */
+  public static CurveGroup ofCurves(CurveGroupDefinition curveGroupDefinition, Curve... curves) {
+    return ofCurves(curveGroupDefinition, Arrays.asList(curves));
+  }
+
+  /**
+   * Creates a curve group using a curve group definition and a list of existing curves.
+   * <p>
+   * The list of curves must contain all curves named in the curve group definition.
+   *
+   * @param curveGroupDefinition  the definition of a curve group
+   * @param curves  some curves
+   * @return a curve group built from the definition and the list of curves
+   * @throws IllegalArgumentException if there are any curves named in the definition which are not present in the list
+   */
+  public static CurveGroup ofCurves(CurveGroupDefinition curveGroupDefinition, List<Curve> curves) {
+    Map<Currency, Curve> discountCurves = new HashMap<>();
+    Map<Index, Curve> forwardCurves = new HashMap<>();
+    Map<CurveName, Curve> curveMap =
+        curves.stream().collect(toMap(curve -> curve.getMetadata().getCurveName(), curve -> curve));
+
+    for (CurveGroupEntry entry : curveGroupDefinition.getEntries()) {
+      CurveName curveName = entry.getCurveName();
+      Curve curve = curveMap.get(curveName);
+
+      if (curve == null) {
+        throw new IllegalArgumentException(
+            Messages.format(
+                "No curve found named '{}' when building curve group '{}'",
+                curveName,
+                curveGroupDefinition.getName()));
+      }
+      for (Currency currency : entry.getDiscountCurrencies()) {
+        discountCurves.put(currency, curve);
+      }
+      for (IborIndex index : entry.getIborIndices()) {
+        forwardCurves.put(index, curve);
+      }
+      for (OvernightIndex index : entry.getOvernightIndices()) {
+        forwardCurves.put(index, curve);
+      }
+    }
+    return CurveGroup.of(curveGroupDefinition.getName(), discountCurves, forwardCurves);
   }
 
   //-------------------------------------------------------------------------

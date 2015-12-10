@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.calibration;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +21,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveParameterSize;
@@ -158,11 +159,7 @@ final class StandardCurveCalibrator implements CurveCalibrator {
 
   // converts a definition to the curve order list
   private static ImmutableList<CurveParameterSize> toOrder(CurveGroupDefinition groupDefn) {
-    ImmutableList.Builder<CurveParameterSize> builder = ImmutableList.builder();
-    for (CurveGroupEntry entry : groupDefn.getEntries()) {
-      builder.add(entry.getCurveDefinition().toCurveParameterSize());
-    }
-    return builder.build();
+    return groupDefn.getCurveDefinitions().stream().map(def -> def.toCurveParameterSize()).collect(toImmutableList());
   }
 
   //-------------------------------------------------------------------------

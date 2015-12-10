@@ -12,6 +12,7 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1W;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -44,8 +45,10 @@ public class CurveGroupDefinitionTest {
   private static final ObservableKey GBP_LIBOR_3M_ID = QuoteKey.of(StandardId.of("OG", "Ticker3"));
   private static final DummyFraCurveNode NODE1 = DummyFraCurveNode.of(Period.ofMonths(1), GBP_LIBOR_1M, GBP_LIBOR_1M_ID);
   private static final DummyFraCurveNode NODE2 = DummyFraCurveNode.of(Period.ofMonths(3), GBP_LIBOR_3M, GBP_LIBOR_3M_ID);
-  private static final InterpolatedNodalCurveDefinition CURVE_DEFN = InterpolatedNodalCurveDefinition.builder()
-      .name(CurveName.of("Test"))
+  private static final CurveName CURVE_NAME1 = CurveName.of("Test");
+  private static final CurveName CURVE_NAME2 = CurveName.of("Test2");
+  private static final InterpolatedNodalCurveDefinition CURVE_DEFN1 = InterpolatedNodalCurveDefinition.builder()
+      .name(CURVE_NAME1)
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.ZERO_RATE)
       .dayCount(ACT_365F)
@@ -54,21 +57,21 @@ public class CurveGroupDefinitionTest {
       .extrapolatorLeft(CurveExtrapolators.FLAT)
       .extrapolatorRight(CurveExtrapolators.FLAT)
       .build();
-  private static final InterpolatedNodalCurveDefinition CURVE_CONFIG2 = CURVE_DEFN.toBuilder()
-      .name(CurveName.of("Test2"))
+  private static final InterpolatedNodalCurveDefinition CURVE_DEFN2 = CURVE_DEFN1.toBuilder()
+      .name(CURVE_NAME2)
       .build();
   private static final CurveGroupEntry ENTRY1 = CurveGroupEntry.builder()
-      .curveDefinition(CURVE_DEFN)
+      .curveName(CURVE_NAME1)
       .discountCurrencies(GBP)
       .iborIndices(GBP_LIBOR_1W)
       .overnightIndices(GBP_SONIA)
       .build();
   private static final CurveGroupEntry ENTRY2 = CurveGroupEntry.builder()
-      .curveDefinition(CURVE_CONFIG2)
+      .curveName(CURVE_NAME2)
       .iborIndices(GBP_LIBOR_1M, GBP_LIBOR_3M)
       .build();
   private static final CurveGroupEntry ENTRY3 = CurveGroupEntry.builder()
-      .curveDefinition(CURVE_DEFN)
+      .curveName(CURVE_NAME1)
       .discountCurrencies(GBP)
       .iborIndices(GBP_LIBOR_1M, GBP_LIBOR_3M)
       .build();
@@ -76,10 +79,43 @@ public class CurveGroupDefinitionTest {
   public void test_builder1() {
     CurveGroupDefinition test = CurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
-        .addDiscountCurve(CURVE_DEFN, GBP)
-        .addForwardCurve(CURVE_DEFN, GBP_SONIA)
-        .addForwardCurve(CURVE_DEFN, GBP_LIBOR_1W)
-        .addForwardCurve(CURVE_CONFIG2, GBP_LIBOR_1M, GBP_LIBOR_3M)
+        .addDiscountCurve(CURVE_DEFN1, GBP)
+        .addForwardCurve(CURVE_DEFN1, GBP_SONIA)
+        .addForwardCurve(CURVE_DEFN1, GBP_LIBOR_1W)
+        .addForwardCurve(CURVE_DEFN2, GBP_LIBOR_1M, GBP_LIBOR_3M)
+        .build();
+    assertEquals(test.getName(), CurveGroupName.of("Test"));
+    assertEquals(test.getEntries(), ImmutableList.of(ENTRY1, ENTRY2));
+    assertEquals(test.findEntry(CurveName.of("Test")), Optional.of(ENTRY1));
+    assertEquals(test.findEntry(CurveName.of("Test2")), Optional.of(ENTRY2));
+    assertEquals(test.findEntry(CurveName.of("Rubbish")), Optional.empty());
+    assertEquals(test.findCurveDefinition(CurveName.of("Test")), Optional.of(CURVE_DEFN1));
+    assertEquals(test.findCurveDefinition(CurveName.of("Test2")), Optional.of(CURVE_DEFN2));
+    assertEquals(test.findCurveDefinition(CurveName.of("Rubbish")), Optional.empty());
+  }
+
+  public void test_builder2() {
+    CurveGroupDefinition test = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("Test"))
+        .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
+        .build();
+    assertEquals(test.getName(), CurveGroupName.of("Test"));
+    assertEquals(test.getEntries(), ImmutableList.of(ENTRY3));
+    assertEquals(test.findEntry(CurveName.of("Test")), Optional.of(ENTRY3));
+    assertEquals(test.findEntry(CurveName.of("Test2")), Optional.empty());
+    assertEquals(test.findEntry(CurveName.of("Rubbish")), Optional.empty());
+    assertEquals(test.findCurveDefinition(CurveName.of("Test")), Optional.of(CURVE_DEFN1));
+    assertEquals(test.findCurveDefinition(CurveName.of("Test2")), Optional.empty());
+    assertEquals(test.findCurveDefinition(CurveName.of("Rubbish")), Optional.empty());
+  }
+
+  public void test_builder3() {
+    CurveGroupDefinition test = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("Test"))
+        .addDiscountCurve(CURVE_NAME1, GBP)
+        .addForwardCurve(CURVE_NAME1, GBP_SONIA)
+        .addForwardCurve(CURVE_NAME1, GBP_LIBOR_1W)
+        .addForwardCurve(CURVE_NAME2, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
     assertEquals(test.getName(), CurveGroupName.of("Test"));
     assertEquals(test.getEntries(), ImmutableList.of(ENTRY1, ENTRY2));
@@ -88,10 +124,10 @@ public class CurveGroupDefinitionTest {
     assertEquals(test.findEntry(CurveName.of("Rubbish")), Optional.empty());
   }
 
-  public void test_builder2() {
+  public void test_builder4() {
     CurveGroupDefinition test = CurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
-        .addCurve(CURVE_DEFN, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
+        .addCurve(CURVE_NAME1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
     assertEquals(test.getName(), CurveGroupName.of("Test"));
     assertEquals(test.getEntries(), ImmutableList.of(ENTRY3));
@@ -100,11 +136,19 @@ public class CurveGroupDefinitionTest {
     assertEquals(test.findEntry(CurveName.of("Rubbish")), Optional.empty());
   }
 
+  public void test_missingEntries() {
+    assertThrowsIllegalArg(() -> CurveGroupDefinition.of(
+        CurveGroupName.of("group"),
+        ImmutableList.of(ENTRY1),
+        ImmutableList.of(CURVE_DEFN1, CURVE_DEFN2)),
+        "An entry must be provided .* \\[Test2\\]");
+  }
+
   //-------------------------------------------------------------------------
   public void test_tradesInitialGuesses() {
     CurveGroupDefinition test = CurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
-        .addCurve(CURVE_DEFN, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
+        .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
 
     MarketData marketData = MarketData.builder()
@@ -121,12 +165,12 @@ public class CurveGroupDefinitionTest {
   public void coverage() {
     CurveGroupDefinition test = CurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
-        .addDiscountCurve(CURVE_DEFN, GBP)
+        .addDiscountCurve(CURVE_DEFN1, GBP)
         .build();
     coverImmutableBean(test);
     CurveGroupDefinition test2 = CurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test2"))
-        .addForwardCurve(CURVE_CONFIG2, GBP_LIBOR_1M)
+        .addForwardCurve(CURVE_DEFN2, GBP_LIBOR_1M)
         .build();
     coverBeanEquals(test, test2);
   }
@@ -134,7 +178,7 @@ public class CurveGroupDefinitionTest {
   public void test_serialization() {
     CurveGroupDefinition test = CurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
-        .addDiscountCurve(CURVE_DEFN, GBP)
+        .addDiscountCurve(CURVE_DEFN1, GBP)
         .build();
     assertSerialization(test);
   }

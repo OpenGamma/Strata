@@ -22,6 +22,7 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -33,6 +34,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.collect.ArgChecker;
@@ -70,9 +72,21 @@ public final class CurveGroupDefinition
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<CurveGroupEntry> entries;
   /**
+   * Definitions which specify how the curves are calibrated.
+   * <p>
+   * Curve definitions are required for curves that need to be calibrated. A definition is not necessary if
+   * the curve is not built by the Strata curve calibrator.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableList<NodalCurveDefinition> curveDefinitions;
+  /**
    * Entries for the curves, keyed by the curve name.
    */
   private final ImmutableMap<CurveName, CurveGroupEntry> entriesByName;
+  /**
+   * Definitions for the curves, keyed by the curve name.
+   */
+  private final ImmutableMap<CurveName, NodalCurveDefinition> curveDefinitionsByName;
 
   //-------------------------------------------------------------------------
   /**
@@ -89,10 +103,15 @@ public final class CurveGroupDefinition
    *
    * @param name  the name of the curve group
    * @param entries  entries describing the curves in the group
+   * @param curveDefinitions  definitions which specify how the curves are calibrated
    * @return a curve group definition with the specified name and containing the specified entries
    */
-  public static CurveGroupDefinition of(CurveGroupName name, Collection<CurveGroupEntry> entries) {
-    return new CurveGroupDefinition(name, entries);
+  public static CurveGroupDefinition of(
+      CurveGroupName name,
+      Collection<CurveGroupEntry> entries,
+      Collection<NodalCurveDefinition> curveDefinitions) {
+
+    return new CurveGroupDefinition(name, entries, curveDefinitions);
   }
 
   /**
@@ -100,25 +119,55 @@ public final class CurveGroupDefinition
    *
    * @param name  the name of the curve group
    * @param entries  details of the curves in the group
+   * @param curveDefinitions  definitions which specify how the curves are calibrated
    */
   @ImmutableConstructor
-  CurveGroupDefinition(CurveGroupName name, Collection<CurveGroupEntry> entries) {
+  CurveGroupDefinition(
+      CurveGroupName name,
+      Collection<CurveGroupEntry> entries,
+      Collection<NodalCurveDefinition> curveDefinitions) {
+
     this.name = ArgChecker.notNull(name, "name");
     this.entries = ImmutableList.copyOf(entries);
-    entriesByName = entries.stream().collect(toImmutableMap(entry -> entry.getCurveDefinition().getName(), entry -> entry));
+    this.curveDefinitions = ImmutableList.copyOf(curveDefinitions);
+    entriesByName = entries.stream().collect(toImmutableMap(entry -> entry.getCurveName(), entry -> entry));
+    curveDefinitionsByName = curveDefinitions.stream().collect(toImmutableMap(def -> def.getName(), def -> def));
+    validate();
+  }
+
+  @ImmutableValidator
+  private void validate() {
+    Set<CurveName> missingEntries = Sets.difference(curveDefinitionsByName.keySet(), entriesByName.keySet());
+
+    if (!missingEntries.isEmpty()) {
+      throw new IllegalArgumentException("An entry must be provided for every curve definition but the following " +
+          "curves have a definition but no entry: " + missingEntries);
+    }
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Finds the entry for the curve group with the specified name.
+   * Finds the entry for the curve with the specified name.
    * <p>
-   * If the group is not found, optional empty is returned.
+   * If the curve is not found, optional empty is returned.
    *
    * @param curveName  the name of the curve
-   * @return the entry for the curve group with the specified name
+   * @return the entry for the curve with the specified name
    */
   public Optional<CurveGroupEntry> findEntry(CurveName curveName) {
     return Optional.ofNullable(entriesByName.get(curveName));
+  }
+
+  /**
+   * Finds the definition for the curve with the specified name.
+   * <p>
+   * If the curve is not found, optional empty is returned.
+   *
+   * @param curveName  the name of the curve
+   * @return the definition for the curve with the specified name
+   */
+  public Optional<NodalCurveDefinition> findCurveDefinition(CurveName curveName) {
+    return Optional.ofNullable(curveDefinitionsByName.get(curveName));
   }
 
   //-------------------------------------------------------------------------
@@ -132,9 +181,7 @@ public final class CurveGroupDefinition
    * @return the number of parameters
    */
   public int getTotalParameterCount() {
-    return entries.stream()
-        .mapToInt(entry -> entry.getCurveDefinition().getParameterCount())
-        .sum();
+    return curveDefinitionsByName.entrySet().stream().mapToInt(entry -> entry.getValue().getParameterCount()).sum();
   }
 
   /**
@@ -148,8 +195,8 @@ public final class CurveGroupDefinition
    * @return the list of all trades
    */
   public ImmutableList<Trade> trades(LocalDate valuationDate, MarketData marketData) {
-    return entries.stream()
-        .map(CurveGroupEntry::getCurveDefinition)
+    return curveDefinitionsByName.entrySet().stream()
+        .map(entry -> entry.getValue())
         .flatMap(curveDef -> curveDef.getNodes().stream())
         .map(node -> node.trade(valuationDate, marketData))
         .collect(toImmutableList());
@@ -166,8 +213,8 @@ public final class CurveGroupDefinition
    */
   public ImmutableList<Double> initialGuesses(LocalDate valuationDate, MarketData marketData) {
     ImmutableList.Builder<Double> result = ImmutableList.builder();
-    for (CurveGroupEntry entry : entries) {
-      NodalCurveDefinition defn = entry.getCurveDefinition();
+
+    for (NodalCurveDefinition defn : curveDefinitions) {
       ValueType valueType = defn.getYValueType();
       for (CurveNode node : defn.getNodes()) {
         result.add(node.initialGuess(valuationDate, marketData, valueType));
@@ -229,6 +276,18 @@ public final class CurveGroupDefinition
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets definitions which specify how the curves are calibrated.
+   * <p>
+   * Curve definitions are required for curves that need to be calibrated. A definition is not necessary if
+   * the curve is not built by the Strata curve calibrator.
+   * @return the value of the property, not null
+   */
+  public ImmutableList<NodalCurveDefinition> getCurveDefinitions() {
+    return curveDefinitions;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -237,7 +296,8 @@ public final class CurveGroupDefinition
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveGroupDefinition other = (CurveGroupDefinition) obj;
       return JodaBeanUtils.equal(name, other.name) &&
-          JodaBeanUtils.equal(entries, other.entries);
+          JodaBeanUtils.equal(entries, other.entries) &&
+          JodaBeanUtils.equal(curveDefinitions, other.curveDefinitions);
     }
     return false;
   }
@@ -247,15 +307,17 @@ public final class CurveGroupDefinition
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(name);
     hash = hash * 31 + JodaBeanUtils.hashCode(entries);
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveDefinitions);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("CurveGroupDefinition{");
     buf.append("name").append('=').append(name).append(',').append(' ');
-    buf.append("entries").append('=').append(JodaBeanUtils.toString(entries));
+    buf.append("entries").append('=').append(entries).append(',').append(' ');
+    buf.append("curveDefinitions").append('=').append(JodaBeanUtils.toString(curveDefinitions));
     buf.append('}');
     return buf.toString();
   }
@@ -282,12 +344,19 @@ public final class CurveGroupDefinition
     private final MetaProperty<ImmutableList<CurveGroupEntry>> entries = DirectMetaProperty.ofImmutable(
         this, "entries", CurveGroupDefinition.class, (Class) ImmutableList.class);
     /**
+     * The meta-property for the {@code curveDefinitions} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableList<NodalCurveDefinition>> curveDefinitions = DirectMetaProperty.ofImmutable(
+        this, "curveDefinitions", CurveGroupDefinition.class, (Class) ImmutableList.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "name",
-        "entries");
+        "entries",
+        "curveDefinitions");
 
     /**
      * Restricted constructor.
@@ -302,6 +371,8 @@ public final class CurveGroupDefinition
           return name;
         case -1591573360:  // entries
           return entries;
+        case -336166639:  // curveDefinitions
+          return curveDefinitions;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -338,6 +409,14 @@ public final class CurveGroupDefinition
       return entries;
     }
 
+    /**
+     * The meta-property for the {@code curveDefinitions} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableList<NodalCurveDefinition>> curveDefinitions() {
+      return curveDefinitions;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -346,6 +425,8 @@ public final class CurveGroupDefinition
           return ((CurveGroupDefinition) bean).getName();
         case -1591573360:  // entries
           return ((CurveGroupDefinition) bean).getEntries();
+        case -336166639:  // curveDefinitions
+          return ((CurveGroupDefinition) bean).getCurveDefinitions();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -369,6 +450,7 @@ public final class CurveGroupDefinition
 
     private CurveGroupName name;
     private List<CurveGroupEntry> entries = ImmutableList.of();
+    private List<NodalCurveDefinition> curveDefinitions = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -384,6 +466,8 @@ public final class CurveGroupDefinition
           return name;
         case -1591573360:  // entries
           return entries;
+        case -336166639:  // curveDefinitions
+          return curveDefinitions;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -398,6 +482,9 @@ public final class CurveGroupDefinition
           break;
         case -1591573360:  // entries
           this.entries = (List<CurveGroupEntry>) newValue;
+          break;
+        case -336166639:  // curveDefinitions
+          this.curveDefinitions = (List<NodalCurveDefinition>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -433,16 +520,18 @@ public final class CurveGroupDefinition
     public CurveGroupDefinition build() {
       return new CurveGroupDefinition(
           name,
-          entries);
+          entries,
+          curveDefinitions);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("CurveGroupDefinition.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
-      buf.append("entries").append('=').append(JodaBeanUtils.toString(entries));
+      buf.append("entries").append('=').append(JodaBeanUtils.toString(entries)).append(',').append(' ');
+      buf.append("curveDefinitions").append('=').append(JodaBeanUtils.toString(curveDefinitions));
       buf.append('}');
       return buf.toString();
     }
