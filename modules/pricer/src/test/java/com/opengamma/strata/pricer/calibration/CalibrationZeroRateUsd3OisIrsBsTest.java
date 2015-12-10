@@ -95,7 +95,7 @@ import com.opengamma.strata.product.swap.type.IborIborSwapTemplate;
 @Test
 public class CalibrationZeroRateUsd3OisIrsBsTest {
 
-  private static final LocalDate VALUATION_DATE = LocalDate.of(2015, 7, 21);
+  private static final LocalDate VAL_DATE = LocalDate.of(2015, 7, 21);
 
   private static final CurveInterpolator INTERPOLATOR_LINEAR = CurveInterpolators.LINEAR;
   private static final CurveExtrapolator EXTRAPOLATOR_FLAT = CurveExtrapolators.FLAT;
@@ -361,14 +361,14 @@ public class CalibrationZeroRateUsd3OisIrsBsTest {
           .addForwardCurve(FWD6_CURVE_DEFN, USD_LIBOR_6M)
           .build();
   private static final ImmutableRatesProvider KNOWN_DATA = ImmutableRatesProvider.builder()
-      .valuationDate(VALUATION_DATE)
+      .valuationDate(VAL_DATE)
       .timeSeries(TS)
       .build();
 
   //-------------------------------------------------------------------------
   public void calibration_present_value_oneGroup() {
     ImmutableRatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, ALL_QUOTES, TS);
+        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, TS);
     assertPresentValue(result);
   }
 
@@ -381,7 +381,7 @@ public class CalibrationZeroRateUsd3OisIrsBsTest {
   public void calibration_market_quote_sensitivity_one_group() {
     double shift = 1.0E-6;
     Function<MarketData, ImmutableRatesProvider> f =
-        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, marketData, TS);
+        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, marketData, TS);
     calibration_market_quote_sensitivity_check(f, shift);
   }
   
@@ -397,7 +397,7 @@ public class CalibrationZeroRateUsd3OisIrsBsTest {
       double shift) {
     double notional = 100_000_000.0;
     double spread = 0.0050;
-    SwapTrade trade = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.toTrade(VALUATION_DATE, Period.ofMonths(8),
+    SwapTrade trade = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.toTrade(VAL_DATE, Period.ofMonths(8),
         Tenor.TENOR_7Y, BuySell.BUY, notional, spread);
     ImmutableRatesProvider result = calibrator.apply(ALL_QUOTES);
     PointSensitivityBuilder pts = SWAP_PRICER.presentValueSensitivity(trade.getProduct(), result);
@@ -438,7 +438,7 @@ public class CalibrationZeroRateUsd3OisIrsBsTest {
     CurveNode[] dscNodes = CURVES_NODES.get(0).get(0);
     List<Trade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.length; i++) {
-      dscTrades.add(dscNodes[i].trade(VALUATION_DATE, ALL_QUOTES));
+      dscTrades.add(dscNodes[i].trade(VAL_DATE, ALL_QUOTES));
     }
     // Depo
     for (int i = 0; i < DSC_NB_DEPO_NODES; i++) {
@@ -456,7 +456,7 @@ public class CalibrationZeroRateUsd3OisIrsBsTest {
     CurveNode[] fwd3Nodes = CURVES_NODES.get(1).get(0);
     List<Trade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.length; i++) {
-      fwd3Trades.add(fwd3Nodes[i].trade(VALUATION_DATE, ALL_QUOTES));
+      fwd3Trades.add(fwd3Nodes[i].trade(VAL_DATE, ALL_QUOTES));
     }
     // Fixing 
     CurrencyAmount pvFixing3 =
@@ -478,7 +478,7 @@ public class CalibrationZeroRateUsd3OisIrsBsTest {
     CurveNode[] fwd6Nodes = CURVES_NODES.get(2).get(0);
     List<Trade> fwd6Trades = new ArrayList<>();
     for (int i = 0; i < fwd6Nodes.length; i++) {
-      fwd6Trades.add(fwd6Nodes[i].trade(VALUATION_DATE, ALL_QUOTES));
+      fwd6Trades.add(fwd6Nodes[i].trade(VAL_DATE, ALL_QUOTES));
     }
     // Fixing 
     CurrencyAmount pvFixing6 =
@@ -511,7 +511,7 @@ public class CalibrationZeroRateUsd3OisIrsBsTest {
       startTime = System.currentTimeMillis();
       for (int looprep = 0; looprep < nbTests; looprep++) {
         ImmutableRatesProvider result =
-            CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VALUATION_DATE, ALL_QUOTES, TS);
+            CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, TS);
         count += result.getDiscountCurves().size() + result.getIndexCurves().size();
       }
       endTime = System.currentTimeMillis();

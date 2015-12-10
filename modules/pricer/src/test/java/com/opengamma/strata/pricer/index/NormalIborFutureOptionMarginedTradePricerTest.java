@@ -58,13 +58,13 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
   private static final InterpolatedNodalSurface PARAMETERS_PRICE = InterpolatedNodalSurface.of(
       DefaultSurfaceMetadata.of("Test"), TIMES, MONEYNESS_PRICES, NORMAL_VOL, INTERPOLATOR_2D);
 
-  private static final LocalDate VALUATION_DATE = date(2015, 2, 17);
-  private static final LocalTime VALUATION_TIME = LocalTime.of(13, 45);
+  private static final LocalDate VAL_DATE = date(2015, 2, 17);
+  private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
 
   private static final NormalVolatilityIborFutureProvider VOL_SIMPLE_MONEY_PRICE =
       NormalVolatilityExpSimpleMoneynessIborFutureProvider.of(
-          PARAMETERS_PRICE, true, GBP_LIBOR_2M, ACT_365F, VALUATION_DATE.atTime(VALUATION_TIME).atZone(LONDON_ZONE));
+          PARAMETERS_PRICE, true, GBP_LIBOR_2M, ACT_365F, VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE));
 
   private static final IborFutureOption FUTURE_OPTION_PRODUCT = IborFutureDummyData.IBOR_FUTURE_OPTION_2;
   private static final StandardId OPTION_SECURITY_ID = StandardId.of("OG-Ticker", "OptionSec");
@@ -75,7 +75,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
   private static final double TRADE_PRICE = 0.0100;
   private static final IborFutureOptionTrade FUTURE_OPTION_TRADE_TD = IborFutureOptionTrade.builder()
       .tradeInfo(TradeInfo.builder()
-          .tradeDate(VALUATION_DATE)
+          .tradeDate(VAL_DATE)
           .build())
       .securityLink(SecurityLink.resolved(IBOR_FUTURE_OPTION_SECURITY))
       .quantity(OPTION_QUANTITY)
@@ -107,7 +107,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
     double optionPrice = 0.0125;
     double lastClosingPrice = 0.0150;
     CurrencyAmount pvComputed = OPTION_TRADE_PRICER
-        .presentValue(FUTURE_OPTION_TRADE_TD, VALUATION_DATE, optionPrice, lastClosingPrice);
+        .presentValue(FUTURE_OPTION_TRADE_TD, VAL_DATE, optionPrice, lastClosingPrice);
     double pvExpected = (OPTION_PRODUCT_PRICER.marginIndex(FUTURE_OPTION_PRODUCT, optionPrice) -
         OPTION_PRODUCT_PRICER.marginIndex(FUTURE_OPTION_PRODUCT, TRADE_PRICE)) * OPTION_QUANTITY;
     assertEquals(pvComputed.getAmount(), pvExpected, TOLERANCE_PV);

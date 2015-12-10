@@ -46,13 +46,13 @@ public class BlackVolatilityFlatFxProviderTest {
   private static final DoubleArray VOLS = DoubleArray.of(0.05, 0.09, 0.16);
   private static final CurveMetadata METADATA = DefaultCurveMetadata.of("TestCurve");
   private static final InterpolatedNodalCurve CURVE = InterpolatedNodalCurve.of(METADATA, TIMES, VOLS, INTERPOLATOR);
-  private static final LocalDate VALUATION_DATE = date(2015, 2, 17);
-  private static final LocalTime VALUATION_TIME = LocalTime.of(13, 45);
+  private static final LocalDate VAL_DATE = date(2015, 2, 17);
+  private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
-  private static final ZonedDateTime VALUATION_DATE_TIME = VALUATION_DATE.atTime(VALUATION_TIME).atZone(LONDON_ZONE);
+  private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE);
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, GBP);
   private static final BlackVolatilityFlatFxProvider PROVIDER =
-      BlackVolatilityFlatFxProvider.of(CURVE, CURRENCY_PAIR, ACT_365F, VALUATION_DATE_TIME);
+      BlackVolatilityFlatFxProvider.of(CURVE, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
 
   private static final LocalTime TIME = LocalTime.of(11, 45);
   private static final ZonedDateTime[] TEST_EXPIRY = new ZonedDateTime[] {
@@ -74,9 +74,9 @@ public class BlackVolatilityFlatFxProviderTest {
         .currencyPair(CURRENCY_PAIR)
         .dayCount(ACT_365F)
         .curve(CURVE)
-        .valuationDateTime(VALUATION_DATE_TIME)
+        .valuationDateTime(VAL_DATE_TIME)
         .build();
-    assertEquals(test.getValuationDateTime(), VALUATION_DATE_TIME);
+    assertEquals(test.getValuationDateTime(), VAL_DATE_TIME);
     assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getCurve(), CURVE);
@@ -146,7 +146,7 @@ public class BlackVolatilityFlatFxProviderTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     BlackVolatilityFlatFxProvider test1 =
-        BlackVolatilityFlatFxProvider.of(CURVE, CURRENCY_PAIR, ACT_365F, VALUATION_DATE_TIME);
+        BlackVolatilityFlatFxProvider.of(CURVE, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
     coverImmutableBean(test1);
     BlackVolatilityFlatFxProvider test2 = BlackVolatilityFlatFxProvider.of(
         CURVE,
@@ -180,9 +180,9 @@ public class BlackVolatilityFlatFxProviderTest {
     NodalCurve curveUp = curve.withYValues(yValues.with(index, yValues.get(index) + EPS));
     NodalCurve curveDw = curve.withYValues(yValues.with(index, yValues.get(index) - EPS));
     BlackVolatilityFlatFxProvider provUp =
-        BlackVolatilityFlatFxProvider.of(curveUp, CURRENCY_PAIR, ACT_365F, VALUATION_DATE_TIME);
+        BlackVolatilityFlatFxProvider.of(curveUp, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
     BlackVolatilityFlatFxProvider provDw =
-        BlackVolatilityFlatFxProvider.of(curveDw, CURRENCY_PAIR, ACT_365F, VALUATION_DATE_TIME);
+        BlackVolatilityFlatFxProvider.of(curveDw, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
     double volUp = provUp.getVolatility(pair, expiry, strike, forward);
     double volDw = provDw.getVolatility(pair, expiry, strike, forward);
     return 0.5 * (volUp - volDw) / EPS;

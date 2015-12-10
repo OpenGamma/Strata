@@ -37,7 +37,7 @@ public class LegalEntityDiscountingProviderDataSets {
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
 
   //  =====     issuer curve + repo curve in USD      =====     
-  private static final LocalDate VALUATION_USD = LocalDate.of(2011, 6, 20);
+  private static final LocalDate VAL_DATE_USD = LocalDate.of(2011, 6, 20);
   private static final StandardId ISSUER_ID_USD = StandardId.of("OG-Ticker", "GOVT1");
   private static final CurveName NAME_REPO_USD = CurveName.of("TestRepoCurve");
   private static final CurveName NAME_ISSUER_USD = CurveName.of("TestIssuerCurve");
@@ -67,23 +67,23 @@ public class LegalEntityDiscountingProviderDataSets {
   private static final InterpolatedNodalCurve CURVE_ZERO_REPO_USD =
       InterpolatedNodalCurve.of(META_ZERO_REPO_USD, REPO_TIME_USD, REPO_RATE_USD, INTERPOLATOR);
   private static final DiscountFactors DSC_FACTORS_ZERO_REPO_USD =
-      ZeroRateDiscountFactors.of(USD, VALUATION_USD, CURVE_ZERO_REPO_USD);
+      ZeroRateDiscountFactors.of(USD, VAL_DATE_USD, CURVE_ZERO_REPO_USD);
   private static final InterpolatedNodalCurve CURVE_ZERO_ISSUER_USD =
       InterpolatedNodalCurve.of(META_ZERO_ISSUER_USD, ISSUER_TIME_USD, ISSUER_RATE_USD, INTERPOLATOR);
   private static final DiscountFactors DSC_FACTORS_ZERO_ISSUER_USD =
-      ZeroRateDiscountFactors.of(USD, VALUATION_USD, CURVE_ZERO_ISSUER_USD);
+      ZeroRateDiscountFactors.of(USD, VAL_DATE_USD, CURVE_ZERO_ISSUER_USD);
   // discount factor curves
   private static final InterpolatedNodalCurve CURVE_SIMPLE_REPO =
       InterpolatedNodalCurve.of(META_SIMPLE_REPO_USD, REPO_TIME_USD, REPO_FACTOR_USD, INTERPOLATOR);
   private static final DiscountFactors DSC_FACTORS_SIMPLE_REPO =
-      SimpleDiscountFactors.of(USD, VALUATION_USD, CURVE_SIMPLE_REPO);
+      SimpleDiscountFactors.of(USD, VAL_DATE_USD, CURVE_SIMPLE_REPO);
   private static final InterpolatedNodalCurve CURVE_SIMPLE_ISSUER_USD =
       InterpolatedNodalCurve.of(META_SIMPLE_ISSUER_USD, ISSUER_TIME_USD, ISSUER_FACTOR_USD, INTERPOLATOR);
   private static final DiscountFactors DSC_FACTORS_SIMPLE_ISSUER_USD =
-      SimpleDiscountFactors.of(USD, VALUATION_USD, CURVE_SIMPLE_ISSUER_USD);
+      SimpleDiscountFactors.of(USD, VAL_DATE_USD, CURVE_SIMPLE_ISSUER_USD);
 
   //  =====     issuer curve + repo curve in EUR      =====     
-  private static final LocalDate VALUATION_EUR = LocalDate.of(2014, 3, 31);
+  private static final LocalDate VAL_DATE_EUR = LocalDate.of(2014, 3, 31);
   private static final StandardId ISSUER_ID_EUR = StandardId.of("OG-Ticker", "GOVT2");
   private static final CurveName NAME_REPO_EUR = CurveName.of("TestRepoCurve2");
   private static final CurveName NAME_ISSUER_EUR = CurveName.of("TestIssuerCurve2");
@@ -109,11 +109,11 @@ public class LegalEntityDiscountingProviderDataSets {
   private static final InterpolatedNodalCurve CURVE_ZERO_REPO_EUR =
       InterpolatedNodalCurve.of(META_ZERO_REPO_EUR, REPO_TIME_EUR, REPO_RATE_EUR, INTERPOLATOR);
   private static final DiscountFactors DSC_FACTORS_ZERO_REPO_EUR =
-      ZeroRateDiscountFactors.of(EUR, VALUATION_EUR, CURVE_ZERO_REPO_EUR);
+      ZeroRateDiscountFactors.of(EUR, VAL_DATE_EUR, CURVE_ZERO_REPO_EUR);
   private static final InterpolatedNodalCurve CURVE_ZERO_ISSUER_EUR =
       InterpolatedNodalCurve.of(META_ZERO_ISSUER_EUR, ISSUER_TIME_EUR, ISSUER_RATE_EUR, INTERPOLATOR);
   private static final DiscountFactors DSC_FACTORS_ZERO_ISSUER_EUR =
-      ZeroRateDiscountFactors.of(EUR, VALUATION_EUR, CURVE_ZERO_ISSUER_EUR);
+      ZeroRateDiscountFactors.of(EUR, VAL_DATE_EUR, CURVE_ZERO_ISSUER_EUR);
 
   /** provider with zero rate curves, USD */
   public static final LegalEntityDiscountingProvider ISSUER_REPO_ZERO = LegalEntityDiscountingProvider.builder()

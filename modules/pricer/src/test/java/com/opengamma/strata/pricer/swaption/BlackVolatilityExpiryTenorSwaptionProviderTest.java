@@ -90,16 +90,16 @@ public class BlackVolatilityExpiryTenorSwaptionProviderTest {
   private static final InterpolatedNodalSurface SURFACE =
       InterpolatedNodalSurface.of(METADATA, TIME, TENOR, VOL, INTERPOLATOR_2D);
   private static final FixedIborSwapConvention CONVENTION = FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
-  private static final LocalDate VALUATION_DATE = date(2015, 2, 17);
-  private static final LocalTime VALUATION_TIME = LocalTime.of(13, 45);
+  private static final LocalDate VAL_DATE = date(2015, 2, 17);
+  private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
-  private static final ZonedDateTime VALUATION_DATE_TIME = VALUATION_DATE.atTime(VALUATION_TIME).atZone(LONDON_ZONE);
+  private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE);
   private static final BlackVolatilityExpiryTenorSwaptionProvider PROVIDER_WITH_PARAM =
       BlackVolatilityExpiryTenorSwaptionProvider.of(
-          SURFACE_WITH_PARAM, CONVENTION, ACT_365F, VALUATION_DATE, VALUATION_TIME, LONDON_ZONE);
+          SURFACE_WITH_PARAM, CONVENTION, ACT_365F, VAL_DATE, VAL_TIME, LONDON_ZONE);
   private static final BlackVolatilityExpiryTenorSwaptionProvider PROVIDER =
       BlackVolatilityExpiryTenorSwaptionProvider.of(
-          SURFACE, CONVENTION, ACT_365F, VALUATION_DATE, VALUATION_TIME, LONDON_ZONE);
+          SURFACE, CONVENTION, ACT_365F, VAL_DATE, VAL_TIME, LONDON_ZONE);
 
   private static final ZonedDateTime[] TEST_OPTION_EXPIRY = new ZonedDateTime[] {
       dateUtc(2015, 2, 17), dateUtc(2015, 5, 17), dateUtc(2015, 6, 17), dateUtc(2017, 2, 17)};
@@ -113,7 +113,7 @@ public class BlackVolatilityExpiryTenorSwaptionProviderTest {
 
   //-------------------------------------------------------------------------
   public void test_valuationDate() {
-    assertEquals(PROVIDER_WITH_PARAM.getValuationDateTime(), VALUATION_DATE_TIME);
+    assertEquals(PROVIDER_WITH_PARAM.getValuationDateTime(), VAL_DATE_TIME);
   }
 
   public void test_swapConvention() {
@@ -121,16 +121,16 @@ public class BlackVolatilityExpiryTenorSwaptionProviderTest {
   }
 
   public void test_tenor() {
-    double test1 = PROVIDER_WITH_PARAM.tenor(VALUATION_DATE, VALUATION_DATE);
+    double test1 = PROVIDER_WITH_PARAM.tenor(VAL_DATE, VAL_DATE);
     assertEquals(test1, 0d);
-    double test2 = PROVIDER_WITH_PARAM.tenor(VALUATION_DATE, date(2018, 2, 28));
+    double test2 = PROVIDER_WITH_PARAM.tenor(VAL_DATE, date(2018, 2, 28));
     assertEquals(test2, 3d);
-    double test3 = PROVIDER_WITH_PARAM.tenor(VALUATION_DATE, date(2018, 2, 10));
+    double test3 = PROVIDER_WITH_PARAM.tenor(VAL_DATE, date(2018, 2, 10));
     assertEquals(test3, 3d);
   }
 
   public void test_relativeTime() {
-    double test1 = PROVIDER_WITH_PARAM.relativeTime(VALUATION_DATE_TIME);
+    double test1 = PROVIDER_WITH_PARAM.relativeTime(VAL_DATE_TIME);
     assertEquals(test1, 0d);
     double test2 = PROVIDER_WITH_PARAM.relativeTime(date(2018, 2, 17).atStartOfDay(LONDON_ZONE));
     double test3 = PROVIDER_WITH_PARAM.relativeTime(date(2012, 2, 17).atStartOfDay(LONDON_ZONE));
@@ -163,9 +163,9 @@ public class BlackVolatilityExpiryTenorSwaptionProviderTest {
         InterpolatedNodalSurface paramDw =
             InterpolatedNodalSurface.of(METADATA_WITH_PARAM, TIME, TENOR, volDataDw, INTERPOLATOR_2D);
         BlackVolatilityExpiryTenorSwaptionProvider provUp = BlackVolatilityExpiryTenorSwaptionProvider.of(
-            paramUp, CONVENTION, ACT_365F, VALUATION_DATE_TIME);
+            paramUp, CONVENTION, ACT_365F, VAL_DATE_TIME);
         BlackVolatilityExpiryTenorSwaptionProvider provDw = BlackVolatilityExpiryTenorSwaptionProvider.of(
-            paramDw, CONVENTION, ACT_365F, VALUATION_DATE_TIME);
+            paramDw, CONVENTION, ACT_365F, VAL_DATE_TIME);
         double volUp = provUp.getVolatility(
             TEST_OPTION_EXPIRY[i], TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD);
         double volDw = provDw.getVolatility(
@@ -190,10 +190,10 @@ public class BlackVolatilityExpiryTenorSwaptionProviderTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     BlackVolatilityExpiryTenorSwaptionProvider test1 = BlackVolatilityExpiryTenorSwaptionProvider.of(
-        SURFACE_WITH_PARAM, CONVENTION, ACT_365F, VALUATION_DATE_TIME);
+        SURFACE_WITH_PARAM, CONVENTION, ACT_365F, VAL_DATE_TIME);
     coverImmutableBean(test1);
     BlackVolatilityExpiryTenorSwaptionProvider test2 = BlackVolatilityExpiryTenorSwaptionProvider.of(
-        SURFACE, CONVENTION, ACT_360, VALUATION_DATE);
+        SURFACE, CONVENTION, ACT_360, VAL_DATE);
     coverBeanEquals(test1, test2);
   }
 

@@ -66,9 +66,9 @@ public class SwaptionBlackVolatilityDataSets {
   private static final NodalSurface SURFACE_STD =
       InterpolatedNodalSurface.of(METADATA, TIMES, TENOR, BLACK_VOL, INTERPOLATOR_2D);
 
-  private static final LocalDate VALUATION_DATE_STD = LocalDate.of(2015, 8, 7);
-  private static final LocalTime VALUATION_TIME_STD = LocalTime.of(13, 45);
-  private static final ZoneId VALUATION_ZONE_STD = ZoneId.of("Europe/London");
+  private static final LocalDate VAL_DATE_STD = LocalDate.of(2015, 8, 7);
+  private static final LocalTime VAL_TIME_STD = LocalTime.of(13, 45);
+  private static final ZoneId VAL_ZONE_STD = ZoneId.of("Europe/London");
   private static final BusinessDayAdjustment MOD_FOL_US = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY);
   private static final FixedRateSwapLegConvention USD_FIXED_1Y_30U360 =
       FixedRateSwapLegConvention.of(USD, THIRTY_U_360, Frequency.P6M, MOD_FOL_US);
@@ -80,7 +80,7 @@ public class SwaptionBlackVolatilityDataSets {
   /** Black volatility provider */
   public static final BlackVolatilityExpiryTenorSwaptionProvider BLACK_VOL_SWAPTION_PROVIDER_USD_STD =
       BlackVolatilityExpiryTenorSwaptionProvider.of(SURFACE_STD, USD_1Y_LIBOR3M, DayCounts.ACT_365F,
-          VALUATION_DATE_STD, VALUATION_TIME_STD, VALUATION_ZONE_STD);
+          VAL_DATE_STD, VAL_TIME_STD, VAL_ZONE_STD);
 
   /** constant volatility */
   public static final double VOLATILITY = 0.20;
@@ -89,7 +89,7 @@ public class SwaptionBlackVolatilityDataSets {
   private static final NodalSurface CST_SURFACE = ConstantNodalSurface.of(META_DATA, VOLATILITY);
   /** flat Black volatility provider */
   public static final BlackVolatilityExpiryTenorSwaptionProvider BLACK_VOL_CST_SWAPTION_PROVIDER_USD =
-      BlackVolatilityExpiryTenorSwaptionProvider.of(CST_SURFACE, USD_FIXED_6M_LIBOR_3M, ACT_365F, VALUATION_DATE_STD,
-          VALUATION_TIME_STD, VALUATION_ZONE_STD);
+      BlackVolatilityExpiryTenorSwaptionProvider.of(CST_SURFACE, USD_FIXED_6M_LIBOR_3M, ACT_365F, VAL_DATE_STD,
+          VAL_TIME_STD, VAL_ZONE_STD);
 
 }

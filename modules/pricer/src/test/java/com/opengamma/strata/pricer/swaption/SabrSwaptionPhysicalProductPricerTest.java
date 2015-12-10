@@ -58,7 +58,8 @@ import com.opengamma.strata.product.swaption.SwaptionSettlement;
  */
 @Test
 public class SabrSwaptionPhysicalProductPricerTest {
-  private static final LocalDate VALUATION = LocalDate.of(2014, 1, 22);
+
+  private static final LocalDate VAL_DATE = LocalDate.of(2014, 1, 22);
   // swaptions
   private static final double NOTIONAL = 100000000; //100m
   private static final double RATE = 0.0350;
@@ -130,19 +131,19 @@ public class SabrSwaptionPhysicalProductPricerTest {
       .build();
   // providers
   private static final ImmutableRatesProvider RATE_PROVIDER =
-      SwaptionSabrRateVolatilityDataSet.getRatesProviderUsd(VALUATION);
+      SwaptionSabrRateVolatilityDataSet.getRatesProviderUsd(VAL_DATE);
   private static final ImmutableRatesProvider RATE_PROVIDER_AT_MATURITY =
       SwaptionSabrRateVolatilityDataSet.getRatesProviderUsd(MATURITY_DATE.toLocalDate());
   private static final ImmutableRatesProvider RATE_PROVIDER_AFTER_MATURITY =
       SwaptionSabrRateVolatilityDataSet.getRatesProviderUsd(MATURITY_DATE.toLocalDate().plusDays(1));
   private static final SabrVolatilitySwaptionProvider VOL_PROVIDER =
-      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderUsd(VALUATION, true);
+      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderUsd(VAL_DATE, true);
   private static final SabrVolatilitySwaptionProvider VOL_PROVIDER_AT_MATURITY =
       SwaptionSabrRateVolatilityDataSet.getVolatilityProviderUsd(MATURITY_DATE.toLocalDate(), true);
   private static final SabrVolatilitySwaptionProvider VOL_PROVIDER_AFTER_MATURITY =
       SwaptionSabrRateVolatilityDataSet.getVolatilityProviderUsd(MATURITY_DATE.toLocalDate().plusDays(1), true);
   private static final SabrVolatilitySwaptionProvider VOL_PROVIDER_REGRESSION =
-      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderUsd(VALUATION, false);
+      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderUsd(VAL_DATE, false);
   // test parameters and calculator
   private static final double TOL = 1.0e-13;
   private static final double FD_EPS = 1.0e-6;

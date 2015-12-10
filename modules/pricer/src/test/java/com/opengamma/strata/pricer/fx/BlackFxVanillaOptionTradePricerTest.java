@@ -56,13 +56,13 @@ public class BlackFxVanillaOptionTradePricerTest {
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM =
       new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
 
-  private static final LocalDate VALUATION_DATE = RatesProviderDataSets.VAL_DATE_2014_01_22;
-  private static final LocalTime VALUATION_TIME = LocalTime.of(13, 45);
+  private static final LocalDate VAL_DATE = RatesProviderDataSets.VAL_DATE_2014_01_22;
+  private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId ZONE = ZoneId.of("Z");
-  private static final ZonedDateTime VALUATION_DATE_TIME = VALUATION_DATE.atTime(VALUATION_TIME).atZone(ZONE);
+  private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(ZONE);
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, USD);
   private static final BlackVolatilitySmileFxProvider VOL_PROVIDER =
-      BlackVolatilitySmileFxProvider.of(SMILE_TERM, CURRENCY_PAIR, ACT_365F, VALUATION_DATE_TIME);
+      BlackVolatilitySmileFxProvider.of(SMILE_TERM, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
 
   private static final LocalDate PAYMENT_DATE = LocalDate.of(2014, 5, 13);
   private static final double NOTIONAL = 1.0e6;
@@ -85,7 +85,7 @@ public class BlackFxVanillaOptionTradePricerTest {
       .underlying(FX_PRODUCT)
       .strike(STRIKE)
       .build();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(VALUATION_DATE).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(VAL_DATE).build();
   private static final LocalDate CASH_SETTLE_DATE = LocalDate.of(2014, 1, 25);
   private static final Payment PREMIUM = Payment.of(EUR, NOTIONAL * 0.027, CASH_SETTLE_DATE);
   private static final FxVanillaOptionTrade OPTION_TRADE = FxVanillaOptionTrade.builder()
@@ -133,7 +133,7 @@ public class BlackFxVanillaOptionTradePricerTest {
   }
 
   public void test_currentCash_zero() {
-    assertEquals(PRICER_TRADE.currentCash(OPTION_TRADE, VALUATION_DATE), CurrencyAmount.zero(PREMIUM.getCurrency()));
+    assertEquals(PRICER_TRADE.currentCash(OPTION_TRADE, VAL_DATE), CurrencyAmount.zero(PREMIUM.getCurrency()));
   }
 
   public void test_currentCash_onSettle() {

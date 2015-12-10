@@ -90,12 +90,12 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
   }
   private static final InterpolatedNodalSurface SURFACE =
       InterpolatedNodalSurface.of(METADATA, TIME, MONEYNESS, VOL, INTERPOLATOR_2D);
-  private static final LocalDate VALUATION_DATE = RATE_PROVIDER.getValuationDate();
-  private static final LocalTime VALUATION_TIME = LocalTime.of(0, 0);
+  private static final LocalDate VAL_DATE = RATE_PROVIDER.getValuationDate();
+  private static final LocalTime VAL_TIME = LocalTime.of(0, 0);
   private static final ZoneId ZONE = OPTION_PRODUCT.getExpiryZone();
-  private static final ZonedDateTime VALUATION_DATE_TIME = VALUATION_DATE.atTime(VALUATION_TIME).atZone(ZONE);
+  private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(ZONE);
   private static final BlackVolatilityExpLogMoneynessBondFutureProvider VOL_PROVIDER =
-      BlackVolatilityExpLogMoneynessBondFutureProvider.of(SURFACE, FUTURE_SECURITY_ID, ACT_365F, VALUATION_DATE_TIME);
+      BlackVolatilityExpLogMoneynessBondFutureProvider.of(SURFACE, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);
   private static final double REFERENCE_PRICE = 0.01;
 
   private static final double TOL = 1.0E-13;
@@ -177,9 +177,9 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
       InterpolatedNodalSurface sfDw = InterpolatedNodalSurface.of(
           METADATA, TIME, MONEYNESS, DoubleArray.copyOf(volDw), INTERPOLATOR_2D);
       BlackVolatilityExpLogMoneynessBondFutureProvider provUp =
-          BlackVolatilityExpLogMoneynessBondFutureProvider.of(sfUp, FUTURE_SECURITY_ID, ACT_365F, VALUATION_DATE_TIME);
+          BlackVolatilityExpLogMoneynessBondFutureProvider.of(sfUp, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);
       BlackVolatilityExpLogMoneynessBondFutureProvider provDw =
-          BlackVolatilityExpLogMoneynessBondFutureProvider.of(sfDw, FUTURE_SECURITY_ID, ACT_365F, VALUATION_DATE_TIME);
+          BlackVolatilityExpLogMoneynessBondFutureProvider.of(sfDw, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);
       double expected = 0.5 * (valueFn.apply(provUp) - valueFn.apply(provDw)) / EPS;
       int index = -1;
       for (int j = 0; j < nVol; ++j) {
@@ -199,7 +199,7 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
     CurveCurrencyParameterSensitivities computed = RATE_PROVIDER.curveParameterSensitivity(point);
     double futurePrice = FUTURE_PRICER.price(OPTION_PRODUCT.getUnderlying(), RATE_PROVIDER);
     double strike = OPTION_PRODUCT.getStrikePrice();
-    double expiryTime = ACT_365F.relativeYearFraction(VALUATION_DATE, OPTION_PRODUCT.getExpiryDate());
+    double expiryTime = ACT_365F.relativeYearFraction(VAL_DATE, OPTION_PRODUCT.getExpiryDate());
     double logMoneyness = Math.log(strike / futurePrice);
     double logMoneynessUp = Math.log(strike / (futurePrice + EPS));
     double logMoneynessDw = Math.log(strike / (futurePrice - EPS));

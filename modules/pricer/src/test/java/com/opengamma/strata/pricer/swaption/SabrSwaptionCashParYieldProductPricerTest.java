@@ -79,7 +79,8 @@ import com.opengamma.strata.product.swaption.Swaption;
  */
 @Test
 public class SabrSwaptionCashParYieldProductPricerTest {
-  private static final ZonedDateTime VALUATION = dateUtc(2008, 8, 18);
+
+  private static final ZonedDateTime VAL_DATE_TIME = dateUtc(2008, 8, 18);
 
   private static final ZonedDateTime MATURITY = dateUtc(2014, 3, 18);
   private static final HolidayCalendar CALENDAR = HolidayCalendars.SAT_SUN;
@@ -215,15 +216,15 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       .build();
 
   private static final SabrVolatilitySwaptionProvider VOL_PROVIDER_REG =
-      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderEur(VALUATION.toLocalDate(), false);
+      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderEur(VAL_DATE_TIME.toLocalDate(), false);
   private static final SabrVolatilitySwaptionProvider VOL_PROVIDER =
-      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderEur(VALUATION.toLocalDate(), true);
+      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderEur(VAL_DATE_TIME.toLocalDate(), true);
   private static final SabrVolatilitySwaptionProvider VOL_PROVIDER_AT_MATURITY =
       SwaptionSabrRateVolatilityDataSet.getVolatilityProviderEur(MATURITY.toLocalDate(), true);
   private static final SabrVolatilitySwaptionProvider VOL_PROVIDER_AFTER_MATURITY =
       SwaptionSabrRateVolatilityDataSet.getVolatilityProviderEur(MATURITY.toLocalDate().plusDays(1), true);
   private static final ImmutableRatesProvider RATE_PROVIDER =
-      SwaptionSabrRateVolatilityDataSet.getRatesProviderEur(VALUATION.toLocalDate());
+      SwaptionSabrRateVolatilityDataSet.getRatesProviderEur(VAL_DATE_TIME.toLocalDate());
   private static final ImmutableRatesProvider RATE_PROVIDER_AT_MATURITY =
       SwaptionSabrRateVolatilityDataSet.getRatesProviderEur(MATURITY.toLocalDate());
   private static final ImmutableRatesProvider RATE_PROVIDER_AFTER_MATURITY =
