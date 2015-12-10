@@ -403,7 +403,7 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
   }
 
   private double[] toArray(ValueDerivatives valueDerivatives) {
-    double[] derivatives = valueDerivatives.getDerivatives();
+    double[] derivatives = valueDerivatives.getDerivatives().toArray();
     double[] res = new double[derivatives.length + 1];
     res[0] = valueDerivatives.getValue();
     System.arraycopy(derivatives, 0, res, 1, derivatives.length);

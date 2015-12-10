@@ -9,6 +9,7 @@ import java.util.function.Function;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 
@@ -92,23 +93,25 @@ public final class NormalPriceFunction {
       price = numeraire * (sign * (forward - strike) * nCDF + sigmaRootT * nPDF);
     }
     // Implementation Note: Backward sweep.
-    double[] priceDerivative = new double[3];
+    double forwardDerivative;
+    double volatilityDerivative;
+    double strikeDerivative;
     double priceBar = 1.0;
     if (sigmaRootT < NEAR_ZERO) {
       double xBar = (x > 0 ? numeraire : 0.0);
-      priceDerivative[0] = sign * xBar;
-      priceDerivative[2] = -priceDerivative[0];
-      priceDerivative[1] = 0.0;
+      forwardDerivative = sign * xBar;
+      strikeDerivative = -forwardDerivative;
+      volatilityDerivative = 0.0;
     } else {
       double nCDFBar = numeraire * (sign * (forward - strike)) * priceBar;
       double nPDFBar = numeraire * sigmaRootT * priceBar;
       double argBar = nPDF * nCDFBar - nPDF * arg * nPDFBar;
-      priceDerivative[0] = numeraire * sign * nCDF * priceBar + sign / sigmaRootT * argBar;
-      priceDerivative[2] = -priceDerivative[0];
+      forwardDerivative = numeraire * sign * nCDF * priceBar + sign / sigmaRootT * argBar;
+      strikeDerivative = -forwardDerivative;
       double sigmaRootTBar = -arg / sigmaRootT * argBar + numeraire * nPDF * priceBar;
-      priceDerivative[1] = Math.sqrt(t) * sigmaRootTBar;
+      volatilityDerivative = Math.sqrt(t) * sigmaRootTBar;
     }
-    return ValueDerivatives.of(price, priceDerivative);
+    return ValueDerivatives.of(price, DoubleArray.of(forwardDerivative, volatilityDerivative, strikeDerivative));
   }
 
   /**

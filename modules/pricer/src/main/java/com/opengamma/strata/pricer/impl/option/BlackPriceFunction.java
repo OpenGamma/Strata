@@ -9,6 +9,7 @@ import java.util.function.Function;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 
@@ -97,11 +98,7 @@ public final class BlackPriceFunction {
       volblackBar = density1 * omega * d1Bar;
       volatilityBar = sqrttheta * volblackBar;
     }
-    double[] priceAdjoint = new double[3];
-    priceAdjoint[0] = forwardBar;
-    priceAdjoint[1] = volatilityBar;
-    priceAdjoint[2] = strikeBar;
-    return ValueDerivatives.of(price, priceAdjoint);
+    return ValueDerivatives.of(price, DoubleArray.of(forwardBar, volatilityBar, strikeBar));
   }
 
   /**

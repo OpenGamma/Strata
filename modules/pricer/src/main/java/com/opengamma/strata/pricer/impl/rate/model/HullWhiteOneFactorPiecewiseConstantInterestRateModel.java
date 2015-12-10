@@ -95,7 +95,6 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
       double t0,
       double t1,
       double t2) {
-    double[] derivatives = new double[data.getVolatility().size()];
     double factor1 = Math.exp(-data.getMeanReversion() * t1) - Math.exp(-data.getMeanReversion() * t2);
     double numerator = 2 * data.getMeanReversion() * data.getMeanReversion() * data.getMeanReversion();
     int indexT0 = 1; // Period in which the time t0 is; volatilityTime[i-1] <= t0 < volatilityTime[i];
@@ -118,10 +117,11 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
     // Backward sweep 
     double factorBar = 1.0;
     double factor2Bar = factor1 / numerator * factor * factorBar;
+    double[] derivatives = new double[data.getVolatility().size()];
     for (int loopperiod = 0; loopperiod < indexT0; loopperiod++) {
       derivatives[loopperiod] = 2 * data.getVolatility().get(loopperiod) * factorExp[loopperiod] * factor2Bar;
     }
-    return ValueDerivatives.of(factor, derivatives);
+    return ValueDerivatives.of(factor, DoubleArray.ofUnsafe(derivatives));
   }
 
   /**
@@ -225,7 +225,6 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
       double endExpiry,
       double numeraireTime,
       double bondMaturity) {
-    double[] derivatives = new double[data.getVolatility().size()];
     // Forward sweep
     double factor1 = Math.exp(-data.getMeanReversion() * numeraireTime) -
         Math.exp(-data.getMeanReversion() * bondMaturity);
@@ -253,11 +252,12 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
     // Backward sweep 
     double alphaBar = 1.0;
     double factor2Bar = factor1 / sqrtFactor2Num / 2.0 / numerator * alphaBar;
+    double[] derivatives = new double[data.getVolatility().size()];
     for (int loopperiod = 0; loopperiod < sLen; loopperiod++) {
       derivatives[loopperiod + indexStart - 1] = 2 * data.getVolatility().get(loopperiod + indexStart - 1) *
           (exp2as[loopperiod + 1] - exp2as[loopperiod]) * factor2Bar;
     }
-    return ValueDerivatives.of(alpha, derivatives);
+    return ValueDerivatives.of(alpha, DoubleArray.ofUnsafe(derivatives));
   }
 
   /**
@@ -527,19 +527,19 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
     int sizeFixed = discountedCashFlowFixed.size();
     ArgChecker.isTrue(sizeIbor == alphaIbor.size(), "Length should be equal");
     ArgChecker.isTrue(sizeFixed == alphaFixed.size(), "Length should be equal");
-    double[] swapRateDdcfi1 = new double[sizeIbor];
     double denominator = 0.0;
     for (int loopcf = 0; loopcf < sizeFixed; loopcf++) {
       denominator += discountedCashFlowFixed.get(loopcf) *
           Math.exp(-alphaFixed.get(loopcf) * x - 0.5 * alphaFixed.get(loopcf) * alphaFixed.get(loopcf));
     }
     double numerator = 0.0;
+    double[] swapRateDdcfi1 = new double[sizeIbor];
     for (int loopcf = 0; loopcf < sizeIbor; loopcf++) {
       double exp = Math.exp(-alphaIbor.get(loopcf) * x - 0.5 * alphaIbor.get(loopcf) * alphaIbor.get(loopcf));
       swapRateDdcfi1[loopcf] = -exp / denominator;
       numerator += discountedCashFlowIbor.get(loopcf) * exp;
     }
-    return ValueDerivatives.of(-numerator / denominator, swapRateDdcfi1);
+    return ValueDerivatives.of(-numerator / denominator, DoubleArray.ofUnsafe(swapRateDdcfi1));
   }
 
   /**
@@ -579,7 +579,7 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
     for (int loopcf = 0; loopcf < sizeFixed; loopcf++) {
       swapRateDdcff1[loopcf] = ratio * expD[loopcf];
     }
-    return ValueDerivatives.of(-numerator / denominator, swapRateDdcff1);
+    return ValueDerivatives.of(-numerator / denominator, DoubleArray.ofUnsafe(swapRateDdcff1));
   }
 
   /**
@@ -603,19 +603,19 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
     int sizeFixed = discountedCashFlowFixed.size();
     ArgChecker.isTrue(sizeIbor == alphaIbor.size(), "Length should be equal");
     ArgChecker.isTrue(sizeFixed == alphaFixed.size(), "Length should be equal");
-    double[] swapRateDai1 = new double[sizeIbor];
     double denominator = 0.0;
     for (int loopcf = 0; loopcf < sizeFixed; loopcf++) {
       denominator += discountedCashFlowFixed.get(loopcf) *
           Math.exp(-alphaFixed.get(loopcf) * x - 0.5 * alphaFixed.get(loopcf) * alphaFixed.get(loopcf));
     }
     double numerator = 0.0;
+    double[] swapRateDai1 = new double[sizeIbor];
     for (int loopcf = 0; loopcf < sizeIbor; loopcf++) {
       double exp = Math.exp(-alphaIbor.get(loopcf) * x - 0.5 * alphaIbor.get(loopcf) * alphaIbor.get(loopcf));
       swapRateDai1[loopcf] = discountedCashFlowIbor.get(loopcf) * exp * (x + alphaIbor.get(loopcf)) / denominator;
       numerator += discountedCashFlowIbor.get(loopcf) * exp;
     }
-    return ValueDerivatives.of(-numerator / denominator, swapRateDai1);
+    return ValueDerivatives.of(-numerator / denominator, DoubleArray.ofUnsafe(swapRateDai1));
   }
 
   /**
@@ -656,7 +656,7 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
     for (int loopcf = 0; loopcf < sizeFixed; loopcf++) {
       swapRateDaf1[loopcf] = ratio * expD[loopcf] * (-x - alphaFixed.get(loopcf));
     }
-    return ValueDerivatives.of(-numerator / denominator, swapRateDaf1);
+    return ValueDerivatives.of(-numerator / denominator, DoubleArray.ofUnsafe(swapRateDaf1));
   }
 
   /**

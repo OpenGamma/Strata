@@ -153,7 +153,7 @@ public class BlackPriceFunctionTest {
     assertEquals("AD Second order: price", priceAdjoint.getValue(), bs, TOLERANCE_1);
     // First derivative
     for (int loopder = 0; loopder < 3; loopder++) {
-      assertEquals("AD Second order: 1st", priceAdjoint.getDerivatives()[loopder], bsD[loopder], TOLERANCE_1);
+      assertEquals("AD Second order: 1st", priceAdjoint.getDerivatives().get(loopder), bsD[loopder], TOLERANCE_1);
     }
     // Second derivative
     // Derivative forward-forward.

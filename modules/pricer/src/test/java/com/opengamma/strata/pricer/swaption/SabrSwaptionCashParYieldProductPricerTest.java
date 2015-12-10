@@ -478,7 +478,8 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     double expiry = VOL_PROVIDER.relativeTime(MATURITY);
     double volatility = VOL_PROVIDER.getVolatility(SWAPTION_REC_LONG.getExpiryDateTime(), TENOR_YEAR, RATE, forward);
     double df = RATE_PROVIDER.discountFactor(EUR, SETTLE);
-    double[] volSensi = VOL_PROVIDER.getParameters().getVolatilityAdjoint(expiry, TENOR_YEAR, RATE, forward).getDerivatives();
+    double[] volSensi =
+        VOL_PROVIDER.getParameters().getVolatilityAdjoint(expiry, TENOR_YEAR, RATE, forward).getDerivatives().toArray();
     double vegaRec = df * annuityCash * BlackFormulaRepository.vega(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
         RATE + SwaptionSabrRateVolatilityDataSet.SHIFT, expiry, volatility);
     double vegaPay = -df * annuityCash * BlackFormulaRepository.vega(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
