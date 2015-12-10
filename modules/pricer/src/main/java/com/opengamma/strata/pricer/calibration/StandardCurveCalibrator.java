@@ -112,8 +112,7 @@ final class StandardCurveCalibrator implements CurveCalibrator {
       MarketData marketData,
       Map<Index, LocalDateDoubleTimeSeries> timeSeries) {
 
-    ImmutableRatesProvider knownData = ImmutableRatesProvider.builder()
-        .valuationDate(valuationDate)
+    ImmutableRatesProvider knownData = ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(new MarketDataFxRateProvider(marketData))
         .timeSeries(timeSeries)
         .build();

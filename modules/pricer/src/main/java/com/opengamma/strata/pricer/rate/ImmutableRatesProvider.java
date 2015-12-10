@@ -50,6 +50,7 @@ import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.OvernightIndexRates;
 import com.opengamma.strata.market.value.PriceIndexValues;
+import org.joda.beans.BeanBuilder;
 
 /**
  * The default immutable rates provider, used to calculate analytic measures.
@@ -57,7 +58,7 @@ import com.opengamma.strata.market.value.PriceIndexValues;
  * This provides the environmental information against which pricing occurs.
  * This includes FX rates, discount factors and forward curves.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class ImmutableRatesProvider
     extends AbstractRatesProvider
     implements ImmutableBean, Serializable {
@@ -106,6 +107,43 @@ public final class ImmutableRatesProvider
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.fxRateProvider = FxMatrix.empty();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a builder specifying the valuation date.
+   * 
+   * @param valuationDate  the valuation date
+   * @return the builder
+   */
+  public static ImmutableRatesProviderBuilder builder(LocalDate valuationDate) {
+    return new ImmutableRatesProviderBuilder(valuationDate);
+  }
+
+  /**
+   * Converts this instance to a builder allowing changes to be made.
+   * 
+   * @return the builder
+   */
+  public ImmutableRatesProviderBuilder toBuilder() {
+    return toBuilder(valuationDate);
+  }
+
+  /**
+   * Converts this instance to a builder allowing changes to be made.
+   * <p>
+   * This overload allows the valuation date to be altered.
+   * 
+   * @param valuationDate  the new valuation date
+   * @return the builder
+   */
+  public ImmutableRatesProviderBuilder toBuilder(LocalDate valuationDate) {
+    return new ImmutableRatesProviderBuilder(valuationDate)
+        .fxRateProvider(fxRateProvider)
+        .discountCurves(discountCurves)
+        .indexCurves(indexCurves)
+        .priceIndexValues(priceIndexValues)
+        .timeSeries(timeSeries);
   }
 
   //-------------------------------------------------------------------------
@@ -215,14 +253,15 @@ public final class ImmutableRatesProvider
   }
 
   /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
+   * Creates an instance.
+   * @param valuationDate  the value of the property, not null
+   * @param fxRateProvider  the value of the property, not null
+   * @param discountCurves  the value of the property, not null
+   * @param indexCurves  the value of the property, not null
+   * @param priceIndexValues  the value of the property, not null
+   * @param timeSeries  the value of the property, not null
    */
-  public static ImmutableRatesProvider.Builder builder() {
-    return new ImmutableRatesProvider.Builder();
-  }
-
-  private ImmutableRatesProvider(
+  ImmutableRatesProvider(
       LocalDate valuationDate,
       FxRateProvider fxRateProvider,
       Map<Currency, Curve> discountCurves,
@@ -320,14 +359,6 @@ public final class ImmutableRatesProvider
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -453,7 +484,7 @@ public final class ImmutableRatesProvider
     }
 
     @Override
-    public ImmutableRatesProvider.Builder builder() {
+    public BeanBuilder<? extends ImmutableRatesProvider> builder() {
       return new ImmutableRatesProvider.Builder();
     }
 
@@ -551,7 +582,7 @@ public final class ImmutableRatesProvider
   /**
    * The bean-builder for {@code ImmutableRatesProvider}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<ImmutableRatesProvider> {
+  private static final class Builder extends DirectFieldsBeanBuilder<ImmutableRatesProvider> {
 
     private LocalDate valuationDate;
     private FxRateProvider fxRateProvider;
@@ -565,19 +596,6 @@ public final class ImmutableRatesProvider
      */
     private Builder() {
       applyDefaults(this);
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(ImmutableRatesProvider beanToCopy) {
-      this.valuationDate = beanToCopy.getValuationDate();
-      this.fxRateProvider = beanToCopy.getFxRateProvider();
-      this.discountCurves = beanToCopy.getDiscountCurves();
-      this.indexCurves = beanToCopy.getIndexCurves();
-      this.priceIndexValues = beanToCopy.getPriceIndexValues();
-      this.timeSeries = beanToCopy.getTimeSeries();
     }
 
     //-----------------------------------------------------------------------
@@ -662,79 +680,6 @@ public final class ImmutableRatesProvider
           indexCurves,
           priceIndexValues,
           timeSeries);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the valuation date.
-     * All curves and other data items in this provider are calibrated for this date.
-     * @param valuationDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder valuationDate(LocalDate valuationDate) {
-      JodaBeanUtils.notNull(valuationDate, "valuationDate");
-      this.valuationDate = valuationDate;
-      return this;
-    }
-
-    /**
-     * Sets the provider of foreign exchange rates.
-     * Conversions where both currencies are the same always succeed.
-     * @param fxRateProvider  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder fxRateProvider(FxRateProvider fxRateProvider) {
-      JodaBeanUtils.notNull(fxRateProvider, "fxRateProvider");
-      this.fxRateProvider = fxRateProvider;
-      return this;
-    }
-
-    /**
-     * Sets the discount curves, defaulted to an empty map.
-     * The curve data, predicting the future, associated with each currency.
-     * @param discountCurves  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder discountCurves(Map<Currency, Curve> discountCurves) {
-      JodaBeanUtils.notNull(discountCurves, "discountCurves");
-      this.discountCurves = discountCurves;
-      return this;
-    }
-
-    /**
-     * Sets the forward curves, defaulted to an empty map.
-     * The curve data, predicting the future, associated with each index.
-     * @param indexCurves  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder indexCurves(Map<Index, Curve> indexCurves) {
-      JodaBeanUtils.notNull(indexCurves, "indexCurves");
-      this.indexCurves = indexCurves;
-      return this;
-    }
-
-    /**
-     * Sets the price index values, defaulted to an empty map.
-     * The curve data, predicting the future, associated with each index.
-     * @param priceIndexValues  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder priceIndexValues(Map<PriceIndex, PriceIndexValues> priceIndexValues) {
-      JodaBeanUtils.notNull(priceIndexValues, "priceIndexValues");
-      this.priceIndexValues = priceIndexValues;
-      return this;
-    }
-
-    /**
-     * Sets the time-series, defaulted to an empty map.
-     * The historic data associated with each index.
-     * @param timeSeries  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder timeSeries(Map<Index, LocalDateDoubleTimeSeries> timeSeries) {
-      JodaBeanUtils.notNull(timeSeries, "timeSeries");
-      this.timeSeries = timeSeries;
-      return this;
     }
 
     //-----------------------------------------------------------------------

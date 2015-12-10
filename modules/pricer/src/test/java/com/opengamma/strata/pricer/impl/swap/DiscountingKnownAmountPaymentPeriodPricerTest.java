@@ -14,7 +14,6 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
@@ -219,9 +218,8 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_currencyExposure() {
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
-        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
+        .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .build();
     MultiCurrencyAmount computed = PRICER.currencyExposure(PERIOD, prov);
     PointSensitivities point = PRICER.presentValueSensitivity(PERIOD, prov).build();
@@ -231,18 +229,16 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
   }
 
   public void test_currentCash_zero() {
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
-        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
+        .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .build();
     double computed = PRICER.currentCash(PERIOD, prov);
     assertEquals(computed, 0d);
   }
 
   public void test_currentCash_onPayment() {
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(PERIOD.getPaymentDate())
-        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder(PERIOD.getPaymentDate())
+        .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .build();
     double computed = PRICER.currentCash(PERIOD, prov);
     assertEquals(computed, AMOUNT_1000);

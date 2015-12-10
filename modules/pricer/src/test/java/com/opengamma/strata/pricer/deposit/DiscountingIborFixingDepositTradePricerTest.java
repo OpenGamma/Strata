@@ -17,7 +17,6 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -68,10 +67,9 @@ public class DiscountingIborFixingDepositTradePricerTest {
     DoubleArray rate_index = DoubleArray.of(0.0180, 0.0180, 0.0175, 0.0165);
     InterpolatedNodalCurve indexCurve =
         InterpolatedNodalCurve.of(Curves.zeroRates("EUR-EURIBOR6M", ACT_ACT_ISDA), time_index, rate_index, interp);
-    IMM_PROV = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
-        .discountCurves(ImmutableMap.of(EUR, dscCurve))
-        .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, indexCurve))
+    IMM_PROV = ImmutableRatesProvider.builder(VAL_DATE)
+        .discountCurve(EUR, dscCurve)
+        .iborIndexCurve(EUR_EURIBOR_6M, indexCurve)
         .build();
   }
   

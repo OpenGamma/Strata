@@ -19,7 +19,6 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -71,9 +70,8 @@ public class DiscountingTermDepositProductPricerTest {
     DoubleArray rate_eur = DoubleArray.of(0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210);
     InterpolatedNodalCurve dscCurve =
         InterpolatedNodalCurve.of(Curves.zeroRates("EUR-Discount", ACT_360), time_eur, rate_eur, interp);
-    IMM_PROV = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
-        .discountCurves(ImmutableMap.of(EUR, dscCurve))
+    IMM_PROV = ImmutableRatesProvider.builder(VAL_DATE)
+        .discountCurve(EUR, dscCurve)
         .build();
   }
   private static final double DF_START = 0.99;

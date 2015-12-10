@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -155,10 +154,9 @@ public class SwaptionSabrRateVolatilityDataSet {
    * @return the rates provider
    */
   public static ImmutableRatesProvider getRatesProviderUsd(LocalDate valuationDate) {
-    return ImmutableRatesProvider.builder()
-        .discountCurves(ImmutableMap.of(USD, CURVE_DSC_USD))
-        .indexCurves(ImmutableMap.of(USD_LIBOR_3M, CURVE_FWD_USD))
-        .valuationDate(valuationDate)
+    return ImmutableRatesProvider.builder(valuationDate)
+        .discountCurve(USD, CURVE_DSC_USD)
+        .iborIndexCurve(USD_LIBOR_3M, CURVE_FWD_USD)
         .build();
   }
 
@@ -258,10 +256,9 @@ public class SwaptionSabrRateVolatilityDataSet {
    * @return the rates provider
    */
   public static ImmutableRatesProvider getRatesProviderEur(LocalDate valuationDate) {
-    return ImmutableRatesProvider.builder()
-        .discountCurves(ImmutableMap.of(EUR, CURVE_DSC_EUR))
-        .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, CURVE_FWD_EUR))
-        .valuationDate(valuationDate)
+    return ImmutableRatesProvider.builder(valuationDate)
+        .discountCurve(EUR, CURVE_DSC_EUR)
+        .iborIndexCurve(EUR_EURIBOR_6M, CURVE_FWD_EUR)
         .build();
   }
 

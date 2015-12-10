@@ -117,8 +117,7 @@ public class ForwardInflationMonthlyRateObservationFnTest {
     InterpolatedNodalCurve curve = InterpolatedNodalCurve.of(
         Curves.prices("GB-RPIX"), DoubleArray.of(4, 16), DoubleArray.of(rateStart, rateEnd), INTERPOLATOR);
     ForwardPriceIndexValues values = ForwardPriceIndexValues.of(GB_RPIX, VAL_DATE, timeSeries, curve);
-    return ImmutableRatesProvider.builder()
-        .valuationDate(DUMMY_ACCRUAL_END_DATE)
+    return ImmutableRatesProvider.builder(VAL_DATE)
         .priceIndexValues(ImmutableMap.of(GB_RPIX, values))
         .build();
   }

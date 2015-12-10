@@ -11,8 +11,6 @@ import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 
 import java.time.LocalDate;
 
-import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.id.StandardId;
@@ -69,11 +67,9 @@ public class HullWhiteIborFutureDataSet {
   private static final InterpolatedNodalCurve FWD3_CURVE =
       InterpolatedNodalCurve.of(META_FWD3, FWD3_TIME, FWD3_RATE, INTERPOLATOR);
   /**  Rates provider  */
-  public static final ImmutableRatesProvider RATE_PROVIDER = ImmutableRatesProvider.builder()
-      .discountCurves(ImmutableMap.of(EUR, DSC_CURVE))
-      .indexCurves(ImmutableMap.of(EUR_EURIBOR_3M, FWD3_CURVE))
-      .fxRateProvider(FxMatrix.empty())
-      .valuationDate(VAL_DATE)
+  public static final ImmutableRatesProvider RATE_PROVIDER = ImmutableRatesProvider.builder(VAL_DATE)
+      .discountCurve(EUR, DSC_CURVE)
+      .iborIndexCurve(EUR_EURIBOR_3M, FWD3_CURVE)
       .build();
 
   /*

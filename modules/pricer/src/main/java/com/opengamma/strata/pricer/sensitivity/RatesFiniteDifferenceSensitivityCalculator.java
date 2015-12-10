@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.sensitivity;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.joda.beans.MetaProperty;
@@ -76,20 +77,28 @@ public class RatesFiniteDifferenceSensitivityCalculator {
 
     CurrencyAmount valueInit = valueFn.apply(provider);
     CurveCurrencyParameterSensitivities discounting = sensitivity(
-        provider, valueFn, ImmutableRatesProvider.meta().discountCurves(), valueInit);
+        provider,
+        provider.getDiscountCurves(),
+        (base, bumped) -> base.toBuilder().discountCurves(bumped).build(),
+        valueFn,
+        valueInit);
     CurveCurrencyParameterSensitivities forward = sensitivity(
-        provider, valueFn, ImmutableRatesProvider.meta().indexCurves(), valueInit);
+        provider,
+        provider.getIndexCurves(),
+        (base, bumped) -> base.toBuilder().indexCurves(bumped).build(),
+        valueFn,
+        valueInit);
     return discounting.combinedWith(forward);
   }
 
   // computes the sensitivity with respect to the curves
   private <T> CurveCurrencyParameterSensitivities sensitivity(
       ImmutableRatesProvider provider,
+      Map<T, Curve> baseCurves,
+      BiFunction<ImmutableRatesProvider, Map<T, Curve>, ImmutableRatesProvider> storeBumpedFn,
       Function<ImmutableRatesProvider, CurrencyAmount> valueFn,
-      MetaProperty<? extends Map<T, Curve>> metaProperty,
       CurrencyAmount valueInit) {
 
-    Map<T, Curve> baseCurves = metaProperty.get(provider);
     CurveCurrencyParameterSensitivities result = CurveCurrencyParameterSensitivities.empty();
     for (Entry<T, Curve> entry : baseCurves.entrySet()) {
       NodalCurve curveInt = entry.getValue().toNodalCurve();
@@ -98,7 +107,7 @@ public class RatesFiniteDifferenceSensitivityCalculator {
         Curve dscBumped = bumpedCurve(curveInt, i);
         Map<T, Curve> mapBumped = new HashMap<>(baseCurves);
         mapBumped.put(entry.getKey(), dscBumped);
-        ImmutableRatesProvider providerDscBumped = provider.toBuilder().set(metaProperty, mapBumped).build();
+        ImmutableRatesProvider providerDscBumped = storeBumpedFn.apply(provider, mapBumped);
         return (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
       });
       CurveMetadata metadata = entry.getValue().getMetadata();
