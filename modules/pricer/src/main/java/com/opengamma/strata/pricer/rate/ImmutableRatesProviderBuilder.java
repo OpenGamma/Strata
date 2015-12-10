@@ -109,9 +109,9 @@ public final class ImmutableRatesProviderBuilder {
    * @param discountCurves  the discount curves
    * @return this, for chaining
    */
-  public ImmutableRatesProviderBuilder discountCurves(Map<Currency, Curve> discountCurves) {
+  public ImmutableRatesProviderBuilder discountCurves(Map<Currency, ? extends Curve> discountCurves) {
     ArgChecker.notNull(discountCurves, "discountCurves");
-    for (Entry<Currency, Curve> entry : discountCurves.entrySet()) {
+    for (Entry<Currency, ? extends Curve> entry : discountCurves.entrySet()) {
       discountCurve(entry.getKey(), entry.getValue());
     }
     return this;
@@ -129,14 +129,14 @@ public final class ImmutableRatesProviderBuilder {
    * @return this, for chaining
    */
   public ImmutableRatesProviderBuilder iborIndexCurve(IborIndex index, Curve forwardCurve) {
-    ArgChecker.notNull(index, "currency");
+    ArgChecker.notNull(index, "index");
     ArgChecker.notNull(forwardCurve, "forwardCurve");
     this.indexCurves.put(index, forwardCurve);
     return this;
   }
 
   /**
-   * Adds a index forward curve to the provider with associated time-series.
+   * Adds an index forward curve to the provider with associated time-series.
    * <p>
    * This adds the specified forward curve and time-series to the provider.
    * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
@@ -151,7 +151,7 @@ public final class ImmutableRatesProviderBuilder {
       Curve forwardCurve,
       LocalDateDoubleTimeSeries timeSeries) {
 
-    ArgChecker.notNull(index, "currency");
+    ArgChecker.notNull(index, "index");
     ArgChecker.notNull(forwardCurve, "forwardCurve");
     ArgChecker.notNull(timeSeries, "timeSeries");
     this.indexCurves.put(index, forwardCurve);
@@ -171,14 +171,14 @@ public final class ImmutableRatesProviderBuilder {
    * @return this, for chaining
    */
   public ImmutableRatesProviderBuilder overnightIndexCurve(OvernightIndex index, Curve forwardCurve) {
-    ArgChecker.notNull(index, "currency");
+    ArgChecker.notNull(index, "index");
     ArgChecker.notNull(forwardCurve, "forwardCurve");
     this.indexCurves.put(index, forwardCurve);
     return this;
   }
 
   /**
-   * Adds a index forward curve to the provider with associated time-series.
+   * Adds an index forward curve to the provider with associated time-series.
    * <p>
    * This adds the specified forward curve and time-series to the provider.
    * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
@@ -193,7 +193,7 @@ public final class ImmutableRatesProviderBuilder {
       Curve forwardCurve,
       LocalDateDoubleTimeSeries timeSeries) {
 
-    ArgChecker.notNull(index, "currency");
+    ArgChecker.notNull(index, "index");
     ArgChecker.notNull(forwardCurve, "forwardCurve");
     ArgChecker.notNull(timeSeries, "timeSeries");
     this.indexCurves.put(index, forwardCurve);
@@ -211,9 +211,9 @@ public final class ImmutableRatesProviderBuilder {
    * @param indexCurves  the index forward curves
    * @return this, for chaining
    */
-  public ImmutableRatesProviderBuilder indexCurves(Map<Index, Curve> indexCurves) {
+  public ImmutableRatesProviderBuilder indexCurves(Map<? extends Index, ? extends Curve> indexCurves) {
     ArgChecker.noNulls(indexCurves, "indexCurves");
-    for (Entry<Index, Curve> entry : indexCurves.entrySet()) {
+    for (Entry<? extends Index, ? extends Curve> entry : indexCurves.entrySet()) {
       Index index = entry.getKey();
       if (index instanceof IborIndex) {
         iborIndexCurve((IborIndex) index, entry.getValue());
@@ -237,11 +237,11 @@ public final class ImmutableRatesProviderBuilder {
    * @return this, for chaining
    */
   public ImmutableRatesProviderBuilder indexCurves(
-      Map<Index, Curve> indexCurves,
-      Map<Index, LocalDateDoubleTimeSeries> timeSeries) {
+      Map<? extends Index, ? extends Curve> indexCurves,
+      Map<? extends Index, LocalDateDoubleTimeSeries> timeSeries) {
 
     ArgChecker.noNulls(indexCurves, "indexCurves");
-    for (Entry<Index, Curve> entry : indexCurves.entrySet()) {
+    for (Entry<? extends Index, ? extends Curve> entry : indexCurves.entrySet()) {
       Index index = entry.getKey();
       LocalDateDoubleTimeSeries ts = timeSeries.get(index);
       ts = (ts != null ? ts : LocalDateDoubleTimeSeries.empty());
@@ -288,7 +288,9 @@ public final class ImmutableRatesProviderBuilder {
    * @return this, for chaining
    * @throws IllegalArgumentException if the valuation date does not match
    */
-  public ImmutableRatesProviderBuilder priceIndexValues(Map<PriceIndex, PriceIndexValues> priceIndexValues) {
+  public ImmutableRatesProviderBuilder priceIndexValues(
+      Map<? extends PriceIndex, ? extends PriceIndexValues> priceIndexValues) {
+
     ArgChecker.notNull(priceIndexValues, "priceIndexValues");
     for (PriceIndexValues piv : priceIndexValues.values()) {
       checkValuationDate(piv.getValuationDate());
@@ -324,7 +326,7 @@ public final class ImmutableRatesProviderBuilder {
    * @param timeSeries  the FX index time-series
    * @return this, for chaining
    */
-  public ImmutableRatesProviderBuilder timeSeries(Map<Index, LocalDateDoubleTimeSeries> timeSeries) {
+  public ImmutableRatesProviderBuilder timeSeries(Map<? extends Index, LocalDateDoubleTimeSeries> timeSeries) {
     ArgChecker.noNulls(timeSeries, "timeSeries");
     this.timeSeries.putAll(timeSeries);
     return this;
