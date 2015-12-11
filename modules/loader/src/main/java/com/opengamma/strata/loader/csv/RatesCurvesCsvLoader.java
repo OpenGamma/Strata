@@ -97,7 +97,6 @@ public final class RatesCurvesCsvLoader {
       "df", ValueType.DISCOUNT_FACTOR);
 
   //-------------------------------------------------------------------------
-
   /**
    * Loads one or more CSV format curve files for a specific date.
    * <p>

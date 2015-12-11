@@ -129,6 +129,7 @@ public class HistoricalScenarioExample {
       Map<LocalDate, CurveGroup> historicalCurves,
       List<LocalDate> scenarioDates) {
 
+    // extract the curves to perturb
     List<NodalCurve> usdDiscountCurves = scenarioDates.stream()
         .map(date -> historicalCurves.get(date))
         .map(group -> group.findDiscountCurve(Currency.USD).get())

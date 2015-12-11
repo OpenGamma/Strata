@@ -92,11 +92,11 @@ public final class CurveGroupDefinitionCsvLoader {
   // parses the identifier
   private static CurveId createCurveId(CurveGroupName curveGroup, String curveTypeStr, String referenceStr) {
     // discount and forward curves are supported
-    if (FORWARD.equals(curveTypeStr.toLowerCase(Locale.ENGLISH))) {
+    if (FORWARD.equalsIgnoreCase(curveTypeStr.toLowerCase(Locale.ENGLISH))) {
       Index index = LoaderUtils.findIndex(referenceStr);
       return createCurveId(index, curveGroup);
 
-    } else if (DISCOUNT.equals(curveTypeStr.toLowerCase(Locale.ENGLISH))) {
+    } else if (DISCOUNT.equalsIgnoreCase(curveTypeStr.toLowerCase(Locale.ENGLISH))) {
       Currency ccy = Currency.of(referenceStr);
       return DiscountCurveId.of(ccy, curveGroup);
 
@@ -105,6 +105,7 @@ public final class CurveGroupDefinitionCsvLoader {
     }
   }
 
+  // creates a forward curve id
   private static CurveId createCurveId(Index index, CurveGroupName curveGroup) {
     if (index instanceof PriceIndex) {
       return PriceIndexCurveId.of((PriceIndex) index, curveGroup);

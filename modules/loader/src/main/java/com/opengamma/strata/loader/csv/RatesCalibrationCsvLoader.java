@@ -167,8 +167,7 @@ public final class RatesCalibrationCsvLoader {
     List<CurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.loadCurveGroups(groupsResource);
     Map<CurveName, LoadedCurveSettings> settingsMap = RatesCurvesCsvLoader.loadCurveSettings(settingsResource);
 
-    // load curves
-    // builder ensures keys can only be seen once
+    // load curve definitions
     List<NodalCurveDefinition> curveDefinitions = curveResources.stream()
         .flatMap(res -> loadSingle(res, settingsMap).stream())
         .collect(toImmutableList());
