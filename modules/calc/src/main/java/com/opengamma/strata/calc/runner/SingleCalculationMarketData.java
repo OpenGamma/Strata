@@ -14,7 +14,7 @@ import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
- * A set of market data providing access to a single scenario.
+ * A single scenario view of multi-scenario market data.
  * <p>
  * This wraps an instance of {@link CalculationMarketData} which contains market data for multiple scenarios.
  * This object returns market data from one of those scenarios. The scenario used as the source of the
@@ -46,7 +46,7 @@ public final class SingleCalculationMarketData implements MarketData {
   }
 
   @Override
-  public <T> boolean containsValue(MarketDataKey<T> key) {
+  public boolean containsValue(MarketDataKey<?> key) {
     return marketData.containsValue(key);
   }
 

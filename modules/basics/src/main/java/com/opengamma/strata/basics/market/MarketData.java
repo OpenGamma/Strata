@@ -6,6 +6,7 @@
 package com.opengamma.strata.basics.market;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
@@ -16,10 +17,38 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  * All data is valid for a single date, defined by {@link #getValuationDate()}.
  * When performing calculations with scenarios, only the data of a single scenario is accessible.
  * <p>
- * See {@link ImmutableMarketData} for a standalone implementation.
+ * The standard implementation is {@link ImmutableMarketData}.
  */
 public interface MarketData {
 
+  /**
+   * Obtains a {@code MarketData} from a valuation date and map of values.
+   *
+   * @param valuationDate  the valuation date associated with the market data
+   * @param values  the market data values
+   * @return a set of market data containing the values in the map
+   */
+  public static MarketData of(LocalDate valuationDate, Map<? extends MarketDataKey<?>, ?> values) {
+    return ImmutableMarketData.of(valuationDate, values);
+  }
+
+  /**
+   * Obtains a {@code MarketData} from a valuation date, map of values and time-series.
+   *
+   * @param valuationDate  the valuation date associated with the market data
+   * @param values  the market data values
+   * @param timeSeries  the time-series
+   * @return a set of market data containing the values and time-series
+   */
+  public static MarketData of(
+      LocalDate valuationDate,
+      Map<? extends MarketDataKey<?>, ?> values,
+      Map<? extends ObservableKey, LocalDateDoubleTimeSeries> timeSeries) {
+
+    return ImmutableMarketData.builder(valuationDate).values(values).timeSeries(timeSeries).build();
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the valuation date of the market data.
    * <p>
@@ -33,11 +62,10 @@ public interface MarketData {
   /**
    * Checks if this set of data contains a value for the specified key.
    *
-   * @param <T>  the type of the market data
    * @param key  the key identifying the item of market data
    * @return true if this set of data contains a value for the specified key
    */
-  public abstract <T> boolean containsValue(MarketDataKey<T> key);
+  public abstract boolean containsValue(MarketDataKey<?> key);
 
   /**
    * Gets the market data value identified by the specified key.
@@ -48,7 +76,6 @@ public interface MarketData {
    * @param key  the key identifying the item of market data
    * @return the market data value
    * @throws IllegalArgumentException if no value is found
-   * @throws RuntimeException if an unexpected error occurs
    */
   public abstract <T> T getValue(MarketDataKey<T> key);
 
@@ -66,7 +93,6 @@ public interface MarketData {
    *
    * @param key  the key identifying the item of market data
    * @return the time-series, empty if no time-series found
-   * @throws RuntimeException if an unexpected error occurs
    */
   public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key);
 

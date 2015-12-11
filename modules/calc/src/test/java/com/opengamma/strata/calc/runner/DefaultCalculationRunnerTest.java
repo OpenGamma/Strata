@@ -7,6 +7,7 @@ package com.opengamma.strata.calc.runner;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -38,6 +39,7 @@ import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
+import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.TestKey;
 import com.opengamma.strata.calc.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
@@ -158,13 +160,13 @@ public class DefaultCalculationRunnerTest {
     DefaultCalculationRunner runner = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
     LocalDate valuationDate = date(2011, 3, 8);
 
-    CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
     Results results1 = runner.calculateSingleScenario(tasks, marketData);
     Result<?> result1 = results1.get(0, 0);
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
-    CalculationEnvironment scenarioMarketData = CalculationEnvironment.builder().valuationDate(valuationDate).build();
+    CalculationEnvironment scenarioMarketData = MarketEnvironment.builder().valuationDate(valuationDate).build();
     Results results2 = runner.calculateMultipleScenarios(tasks, scenarioMarketData);
     Result<?> result2 = results2.get(0, 0);
     // Check the result contains the scenario result wrapping the string
@@ -185,14 +187,14 @@ public class DefaultCalculationRunnerTest {
     LocalDate valuationDate = date(2011, 3, 8);
     Listener listener = new Listener();
 
-    CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
     runner.calculateSingleScenarioAsync(tasks, marketData, listener);
     CalculationResult calculationResult1 = listener.result;
     Result<?> result1 = calculationResult1.getResult();
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
-    CalculationEnvironment scenarioMarketData = CalculationEnvironment.builder().valuationDate(valuationDate).build();
+    CalculationEnvironment scenarioMarketData = MarketEnvironment.builder().valuationDate(valuationDate).build();
     runner.calculateMultipleScenariosAsync(tasks, scenarioMarketData, listener);
     CalculationResult calculationResult2 = listener.result;
     Result<?> result2 = calculationResult2.getResult();

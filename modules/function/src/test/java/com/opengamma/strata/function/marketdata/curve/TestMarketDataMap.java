@@ -46,7 +46,7 @@ public final class TestMarketDataMap implements CalculationMarketData {
   }
 
   @Override
-  public <T> boolean containsValue(MarketDataKey<T> key) {
+  public boolean containsValue(MarketDataKey<?> key) {
     return valueMap.containsKey(key);
   }
 

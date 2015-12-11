@@ -23,13 +23,15 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  * multiple curve groups, each with a USD discounting curve.
  * <p>
  * Typically a set of {@link MarketDataRules} are used to choose the item of market data from the global set.
+ * <p>
+ * The standard implementation is {@link DefaultCalculationMarketData}.
  */
 public interface CalculationMarketData {
 
   /**
-   * Gets the valuation dates of the scenarios, one for each scenario.
+   * Gets a box that can provide the valuation date of each scenario.
    *
-   * @return the valuation dates of the scenarios, one for each scenario
+   * @return the valuation dates of the scenarios
    */
   public abstract MarketDataBox<LocalDate> getValuationDate();
 
@@ -44,22 +46,18 @@ public interface CalculationMarketData {
   /**
    * Checks if this set of data contains a value for the specified key.
    *
-   * @param <T>  the type of the market data
    * @param key  the key identifying the item of market data
    * @return true if this set of data contains a value for the specified key
    */
-  public abstract <T> boolean containsValue(MarketDataKey<T> key);
+  public abstract boolean containsValue(MarketDataKey<?> key);
 
   /**
    * Gets a box that can provide an item of market data for a scenario.
-   * <p>
-   * The market data is valid for the valuation date.
    *
    * @param <T>  the type of the market data
    * @param key  the key identifying the item of market data
    * @return the box providing access to the market data values for each scenario
    * @throws IllegalArgumentException if no value is found
-   * @throws RuntimeException if an unexpected error occurs
    */
   public abstract <T> MarketDataBox<T> getValue(MarketDataKey<T> key);
 
@@ -84,7 +82,6 @@ public interface CalculationMarketData {
    * @param <U>  the type of the object containing the market data for all scenarios
    * @return an object containing market data for multiple scenarios
    * @throws IllegalArgumentException if no value is found
-   * @throws RuntimeException if an unexpected error occurs
    */
   @SuppressWarnings("unchecked")
   public default <T, U extends ScenarioMarketDataValue<T>> U getScenarioValue(ScenarioMarketDataKey<T, U> key) {
@@ -118,7 +115,6 @@ public interface CalculationMarketData {
    *
    * @param key  the key identifying the item of market data
    * @return the time-series, empty if no time-series found
-   * @throws RuntimeException if an unexpected error occurs
    */
   public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key);
 

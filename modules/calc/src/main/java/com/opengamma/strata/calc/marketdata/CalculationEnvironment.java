@@ -19,13 +19,15 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
  * A interface for looking up items of market data by ID, used when building market data.
+ * <p>
+ * The standard implementation is {@link MarketEnvironment}.
  */
 public interface CalculationEnvironment {
 
   /**
-   * Gets the valuation dates of the scenarios, one for each scenario.
+   * Gets a box that can provide the valuation date of each scenario.
    *
-   * @return the valuation dates of the scenarios, one for each scenario
+   * @return the valuation dates of the scenarios
    */
   public abstract MarketDataBox<LocalDate> getValuationDate();
 
@@ -40,22 +42,18 @@ public interface CalculationEnvironment {
   /**
    * Checks if this set of data contains a value for the specified ID.
    *
-   * @param <T>  the type of the market data
    * @param id  the ID identifying the item of market data
    * @return true if this set of data contains a value for the specified ID and it is of the expected type
    */
-  public abstract <T> boolean containsValue(MarketDataId<T> id);
+  public abstract boolean containsValue(MarketDataId<?> id);
 
   /**
    * Gets a box that can provide an item of market data for a scenario.
-   * <p>
-   * The market data is valid for the valuation date.
    *
    * @param <T>  the type of the market data
    * @param id  the ID identifying the item of market data
    * @return the box providing access to the market data values for each scenario
    * @throws IllegalArgumentException if no value is found
-   * @throws RuntimeException if an unexpected error occurs
    */
   public abstract <T> MarketDataBox<T> getValue(MarketDataId<T> id);
 
@@ -89,20 +87,10 @@ public interface CalculationEnvironment {
    *
    * @param id  the ID identifying the item of market data
    * @return the time-series, empty if no time-series found
-   * @throws RuntimeException if an unexpected error occurs
    */
   public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableId id);
 
   //-------------------------------------------------------------------------
-  /**
-   * Returns a mutable builder for building a {@code CalculationEnvironment}.
-   *
-   * @return a mutable builder for building a {@code CalculationEnvironment}
-   */
-  public static MarketEnvironmentBuilder builder() {
-    return MarketEnvironment.builder();
-  }
-
   /**
    * Returns a {@code CalculationEnvironment} containing no data.
    *

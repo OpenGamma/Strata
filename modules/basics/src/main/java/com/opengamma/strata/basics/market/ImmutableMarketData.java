@@ -105,7 +105,7 @@ public final class ImmutableMarketData
 
   //-------------------------------------------------------------------------
   @Override
-  public <T> boolean containsValue(MarketDataKey<T> key) {
+  public boolean containsValue(MarketDataKey<?> key) {
     return values.containsKey(key);
   }
 

@@ -25,6 +25,7 @@ import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.DefaultCalculationMarketData;
+import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.collect.array.DoubleArray;
 
@@ -53,7 +54,7 @@ public class CurrencyValuesArrayTest {
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
-    CalculationEnvironment marketData = CalculationEnvironment.builder()
+    CalculationEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(date(2011, 3, 8))
         .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
@@ -72,7 +73,7 @@ public class CurrencyValuesArrayTest {
   public void noConversionNecessary() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
-    CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
@@ -86,7 +87,7 @@ public class CurrencyValuesArrayTest {
   public void missingFxRates() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
-    CalculationEnvironment marketData = CalculationEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
@@ -105,7 +106,7 @@ public class CurrencyValuesArrayTest {
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
-    CalculationEnvironment marketData = CalculationEnvironment.builder()
+    CalculationEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(date(2011, 3, 8))
         .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();

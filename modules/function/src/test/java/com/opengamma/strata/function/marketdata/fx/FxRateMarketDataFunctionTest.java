@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
+import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.id.QuoteId;
@@ -62,7 +63,7 @@ public class FxRateMarketDataFunctionTest {
   public void build() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     MarketDataBox<Double> quoteBox = MarketDataBox.ofSingleValue(1.1d);
-    CalculationEnvironment marketData = CalculationEnvironment.builder()
+    CalculationEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(LocalDate.of(2011, 3, 8))
         .addValue(QUOTE_ID, quoteBox)
         .build();
@@ -74,7 +75,7 @@ public class FxRateMarketDataFunctionTest {
   public void buildInverse() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     MarketDataBox<Double> quoteBox = MarketDataBox.ofSingleValue(1.1d);
-    CalculationEnvironment marketData = CalculationEnvironment.builder()
+    CalculationEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(LocalDate.of(2011, 3, 8))
         .addValue(QUOTE_ID, quoteBox)
         .build();
@@ -86,7 +87,7 @@ public class FxRateMarketDataFunctionTest {
   public void buildScenario() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     MarketDataBox<Double> quoteBox = MarketDataBox.ofScenarioValues(1.1d, 1.2d, 1.3d);
-    CalculationEnvironment marketData = CalculationEnvironment.builder()
+    CalculationEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(LocalDate.of(2011, 3, 8))
         .addValue(QUOTE_ID, quoteBox)
         .build();

@@ -50,8 +50,8 @@ public final class DefaultCalculationMarketData implements CalculationMarketData
   }
 
   @Override
-  public <T> boolean containsValue(MarketDataKey<T> key) {
-    MarketDataId<T> id = marketDataMappings.getIdForKey(key);
+  public boolean containsValue(MarketDataKey<?> key) {
+    MarketDataId<?> id = marketDataMappings.getIdForKey(key);
     return marketData.containsValue(id);
   }
 

@@ -20,6 +20,9 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
+/**
+ * Test {@link ImmutableMarketData}.
+ */
 @Test
 public class ImmutableMarketDataTest {
 

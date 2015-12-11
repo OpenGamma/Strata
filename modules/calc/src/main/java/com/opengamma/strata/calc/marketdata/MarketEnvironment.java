@@ -108,7 +108,7 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
   }
 
   @Override
-  public <T> boolean containsValue(MarketDataId<T> id) {
+  public boolean containsValue(MarketDataId<?> id) {
     return values.containsKey(id);
   }
 

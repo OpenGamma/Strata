@@ -34,7 +34,6 @@ import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -359,7 +358,7 @@ public class CurveGroupMarketDataFunctionTest {
         pointsKey2, 0.2d);
     CurveInputs curveInputs1 = CurveInputs.of(marketDataMap1, DefaultCurveMetadata.of("curve1"));
     CurveInputs curveInputs2 = CurveInputs.of(marketDataMap2, DefaultCurveMetadata.of("curve2"));
-    MarketEnvironment marketData = CalculationEnvironment.builder()
+    MarketEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(LocalDate.of(2011, 3, 8))
         .addValue(CurveInputsId.of(curveGroupName, curveName1, MarketDataFeed.NONE), curveInputs1)
         .addValue(CurveInputsId.of(curveGroupName, curveName2, MarketDataFeed.NONE), curveInputs2)
@@ -371,7 +370,7 @@ public class CurveGroupMarketDataFunctionTest {
         FxRateKey.of(Currency.EUR, Currency.USD), FxRate.of(Currency.EUR, Currency.USD, 1.02),
         pointsKey2, 0.2d);
     CurveInputs badCurveInputs = CurveInputs.of(badMarketDataMap, DefaultCurveMetadata.of("curve2"));
-    MarketEnvironment badMarketData = CalculationEnvironment.builder()
+    MarketEnvironment badMarketData = MarketEnvironment.builder()
         .valuationDate(LocalDate.of(2011, 3, 8))
         .addValue(CurveInputsId.of(curveGroupName, curveName1, MarketDataFeed.NONE), curveInputs1)
         .addValue(CurveInputsId.of(curveGroupName, curveName2, MarketDataFeed.NONE), badCurveInputs)
