@@ -89,7 +89,7 @@ public final class PriceIndexCurveKey
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index of the curve that is required.
+   * Gets the index of the curve.
    * @return the value of the property, not null
    */
   public PriceIndex getIndex() {
