@@ -46,16 +46,6 @@
   </scm>
 
   <!-- ==================================================================== -->
-  <!-- OpenGamma public repositories -->
-  <repositories>
-    <repository>
-      <id>og-public</id>
-      <name>OG Public</name>
-      <url>http://maven.opengamma.com/nexus/content/groups/public</url>
-    </repository>
-  </repositories>
-
-  <!-- ==================================================================== -->
   <modules>
     <module>basics</module>
     <module>collect</module>
@@ -139,9 +129,12 @@
             </goals>
             <configuration>
               <rules>
+                <dependencyConvergence />
                 <requireMavenVersion>
                   <version>[3.2.0,)</version>
                 </requireMavenVersion>
+                <requireNoRepositories />
+                <requirePluginVersions />
               </rules>
             </configuration>
           </execution>
