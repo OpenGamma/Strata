@@ -6,6 +6,7 @@
 package com.opengamma.strata.examples.marketdata;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -14,13 +15,17 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Maps;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -40,12 +45,12 @@ import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilde
 import com.opengamma.strata.loader.csv.FixingSeriesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCurvesCsvLoader;
-import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
+import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
 import com.opengamma.strata.market.id.QuoteId;
-import com.opengamma.strata.market.id.RateCurveId;
 
 /**
  * Builds a market data snapshot from user-editable files in a prescribed directory structure.
@@ -205,7 +210,7 @@ public abstract class ExampleMarketDataBuilder {
    * 
    * @return the map of all rates curves
    */
-  public ImmutableSortedMap<LocalDate, Map<RateCurveId, Curve>> loadAllRatesCurves() {
+  public SortedMap<LocalDate, CurveGroup> loadAllRatesCurves() {
     if (!subdirectoryExists(CURVES_DIR)) {
       throw new IllegalArgumentException("No rates curves directory found");
     }
@@ -219,7 +224,12 @@ public abstract class ExampleMarketDataBuilder {
       throw new IllegalArgumentException(Messages.format(
           "Unable to load rates curves: curve settings file not found at {}/{}", CURVES_DIR, CURVES_SETTINGS_FILE));
     }
-    return RatesCurvesCsvLoader.loadAllDates(curveGroupsResource, curveSettingsResource, getRatesCurvesResources());
+    ListMultimap<LocalDate, CurveGroup> curveGroups =
+        RatesCurvesCsvLoader.loadAllDates(curveGroupsResource, curveSettingsResource, getRatesCurvesResources());
+
+    // There is only one curve group in the market data file so this will always succeed
+    Map<LocalDate, CurveGroup> curveGroupMap = Maps.transformValues(curveGroups.asMap(), groups -> groups.iterator().next());
+    return new TreeMap<>(curveGroupMap);
   }
 
   //-------------------------------------------------------------------------
@@ -254,12 +264,16 @@ public abstract class ExampleMarketDataBuilder {
       log.error("Unable to load rates curves: curve settings file not found at {}/{}", CURVES_DIR, CURVES_SETTINGS_FILE);
       return;
     }
-
     try {
       Collection<ResourceLocator> curvesResources = getRatesCurvesResources();
-      Map<RateCurveId, Curve> ratesCurves =
+
+      List<CurveGroup> ratesCurves =
           RatesCurvesCsvLoader.load(marketDataDate, curveGroupsResource, curveSettingsResource, curvesResources);
-      builder.addValues(ratesCurves);
+
+      Map<CurveGroupId, CurveGroup> groupMap =
+          ratesCurves.stream().collect(toMap(grp -> CurveGroupId.of(grp.getName()), grp -> grp));
+
+      builder.addValues(groupMap);
     } catch (Exception e) {
       log.error("Error loading rates curves", e);
     }

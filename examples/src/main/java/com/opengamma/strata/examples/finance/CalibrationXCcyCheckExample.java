@@ -6,6 +6,7 @@
 package com.opengamma.strata.examples.finance;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static java.util.stream.Collectors.toMap;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -199,10 +200,11 @@ public class CalibrationXCcyCheckExample {
         .build();
 
     // load the curve definition
-    Map<CurveGroupName, CurveGroupDefinition> defns =
+    List<CurveGroupDefinition> defns =
         RatesCalibrationCsvLoader.load(GROUPS_RESOURCE, SETTINGS_RESOURCE, CALIBRATION_RESOURCE);
 
-    CurveGroupDefinition curveGroupDefinition = defns.get(CURVE_GROUP_NAME);
+    Map<CurveGroupName, CurveGroupDefinition> defnMap = defns.stream().collect(toMap(def -> def.getName(), def -> def));
+    CurveGroupDefinition curveGroupDefinition = defnMap.get(CURVE_GROUP_NAME);
 
     // extract the trades used for calibration
     List<Trade> trades = curveGroupDefinition.getCurveDefinitions().stream()

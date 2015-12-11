@@ -31,13 +31,11 @@ public class CurveGroupEntryTest {
     CurveGroupEntry test = CurveGroupEntry.builder()
         .curveName(CURVE_NAME1)
         .discountCurrencies(GBP)
-        .iborIndices(GBP_LIBOR_1M, GBP_LIBOR_3M)
-        .overnightIndices(GBP_SONIA)
+        .indices(GBP_LIBOR_1M, GBP_LIBOR_3M, GBP_SONIA)
         .build();
     assertEquals(test.getCurveName(), CURVE_NAME1);
     assertEquals(test.getDiscountCurrencies(), ImmutableSet.of(GBP));
-    assertEquals(test.getIborIndices(), ImmutableSet.of(GBP_LIBOR_1M, GBP_LIBOR_3M));
-    assertEquals(test.getOvernightIndices(), ImmutableSet.of(GBP_SONIA));
+    assertEquals(test.getIndices(), ImmutableSet.of(GBP_LIBOR_1M, GBP_LIBOR_3M, GBP_SONIA));
   }
 
   //-------------------------------------------------------------------------
@@ -49,8 +47,7 @@ public class CurveGroupEntryTest {
     coverImmutableBean(test);
     CurveGroupEntry test2 = CurveGroupEntry.builder()
         .curveName(CURVE_NAME2)
-        .iborIndices(GBP_LIBOR_1M)
-        .overnightIndices(GBP_SONIA)
+        .indices(GBP_LIBOR_1M, GBP_SONIA)
         .build();
     coverBeanEquals(test, test2);
   }

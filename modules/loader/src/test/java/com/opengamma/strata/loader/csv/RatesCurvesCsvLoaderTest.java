@@ -15,12 +15,13 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndices;
@@ -28,13 +29,11 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.id.DiscountCurveId;
-import com.opengamma.strata.market.id.RateCurveId;
-import com.opengamma.strata.market.id.RateIndexCurveId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 
@@ -156,33 +155,19 @@ public class RatesCurvesCsvLoaderTest {
         ImmutableList.of(ResourceLocator.of(CURVES_1)));
   }
 
-  //-------------------------------------------------------------------------
-  public void test_single_curve_single_file() {
-    Map<RateCurveId, Curve> curves = RatesCurvesCsvLoader.load(
-        CURVE_DATE,
-        ResourceLocator.of(GROUPS_1),
-        ResourceLocator.of(SETTINGS_1),
-        ImmutableList.of(ResourceLocator.of(CURVES_1)));
-
-    assertEquals(curves.size(), 1);
-
-    Curve curve = Iterables.getOnlyElement(curves.values());
-    assertUsdDisc(curve);
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class,
       expectedExceptionsMessageRegExp = "Missing settings for curve: .*")
   public void test_noSettings() {
-    Map<RateCurveId, Curve> curves = RatesCurvesCsvLoader.load(
+    List<CurveGroup> curveGroups = RatesCurvesCsvLoader.load(
         CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_EMPTY),
         ImmutableList.of(ResourceLocator.of(CURVES_1)));
 
-    assertEquals(curves.size(), 1);
+    assertEquals(curveGroups.size(), 1);
 
-    Curve curve = Iterables.getOnlyElement(curves.values());
-    assertUsdDisc(curve);
+    CurveGroup curveGroup = Iterables.getOnlyElement(curveGroups);
+    assertUsdDisc(curveGroup.findDiscountCurve(Currency.USD).get());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
@@ -196,25 +181,23 @@ public class RatesCurvesCsvLoaderTest {
   }
 
   public void test_multiple_curves_single_file() {
-    Map<RateCurveId, Curve> curves = RatesCurvesCsvLoader.load(
+    List<CurveGroup> curveGroups = RatesCurvesCsvLoader.load(
         CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
         ImmutableList.of(ResourceLocator.of(CURVES_1_AND_2)));
 
-    assertEquals(curves.size(), 2);
-    assertCurves(curves);
+    assertCurves(curveGroups);
   }
 
   public void test_multiple_curves_multiple_files() {
-    Map<RateCurveId, Curve> curves = RatesCurvesCsvLoader.load(
+    List<CurveGroup> curveGroups = RatesCurvesCsvLoader.load(
         CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
         ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
 
-    assertEquals(curves.size(), 2);
-    assertCurves(curves);
+    assertCurves(curveGroups);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -228,52 +211,51 @@ public class RatesCurvesCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_load_all_curves() {
-    Map<LocalDate, Map<RateCurveId, Curve>> allCurves = RatesCurvesCsvLoader.loadAllDates(
+    ListMultimap<LocalDate, CurveGroup> allGroups = RatesCurvesCsvLoader.loadAllDates(
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
         ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2), ResourceLocator.of(CURVES_3)));
 
-    assertEquals(allCurves.size(), 2);
-    assertCurves(allCurves.get(CURVE_DATE));
+    assertEquals(allGroups.size(), 2);
+    assertCurves(allGroups.get(CURVE_DATE));
 
-    Map<RateCurveId, Curve> curves3 = allCurves.get(CURVE_DATE_CURVES_3);
-    assertEquals(curves3.size(), 2);
+    List<CurveGroup> curves3 = allGroups.get(CURVE_DATE_CURVES_3);
+    assertEquals(curves3.size(), 1);
+    CurveGroup group = curves3.get(0);
+
 
     // All curve points are set to 0 in test data to ensure these are really different curve instances
-    DiscountCurveId discountCurveId = DiscountCurveId.of(Currency.USD, CurveGroupName.of("Default"));
-    Curve usdDisc = curves3.get(discountCurveId);
+    Curve usdDisc = group.findDiscountCurve(Currency.USD).get();
     InterpolatedNodalCurve usdDiscNodal = (InterpolatedNodalCurve) usdDisc;
     assertEquals(usdDiscNodal.getMetadata().getCurveName(), CurveName.of("USD-Disc"));
     assertTrue(usdDiscNodal.getYValues().equalZeroWithTolerance(0d));
 
-    RateIndexCurveId libor3mCurveId = RateIndexCurveId.of(IborIndices.USD_LIBOR_3M, CurveGroupName.of("Default"));
-    Curve usd3ml = curves3.get(libor3mCurveId);
+    Curve usd3ml = group.findForwardCurve(IborIndices.USD_LIBOR_3M).get();
     InterpolatedNodalCurve usd3mlNodal = (InterpolatedNodalCurve) usd3ml;
     assertEquals(usd3mlNodal.getMetadata().getCurveName(), CurveName.of("USD-3ML"));
     assertTrue(usd3mlNodal.getYValues().equalZeroWithTolerance(0d));
   }
 
   public void test_load_curves_date_filtering() {
-    Map<RateCurveId, Curve> curves = RatesCurvesCsvLoader.load(
+    List<CurveGroup> curves = RatesCurvesCsvLoader.load(
         CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
         ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2), ResourceLocator.of(CURVES_3)));
 
-    assertEquals(curves.size(), 2);
     assertCurves(curves);
   }
 
   //-------------------------------------------------------------------------
-  private void assertCurves(Map<RateCurveId, Curve> curves) {
-    assertNotNull(curves);
+  private void assertCurves(List<CurveGroup> curveGroups) {
+    assertNotNull(curveGroups);
+    assertEquals(curveGroups.size(), 1);
 
-    DiscountCurveId discountCurveId = DiscountCurveId.of(Currency.USD, CurveGroupName.of("Default"));
-    Curve usdDisc = curves.get(discountCurveId);
-    assertUsdDisc(usdDisc);
+    CurveGroup curveGroup = curveGroups.get(0);
+    assertEquals(curveGroup.getName(), CurveGroupName.of("Default"));
+    assertUsdDisc(curveGroup.findDiscountCurve(Currency.USD).get());
 
-    RateIndexCurveId libor3mCurveId = RateIndexCurveId.of(IborIndices.USD_LIBOR_3M, CurveGroupName.of("Default"));
-    Curve usd3ml = curves.get(libor3mCurveId);
+    Curve usd3ml = curveGroup.findForwardCurve(IborIndices.USD_LIBOR_3M).get();
     assertUsd3ml(usd3ml);
   }
 

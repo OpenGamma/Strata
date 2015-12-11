@@ -6,6 +6,7 @@
 package com.opengamma.strata.examples.finance;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -49,12 +50,9 @@ import com.opengamma.strata.function.marketdata.scenario.curve.AnyDiscountCurveF
 import com.opengamma.strata.function.marketdata.scenario.curve.CurveRateIndexFilter;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.market.id.DiscountCurveId;
-import com.opengamma.strata.market.id.RateCurveId;
-import com.opengamma.strata.market.id.RateIndexCurveId;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
@@ -104,7 +102,7 @@ public class HistoricalScenarioExample {
 
     // load the historical calibrated curves from which we will build our scenarios
     // these curves are provided in the example data environment
-    SortedMap<LocalDate, Map<RateCurveId, Curve>> historicalCurves = marketDataBuilder.loadAllRatesCurves();
+    SortedMap<LocalDate, CurveGroup> historicalCurves = marketDataBuilder.loadAllRatesCurves();
 
     // sorted list of dates for the available series of curves
     // the entries in the P&L vector we produce will correspond to these dates
@@ -128,32 +126,44 @@ public class HistoricalScenarioExample {
   }
 
   private static ScenarioDefinition buildHistoricalScenarios(
-      Map<LocalDate, Map<RateCurveId, Curve>> historicalCurves,
+      Map<LocalDate, CurveGroup> historicalCurves,
       List<LocalDate> scenarioDates) {
 
-    // create identifiers for the curves we want the scenarios to affect
-    // these are the curves which are required to price the swap, for which we also have historical data
-    CurveGroupName curveGroup = CurveGroupName.of("Default");
-    DiscountCurveId discountCurveId = DiscountCurveId.of(Currency.USD, curveGroup);
-    RateIndexCurveId libor3mCurveId = RateIndexCurveId.of(IborIndices.USD_LIBOR_3M, curveGroup);
-    RateIndexCurveId libor6mCurveId = RateIndexCurveId.of(IborIndices.USD_LIBOR_6M, curveGroup);
+    // extract the curves to perturb
+    List<NodalCurve> usdDiscountCurves = scenarioDates.stream()
+        .map(date -> historicalCurves.get(date))
+        .map(group -> group.findDiscountCurve(Currency.USD).get())
+        .map(NodalCurve.class::cast)
+        .collect(toImmutableList());
+
+    List<NodalCurve> libor3mCurves = scenarioDates.stream()
+        .map(date -> historicalCurves.get(date))
+        .map(group -> group.findForwardCurve(IborIndices.USD_LIBOR_3M).get())
+        .map(NodalCurve.class::cast)
+        .collect(toImmutableList());
+
+    List<NodalCurve> libor6mCurves = scenarioDates.stream()
+        .map(date -> historicalCurves.get(date))
+        .map(group -> group.findForwardCurve(IborIndices.USD_LIBOR_6M).get())
+        .map(NodalCurve.class::cast)
+        .collect(toImmutableList());
 
     // create mappings which will cause the point shift perturbations generated above
     // to be applied to the correct curves
     PerturbationMapping<Curve> discountCurveMappings = PerturbationMapping.of(
         Curve.class,
         AnyDiscountCurveFilter.INSTANCE,
-        buildShifts(discountCurveId, historicalCurves, scenarioDates));
+        buildShifts(usdDiscountCurves));
 
     PerturbationMapping<Curve> libor3mMappings = PerturbationMapping.of(
         Curve.class,
         CurveRateIndexFilter.of(IborIndices.USD_LIBOR_3M),
-        buildShifts(libor3mCurveId, historicalCurves, scenarioDates));
+        buildShifts(libor3mCurves));
 
     PerturbationMapping<Curve> libor6mMappings = PerturbationMapping.of(
         Curve.class,
         CurveRateIndexFilter.of(IborIndices.USD_LIBOR_6M),
-        buildShifts(libor6mCurveId, historicalCurves, scenarioDates));
+        buildShifts(libor6mCurves));
 
     // create a scenario definition from these mappings
     return ScenarioDefinition.ofMappings(
@@ -162,22 +172,12 @@ public class HistoricalScenarioExample {
         libor6mMappings);
   }
 
-  private static CurvePointShifts buildShifts(
-      RateCurveId curveId,
-      Map<LocalDate, Map<RateCurveId, Curve>> historicalCurves,
-      List<LocalDate> scenarioDates) {
-
+  private static CurvePointShifts buildShifts(List<NodalCurve> historicalCurves) {
     CurvePointShiftsBuilder builder = CurvePointShifts.builder(ShiftType.ABSOLUTE);
 
-    for (int scenarioIndex = 1; scenarioIndex < scenarioDates.size(); scenarioIndex++) {
-      LocalDate previousDate = scenarioDates.get(scenarioIndex - 1);
-      LocalDate scenarioDate = scenarioDates.get(scenarioIndex);
-      Map<RateCurveId, Curve> previousCurves = historicalCurves.get(previousDate);
-      Map<RateCurveId, Curve> curves = historicalCurves.get(scenarioDate);
-
-      // get the curve from this scenario date and the previous scenario date
-      NodalCurve curve = (NodalCurve) curves.get(curveId);
-      NodalCurve previousCurve = (NodalCurve) previousCurves.get(curveId);
+    for (int scenarioIndex = 1; scenarioIndex < historicalCurves.size(); scenarioIndex++) {
+      NodalCurve previousCurve = historicalCurves.get(scenarioIndex - 1);
+      NodalCurve curve = historicalCurves.get(scenarioIndex);
 
       // obtain the curve node metadata - this is used to identify a node to apply a perturbation to
       List<CurveParameterMetadata> curveNodeMetadata = curve.getMetadata().getParameterMetadata().get();

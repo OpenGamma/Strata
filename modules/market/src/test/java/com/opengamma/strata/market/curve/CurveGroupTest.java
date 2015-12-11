@@ -15,7 +15,6 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_2M;
 import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 
@@ -83,18 +82,6 @@ public class CurveGroupTest {
     assertThat(group.findForwardCurve(USD_LIBOR_1M)).hasValue(IBOR_CURVE);
     assertThat(group.findForwardCurve(USD_LIBOR_2M)).hasValue(IBOR_CURVE);
     assertThat(group.findForwardCurve(EUR_EONIA)).hasValue(OVERNIGHT_CURVE);
-  }
-
-  public void test_ofCurves_missingCurve() {
-    CurveGroupDefinition definition = CurveGroupDefinition.builder()
-        .name(CurveGroupName.of("group"))
-        .addCurve(DISCOUNT_NAME, GBP, GBP_LIBOR_1M)
-        .addForwardCurve(IBOR_NAME, USD_LIBOR_1M, USD_LIBOR_2M)
-        .addForwardCurve(OVERNIGHT_NAME, EUR_EONIA)
-        .build();
-    assertThrowsIllegalArg(
-        () -> CurveGroup.ofCurves(definition, DISCOUNT_CURVE, IBOR_CURVE),
-        "No curve found named 'Overnight' when building curve group 'group'");
   }
 
   //-------------------------------------------------------------------------

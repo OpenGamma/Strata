@@ -5,18 +5,14 @@
  */
 package com.opengamma.strata.market.curve;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableSet;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -116,8 +112,7 @@ public final class CurveGroupDefinitionBuilder {
     ArgChecker.notNull(index, "index");
     CurveGroupEntry entry = CurveGroupEntry.builder()
         .curveName(curveDefinition.getName())
-        .iborIndices(iborIndices(index, otherIndices))
-        .overnightIndices(overnightIndices(index, otherIndices))
+        .indices(indices(index, otherIndices))
         .build();
     return merge(entry, curveDefinition);
   }
@@ -139,8 +134,7 @@ public final class CurveGroupDefinitionBuilder {
 
     CurveGroupEntry entry = CurveGroupEntry.builder()
         .curveName(curveName)
-        .iborIndices(iborIndices(index, otherIndices))
-        .overnightIndices(overnightIndices(index, otherIndices))
+        .indices(indices(index, otherIndices))
         .build();
     return mergeEntry(entry);
   }
@@ -168,8 +162,7 @@ public final class CurveGroupDefinitionBuilder {
     CurveGroupEntry entry = CurveGroupEntry.builder()
         .curveName(curveDefinition.getName())
         .discountCurrencies(ImmutableSet.of(currency))
-        .iborIndices(iborIndices(index, otherIndices))
-        .overnightIndices(overnightIndices(index, otherIndices))
+        .indices(indices(index, otherIndices))
         .build();
     return merge(entry, curveDefinition);
   }
@@ -195,8 +188,7 @@ public final class CurveGroupDefinitionBuilder {
     CurveGroupEntry entry = CurveGroupEntry.builder()
         .curveName(curveName)
         .discountCurrencies(ImmutableSet.of(currency))
-        .iborIndices(iborIndices(index, otherIndices))
-        .overnightIndices(overnightIndices(index, otherIndices))
+        .indices(indices(index, otherIndices))
         .build();
     return mergeEntry(entry);
   }
@@ -218,23 +210,9 @@ public final class CurveGroupDefinitionBuilder {
   /**
    * Returns a set containing any Ibor indices in the arguments.
    */
-  private static Set<IborIndex> iborIndices(RateIndex index, RateIndex... otherIndices) {
-    // extra <RateIndex> type captures information for Eclipse compiler to avoid warning
-    return ImmutableList.<RateIndex>builder().add(index).add(otherIndices).build().stream()
-        .filter(IborIndex.class::isInstance)
-        .map(IborIndex.class::cast)
-        .collect(toImmutableSet());
-  }
-
-  /**
-   * Returns a set containing any overnight indices in the arguments.
-   */
-  private static Set<OvernightIndex> overnightIndices(RateIndex index, RateIndex... otherIndices) {
-    // extra <RateIndex> type captures information for Eclipse compiler to avoid warning
-    return ImmutableList.<RateIndex>builder().add(index).add(otherIndices).build().stream()
-        .filter(OvernightIndex.class::isInstance)
-        .map(OvernightIndex.class::cast)
-        .collect(toImmutableSet());
+  private static Set<Index> indices(Index index, Index... otherIndices) {
+    // The type parameter is needed for the benefit of the Eclipse compiler
+    return ImmutableSet.<Index>builder().add(index).add(otherIndices).build();
   }
 
   //-------------------------------------------------------------------------
