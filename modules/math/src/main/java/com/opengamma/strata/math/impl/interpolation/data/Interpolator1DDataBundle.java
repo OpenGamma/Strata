@@ -22,7 +22,9 @@ public interface Interpolator1DDataBundle {
 
   int indexOf(double key);
 
-  double getIndex(int index);
+  double getKey(int index);
+
+  double getValue(int index);
 
   double firstKey();
 

@@ -14,10 +14,8 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
-import com.opengamma.strata.math.impl.interpolation.data.InterpolationBoundedValues;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
@@ -34,56 +32,51 @@ public final class LinearInterpolator1D
 
   @Override
   public double interpolate(Interpolator1DDataBundle data, double value) {
-    JodaBeanUtils.notNull(data, "data");
-    InterpolationBoundedValues boundedValues = data.getBoundedValues(value);
-    double x1 = boundedValues.getLowerBoundKey();
-    double y1 = boundedValues.getLowerBoundValue();
-    if (data.getLowerBoundIndex(value) == data.size() - 1) {
+    int lowerIndex = data.getLowerBoundIndex(value);
+    double y1 = data.getValue(lowerIndex);
+    if (lowerIndex == data.size() - 1) {
       return y1;
     }
-    double x2 = boundedValues.getHigherBoundKey();
-    double y2 = boundedValues.getHigherBoundValue();
+    double x1 = data.getKey(lowerIndex);
+    double x2 = data.getKey(lowerIndex + 1);
+    double y2 = data.getValue(lowerIndex + 1);
     return y1 + (value - x1) / (x2 - x1) * (y2 - y1);
   }
 
   @Override
   public double firstDerivative(Interpolator1DDataBundle data, double value) {
-    JodaBeanUtils.notNull(data, "data");
-    InterpolationBoundedValues boundedValues = data.getBoundedValues(value);
-    double x1 = boundedValues.getLowerBoundKey();
-    double y1 = boundedValues.getLowerBoundValue();
-    if (data.getLowerBoundIndex(value) == data.size() - 1) {
-      if (value > data.lastKey()) {
-        throw new MathException("Value of " + value + " after last key. Use exstrapolator");
+    int lowerIndex = data.getLowerBoundIndex(value);
+    if (lowerIndex == data.size() - 1) {
+      if (data.size() == 1) {
+        return 0d;
       }
-      double[] x = data.getKeys();
-      double[] y = data.getValues();
-      int n = x.length;
-      return n == 1 ? 0.0 : (y[n - 1] - y[n - 2]) / (x[n - 1] - x[n - 2]);
+      if (value > data.lastKey()) {
+        throw new MathException("Value of " + value + " after last key. Use extrapolator");
+      }
+      lowerIndex--;
     }
-    double x2 = boundedValues.getHigherBoundKey();
-    double y2 = boundedValues.getHigherBoundValue();
+    double x1 = data.getKey(lowerIndex);
+    double y1 = data.getValue(lowerIndex);
+    double x2 = data.getKey(lowerIndex + 1);
+    double y2 = data.getValue(lowerIndex + 1);
     return (y2 - y1) / (x2 - x1);
   }
 
   @Override
   public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, double value) {
-    ArgChecker.notNull(data, "data");
-    int n = data.size();
-    double[] result = new double[n];
-    InterpolationBoundedValues boundedValues = data.getBoundedValues(value);
-    if (boundedValues.getHigherBoundKey() == null) {
-      result[n - 1] = 1.0;
+    int size = data.size();
+    double[] result = new double[size];
+    int lowerIndex = data.getLowerBoundIndex(value);
+    if (lowerIndex == size - 1) {
+      result[size - 1] = 1d;
       return result;
     }
-    int index = data.getLowerBoundIndex(value);
-    double x1 = boundedValues.getLowerBoundKey();
-    double x2 = boundedValues.getHigherBoundKey();
+    double x1 = data.getKey(lowerIndex);
+    double x2 = data.getKey(lowerIndex + 1);
     double dx = x2 - x1;
     double a = (x2 - value) / dx;
-    double b = 1 - a;
-    result[index] = a;
-    result[index + 1] = b;
+    result[lowerIndex] = a;
+    result[lowerIndex + 1] = 1 - a;
     return result;
   }
 

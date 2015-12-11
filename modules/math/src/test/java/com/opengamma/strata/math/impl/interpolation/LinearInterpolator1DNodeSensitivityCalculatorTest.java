@@ -41,11 +41,6 @@ public class LinearInterpolator1DNodeSensitivityCalculatorTest {
     DATA = INTERPOLATOR.getDataBundleFromSortedArrays(x, y);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullData() {
-    INTERPOLATOR.getNodeSensitivitiesForValue(null, 1.);
-  }
-
   @Test
   public void test() {
     double[] result = INTERPOLATOR.getNodeSensitivitiesForValue(DATA, 3.4);

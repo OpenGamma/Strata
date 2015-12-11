@@ -68,7 +68,7 @@ public class Interpolator1DCubicSplineDataBundleTest {
     assertFalse(DATA.containsKey(3.4));
     assertEquals(DATA.firstKey(), 2., EPS);
     assertEquals(DATA.firstValue(), CUBIC.applyAsDouble(2.), EPS);
-    assertEquals(DATA.getIndex(DATA.indexOf(4.)), CUBIC.applyAsDouble(4.), EPS);
+    assertEquals(DATA.getValue(DATA.indexOf(4.)), CUBIC.applyAsDouble(4.), EPS);
     assertArrayEquals(DATA.getKeys(), X, 0);
     assertEquals(DATA.getLowerBoundIndex(7.), 2);
     assertEquals(DATA.getLowerBoundKey(7.), 6, EPS);

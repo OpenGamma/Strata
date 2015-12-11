@@ -45,8 +45,13 @@ abstract class ForwardingInterpolator1DDataBundle
   }
 
   @Override
-  public double getIndex(int index) {
-    return underlying.getIndex(index);
+  public double getKey(int index) {
+    return underlying.getKey(index);
+  }
+
+  @Override
+  public double getValue(int index) {
+    return underlying.getValue(index);
   }
 
   @Override
