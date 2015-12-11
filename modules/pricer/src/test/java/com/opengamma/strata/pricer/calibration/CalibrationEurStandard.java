@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
 import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_3M;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
 import static com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions.EUR_FIXED_1Y_EONIA_OIS;
@@ -25,8 +26,9 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ImmutableMarketData;
+import com.opengamma.strata.basics.market.ImmutableMarketDataBuilder;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.ValueType;
@@ -52,6 +54,7 @@ import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 
 public class CalibrationEurStandard {
 
+  private static final LocalDate VAL_DATE = date(2015, 6, 30);
   private static final DayCount CURVE_DC = ACT_365F;
   private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
 
@@ -247,17 +250,17 @@ public class CalibrationEurStandard {
       double[] fwd6MarketQuotes,
       String[] fwd6IdValue) {
     /* All quotes for the curve calibration */
-    Map<ObservableKey, Double> allQuotes = new HashMap<>();
+    ImmutableMarketDataBuilder builder = ImmutableMarketData.builder(VAL_DATE);
     for (int i = 0; i < dscOisQuotes.length; i++) {
-      allQuotes.put(QuoteKey.of(StandardId.of(SCHEME, dscIdValues[i])), dscOisQuotes[i]);
+      builder.addValue(QuoteKey.of(StandardId.of(SCHEME, dscIdValues[i])), dscOisQuotes[i]);
     }
     for (int i = 0; i < fwd3MarketQuotes.length; i++) {
-      allQuotes.put(QuoteKey.of(StandardId.of(SCHEME, fwd3IdValue[i])), fwd3MarketQuotes[i]);
+      builder.addValue(QuoteKey.of(StandardId.of(SCHEME, fwd3IdValue[i])), fwd3MarketQuotes[i]);
     }
     for (int i = 0; i < fwd6MarketQuotes.length; i++) {
-      allQuotes.put(QuoteKey.of(StandardId.of(SCHEME, fwd6IdValue[i])), fwd6MarketQuotes[i]);
+      builder.addValue(QuoteKey.of(StandardId.of(SCHEME, fwd6IdValue[i])), fwd6MarketQuotes[i]);
     }
-    return MarketData.of(allQuotes);
+    return builder.build();
   }
 
 }

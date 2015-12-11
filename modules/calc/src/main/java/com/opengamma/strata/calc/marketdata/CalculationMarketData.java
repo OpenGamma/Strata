@@ -23,34 +23,46 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  * multiple curve groups, each with a USD discounting curve.
  * <p>
  * Typically a set of {@link MarketDataRules} are used to choose the item of market data from the global set.
+ * <p>
+ * The standard implementation is {@link DefaultCalculationMarketData}.
  */
 public interface CalculationMarketData {
 
   /**
-   * Returns the valuation dates of the scenarios, one for each scenario.
+   * Gets a box that can provide the valuation date of each scenario.
    *
-   * @return the valuation dates of the scenarios, one for each scenario
+   * @return the valuation dates of the scenarios
    */
   public abstract MarketDataBox<LocalDate> getValuationDate();
 
   /**
-   * Returns the number of scenarios.
+   * Gets the number of scenarios.
    *
    * @return the number of scenarios
    */
   public abstract int getScenarioCount();
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a box that can provide an item of market data for a scenario.
+   * Checks if this set of data contains a value for the specified key.
    *
-   * @param <T>  type of the market data
-   * @param key  a key identifying the market data
-   * @return a list of market data values, one from each scenario
+   * @param key  the key identifying the item of market data
+   * @return true if this set of data contains a value for the specified key
+   */
+  public abstract boolean containsValue(MarketDataKey<?> key);
+
+  /**
+   * Gets a box that can provide an item of market data for a scenario.
+   *
+   * @param <T>  the type of the market data
+   * @param key  the key identifying the item of market data
+   * @return the box providing access to the market data values for each scenario
+   * @throws IllegalArgumentException if no value is found
    */
   public abstract <T> MarketDataBox<T> getValue(MarketDataKey<T> key);
 
   /**
-   * Returns an object containing market data for multiple scenarios.
+   * Gets an object containing market data for multiple scenarios.
    * <p>
    * There are many possible ways to store scenario market data for a data type. For example, if the single
    * values are doubles, the scenario value might simply be a {@code List<Double>} or it might be a wrapper
@@ -69,6 +81,7 @@ public interface CalculationMarketData {
    * @param <T>  the type of the individual market data values used when performing calculations for one scenario
    * @param <U>  the type of the object containing the market data for all scenarios
    * @return an object containing market data for multiple scenarios
+   * @throws IllegalArgumentException if no value is found
    */
   @SuppressWarnings("unchecked")
   public default <T, U extends ScenarioMarketDataValue<T>> U getScenarioValue(ScenarioMarketDataKey<T, U> key) {
@@ -85,14 +98,24 @@ public interface CalculationMarketData {
     return key.createScenarioValue(box);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a time series of market data values.
+   * Checks if this set of data contains a time-series for the specified key.
+   *
+   * @param key  the key identifying the item of market data
+   * @return true if this set of data contains a time-series of market data for the specified key
+   */
+  public abstract boolean containsTimeSeries(ObservableKey key);
+
+  /**
+   * Gets the time-series identified by the specified key, empty if not found.
    * <p>
-   * Time series are not affected by scenarios, therefore there is a single time series for each key
+   * Time series are not affected by scenarios, therefore there is a single time-series for each key
    * which is shared between all scenarios.
    *
-   * @param key  a key identifying the market data
-   * @return a list of market data time series
+   * @param key  the key identifying the item of market data
+   * @return the time-series, empty if no time-series found
    */
   public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key);
+
 }

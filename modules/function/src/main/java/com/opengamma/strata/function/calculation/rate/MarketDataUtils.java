@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.calc.marketdata.SingleCalculationMarketData;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -42,7 +42,7 @@ public final class MarketDataUtils {
    * @return the rates provider
    */
   public static RatesProvider toSingleCurveRatesProvider(
-      SingleCalculationMarketData marketData,
+      MarketData marketData,
       Currency currency,
       Set<? extends Index> indices,
       NodalCurve curveOverride) {

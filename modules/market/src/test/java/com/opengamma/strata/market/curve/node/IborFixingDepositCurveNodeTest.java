@@ -12,6 +12,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -24,6 +25,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
@@ -43,6 +45,7 @@ import com.opengamma.strata.product.deposit.type.ImmutableIborFixingDepositConve
 @Test
 public class IborFixingDepositCurveNodeTest {
 
+  private static final LocalDate VAL_DATE = date(2015, 6, 30);
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit1"));
   private static final double SPREAD = 0.0015;
   private static final String LABEL = "Label";
@@ -98,7 +101,7 @@ public class IborFixingDepositCurveNodeTest {
     IborFixingDepositCurveNode node = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    MarketData marketData = MarketData.builder().addValue(QUOTE_KEY, rate).build();
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, rate).build();
     IborFixingDepositTrade trade = node.trade(valuationDate, marketData);
     ImmutableIborFixingDepositConvention conv = (ImmutableIborFixingDepositConvention) TEMPLATE.getConvention();
     LocalDate startDateExpected = conv.getSpotDateOffset().adjust(valuationDate);
@@ -124,7 +127,7 @@ public class IborFixingDepositCurveNodeTest {
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     QuoteKey key = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
-    MarketData marketData = MarketData.builder().addValue(key, rate).build();
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(key, rate).build();
     assertThrowsIllegalArg(() -> node.trade(valuationDate, marketData));
   }
 
@@ -132,7 +135,7 @@ public class IborFixingDepositCurveNodeTest {
     IborFixingDepositCurveNode node = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    MarketData marketData = MarketData.builder().addValue(QUOTE_KEY, rate).build();
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, rate).build();
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.ZERO_RATE), rate);
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR),
         Math.exp(-rate * 0.25d), 1.0E-12);

@@ -19,62 +19,53 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
  * A interface for looking up items of market data by ID, used when building market data.
+ * <p>
+ * The standard implementation is {@link MarketEnvironment}.
  */
 public interface CalculationEnvironment {
 
   /**
+   * Gets a box that can provide the valuation date of each scenario.
+   *
+   * @return the valuation dates of the scenarios
+   */
+  public abstract MarketDataBox<LocalDate> getValuationDate();
+
+  /**
+   * Gets the number of scenarios.
+   *
+   * @return the number of scenarios
+   */
+  public abstract int getScenarioCount();
+
+  //-------------------------------------------------------------------------
+  /**
    * Checks if this set of data contains a value for the specified ID.
    *
-   * @param id  an ID identifying an item of market data
+   * @param id  the ID identifying the item of market data
    * @return true if this set of data contains a value for the specified ID and it is of the expected type
    */
   public abstract boolean containsValue(MarketDataId<?> id);
 
   /**
-   * Checks if this set of data contains a time series for the specified market data ID.
+   * Gets a box that can provide an item of market data for a scenario.
    *
-   * @param id  an ID identifying an item of market data
-   * @return true if this set of data contains a time series for the specified market data ID
-   */
-  public abstract boolean containsTimeSeries(ObservableId id);
-
-  /**
-   * Returns the number of scenarios for which market data is available.
-   *
-   * @return the number of scenarios for which market data is available
-   */
-  public abstract int getScenarioCount();
-
-  /**
-   * Returns a market data value.
-   * <p>
-   * The date of the market data is the same as the valuation date of the calculations.
-   *
-   * @param <T>  type of the market data
-   * @param id  ID of the market data
-   * @return a market data value
-   * @throws IllegalArgumentException if there is no value for the specified ID
+   * @param <T>  the type of the market data
+   * @param id  the ID identifying the item of market data
+   * @return the box providing access to the market data values for each scenario
+   * @throws IllegalArgumentException if no value is found
    */
   public abstract <T> MarketDataBox<T> getValue(MarketDataId<T> id);
 
   /**
-   * Returns a time series of market data values.
-   *
-   * @param id  ID of the market data
-   * @return a time series of market data values
-   * @throws IllegalArgumentException if there is no time series for the specified ID
-   */
-  public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableId id);
-
-  /**
-   * Returns a map of observable market data values for a set of IDs.
+   * Gets a map of observable market data values for a set of IDs.
    * <p>
-   * The return value is guaranteed to contain a value for every ID. If any values are unavailable this
-   * method throws {@code IllegalArgumentException}.
+   * The return value is guaranteed to contain a value for every ID.
+   * If any values are unavailable this method throws {@code IllegalArgumentException}.
    *
    * @param ids  market data IDs
    * @return a map of market data values for the IDs
-   * @throws IllegalArgumentException if there is no value for any of the IDs
+   * @throws IllegalArgumentException if no value matches one or more of the IDs, or an error occurs
    */
   public default Map<ObservableId, MarketDataBox<Double>> getObservableValues(Set<? extends ObservableId> ids) {
     Function<ObservableId, ObservableId> idMapper = id -> id;
@@ -82,22 +73,24 @@ public interface CalculationEnvironment {
     return ids.stream().collect(toImmutableMap(idMapper, valueMapper));
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns the valuation date of the market data.
+   * Checks if this set of data contains a time-series for the specified ID.
    *
-   * @return the valuation date of the market data
+   * @param id  the ID identifying the item of market data
+   * @return true if this set of data contains a time-series for the specified ID
    */
-  public abstract MarketDataBox<LocalDate> getValuationDate();
+  public abstract boolean containsTimeSeries(ObservableId id);
 
   /**
-   * Returns a mutable builder for building a {@code CalculationEnvironment}.
+   * Gets the time-series identified by the specified key, empty if not found.
    *
-   * @return a mutable builder for building a {@code CalculationEnvironment}
+   * @param id  the ID identifying the item of market data
+   * @return the time-series, empty if no time-series found
    */
-  public static MarketEnvironmentBuilder builder() {
-    return MarketEnvironment.builder();
-  }
+  public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableId id);
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a {@code CalculationEnvironment} containing no data.
    *

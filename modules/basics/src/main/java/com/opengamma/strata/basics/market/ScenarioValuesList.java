@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -31,7 +32,7 @@ import com.opengamma.strata.collect.ArgChecker;
  *
  * @param <T> the type of the market data value used in each scenario
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class ScenarioValuesList<T> implements ScenarioMarketDataValue<T>, ImmutableBean {
 
   /** The market data values, one for each scenario. */
@@ -96,15 +97,6 @@ public final class ScenarioValuesList<T> implements ScenarioMarketDataValue<T>, 
     JodaBeanUtils.registerMetaBean(ScenarioValuesList.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @param <T>  the type
-   * @return the builder, not null
-   */
-  public static <T> ScenarioValuesList.Builder<T> builder() {
-    return new ScenarioValuesList.Builder<T>();
-  }
-
   private ScenarioValuesList(
       List<T> values) {
     JodaBeanUtils.notEmpty(values, "values");
@@ -137,14 +129,6 @@ public final class ScenarioValuesList<T> implements ScenarioMarketDataValue<T>, 
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder<T> toBuilder() {
-    return new Builder<T>(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -214,7 +198,7 @@ public final class ScenarioValuesList<T> implements ScenarioMarketDataValue<T>, 
     }
 
     @Override
-    public ScenarioValuesList.Builder<T> builder() {
+    public BeanBuilder<? extends ScenarioValuesList<T>> builder() {
       return new ScenarioValuesList.Builder<T>();
     }
 
@@ -264,7 +248,7 @@ public final class ScenarioValuesList<T> implements ScenarioMarketDataValue<T>, 
    * The bean-builder for {@code ScenarioValuesList}.
    * @param <T>  the type
    */
-  public static final class Builder<T> extends DirectFieldsBeanBuilder<ScenarioValuesList<T>> {
+  private static final class Builder<T> extends DirectFieldsBeanBuilder<ScenarioValuesList<T>> {
 
     private List<T> values = ImmutableList.of();
 
@@ -272,14 +256,6 @@ public final class ScenarioValuesList<T> implements ScenarioMarketDataValue<T>, 
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(ScenarioValuesList<T> beanToCopy) {
-      this.values = beanToCopy.getValues();
     }
 
     //-----------------------------------------------------------------------
@@ -334,28 +310,6 @@ public final class ScenarioValuesList<T> implements ScenarioMarketDataValue<T>, 
     public ScenarioValuesList<T> build() {
       return new ScenarioValuesList<T>(
           values);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the market data values, one for each scenario.
-     * @param values  the new value, not empty
-     * @return this, for chaining, not null
-     */
-    public Builder<T> values(List<T> values) {
-      JodaBeanUtils.notEmpty(values, "values");
-      this.values = values;
-      return this;
-    }
-
-    /**
-     * Sets the {@code values} property in the builder
-     * from an array of objects.
-     * @param values  the new value, not empty
-     * @return this, for chaining, not null
-     */
-    public Builder<T> values(T... values) {
-      return values(ImmutableList.copyOf(values));
     }
 
     //-----------------------------------------------------------------------

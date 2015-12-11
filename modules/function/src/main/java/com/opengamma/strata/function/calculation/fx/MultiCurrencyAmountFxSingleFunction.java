@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
+import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.product.fx.ExpandedFxSingle;
@@ -26,7 +26,7 @@ public abstract class MultiCurrencyAmountFxSingleFunction extends AbstractFxSing
   public MultiCurrencyValuesArray execute(FxSingleTrade trade, CalculationMarketData marketData) {
     ExpandedFxSingle product = trade.getProduct().expand();
     return IntStream.range(0, marketData.getScenarioCount())
-        .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
+        .mapToObj(index -> new SingleCalculationMarketData(marketData, index))
         .map(MarketDataRatesProvider::new)
         .map(provider -> execute(product, provider))
         .collect(toMultiCurrencyArray());

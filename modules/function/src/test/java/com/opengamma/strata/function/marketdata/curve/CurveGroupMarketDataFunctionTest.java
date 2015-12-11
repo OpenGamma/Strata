@@ -29,15 +29,15 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
+import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
@@ -136,10 +136,10 @@ public class CurveGroupMarketDataFunctionTest {
         .put(forwardCurveKey, iborIndexRates)
         .build();
 
-    MarketData marketData = MarketData.of(marketDataMap);
+    MarketData marketData = ImmutableMarketData.of(valuationDate, marketDataMap);
     TestMarketDataMap calculationMarketData = new TestMarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
     MarketDataRatesProvider ratesProvider =
-        new MarketDataRatesProvider(new DefaultSingleCalculationMarketData(calculationMarketData, 0));
+        new MarketDataRatesProvider(new SingleCalculationMarketData(calculationMarketData, 0));
 
     // The PV should be zero for an instrument used to build the curve
     nodes.stream().forEach(node -> checkFraPvIsZero(node, valuationDate, ratesProvider, marketData));
@@ -186,10 +186,10 @@ public class CurveGroupMarketDataFunctionTest {
         .put(discountFactorsKey, discountFactors)
         .put(forwardCurveKey, iborIndexRates)
         .build();
-    MarketData marketData = MarketData.of(marketDataMap);
+    MarketData marketData = ImmutableMarketData.of(valuationDate, marketDataMap);
     TestMarketDataMap calculationMarketData = new TestMarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
     MarketDataRatesProvider ratesProvider =
-        new MarketDataRatesProvider(new DefaultSingleCalculationMarketData(calculationMarketData, 0));
+        new MarketDataRatesProvider(new SingleCalculationMarketData(calculationMarketData, 0));
 
     checkFraPvIsZero((FraCurveNode) nodes.get(0), valuationDate, ratesProvider, marketData);
     checkFraPvIsZero((FraCurveNode) nodes.get(1), valuationDate, ratesProvider, marketData);
@@ -358,7 +358,7 @@ public class CurveGroupMarketDataFunctionTest {
         pointsKey2, 0.2d);
     CurveInputs curveInputs1 = CurveInputs.of(marketDataMap1, DefaultCurveMetadata.of("curve1"));
     CurveInputs curveInputs2 = CurveInputs.of(marketDataMap2, DefaultCurveMetadata.of("curve2"));
-    MarketEnvironment marketData = CalculationEnvironment.builder()
+    MarketEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(LocalDate.of(2011, 3, 8))
         .addValue(CurveInputsId.of(curveGroupName, curveName1, MarketDataFeed.NONE), curveInputs1)
         .addValue(CurveInputsId.of(curveGroupName, curveName2, MarketDataFeed.NONE), curveInputs2)
@@ -370,7 +370,7 @@ public class CurveGroupMarketDataFunctionTest {
         FxRateKey.of(Currency.EUR, Currency.USD), FxRate.of(Currency.EUR, Currency.USD, 1.02),
         pointsKey2, 0.2d);
     CurveInputs badCurveInputs = CurveInputs.of(badMarketDataMap, DefaultCurveMetadata.of("curve2"));
-    MarketEnvironment badMarketData = CalculationEnvironment.builder()
+    MarketEnvironment badMarketData = MarketEnvironment.builder()
         .valuationDate(LocalDate.of(2011, 3, 8))
         .addValue(CurveInputsId.of(curveGroupName, curveName1, MarketDataFeed.NONE), curveInputs1)
         .addValue(CurveInputsId.of(curveGroupName, curveName2, MarketDataFeed.NONE), badCurveInputs)

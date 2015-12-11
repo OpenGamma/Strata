@@ -21,17 +21,17 @@ public final class TestMarketDataMap implements CalculationMarketData {
 
   private final MarketDataBox<LocalDate> valuationDate;
 
-  private final Map<MarketDataKey<?>, Object> marketData;
+  private final Map<MarketDataKey<?>, Object> valueMap;
 
   private final Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap;
 
   public TestMarketDataMap(
       LocalDate valuationDate,
-      Map<MarketDataKey<?>, Object> marketData,
+      Map<MarketDataKey<?>, Object> valueMap,
       Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap) {
 
     this.valuationDate = MarketDataBox.ofSingleValue(valuationDate);
-    this.marketData = marketData;
+    this.valueMap = valueMap;
     this.timeSeriesMap = timeSeriesMap;
   }
 
@@ -45,15 +45,25 @@ public final class TestMarketDataMap implements CalculationMarketData {
     return 1;
   }
 
+  @Override
+  public boolean containsValue(MarketDataKey<?> key) {
+    return valueMap.containsKey(key);
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public <T> MarketDataBox<T> getValue(MarketDataKey<T> key) {
-    T value = (T) marketData.get(key);
+    T value = (T) valueMap.get(key);
     if (value != null) {
       return MarketDataBox.ofSingleValue(value);
     } else {
       throw new IllegalArgumentException("No market data for " + key);
     }
+  }
+
+  @Override
+  public boolean containsTimeSeries(ObservableKey key) {
+    return timeSeriesMap.containsKey(key);
   }
 
   @Override

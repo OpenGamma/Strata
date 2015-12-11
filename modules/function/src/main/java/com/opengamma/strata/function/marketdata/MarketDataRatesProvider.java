@@ -19,8 +19,8 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.calc.marketdata.SingleCalculationMarketData;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IborIndexRatesKey;
@@ -54,14 +54,14 @@ public final class MarketDataRatesProvider
   /**
    * The set of market data for the calculations.
    */
-  private final SingleCalculationMarketData marketData;
+  private final MarketData marketData;
 
   /**
    * Creates an instance.
    * 
    * @param marketData  the underlying market data
    */
-  public MarketDataRatesProvider(SingleCalculationMarketData marketData) {
+  public MarketDataRatesProvider(MarketData marketData) {
     JodaBeanUtils.notNull(marketData, "marketData");
     this.marketData = marketData;
   }

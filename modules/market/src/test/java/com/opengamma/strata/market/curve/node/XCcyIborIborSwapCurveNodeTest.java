@@ -11,13 +11,12 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import org.testng.annotations.Test;
@@ -27,8 +26,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
@@ -45,6 +44,7 @@ import com.opengamma.strata.product.swap.type.XCcyIborIborSwapTemplate;
 @Test
 public class XCcyIborIborSwapCurveNodeTest {
 
+  private static final LocalDate VAL_DATE = date(2015, 6, 30);
   private static final XCcyIborIborSwapTemplate TEMPLATE =
       XCcyIborIborSwapTemplate.of(Period.ZERO, TENOR_10Y, XCcyIborIborSwapConventions.EUR_EURIBOR_3M_USD_LIBOR_3M);
   private static final XCcyIborIborSwapTemplate TEMPLATE2 =
@@ -57,13 +57,10 @@ public class XCcyIborIborSwapCurveNodeTest {
   private static final double SPREAD_ADJ = 0.0015;
   private static final String LABEL = "Label";
   private static final String LABEL_AUTO = "10Y";
-  private static final Map<MarketDataKey<?>, Object> MAP_OV = new HashMap<>();
-
-  static {
-    MAP_OV.put(SPREAD_KEY, SPREAD_XCS);
-    MAP_OV.put(FX_KEY, FX_EUR_USD);
-  }
-  private static final MarketData OV = MarketData.of(MAP_OV);
+  private static final MarketData OV = ImmutableMarketData.builder(VAL_DATE)
+      .addValue(SPREAD_KEY, SPREAD_XCS)
+      .addValue(FX_KEY, FX_EUR_USD)
+      .build();
 
   public void test_builder() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.builder()
@@ -123,7 +120,7 @@ public class XCcyIborIborSwapCurveNodeTest {
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     QuoteKey key = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
-    MarketData marketData = MarketData.builder().addValue(key, rate).build();
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(key, rate).build();
     assertThrowsIllegalArg(() -> node.trade(valuationDate, marketData));
   }
 

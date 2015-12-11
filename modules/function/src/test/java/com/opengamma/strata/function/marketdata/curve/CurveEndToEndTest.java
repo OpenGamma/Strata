@@ -13,6 +13,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fixedIborSwapNode;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fraNode;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.id;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -36,6 +37,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
@@ -62,7 +64,7 @@ import com.opengamma.strata.calc.marketdata.function.ObservableMarketDataFunctio
 import com.opengamma.strata.calc.marketdata.function.TimeSeriesProvider;
 import com.opengamma.strata.calc.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.calc.runner.DefaultCalculationRunner;
-import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
+import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
@@ -137,7 +139,7 @@ public class CurveEndToEndTest {
     LocalDate valuationDate = date(2011, 3, 8);
 
     // Build the trades from the node instruments
-    MarketData quotes = MarketData.builder().addValuesById(parRateData).build();
+    MarketData quotes = ImmutableMarketData.builder(valuationDate).addValuesById(parRateData).build();
     Trade fra3x6Trade = fra3x6Node.trade(valuationDate, quotes);
     Trade fra6x9Trade = fra6x9Node.trade(valuationDate, quotes);
     Trade swap1yTrade = swap1yNode.trade(valuationDate, quotes);
@@ -271,7 +273,7 @@ public class CurveEndToEndTest {
     public FxConvertibleList execute(FraTrade trade, CalculationMarketData marketData) {
       ExpandedFra product = trade.getProduct().expand();
       return IntStream.range(0, marketData.getScenarioCount())
-          .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
+          .mapToObj(index -> new SingleCalculationMarketData(marketData, index))
           .map(MarketDataRatesProvider::new)
           .map(provider -> DiscountingFraProductPricer.DEFAULT.presentValue(product, provider))
           .collect(toFxConvertibleList());

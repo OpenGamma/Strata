@@ -11,13 +11,12 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import org.testng.annotations.Test;
@@ -31,6 +30,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.SimpleMarketDataKey;
@@ -49,6 +49,7 @@ import com.opengamma.strata.product.fx.type.ImmutableFxSwapConvention;
 @Test
 public class FxSwapCurveNodeTest {
 
+  private static final LocalDate VAL_DATE = date(2015, 6, 30);
   private static final CurrencyPair EUR_USD = CurrencyPair.of(Currency.EUR, Currency.USD);
   private static final HolidayCalendar EUTA_USNY = EUTA.combineWith(USNY);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA_USNY);
@@ -63,12 +64,10 @@ public class FxSwapCurveNodeTest {
   private static final double FX_RATE_PTS = 0.0050d;
   private static final String LABEL = "Label";
   private static final String LABEL_AUTO = "6M";
-  private static final Map<MarketDataKey<?>, Object> MAP_OV = new HashMap<>();
-  static {
-    MAP_OV.put(RATE_KEY_NEAR, FX_RATE_NEAR);
-    MAP_OV.put(QUOTE_KEY_PTS, FX_RATE_PTS);
-  }
-  private static final MarketData OV = MarketData.of(MAP_OV);
+  private static final MarketData OV = ImmutableMarketData.builder(VAL_DATE)
+      .addValue(RATE_KEY_NEAR, FX_RATE_NEAR)
+      .addValue(QUOTE_KEY_PTS, FX_RATE_PTS)
+      .build();
 
   public void test_builder() {
     FxSwapCurveNode test = FxSwapCurveNode.builder()
@@ -116,7 +115,8 @@ public class FxSwapCurveNodeTest {
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     QuoteKey quoteKey = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
-    assertThrowsIllegalArg(() -> node.trade(valuationDate, MarketData.builder().addValue(quoteKey, rate).build()));
+    ImmutableMarketData md = ImmutableMarketData.builder(valuationDate).addValue(quoteKey, rate).build();
+    assertThrowsIllegalArg(() -> node.trade(valuationDate, md));
   }
 
   public void test_initialGuess() {

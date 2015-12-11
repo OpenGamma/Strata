@@ -18,6 +18,7 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
+import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
@@ -26,6 +27,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.Trade;
+import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
@@ -151,14 +153,15 @@ public class CurveGroupDefinitionTest {
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
 
-    MarketData marketData = MarketData.builder()
+    LocalDate valuationDate = date(2015, 6, 30);
+    MarketData marketData = ImmutableMarketData.builder(valuationDate)
         .addValues(ImmutableMap.of(GBP_LIBOR_1M_ID, 0.5d, GBP_LIBOR_3M_ID, 1.5d))
         .build();
-    Trade trade1 = NODE1.trade(date(2015, 6, 30), marketData);
-    Trade trade2 = NODE2.trade(date(2015, 6, 30), marketData);
+    Trade trade1 = NODE1.trade(valuationDate, marketData);
+    Trade trade2 = NODE2.trade(valuationDate, marketData);
     assertEquals(test.getTotalParameterCount(), 2);
-    assertEquals(test.trades(date(2015, 6, 30), marketData), ImmutableList.of(trade1, trade2));
-    assertEquals(test.initialGuesses(date(2015, 6, 30), marketData), ImmutableList.of(0.5d, 1.5d));
+    assertEquals(test.trades(valuationDate, marketData), ImmutableList.of(trade1, trade2));
+    assertEquals(test.initialGuesses(valuationDate, marketData), ImmutableList.of(0.5d, 1.5d));
   }
 
   //-------------------------------------------------------------------------

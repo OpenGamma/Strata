@@ -219,7 +219,8 @@ public final class CurveGroupDefinitionBuilder {
    * Returns a set containing any Ibor indices in the arguments.
    */
   private static Set<IborIndex> iborIndices(RateIndex index, RateIndex... otherIndices) {
-    return ImmutableList.builder().add(index).add(otherIndices).build().stream()
+    // extra <RateIndex> type captures information for Eclipse compiler to avoid warning
+    return ImmutableList.<RateIndex>builder().add(index).add(otherIndices).build().stream()
         .filter(IborIndex.class::isInstance)
         .map(IborIndex.class::cast)
         .collect(toImmutableSet());
@@ -229,7 +230,8 @@ public final class CurveGroupDefinitionBuilder {
    * Returns a set containing any overnight indices in the arguments.
    */
   private static Set<OvernightIndex> overnightIndices(RateIndex index, RateIndex... otherIndices) {
-    return ImmutableList.builder().add(index).add(otherIndices).build().stream()
+    // extra <RateIndex> type captures information for Eclipse compiler to avoid warning
+    return ImmutableList.<RateIndex>builder().add(index).add(otherIndices).build().stream()
         .filter(OvernightIndex.class::isInstance)
         .map(OvernightIndex.class::cast)
         .collect(toImmutableSet());

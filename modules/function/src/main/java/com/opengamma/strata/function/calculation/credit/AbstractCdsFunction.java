@@ -18,7 +18,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.DefaultSingleCalculationMarketData;
+import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.market.curve.IsdaCreditCurveInputs;
@@ -79,7 +79,7 @@ public abstract class AbstractCdsFunction<T>
   @Override
   public ScenarioResult<T> execute(CdsTrade trade, CalculationMarketData marketData) {
     return IntStream.range(0, marketData.getScenarioCount())
-        .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
+        .mapToObj(index -> new SingleCalculationMarketData(marketData, index))
         .map(provider -> execute(trade, provider))
         .collect(toScenarioResult(isConvertCurrencies()));
   }
@@ -135,7 +135,7 @@ public abstract class AbstractCdsFunction<T>
   }
 
   // execute for a single product
-  protected T execute(CdsTrade trade, DefaultSingleCalculationMarketData provider) {
+  protected T execute(CdsTrade trade, SingleCalculationMarketData provider) {
 
     IsdaYieldCurveInputsKey yieldCurveInputsKey = IsdaYieldCurveInputsKey.of(
         trade.getProduct().getFeeLeg().getPeriodicPayments().getNotional().getCurrency());

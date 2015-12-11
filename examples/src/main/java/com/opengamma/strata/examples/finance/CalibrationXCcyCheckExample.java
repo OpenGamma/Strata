@@ -20,6 +20,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FxRateId;
+import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.CalculationEngine;
 import com.opengamma.strata.calc.CalculationRules;
@@ -192,7 +193,7 @@ public class CalibrationXCcyCheckExample {
         .build();
 
     // create the market data used for building trades
-    MarketData marketData = MarketData.builder()
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE)
         .addValuesById(quotes)
         .addValuesById(fxRates)
         .build();
