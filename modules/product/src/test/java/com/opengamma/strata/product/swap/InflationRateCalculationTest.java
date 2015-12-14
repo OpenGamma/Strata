@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.product.swap;
 
-import static com.opengamma.strata.basics.index.PriceIndices.CH_CPI;
-import static com.opengamma.strata.basics.index.PriceIndices.GB_HICP;
+import static com.opengamma.strata.basics.index.PriceIndices.SWF_CPI;
+import static com.opengamma.strata.basics.index.PriceIndices.UK_HICP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -64,8 +64,8 @@ public class InflationRateCalculationTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    InflationRateCalculation test1 = InflationRateCalculation.of(CH_CPI, 3, false);
-    assertEquals(test1.getIndex(), CH_CPI);
+    InflationRateCalculation test1 = InflationRateCalculation.of(SWF_CPI, 3, false);
+    assertEquals(test1.getIndex(), SWF_CPI);
     assertEquals(test1.getLag(), Period.ofMonths(3));
     assertEquals(test1.isInterpolated(), false);
     assertEquals(test1.getGearing(), Optional.empty());
@@ -75,22 +75,22 @@ public class InflationRateCalculationTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     InflationRateCalculation test1 = InflationRateCalculation.builder()
-        .index(CH_CPI)
+        .index(SWF_CPI)
         .lag(Period.ofMonths(3))
         .interpolated(false)
         .build();
-    assertEquals(test1.getIndex(), CH_CPI);
+    assertEquals(test1.getIndex(), SWF_CPI);
     assertEquals(test1.getLag(), Period.ofMonths(3));
     assertEquals(test1.isInterpolated(), false);
     assertEquals(test1.getGearing(), Optional.empty());
     assertEquals(test1.getType(), SwapLegType.INFLATION);
     InflationRateCalculation test2 = InflationRateCalculation.builder()
-        .index(GB_HICP)
+        .index(UK_HICP)
         .lag(Period.ofMonths(4))
         .interpolated(true)
         .gearing(GEARING)
         .build();
-    assertEquals(test2.getIndex(), GB_HICP);
+    assertEquals(test2.getIndex(), UK_HICP);
     assertEquals(test2.getLag(), Period.ofMonths(4));
     assertEquals(test2.isInterpolated(), true);
     assertEquals(test2.getGearing().get(), GEARING);
@@ -103,11 +103,11 @@ public class InflationRateCalculationTest {
 
   public void test_builder_badLag() {
     assertThrowsIllegalArg(() -> InflationRateCalculation.builder()
-        .index(GB_HICP)
+        .index(UK_HICP)
         .lag(Period.ZERO)
         .build());
     assertThrowsIllegalArg(() -> InflationRateCalculation.builder()
-        .index(GB_HICP)
+        .index(UK_HICP)
         .lag(Period.ofMonths(-1))
         .build());
   }
@@ -115,19 +115,19 @@ public class InflationRateCalculationTest {
   //-------------------------------------------------------------------------
   public void test_collectIndices() {
     InflationRateCalculation test = InflationRateCalculation.builder()
-        .index(GB_HICP)
+        .index(UK_HICP)
         .lag(Period.ofMonths(3))
         .interpolated(false)
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(GB_HICP));
+    assertEquals(builder.build(), ImmutableSet.of(UK_HICP));
   }
 
   //-------------------------------------------------------------------------
   public void test_expand_Monthly() {
     InflationRateCalculation test = InflationRateCalculation.builder()
-        .index(GB_HICP)
+        .index(UK_HICP)
         .lag(Period.ofMonths(3))
         .interpolated(false)
         .build();
@@ -135,7 +135,7 @@ public class InflationRateCalculationTest {
         .yearFraction(1.0)
         .rateObservation(
             InflationMonthlyRateObservation.of(
-                GB_HICP,
+                UK_HICP,
                 YearMonth.from(DATE_2014_01_05).minusMonths(3),
                 YearMonth.from(DATE_2015_01_06).minusMonths(3)))
         .build();
@@ -143,7 +143,7 @@ public class InflationRateCalculationTest {
         .yearFraction(1.0)
         .rateObservation(
             InflationMonthlyRateObservation.of(
-                GB_HICP,
+                UK_HICP,
                 YearMonth.from(DATE_2015_01_06).minusMonths(3),
                 YearMonth.from(DATE_2016_01_07).minusMonths(3)))
         .build();
@@ -151,7 +151,7 @@ public class InflationRateCalculationTest {
         .yearFraction(1.0)
         .rateObservation(
             InflationMonthlyRateObservation.of(
-                GB_HICP,
+                UK_HICP,
                 YearMonth.from(DATE_2016_01_07).minusMonths(3),
                 YearMonth.from(DATE_2017_01_05).minusMonths(3)))
         .build();
@@ -162,7 +162,7 @@ public class InflationRateCalculationTest {
   @Test
   public void test_expand_Interpolated() {
     InflationRateCalculation test = InflationRateCalculation.builder()
-        .index(CH_CPI)
+        .index(SWF_CPI)
         .lag(Period.ofMonths(3))
         .interpolated(true)
         .build();
@@ -173,7 +173,7 @@ public class InflationRateCalculationTest {
         .builder(ACCRUAL1)
         .yearFraction(1.0)
         .rateObservation(InflationInterpolatedRateObservation.of(
-            CH_CPI,
+            SWF_CPI,
             YearMonth.from(DATE_2014_01_05).minusMonths(3),
             YearMonth.from(DATE_2015_01_06).minusMonths(3),
             weight1))
@@ -182,7 +182,7 @@ public class InflationRateCalculationTest {
         .builder(ACCRUAL2)
         .yearFraction(1.0)
         .rateObservation(InflationInterpolatedRateObservation.of(
-            CH_CPI,
+            SWF_CPI,
             YearMonth.from(DATE_2015_01_06).minusMonths(3),
             YearMonth.from(DATE_2016_01_07).minusMonths(3),
             weight2))
@@ -191,7 +191,7 @@ public class InflationRateCalculationTest {
         .builder(ACCRUAL3)
         .yearFraction(1.0)
         .rateObservation(InflationInterpolatedRateObservation.of(
-            CH_CPI,
+            SWF_CPI,
             YearMonth.from(DATE_2016_01_07).minusMonths(3),
             YearMonth.from(DATE_2017_01_05).minusMonths(3),
             weight3))
@@ -203,13 +203,13 @@ public class InflationRateCalculationTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     InflationRateCalculation test1 = InflationRateCalculation.builder()
-        .index(CH_CPI)
+        .index(SWF_CPI)
         .lag(Period.ofMonths(3))
         .interpolated(false)
         .build();
     coverImmutableBean(test1);
     InflationRateCalculation test2 = InflationRateCalculation.builder()
-        .index(GB_HICP)
+        .index(UK_HICP)
         .lag(Period.ofMonths(4))
         .interpolated(true)
         .gearing(GEARING)
@@ -219,7 +219,7 @@ public class InflationRateCalculationTest {
 
   public void test_serialization() {
     InflationRateCalculation test1 = InflationRateCalculation.builder()
-        .index(CH_CPI)
+        .index(SWF_CPI)
         .lag(Period.ofMonths(3))
         .interpolated(false)
         .build();

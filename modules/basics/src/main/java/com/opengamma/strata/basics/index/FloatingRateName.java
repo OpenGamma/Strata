@@ -138,6 +138,10 @@ public final class FloatingRateName
     for (String key : onAveragedSection.keys()) {
       builder.put(key, new FloatingRateName(key, onAveragedSection.value(key), FloatingRateType.OVERNIGHT_AVERAGED));
     }
+    PropertySet priceSection = ini.section("price");
+    for (String key : priceSection.keys()) {
+      builder.put(key, new FloatingRateName(key, priceSection.value(key), FloatingRateType.PRICE));
+    }
     return builder.build();
   }
 
@@ -175,6 +179,23 @@ public final class FloatingRateName
       throw new IllegalStateException("Incorrect index type, expected Overnight: " + name);
     }
     return OvernightIndex.of(indexName);
+  }
+
+  /**
+   * Converts to an {@link PriceIndex}.
+   * <p>
+   * If this is a price index, then this returns the matching {@link PriceIndex}.
+   * If not, an exception is thrown.
+   *
+   * @return the index
+   * @throws IllegalStateException if the type is not a price index type
+   * @see #getType()
+   */
+  public PriceIndex toPriceIndex() {
+    if (!type.isPrice()) {
+      throw new IllegalStateException("Incorrect index type, expected Price: " + name);
+    }
+    return PriceIndex.of(indexName);
   }
 
   //-------------------------------------------------------------------------

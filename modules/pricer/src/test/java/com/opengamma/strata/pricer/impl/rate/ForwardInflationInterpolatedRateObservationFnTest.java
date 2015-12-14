@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.rate;
 
-import static com.opengamma.strata.basics.index.PriceIndices.GB_RPIX;
+import static com.opengamma.strata.basics.index.PriceIndices.UK_RPIX;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 import static org.testng.Assert.assertEquals;
@@ -62,7 +62,7 @@ public class ForwardInflationInterpolatedRateObservationFnTest {
     ImmutableRatesProvider prov = createProvider(RATE_START, RATE_START_INTERP, RATE_END, RATE_END_INTERP);
 
     InflationInterpolatedRateObservation ro =
-        InflationInterpolatedRateObservation.of(GB_RPIX, REF_START_MONTH, REF_END_MONTH, WEIGHT);
+        InflationInterpolatedRateObservation.of(UK_RPIX, REF_START_MONTH, REF_END_MONTH, WEIGHT);
     ForwardInflationInterpolatedRateObservationFn obsFn = ForwardInflationInterpolatedRateObservationFn.DEFAULT;
 
     double rateExpected = (WEIGHT * RATE_END + (1.0 - WEIGHT) * RATE_END_INTERP) /
@@ -78,22 +78,22 @@ public class ForwardInflationInterpolatedRateObservationFnTest {
     assertEquals(built.get(ExplainKey.OBSERVATIONS).get().size(), 4);
     ExplainMap explain0 = built.get(ExplainKey.OBSERVATIONS).get().get(0);
     assertEquals(explain0.get(ExplainKey.FIXING_DATE), Optional.of(REF_START_MONTH.atEndOfMonth()));
-    assertEquals(explain0.get(ExplainKey.INDEX), Optional.of(GB_RPIX));
+    assertEquals(explain0.get(ExplainKey.INDEX), Optional.of(UK_RPIX));
     assertEquals(explain0.get(ExplainKey.INDEX_VALUE), Optional.of(RATE_START));
     assertEquals(explain0.get(ExplainKey.WEIGHT), Optional.of(WEIGHT));
     ExplainMap explain1 = built.get(ExplainKey.OBSERVATIONS).get().get(1);
     assertEquals(explain1.get(ExplainKey.FIXING_DATE), Optional.of(REF_START_MONTH_INTERP.atEndOfMonth()));
-    assertEquals(explain1.get(ExplainKey.INDEX), Optional.of(GB_RPIX));
+    assertEquals(explain1.get(ExplainKey.INDEX), Optional.of(UK_RPIX));
     assertEquals(explain1.get(ExplainKey.INDEX_VALUE), Optional.of(RATE_START_INTERP));
     assertEquals(explain1.get(ExplainKey.WEIGHT), Optional.of(1d - WEIGHT));
     ExplainMap explain2 = built.get(ExplainKey.OBSERVATIONS).get().get(2);
     assertEquals(explain2.get(ExplainKey.FIXING_DATE), Optional.of(REF_END_MONTH.atEndOfMonth()));
-    assertEquals(explain2.get(ExplainKey.INDEX), Optional.of(GB_RPIX));
+    assertEquals(explain2.get(ExplainKey.INDEX), Optional.of(UK_RPIX));
     assertEquals(explain2.get(ExplainKey.INDEX_VALUE), Optional.of(RATE_END));
     assertEquals(explain2.get(ExplainKey.WEIGHT), Optional.of(WEIGHT));
     ExplainMap explain3 = built.get(ExplainKey.OBSERVATIONS).get().get(3);
     assertEquals(explain3.get(ExplainKey.FIXING_DATE), Optional.of(REF_END_MONTH_INTERP.atEndOfMonth()));
-    assertEquals(explain3.get(ExplainKey.INDEX), Optional.of(GB_RPIX));
+    assertEquals(explain3.get(ExplainKey.INDEX), Optional.of(UK_RPIX));
     assertEquals(explain3.get(ExplainKey.INDEX_VALUE), Optional.of(RATE_END_INTERP));
     assertEquals(explain3.get(ExplainKey.WEIGHT), Optional.of(1d - WEIGHT));
     assertEquals(built.get(ExplainKey.COMBINED_RATE).get().doubleValue(), rateExpected, EPS);
@@ -112,7 +112,7 @@ public class ForwardInflationInterpolatedRateObservationFnTest {
     ImmutableRatesProvider provEndIntDw = createProvider(RATE_START, RATE_START_INTERP, RATE_END, RATE_END_INTERP - EPS_FD);
 
     InflationInterpolatedRateObservation ro =
-        InflationInterpolatedRateObservation.of(GB_RPIX, REF_START_MONTH, REF_END_MONTH, WEIGHT);
+        InflationInterpolatedRateObservation.of(UK_RPIX, REF_START_MONTH, REF_END_MONTH, WEIGHT);
     ForwardInflationInterpolatedRateObservationFn obsFn = ForwardInflationInterpolatedRateObservationFn.DEFAULT;
 
     double rateSrtUp = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, provSrtUp);
@@ -125,13 +125,13 @@ public class ForwardInflationInterpolatedRateObservationFnTest {
     double rateEndIntDw = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, provEndIntDw);
 
     PointSensitivityBuilder sensSrt =
-        InflationRateSensitivity.of(GB_RPIX, REF_START_MONTH, 0.5 * (rateSrtUp - rateSrtDw) / EPS_FD);
+        InflationRateSensitivity.of(UK_RPIX, REF_START_MONTH, 0.5 * (rateSrtUp - rateSrtDw) / EPS_FD);
     PointSensitivityBuilder sensSrtInt =
-        InflationRateSensitivity.of(GB_RPIX, REF_START_MONTH_INTERP, 0.5 * (rateSrtIntUp - rateSrtIntDw) / EPS_FD);
+        InflationRateSensitivity.of(UK_RPIX, REF_START_MONTH_INTERP, 0.5 * (rateSrtIntUp - rateSrtIntDw) / EPS_FD);
     PointSensitivityBuilder sensEnd =
-        InflationRateSensitivity.of(GB_RPIX, REF_END_MONTH, 0.5 * (rateEndUp - rateEndDw) / EPS_FD);
+        InflationRateSensitivity.of(UK_RPIX, REF_END_MONTH, 0.5 * (rateEndUp - rateEndDw) / EPS_FD);
     PointSensitivityBuilder sensEndInt =
-        InflationRateSensitivity.of(GB_RPIX, REF_END_MONTH_INTERP, 0.5 * (rateEndIntUp - rateEndIntDw) / EPS_FD);
+        InflationRateSensitivity.of(UK_RPIX, REF_END_MONTH_INTERP, 0.5 * (rateEndIntUp - rateEndIntDw) / EPS_FD);
     PointSensitivityBuilder sensiExpected =
         sensSrt.combinedWith(sensSrtInt).combinedWith(sensEnd).combinedWith(sensEndInt);
 
@@ -152,9 +152,9 @@ public class ForwardInflationInterpolatedRateObservationFnTest {
         DoubleArray.of(4, 5, 16, 17),
         DoubleArray.of(rateStart, rateStartInterp, rateEnd, rateEndInterp),
         INTERPOLATOR);
-    ForwardPriceIndexValues values = ForwardPriceIndexValues.of(GB_RPIX, VAL_DATE, timeSeries, curve);
+    ForwardPriceIndexValues values = ForwardPriceIndexValues.of(UK_RPIX, VAL_DATE, timeSeries, curve);
     return ImmutableRatesProvider.builder(VAL_DATE)
-        .priceIndexValues(ImmutableMap.of(GB_RPIX, values))
+        .priceIndexValues(ImmutableMap.of(UK_RPIX, values))
         .build();
   }
 
