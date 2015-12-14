@@ -19,6 +19,10 @@ import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWi
  * yValues of the breakpoint information are transformed by this class. 
  */
 public class Interpolator1DLogPiecewisePoynomialDataBundle extends Interpolator1DPiecewisePoynomialDataBundle {
+  // NOTE: the value methods are overridden to return Math.exp(super.value)
+  // the purpose of this is to reverse the Math.log() process that was used when the values were added to the bundle
+  // the result is that the value methods should return the original values from the curve
+  // minus a small error from the Math.exp(Math.log(value)) process
 
   /**
    * 

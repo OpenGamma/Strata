@@ -45,22 +45,53 @@ public interface CurveInterpolator extends Named {
 
   //-------------------------------------------------------------------------
   /**
-   * Binds this interpolator to a curve specifying the extrapolators to use.
+   * Binds this interpolator to a curve where no extrapolation is permitted.
+   * <p>
+   * The bound interpolator provides methods to interpolate the y-value for a x-value.
+   * If an attempt is made to interpolate an x-value outside the range defined by
+   * the first and last nodes, an exception will be thrown.
    * <p>
    * The bind process takes the definition of the interpolator and combines it with the x-y values.
    * This allows implementations to optimize interpolation calculations.
    *
-   * @param xValues  the x-values
-   * @param yValues  the y-values
+   * @param xValues  the x-values of the curve, must be sorted from low to high
+   * @param yValues  the y-values of the curve
+   * @return the bound interpolator
+   */
+  public abstract BoundCurveInterpolator bind(DoubleArray xValues, DoubleArray yValues);
+
+  /**
+   * Binds this interpolator to a curve specifying the extrapolators to use.
+   * <p>
+   * The bound interpolator provides methods to interpolate the y-value for a x-value.
+   * If an attempt is made to interpolate an x-value outside the range defined by
+   * the first and last nodes, the appropriate extrapolator will be used.
+   * <p>
+   * The bind process takes the definition of the interpolator and combines it with the x-y values.
+   * This allows implementations to optimize interpolation calculations.
+   *
+   * @param xValues  the x-values of the curve, must be sorted from low to high
+   * @param yValues  the y-values of the curve
    * @param extrapolatorLeft  the extrapolator for x-values on the left
    * @param extrapolatorRight  the extrapolator for x-values on the right
    * @return the bound interpolator
    */
-  public abstract BoundCurveInterpolator bind(
+  public default BoundCurveInterpolator bind(
       DoubleArray xValues,
       DoubleArray yValues,
       CurveExtrapolator extrapolatorLeft,
-      CurveExtrapolator extrapolatorRight);
+      CurveExtrapolator extrapolatorRight) {
+
+    // interpolators depend on extrapolators and vice versa
+    // this makes it hard to satisfy the Java Memory Model for immutability
+    // handle this by creating an interpolator instance that cannot extrapolate
+    // use that interpolator to bind the extrapolators
+    // finally, create the bound interpolator for the caller
+    BoundCurveInterpolator interpolatorOnly = bind(xValues, yValues);
+    BoundCurveExtrapolator boundLeft = extrapolatorLeft.bind(xValues, yValues, interpolatorOnly);
+    BoundCurveExtrapolator boundRight = extrapolatorRight.bind(xValues, yValues, interpolatorOnly);
+    return interpolatorOnly.bind(boundLeft, boundRight);
+  }
 
   //-------------------------------------------------------------------------
   /**

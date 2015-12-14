@@ -180,12 +180,12 @@ public final class InterpolatedNodalCurve
   //-------------------------------------------------------------------------
   @Override
   public double yValue(double x) {
-    return boundInterpolator.yValue(x);
+    return boundInterpolator.interpolate(x);
   }
 
   @Override
   public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
-    DoubleArray array = boundInterpolator.yValueParameterSensitivity(x);
+    DoubleArray array = boundInterpolator.parameterSensitivity(x);
     return CurveUnitParameterSensitivity.of(metadata, array);
   }
 

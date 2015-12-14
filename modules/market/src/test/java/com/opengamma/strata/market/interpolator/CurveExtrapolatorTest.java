@@ -15,13 +15,11 @@ import static com.opengamma.strata.market.interpolator.CurveExtrapolators.LOG_LI
 import static com.opengamma.strata.market.interpolator.CurveExtrapolators.RECIPROCAL;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.math.impl.interpolation.FlatExtrapolator1D;
 
 /**
  * Test {@link CurveExtrapolator}.
@@ -69,11 +67,6 @@ public class CurveExtrapolatorTest {
     assertThrowsIllegalArg(() -> CurveExtrapolator.of(null));
   }
 
-  public void test_FLAT() {
-    assertTrue(FLAT instanceof ImmutableCurveExtrapolator);
-    assertTrue(((ImmutableCurveExtrapolator) FLAT).getUnderlying() instanceof FlatExtrapolator1D);
-  }
-
   //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(CurveExtrapolators.class);
@@ -84,6 +77,7 @@ public class CurveExtrapolatorTest {
 
   public void test_serialization() {
     assertSerialization(FLAT);
+    assertSerialization(RECIPROCAL);
   }
 
   public void test_jodaConvert() {

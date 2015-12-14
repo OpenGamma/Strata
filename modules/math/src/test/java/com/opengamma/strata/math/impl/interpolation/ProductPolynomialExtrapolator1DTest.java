@@ -63,8 +63,11 @@ public class ProductPolynomialExtrapolator1DTest {
         /* left extrapolation */
         for (int j = 1; j < nKeys; ++j) {
           double key = xValues[0] - interval * j;
-          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(result, key).get(0) / key,
-              extrap1D.extrapolate(data, key, interpolator1D), EPS);
+          InterpolatorTestUtil.assertRelative(
+              "notClampedTest",
+              FUNC.evaluate(result, key).get(0) / key,
+              extrap1D.extrapolate(data, key, interpolator1D),
+              EPS);
           double keyUp = key + DELTA;
           double keyDw = key - DELTA;
           double refDeriv = 0.5 * (extrap1D.extrapolate(data, keyUp, interpolator1D) -
@@ -97,8 +100,11 @@ public class ProductPolynomialExtrapolator1DTest {
           double keyDw = key - DELTA;
           double refDeriv = 0.5 * (extrap1D.extrapolate(data, keyUp, interpolator1D) -
               extrap1D.extrapolate(data, keyDw, interpolator1D)) / DELTA;
-          InterpolatorTestUtil.assertRelative("notClampedTest", refDeriv,
-              extrap1D.firstDerivative(data, key, interpolator1D), DELTA);
+          InterpolatorTestUtil.assertRelative(
+              "notClampedTest",
+              refDeriv,
+              extrap1D.firstDerivative(data, key, interpolator1D),
+              DELTA);
           double[] refSense = new double[nData];
           for (int l = 0; l < nData; ++l) {
             double[] yValuesUp = Arrays.copyOf(yValues, nData);
