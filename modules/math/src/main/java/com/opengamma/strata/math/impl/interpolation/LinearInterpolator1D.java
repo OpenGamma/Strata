@@ -14,7 +14,6 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
@@ -34,7 +33,9 @@ public final class LinearInterpolator1D
   public double interpolate(Interpolator1DDataBundle data, double value) {
     int lowerIndex = data.getLowerBoundIndex(value);
     double y1 = data.getValue(lowerIndex);
+    // check if x-value is at or beyond the last node
     if (lowerIndex == data.size() - 1) {
+      // return the value of the last node (flat extrapolation)
       return y1;
     }
     double x1 = data.getKey(lowerIndex);
@@ -46,13 +47,13 @@ public final class LinearInterpolator1D
   @Override
   public double firstDerivative(Interpolator1DDataBundle data, double value) {
     int lowerIndex = data.getLowerBoundIndex(value);
+    // check if x-value is at or beyond the last node
     if (lowerIndex == data.size() - 1) {
-      if (data.size() == 1) {
+      // return zero to match flat extrapolation in interpolate()
+      if (value > data.lastKey()) {
         return 0d;
       }
-      if (value > data.lastKey()) {
-        throw new MathException("Value of " + value + " after last key. Use extrapolator");
-      }
+      // if value is at last node, calculate the gradient from the previous interval
       lowerIndex--;
     }
     double x1 = data.getKey(lowerIndex);
@@ -67,7 +68,9 @@ public final class LinearInterpolator1D
     int size = data.size();
     double[] result = new double[size];
     int lowerIndex = data.getLowerBoundIndex(value);
+    // check if x-value is at or beyond the last node
     if (lowerIndex == size - 1) {
+      // sensitivity is entirely to the last node
       result[size - 1] = 1d;
       return result;
     }
