@@ -31,7 +31,6 @@ import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
-import com.opengamma.strata.collect.CollectProjectAssertions;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
@@ -88,7 +87,7 @@ public class FxNdfFunctionGroupsTest {
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
         ImmutableSet.of(DiscountFactorsKey.of(ccy1), DiscountFactorsKey.of(ccy2)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of());
-    CollectProjectAssertions.assertThat(function.defaultReportingCurrency(TRADE)).hasValue(GBP);
+    assertThat(function.defaultReportingCurrency(TRADE)).hasValue(GBP);
     DiscountFactors df1 = SimpleDiscountFactors.of(
         ccy1, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
     DiscountFactors df2 = SimpleDiscountFactors.of(

@@ -26,7 +26,6 @@ import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
-import com.opengamma.strata.collect.CollectProjectAssertions;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curves;
@@ -74,7 +73,7 @@ public class SwapFunctionGroupsTest {
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
         ImmutableSet.of(IborIndexRatesKey.of(index), DiscountFactorsKey.of(ccy)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(index)));
-    CollectProjectAssertions.assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy);
+    assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy);
     DiscountFactors df = SimpleDiscountFactors.of(
         ccy, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
     TestMarketDataMap md = new TestMarketDataMap(valDate, ImmutableMap.of(DiscountFactorsKey.of(ccy), df), ImmutableMap.of());

@@ -13,10 +13,10 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_2M;
 import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
-import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 

@@ -21,7 +21,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
-import com.opengamma.strata.collect.CollectProjectAssertions;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.amount.LegAmounts;
 import com.opengamma.strata.market.amount.SwapLegAmount;
@@ -54,7 +53,7 @@ public class SwapLegNotionalFunctionTest {
     assertThat(reqs.getOutputCurrencies()).isEmpty();
     assertThat(reqs.getSingleValueRequirements()).isEmpty();
     assertThat(reqs.getTimeSeriesRequirements()).isEmpty();
-    CollectProjectAssertions.assertThat(test.defaultReportingCurrency(SWAP_TRADE)).hasValue(ccy);
+    assertThat(test.defaultReportingCurrency(SWAP_TRADE)).hasValue(ccy);
     TestMarketDataMap md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
 
     LegAmounts expected = LegAmounts.of(
