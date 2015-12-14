@@ -22,7 +22,7 @@ public class StepUpperInterpolator1D extends Interpolator1D {
     // For x equal to a key
     int index = data.indexOf(x);
     if (index >= 0) {
-      return data.getIndex(index);
+      return data.getValue(index);
     }
     // For intermediary values, return the higher key value.
     return data.higherValue(x);

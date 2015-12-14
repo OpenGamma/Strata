@@ -31,11 +31,6 @@ public class LinearInterpolator1DTest {
   private static final Interpolator1DDataBundle MODEL = INTERPOLATOR.getDataBundle(new double[] {1, 2, 3 }, new double[] {4, 5, 6 });
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullDataBundle() {
-    INTERPOLATOR.interpolate(null, 2.3);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowValue() {
     INTERPOLATOR.interpolate(MODEL, -4.);
   }

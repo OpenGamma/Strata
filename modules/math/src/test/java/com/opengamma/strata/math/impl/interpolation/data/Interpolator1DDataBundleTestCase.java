@@ -90,10 +90,10 @@ public abstract class Interpolator1DDataBundleTestCase {
 
   @Test
   public void lowerBoundValues() {
-    assertEquals(10, DATA.getIndex(DATA.indexOf(DATA.getLowerBoundKey(1.5))), EPS);
-    assertEquals(10, DATA.getIndex(DATA.indexOf(DATA.getLowerBoundKey(1.))), EPS);
-    assertEquals(40, DATA.getIndex(DATA.indexOf(DATA.getLowerBoundKey(4.))), EPS);
-    assertEquals(50, DATA.getIndex(DATA.indexOf(DATA.getLowerBoundKey(5.))), EPS);
+    assertEquals(10, DATA.getValue(DATA.indexOf(DATA.getLowerBoundKey(1.5))), EPS);
+    assertEquals(10, DATA.getValue(DATA.indexOf(DATA.getLowerBoundKey(1.))), EPS);
+    assertEquals(40, DATA.getValue(DATA.indexOf(DATA.getLowerBoundKey(4.))), EPS);
+    assertEquals(50, DATA.getValue(DATA.indexOf(DATA.getLowerBoundKey(5.))), EPS);
   }
 
   @Test
@@ -122,13 +122,13 @@ public abstract class Interpolator1DDataBundleTestCase {
 
   @Test
   public void pointLookup() {
-    assertEquals(10., DATA.getIndex(DATA.indexOf(1.)), EPS);
-    assertEquals(20., DATA.getIndex(DATA.indexOf(2.)), EPS);
-    assertEquals(30., DATA.getIndex(DATA.indexOf(3.)), EPS);
-    assertEquals(40., DATA.getIndex(DATA.indexOf(4.)), EPS);
-    assertEquals(50., DATA.getIndex(DATA.indexOf(5.)), EPS);
-    assertThrows(() -> DATA.getIndex(-1), IndexOutOfBoundsException.class);
-    assertThrows(() -> DATA.getIndex(6), IndexOutOfBoundsException.class);
+    assertEquals(10., DATA.getValue(DATA.indexOf(1.)), EPS);
+    assertEquals(20., DATA.getValue(DATA.indexOf(2.)), EPS);
+    assertEquals(30., DATA.getValue(DATA.indexOf(3.)), EPS);
+    assertEquals(40., DATA.getValue(DATA.indexOf(4.)), EPS);
+    assertEquals(50., DATA.getValue(DATA.indexOf(5.)), EPS);
+    assertThrows(() -> DATA.getValue(-1), IndexOutOfBoundsException.class);
+    assertThrows(() -> DATA.getValue(6), IndexOutOfBoundsException.class);
   }
 
   @Test

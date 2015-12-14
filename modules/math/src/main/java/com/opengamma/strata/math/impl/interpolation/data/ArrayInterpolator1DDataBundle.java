@@ -106,7 +106,12 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   }
 
   @Override
-  public double getIndex(int index) {
+  public double getKey(int index) {
+    return _keys[index];
+  }
+
+  @Override
+  public double getValue(int index) {
     return _values[index];
   }
 
@@ -132,7 +137,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
     }
     if (value > _keys[_n - 1]) {
       throw new IllegalArgumentException("Could not get lower bound index for " + value + ": highest x-value is "
-          + _keys[_keys.length - 1]);
+          + _keys[_n - 1]);
     }
     int index = indexOf(value);
     if (index >= 0) {
@@ -200,7 +205,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
 
   @Override
   public int size() {
-    return _keys.length;
+    return _n;
   }
 
   @Override

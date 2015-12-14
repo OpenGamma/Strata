@@ -59,7 +59,7 @@ public class Interpolator1DDoubleQuadraticDataBundleTest {
     assertFalse(DATA.containsKey(2.));
     assertEquals(DATA.firstKey(), 0., EPS);
     assertEquals(DATA.firstValue(), QUADRATIC.applyAsDouble(0.), EPS);
-    assertEquals(DATA.getIndex(DATA.indexOf(6.)), QUADRATIC.applyAsDouble(6.), EPS);
+    assertEquals(DATA.getValue(DATA.indexOf(6.)), QUADRATIC.applyAsDouble(6.), EPS);
     assertArrayEquals(DATA.getKeys(), X, 0);
     assertEquals(DATA.getLowerBoundIndex(11.), 3);
     assertEquals(DATA.getLowerBoundKey(7.), 6, EPS);
