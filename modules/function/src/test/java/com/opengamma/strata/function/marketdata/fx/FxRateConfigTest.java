@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.function.marketdata.fx;
 
-import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 

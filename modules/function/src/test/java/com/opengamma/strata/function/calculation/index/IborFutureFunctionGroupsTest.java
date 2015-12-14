@@ -27,7 +27,6 @@ import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
-import com.opengamma.strata.collect.CollectProjectAssertions;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
@@ -77,7 +76,7 @@ public class IborFutureFunctionGroupsTest {
     IborIndexRatesKey iborKey = IborIndexRatesKey.of(index);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(iborKey, dfKey, quoteKey));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(index)));
-    CollectProjectAssertions.assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy);
+    assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy);
     DiscountFactors df = SimpleDiscountFactors.of(
         ccy, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(date(2015, 3, 16), 0.0015);
