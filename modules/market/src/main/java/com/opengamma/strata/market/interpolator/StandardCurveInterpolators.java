@@ -46,7 +46,7 @@ final class StandardCurveInterpolators {
   // Natural cubic spline interpolator.
   public static final CurveInterpolator NATURAL_CUBIC_SPLINE =
       new ImmutableCurveInterpolator("NaturalCubicSpline", new NaturalCubicSplineInterpolator1D());
-  // Natural cubic spline interpolator.
+  // Natural spline interpolator.
   public static final CurveInterpolator NATURAL_SPLINE =
       new ImmutableCurveInterpolator("NaturalSpline", new NaturalSplineInterpolator1D());
 
