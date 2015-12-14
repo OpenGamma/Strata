@@ -69,6 +69,11 @@ public final class CurveInterpolators {
    */
   public static final CurveInterpolator NATURAL_CUBIC_SPLINE =
       CurveInterpolator.of(StandardCurveInterpolators.NATURAL_CUBIC_SPLINE.getName());
+  /**
+   * Natural spline interpolator.
+   */
+  public static final CurveInterpolator NATURAL_SPLINE =
+      CurveInterpolator.of(StandardCurveInterpolators.NATURAL_SPLINE.getName());
 
   //-------------------------------------------------------------------------
   /**

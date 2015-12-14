@@ -11,6 +11,7 @@ import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.LogNaturalCubicMonotonicityPreservingInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.NaturalCubicSplineInterpolator1D;
+import com.opengamma.strata.math.impl.interpolation.NaturalSplineInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.TimeSquareInterpolator1D;
 
 /**
@@ -45,6 +46,9 @@ final class StandardCurveInterpolators {
   // Natural cubic spline interpolator.
   public static final CurveInterpolator NATURAL_CUBIC_SPLINE =
       new ImmutableCurveInterpolator("NaturalCubicSpline", new NaturalCubicSplineInterpolator1D());
+  // Natural cubic spline interpolator.
+  public static final CurveInterpolator NATURAL_SPLINE =
+      new ImmutableCurveInterpolator("NaturalSpline", new NaturalSplineInterpolator1D());
 
   //-------------------------------------------------------------------------
   /**
