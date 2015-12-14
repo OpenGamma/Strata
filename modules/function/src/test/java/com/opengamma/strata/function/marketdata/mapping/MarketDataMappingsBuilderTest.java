@@ -63,7 +63,7 @@ public class MarketDataMappingsBuilderTest {
         MarketDataMappingsBuilder.create()
             .curveGroup(curveGroupName)
             .build();
-    PriceIndexValuesKey key = PriceIndexValuesKey.of(PriceIndices.CH_CPI);
+    PriceIndexValuesKey key = PriceIndexValuesKey.of(PriceIndices.SWF_CPI);
 
     MarketDataId<Curve> curveId = mappings.getIdForKey(DiscountCurveKey.of(Currency.GBP));
     MarketDataId<PriceIndexValues> id = mappings.getIdForKey(key);

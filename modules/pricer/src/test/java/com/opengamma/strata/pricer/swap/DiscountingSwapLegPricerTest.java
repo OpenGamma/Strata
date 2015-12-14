@@ -14,7 +14,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
-import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
+import static com.opengamma.strata.basics.index.PriceIndices.UK_RPI;
 import static com.opengamma.strata.basics.schedule.Frequency.P12M;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -518,7 +518,7 @@ public class DiscountingSwapLegPricerTest {
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final double CONSTANT_INDEX = 242.0;
   private static final PriceIndexValues GBPRI_CURVE_FLAT = ForwardPriceIndexValues.of(
-      GB_RPI,
+      UK_RPI,
       VAL_DATE_INFLATION,
       LocalDateDoubleTimeSeries.of(VAL_DATE_INFLATION.minusMonths(3), START_INDEX),
       InterpolatedNodalCurve.of(
@@ -529,7 +529,7 @@ public class DiscountingSwapLegPricerTest {
 
   private static final CurveInterpolator INTERP_SPLINE = CurveInterpolators.NATURAL_CUBIC_SPLINE;
   private static final PriceIndexValues GBPRI_CURVE = ForwardPriceIndexValues.of(
-      GB_RPI,
+      UK_RPI,
       VAL_DATE_INFLATION,
       LocalDateDoubleTimeSeries.of(VAL_DATE_INFLATION.minusMonths(3), 227.2),
       InterpolatedNodalCurve.of(
@@ -544,11 +544,11 @@ public class DiscountingSwapLegPricerTest {
     // setup
     SwapLeg swapLeg = createInflationSwapLeg(false, PAY);
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
-    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE_FLAT);
+    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(UK_RPI, GBPRI_CURVE_FLAT);
     Map<Currency, Curve> dscCurve = RATES_GBP.getDiscountCurves();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
-        .timeSeries(GB_RPI, ts)
+        .timeSeries(UK_RPI, ts)
         .priceIndexValues(map)
         .discountCurves(dscCurve)
         .build();
@@ -586,11 +586,11 @@ public class DiscountingSwapLegPricerTest {
     // setup
     SwapLeg swapLeg = createInflationSwapLeg(true, RECEIVE);
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
-    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE);
+    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(UK_RPI, GBPRI_CURVE);
     Map<Currency, Curve> dscCurve = RATES_GBP.getDiscountCurves();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
-        .timeSeries(GB_RPI, ts)
+        .timeSeries(UK_RPI, ts)
         .priceIndexValues(map)
         .discountCurves(dscCurve)
         .build();
@@ -638,7 +638,7 @@ public class DiscountingSwapLegPricerTest {
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     InflationRateCalculation rateCalc = InflationRateCalculation.builder()
-        .index(GB_RPI)
+        .index(UK_RPI)
         .interpolated(interpolated)
         .lag(Period.ofMonths(3))
         .build();

@@ -14,8 +14,6 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 
-import org.joda.beans.Bean;
-import org.joda.beans.ImmutableBean;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -30,21 +28,31 @@ public class FloatingRateNameTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "nameType")
   static Object[][] data_name_type() {
-    return new Object[][] {
-        {FloatingRateNames.GBP_LIBOR_BBA, "GBP-LIBOR-BBA", FloatingRateType.IBOR},
-        {FloatingRateNames.CHF_LIBOR_BBA, "CHF-LIBOR-BBA", FloatingRateType.IBOR},
-        {FloatingRateNames.EUR_LIBOR_BBA, "EUR-LIBOR-BBA", FloatingRateType.IBOR},
-        {FloatingRateNames.JPY_LIBOR_BBA, "JPY-LIBOR-BBA", FloatingRateType.IBOR},
-        {FloatingRateNames.USD_LIBOR_BBA, "USD-LIBOR-BBA", FloatingRateType.IBOR},
-        {FloatingRateNames.EUR_EURIBOR_REUTERS, "EUR-EURIBOR-Reuters", FloatingRateType.IBOR},
-        {FloatingRateNames.JPY_TIBOR_TIBM, "JPY-TIBOR-TIBM", FloatingRateType.IBOR},
+    return new Object[][]{
+        {FloatingRateName.of("GBP-LIBOR-BBA"), "GBP-LIBOR-BBA", FloatingRateType.IBOR},
+        {FloatingRateName.of("CHF-LIBOR-BBA"), "CHF-LIBOR-BBA", FloatingRateType.IBOR},
+        {FloatingRateName.of("EUR-LIBOR-BBA"), "EUR-LIBOR-BBA", FloatingRateType.IBOR},
+        {FloatingRateName.of("JPY-LIBOR-BBA"), "JPY-LIBOR-BBA", FloatingRateType.IBOR},
+        {FloatingRateName.of("USD-LIBOR-BBA"), "USD-LIBOR-BBA", FloatingRateType.IBOR},
+        {FloatingRateName.of("EUR-EURIBOR-Reuters"), "EUR-EURIBOR-Reuters", FloatingRateType.IBOR},
+        {FloatingRateName.of("JPY-TIBOR-TIBM"), "JPY-TIBOR-TIBM", FloatingRateType.IBOR},
 
-        {FloatingRateNames.GBP_WMBA_SONIA_COMPOUND, "GBP-WMBA-SONIA-COMPOUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
-        {FloatingRateNames.CHF_TOIS_OIS_COMPOUND, "CHF-TOIS-OIS-COMPOUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
-        {FloatingRateNames.EUR_EONIA_OIS_COMPOUND, "EUR-EONIA-OIS-COMPOUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
-        {FloatingRateNames.JPY_TONA_OIS_COMPOUND, "JPY-TONA-OIS-COMPOUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
-        {FloatingRateNames.USD_FEDERAL_FUNDS_H15_OIS_COMPOUND, "USD-Federal Funds-H.15-OIS-COMPOUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
-        {FloatingRateNames.USD_FEDERAL_FUNDS_H15, "USD-Federal Funds-H.15", FloatingRateType.OVERNIGHT_AVERAGED},
+        {FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND"), "GBP-WMBA-SONIA-COMPOUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {FloatingRateName.of("CHF-TOIS-OIS-COMPOUND"), "CHF-TOIS-OIS-COMPOUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {FloatingRateName.of("EUR-EONIA-OIS-COMPOUND"), "EUR-EONIA-OIS-COMPOUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {FloatingRateName.of("JPY-TONA-OIS-COMPOUND"), "JPY-TONA-OIS-COMPOUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {FloatingRateName.of("USD-Federal Funds-H.15-OIS-COMPOUND"), "USD-Federal Funds-H.15-OIS-COMPOUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {FloatingRateName.of("USD-Federal Funds-H.15"), "USD-Federal Funds-H.15", FloatingRateType.OVERNIGHT_AVERAGED},
+
+        {FloatingRateName.of("UK-HICP"), "UK-HICP", FloatingRateType.PRICE},
+        {FloatingRateName.of("UK-RPI"), "UK-RPI", FloatingRateType.PRICE},
+        {FloatingRateName.of("UK-RPIX"), "UK-RPIX", FloatingRateType.PRICE},
+        {FloatingRateName.of("SWF-CPI"), "SWF-CPI", FloatingRateType.PRICE},
+        {FloatingRateName.of("EUR-AI-CPI"), "EUR-AI-CPI", FloatingRateType.PRICE},
+        {FloatingRateName.of("EUR-EXT-CPI"), "EUR-EXT-CPI", FloatingRateType.PRICE},
+        {FloatingRateName.of("JPY-CPI-EXF"), "JPY-CPI-EXF", FloatingRateType.PRICE},
+        {FloatingRateName.of("USA-CPI-U"), "USA-CPI-U", FloatingRateType.PRICE},
+        {FloatingRateName.of("FRC-EXT-CPI"), "FRC-EXT-CPI", FloatingRateType.PRICE},
     };
   }
 
@@ -69,33 +77,38 @@ public class FloatingRateNameTest {
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> FloatingRateName.of((String) null));
+    assertThrowsIllegalArg(() -> FloatingRateName.of(null));
   }
 
   //-------------------------------------------------------------------------
   public void test_toIborIndex_tenor() {
-    assertEquals(FloatingRateNames.GBP_LIBOR_BBA.toIborIndex(Tenor.TENOR_6M), IborIndices.GBP_LIBOR_6M);
-    assertThrows(() -> FloatingRateNames.GBP_WMBA_SONIA_COMPOUND.toIborIndex(Tenor.TENOR_6M), IllegalStateException.class);
+    assertEquals(FloatingRateName.of("GBP-LIBOR-BBA").toIborIndex(Tenor.TENOR_6M), IborIndices.GBP_LIBOR_6M);
+    assertThrows(() -> FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toIborIndex(Tenor.TENOR_6M), IllegalStateException.class);
   }
 
   public void test_toOvernightIndex() {
-    assertEquals(FloatingRateNames.GBP_WMBA_SONIA_COMPOUND.toOvernightIndex(), OvernightIndices.GBP_SONIA);
-    assertThrows(() -> FloatingRateNames.GBP_LIBOR_BBA.toOvernightIndex(), IllegalStateException.class);
+    assertEquals(FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toOvernightIndex(), OvernightIndices.GBP_SONIA);
+    assertThrows(() -> FloatingRateName.of("GBP-LIBOR-BBA").toOvernightIndex(), IllegalStateException.class);
+  }
+
+  public void test_toPriceIndex() {
+    assertEquals(FloatingRateName.of("UK-HICP").toPriceIndex(), PriceIndices.UK_HICP);
+    assertThrows(() -> FloatingRateName.of("GBP-LIBOR-BBA").toPriceIndex(), IllegalStateException.class);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(FloatingRateNames.class);
-    coverImmutableBean((ImmutableBean) FloatingRateNames.GBP_LIBOR_BBA);
-    coverBeanEquals((Bean) FloatingRateNames.GBP_LIBOR_BBA, (Bean) FloatingRateNames.USD_FEDERAL_FUNDS_H15);
+    coverImmutableBean(FloatingRateName.of("GBP-LIBOR-BBA"));
+    coverBeanEquals(FloatingRateName.of("GBP-LIBOR-BBA"), FloatingRateName.of("USD-Federal Funds-H.15"));
   }
 
   public void test_jodaConvert() {
-    assertJodaConvert(FloatingRateName.class, FloatingRateNames.GBP_LIBOR_BBA);
+    assertJodaConvert(FloatingRateName.class, FloatingRateName.of("GBP-LIBOR-BBA"));
   }
 
   public void test_serialization() {
-    assertSerialization(FloatingRateNames.GBP_LIBOR_BBA);
+    assertSerialization(FloatingRateName.of("GBP-LIBOR-BBA"));
   }
 
 }

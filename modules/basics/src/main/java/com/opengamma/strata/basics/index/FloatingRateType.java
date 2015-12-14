@@ -40,6 +40,12 @@ public enum FloatingRateType {
    */
   OVERNIGHT_AVERAGED,
   /**
+   * A floating rate index that is based on a price index.
+   * <p>
+   * This kind of rate translates to an {@link PriceIndex}.
+   */
+  PRICE,
+  /**
    * A floating rate index of another type.
    */
   OTHER;
@@ -62,7 +68,7 @@ public enum FloatingRateType {
   /**
    * Checks if the type is 'Ibor'.
    * 
-   * @return true if fixed, false otherwise
+   * @return true if Ibor, false otherwise
    */
   public boolean isIbor() {
     return this == IBOR;
@@ -71,10 +77,19 @@ public enum FloatingRateType {
   /**
    * Checks if the type is 'OvernightCompounded' or 'OvernightAveraged'.
    * 
-   * @return true if fixed, false otherwise
+   * @return true if Overnight, false otherwise
    */
   public boolean isOvernight() {
     return this == OVERNIGHT_COMPOUNDED || this == OVERNIGHT_AVERAGED;
+  }
+
+  /**
+   * Checks if the type is 'Price'.
+   *
+   * @return true if Price, false otherwise
+   */
+  public boolean isPrice() {
+    return this == PRICE;
   }
 
   //-------------------------------------------------------------------------
