@@ -11,7 +11,6 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.FX_MATRIX_GBP_USD;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_GBP_USD;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.VAL_DATE_2014_01_22;
@@ -231,18 +230,6 @@ public class DiscountingRatePaymentPeriodPricerTest {
     double pvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.presentValue(PAYMENT_PERIOD_1, prov);
     assertEquals(pvComputed, pvExpected, TOLERANCE_PV);
   }
-  
-  public void test_presentValueCashFlowEquivalent_single() {
-    SimpleRatesProvider prov = createProvider(VAL_DATE);
-
-    LocalDate fixingStartDate = USD_LIBOR_3M.calculateEffectiveFromFixing(FX_DATE_1);
-    double yc = USD_LIBOR_3M.getDayCount().relativeYearFraction(
-        fixingStartDate, USD_LIBOR_3M.calculateMaturityFromEffective(fixingStartDate));
-    double pvExpected = (1d + RATE_1 * yc) * NOTIONAL_100 * DISCOUNT_FACTOR;
-    double pvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT
-        .presentValueCashFlowEquivalent(PAYMENT_PERIOD_1_IBOR, prov);
-    assertEquals(pvComputed, pvExpected, TOLERANCE_PV);
-  }
 
   //-------------------------------------------------------------------------
   public void test_forecastValue_single() {
@@ -366,12 +353,6 @@ public class DiscountingRatePaymentPeriodPricerTest {
         (ACCRUAL_FACTOR_1 + ACCRUAL_FACTOR_2 + ACCRUAL_FACTOR_3) * SPREAD);
     double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(period, prov);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
-  }
-
-  public void test_presentValueCashFlowEquivalent_compound() {
-    SimpleRatesProvider prov = createProvider(VAL_DATE);
-    assertThrowsIllegalArg(() -> DiscountingRatePaymentPeriodPricer.DEFAULT
-        .presentValueCashFlowEquivalent(PAYMENT_PERIOD_COMP_IBOR, prov));
   }
 
   //-------------------------------------------------------------------------
@@ -571,22 +552,6 @@ public class DiscountingRatePaymentPeriodPricerTest {
         provider, (p) -> CurrencyAmount.of(GBP, pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_GBP, (p))));
     assertTrue(sensiComputedGBP.equalWithTolerance(
         sensiExpectedGBP, EPS_FD * PAYMENT_PERIOD_FULL_GS_FX_GBP.getNotional()));
-  }
-
-  public void test_presentValueSensitivityCashFlowEquivalent_single() {
-    DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
-    ImmutableRatesProvider provider = MULTI_GBP_USD;
-    PointSensitivities point = pricer.presentValueSensitivityCashFlowEquivalent(PAYMENT_PERIOD_1_IBOR, provider).build();
-    CurveCurrencyParameterSensitivities computed = provider.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expected = CAL_FD.sensitivity(provider, p ->
-        CurrencyAmount.of(USD, pricer.presentValueCashFlowEquivalent(PAYMENT_PERIOD_1_IBOR, p)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL_100 * EPS_FD));
-  }
-
-  public void test_presentValueSensitivityCashFlowEquivalent_compound() {
-    DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
-    ImmutableRatesProvider provider = MULTI_GBP_USD;
-    assertThrowsIllegalArg(() -> pricer.presentValueSensitivityCashFlowEquivalent(PAYMENT_PERIOD_COMP_IBOR, provider));
   }
 
   //-------------------------------------------------------------------------

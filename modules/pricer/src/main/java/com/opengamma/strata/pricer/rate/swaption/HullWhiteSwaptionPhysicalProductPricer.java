@@ -7,6 +7,8 @@ package com.opengamma.strata.pricer.rate.swaption;
 
 import java.time.LocalDate;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.value.ValueDerivatives;
@@ -19,12 +21,11 @@ import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistrib
 import com.opengamma.strata.pricer.impl.rate.swap.CashFlowEquivalentCalculator;
 import com.opengamma.strata.pricer.index.HullWhiteOneFactorPiecewiseConstantParametersProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.swap.PaymentPeriodPricer;
+import com.opengamma.strata.pricer.swap.PaymentEventPricer;
 import com.opengamma.strata.product.swap.ExpandedSwap;
 import com.opengamma.strata.product.swap.ExpandedSwapLeg;
-import com.opengamma.strata.product.swap.KnownAmountPaymentPeriod;
-import com.opengamma.strata.product.swap.PaymentPeriod;
-import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.NotionalExchange;
+import com.opengamma.strata.product.swap.PaymentEvent;
 import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swaption.ExpandedSwaption;
 import com.opengamma.strata.product.swaption.SettlementType;
@@ -51,20 +52,20 @@ public class HullWhiteSwaptionPhysicalProductPricer {
    * Default implementation.
    */
   public static final HullWhiteSwaptionPhysicalProductPricer DEFAULT =
-      new HullWhiteSwaptionPhysicalProductPricer(PaymentPeriodPricer.instance());
+      new HullWhiteSwaptionPhysicalProductPricer(PaymentEventPricer.instance());
 
   /**
-   * Pricer for {@link PaymentPeriod}.
+   * Pricer for {@link PaymentEvent}.
    */
-  private final PaymentPeriodPricer<PaymentPeriod> paymentPeriodPricer;
+  private final PaymentEventPricer<PaymentEvent> paymentEventPricer;
 
   /**
    * Creates an instance.
    * 
-   * @param paymentPeriodPricer  the pricer for {@link PaymentPeriod}
+   * @param paymentEventPricer  the pricer for {@link PaymentEvent}
    */
-  public HullWhiteSwaptionPhysicalProductPricer(PaymentPeriodPricer<PaymentPeriod> paymentPeriodPricer) {
-    this.paymentPeriodPricer = ArgChecker.notNull(paymentPeriodPricer, "paymentPeriodPricer");
+  public HullWhiteSwaptionPhysicalProductPricer(PaymentEventPricer<PaymentEvent> paymentEventPricer) {
+    this.paymentEventPricer = ArgChecker.notNull(paymentEventPricer, "paymentEventPricer");
   }
 
   /**
@@ -85,19 +86,19 @@ public class HullWhiteSwaptionPhysicalProductPricer {
     ExpandedSwaption expanded = swaption.expand();
     validate(expanded, ratesProvider, hwProvider);
     ExpandedSwap swap = expanded.getUnderlying();
-    ExpandedSwapLeg cashFlowEquiv = CashFlowEquivalentCalculator.cashFlowEquivalent(swap);
     LocalDate expiryDate = expanded.getExpiryDate();
     if (expiryDate.isBefore(ratesProvider.getValuationDate())) { // Option has expired already
-      return CurrencyAmount.of(cashFlowEquiv.getCurrency(), 0d);
+      return CurrencyAmount.of(swap.getLegs().get(0).getCurrency(), 0d);
     }
-    int nPayments = cashFlowEquiv.getPaymentPeriods().size();
+    ExpandedSwapLeg cashFlowEquiv = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, ratesProvider);
+    int nPayments = cashFlowEquiv.getPaymentEvents().size();
     double[] alpha = new double[nPayments];
     double[] discountedCashFlow = new double[nPayments];
     for (int loopcf = 0; loopcf < nPayments; loopcf++) {
-      PaymentPeriod payment = cashFlowEquiv.getPaymentPeriods().get(loopcf);
-      LocalDate maturityDate = cashFlowEquivalentMaturityDate(payment);
+      PaymentEvent payment = cashFlowEquiv.getPaymentEvents().get(loopcf);
+      LocalDate maturityDate = payment.getPaymentDate();
       alpha[loopcf] = hwProvider.alpha(ratesProvider.getValuationDate(), expiryDate, expiryDate, maturityDate);
-      discountedCashFlow[loopcf] = paymentPeriodPricer.presentValueCashFlowEquivalent(payment, ratesProvider);
+      discountedCashFlow[loopcf] = paymentEventPricer.presentValue(payment, ratesProvider);
     }
     double omega = (swap.getLegs(SwapLegType.FIXED).get(0).getPayReceive().isPay() ? -1d : 1d);
     double kappa = computeKappa(hwProvider, discountedCashFlow, alpha, omega);
@@ -145,27 +146,33 @@ public class HullWhiteSwaptionPhysicalProductPricer {
     ExpandedSwaption expanded = swaption.expand();
     validate(expanded, ratesProvider, hwProvider);
     ExpandedSwap swap = expanded.getUnderlying();
-    ExpandedSwapLeg cashFlowEquiv = CashFlowEquivalentCalculator.cashFlowEquivalent(swap);
     LocalDate expiryDate = expanded.getExpiryDate();
     if (expiryDate.isBefore(ratesProvider.getValuationDate())) { // Option has expired already
       return PointSensitivityBuilder.none();
     }
-    int nPayments = cashFlowEquiv.getPaymentPeriods().size();
+    ImmutableMap<NotionalExchange, PointSensitivityBuilder> cashFlowEquivSensi =
+        CashFlowEquivalentCalculator.cashFlowEquivalentAndSensitivitySwap(swap, ratesProvider);
+    ImmutableList<NotionalExchange> list = cashFlowEquivSensi.keySet().asList();
+    ImmutableList<PointSensitivityBuilder> listSensi = cashFlowEquivSensi.values().asList();
+    int nPayments = list.size();
     double[] alpha = new double[nPayments];
     double[] discountedCashFlow = new double[nPayments];
     for (int loopcf = 0; loopcf < nPayments; loopcf++) {
-      PaymentPeriod payment = cashFlowEquiv.getPaymentPeriods().get(loopcf);
-      LocalDate maturityDate = cashFlowEquivalentMaturityDate(payment);
-      alpha[loopcf] = hwProvider.alpha(ratesProvider.getValuationDate(), expiryDate, expiryDate, maturityDate);
-      discountedCashFlow[loopcf] = paymentPeriodPricer.presentValueCashFlowEquivalent(payment, ratesProvider);
+      NotionalExchange payment = list.get(loopcf);
+      alpha[loopcf] = hwProvider.alpha(ratesProvider.getValuationDate(), expiryDate, expiryDate, payment.getPaymentDate());
+      discountedCashFlow[loopcf] = paymentEventPricer.presentValue(payment, ratesProvider);
     }
     double omega = (swap.getLegs(SwapLegType.FIXED).get(0).getPayReceive().isPay() ? -1d : 1d);
     double kappa = computeKappa(hwProvider, discountedCashFlow, alpha, omega);
     PointSensitivityBuilder point = PointSensitivityBuilder.none();
     for (int loopcf = 0; loopcf < nPayments; loopcf++) {
-      PaymentPeriod payment = cashFlowEquiv.getPaymentPeriods().get(loopcf);
-      point = point.combinedWith(paymentPeriodPricer.presentValueSensitivityCashFlowEquivalent(payment, ratesProvider)
-          .multipliedBy(NORMAL.getCDF(omega * (kappa + alpha[loopcf]))));
+      NotionalExchange payment = list.get(loopcf);
+      double cdf = NORMAL.getCDF(omega * (kappa + alpha[loopcf]));
+      point = point.combinedWith(paymentEventPricer.presentValueSensitivity(payment, ratesProvider).multipliedBy(cdf));
+      if (!listSensi.get(loopcf).equals(PointSensitivityBuilder.none())) {
+        point = point.combinedWith(listSensi.get(loopcf)
+            .multipliedBy(cdf * ratesProvider.discountFactor(payment.getCurrency(), payment.getPaymentDate())));
+      }
     }
     return expanded.getLongShort().isLong() ? point : point.multipliedBy(-1d);
   }
@@ -187,23 +194,22 @@ public class HullWhiteSwaptionPhysicalProductPricer {
     ExpandedSwaption expanded = swaption.expand();
     validate(expanded, ratesProvider, hwProvider);
     ExpandedSwap swap = expanded.getUnderlying();
-    ExpandedSwapLeg cashFlowEquiv = CashFlowEquivalentCalculator.cashFlowEquivalent(swap);
     LocalDate expiryDate = expanded.getExpiryDate();
     if (expiryDate.isBefore(ratesProvider.getValuationDate())) { // Option has expired already
       return DoubleArray.EMPTY;
     }
-    int nPayments = cashFlowEquiv.getPaymentPeriods().size();
+    ExpandedSwapLeg cashFlowEquiv = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, ratesProvider);
+    int nPayments = cashFlowEquiv.getPaymentEvents().size();
     double[] alpha = new double[nPayments];
     double[][] alphaAdjoint = new double[nPayments][];
     double[] discountedCashFlow = new double[nPayments];
     for (int loopcf = 0; loopcf < nPayments; loopcf++) {
-      PaymentPeriod payment = cashFlowEquiv.getPaymentPeriods().get(loopcf);
-      LocalDate maturityDate = cashFlowEquivalentMaturityDate(payment);
+      PaymentEvent payment = cashFlowEquiv.getPaymentEvents().get(loopcf);
       ValueDerivatives valueDeriv = hwProvider.alphaAdjoint(
-          ratesProvider.getValuationDate(), expiryDate, expiryDate, maturityDate);
+          ratesProvider.getValuationDate(), expiryDate, expiryDate, payment.getPaymentDate());
       alpha[loopcf] = valueDeriv.getValue();
       alphaAdjoint[loopcf] = valueDeriv.getDerivatives().toArray();
-      discountedCashFlow[loopcf] = paymentPeriodPricer.presentValueCashFlowEquivalent(payment, ratesProvider);
+      discountedCashFlow[loopcf] = paymentEventPricer.presentValue(payment, ratesProvider);
     }
     double omega = (swap.getLegs(SwapLegType.FIXED).get(0).getPayReceive().isPay() ? -1d : 1d);
     double kappa = computeKappa(hwProvider, discountedCashFlow, alpha, omega);
@@ -219,7 +225,7 @@ public class HullWhiteSwaptionPhysicalProductPricer {
             omega * alphaAdjoint[loopcf][i];
       }
     }
-    return DoubleArray.copyOf(pvSensi);
+    return DoubleArray.ofUnsafe(pvSensi);
   }
 
   //-------------------------------------------------------------------------
@@ -241,14 +247,9 @@ public class HullWhiteSwaptionPhysicalProductPricer {
       double totalPv = DoubleArrayMath.sum(discountedCashFlow);
       kappa = totalPv * omega > 0d ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
     } else {
-      kappa = hwProvider.getModel().kappa(DoubleArray.copyOf(discountedCashFlow), DoubleArray.copyOf(alpha));
+      kappa = hwProvider.getModel().kappa(DoubleArray.ofUnsafe(discountedCashFlow), DoubleArray.ofUnsafe(alpha));
     }
     return kappa;
   }
 
-  // returns maturity date used to compute alpha
-  private LocalDate cashFlowEquivalentMaturityDate(PaymentPeriod payment) {
-    return payment instanceof KnownAmountPaymentPeriod ? payment.getPaymentDate()
-        : ((RatePaymentPeriod) payment).getAccrualPeriods().get(0).getStartDate();
-  }
 }

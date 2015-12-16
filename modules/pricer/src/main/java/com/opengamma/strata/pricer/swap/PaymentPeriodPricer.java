@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.swap;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.impl.rate.swap.CashFlowEquivalentCalculator;
 import com.opengamma.strata.pricer.impl.swap.DispatchingPaymentPeriodPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.swap.PaymentPeriod;
@@ -62,37 +61,6 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * @return the present value curve sensitivity of the period
    */
   public abstract PointSensitivityBuilder presentValueSensitivity(T period, RatesProvider provider);
-
-  /**
-   * Calculates the present value of a single payment period of the cash flow equivalent.
-   * <p>
-   * The amount is expressed in the currency of the period.
-   * This returns the value of the period with discounting.
-   * <p>
-   * The payment date of the period should not be in the past.
-   * The result of this method for payment dates in the past is undefined.
-   * <p>
-   * The cash flow equivalent is created by {@link CashFlowEquivalentCalculator}.
-   * 
-   * @param period  the period to price
-   * @param provider  the rates provider
-   * @return the present value of the period
-   */
-  public abstract double presentValueCashFlowEquivalent(T period, RatesProvider provider);
-
-  /**
-   * Calculates the present value sensitivity of a single payment period of the cash flow equivalent.
-   * <p>
-   * The present value sensitivity of the period is the sensitivity of the present value to
-   * the underlying curves.
-   * <p>
-   * The cash flow equivalent is created by {@link CashFlowEquivalentCalculator}.
-   * 
-   * @param period  the period to price
-   * @param provider  the rates provider
-   * @return the present value curve sensitivity of the period
-   */
-  public abstract PointSensitivityBuilder presentValueSensitivityCashFlowEquivalent(T period, RatesProvider provider);
 
   //-------------------------------------------------------------------------
   /**
