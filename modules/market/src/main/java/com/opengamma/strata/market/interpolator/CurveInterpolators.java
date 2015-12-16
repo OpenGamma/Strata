@@ -24,22 +24,19 @@ public final class CurveInterpolators {
    * The interpolated value of the function <i>y</i> at <i>x</i> between two data points
    * <i>(x<sub>1</sub>, y<sub>1</sub>)</i> and <i>(x<sub>2</sub>, y<sub>2</sub>)</i> is given by:<br>
    * <i>y = y<sub>1</sub> + (x - x<sub>1</sub>) * (y<sub>2</sub> - y<sub>1</sub>)
-   * / (x<sub>2</sub> - x<sub>1</sub>)</i>
+   * / (x<sub>2</sub> - x<sub>1</sub>)</i>.
    */
   public static final CurveInterpolator LINEAR =
       CurveInterpolator.of(StandardCurveInterpolators.LINEAR.getName());
   /**
-   * Exponential interpolator.
+   * Log linear interpolator.
    * <p>
    * The interpolated value of the function <i>y</i> at <i>x</i> between two data points
    * <i>(x<sub>1</sub>, y<sub>1</sub>)</i> and <i>(x<sub>2</sub>, y<sub>2</sub>)</i> is given by:<br>
-   * <i>y = a * exp( b * x )</i><br />
-   * where a, b are real constants. Note that all of y data should have the same sign.
-   */
-  public static final CurveInterpolator EXPONENTIAL =
-      CurveInterpolator.of(StandardCurveInterpolators.EXPONENTIAL.getName());
-  /**
-   * Log linear interpolator.
+   * <i>y = y<sub>1</sub> (y<sub>2</sub> / y<sub>1</sub>) ^ ((x - x<sub>1</sub>) /
+   * (x<sub>2</sub> - x<sub>1</sub>))</i><br>
+   * It is the equivalent of performing a linear interpolation on a data set after
+   * taking the logarithm of the y-values.
    */
   public static final CurveInterpolator LOG_LINEAR =
       CurveInterpolator.of(StandardCurveInterpolators.LOG_LINEAR.getName());
