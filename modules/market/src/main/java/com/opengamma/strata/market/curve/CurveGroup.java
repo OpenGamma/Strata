@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.market.curve;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -80,7 +80,13 @@ public final class CurveGroup
   /**
    * Creates a curve group using a curve group definition and some existing curves.
    * <p>
-   * The curves must include all curves named in the curve group definition.
+   * If there are curves named in the definition which are not present in the curves the group is built using
+   * whatever curves are available.
+   * <p>
+   * If there are multiple curves with the same name in the curves one of them is arbitrarily chosen.
+   * <p>
+   * Multiple curves with the same name are allowed to support the use case where the list contains the same
+   * curve multiple times. This means the caller doesn't have to filter the input curves to remove duplicates.
    *
    * @param curveGroupDefinition  the definition of a curve group
    * @param curves  some curves
@@ -95,6 +101,11 @@ public final class CurveGroup
    * <p>
    * If there are curves named in the definition which are not present in the curves the group is built using
    * whatever curves are available.
+   * <p>
+   * If there are multiple curves with the same name in the curves one of them is arbitrarily chosen.
+   * <p>
+   * Multiple curves with the same name are allowed to support the use case where the list contains the same
+   * curve multiple times. This means the caller doesn't have to filter the input curves to remove duplicates.
    *
    * @param curveGroupDefinition  the definition of a curve group
    * @param curves  some curves
@@ -103,9 +114,8 @@ public final class CurveGroup
   public static CurveGroup ofCurves(CurveGroupDefinition curveGroupDefinition, Collection<? extends Curve> curves) {
     Map<Currency, Curve> discountCurves = new HashMap<>();
     Map<Index, Curve> forwardCurves = new HashMap<>();
-    // The immutable curve builder in toImmutableMap ensures the same curve doesn't appear twice
-    Map<CurveName, Curve> curveMap =
-        curves.stream().collect(toImmutableMap(curve -> curve.getMetadata().getCurveName(), curve -> curve));
+    Map<CurveName, Curve> curveMap = curves.stream()
+        .collect(toMap(curve -> curve.getMetadata().getCurveName(), curve -> curve, (curve1, curve2) -> curve1));
 
     for (CurveGroupEntry entry : curveGroupDefinition.getEntries()) {
       CurveName curveName = entry.getCurveName();

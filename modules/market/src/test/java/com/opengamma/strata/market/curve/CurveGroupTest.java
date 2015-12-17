@@ -84,6 +84,16 @@ public class CurveGroupTest {
     assertThat(group.findForwardCurve(EUR_EONIA)).hasValue(OVERNIGHT_CURVE);
   }
 
+  public void test_ofCurves_duplicateCurveName() {
+    CurveGroupDefinition definition = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("group"))
+        .addForwardCurve(IBOR_NAME, USD_LIBOR_1M, USD_LIBOR_2M)
+        .build();
+    CurveGroup group = CurveGroup.ofCurves(definition, IBOR_CURVE, IBOR_CURVE);
+    assertThat(group.findForwardCurve(USD_LIBOR_1M)).hasValue(IBOR_CURVE);
+    assertThat(group.findForwardCurve(USD_LIBOR_2M)).hasValue(IBOR_CURVE);
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     CurveGroup test = CurveGroup.of(NAME, DISCOUNT_CURVES, IBOR_CURVES);
