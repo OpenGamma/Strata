@@ -79,11 +79,6 @@ public class AddFixedCurveTest {
     assertThrowsIllegalArg(() -> AddFixedCurve.of(FIXED_CURVE, null));
   }
   
-  public void of_v_builder() {
-    AddFixedCurve builder = AddFixedCurve.builder().fixedCurve(FIXED_CURVE).spreadCurve(SPREAD_CURVE).build();
-    assertEquals(ADD_FIXED_CURVE, builder);
-  }
-  
   public void getter() {
     assertEquals(ADD_FIXED_CURVE.getMetadata(), METADATA_SPREAD);
     assertEquals(ADD_FIXED_CURVE.getParameterCount(), XVALUES_SPREAD.size());

@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.market.Perturbation;
+import org.joda.beans.BeanBuilder;
 
 /**
  * A curve described as the sum of two other curves.
@@ -34,9 +35,9 @@ import com.opengamma.strata.market.Perturbation;
  * on the non-fixed curve, also called spread curve.
  */
 
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class AddFixedCurve
-    implements Curve, ImmutableBean, Serializable {
+    implements Curve, ImmutableBean, Serializable { 
 
   /**
    * The fixed curve. Also called base or shape curve.
@@ -52,14 +53,14 @@ public final class AddFixedCurve
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a curve ass the sum of a fixed curve and a spread curve.
+   * Creates a curve as the sum of a fixed curve and a spread curve.
    * 
    * @param fixedCurve  the fixed curve
    * @param spreadCurve  the spread curve
    * @return the curve
    */
   public static AddFixedCurve of(Curve fixedCurve, Curve spreadCurve) {
-    return AddFixedCurve.builder().fixedCurve(fixedCurve).spreadCurve(spreadCurve).build();
+    return new AddFixedCurve(fixedCurve, spreadCurve);
   }
 
   @Override
@@ -111,14 +112,6 @@ public final class AddFixedCurve
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static AddFixedCurve.Builder builder() {
-    return new AddFixedCurve.Builder();
-  }
-
   private AddFixedCurve(
       Curve fixedCurve,
       Curve spreadCurve) {
@@ -162,14 +155,6 @@ public final class AddFixedCurve
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -247,7 +232,7 @@ public final class AddFixedCurve
     }
 
     @Override
-    public AddFixedCurve.Builder builder() {
+    public BeanBuilder<? extends AddFixedCurve> builder() {
       return new AddFixedCurve.Builder();
     }
 
@@ -305,7 +290,7 @@ public final class AddFixedCurve
   /**
    * The bean-builder for {@code AddFixedCurve}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<AddFixedCurve> {
+  private static final class Builder extends DirectFieldsBeanBuilder<AddFixedCurve> {
 
     private Curve fixedCurve;
     private Curve spreadCurve;
@@ -314,15 +299,6 @@ public final class AddFixedCurve
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(AddFixedCurve beanToCopy) {
-      this.fixedCurve = beanToCopy.getFixedCurve();
-      this.spreadCurve = beanToCopy.getSpreadCurve();
     }
 
     //-----------------------------------------------------------------------
@@ -382,29 +358,6 @@ public final class AddFixedCurve
       return new AddFixedCurve(
           fixedCurve,
           spreadCurve);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the fixed curve. Also called base or shape curve.
-     * @param fixedCurve  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder fixedCurve(Curve fixedCurve) {
-      JodaBeanUtils.notNull(fixedCurve, "fixedCurve");
-      this.fixedCurve = fixedCurve;
-      return this;
-    }
-
-    /**
-     * Sets the spread curve. Also called the variable curve.
-     * @param spreadCurve  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder spreadCurve(Curve spreadCurve) {
-      JodaBeanUtils.notNull(spreadCurve, "spreadCurve");
-      this.spreadCurve = spreadCurve;
-      return this;
     }
 
     //-----------------------------------------------------------------------
