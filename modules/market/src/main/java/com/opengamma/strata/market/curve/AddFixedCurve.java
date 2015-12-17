@@ -28,11 +28,11 @@ import com.opengamma.strata.market.Perturbation;
 import org.joda.beans.BeanBuilder;
 
 /**
- * A curve described as the sum of two other curves.
+ * This curve is formed from two curves, the fixed curve and the spread curve.
  * <p>
- * Of the two curves composition this curve, one is considered as fixed. It impacts the shape of the total curve
- * but not its number of parameters. The sensitivity and perturbation of the total curve is coming from change
- * on the non-fixed curve, also called spread curve.
+ * The spread curve is the primary curve, providing the metadata, parameters, sensitivity and perturbation.
+ * The fixed curve only affects the shape of the curve via the {@link #yValue(double)}
+ * and {@link #firstDerivative(double)} methods.
  */
 
 @BeanDefinition(builderScope = "private")
