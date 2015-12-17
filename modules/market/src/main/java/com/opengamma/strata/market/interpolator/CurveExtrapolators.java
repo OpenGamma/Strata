@@ -81,6 +81,13 @@ public final class CurveExtrapolators {
    */
   public static final CurveExtrapolator EXCEPTION =
       CurveExtrapolator.of(StandardCurveExtrapolators.EXCEPTION.getName());
+  /**
+   * Interpolator extrapolator.
+   * <p>
+   * The extrapolator does no extrapolation itself and delegates to the interpolator for all operations.
+   */
+  public static final CurveExtrapolator INTERPOLATOR =
+      CurveExtrapolator.of(StandardCurveExtrapolators.INTERPOLATOR.getName());
 
   //-------------------------------------------------------------------------
   /**

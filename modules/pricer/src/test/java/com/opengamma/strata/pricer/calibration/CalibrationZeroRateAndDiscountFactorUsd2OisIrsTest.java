@@ -406,6 +406,46 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
     calibration_market_quote_sensitivity_check(f, config, shift);
   }
 
+  public void calibration_present_value_discountCurve_clamped() {
+    CurveInterpolator interp = CurveInterpolators.LOG_NATURAL_CUBIC_DISCOUNT_FACTOR;
+    CurveExtrapolator extrapRight = CurveExtrapolators.LOG_LINEAR;
+    CurveExtrapolator extrapLeft = CurveExtrapolators.INTERPOLATOR;
+    InterpolatedNodalCurveDefinition dsc =
+        InterpolatedNodalCurveDefinition.builder()
+            .name(DSCON_CURVE_NAME)
+            .xValueType(ValueType.YEAR_FRACTION)
+            .yValueType(ValueType.DISCOUNT_FACTOR)
+            .dayCount(CURVE_DC)
+            .interpolator(interp)
+            .extrapolatorLeft(extrapLeft)
+            .extrapolatorRight(extrapRight)
+            .nodes(DSC_NODES).build();
+    InterpolatedNodalCurveDefinition fwd =
+        InterpolatedNodalCurveDefinition.builder()
+            .name(FWD3_CURVE_NAME)
+            .xValueType(ValueType.YEAR_FRACTION)
+            .yValueType(ValueType.DISCOUNT_FACTOR)
+            .dayCount(CURVE_DC)
+            .interpolator(interp)
+            .extrapolatorLeft(extrapLeft)
+            .extrapolatorRight(extrapRight)
+            .nodes(FWD3_NODES).build();
+    CurveGroupDefinition config =
+        CurveGroupDefinition.builder()
+            .name(CURVE_GROUP_NAME)
+            .addCurve(dsc, USD, USD_FED_FUND)
+            .addForwardCurve(fwd, USD_LIBOR_3M)
+            .build();
+    ImmutableRatesProvider result =
+        CALIBRATOR.calibrate(config, VAL_DATE, ALL_QUOTES, TS);
+    assertResult(result);
+
+    double shift = 1.0E-6;
+    Function<MarketData, ImmutableRatesProvider> f =
+        marketData -> CALIBRATOR.calibrate(config, VAL_DATE, marketData, TS);
+    calibration_market_quote_sensitivity_check(f, config, shift);
+  }
+
   //-------------------------------------------------------------------------
   @SuppressWarnings("unused")
   @Test(enabled = false)
