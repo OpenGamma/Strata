@@ -6,45 +6,41 @@
 package com.opengamma.strata.market.curve;
 
 import java.io.Serializable;
-import java.util.Set;
-
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.Property;
-import org.joda.beans.PropertyDefinition;
-
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.market.Perturbation;
-import org.joda.beans.BeanBuilder;
 
 /**
- * This curve is formed from two curves, the fixed curve and the spread curve.
+ * A curve formed from two curves, the fixed curve and the spread curve.
  * <p>
  * The spread curve is the primary curve, providing the metadata, parameters, sensitivity and perturbation.
  * The fixed curve only affects the shape of the curve via the {@link #yValue(double)}
  * and {@link #firstDerivative(double)} methods.
  */
-
 @BeanDefinition(builderScope = "private")
 public final class AddFixedCurve
-    implements Curve, ImmutableBean, Serializable { 
+    implements Curve, ImmutableBean, Serializable {
 
   /**
    * The fixed curve. Also called base or shape curve.
    */
   @PropertyDefinition(validate = "notNull")
   private final Curve fixedCurve;
-  
   /**
    * The spread curve. Also called the variable curve.
    */
@@ -63,6 +59,7 @@ public final class AddFixedCurve
     return new AddFixedCurve(fixedCurve, spreadCurve);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public CurveMetadata getMetadata() {
     return spreadCurve.getMetadata();
@@ -87,7 +84,7 @@ public final class AddFixedCurve
   public double firstDerivative(double x) {
     return fixedCurve.firstDerivative(x) + spreadCurve.firstDerivative(x);
   }
-  
+
   @Override
   public Curve applyPerturbation(Perturbation<Curve> perturbation) {
     return AddFixedCurve.of(fixedCurve, perturbation.applyTo(spreadCurve));
