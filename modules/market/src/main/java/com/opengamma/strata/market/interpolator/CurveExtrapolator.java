@@ -9,6 +9,7 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 
@@ -41,6 +42,28 @@ public interface CurveExtrapolator extends Named {
   public static ExtendedEnum<CurveExtrapolator> extendedEnum() {
     return CurveExtrapolators.ENUM_LOOKUP;
   }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Binds this extrapolator to a curve.
+   * <p>
+   * The bind process takes the definition of the extrapolator and combines it with the x-y values.
+   * This allows implementations to optimize extrapolation calculations.
+   * <p>
+   * This method is intended to be called from within
+   * {@link CurveInterpolator#bind(DoubleArray, DoubleArray, CurveExtrapolator, CurveExtrapolator)}.
+   * Callers should ensure that the interpolator instance passed in fully constructed.
+   * For example, it is incorrect to call this method from a {@link BoundCurveInterpolator} constructor.
+   *
+   * @param xValues  the x-values of the curve, must be sorted from low to high
+   * @param yValues  the y-values of the curve
+   * @param interpolator  the interpolator
+   * @return the bound extrapolator
+   */
+  public abstract BoundCurveExtrapolator bind(
+      DoubleArray xValues,
+      DoubleArray yValues,
+      BoundCurveInterpolator interpolator);
 
   //-------------------------------------------------------------------------
   /**

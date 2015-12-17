@@ -68,10 +68,19 @@ public final class CurveExtrapolators {
   public static final CurveExtrapolator RECIPROCAL =
       CurveExtrapolator.of(StandardCurveExtrapolators.RECIPROCAL.getName());
   /**
-   * Extrapolator that does no extrapolation and delegates to the interpolator.
+   * Exponential extrapolator.
+   * <p>
+   * Outside the data range the function is an exponential exp(m*x) where m is such that
+   * on the left {@code exp(m * firstXValue) = firstYValue} and on the right
+   * {@code exp(m * lastXValue) = lastYValue}.
    */
-  public static final CurveExtrapolator INTERPOLATOR =
-      CurveExtrapolator.of(StandardCurveExtrapolators.INTERPOLATOR.getName());
+  public static final CurveExtrapolator EXPONENTIAL =
+      CurveExtrapolator.of(StandardCurveExtrapolators.EXPONENTIAL.getName());
+  /**
+   * Extrapolator that throws an exception if extrapolation is attempted.
+   */
+  public static final CurveExtrapolator EXCEPTION =
+      CurveExtrapolator.of(StandardCurveExtrapolators.EXCEPTION.getName());
 
   //-------------------------------------------------------------------------
   /**

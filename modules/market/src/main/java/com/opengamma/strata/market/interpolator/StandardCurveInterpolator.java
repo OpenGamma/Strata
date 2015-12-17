@@ -7,14 +7,13 @@ package com.opengamma.strata.market.interpolator;
 
 import java.io.Serializable;
 
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 
 /**
  * The standard immutable curve interpolator implementation based on strata-math.
  */
-final class ImmutableCurveInterpolator
+final class StandardCurveInterpolator
     implements CurveInterpolator, Serializable {
 
   /**
@@ -37,7 +36,7 @@ final class ImmutableCurveInterpolator
    * @param name  the name of the interpolator
    * @param underlying  the underlying interpolator
    */
-  ImmutableCurveInterpolator(String name, Interpolator1D underlying) {
+  StandardCurveInterpolator(String name, Interpolator1D underlying) {
     this.name = name;
     this.underlying = underlying;
   }
@@ -69,28 +68,8 @@ final class ImmutableCurveInterpolator
 
   //-------------------------------------------------------------------------
   @Override
-  public BoundCurveInterpolator bind(
-      DoubleArray xValues,
-      DoubleArray yValues,
-      CurveExtrapolator extrapolatorLeft,
-      CurveExtrapolator extrapolatorRight) {
-
-    // TODO: extend CurveExtrapolator interface so it can be used directly
-    if (!(extrapolatorLeft instanceof ImmutableCurveExtrapolator)) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "Extrapolator {} is not an instance of ImmutableCurveExtrapolator",
-              extrapolatorLeft));
-    }
-    if (!(extrapolatorRight instanceof ImmutableCurveExtrapolator)) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "Extrapolator {} is not an instance of ImmutableCurveExtrapolator",
-              extrapolatorRight));
-    }
-    ImmutableCurveExtrapolator left = (ImmutableCurveExtrapolator) extrapolatorLeft;
-    ImmutableCurveExtrapolator right = (ImmutableCurveExtrapolator) extrapolatorRight;
-    return new ImmutableBoundCurveInterpolator(xValues, yValues, underlying, left.getUnderlying(), right.getUnderlying());
+  public BoundCurveInterpolator bind(DoubleArray xValues, DoubleArray yValues) {
+    return new StandardBoundCurveInterpolator(xValues, yValues, underlying);
   }
 
   //-----------------------------------------------------------------------
@@ -100,7 +79,7 @@ final class ImmutableCurveInterpolator
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ImmutableCurveInterpolator other = (ImmutableCurveInterpolator) obj;
+      StandardCurveInterpolator other = (StandardCurveInterpolator) obj;
       return name.equals(other.name);
     }
     return false;
