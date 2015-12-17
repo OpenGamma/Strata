@@ -155,7 +155,7 @@ public final class SimpleDiscountFactors
   }
 
   // calculates the discount factor at a given time
-  double discountFactor(double relativeYearFraction) {
+  private double discountFactor(double relativeYearFraction) {
     // read discount factor directly off curve
     return curve.yValue(relativeYearFraction);
   }
