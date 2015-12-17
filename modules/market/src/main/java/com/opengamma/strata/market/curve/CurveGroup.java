@@ -83,7 +83,10 @@ public final class CurveGroup
    * If there are curves named in the definition which are not present in the curves the group is built using
    * whatever curves are available.
    * <p>
-   * If there are multiple curves with the same name in the curves it is undefined which one is used.
+   * If there are multiple curves with the same name in the curves one of them is arbitrarily chosen.
+   * <p>
+   * Multiple curves with the same name are allowed to support the use case where the list contains the same
+   * curve multiple times. This means the caller doesn't have to filter the input curves to remove duplicates.
    *
    * @param curveGroupDefinition  the definition of a curve group
    * @param curves  some curves
@@ -99,7 +102,10 @@ public final class CurveGroup
    * If there are curves named in the definition which are not present in the curves the group is built using
    * whatever curves are available.
    * <p>
-   * If there are multiple curves with the same name in the curves it is undefined which one is used.
+   * If there are multiple curves with the same name in the curves one of them is arbitrarily chosen.
+   * <p>
+   * Multiple curves with the same name are allowed to support the use case where the list contains the same
+   * curve multiple times. This means the caller doesn't have to filter the input curves to remove duplicates.
    *
    * @param curveGroupDefinition  the definition of a curve group
    * @param curves  some curves

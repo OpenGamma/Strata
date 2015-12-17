@@ -126,10 +126,9 @@ public final class RatesCurvesCsvLoader {
 
     // Ensure curve names are unique
     for (Curve curve : curves) {
-      if (curveNames.contains(curve.getName())) {
+      if (!curveNames.add(curve.getName())) {
         throw new IllegalArgumentException("Multiple curves with the same name: " + curve.getName());
       }
-      curveNames.add(curve.getName());
     }
     return curveGroups.stream().map(groupDef -> CurveGroup.ofCurves(groupDef, curves)).collect(toImmutableList());
   }
