@@ -13,7 +13,7 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
 /**
  * The standard implementation of a bound interpolator.
  */
-final class MathBoundCurveInterpolator
+final class StandardBoundCurveInterpolator
     implements BoundCurveInterpolator {
 
   /**
@@ -44,11 +44,11 @@ final class MathBoundCurveInterpolator
   /**
    * Creates an instance that cannot perform extrapolation.
    * 
-   * @param xValues  the x-values
-   * @param yValues  the y-values
+   * @param xValues  the x-values of the curve, must be sorted from low to high
+   * @param yValues  the y-values of the curve
    * @param interpolator  the underlying interpolator
    */
-  MathBoundCurveInterpolator(
+  StandardBoundCurveInterpolator(
       DoubleArray xValues,
       DoubleArray yValues,
       Interpolator1D interpolator) {
@@ -59,13 +59,13 @@ final class MathBoundCurveInterpolator
   /**
    * Creates an instance using the specified extrapolators.
    * 
-   * @param xValues  the x-values
-   * @param yValues  the y-values
+   * @param xValues  the x-values of the curve, must be sorted from low to high
+   * @param yValues  the y-values of the curve
    * @param interpolator  the underlying interpolator
    * @param extrapolatorLeft  the bound extrapolator for x-values on the left
    * @param extrapolatorRight  the bound extrapolator for x-values on the right
    */
-  MathBoundCurveInterpolator(
+  StandardBoundCurveInterpolator(
       DoubleArray xValues,
       DoubleArray yValues,
       Interpolator1D interpolator,
@@ -88,8 +88,8 @@ final class MathBoundCurveInterpolator
   }
 
   // creates an instance when binding extrapolators, sharing common data
-  private MathBoundCurveInterpolator(
-      MathBoundCurveInterpolator base,
+  private StandardBoundCurveInterpolator(
+      StandardBoundCurveInterpolator base,
       BoundCurveExtrapolator extrapolatorLeft,
       BoundCurveExtrapolator extrapolatorRight) {
     
@@ -158,7 +158,7 @@ final class MathBoundCurveInterpolator
       BoundCurveExtrapolator extrapolatorLeft,
       BoundCurveExtrapolator extrapolatorRight) {
 
-    return new MathBoundCurveInterpolator(this, extrapolatorLeft, extrapolatorRight);
+    return new StandardBoundCurveInterpolator(this, extrapolatorLeft, extrapolatorRight);
   }
 
 }

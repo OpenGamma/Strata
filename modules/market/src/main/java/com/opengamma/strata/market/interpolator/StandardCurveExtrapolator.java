@@ -16,7 +16,7 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
 /**
  * The standard immutable curve extrapolator implementation based on strata-math.
  */
-final class MathCurveExtrapolator
+final class StandardCurveExtrapolator
     implements CurveExtrapolator, Serializable {
 
   /**
@@ -39,7 +39,7 @@ final class MathCurveExtrapolator
    * @param name  the name of the extrapolator
    * @param underlying  the underlying extrapolator
    */
-  MathCurveExtrapolator(String name, Extrapolator1D underlying) {
+  StandardCurveExtrapolator(String name, Extrapolator1D underlying) {
     this.name = name;
     this.underlying = underlying;
   }
@@ -72,10 +72,10 @@ final class MathCurveExtrapolator
   //-------------------------------------------------------------------------
   @Override
   public BoundCurveExtrapolator bind(DoubleArray xValues, DoubleArray yValues, BoundCurveInterpolator interpolator) {
-    ArgChecker.isTrue(interpolator instanceof MathBoundCurveInterpolator,
-        "Interpolator must be ImmutableBoundCurveInterpolator");
-    Interpolator1D interp = ((MathBoundCurveInterpolator) interpolator).getInterpolator();
-    Interpolator1DDataBundle data = ((MathBoundCurveInterpolator) interpolator).getDataBundle();
+    ArgChecker.isTrue(interpolator instanceof StandardBoundCurveInterpolator,
+        "Interpolator must be StandardBoundCurveInterpolator");
+    Interpolator1D interp = ((StandardBoundCurveInterpolator) interpolator).getInterpolator();
+    Interpolator1DDataBundle data = ((StandardBoundCurveInterpolator) interpolator).getDataBundle();
     return new Bound(interp, data, underlying);
   }
 
@@ -86,7 +86,7 @@ final class MathCurveExtrapolator
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      MathCurveExtrapolator other = (MathCurveExtrapolator) obj;
+      StandardCurveExtrapolator other = (StandardCurveExtrapolator) obj;
       return name.equals(other.name);
     }
     return false;

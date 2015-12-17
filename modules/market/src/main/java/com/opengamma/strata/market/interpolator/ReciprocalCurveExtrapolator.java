@@ -85,7 +85,7 @@ final class ReciprocalCurveExtrapolator
       double[] res = new double[dim];
       int indicator = FunctionUtils.getLowerBoundIndex(knots, xKey);
       if (indicator == nKnots - 1) {
-        indicator--; //there is 1 less interval that knots 
+        indicator--; //there is 1 less interval than knots 
       }
       for (int j = 0; j < dim; ++j) {
         DoubleArray coefs = coefMatrix.row(dim * indicator + j);
@@ -108,7 +108,7 @@ final class ReciprocalCurveExtrapolator
       double[] res = new double[dim];
       int indicator = FunctionUtils.getLowerBoundIndex(knots, xKey);
       if (indicator == nKnots - 1) {
-        indicator--; //there is 1 less interval that knots 
+        indicator--; //there is 1 less interval than knots 
       }
       DoubleMatrix coefMatrix = pp.getCoefMatrix();
       for (int j = 0; j < dim; ++j) {

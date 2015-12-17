@@ -58,7 +58,7 @@ public interface BoundCurveExtrapolator {
   /**
    * Right extrapolates the y-value from the specified x-value.
    * <p>
-   * This method is only intended to be invoked when the x-value is greater than the x-value of the first node.
+   * This method is only intended to be invoked when the x-value is greater than the x-value of the last node.
    * The behavior is undefined if called with any other x-value.
    * 
    * @param xValue  the x-value to find the y-value for
@@ -70,7 +70,7 @@ public interface BoundCurveExtrapolator {
   /**
    * Calculates the first derivative of the right extrapolated y-value at the specified x-value.
    * <p>
-   * This method is only intended to be invoked when the x-value is greater than the x-value of the first node.
+   * This method is only intended to be invoked when the x-value is greater than the x-value of the last node.
    * The behavior is undefined if called with any other x-value.
    * 
    * @param xValue  the x-value to find the y-value for
@@ -82,7 +82,7 @@ public interface BoundCurveExtrapolator {
   /**
    * Calculates the parameter sensitivities of the right extrapolated y-value at the specified x-value.
    * <p>
-   * This method is only intended to be invoked when the x-value is greater than the x-value of the first node.
+   * This method is only intended to be invoked when the x-value is greater than the x-value of the last node.
    * The behavior is undefined if called with any other x-value.
    * 
    * @param xValue  the x-value to find the y-value for

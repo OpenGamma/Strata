@@ -48,10 +48,10 @@ abstract class AbstractProductPolynomialCurveExtrapolator
   //-------------------------------------------------------------------------
   @Override
   public BoundCurveExtrapolator bind(DoubleArray xValues, DoubleArray yValues, BoundCurveInterpolator interpolator) {
-    ArgChecker.isTrue(interpolator instanceof MathBoundCurveInterpolator,
-        "Interpolator must be ImmutableBoundCurveInterpolator");
-    Interpolator1D interp = ((MathBoundCurveInterpolator) interpolator).getInterpolator();
-    Interpolator1DDataBundle data = ((MathBoundCurveInterpolator) interpolator).getDataBundle();
+    ArgChecker.isTrue(interpolator instanceof StandardBoundCurveInterpolator,
+        "Interpolator must be StandardBoundCurveInterpolator");
+    Interpolator1D interp = ((StandardBoundCurveInterpolator) interpolator).getInterpolator();
+    Interpolator1DDataBundle data = ((StandardBoundCurveInterpolator) interpolator).getDataBundle();
     ArgChecker.isTrue(interp instanceof ProductPiecewisePolynomialInterpolator1D,
         "Interpolator must be ProductPiecewisePolynomialInterpolator1D");
     ArgChecker.isTrue(data instanceof Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle,

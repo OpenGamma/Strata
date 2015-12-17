@@ -25,30 +25,30 @@ final class StandardCurveInterpolators {
 
   // Linear interpolator.
   public static final CurveInterpolator LINEAR =
-      new MathCurveInterpolator("Linear", new LinearInterpolator1D());
+      new StandardCurveInterpolator("Linear", new LinearInterpolator1D());
   // Exponential interpolator.
   public static final CurveInterpolator EXPONENTIAL =
-      new MathCurveInterpolator("Exponential", new ExponentialInterpolator1D());
+      new StandardCurveInterpolator("Exponential", new ExponentialInterpolator1D());
   // Log linear interpolator.
   public static final CurveInterpolator LOG_LINEAR =
-      new MathCurveInterpolator("LogLinear", new LogLinearInterpolator1D());
+      new StandardCurveInterpolator("LogLinear", new LogLinearInterpolator1D());
   // Double quadratic interpolator.
   public static final CurveInterpolator DOUBLE_QUADRATIC =
-      new MathCurveInterpolator("DoubleQuadratic", new DoubleQuadraticInterpolator1D());
+      new StandardCurveInterpolator("DoubleQuadratic", new DoubleQuadraticInterpolator1D());
   // Log natural cubic interpolation with monotonicity filter.
   public static final CurveInterpolator LOG_NATURAL_CUBIC_MONOTONE =
-      new MathCurveInterpolator(
+      new StandardCurveInterpolator(
           "LogNaturalCubicWithMonotonicity",
           new LogNaturalCubicMonotonicityPreservingInterpolator1D());
   // Time square interpolator.
   public static final CurveInterpolator TIME_SQUARE =
-      new MathCurveInterpolator("TimeSquare", new TimeSquareInterpolator1D());
+      new StandardCurveInterpolator("TimeSquare", new TimeSquareInterpolator1D());
   // Natural cubic spline interpolator.
   public static final CurveInterpolator NATURAL_CUBIC_SPLINE =
-      new MathCurveInterpolator("NaturalCubicSpline", new NaturalCubicSplineInterpolator1D());
+      new StandardCurveInterpolator("NaturalCubicSpline", new NaturalCubicSplineInterpolator1D());
   // Natural spline interpolator.
   public static final CurveInterpolator NATURAL_SPLINE =
-      new MathCurveInterpolator("NaturalSpline", new NaturalSplineInterpolator1D());
+      new StandardCurveInterpolator("NaturalSpline", new NaturalSplineInterpolator1D());
 
   //-------------------------------------------------------------------------
   /**

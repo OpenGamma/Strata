@@ -90,7 +90,7 @@ public class ReciprocalCurveExtrapolatorTest {
       PiecewisePolynomialResult result = interp.interpolateWithSensitivity(xValues, yValues);
       ProductPiecewisePolynomialInterpolator1D interpolator1D =
           new ProductPiecewisePolynomialInterpolator1D(baseInterpolator);
-      MathCurveInterpolator pp = new MathCurveInterpolator("Reciprocal", interpolator1D);
+      StandardCurveInterpolator pp = new StandardCurveInterpolator("Reciprocal", interpolator1D);
       BoundCurveInterpolator bci = pp.bind(
           DoubleArray.copyOf(xValues), DoubleArray.copyOf(yValues), RECIP_EXTRAPOLATOR, RECIP_EXTRAPOLATOR);
       double grad = FUNC.differentiate(result, xValues[0]).get(0);
@@ -167,7 +167,7 @@ public class ReciprocalCurveExtrapolatorTest {
       PiecewisePolynomialResultsWithSensitivity result = interp.interpolateWithSensitivity(xValues, yValues);
       ProductPiecewisePolynomialInterpolator1D interpolator1D =
           new ProductPiecewisePolynomialInterpolator1D(baseInterpolator, xValuesClamped, yValuesClamped);
-      MathCurveInterpolator pp = new MathCurveInterpolator("Reciprocal", interpolator1D);
+      StandardCurveInterpolator pp = new StandardCurveInterpolator("Reciprocal", interpolator1D);
       BoundCurveInterpolator bci = pp.bind(
           DoubleArray.copyOf(xValues), DoubleArray.copyOf(yValues), RECIP_EXTRAPOLATOR, RECIP_EXTRAPOLATOR);
       double grad = FUNC.differentiate(result, xValues[0]).get(0);
@@ -228,7 +228,7 @@ public class ReciprocalCurveExtrapolatorTest {
     DoubleArray yValues = DoubleArray.of(1.1, 1.9, 2.3, -0.1);
     ProductPiecewisePolynomialInterpolator1D interpolator1D =
         new ProductPiecewisePolynomialInterpolator1D(baseInterpolator, new double[] {0.0}, new double[] {0.0});
-    MathCurveInterpolator pp = new MathCurveInterpolator("Reciprocal", interpolator1D);
+    StandardCurveInterpolator pp = new StandardCurveInterpolator("Reciprocal", interpolator1D);
     BoundCurveInterpolator bci = pp.bind(xValues, yValues, RECIP_EXTRAPOLATOR, RECIP_EXTRAPOLATOR);
     double eps = 1.0e-5;
     assertRelative("closeToZeroTest", bci.interpolate(eps), bci.interpolate(0.0), eps);
@@ -238,7 +238,7 @@ public class ReciprocalCurveExtrapolatorTest {
 
   public void test_sameAsPrevious() {
     Interpolator1D oldInterp = new ProductPiecewisePolynomialInterpolator1D(new CubicSplineInterpolator());
-    MathCurveInterpolator pp = new MathCurveInterpolator("Reciprocal", oldInterp);
+    StandardCurveInterpolator pp = new StandardCurveInterpolator("Reciprocal", oldInterp);
     BoundCurveInterpolator bci = pp.bind(X_DATA, Y_DATA, RECIP_EXTRAPOLATOR, RECIP_EXTRAPOLATOR);
     Extrapolator1D oldExtrap = new ReciprocalExtrapolator1D();
     Interpolator1DDataBundle data = oldInterp.getDataBundle(X_DATA.toArray(), Y_DATA.toArray());

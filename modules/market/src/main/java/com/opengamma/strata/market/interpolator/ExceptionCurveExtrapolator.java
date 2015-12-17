@@ -55,33 +55,33 @@ final class ExceptionCurveExtrapolator
   //-------------------------------------------------------------------------
   @Override
   public double leftExtrapolate(double xValue) {
-    throw new IllegalArgumentException("Extrapolation is not permitted");
+    throw new UnsupportedOperationException("Extrapolation is not permitted");
   }
 
   @Override
   public double leftExtrapolateFirstDerivative(double xValue) {
-    throw new IllegalArgumentException("Extrapolation is not permitted");
+    throw new UnsupportedOperationException("Extrapolation is not permitted");
   }
 
   @Override
   public DoubleArray leftExtrapolateParameterSensitivity(double xValue) {
-    throw new IllegalArgumentException("Extrapolation is not permitted");
+    throw new UnsupportedOperationException("Extrapolation is not permitted");
   }
 
   //-------------------------------------------------------------------------
   @Override
   public double rightExtrapolate(double xValue) {
-    throw new IllegalArgumentException("Extrapolation is not permitted");
+    throw new UnsupportedOperationException("Extrapolation is not permitted");
   }
 
   @Override
   public double rightExtrapolateFirstDerivative(double xValue) {
-    throw new IllegalArgumentException("Extrapolation is not permitted");
+    throw new UnsupportedOperationException("Extrapolation is not permitted");
   }
 
   @Override
   public DoubleArray rightExtrapolateParameterSensitivity(double xValue) {
-    throw new IllegalArgumentException("Extrapolation is not permitted");
+    throw new UnsupportedOperationException("Extrapolation is not permitted");
   }
 
   //-------------------------------------------------------------------------

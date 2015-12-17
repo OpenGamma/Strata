@@ -13,7 +13,7 @@ import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 /**
  * The standard immutable curve interpolator implementation based on strata-math.
  */
-final class MathCurveInterpolator
+final class StandardCurveInterpolator
     implements CurveInterpolator, Serializable {
 
   /**
@@ -36,7 +36,7 @@ final class MathCurveInterpolator
    * @param name  the name of the interpolator
    * @param underlying  the underlying interpolator
    */
-  MathCurveInterpolator(String name, Interpolator1D underlying) {
+  StandardCurveInterpolator(String name, Interpolator1D underlying) {
     this.name = name;
     this.underlying = underlying;
   }
@@ -69,7 +69,7 @@ final class MathCurveInterpolator
   //-------------------------------------------------------------------------
   @Override
   public BoundCurveInterpolator bind(DoubleArray xValues, DoubleArray yValues) {
-    return new MathBoundCurveInterpolator(xValues, yValues, underlying);
+    return new StandardBoundCurveInterpolator(xValues, yValues, underlying);
   }
 
   //-----------------------------------------------------------------------
@@ -79,7 +79,7 @@ final class MathCurveInterpolator
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      MathCurveInterpolator other = (MathCurveInterpolator) obj;
+      StandardCurveInterpolator other = (StandardCurveInterpolator) obj;
       return name.equals(other.name);
     }
     return false;

@@ -10,10 +10,10 @@ import java.io.Serializable;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * Extrapolator implementation that returns the first or last node.
+ * Extrapolator implementation that returns the y-value of the first or last node.
  * <p>
- * When left extrapolating, the value of the first node is returned.
- * When right extrapolating, the value of the last node is returned.
+ * When left extrapolating, the y-value of the first node is returned.
+ * When right extrapolating, the y-value of the last node is returned.
  */
 final class FlatCurveExtrapolator
     implements CurveExtrapolator, Serializable {

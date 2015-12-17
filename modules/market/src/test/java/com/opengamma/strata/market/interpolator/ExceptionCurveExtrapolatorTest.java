@@ -6,7 +6,7 @@
 package com.opengamma.strata.market.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -32,12 +32,12 @@ public class ExceptionCurveExtrapolatorTest {
   public void test_exceptionThrown() {
     BoundCurveInterpolator bci =
         CurveInterpolators.LINEAR.bind(X_DATA, Y_DATA, EXCEPTION_EXTRAPOLATOR, EXCEPTION_EXTRAPOLATOR);
-    assertThrowsIllegalArg(() -> bci.interpolate(-1d));
-    assertThrowsIllegalArg(() -> bci.firstDerivative(-1d));
-    assertThrowsIllegalArg(() -> bci.parameterSensitivity(-1d));
-    assertThrowsIllegalArg(() -> bci.interpolate(10d));
-    assertThrowsIllegalArg(() -> bci.firstDerivative(10d));
-    assertThrowsIllegalArg(() -> bci.parameterSensitivity(10d));
+    assertThrows(() -> bci.interpolate(-1d), UnsupportedOperationException.class);
+    assertThrows(() -> bci.firstDerivative(-1d), UnsupportedOperationException.class);
+    assertThrows(() -> bci.parameterSensitivity(-1d), UnsupportedOperationException.class);
+    assertThrows(() -> bci.interpolate(10d), UnsupportedOperationException.class);
+    assertThrows(() -> bci.firstDerivative(10d), UnsupportedOperationException.class);
+    assertThrows(() -> bci.parameterSensitivity(10d), UnsupportedOperationException.class);
   }
 
   public void test_serialization() {

@@ -70,8 +70,8 @@ public class CurveInterpolatorTest {
   }
 
   public void test_LINEAR() {
-    assertTrue(LINEAR instanceof MathCurveInterpolator);
-    assertTrue(((MathCurveInterpolator) LINEAR).getUnderlying() instanceof LinearInterpolator1D);
+    assertTrue(LINEAR instanceof StandardCurveInterpolator);
+    assertTrue(((StandardCurveInterpolator) LINEAR).getUnderlying() instanceof LinearInterpolator1D);
   }
 
   //-------------------------------------------------------------------------

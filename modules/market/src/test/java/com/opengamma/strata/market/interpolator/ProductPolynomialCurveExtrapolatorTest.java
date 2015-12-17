@@ -90,7 +90,7 @@ public class ProductPolynomialCurveExtrapolatorTest {
       PiecewisePolynomialResult result = interp.interpolateWithSensitivity(xValues, yValues);
       ProductPiecewisePolynomialInterpolator1D interpolator1D =
           new ProductPiecewisePolynomialInterpolator1D(baseInterpolator);
-      MathCurveInterpolator pp = new MathCurveInterpolator("ProductPiecewise", interpolator1D);
+      StandardCurveInterpolator pp = new StandardCurveInterpolator("ProductPiecewise", interpolator1D);
       BoundCurveInterpolator bci = pp.bind(
           DoubleArray.copyOf(xValues), DoubleArray.copyOf(yValues), PP_EXTRAPOLATOR, PP_EXTRAPOLATOR);
 
@@ -165,7 +165,7 @@ public class ProductPolynomialCurveExtrapolatorTest {
       PiecewisePolynomialResultsWithSensitivity result = interp.interpolateWithSensitivity(xValues, yValues);
       ProductPiecewisePolynomialInterpolator1D interpolator1D =
           new ProductPiecewisePolynomialInterpolator1D(baseInterpolator, xValuesClamped, yValuesClamped);
-      MathCurveInterpolator pp = new MathCurveInterpolator("ProductPiecewise", interpolator1D);
+      StandardCurveInterpolator pp = new StandardCurveInterpolator("ProductPiecewise", interpolator1D);
       BoundCurveInterpolator bci = pp.bind(
           DoubleArray.copyOf(xValues), DoubleArray.copyOf(yValues), PP_EXTRAPOLATOR, PP_EXTRAPOLATOR);
 
@@ -224,7 +224,7 @@ public class ProductPolynomialCurveExtrapolatorTest {
     DoubleArray yValues = DoubleArray.of(1.1, 1.9, 2.3, -0.1);
     ProductPiecewisePolynomialInterpolator1D interpolator1D =
         new ProductPiecewisePolynomialInterpolator1D(baseInterpolator, new double[] {0.0}, new double[] {0.0});
-    MathCurveInterpolator pp = new MathCurveInterpolator("ProductPiecewise", interpolator1D);
+    StandardCurveInterpolator pp = new StandardCurveInterpolator("ProductPiecewise", interpolator1D);
     BoundCurveInterpolator bci = pp.bind(xValues, yValues, PP_EXTRAPOLATOR, PP_EXTRAPOLATOR);
     double eps = 1.0e-5;
     assertRelative("closeToZeroTest", bci.interpolate(eps), bci.interpolate(0.0), eps);
@@ -234,7 +234,7 @@ public class ProductPolynomialCurveExtrapolatorTest {
 
   public void test_sameAsPrevious() {
     Interpolator1D oldInterp = new ProductPiecewisePolynomialInterpolator1D(new CubicSplineInterpolator());
-    MathCurveInterpolator pp = new MathCurveInterpolator("ProductPiecewise", oldInterp);
+    StandardCurveInterpolator pp = new StandardCurveInterpolator("ProductPiecewise", oldInterp);
     BoundCurveInterpolator bci = pp.bind(X_DATA, Y_DATA, PP_EXTRAPOLATOR, PP_EXTRAPOLATOR);
     Extrapolator1D oldExtrap = new ProductPolynomialExtrapolator1D();
     Interpolator1DDataBundle data = oldInterp.getDataBundle(X_DATA.toArray(), Y_DATA.toArray());
