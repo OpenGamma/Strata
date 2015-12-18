@@ -136,14 +136,14 @@ public class SabrSwaptionPhysicalProductPricerTest {
       SwaptionSabrRateVolatilityDataSet.getRatesProviderUsd(MATURITY_DATE.toLocalDate());
   private static final ImmutableRatesProvider RATE_PROVIDER_AFTER_MATURITY =
       SwaptionSabrRateVolatilityDataSet.getRatesProviderUsd(MATURITY_DATE.toLocalDate().plusDays(1));
-  private static final SabrVolatilitySwaptionProvider VOL_PROVIDER =
-      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderUsd(VAL_DATE, true);
-  private static final SabrVolatilitySwaptionProvider VOL_PROVIDER_AT_MATURITY =
-      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderUsd(MATURITY_DATE.toLocalDate(), true);
-  private static final SabrVolatilitySwaptionProvider VOL_PROVIDER_AFTER_MATURITY =
-      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderUsd(MATURITY_DATE.toLocalDate().plusDays(1), true);
-  private static final SabrVolatilitySwaptionProvider VOL_PROVIDER_REGRESSION =
-      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderUsd(VAL_DATE, false);
+  private static final SabrSwaptionVolatilities VOL_PROVIDER =
+      SwaptionSabrRateVolatilityDataSet.getVolatilitiesUsd(VAL_DATE, true);
+  private static final SabrSwaptionVolatilities VOL_PROVIDER_AT_MATURITY =
+      SwaptionSabrRateVolatilityDataSet.getVolatilitiesUsd(MATURITY_DATE.toLocalDate(), true);
+  private static final SabrSwaptionVolatilities VOL_PROVIDER_AFTER_MATURITY =
+      SwaptionSabrRateVolatilityDataSet.getVolatilitiesUsd(MATURITY_DATE.toLocalDate().plusDays(1), true);
+  private static final SabrSwaptionVolatilities VOL_PROVIDER_REGRESSION =
+      SwaptionSabrRateVolatilityDataSet.getVolatilitiesUsd(VAL_DATE, false);
   // test parameters and calculator
   private static final double TOL = 1.0e-13;
   private static final double FD_EPS = 1.0e-6;
@@ -168,7 +168,7 @@ public class SabrSwaptionPhysicalProductPricerTest {
     CurrencyAmount computedPay = SWAPTION_PRICER.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
     double forward = SWAP_PRICER.parRate(SWAP_REC, RATE_PROVIDER);
     double pvbp = SWAP_PRICER.getLegPricer().pvbp(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), RATE_PROVIDER);
-    double volatility = VOL_PROVIDER.getVolatility(SWAPTION_REC_LONG.getExpiryDateTime(),
+    double volatility = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiryDateTime(),
         TENOR_YEAR, RATE, forward);
     double maturity = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiryDateTime());
     double expectedRec = pvbp * BlackFormulaRepository.price(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
@@ -281,7 +281,7 @@ public class SabrSwaptionPhysicalProductPricerTest {
     double computedRec = SWAPTION_PRICER.impliedVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
     double computedPay = SWAPTION_PRICER.impliedVolatility(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
     double forward = SWAP_PRICER.parRate(SWAP_REC, RATE_PROVIDER);
-    double expected = VOL_PROVIDER.getVolatility(MATURITY_DATE, TENOR_YEAR, RATE, forward);
+    double expected = VOL_PROVIDER.volatility(MATURITY_DATE, TENOR_YEAR, RATE, forward);
     assertEquals(computedRec, expected, TOL);
     assertEquals(computedPay, expected, TOL);
   }
@@ -292,7 +292,7 @@ public class SabrSwaptionPhysicalProductPricerTest {
     double computedPay =
         SWAPTION_PRICER.impliedVolatility(SWAPTION_PAY_SHORT, RATE_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
     double forward = SWAP_PRICER.parRate(SWAP_REC, RATE_PROVIDER_AT_MATURITY);
-    double expected = VOL_PROVIDER_AT_MATURITY.getVolatility(MATURITY_DATE, TENOR_YEAR, RATE, forward);
+    double expected = VOL_PROVIDER_AT_MATURITY.volatility(MATURITY_DATE, TENOR_YEAR, RATE, forward);
     assertEquals(computedRec, expected, TOL);
     assertEquals(computedPay, expected, TOL);
   }
@@ -376,7 +376,7 @@ public class SabrSwaptionPhysicalProductPricerTest {
         SWAPTION_PRICER.presentValueSensitivitySabrParameter(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
     double forward = SWAP_PRICER.parRate(SWAP_REC, RATE_PROVIDER);
     double pvbp = SWAP_PRICER.getLegPricer().pvbp(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), RATE_PROVIDER);
-    double volatility = VOL_PROVIDER.getVolatility(SWAPTION_REC_LONG.getExpiryDateTime(),
+    double volatility = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiryDateTime(),
         TENOR_YEAR, RATE, forward);
     double maturity = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiryDateTime());
     double[] volSensi = VOL_PROVIDER.getParameters()

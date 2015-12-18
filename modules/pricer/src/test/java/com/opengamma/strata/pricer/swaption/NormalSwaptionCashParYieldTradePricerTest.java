@@ -86,7 +86,7 @@ public class NormalSwaptionCashParYieldTradePricerTest {
 
   private static final ImmutableRatesProvider RATE_PROVIDER = RatesProviderDataSets.MULTI_USD.toBuilder(VAL_DATE)
       .build();
-  private static final NormalVolatilityExpiryTenorSwaptionProvider VOL_PROVIDER =
+  private static final NormalSwaptionExpiryTenorVolatilities VOL_PROVIDER =
       SwaptionNormalVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_STD;
 
   private static final NormalSwaptionCashParYieldProductPricer PRICER_PRODUCT = NormalSwaptionCashParYieldProductPricer.DEFAULT;

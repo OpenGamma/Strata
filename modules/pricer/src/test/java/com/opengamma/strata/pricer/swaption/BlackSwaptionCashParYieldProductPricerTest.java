@@ -117,8 +117,8 @@ public class BlackSwaptionCashParYieldProductPricerTest {
       .build();
   private static final NodalSurface SURFACE = InterpolatedNodalSurface.of(METADATA, EXPIRY, TENOR, VOL, INTERPOLATOR_2D);
   private static final FixedIborSwapConvention SWAP_CONVENTION = FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
-  private static final BlackVolatilityExpiryTenorSwaptionProvider VOL_PROVIDER =
-      BlackVolatilityExpiryTenorSwaptionProvider.of(SURFACE, SWAP_CONVENTION, ACT_ACT_ISDA, VAL_DATE);
+  private static final BlackSwaptionExpiryTenorVolatilities VOL_PROVIDER =
+      BlackSwaptionExpiryTenorVolatilities.of(SURFACE, SWAP_CONVENTION, ACT_ACT_ISDA, VAL_DATE);
   // underlying swap and swaption
   private static final HolidayCalendar CALENDAR = HolidayCalendars.SAT_SUN;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CALENDAR);
@@ -237,10 +237,10 @@ public class BlackSwaptionCashParYieldProductPricerTest {
           .discountCurve(EUR, DSC_CURVE)
           .iborIndexCurve(EUR_EURIBOR_6M, FWD6_CURVE)
           .build();
-  private static final BlackVolatilityExpiryTenorSwaptionProvider VOL_PROVIDER_AT_MATURITY =
-      BlackVolatilityExpiryTenorSwaptionProvider.of(SURFACE, SWAP_CONVENTION, ACT_ACT_ISDA, MATURITY);
-  private static final BlackVolatilityExpiryTenorSwaptionProvider VOL_PROVIDER_AFTER_MATURITY =
-      BlackVolatilityExpiryTenorSwaptionProvider.of(SURFACE, SWAP_CONVENTION, ACT_ACT_ISDA, MATURITY.plusDays(1));
+  private static final BlackSwaptionExpiryTenorVolatilities VOL_PROVIDER_AT_MATURITY =
+      BlackSwaptionExpiryTenorVolatilities.of(SURFACE, SWAP_CONVENTION, ACT_ACT_ISDA, MATURITY);
+  private static final BlackSwaptionExpiryTenorVolatilities VOL_PROVIDER_AFTER_MATURITY =
+      BlackSwaptionExpiryTenorVolatilities.of(SURFACE, SWAP_CONVENTION, ACT_ACT_ISDA, MATURITY.plusDays(1));
   // test parameters
   private static final double TOL = 1.0e-12;
   private static final double FD_EPS = 1.0e-7;
