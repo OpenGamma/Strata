@@ -90,7 +90,6 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    */
   public abstract PointSensitivityBuilder forecastValueSensitivity(T period, RatesProvider provider);
 
-
   //-------------------------------------------------------------------------
   /**
    * Calculates the present value of a basis point of a period.

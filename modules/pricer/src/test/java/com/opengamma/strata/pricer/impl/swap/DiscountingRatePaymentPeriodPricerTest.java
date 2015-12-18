@@ -49,7 +49,6 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.FxIndexRates;
-import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
@@ -985,12 +984,9 @@ public class DiscountingRatePaymentPeriodPricerTest {
     FxIndexRates mockFxRates = mock(FxIndexRates.class);
     when(mockFxRates.rate(GBP, FX_DATE_1)).thenReturn(RATE_FX);
     SimpleRatesProvider prov = new SimpleRatesProvider(valDate);
-    IborIndexRates indexRates = mock(IborIndexRates.class);
-    when(indexRates.rate(FX_DATE_1)).thenReturn(RATE_1);
     prov.setDayCount(DAY_COUNT);
     prov.setDiscountFactors(mockDf);
     prov.setFxIndexRates(mockFxRates);
-    prov.setIborRates(indexRates);
     return prov;
   }
 
