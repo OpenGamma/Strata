@@ -26,11 +26,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.pricer.swap.DiscountingSwapLegPricer;
+import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.rate.FixedRateObservation;
 import com.opengamma.strata.product.rate.IborRateObservation;
 import com.opengamma.strata.product.swap.ExpandedSwapLeg;
@@ -124,6 +127,7 @@ public class CashFlowEquivalentCalculatorTest {
       .build();
   
   private static final ImmutableRatesProvider PROVIDER = RatesProviderDataSets.MULTI_GBP;
+  private static final double TOLERANCE_PV = 1.0E-2;
 
   public void test_cashFlowEquivalent() {
     Swap swap = Swap.builder()
@@ -175,6 +179,18 @@ public class CashFlowEquivalentCalculatorTest {
       assertTrue(DoubleMath.fuzzyEquals(payCmp.getPaymentAmount().getAmount(),
           payExp.getPaymentAmount().getAmount(), NOTIONAL * eps));
     }
+  }
+  
+  public void test_cashFlowEquivalent_pv() {
+    Swap swap = Swap.builder()
+        .legs(IBOR_LEG, FIXED_LEG)
+        .build();
+    ExpandedSwapLeg cfe = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap.expand(), PROVIDER);
+    DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
+    DiscountingSwapProductPricer pricerSwap = DiscountingSwapProductPricer.DEFAULT;
+    CurrencyAmount pvCfe = pricerLeg.presentValue(cfe, PROVIDER);
+    MultiCurrencyAmount pvSwap = pricerSwap.presentValue(swap, PROVIDER);
+    assertEquals(pvCfe.getAmount(), pvSwap.getAmount(GBP).getAmount(), TOLERANCE_PV);    
   }
 
   public void test_cashFlowEquivalent_compounding() {

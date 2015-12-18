@@ -397,8 +397,8 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
         PRICER.presentValueSensitivity(SWAPTION_PAY_SHORT, RATE_PROVIDER, HW_PROVIDER).build());
     assertTrue(pvSensiRecLong.equalWithTolerance(pvSensiRecShort.multipliedBy(-1d), NOTIONAL * TOL));
     assertTrue(pvSensiPayLong.equalWithTolerance(pvSensiPayShort.multipliedBy(-1d), NOTIONAL * TOL));
-    PointSensitivities expecedPoint = SWAP_PRICER.presentValueSensitivity(SWAP_PAY, RATE_PROVIDER).build();
-    CurveCurrencyParameterSensitivities expected = RATE_PROVIDER.curveParameterSensitivity(expecedPoint);
+    PointSensitivities expectedPoint = SWAP_PRICER.presentValueSensitivity(SWAP_PAY, RATE_PROVIDER).build();
+    CurveCurrencyParameterSensitivities expected = RATE_PROVIDER.curveParameterSensitivity(expectedPoint);
     assertTrue(expected.equalWithTolerance(pvSensiPayLong.combinedWith(pvSensiRecLong.multipliedBy(-1d)), NOTIONAL * TOL));
     assertTrue(expected.equalWithTolerance(pvSensiRecShort.combinedWith(pvSensiPayShort.multipliedBy(-1d)), NOTIONAL * TOL));
   }
