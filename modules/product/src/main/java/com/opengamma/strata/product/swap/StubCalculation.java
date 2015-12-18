@@ -34,7 +34,7 @@ import com.opengamma.strata.product.rate.IborRateObservation;
 import com.opengamma.strata.product.rate.RateObservation;
 
 /**
- * Defines the rates applicable in the initial or final stub of an IBOR-like swap leg.
+ * Defines the rates applicable in the initial or final stub of an Ibor swap leg.
  * <p>
  * A standard swap leg consists of a regular periodic schedule and one or two stub periods at each end.
  * This class defines what floating rate to use during a stub.
@@ -42,8 +42,8 @@ import com.opengamma.strata.product.rate.RateObservation;
  * The rate may be specified in three ways.
  * <ul>
  * <li>A fixed rate, applicable for the whole stub
- * <li>A single IBOR-like floating rate
- * <li>Linear interpolation between two IBOR-like floating rates
+ * <li>A floating rate based on a single Ibor index
+ * <li>A floating rate based on linear interpolation between two Ibor indices
  * </ul>
  */
 @BeanDefinition
@@ -68,7 +68,7 @@ public final class StubCalculation
   @PropertyDefinition(get = "optional")
   private final Double fixedRate;
   /**
-   * The IBOR-like index to be used for the stub.
+   * The Ibor index to be used for the stub.
    * <p>
    * This will be used throughout the stub unless {@code indexInterpolated} is present.
    * <p>
@@ -77,7 +77,7 @@ public final class StubCalculation
   @PropertyDefinition(get = "optional")
   private final IborIndex index;
   /**
-   * The second IBOR-like index to be used for the stub, linearly interpolated.
+   * The second Ibor index to be used for the stub, linearly interpolated.
    * <p>
    * This will be used with {@code index} to linearly interpolate the rate.
    * This index may be shorter or longer than {@code index}, but not the same.
@@ -264,7 +264,7 @@ public final class StubCalculation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the IBOR-like index to be used for the stub.
+   * Gets the Ibor index to be used for the stub.
    * <p>
    * This will be used throughout the stub unless {@code indexInterpolated} is present.
    * <p>
@@ -277,7 +277,7 @@ public final class StubCalculation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the second IBOR-like index to be used for the stub, linearly interpolated.
+   * Gets the second Ibor index to be used for the stub, linearly interpolated.
    * <p>
    * This will be used with {@code index} to linearly interpolate the rate.
    * This index may be shorter or longer than {@code index}, but not the same.
@@ -561,7 +561,7 @@ public final class StubCalculation
     }
 
     /**
-     * Sets the IBOR-like index to be used for the stub.
+     * Sets the Ibor index to be used for the stub.
      * <p>
      * This will be used throughout the stub unless {@code indexInterpolated} is present.
      * <p>
@@ -575,7 +575,7 @@ public final class StubCalculation
     }
 
     /**
-     * Sets the second IBOR-like index to be used for the stub, linearly interpolated.
+     * Sets the second Ibor index to be used for the stub, linearly interpolated.
      * <p>
      * This will be used with {@code index} to linearly interpolate the rate.
      * This index may be shorter or longer than {@code index}, but not the same.

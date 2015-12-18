@@ -41,10 +41,10 @@ import com.opengamma.strata.product.SecurityLink;
 import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 
 /**
- * A futures option contract, based on an IBOR-like index.
+ * A futures option contract, based on an Ibor index.
  * <p>
  * An Ibor future option is a financial instrument that provides an option based on the future value of
- * an IBOR-like interest rate. The option is American, exercised at any point up to the exercise time.
+ * an Ibor index interest rate. The option is American, exercised at any point up to the exercise time.
  * It handles options with either daily margining or upfront premium.
  * <p>
  * An Ibor future option is also known as a <i>STIR future option</i> (Short Term Interest Rate).

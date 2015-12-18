@@ -18,7 +18,7 @@ import com.opengamma.strata.product.rate.IborAveragedRateObservation;
 
 /**
  * Rate observation implementation for a rate based on the average of multiple fixings of a
- * single IBOR-like floating rate index.
+ * single Ibor floating rate index.
  * <p>
  * The rate observation query the rates from the {@code RatesProvider} and weighted-average them.
  * There is no convexity adjustment computed in this implementation.

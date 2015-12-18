@@ -31,9 +31,9 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 
 /**
- * Defines the observation of a rate of interest interpolated from two IBOR-like indices.
+ * Defines the observation of a rate of interest interpolated from two Ibor indices.
  * <p>
- * An interest rate determined from two IBOR-like indices by linear interpolation.
+ * An interest rate determined from two Ibor indices by linear interpolation.
  * Both indices are observed on the same fixing date and they must have the same currency.
  * For example, linear interpolation between 'GBP-LIBOR-1M' and 'GBP-LIBOR-3M'.
  */
@@ -42,7 +42,7 @@ public final class IborInterpolatedRateObservation
     implements RateObservation, ImmutableBean, Serializable {
 
   /**
-   * The shorter IBOR-like index.
+   * The shorter Ibor index.
    * <p>
    * The rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-1M'.
@@ -50,7 +50,7 @@ public final class IborInterpolatedRateObservation
   @PropertyDefinition(validate = "notNull")
   private final IborIndex shortIndex;
   /**
-   * The longer IBOR-like index.
+   * The longer Ibor index.
    * <p>
    * The rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -173,7 +173,7 @@ public final class IborInterpolatedRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the shorter IBOR-like index.
+   * Gets the shorter Ibor index.
    * <p>
    * The rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-1M'.
@@ -185,7 +185,7 @@ public final class IborInterpolatedRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the longer IBOR-like index.
+   * Gets the longer Ibor index.
    * <p>
    * The rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -461,7 +461,7 @@ public final class IborInterpolatedRateObservation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the shorter IBOR-like index.
+     * Sets the shorter Ibor index.
      * <p>
      * The rate to be paid is based on this index
      * It will be a well known market index such as 'GBP-LIBOR-1M'.
@@ -475,7 +475,7 @@ public final class IborInterpolatedRateObservation
     }
 
     /**
-     * Sets the longer IBOR-like index.
+     * Sets the longer Ibor index.
      * <p>
      * The rate to be paid is based on this index
      * It will be a well known market index such as 'GBP-LIBOR-3M'.
