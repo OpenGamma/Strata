@@ -468,6 +468,36 @@ public class NormalSwaptionCashParYieldProductPricerTest {
     assertThrowsIllegalArg(() -> PRICER_SWAPTION.impliedVolatility(SWAPTION_REC_LONG_PAST, RATE_PROVIDER, VOL_PROVIDER));
     assertThrowsIllegalArg(() -> PRICER_SWAPTION.impliedVolatility(SWAPTION_PAY_SHORT_PAST, RATE_PROVIDER, VOL_PROVIDER));
   }
+  
+  //-------------------------------------------------------------------------
+  public void implied_volatility_round_trip() { // Compute pv and then implied vol from PV and compare with direct implied vol
+    CurrencyAmount pvLongRec =
+        PRICER_SWAPTION.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    double impliedLongRecComputed = 
+        PRICER_SWAPTION.impliedVolatilityFromPresentValue(SWAPTION_REC_LONG, RATE_PROVIDER, 
+            VOL_PROVIDER.getDayCount(), pvLongRec.getAmount());
+    double impliedLongRecInterpolated = 
+        PRICER_SWAPTION.impliedVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(impliedLongRecComputed, impliedLongRecInterpolated, TOL);
+
+    CurrencyAmount pvLongPay =
+        PRICER_SWAPTION.presentValue(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    double impliedLongPayComputed = 
+        PRICER_SWAPTION.impliedVolatilityFromPresentValue(SWAPTION_PAY_LONG, RATE_PROVIDER, 
+            VOL_PROVIDER.getDayCount(), pvLongPay.getAmount());
+    double impliedLongPayInterpolated = 
+        PRICER_SWAPTION.impliedVolatility(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(impliedLongPayComputed, impliedLongPayInterpolated, TOL);
+
+    CurrencyAmount pvShortRec =
+        PRICER_SWAPTION.presentValue(SWAPTION_REC_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    double impliedShortRecComputed = 
+        PRICER_SWAPTION.impliedVolatilityFromPresentValue(SWAPTION_REC_SHORT, RATE_PROVIDER, 
+            VOL_PROVIDER.getDayCount(), pvShortRec.getAmount());
+    double impliedShortRecInterpolated = 
+        PRICER_SWAPTION.impliedVolatility(SWAPTION_REC_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(impliedShortRecComputed, impliedShortRecInterpolated, TOL);
+  }
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivityStickyStrike() {
