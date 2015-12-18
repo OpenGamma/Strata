@@ -16,7 +16,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
-* Rate observation implementation for an IBOR-like index.
+* Rate observation implementation for an Ibor index.
 * <p>
 * The implementation simply returns the rate from the {@code RatesProvider}.
 */

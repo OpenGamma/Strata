@@ -143,7 +143,7 @@ public class SwapTradeModelDemo {
     // - in this simple case the notional is 1 million GBP and does not change
     NotionalSchedule notionalSchedule = NotionalSchedule.of(Currency.GBP, 1_000_000);
     // a RateCalculationSwapLeg can represent a fixed or floating swap leg
-    // - an IborRateCalculation is used to represent a floating IBOR-like rate
+    // - an IborRateCalculation is used to represent a floating Ibor rate
     // - the "Act/Act ISDA" day count is used
     // - the index is GBP LIBOR 6M
     // - fixing is 2 days before the start of the period using the "GBLO" holiday calendar

@@ -32,10 +32,10 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.Product;
 
 /**
- * A futures contract, based on an IBOR-like index.
+ * A futures contract, based on an Ibor index.
  * <p>
  * An Ibor future is a financial instrument that is based on the future value of
- * an IBOR-like interest rate. The profit or loss of an Ibor future is settled daily.
+ * an Ibor index interest rate. The profit or loss of an Ibor future is settled daily.
  * An Ibor future is also known as a <i>STIR future</i> (Short Term Interest Rate).
  * This class represents the structure of a single futures contract.
  * <p>
@@ -73,13 +73,13 @@ public final class IborFuture
   private final double accrualFactor;
   /**
    * The last date of trading.
-   * This date is also the fixing date for the IBOR-like index.
+   * This date is also the fixing date for the Ibor index.
    * This is typically 2 business days before the IMM date (3rd Wednesday of the month).
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate lastTradeDate;
   /**
-   * The underlying IBOR-like index.
+   * The underlying Ibor index.
    * <p>
    * The future is based on this index.
    * It will be a well known market index such as 'USD-LIBOR-3M'.
@@ -232,7 +232,7 @@ public final class IborFuture
   //-----------------------------------------------------------------------
   /**
    * Gets the last date of trading.
-   * This date is also the fixing date for the IBOR-like index.
+   * This date is also the fixing date for the Ibor index.
    * This is typically 2 business days before the IMM date (3rd Wednesday of the month).
    * @return the value of the property, not null
    */
@@ -242,7 +242,7 @@ public final class IborFuture
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying IBOR-like index.
+   * Gets the underlying Ibor index.
    * <p>
    * The future is based on this index.
    * It will be a well known market index such as 'USD-LIBOR-3M'.
@@ -652,7 +652,7 @@ public final class IborFuture
 
     /**
      * Sets the last date of trading.
-     * This date is also the fixing date for the IBOR-like index.
+     * This date is also the fixing date for the Ibor index.
      * This is typically 2 business days before the IMM date (3rd Wednesday of the month).
      * @param lastTradeDate  the new value, not null
      * @return this, for chaining, not null
@@ -664,7 +664,7 @@ public final class IborFuture
     }
 
     /**
-     * Sets the underlying IBOR-like index.
+     * Sets the underlying Ibor index.
      * <p>
      * The future is based on this index.
      * It will be a well known market index such as 'USD-LIBOR-3M'.

@@ -11,7 +11,8 @@ import com.opengamma.strata.product.Product;
 /**
  * A product representing a Ibor fixing deposit.
  * <p>
- * An Ibor fixing deposit is a fictitious financial instrument that represents the fixing based on Ibor-like index. 
+ * An Ibor fixing deposit is a fictitious financial instrument that represents
+ * the fixing based on an Ibor index. 
  * <p>
  * For example, an Ibor fixing deposit involves the exchange of the difference between
  * the fixed rate of 1% and the 'GBP-LIBOR-3M' rate for the principal in 3 months time.

@@ -49,7 +49,7 @@ import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
  * A market convention for the floating leg of rate swap trades based on an Ibor index.
  * <p>
  * This defines the market convention for a floating leg based on the observed value
- * of an IBOR-like index such as 'GBP-LIBOR-3M' or 'EUR-EURIBOR-1M'.
+ * of an Ibor index such as 'GBP-LIBOR-3M' or 'EUR-EURIBOR-1M'.
  * In most cases, the index contains sufficient information to fully define the convention.
  * As such, no other fields need to be specified when creating an instance.
  * The getters will default any missing information on the fly, avoiding both null and {@link Optional}.
@@ -59,7 +59,7 @@ public final class IborRateSwapLegConvention
     implements SwapLegConvention, ImmutableBean, Serializable {
 
   /**
-   * The IBOR-like index.
+   * The Ibor index.
    * <p>
    * The floating rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -631,7 +631,7 @@ public final class IborRateSwapLegConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the IBOR-like index.
+   * Gets the Ibor index.
    * <p>
    * The floating rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -1256,7 +1256,7 @@ public final class IborRateSwapLegConvention
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the IBOR-like index.
+     * Sets the Ibor index.
      * <p>
      * The floating rate to be paid is based on this index
      * It will be a well known market index such as 'GBP-LIBOR-3M'.
