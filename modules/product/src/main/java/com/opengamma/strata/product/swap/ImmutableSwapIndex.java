@@ -19,6 +19,17 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 
+/**
+ * A swap index implementation based on an immutable set of rules.
+ * <p>
+ * A standard immutable implementation of {@link SwapIndex} that defines the swap trade template, i.e., swap convention 
+ * and tenor.
+ * <p>
+ * In most cases, applications should refer to indices by name, using {@link SwapIndex#of(String)}.
+ * The named index will typically be resolved to an instance of this class.
+ * As such, it is recommended to use the {@code SwapIndex} interface in application
+ * code rather than directly referring to this class.
+ */
 @BeanDefinition
 public final class ImmutableSwapIndex
     implements SwapIndex, ImmutableBean, Serializable {
