@@ -148,8 +148,10 @@ public final class InterpolatedNodalCurve
         throw new IllegalArgumentException("Length of x-values and parameter metadata must match when metadata present");
       }
     });
-    if (!xValues.sorted().equals(xValues)) {
-      throw new IllegalArgumentException("Array of x-values must be sorted");
+    for (int i = 1; i < xValues.size(); i++) {
+      if (xValues.get(i) <= xValues.get(i - 1)) {
+        throw new IllegalArgumentException("Array of x-values must be sorted and unique");
+      }
     }
     this.metadata = metadata;
     this.xValues = xValues;

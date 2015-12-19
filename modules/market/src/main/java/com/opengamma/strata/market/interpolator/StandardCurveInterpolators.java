@@ -5,10 +5,6 @@
  */
 package com.opengamma.strata.market.interpolator;
 
-import com.opengamma.strata.math.impl.interpolation.DoubleQuadraticInterpolator1D;
-import com.opengamma.strata.math.impl.interpolation.ExponentialInterpolator1D;
-import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
-import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.LogNaturalCubicMonotonicityPreservingInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.NaturalSplineInterpolator1D;
@@ -24,17 +20,11 @@ import com.opengamma.strata.math.impl.interpolation.TimeSquareInterpolator1D;
 final class StandardCurveInterpolators {
 
   // Linear interpolator.
-  public static final CurveInterpolator LINEAR =
-      new StandardCurveInterpolator("Linear", new LinearInterpolator1D());
-  // Exponential interpolator.
-  public static final CurveInterpolator EXPONENTIAL =
-      new StandardCurveInterpolator("Exponential", new ExponentialInterpolator1D());
+  public static final CurveInterpolator LINEAR = LinearCurveInterpolator.INSTANCE;
   // Log linear interpolator.
-  public static final CurveInterpolator LOG_LINEAR =
-      new StandardCurveInterpolator("LogLinear", new LogLinearInterpolator1D());
+  public static final CurveInterpolator LOG_LINEAR = LogLinearCurveInterpolator.INSTANCE;
   // Double quadratic interpolator.
-  public static final CurveInterpolator DOUBLE_QUADRATIC =
-      new StandardCurveInterpolator("DoubleQuadratic", new DoubleQuadraticInterpolator1D());
+  public static final CurveInterpolator DOUBLE_QUADRATIC = DoubleQuadraticCurveInterpolator.INSTANCE;
   // Log natural cubic interpolation with monotonicity filter.
   public static final CurveInterpolator LOG_NATURAL_CUBIC_MONOTONE =
       new StandardCurveInterpolator(

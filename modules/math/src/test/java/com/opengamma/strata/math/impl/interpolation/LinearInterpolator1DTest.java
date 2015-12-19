@@ -21,14 +21,9 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
 @Test
 public class LinearInterpolator1DTest {
   private static final Interpolator1D INTERPOLATOR = new LinearInterpolator1D();
-  private static final Function<Double, Double> FUNCTION = new Function<Double, Double>() {
-
-    @Override
-    public Double apply(final Double x) {
-      return 2 * x - 7;
-    }
-  };
-  private static final Interpolator1DDataBundle MODEL = INTERPOLATOR.getDataBundle(new double[] {1, 2, 3 }, new double[] {4, 5, 6 });
+  private static final Function<Double, Double> FUNCTION = x -> 2 * x - 7;
+  private static final Interpolator1DDataBundle MODEL =
+      INTERPOLATOR.getDataBundle(new double[] {1, 2, 3}, new double[] {4, 5, 6});
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowValue() {

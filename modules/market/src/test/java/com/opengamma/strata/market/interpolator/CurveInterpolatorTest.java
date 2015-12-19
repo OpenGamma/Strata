@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
 
 /**
  * Test {@link CurveInterpolator}.
@@ -67,11 +66,6 @@ public class CurveInterpolatorTest {
 
   public void test_of_lookup_null() {
     assertThrowsIllegalArg(() -> CurveInterpolator.of(null));
-  }
-
-  public void test_LINEAR() {
-    assertTrue(LINEAR instanceof StandardCurveInterpolator);
-    assertTrue(((StandardCurveInterpolator) LINEAR).getUnderlying() instanceof LinearInterpolator1D);
   }
 
   //-------------------------------------------------------------------------
