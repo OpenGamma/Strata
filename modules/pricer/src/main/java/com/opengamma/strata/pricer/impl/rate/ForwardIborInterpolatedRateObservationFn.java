@@ -19,7 +19,7 @@ import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
 
 /**
  * Rate observation implementation for rate based on the weighted average of the fixing
- * on a single date of two IBOR-like indices.
+ * on a single date of two Ibor indices.
  * <p>
  * The rate observation query the rates from the {@code RatesProvider} and average them.
  * There is no convexity adjustment computed in this implementation.

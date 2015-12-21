@@ -141,7 +141,7 @@ public final class Fra
   @PropertyDefinition
   private final double fixedRate;
   /**
-   * The IBOR-like index.
+   * The Ibor index.
    * <p>
    * The floating rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -152,7 +152,7 @@ public final class Fra
   @PropertyDefinition(validate = "notNull")
   private final IborIndex index;
   /**
-   * The second IBOR-like index to be used for linear interpolation, optional.
+   * The second Ibor index to be used for linear interpolation, optional.
    * <p>
    * This will be used with {@code index} to linearly interpolate the rate.
    * It will be a well known market index such as 'GBP-LIBOR-6M'.
@@ -454,7 +454,7 @@ public final class Fra
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the IBOR-like index.
+   * Gets the Ibor index.
    * <p>
    * The floating rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -469,7 +469,7 @@ public final class Fra
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the second IBOR-like index to be used for linear interpolation, optional.
+   * Gets the second Ibor index to be used for linear interpolation, optional.
    * <p>
    * This will be used with {@code index} to linearly interpolate the rate.
    * It will be a well known market index such as 'GBP-LIBOR-6M'.
@@ -1192,7 +1192,7 @@ public final class Fra
     }
 
     /**
-     * Sets the IBOR-like index.
+     * Sets the Ibor index.
      * <p>
      * The floating rate to be paid is based on this index
      * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -1209,7 +1209,7 @@ public final class Fra
     }
 
     /**
-     * Sets the second IBOR-like index to be used for linear interpolation, optional.
+     * Sets the second Ibor index to be used for linear interpolation, optional.
      * <p>
      * This will be used with {@code index} to linearly interpolate the rate.
      * It will be a well known market index such as 'GBP-LIBOR-6M'.

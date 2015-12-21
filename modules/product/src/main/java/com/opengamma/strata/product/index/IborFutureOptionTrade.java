@@ -31,7 +31,7 @@ import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
- * A trade representing an option on a futures contract based on an IBOR-like index.
+ * A trade representing an option on a futures contract based on an Ibor index.
  * <p>
  * A trade in an underlying {@link IborFutureOption}.
  * The option is American, exercised at any point up to the exercise time.

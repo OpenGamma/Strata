@@ -70,10 +70,8 @@ public class ReciprocalExtrapolator1DTest {
               EPS);
           double keyUp = key + DELTA;
           double keyDw = key - DELTA;
-          double refDeriv = 0.5 * (extrap1D.extrapolate(data, keyUp, interpolator1D) - extrap1D.extrapolate(
-              data,
-              keyDw,
-              interpolator1D)) / DELTA;
+          double refDeriv = 0.5 * (extrap1D.extrapolate(data, keyUp, interpolator1D) -
+              extrap1D.extrapolate(data, keyDw, interpolator1D)) / DELTA;
           InterpolatorTestUtil.assertRelative("notClampedTest", refDeriv,
               extrap1D.firstDerivative(data, key, interpolator1D), DELTA);
           double[] refSense = new double[nData];
@@ -197,7 +195,7 @@ public class ReciprocalExtrapolator1DTest {
         for (int j = 1; j < nKeys; ++j) {
           double key = xValues[nData - 1] + interval * j;
           InterpolatorTestUtil.assertRelative(
-              "notClampedTest " + k,
+              "notClampedTest",
               FUNC.evaluate(result, key).get(0) / key,
               extrap1D.extrapolate(data, key, interpolator1D),
               EPS);
@@ -205,8 +203,11 @@ public class ReciprocalExtrapolator1DTest {
           double keyDw = key - DELTA;
           double refDeriv = 0.5 * (extrap1D.extrapolate(data, keyUp, interpolator1D) -
               extrap1D.extrapolate(data, keyDw, interpolator1D)) / DELTA;
-          InterpolatorTestUtil.assertRelative("notClampedTest", refDeriv,
-              extrap1D.firstDerivative(data, key, interpolator1D), DELTA * 10.0);
+          InterpolatorTestUtil.assertRelative(
+              "notClampedTest",
+              refDeriv,
+              extrap1D.firstDerivative(data, key, interpolator1D),
+              DELTA * 10.0);
           double[] refSense = new double[nData];
           for (int l = 0; l < nData; ++l) {
             double[] yValuesUp = Arrays.copyOf(yValues, nData);

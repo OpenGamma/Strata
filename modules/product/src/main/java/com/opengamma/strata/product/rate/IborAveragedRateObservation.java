@@ -32,9 +32,9 @@ import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Defines the observation of a rate of interest based on the average of multiple
- * fixings of a single IBOR-like floating rate index.
+ * fixings of a single Ibor floating rate index.
  * <p>
- * An interest rate determined from a single IBOR-like index observed on multiple dates.
+ * An interest rate determined from a single Ibor index observed on multiple dates.
  * For example, the average of three fixings of 'GBP-LIBOR-3M'.
  */
 @BeanDefinition
@@ -42,7 +42,7 @@ public final class IborAveragedRateObservation
     implements RateObservation, ImmutableBean, Serializable {
 
   /**
-   * The IBOR-like index.
+   * The Ibor index.
    * <p>
    * The rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -153,7 +153,7 @@ public final class IborAveragedRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the IBOR-like index.
+   * Gets the Ibor index.
    * <p>
    * The rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -402,7 +402,7 @@ public final class IborAveragedRateObservation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the IBOR-like index.
+     * Sets the Ibor index.
      * <p>
      * The rate to be paid is based on this index
      * It will be a well known market index such as 'GBP-LIBOR-3M'.

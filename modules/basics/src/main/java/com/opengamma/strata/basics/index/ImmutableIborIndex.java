@@ -33,7 +33,7 @@ import com.opengamma.strata.basics.date.TenorAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * An IBOR-like index implementation based on an immutable set of rules.
+ * An Ibor index implementation based on an immutable set of rules.
  * <p>
  * A standard immutable implementation of {@link IborIndex} that defines the currency
  * and the rules for converting from fixing to effective and maturity.

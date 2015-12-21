@@ -52,10 +52,10 @@ import com.opengamma.strata.product.rate.IborRateObservation;
 import com.opengamma.strata.product.rate.RateObservation;
 
 /**
- * Defines the calculation of a floating rate swap leg based on an IBOR-like index.
+ * Defines the calculation of a floating rate swap leg based on an Ibor index.
  * <p>
  * This defines the data necessary to calculate the amount payable on the leg.
- * The amount is based on the observed value of an IBOR-like index such as 'GBP-LIBOR-3M' or 'EUR-EURIBOR-1M'.
+ * The amount is based on the observed value of an Ibor index such as 'GBP-LIBOR-3M' or 'EUR-EURIBOR-1M'.
  * <p>
  * The index is observed once for each <i>reset period</i> and referred to as a <i>fixing</i>.
  * The actual date of observation is the <i>fixing date</i>, which is relative to either
@@ -81,7 +81,7 @@ public final class IborRateCalculation
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DayCount dayCount;
   /**
-   * The IBOR-like index.
+   * The Ibor index.
    * <p>
    * The rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -445,7 +445,7 @@ public final class IborRateCalculation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the IBOR-like index.
+   * Gets the Ibor index.
    * <p>
    * The rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -1115,7 +1115,7 @@ public final class IborRateCalculation
     }
 
     /**
-     * Sets the IBOR-like index.
+     * Sets the Ibor index.
      * <p>
      * The rate to be paid is based on this index
      * It will be a well known market index such as 'GBP-LIBOR-3M'.

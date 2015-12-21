@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
 
 /**
  * Test {@link CurveInterpolator}.
@@ -69,27 +68,22 @@ public class CurveInterpolatorTest {
     assertThrowsIllegalArg(() -> CurveInterpolator.of(null));
   }
 
-  public void test_LINEAR() {
-    assertTrue(LINEAR instanceof ImmutableCurveInterpolator);
-    assertTrue(((ImmutableCurveInterpolator) LINEAR).getUnderlying() instanceof LinearInterpolator1D);
-  }
-
   //-------------------------------------------------------------------------
   public void test_bind() {
     DoubleArray xValues = DoubleArray.of(1, 2, 3);
     DoubleArray yValues = DoubleArray.of(2, 4, 5);
     BoundCurveInterpolator bound = LINEAR.bind(xValues, yValues, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
-    assertEquals(bound.yValue(0.5), 2d, 0d);
-    assertEquals(bound.yValue(1), 2d, 0d);
-    assertEquals(bound.yValue(1.5), 3d, 0d);
-    assertEquals(bound.yValue(2), 4d, 0d);
-    assertEquals(bound.yValue(2.5), 4.5d, 0d);
-    assertEquals(bound.yValue(3), 5d, 0d);
-    assertEquals(bound.yValue(3.5), 5d, 0d);
+    assertEquals(bound.interpolate(0.5), 2d, 0d);
+    assertEquals(bound.interpolate(1), 2d, 0d);
+    assertEquals(bound.interpolate(1.5), 3d, 0d);
+    assertEquals(bound.interpolate(2), 4d, 0d);
+    assertEquals(bound.interpolate(2.5), 4.5d, 0d);
+    assertEquals(bound.interpolate(3), 5d, 0d);
+    assertEquals(bound.interpolate(3.5), 5d, 0d);
     // coverage
-    assertEquals(bound.yValueParameterSensitivity(0.5).size(), 3);
-    assertEquals(bound.yValueParameterSensitivity(2).size(), 3);
-    assertEquals(bound.yValueParameterSensitivity(3.5).size(), 3);
+    assertEquals(bound.parameterSensitivity(0.5).size(), 3);
+    assertEquals(bound.parameterSensitivity(2).size(), 3);
+    assertEquals(bound.parameterSensitivity(3.5).size(), 3);
     assertEquals(bound.firstDerivative(0.5), 0d, 0d);
     assertTrue(bound.firstDerivative(2) != 0d);
     assertEquals(bound.firstDerivative(3.5), 0d, 0d);

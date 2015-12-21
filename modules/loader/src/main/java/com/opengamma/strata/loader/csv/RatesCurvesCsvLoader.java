@@ -12,9 +12,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -120,6 +122,14 @@ public final class RatesCurvesCsvLoader {
     List<CurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.loadCurveGroups(groupsResource);
     Multimap<LocalDate, Curve> allCurves = loadCurves(settingsResource, curvesResources, marketDataDate);
     Collection<Curve> curves = allCurves.get(marketDataDate);
+    Set<CurveName> curveNames = new HashSet<>();
+
+    // Ensure curve names are unique
+    for (Curve curve : curves) {
+      if (!curveNames.add(curve.getName())) {
+        throw new IllegalArgumentException("Multiple curves with the same name: " + curve.getName());
+      }
+    }
     return curveGroups.stream().map(groupDef -> CurveGroup.ofCurves(groupDef, curves)).collect(toImmutableList());
   }
 

@@ -40,7 +40,7 @@ import com.opengamma.strata.product.rate.IborRateObservation;
  * <p>
  * An Ibor fixing deposit is a fictitious financial instrument that provides a floating rate of interest on
  * notional amount for a specific term, which is effectively an exchange of a fixed rate and a floating rate 
- * based on an Ibor-like index on the term end date.
+ * based on an Ibor index on the term end date.
  * <p>
  * For example, an Ibor fixing deposit involves the exchange of the difference between
  * the fixed rate of 1% and the 'GBP-LIBOR-3M' rate for the principal in 3 months time.

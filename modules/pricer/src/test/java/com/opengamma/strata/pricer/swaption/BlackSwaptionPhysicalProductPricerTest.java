@@ -35,6 +35,7 @@ import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.market.surface.ConstantNodalSurface;
 import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
+import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.BlackFunctionData;
 import com.opengamma.strata.pricer.impl.option.BlackPriceFunction;
 import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
@@ -243,6 +244,143 @@ public class BlackSwaptionPhysicalProductPricerTest {
   public void present_value_after_expiry() {
     CurrencyAmount pv = PRICER_SWAPTION_BLACK.presentValue(SWAPTION_PAST, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
     assertEquals(pv.getAmount(), 0.0d, TOLERANCE_PV);
+  }
+
+  //-------------------------------------------------------------------------
+  public void present_value_delta_formula() {
+    double forward = PRICER_SWAP.parRate(SWAP_REC, MULTI_USD);
+    double pvbp = PRICER_SWAP.getLegPricer().pvbp(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
+    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.getVolatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+        SWAP_TENOR_YEAR, STRIKE, forward);
+    double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
+    double pvDeltaExpected = BlackFormulaRepository.delta(forward, STRIKE, expiry, volatility, false) * Math.abs(pvbp);
+    CurrencyAmount pvDeltaComputed =
+        PRICER_SWAPTION_BLACK.presentValueDelta(SWAPTION_LONG_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    assertEquals(pvDeltaComputed.getCurrency(), USD);
+    assertEquals(pvDeltaComputed.getAmount(), pvDeltaExpected, TOLERANCE_PV);
+  }
+
+  public void present_value_delta_long_short_parity() {
+    CurrencyAmount pvDeltaLong =
+        PRICER_SWAPTION_BLACK.presentValueDelta(SWAPTION_LONG_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    CurrencyAmount pvDeltaShort =
+        PRICER_SWAPTION_BLACK.presentValueDelta(SWAPTION_SHORT_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    assertEquals(pvDeltaLong.getAmount(), -pvDeltaShort.getAmount(), TOLERANCE_PV);
+  }
+
+  public void present_value_delta_payer_receiver_parity() {
+    CurrencyAmount pvDeltaLongPay =
+        PRICER_SWAPTION_BLACK.presentValueDelta(SWAPTION_LONG_PAY, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    CurrencyAmount pvDeltaShortRec =
+        PRICER_SWAPTION_BLACK.presentValueDelta(SWAPTION_SHORT_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    double pvbp = PRICER_SWAP.getLegPricer().pvbp(SWAP_PAY.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
+    assertEquals(pvDeltaLongPay.getAmount() + pvDeltaShortRec.getAmount(), Math.abs(pvbp), TOLERANCE_PV);
+  }
+
+  public void present_value_delta_at_expiry() {
+    CurrencyAmount pvDeltaRec =
+        PRICER_SWAPTION_BLACK.presentValueDelta(SWAPTION_REC_AT_EXPIRY, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    assertEquals(pvDeltaRec.getAmount(), 0d, TOLERANCE_PV);
+    CurrencyAmount pvDeltaPay =
+        PRICER_SWAPTION_BLACK.presentValueDelta(SWAPTION_PAY_AT_EXPIRY, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    double pvbp = PRICER_SWAP.getLegPricer().pvbp(SWAP_PAY.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
+    assertEquals(pvDeltaPay.getAmount(), Math.abs(pvbp), TOLERANCE_PV);
+  }
+
+  public void present_value_delta_after_expiry() {
+    CurrencyAmount pvDelta =
+        PRICER_SWAPTION_BLACK.presentValueDelta(SWAPTION_PAST, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    assertEquals(pvDelta.getAmount(), 0d, TOLERANCE_PV);
+  }
+
+  //-------------------------------------------------------------------------
+  public void present_value_gamma_formula() {
+    double forward = PRICER_SWAP.parRate(SWAP_REC, MULTI_USD);
+    double pvbp = PRICER_SWAP.getLegPricer().pvbp(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
+    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.getVolatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+        SWAP_TENOR_YEAR, STRIKE, forward);
+    double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
+    double pvGammaExpected = BlackFormulaRepository.gamma(forward, STRIKE, expiry, volatility) * Math.abs(pvbp);
+    CurrencyAmount pvGammaComputed =
+        PRICER_SWAPTION_BLACK.presentValueGamma(SWAPTION_LONG_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    assertEquals(pvGammaComputed.getCurrency(), USD);
+    assertEquals(pvGammaComputed.getAmount(), pvGammaExpected, TOLERANCE_PV);
+  }
+
+  public void present_value_gamma_long_short_parity() {
+    CurrencyAmount pvGammaLong =
+        PRICER_SWAPTION_BLACK.presentValueGamma(SWAPTION_LONG_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    CurrencyAmount pvGammaShort =
+        PRICER_SWAPTION_BLACK.presentValueGamma(SWAPTION_SHORT_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    assertEquals(pvGammaLong.getAmount(), -pvGammaShort.getAmount(), TOLERANCE_PV);
+  }
+
+  public void present_value_gamma_payer_receiver_parity() {
+    CurrencyAmount pvGammaLongPay =
+        PRICER_SWAPTION_BLACK.presentValueGamma(SWAPTION_LONG_PAY, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    CurrencyAmount pvGammaShortRec =
+        PRICER_SWAPTION_BLACK.presentValueGamma(SWAPTION_SHORT_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    assertEquals(pvGammaLongPay.getAmount() + pvGammaShortRec.getAmount(), 0d, TOLERANCE_PV);
+  }
+
+  public void present_value_gamma_at_expiry() {
+    CurrencyAmount pvGammaRec =
+        PRICER_SWAPTION_BLACK.presentValueGamma(SWAPTION_REC_AT_EXPIRY, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    assertEquals(pvGammaRec.getAmount(), 0d, TOLERANCE_PV);
+    CurrencyAmount pvGammaPay =
+        PRICER_SWAPTION_BLACK.presentValueGamma(SWAPTION_PAY_AT_EXPIRY, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    assertEquals(pvGammaPay.getAmount(), 0d, TOLERANCE_PV);
+  }
+
+  public void present_value_gamma_after_expiry() {
+    CurrencyAmount pvGamma =
+        PRICER_SWAPTION_BLACK.presentValueGamma(SWAPTION_PAST, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    assertEquals(pvGamma.getAmount(), 0d, TOLERANCE_PV);
+  }
+
+  //-------------------------------------------------------------------------
+  public void present_value_theta_formula() {
+    double forward = PRICER_SWAP.parRate(SWAP_REC, MULTI_USD);
+    double pvbp = PRICER_SWAP.getLegPricer().pvbp(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
+    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.getVolatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+        SWAP_TENOR_YEAR, STRIKE, forward);
+    double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
+    double pvThetaExpected = BlackFormulaRepository.driftlessTheta(forward, STRIKE, expiry, volatility) * Math.abs(pvbp);
+    CurrencyAmount pvThetaComputed =
+        PRICER_SWAPTION_BLACK.presentValueTheta(SWAPTION_LONG_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    assertEquals(pvThetaComputed.getCurrency(), USD);
+    assertEquals(pvThetaComputed.getAmount(), pvThetaExpected, TOLERANCE_PV);
+  }
+
+  public void present_value_theta_long_short_parity() {
+    CurrencyAmount pvThetaLong =
+        PRICER_SWAPTION_BLACK.presentValueTheta(SWAPTION_LONG_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    CurrencyAmount pvThetaShort =
+        PRICER_SWAPTION_BLACK.presentValueTheta(SWAPTION_SHORT_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    assertEquals(pvThetaLong.getAmount(), -pvThetaShort.getAmount(), TOLERANCE_PV);
+  }
+
+  public void present_value_theta_payer_receiver_parity() {
+    CurrencyAmount pvThetaLongPay =
+        PRICER_SWAPTION_BLACK.presentValueTheta(SWAPTION_LONG_PAY, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    CurrencyAmount pvThetaShortRec =
+        PRICER_SWAPTION_BLACK.presentValueTheta(SWAPTION_SHORT_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    assertEquals(pvThetaLongPay.getAmount() + pvThetaShortRec.getAmount(), 0d, TOLERANCE_PV);
+  }
+
+  public void present_value_theta_at_expiry() {
+    CurrencyAmount pvThetaRec =
+        PRICER_SWAPTION_BLACK.presentValueTheta(SWAPTION_REC_AT_EXPIRY, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    assertEquals(pvThetaRec.getAmount(), 0d, TOLERANCE_PV);
+    CurrencyAmount pvThetaPay =
+        PRICER_SWAPTION_BLACK.presentValueTheta(SWAPTION_PAY_AT_EXPIRY, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    assertEquals(pvThetaPay.getAmount(), 0d, TOLERANCE_PV);
+  }
+
+  public void present_value_theta_after_expiry() {
+    CurrencyAmount pvTheta =
+        PRICER_SWAPTION_BLACK.presentValueTheta(SWAPTION_PAST, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
+    assertEquals(pvTheta.getAmount(), 0d, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------  

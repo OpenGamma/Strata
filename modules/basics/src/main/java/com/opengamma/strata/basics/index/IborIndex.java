@@ -20,7 +20,7 @@ import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 
 /**
- * An IBOR-like index, such as Libor or Euribor.
+ * An inter-bank lending rate index, such as Libor or Euribor.
  * <p>
  * An index represented by this class relates to inter-bank lending for periods
  * from one day to one year. They are typically calculated and published as the
@@ -39,7 +39,7 @@ public interface IborIndex
     extends RateIndex, Named {
 
   /**
-   * Obtains a {@code IborIndex} from a unique name.
+   * Obtains an {@code IborIndex} from a unique name.
    * 
    * @param uniqueName  the unique name
    * @return the index

@@ -16,6 +16,7 @@ import java.util.Objects;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.FieldName;
+import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
@@ -34,6 +35,8 @@ public class MarketEnvironmentTest {
 
   private static final TestId TEST_ID1 = new TestId("1");
   private static final TestId TEST_ID2 = new TestId("2");
+  private static final TestId TEST_ID3 = new TestId("3");
+  private static final TestId TEST_ID4 = new TestId("4");
 
   /**
    * Tests the special handling of {@link NoMatchingRuleId}
@@ -108,6 +111,120 @@ public class MarketEnvironmentTest {
   public void valuationDateRequired() {
     assertThrowsIllegalArg(() -> MarketEnvironment.builder().build(), "Valuation date must be specified");
   }
+
+  public void mergedWith() {
+    LocalDateDoubleTimeSeries timeSeries1 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 1)
+        .put(date(2011, 3, 9), 2)
+        .put(date(2011, 3, 10), 3)
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries2 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 10)
+        .put(date(2011, 3, 9), 20)
+        .put(date(2011, 3, 10), 30)
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries2a = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 1000)
+        .put(date(2011, 3, 9), 2000)
+        .put(date(2011, 3, 10), 3000)
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries3 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 100)
+        .put(date(2011, 3, 9), 200)
+        .put(date(2011, 3, 10), 300)
+        .build();
+
+    MarketEnvironment marketData1 = MarketEnvironment.builder()
+        .valuationDate(LocalDate.of(2011, 3, 8))
+        .addTimeSeries(TEST_ID1, timeSeries1)
+        .addTimeSeries(TEST_ID2, timeSeries2)
+        .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0, 1.1, 1.2))
+        .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(2.0, 2.1, 2.2))
+        .addResult(TEST_ID4, Result.failure(FailureReason.ERROR, "foo"))
+        .build();
+
+    MarketEnvironment marketData2 = MarketEnvironment.builder()
+        .valuationDate(LocalDate.of(2011, 3, 10))
+        .addTimeSeries(TEST_ID2, timeSeries2a)
+        .addTimeSeries(TEST_ID3, timeSeries3)
+        .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(21.0, 21.1, 21.2))
+        .addValue(TEST_ID3, MarketDataBox.ofScenarioValues(3.0, 3.1, 3.2))
+        .addTimeSeriesResult(TEST_ID4, Result.failure(FailureReason.ERROR, "foo"))
+        .build();
+
+    // marketData1 values should be in the merged data when the same ID is present in both
+    MarketEnvironment expected = MarketEnvironment.builder()
+        .valuationDate(LocalDate.of(2011, 3, 8))
+        .addTimeSeries(TEST_ID1, timeSeries1)
+        .addTimeSeries(TEST_ID2, timeSeries2)
+        .addTimeSeries(TEST_ID3, timeSeries3)
+        .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0, 1.1, 1.2))
+        .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(2.0, 2.1, 2.2))
+        .addValue(TEST_ID3, MarketDataBox.ofScenarioValues(3.0, 3.1, 3.2))
+        .build();
+
+    MarketEnvironment merged = marketData1.mergedWith(marketData2);
+    assertThat(merged).isEqualTo(expected);
+  }
+
+  public void mergedWithIncompatibleScenarioCount() {
+    MarketEnvironment marketData1 = MarketEnvironment.builder()
+        .valuationDate(LocalDate.of(2011, 3, 8))
+        .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0, 1.1, 1.2))
+        .build();
+
+    MarketEnvironment marketData2 = MarketEnvironment.builder()
+        .valuationDate(LocalDate.of(2011, 3, 8))
+        .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
+        .build();
+
+    assertThrowsIllegalArg(() -> marketData1.mergedWith(marketData2), ".* same number of scenarios .* 3 and 2");
+  }
+
+  public void mergedWithReceiverHasOneScenario() {
+    MarketEnvironment marketData1 = MarketEnvironment.builder()
+        .valuationDate(LocalDate.of(2011, 3, 8))
+        .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
+        .build();
+
+    MarketEnvironment marketData2 = MarketEnvironment.builder()
+        .valuationDate(LocalDate.of(2011, 3, 8))
+        .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
+        .build();
+
+    MarketEnvironment expected = MarketEnvironment.builder()
+        .valuationDate(LocalDate.of(2011, 3, 8))
+        .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
+        .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
+        .build();
+
+    assertThat(marketData1.mergedWith(marketData2)).isEqualTo(expected);
+  }
+
+  public void mergedWithOtherHasOneScenario() {
+    MarketEnvironment marketData1 = MarketEnvironment.builder()
+        .valuationDate(LocalDate.of(2011, 3, 8))
+        .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
+        .build();
+
+    MarketEnvironment marketData2 = MarketEnvironment.builder()
+        .valuationDate(LocalDate.of(2011, 3, 8))
+        .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
+        .build();
+
+    MarketEnvironment expected = MarketEnvironment.builder()
+        .valuationDate(LocalDate.of(2011, 3, 8))
+        .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
+        .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
+        .build();
+
+    assertThat(marketData1.mergedWith(marketData2)).isEqualTo(expected);
+  }
+
+  //--------------------------------------------------------------------------------------------------
 
   private static final class TestId implements ObservableId {
 

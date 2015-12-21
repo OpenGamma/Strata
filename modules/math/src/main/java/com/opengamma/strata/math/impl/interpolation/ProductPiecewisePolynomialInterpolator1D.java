@@ -90,7 +90,7 @@ public class ProductPiecewisePolynomialInterpolator1D extends Interpolator1D {
    * @param small Threshold around the origin
    * @return The interpolation
    */
-  Double interpolate(Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle data, Double value,
+  public double interpolate(Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle data, double value,
       PiecewisePolynomialFunction1D function, double small) {
     if (Math.abs(value) < small) {
       return function.differentiate(data.getPiecewisePolynomialResult(), value).get(0);
@@ -107,8 +107,12 @@ public class ProductPiecewisePolynomialInterpolator1D extends Interpolator1D {
    * @param small Threshold around the origin
    * @return The first derivative value
    */
-  double firstDerivative(Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle data, Double value,
-      PiecewisePolynomialFunction1D function, double small) {
+  public double firstDerivative(
+      Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle data,
+      double value,
+      PiecewisePolynomialFunction1D function,
+      double small) {
+
     if (Math.abs(value) < small) {
       return 0.5 * function.differentiateTwice(data.getPiecewisePolynomialResult(), value).get(0);
     }
@@ -125,8 +129,12 @@ public class ProductPiecewisePolynomialInterpolator1D extends Interpolator1D {
    * @param small Threshold around the origin
    * @return The node sensitivities
    */
-  double[] getNodeSensitivitiesForValue(Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle data, Double value,
-      PiecewisePolynomialFunction1D function, double small) {
+  public double[] getNodeSensitivitiesForValue(
+      Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle data,
+      double value,
+      PiecewisePolynomialFunction1D function,
+      double small) {
+
     int nData = data.size();
     double[] res = new double[nData];
     double eps = data.getEps();

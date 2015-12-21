@@ -171,7 +171,7 @@ public class RatesCurvesCsvLoaderTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Multiple entries with same key: .*")
+      expectedExceptionsMessageRegExp = "Multiple curves with the same name: .*")
   public void test_single_curve_multiple_Files() {
     RatesCurvesCsvLoader.load(
         CURVE_DATE,
