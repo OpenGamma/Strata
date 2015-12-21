@@ -62,12 +62,13 @@ public interface CalculationEnvironment {
    * <p>
    * The return value is guaranteed to contain a value for every ID.
    * If any values are unavailable this method throws {@code IllegalArgumentException}.
-   *
+   * 
+   * @param <T>  the type of the observable values set, needed to avoid errors in javac
    * @param ids  market data IDs
    * @return a map of market data values for the IDs
    * @throws IllegalArgumentException if no value matches one or more of the IDs, or an error occurs
    */
-  public default Map<ObservableId, MarketDataBox<Double>> getObservableValues(Set<? extends ObservableId> ids) {
+  public default <T extends ObservableId> Map<ObservableId, MarketDataBox<Double>> getObservableValues(Set<T> ids) {
     Function<ObservableId, ObservableId> idMapper = id -> id;
     Function<ObservableId, MarketDataBox<Double>> valueMapper = id -> getValue(id);
     return ids.stream().collect(toImmutableMap(idMapper, valueMapper));
