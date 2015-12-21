@@ -1,3 +1,7 @@
+/**
+ * Copyright (C) 2015 - present by OpenGammimport com.opengamma.strata.collect.named.ExtendedEnum;
+e see distribution for license.
+ */
 package com.opengamma.strata.product.swap;
 
 import com.opengamma.strata.collect.named.ExtendedEnum;
