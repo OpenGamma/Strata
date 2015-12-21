@@ -24,7 +24,6 @@ import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseConstantParameters;
-import com.opengamma.strata.pricer.index.HullWhiteOneFactorPiecewiseConstantParametersProvider;
 
 /**
  * Test {@link HullWhiteOneFactorPiecewiseConstantParametersProvider}.
@@ -69,9 +68,9 @@ public class HullWhiteOneFactorPiecewiseConstantParametersProviderTest {
   public void test_futuresConvexityFactor() {
     HullWhiteOneFactorPiecewiseConstantParametersProvider provider =
         HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VAL_DATE);
-    LocalDate data1 = LocalDate.of(2014, 5, 14);
-    LocalDate data2 = LocalDate.of(2014, 5, 20);
-    LocalDate data3 = LocalDate.of(2014, 8, 20);
+    LocalDate data1 = LocalDate.of(2015, 5, 14);
+    LocalDate data2 = LocalDate.of(2015, 5, 20);
+    LocalDate data3 = LocalDate.of(2015, 8, 20);
     double computed = provider.futuresConvexityFactor(data1, data2, data3);
     double expected = HullWhiteOneFactorPiecewiseConstantInterestRateModel.DEFAULT.futuresConvexityFactor(PARAMETERS,
         ACT_360.relativeYearFraction(VAL_DATE, data1), ACT_360.relativeYearFraction(VAL_DATE, data2),
@@ -82,13 +81,41 @@ public class HullWhiteOneFactorPiecewiseConstantParametersProviderTest {
   public void test_futuresConvexityFactorAdjoint() {
     HullWhiteOneFactorPiecewiseConstantParametersProvider provider =
         HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VAL_DATE);
-    LocalDate data1 = LocalDate.of(2014, 5, 14);
-    LocalDate data2 = LocalDate.of(2014, 5, 20);
-    LocalDate data3 = LocalDate.of(2014, 8, 20);
+    LocalDate data1 = LocalDate.of(2015, 5, 14);
+    LocalDate data2 = LocalDate.of(2015, 5, 20);
+    LocalDate data3 = LocalDate.of(2015, 8, 20);
     ValueDerivatives computed = provider.futuresConvexityFactorAdjoint(data1, data2, data3);
     ValueDerivatives expected = HullWhiteOneFactorPiecewiseConstantInterestRateModel.DEFAULT
         .futuresConvexityFactorAdjoint(PARAMETERS, ACT_360.relativeYearFraction(VAL_DATE, data1),
             ACT_360.relativeYearFraction(VAL_DATE, data2), ACT_360.relativeYearFraction(VAL_DATE, data3));
+    assertEquals(computed, expected);
+  }
+
+  public void test_alpha() {
+    HullWhiteOneFactorPiecewiseConstantParametersProvider provider =
+        HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VAL_DATE);
+    LocalDate data1 = LocalDate.of(2015, 5, 20);
+    LocalDate data2 = LocalDate.of(2015, 8, 20);
+    LocalDate data3 = LocalDate.of(2015, 8, 20);
+    LocalDate data4 = LocalDate.of(2015, 8, 27);
+    double computed = provider.alpha(data1, data2, data3, data4);
+    double expected = HullWhiteOneFactorPiecewiseConstantInterestRateModel.DEFAULT.alpha(PARAMETERS,
+        ACT_360.relativeYearFraction(VAL_DATE, data1), ACT_360.relativeYearFraction(VAL_DATE, data2),
+        ACT_360.relativeYearFraction(VAL_DATE, data3), ACT_360.relativeYearFraction(VAL_DATE, data4));
+    assertEquals(computed, expected);
+  }
+
+  public void test_alphaAdjoint() {
+    HullWhiteOneFactorPiecewiseConstantParametersProvider provider =
+        HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VAL_DATE);
+    LocalDate data1 = LocalDate.of(2015, 5, 20);
+    LocalDate data2 = LocalDate.of(2015, 8, 20);
+    LocalDate data3 = LocalDate.of(2015, 8, 20);
+    LocalDate data4 = LocalDate.of(2015, 8, 27);
+    ValueDerivatives computed = provider.alphaAdjoint(data1, data2, data3, data4);
+    ValueDerivatives expected = HullWhiteOneFactorPiecewiseConstantInterestRateModel.DEFAULT.alphaAdjoint(
+        PARAMETERS, ACT_360.relativeYearFraction(VAL_DATE, data1), ACT_360.relativeYearFraction(VAL_DATE, data2),
+        ACT_360.relativeYearFraction(VAL_DATE, data3), ACT_360.relativeYearFraction(VAL_DATE, data4));
     assertEquals(computed, expected);
   }
 

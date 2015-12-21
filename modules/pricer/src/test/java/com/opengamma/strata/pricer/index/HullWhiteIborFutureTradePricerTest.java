@@ -9,6 +9,8 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+import java.time.LocalDate;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -28,9 +30,10 @@ import com.opengamma.strata.product.index.IborFutureTrade;
  */
 @Test
 public class HullWhiteIborFutureTradePricerTest {
+  private static final LocalDate VALUATION = LocalDate.of(2011, 5, 12);
   private static final HullWhiteOneFactorPiecewiseConstantParametersProvider HW_PROVIDER =
-      HullWhiteIborFutureDataSet.HULL_WHITE_PARAMETER_PROVIDER;
-  private static final ImmutableRatesProvider RATE_PROVIDER = HullWhiteIborFutureDataSet.RATE_PROVIDER;
+      HullWhiteIborFutureDataSet.createHullWhiteProvider(VALUATION);
+  private static final ImmutableRatesProvider RATE_PROVIDER = HullWhiteIborFutureDataSet.createRatesProvider(VALUATION);
   private static final IborFutureTrade TRADE = HullWhiteIborFutureDataSet.IBOR_FUTURE_TRADE;
   private static final IborFuture PRODUCT = HullWhiteIborFutureDataSet.IBOR_FUTURE;
   private static final double LAST_PRICE = HullWhiteIborFutureDataSet.LAST_MARGIN_PRICE;
