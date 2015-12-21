@@ -6,6 +6,7 @@
 package com.opengamma.strata.product.swap;
 
 import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
@@ -43,7 +44,7 @@ public interface SwapIndex
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code SwapIndex} to be lookup up.
+   * This helper allows instances of {@code SwapIndex} to be looked up.
    * It also provides the complete set of available instances.
    * 
    * @return the extended enum helper
@@ -55,10 +56,22 @@ public interface SwapIndex
   //-----------------------------------------------------------------------
 
   /**
-   * Gets template for creating Fixed-Ibor swap.
+   * Gets the template for creating Fixed-Ibor swap.
    * <p>
    * @return the template
    */
   public abstract FixedIborSwapTemplate getTemplate();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the name that uniquely identifies this index.
+   * <p>
+   * This name is used in serialization and can be parsed using {@link #of(String)}.
+   * 
+   * @return the unique name
+   */
+  @ToString
+  @Override
+  public abstract String getName();
 
 }

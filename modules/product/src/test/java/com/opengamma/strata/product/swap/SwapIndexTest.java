@@ -23,7 +23,7 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 
 /**
- * Test swap index.
+ * Test {@link SwapIndex}.
  */
 @Test
 public class SwapIndexTest {
@@ -79,6 +79,7 @@ public class SwapIndexTest {
     }
   }
 
+  //-------------------------------------------------------------------------
   public void coverage() {
     ImmutableSwapIndex index = ImmutableSwapIndex.builder()
         .name("FooIndex")
@@ -95,4 +96,5 @@ public class SwapIndexTest {
         .build();
     assertSerialization(index);
   }
+
 }

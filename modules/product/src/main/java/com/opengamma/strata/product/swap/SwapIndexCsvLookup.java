@@ -81,10 +81,7 @@ final class SwapIndexCsvLookup
     FixedIborSwapConvention convention = FixedIborSwapConvention.of(csv.field(row, CONVENTION_FIELD));
     Tenor tenor = Tenor.parse(csv.field(row, TENOR_FIELD));
     // build result
-    return ImmutableSwapIndex.builder()
-        .name(name)
-        .template(FixedIborSwapTemplate.of(tenor, convention))
-        .build();
+    return ImmutableSwapIndex.of(name, FixedIborSwapTemplate.of(tenor, convention));
   }
 
 }
