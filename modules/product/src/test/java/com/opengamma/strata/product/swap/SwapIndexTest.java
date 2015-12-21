@@ -37,10 +37,12 @@ public class SwapIndexTest {
     ImmutableList<SwapIndex> indexAll = mapAll.values().asList();
     ImmutableList<String> nameAll = mapAll.keySet().asList();
     int size = indexAll.size();
-    for (int i = 1; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
       // check no duplication
-      assertFalse(nameAll.get(i).equals(nameAll.get(0)));
-      assertFalse(indexAll.get(i).equals(indexAll.get(0)));
+      for (int j = i + 1; j < size; ++j) {
+        assertFalse(nameAll.get(i).equals(nameAll.get(j)));
+        assertFalse(indexAll.get(i).equals(indexAll.get(j)));
+      }
     }
     for (String name : nameAll) {
       SwapIndex index = mapAll.get(name);
