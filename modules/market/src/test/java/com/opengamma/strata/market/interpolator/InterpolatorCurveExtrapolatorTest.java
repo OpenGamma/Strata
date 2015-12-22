@@ -33,7 +33,6 @@ public class InterpolatorCurveExtrapolatorTest {
   private static final DoubleArray X_DATA = DoubleArray.of(0.0, 0.4, 1.0, 1.8, 2.8, 5.0);
   private static final DoubleArray Y_DATA = DoubleArray.of(3.0, 4.0, 3.1, 2.0, 7.0, 2.0);
 
-  private static final double EPS = 1.e-7;
   private static final double TOL = 1.e-14;
 
   public void test_basics() {
