@@ -8,9 +8,7 @@ package com.opengamma.strata.pricer.index;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.IborFutureOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
-import com.opengamma.strata.pricer.impl.option.NormalFunctionData;
-import com.opengamma.strata.pricer.impl.option.NormalPriceFunction;
+import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 import com.opengamma.strata.product.index.IborFuture;
@@ -26,11 +24,6 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
    */
   public static final NormalIborFutureOptionMarginedProductPricer DEFAULT =
       new NormalIborFutureOptionMarginedProductPricer(DiscountingIborFutureProductPricer.DEFAULT);
-
-  /**
-   * Normal or Bachelier price function.
-   */
-  private static final NormalPriceFunction NORMAL_FUNCTION = new NormalPriceFunction();
 
   /**
    * The underlying future pricer.
@@ -103,14 +96,13 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
     ArgChecker.isTrue(futureOption.getUnderlying().getIndex().equals(volatilityProvider.getFutureIndex()),
         "Future index should be the same as data index");
 
-    EuropeanVanillaOption option = createOption(futureOption, volatilityProvider);
+    double timeToExpiry = volatilityProvider.relativeTime(futureOption.getExpiry());
     double strike = futureOption.getStrikePrice();
     IborFuture future = futureOption.getUnderlying();
     double volatility = volatilityProvider.getVolatility(
         futureOption.getExpiry(), future.getLastTradeDate(), strike, futurePrice);
 
-    NormalFunctionData normalPoint = NormalFunctionData.of(futurePrice, 1.0, volatility);
-    return NORMAL_FUNCTION.getPriceFunction(option).apply(normalPoint);
+    return NormalFormulaRepository.price(futurePrice, strike, timeToExpiry, volatility, futureOption.getPutCall());
   }
 
   @Override
@@ -169,14 +161,13 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
 
-    EuropeanVanillaOption option = createOption(futureOption, volatilityProvider);
+    double timeToExpiry = volatilityProvider.relativeTime(futureOption.getExpiry());
     double strike = futureOption.getStrikePrice();
     IborFuture future = futureOption.getUnderlying();
     double volatility = volatilityProvider.getVolatility(futureOption.getExpiry(),
         future.getLastTradeDate(), strike, futurePrice);
 
-    NormalFunctionData normalPoint = NormalFunctionData.of(futurePrice, 1.0, volatility);
-    return NORMAL_FUNCTION.getDelta(option, normalPoint);
+    return NormalFormulaRepository.delta(futurePrice, strike, timeToExpiry, volatility, futureOption.getPutCall());
   }
 
   //-------------------------------------------------------------------------
@@ -285,15 +276,15 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
 
-    EuropeanVanillaOption option = createOption(futureOption, volatilityProvider);
+    double timeToExpiry = volatilityProvider.relativeTime(futureOption.getExpiry());
     double strike = futureOption.getStrikePrice();
     IborFuture future = futureOption.getUnderlying();
     double volatility = volatilityProvider.getVolatility(futureOption.getExpiry(),
         future.getLastTradeDate(), strike, futurePrice);
 
-    NormalFunctionData normalPoint = NormalFunctionData.of(futurePrice, 1.0, volatility);
+    double vega = NormalFormulaRepository.vega(futurePrice, strike, timeToExpiry, volatility, futureOption.getPutCall());
     return IborFutureOptionSensitivity.of(future.getIndex(), futureOption.getExpiry(),
-        future.getLastTradeDate(), strike, futurePrice, NORMAL_FUNCTION.getVega(option, normalPoint));
+        future.getLastTradeDate(), strike, futurePrice, vega);
   }
 
   //-------------------------------------------------------------------------
@@ -301,15 +292,6 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
   private double futurePrice(IborFutureOption futureOption, RatesProvider ratesProvider) {
     IborFuture future = futureOption.getUnderlying();
     return futurePricer.price(future, ratesProvider);
-  }
-
-  // create analytic option object
-  private EuropeanVanillaOption createOption(
-      IborFutureOption futureOption,
-      NormalVolatilityIborFutureProvider volatilityProvider) {
-
-    double timeToExpiry = volatilityProvider.relativeTime(futureOption.getExpiry());
-    return EuropeanVanillaOption.of(futureOption.getStrikePrice(), timeToExpiry, futureOption.getPutCall());
   }
 
 }
