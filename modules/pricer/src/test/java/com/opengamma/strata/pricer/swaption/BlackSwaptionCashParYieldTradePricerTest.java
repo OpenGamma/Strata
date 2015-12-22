@@ -177,9 +177,9 @@ public class BlackSwaptionCashParYieldTradePricerTest {
   //-------------------------------------------------------------------------
   public void present_value_black_vol_sensitivity_premium_forward() {
     SwaptionSensitivity vegaTrade = PRICER_TRADE
-        .presentValueSensitivityBlackVolatility(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
+        .presentValueSensitivityVolatility(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
     SwaptionSensitivity vegaProduct = PRICER_PRODUCT
-        .presentValueSensitivityBlackVolatility(SWAPTION_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
+        .presentValueSensitivityVolatility(SWAPTION_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
     assertEquals(vegaTrade.getSensitivity(), vegaProduct.getSensitivity(), NOTIONAL * TOL);
   }
 

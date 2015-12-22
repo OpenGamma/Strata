@@ -31,6 +31,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Doubles;
+import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -41,6 +42,7 @@ import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
+import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
@@ -127,10 +129,8 @@ public final class NormalSwaptionExpiryTenorVolatilities
 
   //-------------------------------------------------------------------------
   @Override
-  public double volatility(ZonedDateTime expiryDate, double tenor, double strike, double forwardRate) {
-    double expiryTime = relativeTime(expiryDate);
-    double volatility = surface.zValue(expiryTime, tenor);
-    return volatility;
+  public double volatility(double expiry, double tenor, double strike, double forwardRate) {
+    return surface.zValue(expiry, tenor);
   }
 
   @Override
@@ -179,16 +179,39 @@ public final class NormalSwaptionExpiryTenorVolatilities
     return surfaceMetadata.withParameterMetadata(sortedMetaList);
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public double price(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+    return NormalFormulaRepository.price(forward, strike, expiry, volatility, putCall);
+  }
+
+  @Override
+  public double priceDelta(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+    return NormalFormulaRepository.delta(forward, strike, expiry, volatility, putCall);
+  }
+
+  @Override
+  public double priceGamma(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+    return NormalFormulaRepository.gamma(forward, strike, expiry, volatility, putCall);
+  }
+
+  @Override
+  public double priceTheta(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+    return NormalFormulaRepository.theta(forward, strike, expiry, volatility, putCall);
+  }
+
+  @Override
+  public double priceVega(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+    return NormalFormulaRepository.vega(forward, strike, expiry, volatility, putCall);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public double relativeTime(ZonedDateTime dateTime) {
     ArgChecker.notNull(dateTime, "dateTime");
     LocalDate valuationDate = valuationDateTime.toLocalDate();
     LocalDate date = dateTime.toLocalDate();
-    boolean timeIsNegative = valuationDate.isAfter(date);
-    if (timeIsNegative) {
-      return -dayCount.yearFraction(date, valuationDate);
-    }
-    return dayCount.yearFraction(valuationDate, date);
+    return dayCount.relativeYearFraction(valuationDate, date);
   }
 
   @Override

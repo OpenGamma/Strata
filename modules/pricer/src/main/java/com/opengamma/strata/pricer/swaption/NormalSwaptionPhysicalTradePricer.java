@@ -155,13 +155,13 @@ public class NormalSwaptionPhysicalTradePricer {
    * @param swaptionVolatilities  the volatilities
    * @return the point sensitivity to the normal volatility
    */
-  public SwaptionSensitivity presentValueSensitivityNormalVolatility(
+  public SwaptionSensitivity presentValueSensitivityVolatility(
       SwaptionTrade trade,
       RatesProvider ratesProvider,
       NormalSwaptionVolatilities swaptionVolatilities) {
 
     Swaption product = trade.getProduct();
-    return productPricer.presentValueSensitivityNormalVolatility(product, ratesProvider, swaptionVolatilities);
+    return productPricer.presentValueSensitivityVolatility(product, ratesProvider, swaptionVolatilities);
   }
 
 }
