@@ -57,7 +57,7 @@ public interface NodalCurve
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a new curve for which each of the parameters has been shifted.
+   * Returns a new curve where each y-value has been shifted.
    * <p>
    * The desired adjustment is specified using {@link DoubleBinaryOperator}.
    * <p>
@@ -75,7 +75,7 @@ public interface NodalCurve
   }
 
   /**
-   * Returns a new curve for which each of the parameters has been shifted.
+   * Returns a new curve where each y-value has been shifted.
    * <p>
    * The desired adjustment is specified using {@link ValueAdjustment}.
    * The size of the list of adjustments will typically match the number of parameters.

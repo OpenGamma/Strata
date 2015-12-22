@@ -215,14 +215,14 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       .underlying(SWAP_BASIS)
       .build();
 
-  private static final SabrVolatilitySwaptionProvider VOL_PROVIDER_REG =
-      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderEur(VAL_DATE_TIME.toLocalDate(), false);
-  private static final SabrVolatilitySwaptionProvider VOL_PROVIDER =
-      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderEur(VAL_DATE_TIME.toLocalDate(), true);
-  private static final SabrVolatilitySwaptionProvider VOL_PROVIDER_AT_MATURITY =
-      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderEur(MATURITY.toLocalDate(), true);
-  private static final SabrVolatilitySwaptionProvider VOL_PROVIDER_AFTER_MATURITY =
-      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderEur(MATURITY.toLocalDate().plusDays(1), true);
+  private static final SabrSwaptionVolatilities VOL_PROVIDER_REG =
+      SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(VAL_DATE_TIME.toLocalDate(), false);
+  private static final SabrSwaptionVolatilities VOL_PROVIDER =
+      SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(VAL_DATE_TIME.toLocalDate(), true);
+  private static final SabrSwaptionVolatilities VOL_PROVIDER_AT_MATURITY =
+      SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(MATURITY.toLocalDate(), true);
+  private static final SabrSwaptionVolatilities VOL_PROVIDER_AFTER_MATURITY =
+      SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(MATURITY.toLocalDate().plusDays(1), true);
   private static final ImmutableRatesProvider RATE_PROVIDER =
       SwaptionSabrRateVolatilityDataSet.getRatesProviderEur(VAL_DATE_TIME.toLocalDate());
   private static final ImmutableRatesProvider RATE_PROVIDER_AT_MATURITY =
@@ -253,7 +253,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
     double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(FIXED_LEG_REC, forward);
     double expiry = VOL_PROVIDER.relativeTime(MATURITY);
-    double volatility = VOL_PROVIDER.getVolatility(SWAPTION_REC_LONG.getExpiryDateTime(), TENOR_YEAR, RATE, forward);
+    double volatility = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiryDateTime(), TENOR_YEAR, RATE, forward);
     double df = RATE_PROVIDER.discountFactor(EUR, SETTLE);
     double expectedRec = df * annuityCash * BlackFormulaRepository.price(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
             RATE + SwaptionSabrRateVolatilityDataSet.SHIFT, expiry, volatility, false);
@@ -373,7 +373,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     double computedRec = PRICER.impliedVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
     double computedPay = PRICER.impliedVolatility(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
     double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
-    double expected = VOL_PROVIDER.getVolatility(MATURITY, TENOR_YEAR, RATE, forward);
+    double expected = VOL_PROVIDER.volatility(MATURITY, TENOR_YEAR, RATE, forward);
     assertEquals(computedRec, expected, TOL);
     assertEquals(computedPay, expected, TOL);
   }
@@ -384,7 +384,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     double computedPay =
         PRICER.impliedVolatility(SWAPTION_PAY_SHORT, RATE_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
     double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER_AT_MATURITY);
-    double expected = VOL_PROVIDER_AT_MATURITY.getVolatility(MATURITY, TENOR_YEAR, RATE, forward);
+    double expected = VOL_PROVIDER_AT_MATURITY.volatility(MATURITY, TENOR_YEAR, RATE, forward);
     assertEquals(computedRec, expected, TOL);
     assertEquals(computedPay, expected, TOL);
   }
@@ -477,7 +477,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
     double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(FIXED_LEG_REC, forward);
     double expiry = VOL_PROVIDER.relativeTime(MATURITY);
-    double volatility = VOL_PROVIDER.getVolatility(SWAPTION_REC_LONG.getExpiryDateTime(), TENOR_YEAR, RATE, forward);
+    double volatility = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiryDateTime(), TENOR_YEAR, RATE, forward);
     double df = RATE_PROVIDER.discountFactor(EUR, SETTLE);
     double[] volSensi =
         VOL_PROVIDER.getParameters().getVolatilityAdjoint(expiry, TENOR_YEAR, RATE, forward).getDerivatives().toArray();

@@ -70,7 +70,7 @@ public interface NodalSurface
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a new surface for which each of the parameters has been shifted.
+   * Returns a new surface where each z-value has been shifted.
    * <p>
    * The desired adjustment is specified using {@link DoubleUnaryOperator}.
    * <p>
@@ -90,7 +90,7 @@ public interface NodalSurface
   }
 
   /**
-   * Returns a new surface for which each of the parameters has been shifted.
+   * Returns a new surface where each z-value has been shifted.
    * <p>
    * The desired adjustment is specified using {@link ValueAdjustment}.
    * The size of the list of adjustments will typically match the number of parameters.

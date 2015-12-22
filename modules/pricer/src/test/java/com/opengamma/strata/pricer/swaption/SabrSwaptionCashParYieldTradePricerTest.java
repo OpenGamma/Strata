@@ -83,8 +83,8 @@ public class SabrSwaptionCashParYieldTradePricerTest {
   // providers
   private static final ImmutableRatesProvider RATE_PROVIDER =
       SwaptionSabrRateVolatilityDataSet.getRatesProviderUsd(VAL_DATE);
-  private static final SabrVolatilitySwaptionProvider VOL_PROVIDER =
-      SwaptionSabrRateVolatilityDataSet.getVolatilityProviderUsd(VAL_DATE, true);
+  private static final SabrSwaptionVolatilities VOL_PROVIDER =
+      SwaptionSabrRateVolatilityDataSet.getVolatilitiesUsd(VAL_DATE, true);
 
   private static final double TOL = 1.0e-12;
   private static final SabrSwaptionCashParYieldTradePricer PRICER = SabrSwaptionCashParYieldTradePricer.DEFAULT;

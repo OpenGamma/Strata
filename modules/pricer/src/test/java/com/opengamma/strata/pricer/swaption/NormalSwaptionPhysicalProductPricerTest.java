@@ -158,9 +158,9 @@ public class NormalSwaptionPhysicalProductPricerTest {
 
   private static final ImmutableRatesProvider MULTI_USD = RatesProviderDataSets.MULTI_USD.toBuilder(VAL_DATE)
       .build();
-  private static final NormalVolatilityExpiryTenorSwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD =
+  private static final NormalSwaptionExpiryTenorVolatilities NORMAL_VOL_SWAPTION_PROVIDER_USD =
       SwaptionNormalVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_STD;
-  private static final NormalVolatilitySwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD_FLAT =
+  private static final NormalSwaptionVolatilities NORMAL_VOL_SWAPTION_PROVIDER_USD_FLAT =
       SwaptionNormalVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_FLAT;
 
   private static final double TOLERANCE_PV = 1.0E-2;
@@ -181,7 +181,7 @@ public class NormalSwaptionPhysicalProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_implied_volatility() {
     double forward = PRICER_SWAP.parRate(SWAP_REC, MULTI_USD);
-    double volExpected = NORMAL_VOL_SWAPTION_PROVIDER_USD.getVolatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+    double volExpected = NORMAL_VOL_SWAPTION_PROVIDER_USD.volatility(SWAPTION_LONG_REC.getExpiryDateTime(),
         SWAP_TENOR_YEAR, STRIKE, forward);
     double volComputed = PRICER_SWAPTION_NORMAL
         .impliedVolatility(SWAPTION_LONG_PAY, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
@@ -227,7 +227,7 @@ public class NormalSwaptionPhysicalProductPricerTest {
   public void present_value_formula() {
     double forward = PRICER_SWAP.parRate(SWAP_REC, MULTI_USD);
     double pvbp = PRICER_SWAP.getLegPricer().pvbp(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
-    double volatility = NORMAL_VOL_SWAPTION_PROVIDER_USD.getVolatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+    double volatility = NORMAL_VOL_SWAPTION_PROVIDER_USD.volatility(SWAPTION_LONG_REC.getExpiryDateTime(),
         SWAP_TENOR_YEAR, STRIKE, forward);
     NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(pvbp), volatility);
     double expiry = NORMAL_VOL_SWAPTION_PROVIDER_USD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
@@ -275,7 +275,7 @@ public class NormalSwaptionPhysicalProductPricerTest {
   public void present_value_delta_formula() {
     double forward = PRICER_SWAP.parRate(SWAP_REC, MULTI_USD);
     double pvbp = PRICER_SWAP.getLegPricer().pvbp(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
-    double volatility = NORMAL_VOL_SWAPTION_PROVIDER_USD.getVolatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+    double volatility = NORMAL_VOL_SWAPTION_PROVIDER_USD.volatility(SWAPTION_LONG_REC.getExpiryDateTime(),
         SWAP_TENOR_YEAR, STRIKE, forward);
     NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(pvbp), volatility);
     double expiry = NORMAL_VOL_SWAPTION_PROVIDER_USD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
@@ -324,7 +324,7 @@ public class NormalSwaptionPhysicalProductPricerTest {
   public void present_value_gamma_formula() {
     double forward = PRICER_SWAP.parRate(SWAP_REC, MULTI_USD);
     double pvbp = PRICER_SWAP.getLegPricer().pvbp(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
-    double volatility = NORMAL_VOL_SWAPTION_PROVIDER_USD.getVolatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+    double volatility = NORMAL_VOL_SWAPTION_PROVIDER_USD.volatility(SWAPTION_LONG_REC.getExpiryDateTime(),
         SWAP_TENOR_YEAR, STRIKE, forward);
     NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(pvbp), volatility);
     double expiry = NORMAL_VOL_SWAPTION_PROVIDER_USD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
@@ -371,7 +371,7 @@ public class NormalSwaptionPhysicalProductPricerTest {
   public void present_value_theta_formula() {
     double forward = PRICER_SWAP.parRate(SWAP_REC, MULTI_USD);
     double pvbp = PRICER_SWAP.getLegPricer().pvbp(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
-    double volatility = NORMAL_VOL_SWAPTION_PROVIDER_USD.getVolatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+    double volatility = NORMAL_VOL_SWAPTION_PROVIDER_USD.volatility(SWAPTION_LONG_REC.getExpiryDateTime(),
         SWAP_TENOR_YEAR, STRIKE, forward);
     NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(pvbp), volatility);
     double expiry = NORMAL_VOL_SWAPTION_PROVIDER_USD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());

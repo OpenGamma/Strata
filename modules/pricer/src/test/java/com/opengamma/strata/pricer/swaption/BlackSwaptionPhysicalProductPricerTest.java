@@ -162,9 +162,9 @@ public class BlackSwaptionPhysicalProductPricerTest {
 
   private static final ImmutableRatesProvider MULTI_USD = RatesProviderDataSets.MULTI_USD.toBuilder(VAL_DATE)
       .build();
-  private static final BlackVolatilityExpiryTenorSwaptionProvider BLACK_VOL_CST_SWAPTION_PROVIDER_USD =
+  private static final BlackSwaptionExpiryTenorVolatilities BLACK_VOL_CST_SWAPTION_PROVIDER_USD =
       SwaptionBlackVolatilityDataSets.BLACK_VOL_CST_SWAPTION_PROVIDER_USD;
-  private static final BlackVolatilityExpiryTenorSwaptionProvider BLACK_VOL_SWAPTION_PROVIDER_USD_STD =
+  private static final BlackSwaptionExpiryTenorVolatilities BLACK_VOL_SWAPTION_PROVIDER_USD_STD =
       SwaptionBlackVolatilityDataSets.BLACK_VOL_SWAPTION_PROVIDER_USD_STD;
 
   private static final double TOLERANCE_PV = 1.0E-2;
@@ -186,7 +186,7 @@ public class BlackSwaptionPhysicalProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_implied_volatility() {
     double forward = PRICER_SWAP.parRate(SWAP_REC, MULTI_USD);
-    double volExpected = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.getVolatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+    double volExpected = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.volatility(SWAPTION_LONG_REC.getExpiryDateTime(),
         SWAP_TENOR_YEAR, STRIKE, forward);
     double volComputed = PRICER_SWAPTION_BLACK
         .impliedVolatility(SWAPTION_LONG_PAY, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
@@ -202,7 +202,7 @@ public class BlackSwaptionPhysicalProductPricerTest {
   public void present_value_formula() {
     double forward = PRICER_SWAP.parRate(SWAP_REC, MULTI_USD);
     double pvbp = PRICER_SWAP.getLegPricer().pvbp(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
-    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.getVolatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.volatility(SWAPTION_LONG_REC.getExpiryDateTime(),
         SWAP_TENOR_YEAR, STRIKE, forward);
     BlackFunctionData blackData = BlackFunctionData.of(forward, Math.abs(pvbp), volatility);
     double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
@@ -250,7 +250,7 @@ public class BlackSwaptionPhysicalProductPricerTest {
   public void present_value_delta_formula() {
     double forward = PRICER_SWAP.parRate(SWAP_REC, MULTI_USD);
     double pvbp = PRICER_SWAP.getLegPricer().pvbp(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
-    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.getVolatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.volatility(SWAPTION_LONG_REC.getExpiryDateTime(),
         SWAP_TENOR_YEAR, STRIKE, forward);
     double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
     double pvDeltaExpected = BlackFormulaRepository.delta(forward, STRIKE, expiry, volatility, false) * Math.abs(pvbp);
@@ -297,7 +297,7 @@ public class BlackSwaptionPhysicalProductPricerTest {
   public void present_value_gamma_formula() {
     double forward = PRICER_SWAP.parRate(SWAP_REC, MULTI_USD);
     double pvbp = PRICER_SWAP.getLegPricer().pvbp(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
-    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.getVolatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.volatility(SWAPTION_LONG_REC.getExpiryDateTime(),
         SWAP_TENOR_YEAR, STRIKE, forward);
     double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
     double pvGammaExpected = BlackFormulaRepository.gamma(forward, STRIKE, expiry, volatility) * Math.abs(pvbp);
@@ -342,7 +342,7 @@ public class BlackSwaptionPhysicalProductPricerTest {
   public void present_value_theta_formula() {
     double forward = PRICER_SWAP.parRate(SWAP_REC, MULTI_USD);
     double pvbp = PRICER_SWAP.getLegPricer().pvbp(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
-    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.getVolatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.volatility(SWAPTION_LONG_REC.getExpiryDateTime(),
         SWAP_TENOR_YEAR, STRIKE, forward);
     double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
     double pvThetaExpected = BlackFormulaRepository.driftlessTheta(forward, STRIKE, expiry, volatility) * Math.abs(pvbp);
@@ -454,9 +454,9 @@ public class BlackSwaptionPhysicalProductPricerTest {
     NodalSurface surfaceDw = ConstantNodalSurface.of(
         SwaptionBlackVolatilityDataSets.META_DATA, SwaptionBlackVolatilityDataSets.VOLATILITY - shiftVol);
     CurrencyAmount pvP = PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_PAY, MULTI_USD,
-        BlackVolatilityExpiryTenorSwaptionProvider.of(surfaceUp, USD_FIXED_6M_LIBOR_3M, ACT_365F, VAL_DATE));
+        BlackSwaptionExpiryTenorVolatilities.of(surfaceUp, USD_FIXED_6M_LIBOR_3M, ACT_365F, VAL_DATE));
     CurrencyAmount pvM = PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_PAY, MULTI_USD,
-        BlackVolatilityExpiryTenorSwaptionProvider.of(surfaceDw, USD_FIXED_6M_LIBOR_3M, ACT_365F, VAL_DATE));
+        BlackSwaptionExpiryTenorVolatilities.of(surfaceDw, USD_FIXED_6M_LIBOR_3M, ACT_365F, VAL_DATE));
     double pvnvsFd = (pvP.getAmount() - pvM.getAmount()) / (2 * shiftVol);
     SwaptionSensitivity pvnvsAd = PRICER_SWAPTION_BLACK
         .presentValueSensitivityBlackVolatility(SWAPTION_LONG_PAY, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD);
