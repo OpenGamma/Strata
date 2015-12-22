@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.swaption;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,15 +85,15 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
    * 
    * @param parameters  the SABR model parameters
    * @param convention  the swap convention for which the data is valid
-   * @param dayCount  the day count applicable to the model
    * @param valuationDateTime  the valuation date-time
+   * @param dayCount  the day count applicable to the model
    * @return the provider
    */
   public static SabrSwaptionVolatilities of(
       SabrInterestRateParameters parameters,
       FixedIborSwapConvention convention,
-      DayCount dayCount,
-      ZonedDateTime valuationDateTime) {
+      ZonedDateTime valuationDateTime,
+      DayCount dayCount) {
 
     return new SabrSwaptionVolatilities(parameters, convention, dayCount, valuationDateTime);
   }
@@ -104,41 +103,21 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
    * 
    * @param parameters  the SABR model parameters
    * @param convention  the swap convention for which the data is valid
-   * @param dayCount  the day count applicable to the model
    * @param valuationDate  the valuation date
    * @param valuationTime  the valuation time
    * @param valuationZone  the valuation time zone
+   * @param dayCount  the day count applicable to the model
    * @return the provider
    */
   public static SabrSwaptionVolatilities of(
       SabrInterestRateParameters parameters,
       FixedIborSwapConvention convention,
-      DayCount dayCount,
       LocalDate valuationDate,
       LocalTime valuationTime,
-      ZoneId valuationZone) {
+      ZoneId valuationZone,
+      DayCount dayCount) {
 
-    return of(parameters, convention, dayCount, valuationDate.atTime(valuationTime).atZone(valuationZone));
-  }
-
-  /**
-   * Creates a provider from the SABR model parameters and the date. 
-   * <p>
-   * The valuation time and zone are defaulted to noon UTC.
-   * 
-   * @param parameters  the SABR model parameters
-   * @param convention  the swap convention for which the data is valid
-   * @param dayCount  the day count applicable to the model
-   * @param valuationDate  the valuation date
-   * @return the provider
-   */
-  public static SabrSwaptionVolatilities of(
-      SabrInterestRateParameters parameters,
-      FixedIborSwapConvention convention,
-      DayCount dayCount,
-      LocalDate valuationDate) {
-
-    return of(parameters, convention, dayCount, valuationDate.atTime(LocalTime.NOON).atZone(ZoneOffset.UTC));
+    return of(parameters, convention, valuationDate.atTime(valuationTime).atZone(valuationZone), dayCount);
   }
 
   //-------------------------------------------------------------------------

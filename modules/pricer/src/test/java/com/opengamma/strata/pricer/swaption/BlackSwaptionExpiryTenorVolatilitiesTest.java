@@ -18,6 +18,7 @@ import static org.testng.Assert.assertTrue;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,10 +97,10 @@ public class BlackSwaptionExpiryTenorVolatilitiesTest {
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE);
   private static final BlackSwaptionExpiryTenorVolatilities PROVIDER_WITH_PARAM =
       BlackSwaptionExpiryTenorVolatilities.of(
-          SURFACE_WITH_PARAM, CONVENTION, ACT_365F, VAL_DATE, VAL_TIME, LONDON_ZONE);
+          SURFACE_WITH_PARAM, CONVENTION, VAL_DATE, VAL_TIME, LONDON_ZONE, ACT_365F);
   private static final BlackSwaptionExpiryTenorVolatilities PROVIDER =
       BlackSwaptionExpiryTenorVolatilities.of(
-          SURFACE, CONVENTION, ACT_365F, VAL_DATE, VAL_TIME, LONDON_ZONE);
+          SURFACE, CONVENTION, VAL_DATE, VAL_TIME, LONDON_ZONE, ACT_365F);
 
   private static final ZonedDateTime[] TEST_OPTION_EXPIRY = new ZonedDateTime[] {
       dateUtc(2015, 2, 17), dateUtc(2015, 5, 17), dateUtc(2015, 6, 17), dateUtc(2017, 2, 17)};
@@ -163,9 +164,9 @@ public class BlackSwaptionExpiryTenorVolatilitiesTest {
         InterpolatedNodalSurface paramDw =
             InterpolatedNodalSurface.of(METADATA_WITH_PARAM, TIME, TENOR, volDataDw, INTERPOLATOR_2D);
         BlackSwaptionExpiryTenorVolatilities provUp = BlackSwaptionExpiryTenorVolatilities.of(
-            paramUp, CONVENTION, ACT_365F, VAL_DATE_TIME);
+            paramUp, CONVENTION, VAL_DATE_TIME, ACT_365F);
         BlackSwaptionExpiryTenorVolatilities provDw = BlackSwaptionExpiryTenorVolatilities.of(
-            paramDw, CONVENTION, ACT_365F, VAL_DATE_TIME);
+            paramDw, CONVENTION, VAL_DATE_TIME, ACT_365F);
         double volUp = provUp.volatility(
             TEST_OPTION_EXPIRY[i], TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD);
         double volDw = provDw.volatility(
@@ -190,10 +191,10 @@ public class BlackSwaptionExpiryTenorVolatilitiesTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     BlackSwaptionExpiryTenorVolatilities test1 = BlackSwaptionExpiryTenorVolatilities.of(
-        SURFACE_WITH_PARAM, CONVENTION, ACT_365F, VAL_DATE_TIME);
+        SURFACE_WITH_PARAM, CONVENTION, VAL_DATE_TIME, ACT_365F);
     coverImmutableBean(test1);
     BlackSwaptionExpiryTenorVolatilities test2 = BlackSwaptionExpiryTenorVolatilities.of(
-        SURFACE, CONVENTION, ACT_360, VAL_DATE);
+        SURFACE, CONVENTION, VAL_DATE.atStartOfDay(ZoneOffset.UTC), ACT_360);
     coverBeanEquals(test1, test2);
   }
 

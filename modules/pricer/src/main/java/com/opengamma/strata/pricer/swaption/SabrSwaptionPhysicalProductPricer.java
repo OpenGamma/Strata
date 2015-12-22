@@ -8,8 +8,6 @@ package com.opengamma.strata.pricer.swaption;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import com.opengamma.strata.basics.LongShort;
-import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.value.ValueDerivatives;
@@ -94,12 +92,11 @@ public class SabrSwaptionPhysicalProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double shift = swaptionVolatilities.getParameters().getShift(DoublesPair.of(expiry, tenor));
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
-    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    boolean isCall = fixedLeg.getPayReceive().isPay();
     // Payer at strike is exercise when rate > strike, i.e. call on rate
     double price =
         Math.abs(pvbp) * BlackFormulaRepository.price(forward + shift, strike + shift, expiry, volatility, isCall);
-    double pv = price * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d);
-    return CurrencyAmount.of(fixedLeg.getCurrency(), pv);
+    return CurrencyAmount.of(fixedLeg.getCurrency(), price * expanded.getLongShort().sign());
   }
 
   //-------------------------------------------------------------------------
@@ -178,7 +175,7 @@ public class SabrSwaptionPhysicalProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double shift = swaptionVolatilities.getParameters().getShift(DoublesPair.of(expiry, tenor));
     ValueDerivatives volatilityAdj = swaptionVolatilities.getParameters().getVolatilityAdjoint(expiry, tenor, strike, forward);
-    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    boolean isCall = fixedLeg.getPayReceive().isPay();
     // Payer at strike is exercise when rate > strike, i.e. call on rate
     // Backward sweep
     PointSensitivityBuilder pvbpDr = swapPricer.getLegPricer().pvbpSensitivity(fixedLeg, ratesProvider);
@@ -188,7 +185,7 @@ public class SabrSwaptionPhysicalProductPricer {
     double price = BlackFormulaRepository.price(shiftedForward, shiftedStrike, expiry, volatilityAdj.getValue(), isCall);
     double delta = BlackFormulaRepository.delta(shiftedForward, shiftedStrike, expiry, volatilityAdj.getValue(), isCall);
     double vega = BlackFormulaRepository.vega(shiftedForward, shiftedStrike, expiry, volatilityAdj.getValue());
-    double sign = (expanded.getLongShort() == LongShort.LONG) ? 1d : -1d;
+    double sign = expanded.getLongShort().sign();
     return pvbpDr.multipliedBy(price * sign * Math.signum(pvbp))
         .combinedWith(forwardDr.multipliedBy((delta + vega * volatilityAdj.getDerivative(0)) * Math.abs(pvbp) * sign));
   }
@@ -220,8 +217,8 @@ public class SabrSwaptionPhysicalProductPricer {
     double pvbp = swapPricer.getLegPricer().pvbp(fixedLeg, ratesProvider);
     double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
     if (expiry < 0d) { // Option has expired already
-      return SwaptionSabrSensitivity.of(swaptionVolatilities.getConvention(),
-          expiryDateTime, tenor, strike, 0d, fixedLeg.getCurrency(), 0d, 0d, 0d, 0d);
+      return SwaptionSabrSensitivity.of(
+          swaptionVolatilities.getConvention(), expiryDateTime, tenor, strike, 0d, fixedLeg.getCurrency(), 0d, 0d, 0d, 0d);
     }
     double forward = swapPricer.parRate(underlying, ratesProvider);
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
@@ -229,7 +226,7 @@ public class SabrSwaptionPhysicalProductPricer {
         swaptionVolatilities.getParameters().getVolatilityAdjoint(expiry, tenor, strike, forward).getDerivatives();
     // Backward sweep
     double vega = Math.abs(pvbp) * BlackFormulaRepository.vega(forward + shift, strike + shift, expiry, volatility)
-        * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d);
+        * expanded.getLongShort().sign();
     return SwaptionSabrSensitivity.of(
         swaptionVolatilities.getConvention(),
         expiryDateTime,

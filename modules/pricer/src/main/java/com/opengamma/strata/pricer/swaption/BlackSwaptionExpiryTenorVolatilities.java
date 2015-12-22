@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,15 +84,15 @@ public final class BlackSwaptionExpiryTenorVolatilities
    * 
    * @param surface  the implied volatility surface
    * @param convention  the swap convention for which the data is valid
-   * @param dayCount  the day count applicable to the model
    * @param valuationDateTime  the valuation date-time
+   * @param dayCount  the day count applicable to the model
    * @return the provider
    */
   public static BlackSwaptionExpiryTenorVolatilities of(
       NodalSurface surface,
       FixedIborSwapConvention convention,
-      DayCount dayCount,
-      ZonedDateTime valuationDateTime) {
+      ZonedDateTime valuationDateTime,
+      DayCount dayCount) {
 
     return new BlackSwaptionExpiryTenorVolatilities(surface, convention, dayCount, valuationDateTime);
   }
@@ -103,41 +102,21 @@ public final class BlackSwaptionExpiryTenorVolatilities
    * 
    * @param surface  the implied volatility surface
    * @param convention  the swap convention for which the data is valid
-   * @param dayCount  the day count applicable to the model
    * @param valuationDate  the valuation date
    * @param valuationTime  the valuation time
    * @param valuationZone  the valuation time zone
+   * @param dayCount  the day count applicable to the model
    * @return the provider
    */
   public static BlackSwaptionExpiryTenorVolatilities of(
       NodalSurface surface,
       FixedIborSwapConvention convention,
-      DayCount dayCount,
       LocalDate valuationDate,
       LocalTime valuationTime,
-      ZoneId valuationZone) {
+      ZoneId valuationZone,
+      DayCount dayCount) {
 
-    return of(surface, convention, dayCount, valuationDate.atTime(valuationTime).atZone(valuationZone));
-  }
-
-  /**
-   * Creates a provider from the implied volatility surface and the date. 
-   * <p>
-   * The valuation time and zone are defaulted to noon UTC.
-   * 
-   * @param surface  the implied volatility surface
-   * @param convention  the swap convention for which the data is valid
-   * @param dayCount  the day count applicable to the model
-   * @param valuationDate  the valuation date
-   * @return the provider
-   */
-  public static BlackSwaptionExpiryTenorVolatilities of(
-      NodalSurface surface,
-      FixedIborSwapConvention convention,
-      DayCount dayCount,
-      LocalDate valuationDate) {
-
-    return of(surface, convention, dayCount, valuationDate.atTime(LocalTime.NOON).atZone(ZoneOffset.UTC));
+    return of(surface, convention, valuationDate.atTime(valuationTime).atZone(valuationZone), dayCount);
   }
 
   //-------------------------------------------------------------------------

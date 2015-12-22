@@ -36,6 +36,11 @@ public class LongShortTest {
     assertEquals(LongShort.SHORT.isShort(), true);
   }
 
+  public void test_sign() {
+    assertEquals(LongShort.LONG.sign(), 1);
+    assertEquals(LongShort.SHORT.sign(), -1);
+  }
+
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   static Object[][] data_name() {

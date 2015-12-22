@@ -10,8 +10,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.function.Function;
 
-import com.opengamma.strata.basics.LongShort;
-import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -115,12 +113,12 @@ public class NormalSwaptionCashParYieldProductPricer {
     double strike = getStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
-    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    boolean isCall = fixedLeg.getPayReceive().isPay();
     NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(annuityCash * discountSettle), volatility);
     EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiry, isCall ? PutCall.CALL : PutCall.PUT);
     Function<NormalFunctionData, Double> func = NORMAL.getPriceFunction(option);
-    double pv = func.apply(normalData) * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d);
-    return CurrencyAmount.of(fixedLeg.getCurrency(), pv);
+    double price = func.apply(normalData);
+    return CurrencyAmount.of(fixedLeg.getCurrency(), price * expanded.getLongShort().sign());
   }
 
   //-------------------------------------------------------------------------
@@ -185,7 +183,7 @@ public class NormalSwaptionCashParYieldProductPricer {
       double presentValue) {
 
     ExpandedSwaption expanded = swaption.expand();
-    double sign = expanded.getLongShort() == LongShort.LONG ? 1d : -1d;
+    double sign = expanded.getLongShort().sign();
     ArgChecker.isTrue(presentValue * sign > 0, "Present value sign must be in ligne with the option Long/Short flag ");
     validateSwaption(ratesProvider, expanded);
     LocalDate valuationDate = ratesProvider.getValuationDate();
@@ -201,7 +199,7 @@ public class NormalSwaptionCashParYieldProductPricer {
         fixedLeg.getCurrency(), ((CashSettlement) expanded.getSwaptionSettlement()).getSettlementDate());
     double strike = getStrike(fixedLeg);
     NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(annuityCash * discountSettle), 0.01);
-    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    boolean isCall = fixedLeg.getPayReceive().isPay();
     // Payer at strike is exercise when rate > strike, i.e. call on rate
     EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiry, isCall ? PutCall.CALL : PutCall.PUT);
     return FORMULA_IMPLIED.impliedVolatility(normalData, option, Math.abs(presentValue));
@@ -242,11 +240,11 @@ public class NormalSwaptionCashParYieldProductPricer {
     double strike = getStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
-    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    boolean isCall = fixedLeg.getPayReceive().isPay();
     NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(annuityCash * discountSettle), volatility);
     EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiry, isCall ? PutCall.CALL : PutCall.PUT);
-    double delta = NORMAL.getDelta(option, normalData) * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d);
-    return CurrencyAmount.of(fixedLeg.getCurrency(), delta);
+    double delta = NORMAL.getDelta(option, normalData);
+    return CurrencyAmount.of(fixedLeg.getCurrency(), delta * expanded.getLongShort().sign());
   }
 
   /**
@@ -283,11 +281,11 @@ public class NormalSwaptionCashParYieldProductPricer {
     double strike = getStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
-    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    boolean isCall = fixedLeg.getPayReceive().isPay();
     NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(annuityCash * discountSettle), volatility);
     EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiry, isCall ? PutCall.CALL : PutCall.PUT);
-    double gamma = NORMAL.getGamma(option, normalData) * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d);
-    return CurrencyAmount.of(fixedLeg.getCurrency(), gamma);
+    double gamma = NORMAL.getGamma(option, normalData);
+    return CurrencyAmount.of(fixedLeg.getCurrency(), gamma * expanded.getLongShort().sign());
   }
 
   /**
@@ -324,11 +322,11 @@ public class NormalSwaptionCashParYieldProductPricer {
     double strike = getStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
-    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    boolean isCall = fixedLeg.getPayReceive().isPay();
     NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(annuityCash * discountSettle), volatility);
     EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiry, isCall ? PutCall.CALL : PutCall.PUT);
-    double theta = NORMAL.getTheta(option, normalData) * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d);
-    return CurrencyAmount.of(fixedLeg.getCurrency(), theta);
+    double theta = NORMAL.getTheta(option, normalData);
+    return CurrencyAmount.of(fixedLeg.getCurrency(), theta * expanded.getLongShort().sign());
   }
 
   //-------------------------------------------------------------------------
@@ -365,17 +363,18 @@ public class NormalSwaptionCashParYieldProductPricer {
     double strike = getStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
-    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    boolean isCall = fixedLeg.getPayReceive().isPay();
     NormalFunctionData normalData = NormalFunctionData.of(forward, 1d, volatility);
     EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiry, isCall ? PutCall.CALL : PutCall.PUT);
-    ValueDerivatives price = NORMAL.getPriceAdjoint(option, normalData);
+    ValueDerivatives priceAdj = NORMAL.getPriceAdjoint(option, normalData);
+    double price = priceAdj.getValue();
+    double delta = priceAdj.getDerivative(0);
     PointSensitivityBuilder forwardSensi = swapPricer.parRateSensitivity(underlying, ratesProvider);
     PointSensitivityBuilder discountSettleSensi =
         ratesProvider.discountFactors(fixedLeg.getCurrency()).zeroRatePointSensitivity(settlementDate);
-    double sign = (expanded.getLongShort() == LongShort.LONG) ? 1d : -1d;
-    return forwardSensi.multipliedBy(sign * discountSettle *
-        (annuityCash * price.getDerivative(0) + annuityCashDr * price.getValue()))
-        .combinedWith(discountSettleSensi.multipliedBy(sign * annuityCash * price.getValue()));
+    double sign = expanded.getLongShort().sign();
+    return forwardSensi.multipliedBy(sign * discountSettle * (annuityCash * delta + annuityCashDr * price))
+        .combinedWith(discountSettleSensi.multipliedBy(sign * annuityCash * price));
   }
 
   //-------------------------------------------------------------------------
@@ -403,18 +402,19 @@ public class NormalSwaptionCashParYieldProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double strike = getStrike(fixedLeg);
     if (expiry < 0d) { // Option has expired already
-      return SwaptionSensitivity.of(swaptionVolatilities.getConvention(), expiryDateTime, tenor, strike, 0d,
-          fixedLeg.getCurrency(), 0d);
+      return SwaptionSensitivity.of(
+          swaptionVolatilities.getConvention(), expiryDateTime, tenor, strike, 0d, fixedLeg.getCurrency(), 0d);
     }
     double forward = swapPricer.parRate(underlying, ratesProvider);
     double annuityCash = swapPricer.getLegPricer().annuityCash(fixedLeg, forward);
     double discountSettle = ratesProvider.discountFactor(
         fixedLeg.getCurrency(), ((CashSettlement) expanded.getSwaptionSettlement()).getSettlementDate());
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
-    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    boolean isCall = fixedLeg.getPayReceive().isPay();
     NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(annuityCash * discountSettle), volatility);
     EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, expiry, isCall ? PutCall.CALL : PutCall.PUT);
-    double vega = NORMAL.getVega(option, normalData) * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d);
+    double vegaUnsigned = NORMAL.getVega(option, normalData);
+    double vega = vegaUnsigned * expanded.getLongShort().sign();
     return SwaptionSensitivity.of(
         swaptionVolatilities.getConvention(), expiryDateTime, tenor, strike, forward, fixedLeg.getCurrency(), vega);
   }

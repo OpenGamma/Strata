@@ -23,11 +23,20 @@ public enum LongShort {
   /**
    * Long.
    */
-  LONG,
+  LONG(1),
   /**
    * Short.
    */
-  SHORT;
+  SHORT(-1);
+
+  /**
+   * True if long, used to avoid a branch.
+   */
+  private final boolean isLong;
+  /**
+   * The sign, used to avoid a branch.
+   */
+  private final int sign;
 
   //-------------------------------------------------------------------------
   /**
@@ -53,6 +62,12 @@ public enum LongShort {
     return isLong ? LONG : SHORT;
   }
 
+  // Restricted constructor
+  private LongShort(int sign) {
+    this.isLong = (sign == 1);
+    this.sign = sign;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Checks if the type is 'Long'.
@@ -60,7 +75,7 @@ public enum LongShort {
    * @return true if long, false if short
    */
   public boolean isLong() {
-    return this == LONG;
+    return isLong;
   }
 
   /**
@@ -69,7 +84,16 @@ public enum LongShort {
    * @return true if short, false if long
    */
   public boolean isShort() {
-    return this == SHORT;
+    return !isLong;
+  }
+
+  /**
+   * Returns the sign, where 'Long' returns 1 and 'Short' returns -1.
+   * 
+   * @return 1 if long, -1 if short
+   */
+  public int sign() {
+    return sign;
   }
 
   //-------------------------------------------------------------------------
