@@ -178,7 +178,7 @@ public class NormalSwaptionPhysicalProductPricer {
 
     ExpandedSwaption expanded = swaption.expand();
     double sign = expanded.getLongShort().sign();
-    ArgChecker.isTrue(presentValue * sign > 0, "Present value sign must be in ligne with the option Long/Short flag ");
+    ArgChecker.isTrue(presentValue * sign > 0, "Present value sign must be in line with the option Long/Short flag ");
     validateSwaption(ratesProvider, expanded);
     LocalDate valuationDate = ratesProvider.getValuationDate();
     LocalDate expiryDate = expanded.getExpiryDate();
