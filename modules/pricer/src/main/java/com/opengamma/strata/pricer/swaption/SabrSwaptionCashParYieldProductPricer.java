@@ -9,8 +9,6 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import com.opengamma.strata.basics.LongShort;
-import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.value.ValueDerivatives;
@@ -103,11 +101,10 @@ public class SabrSwaptionCashParYieldProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double shift = swaptionVolatilities.getParameters().getShift(DoublesPair.of(expiry, tenor));
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
-    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    boolean isCall = fixedLeg.getPayReceive().isPay();
     double price = annuityCash * discountSettle *
         BlackFormulaRepository.price(forward + shift, strike + shift, expiry, volatility, isCall);
-    double pv = price * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d);
-    return CurrencyAmount.of(fixedLeg.getCurrency(), pv);
+    return CurrencyAmount.of(fixedLeg.getCurrency(), price * expanded.getLongShort().sign());
   }
 
   //-------------------------------------------------------------------------
@@ -189,7 +186,7 @@ public class SabrSwaptionCashParYieldProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double shift = swaptionVolatilities.getParameters().getShift(DoublesPair.of(expiry, tenor));
     ValueDerivatives volatilityAdj = swaptionVolatilities.getParameters().getVolatilityAdjoint(expiry, tenor, strike, forward);
-    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    boolean isCall = fixedLeg.getPayReceive().isPay();
     double shiftedForward = forward + shift;
     double shiftedStrike = strike + shift;
     double price = BlackFormulaRepository
@@ -200,7 +197,7 @@ public class SabrSwaptionCashParYieldProductPricer {
     PointSensitivityBuilder forwardSensi = swapPricer.parRateSensitivity(underlying, ratesProvider);
     PointSensitivityBuilder discountSettleSensi =
         ratesProvider.discountFactors(fixedLeg.getCurrency()).zeroRatePointSensitivity(settlementDate);
-    double sign = (expanded.getLongShort() == LongShort.LONG) ? 1d : -1d;
+    double sign = expanded.getLongShort().sign();
     return forwardSensi.multipliedBy(
         sign * discountSettle * (annuityCash * (delta + vega * volatilityAdj.getDerivative(0))
             + annuityCashDr * price)).combinedWith(discountSettleSensi.multipliedBy(sign * annuityCash * price));
@@ -232,8 +229,8 @@ public class SabrSwaptionCashParYieldProductPricer {
     double shift = swaptionVolatilities.getParameters().getShift(DoublesPair.of(expiry, tenor));
     double strike = getStrike(fixedLeg);
     if (expiry < 0d) { // Option has expired already
-      return SwaptionSabrSensitivity.of(swaptionVolatilities.getConvention(), expiryDateTime, tenor, strike, 0d,
-          fixedLeg.getCurrency(), 0d, 0d, 0d, 0d);
+      return SwaptionSabrSensitivity.of(
+          swaptionVolatilities.getConvention(), expiryDateTime, tenor, strike, 0d, fixedLeg.getCurrency(), 0d, 0d, 0d, 0d);
     }
     double forward = swapPricer.parRate(underlying, ratesProvider);
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
@@ -242,7 +239,7 @@ public class SabrSwaptionCashParYieldProductPricer {
         fixedLeg.getCurrency(), ((CashSettlement) expanded.getSwaptionSettlement()).getSettlementDate());
     DoubleArray derivative =
         swaptionVolatilities.getParameters().getVolatilityAdjoint(expiry, tenor, strike, forward).getDerivatives();
-    double vega = annuityCash * discountSettle * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d) *
+    double vega = annuityCash * discountSettle * expanded.getLongShort().sign() *
         BlackFormulaRepository.vega(forward + shift, strike + shift, expiry, volatility);
     return SwaptionSabrSensitivity.of(
         swaptionVolatilities.getConvention(),

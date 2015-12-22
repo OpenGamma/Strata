@@ -8,8 +8,6 @@ package com.opengamma.strata.pricer.swaption;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import com.opengamma.strata.basics.LongShort;
-import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
@@ -90,11 +88,10 @@ public class BlackSwaptionPhysicalProductPricer {
     double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
-    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
     // Payer at strike is exercise when rate > strike, i.e. call on rate
+    boolean isCall = fixedLeg.getPayReceive().isPay();
     double price = Math.abs(pvbp) * BlackFormulaRepository.price(forward, strike, expiry, volatility, isCall);
-    double pv = price * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d);
-    return CurrencyAmount.of(fixedLeg.getCurrency(), pv);
+    return CurrencyAmount.of(fixedLeg.getCurrency(), price * expanded.getLongShort().sign());
   }
 
   //-------------------------------------------------------------------------
@@ -175,10 +172,10 @@ public class BlackSwaptionPhysicalProductPricer {
     double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
-    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    boolean isCall = fixedLeg.getPayReceive().isPay();
     // Payer at strike is exercise when rate > strike, i.e. call on rate
     double delta = Math.abs(pvbp) * BlackFormulaRepository.delta(forward, strike, expiry, volatility, isCall);
-    return CurrencyAmount.of(fixedLeg.getCurrency(), delta * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d));
+    return CurrencyAmount.of(fixedLeg.getCurrency(), delta * expanded.getLongShort().sign());
   }
 
   /**
@@ -214,7 +211,7 @@ public class BlackSwaptionPhysicalProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
     double gamma = Math.abs(pvbp) * BlackFormulaRepository.gamma(forward, strike, expiry, volatility);
-    return CurrencyAmount.of(fixedLeg.getCurrency(), gamma * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d));
+    return CurrencyAmount.of(fixedLeg.getCurrency(), gamma * expanded.getLongShort().sign());
   }
 
   /**
@@ -250,7 +247,7 @@ public class BlackSwaptionPhysicalProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
     double theta = Math.abs(pvbp) * BlackFormulaRepository.driftlessTheta(forward, strike, expiry, volatility);
-    return CurrencyAmount.of(fixedLeg.getCurrency(), theta * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d));
+    return CurrencyAmount.of(fixedLeg.getCurrency(), theta * expanded.getLongShort().sign());
   }
 
   //-------------------------------------------------------------------------
@@ -284,14 +281,14 @@ public class BlackSwaptionPhysicalProductPricer {
     double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
-    boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
+    boolean isCall = fixedLeg.getPayReceive().isPay();
     // Payer at strike is exercise when rate > strike, i.e. call on rate
     // Backward sweep
     PointSensitivityBuilder pvbpDr = swapPricer.getLegPricer().pvbpSensitivity(fixedLeg, ratesProvider);
     PointSensitivityBuilder forwardDr = swapPricer.parRateSensitivity(underlying, ratesProvider);
     double price = BlackFormulaRepository.price(forward, strike, expiry, volatility, isCall);
     double delta = BlackFormulaRepository.delta(forward, strike, expiry, volatility, isCall);
-    double sign = (expanded.getLongShort() == LongShort.LONG) ? 1d : -1d;
+    double sign = expanded.getLongShort().sign();
     return pvbpDr.multipliedBy(price * sign * Math.signum(pvbp))
         .combinedWith(forwardDr.multipliedBy(delta * Math.abs(pvbp) * sign));
   }
@@ -305,7 +302,7 @@ public class BlackSwaptionPhysicalProductPricer {
    * @param swaption  the swaption product
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the point sensitivity to the Black volatility
+   * @return the point sensitivity to the volatility
    */
   public SwaptionSensitivity presentValueSensitivityBlackVolatility(
       SwaptionProduct swaption,
@@ -322,16 +319,16 @@ public class BlackSwaptionPhysicalProductPricer {
     double pvbp = swapPricer.getLegPricer().pvbp(fixedLeg, ratesProvider);
     double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
     if (expiry < 0d) { // Option has expired already
-      return SwaptionSensitivity.of(swaptionVolatilities.getConvention(), expiryDateTime, tenor, strike, 0d,
-          fixedLeg.getCurrency(), 0d);
+      return SwaptionSensitivity.of(
+          swaptionVolatilities.getConvention(), expiryDateTime, tenor, strike, 0d, fixedLeg.getCurrency(), 0d);
     }
     double forward = swapPricer.parRate(underlying, ratesProvider);
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
     // Backward sweep
-    double vega = Math.abs(pvbp) * BlackFormulaRepository.vega(forward, strike, expiry, volatility)
-        * ((expanded.getLongShort() == LongShort.LONG) ? 1d : -1d);
-    return SwaptionSensitivity.of(swaptionVolatilities.getConvention(), expiryDateTime, tenor, strike, forward,
-        fixedLeg.getCurrency(), vega);
+    double vegaUnsigned = Math.abs(pvbp) * BlackFormulaRepository.vega(forward, strike, expiry, volatility);
+    double vega = vegaUnsigned * expanded.getLongShort().sign();
+    return SwaptionSensitivity.of(
+        swaptionVolatilities.getConvention(), expiryDateTime, tenor, strike, forward, fixedLeg.getCurrency(), vega);
   }
 
   // check that one leg is fixed and return it

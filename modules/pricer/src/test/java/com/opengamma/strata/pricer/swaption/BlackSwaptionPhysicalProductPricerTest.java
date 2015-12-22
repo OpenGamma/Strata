@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 import org.testng.annotations.Test;
 
@@ -454,9 +455,11 @@ public class BlackSwaptionPhysicalProductPricerTest {
     NodalSurface surfaceDw = ConstantNodalSurface.of(
         SwaptionBlackVolatilityDataSets.META_DATA, SwaptionBlackVolatilityDataSets.VOLATILITY - shiftVol);
     CurrencyAmount pvP = PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_PAY, MULTI_USD,
-        BlackSwaptionExpiryTenorVolatilities.of(surfaceUp, USD_FIXED_6M_LIBOR_3M, ACT_365F, VAL_DATE));
+        BlackSwaptionExpiryTenorVolatilities.of(
+            surfaceUp, USD_FIXED_6M_LIBOR_3M, VAL_DATE.atStartOfDay(ZoneOffset.UTC), ACT_365F));
     CurrencyAmount pvM = PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_PAY, MULTI_USD,
-        BlackSwaptionExpiryTenorVolatilities.of(surfaceDw, USD_FIXED_6M_LIBOR_3M, ACT_365F, VAL_DATE));
+        BlackSwaptionExpiryTenorVolatilities.of(
+            surfaceDw, USD_FIXED_6M_LIBOR_3M, VAL_DATE.atStartOfDay(ZoneOffset.UTC), ACT_365F));
     double pvnvsFd = (pvP.getAmount() - pvM.getAmount()) / (2 * shiftVol);
     SwaptionSensitivity pvnvsAd = PRICER_SWAPTION_BLACK
         .presentValueSensitivityBlackVolatility(SWAPTION_LONG_PAY, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD);

@@ -79,8 +79,8 @@ public class SwaptionBlackVolatilityDataSets {
       ImmutableFixedIborSwapConvention.of("USD-Swap", USD_FIXED_1Y_30U360, USD_IBOR_LIBOR3M);
   /** Black volatility provider */
   public static final BlackSwaptionExpiryTenorVolatilities BLACK_VOL_SWAPTION_PROVIDER_USD_STD =
-      BlackSwaptionExpiryTenorVolatilities.of(SURFACE_STD, USD_1Y_LIBOR3M, DayCounts.ACT_365F,
-          VAL_DATE_STD, VAL_TIME_STD, VAL_ZONE_STD);
+      BlackSwaptionExpiryTenorVolatilities.of(
+          SURFACE_STD, USD_1Y_LIBOR3M, VAL_DATE_STD, VAL_TIME_STD, VAL_ZONE_STD, DayCounts.ACT_365F);
 
   /** constant volatility */
   public static final double VOLATILITY = 0.20;
@@ -89,7 +89,7 @@ public class SwaptionBlackVolatilityDataSets {
   private static final NodalSurface CST_SURFACE = ConstantNodalSurface.of(META_DATA, VOLATILITY);
   /** flat Black volatility provider */
   public static final BlackSwaptionExpiryTenorVolatilities BLACK_VOL_CST_SWAPTION_PROVIDER_USD =
-      BlackSwaptionExpiryTenorVolatilities.of(CST_SURFACE, USD_FIXED_6M_LIBOR_3M, ACT_365F, VAL_DATE_STD,
-          VAL_TIME_STD, VAL_ZONE_STD);
+      BlackSwaptionExpiryTenorVolatilities.of(
+          CST_SURFACE, USD_FIXED_6M_LIBOR_3M, VAL_DATE_STD, VAL_TIME_STD, VAL_ZONE_STD, ACT_365F);
 
 }
