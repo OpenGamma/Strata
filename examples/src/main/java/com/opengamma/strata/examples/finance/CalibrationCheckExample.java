@@ -154,7 +154,7 @@ public class CalibrationCheckExample {
   }
 
   // Example of performance: loading data from file, calibration and PV
-  public static void performance_calibration_pricing() {
+  private static void performance_calibration_pricing() {
     int nbTests = 10;
     int nbRep = 3;
     int count = 0;
