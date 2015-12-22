@@ -71,6 +71,14 @@ public final class CurveInterpolators {
    */
   public static final CurveInterpolator NATURAL_SPLINE =
       CurveInterpolator.of(StandardCurveInterpolators.NATURAL_SPLINE.getName());
+  /**
+   * Log natural cubic spline interpolator for discount factors.
+   * <p>
+   * Finds an interpolant {@code F(x) = exp( f(x) )} where {@code f(x)} is a natural cubic spline going through
+   * the point (0,1).  
+   */
+  public static final CurveInterpolator LOG_NATURAL_CUBIC_DISCOUNT_FACTOR =
+      CurveInterpolator.of(StandardCurveInterpolators.LOG_NATURAL_CUBIC_DISCOUNT_FACTOR.getName());
 
   //-------------------------------------------------------------------------
   /**

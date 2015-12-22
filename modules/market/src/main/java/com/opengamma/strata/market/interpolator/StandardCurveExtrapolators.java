@@ -30,6 +30,8 @@ final class StandardCurveExtrapolators {
   public static final CurveExtrapolator EXPONENTIAL = ExponentialCurveExtrapolator.INSTANCE;
   // Exception extrapolator.
   public static final CurveExtrapolator EXCEPTION = ExceptionCurveExtrapolator.INSTANCE;
+  // Extrapolator that does no extrapolation and delegates to the interpolator.
+  public static final CurveExtrapolator INTERPOLATOR = InterpolatorCurveExtrapolator.INSTANCE;
 
   //-------------------------------------------------------------------------
   /**

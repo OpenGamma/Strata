@@ -92,6 +92,8 @@ public final class Interpolator1DFactory {
   public static final LogLinearExtrapolator1D LOG_LINEAR_EXTRAPOLATOR_INSTANCE = new LogLinearExtrapolator1D();
   /** Exponential extrapolator instance */
   public static final ExponentialExtrapolator1D EXPONENTIAL_EXTRAPOLATOR_INSTANCE = new ExponentialExtrapolator1D();
+  /**Instance of extrapolator that does no extrapolation itself and always delegates to the interpolator*/
+  public static final InterpolatorExtrapolator INTERPOLATOR_EXTRAPOLATOR_INSTANCE = new InterpolatorExtrapolator();
 
   /**Cubic spline with clamped endpoint conditions*/
   public static final String CLAMPED_CUBIC = "ClampedCubicSpline";
@@ -139,6 +141,11 @@ public final class Interpolator1DFactory {
   public static final String SQUARE_LINEAR = "SquareLinear";
   /**Instance of square linear interpolation*/
   public static final SquareLinearInterpolator1D SQUARE_LINEAR_INSTANCE = new SquareLinearInterpolator1D();
+
+  /**Log natural cubic interpolation for discount factor*/
+  public static final String LOG_NATURAL_CUBIC_DISCOUNT_FACTOR = "LogNaturalCubicDiscountFactor";
+  /**Instance of log natural cubic interpolation for discount factor*/
+  public static final LogNaturalDiscountFactorInterpolator1D LOG_NATURAL_CUBIC_DISCOUNT_FACTOR_INSTANCE = new LogNaturalDiscountFactorInterpolator1D();
 
   private static final Map<String, Interpolator1D> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
@@ -196,6 +203,9 @@ public final class Interpolator1DFactory {
 
     staticInstances.put(SQUARE_LINEAR, SQUARE_LINEAR_INSTANCE);
     instanceNames.put(SquareLinearInterpolator1D.class, SQUARE_LINEAR);
+
+    staticInstances.put(LOG_NATURAL_CUBIC_DISCOUNT_FACTOR, LOG_NATURAL_CUBIC_DISCOUNT_FACTOR_INSTANCE);
+    instanceNames.put(LogNaturalDiscountFactorInterpolator1D.class, LOG_NATURAL_CUBIC_DISCOUNT_FACTOR);
 
     extrapolatorMap.put(LinearExtrapolator1D.NAME, new LinearExtrapolator1D());
     extrapolatorMap.put(LogLinearExtrapolator1D.NAME, new LogLinearExtrapolator1D());
