@@ -69,10 +69,6 @@ public class CalibrationEur3CheckExample {
    * The valuation date.
    */
   private static final LocalDate VAL_DATE = LocalDate.of(2015, 11, 20);
-  /**
-   * The empty time-series.
-   */
-//  private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
 
   /**
    * The tolerance to use.
