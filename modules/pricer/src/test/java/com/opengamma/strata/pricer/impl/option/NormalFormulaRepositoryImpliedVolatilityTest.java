@@ -13,10 +13,10 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.PutCall;
 
 /**
- * Test {@link NormalImpliedVolatilityFormula}.
+ * Test {@link NormalFormulaRepository} implied volatility.
  */
 @Test
-public class NormalImpliedVolatilityFormulaTest {
+public class NormalFormulaRepositoryImpliedVolatilityTest {
 
   private static final double FORWARD = 100.0;
   private static final double DF = 0.87;
@@ -44,12 +44,10 @@ public class NormalImpliedVolatilityFormulaTest {
     }
   }
 
-  private static final NormalImpliedVolatilityFormula FORMULA_IMPLIED = NormalImpliedVolatilityFormula.DEFAULT;
-
   public void implied_volatility() {
     double[] impliedVolatility = new double[N];
     for (int i = 0; i < N; i++) {
-      impliedVolatility[i] = FORMULA_IMPLIED.impliedVolatility(DATA[i], OPTIONS[i], PRICES[i]);
+      impliedVolatility[i] = impliedVolatility(DATA[i], OPTIONS[i], PRICES[i]);
       assertEquals(SIGMA[i], impliedVolatility[i], 1e-6);
     }
   }
@@ -57,9 +55,24 @@ public class NormalImpliedVolatilityFormulaTest {
   public void intrinsic_price() {
     NormalFunctionData data = NormalFunctionData.of(1.0, 1.0, 0.01);
     EuropeanVanillaOption option1 = EuropeanVanillaOption.of(0.5, 1.0, PutCall.CALL);
-    assertThrowsIllegalArg(() -> FORMULA_IMPLIED.impliedVolatility(data, option1, 1e-6));
+    assertThrowsIllegalArg(() -> impliedVolatility(data, option1, 1e-6));
     EuropeanVanillaOption option2 = EuropeanVanillaOption.of(1.5, 1.0, PutCall.PUT);
-    assertThrowsIllegalArg(() -> FORMULA_IMPLIED.impliedVolatility(data, option2, 1e-6));
+    assertThrowsIllegalArg(() -> impliedVolatility(data, option2, 1e-6));
+  }
+
+  private double impliedVolatility(
+      NormalFunctionData data,
+      EuropeanVanillaOption option,
+      double price) {
+
+    return NormalFormulaRepository.impliedVolatility(
+        price,
+        data.getForward(),
+        option.getStrike(),
+        option.getTimeToExpiry(),
+        data.getNormalVolatility(),
+        data.getNumeraire(),
+        option.getPutCall());
   }
 
 }

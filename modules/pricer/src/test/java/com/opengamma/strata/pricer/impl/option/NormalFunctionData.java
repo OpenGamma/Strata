@@ -22,6 +22,8 @@ import org.joda.beans.impl.light.LightMetaBean;
 @BeanDefinition(style = "light")
 public final class NormalFunctionData
     implements ImmutableBean, Serializable {
+  // this class has been replaced by NormalFormulaRepository
+  // it is retained for testing purposes
 
   /**
    * The forward value of the underlying asset

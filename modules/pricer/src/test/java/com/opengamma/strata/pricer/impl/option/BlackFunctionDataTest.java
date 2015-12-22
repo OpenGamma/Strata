@@ -23,10 +23,10 @@ public class BlackFunctionDataTest {
   private static final double VOLATILITY = 0.23;
 
   public void test_of() {
-    NormalFunctionData test = NormalFunctionData.of(FORWARD, NUMERAIRE, VOLATILITY);
+    BlackFunctionData test = BlackFunctionData.of(FORWARD, NUMERAIRE, VOLATILITY);
     assertEquals(test.getForward(), FORWARD);
     assertEquals(test.getNumeraire(), NUMERAIRE);
-    assertEquals(test.getNormalVolatility(), VOLATILITY);
+    assertEquals(test.getBlackVolatility(), VOLATILITY);
   }
 
   //-------------------------------------------------------------------------
