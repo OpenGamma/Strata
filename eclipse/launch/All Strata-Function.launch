@@ -23,6 +23,7 @@
 <listEntry value="com.opengamma.strata.function.calculation.index"/>
 <listEntry value="com.opengamma.strata.function.calculation.payment"/>
 <listEntry value="com.opengamma.strata.function.calculation.swap"/>
+<listEntry value="com.opengamma.strata.function.calculation.swaption"/>
 <listEntry value="com.opengamma.strata.function.marketdata"/>
 <listEntry value="com.opengamma.strata.function.marketdata.curve"/>
 <listEntry value="com.opengamma.strata.function.marketdata.fx"/>
