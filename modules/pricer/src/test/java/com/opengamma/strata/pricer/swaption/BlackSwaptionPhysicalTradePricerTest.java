@@ -191,9 +191,9 @@ public class BlackSwaptionPhysicalTradePricerTest {
   //-------------------------------------------------------------------------
   public void present_value_black_vol_sensitivity_premium_forward() {
     SwaptionSensitivity vegaTrade = PRICER_SWAPTION_BLACK_TRADE
-        .presentValueSensitivityBlackVolatility(SWAPTION_PREFWD_LONG_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD);
+        .presentValueSensitivityVolatility(SWAPTION_PREFWD_LONG_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD);
     SwaptionSensitivity vegaProduct = PRICER_SWAPTION_BLACK_PRODUCT
-        .presentValueSensitivityBlackVolatility(SWAPTION_LONG_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD);
+        .presentValueSensitivityVolatility(SWAPTION_LONG_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(vegaTrade.getSensitivity(), vegaProduct.getSensitivity(), TOLERANCE_PV_VEGA);
   }
 

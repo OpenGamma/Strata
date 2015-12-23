@@ -483,7 +483,7 @@ public class NormalSwaptionPhysicalProductPricerTest {
         SwaptionNormalVolatilityDataSets.normalVolSwaptionProviderUsdStsShifted(-shiftVol));
     double pvnvsFd = (pvP.getAmount() - pvM.getAmount()) / (2 * shiftVol);
     SwaptionSensitivity pvnvsAd = PRICER_SWAPTION_NORMAL
-        .presentValueSensitivityNormalVolatility(SWAPTION_LONG_PAY, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+        .presentValueSensitivityVolatility(SWAPTION_LONG_PAY, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(pvnvsAd.getCurrency(), USD);
     assertEquals(pvnvsAd.getSensitivity(), pvnvsFd, TOLERANCE_PV_VEGA);
     assertEquals(pvnvsAd.getConvention(), SwaptionNormalVolatilityDataSets.USD_1Y_LIBOR3M);
@@ -496,32 +496,32 @@ public class NormalSwaptionPhysicalProductPricerTest {
 
   public void present_value_sensitivityNormalVolatility_long_short_parity() {
     SwaptionSensitivity pvptLongPay = PRICER_SWAPTION_NORMAL
-        .presentValueSensitivityNormalVolatility(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+        .presentValueSensitivityVolatility(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     SwaptionSensitivity pvptShortRec = PRICER_SWAPTION_NORMAL
-        .presentValueSensitivityNormalVolatility(SWAPTION_SHORT_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+        .presentValueSensitivityVolatility(SWAPTION_SHORT_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(pvptLongPay.getSensitivity(), -pvptShortRec.getSensitivity(), TOLERANCE_PV_VEGA);
   }
 
   public void present_value_sensitivityNormalVolatility_payer_receiver_parity() {
     SwaptionSensitivity pvptLongPay = PRICER_SWAPTION_NORMAL
-        .presentValueSensitivityNormalVolatility(SWAPTION_LONG_PAY, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+        .presentValueSensitivityVolatility(SWAPTION_LONG_PAY, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     SwaptionSensitivity pvptShortRec = PRICER_SWAPTION_NORMAL
-        .presentValueSensitivityNormalVolatility(SWAPTION_SHORT_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+        .presentValueSensitivityVolatility(SWAPTION_SHORT_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(pvptLongPay.getSensitivity() + pvptShortRec.getSensitivity(), 0, TOLERANCE_PV_VEGA);
   }
 
   public void present_value_sensitivityBlackVolatility_at_expiry() {
-    SwaptionSensitivity sensiRec = PRICER_SWAPTION_NORMAL.presentValueSensitivityNormalVolatility(
+    SwaptionSensitivity sensiRec = PRICER_SWAPTION_NORMAL.presentValueSensitivityVolatility(
         SWAPTION_REC_AT_EXPIRY, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(sensiRec.getSensitivity(), 0d, TOLERANCE_PV);
-    SwaptionSensitivity sensiPay = PRICER_SWAPTION_NORMAL.presentValueSensitivityNormalVolatility(
+    SwaptionSensitivity sensiPay = PRICER_SWAPTION_NORMAL.presentValueSensitivityVolatility(
         SWAPTION_PAY_AT_EXPIRY, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(sensiPay.getSensitivity(), 0d, TOLERANCE_PV);
   }
 
   public void present_value_sensitivityNormalVolatility_after_expiry() {
     SwaptionSensitivity v = PRICER_SWAPTION_NORMAL
-        .presentValueSensitivityNormalVolatility(SWAPTION_PAST, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+        .presentValueSensitivityVolatility(SWAPTION_PAST, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(v.getSensitivity(), 0.0d, TOLERANCE_PV_VEGA);
   }
 

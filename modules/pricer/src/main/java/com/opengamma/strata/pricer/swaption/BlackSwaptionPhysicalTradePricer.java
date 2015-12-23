@@ -155,13 +155,13 @@ public class BlackSwaptionPhysicalTradePricer {
    * @param swaptionVolatilities  the volatilities
    * @return the point sensitivity to the Black volatility
    */
-  public SwaptionSensitivity presentValueSensitivityBlackVolatility(
+  public SwaptionSensitivity presentValueSensitivityVolatility(
       SwaptionTrade trade,
       RatesProvider ratesProvider,
       BlackSwaptionVolatilities swaptionVolatilities) {
 
     Swaption product = trade.getProduct();
-    return productPricer.presentValueSensitivityBlackVolatility(product, ratesProvider, swaptionVolatilities);
+    return productPricer.presentValueSensitivityVolatility(product, ratesProvider, swaptionVolatilities);
   }
 
 }

@@ -186,9 +186,9 @@ public class NormalSwaptionPhysicalTradePricerTest {
   //-------------------------------------------------------------------------
   public void present_value_normal_vol_sensitivity_premium_forward() {
     SwaptionSensitivity vegaTrade = PRICER_SWAPTION_NORMAL_TRADE
-        .presentValueSensitivityNormalVolatility(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+        .presentValueSensitivityVolatility(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     SwaptionSensitivity vegaProduct = PRICER_SWAPTION_NORMAL_PRODUCT
-        .presentValueSensitivityNormalVolatility(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+        .presentValueSensitivityVolatility(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(vegaTrade.getSensitivity(), vegaProduct.getSensitivity(), TOLERANCE_PV_VEGA);
   }
 
