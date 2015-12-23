@@ -96,9 +96,11 @@ public interface SwaptionVolatilities {
    * Calculates the price.
    * <p>
    * This relies on expiry supplied by {@link #relativeTime(ZonedDateTime)}.
+   * This relies on tenor supplied by {@link #tenor(LocalDate, LocalDate)}.
    * This relies on volatility supplied by {@link #volatility(double, double, double, double)}.
    * 
    * @param expiry  the option expiry
+   * @param tenor  the swaption tenor in years
    * @param putCall  whether the option is put or call
    * @param strike  the option strike rate
    * @param forward  the forward rate of the underlying swap
@@ -106,7 +108,7 @@ public interface SwaptionVolatilities {
    * @return the price
    * @throws RuntimeException if the value cannot be obtained
    */
-  public double price(double expiry, PutCall putCall, double strike, double forward, double volatility);
+  public double price(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility);
 
   /**
    * Calculates the price delta.
@@ -114,9 +116,11 @@ public interface SwaptionVolatilities {
    * This is the forward driftless delta.
    * <p>
    * This relies on expiry supplied by {@link #relativeTime(ZonedDateTime)}.
+   * This relies on tenor supplied by {@link #tenor(LocalDate, LocalDate)}.
    * This relies on volatility supplied by {@link #volatility(double, double, double, double)}.
    * 
    * @param expiry  the option expiry
+   * @param tenor  the swaption tenor in years
    * @param putCall  whether the option is put or call
    * @param strike  the option strike rate
    * @param forward  the forward rate of the underlying swap
@@ -124,7 +128,7 @@ public interface SwaptionVolatilities {
    * @return the delta
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double priceDelta(double expiry, PutCall putCall, double strike, double forward, double volatility);
+  public abstract double priceDelta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility);
 
   /**
    * Calculates the price gamma.
@@ -132,9 +136,11 @@ public interface SwaptionVolatilities {
    * This is the second order sensitivity of the forward option value to the forward.
    * <p>
    * This relies on expiry supplied by {@link #relativeTime(ZonedDateTime)}.
+   * This relies on tenor supplied by {@link #tenor(LocalDate, LocalDate)}.
    * This relies on volatility supplied by {@link #volatility(double, double, double, double)}.
    * 
    * @param expiry  the option expiry
+   * @param tenor  the swaption tenor in years
    * @param putCall  whether the option is put or call
    * @param strike  the option strike rate
    * @param forward  the forward rate of the underlying swap
@@ -142,7 +148,7 @@ public interface SwaptionVolatilities {
    * @return the gamma
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double priceGamma(double expiry, PutCall putCall, double strike, double forward, double volatility);
+  public abstract double priceGamma(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility);
 
   /**
    * Calculates the price theta.
@@ -150,9 +156,11 @@ public interface SwaptionVolatilities {
    * This is the driftless sensitivity of the present value to a change in time to maturity.
    * <p>
    * This relies on expiry supplied by {@link #relativeTime(ZonedDateTime)}.
+   * This relies on tenor supplied by {@link #tenor(LocalDate, LocalDate)}.
    * This relies on volatility supplied by {@link #volatility(double, double, double, double)}.
    * 
    * @param expiry  the option expiry
+   * @param tenor  the swaption tenor in years
    * @param putCall  whether the option is put or call
    * @param strike  the option strike rate
    * @param forward  the forward rate of the underlying swap
@@ -160,7 +168,7 @@ public interface SwaptionVolatilities {
    * @return the theta
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double priceTheta(double expiry, PutCall putCall, double strike, double forward, double volatility);
+  public abstract double priceTheta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility);
 
   /**
    * Calculates the price vega.
@@ -168,9 +176,11 @@ public interface SwaptionVolatilities {
    * This is the sensitivity of the option forward price to the implied volatility.
    * <p>
    * This relies on expiry supplied by {@link #relativeTime(ZonedDateTime)}.
+   * This relies on tenor supplied by {@link #tenor(LocalDate, LocalDate)}.
    * This relies on volatility supplied by {@link #volatility(double, double, double, double)}.
    * 
    * @param expiry  the option expiry
+   * @param tenor  the swaption tenor in years
    * @param putCall  whether the option is put or call
    * @param strike  the option strike rate
    * @param forward  the forward rate of the underlying swap
@@ -178,7 +188,7 @@ public interface SwaptionVolatilities {
    * @return the vega
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double priceVega(double expiry, PutCall putCall, double strike, double forward, double volatility);
+  public abstract double priceVega(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility);
 
   //-------------------------------------------------------------------------
   /**

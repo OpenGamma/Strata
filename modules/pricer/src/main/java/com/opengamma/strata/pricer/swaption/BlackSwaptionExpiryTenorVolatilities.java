@@ -175,27 +175,27 @@ public final class BlackSwaptionExpiryTenorVolatilities
 
   //-------------------------------------------------------------------------
   @Override
-  public double price(double expiry, PutCall putCall, double strike, double forwardRate, double volatility) {
+  public double price(double expiry, double tenor, PutCall putCall, double strike, double forwardRate, double volatility) {
     return BlackFormulaRepository.price(forwardRate, strike, expiry, volatility, putCall.isCall());
   }
 
   @Override
-  public double priceDelta(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double priceDelta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return BlackFormulaRepository.delta(forward, strike, expiry, volatility, putCall.isCall());
   }
 
   @Override
-  public double priceGamma(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double priceGamma(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return BlackFormulaRepository.gamma(forward, strike, expiry, volatility);
   }
 
   @Override
-  public double priceTheta(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double priceTheta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return BlackFormulaRepository.driftlessTheta(forward, strike, expiry, volatility);
   }
 
   @Override
-  public double priceVega(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double priceVega(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return BlackFormulaRepository.vega(forward, strike, expiry, volatility);
   }
 

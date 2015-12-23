@@ -29,18 +29,21 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
+import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
+import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
@@ -50,7 +53,8 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
  * The volatility is represented in terms of SABR model parameters.
  */
 @BeanDefinition(builderScope = "private")
-public final class SabrSwaptionVolatilities implements ImmutableBean {
+public final class SabrSwaptionVolatilities
+    implements SwaptionVolatilities, ImmutableBean {
 
   /** 
    * The SABR model parameters. 
@@ -64,20 +68,20 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
    * <p>
    * The data must valid in terms of this swap convention. 
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final FixedIborSwapConvention convention;
-  /** 
-   * The day count applicable to the model. 
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final DayCount dayCount;
   /** 
    * The valuation date-time. 
    * <p>
    * All data items in this environment are calibrated for this date-time. 
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ZonedDateTime valuationDateTime;
+  /** 
+   * The day count applicable to the model. 
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final DayCount dayCount;
 
   //-------------------------------------------------------------------------
   /**
@@ -95,7 +99,7 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
       ZonedDateTime valuationDateTime,
       DayCount dayCount) {
 
-    return new SabrSwaptionVolatilities(parameters, convention, dayCount, valuationDateTime);
+    return new SabrSwaptionVolatilities(parameters, convention, valuationDateTime, dayCount);
   }
 
   /**
@@ -121,45 +125,14 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Returns the Black volatility.
-   * 
-   * @param expiryDate  the option expiry
-   * @param tenor  the swaption tenor in years
-   * @param strike  the option strike rate
-   * @param forwardRate  the forward rate of the underlying swap
-   * @return the volatility
-   */
-  public double volatility(ZonedDateTime expiryDate, double tenor, double strike, double forwardRate) {
-    double expiryTime = relativeTime(expiryDate);
-    return parameters.getVolatility(expiryTime, tenor, strike, forwardRate);
+  @Override
+  public double volatility(double expiry, double tenor, double strike, double forwardRate) {
+    return parameters.volatility(expiry, tenor, strike, forwardRate);
   }
 
-  /**
-   * Converts a time and date to a relative year fraction. 
-   * <p>
-   * When the date is after the valuation date (and potentially time), the returned number is negative.
-   * 
-   * @param dateTime  the date/time to find the relative year fraction of
-   * @return the relative year fraction
-   */
-  public double relativeTime(ZonedDateTime dateTime) {
-    ArgChecker.notNull(dateTime, "dateTime");
-    LocalDate valuationDate = valuationDateTime.toLocalDate();
-    LocalDate date = dateTime.toLocalDate();
-    return dayCount.relativeYearFraction(valuationDate, date);
-  }
-
-  /**
-   * Returns the tenor of the swap based on its start date and end date.
-   * 
-   * @param startDate  the start date
-   * @param endDate  the end date
-   * @return the tenor
-   */
-  public double tenor(LocalDate startDate, LocalDate endDate) {
-    // rounded number of months. the rounding is to ensure that an integer number of year even with holidays/leap year
-    return Math.round((endDate.toEpochDay() - startDate.toEpochDay()) / 365.25 * 12) / 12;
+  @Override
+  public SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(SwaptionSensitivity pointSensitivity) {
+    throw new UnsupportedOperationException("Sensitivity is based on SwaptionSabrSensitivity, not SwaptionSensitivity");
   }
 
   /**
@@ -225,6 +198,48 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
     return surfaceMetadata.withParameterMetadata(sortedMetaList);
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public double price(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
+    double shift = getParameters().shift(expiry, tenor);
+    return BlackFormulaRepository.price(forward + shift, strike + shift, expiry, volatility, putCall.isCall());
+  }
+
+  @Override
+  public double priceDelta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
+    throw new UnsupportedOperationException("SABR model does not support this method");
+  }
+
+  @Override
+  public double priceGamma(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
+    throw new UnsupportedOperationException("SABR model does not support this method");
+  }
+
+  @Override
+  public double priceTheta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
+    throw new UnsupportedOperationException("SABR model does not support this method");
+  }
+
+  @Override
+  public double priceVega(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
+    throw new UnsupportedOperationException("SABR model does not support this method");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public double relativeTime(ZonedDateTime dateTime) {
+    ArgChecker.notNull(dateTime, "dateTime");
+    LocalDate valuationDate = valuationDateTime.toLocalDate();
+    LocalDate date = dateTime.toLocalDate();
+    return dayCount.relativeYearFraction(valuationDate, date);
+  }
+
+  @Override
+  public double tenor(LocalDate startDate, LocalDate endDate) {
+    // rounded number of months. the rounding is to ensure that an integer number of year even with holidays/leap year
+    return Math.round((endDate.toEpochDay() - startDate.toEpochDay()) / 365.25 * 12) / 12;
+  }
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
@@ -242,16 +257,16 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
   private SabrSwaptionVolatilities(
       SabrInterestRateParameters parameters,
       FixedIborSwapConvention convention,
-      DayCount dayCount,
-      ZonedDateTime valuationDateTime) {
+      ZonedDateTime valuationDateTime,
+      DayCount dayCount) {
     JodaBeanUtils.notNull(parameters, "parameters");
     JodaBeanUtils.notNull(convention, "convention");
-    JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(valuationDateTime, "valuationDateTime");
+    JodaBeanUtils.notNull(dayCount, "dayCount");
     this.parameters = parameters;
     this.convention = convention;
-    this.dayCount = dayCount;
     this.valuationDateTime = valuationDateTime;
+    this.dayCount = dayCount;
   }
 
   @Override
@@ -287,8 +302,21 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
    * The data must valid in terms of this swap convention.
    * @return the value of the property, not null
    */
+  @Override
   public FixedIborSwapConvention getConvention() {
     return convention;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the valuation date-time.
+   * <p>
+   * All data items in this environment are calibrated for this date-time.
+   * @return the value of the property, not null
+   */
+  @Override
+  public ZonedDateTime getValuationDateTime() {
+    return valuationDateTime;
   }
 
   //-----------------------------------------------------------------------
@@ -301,17 +329,6 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Gets the valuation date-time.
-   * <p>
-   * All data items in this environment are calibrated for this date-time.
-   * @return the value of the property, not null
-   */
-  public ZonedDateTime getValuationDateTime() {
-    return valuationDateTime;
-  }
-
-  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -321,8 +338,8 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
       SabrSwaptionVolatilities other = (SabrSwaptionVolatilities) obj;
       return JodaBeanUtils.equal(parameters, other.parameters) &&
           JodaBeanUtils.equal(convention, other.convention) &&
-          JodaBeanUtils.equal(dayCount, other.dayCount) &&
-          JodaBeanUtils.equal(valuationDateTime, other.valuationDateTime);
+          JodaBeanUtils.equal(valuationDateTime, other.valuationDateTime) &&
+          JodaBeanUtils.equal(dayCount, other.dayCount);
     }
     return false;
   }
@@ -332,8 +349,8 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(parameters);
     hash = hash * 31 + JodaBeanUtils.hashCode(convention);
-    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(valuationDateTime);
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     return hash;
   }
 
@@ -343,8 +360,8 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
     buf.append("SabrSwaptionVolatilities{");
     buf.append("parameters").append('=').append(parameters).append(',').append(' ');
     buf.append("convention").append('=').append(convention).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime));
+    buf.append("valuationDateTime").append('=').append(valuationDateTime).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount));
     buf.append('}');
     return buf.toString();
   }
@@ -370,15 +387,15 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
     private final MetaProperty<FixedIborSwapConvention> convention = DirectMetaProperty.ofImmutable(
         this, "convention", SabrSwaptionVolatilities.class, FixedIborSwapConvention.class);
     /**
-     * The meta-property for the {@code dayCount} property.
-     */
-    private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
-        this, "dayCount", SabrSwaptionVolatilities.class, DayCount.class);
-    /**
      * The meta-property for the {@code valuationDateTime} property.
      */
     private final MetaProperty<ZonedDateTime> valuationDateTime = DirectMetaProperty.ofImmutable(
         this, "valuationDateTime", SabrSwaptionVolatilities.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code dayCount} property.
+     */
+    private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
+        this, "dayCount", SabrSwaptionVolatilities.class, DayCount.class);
     /**
      * The meta-properties.
      */
@@ -386,8 +403,8 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
         this, null,
         "parameters",
         "convention",
-        "dayCount",
-        "valuationDateTime");
+        "valuationDateTime",
+        "dayCount");
 
     /**
      * Restricted constructor.
@@ -402,10 +419,10 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
           return parameters;
         case 2039569265:  // convention
           return convention;
-        case 1905311443:  // dayCount
-          return dayCount;
         case -949589828:  // valuationDateTime
           return valuationDateTime;
+        case 1905311443:  // dayCount
+          return dayCount;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -443,19 +460,19 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
     }
 
     /**
-     * The meta-property for the {@code dayCount} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DayCount> dayCount() {
-      return dayCount;
-    }
-
-    /**
      * The meta-property for the {@code valuationDateTime} property.
      * @return the meta-property, not null
      */
     public MetaProperty<ZonedDateTime> valuationDateTime() {
       return valuationDateTime;
+    }
+
+    /**
+     * The meta-property for the {@code dayCount} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<DayCount> dayCount() {
+      return dayCount;
     }
 
     //-----------------------------------------------------------------------
@@ -466,10 +483,10 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
           return ((SabrSwaptionVolatilities) bean).getParameters();
         case 2039569265:  // convention
           return ((SabrSwaptionVolatilities) bean).getConvention();
-        case 1905311443:  // dayCount
-          return ((SabrSwaptionVolatilities) bean).getDayCount();
         case -949589828:  // valuationDateTime
           return ((SabrSwaptionVolatilities) bean).getValuationDateTime();
+        case 1905311443:  // dayCount
+          return ((SabrSwaptionVolatilities) bean).getDayCount();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -493,8 +510,8 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
 
     private SabrInterestRateParameters parameters;
     private FixedIborSwapConvention convention;
-    private DayCount dayCount;
     private ZonedDateTime valuationDateTime;
+    private DayCount dayCount;
 
     /**
      * Restricted constructor.
@@ -510,10 +527,10 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
           return parameters;
         case 2039569265:  // convention
           return convention;
-        case 1905311443:  // dayCount
-          return dayCount;
         case -949589828:  // valuationDateTime
           return valuationDateTime;
+        case 1905311443:  // dayCount
+          return dayCount;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -528,11 +545,11 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
         case 2039569265:  // convention
           this.convention = (FixedIborSwapConvention) newValue;
           break;
-        case 1905311443:  // dayCount
-          this.dayCount = (DayCount) newValue;
-          break;
         case -949589828:  // valuationDateTime
           this.valuationDateTime = (ZonedDateTime) newValue;
+          break;
+        case 1905311443:  // dayCount
+          this.dayCount = (DayCount) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -569,8 +586,8 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
       return new SabrSwaptionVolatilities(
           parameters,
           convention,
-          dayCount,
-          valuationDateTime);
+          valuationDateTime,
+          dayCount);
     }
 
     //-----------------------------------------------------------------------
@@ -580,8 +597,8 @@ public final class SabrSwaptionVolatilities implements ImmutableBean {
       buf.append("SabrSwaptionVolatilities.Builder{");
       buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters)).append(',').append(' ');
       buf.append("convention").append('=').append(JodaBeanUtils.toString(convention)).append(',').append(' ');
-      buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
-      buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime));
+      buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime)).append(',').append(' ');
+      buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount));
       buf.append('}');
       return buf.toString();
     }

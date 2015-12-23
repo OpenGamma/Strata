@@ -380,7 +380,7 @@ public class SabrSwaptionPhysicalProductPricerTest {
         TENOR_YEAR, RATE, forward);
     double maturity = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiryDateTime());
     double[] volSensi = VOL_PROVIDER.getParameters()
-        .getVolatilityAdjoint(maturity, TENOR_YEAR, RATE, forward).getDerivatives().toArray();
+        .volatilityAdjoint(maturity, TENOR_YEAR, RATE, forward).getDerivatives().toArray();
     double vegaRec = pvbp * BlackFormulaRepository.vega(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
         RATE + SwaptionSabrRateVolatilityDataSet.SHIFT, maturity, volatility);
     double vegaPay = -pvbp * BlackFormulaRepository.vega(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
