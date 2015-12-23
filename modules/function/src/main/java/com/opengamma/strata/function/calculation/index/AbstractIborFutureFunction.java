@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
@@ -66,7 +67,7 @@ public abstract class AbstractIborFutureFunction<T>
     IborFuture product = trade.getProduct();
 
     // the market data that is needed
-    QuoteKey quoteKey = QuoteKey.of(trade.getSecurity().getStandardId());
+    QuoteKey quoteKey = QuoteKey.of(trade.getSecurity().getStandardId(), FieldName.LAST_CLOSING_PRICE);
     IborIndexRatesKey indexForwardCurveKey = IborIndexRatesKey.of(product.getIndex());
     DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(product.getCurrency());
     IndexRateKey indexTimeSeriesKey = IndexRateKey.of(product.getIndex());

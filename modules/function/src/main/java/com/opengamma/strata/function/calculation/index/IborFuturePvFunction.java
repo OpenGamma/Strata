@@ -6,6 +6,7 @@
 package com.opengamma.strata.function.calculation.index;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.QuoteKey;
@@ -19,8 +20,8 @@ public class IborFuturePvFunction
 
   @Override
   protected CurrencyAmount execute(IborFutureTrade trade, MarketData marketData) {
-    QuoteKey key = QuoteKey.of(trade.getSecurity().getStandardId());
-    double price = marketData.getValue(key) / 100;  // convert market quote to value needed
+    QuoteKey key = QuoteKey.of(trade.getSecurity().getStandardId(), FieldName.LAST_CLOSING_PRICE);
+    double price = marketData.getValue(key);
     return pricer().presentValue(trade, new MarketDataRatesProvider(marketData), price);
   }
 

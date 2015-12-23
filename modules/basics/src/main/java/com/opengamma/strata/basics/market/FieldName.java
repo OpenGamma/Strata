@@ -33,6 +33,11 @@ public final class FieldName
    * This is typically used as the default when no field name is specified.
    */
   public static final FieldName MARKET_VALUE = of("MarketValue");
+  /**
+   * The field name for last closing price.
+   * This is typically used for the daily margin feature of futures.
+   */
+  public static final FieldName LAST_CLOSING_PRICE = of("LastClosingPrice");
 
   //-------------------------------------------------------------------------
   /**
