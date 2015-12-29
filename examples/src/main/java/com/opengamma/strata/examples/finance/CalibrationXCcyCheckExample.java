@@ -6,13 +6,12 @@
 package com.opengamma.strata.examples.finance;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.function.StandardComponents.marketDataFactory;
 import static java.util.stream.Collectors.toMap;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.Trade;
@@ -23,26 +22,18 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.calc.CalculationEngine;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.DefaultCalculationEngine;
 import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
-import com.opengamma.strata.calc.marketdata.MarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.calc.marketdata.function.ObservableMarketDataFunction;
-import com.opengamma.strata.calc.marketdata.function.TimeSeriesProvider;
-import com.opengamma.strata.calc.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.CalculationRunner;
-import com.opengamma.strata.calc.runner.DefaultCalculationRunner;
+import com.opengamma.strata.calc.runner.CalculationRunnerFactory;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -78,10 +69,6 @@ public class CalibrationXCcyCheckExample {
    * The tolerance to use.
    */
   private static final double TOLERANCE_PV = 1.0E-8;
-  /**
-   * The number of threads to use.
-   */
-  private static final int NB_THREADS = 1;
   /**
    * The curve group name.
    */
@@ -187,7 +174,7 @@ public class CalibrationXCcyCheckExample {
     Map<FxRateId, FxRate> fxRates = FxRatesCsvLoader.load(VAL_DATE, FX_RATES_RESOURCE);
 
     // create the market data used for calculations
-    MarketEnvironment marketEnvironment = MarketEnvironment.builder()
+    MarketEnvironment marketSnapshot = MarketEnvironment.builder()
         .valuationDate(VAL_DATE)
         .addValues(quotes)
         .addValues(fxRates)
@@ -230,35 +217,10 @@ public class CalibrationXCcyCheckExample {
         .marketDataRules(marketDataRules)
         .build();
 
-    // create the engine and calculate the results
-    CalculationEngine engine = createEngine();
-    return Pair.of(trades, engine.calculate(trades, columns, rules, marketEnvironment, marketDataConfig));
+    // calculate the results
+    CalculationRunner runner = CalculationRunnerFactory.ofSingleThreaded()
+        .createWithMarketDataBuilder(trades, columns, rules, marketDataFactory(), marketDataConfig);
+    return Pair.of(trades, runner.calculateSingleScenario(marketSnapshot));
   }
 
-  //-------------------------------------------------------------------------
-  // Create the calculation engine
-  private static CalculationEngine createEngine() {
-    // create the market data factory that builds market data
-    MarketDataFactory marketDataFactory = new DefaultMarketDataFactory(
-        TimeSeriesProvider.empty(),
-        ObservableMarketDataFunction.none(),
-        FeedIdMapping.identity(),
-        StandardComponents.marketDataFunctions());
-
-    // create the calculation runner that calculates the results
-    ExecutorService executor = createExecutor();
-    CalculationRunner calcRunner = new DefaultCalculationRunner(executor);
-
-    // combine the runner and market data factory
-    return new DefaultCalculationEngine(calcRunner, marketDataFactory, LinkResolver.none());
-  }
-
-  // create an executor with daemon threads
-  private static ExecutorService createExecutor() {
-    return Executors.newFixedThreadPool(NB_THREADS, r -> {
-      Thread t = Executors.defaultThreadFactory().newThread(r);
-      t.setDaemon(true);
-      return t;
-    });
-  }
 }

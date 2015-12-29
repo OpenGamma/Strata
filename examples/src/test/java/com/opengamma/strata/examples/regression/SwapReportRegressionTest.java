@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.examples.regression;
 
+import static com.opengamma.strata.function.StandardComponents.marketDataFactory;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -22,16 +24,17 @@ import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
-import com.opengamma.strata.calc.CalculationEngine;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingRules;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
+import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.calc.runner.CalculationRunner;
+import com.opengamma.strata.calc.runner.CalculationRunnerFactory;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.data.ExampleData;
-import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
@@ -76,10 +79,11 @@ public class SwapReportRegressionTest {
         .build();
 
     LocalDate valuationDate = LocalDate.of(2009, 7, 31);
-    MarketEnvironment marketEnvironment = marketDataBuilder.buildSnapshot(valuationDate);
+    MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
-    CalculationEngine engine = ExampleEngine.create();
-    Results results = engine.calculate(trades, columns, rules, marketEnvironment);
+    CalculationRunner runner = CalculationRunnerFactory.ofSingleThreaded()
+        .createWithMarketDataBuilder(trades, columns, rules, marketDataFactory(), MarketDataConfig.empty());
+    Results results = runner.calculateSingleScenario(marketSnapshot);
 
     ReportCalculationResults calculationResults = ReportCalculationResults.of(
         valuationDate,

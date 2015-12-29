@@ -10,12 +10,13 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.function.StandardComponents.marketDataFactory;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
 
 import org.testng.annotations.Test;
 
@@ -36,7 +37,6 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.CalculationTasksConfig;
 import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
@@ -45,23 +45,13 @@ import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.config.pricing.PricingRule;
-import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.calc.marketdata.function.ObservableMarketDataFunction;
-import com.opengamma.strata.calc.marketdata.function.TimeSeriesProvider;
-import com.opengamma.strata.calc.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.CalculationRunner;
-import com.opengamma.strata.calc.runner.CalculationTasks;
-import com.opengamma.strata.calc.runner.DefaultCalculationRunner;
+import com.opengamma.strata.calc.runner.CalculationRunnerFactory;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.function.marketdata.curve.DiscountCurveMarketDataFunction;
-import com.opengamma.strata.function.marketdata.curve.DiscountFactorsMarketDataFunction;
-import com.opengamma.strata.function.marketdata.curve.IborIndexRatesMarketDataFunction;
-import com.opengamma.strata.function.marketdata.curve.OvernightIndexRatesMarketDataFunction;
-import com.opengamma.strata.function.marketdata.curve.RateIndexCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
@@ -151,32 +141,16 @@ public class SwapPricingTest {
 
     MarketDataRules marketDataRules = MarketDataRules.of(MarketDataRule.of(marketDataMappings, SwapTrade.class));
 
-    DefaultMarketDataFactory marketDataFactory = new DefaultMarketDataFactory(
-        TimeSeriesProvider.empty(),
-        ObservableMarketDataFunction.none(),
-        FeedIdMapping.identity(),
-        new DiscountCurveMarketDataFunction(),
-        new DiscountFactorsMarketDataFunction(),
-        new RateIndexCurveMarketDataFunction(),
-        new IborIndexRatesMarketDataFunction(),
-        new OvernightIndexRatesMarketDataFunction());
-
+    // create the calculation runner
     List<SwapTrade> trades = ImmutableList.of(trade);
-    Column pvColumn = Column.of(Measure.PRESENT_VALUE);
-    List<Column> columns = ImmutableList.of(pvColumn);
-    CalculationRunner calculationRunner = new DefaultCalculationRunner(Executors.newSingleThreadExecutor());
+    List<Column> columns = ImmutableList.of(Column.of(Measure.PRESENT_VALUE));
     ReportingRules reportingRules = ReportingRules.fixedCurrency(USD);
-    CalculationRules calculationRules = CalculationRules.of(pricingRules, marketDataRules, reportingRules);
-    CalculationTasksConfig calculationConfig =
-        calculationRunner.createCalculationConfig(trades, columns, calculationRules);
-    CalculationTasks calculationTasks = calculationRunner.createCalculationTasks(calculationConfig);
+    CalculationRules rules = CalculationRules.of(pricingRules, marketDataRules, reportingRules);
+    CalculationRunner runner = CalculationRunnerFactory.ofSingleThreaded()
+        .createWithMarketDataBuilder(trades, columns, rules, marketDataFactory(), MarketDataConfig.empty());
 
-    MarketEnvironment marketData = marketDataFactory.buildMarketData(
-        calculationTasks.getRequirements(),
-        suppliedData,
-        MarketDataConfig.empty());
-
-    Results results = calculationRunner.calculateSingleScenario(calculationTasks, marketData);
+    // calculate results using the runner
+    Results results = runner.calculateSingleScenario(suppliedData);
     Result<?> result = results.get(0, 0);
     assertThat(result).isSuccess();
 

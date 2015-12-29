@@ -5,6 +5,9 @@
  */
 package com.opengamma.strata.collect.id;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
+import java.util.List;
 import java.util.function.Function;
 
 import com.google.common.reflect.TypeToken;
@@ -83,6 +86,26 @@ public interface LinkResolver {
   public abstract <T extends IdentifiableBean> T resolve(StandardId identifier, TypeToken<T> targetType);
 
   //-------------------------------------------------------------------------
+  /**
+   * Resolves all the links within the specified list of beans.
+   * <p>
+   * This takes the specified list of beans and resolves any links.
+   * Each bean in the list is checked to see if it implements {@link Resolvable}.
+   * If the target is not resolvable, or the target is already resolved,
+   * then the input bean will be returned.
+   * <p>
+   * This method is primarily useful where the type of the input objects is not known to be resolvable.
+   * For example, this might occur when processing a {@code List<Object>}.
+   * 
+   * @param beans  the list of target beans
+   * @return a new list of resolved beans
+   */
+  public default <B> List<B> resolveLinksIn(List<B> beans) {
+    return beans.stream()
+        .map(this::resolveLinksIn)
+        .collect(toImmutableList());
+  }
+
   /**
    * Resolves all the links within the specified bean.
    * <p>

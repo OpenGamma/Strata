@@ -18,9 +18,7 @@
 <listEntry value="com.opengamma.strata.examples.finance"/>
 <listEntry value="com.opengamma.strata.examples.finance.credit"/>
 <listEntry value="com.opengamma.strata.examples.marketdata"/>
-<listEntry value="com.opengamma.strata.examples.marketdata.curve"/>
-<listEntry value="com.opengamma.strata.examples.marketdata.timeseries"/>
-<listEntry value="com.opengamma.strata.examples.report"/>
+<listEntry value="com.opengamma.strata.examples.regression"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <stringAttribute key="org.testng.eclipse.PRE_DEFINED_LISTENERS" value=""/>
