@@ -19,16 +19,15 @@ import java.util.function.Consumer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.CalculationTaskConfig;
 import com.opengamma.strata.calc.config.CalculationTasksConfig;
 import com.opengamma.strata.calc.config.FunctionConfig;
-import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingRules;
 import com.opengamma.strata.calc.config.pricing.ConfiguredFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
-import com.opengamma.strata.calc.config.pricing.PricingRules;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -58,14 +57,12 @@ public class DefaultCalculationRunner implements CalculationRunner {
   public CalculationTasksConfig createCalculationConfig(
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      PricingRules pricingRules,
-      MarketDataRules marketDataRules,
-      ReportingRules reportingRules) {
+      CalculationRules calculationRules) {
 
     // Create columns with rules that are a combination of the column overrides and the defaults
     List<Column> effectiveColumns =
         columns.stream()
-            .map(column -> column.withDefaultRules(pricingRules, marketDataRules, reportingRules))
+            .map(column -> column.withDefaultRules(calculationRules))
             .collect(toImmutableList());
 
     ImmutableList.Builder<CalculationTaskConfig> configBuilder = ImmutableList.builder();

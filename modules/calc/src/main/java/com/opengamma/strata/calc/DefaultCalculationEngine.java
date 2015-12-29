@@ -89,9 +89,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
     CalculationTasksConfig config = calculationRunner.createCalculationConfig(
         resolveTargetLinks(targets),
         columns,
-        calculationRules.getPricingRules(),
-        calculationRules.getMarketDataRules(),
-        calculationRules.getReportingRules());
+        calculationRules);
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
     // build any missing market data
@@ -117,9 +115,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
     CalculationTasksConfig config = calculationRunner.createCalculationConfig(
         resolveTargetLinks(targets),
         columns,
-        calculationRules.getPricingRules(),
-        calculationRules.getMarketDataRules(),
-        calculationRules.getReportingRules());
+        calculationRules);
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
     // build any required scenarios from the base market data

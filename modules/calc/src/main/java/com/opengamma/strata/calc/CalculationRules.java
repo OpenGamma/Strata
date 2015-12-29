@@ -54,6 +54,22 @@ public final class CalculationRules implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final ReportingRules reportingRules;
 
+  /**
+   * Creates an instance specifying all the rules.
+   * 
+   * @param pricingRules  the pricing rules
+   * @param marketDataRules  the market data rules
+   * @param reportingRules  the reporting rules
+   * @return the rules
+   */
+  public static CalculationRules of(
+      PricingRules pricingRules,
+      MarketDataRules marketDataRules,
+      ReportingRules reportingRules) {
+
+    return new CalculationRules(pricingRules, marketDataRules, reportingRules);
+  }
+
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.pricingRules(PricingRules.empty());
