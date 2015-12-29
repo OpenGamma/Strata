@@ -14,6 +14,7 @@ import com.opengamma.strata.calc.config.CalculationTasksConfig;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
+import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.calc.runner.CalculationRunner;
 import com.opengamma.strata.calc.runner.CalculationTasks;
@@ -81,22 +82,21 @@ public final class DefaultCalculationEngine implements CalculationEngine {
       List<? extends CalculationTarget> targets,
       List<Column> columns,
       CalculationRules calculationRules,
-      CalculationEnvironment marketEnvironment) {
+      CalculationEnvironment marketEnvironment,
+      MarketDataConfig marketDataConfig) {
 
     // create the tasks to be run
     CalculationTasksConfig config = calculationRunner.createCalculationConfig(
         resolveTargetLinks(targets),
         columns,
-        calculationRules.getPricingRules(),
-        calculationRules.getMarketDataRules(),
-        calculationRules.getReportingRules());
+        calculationRules);
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
     // build any missing market data
     MarketEnvironment marketData = marketDataFactory.buildMarketData(
         tasks.getRequirements(),
         marketEnvironment,
-        calculationRules.getMarketDataConfig());
+        marketDataConfig);
 
     // perform the calculations
     return calculationRunner.calculateSingleScenario(tasks, marketData);
@@ -108,22 +108,21 @@ public final class DefaultCalculationEngine implements CalculationEngine {
       List<Column> columns,
       CalculationRules calculationRules,
       CalculationEnvironment suppliedMarketData,
+      MarketDataConfig marketDataConfig,
       ScenarioDefinition scenarioDefinition) {
 
     // create the tasks to be run
     CalculationTasksConfig config = calculationRunner.createCalculationConfig(
         resolveTargetLinks(targets),
         columns,
-        calculationRules.getPricingRules(),
-        calculationRules.getMarketDataRules(),
-        calculationRules.getReportingRules());
+        calculationRules);
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
     // build any required scenarios from the base market data
     MarketEnvironment marketData = marketDataFactory.buildMarketData(
         tasks.getRequirements(),
         suppliedMarketData,
-        calculationRules.getMarketDataConfig(),
+        marketDataConfig,
         scenarioDefinition);
 
     // perform the calculations

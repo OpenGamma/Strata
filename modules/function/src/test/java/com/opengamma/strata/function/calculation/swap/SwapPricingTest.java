@@ -34,6 +34,7 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.CalculationTasksConfig;
 import com.opengamma.strata.calc.config.MarketDataRule;
@@ -164,9 +165,10 @@ public class SwapPricingTest {
     Column pvColumn = Column.of(Measure.PRESENT_VALUE);
     List<Column> columns = ImmutableList.of(pvColumn);
     CalculationRunner calculationRunner = new DefaultCalculationRunner(Executors.newSingleThreadExecutor());
-    ReportingRules reportingCurrency = ReportingRules.fixedCurrency(USD);
+    ReportingRules reportingRules = ReportingRules.fixedCurrency(USD);
+    CalculationRules calculationRules = CalculationRules.of(pricingRules, marketDataRules, reportingRules);
     CalculationTasksConfig calculationConfig =
-        calculationRunner.createCalculationConfig(trades, columns, pricingRules, marketDataRules, reportingCurrency);
+        calculationRunner.createCalculationConfig(trades, columns, calculationRules);
     CalculationTasks calculationTasks = calculationRunner.createCalculationTasks(calculationConfig);
 
     MarketEnvironment marketData = marketDataFactory.buildMarketData(

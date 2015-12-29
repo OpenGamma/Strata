@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
+import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.calc.runner.Results;
 
@@ -51,11 +52,44 @@ public interface CalculationEngine {
    *   not provided in this set, the engine will attempts to provide the missing data
    * @return the results of the calculations
    */
+  public default Results calculate(
+      List<? extends CalculationTarget> targets,
+      List<Column> columns,
+      CalculationRules calculationRules,
+      CalculationEnvironment marketData) {
+       
+    return calculate(targets, columns, calculationRules, marketData, MarketDataConfig.empty());
+  }
+
+  /**
+   * Calculates values of measures for a set of targets.
+   * <p>
+   * The output of the calculations is a grid of results with a row for each target and a column for each measure.
+   * <p>
+   * The calculation rules specify how the calculations should be performed. This includes the model and
+   * model parameters, the market data that should be used, and the reporting currency of the results.
+   * If market data is not present, the specified configuration is used to create it.
+   * <p>
+   * The column arguments specify what measure the column contains and also specifies any rule overrides
+   * that apply to the column.
+   *
+   * @param targets  the targets for which values of the measures will be calculated, often trades
+   * @param columns  the configuration for the columns that will be calculated, including the measure and
+   *   any column-specific overrides
+   * @param calculationRules  the rules defining how the calculations are performed, what market data
+   *   should be used for each calculation and how the results should be reported
+   * @param marketData  the market data used in the calculations. If the calculations require data that is
+   *   not provided in this set, the engine will attempts to provide the missing data
+   * @param marketDataConfig  the configuration for creating market data, used when {@code marketData}
+   *   does not contain all the necessary market data
+   * @return the results of the calculations
+   */
   public abstract Results calculate(
       List<? extends CalculationTarget> targets,
       List<Column> columns,
       CalculationRules calculationRules,
-      CalculationEnvironment marketData);
+      CalculationEnvironment marketData,
+      MarketDataConfig marketDataConfig);
 
   /**
    * Calculates values of measures for a set of targets over multiple scenarios.
@@ -67,6 +101,7 @@ public interface CalculationEngine {
    * <p>
    * The calculation rules specify how the calculations should be performed. This includes the model and
    * model parameters, the market data that should be used, and the reporting currency of the results.
+   * If market data is not present, the specified configuration is used to create it.
    * <p>
    * The column arguments specify what measure the column contains and also specifies any rule overrides
    * that apply to the column.
@@ -81,8 +116,9 @@ public interface CalculationEngine {
    *   should be used for each calculation and how the results should be reported
    * @param marketData  the market data used in the calculations. If the calculations require data that is
    *   not provided in this set, the engine will attempts to provide the missing data
+   * @param marketDataConfig  the configuration for creating market data, used when {@code marketData}
+   *   does not contain all the necessary market data
    * @param scenarioDefinition  defines how the market data for each scenario is derived from the base data
-   *
    * @return the results of the calculations
    */
   public abstract Results calculate(
@@ -90,5 +126,6 @@ public interface CalculationEngine {
       List<Column> columns,
       CalculationRules calculationRules,
       CalculationEnvironment marketData,
+      MarketDataConfig marketDataConfig,
       ScenarioDefinition scenarioDefinition);
 }

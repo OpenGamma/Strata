@@ -98,19 +98,13 @@ public final class Column implements ImmutableBean {
   /**
    * Returns a column whose rules are derived from the rules in this column composed with the default rules.
    *
-   * @param defaultPricingRules  the default pricing rules
-   * @param defaultMarketDataRules  the default market data rules
-   * @param defaultReportingRules  the default reporting currency rules
+   * @param defaultCalculationRules  the default rules
    * @return a column whose rules are derived from the rules in this column composed with the default rules
    */
-  public Column withDefaultRules(
-      PricingRules defaultPricingRules,
-      MarketDataRules defaultMarketDataRules,
-      ReportingRules defaultReportingRules) {
-
-    PricingRules pricingRules = getPricingRules().composedWith(defaultPricingRules);
-    MarketDataRules marketDataRules = getMarketDataRules().composedWith(defaultMarketDataRules);
-    ReportingRules reportingRules = getReportingRules().composedWith(defaultReportingRules);
+  public Column withDefaultRules(CalculationRules defaultCalculationRules) {
+    PricingRules pricingRules = getPricingRules().composedWith(defaultCalculationRules.getPricingRules());
+    MarketDataRules marketDataRules = getMarketDataRules().composedWith(defaultCalculationRules.getMarketDataRules());
+    ReportingRules reportingRules = getReportingRules().composedWith(defaultCalculationRules.getReportingRules());
     return toBuilder()
         .pricingRules(pricingRules)
         .marketDataRules(marketDataRules)

@@ -35,6 +35,7 @@ import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
+import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.calc.runner.Results;
@@ -118,7 +119,7 @@ public class HistoricalScenarioExample {
 
     // create the engine and calculate the results under each scenario
     CalculationEngine engine = ExampleEngine.create();
-    Results results = engine.calculate(trades, columns, rules, snapshot, historicalScenarios);
+    Results results = engine.calculate(trades, columns, rules, snapshot, MarketDataConfig.empty(), historicalScenarios);
 
     // the results contain the one measure requested (Present Value) for each scenario
     ScenarioResult<?> scenarioValuations = (ScenarioResult<?>) results.get(0, 0).getValue();

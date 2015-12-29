@@ -24,6 +24,7 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.TestObservableKey;
+import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.CalculationTaskConfig;
 import com.opengamma.strata.calc.config.CalculationTasksConfig;
@@ -83,8 +84,9 @@ public class DefaultCalculationRunnerTest {
 
     FunctionConfig<TestTarget> expectedFnConfig = FunctionConfig.of(TestFunction.class);
 
+    CalculationRules calculationRules = CalculationRules.of(pricingRules, marketDataRules, reportingRules);
     CalculationTasksConfig calculationConfig =
-        engine.createCalculationConfig(targets, columns, pricingRules, marketDataRules, reportingRules);
+        engine.createCalculationConfig(targets, columns, calculationRules);
 
     List<CalculationTaskConfig> taskConfigs = calculationConfig.getTaskConfigurations();
 
@@ -126,8 +128,9 @@ public class DefaultCalculationRunnerTest {
     Column column = Column.of(measure);
     List<Column> columns = ImmutableList.of(column);
 
+    CalculationRules calculationRules = CalculationRules.of(pricingRules, marketDataRules, reportingRules);
     CalculationTasksConfig calculationConfig =
-        runner.createCalculationConfig(targets, columns, pricingRules, marketDataRules, reportingRules);
+        runner.createCalculationConfig(targets, columns, calculationRules);
     CalculationTasks calculationTasks = runner.createCalculationTasks(calculationConfig);
     MarketDataRequirements requirements = calculationTasks.getRequirements();
     Set<? extends MarketDataId<?>> nonObservables = requirements.getNonObservables();

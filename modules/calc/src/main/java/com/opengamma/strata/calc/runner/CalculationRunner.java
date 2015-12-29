@@ -8,11 +8,9 @@ package com.opengamma.strata.calc.runner;
 import java.util.List;
 
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.CalculationTasksConfig;
-import com.opengamma.strata.calc.config.MarketDataRules;
-import com.opengamma.strata.calc.config.ReportingRules;
-import com.opengamma.strata.calc.config.pricing.PricingRules;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 
 /**
@@ -28,17 +26,13 @@ public interface CalculationRunner {
    * @param targets  the targets for which values of the measures will be calculated
    * @param columns  the configuration for the columns that will be calculated, including the measure and
    *   any column-specific overrides
-   * @param pricingRules  rules which define how the values are calculated
-   * @param marketDataRules  rules which define the market data used in the calculations
-   * @param reportingRules  rules which define how results should be reported
+   * @param calculationRules  rules which define how the calculation is performed
    * @return configuration for calculating values for a set of measures for a set of targets
    */
   public abstract CalculationTasksConfig createCalculationConfig(
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      PricingRules pricingRules,
-      MarketDataRules marketDataRules,
-      ReportingRules reportingRules);
+      CalculationRules calculationRules);
 
   /**
    * Creates a set of calculations for calculating a set of measures for a set of targets.
