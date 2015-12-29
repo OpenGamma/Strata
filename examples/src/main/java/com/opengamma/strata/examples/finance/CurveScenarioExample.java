@@ -33,6 +33,7 @@ import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingRules;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
+import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.calc.runner.Results;
@@ -114,7 +115,7 @@ public class CurveScenarioExample {
 
     // create the engine and calculate the results
     CalculationEngine engine = ExampleEngine.create();
-    Results results = engine.calculate(trades, columns, rules, snapshot, scenarioDefinition);
+    Results results = engine.calculate(trades, columns, rules, snapshot, MarketDataConfig.empty(), scenarioDefinition);
 
     // TODO Replace the results processing below with a report once the reporting framework supports scenarios
 

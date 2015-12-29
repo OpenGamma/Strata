@@ -181,7 +181,6 @@ public class CurveEndToEndTest {
     CalculationRules calculationRules = CalculationRules.builder()
         .pricingRules(pricingRules())
         .marketDataRules(marketDataRules)
-        .marketDataConfig(marketDataConfig)
         .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
         .build();
 
@@ -216,7 +215,7 @@ public class CurveEndToEndTest {
 
     MarketEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
     List<Column> columns = ImmutableList.of(Column.of(Measure.PRESENT_VALUE));
-    Results results = engine.calculate(trades, columns, calculationRules, marketData);
+    Results results = engine.calculate(trades, columns, calculationRules, marketData, marketDataConfig);
     results.getItems().stream().forEach(this::checkPvIsZero);
   }
 

@@ -227,13 +227,12 @@ public class CalibrationXCcyCheckExample {
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(StandardComponents.pricingRules())
-        .marketDataConfig(marketDataConfig)
         .marketDataRules(marketDataRules)
         .build();
 
     // create the engine and calculate the results
     CalculationEngine engine = createEngine();
-    return Pair.of(trades, engine.calculate(trades, columns, rules, marketEnvironment));
+    return Pair.of(trades, engine.calculate(trades, columns, rules, marketEnvironment, marketDataConfig));
   }
 
   //-------------------------------------------------------------------------
