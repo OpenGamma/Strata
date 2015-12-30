@@ -16,29 +16,36 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * Mutable builder for building instances of {@link PricingRule}.
+ * Mutable builder for building instances of {@code PricingRule}.
  * 
  * @param <T>  the type of the calculation target
  */
 public final class PricingRuleBuilder<T extends CalculationTarget> {
 
-  /** The target type to which the pricing rule applies. */
+  /**
+   * The target type to which the pricing rule applies.
+   */
   private final Class<T> targetType;
-
-  /** The measures the rule applies to. An empty set means the rule applies to all measures. */
+  /**
+   * The measures the rule applies to. An empty set means the rule applies to all measures.
+   */
   private final Set<Measure> measures = new HashSet<>();
-
-  /** The function group used for calculations matching the rule. */
+  /**
+   * The function group used for calculations matching the rule.
+   */
   private FunctionGroup<T> functionGroup;
-
-  /** The arguments used by the function group when creating functions. */
+  /**
+   * The arguments used by the function group when creating functions.
+   */
   private final Map<String, Object> arguments = new HashMap<>();
 
+  //-------------------------------------------------------------------------
   // package-private constructor used by PricingRule.builder()
   PricingRuleBuilder(Class<T> targetType) {
     this.targetType = ArgChecker.notNull(targetType, "targetType");
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Sets the function group that performs the calculations matching the rule.
    *
@@ -76,6 +83,7 @@ public final class PricingRuleBuilder<T extends CalculationTarget> {
     return this;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a pricing rule built from the data in this builder.
    *
@@ -84,4 +92,5 @@ public final class PricingRuleBuilder<T extends CalculationTarget> {
   public PricingRule<T> build() {
     return new PricingRule<>(targetType, measures, functionGroup, arguments);
   }
+
 }

@@ -224,8 +224,7 @@ public class MarketEnvironmentTest {
     assertThat(marketData1.mergedWith(marketData2)).isEqualTo(expected);
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   private static final class TestId implements ObservableId {
 
     private final String id;

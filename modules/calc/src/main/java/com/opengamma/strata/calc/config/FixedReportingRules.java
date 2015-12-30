@@ -26,25 +26,31 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 
 /**
- * A reporting currency rule that always returns the same currency.
+ * Reporting rules that always returns the same currency.
+ * <p>
+ * These rules always return the same currency from {@link #reportingCurrency}.
  */
 @BeanDefinition
 final class FixedReportingRules implements ReportingRules, ImmutableBean {
 
-  /** The reporting currency that is used for every target. */
+  /**
+   * The reporting currency that is used for every target.
+   */
   @PropertyDefinition(validate = "notNull")
   private final Currency currency;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a rule that always returns the same reporting currency.
-   *
+   * Obtains an instance based on the specified currency.
+   * 
    * @param currency  the reporting currency
-   * @return a rule that always returns the same reporting currency
+   * @return the rule returning the reporting currency
    */
   public static FixedReportingRules of(Currency currency) {
     return new FixedReportingRules(currency);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Optional<Currency> reportingCurrency(CalculationTarget target) {
     return Optional.of(currency);

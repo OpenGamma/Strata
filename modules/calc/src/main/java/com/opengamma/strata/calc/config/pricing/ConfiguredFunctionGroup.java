@@ -19,15 +19,17 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 public final class ConfiguredFunctionGroup {
 
-  /** The function group. */
+  /**
+   * The function group.
+   */
   private final FunctionGroup<?> functionGroup;
-
   /**
    * The constructor arguments used when creating function instances.
    * The argument values are keyed by the name of the corresponding constructor parameter.
    */
   private final Map<String, Object> arguments;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a configured function group containing the specified function group and arguments.
    *
@@ -49,11 +51,14 @@ public final class ConfiguredFunctionGroup {
     return new ConfiguredFunctionGroup(functionGroup, ImmutableMap.of());
   }
 
+  //-------------------------------------------------------------------------
+  // restricted constructor
   private ConfiguredFunctionGroup(FunctionGroup<?> functionGroup, Map<String, Object> arguments) {
     this.functionGroup = ArgChecker.notNull(functionGroup, "functionGroup");
     this.arguments = ArgChecker.notNull(arguments, "arguments");
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns the function group.
    *
@@ -74,6 +79,7 @@ public final class ConfiguredFunctionGroup {
     return arguments;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -94,6 +100,7 @@ public final class ConfiguredFunctionGroup {
 
   @Override
   public String toString() {
-    return "ConfiguredFunctionGroup [functionGroup=" + functionGroup + ", arguments=" + arguments + "]";
+    return "ConfiguredFunctionGroup[functionGroup=" + functionGroup + ", arguments=" + arguments + "]";
   }
+
 }

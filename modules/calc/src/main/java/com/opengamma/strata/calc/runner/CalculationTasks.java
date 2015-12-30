@@ -19,8 +19,18 @@ import com.opengamma.strata.collect.Messages;
  */
 public class CalculationTasks {
 
-  private final List<CalculationTask> calculationTasks;
+  /**
+   * The columns.
+   */
   private final List<Column> columns;
+  /**
+   * The calculation tasks.
+   * These are arranged in row order.
+   */
+  private final List<CalculationTask> calculationTasks;
+  /**
+   * The market data requirements.
+   */
   private final MarketDataRequirements requirements;
 
   /**
@@ -48,38 +58,39 @@ public class CalculationTasks {
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns IDs for the market data required for all calculations.
+   * Gets the columns that will be calculated.
+   * <p>
+   * The result of the calculations will be a grid where each column is taken from this list.
    *
-   * @return IDs for the market data required for all calculations
+   * @return the columns forming the grid of calculations
    */
-  public MarketDataRequirements getRequirements() {
-    return requirements;
+  public List<Column> getColumns() {
+    return columns;
   }
 
   /**
-   * Returns the objects that perform the individual calculations.
+   * Gets the tasks that perform the individual calculations.
    * <p>
    * The results can be visualized as a grid of columns with a row for each target.
    * There is one calculation for each cell in the grid. The calculations in the list are arranged in row order.
    * For example, if a grid has 5 columns, the calculations 0-4 in the list are the first row, calculations 5-9 are
    * the second row and so on.
    *
-   * @return the objects that perform the calculations
+   * @return the tasks that perform the calculations
    */
   public List<CalculationTask> getTasks() {
     return calculationTasks;
   }
 
   /**
-   * Returns the measures calculated by these calculations.
-   * <p>
-   * These can be thought of as the columns in the grid of results containing the calculations, where
-   * there is a row for each input target.
+   * Gets the market data that is required to perform the calculations.
    *
-   * @return the measures calculated by these calculations
+   * @return the market data required for all calculations
    */
-  public List<Column> getColumns() {
-    return columns;
+  public MarketDataRequirements getRequirements() {
+    return requirements;
   }
+
 }

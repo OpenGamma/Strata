@@ -112,8 +112,7 @@ public class ScenarioDefinitionTest {
     assertThrows(() -> ScenarioDefinition.ofMappings(mappings2, names2), IllegalArgumentException.class, msg2);
   }
 
-  //-----------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   private static final class TestPerturbation implements ScenarioPerturbation<Object> {
 
     private final int[] values;

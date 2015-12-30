@@ -37,11 +37,15 @@ import com.opengamma.strata.calc.Column;
 @BeanDefinition
 public final class CalculationTasksConfig implements ImmutableBean, Serializable {
 
-  /** Configuration for each of tasks that perform the individual calculations. */
+  /**
+   * The configuration for each of tasks that perform the individual calculations.
+   * There is one task for each value that will be calculated.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<CalculationTaskConfig> taskConfigurations;
-
-  /** The columns that define the calculations. */
+  /**
+   * The columns that define the calculations.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<Column> columns;
 
@@ -98,7 +102,8 @@ public final class CalculationTasksConfig implements ImmutableBean, Serializable
 
   //-----------------------------------------------------------------------
   /**
-   * Gets configuration for each of tasks that perform the individual calculations.
+   * Gets the configuration for each of tasks that perform the individual calculations.
+   * There is one task for each value that will be calculated.
    * @return the value of the property, not null
    */
   public ImmutableList<CalculationTaskConfig> getTaskConfigurations() {
@@ -342,7 +347,8 @@ public final class CalculationTasksConfig implements ImmutableBean, Serializable
 
     //-----------------------------------------------------------------------
     /**
-     * Sets configuration for each of tasks that perform the individual calculations.
+     * Sets the configuration for each of tasks that perform the individual calculations.
+     * There is one task for each value that will be calculated.
      * @param taskConfigurations  the new value, not null
      * @return this, for chaining, not null
      */

@@ -32,43 +32,51 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 
 /**
- * Wraps an input and a function that calculates a value for the input.
+ * A single task that will be used to perform a calculation.
  * <p>
  * This presents a uniform interface to the engine so all functions can be treated equally during execution.
  * Without this class the engine would need to keep track of which functions to use for each input.
  */
-public class CalculationTask {
+public final class CalculationTask {
 
-  /** The target, such as a trade. */
+  /**
+   * The target for which the value will be calculated.
+   * This is typically a trade.
+   */
   private final CalculationTarget target;
-
-  /** The row index of the value in the results grid. */
+  /**
+   * The row index of the value in the results grid.
+   */
   private final int rowIndex;
-
-  /** The column index of the value in the results grid. */
+  /**
+   * The column index of the value in the results grid.
+   */
   private final int columnIndex;
-
-  /** The function that performs the calculations. */
+  /**
+   * The function that will calculate the value.
+   */
   private final CalculationSingleFunction<CalculationTarget, ?> function;
-
-  /** The mappings to select market data. */
+  /**
+   * The mappings to select market data.
+   */
   private final MarketDataMappings marketDataMappings;
-
-  // These aren't used at the moment but will be required when we add support for functions that perform
-  // their own currency conversion
-  /** The rules for reporting the output. */
+  /**
+   * The rules for reporting the output.
+   * These will be required when we add support for functions that perform their own currency conversion.
+   */
   private final ReportingRules reportingRules;
 
+  //-------------------------------------------------------------------------
   /**
    * Creates a task, based on the target, the location of the result in the results grid, the function,
    * mappings and reporting rules.
    *
-   * @param target  the target for which the calculation is performed
+   * @param target  the target for which the value will be calculated
    * @param rowIndex  the row index of the value in the results grid
    * @param columnIndex  the column index of the value in the results grid
    * @param function  the function that performs the calculation
-   * @param marketDataMappings  specifies the market data used in the calculation
-   * @param reportingRules  the currency in which monetary values should be returned
+   * @param marketDataMappings  the mappings that specify the market data that should be used in the calculation
+   * @param reportingRules  the reporting rules to control the output
    */
   @SuppressWarnings("unchecked")
   public CalculationTask(
@@ -88,6 +96,7 @@ public class CalculationTask {
     this.function = (CalculationSingleFunction<CalculationTarget, ?>) ArgChecker.notNull(function, "function");
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns requirements specifying the market data the function needs to perform its calculations.
    *
@@ -196,4 +205,5 @@ public class CalculationTask {
       return Result.failure(FailureReason.ERROR, e, "Failed to convert value {} to currency {}", value, reportingCurrency);
     }
   }
+
 }

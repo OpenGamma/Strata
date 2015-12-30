@@ -205,8 +205,7 @@ public class DefaultCalculationRunnerTest {
     assertThat(result2).hasValue(scenarioResult);
   }
 
-  //--------------------------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   private static class TestTarget implements CalculationTarget { }
 
   public static final class TestFunction implements CalculationSingleFunction<TestTarget, Object> {

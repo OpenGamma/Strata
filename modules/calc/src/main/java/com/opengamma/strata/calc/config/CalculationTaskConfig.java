@@ -37,45 +37,57 @@ import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 @SuppressWarnings("rawtypes")
 public final class CalculationTaskConfig implements ImmutableBean, Serializable {
 
-  /** The target for which the value will be calculated. */
+  /**
+   * The target for which the value will be calculated.
+   * This is typically a trade.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CalculationTarget target;
-
-  /** The row index of the value in the results grid. */
+  /**
+   * The row index of the value in the results grid.
+   */
   @PropertyDefinition
   private final int rowIndex;
-
-  /** The column index of the value in the results grid. */
+  /**
+   * The column index of the value in the results grid.
+   */
   @PropertyDefinition
   private final int columnIndex;
-
-  /** Configuration of the function that will calculate the value. */
+  /**
+   * Configuration of the function that will calculate the value.
+   */
   @PropertyDefinition(validate = "notNull")
   private final FunctionConfig functionConfig;
-
-  /** The constructor arguments from the pricing rules, used when creating the function instance. */
+  /**
+   * The constructor arguments from the pricing rules, used when creating the function instance.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<String, Object> functionArguments;
-
-  /** Mappings that specify the market data that should be used in the calculation. */
+  /**
+   * Mappings that specify the market data that should be used in the calculation.
+   */
   @PropertyDefinition(validate = "notNull")
   private final MarketDataMappings marketDataMappings;
-
-  /** The rules for reporting the calculated values. */
+  /**
+   * The rules for reporting the calculated values.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ReportingRules reportingRules;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns configuration for a task that will calculate a value for a target.
+   * Obtains configuration for a task that will calculate a value for a target.
+   * <p>
+   * This specifies the configuration of a single target, including the rules and cell index.
    *
    * @param target  the target for which the value will be calculated
    * @param rowIndex  the row index of the value in the results grid
    * @param columnIndex  the column index of the value in the results grid
-   * @param functionConfig  configuration of the function that will calculate the value
-   * @param functionArguments  constructor arguments from the pricing rules, used when creating the function instance
-   * @param marketDataMappings  mappings that specify the market data that should be used in the calculation
+   * @param functionConfig  the configuration of the function that will calculate the value
+   * @param functionArguments  the constructor arguments from the pricing rules, used when creating the function instance
+   * @param marketDataMappings  the mappings that specify the market data that should be used in the calculation
    * @param reportingRules  the reporting rules to control the output
-   * @return configuration for a task that will calculate the value of a measure for a target
+   * @return the configuration for a task that will calculate the value of a measure for a target
    */
   public static CalculationTaskConfig of(
       CalculationTarget target,
@@ -96,8 +108,9 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
         reportingRules);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns the function instance that performs the calculation.
+   * Creates the function instance that performs the calculation.
    *
    * @return the function instance that performs the calculation
    */
@@ -173,6 +186,7 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
   //-----------------------------------------------------------------------
   /**
    * Gets the target for which the value will be calculated.
+   * This is typically a trade.
    * @return the value of the property, not null
    */
   public CalculationTarget getTarget() {
@@ -606,6 +620,7 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
     //-----------------------------------------------------------------------
     /**
      * Sets the target for which the value will be calculated.
+     * This is typically a trade.
      * @param target  the new value, not null
      * @return this, for chaining, not null
      */

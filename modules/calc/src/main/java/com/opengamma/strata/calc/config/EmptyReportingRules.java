@@ -26,14 +26,19 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A reporting currency rule that always returns an empty optional from {@link #reportingCurrency}.
+ * Reporting rules that provide no matches.
+ * <p>
+ * These rules always returns an empty optional from {@link #reportingCurrency}.
  */
 @BeanDefinition(builderScope = "private")
 final class EmptyReportingRules implements ReportingRules, ImmutableBean, Serializable {
 
-  /** The single, shared instance of this class. */
+  /**
+   * The single, shared instance of this class.
+   */
   static final EmptyReportingRules INSTANCE = new EmptyReportingRules();
 
+  //-------------------------------------------------------------------------
   @Override
   public Optional<Currency> reportingCurrency(CalculationTarget target) {
     return Optional.empty();
@@ -41,7 +46,7 @@ final class EmptyReportingRules implements ReportingRules, ImmutableBean, Serial
 
   @Override
   public ReportingRules composedWith(ReportingRules rule) {
-    // There's no point including this rule as it never returns anything
+    // no point including this rule as it never returns anything
     return ArgChecker.notNull(rule, "rule");
   }
 

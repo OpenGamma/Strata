@@ -33,8 +33,8 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A rule which specifies the function group and parameters that should be used to calculate the value
- * of a measure for a target.
+ * Single pricing rule that specifies the function group and parameters that should be used
+ * to calculate the value of a measure for a target.
  * <p>
  * A rule matches a calculation if
  * <ul>
@@ -52,11 +52,14 @@ public final class PricingRule<T extends CalculationTarget>
 
   // Fields that define whether the rule applies to a calculation for a target and measure -----------------------------
 
-  /** The type of target this rule applies to. */
+  /**
+   * The type of target this rule applies to.
+   */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final Class<T> targetType;
-
-  /** The measures this rule applies to. An empty set means the rule applies to all measures. */
+  /**
+   * The measures this rule applies to. An empty set means the rule applies to all measures.
+   */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final ImmutableSet<Measure> measures;
 
@@ -64,20 +67,23 @@ public final class PricingRule<T extends CalculationTarget>
 
   // Fields that define the behaviour when the rule matches ------------------------------------------------------------
 
-  /** The the function group with configuration parameters used for calculations that satisfy this rule. */
+  /**
+   * The the function group with configuration parameters used for calculations that satisfy this rule.
+   */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final FunctionGroup<T> functionGroup;
-
   /**
    * The arguments used by the function group when creating functions. These arguments are specified by
    * the pricing rule.
    */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final ImmutableMap<String, Object> arguments;
-
-  /** The function group and arguments bundled up together. */
+  /**
+   * The function group and arguments bundled up together.
+   */
   private final ConfiguredFunctionGroup configuredFunctionGroup;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a builder for building pricing rules.
    *
@@ -89,6 +95,7 @@ public final class PricingRule<T extends CalculationTarget>
     return new PricingRuleBuilder<>(targetType);
   }
 
+  //-------------------------------------------------------------------------
   // package-private constructor used by PricingRuleBuilder
   @ImmutableConstructor
   PricingRule(Class<T> targetType, Set<Measure> measures, FunctionGroup<T> functionGroup, Map<String, Object> arguments) {
@@ -99,6 +106,7 @@ public final class PricingRule<T extends CalculationTarget>
     this.configuredFunctionGroup = ConfiguredFunctionGroup.of(this.functionGroup, this.arguments);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a function group to calculate a value of the measure for the target if this rule applies to the target.
    *
