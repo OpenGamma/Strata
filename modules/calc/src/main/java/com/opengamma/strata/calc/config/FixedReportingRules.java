@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -30,7 +31,7 @@ import com.opengamma.strata.basics.currency.Currency;
  * <p>
  * These rules always return the same currency from {@link #reportingCurrency}.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 final class FixedReportingRules implements ReportingRules, ImmutableBean {
 
   /**
@@ -70,14 +71,6 @@ final class FixedReportingRules implements ReportingRules, ImmutableBean {
     JodaBeanUtils.registerMetaBean(FixedReportingRules.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static FixedReportingRules.Builder builder() {
-    return new FixedReportingRules.Builder();
-  }
-
   private FixedReportingRules(
       Currency currency) {
     JodaBeanUtils.notNull(currency, "currency");
@@ -109,14 +102,6 @@ final class FixedReportingRules implements ReportingRules, ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -183,7 +168,7 @@ final class FixedReportingRules implements ReportingRules, ImmutableBean {
     }
 
     @Override
-    public FixedReportingRules.Builder builder() {
+    public BeanBuilder<? extends FixedReportingRules> builder() {
       return new FixedReportingRules.Builder();
     }
 
@@ -231,7 +216,7 @@ final class FixedReportingRules implements ReportingRules, ImmutableBean {
   /**
    * The bean-builder for {@code FixedReportingRules}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<FixedReportingRules> {
+  private static final class Builder extends DirectFieldsBeanBuilder<FixedReportingRules> {
 
     private Currency currency;
 
@@ -239,14 +224,6 @@ final class FixedReportingRules implements ReportingRules, ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(FixedReportingRules beanToCopy) {
-      this.currency = beanToCopy.getCurrency();
     }
 
     //-----------------------------------------------------------------------
@@ -300,18 +277,6 @@ final class FixedReportingRules implements ReportingRules, ImmutableBean {
     public FixedReportingRules build() {
       return new FixedReportingRules(
           currency);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the reporting currency that is used for every target.
-     * @param currency  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder currency(Currency currency) {
-      JodaBeanUtils.notNull(currency, "currency");
-      this.currency = currency;
-      return this;
     }
 
     //-----------------------------------------------------------------------

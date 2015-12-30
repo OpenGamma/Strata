@@ -60,7 +60,7 @@ public interface MarketDataRules {
    * @return the combined rules
    */
   public default MarketDataRules composedWith(MarketDataRules otherRules) {
-    return CompositeMarketDataRules.builder().rules(this, otherRules).build();
+    return CompositeMarketDataRules.of(this, otherRules);
   }
 
 }

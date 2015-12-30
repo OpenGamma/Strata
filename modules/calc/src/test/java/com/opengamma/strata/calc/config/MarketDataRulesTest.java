@@ -35,7 +35,7 @@ public class MarketDataRulesTest {
   private static final MarketDataRules RULES3 = MarketDataRules.of(MarketDataRule.of(MAPPINGS3, TestTrade3.class));
 
   public void composedWithComposite() {
-    CompositeMarketDataRules compositeRules = CompositeMarketDataRules.builder().rules(RULES1, RULES2).build();
+    CompositeMarketDataRules compositeRules = CompositeMarketDataRules.of(RULES1, RULES2);
     MarketDataRules rules = compositeRules.composedWith(RULES3);
     Optional<MarketDataMappings> mappings1 = rules.mappings(TRADE1);
     Optional<MarketDataMappings> mappings2 = rules.mappings(TRADE2);

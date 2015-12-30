@@ -7,7 +7,6 @@ package com.opengamma.strata.calc.config;
 
 import java.util.Optional;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 
@@ -31,7 +30,7 @@ public interface ReportingRules {
       case 1:
         return rules[0];
       default:
-        return CompositeReportingRules.builder().rules(ImmutableList.copyOf(rules)).build();
+        return CompositeReportingRules.of(rules);
     }
   }
 
@@ -101,7 +100,7 @@ public interface ReportingRules {
    * @return the combined rules
    */
   public default ReportingRules composedWith(ReportingRules otherRules) {
-    return of(this, otherRules);
+    return CompositeReportingRules.of(this, otherRules);
   }
 
 }

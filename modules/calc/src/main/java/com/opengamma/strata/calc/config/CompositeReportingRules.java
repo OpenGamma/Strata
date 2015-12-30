@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -33,7 +34,7 @@ import com.opengamma.strata.collect.Guavate;
  * <p>
  * These rules return the first valid mapping found in the underlying list of rule sets.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 final class CompositeReportingRules implements ReportingRules, ImmutableBean {
 
   /**
@@ -41,6 +42,17 @@ final class CompositeReportingRules implements ReportingRules, ImmutableBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<ReportingRules> rules;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance based on the specified rule sets.
+   * 
+   * @param rules  the rule sets to combine
+   * @return the combined rule sets
+   */
+  public static CompositeReportingRules of(ReportingRules... rules) {
+    return new CompositeReportingRules(ImmutableList.copyOf(rules));
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -69,14 +81,6 @@ final class CompositeReportingRules implements ReportingRules, ImmutableBean {
 
   static {
     JodaBeanUtils.registerMetaBean(CompositeReportingRules.Meta.INSTANCE);
-  }
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static CompositeReportingRules.Builder builder() {
-    return new CompositeReportingRules.Builder();
   }
 
   private CompositeReportingRules(
@@ -110,14 +114,6 @@ final class CompositeReportingRules implements ReportingRules, ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -185,7 +181,7 @@ final class CompositeReportingRules implements ReportingRules, ImmutableBean {
     }
 
     @Override
-    public CompositeReportingRules.Builder builder() {
+    public BeanBuilder<? extends CompositeReportingRules> builder() {
       return new CompositeReportingRules.Builder();
     }
 
@@ -233,7 +229,7 @@ final class CompositeReportingRules implements ReportingRules, ImmutableBean {
   /**
    * The bean-builder for {@code CompositeReportingRules}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<CompositeReportingRules> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CompositeReportingRules> {
 
     private List<ReportingRules> rules = ImmutableList.of();
 
@@ -241,14 +237,6 @@ final class CompositeReportingRules implements ReportingRules, ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(CompositeReportingRules beanToCopy) {
-      this.rules = beanToCopy.getRules();
     }
 
     //-----------------------------------------------------------------------
@@ -303,28 +291,6 @@ final class CompositeReportingRules implements ReportingRules, ImmutableBean {
     public CompositeReportingRules build() {
       return new CompositeReportingRules(
           rules);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the underlying rule sets.
-     * @param rules  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder rules(List<ReportingRules> rules) {
-      JodaBeanUtils.notNull(rules, "rules");
-      this.rules = rules;
-      return this;
-    }
-
-    /**
-     * Sets the {@code rules} property in the builder
-     * from an array of objects.
-     * @param rules  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder rules(ReportingRules... rules) {
-      return rules(ImmutableList.copyOf(rules));
     }
 
     //-----------------------------------------------------------------------

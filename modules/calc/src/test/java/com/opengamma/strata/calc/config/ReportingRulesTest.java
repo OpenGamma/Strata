@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.calc.config;
 
-import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
@@ -53,7 +53,7 @@ public class ReportingRulesTest {
   }
 
   public void composedWithComposite() {
-    CompositeReportingRules compositeRule = CompositeReportingRules.builder().rules(RULE1, RULE2).build();
+    CompositeReportingRules compositeRule = CompositeReportingRules.of(RULE1, RULE2);
     ReportingRules rule = compositeRule.composedWith(RULE3);
     Optional<Currency> currency1 = rule.reportingCurrency(TRADE1);
     Optional<Currency> currency2 = rule.reportingCurrency(TRADE2);

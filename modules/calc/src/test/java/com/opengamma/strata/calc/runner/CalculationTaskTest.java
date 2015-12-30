@@ -60,7 +60,7 @@ public class CalculationTaskTest {
             .marketDataFeed(marketDataFeed)
             .build();
     CalculationTask task =
-        new CalculationTask(new TestTarget(), 0, 0, new TestFunction(), marketDataMappings, ReportingRules.empty());
+        CalculationTask.of(new TestTarget(), 0, 0, new TestFunction(), marketDataMappings, ReportingRules.empty());
     MarketDataRequirements requirements = task.requirements();
     Set<? extends MarketDataId<?>> nonObservables = requirements.getNonObservables();
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
@@ -94,7 +94,7 @@ public class CalculationTaskTest {
         .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list);
-    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
+    CalculationTask task = CalculationTask.of(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
 
     DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
     CurrencyValuesArray expectedArray = CurrencyValuesArray.of(Currency.USD, expectedValues);
@@ -119,7 +119,7 @@ public class CalculationTaskTest {
         .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, Currency.USD);
-    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, ReportingRules.empty());
+    CalculationTask task = CalculationTask.of(TARGET, 0, 0, fn, MAPPINGS, ReportingRules.empty());
 
     DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
     CurrencyValuesArray expectedArray = CurrencyValuesArray.of(Currency.USD, expectedValues);
@@ -134,7 +134,7 @@ public class CalculationTaskTest {
    */
   public void convertResultCurrencyFailure() {
     ConvertibleFunction fn = ConvertibleFunction.of(() -> { throw new RuntimeException("This is a failure"); });
-    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
+    CalculationTask task = CalculationTask.of(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
@@ -147,7 +147,7 @@ public class CalculationTaskTest {
    */
   public void convertResultCurrencyNotConvertible() {
     TestFunction fn = new TestFunction();
-    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
+    CalculationTask task = CalculationTask.of(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
@@ -170,7 +170,7 @@ public class CalculationTaskTest {
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list);
     ReportingRules reportingRules = ReportingRules.empty();
-    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, reportingRules);
+    CalculationTask task = CalculationTask.of(TARGET, 0, 0, fn, MAPPINGS, reportingRules);
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
@@ -182,7 +182,7 @@ public class CalculationTaskTest {
    */
   public void nonConvertibleResultReturnedWhenNoReportingCurrency() {
     TestFunction fn = new TestFunction();
-    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, ReportingRules.empty());
+    CalculationTask task = CalculationTask.of(TARGET, 0, 0, fn, MAPPINGS, ReportingRules.empty());
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
@@ -199,7 +199,7 @@ public class CalculationTaskTest {
     // Market data doesn't include FX rates, conversion to USD will fail
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list);
-    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
+    CalculationTask task = CalculationTask.of(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
@@ -211,7 +211,7 @@ public class CalculationTaskTest {
    */
   public void execute() {
     SupplierFunction<String> fn = SupplierFunction.of(() -> "foo");
-    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
+    CalculationTask task = CalculationTask.of(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
@@ -226,7 +226,7 @@ public class CalculationTaskTest {
     SupplierFunction<String> fn = SupplierFunction.of(() -> {
       throw new IllegalArgumentException("foo");
     });
-    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
+    CalculationTask task = CalculationTask.of(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
     CalculationEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(date(2011, 3, 8)).build();
 
@@ -240,7 +240,7 @@ public class CalculationTaskTest {
    */
   public void executeSuccessResultValue() {
     SupplierFunction<Result<String>> fn = SupplierFunction.of(() -> Result.success("foo"));
-    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
+    CalculationTask task = CalculationTask.of(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
@@ -254,7 +254,7 @@ public class CalculationTaskTest {
   public void executeFailureResultValue() {
     SupplierFunction<Result<String>> fn =
         SupplierFunction.of(() -> Result.failure(FailureReason.NOT_APPLICABLE, "bar"));
-    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
+    CalculationTask task = CalculationTask.of(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
@@ -267,7 +267,7 @@ public class CalculationTaskTest {
    */
   public void fxConversionRequirements() {
     OutputCurrenciesFunction fn = new OutputCurrenciesFunction();
-    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
+    CalculationTask task = CalculationTask.of(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
     MarketDataRequirements requirements = task.requirements();
 
     assertThat(requirements.getNonObservables()).containsOnly(
@@ -275,8 +275,13 @@ public class CalculationTaskTest {
         FxRateId.of(Currency.EUR, Currency.USD));
   }
 
-  //--------------------------------------------------------------------------------------------------------------------
+  public void testToString() {
+    OutputCurrenciesFunction fn = new OutputCurrenciesFunction();
+    CalculationTask task = CalculationTask.of(TARGET, 1, 2, fn, MAPPINGS, REPORTING_RULES);
+    assertThat(task.toString()).isEqualTo("CalculationTask[cell=(1, 2)]");
+  }
 
+  //-------------------------------------------------------------------------
   private static class TestTarget implements CalculationTarget {
 
   }

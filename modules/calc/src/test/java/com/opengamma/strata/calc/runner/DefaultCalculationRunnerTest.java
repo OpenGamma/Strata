@@ -157,9 +157,9 @@ public class DefaultCalculationRunnerTest {
     DefaultScenarioResult<String> scenarioResult = DefaultScenarioResult.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(scenarioResult);
     TestTarget target = new TestTarget();
-    CalculationTask task = new CalculationTask(target, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
+    CalculationTask task = CalculationTask.of(target, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
     Column column = Column.of(Measure.PRESENT_VALUE);
-    CalculationTasks tasks = new CalculationTasks(ImmutableList.of(task), ImmutableList.of(column));
+    CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
     DefaultCalculationRunner runner = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
     LocalDate valuationDate = date(2011, 3, 8);
 
@@ -183,9 +183,9 @@ public class DefaultCalculationRunnerTest {
     DefaultScenarioResult<String> scenarioResult = DefaultScenarioResult.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(scenarioResult);
     TestTarget target = new TestTarget();
-    CalculationTask task = new CalculationTask(target, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
+    CalculationTask task = CalculationTask.of(target, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
     Column column = Column.of(Measure.PRESENT_VALUE);
-    CalculationTasks tasks = new CalculationTasks(ImmutableList.of(task), ImmutableList.of(column));
+    CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
     DefaultCalculationRunner runner = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
     LocalDate valuationDate = date(2011, 3, 8);
     Listener listener = new Listener();

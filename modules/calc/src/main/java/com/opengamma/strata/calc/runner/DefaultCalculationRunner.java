@@ -75,17 +75,12 @@ public class DefaultCalculationRunner implements CalculationRunner {
       }
     }
     List<CalculationTaskConfig> config = configBuilder.build();
-
-    return CalculationTasksConfig.builder()
-        .columns(columns)
-        .taskConfigurations(config)
-        .build();
+    return CalculationTasksConfig.of(config, columns);
   }
 
   @Override
   public CalculationTasks createCalculationTasks(CalculationTasksConfig config) {
-    List<CalculationTask> tasks = config.getTaskConfigurations().stream().map(this::createTask).collect(toImmutableList());
-    return new CalculationTasks(tasks, config.getColumns());
+    return config.createTasks();
   }
 
   @Override
@@ -290,22 +285,6 @@ public class DefaultCalculationRunner implements CalculationRunner {
     FunctionGroup<T> functionGroup = (FunctionGroup<T>) configuredGroup.getFunctionGroup();
     Measure measure = column.getMeasure(target);
     return functionGroup.functionConfig(target, measure).orElse(FunctionConfig.missing());
-  }
-
-  /**
-   * Creates a task for performing a single calculation.
-   *
-   * @param config  configuration for the task
-   * @return a task for performing a single calculation
-   */
-  private CalculationTask createTask(CalculationTaskConfig config) {
-    return new CalculationTask(
-        config.getTarget(),
-        config.getRowIndex(),
-        config.getColumnIndex(),
-        config.createFunction(),
-        config.getMarketDataMappings(),
-        config.getReportingRules());
   }
 
   /**

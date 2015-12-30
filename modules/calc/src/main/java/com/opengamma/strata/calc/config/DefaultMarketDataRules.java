@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -34,7 +35,7 @@ import com.opengamma.strata.collect.Guavate;
  * These rules combine a list of individual {@link MarketDataRule} instances.
  * It returns the first valid mapping found in the underlying list of rules.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class DefaultMarketDataRules implements MarketDataRules, ImmutableBean {
 
   /**
@@ -89,14 +90,6 @@ public final class DefaultMarketDataRules implements MarketDataRules, ImmutableB
     JodaBeanUtils.registerMetaBean(DefaultMarketDataRules.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static DefaultMarketDataRules.Builder builder() {
-    return new DefaultMarketDataRules.Builder();
-  }
-
   private DefaultMarketDataRules(
       List<MarketDataRule> rules) {
     JodaBeanUtils.notNull(rules, "rules");
@@ -130,14 +123,6 @@ public final class DefaultMarketDataRules implements MarketDataRules, ImmutableB
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -205,7 +190,7 @@ public final class DefaultMarketDataRules implements MarketDataRules, ImmutableB
     }
 
     @Override
-    public DefaultMarketDataRules.Builder builder() {
+    public BeanBuilder<? extends DefaultMarketDataRules> builder() {
       return new DefaultMarketDataRules.Builder();
     }
 
@@ -253,7 +238,7 @@ public final class DefaultMarketDataRules implements MarketDataRules, ImmutableB
   /**
    * The bean-builder for {@code DefaultMarketDataRules}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<DefaultMarketDataRules> {
+  private static final class Builder extends DirectFieldsBeanBuilder<DefaultMarketDataRules> {
 
     private List<MarketDataRule> rules = ImmutableList.of();
 
@@ -261,14 +246,6 @@ public final class DefaultMarketDataRules implements MarketDataRules, ImmutableB
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(DefaultMarketDataRules beanToCopy) {
-      this.rules = beanToCopy.getRules();
     }
 
     //-----------------------------------------------------------------------
@@ -323,30 +300,6 @@ public final class DefaultMarketDataRules implements MarketDataRules, ImmutableB
     public DefaultMarketDataRules build() {
       return new DefaultMarketDataRules(
           rules);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the individual rules that make up this set of market data rules.
-     * <p>
-     * The rules are checked in order and the first matching rule is used.
-     * @param rules  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder rules(List<MarketDataRule> rules) {
-      JodaBeanUtils.notNull(rules, "rules");
-      this.rules = rules;
-      return this;
-    }
-
-    /**
-     * Sets the {@code rules} property in the builder
-     * from an array of objects.
-     * @param rules  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder rules(MarketDataRule... rules) {
-      return rules(ImmutableList.copyOf(rules));
     }
 
     //-----------------------------------------------------------------------
