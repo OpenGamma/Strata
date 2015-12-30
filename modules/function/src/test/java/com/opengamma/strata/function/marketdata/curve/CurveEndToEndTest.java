@@ -7,9 +7,9 @@ package com.opengamma.strata.function.marketdata.curve;
 
 import static com.opengamma.strata.calc.runner.function.FunctionUtils.toFxConvertibleList;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.function.StandardComponents.marketDataFactory;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fixedIborSwapNode;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fraNode;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.id;
@@ -29,7 +29,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -42,10 +41,8 @@ import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.calc.CalculationEngine;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.DefaultCalculationEngine;
 import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
@@ -56,19 +53,16 @@ import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.config.pricing.PricingRule;
 import com.opengamma.strata.calc.config.pricing.PricingRules;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.marketdata.MarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.calc.marketdata.function.ObservableMarketDataFunction;
-import com.opengamma.strata.calc.marketdata.function.TimeSeriesProvider;
-import com.opengamma.strata.calc.marketdata.mapping.FeedIdMapping;
-import com.opengamma.strata.calc.runner.DefaultCalculationRunner;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
+import com.opengamma.strata.calc.runner.CalculationRunner;
+import com.opengamma.strata.calc.runner.CalculationRunnerFactory;
 import com.opengamma.strata.calc.runner.Results;
+import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
-import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.calculation.swap.SwapPvFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
@@ -86,7 +80,6 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
-import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.product.fra.ExpandedFra;
 import com.opengamma.strata.product.fra.Fra;
@@ -103,8 +96,8 @@ public class CurveEndToEndTest {
   private static final double PV_TOLERANCE = 5e-10;
 
   /**
-   * End-to-end test for curve calibration and round-tripping that uses the {@link CalculationEngine} to calibrate
-   * a curve and calculate PVs for the instruments at the curve nodes.
+   * End-to-end test for curve calibration and round-tripping that uses the {@link MarketDataFactory}
+   * to calibrate a curve and calculate PVs for the instruments at the curve nodes.
    *
    * This tests the full pipeline of market data functions:
    *   - Par rates
@@ -184,38 +177,19 @@ public class CurveEndToEndTest {
         .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
         .build();
 
-    // Market data functions --------------------------------------------------
+    // Calculation components -------------------------------------------------
 
-    CurveInputsMarketDataFunction parRatesFunction = new CurveInputsMarketDataFunction();
-    CurveGroupMarketDataFunction curveGroupFunction = new CurveGroupMarketDataFunction(
-        RootFinderConfig.defaults(), CalibrationMeasures.DEFAULT);
-    DiscountCurveMarketDataFunction discountCurveFunction = new DiscountCurveMarketDataFunction();
-    RateIndexCurveMarketDataFunction forwardCurveFunction = new RateIndexCurveMarketDataFunction();
-    DiscountFactorsMarketDataFunction discountFactorsFunction = new DiscountFactorsMarketDataFunction();
-    IborIndexRatesMarketDataFunction iborIndexRatesFunction = new IborIndexRatesMarketDataFunction();
-
-    // Calculation engine ------------------------------------------------------
-
-    DefaultCalculationRunner calculationRunner = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
-
-    DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
-        TimeSeriesProvider.empty(),
-        new MapObservableMarketDataFunction(parRateData),
-        FeedIdMapping.identity(),
-        parRatesFunction,
-        curveGroupFunction,
-        discountCurveFunction,
-        forwardCurveFunction,
-        discountFactorsFunction,
-        iborIndexRatesFunction);
-
-    CalculationEngine engine = new DefaultCalculationEngine(calculationRunner, factory, LinkResolver.none());
+    List<Column> columns = ImmutableList.of(Column.of(Measure.PRESENT_VALUE));
+    CalculationRunner runner = CalculationRunnerFactory.ofSingleThreaded()
+        .createWithMarketDataBuilder(trades, columns, calculationRules, marketDataFactory(), marketDataConfig);
 
     // Calculate the results and check the PVs for the node instruments are zero ----------------------
 
-    MarketEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
-    List<Column> columns = ImmutableList.of(Column.of(Measure.PRESENT_VALUE));
-    Results results = engine.calculate(trades, columns, calculationRules, marketData, marketDataConfig);
+    MarketEnvironment knownMarketData = MarketEnvironment.builder()
+        .valuationDate(date(2011, 3, 8))
+        .addValues(parRateData)
+        .build();
+    Results results = runner.calculateSingleScenario(knownMarketData);
     results.getItems().stream().forEach(this::checkPvIsZero);
   }
 
@@ -240,25 +214,6 @@ public class CurveEndToEndTest {
     return DefaultPricingRules.of(
         PricingRule.builder(FraTrade.class).functionGroup(fraGroup).build(),
         PricingRule.builder(SwapTrade.class).functionGroup(swapGroup).build());
-  }
-
-  /**
-   * Returns observable market data from a map.
-   */
-  private static final class MapObservableMarketDataFunction implements ObservableMarketDataFunction {
-
-    private final Map<? extends ObservableId, Double> marketData;
-
-    private MapObservableMarketDataFunction(Map<? extends ObservableId, Double> marketData) {
-      this.marketData = marketData;
-    }
-
-    @Override
-    public Map<ObservableId, Result<Double>> build(Set<? extends ObservableId> requirements) {
-      return requirements.stream()
-          .filter(marketData::containsKey)
-          .collect(toImmutableMap(id -> id, (ObservableId id) -> Result.success(marketData.get(id))));
-    }
   }
 
   /**

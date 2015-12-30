@@ -108,7 +108,6 @@ public final class CalculationTasks {
       Column column) {
 
     Measure measure = column.getMeasure(target);
-
     Optional<ConfiguredFunctionGroup> functionGroup = column.getPricingRules().functionGroup(target, measure);
 
     // Use the mappings from the market data rules, else create a set of mappings that cause a failure to
@@ -129,6 +128,7 @@ public final class CalculationTasks {
 
     return CalculationTaskConfig.of(
         target,
+        measure,
         rowIndex,
         columnIndex,
         functionConfig,
@@ -251,7 +251,7 @@ public final class CalculationTasks {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return Messages.format("CalculationTasks[{} x {}]", targets.size(), columns.size());
+    return Messages.format("CalculationTasks[grid={}x{}]", targets.size(), columns.size());
   }
 
 }

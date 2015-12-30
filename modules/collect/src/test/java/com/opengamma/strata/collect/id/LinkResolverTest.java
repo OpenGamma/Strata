@@ -12,8 +12,10 @@ import static com.opengamma.strata.collect.id.MockIdentifiable.MOCK1_RESOLVED_MO
 import static com.opengamma.strata.collect.id.MockIdentifiable.MOCK2;
 import static com.opengamma.strata.collect.id.MockIdentifiable.STANDARD_ID_2;
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
 
 /**
@@ -45,6 +47,13 @@ public class LinkResolverTest {
   public void test_resolve_TypeToken() {
     TypeToken<MockIdentifiable> token = TypeToken.of(MockIdentifiable.class);
     assertThat(RESOLVER.resolve(STANDARD_ID_2, token)).isSameAs(MOCK2);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_resolveLinksIn_beanList() {
+    Object bean = new Object();
+    assertThat(RESOLVER.resolveLinksIn(ImmutableList.of(bean, MOCK1_LINKED_MOCK2)))
+        .isEqualTo(ImmutableList.of(bean, MOCK1_RESOLVED_MOCK2));
   }
 
   //-------------------------------------------------------------------------

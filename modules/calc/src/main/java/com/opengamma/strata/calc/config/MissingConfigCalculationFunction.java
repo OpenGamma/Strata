@@ -14,7 +14,8 @@ import com.opengamma.strata.collect.Messages;
 /**
  * Function used when there is no function registered that can calculate a requested value.
  */
-class MissingConfigCalculationFunction implements CalculationSingleFunction<CalculationTarget, Void> {
+public class MissingConfigCalculationFunction implements CalculationSingleFunction<CalculationTarget, Void> {
+  // this must be public so that the constructor can be invoked
 
   @Override
   public FunctionRequirements requirements(CalculationTarget target) {

@@ -17,6 +17,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingRules;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
@@ -46,6 +47,10 @@ public final class CalculationTask {
    */
   private final CalculationTarget target;
   /**
+   * The measure to be calculated.
+   */
+  private final Measure measure;
+  /**
    * The row index of the value in the results grid.
    */
   private final int rowIndex;
@@ -74,6 +79,7 @@ public final class CalculationTask {
    * This specifies the configuration of a single target, including the rules and cell index.
    *
    * @param target  the target for which the value will be calculated
+   * @param measure  the measure being calculated
    * @param rowIndex  the row index of the value in the results grid
    * @param columnIndex  the column index of the value in the results grid
    * @param function  the function that performs the calculation
@@ -83,6 +89,7 @@ public final class CalculationTask {
    */
   public static CalculationTask of(
       CalculationTarget target,
+      Measure measure,
       int rowIndex,
       int columnIndex,
       CalculationSingleFunction<? extends CalculationTarget, ?> function,
@@ -91,6 +98,7 @@ public final class CalculationTask {
 
     return new CalculationTask(
         target,
+        measure,
         rowIndex,
         columnIndex,
         function,
@@ -104,6 +112,7 @@ public final class CalculationTask {
    * mappings and reporting rules.
    *
    * @param target  the target for which the value will be calculated
+   * @param measure  the measure being calculated
    * @param rowIndex  the row index of the value in the results grid
    * @param columnIndex  the column index of the value in the results grid
    * @param function  the function that performs the calculation
@@ -113,15 +122,17 @@ public final class CalculationTask {
   @SuppressWarnings("unchecked")
   private CalculationTask(
       CalculationTarget target,
+      Measure measure,
       int rowIndex,
       int columnIndex,
       CalculationSingleFunction<? extends CalculationTarget, ?> function,
       MarketDataMappings marketDataMappings,
       ReportingRules reportingRules) {
 
+    this.target = ArgChecker.notNull(target, "target");
+    this.measure = ArgChecker.notNull(measure, "measure");
     this.rowIndex = ArgChecker.notNegative(rowIndex, "rowIndex");
     this.columnIndex = ArgChecker.notNegative(columnIndex, "columnIndex");
-    this.target = ArgChecker.notNull(target, "target");
     this.marketDataMappings = ArgChecker.notNull(marketDataMappings, "marketDataMappings");
     this.reportingRules = ArgChecker.notNull(reportingRules, "reportingRules");
     // TODO check the target types are compatible
@@ -136,6 +147,15 @@ public final class CalculationTask {
    */
   public CalculationTarget getTarget() {
     return target;
+  }
+
+  /**
+   * Gets the measure.
+   * 
+   * @return the measure.
+   */
+  public Measure getMeasure() {
+    return measure;
   }
 
   //-------------------------------------------------------------------------
@@ -251,7 +271,7 @@ public final class CalculationTask {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return Messages.format("CalculationTask[cell=({}, {})]", rowIndex, columnIndex);
+    return Messages.format("CalculationTask[cell=({}, {}), measure={}]", rowIndex, columnIndex, measure);
   }
 
 }

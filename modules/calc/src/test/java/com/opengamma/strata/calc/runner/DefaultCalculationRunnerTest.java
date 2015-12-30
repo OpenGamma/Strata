@@ -6,12 +6,11 @@
 package com.opengamma.strata.calc.runner;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
 
 import org.testng.annotations.Test;
 
@@ -19,30 +18,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.market.MarketDataFeed;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.TestObservableKey;
-import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.CalculationTaskConfig;
-import com.opengamma.strata.calc.config.CalculationTasksConfig;
-import com.opengamma.strata.calc.config.FunctionConfig;
-import com.opengamma.strata.calc.config.MarketDataRule;
-import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingRules;
-import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
-import com.opengamma.strata.calc.config.pricing.DefaultPricingRules;
-import com.opengamma.strata.calc.config.pricing.PricingRule;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.TestKey;
-import com.opengamma.strata.calc.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
@@ -52,128 +36,64 @@ import com.opengamma.strata.collect.result.Result;
 @Test
 public class DefaultCalculationRunnerTest {
 
-  public void createCalculationConfig() {
-    Measure measure = Measure.of("foo");
+  private static final TestTarget TARGET = new TestTarget();
+  private static final Measure MEASURE = Measure.of("PV");
+  private static final LocalDate VAL_DATE = date(2011, 3, 8);
 
-    MarketDataMappings marketDataMappings = DefaultMarketDataMappings.builder()
-        .marketDataFeed(MarketDataFeed.of("MarketDataFeed"))
-        .build();
+  //-------------------------------------------------------------------------
+  public void test_of() {
+    DefaultScenarioResult<String> scenarioResult = DefaultScenarioResult.of("foo");
+    ScenarioResultFunction fn = new ScenarioResultFunction(scenarioResult);
+    CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
+    Column column = Column.of(Measure.PRESENT_VALUE);
+    CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
-    MarketDataRules marketDataRules = MarketDataRules.of(MarketDataRule.of(marketDataMappings, TestTarget.class));
+    DefaultCalculationRunner test = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService(), tasks);
 
-    DefaultFunctionGroup<TestTarget> functionGroup =
-        DefaultFunctionGroup.builder(TestTarget.class)
-            .name("DefaultGroup")
-            .addFunction(measure, TestFunction.class)
-            .build();
-
-    PricingRule<TestTarget> pricingRule = PricingRule.builder(TestTarget.class)
-        .functionGroup(functionGroup)
-        .addMeasures(measure)
-        .build();
-
-    DefaultPricingRules pricingRules = DefaultPricingRules.of(pricingRule);
-
-    ReportingRules reportingRules = ReportingRules.fixedCurrency(Currency.GBP);
-    DefaultCalculationRunner engine = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
-    TestTarget target1 = new TestTarget();
-    TestTarget target2 = new TestTarget();
-    List<TestTarget> targets = ImmutableList.of(target1, target2);
-    Column column = Column.of(measure);
-    List<Column> columns = ImmutableList.of(column);
-
-    FunctionConfig<TestTarget> expectedFnConfig = FunctionConfig.of(TestFunction.class);
-
-    CalculationRules calculationRules = CalculationRules.of(pricingRules, marketDataRules, reportingRules);
-    CalculationTasksConfig calculationConfig =
-        engine.createCalculationConfig(targets, columns, calculationRules);
-
-    List<CalculationTaskConfig> taskConfigs = calculationConfig.getTaskConfigurations();
-
-    assertThat(taskConfigs).hasSize(2);
-
-    CalculationTaskConfig taskConfig1 = taskConfigs.get(0);
-    assertThat(taskConfig1.getTarget()).isEqualTo(target1);
-    assertThat(taskConfig1.getReportingRules()).isEqualTo(reportingRules);
-    assertThat(taskConfig1.getMarketDataMappings()).isEqualTo(marketDataMappings);
-    assertThat(taskConfig1.getFunctionConfig()).isEqualTo(expectedFnConfig);
-
-    CalculationTaskConfig taskConfig2 = taskConfigs.get(1);
-    assertThat(taskConfig2.getTarget()).isEqualTo(target2);
-    assertThat(taskConfig2.getReportingRules()).isEqualTo(reportingRules);
-    assertThat(taskConfig2.getMarketDataMappings()).isEqualTo(marketDataMappings);
-    assertThat(taskConfig2.getFunctionConfig()).isEqualTo(expectedFnConfig);
+    assertThat(test.getTasks().getTargets()).containsExactly(TARGET);
+    assertThat(test.getTasks().getColumns()).containsExactly(column);
   }
 
-  public void noMatchingMarketDataRules() {
-    MarketDataRules marketDataRules = MarketDataRules.empty();
-    Measure measure = Measure.of("foo");
-
-    DefaultFunctionGroup<TestTarget> functionGroup = DefaultFunctionGroup.builder(TestTarget.class)
-        .name("DefaultGroup")
-        .addFunction(measure, TestFunction.class)
-        .build();
-
-    PricingRule<TestTarget> pricingRule = PricingRule.builder(TestTarget.class)
-        .functionGroup(functionGroup)
-        .addMeasures(measure)
-        .build();
-
-    DefaultPricingRules pricingRules = DefaultPricingRules.of(pricingRule);
-
-    ReportingRules reportingRules = ReportingRules.fixedCurrency(Currency.GBP);
-    DefaultCalculationRunner runner = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
-    TestTarget target1 = new TestTarget();
-    List<TestTarget> targets = ImmutableList.of(target1);
-    Column column = Column.of(measure);
-    List<Column> columns = ImmutableList.of(column);
-
-    CalculationRules calculationRules = CalculationRules.of(pricingRules, marketDataRules, reportingRules);
-    CalculationTasksConfig calculationConfig =
-        runner.createCalculationConfig(targets, columns, calculationRules);
-    CalculationTasks calculationTasks = runner.createCalculationTasks(calculationConfig);
-    MarketDataRequirements requirements = calculationTasks.getRequirements();
-    Set<? extends MarketDataId<?>> nonObservables = requirements.getNonObservables();
-    ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
-    ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();
-
-    NoMatchingRuleId nonObservableId = NoMatchingRuleId.of(TestKey.of("1"));
-    assertThat(nonObservables).hasSize(1);
-    assertThat(nonObservables.iterator().next()).isEqualTo(nonObservableId);
-
-    MarketDataId<?> observableId = TestObservableKey.of("2").toMarketDataId(MarketDataFeed.NO_RULE);
-    assertThat(observables).hasSize(1);
-    assertThat(observables.iterator().next()).isEqualTo(observableId);
-
-    MarketDataId<?> timeSeriesId = TestObservableKey.of("3").toMarketDataId(MarketDataFeed.NO_RULE);
-    assertThat(timeSeries).hasSize(1);
-    assertThat(timeSeries.iterator().next()).isEqualTo(timeSeriesId);
-  }
-
+  //-------------------------------------------------------------------------
   /**
    * Test that ScenarioResults containing a single value are unwrapped when calling calculate() with BaseMarketData.
    */
   public void unwrapScenarioResults() {
     DefaultScenarioResult<String> scenarioResult = DefaultScenarioResult.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(scenarioResult);
-    TestTarget target = new TestTarget();
-    CalculationTask task = CalculationTask.of(target, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
+    CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
     Column column = Column.of(Measure.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
-    DefaultCalculationRunner runner = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
-    LocalDate valuationDate = date(2011, 3, 8);
 
-    CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
-    Results results1 = runner.calculateSingleScenario(tasks, marketData);
+    DefaultCalculationRunner test = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService(), tasks);
+
+    CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
+    Results results1 = test.calculateSingleScenario(marketData);
     Result<?> result1 = results1.get(0, 0);
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
-    CalculationEnvironment scenarioMarketData = MarketEnvironment.builder().valuationDate(valuationDate).build();
-    Results results2 = runner.calculateMultipleScenarios(tasks, scenarioMarketData);
+    CalculationEnvironment scenarioMarketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
+    Results results2 = test.calculateMultipleScenarios(scenarioMarketData);
     Result<?> result2 = results2.get(0, 0);
     // Check the result contains the scenario result wrapping the string
     assertThat(result2).hasValue(scenarioResult);
+  }
+
+  /**
+   * Test that ScenarioResults containing multiple values are an error.
+   */
+  public void unwrapMultipleScenarioResults() {
+    DefaultScenarioResult<String> scenarioResult = DefaultScenarioResult.of("foo", "bar");
+    ScenarioResultFunction fn = new ScenarioResultFunction(scenarioResult);
+    CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
+    Column column = Column.of(Measure.PRESENT_VALUE);
+    CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
+
+    DefaultCalculationRunner test = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService(), tasks);
+
+    CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
+    assertThrowsIllegalArg(() -> test.calculateSingleScenario(marketData));
   }
 
   /**
@@ -182,23 +102,22 @@ public class DefaultCalculationRunnerTest {
   public void unwrapScenarioResultsAsync() {
     DefaultScenarioResult<String> scenarioResult = DefaultScenarioResult.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(scenarioResult);
-    TestTarget target = new TestTarget();
-    CalculationTask task = CalculationTask.of(target, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
+    CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
     Column column = Column.of(Measure.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
-    DefaultCalculationRunner runner = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
-    LocalDate valuationDate = date(2011, 3, 8);
+
+    DefaultCalculationRunner test = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService(), tasks);
     Listener listener = new Listener();
 
-    CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
-    runner.calculateSingleScenarioAsync(tasks, marketData, listener);
+    CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
+    test.calculateSingleScenarioAsync(marketData, listener);
     CalculationResult calculationResult1 = listener.result;
     Result<?> result1 = calculationResult1.getResult();
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
-    CalculationEnvironment scenarioMarketData = MarketEnvironment.builder().valuationDate(valuationDate).build();
-    runner.calculateMultipleScenariosAsync(tasks, scenarioMarketData, listener);
+    CalculationEnvironment scenarioMarketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
+    test.calculateMultipleScenariosAsync(scenarioMarketData, listener);
     CalculationResult calculationResult2 = listener.result;
     Result<?> result2 = calculationResult2.getResult();
     // Check the result contains the scenario result wrapping the string

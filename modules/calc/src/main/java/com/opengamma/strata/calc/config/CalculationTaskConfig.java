@@ -46,6 +46,11 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
   @PropertyDefinition(validate = "notNull")
   private final CalculationTarget target;
   /**
+   * The measure to be calculated.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Measure measure;
+  /**
    * The row index of the value in the results grid.
    */
   @PropertyDefinition
@@ -83,6 +88,7 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
    * This specifies the configuration of a single target, including the rules and cell index.
    *
    * @param target  the target for which the value will be calculated
+   * @param measure  the measure being calculated
    * @param rowIndex  the row index of the value in the results grid
    * @param columnIndex  the column index of the value in the results grid
    * @param functionConfig  the configuration of the function that will calculate the value
@@ -93,6 +99,7 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
    */
   public static CalculationTaskConfig of(
       CalculationTarget target,
+      Measure measure,
       int rowIndex,
       int columnIndex,
       FunctionConfig functionConfig,
@@ -102,6 +109,7 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
 
     return new CalculationTaskConfig(
         target,
+        measure,
         rowIndex,
         columnIndex,
         functionConfig,
@@ -129,6 +137,7 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
   public CalculationTask createTask() {
     return CalculationTask.of(
         target,
+        measure,
         rowIndex,
         columnIndex,
         createFunction(),
@@ -157,6 +166,7 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
 
   private CalculationTaskConfig(
       CalculationTarget target,
+      Measure measure,
       int rowIndex,
       int columnIndex,
       FunctionConfig functionConfig,
@@ -164,11 +174,13 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
       MarketDataMappings marketDataMappings,
       ReportingRules reportingRules) {
     JodaBeanUtils.notNull(target, "target");
+    JodaBeanUtils.notNull(measure, "measure");
     JodaBeanUtils.notNull(functionConfig, "functionConfig");
     JodaBeanUtils.notNull(functionArguments, "functionArguments");
     JodaBeanUtils.notNull(marketDataMappings, "marketDataMappings");
     JodaBeanUtils.notNull(reportingRules, "reportingRules");
     this.target = target;
+    this.measure = measure;
     this.rowIndex = rowIndex;
     this.columnIndex = columnIndex;
     this.functionConfig = functionConfig;
@@ -200,6 +212,15 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
    */
   public CalculationTarget getTarget() {
     return target;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the measure to be calculated.
+   * @return the value of the property, not null
+   */
+  public Measure getMeasure() {
+    return measure;
   }
 
   //-----------------------------------------------------------------------
@@ -265,6 +286,7 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
     if (obj != null && obj.getClass() == this.getClass()) {
       CalculationTaskConfig other = (CalculationTaskConfig) obj;
       return JodaBeanUtils.equal(target, other.target) &&
+          JodaBeanUtils.equal(measure, other.measure) &&
           (rowIndex == other.rowIndex) &&
           (columnIndex == other.columnIndex) &&
           JodaBeanUtils.equal(functionConfig, other.functionConfig) &&
@@ -279,6 +301,7 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(target);
+    hash = hash * 31 + JodaBeanUtils.hashCode(measure);
     hash = hash * 31 + JodaBeanUtils.hashCode(rowIndex);
     hash = hash * 31 + JodaBeanUtils.hashCode(columnIndex);
     hash = hash * 31 + JodaBeanUtils.hashCode(functionConfig);
@@ -290,9 +313,10 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("CalculationTaskConfig{");
     buf.append("target").append('=').append(target).append(',').append(' ');
+    buf.append("measure").append('=').append(measure).append(',').append(' ');
     buf.append("rowIndex").append('=').append(rowIndex).append(',').append(' ');
     buf.append("columnIndex").append('=').append(columnIndex).append(',').append(' ');
     buf.append("functionConfig").append('=').append(functionConfig).append(',').append(' ');
@@ -318,6 +342,11 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
      */
     private final MetaProperty<CalculationTarget> target = DirectMetaProperty.ofImmutable(
         this, "target", CalculationTaskConfig.class, CalculationTarget.class);
+    /**
+     * The meta-property for the {@code measure} property.
+     */
+    private final MetaProperty<Measure> measure = DirectMetaProperty.ofImmutable(
+        this, "measure", CalculationTaskConfig.class, Measure.class);
     /**
      * The meta-property for the {@code rowIndex} property.
      */
@@ -355,6 +384,7 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "target",
+        "measure",
         "rowIndex",
         "columnIndex",
         "functionConfig",
@@ -373,6 +403,8 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
       switch (propertyName.hashCode()) {
         case -880905839:  // target
           return target;
+        case 938321246:  // measure
+          return measure;
         case 23238424:  // rowIndex
           return rowIndex;
         case -855241956:  // columnIndex
@@ -411,6 +443,14 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
      */
     public MetaProperty<CalculationTarget> target() {
       return target;
+    }
+
+    /**
+     * The meta-property for the {@code measure} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Measure> measure() {
+      return measure;
     }
 
     /**
@@ -467,6 +507,8 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
       switch (propertyName.hashCode()) {
         case -880905839:  // target
           return ((CalculationTaskConfig) bean).getTarget();
+        case 938321246:  // measure
+          return ((CalculationTaskConfig) bean).getMeasure();
         case 23238424:  // rowIndex
           return ((CalculationTaskConfig) bean).getRowIndex();
         case -855241956:  // columnIndex
@@ -501,6 +543,7 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
   private static final class Builder extends DirectFieldsBeanBuilder<CalculationTaskConfig> {
 
     private CalculationTarget target;
+    private Measure measure;
     private int rowIndex;
     private int columnIndex;
     private FunctionConfig functionConfig;
@@ -520,6 +563,8 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
       switch (propertyName.hashCode()) {
         case -880905839:  // target
           return target;
+        case 938321246:  // measure
+          return measure;
         case 23238424:  // rowIndex
           return rowIndex;
         case -855241956:  // columnIndex
@@ -543,6 +588,9 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
       switch (propertyName.hashCode()) {
         case -880905839:  // target
           this.target = (CalculationTarget) newValue;
+          break;
+        case 938321246:  // measure
+          this.measure = (Measure) newValue;
           break;
         case 23238424:  // rowIndex
           this.rowIndex = (Integer) newValue;
@@ -596,6 +644,7 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
     public CalculationTaskConfig build() {
       return new CalculationTaskConfig(
           target,
+          measure,
           rowIndex,
           columnIndex,
           functionConfig,
@@ -607,9 +656,10 @@ public final class CalculationTaskConfig implements ImmutableBean, Serializable 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(256);
+      StringBuilder buf = new StringBuilder(288);
       buf.append("CalculationTaskConfig.Builder{");
       buf.append("target").append('=').append(JodaBeanUtils.toString(target)).append(',').append(' ');
+      buf.append("measure").append('=').append(JodaBeanUtils.toString(measure)).append(',').append(' ');
       buf.append("rowIndex").append('=').append(JodaBeanUtils.toString(rowIndex)).append(',').append(' ');
       buf.append("columnIndex").append('=').append(JodaBeanUtils.toString(columnIndex)).append(',').append(' ');
       buf.append("functionConfig").append('=').append(JodaBeanUtils.toString(functionConfig)).append(',').append(' ');

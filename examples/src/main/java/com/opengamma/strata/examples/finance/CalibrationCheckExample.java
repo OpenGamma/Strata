@@ -5,16 +5,13 @@
  */
 package com.opengamma.strata.examples.finance;
 
-import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
-import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.function.StandardComponents.marketDataFactory;
 import static java.util.stream.Collectors.toMap;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -22,29 +19,19 @@ import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
-import com.opengamma.strata.calc.CalculationEngine;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.DefaultCalculationEngine;
 import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
-import com.opengamma.strata.calc.marketdata.MarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
-import com.opengamma.strata.calc.marketdata.MarketEnvironmentBuilder;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.calc.marketdata.function.ObservableMarketDataFunction;
-import com.opengamma.strata.calc.marketdata.function.TimeSeriesProvider;
-import com.opengamma.strata.calc.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.calc.runner.CalculationRunner;
-import com.opengamma.strata.calc.runner.DefaultCalculationRunner;
+import com.opengamma.strata.calc.runner.CalculationRunnerFactory;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
@@ -53,7 +40,6 @@ import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.node.IborFixingDepositCurveNode;
-import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.QuoteId;
 
 /**
@@ -71,19 +57,11 @@ public class CalibrationCheckExample {
    * The valuation date.
    */
   private static final LocalDate VAL_DATE = LocalDate.of(2015, 7, 21);
-  /**
-   * The empty time-series.
-   */
-  private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
 
   /**
    * The tolerance to use.
    */
   private static final double TOLERANCE_PV = 1.0E-8;
-  /**
-   * The number of threads to use.
-   */
-  private static final int NB_THREADS = 1;
   /**
    * The curve group name.
    */
@@ -182,13 +160,10 @@ public class CalibrationCheckExample {
     ImmutableMap<QuoteId, Double> quotes = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE);
 
     // create the market data builder and populate with known data
-    MarketEnvironmentBuilder snapshotBuilder =
-        MarketEnvironment.builder()
-            .valuationDate(VAL_DATE)
-            .addTimeSeries(IndexRateId.of(USD_LIBOR_3M), TS_EMTPY)
-            .addTimeSeries(IndexRateId.of(USD_FED_FUND), TS_EMTPY)
-            .addValues(quotes);
-    MarketEnvironment snapshot = snapshotBuilder.build();
+    MarketEnvironment marketSnapshot = MarketEnvironment.builder()
+        .valuationDate(VAL_DATE)
+        .addValues(quotes)
+        .build();
 
     // load the curve definition
     List<CurveGroupDefinition> defns =
@@ -226,37 +201,10 @@ public class CalibrationCheckExample {
         .marketDataRules(marketDataRules)
         .build();
 
-    // create the engine and calculate the results
-    CalculationEngine engine = create();
-    return Pair.of(trades, engine.calculate(trades, columns, rules, snapshot, marketDataConfig));
-  }
-
-  //-------------------------------------------------------------------------
-  // Create the calculation engine
-  private static CalculationEngine create() {
-    // create the calculation runner that calculates the results
-    ExecutorService executor = createExecutor();
-    CalculationRunner calcRunner = new DefaultCalculationRunner(executor);
-
-    // create the market data factory that builds market data
-    MarketDataFactory marketDataFactory = new DefaultMarketDataFactory(
-        TimeSeriesProvider.none(),
-        ObservableMarketDataFunction.none(),
-        FeedIdMapping.identity(),
-        StandardComponents.marketDataFunctions());
-
-    // combine the runner and market data factory
-    return new DefaultCalculationEngine(calcRunner, marketDataFactory, LinkResolver.none());
-  }
-
-  // create an executor with daemon threads
-  private static ExecutorService createExecutor() {
-    ExecutorService executor = Executors.newFixedThreadPool(NB_THREADS, r -> {
-      Thread t = Executors.defaultThreadFactory().newThread(r);
-      t.setDaemon(true);
-      return t;
-    });
-    return executor;
+    // calculate the results
+    CalculationRunner runner = CalculationRunnerFactory.ofSingleThreaded()
+        .createWithMarketDataBuilder(trades, columns, rules, marketDataFactory(), marketDataConfig);
+    return Pair.of(trades, runner.calculateSingleScenario(marketSnapshot));
   }
 
 }

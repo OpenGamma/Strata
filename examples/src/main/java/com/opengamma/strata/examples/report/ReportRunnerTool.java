@@ -6,6 +6,7 @@
 package com.opengamma.strata.examples.report;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.function.StandardComponents.marketDataFactory;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -16,14 +17,15 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.base.Strings;
 import com.opengamma.strata.basics.Trade;
-import com.opengamma.strata.calc.CalculationEngine;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.pricing.PricingRules;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
+import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.calc.runner.CalculationRunner;
+import com.opengamma.strata.calc.runner.CalculationRunnerFactory;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
@@ -162,8 +164,6 @@ public class ReportRunnerTool {
 
     MarketEnvironment snapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
-    CalculationEngine calculationEngine = ExampleEngine.create();
-    
     List<Trade> trades;
 
     if (Strings.nullToEmpty(idSearch).trim().isEmpty()) {
@@ -183,8 +183,10 @@ public class ReportRunnerTool {
     if (trades.isEmpty()) {
       throw new IllegalArgumentException("No trades found. Please check the input portfolio or trade ID filter.");
     }
-    
-    Results results = calculationEngine.calculate(trades, columns, rules, snapshot);
+
+    CalculationRunner runner = CalculationRunnerFactory.ofSingleThreaded()
+        .createWithMarketDataBuilder(trades, columns, rules, marketDataFactory(), MarketDataConfig.empty());
+    Results results = runner.calculateSingleScenario(snapshot);
     return ReportCalculationResults.builder()
         .valuationDate(valuationDate)
         .trades(trades)

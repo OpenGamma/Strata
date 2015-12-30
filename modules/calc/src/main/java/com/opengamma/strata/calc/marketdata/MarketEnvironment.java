@@ -90,6 +90,7 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
   @PropertyDefinition(validate = "notNull", builderType = "Map<? extends MarketDataId<?>, Failure>")
   private final ImmutableMap<MarketDataId<?>, Failure> timeSeriesFailures;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns an empty mutable builder for building a new instance of {@code MarketEnvironment}.
    *
@@ -108,6 +109,17 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
     return EMPTY;
   }
 
+  /**
+   * Returns an empty set of market data with a known valuation data.
+   *
+   * @param valuationDate  the valuation date
+   * @return an empty set of market data
+   */
+  public static MarketEnvironment empty(LocalDate valuationDate) {
+    return builder().valuationDate(valuationDate).build();
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean containsValue(MarketDataId<?> id) {
     return values.containsKey(id);
