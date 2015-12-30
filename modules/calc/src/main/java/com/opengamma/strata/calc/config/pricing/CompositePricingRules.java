@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -36,7 +37,7 @@ import com.opengamma.strata.collect.Guavate;
  * <p>
  * These rules return the first valid configuration found in the underlying list of rule sets.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 final class CompositePricingRules implements PricingRules, ImmutableBean {
 
   /**
@@ -44,6 +45,17 @@ final class CompositePricingRules implements PricingRules, ImmutableBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<PricingRules> rules;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance based on the specified rule sets.
+   * 
+   * @param rules  the rule sets to combine
+   * @return the combined rule sets
+   */
+  public static CompositePricingRules of(PricingRules... rules) {
+    return new CompositePricingRules(ImmutableList.copyOf(rules));
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -81,14 +93,6 @@ final class CompositePricingRules implements PricingRules, ImmutableBean {
     JodaBeanUtils.registerMetaBean(CompositePricingRules.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static CompositePricingRules.Builder builder() {
-    return new CompositePricingRules.Builder();
-  }
-
   private CompositePricingRules(
       List<PricingRules> rules) {
     JodaBeanUtils.notNull(rules, "rules");
@@ -120,14 +124,6 @@ final class CompositePricingRules implements PricingRules, ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -195,7 +191,7 @@ final class CompositePricingRules implements PricingRules, ImmutableBean {
     }
 
     @Override
-    public CompositePricingRules.Builder builder() {
+    public BeanBuilder<? extends CompositePricingRules> builder() {
       return new CompositePricingRules.Builder();
     }
 
@@ -243,7 +239,7 @@ final class CompositePricingRules implements PricingRules, ImmutableBean {
   /**
    * The bean-builder for {@code CompositePricingRules}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<CompositePricingRules> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CompositePricingRules> {
 
     private List<PricingRules> rules = ImmutableList.of();
 
@@ -251,14 +247,6 @@ final class CompositePricingRules implements PricingRules, ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(CompositePricingRules beanToCopy) {
-      this.rules = beanToCopy.getRules();
     }
 
     //-----------------------------------------------------------------------
@@ -313,28 +301,6 @@ final class CompositePricingRules implements PricingRules, ImmutableBean {
     public CompositePricingRules build() {
       return new CompositePricingRules(
           rules);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the underlying rule sets.
-     * @param rules  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder rules(List<PricingRules> rules) {
-      JodaBeanUtils.notNull(rules, "rules");
-      this.rules = rules;
-      return this;
-    }
-
-    /**
-     * Sets the {@code rules} property in the builder
-     * from an array of objects.
-     * @param rules  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder rules(PricingRules... rules) {
-      return rules(ImmutableList.copyOf(rules));
     }
 
     //-----------------------------------------------------------------------

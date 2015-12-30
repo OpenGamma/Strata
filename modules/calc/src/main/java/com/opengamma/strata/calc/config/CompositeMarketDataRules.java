@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -33,7 +34,7 @@ import com.opengamma.strata.collect.Guavate;
  * <p>
  * These rules return the first valid mapping found in the underlying list of rule sets.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 final class CompositeMarketDataRules implements MarketDataRules, ImmutableBean {
 
   /**
@@ -41,6 +42,17 @@ final class CompositeMarketDataRules implements MarketDataRules, ImmutableBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<MarketDataRules> rules;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance based on the specified rule sets.
+   * 
+   * @param rules  the rule sets to combine
+   * @return the combined rule sets
+   */
+  public static CompositeMarketDataRules of(MarketDataRules... rules) {
+    return new CompositeMarketDataRules(ImmutableList.copyOf(rules));
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -69,14 +81,6 @@ final class CompositeMarketDataRules implements MarketDataRules, ImmutableBean {
 
   static {
     JodaBeanUtils.registerMetaBean(CompositeMarketDataRules.Meta.INSTANCE);
-  }
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static CompositeMarketDataRules.Builder builder() {
-    return new CompositeMarketDataRules.Builder();
   }
 
   private CompositeMarketDataRules(
@@ -110,14 +114,6 @@ final class CompositeMarketDataRules implements MarketDataRules, ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -185,7 +181,7 @@ final class CompositeMarketDataRules implements MarketDataRules, ImmutableBean {
     }
 
     @Override
-    public CompositeMarketDataRules.Builder builder() {
+    public BeanBuilder<? extends CompositeMarketDataRules> builder() {
       return new CompositeMarketDataRules.Builder();
     }
 
@@ -233,7 +229,7 @@ final class CompositeMarketDataRules implements MarketDataRules, ImmutableBean {
   /**
    * The bean-builder for {@code CompositeMarketDataRules}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<CompositeMarketDataRules> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CompositeMarketDataRules> {
 
     private List<MarketDataRules> rules = ImmutableList.of();
 
@@ -241,14 +237,6 @@ final class CompositeMarketDataRules implements MarketDataRules, ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(CompositeMarketDataRules beanToCopy) {
-      this.rules = beanToCopy.getRules();
     }
 
     //-----------------------------------------------------------------------
@@ -303,28 +291,6 @@ final class CompositeMarketDataRules implements MarketDataRules, ImmutableBean {
     public CompositeMarketDataRules build() {
       return new CompositeMarketDataRules(
           rules);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the underlying rule sets.
-     * @param rules  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder rules(List<MarketDataRules> rules) {
-      JodaBeanUtils.notNull(rules, "rules");
-      this.rules = rules;
-      return this;
-    }
-
-    /**
-     * Sets the {@code rules} property in the builder
-     * from an array of objects.
-     * @param rules  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder rules(MarketDataRules... rules) {
-      return rules(ImmutableList.copyOf(rules));
     }
 
     //-----------------------------------------------------------------------

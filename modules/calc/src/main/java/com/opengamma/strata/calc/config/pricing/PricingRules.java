@@ -7,7 +7,6 @@ package com.opengamma.strata.calc.config.pricing;
 
 import java.util.Optional;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.config.Measure;
@@ -35,7 +34,7 @@ public interface PricingRules {
       case 1:
         return rules[0];
       default:
-        return CompositePricingRules.builder().rules(ImmutableList.copyOf(rules)).build();
+        return CompositePricingRules.of(rules);
     }
   }
 
@@ -76,7 +75,7 @@ public interface PricingRules {
    * @return the combined rules
    */
   public default PricingRules composedWith(PricingRules otherRules) {
-    return of(this, otherRules);
+    return CompositePricingRules.of(this, otherRules);
   }
 
 }

@@ -28,6 +28,7 @@ import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 
@@ -68,6 +69,37 @@ public final class CalculationTask {
 
   //-------------------------------------------------------------------------
   /**
+   * Obtains configuration for a task that will calculate a value for a target.
+   * <p>
+   * This specifies the configuration of a single target, including the rules and cell index.
+   *
+   * @param target  the target for which the value will be calculated
+   * @param rowIndex  the row index of the value in the results grid
+   * @param columnIndex  the column index of the value in the results grid
+   * @param function  the function that performs the calculation
+   * @param marketDataMappings  the mappings that specify the market data that should be used in the calculation
+   * @param reportingRules  the reporting rules to control the output
+   * @return the configuration for a task that will calculate the value of a measure for a target
+   */
+  public static CalculationTask of(
+      CalculationTarget target,
+      int rowIndex,
+      int columnIndex,
+      CalculationSingleFunction<? extends CalculationTarget, ?> function,
+      MarketDataMappings marketDataMappings,
+      ReportingRules reportingRules) {
+
+    return new CalculationTask(
+        target,
+        rowIndex,
+        columnIndex,
+        function,
+        marketDataMappings,
+        reportingRules);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Creates a task, based on the target, the location of the result in the results grid, the function,
    * mappings and reporting rules.
    *
@@ -79,7 +111,7 @@ public final class CalculationTask {
    * @param reportingRules  the reporting rules to control the output
    */
   @SuppressWarnings("unchecked")
-  public CalculationTask(
+  private CalculationTask(
       CalculationTarget target,
       int rowIndex,
       int columnIndex,
@@ -94,6 +126,16 @@ public final class CalculationTask {
     this.reportingRules = ArgChecker.notNull(reportingRules, "reportingRules");
     // TODO check the target types are compatible
     this.function = (CalculationSingleFunction<CalculationTarget, ?>) ArgChecker.notNull(function, "function");
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the target.
+   * 
+   * @return the target.
+   */
+  public CalculationTarget getTarget() {
+    return target;
   }
 
   //-------------------------------------------------------------------------
@@ -204,6 +246,12 @@ public final class CalculationTask {
     } catch (RuntimeException e) {
       return Result.failure(FailureReason.ERROR, e, "Failed to convert value {} to currency {}", value, reportingCurrency);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return Messages.format("CalculationTask[cell=({}, {})]", rowIndex, columnIndex);
   }
 
 }
