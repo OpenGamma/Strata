@@ -15,32 +15,37 @@ import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A mutable builder for building instances of {@link DefaultFunctionGroup}.
+ * A mutable builder for building instances of {@code DefaultFunctionGroup}.
  * 
  * @param <T>  the type of the calculation target
  */
 public final class DefaultFunctionGroupBuilder<T extends CalculationTarget> {
 
-  /** The type of target handled by the functions in the function group. */
+  /**
+   * The type of target handled by the functions in the function group.
+   */
   private final Class<T> targetType;
-
-  /** The name of the function group. */
+  /**
+   * The name of the function group.
+   */
   private FunctionGroupName name;
-
-  /** Configuration for the functions, keyed by the measure they calculate. */
+  /**
+   * The configuration for the functions, keyed by the measure they calculate.
+   */
   private final Map<Measure, FunctionConfig<T>> functionConfig = new HashMap<>();
-
   /**
    * The constructor arguments used when creating function instances.
    * The argument values are keyed by the name of the corresponding constructor parameter.
    */
   private final Map<String, Object> functionArguments = new HashMap<>();
 
+  //-------------------------------------------------------------------------
   // package-private constructor used by DefaultFunctionGroup.builder()
   DefaultFunctionGroupBuilder(Class<T> targetType) {
     this.targetType = ArgChecker.notNull(targetType, "targetType");
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Sets the name of the function group.
    *
@@ -102,6 +107,7 @@ public final class DefaultFunctionGroupBuilder<T extends CalculationTarget> {
     return this;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a function group built from the data in this builder.
    *
@@ -110,4 +116,5 @@ public final class DefaultFunctionGroupBuilder<T extends CalculationTarget> {
   public DefaultFunctionGroup<T> build() {
     return new DefaultFunctionGroup<>(name, targetType, functionConfig, functionArguments);
   }
+
 }

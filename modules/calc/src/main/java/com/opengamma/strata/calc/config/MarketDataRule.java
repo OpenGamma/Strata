@@ -11,10 +11,10 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 
 /**
- * A market data rule decides what market data should be used in calculations for a calculation target.
+ * Single market data rule that specifies what market data should be used in calculations for a calculation target.
  * <p>
- * A rule returns a set of {@link MarketDataMappings} for a calculation target that matches the rule, otherwise
- * it returns an empty {@code Optional}.
+ * A rule returns a set of {@link MarketDataMappings} for a calculation target that matches the rule,
+ * otherwise it returns an empty {@code Optional}.
  */
 public interface MarketDataRule {
 
@@ -30,6 +30,7 @@ public interface MarketDataRule {
     return DefaultMarketDataRule.of(mappings, targetTypes);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a market data rule that matches any target.
    *
@@ -41,10 +42,12 @@ public interface MarketDataRule {
   }
 
   /**
-   * Returns a set of market data mappings for the target if it matches this rule, otherwise an empty {@code Optional}.
+   * Returns a set of market data mappings for the target if it matches this rule,
+   * otherwise an empty {@code Optional}.
    *
    * @param target  a calculation target
    * @return a set of market data mappings for the target if it matches this rule, otherwise an empty {@code Optional}
    */
   public abstract Optional<MarketDataMappings> mappings(CalculationTarget target);
+
 }

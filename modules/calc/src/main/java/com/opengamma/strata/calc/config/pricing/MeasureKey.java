@@ -26,22 +26,26 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.config.Measure;
 
 /**
- * Key for storing calculation configuration, consisting of the type of the target handled by the calculation
- * and the measure calculated by the function.
+ * Key for storing calculation configuration, consisting of the type of the target
+ * handled by the calculation and the measure calculated by the function.
  */
 @BeanDefinition(builderScope = "private")
 final class MeasureKey implements ImmutableBean {
 
-  /** The type of the target of the calculation, such as a trade. */
+  /**
+   * The type of the target of the calculation, such as a trade.
+   */
   @PropertyDefinition(validate = "notNull")
   private final Class<? extends CalculationTarget> targetType;
-
-  /** The measure that is the output of the calculation. */
+  /**
+   * The measure that is the output of the calculation.
+   */
   @PropertyDefinition(validate = "notNull")
   private final Measure measure;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a key for a target type and measure.
+   * Obtains a key for a target type and measure.
    *
    * @param targetType  the type of the target
    * @param measure  the calculated measure

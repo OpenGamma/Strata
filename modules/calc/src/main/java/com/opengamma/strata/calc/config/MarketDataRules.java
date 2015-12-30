@@ -20,8 +20,8 @@ import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 public interface MarketDataRules {
 
   /**
-   * Returns a set of market data rules that delegates to multiple individual rules, returning the first
-   * valid mapping it finds.
+   * Returns a set of market data rules that delegates to multiple individual rules,
+   * returning the first valid mapping it finds.
    *
    * @param rules  the delegate market data rules
    * @return a set of market data rules that delegates to multiple underlying rules, returning the first
@@ -40,24 +40,27 @@ public interface MarketDataRules {
     return EmptyMarketDataRules.INSTANCE;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a set of rules that return mappings from this rule if available, otherwise returning mappings
-   * from the other rule.
-   *
-   * @param rules  other market data rules
-   * @return a set of rules that return mappings from this rule if available, otherwise returning mappings
-   *   from the other rule
-   */
-  public default MarketDataRules composedWith(MarketDataRules rules) {
-    return CompositeMarketDataRules.builder().rules(this, rules).build();
-  }
-
-  /**
-   * Returns a set of market data mappings which specify the market data that should be used when
-   * performing calculations for a target.
+   * Returns the market data mappings that specify which market data should be used when
+   * performing calculations for the target.
    *
    * @param target  the target
-   * @return mappings specifying which market data should be used when performing calculations for the target
+   * @return the mappings that specify which market data should be used when performing calculations for the target
    */
   public abstract Optional<MarketDataMappings> mappings(CalculationTarget target);
+
+  /**
+   * Combines these rules with the specified rules.
+   * <p>
+   * The resulting rules will return mappings from this rule if available,
+   * otherwise mappings will be returned from the other rule.
+   *
+   * @param otherRules  the other rules
+   * @return the combined rules
+   */
+  public default MarketDataRules composedWith(MarketDataRules otherRules) {
+    return CompositeMarketDataRules.builder().rules(this, otherRules).build();
+  }
+
 }

@@ -264,8 +264,7 @@ public class MarketDataNodeTest {
     assertThat(root).isEqualTo(expected);
   }
 
-  //------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   private static MarketDataNode rootNode(MarketDataNode... children) {
     return MarketDataNode.root(Arrays.asList(children));
   }

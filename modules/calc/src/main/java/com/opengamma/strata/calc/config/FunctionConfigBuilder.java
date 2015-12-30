@@ -13,24 +13,29 @@ import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * Mutable builder for building instances of {@link FunctionConfig}.
+ * Mutable builder for building instances of {@code FunctionConfig}.
  * 
  * @param <T>  the type of the calculation target
  */
 public final class FunctionConfigBuilder<T extends CalculationTarget> {
 
   // TODO FunctionMetadata instead of function type - includes type and set of calculated measures
-  /** The type of the function. */
+  /**
+   * The type of the function.
+   */
   private final Class<? extends CalculationSingleFunction<T, ?>> functionType;
-
-  /** The arguments to the function constructor. */
+  /**
+   * The arguments to the function constructor.
+   */
   private final Map<String, Object> arguments = new HashMap<>();
 
+  //-------------------------------------------------------------------------
   // package-private constructor so it's visible from FunctionConfig.builder()
   FunctionConfigBuilder(Class<? extends CalculationSingleFunction<T, ?>> functionType) {
     this.functionType = ArgChecker.notNull(functionType, "functionType");
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Adds a constructor argument used when creating function instances.
    *
@@ -57,6 +62,7 @@ public final class FunctionConfigBuilder<T extends CalculationTarget> {
     return this;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns an instance of {@code FunctionConfig} built from the data in this builder.
    *
@@ -65,4 +71,5 @@ public final class FunctionConfigBuilder<T extends CalculationTarget> {
   public FunctionConfig<T> build() {
     return new FunctionConfig<>(functionType, arguments);
   }
+
 }

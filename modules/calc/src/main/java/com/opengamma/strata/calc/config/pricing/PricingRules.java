@@ -22,12 +22,11 @@ import com.opengamma.strata.calc.config.Measure;
 public interface PricingRules {
 
   /**
-   * Returns a set of pricing rules that delegates to multiple underlying sets of rules, returning the first
-   * valid configuration it finds.
+   * Returns a rule set that tries each of the specified rule sets in turn
+   * and returns the first valid configuration it finds.
    *
-   * @param rules  the delegate pricing rules
-   * @return a set of market data rules that delegates to multiple underlying sets of rules, returning the first
-   *   valid configuration it finds
+   * @param rules  the rule sets
+   * @return a rule set that tries each of the rule sets in turn and returns the first valid configuration it finds
    */
   public static PricingRules of(PricingRules... rules) {
     switch (rules.length) {
@@ -49,23 +48,12 @@ public interface PricingRules {
     return EmptyPricingRules.INSTANCE;
   }
 
-  /**
-   * Returns a set of rules that return function configuration from this rule if available, otherwise returning
-   * configuration from the other rule.
-   *
-   * @param otherRules  the delegate pricing rules
-   * @return a set of rules that return function configuration from this rule if available, otherwise returning
-   *   configuration from the other rule
-   */
-  public default PricingRules composedWith(PricingRules otherRules) {
-    return of(this, otherRules);
-  }
-
+  //-------------------------------------------------------------------------
   /**
    * Returns a function group specifying how a measure should be calculated for the target.
    *
-   * @param target  a target
-   * @param measure  a measure
+   * @param target  the target
+   * @param measure  the measure
    * @return a function group specifying how a measure should be calculated for the target
    */
   public abstract Optional<ConfiguredFunctionGroup> functionGroup(CalculationTarget target, Measure measure);
@@ -73,9 +61,22 @@ public interface PricingRules {
   /**
    * Returns the set of measures that are configured for a calculation target.
    * 
-   * @param target  a target
+   * @param target  the target
    * @return a set of available measures for the target
    */
   public abstract ImmutableSet<Measure> configuredMeasures(CalculationTarget target);
+
+  /**
+   * Combines these rules with the specified rules.
+   * <p>
+   * The resulting rules will return mappings from this rule if available,
+   * otherwise mappings will be returned from the other rule.
+   *
+   * @param otherRules  the other rules
+   * @return the combined rules
+   */
+  public default PricingRules composedWith(PricingRules otherRules) {
+    return of(this, otherRules);
+  }
 
 }

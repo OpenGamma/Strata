@@ -37,12 +37,18 @@ import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 @BeanDefinition(builderScope = "private")
 public final class AllTargetsMarketDataRule implements MarketDataRule, ImmutableBean {
 
-  /** The mappings returned from all calls to {@link #mappings(CalculationTarget)}. */
+  /**
+   * The single set of mappings.
+   * This is returned from all calls to {@code mappings(CalculationTarget)}.
+   */
   @PropertyDefinition(validate = "notNull")
   private final MarketDataMappings mappings;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a rule which always returns the specified mappings from {@link #mappings(CalculationTarget)}.
+   * Obtains a rule which always returns the specified mappings.
+   * <p>
+   * All calls to {@link #mappings(CalculationTarget)} will return these mappings.
    *
    * @param mappings  the mappings returned for all calculation targets
    * @return a rule which returns the specified mappings for all calculation targets
@@ -51,6 +57,7 @@ public final class AllTargetsMarketDataRule implements MarketDataRule, Immutable
     return new AllTargetsMarketDataRule(mappings);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Optional<MarketDataMappings> mappings(CalculationTarget target) {
     return Optional.of(mappings);
@@ -93,7 +100,8 @@ public final class AllTargetsMarketDataRule implements MarketDataRule, Immutable
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the mappings returned from all calls to {@link #mappings(CalculationTarget)}.
+   * Gets the single set of mappings.
+   * This is returned from all calls to {@code mappings(CalculationTarget)}.
    * @return the value of the property, not null
    */
   public MarketDataMappings getMappings() {

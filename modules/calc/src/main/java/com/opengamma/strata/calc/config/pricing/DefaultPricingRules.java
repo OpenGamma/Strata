@@ -32,9 +32,10 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.collect.Guavate;
 
 /**
- * Default implementation of {@link PricingRules} that contains a list of {@link PricingRule} instances.
+ * Pricing rules that combine a list of individual rules.
  * <p>
- * When a function is requested the individual rules are tried in order until a function group is found.
+ * These rules combine a list of individual {@link PricingRule} instances.
+ * It returns the first valid configuration found in the underlying list of rules.
  */
 @BeanDefinition
 public final class DefaultPricingRules implements PricingRules, ImmutableBean {
@@ -47,26 +48,28 @@ public final class DefaultPricingRules implements PricingRules, ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<PricingRule<?>> rules;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a set of pricing rules containing the specified individual rules.
-   *
-   * @param rules  the array of pricing rules
-   * @return a set of pricing rules containing the specified individual rules
+   * Obtains an instance based on the specified individual rules.
+   * 
+   * @param rules  the individual rules
+   * @return the combined rules
    */
   public static DefaultPricingRules of(PricingRule<?>... rules) {
     return new DefaultPricingRules(ImmutableList.copyOf(rules));
   }
 
   /**
-   * Returns a set of pricing rules containing the specified individual rules.
+   * Obtains an instance based on the specified individual rules.
    *
-   * @param rules  the list of pricing rules
-   * @return a set of pricing rules containing the specified individual rules
+   * @param rules  the individual rules
+   * @return the combined rules
    */
   public static DefaultPricingRules of(List<PricingRule<?>> rules) {
     return new DefaultPricingRules(rules);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Optional<ConfiguredFunctionGroup> functionGroup(CalculationTarget target, Measure measure) {
     return rules.stream()

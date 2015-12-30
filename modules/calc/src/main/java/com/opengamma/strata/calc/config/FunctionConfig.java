@@ -53,24 +53,32 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
 
   private static final Logger log = LoggerFactory.getLogger(FunctionConfig.class);
 
-  /** Configuration used when there is none defined for a calculation. Creates {@link MissingConfigCalculationFunction}. */
+  /**
+   * The configuration used when there is none defined for a calculation.
+   * This creates an instance of {@link MissingConfigCalculationFunction}.
+   */
   private static final FunctionConfig<? extends CalculationTarget> MISSING =
       FunctionConfig.of(MissingConfigCalculationFunction.class);
 
 // TODO FunctionMetadata instead of function type - includes type and set of calculated measures
-  /** The type of the function. */
+  /**
+   * The type of the function.
+   */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final Class<? extends CalculationSingleFunction<T, ?>> functionType;
 
-  /** Constructor arguments used for building function instances, keyed by parameter name. */
+  /**
+   * The constructor arguments used for building function instances, keyed by parameter name.
+   */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final Map<String, Object> arguments;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns configuration for a function that doesn't contain any constructor arguments.
+   * Obtains an instance for a function that does not contain any constructor arguments.
    * <p>
-   * The function must have one public constructor. If the constructor requires arguments, they
-   * must be passed to {@link #createFunction}.
+   * The function must have one public constructor.
+   * If the constructor requires arguments, they must be passed to {@link #createFunction}.
    * <p>
    * To create configuration that includes constructor arguments, use a {@linkplain #builder(Class) builder}.
    *
@@ -109,6 +117,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
     return (FunctionConfig<T>) MISSING;
   }
 
+  //-------------------------------------------------------------------------
   // TODO Method returning parameter metadata for the required constructor arguments?
 
   /**
@@ -130,8 +139,8 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
 
     try {
       return (CalculationSingleFunction<T, ?>) constructor.newInstance(argumentArray);
-    } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-      log.warn("Failed to create engine function", e);
+    } catch (InvocationTargetException | InstantiationException | IllegalAccessException ex) {
+      log.warn("Failed to create engine function", ex);
       return (CalculationSingleFunction<T, ?>) new MissingConfigCalculationFunction();
     }
   }
@@ -322,7 +331,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
 
   //-----------------------------------------------------------------------
   /**
-   * Gets constructor arguments used for building function instances, keyed by parameter name.
+   * Gets the constructor arguments used for building function instances, keyed by parameter name.
    * @return the value of the property, not null
    */
   private Map<String, Object> getArguments() {

@@ -163,8 +163,7 @@ public final class MarketEnvironmentBuilder {
     return this;
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Adds multiple items of market data, replacing any existing values with the same IDs.
    *
@@ -180,8 +179,7 @@ public final class MarketEnvironmentBuilder {
     return this;
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Adds a result for a single item of market data, replacing any existing value with the same ID.
    *
@@ -231,8 +229,7 @@ public final class MarketEnvironmentBuilder {
     return this;
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Adds a time series of observable market data values, replacing any existing time series with the same ID.
    *
@@ -310,8 +307,7 @@ public final class MarketEnvironmentBuilder {
     return this;
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Sets the market data values in this builder, replacing the existing set.
    *
@@ -338,8 +334,7 @@ public final class MarketEnvironmentBuilder {
     return this;
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Returns true if this builder contains a value for the ID.
    *
@@ -351,8 +346,7 @@ public final class MarketEnvironmentBuilder {
     return values.containsKey(id);
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Builds a set of market data from the data in this builder.
    * <p>
@@ -369,8 +363,7 @@ public final class MarketEnvironmentBuilder {
     return new MarketEnvironment(valuationDate, scenarioCount, values, timeSeries, valueFailures, timeSeriesFailures);
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   private static Map.Entry<? extends MarketDataId<?>, ?> checkTypes(Map.Entry<? extends MarketDataId<?>, ?> entry) {
     if (!entry.getKey().getMarketDataType().isInstance(entry.getValue())) {
       throw new IllegalArgumentException(

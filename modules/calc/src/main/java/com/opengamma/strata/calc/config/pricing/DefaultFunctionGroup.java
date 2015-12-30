@@ -30,7 +30,7 @@ import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 
 /**
- * The default implementation of {@link FunctionGroup}.
+ * Default implementation of {@code FunctionGroup}.
  * 
  * @param <T>  the type of the calculation target
  */
@@ -38,22 +38,28 @@ import com.opengamma.strata.calc.config.Measure;
 public final class DefaultFunctionGroup<T extends CalculationTarget>
     implements ImmutableBean, FunctionGroup<T> {
 
-  /** The name of this function group. */
+  /**
+   * The name of this function group.
+   */
   @PropertyDefinition(validate = "notNull")
   private final FunctionGroupName name;
-
-  /** The type of the calculation target handled by the functions in the group. */
+  /**
+   * The type of the calculation target handled by the functions in the group.
+   */
   @PropertyDefinition(validate = "notNull")
   private final Class<T> targetType;
-
-  /** The functions in the group, keyed by the measure they calculate. */
+  /**
+   * The functions in the group, keyed by the measure they calculate.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<Measure, FunctionConfig<T>> functionConfig;
-
-  /** The arguments used when creating functions. */
+  /**
+   * The arguments used when creating functions.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<String, Object> functionArguments;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a mutable builder for building a default function group.
    *
@@ -65,6 +71,7 @@ public final class DefaultFunctionGroup<T extends CalculationTarget>
     return new DefaultFunctionGroupBuilder<>(targetType);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a function group to calculate a value of the measure for the target if this rule applies to the target.
    *

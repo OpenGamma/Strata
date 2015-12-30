@@ -1058,8 +1058,7 @@ public class DefaultMarketDataFactoryTest {
     assertThat(values).isEqualTo(expectedValues);
   }
 
-  //-----------------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   private static final class TestObservableFunction implements ObservableMarketDataFunction {
 
     private final Map<ObservableId, Result<Double>> marketData =
@@ -1124,8 +1123,7 @@ public class DefaultMarketDataFactoryTest {
     }
   }
 
-  //-----------------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Test ID A.
    */
