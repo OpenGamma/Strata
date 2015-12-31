@@ -12,7 +12,7 @@ import com.opengamma.strata.collect.id.StandardId;
 /**
  * ObservableId implementation used in tests.
  */
-public class TestObservableId implements ObservableId {
+public class TestObservableId implements ObservableId, ReferenceDataId {
 
   private final StandardId id;
 
