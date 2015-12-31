@@ -192,7 +192,7 @@ final class GlobalHolidayCalendars {
       holidays.add(boxingDay(year));
     }
     holidays.add(date(2011, 4, 29));  // royal wedding
-    holidays.add(date(1999, 12, 31));  // millenium
+    holidays.add(date(1999, 12, 31));  // millennium
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of("GBLO", holidays, SATURDAY, SUNDAY);
   }
@@ -226,7 +226,7 @@ final class GlobalHolidayCalendars {
       holidays.add(date(year, 12, 25));  // christmas day
       holidays.add(date(year, 12, 26));  // saint stephen
     }
-    holidays.add(date(1999, 12, 31));  // millenium
+    holidays.add(date(1999, 12, 31));  // millennium
     applyBridging(holidays);
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of("FRPA", holidays, SATURDAY, SUNDAY);
@@ -253,8 +253,8 @@ final class GlobalHolidayCalendars {
       holidays.add(date(year, 12, 25));  // christmas day
       holidays.add(date(year, 12, 26));  // saint stephen
     }
-    holidays.add(date(1999, 12, 31));  // millenium
-    holidays.add(date(2000, 1, 3));  // millenium
+    holidays.add(date(1999, 12, 31));  // millennium
+    holidays.add(date(2000, 1, 3));  // millennium
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of("CHZU", holidays, SATURDAY, SUNDAY);
   }
