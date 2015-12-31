@@ -67,7 +67,7 @@ public final class ValueAdjustment
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a value adjustment that replaces the base value.
+   * Obtains an instance that replaces the base value.
    * <p>
    * The base value is ignored when calculating the result.
    * 
@@ -79,7 +79,7 @@ public final class ValueAdjustment
   }
 
   /**
-   * Obtains a value adjustment specifying an amount to add to the base value.
+   * Obtains an instance specifying an amount to add to the base value.
    * <p>
    * The result will be {@code (baseValue + deltaAmount)}.
    * 
@@ -91,7 +91,7 @@ public final class ValueAdjustment
   }
 
   /**
-   * Obtains a value adjustment specifying a multiplication factor, adding it to the base value.
+   * Obtains an instance specifying a multiplication factor, adding it to the base value.
    * <p>
    * The result will be {@code (baseValue + baseValue * modifyingValue)}.
    * 
@@ -105,7 +105,7 @@ public final class ValueAdjustment
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a value adjustment specifying a multiplication factor to apply to the base value.
+   * Obtains an instance specifying a multiplication factor to apply to the base value.
    * <p>
    * The result will be {@code (baseValue * modifyingValue)}.
    * 

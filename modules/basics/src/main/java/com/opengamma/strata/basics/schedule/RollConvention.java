@@ -37,7 +37,7 @@ public interface RollConvention
     extends Named {
 
   /**
-   * Obtains a {@code RollConvention} from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the roll convention
@@ -95,7 +95,7 @@ public interface RollConvention
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code RollConvention} to be lookup up.
+   * This helper allows instances of the convention to be looked up.
    * It also provides the complete set of available instances.
    * 
    * @return the extended enum helper

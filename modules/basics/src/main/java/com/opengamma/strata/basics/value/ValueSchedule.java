@@ -68,7 +68,7 @@ public final class ValueSchedule
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code ValueSchedule} with a single value that does not change over time.
+   * Obtains an instance from a single value that does not change over time.
    * 
    * @param value  a single value that does not change over time
    * @return the value schedule
@@ -78,7 +78,7 @@ public final class ValueSchedule
   }
 
   /**
-   * Obtains a {@code ValueSchedule} with a list of changes.
+   * Obtains an instance from an initial value and a list of changes.
    * <p>
    * Each step fully defines a single change in the value.
    * The date of each change can be specified as an absolute date or in relative terms.
@@ -92,7 +92,7 @@ public final class ValueSchedule
   }
 
   /**
-   * Obtains a {@code ValueSchedule} with a list of changes.
+   * Obtains an instance from an initial value and a list of changes.
    * <p>
    * Each step fully defines a single change in the value.
    * The date of each change can be specified as an absolute date or in relative terms.

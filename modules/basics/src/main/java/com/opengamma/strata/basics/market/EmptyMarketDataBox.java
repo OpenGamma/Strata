@@ -19,7 +19,7 @@ class EmptyMarketDataBox implements MarketDataBox<Void> {
   private static final EmptyMarketDataBox INSTANCE = new EmptyMarketDataBox();
 
   /**
-   * Obtains a market data box containing no data.
+   * Obtains an instance containing no data.
    *
    * @param <T>  the required type of the market data box
    * @return a market data box containing no data

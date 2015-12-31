@@ -43,7 +43,7 @@ public enum FixingRelativeTo {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the type from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the type
@@ -55,6 +55,13 @@ public enum FixingRelativeTo {
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
   }
 
+  //-------------------------------------------------------------------------
+  // selects the base date for fixing
+  LocalDate selectBaseDate(SchedulePeriod period) {
+    return (this == PERIOD_END ? period.getEndDate() : period.getStartDate());
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns the formatted unique name of the type.
    * 
@@ -64,12 +71,6 @@ public enum FixingRelativeTo {
   @Override
   public String toString() {
     return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
-  }
-
-  //-------------------------------------------------------------------------
-  // selects the base date for fixing
-  LocalDate selectBaseDate(SchedulePeriod period) {
-    return (this == PERIOD_END ? period.getEndDate() : period.getStartDate());
   }
 
 }

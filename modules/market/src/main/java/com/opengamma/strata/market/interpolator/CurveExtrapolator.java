@@ -19,8 +19,8 @@ import com.opengamma.strata.collect.named.Named;
 public interface CurveExtrapolator extends Named {
 
   /**
-   * Obtains a {@code CurveExtrapolator} from a unique name.
-   *
+   * Obtains an instance from the specified unique name.
+   * 
    * @param uniqueName  the unique name
    * @return the index
    * @throws IllegalArgumentException if the name is not known
@@ -34,7 +34,7 @@ public interface CurveExtrapolator extends Named {
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code CurveExtrapolator} to be lookup up.
+   * This helper allows instances of the extrapolator to be looked up.
    * It also provides the complete set of available instances.
    *
    * @return the extended enum helper

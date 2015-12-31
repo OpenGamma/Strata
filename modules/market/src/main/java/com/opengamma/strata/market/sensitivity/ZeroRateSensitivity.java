@@ -61,7 +61,7 @@ public final class ZeroRateSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code ZeroRateSensitivity} from the curve currency, date and value.
+   * Obtains an instance from the curve currency, date and value.
    * <p>
    * The currency representing the curve is used also for the sensitivity currency.
    * 
@@ -75,7 +75,7 @@ public final class ZeroRateSensitivity
   }
 
   /**
-   * Obtains a {@code ZeroRateSensitivity} from the curve currency, date, sensitivity currency and value.
+   * Obtains an instance from the curve currency, date, sensitivity currency and value.
    * <p>
    * The currency representing the curve is used also for the sensitivity currency.
    * 

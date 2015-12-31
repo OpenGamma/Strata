@@ -82,7 +82,7 @@ public final class FxMatrix
   }
 
   /**
-   * Obtains an {@code FxMatrix} containing a single FX rate.
+   * Obtains an instance containing a single FX rate.
    * <p>
    * This is most likely to be used in testing.
    * <p>
@@ -101,7 +101,7 @@ public final class FxMatrix
   }
 
   /**
-   * Obtains an {@code FxMatrix} containing a single FX rate.
+   * Obtains an instance containing a single FX rate.
    * <p>
    * This is most likely to be used in testing.
    * <p>

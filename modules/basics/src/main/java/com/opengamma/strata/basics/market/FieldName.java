@@ -36,7 +36,7 @@ public final class FieldName
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code FieldName} by name.
+   * Obtains an instance from the specified name.
    * <p>
    * Field names may contain any character, but must not be empty.
    *

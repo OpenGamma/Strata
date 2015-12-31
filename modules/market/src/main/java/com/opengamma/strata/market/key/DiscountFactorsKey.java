@@ -44,7 +44,7 @@ public final class DiscountFactorsKey
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a key used to find the discount factors associated with a currency.
+   * Obtains an instance used to find the discount factors associated with a currency.
    *
    * @param currency  the currency
    * @return a key for the discount factors of the currency

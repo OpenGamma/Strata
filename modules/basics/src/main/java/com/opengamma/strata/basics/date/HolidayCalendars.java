@@ -159,7 +159,7 @@ public final class HolidayCalendars {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code HolidayCalendar} from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name of the calendar
    * @return the holiday calendar

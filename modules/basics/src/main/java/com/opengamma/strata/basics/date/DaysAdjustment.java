@@ -116,7 +116,7 @@ public final class DaysAdjustment
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a days adjustment that can adjust a date by a specific number of calendar days.
+   * Obtains an instance that can adjust a date by a specific number of calendar days.
    * <p>
    * When adjusting a date, the specified number of calendar days is added.
    * Holidays and weekends are not taken into account in the calculation.
@@ -131,7 +131,7 @@ public final class DaysAdjustment
   }
 
   /**
-   * Obtains a days adjustment that can adjust a date by a specific number of calendar days.
+   * Obtains an instance that can adjust a date by a specific number of calendar days.
    * <p>
    * When adjusting a date, the specified number of calendar days is added.
    * Holidays and weekends are not taken into account in the calculation.
@@ -147,7 +147,7 @@ public final class DaysAdjustment
   }
 
   /**
-   * Obtains a days adjustment that can adjust a date by a specific number of business days.
+   * Obtains an instance that can adjust a date by a specific number of business days.
    * <p>
    * When adjusting a date, the specified number of business days is added.
    * This is equivalent to repeatedly finding the next business day.
@@ -163,7 +163,7 @@ public final class DaysAdjustment
   }
 
   /**
-   * Obtains a days adjustment that can adjust a date by a specific number of business days.
+   * Obtains an instance that can adjust a date by a specific number of business days.
    * <p>
    * When adjusting a date, the specified number of business days is added.
    * This is equivalent to repeatedly finding the next business day.

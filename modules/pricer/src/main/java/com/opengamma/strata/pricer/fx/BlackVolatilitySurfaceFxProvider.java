@@ -75,7 +75,7 @@ public final class BlackVolatilitySurfaceFxProvider
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code BlackVolatilitySurfaceFxProvider}.
+   * Obtains an instance based on a surface.
    * 
    * @param surface  the Black volatility surface
    * @param currencyPair  the currency pair

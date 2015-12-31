@@ -20,7 +20,7 @@ public final class BondGroup
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code BondGroup} by name.
+   * Obtains an instance from the specified name.
    * <p>
    * Bond group names may contain any character, but must not be empty.
    *

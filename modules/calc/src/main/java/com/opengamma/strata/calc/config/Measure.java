@@ -125,7 +125,7 @@ public final class Measure
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code Measure} by name.
+   * Obtains an instance from the specified name.
    * <p>
    * Measure names must only contains the characters A-Z, a-z, 0-9 and -.
    *

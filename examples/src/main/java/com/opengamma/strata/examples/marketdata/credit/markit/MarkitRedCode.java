@@ -34,7 +34,7 @@ public final class MarkitRedCode
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code MarkitRedCode} by name.
+   * Obtains an instance from the specified name.
    * <p>
    * RED codes must be 6 or 9 characters long.
    *

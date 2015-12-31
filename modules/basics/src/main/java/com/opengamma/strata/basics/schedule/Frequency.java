@@ -161,7 +161,7 @@ public final class Frequency
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a periodic frequency from a {@code Period}.
+   * Obtains an instance from a {@code Period}.
    * <p>
    * The period normally consists of either days and weeks, or months and years.
    * It must also be positive and non-zero.
@@ -189,7 +189,7 @@ public final class Frequency
   }
 
   /**
-   * Returns a periodic frequency backed by a period of days.
+   * Obtains an instance backed by a period of days.
    * <p>
    * If the number of days is an exact multiple of 7 it will be converted to weeks.
    *
@@ -205,7 +205,7 @@ public final class Frequency
   }
 
   /**
-   * Returns a periodic frequency backed by a period of weeks.
+   * Obtains an instance backed by a period of weeks.
    *
    * @param weeks  the number of weeks
    * @return the periodic frequency
@@ -216,7 +216,7 @@ public final class Frequency
   }
 
   /**
-   * Returns a periodic frequency backed by a period of months.
+   * Obtains an instance backed by a period of months.
    * <p>
    * Months are not normalized into years.
    *
@@ -232,7 +232,7 @@ public final class Frequency
   }
 
   /**
-   * Returns a periodic frequency backed by a period of years.
+   * Obtains an instance backed by a period of years.
    *
    * @param years  the number of years
    * @return the periodic frequency

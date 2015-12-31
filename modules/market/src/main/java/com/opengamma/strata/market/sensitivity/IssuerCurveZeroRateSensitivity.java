@@ -69,7 +69,7 @@ public final class IssuerCurveZeroRateSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code IssuerCurveZeroRateSensitivity} from the curve currency, date, legal entity group and value.
+   * Obtains an instance from the curve currency, date, legal entity group and value.
    * <p>
    * The currency representing the curve is used also for the sensitivity currency.
    * 
@@ -88,7 +88,7 @@ public final class IssuerCurveZeroRateSensitivity
   }
 
   /**
-   * Obtains a {@code IssuerCurveZeroRateSensitivity} from zero rate sensitivity and legal entity group. 
+   * Obtains an instance from zero rate sensitivity and legal entity group. 
    * 
    * @param zeroRateSensitivity  the zero rate sensitivity
    * @param legalEntityGroup  the legal entity group
@@ -106,7 +106,7 @@ public final class IssuerCurveZeroRateSensitivity
   }
 
   /**
-   * Obtains a {@code IssuerCurveZeroRateSensitivity} from the curve currency, date, sensitivity currency,
+   * Obtains an instance from the curve currency, date, sensitivity currency,
    * legal entity group and value.
    * 
    * @param curveCurrency  the currency of the curve

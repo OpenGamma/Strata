@@ -5,7 +5,10 @@
  */
 package com.opengamma.strata.product.bond;
 
+import java.util.Locale;
+
 import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -25,35 +28,56 @@ public enum YieldConvention {
   /**
    * UK BUMP/DMO method. 
    */
-  UK_BUMP_DMO,
+  UK_BUMP_DMO("UK-Bump-DMO"),
 
   /**
    * US Street convention.
    */
-  US_STREET,
+  US_STREET("US-Street"),
 
   /**
    * German bonds. 
    */
-  GERMAN_BONDS,
+  GERMAN_BONDS("German-Bonds"),
 
   /**
    * Japan Simple yield. 
    */
-  JAPAN_SIMPLE;
+  JAPAN_SIMPLE("Japan-Simple");
+
+  // name
+  private final String name;
+
+  // create
+  private YieldConvention(String name) {
+    this.name = name;
+  }
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the convention from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
-   * @return the yield convention
+   * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
   public static YieldConvention of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(uniqueName);
+    return valueOf(uniqueName.replace('-', '_').toUpperCase(Locale.ENGLISH));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+  /**
+   * Returns the formatted unique name of the type.
+   * 
+   * @return the formatted string representing the type
+   */
+  @ToString
+  @Override
+  public String toString() {
+    return name;
   }
 
 }

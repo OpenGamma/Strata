@@ -52,7 +52,7 @@ public final class CashFlows
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code CashFlows} instance from a single cash flow. 
+   * Obtains an instance from a single cash flow. 
    * 
    * @param cashFlow The cash flow
    * @return the cash flows instance
@@ -62,7 +62,7 @@ public final class CashFlows
   }
 
   /**
-   * Obtains a {@code CashFlows} instance from a list of cash flows. 
+   * Obtains an instance from a list of cash flows. 
    * 
    * @param cashFlows the list of cash flows
    * @return the cash flows instance

@@ -31,7 +31,7 @@ public enum PayReceive {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the type from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the type

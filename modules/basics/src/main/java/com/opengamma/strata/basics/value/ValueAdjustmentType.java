@@ -89,17 +89,7 @@ public enum ValueAdjustmentType {
 
   //-------------------------------------------------------------------------
   /**
-   * Adjusts the base value based on the type and the modifying value.
-   * 
-   * @param baseValue  the base, or previous, value to be adjusted
-   * @param modifyingValue  the value that the type uses to modify the base value
-   * @return the calculated result
-   */
-  public abstract double adjust(double baseValue, double modifyingValue);
-
-  //-------------------------------------------------------------------------
-  /**
-   * Obtains the type from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the type
@@ -111,6 +101,17 @@ public enum ValueAdjustmentType {
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Adjusts the base value based on the type and the modifying value.
+   * 
+   * @param baseValue  the base, or previous, value to be adjusted
+   * @param modifyingValue  the value that the type uses to modify the base value
+   * @return the calculated result
+   */
+  public abstract double adjust(double baseValue, double modifyingValue);
+
+  //-------------------------------------------------------------------------
   /**
    * Returns the formatted unique name of the type.
    * 

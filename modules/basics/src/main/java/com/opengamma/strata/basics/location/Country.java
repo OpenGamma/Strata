@@ -244,7 +244,7 @@ public final class Country
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance of {@code Country} for the specified ISO-3166-1 alpha-2
+   * Obtains an instance from the specified ISO-3166-1 alpha-2
    * two letter country code dynamically creating a country if necessary.
    * <p>
    * A country is uniquely identified by ISO-3166-1 alpha-2 two letter code.

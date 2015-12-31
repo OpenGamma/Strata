@@ -34,9 +34,9 @@ public interface DateSequence
     extends Named {
 
   /**
-   * Obtains a {@code DateSequence} from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
-   * @param uniqueName  the unique name of the sequence
+   * @param uniqueName  the unique name
    * @return the date sequence
    * @throws IllegalArgumentException if the name is not known
    */
@@ -49,7 +49,7 @@ public interface DateSequence
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code DateSequence} to be lookup up.
+   * This helper allows instances of the sequence to be looked up.
    * It also provides the complete set of available instances.
    * 
    * @return the extended enum helper

@@ -78,7 +78,7 @@ final class BlackVolatilitySmileFxProvider
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code BlackVolatilitySmileFxProvider}.
+   * Obtains an instance based on a smile.
    * 
    * @param smile  the term structure of smile
    * @param currencyPair  the currency pair

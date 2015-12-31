@@ -73,7 +73,7 @@ public final class FxIndexSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code FxIndexSensitivity} from index, reference currency, fixing date and sensitivity value.
+   * Obtains an instance from index, reference currency, fixing date and sensitivity value.
    * <p>
    * The sensitivity currency is defaulted to be the index currency that is not the reference currency.
    * 
@@ -95,7 +95,7 @@ public final class FxIndexSensitivity
   }
 
   /**
-   * Obtains a {@code FxIndexSensitivity} from index, reference currency, fixing date,
+   * Obtains an instance from index, reference currency, fixing date,
    * sensitivity currency and sensitivity value.
    * 
    * @param index  the index of the FX

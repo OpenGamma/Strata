@@ -45,7 +45,7 @@ public final class StrikeType
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code StrikeType} by name.
+   * Obtains an instance from the specified name.
    * <p>
    * Strike types may contain any character, but must not be empty.
    *

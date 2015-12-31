@@ -20,7 +20,7 @@ public final class SurfaceName
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code SurfaceName} by name.
+   * Obtains an instance from the specified name.
    * <p>
    * Surface names may contain any character, but must not be empty.
    *

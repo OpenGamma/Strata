@@ -37,7 +37,7 @@ public interface HolidayCalendar
     extends Named {
 
   /**
-   * Obtains a {@code HolidayCalendar} from a unique name.
+   * Obtains an instance from the specified unique name.
    * <p>
    * The unique name identifies a calendar in an underlying source of calendars.
    * The calendar itself is looked up on demand when required.
@@ -58,7 +58,7 @@ public interface HolidayCalendar
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code HolidayCalendar} to be lookup up.
+   * This helper allows instances of the calendar to be looked up.
    * It also provides the complete set of available instances.
    * 
    * @return the extended enum helper

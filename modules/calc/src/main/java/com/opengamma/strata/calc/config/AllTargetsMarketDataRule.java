@@ -46,7 +46,7 @@ public final class AllTargetsMarketDataRule implements MarketDataRule, Immutable
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a rule which always returns the specified mappings.
+   * Obtains an instance that always returns the specified mappings.
    * <p>
    * All calls to {@link #mappings(CalculationTarget)} will return these mappings.
    *

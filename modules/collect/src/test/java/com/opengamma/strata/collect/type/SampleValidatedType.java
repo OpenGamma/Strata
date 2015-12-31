@@ -21,7 +21,7 @@ public final class SampleValidatedType
   private static final long serialVersionUID = 1L;
 
   /**
-   * Obtains a {@code SampleValidatedType} by name.
+   * Obtains an instance from the specified name.
    * 
    * @param name  the name to lookup, not null
    * @return the type matching the name, not null

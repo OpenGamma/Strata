@@ -72,7 +72,7 @@ public final class Schedule
 
   //-------------------------------------------------------------------------
   /**
-   * Create a 'Term' schedule from a single period.
+   * Obtains a 'Term' instance based on a single period.
    * <p>
    * A 'Term' schedule has one period with a frequency of 'Term'.
    * 

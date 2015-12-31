@@ -20,7 +20,7 @@ public final class CurveName
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code CurveName} by name.
+   * Obtains an instance from the specified name.
    * <p>
    * Curve names may contain any character, but must not be empty.
    *

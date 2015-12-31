@@ -87,18 +87,18 @@ public final class FloatingRateName
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code FloatingRateName} from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
-   * @param name  the unique name
+   * @param uniqueName  the unique name
    * @return the name
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static FloatingRateName of(String name) {
-    ArgChecker.notNull(name, "uniqueName");
-    FloatingRateName index = DATA_MAP.get(name);
+  public static FloatingRateName of(String uniqueName) {
+    ArgChecker.notNull(uniqueName, "uniqueName");
+    FloatingRateName index = DATA_MAP.get(uniqueName);
     if (index == null) {
-      throw new IllegalArgumentException("Unknown FpML Floating Rate Index: " + name);
+      throw new IllegalArgumentException("Unknown FpML Floating Rate Index: " + uniqueName);
     }
     return index;
   }

@@ -36,7 +36,7 @@ public final class CurveInfoType<T>
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code CurveInfoType} by name.
+   * Obtains an instance from the specified name.
    * <p>
    * Curve names may contain any character, but must not be empty.
    *

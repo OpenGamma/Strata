@@ -80,7 +80,7 @@ public final class PointSensitivities
   }
 
   /**
-   * Obtains a {@code PointSensitivities} from an array of sensitivity entries.
+   * Obtains an instance from an array of sensitivity entries.
    * 
    * @param sensitivity  the sensitivity entry
    * @return the sensitivities instance
@@ -90,7 +90,7 @@ public final class PointSensitivities
   }
 
   /**
-   * Obtains a {@code PointSensitivities} from a list of sensitivity entries.
+   * Obtains an instance from a list of sensitivity entries.
    * 
    * @param sensitivities  the list of sensitivity entries
    * @return the sensitivities instance

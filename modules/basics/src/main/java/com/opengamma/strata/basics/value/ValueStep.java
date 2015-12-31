@@ -78,7 +78,7 @@ public final class ValueStep
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a step that applies at a specific schedule period index.
+   * Obtains an instance that applies at the specified schedule period index.
    * <p>
    * This factory is used to define the date that the step occurs in relative terms.
    * The date is identified by specifying the zero-based index of the schedule period boundary.
@@ -100,7 +100,7 @@ public final class ValueStep
   }
 
   /**
-   * Obtains a step that applies at a specific date.
+   * Obtains an instance that applies at the specified date.
    * <p>
    * This factory obtains a step that causes the value to change at the specified date.
    * <p>

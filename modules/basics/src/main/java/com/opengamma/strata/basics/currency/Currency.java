@@ -292,7 +292,7 @@ public final class Currency
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance of {@code Currency} for the specified ISO-4217 three letter currency code.
+   * Obtains an instance for the specified ISO-4217 three letter currency code.
    * <p>
    * A currency is uniquely identified by ISO-4217 three letter code.
    * Currencies should be defined in configuration before they can be used.
