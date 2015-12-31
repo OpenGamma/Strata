@@ -54,7 +54,7 @@ public final class FxRateKey
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a key to obtain the market FX rate associated with a currency pair.
+   * Obtains an instance representing the market FX rate associated with a currency pair.
    *
    * @param currencyPair  the currency pair
    * @return a key for the FX rate
@@ -64,7 +64,7 @@ public final class FxRateKey
   }
 
   /**
-   * Creates a key to obtain the market FX rate associated with a currency pair.
+   * Obtains an instance representing the market FX rate associated with a currency pair.
    *
    * @param base  the base currency of the pair
    * @param counter  the counter currency of the pair

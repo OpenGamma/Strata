@@ -54,7 +54,7 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an ID for the FX rate for a currency pair.
+   * Obtains an instance representing the FX rate for a currency pair.
    *
    * @param currencyPair  a currency pair
    * @return an ID for the FX rate for the currency pair
@@ -64,7 +64,7 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
   }
 
   /**
-   * Creates an ID for the FX rate for a currency pair.
+   * Obtains an instance representing the FX rate for a currency pair.
    *
    * @param base  the base currency of the pair
    * @param counter  the counter currency of the pair
@@ -75,7 +75,7 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
   }
 
   /**
-   * Creates an ID for the FX rate for a currency pair.
+   * Obtains an instance representing the FX rate for a currency pair, specifying the feed.
    *
    * @param currencyPair  a currency pair
    * @param marketDataFeed  the feed that is the source of the observable market data used to create the rate
@@ -86,7 +86,7 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
   }
 
   /**
-   * Creates an ID for the FX rate for a currency pair.
+   * Obtains an instance representing the FX rate for a currency pair, specifying the feed.
    *
    * @param base  the base currency of the pair
    * @param counter  the counter currency of the pair

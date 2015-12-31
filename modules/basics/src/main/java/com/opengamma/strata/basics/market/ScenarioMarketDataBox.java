@@ -39,16 +39,56 @@ import com.opengamma.strata.collect.function.ObjIntFunction;
 @BeanDefinition
 public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketDataBox<T> {
 
-  /** The market data value which provides data for multiple scenarios. */
+  /**
+   * The market data value which provides data for multiple scenarios.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ScenarioMarketDataValue<T> value;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance containing the specified value.
+   * 
+   * @param value  the market data value which can provide data for multiple scenarios
+   * @return a market data box containing the value
+   */
+  public static <T> ScenarioMarketDataBox<T> of(ScenarioMarketDataValue<T> value) {
+    return new ScenarioMarketDataBox<>(value);
+  }
+
+  /**
+   * Obtains an instance containing the specified market data values, one for each scenario.
+   *
+   * @param values  the single market data values, one for each scenario
+   * @return a scenario market data box containing single market data values, one for each scenario
+   */
+  @SafeVarargs
+  public static <T> ScenarioMarketDataBox<T> of(T... values) {
+    return new ScenarioMarketDataBox<>(ScenarioValuesList.of(values));
+  }
+
+  /**
+   * Obtains an instance containing the specified market data values, one for each scenario.
+   *
+   * @param values  single market data values, one for each scenario
+   * @return a scenario market data box containing single market data values, one for each scenario
+   */
+  public static <T> ScenarioMarketDataBox<T> of(List<T> values) {
+    return new ScenarioMarketDataBox<>(ScenarioValuesList.of(values));
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public T getSingleValue() {
     if (isSingleValue()) {
       return value.getValue(0);
     }
     throw new IllegalStateException("This box does not contain a single value");
+  }
+
+  @Override
+  public ScenarioMarketDataValue<T> getScenarioValue() {
+    return value;
   }
 
   @Override
@@ -62,40 +102,35 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
     return value.getScenarioCount() == 1;
   }
 
-  /**
-   * Returns a market data box containing the value.
-   * 
-   * @param value a market data value which can provide data for multiple scenarios
-   * @return a market data box containing the value
-   */
-  public static <T> ScenarioMarketDataBox<T> of(ScenarioMarketDataValue<T> value) {
-    return new ScenarioMarketDataBox<>(value);
-  }
-
-  /**
-   * Returns a scenario market data box containing single market data values, one for each scenario.
-   *
-   * @param values  single market data values, one for each scenario
-   * @return a scenario market data box containing single market data values, one for each scenario
-   */
-  @SafeVarargs
-  public static <T> ScenarioMarketDataBox<T> of(T... values) {
-    return new ScenarioMarketDataBox<>(ScenarioValuesList.of(values));
-  }
-
-  /**
-   * Returns a scenario market data box containing single market data values, one for each scenario.
-   *
-   * @param values  single market data values, one for each scenario
-   * @return a scenario market data box containing single market data values, one for each scenario
-   */
-  public static <T> ScenarioMarketDataBox<T> of(List<T> values) {
-    return new ScenarioMarketDataBox<>(ScenarioValuesList.of(values));
+  @Override
+  public int getScenarioCount() {
+    return value.getScenarioCount();
   }
 
   @Override
+  public Class<?> getMarketDataType() {
+    return value.getValue(0).getClass();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public <R> MarketDataBox<R> apply(Function<T, R> fn) {
     return applyToScenarios(i -> fn.apply(value.getValue(i)));
+  }
+
+  @Override
+  public <R> MarketDataBox<R> apply(int scenarioCount, ObjIntFunction<T, R> fn) {
+    if (scenarioCount != getScenarioCount()) {
+      throw new IllegalArgumentException(
+          Messages.format(
+              "Scenario count {} does not equal the scenario count of the value {}",
+              scenarioCount,
+              getScenarioCount()));
+    }
+    List<R> perturbedValues = IntStream.range(0, scenarioCount)
+        .mapToObj(idx -> fn.apply(getValue(idx), idx))
+        .collect(toImmutableList());
+    return MarketDataBox.ofScenarioValues(perturbedValues);
   }
 
   @Override
@@ -130,36 +165,6 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
         .mapToObj(fn::apply)
         .collect(toImmutableList());
     return MarketDataBox.ofScenarioValues(results);
-  }
-
-  @Override
-  public ScenarioMarketDataValue<T> getScenarioValue() {
-    return value;
-  }
-
-  @Override
-  public int getScenarioCount() {
-    return value.getScenarioCount();
-  }
-
-  @Override
-  public Class<?> getMarketDataType() {
-    return value.getValue(0).getClass();
-  }
-
-  @Override
-  public <R> MarketDataBox<R> apply(int scenarioCount, ObjIntFunction<T, R> fn) {
-    if (scenarioCount != getScenarioCount()) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "Scenario count {} does not equal the scenario count of the value {}",
-              scenarioCount,
-              getScenarioCount()));
-    }
-    List<R> perturbedValues = IntStream.range(0, scenarioCount)
-        .mapToObj(idx -> fn.apply(getValue(idx), idx))
-        .collect(toImmutableList());
-    return MarketDataBox.ofScenarioValues(perturbedValues);
   }
 
   //------------------------- AUTOGENERATED START -------------------------

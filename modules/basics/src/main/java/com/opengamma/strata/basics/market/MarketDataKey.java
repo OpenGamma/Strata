@@ -28,7 +28,7 @@ package com.opengamma.strata.basics.market;
 public interface MarketDataKey<T> {
 
   /**
-   * Returns the type of market data identified by the key.
+   * Gets the type of market data identified by the key.
    *
    * @return the type of market data identified by the key
    */

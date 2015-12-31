@@ -57,7 +57,7 @@ public final class ImmutableMarketData
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an {@code ImmutableMarketData} from a valuation date and map of values.
+   * Obtains an instance from a valuation date and map of values.
    * <p>
    * Use the {@linkplain #builder(LocalDate) builder} more more complex use cases,
    * including setting time-series.
@@ -94,6 +94,7 @@ public final class ImmutableMarketData
     return new ImmutableMarketDataBuilder(valuationDate);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a builder populated with the same data as this instance.
    * 
