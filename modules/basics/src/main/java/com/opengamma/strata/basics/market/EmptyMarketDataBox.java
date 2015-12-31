@@ -19,7 +19,7 @@ class EmptyMarketDataBox implements MarketDataBox<Void> {
   private static final EmptyMarketDataBox INSTANCE = new EmptyMarketDataBox();
 
   /**
-   * Returns a market data box containing no data.
+   * Obtains a market data box containing no data.
    *
    * @param <T>  the required type of the market data box
    * @return a market data box containing no data
@@ -29,6 +29,7 @@ class EmptyMarketDataBox implements MarketDataBox<Void> {
     return (MarketDataBox<T>) INSTANCE;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Void getSingleValue() {
     throw new UnsupportedOperationException("Cannot get a value from an empty market data box");
@@ -73,4 +74,5 @@ class EmptyMarketDataBox implements MarketDataBox<Void> {
   public Class<Void> getMarketDataType() {
     return Void.class;
   }
+
 }

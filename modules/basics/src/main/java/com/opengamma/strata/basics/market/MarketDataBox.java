@@ -39,7 +39,7 @@ import com.opengamma.strata.collect.function.ObjIntFunction;
 public interface MarketDataBox<T> {
 
   /**
-   * Returns a box containing a single market data value that is used in all scenarios.
+   * Obtains an instance containing a single market data value that is used in all scenarios.
    *
    * @param singleValue  the market data value containing data for a single scenario
    * @param <T> the type of the market data value used in each scenario
@@ -50,7 +50,7 @@ public interface MarketDataBox<T> {
   }
 
   /**
-   * Returns a box containing a scenario market data value with data for multiple scenarios.
+   * Obtains an instance containing a scenario market data value with data for multiple scenarios.
    *
    * @param scenarioValue  the market data value containing data for multiple scenarios
    * @param <T> the type of the market data value used in each scenario
@@ -61,7 +61,7 @@ public interface MarketDataBox<T> {
   }
 
   /**
-   * Returns a box containing a scenario market data value with data for multiple scenarios.
+   * Obtains an instance containing a scenario market data value with data for multiple scenarios.
    * <p>
    * The market data is made up of multiple single values, one for each scenario.
    *
@@ -75,7 +75,7 @@ public interface MarketDataBox<T> {
   }
 
   /**
-   * Returns a box containing a scenario market data value with data for multiple scenarios.
+   * Obtains an instance containing a scenario market data value with data for multiple scenarios.
    *
    * @param scenarioValues  the market data values for each scenario
    * @return a box containing a scenario market data value with data for multiple scenarios
@@ -85,7 +85,7 @@ public interface MarketDataBox<T> {
   }
 
   /**
-   * Returns a box containing no market data.
+   * Obtains an instance containing no market data.
    *
    * @param <T> the type of the market data value used in each scenario
    * @return a box containing no market data
@@ -94,8 +94,9 @@ public interface MarketDataBox<T> {
     return EmptyMarketDataBox.empty();
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns the single market data value used for all scenarios if available.
+   * Gets the single market data value used for all scenarios if available.
    * <p>
    * If this box contains data for multiple scenarios an exception is thrown.
    * <p>
@@ -108,7 +109,7 @@ public interface MarketDataBox<T> {
   public abstract T getSingleValue();
 
   /**
-   * Returns the market data value containing data for multiple scenarios.
+   * Gets the market data value containing data for multiple scenarios.
    * <p>
    * If this box contains data for a single scenario an exception is thrown.
    * <p>
@@ -121,22 +122,23 @@ public interface MarketDataBox<T> {
   public abstract ScenarioMarketDataValue<T> getScenarioValue();
 
   /**
-   * Returns a market data value for use in a scenario.
+   * Gets the market data value associated with the specified scenario.
    *
    * @param scenarioIndex  the index of the scenario
-   * @return a market data value for use in the scenario
+   * @return the market data value associated with the scenario
    */
   public abstract T getValue(int scenarioIndex);
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns true if this box contains a single market data value that is used for all scenarios.
+   * Checks if this box contains a single market data value that is used for all scenarios.
    *
    * @return true if this box contains a single market data value that is used for all scenarios
    */
   public abstract boolean isSingleValue();
 
   /**
-   * Returns true if this box contains market data for multiple scenarios.
+   * Checks if this box contains market data for multiple scenarios.
    *
    * @return true if this box contains market data for multiple scenarios
    */
@@ -144,6 +146,25 @@ public interface MarketDataBox<T> {
     return !isSingleValue();
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the number of scenarios for which this box contains data.
+   * <p>
+   * If a box contains data for a single scenario it is treated as a special case and can be used in any number
+   * of scenarios, returning the same value for every scenario.
+   *
+   * @return the number of scenarios for which this box contains data
+   */
+  public abstract int getScenarioCount();
+
+  /**
+   * Gets the type of the market data value used in each scenario.
+   *
+   * @return the type of the market data value used in each scenario
+   */
+  public abstract Class<?> getMarketDataType();
+
+  //-------------------------------------------------------------------------
   /**
    * Applies a function to the contents of the box and returns another box.
    * <p>
@@ -170,7 +191,7 @@ public interface MarketDataBox<T> {
    * each scenario data by applying a function to the existing value for the scenario.
    *
    * @param scenarioCount  the total number of scenarios
-   * @param fn  a function that is invoked with a scenario index and the market data value for that scenario.
+   * @param fn  the function that is invoked with a scenario index and the market data value for that scenario.
    *   The return value is used as the scenario data in the returned box
    * @param <R>  the type of the returned market data
    * @return a box containing market data created by applying the function to the contents of this box
@@ -189,26 +210,10 @@ public interface MarketDataBox<T> {
    * @param <U>  the type of market data in the other box
    * @param <R>  the type of the market data returned in the result of the function
    * @param other  another market data box
-   * @param fn  a function invoked with the market data from each box. The return value is used to build the data
+   * @param fn  the function invoked with the market data from each box. The return value is used to build the data
    *   in the returned box
    * @return a box containing market data created by applying the function to the data in this box and another box
    */
   public abstract <U, R> MarketDataBox<R> combineWith(MarketDataBox<U> other, BiFunction<T, U, R> fn);
 
-  /**
-   * Returns the number of scenarios for which this box contains data.
-   * <p>
-   * If a box contains data for a single scenario it is treated as a special case and can be used in any number
-   * of scenarios, returning the same value for every scenario.
-   *
-   * @return the number of scenarios for which this box contains data
-   */
-  public abstract int getScenarioCount();
-
-  /**
-   * Returns the type of the market data value used in each scenario.
-   *
-   * @return the type of the market data value used in each scenario
-   */
-  public abstract Class<?> getMarketDataType();
 }

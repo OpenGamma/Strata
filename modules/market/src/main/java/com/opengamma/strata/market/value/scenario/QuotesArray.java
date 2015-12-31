@@ -42,12 +42,15 @@ import com.opengamma.strata.market.key.scenario.QuotesArrayKey;
 @BeanDefinition(builderScope = "private")
 public final class QuotesArray implements ScenarioMarketDataValue<Double>, ImmutableBean {
 
-  /** The values of the quotes. */
+  /**
+   * The values of the quotes.
+   */
   @PropertyDefinition(validate = "notNull")
   private final DoubleArray quotes;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns an instance wrapping a set of quotes.
+   * Obtains an instance wrapping a set of quotes.
    *
    * @param quotes  the quotes
    * @return an instance wrapping a set of quotes
@@ -56,6 +59,7 @@ public final class QuotesArray implements ScenarioMarketDataValue<Double>, Immut
     return new QuotesArray(quotes);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Double getValue(int scenarioIndex) {
     return quotes.get(scenarioIndex);

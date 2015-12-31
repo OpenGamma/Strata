@@ -22,7 +22,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 public interface MarketData {
 
   /**
-   * Obtains a {@code MarketData} from a valuation date and map of values.
+   * Obtains an instance from a valuation date and map of values.
    *
    * @param valuationDate  the valuation date associated with the market data
    * @param values  the market data values
@@ -33,7 +33,7 @@ public interface MarketData {
   }
 
   /**
-   * Obtains a {@code MarketData} from a valuation date, map of values and time-series.
+   * Obtains an instance from a valuation date, map of values and time-series.
    *
    * @param valuationDate  the valuation date associated with the market data
    * @param values  the market data values

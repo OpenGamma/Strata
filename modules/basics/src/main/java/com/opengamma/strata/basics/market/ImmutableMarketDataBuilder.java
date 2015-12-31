@@ -30,6 +30,7 @@ public class ImmutableMarketDataBuilder {
    */
   private final Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeries = new HashMap<>();
 
+  //-------------------------------------------------------------------------
   /**
    * Creates an empty builder.
    * 

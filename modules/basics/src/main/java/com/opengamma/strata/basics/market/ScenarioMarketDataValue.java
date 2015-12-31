@@ -36,17 +36,18 @@ package com.opengamma.strata.basics.market;
 public interface ScenarioMarketDataValue<T> {
 
   /**
-   * Returns a market data value for a scenario.
+   * Gets the market data value associated with the specified scenario.
    *
    * @param scenarioIndex  the index of the scenario
-   * @return the value of the market data for the specified scenario
+   * @return the market data value associated with the scenario
    */
   public abstract T getValue(int scenarioIndex);
 
   /**
-   * The number of scenarios for which this object contains data.
+   * Gets the number of scenarios for which this object contains data.
    *
    * @return the number of scenarios for which this object contains data
    */
   public abstract int getScenarioCount();
+
 }

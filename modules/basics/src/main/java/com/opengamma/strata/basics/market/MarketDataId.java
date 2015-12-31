@@ -24,16 +24,17 @@ package com.opengamma.strata.basics.market;
 public interface MarketDataId<T> {
 
   /**
-   * Returns the type of market data that is being identified.
+   * Gets the type of market data that is being identified.
    *
    * @return the type of market data that is being identified
    */
   public abstract Class<T> getMarketDataType();
 
   /**
-   * Returns the key associated with this ID.
+   * Converts this ID to the associated key.
    *
    * @return the key associated with this ID
    */
   public abstract MarketDataKey<T> toMarketDataKey();
+
 }
