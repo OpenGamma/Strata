@@ -70,7 +70,7 @@ public final class RepoCurveZeroRateSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code RepoCurveZeroRateSensitivity} from the curve currency, date, bond group and value.
+   * Obtains an instance from the curve currency, date, bond group and value.
    * <p>
    * The currency representing the curve is used also for the sensitivity currency.
    * 
@@ -89,7 +89,7 @@ public final class RepoCurveZeroRateSensitivity
   }
 
   /**
-   * Obtains a {@code RepoCurveZeroRateSensitivity} from zero rate sensitivity and bond group. 
+   * Obtains an instance from zero rate sensitivity and bond group. 
    * 
    * @param zeroRateSensitivity  the zero rate sensitivity
    * @param bondGroup  the bond group
@@ -105,7 +105,7 @@ public final class RepoCurveZeroRateSensitivity
   }
 
   /**
-   * Obtains a {@code RepoCurveZeroRateSensitivity} from the curve currency, date, sensitivity currency,
+   * Obtains an instance from the curve currency, date, sensitivity currency,
    * bond group and value.
    * 
    * @param curveCurrency  the currency of the curve

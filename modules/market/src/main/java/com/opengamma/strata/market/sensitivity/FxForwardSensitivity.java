@@ -72,7 +72,7 @@ public final class FxForwardSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code FxForwardSensitivity} from currency pair, reference currency, reference date and sensitivity value.
+   * Obtains an instance from currency pair, reference currency, reference date and sensitivity value.
    * <p>
    * The sensitivity currency is defaulted to be a currency of the currency pair that is not the reference currency.
    * 
@@ -94,7 +94,7 @@ public final class FxForwardSensitivity
   }
 
   /**
-   * Obtains a {@code FxForwardSensitivity} from currency pair, reference currency, reference date
+   * Obtains an instance from currency pair, reference currency, reference date
    * sensitivity currency and sensitivity value.
    * 
    * @param currencyPair  the currency pair

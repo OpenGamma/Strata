@@ -78,7 +78,7 @@ public final class MultiCurrencyAmount
   }
 
   /**
-   * Obtains a {@code MultiCurrencyAmount} from a currency and amount.
+   * Obtains an instance from a currency and amount.
    * 
    * @param currency  the currency
    * @param amount  the amount
@@ -90,7 +90,7 @@ public final class MultiCurrencyAmount
   }
 
   /**
-   * Obtains a {@code MultiCurrencyAmount} from an array of {@code CurrencyAmount} objects.
+   * Obtains an instance from an array of {@code CurrencyAmount} objects.
    * <p>
    * It is an error for the input to contain the same currency twice.
    * 
@@ -106,7 +106,7 @@ public final class MultiCurrencyAmount
   }
 
   /**
-   * Obtains a {@code MultiCurrencyAmount} from a list of {@code CurrencyAmount} objects.
+   * Obtains an instance from a list of {@code CurrencyAmount} objects.
    * <p>
    * It is an error for the input to contain the same currency twice.
    * 
@@ -125,7 +125,7 @@ public final class MultiCurrencyAmount
   }
 
   /**
-   * Obtains a {@code MultiCurrencyAmount} from a map of currency to amount.
+   * Obtains an instance from a map of currency to amount.
    * 
    * @param map  the map of currency to amount
    * @return the amount
@@ -139,7 +139,7 @@ public final class MultiCurrencyAmount
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code MultiCurrencyAmount} from the total of a list of {@code CurrencyAmount} objects.
+   * Obtains an instance from the total of a list of {@code CurrencyAmount} objects.
    * <p>
    * If the input contains the same currency more than once, the amounts are added together.
    * For example, an input of (EUR 100, EUR 200, CAD 100) would result in (EUR 300, CAD 100).

@@ -5,7 +5,12 @@
  */
 package com.opengamma.strata.market;
 
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
+
+import com.google.common.base.CaseFormat;
 import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Enum representing alternative ways to apply a shift which modifies the value of a piece of market data.
@@ -21,7 +26,7 @@ public enum ShiftType {
    * <p>
    * {@code shiftedValue = (value + value * shiftAmount)}
    */
-  RELATIVE("Relative") {
+  RELATIVE {
     @Override
     public double applyShift(double value, double shiftAmount) {
       return value + value * shiftAmount;
@@ -38,7 +43,7 @@ public enum ShiftType {
    * <p>
    * {@code shiftedValue = (value + shiftAmount)}
    */
-  ABSOLUTE("Absolute") {
+  ABSOLUTE {
     @Override
     public double applyShift(double value, double shiftAmount) {
       return value + shiftAmount;
@@ -50,6 +55,21 @@ public enum ShiftType {
     }
   };
 
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from the specified unique name.
+   * 
+   * @param uniqueName  the unique name
+   * @return the type
+   * @throws IllegalArgumentException if the name is not known
+   */
+  @FromString
+  public static ShiftType of(String uniqueName) {
+    ArgChecker.notNull(uniqueName, "uniqueName");
+    return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Applies the shift to the value using appropriate logic for the shift type.
    *
@@ -67,20 +87,16 @@ public enum ShiftType {
    */
   public abstract ValueAdjustment toValueAdjustment(double shiftAmount);
 
-  /** The name of the shift type. */
-  private String name;
-
+  //-------------------------------------------------------------------------
   /**
-   * Creates a new instance.
-   *
-   * @param name  the name of the value
+   * Returns the formatted unique name of the type.
+   * 
+   * @return the formatted string representing the type
    */
-  ShiftType(final String name) {
-    this.name = name;
-  }
-
+  @ToString
   @Override
   public String toString() {
-    return name;
+    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
   }
+
 }

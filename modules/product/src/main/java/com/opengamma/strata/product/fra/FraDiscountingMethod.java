@@ -49,10 +49,10 @@ public enum FraDiscountingMethod {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the compounding method from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
-   * @return the compounding method
+   * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
@@ -61,10 +61,12 @@ public enum FraDiscountingMethod {
     return valueOf(uniqueName.toUpperCase(Locale.ENGLISH));
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns the formatted unique name of the compounding method.
+  /**
+   * Returns the formatted unique name of the type.
    * 
-   * @return the formatted string representing the compounding method
+   * @return the formatted string representing the type
    */
   @ToString
   @Override

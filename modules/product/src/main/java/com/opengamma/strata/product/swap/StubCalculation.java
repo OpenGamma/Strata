@@ -90,7 +90,7 @@ public final class StubCalculation
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code StubCalculation} with a single fixed rate.
+   * Obtains an instance with a single fixed rate.
    * 
    * @param fixedRate  the fixed rate for the stub
    * @return the stub
@@ -100,7 +100,7 @@ public final class StubCalculation
   }
 
   /**
-   * Obtains a {@code StubCalculation} with a single floating rate.
+   * Obtains an instance with a single floating rate.
    * 
    * @param index  the index that applies to the stub
    * @return the stub
@@ -112,7 +112,7 @@ public final class StubCalculation
   }
 
   /**
-   * Obtains a {@code StubCalculation} with linear interpolation of two floating rates.
+   * Obtains an instance with linear interpolation of two floating rates.
    * <p>
    * The two indices must be different, typically with one longer than another.
    * The order of input of the indices does not matter.

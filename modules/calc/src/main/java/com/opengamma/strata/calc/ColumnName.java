@@ -20,7 +20,7 @@ public final class ColumnName
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code ColumnName} by name.
+   * Obtains an instance from the specified name.
    * <p>
    * Column names may contain any character, but must not be empty.
    *

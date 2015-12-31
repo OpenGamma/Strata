@@ -35,7 +35,7 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 public interface CurveCalibrator {
 
   /**
-   * Obtains a curve calibrator, specifying tolerances and measures to use.
+   * Obtains an instance specifying tolerances and measures to use.
    *
    * @param toleranceAbs the absolute tolerance
    * @param toleranceRel the relative tolerance

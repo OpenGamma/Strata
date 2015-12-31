@@ -69,7 +69,7 @@ public final class BusinessDayAdjustment
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an adjustment using a specific convention and calendar.
+   * Obtains an instance using the specified convention and calendar.
    * <p>
    * When adjusting a date, the convention rule will be applied using the specified calendar.
    * 

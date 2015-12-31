@@ -50,7 +50,7 @@ public enum NegativeRateMethod {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the type from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the type
@@ -60,17 +60,6 @@ public enum NegativeRateMethod {
   public static NegativeRateMethod of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
-  }
-
-  /**
-   * Returns the formatted unique name of the type.
-   * 
-   * @return the formatted string representing the type
-   */
-  @ToString
-  @Override
-  public String toString() {
-    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
   }
 
   //-----------------------------------------------------------------------
@@ -84,5 +73,17 @@ public enum NegativeRateMethod {
    * @return the adjusted result
    */
   public abstract double adjust(double rate);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns the formatted unique name of the type.
+   * 
+   * @return the formatted string representing the type
+   */
+  @ToString
+  @Override
+  public String toString() {
+    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
+  }
 
 }

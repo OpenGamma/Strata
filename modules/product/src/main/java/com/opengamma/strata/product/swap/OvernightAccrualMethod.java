@@ -37,7 +37,7 @@ public enum OvernightAccrualMethod {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the type from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the type
@@ -49,6 +49,7 @@ public enum OvernightAccrualMethod {
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns the formatted unique name of the type.
    * 

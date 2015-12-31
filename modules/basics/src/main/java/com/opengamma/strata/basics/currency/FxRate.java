@@ -66,7 +66,7 @@ public final class FxRate
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an FX rate from two currencies.
+   * Obtains an instance from two currencies.
    * <p>
    * The first currency is the base and the second is the counter.
    * The two currencies may be the same, but if they are then the rate must be one.
@@ -82,7 +82,7 @@ public final class FxRate
   }
 
   /**
-   * Obtains an FX rate from a currency pair.
+   * Obtains an instance from a currency pair.
    * <p>
    * The two currencies may be the same, but if they are then the rate must be one.
    * 

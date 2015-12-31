@@ -84,7 +84,7 @@ public final class StandardId
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code StandardId} from a scheme and value.
+   * Obtains an instance from a scheme and value.
    * <p>
    * The scheme must be non-empty and match the regular expression '{@code [A-Za-z][A-Za-z0-9+.=_-]*}'.
    * <p>

@@ -33,7 +33,7 @@ public interface FraConvention
     extends TradeConvention, Named {
 
   /**
-   * Obtains a convention from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the convention

@@ -96,7 +96,7 @@ public final class ImmutableHolidayCalendar
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code HolidayCalendar} from a set of holiday dates and weekend days.
+   * Obtains an instance from a set of holiday dates and weekend days.
    * <p>
    * The holiday dates will be extracted into a set with duplicates ignored.
    * The minimum supported date for query is the start of the year of the earliest holiday.
@@ -121,7 +121,7 @@ public final class ImmutableHolidayCalendar
   }
 
   /**
-   * Obtains a {@code HolidayCalendar} from a set of holiday dates and weekend days.
+   * Obtains an instance from a set of holiday dates and weekend days.
    * <p>
    * The holiday dates will be extracted into a set with duplicates ignored.
    * The minimum supported date for query is the start of the year of the earliest holiday.

@@ -55,7 +55,7 @@ public final class Payment
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a {@code Payment} representing an amount.
+   * Obtains an instance representing an amount.
    * <p>
    * Whether the payment is pay or receive is determined by the sign of the specified amount.
    * 
@@ -69,7 +69,7 @@ public final class Payment
   }
 
   /**
-   * Creates a {@code Payment} representing an amount.
+   * Obtains an instance representing an amount.
    * <p>
    * Whether the payment is pay or receive is determined by the sign of the specified amount.
    * 
@@ -82,7 +82,7 @@ public final class Payment
   }
 
   /**
-   * Creates a {@code Payment} representing an amount to be paid.
+   * Obtains an instance representing an amount to be paid.
    * <p>
    * The sign of the amount will be normalized to be negative, indicating a payment.
    * 
@@ -95,7 +95,7 @@ public final class Payment
   }
 
   /**
-   * Creates a {@code Payment} representing an amount to be received.
+   * Obtains an instance representing an amount to be received.
    * <p>
    * The sign of the amount will be normalized to be positive, indicating receipt.
    * 

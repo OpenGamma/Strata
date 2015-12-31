@@ -43,7 +43,7 @@ public final class MarketDataFeed
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance by name.
+   * Obtains an instance from the specified name.
    * <p>
    * Feed names must only contains the characters A-Z, a-z, 0-9 and -.
    *

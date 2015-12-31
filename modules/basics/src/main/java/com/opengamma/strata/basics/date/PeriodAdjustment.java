@@ -92,7 +92,7 @@ public final class PeriodAdjustment
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a period adjustment that can adjust a date by the specified period.
+   * Obtains an instance that can adjust a date by the specified period.
    * <p>
    * When the adjustment is performed, the period will be added to the input date.
    * The business day adjustment will then be used to ensure the result is a valid business day.
@@ -108,7 +108,7 @@ public final class PeriodAdjustment
   }
 
   /**
-   * Obtains a period adjustment that can adjust a date by the specified period using the
+   * Obtains an instance that can adjust a date by the specified period using the
    * last day of month convention.
    * <p>
    * When the adjustment is performed, the period will be added to the input date.
@@ -125,7 +125,7 @@ public final class PeriodAdjustment
   }
 
   /**
-   * Obtains a period adjustment that can adjust a date by the specified period using the
+   * Obtains an instance that can adjust a date by the specified period using the
    * last business day of month convention.
    * <p>
    * When the adjustment is performed, the period will be added to the input date.

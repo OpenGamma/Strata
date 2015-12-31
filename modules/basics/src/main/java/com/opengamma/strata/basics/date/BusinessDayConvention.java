@@ -32,7 +32,7 @@ public interface BusinessDayConvention
     extends Named {
 
   /**
-   * Obtains a {@code BusinessDayConvention} from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the business convention
@@ -47,7 +47,7 @@ public interface BusinessDayConvention
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code BusinessDayConvention} to be lookup up.
+   * This helper allows instances of the convention to be looked up.
    * It also provides the complete set of available instances.
    * 
    * @return the extended enum helper

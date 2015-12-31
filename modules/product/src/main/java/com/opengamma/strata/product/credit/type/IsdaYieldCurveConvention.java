@@ -39,9 +39,9 @@ public interface IsdaYieldCurveConvention
   // TODO: merge business day convention and holiday calendar
 
   /**
-   * Looks up the convention corresponding to a given name.
+   * Obtains an instance from the specified unique name.
    * 
-   * @param uniqueName  the unique name of the convention
+   * @param uniqueName  the unique name
    * @return the resolved convention
    */
   @FromString

@@ -112,7 +112,7 @@ public final class NotionalSchedule
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code NotionalSchedule} with a single amount that does not change over time.
+   * Obtains an instance with a single amount that does not change over time.
    * 
    * @param notional  the single notional that does not change over time
    * @return the notional amount
@@ -126,7 +126,7 @@ public final class NotionalSchedule
   }
 
   /**
-   * Obtains a {@code NotionalSchedule} with a single amount that does not change over time.
+   * Obtains an instance with a single amount that does not change over time.
    * 
    * @param currency  the currency of the notional and swap payments
    * @param amount  the single notional amount that does not change over time
@@ -141,7 +141,7 @@ public final class NotionalSchedule
   }
 
   /**
-   * Obtains a {@code NotionalSchedule} with a notional amount that can change over time.
+   * Obtains an instance with a notional amount that can change over time.
    * 
    * @param currency  the currency of the notional and swap payments
    * @param amountSchedule  the schedule describing how the notional changes over time

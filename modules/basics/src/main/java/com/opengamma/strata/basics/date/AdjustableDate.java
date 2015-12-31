@@ -72,7 +72,7 @@ public final class AdjustableDate
   }
 
   /**
-   * Obtains an adjustable date.
+   * Obtains an instance with a business day adjustment.
    * <p>
    * This creates an adjustable date from the unadjusted date and business day adjustment.
    * The adjusted date is accessible via {@link #adjusted()}.

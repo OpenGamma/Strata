@@ -76,7 +76,7 @@ public final class BlackVolatilityFlatFxProvider
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code BlackVolatilityFlatFxProvider}.
+   * Obtains an instance based on a curve.
    * 
    * @param curve  the term structure of volatility
    * @param currencyPair  the currency pair

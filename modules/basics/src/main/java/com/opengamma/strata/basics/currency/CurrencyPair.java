@@ -79,7 +79,7 @@ public final class CurrencyPair
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a currency pair from two currencies.
+   * Obtains an instance from two currencies.
    * <p>
    * The first currency is the base and the second is the counter.
    * The two currencies may be the same.

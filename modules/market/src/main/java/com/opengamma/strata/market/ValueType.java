@@ -74,7 +74,7 @@ public final class ValueType
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code ValueType} by name.
+   * Obtains an instance from the specified name.
    * <p>
    * Value types must only contains the characters A-Z, a-z, 0-9 and -.
    *

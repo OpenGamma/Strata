@@ -41,7 +41,7 @@ public final class ValueDerivatives
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance.
+   * Obtains an instance from a value and array of derivatives.
    * 
    * @param value  the value
    * @param derivatives  the derivatives of the value

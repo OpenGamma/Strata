@@ -37,7 +37,7 @@ public interface OvernightIndex
     extends RateIndex, Named {
 
   /**
-   * Obtains an {@code OvernightIndex} from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the index
@@ -52,7 +52,7 @@ public interface OvernightIndex
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code OvernightIndex} to be lookup up.
+   * This helper allows instances of the index to be looked up.
    * It also provides the complete set of available instances.
    * 
    * @return the extended enum helper

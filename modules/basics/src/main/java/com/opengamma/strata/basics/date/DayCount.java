@@ -30,7 +30,7 @@ public interface DayCount
     extends Named {
 
   /**
-   * Obtains a {@code DayCount} from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the day count
@@ -60,7 +60,7 @@ public interface DayCount
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code DayCount} to be lookup up.
+   * This helper allows instances of the day count to be looked up.
    * It also provides the complete set of available instances.
    * 
    * @return the extended enum helper

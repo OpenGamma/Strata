@@ -31,7 +31,7 @@ public interface PeriodAdditionConvention
     extends Named {
 
   /**
-   * Obtains a {@code PeriodAdditionConvention} from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the addition convention
@@ -46,7 +46,7 @@ public interface PeriodAdditionConvention
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code PeriodAdditionConvention} to be lookup up.
+   * This helper allows instances of the convention to be looked up.
    * It also provides the complete set of available instances.
    * 
    * @return the extended enum helper

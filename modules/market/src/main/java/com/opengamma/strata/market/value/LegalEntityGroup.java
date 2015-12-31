@@ -20,7 +20,7 @@ public final class LegalEntityGroup
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code LegalEntityGroup} by name.
+   * Obtains an instance from the specified name.
    * <p>
    * Legal entity group names may contain any character, but must not be empty.
    *

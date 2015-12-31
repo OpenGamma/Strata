@@ -51,7 +51,7 @@ public final class ImmutableSwapIndex
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code ImmutableSwapIndex}.
+   * Obtains an instance from the specified name and template.
    * 
    * @param name  the index name
    * @param template  the swap template

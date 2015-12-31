@@ -26,7 +26,7 @@ public interface FpmlTradeParser
     extends Named {
 
   /**
-   * Obtains an {@code FpmlTradeParser} from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the parser
@@ -41,7 +41,7 @@ public interface FpmlTradeParser
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code FpmlTradeParser} to be looked up.
+   * This helper allows instances of the parser to be looked up.
    * It also provides the complete set of available instances.
    * 
    * @return the extended enum helper

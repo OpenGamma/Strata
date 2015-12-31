@@ -29,7 +29,7 @@ public interface SwapIndex
     extends Index, Named {
 
   /**
-   * Obtains a {@code SwapIndex} from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the index
@@ -44,7 +44,7 @@ public interface SwapIndex
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code SwapIndex} to be looked up.
+   * This helper allows instances of the index to be looked up.
    * It also provides the complete set of available instances.
    * 
    * @return the extended enum helper
