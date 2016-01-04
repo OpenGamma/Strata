@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.collect.result.Result;
 
 /**

@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -45,11 +46,12 @@ import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.config.pricing.PricingRule;
+import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.calc.runner.CalculationRunner;
-import com.opengamma.strata.calc.runner.CalculationRunnerFactory;
+import com.opengamma.strata.calc.runner.CalculationTaskRunner;
+import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
@@ -146,11 +148,16 @@ public class SwapPricingTest {
     List<Column> columns = ImmutableList.of(Column.of(Measure.PRESENT_VALUE));
     ReportingRules reportingRules = ReportingRules.fixedCurrency(USD);
     CalculationRules rules = CalculationRules.of(pricingRules, marketDataRules, reportingRules);
-    CalculationRunner runner = CalculationRunnerFactory.ofSingleThreaded()
-        .createWithMarketDataBuilder(trades, columns, rules, marketDataFactory(), MarketDataConfig.empty());
 
     // calculate results using the runner
-    Results results = runner.calculateSingleScenario(suppliedData);
+    Results results = null;
+    try (CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService())) {
+      CalculationTasks tasks = runner.createTasks(trades, columns, rules);
+      MarketDataRequirements reqs = tasks.getRequirements();
+      MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, suppliedData, MarketDataConfig.empty());
+      results = runner.calculateSingleScenario(tasks, enhancedMarketData);
+    }
+
     Result<?> result = results.get(0, 0);
     assertThat(result).isSuccess();
 

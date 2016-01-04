@@ -12,8 +12,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
 
+import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -22,9 +26,11 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Result;
 
 /**
- * The default calculation runner.
+ * The default calculation task runner.
+ * <p>
+ * This uses a single instance of {@link ExecutorService}.
  */
-class DefaultCalculationRunner implements CalculationRunner {
+class DefaultCalculationTaskRunner implements CalculationTaskRunner {
 
   /**
    * Executes the tasks that perform the individual calculations.
@@ -32,42 +38,83 @@ class DefaultCalculationRunner implements CalculationRunner {
    */
   private final ExecutorService executor;
   /**
-   * The calculation tasks that define the individual calculations.
-   */
-  private final CalculationTasks tasks;
-  /**
    * The factory for consumers that wrap listeners to control threading and notify
    * them when calculations are complete.
    */
   private final ConsumerFactory consumerFactory = ListenerWrapper::new;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a standard multi-threaded calculation task runner capable of performing calculations.
+   * <p>
+   * This factory creates an executor basing the number of threads on the number of available processors.
+   * It is recommended to use try-with-resources to manage the runner:
+   * <pre>
+   *  try (DefaultCalculationTaskRunner runner = DefaultCalculationTaskRunner.ofMultiThreaded()) {
+   *    // use the runner
+   *  }
+   * </pre>
+   * 
+   * @return the calculation task runner
+   */
+  public static DefaultCalculationTaskRunner ofMultiThreaded() {
+    return new DefaultCalculationTaskRunner(createExecutor(Runtime.getRuntime().availableProcessors()));
+  }
+
+  /**
+   * Creates a calculation task runner capable of performing calculations, specifying the executor.
+   * <p>
+   * It is the callers responsibility to manage the life-cycle of the executor.
+   * 
+   * @param executor  the executor to use
+   * @return the calculation task runner
+   */
+  public static DefaultCalculationTaskRunner of(ExecutorService executor) {
+    return new DefaultCalculationTaskRunner(executor);
+  }
+
+  // create an executor with daemon threads
+  private static ExecutorService createExecutor(int threads) {
+    int effectiveThreads = (threads <= 0 ? Runtime.getRuntime().availableProcessors() : threads);
+    ThreadFactory threadFactory = r -> {
+      Thread t = Executors.defaultThreadFactory().newThread(r);
+      t.setName("CalculationTaskRunner-" + t.getName());
+      t.setDaemon(true);
+      return t;
+    };
+    return Executors.newFixedThreadPool(effectiveThreads, threadFactory);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates an instance specifying the executor to use.
    * 
-   * @param executor  executes the tasks that perform the calculations
-   * @param tasks  the tasks that define the calculations
+   * @param executor  the executor that is used to perform the calculations
    */
-  DefaultCalculationRunner(ExecutorService executor, CalculationTasks tasks) {
+  private DefaultCalculationTaskRunner(ExecutorService executor) {
     this.executor = ArgChecker.notNull(executor, "executor");
-    this.tasks = ArgChecker.notNull(tasks, "tasks");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public CalculationTasks getTasks() {
-    return tasks;
+  public CalculationTasks createTasks(
+      List<? extends CalculationTarget> targets,
+      List<Column> columns,
+      CalculationRules calculationRules) {
+
+    return CalculationTasks.of(targets, columns, calculationRules);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Results calculateSingleScenario(CalculationEnvironment marketData) {
+  public Results calculateSingleScenario(CalculationTasks tasks, CalculationEnvironment marketData) {
     // perform the calculations
-    Results results = calculateMultipleScenarios(marketData);
+    Results results = calculateMultipleScenarios(tasks, marketData);
 
     // unwrap the results
     // since there is only one scenario it is not desirable to return scenario result containers
     List<Result<?>> unwrappedResults = results.getItems().stream()
-        .map(DefaultCalculationRunner::unwrapScenarioResult)
+        .map(DefaultCalculationTaskRunner::unwrapScenarioResult)
         .collect(toImmutableList());
 
     return results.toBuilder().items(unwrappedResults).build();
@@ -103,30 +150,45 @@ class DefaultCalculationRunner implements CalculationRunner {
   }
 
   @Override
-  public Results calculateMultipleScenarios(CalculationEnvironment marketData) {
+  public Results calculateMultipleScenarios(CalculationTasks tasks, CalculationEnvironment marketData) {
     Listener listener = new Listener(tasks.getColumns());
-    calculateMultipleScenariosAsync(marketData, listener);
+    calculateMultipleScenariosAsync(tasks, marketData, listener);
     return listener.result();
   }
 
   @Override
-  public void calculateSingleScenarioAsync(CalculationEnvironment marketData, CalculationListener listener) {
+  public void
+      calculateSingleScenarioAsync(
+          CalculationTasks tasks,
+          CalculationEnvironment marketData,
+          CalculationListener listener) {
+
     // the listener is decorated to unwrap ScenarioResults containing a single result
     UnwrappingListener unwrappingListener = new UnwrappingListener(listener);
-    calculateMultipleScenariosAsync(marketData, unwrappingListener);
+    calculateMultipleScenariosAsync(tasks, marketData, unwrappingListener);
   }
 
   @Override
-  public void calculateMultipleScenariosAsync(CalculationEnvironment marketData, CalculationListener listener) {
+  public void calculateMultipleScenariosAsync(
+      CalculationTasks tasks,
+      CalculationEnvironment marketData,
+      CalculationListener listener) {
+
     List<CalculationTask> taskList = tasks.getTasks();
     Consumer<CalculationResult> consumer = consumerFactory.create(listener, taskList.size());
     taskList.stream().forEach(task -> runTask(task, marketData, consumer));
   }
 
+  // submits a task to the executor to be run
   private void runTask(CalculationTask task, CalculationEnvironment marketData, Consumer<CalculationResult> consumer) {
-    // submits a task to the executor to be run
     // the result of the task is passed to consumer.accept()
     CompletableFuture.supplyAsync(() -> task.execute(marketData), executor).thenAccept(consumer::accept);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public void close() {
+    executor.shutdown();
   }
 
   //-------------------------------------------------------------------------

@@ -19,9 +19,12 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.market.TestObservableKey;
+import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingRules;
+import com.opengamma.strata.calc.config.pricing.PricingRules;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
@@ -33,8 +36,11 @@ import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
 
+/**
+ * Test {@link CalculationTaskRunner} and {@link DefaultCalculationTaskRunner}.
+ */
 @Test
-public class DefaultCalculationRunnerTest {
+public class DefaultCalculationTaskRunnerTest {
 
   private static final TestTarget TARGET = new TestTarget();
   private static final Measure MEASURE = Measure.of("PV");
@@ -42,16 +48,17 @@ public class DefaultCalculationRunnerTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    DefaultScenarioResult<String> scenarioResult = DefaultScenarioResult.of("foo");
-    ScenarioResultFunction fn = new ScenarioResultFunction(scenarioResult);
-    CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
-    Column column = Column.of(Measure.PRESENT_VALUE);
-    CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
+    ImmutableList<TestTarget> targets = ImmutableList.of(TARGET);
+    Column column1 = Column.of(Measure.PRESENT_VALUE);
+    Column column2 = Column.of(Measure.BUCKETED_PV01);
+    ImmutableList<Column> columns = ImmutableList.of(column1, column2);
+    CalculationRules rules = CalculationRules.of(PricingRules.empty(), MarketDataRules.empty(), ReportingRules.empty());
 
-    DefaultCalculationRunner test = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService(), tasks);
-
-    assertThat(test.getTasks().getTargets()).containsExactly(TARGET);
-    assertThat(test.getTasks().getColumns()).containsExactly(column);
+    try (CalculationTaskRunner test = CalculationTaskRunner.ofMultiThreaded()) {
+      assertThat(test.createTasks(targets, columns, rules).getTargets()).containsExactly(TARGET);
+      assertThat(test.createTasks(targets, columns, rules).getColumns()).containsExactly(column1, column2);
+      assertThat(test.createTasks(targets, columns, rules).getTasks().size()).isEqualTo(2);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -65,16 +72,16 @@ public class DefaultCalculationRunnerTest {
     Column column = Column.of(Measure.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
-    DefaultCalculationRunner test = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService(), tasks);
+    CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
 
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
-    Results results1 = test.calculateSingleScenario(marketData);
+    Results results1 = test.calculateSingleScenario(tasks, marketData);
     Result<?> result1 = results1.get(0, 0);
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
     CalculationEnvironment scenarioMarketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
-    Results results2 = test.calculateMultipleScenarios(scenarioMarketData);
+    Results results2 = test.calculateMultipleScenarios(tasks, scenarioMarketData);
     Result<?> result2 = results2.get(0, 0);
     // Check the result contains the scenario result wrapping the string
     assertThat(result2).hasValue(scenarioResult);
@@ -90,10 +97,10 @@ public class DefaultCalculationRunnerTest {
     Column column = Column.of(Measure.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
-    DefaultCalculationRunner test = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService(), tasks);
+    CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
 
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
-    assertThrowsIllegalArg(() -> test.calculateSingleScenario(marketData));
+    assertThrowsIllegalArg(() -> test.calculateSingleScenario(tasks, marketData));
   }
 
   /**
@@ -106,18 +113,18 @@ public class DefaultCalculationRunnerTest {
     Column column = Column.of(Measure.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
-    DefaultCalculationRunner test = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService(), tasks);
+    CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
     Listener listener = new Listener();
 
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
-    test.calculateSingleScenarioAsync(marketData, listener);
+    test.calculateSingleScenarioAsync(tasks, marketData, listener);
     CalculationResult calculationResult1 = listener.result;
     Result<?> result1 = calculationResult1.getResult();
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
     CalculationEnvironment scenarioMarketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
-    test.calculateMultipleScenariosAsync(scenarioMarketData, listener);
+    test.calculateMultipleScenariosAsync(tasks, scenarioMarketData, listener);
     CalculationResult calculationResult2 = listener.result;
     Result<?> result2 = calculationResult2.getResult();
     // Check the result contains the scenario result wrapping the string

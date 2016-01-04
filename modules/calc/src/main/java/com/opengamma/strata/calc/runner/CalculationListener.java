@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.calc.runner;
 
+import com.opengamma.strata.calc.CalculationRunner;
+
 /**
  * Listener that is notified when calculations are performed by a {@link CalculationRunner}.
  * <p>

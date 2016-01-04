@@ -1,0 +1,166 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.strata.calc.runner;
+
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+
+import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.calc.CalculationRules;
+import com.opengamma.strata.calc.CalculationRunner;
+import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
+
+/**
+ * Component that provides the ability to run calculation tasks.
+ * <p>
+ * This interface is the lower-level counterpart to {@link CalculationRunner}.
+ * It provides the ability to calculate results based on {@link CalculationTasks}.
+ * Unless you need to optimize, the {@code CalculationRunner} is a simpler entry point.
+ * <p>
+ * Each {@code CalculationTasks} instance contains one {@code CalculationTask} for each
+ * combination of target and column, that can be visualized as a grid of columns with a
+ * row for each target. The instance also provides the market data requirements.
+ * <p>
+ * Once obtained, the {@code CalculationTasks} instance may be used to calculate results.
+ * The four "calculate" methods handle the combination of single versus scenario market data,
+ * and synchronous versus asynchronous.
+ * <p>
+ * A calculation runner is typically obtained using the static methods on this interface.
+ * The instance contains an executor thread-pool, thus care should be taken to ensure
+ * the thread-pool is correctly managed. For example, try-with-resources could be used:
+ * <pre>
+ *  try (CalculationTaskRunner runner = CalculationTaskRunner.ofMultiThreaded()) {
+ *    // use the runner
+ *  }
+ * </pre>
+ */
+public interface CalculationTaskRunner extends AutoCloseable {
+
+  /**
+   * Creates a standard multi-threaded calculation task runner capable of performing calculations.
+   * <p>
+   * This factory creates an executor basing the number of threads on the number of available processors.
+   * It is recommended to use try-with-resources to manage the runner:
+   * <pre>
+   *  try (CalculationTaskRunner runner = CalculationTaskRunner.ofMultiThreaded()) {
+   *    // use the runner
+   *  }
+   * </pre>
+   * 
+   * @return the calculation task runner
+   */
+  public static CalculationTaskRunner ofMultiThreaded() {
+    return DefaultCalculationTaskRunner.ofMultiThreaded();
+  }
+
+  /**
+   * Creates a calculation task runner capable of performing calculations, specifying the executor.
+   * <p>
+   * It is the callers responsibility to manage the life-cycle of the executor.
+   * 
+   * @param executor  the executor to use
+   * @return the calculation task runner
+   */
+  public static CalculationTaskRunner of(ExecutorService executor) {
+    return DefaultCalculationTaskRunner.of(executor);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates the tasks that perform the individual calculations.
+   * <p>
+   * This returns an instance of that contains one {@link CalculationTask} for each combination
+   * of target and column, that can be visualized as a grid of columns with a row for each target.
+   * <p>
+   * The tasks object provides access to the list of targets, columns and tasks.
+   * It also provides the ability to query what market data is needed to perform pricing.
+   * <p>
+   * Obtaining an instance of {@code CalculationTasks} for a set of trades and measures
+   * performs some one-off initialization. Providing access to the instance allows the initialization
+   * to occur once, which could be a performance optimization if many different calculations
+   * are performed with the same set of trades and measures.
+   *
+   * @param targets  the targets for which values of the measures will be calculated
+   * @param columns  the configuration for the columns that will be calculated, including the measure and
+   *   any column-specific overrides
+   * @param calculationRules  the rules defining how the calculation is performed
+   * @return the tasks that perform the calculations
+   */
+  public abstract CalculationTasks createTasks(
+      List<? extends CalculationTarget> targets,
+      List<Column> columns,
+      CalculationRules calculationRules);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Performs calculations for a single set of market data.
+   * <p>
+   * This returns a grid of results based on the specified tasks and market data.
+   * 
+   * @param tasks  the calculation tasks to invoke
+   * @param marketData  market data to be used in the calculations
+   * @return the grid of calculation results, based on the tasks and market data
+   */
+  public abstract Results calculateSingleScenario(CalculationTasks tasks, CalculationEnvironment marketData);
+
+  /**
+   * Performs calculations for multiple scenarios, each with a different set of market data.
+   * <p>
+   * This returns a grid of results based on the specified tasks and market data.
+   * 
+   * @param tasks  the calculation tasks to invoke
+   * @param marketData  the market data used in the calculations
+   * @return the grid of calculation results, based on the tasks and market data
+   */
+  public abstract Results calculateMultipleScenarios(CalculationTasks tasks, CalculationEnvironment marketData);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Performs calculations asynchronously for a single scenario,
+   * invoking a listener as each calculation completes.
+   * <p>
+   * This method requires the listener to assemble the results, but it can be much more memory efficient when
+   * calculating aggregate results. If the individual results are discarded after they are incorporated into
+   * the aggregate they can be garbage collected.
+   * 
+   * @param tasks  the calculation tasks to invoke
+   * @param marketData  market data to be used in the calculations
+   * @param listener  listener that is invoked when individual results are calculated
+   */
+  public abstract void calculateSingleScenarioAsync(
+      CalculationTasks tasks,
+      CalculationEnvironment marketData,
+      CalculationListener listener);
+
+  /**
+   * Performs calculations asynchronously for a multiple scenarios, each with a different set of market data,
+   * invoking a listener as each calculation completes.
+   * <p>
+   * This method requires the listener to assemble the results, but it can be much more memory efficient when
+   * calculating aggregate results. If the individual results are discarded after they are incorporated into
+   * the aggregate they can be garbage collected.
+   * 
+   * @param tasks  the calculation tasks to invoke
+   * @param marketData  the market data used in the calculations
+   * @param listener  listener that is invoked when individual results are calculated
+   */
+  public abstract void calculateMultipleScenariosAsync(
+      CalculationTasks tasks,
+      CalculationEnvironment marketData,
+      CalculationListener listener);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Closes any resources held by the component.
+   * <p>
+   * If the component holds an {@link ExecutorService}, this method will typically
+   * call {@link ExecutorService#shutdown()}.
+   */
+  @Override
+  public abstract void close();
+
+}

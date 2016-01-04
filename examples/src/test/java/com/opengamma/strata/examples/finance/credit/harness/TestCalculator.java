@@ -11,16 +11,16 @@ import java.util.stream.Collectors;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.calc.CalculationRules;
+import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingRules;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
-import com.opengamma.strata.calc.runner.CalculationRunner;
-import com.opengamma.strata.calc.runner.CalculationRunnerFactory;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.result.Result;
@@ -80,8 +80,9 @@ public class TestCalculator implements Calculator {
 
     // create the engine and calculate the results
     ImmutableList<Trade> trades = ImmutableList.of(tradeSource.apply());
-    CalculationRunner runner = CalculationRunnerFactory.ofSingleThreaded().create(trades, columns, rules);
-    return runner.calculateSingleScenario(marketSnapshot);
+    try (CalculationRunner runner = CalculationRunner.of(MoreExecutors.newDirectExecutorService())) {
+      return runner.calculateSingleScenario(trades, columns, rules, marketSnapshot);
+    }
   }
 
   public static Calculator of() {

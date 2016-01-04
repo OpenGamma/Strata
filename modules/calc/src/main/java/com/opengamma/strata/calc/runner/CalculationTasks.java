@@ -44,13 +44,16 @@ public final class CalculationTasks {
   private final List<Column> columns;
   /**
    * The calculation tasks.
-   * These are arranged in row order.
+   * <p>
+   * The tasks in the list are arranged in row order.
+   * For example, if a grid has 5 columns, the calculations 0-4 in the list are the first row,
+   * calculations 5-9 are the second row and so on.
    */
   private final List<CalculationTask> calculationTasks;
   /**
    * The market data requirements.
    */
-  private final MarketDataRequirements requirements;
+  private volatile MarketDataRequirements requirements;
 
   //-------------------------------------------------------------------------
   /**
@@ -177,8 +180,6 @@ public final class CalculationTasks {
   private CalculationTasks(List<CalculationTask> calculationTasks, List<Column> columns) {
     this.columns = ImmutableList.copyOf(columns);
     this.calculationTasks = ImmutableList.copyOf(calculationTasks);
-    List<MarketDataRequirements> reqs = calculationTasks.stream().map(CalculationTask::requirements).collect(toList());
-    this.requirements = MarketDataRequirements.combine(reqs);
 
     // Validate the number of tasks and number of columns tally
     int taskCount = calculationTasks.size();
@@ -241,11 +242,22 @@ public final class CalculationTasks {
 
   /**
    * Gets the market data that is required to perform the calculations.
+   * <p>
+   * This can be used to feed into the market data system to obtain and calibrate data.
    *
    * @return the market data required for all calculations
+   * @throws RuntimeException if unable to obtain the requirements
    */
   public MarketDataRequirements getRequirements() {
-    return requirements;
+    MarketDataRequirements reqs = requirements;
+    if (reqs == null) {
+      List<MarketDataRequirements> result = calculationTasks.stream()
+          .map(CalculationTask::requirements)
+          .collect(toList());
+      reqs = requirements = MarketDataRequirements.combine(result);
+
+    }
+    return reqs;
   }
 
   //-------------------------------------------------------------------------
