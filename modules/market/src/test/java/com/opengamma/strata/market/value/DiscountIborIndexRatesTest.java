@@ -25,7 +25,6 @@ import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
@@ -62,6 +61,8 @@ public class DiscountIborIndexRatesTest {
       .build();
   private static final LocalDateDoubleTimeSeries SERIES_MINIMAL = LocalDateDoubleTimeSeries.of(DATE_VAL, RATE_VAL);
   private static final LocalDateDoubleTimeSeries SERIES_EMPTY = LocalDateDoubleTimeSeries.empty();
+  
+  private static final double TOLERANCE_RATE = 1.0E-8;
 
   //-------------------------------------------------------------------------
   public void test_of_withoutFixings() {
@@ -132,13 +133,23 @@ public class DiscountIborIndexRatesTest {
     assertEquals(test.rate(DATE_VAL), RATE_VAL);
   }
 
+  public void test_forwardRate_onValuation_fixing() {
+    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
+    LocalDate startDate = GBP_LIBOR_3M.calculateEffectiveFromFixing(DATE_VAL);
+    LocalDate endDate = GBP_LIBOR_3M.calculateMaturityFromEffective(startDate);
+    double accrualFactor = GBP_LIBOR_3M.getDayCount().yearFraction(startDate, endDate);
+    double expected = (DFCURVE.discountFactor(startDate) / DFCURVE.discountFactor(endDate) - 1) / accrualFactor;
+    assertEquals(test.forwardRate(DATE_VAL), expected, TOLERANCE_RATE);
+  }
+
   public void test_rate_onValuation_noFixing() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES_EMPTY, DFCURVE);
     LocalDate startDate = GBP_LIBOR_3M.calculateEffectiveFromFixing(DATE_VAL);
     LocalDate endDate = GBP_LIBOR_3M.calculateMaturityFromEffective(startDate);
     double accrualFactor = GBP_LIBOR_3M.getDayCount().yearFraction(startDate, endDate);
     double expected = (DFCURVE.discountFactor(startDate) / DFCURVE.discountFactor(endDate) - 1) / accrualFactor;
-    assertEquals(test.rate(DATE_VAL), expected, 1e-8);
+    assertEquals(test.rate(DATE_VAL), expected, TOLERANCE_RATE);
+    assertEquals(test.forwardRate(DATE_VAL), expected, TOLERANCE_RATE);
   }
 
   public void test_rate_afterValuation() {
@@ -147,7 +158,7 @@ public class DiscountIborIndexRatesTest {
     LocalDate endDate = GBP_LIBOR_3M.calculateMaturityFromEffective(startDate);
     double accrualFactor = GBP_LIBOR_3M.getDayCount().yearFraction(startDate, endDate);
     double expected = (DFCURVE.discountFactor(startDate) / DFCURVE.discountFactor(endDate) - 1) / accrualFactor;
-    assertEquals(test.rate(DATE_AFTER), expected, 1e-8);
+    assertEquals(test.rate(DATE_AFTER), expected, TOLERANCE_RATE);
   }
 
   //-------------------------------------------------------------------------
@@ -156,54 +167,24 @@ public class DiscountIborIndexRatesTest {
     assertEquals(test.ratePointSensitivity(DATE_BEFORE), PointSensitivityBuilder.none());
     assertEquals(test.ratePointSensitivity(DATE_VAL), PointSensitivityBuilder.none());
   }
+  
+  public void test_forwardRatePointSensitivity_onValuation() {
+    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
+    IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M, DATE_VAL, 1d);
+    assertEquals(test.forwardRatePointSensitivity(DATE_VAL), expected);
+  }
 
   public void test_ratePointSensitivity_onValuation_noFixing() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES_EMPTY, DFCURVE);
     IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M, DATE_VAL, 1d);
     assertEquals(test.ratePointSensitivity(DATE_VAL), expected);
+    assertEquals(test.forwardRatePointSensitivity(DATE_VAL), expected);
   }
 
   public void test_ratePointSensitivity_afterValuation() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
     IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M, DATE_AFTER, 1d);
     assertEquals(test.ratePointSensitivity(DATE_AFTER), expected);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_unitParameterSensitivity_beforeValuation_fixing() {
-    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
-    assertEquals(test.unitParameterSensitivity(DATE_BEFORE), CurveUnitParameterSensitivities.empty());
-  }
-
-  public void test_unitParameterSensitivity_beforeValuation_noFixing_emptySeries() {
-    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES_EMPTY, DFCURVE);
-    assertEquals(test.unitParameterSensitivity(DATE_BEFORE), CurveUnitParameterSensitivities.empty());
-  }
-
-  public void test_unitParameterSensitivity_beforeValuation_noFixing_notEmptySeries() {
-    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES_MINIMAL, DFCURVE);
-    assertEquals(test.unitParameterSensitivity(DATE_BEFORE), CurveUnitParameterSensitivities.empty());
-  }
-
-  public void test_unitParameterSensitivity_onValuation_fixing() {
-    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
-    assertEquals(test.unitParameterSensitivity(DATE_VAL), CurveUnitParameterSensitivities.empty());
-  }
-
-  public void test_unitParameterSensitivity_onValuation_noFixing() {
-    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES_EMPTY, DFCURVE);
-    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_VAL);
-    CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CURVE.yValueParameterSensitivity(relativeYearFraction));
-    assertEquals(test.unitParameterSensitivity(DATE_VAL), expected);
-  }
-
-  public void test_unitParameterSensitivity_afterValuation() {
-    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
-    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
-    CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CURVE.yValueParameterSensitivity(relativeYearFraction));
-    assertEquals(test.unitParameterSensitivity(DATE_AFTER), expected);
   }
 
   //-------------------------------------------------------------------------

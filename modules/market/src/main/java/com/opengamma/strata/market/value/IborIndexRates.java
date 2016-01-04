@@ -14,7 +14,6 @@ import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.key.IborIndexRatesKey;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -90,6 +89,20 @@ public interface IborIndexRates
    * @throws RuntimeException if the value cannot be obtained
    */
   public abstract double rate(LocalDate fixingDate);
+  
+  /**
+   * Gets the forward rate at the specified fixing date.
+   * <p>
+   * This method bypasses the potential historical time series associated to the index. 
+   * The standard method to access the Ibor rate is {@link IborIndexRates#rate}; this method should be used only 
+   * for specific purposes, when the actual time series are not relevant. 
+   * <p>
+   * In case there is a doubt on using this method, it probably means that it should not be used.
+   * 
+   * @param fixingDate  the fixing date to query the rate for
+   * @return the rate of the index as given by the forward curve
+   */
+  public abstract double forwardRate(LocalDate fixingDate);
 
   /**
    * Calculates the point sensitivity of the historic or forward rate at the specified fixing date.
@@ -104,19 +117,21 @@ public interface IborIndexRates
    */
   public abstract PointSensitivityBuilder ratePointSensitivity(LocalDate fixingDate);
 
-  //-------------------------------------------------------------------------
   /**
-   * Calculates the unit parameter sensitivity of the forward rate at the specified fixing date.
+   * Calculates the point sensitivity of the forward rate at the specified fixing date.
    * <p>
-   * This returns the unit sensitivity to each parameter on the underlying curve at the specified date.
-   * The sensitivity refers to the result of {@link #rate(LocalDate)}.
+   * This method bypasses the potential historical time series associated to the index. 
+   * The standard method to access the Ibor rate sensitivity is {@link IborIndexRates#ratePointSensitivity}; 
+   * this method should be used only for specific purposes, when the actual time series are not relevant. 
+   * <p>
+   * In case there is a doubt on using this method, it probably means that it should not be used.
    * 
-   * @param fixingDate  the fixing date to find the sensitivity for
-   * @return the parameter sensitivity
-   * @throws RuntimeException if the value cannot be obtained
+   * @param fixingDate  the fixing date to query the rate for
+   * @return the point sensitivity of the rate to the forward curve
    */
-  public abstract CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate fixingDate);
+  public abstract PointSensitivityBuilder forwardRatePointSensitivity(LocalDate fixingDate);
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the curve parameter sensitivity from the point sensitivity.
    * <p>

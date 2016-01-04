@@ -145,8 +145,8 @@ public final class DiscountIborIndexRates
     }
   }
 
-  // forward rate
-  private double forwardRate(LocalDate fixingDate) {
+  @Override
+  public double forwardRate(LocalDate fixingDate) {
     LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
     LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
     double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
@@ -169,15 +169,9 @@ public final class DiscountIborIndexRates
     return IborRateSensitivity.of(index, fixingDate, 1d);
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate fixingDate) {
-    LocalDate valuationDate = getValuationDate();
-    if (fixingDate.isBefore(valuationDate) ||
-        (fixingDate.equals(valuationDate) && timeSeries.get(fixingDate).isPresent())) {
-      return CurveUnitParameterSensitivities.empty();
-    }
-    return discountFactors.unitParameterSensitivity(fixingDate);
+  public PointSensitivityBuilder forwardRatePointSensitivity(LocalDate fixingDate) {
+    return IborRateSensitivity.of(index, fixingDate, 1d);    
   }
 
   //-------------------------------------------------------------------------

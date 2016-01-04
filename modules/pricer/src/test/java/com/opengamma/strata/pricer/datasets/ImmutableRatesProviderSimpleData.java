@@ -43,7 +43,7 @@ public class ImmutableRatesProviderSimpleData {
         .iborIndexCurve(EUR_EURIBOR_6M, indexCurve)
         .build();
     LocalDateDoubleTimeSeries tsE6 = LocalDateDoubleTimeSeries.builder()
-        .put(EUR_EURIBOR_6M.calculateFixingFromEffective(VAL_DATE), 0.012345).build();
+        .put(VAL_DATE, 0.012345).build();
     IMM_PROV_EUR_FIX = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurve(EUR, dscCurve)
         .iborIndexCurve(EUR_EURIBOR_6M, indexCurve, tsE6)
