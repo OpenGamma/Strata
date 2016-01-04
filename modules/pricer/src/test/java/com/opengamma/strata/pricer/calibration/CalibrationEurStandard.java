@@ -10,7 +10,6 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
 import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
-import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_3M;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
 import static com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions.EUR_FIXED_1Y_EONIA_OIS;
@@ -54,7 +53,7 @@ import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 
 public class CalibrationEurStandard {
 
-  private static final LocalDate VAL_DATE = date(2015, 6, 30);
+  private static final LocalDate VAL_DATE = LocalDate.of(2015, 6, 30);
   private static final DayCount CURVE_DC = ACT_365F;
   private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
 
