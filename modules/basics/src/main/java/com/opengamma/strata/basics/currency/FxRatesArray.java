@@ -120,9 +120,6 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
    * @throws IllegalArgumentException if no FX rate could be found
    */
   public double fxRate(Currency baseCurrency, Currency counterCurrency, int scenarioIndex) {
-    if (baseCurrency.equals(counterCurrency)) {
-      return 1d;
-    }
     if (baseCurrency.equals(pair.getBase()) && counterCurrency.equals(pair.getCounter())) {
       return rates.get(scenarioIndex);
     }

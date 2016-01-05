@@ -29,7 +29,7 @@ public class FxRatesArrayTest {
   }
 
   public void fxRate() {
-    FxRatesArray rates = FxRatesArray.of(Currency.EUR, Currency.USD, DoubleArray.of(1.07, 1.08, 1.09));
+    FxRatesArray rates = FxRatesArray.of(CurrencyPair.of(Currency.EUR, Currency.USD), DoubleArray.of(1.07, 1.08, 1.09));
     assertThat(rates.fxRate(Currency.EUR, Currency.USD, 0)).isEqualTo(1.07);
     assertThat(rates.fxRate(Currency.EUR, Currency.USD, 1)).isEqualTo(1.08);
     assertThat(rates.fxRate(Currency.EUR, Currency.USD, 2)).isEqualTo(1.09);
@@ -43,6 +43,11 @@ public class FxRatesArrayTest {
     assertThrowsIllegalArg(
         () -> FxRatesArray.of(Currency.EUR, Currency.EUR, DoubleArray.of(1.07, 1.08, 1.09)),
         "Conversion rate between identical currencies must be one");
+  }
+
+  public void unknownCurrencyPair() {
+    FxRatesArray rates = FxRatesArray.of(Currency.EUR, Currency.USD, DoubleArray.of(1.07, 1.08, 1.09));
+    assertThrowsIllegalArg(() -> rates.fxRate(Currency.AED, Currency.ARS, 0));
   }
 
   public void coverage() {
