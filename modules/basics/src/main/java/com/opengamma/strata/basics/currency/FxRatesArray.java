@@ -198,7 +198,7 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the rate applicable to the currency pair.
+   * Gets the rates applicable to the currency pair.
    * One unit of the base currency is exchanged for this amount of the counter currency.
    * @return the value of the property, not null
    */
@@ -444,7 +444,7 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
     }
 
     /**
-     * Sets the rate applicable to the currency pair.
+     * Sets the rates applicable to the currency pair.
      * One unit of the base currency is exchanged for this amount of the counter currency.
      * @param rates  the new value, not null
      * @return this, for chaining, not null
