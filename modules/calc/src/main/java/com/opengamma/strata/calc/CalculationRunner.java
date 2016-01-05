@@ -69,14 +69,14 @@ public interface CalculationRunner extends AutoCloseable {
   /**
    * Performs calculations for a single set of market data.
    * <p>
-   * This returns a grid of results based on the specified tasks and market data.
+   * This returns a grid of results based on the specified targets, columns, rules and market data.
    * 
    * @param targets  the targets for which values of the measures will be calculated
    * @param columns  the configuration for the columns that will be calculated, including the measure and
    *   any column-specific overrides
    * @param calculationRules  the rules defining how the calculation is performed
    * @param marketData  market data to be used in the calculations
-   * @return the calculation results
+   * @return the grid of calculation results, based on the targets and columns
    */
   public abstract Results calculateSingleScenario(
       List<? extends CalculationTarget> targets,
@@ -87,14 +87,14 @@ public interface CalculationRunner extends AutoCloseable {
   /**
    * Performs calculations for multiple scenarios, each with a different set of market data.
    * <p>
-   * This returns a grid of results based on the specified tasks and market data.
+   * This returns a grid of results based on the specified targets, columns, rules and market data.
    * 
    * @param targets  the targets for which values of the measures will be calculated
    * @param columns  the configuration for the columns that will be calculated, including the measure and
    *   any column-specific overrides
    * @param calculationRules  the rules defining how the calculation is performed
    * @param marketData  the market data used in the calculations
-   * @return the results of running the calculations in the view for every item in the portfolio and every scenario
+   * @return the grid of calculation results, based on the targets and columns
    */
   public abstract Results calculateMultipleScenarios(
       List<? extends CalculationTarget> targets,
@@ -153,8 +153,7 @@ public interface CalculationRunner extends AutoCloseable {
    * <p>
    * In most cases, this runner will be implemented using an instance of {@link CalculationTaskRunner}.
    * That interface provides a lower-level API, with the ability optimize if similar calculations
-   * are being made repeatedly. In addition, the lower level API provides the ability to determine
-   * the market data requirements of the desired calculation.
+   * are being made repeatedly.
    * 
    * @return the underlying task runner
    * @throws UnsupportedOperationException if access to the task runner is not provided

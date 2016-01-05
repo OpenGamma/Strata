@@ -83,13 +83,12 @@ public class SwapReportRegressionTest {
     LocalDate valuationDate = LocalDate.of(2009, 7, 31);
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
-    Results results = null;
-    try (CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService())) {
-      CalculationTasks tasks = runner.createTasks(trades, columns, rules);
-      MarketDataRequirements reqs = tasks.getRequirements();
-      MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, marketSnapshot, MarketDataConfig.empty());
-      results = runner.calculateSingleScenario(tasks, enhancedMarketData);
-    }
+    // using the direct executor means there is no need to close/shutdown the runner
+    CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
+    CalculationTasks tasks = runner.createTasks(trades, columns, rules);
+    MarketDataRequirements reqs = tasks.getRequirements();
+    MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, marketSnapshot, MarketDataConfig.empty());
+    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData);
 
     ReportCalculationResults calculationResults = ReportCalculationResults.of(
         valuationDate,

@@ -187,13 +187,12 @@ public class CurveEndToEndTest {
         .addValues(parRateData)
         .build();
 
-    Results results = null;
-    try (CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService())) {
-      CalculationTasks tasks = runner.createTasks(trades, columns, calculationRules);
-      MarketDataRequirements reqs = tasks.getRequirements();
-      MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, knownMarketData, marketDataConfig);
-      results = runner.calculateSingleScenario(tasks, enhancedMarketData);
-    }
+    // using the direct executor means there is no need to close/shutdown the runner
+    CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
+    CalculationTasks tasks = runner.createTasks(trades, columns, calculationRules);
+    MarketDataRequirements reqs = tasks.getRequirements();
+    MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, knownMarketData, marketDataConfig);
+    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData);
 
     results.getItems().stream().forEach(this::checkPvIsZero);
   }

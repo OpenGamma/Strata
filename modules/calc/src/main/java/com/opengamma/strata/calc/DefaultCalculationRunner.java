@@ -19,13 +19,12 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * The default calculation runner.
  * <p>
- * This uses a single instance of {@link ExecutorService}.
+ * This delegates to an instance of {@link CalculationTaskRunner}.
  */
 class DefaultCalculationRunner implements CalculationRunner {
 
   /**
-   * Executes the tasks that perform the individual calculations.
-   * This will typically be multi-threaded, but single or direct executors also work.
+   * The underlying task runner.
    */
   private final CalculationTaskRunner taskRunner;
 
@@ -43,7 +42,7 @@ class DefaultCalculationRunner implements CalculationRunner {
    * 
    * @return the calculation runner
    */
-  public static DefaultCalculationRunner ofMultiThreaded() {
+  static DefaultCalculationRunner ofMultiThreaded() {
     return new DefaultCalculationRunner(CalculationTaskRunner.ofMultiThreaded());
   }
 
@@ -55,7 +54,7 @@ class DefaultCalculationRunner implements CalculationRunner {
    * @param executor  the executor to use
    * @return the calculation runner
    */
-  public static DefaultCalculationRunner of(ExecutorService executor) {
+  static DefaultCalculationRunner of(ExecutorService executor) {
     return new DefaultCalculationRunner(CalculationTaskRunner.of(executor));
   }
 

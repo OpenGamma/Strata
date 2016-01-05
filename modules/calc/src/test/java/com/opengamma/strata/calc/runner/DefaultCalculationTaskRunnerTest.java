@@ -72,6 +72,7 @@ public class DefaultCalculationTaskRunnerTest {
     Column column = Column.of(Measure.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
+    // using the direct executor means there is no need to close/shutdown the runner
     CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
 
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
@@ -97,6 +98,7 @@ public class DefaultCalculationTaskRunnerTest {
     Column column = Column.of(Measure.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
+    // using the direct executor means there is no need to close/shutdown the runner
     CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
 
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
@@ -113,6 +115,7 @@ public class DefaultCalculationTaskRunnerTest {
     Column column = Column.of(Measure.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
+    // using the direct executor means there is no need to close/shutdown the runner
     CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
     Listener listener = new Listener();
 

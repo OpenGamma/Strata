@@ -21,9 +21,9 @@ import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
  * It provides the ability to calculate results based on {@link CalculationTasks}.
  * Unless you need to optimize, the {@code CalculationRunner} is a simpler entry point.
  * <p>
- * Each {@code CalculationTasks} instance contains one {@code CalculationTask} for each
- * combination of target and column, that can be visualized as a grid of columns with a
- * row for each target. The instance also provides the market data requirements.
+ * The purpose of the runner is to produce a grid of results, with a row for each target
+ * and a column for each measure. Each {@code CalculationTask} instance corresponds to a
+ * single cell in that grid, with {@code CalculationTasks} holding the complete list of tasks.
  * <p>
  * Once obtained, the {@code CalculationTasks} instance may be used to calculate results.
  * The four "calculate" methods handle the combination of single versus scenario market data,
@@ -74,7 +74,8 @@ public interface CalculationTaskRunner extends AutoCloseable {
    * Creates the tasks that perform the individual calculations.
    * <p>
    * This returns an instance of that contains one {@link CalculationTask} for each combination
-   * of target and column, that can be visualized as a grid of columns with a row for each target.
+   * of target and column, that can be visualized as a grid of columns with a row for each target
+   * and a column for each measure.
    * <p>
    * The tasks object provides access to the list of targets, columns and tasks.
    * It also provides the ability to query what market data is needed to perform pricing.
@@ -100,6 +101,7 @@ public interface CalculationTaskRunner extends AutoCloseable {
    * Performs calculations for a single set of market data.
    * <p>
    * This returns a grid of results based on the specified tasks and market data.
+   * The grid will contain a row for each target and a column for each measure.
    * 
    * @param tasks  the calculation tasks to invoke
    * @param marketData  market data to be used in the calculations
@@ -111,6 +113,8 @@ public interface CalculationTaskRunner extends AutoCloseable {
    * Performs calculations for multiple scenarios, each with a different set of market data.
    * <p>
    * This returns a grid of results based on the specified tasks and market data.
+   * The grid will contain a row for each target and a column for each measure.
+   * Each cell will contain multiple results, one for each scenario.
    * 
    * @param tasks  the calculation tasks to invoke
    * @param marketData  the market data used in the calculations

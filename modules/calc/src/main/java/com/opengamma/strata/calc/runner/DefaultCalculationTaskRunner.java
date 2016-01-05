@@ -57,7 +57,7 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
    * 
    * @return the calculation task runner
    */
-  public static DefaultCalculationTaskRunner ofMultiThreaded() {
+  static DefaultCalculationTaskRunner ofMultiThreaded() {
     return new DefaultCalculationTaskRunner(createExecutor(Runtime.getRuntime().availableProcessors()));
   }
 
@@ -69,7 +69,7 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
    * @param executor  the executor to use
    * @return the calculation task runner
    */
-  public static DefaultCalculationTaskRunner of(ExecutorService executor) {
+  static DefaultCalculationTaskRunner of(ExecutorService executor) {
     return new DefaultCalculationTaskRunner(executor);
   }
 
@@ -157,11 +157,10 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
   }
 
   @Override
-  public void
-      calculateSingleScenarioAsync(
-          CalculationTasks tasks,
-          CalculationEnvironment marketData,
-          CalculationListener listener) {
+  public void calculateSingleScenarioAsync(
+      CalculationTasks tasks,
+      CalculationEnvironment marketData,
+      CalculationListener listener) {
 
     // the listener is decorated to unwrap ScenarioResults containing a single result
     UnwrappingListener unwrappingListener = new UnwrappingListener(listener);

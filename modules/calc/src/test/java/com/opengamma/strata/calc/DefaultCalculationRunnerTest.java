@@ -42,6 +42,7 @@ public class DefaultCalculationRunnerTest {
     CalculationRules rules = CalculationRules.of(PricingRules.empty(), MarketDataRules.empty(), ReportingRules.empty());
     CalculationEnvironment marketData = CalculationEnvironment.empty();
 
+    // use of try-with-resources checks class is AutoCloseable
     try (CalculationRunner test = CalculationRunner.of(MoreExecutors.newDirectExecutorService())) {
       assertThat(test.calculateSingleScenario(targets, columns, rules, marketData).get(0, 0).isFailure()).isTrue();
       assertThat(test.calculateMultipleScenarios(targets, columns, rules, marketData).get(0, 0).isFailure()).isTrue();

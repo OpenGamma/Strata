@@ -80,9 +80,9 @@ public class TestCalculator implements Calculator {
 
     // create the engine and calculate the results
     ImmutableList<Trade> trades = ImmutableList.of(tradeSource.apply());
-    try (CalculationRunner runner = CalculationRunner.of(MoreExecutors.newDirectExecutorService())) {
-      return runner.calculateSingleScenario(trades, columns, rules, marketSnapshot);
-    }
+    // using the direct executor means there is no need to close/shutdown the runner
+    CalculationRunner runner = CalculationRunner.of(MoreExecutors.newDirectExecutorService());
+    return runner.calculateSingleScenario(trades, columns, rules, marketSnapshot);
   }
 
   public static Calculator of() {
