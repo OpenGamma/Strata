@@ -6,6 +6,8 @@
 package com.opengamma.strata.basics.currency;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertThrows;
 
@@ -41,5 +43,12 @@ public class FxRatesArrayTest {
     assertThrowsIllegalArg(
         () -> FxRatesArray.of(Currency.EUR, Currency.EUR, DoubleArray.of(1.07, 1.08, 1.09)),
         "Conversion rate between identical currencies must be one");
+  }
+
+  public void coverage() {
+    FxRatesArray rates1 = FxRatesArray.of(Currency.EUR, Currency.USD, DoubleArray.of(1.07, 1.08, 1.09));
+    FxRatesArray rates2 = FxRatesArray.of(Currency.GBP, Currency.USD, DoubleArray.of(1.46, 1.47, 1.48));
+    coverImmutableBean(rates1);
+    coverBeanEquals(rates1, rates2);
   }
 }

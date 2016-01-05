@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableValidator;
@@ -38,7 +39,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  *
  * @see FxRate
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, ImmutableBean {
 
   /**
@@ -152,14 +153,6 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
     JodaBeanUtils.registerMetaBean(FxRatesArray.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static FxRatesArray.Builder builder() {
-    return new FxRatesArray.Builder();
-  }
-
   private FxRatesArray(
       CurrencyPair pair,
       DoubleArray rates) {
@@ -207,14 +200,6 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -292,7 +277,7 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
     }
 
     @Override
-    public FxRatesArray.Builder builder() {
+    public BeanBuilder<? extends FxRatesArray> builder() {
       return new FxRatesArray.Builder();
     }
 
@@ -350,7 +335,7 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
   /**
    * The bean-builder for {@code FxRatesArray}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<FxRatesArray> {
+  private static final class Builder extends DirectFieldsBeanBuilder<FxRatesArray> {
 
     private CurrencyPair pair;
     private DoubleArray rates;
@@ -359,15 +344,6 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(FxRatesArray beanToCopy) {
-      this.pair = beanToCopy.getPair();
-      this.rates = beanToCopy.getRates();
     }
 
     //-----------------------------------------------------------------------
@@ -427,32 +403,6 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
       return new FxRatesArray(
           pair,
           rates);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the currency pair.
-     * The pair is formed of two parts, the base and the counter.
-     * In the pair 'AAA/BBB' the base is 'AAA' and the counter is 'BBB'.
-     * @param pair  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder pair(CurrencyPair pair) {
-      JodaBeanUtils.notNull(pair, "pair");
-      this.pair = pair;
-      return this;
-    }
-
-    /**
-     * Sets the rates applicable to the currency pair.
-     * One unit of the base currency is exchanged for this amount of the counter currency.
-     * @param rates  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder rates(DoubleArray rates) {
-      JodaBeanUtils.notNull(rates, "rates");
-      this.rates = rates;
-      return this;
     }
 
     //-----------------------------------------------------------------------
