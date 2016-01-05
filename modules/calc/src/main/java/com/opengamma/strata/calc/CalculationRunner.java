@@ -70,6 +70,7 @@ public interface CalculationRunner extends AutoCloseable {
    * Performs calculations for a single set of market data.
    * <p>
    * This returns a grid of results based on the specified targets, columns, rules and market data.
+   * The grid will contain a row for each target and a column for each measure.
    * 
    * @param targets  the targets for which values of the measures will be calculated
    * @param columns  the configuration for the columns that will be calculated, including the measure and
@@ -88,6 +89,7 @@ public interface CalculationRunner extends AutoCloseable {
    * Performs calculations for multiple scenarios, each with a different set of market data.
    * <p>
    * This returns a grid of results based on the specified targets, columns, rules and market data.
+   * The grid will contain a row for each target and a column for each measure.
    * 
    * @param targets  the targets for which values of the measures will be calculated
    * @param columns  the configuration for the columns that will be calculated, including the measure and

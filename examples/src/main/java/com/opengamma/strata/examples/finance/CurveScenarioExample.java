@@ -125,7 +125,7 @@ public class CurveScenarioExample {
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // calculate the results
-    CalculationTasks tasks = runner.createTasks(trades, columns, rules);
+    CalculationTasks tasks = CalculationTasks.of(trades, columns, rules);
     MarketDataRequirements reqs = tasks.getRequirements();
     MarketEnvironment enhancedMarketData = marketDataFactory()
         .buildMarketData(reqs, marketSnapshot, MarketDataConfig.empty(), scenarioDefinition);

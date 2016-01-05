@@ -188,10 +188,10 @@ public class CurveEndToEndTest {
         .build();
 
     // using the direct executor means there is no need to close/shutdown the runner
-    CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
-    CalculationTasks tasks = runner.createTasks(trades, columns, calculationRules);
+    CalculationTasks tasks = CalculationTasks.of(trades, columns, calculationRules);
     MarketDataRequirements reqs = tasks.getRequirements();
     MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, knownMarketData, marketDataConfig);
+    CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
     Results results = runner.calculateSingleScenario(tasks, enhancedMarketData);
 
     results.getItems().stream().forEach(this::checkPvIsZero);

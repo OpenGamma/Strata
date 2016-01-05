@@ -217,7 +217,7 @@ public class CalibrationCheckExample {
         .build();
 
     // calibrate the curves and calculate the results
-    CalculationTasks tasks = runner.createTasks(trades, columns, rules);
+    CalculationTasks tasks = CalculationTasks.of(trades, columns, rules);
     MarketDataRequirements reqs = tasks.getRequirements();
     MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, marketSnapshot, marketDataConfig);
     Results results = runner.calculateSingleScenario(tasks, enhancedMarketData);

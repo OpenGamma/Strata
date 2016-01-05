@@ -76,7 +76,7 @@ class DefaultCalculationRunner implements CalculationRunner {
       CalculationRules calculationRules,
       CalculationEnvironment marketData) {
 
-    CalculationTasks tasks = taskRunner.createTasks(targets, columns, calculationRules);
+    CalculationTasks tasks = CalculationTasks.of(targets, columns, calculationRules);
     return taskRunner.calculateSingleScenario(tasks, marketData);
   }
 
@@ -87,7 +87,7 @@ class DefaultCalculationRunner implements CalculationRunner {
       CalculationRules calculationRules,
       CalculationEnvironment marketData) {
 
-    CalculationTasks tasks = taskRunner.createTasks(targets, columns, calculationRules);
+    CalculationTasks tasks = CalculationTasks.of(targets, columns, calculationRules);
     return taskRunner.calculateMultipleScenarios(tasks, marketData);
   }
 
@@ -99,7 +99,7 @@ class DefaultCalculationRunner implements CalculationRunner {
       CalculationEnvironment marketData,
       CalculationListener listener) {
 
-    CalculationTasks tasks = taskRunner.createTasks(targets, columns, calculationRules);
+    CalculationTasks tasks = CalculationTasks.of(targets, columns, calculationRules);
     taskRunner.calculateSingleScenarioAsync(tasks, marketData, listener);
   }
 
@@ -110,7 +110,7 @@ class DefaultCalculationRunner implements CalculationRunner {
       CalculationEnvironment marketData,
       CalculationListener listener) {
 
-    CalculationTasks tasks = taskRunner.createTasks(targets, columns, calculationRules);
+    CalculationTasks tasks = CalculationTasks.of(targets, columns, calculationRules);
     taskRunner.calculateMultipleScenariosAsync(tasks, marketData, listener);
   }
 

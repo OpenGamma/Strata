@@ -8,10 +8,8 @@ package com.opengamma.strata.calc.runner;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
-import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 
 /**
@@ -22,8 +20,17 @@ import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
  * Unless you need to optimize, the {@code CalculationRunner} is a simpler entry point.
  * <p>
  * The purpose of the runner is to produce a grid of results, with a row for each target
- * and a column for each measure. Each {@code CalculationTask} instance corresponds to a
- * single cell in that grid, with {@code CalculationTasks} holding the complete list of tasks.
+ * and a column for each measure. The targets and columns that define the grid of results
+ * are passed in using an instance of {@code CalculationTasks}.
+ * <p>
+ * The {@code CalculationTasks} instance is obtained using a
+ * {@linkplain CalculationTasks#of(List, List, CalculationRules) static factory method}.
+ * It consists of a list of {@code CalculationTask} instances, where each task instance
+ * corresponds to a single cell in the grid of results. When the {@code CalculationTasks}
+ * instance is created for a set of trades and measures some one-off initialization is performed.
+ * Providing access to the instance allows the initialization to occur once, which could
+ * be a performance optimization if many different calculations are performed with the
+ * same set of trades and measures.
  * <p>
  * Once obtained, the {@code CalculationTasks} instance may be used to calculate results.
  * The four "calculate" methods handle the combination of single versus scenario market data,
@@ -68,33 +75,6 @@ public interface CalculationTaskRunner extends AutoCloseable {
   public static CalculationTaskRunner of(ExecutorService executor) {
     return DefaultCalculationTaskRunner.of(executor);
   }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Creates the tasks that perform the individual calculations.
-   * <p>
-   * This returns an instance of that contains one {@link CalculationTask} for each combination
-   * of target and column, that can be visualized as a grid of columns with a row for each target
-   * and a column for each measure.
-   * <p>
-   * The tasks object provides access to the list of targets, columns and tasks.
-   * It also provides the ability to query what market data is needed to perform pricing.
-   * <p>
-   * Obtaining an instance of {@code CalculationTasks} for a set of trades and measures
-   * performs some one-off initialization. Providing access to the instance allows the initialization
-   * to occur once, which could be a performance optimization if many different calculations
-   * are performed with the same set of trades and measures.
-   *
-   * @param targets  the targets for which values of the measures will be calculated
-   * @param columns  the configuration for the columns that will be calculated, including the measure and
-   *   any column-specific overrides
-   * @param calculationRules  the rules defining how the calculation is performed
-   * @return the tasks that perform the calculations
-   */
-  public abstract CalculationTasks createTasks(
-      List<? extends CalculationTarget> targets,
-      List<Column> columns,
-      CalculationRules calculationRules);
 
   //-------------------------------------------------------------------------
   /**

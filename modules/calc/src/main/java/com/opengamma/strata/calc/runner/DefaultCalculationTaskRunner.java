@@ -16,8 +16,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
 
-import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -93,16 +91,6 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
    */
   private DefaultCalculationTaskRunner(ExecutorService executor) {
     this.executor = ArgChecker.notNull(executor, "executor");
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public CalculationTasks createTasks(
-      List<? extends CalculationTarget> targets,
-      List<Column> columns,
-      CalculationRules calculationRules) {
-
-    return CalculationTasks.of(targets, columns, calculationRules);
   }
 
   //-------------------------------------------------------------------------
