@@ -191,8 +191,8 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     PriceIndexValues values = ForwardPriceIndexValues.of(
         UK_RPI,
         valuationDate,
-        LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 200),
-        interpCurve);
+        interpCurve,
+        LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 200));
     ImmutableRatesProvider provider = ImmutableRatesProvider.builder(VAL_DATE)
         .priceIndexValues(ImmutableMap.of(UK_RPI, values))
         .build();
@@ -244,5 +244,5 @@ public class ImmutableRatesProviderParameterSensitivityTest {
       throw new UnsupportedOperationException();
     }
   }
-  
+
 }

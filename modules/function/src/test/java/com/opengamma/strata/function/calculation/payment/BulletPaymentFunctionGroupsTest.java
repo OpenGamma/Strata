@@ -32,7 +32,7 @@ import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curves;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
 import com.opengamma.strata.product.TradeInfo;
@@ -75,14 +75,14 @@ public class BulletPaymentFunctionGroupsTest {
     CalculationSingleFunction<BulletPaymentTrade, ?> function = config.createFunction();
     FunctionRequirements reqs = function.requirements(TRADE);
     assertThat(reqs.getOutputCurrencies()).containsOnly(ccy);
-    assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(DiscountFactorsKey.of(ccy)));
+    assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(DiscountCurveKey.of(ccy)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of());
     assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy);
     DiscountFactors df1 = SimpleDiscountFactors.of(
         ccy, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
     TestMarketDataMap md = new TestMarketDataMap(
         valDate,
-        ImmutableMap.of(DiscountFactorsKey.of(ccy), df1),
+        ImmutableMap.of(DiscountCurveKey.of(ccy), df1),
         ImmutableMap.of());
     assertThat(function.execute(TRADE, md)).isEqualTo(FxConvertibleList.of(ImmutableList.of(CurrencyAmount.zero(ccy))));
   }
@@ -99,7 +99,7 @@ public class BulletPaymentFunctionGroupsTest {
         ccy, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
     TestMarketDataMap md = new TestMarketDataMap(
         valDate,
-        ImmutableMap.of(DiscountFactorsKey.of(ccy), df1),
+        ImmutableMap.of(DiscountCurveKey.of(ccy), df1),
         ImmutableMap.of());
 
     assertNotNull(new BulletPaymentBucketedPv01Function().execute(TRADE, md));

@@ -18,12 +18,12 @@ import com.beust.jcommander.ParameterException;
 import com.google.common.base.Strings;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.calc.CalculationRules;
+import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.pricing.PricingRules;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.ArgChecker;
@@ -51,7 +51,7 @@ public class ReportRunnerTool implements AutoCloseable {
   /**
    * The calculation runner.
    */
-  private final CalculationTaskRunner runner;
+  private final CalculationRunner runner;
 
   @Parameter(
       names = {"-t", "--template"},
@@ -109,7 +109,7 @@ public class ReportRunnerTool implements AutoCloseable {
    * @param args  the command-line arguments
    */
   public static void main(String[] args) {
-    try (ReportRunnerTool reportRunner = new ReportRunnerTool(CalculationTaskRunner.ofMultiThreaded())) {
+    try (ReportRunnerTool reportRunner = new ReportRunnerTool(CalculationRunner.ofMultiThreaded())) {
       JCommander commander = new JCommander(reportRunner);
       commander.setProgramName(ReportRunnerTool.class.getSimpleName());
       try {
@@ -141,7 +141,7 @@ public class ReportRunnerTool implements AutoCloseable {
 
   //-------------------------------------------------------------------------
   // creates an instance
-  private ReportRunnerTool(CalculationTaskRunner runner) {
+  private ReportRunnerTool(CalculationRunner runner) {
     this.runner = ArgChecker.notNull(runner, "runner");
   }
 
@@ -202,7 +202,7 @@ public class ReportRunnerTool implements AutoCloseable {
     CalculationTasks tasks = CalculationTasks.of(trades, columns, rules);
     MarketDataRequirements reqs = tasks.getRequirements();
     MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, marketSnapshot, MarketDataConfig.empty());
-    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData);
+    Results results = runner.getTaskRunner().calculateSingleScenario(tasks, enhancedMarketData);
 
     return ReportCalculationResults.builder()
         .valuationDate(valuationDate)

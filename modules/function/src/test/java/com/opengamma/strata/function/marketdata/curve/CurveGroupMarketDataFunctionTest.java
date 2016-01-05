@@ -58,13 +58,9 @@ import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.CurveInputsId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
-import com.opengamma.strata.market.key.IborIndexRatesKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
+import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.key.QuoteKey;
-import com.opengamma.strata.market.value.DiscountFactors;
-import com.opengamma.strata.market.value.DiscountIborIndexRates;
-import com.opengamma.strata.market.value.IborIndexRates;
-import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
@@ -125,15 +121,11 @@ public class CurveGroupMarketDataFunctionTest {
     MarketDataBox<CurveGroup> curveGroup = function.buildCurveGroup(groupDefn, marketEnvironment, MarketDataFeed.NONE);
 
     Curve curve = curveGroup.getSingleValue().findDiscountCurve(Currency.USD).get();
-    DiscountFactors discountFactors = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, curve);
-    IborIndexRates iborIndexRates = DiscountIborIndexRates.of(IborIndices.USD_LIBOR_3M, discountFactors);
 
-    DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
-    IborIndexRatesKey forwardCurveKey = IborIndexRatesKey.of(IborIndices.USD_LIBOR_3M);
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
         .putAll(inputData)
-        .put(discountFactorsKey, discountFactors)
-        .put(forwardCurveKey, iborIndexRates)
+        .put(DiscountCurveKey.of(Currency.USD), curve)
+        .put(IborIndexCurveKey.of(IborIndices.USD_LIBOR_3M), curve)
         .build();
 
     MarketData marketData = ImmutableMarketData.of(valuationDate, marketDataMap);
@@ -176,15 +168,11 @@ public class CurveGroupMarketDataFunctionTest {
 
     MarketDataBox<CurveGroup> curveGroup = function.buildCurveGroup(groupDefn, marketEnvironment, MarketDataFeed.NONE);
     Curve curve = curveGroup.getSingleValue().findDiscountCurve(Currency.USD).get();
-    DiscountFactors discountFactors = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, curve);
-    IborIndexRates iborIndexRates = DiscountIborIndexRates.of(IborIndices.USD_LIBOR_3M, discountFactors);
 
-    DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
-    IborIndexRatesKey forwardCurveKey = IborIndexRatesKey.of(IborIndices.USD_LIBOR_3M);
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
         .putAll(inputData)
-        .put(discountFactorsKey, discountFactors)
-        .put(forwardCurveKey, iborIndexRates)
+        .put(DiscountCurveKey.of(Currency.USD), curve)
+        .put(IborIndexCurveKey.of(IborIndices.USD_LIBOR_3M), curve)
         .build();
     MarketData marketData = ImmutableMarketData.of(valuationDate, marketDataMap);
     TestMarketDataMap calculationMarketData = new TestMarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());

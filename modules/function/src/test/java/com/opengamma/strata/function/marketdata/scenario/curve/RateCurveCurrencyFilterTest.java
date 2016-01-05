@@ -18,8 +18,8 @@ import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.DiscountCurveId;
+import com.opengamma.strata.market.id.IborIndexCurveId;
 import com.opengamma.strata.market.id.RateCurveId;
-import com.opengamma.strata.market.id.RateIndexCurveId;
 
 /**
  * Test {@link RateCurveCurrencyFilter}.
@@ -30,14 +30,14 @@ public class RateCurveCurrencyFilterTest {
   public void matchIndexCurve() {
     RateCurveCurrencyFilter test = RateCurveCurrencyFilter.of(Currency.USD);
     assertThat(test.getMarketDataIdType()).isEqualTo(RateCurveId.class);
-    RateCurveId id = RateIndexCurveId.of(IborIndices.USD_LIBOR_1M, CurveGroupName.of("curveName"));
+    RateCurveId id = IborIndexCurveId.of(IborIndices.USD_LIBOR_1M, CurveGroupName.of("curveName"));
     Curve curve = ConstantNodalCurve.of("curveName", 1);
     assertThat(test.matches(id, MarketDataBox.ofSingleValue(curve))).isTrue();
   }
 
   public void noMatchIndexCurve() {
     RateCurveCurrencyFilter test = RateCurveCurrencyFilter.of(Currency.GBP);
-    RateCurveId id = RateIndexCurveId.of(IborIndices.USD_LIBOR_1M, CurveGroupName.of("curveName"));
+    RateCurveId id = IborIndexCurveId.of(IborIndices.USD_LIBOR_1M, CurveGroupName.of("curveName"));
     Curve curve = ConstantNodalCurve.of("curveName", 1);
     assertThat(test.matches(id, MarketDataBox.ofSingleValue(curve))).isFalse();
   }

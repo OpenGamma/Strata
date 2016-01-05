@@ -19,7 +19,7 @@ import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.pricer.fx.DiscountingFxNdfProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.fx.ExpandedFxNdf;
@@ -70,8 +70,8 @@ public abstract class AbstractFxNdfFunction<T>
     Currency settleCurrency = fx.getSettlementCurrency();
     Currency otherCurrency = fx.getNonDeliverableCurrency();
 
-    Set<DiscountFactorsKey> discountCurveKeys =
-        ImmutableSet.of(DiscountFactorsKey.of(settleCurrency), DiscountFactorsKey.of(otherCurrency));
+    Set<DiscountCurveKey> discountCurveKeys =
+        ImmutableSet.of(DiscountCurveKey.of(settleCurrency), DiscountCurveKey.of(otherCurrency));
 
     return FunctionRequirements.builder()
         .singleValueRequirements(discountCurveKeys)

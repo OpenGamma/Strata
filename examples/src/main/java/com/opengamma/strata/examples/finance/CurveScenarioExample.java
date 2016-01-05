@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.calc.CalculationRules;
+import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingRules;
@@ -37,7 +38,6 @@ import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
-import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -83,13 +83,13 @@ public class CurveScenarioExample {
   public static void main(String[] args) {
     // setup calculation runner component, which needs life-cycle management
     // a typical application might use dependency injection to obtain the instance
-    try (CalculationTaskRunner runner = CalculationTaskRunner.ofMultiThreaded()) {
+    try (CalculationRunner runner = CalculationRunner.ofMultiThreaded()) {
       calculate(runner);
     }
   }
 
   // obtains the data and calculates the grid of results
-  private static void calculate(CalculationTaskRunner runner) {
+  private static void calculate(CalculationRunner runner) {
     // the trade that will have measures calculated
     List<Trade> trades = ImmutableList.of(createVanillaFixedVsLibor3mSwap());
 
@@ -125,11 +125,10 @@ public class CurveScenarioExample {
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // calculate the results
-    CalculationTasks tasks = CalculationTasks.of(trades, columns, rules);
-    MarketDataRequirements reqs = tasks.getRequirements();
+    MarketDataRequirements reqs = CalculationTasks.of(trades, columns, rules).getRequirements();
     MarketEnvironment enhancedMarketData = marketDataFactory()
         .buildMarketData(reqs, marketSnapshot, MarketDataConfig.empty(), scenarioDefinition);
-    Results results = runner.calculateMultipleScenarios(tasks, enhancedMarketData);
+    Results results = runner.calculateMultipleScenarios(trades, columns, rules, enhancedMarketData);
 
     // TODO Replace the results processing below with a report once the reporting framework supports scenarios
 

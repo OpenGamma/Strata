@@ -76,7 +76,7 @@ public final class DiscountFxForwardRates
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a new instance of FX forward rates instance
+   * Obtains an instance based on two discount factors, one for each currency.
    * <p>
    * The instance is based on the discount factors for each currency.
    * 

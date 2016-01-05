@@ -22,8 +22,7 @@ import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
-import com.opengamma.strata.market.key.PriceIndexValuesKey;
-import com.opengamma.strata.market.value.PriceIndexValues;
+import com.opengamma.strata.market.key.PriceIndexCurveKey;
 
 /**
  * Test {@link MarketDataMappingsBuilder}.
@@ -63,10 +62,10 @@ public class MarketDataMappingsBuilderTest {
         MarketDataMappingsBuilder.create()
             .curveGroup(curveGroupName)
             .build();
-    PriceIndexValuesKey key = PriceIndexValuesKey.of(PriceIndices.SWF_CPI);
+    PriceIndexCurveKey key = PriceIndexCurveKey.of(PriceIndices.SWF_CPI);
 
     MarketDataId<Curve> curveId = mappings.getIdForKey(DiscountCurveKey.of(Currency.GBP));
-    MarketDataId<PriceIndexValues> id = mappings.getIdForKey(key);
+    MarketDataId<Curve> id = mappings.getIdForKey(key);
 
     assertThat(curveId).isEqualTo(DiscountCurveId.of(Currency.GBP, curveGroupName));
     assertThat(id).isEqualTo(MissingMappingId.of(key));

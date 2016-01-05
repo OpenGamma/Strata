@@ -131,12 +131,12 @@ public class DiscountingSwapProductPricerTest {
   private static final PriceIndexValues PRICE_CURVE = ForwardPriceIndexValues.of(
       UK_RPI,
       VAL_DATE_INFLATION,
-      LocalDateDoubleTimeSeries.of(date(2014, 3, 31), START_INDEX),
       InterpolatedNodalCurve.of(
           Curves.prices("GB_RPI_CURVE_FLAT"),
           DoubleArray.of(1, 1000),
           DoubleArray.of(CONSTANT_INDEX, CONSTANT_INDEX),
-          INTERPOLATOR));
+          INTERPOLATOR),
+      LocalDateDoubleTimeSeries.of(date(2014, 3, 31), START_INDEX));
   
 
   // non compounding

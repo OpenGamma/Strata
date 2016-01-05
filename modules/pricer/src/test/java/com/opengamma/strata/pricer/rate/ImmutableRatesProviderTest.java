@@ -63,9 +63,9 @@ public class ImmutableRatesProviderTest {
   private static final PriceIndexValues GBPRI_CURVE = ForwardPriceIndexValues.of(
       UK_RPI,
       VAL_DATE,
-      LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 252),
       InterpolatedNodalCurve.of(
-          Curves.prices("GB-RPI"), DoubleArray.of(1d, 10d), DoubleArray.of(252d, 252d), INTERPOLATOR));
+          Curves.prices("GB-RPI"), DoubleArray.of(1d, 10d), DoubleArray.of(252d, 252d), INTERPOLATOR),
+      LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 252));
 
   //-------------------------------------------------------------------------
   public void test_builder() {
@@ -119,7 +119,7 @@ public class ImmutableRatesProviderTest {
         .timeSeries(GBP_USD_WM, ts)
         .build();
     assertEquals(test.fxIndexRates(GBP_USD_WM).getIndex(), GBP_USD_WM);
-    assertEquals(test.fxIndexRates(GBP_USD_WM).getTimeSeries(), ts);
+    assertEquals(test.fxIndexRates(GBP_USD_WM).getFixings(), ts);
   }
 
   //-------------------------------------------------------------------------
@@ -145,7 +145,7 @@ public class ImmutableRatesProviderTest {
         .timeSeries(USD_LIBOR_3M, ts)
         .build();
     assertEquals(test.iborIndexRates(USD_LIBOR_3M).getIndex(), USD_LIBOR_3M);
-    assertEquals(test.iborIndexRates(USD_LIBOR_3M).getTimeSeries(), ts);
+    assertEquals(test.iborIndexRates(USD_LIBOR_3M).getFixings(), ts);
   }
 
   //-------------------------------------------------------------------------
@@ -156,7 +156,7 @@ public class ImmutableRatesProviderTest {
         .timeSeries(USD_FED_FUND, ts)
         .build();
     assertEquals(test.overnightIndexRates(USD_FED_FUND).getIndex(), USD_FED_FUND);
-    assertEquals(test.overnightIndexRates(USD_FED_FUND).getTimeSeries(), ts);
+    assertEquals(test.overnightIndexRates(USD_FED_FUND).getFixings(), ts);
   }
 
   //-------------------------------------------------------------------------

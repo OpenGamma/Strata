@@ -22,16 +22,16 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataFilter;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.id.RateIndexCurveId;
+import com.opengamma.strata.market.id.IndexCurveId;
 
 /**
- * A market data filter that matches any forward curve for a rate index.
+ * A market data filter that matches any forward curve for an index.
  * <p>
  * The {@link #matches} method always returns true.
  */
 @BeanDefinition(builderScope = "private")
 public final class AnyIndexForwardCurveFilter
-    implements MarketDataFilter<Curve, RateIndexCurveId>, ImmutableBean {
+    implements MarketDataFilter<Curve, IndexCurveId>, ImmutableBean {
 
   /**
    * The single shared instance.
@@ -42,11 +42,11 @@ public final class AnyIndexForwardCurveFilter
 
   @Override
   public Class<?> getMarketDataIdType() {
-    return RateIndexCurveId.class;
+    return IndexCurveId.class;
   }
 
   @Override
-  public boolean matches(RateIndexCurveId marketDataId, MarketDataBox<Curve> marketData) {
+  public boolean matches(IndexCurveId marketDataId, MarketDataBox<Curve> marketData) {
     return true;
   }
 

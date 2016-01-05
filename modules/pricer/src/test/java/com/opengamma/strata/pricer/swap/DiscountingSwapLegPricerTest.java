@@ -520,23 +520,23 @@ public class DiscountingSwapLegPricerTest {
   private static final PriceIndexValues GBPRI_CURVE_FLAT = ForwardPriceIndexValues.of(
       UK_RPI,
       VAL_DATE_INFLATION,
-      LocalDateDoubleTimeSeries.of(VAL_DATE_INFLATION.minusMonths(3), START_INDEX),
       InterpolatedNodalCurve.of(
           Curves.prices("GB_RPI_CURVE"),
           DoubleArray.of(1, 200),
           DoubleArray.of(CONSTANT_INDEX, CONSTANT_INDEX),
-          INTERPOLATOR));
+          INTERPOLATOR),
+      LocalDateDoubleTimeSeries.of(VAL_DATE_INFLATION.minusMonths(3), START_INDEX));
 
   private static final CurveInterpolator INTERP_SPLINE = CurveInterpolators.NATURAL_CUBIC_SPLINE;
   private static final PriceIndexValues GBPRI_CURVE = ForwardPriceIndexValues.of(
       UK_RPI,
       VAL_DATE_INFLATION,
-      LocalDateDoubleTimeSeries.of(VAL_DATE_INFLATION.minusMonths(3), 227.2),
       InterpolatedNodalCurve.of(
           Curves.prices("GB_RPI_CURVE"),
           DoubleArray.of(6, 12, 24, 60, 120),
           DoubleArray.of(227.2, 252.6, 289.5, 323.1, 351.1),
-          INTERP_SPLINE));
+          INTERP_SPLINE),
+      LocalDateDoubleTimeSeries.of(VAL_DATE_INFLATION.minusMonths(3), 227.2));
 
   private static final double EPS = 1.0e-14;
 

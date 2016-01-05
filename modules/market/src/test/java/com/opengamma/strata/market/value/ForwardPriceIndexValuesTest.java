@@ -31,7 +31,6 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.key.PriceIndexValuesKey;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -74,7 +73,7 @@ public class ForwardPriceIndexValuesTest {
   private static final DoubleArray SEASONALITY = DoubleArray.of(
       0.98d, 0.99d, 1.01d, 1.00d, 1.00d, 1.01d, 1.01d, 0.99d, 1.00d, 1.00d, 1.00d, 1.01d);
   private static final ForwardPriceIndexValues INSTANCE =
-      ForwardPriceIndexValues.of(USA_CPI_U, VAL_DATE, USCPI_TS, CURVE, SEASONALITY);
+      ForwardPriceIndexValues.of(USA_CPI_U, VAL_DATE, CURVE, USCPI_TS, SEASONALITY);
 
   private static final YearMonth[] TEST_MONTHS = new YearMonth[] {
       YearMonth.of(2015, 1), YearMonth.of(2015, 5), YearMonth.of(2016, 5), YearMonth.of(2016, 6), YearMonth.of(2024, 12)};
@@ -87,8 +86,7 @@ public class ForwardPriceIndexValuesTest {
   }
 
   public void test_of_noSeasonality() {
-    ForwardPriceIndexValues test = ForwardPriceIndexValues.of(USA_CPI_U, VAL_DATE, USCPI_TS, CURVE);
-    assertEquals(test.getKey(), PriceIndexValuesKey.of(USA_CPI_U));
+    ForwardPriceIndexValues test = ForwardPriceIndexValues.of(USA_CPI_U, VAL_DATE, CURVE, USCPI_TS);
     assertEquals(test.getIndex(), USA_CPI_U);
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(test.getSeasonality(), DoubleArray.filled(12, 1d));
@@ -98,8 +96,7 @@ public class ForwardPriceIndexValuesTest {
   }
 
   public void test_of_seasonality() {
-    ForwardPriceIndexValues test = ForwardPriceIndexValues.of(USA_CPI_U, VAL_DATE, USCPI_TS, CURVE, SEASONALITY);
-    assertEquals(test.getKey(), PriceIndexValuesKey.of(USA_CPI_U));
+    ForwardPriceIndexValues test = ForwardPriceIndexValues.of(USA_CPI_U, VAL_DATE, CURVE, USCPI_TS, SEASONALITY);
     assertEquals(test.getIndex(), USA_CPI_U);
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(test.getSeasonality(), SEASONALITY);
@@ -110,13 +107,13 @@ public class ForwardPriceIndexValuesTest {
 
   public void test_of_wrongSeasonalityLength() {
     assertThrowsIllegalArg(() -> ForwardPriceIndexValues.of(
-        USA_CPI_U, VAL_DATE, USCPI_TS, CURVE, DoubleArray.EMPTY));
+        USA_CPI_U, VAL_DATE, CURVE, USCPI_TS, DoubleArray.EMPTY));
   }
 
   public void test_of_startDateBeforeFixing() {
     DoubleArray monthWrong = DoubleArray.of(-10.0, 21.0, 57.0, 117.0);
     InterpolatedNodalCurve interpolated = CURVE.toBuilder().xValues(monthWrong).build();
-    assertThrowsIllegalArg(() -> ForwardPriceIndexValues.of(USA_CPI_U, VAL_DATE, USCPI_TS, interpolated, SEASONALITY));
+    assertThrowsIllegalArg(() -> ForwardPriceIndexValues.of(USA_CPI_U, VAL_DATE, interpolated, USCPI_TS, SEASONALITY));
   }
 
   //-------------------------------------------------------------------------
@@ -136,13 +133,13 @@ public class ForwardPriceIndexValuesTest {
 
   //-------------------------------------------------------------------------
   public void test_valuePointSensitivity_fixing() {
-    ForwardPriceIndexValues test = ForwardPriceIndexValues.of(USA_CPI_U, VAL_DATE, USCPI_TS, CURVE);
+    ForwardPriceIndexValues test = ForwardPriceIndexValues.of(USA_CPI_U, VAL_DATE, CURVE, USCPI_TS);
     assertEquals(test.valuePointSensitivity(VAL_MONTH.minusMonths(3)), PointSensitivityBuilder.none());
   }
 
   public void test_valuePointSensitivity_forward() {
     YearMonth month = VAL_MONTH.plusMonths(3);
-    ForwardPriceIndexValues test = ForwardPriceIndexValues.of(USA_CPI_U, VAL_DATE, USCPI_TS, CURVE);
+    ForwardPriceIndexValues test = ForwardPriceIndexValues.of(USA_CPI_U, VAL_DATE, CURVE, USCPI_TS);
     InflationRateSensitivity expected = InflationRateSensitivity.of(USA_CPI_U, month, 1d);
     assertEquals(test.valuePointSensitivity(month), expected);
   }
@@ -172,14 +169,14 @@ public class ForwardPriceIndexValuesTest {
   //-------------------------------------------------------------------------
   // proper end-to-end tests are elsewhere
   public void test_curveParameterSensitivity() {
-    ForwardPriceIndexValues test = ForwardPriceIndexValues.of(USA_CPI_U, VAL_DATE, USCPI_TS, CURVE);
+    ForwardPriceIndexValues test = ForwardPriceIndexValues.of(USA_CPI_U, VAL_DATE, CURVE, USCPI_TS);
     InflationRateSensitivity point = InflationRateSensitivity.of(USA_CPI_U, VAL_MONTH.plusMonths(3), 1d);
     assertEquals(test.curveParameterSensitivity(point).size(), 1);
   }
 
   //-------------------------------------------------------------------------
   public void test_withCurve() {
-    ForwardPriceIndexValues test = ForwardPriceIndexValues.of(USA_CPI_U, VAL_DATE, USCPI_TS, CURVE).withCurve(CURVE2);
+    ForwardPriceIndexValues test = ForwardPriceIndexValues.of(USA_CPI_U, VAL_DATE, CURVE, USCPI_TS).withCurve(CURVE2);
     assertEquals(test.getCurve(), CURVE2);
   }
 
@@ -190,8 +187,8 @@ public class ForwardPriceIndexValuesTest {
         ForwardPriceIndexValues.of(
             UK_HICP,
             VAL_DATE.plusMonths(1),
-            LocalDateDoubleTimeSeries.of(VAL_MONTH.minusMonths(2).atEndOfMonth(), 100d),
-            CURVE);
+            CURVE,
+            LocalDateDoubleTimeSeries.of(VAL_MONTH.minusMonths(2).atEndOfMonth(), 100d));
     coverBeanEquals(INSTANCE, test2);
   }
 

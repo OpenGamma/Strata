@@ -23,7 +23,7 @@ import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.market.key.QuoteKey;
@@ -82,7 +82,7 @@ public abstract class AbstractDeliverableSwapFutureFunction<T>
         indices.stream()
             .map(MarketDataKeys::indexCurve)
             .collect(toImmutableSet());
-    DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(product.getCurrency());
+    DiscountCurveKey discountFactorsKey = DiscountCurveKey.of(product.getCurrency());
     Set<MarketDataKey<?>> reqs = ImmutableSet.<MarketDataKey<?>>builder()
         .add(quoteKey)
         .add(discountFactorsKey)

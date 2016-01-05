@@ -79,7 +79,7 @@ import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
@@ -255,8 +255,8 @@ public class CurveEndToEndTest {
               .map(MarketDataKeys::indexCurve)
               .collect(toImmutableSet());
 
-      Set<DiscountFactorsKey> discountCurveKeys =
-          ImmutableSet.of(DiscountFactorsKey.of(fra.getCurrency()));
+      Set<DiscountCurveKey> discountCurveKeys =
+          ImmutableSet.of(DiscountCurveKey.of(fra.getCurrency()));
 
       return FunctionRequirements.builder()
           .singleValueRequirements(Sets.union(indexCurveKeys, discountCurveKeys))

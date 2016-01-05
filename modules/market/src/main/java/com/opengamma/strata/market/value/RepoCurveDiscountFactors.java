@@ -59,7 +59,7 @@ public final class RepoCurveDiscountFactors
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an instance of {@code RepoCurveDiscountFactors} from discount factors and bond group.
+   * Obtains an instance based on discount factors and bond group.
    * 
    * @param discountFactors  the discount factors
    * @param bondGroup  the bond group

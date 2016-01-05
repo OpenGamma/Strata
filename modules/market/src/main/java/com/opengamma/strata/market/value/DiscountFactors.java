@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.market.MarketDataValue;
+import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
@@ -19,7 +19,6 @@ import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 
 /**
@@ -29,10 +28,10 @@ import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
  * when comparing the valuation date to the specified date.
  */
 public interface DiscountFactors
-    extends MarketDataValue<DiscountFactors> {
+    extends MarketDataView {
 
   /**
-   * Creates a new discount factors instance from a curve.
+   * Obtains an instance from a curve.
    * <p>
    * The curve is specified by an instance of {@link Curve}, such as {@link InterpolatedNodalCurve}.
    * The curve must have x-values of {@linkplain ValueType#YEAR_FRACTION year fractions} with
@@ -42,7 +41,7 @@ public interface DiscountFactors
    * @param currency  the currency
    * @param valuationDate  the valuation date for which the curve is valid
    * @param curve  the underlying curve
-   * @return the curve
+   * @return the discount factors view
    */
   public static DiscountFactors of(Currency currency, LocalDate valuationDate, Curve curve) {
     if (curve.getMetadata().getYValueType().equals(ValueType.DISCOUNT_FACTOR)) {
@@ -61,18 +60,6 @@ public interface DiscountFactors
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the market data key.
-   * <p>
-   * This returns the {@link DiscountFactorsKey} that identifies this instance.
-   * 
-   * @return the market data key
-   */
-  @Override
-  public default DiscountFactorsKey getKey() {
-    return DiscountFactorsKey.of(getCurrency());
-  }
-
   /**
    * Gets the currency.
    * <p>

@@ -30,8 +30,7 @@ import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.key.DiscountCurveKey;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
-import com.opengamma.strata.market.key.IborIndexRatesKey;
+import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
@@ -71,12 +70,12 @@ public class SwapFunctionGroupsTest {
     FunctionRequirements reqs = function.requirements(TRADE);
     assertThat(reqs.getOutputCurrencies()).containsOnly(ccy);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
-        ImmutableSet.of(IborIndexRatesKey.of(index), DiscountFactorsKey.of(ccy)));
+        ImmutableSet.of(IborIndexCurveKey.of(index), DiscountCurveKey.of(ccy)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(index)));
     assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy);
     DiscountFactors df = SimpleDiscountFactors.of(
         ccy, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
-    TestMarketDataMap md = new TestMarketDataMap(valDate, ImmutableMap.of(DiscountFactorsKey.of(ccy), df), ImmutableMap.of());
+    TestMarketDataMap md = new TestMarketDataMap(valDate, ImmutableMap.of(DiscountCurveKey.of(ccy), df), ImmutableMap.of());
     assertThat(function.execute(TRADE, md)).isEqualTo(MultiCurrencyValuesArray.of(MultiCurrencyAmount.of(ccy, 0d)));
   }
 
@@ -89,10 +88,9 @@ public class SwapFunctionGroupsTest {
     SwapTrade trade = SwapTrade.builder().product(Swap.of(SwapDummyData.FIXED_RATECALC_SWAP_LEG)).build();
     LocalDate valDate = trade.getProduct().getEndDate().minusDays(7);
     ConstantNodalCurve curve = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
-    DiscountFactors df = SimpleDiscountFactors.of(GBP, valDate, curve);
     TestMarketDataMap md = new TestMarketDataMap(
         valDate,
-        ImmutableMap.of(DiscountCurveKey.of(GBP), curve, DiscountFactorsKey.of(GBP), df),
+        ImmutableMap.of(DiscountCurveKey.of(GBP), curve),
         ImmutableMap.of());
 
     assertNotNull(new SwapBucketedGammaPv01Function().execute(trade, md));

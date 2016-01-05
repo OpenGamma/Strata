@@ -16,19 +16,19 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.id.CurveGroupId;
-import com.opengamma.strata.market.id.RateIndexCurveId;
+import com.opengamma.strata.market.id.OvernightIndexCurveId;
 
 /**
- * Market data function that builds a {@link Curve} representing the forward curve of an index.
+ * Market data function that builds a {@link Curve} representing the forward curve of an Overnight index.
  * <p>
  * The curve is not actually built in this class, it is extracted from an existing {@link CurveGroup}.
  * The curve group must be available in the {@code BaseMarketData} passed to the
  * {@link MarketDataFunction#build} method.
  */
-public final class RateIndexCurveMarketDataFunction implements MarketDataFunction<Curve, RateIndexCurveId> {
+public final class OvernightIndexCurveMarketDataFunction implements MarketDataFunction<Curve, OvernightIndexCurveId> {
 
   @Override
-  public MarketDataRequirements requirements(RateIndexCurveId id, MarketDataConfig marketDataConfig) {
+  public MarketDataRequirements requirements(OvernightIndexCurveId id, MarketDataConfig marketDataConfig) {
     CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
     return MarketDataRequirements.builder()
         .addValues(curveGroupId)
@@ -37,7 +37,7 @@ public final class RateIndexCurveMarketDataFunction implements MarketDataFunctio
 
   @Override
   public MarketDataBox<Curve> build(
-      RateIndexCurveId id,
+      OvernightIndexCurveId id,
       CalculationEnvironment marketData,
       MarketDataConfig marketDataConfig) {
 
@@ -46,7 +46,7 @@ public final class RateIndexCurveMarketDataFunction implements MarketDataFunctio
     return curveGroupBox.apply(curveGroup -> buildCurve(id, curveGroup));
   }
 
-  private Curve buildCurve(RateIndexCurveId id, CurveGroup curveGroup) {
+  private Curve buildCurve(OvernightIndexCurveId id, CurveGroup curveGroup) {
     Optional<Curve> optionalForwardCurve = curveGroup.findForwardCurve(id.getIndex());
 
     if (optionalForwardCurve.isPresent()) {
@@ -54,15 +54,15 @@ public final class RateIndexCurveMarketDataFunction implements MarketDataFunctio
     } else {
       throw new IllegalArgumentException(
           Messages.format(
-              "No forward curve available for index {} in curve group {}",
+              "No forward curve available for Overnight index {} in curve group {}",
               id.getIndex().getName(),
               id.getCurveGroupName()));
     }
   }
 
   @Override
-  public Class<RateIndexCurveId> getMarketDataIdType() {
-    return RateIndexCurveId.class;
+  public Class<OvernightIndexCurveId> getMarketDataIdType() {
+    return OvernightIndexCurveId.class;
   }
 
 }

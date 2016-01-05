@@ -14,39 +14,31 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.market.key.IborIndexRatesKey.Meta;
-import com.opengamma.strata.market.value.IborIndexRates;
+import com.opengamma.strata.market.curve.Curve;
 
 /**
- * Test {@link IborIndexRatesKey}.
+ * Test {@link IborIndexCurveKey}.
  */
 @Test
-public class IborIndexRatesKeyTest {
+public class IborIndexCurveKeyTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    IborIndexRatesKey test = IborIndexRatesKey.of(GBP_LIBOR_3M);
+    IborIndexCurveKey test = IborIndexCurveKey.of(GBP_LIBOR_3M);
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
-    assertEquals(test.getMarketDataType(), IborIndexRates.class);
+    assertEquals(test.getMarketDataType(), Curve.class);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    IborIndexRatesKey test = IborIndexRatesKey.of(GBP_LIBOR_3M);
+    IborIndexCurveKey test = IborIndexCurveKey.of(GBP_LIBOR_3M);
     coverImmutableBean(test);
-    IborIndexRatesKey test2 = IborIndexRatesKey.of(CHF_LIBOR_12M);
+    IborIndexCurveKey test2 = IborIndexCurveKey.of(CHF_LIBOR_12M);
     coverBeanEquals(test, test2);
   }
 
-  public void coverage_builder() {
-    Meta meta = IborIndexRatesKey.meta();
-    IborIndexRatesKey test1 = meta.builder().setString(meta.index(), "GBP-LIBOR-3M").build();
-    IborIndexRatesKey test2 = meta.builder().setString(meta.index().name(), "GBP-LIBOR-6M").build();
-    coverBeanEquals(test1, test2);
-  }
-
   public void test_serialization() {
-    IborIndexRatesKey test = IborIndexRatesKey.of(GBP_LIBOR_3M);
+    IborIndexCurveKey test = IborIndexCurveKey.of(GBP_LIBOR_3M);
     assertSerialization(test);
   }
 

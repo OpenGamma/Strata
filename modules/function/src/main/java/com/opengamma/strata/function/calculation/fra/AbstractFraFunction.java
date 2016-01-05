@@ -25,8 +25,8 @@ import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
-import com.opengamma.strata.market.key.IborIndexRatesKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
+import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -90,11 +90,11 @@ public abstract class AbstractFraFunction<T>
 
     // Create a key identifying the forward curve of each index referenced by the FRA
     Set<MarketDataKey<?>> indexCurveKeys = indices.stream()
-        .map(IborIndexRatesKey::of)
+        .map(IborIndexCurveKey::of)
         .collect(toImmutableSet());
 
     // Create a key identifying the discount factors for the FRA currency
-    Set<DiscountFactorsKey> discountFactorsKeys = ImmutableSet.of(DiscountFactorsKey.of(fra.getCurrency()));
+    Set<DiscountCurveKey> discountFactorsKeys = ImmutableSet.of(DiscountCurveKey.of(fra.getCurrency()));
 
     return FunctionRequirements.builder()
         .singleValueRequirements(Sets.union(indexCurveKeys, discountFactorsKeys))

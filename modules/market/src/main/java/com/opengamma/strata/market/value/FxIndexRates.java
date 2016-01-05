@@ -11,9 +11,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.MarketDataValue;
+import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.key.FxIndexRatesKey;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -25,19 +24,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * as published by a specific organization, typically at a well-known time-of-day.
  */
 public interface FxIndexRates
-    extends MarketDataValue<FxIndexRates> {
-
-  /**
-   * Gets the market data key.
-   * <p>
-   * This returns the {@link FxIndexRatesKey} that identifies this instance.
-   * 
-   * @return the market data key
-   */
-  @Override
-  public default FxIndexRatesKey getKey() {
-    return FxIndexRatesKey.of(getIndex());
-  }
+    extends MarketDataView {
 
   /**
    * Gets the FX index.
@@ -56,7 +43,7 @@ public interface FxIndexRates
    * 
    * @return the time-series fixings
    */
-  public abstract LocalDateDoubleTimeSeries getTimeSeries();
+  public abstract LocalDateDoubleTimeSeries getFixings();
 
   /**
    * Gets the underlying FX forward rates.  

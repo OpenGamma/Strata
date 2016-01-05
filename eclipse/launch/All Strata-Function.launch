@@ -20,12 +20,12 @@
 <listEntry value="com.opengamma.strata.function.calculation.deposit"/>
 <listEntry value="com.opengamma.strata.function.calculation.fra"/>
 <listEntry value="com.opengamma.strata.function.calculation.fx"/>
+<listEntry value="com.opengamma.strata.function.calculation.index"/>
 <listEntry value="com.opengamma.strata.function.calculation.payment"/>
-<listEntry value="com.opengamma.strata.function.calculation.rate"/>
 <listEntry value="com.opengamma.strata.function.calculation.swap"/>
-<listEntry value="com.opengamma.strata.function.interpolator"/>
 <listEntry value="com.opengamma.strata.function.marketdata"/>
 <listEntry value="com.opengamma.strata.function.marketdata.curve"/>
+<listEntry value="com.opengamma.strata.function.marketdata.fx"/>
 <listEntry value="com.opengamma.strata.function.marketdata.mapping"/>
 <listEntry value="com.opengamma.strata.function.marketdata.scenario"/>
 <listEntry value="com.opengamma.strata.function.marketdata.scenario.curve"/>

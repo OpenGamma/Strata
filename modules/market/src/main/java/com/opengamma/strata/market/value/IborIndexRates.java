@@ -9,12 +9,13 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.MarketDataValue;
+import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.Perturbation;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.key.IborIndexRatesKey;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -24,20 +25,54 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * This provides historic and forward rates for a single {@link IborIndex}, such as 'GBP-LIBOR-3M'.
  */
 public interface IborIndexRates
-    extends MarketDataValue<IborIndexRates> {
+    extends MarketDataView {
 
   /**
-   * Gets the market data key.
+   * Obtains an instance from a forward curve, with an empty time-series of fixings.
    * <p>
-   * This returns the {@link IborIndexRatesKey} that identifies this instance.
+   * The curve is specified by an instance of {@link Curve}, such as {@link InterpolatedNodalCurve}.
+   * The curve must have x-values of {@linkplain ValueType#YEAR_FRACTION year fractions} with
+   * the day count specified. The y-values must be {@linkplain ValueType#ZERO_RATE zero rates}
+   * or {@linkplain ValueType#DISCOUNT_FACTOR discount factors}.
    * 
-   * @return the market data key
+   * @param index  the index
+   * @param valuationDate  the valuation date for which the curve is valid
+   * @param forwardCurve  the forward curve
+   * @return the rates view
    */
-  @Override
-  public default IborIndexRatesKey getKey() {
-    return IborIndexRatesKey.of(getIndex());
+  public static IborIndexRates of(
+      IborIndex index,
+      LocalDate valuationDate,
+      Curve forwardCurve) {
+
+    return of(index, valuationDate, forwardCurve, LocalDateDoubleTimeSeries.empty());
   }
 
+  /**
+   * Obtains an instance from a curve and time-series of fixings.
+   * <p>
+   * The curve is specified by an instance of {@link Curve}, such as {@link InterpolatedNodalCurve}.
+   * The curve must have x-values of {@linkplain ValueType#YEAR_FRACTION year fractions} with
+   * the day count specified. The y-values must be {@linkplain ValueType#ZERO_RATE zero rates}
+   * or {@linkplain ValueType#DISCOUNT_FACTOR discount factors}.
+   * 
+   * @param index  the index
+   * @param valuationDate  the valuation date for which the curve is valid
+   * @param forwardCurve  the forward curve
+   * @param fixings  the time-series of fixings
+   * @return the rates view
+   */
+  public static IborIndexRates of(
+      IborIndex index,
+      LocalDate valuationDate,
+      Curve forwardCurve,
+      LocalDateDoubleTimeSeries fixings) {
+
+    DiscountFactors discountFactors = DiscountFactors.of(index.getCurrency(), valuationDate, forwardCurve);
+    return DiscountIborIndexRates.of(index, discountFactors, fixings);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the Ibor index.
    * <p>
@@ -55,7 +90,7 @@ public interface IborIndexRates
    * 
    * @return the time-series fixings
    */
-  public abstract LocalDateDoubleTimeSeries getTimeSeries();
+  public abstract LocalDateDoubleTimeSeries getFixings();
 
   /**
    * Gets the name of the underlying curve.
@@ -89,7 +124,7 @@ public interface IborIndexRates
    * @throws RuntimeException if the value cannot be obtained
    */
   public abstract double rate(LocalDate fixingDate);
-  
+
   /**
    * Ignores the time-series to get the forward rate at the specified fixing date, used in rare and special cases.
    * In most cases callers should use {@link IborIndexRates#rate(LocalDate) rate(LocalDate)}.
@@ -118,9 +153,9 @@ public interface IborIndexRates
   public abstract PointSensitivityBuilder ratePointSensitivity(LocalDate fixingDate);
 
   /**
-   * 
-   * This method should only be used in rare and special cases.
-   * In most cases callers should use {@link IborIndexRates#ratePointSensitivity(LocalDate) ratePointSensitivity(LocalDate)}.
+   * Ignores the time-series to get the forward rate point sensitivity at the specified fixing date,
+   * used in rare and special cases. In most cases callers should use
+   * {@link IborIndexRates#ratePointSensitivity(LocalDate) ratePointSensitivity(LocalDate)}.
    * <p>
    * An instance of {@code IborIndexRates} is typically based on a forward curve and a historic time-series.
    * The {@code ratePointSensitivity(LocalDate)} method uses either the curve or time-series, depending on whether the

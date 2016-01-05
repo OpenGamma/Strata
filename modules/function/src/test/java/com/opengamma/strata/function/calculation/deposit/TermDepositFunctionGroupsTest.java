@@ -30,10 +30,9 @@ import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
-import com.opengamma.strata.market.value.DiscountFactors;
-import com.opengamma.strata.market.value.SimpleDiscountFactors;
+import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.deposit.TermDeposit;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
@@ -78,12 +77,11 @@ public class TermDepositFunctionGroupsTest {
     CalculationSingleFunction<TermDepositTrade, ?> function = config.createFunction();
     FunctionRequirements reqs = function.requirements(TRADE);
     assertThat(reqs.getOutputCurrencies()).containsOnly(ccy);
-    assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(DiscountFactorsKey.of(ccy)));
+    assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(DiscountCurveKey.of(ccy)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of());
     assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy);
-    DiscountFactors df = SimpleDiscountFactors.of(
-        ccy, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
-    TestMarketDataMap md = new TestMarketDataMap(valDate, ImmutableMap.of(DiscountFactorsKey.of(ccy), df), ImmutableMap.of());
+    Curve df = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
+    TestMarketDataMap md = new TestMarketDataMap(valDate, ImmutableMap.of(DiscountCurveKey.of(ccy), df), ImmutableMap.of());
     assertThat(function.execute(TRADE, md)).isEqualTo(FxConvertibleList.of(ImmutableList.of(CurrencyAmount.of(ccy, 0d))));
   }
 
@@ -96,12 +94,11 @@ public class TermDepositFunctionGroupsTest {
     CalculationSingleFunction<TermDepositTrade, ?> function = config.createFunction();
     FunctionRequirements reqs = function.requirements(TRADE);
     assertThat(reqs.getOutputCurrencies()).containsOnly(ccy);
-    assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(DiscountFactorsKey.of(ccy)));
+    assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(DiscountCurveKey.of(ccy)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of());
     assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy);
-    DiscountFactors df = SimpleDiscountFactors.of(
-        ccy, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
-    TestMarketDataMap md = new TestMarketDataMap(valDate, ImmutableMap.of(DiscountFactorsKey.of(ccy), df), ImmutableMap.of());
+    Curve df = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
+    TestMarketDataMap md = new TestMarketDataMap(valDate, ImmutableMap.of(DiscountCurveKey.of(ccy), df), ImmutableMap.of());
     assertThat(function.execute(TRADE, md)).isEqualTo(DefaultScenarioResult.of(0d));
   }
 

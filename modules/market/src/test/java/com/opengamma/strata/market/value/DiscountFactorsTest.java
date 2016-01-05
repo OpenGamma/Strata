@@ -25,7 +25,6 @@ import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
 
 /**
  * Test {@link DiscountFactors}.
@@ -57,7 +56,6 @@ public class DiscountFactorsTest {
   public void test_of_discountFactors() {
     DiscountFactors test = DiscountFactors.of(GBP, DATE_VAL, CURVE_DF);
     assertEquals(test instanceof SimpleDiscountFactors, true);
-    assertEquals(test.getKey(), DiscountFactorsKey.of(GBP));
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getCurveName(), NAME);
@@ -67,7 +65,6 @@ public class DiscountFactorsTest {
   public void test_of_zeroRate() {
     DiscountFactors test = DiscountFactors.of(GBP, DATE_VAL, CURVE_ZERO);
     assertEquals(test instanceof ZeroRateDiscountFactors, true);
-    assertEquals(test.getKey(), DiscountFactorsKey.of(GBP));
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getCurveName(), NAME);
@@ -77,7 +74,6 @@ public class DiscountFactorsTest {
   public void test_of_zeroRatePeriodic() {
     DiscountFactors test = DiscountFactors.of(GBP, DATE_VAL, CURVE_ZERO_PERIODIC);
     assertEquals(test instanceof ZeroRatePeriodicDiscountFactors, true);
-    assertEquals(test.getKey(), DiscountFactorsKey.of(GBP));
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getCurveName(), NAME);

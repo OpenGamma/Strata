@@ -273,7 +273,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     // fixedPeriod is altered by this method.
     private double pastAccumulation() {
       double accumulatedInterest = 0.0d;
-      LocalDateDoubleTimeSeries indexFixingDateSeries = rates.getTimeSeries();
+      LocalDateDoubleTimeSeries indexFixingDateSeries = rates.getFixings();
       while ((fixedPeriod < nbPeriods) &&
           rates.getValuationDate().isAfter(publicationDates.get(fixedPeriod))) {
         accumulatedInterest += accrualFactors.get(fixedPeriod) *
@@ -287,7 +287,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     // fixedPeriod is altered by this method.
     private double valuationDateAccumulation() {
       double accumulatedInterest = 0.0d;
-      LocalDateDoubleTimeSeries indexFixingDateSeries = rates.getTimeSeries();
+      LocalDateDoubleTimeSeries indexFixingDateSeries = rates.getFixings();
       boolean ratePresent = true;
       while (ratePresent && fixedPeriod < nbPeriods &&
           rates.getValuationDate().isEqual(publicationDates.get(fixedPeriod))) {

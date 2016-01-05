@@ -23,6 +23,7 @@ import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.CalculationRules;
+import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
@@ -30,7 +31,6 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.ArgChecker;
@@ -170,13 +170,13 @@ public class CalibrationXCcyCheckExample {
   // setup calculation runner component, which needs life-cycle management
   // a typical application might use dependency injection to obtain the instance
   private static Pair<List<Trade>, Results> calculate() {
-    try (CalculationTaskRunner runner = CalculationTaskRunner.ofMultiThreaded()) {
+    try (CalculationRunner runner = CalculationRunner.ofMultiThreaded()) {
       return calculate(runner);
     }
   }
 
   // calculates the PV results for the instruments used in calibration from the config
-  private static Pair<List<Trade>, Results> calculate(CalculationTaskRunner runner) {
+  private static Pair<List<Trade>, Results> calculate(CalculationRunner runner) {
     // load quotes and FX rates
     Map<QuoteId, Double> quotes = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE);
     Map<FxRateId, FxRate> fxRates = FxRatesCsvLoader.load(VAL_DATE, FX_RATES_RESOURCE);
@@ -231,10 +231,9 @@ public class CalibrationXCcyCheckExample {
         .build();
 
     // calibrate the curves and calculate the results
-    CalculationTasks tasks = CalculationTasks.of(trades, columns, rules);
-    MarketDataRequirements reqs = tasks.getRequirements();
+    MarketDataRequirements reqs = CalculationTasks.of(trades, columns, rules).getRequirements();
     MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, marketSnapshot, marketDataConfig);
-    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData);
+    Results results = runner.calculateSingleScenario(trades, columns, rules, enhancedMarketData);
     return Pair.of(trades, results);
   }
 

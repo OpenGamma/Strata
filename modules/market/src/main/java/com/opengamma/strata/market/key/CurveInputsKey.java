@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.key;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -28,12 +29,14 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.id.CurveInputsId;
+import org.joda.beans.BeanBuilder;
 
 /**
  * Market data key identifying the input data used when calibrating a curve.
  */
-@BeanDefinition
-public final class CurveInputsKey implements SimpleMarketDataKey<CurveInputs>, ImmutableBean {
+@BeanDefinition(builderScope = "private")
+public final class CurveInputsKey
+    implements SimpleMarketDataKey<CurveInputs>, ImmutableBean, Serializable {
 
   /** The name of the curve group containing the curve. */
   @PropertyDefinition(validate = "notNull")
@@ -79,12 +82,9 @@ public final class CurveInputsKey implements SimpleMarketDataKey<CurveInputs>, I
   }
 
   /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
+   * The serialization version id.
    */
-  public static CurveInputsKey.Builder builder() {
-    return new CurveInputsKey.Builder();
-  }
+  private static final long serialVersionUID = 1L;
 
   private CurveInputsKey(
       CurveGroupName curveGroupName,
@@ -129,14 +129,6 @@ public final class CurveInputsKey implements SimpleMarketDataKey<CurveInputs>, I
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -214,7 +206,7 @@ public final class CurveInputsKey implements SimpleMarketDataKey<CurveInputs>, I
     }
 
     @Override
-    public CurveInputsKey.Builder builder() {
+    public BeanBuilder<? extends CurveInputsKey> builder() {
       return new CurveInputsKey.Builder();
     }
 
@@ -272,7 +264,7 @@ public final class CurveInputsKey implements SimpleMarketDataKey<CurveInputs>, I
   /**
    * The bean-builder for {@code CurveInputsKey}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<CurveInputsKey> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CurveInputsKey> {
 
     private CurveGroupName curveGroupName;
     private CurveName curveName;
@@ -281,15 +273,6 @@ public final class CurveInputsKey implements SimpleMarketDataKey<CurveInputs>, I
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(CurveInputsKey beanToCopy) {
-      this.curveGroupName = beanToCopy.getCurveGroupName();
-      this.curveName = beanToCopy.getCurveName();
     }
 
     //-----------------------------------------------------------------------
@@ -349,29 +332,6 @@ public final class CurveInputsKey implements SimpleMarketDataKey<CurveInputs>, I
       return new CurveInputsKey(
           curveGroupName,
           curveName);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the name of the curve group containing the curve.
-     * @param curveGroupName  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder curveGroupName(CurveGroupName curveGroupName) {
-      JodaBeanUtils.notNull(curveGroupName, "curveGroupName");
-      this.curveGroupName = curveGroupName;
-      return this;
-    }
-
-    /**
-     * Sets the name of the curve.
-     * @param curveName  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder curveName(CurveName curveName) {
-      JodaBeanUtils.notNull(curveName, "curveName");
-      this.curveName = curveName;
-      return this;
     }
 
     //-----------------------------------------------------------------------

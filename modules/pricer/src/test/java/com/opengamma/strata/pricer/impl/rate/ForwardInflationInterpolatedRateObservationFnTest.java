@@ -152,7 +152,7 @@ public class ForwardInflationInterpolatedRateObservationFnTest {
         DoubleArray.of(4, 5, 16, 17),
         DoubleArray.of(rateStart, rateStartInterp, rateEnd, rateEndInterp),
         INTERPOLATOR);
-    ForwardPriceIndexValues values = ForwardPriceIndexValues.of(UK_RPIX, VAL_DATE, timeSeries, curve);
+    ForwardPriceIndexValues values = ForwardPriceIndexValues.of(UK_RPIX, VAL_DATE, curve, timeSeries);
     return ImmutableRatesProvider.builder(VAL_DATE)
         .priceIndexValues(ImmutableMap.of(UK_RPIX, values))
         .build();

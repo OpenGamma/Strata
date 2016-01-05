@@ -30,15 +30,12 @@ import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
-import com.opengamma.strata.market.key.IborIndexRatesKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
+import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.QuoteKey;
-import com.opengamma.strata.market.value.DiscountFactors;
-import com.opengamma.strata.market.value.DiscountIborIndexRates;
-import com.opengamma.strata.market.value.IborIndexRates;
-import com.opengamma.strata.market.value.SimpleDiscountFactors;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.type.IborFutureConventions;
 
@@ -72,19 +69,17 @@ public class IborFutureFunctionGroupsTest {
     assertThat(reqs.getOutputCurrencies()).containsOnly(ccy);
 
     QuoteKey quoteKey = QuoteKey.of(TRADE.getSecurity().getStandardId());
-    DiscountFactorsKey dfKey = DiscountFactorsKey.of(ccy);
-    IborIndexRatesKey iborKey = IborIndexRatesKey.of(index);
+    DiscountCurveKey dfKey = DiscountCurveKey.of(ccy);
+    IborIndexCurveKey iborKey = IborIndexCurveKey.of(index);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(iborKey, dfKey, quoteKey));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(index)));
     assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy);
-    DiscountFactors df = SimpleDiscountFactors.of(
-        ccy, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
+    Curve curve = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(date(2015, 3, 16), 0.0015);
-    IborIndexRates iir = DiscountIborIndexRates.of(index, ts, df);
     TestMarketDataMap md = new TestMarketDataMap(
         valDate,
-        ImmutableMap.of(dfKey, df, iborKey, iir, quoteKey, 99.995),
-        ImmutableMap.of());
+        ImmutableMap.of(dfKey, curve, iborKey, curve, quoteKey, 99.995),
+        ImmutableMap.of(IndexRateKey.of(index), ts));
     assertThat(function.execute(TRADE, md)).isEqualTo(
         FxConvertibleList.of(ImmutableList.of(CurrencyAmount.of(ccy, -1812.5d))));
   }
