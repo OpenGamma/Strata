@@ -18,8 +18,6 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.CalculationTaskConfig;
-import com.opengamma.strata.calc.config.CalculationTasksConfig;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingRules;
@@ -76,17 +74,17 @@ public final class CalculationTasks {
             .collect(toImmutableList());
 
     // create the task configuration
-    ImmutableList.Builder<CalculationTaskConfig> configBuilder = ImmutableList.builder();
+    ImmutableList.Builder<CalculationTask> configBuilder = ImmutableList.builder();
     for (int i = 0; i < targets.size(); i++) {
       for (int j = 0; j < columns.size(); j++) {
         // TODO For each target, build a map of function group to set of measures.
         // Then request function config from the group for all measures at once
-        configBuilder.add(createTaskConfig(i, j, targets.get(i), effectiveColumns.get(j)));
+        configBuilder.add(createTask(i, j, targets.get(i), effectiveColumns.get(j)));
       }
     }
-    List<CalculationTaskConfig> configs = configBuilder.build();
-    CalculationTasksConfig config = CalculationTasksConfig.of(configs, columns);
-    return config.createTasks();
+
+    // calculation tasks holds the original user-specified columns, not the derived ones
+    return CalculationTasks.of(configBuilder.build(), columns);
   }
 
   // TODO This needs to handle a whole set of columns and return a list of config
@@ -104,7 +102,7 @@ public final class CalculationTasks {
    * @param column  the column for which the value is calculated
    * @return configuration for calculating the value for the target
    */
-  private static CalculationTaskConfig createTaskConfig(
+  private static CalculationTask createTask(
       int rowIndex,
       int columnIndex,
       CalculationTarget target,
@@ -129,13 +127,12 @@ public final class CalculationTasks {
         .map(ConfiguredFunctionGroup::getArguments)
         .orElse(ImmutableMap.of());
 
-    return CalculationTaskConfig.of(
+    return CalculationTask.of(
         target,
         measure,
         rowIndex,
         columnIndex,
-        functionConfig,
-        functionArguments,
+        functionConfig.createFunction(functionArguments),
         marketDataMappings,
         reportingRules);
   }
