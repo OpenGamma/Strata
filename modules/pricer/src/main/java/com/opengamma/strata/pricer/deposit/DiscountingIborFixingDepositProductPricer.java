@@ -126,13 +126,13 @@ public class DiscountingIborFixingDepositProductPricer {
     IborIndexRates rates = provider.iborIndexRates(product.getFloatingRate().getIndex());
     // The IborFixingDeposit are fictitious instruments to anchor the beginning of the IborIndex forward curve. 
     // By using the 'forwardRate' method (instead of 'rate') we ensure that only the forward curve is involved.
-    return rates.forwardRate(product.getFloatingRate().getFixingDate());
+    return rates.rateIgnoringTimeSeries(product.getFloatingRate().getFixingDate());
   }
 
   // query the forward rate sensitivity
   private PointSensitivityBuilder forwardRateSensitivity(ExpandedIborFixingDeposit product, ImmutableRatesProvider provider) {
     IborIndexRates rates = provider.iborIndexRates(product.getFloatingRate().getIndex());
-    return rates.forwardRatePointSensitivity(product.getFloatingRate().getFixingDate());
+    return rates.rateIgnoringTimeSeriesPointSensitivity(product.getFloatingRate().getFixingDate());
   }
 
 }

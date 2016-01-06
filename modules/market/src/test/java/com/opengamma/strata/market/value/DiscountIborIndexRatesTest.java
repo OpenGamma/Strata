@@ -139,7 +139,7 @@ public class DiscountIborIndexRatesTest {
     LocalDate endDate = GBP_LIBOR_3M.calculateMaturityFromEffective(startDate);
     double accrualFactor = GBP_LIBOR_3M.getDayCount().yearFraction(startDate, endDate);
     double expected = (DFCURVE.discountFactor(startDate) / DFCURVE.discountFactor(endDate) - 1) / accrualFactor;
-    assertEquals(test.forwardRate(DATE_VAL), expected, TOLERANCE_RATE);
+    assertEquals(test.rateIgnoringTimeSeries(DATE_VAL), expected, TOLERANCE_RATE);
   }
 
   public void test_rate_onValuation_noFixing() {
@@ -149,7 +149,7 @@ public class DiscountIborIndexRatesTest {
     double accrualFactor = GBP_LIBOR_3M.getDayCount().yearFraction(startDate, endDate);
     double expected = (DFCURVE.discountFactor(startDate) / DFCURVE.discountFactor(endDate) - 1) / accrualFactor;
     assertEquals(test.rate(DATE_VAL), expected, TOLERANCE_RATE);
-    assertEquals(test.forwardRate(DATE_VAL), expected, TOLERANCE_RATE);
+    assertEquals(test.rateIgnoringTimeSeries(DATE_VAL), expected, TOLERANCE_RATE);
   }
 
   public void test_rate_afterValuation() {
@@ -171,14 +171,14 @@ public class DiscountIborIndexRatesTest {
   public void test_forwardRatePointSensitivity_onValuation() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
     IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M, DATE_VAL, 1d);
-    assertEquals(test.forwardRatePointSensitivity(DATE_VAL), expected);
+    assertEquals(test.rateIgnoringTimeSeriesPointSensitivity(DATE_VAL), expected);
   }
 
   public void test_ratePointSensitivity_onValuation_noFixing() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES_EMPTY, DFCURVE);
     IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M, DATE_VAL, 1d);
     assertEquals(test.ratePointSensitivity(DATE_VAL), expected);
-    assertEquals(test.forwardRatePointSensitivity(DATE_VAL), expected);
+    assertEquals(test.rateIgnoringTimeSeriesPointSensitivity(DATE_VAL), expected);
   }
 
   public void test_ratePointSensitivity_afterValuation() {
