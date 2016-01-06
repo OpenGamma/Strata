@@ -266,7 +266,7 @@ public class SabrExtrapolationRightFunctionTest {
   /**
    * Tests the price derivative with respect to forward for options in SABR model with extrapolation.
    */
-  public void priceDerivativeSABRCall() {
+  public void priceDerivativeSabrCall() {
     double strikeIn = 0.08;
     double strikeAt = CUT_OFF_STRIKE;
     double strikeOut = 0.12;
@@ -320,7 +320,7 @@ public class SabrExtrapolationRightFunctionTest {
     }
     // Above cut-off strike
     double[] abc = SABR_EXTRAPOLATION.getParameter();
-    double[][] abcDP = SABR_EXTRAPOLATION.getParameterDerivativeSABR();
+    double[][] abcDP = SABR_EXTRAPOLATION.getParameterDerivativeSabr();
     double[][] abcPP = new double[4][3];
     abcPP[0] = sabrExtrapolationAP.getParameter();
     abcPP[1] = sabrExtrapolationBP.getParameter();
@@ -353,7 +353,7 @@ public class SabrExtrapolationRightFunctionTest {
   /**
    * Tests the price derivative with respect to forward for options in SABR model with extrapolation.
    */
-  public void priceDerivativeSABRPut() {
+  public void priceDerivativeSabrPut() {
     SabrExtrapolationRightFunction func = SabrExtrapolationRightFunction.of(
         FORWARD, SABR_DATA, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU, SabrHaganVolatilityFunctionProvider.DEFAULT);
     double strikeIn = 0.08;
@@ -419,7 +419,7 @@ public class SabrExtrapolationRightFunctionTest {
     double[] priceOutDsabr = resOut.getDerivatives().toArray();
     assertEquals(priceOutExpected, priceOut, TOLERANCE_PRICE);
     double[] abc = func.getParameter();
-    double[][] abcDP = func.getParameterDerivativeSABR();
+    double[][] abcDP = func.getParameterDerivativeSabr();
     double[][] abcPP = new double[4][3];
     abcPP[0] = sabrExtrapolationAP.getParameter();
     abcPP[1] = sabrExtrapolationBP.getParameter();
@@ -471,7 +471,7 @@ public class SabrExtrapolationRightFunctionTest {
         SabrExtrapolationRightFunction.of(forward, sabrDataNP, cutOff, t, mu);
     // Above cut-off strike
     double[] abc = sabrExtrapolation.getParameter();
-    double[][] abcDP = sabrExtrapolation.getParameterDerivativeSABR();
+    double[][] abcDP = sabrExtrapolation.getParameterDerivativeSabr();
     double[][] abcPP = new double[4][3];
     abcPP[0] = sabrExtrapolationAP.getParameter();
     abcPP[1] = sabrExtrapolationBP.getParameter();
@@ -605,7 +605,7 @@ public class SabrExtrapolationRightFunctionTest {
       new VolatilityFunctionProvider[] {FUNC_HAGAN }; // other volatility functions to be added
 
   /**
-   * Testing C2 continuity
+   * Testing C2 continuity.
    */
   @Test
   public void smoothnessTest() {
@@ -636,7 +636,7 @@ public class SabrExtrapolationRightFunctionTest {
   }
 
   /**
-   * 
+   * Test small forward.
    */
   @Test
   public void smallForwardTest() {
