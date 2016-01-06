@@ -53,8 +53,9 @@ public interface ScenarioMarketDataKey<T, U extends ScenarioMarketDataValue<T>> 
    *
    * @param marketDataBox  a market data box containing single market data values of the same type as the
    *   scenario value identified by this key
+   * @param scenarioCount  the number of scenarios for which data is required in the returned value
    * @return an object containing market data for multiple scenarios built from the data in the market data box
    */
-  public abstract U createScenarioValue(MarketDataBox<T> marketDataBox);
+  public abstract U createScenarioValue(MarketDataBox<T> marketDataBox, int scenarioCount);
 
 }
