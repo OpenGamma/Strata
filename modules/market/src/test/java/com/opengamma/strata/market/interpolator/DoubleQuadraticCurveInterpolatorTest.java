@@ -107,7 +107,7 @@ public class DoubleQuadraticCurveInterpolatorTest {
     for (int i = 0; i < 100; i++) {
       double t = lastXValue * RANDOM.nextDouble();
       DoubleArray sensitivity = bci.parameterSensitivity(t);
-      assertEquals(sensitivity.total(), 1d, TOL);
+      assertEquals(sensitivity.sum(), 1d, TOL);
     }
   }
 

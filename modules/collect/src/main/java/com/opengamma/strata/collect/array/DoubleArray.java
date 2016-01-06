@@ -38,7 +38,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
-import com.opengamma.strata.collect.function.DoubleTenaryOperator;
+import com.opengamma.strata.collect.function.DoubleTernaryOperator;
 import com.opengamma.strata.collect.function.IntDoubleConsumer;
 import com.opengamma.strata.collect.function.IntDoubleToDoubleFunction;
 
@@ -625,6 +625,30 @@ public final class DoubleArray
   }
 
   /**
+   * Returns an instance with each value divided by the specified divisor.
+   * <p>
+   * This is used to divide the contents of this array, returning a new array.
+   * <p>
+   * This is a special case of {@link #map(DoubleUnaryOperator)}.
+   * This instance is immutable and unaffected by this method.
+   *
+   * @param divisor  the value by which the array values are divided
+   * @return a copy of this array with the each value divided by the divisor
+   */
+  public DoubleArray dividedBy(double divisor) {
+    if (divisor == 1d) {
+      return this;
+    }
+    // multiplication is cheaper than division so it is more efficient to do the division once and multiply each element
+    double factor = 1 / divisor;
+    double[] result = new double[array.length];
+    for (int i = 0; i < array.length; i++) {
+      result[i] = array[i] * factor;
+    }
+    return new DoubleArray(result);
+  }
+
+  /**
    * Returns an instance with an operation applied to each value in the array.
    * <p>
    * This is used to perform an operation on the contents of this array, returning a new array.
@@ -726,6 +750,63 @@ public final class DoubleArray
   }
 
   /**
+   * Returns an instance where each element is equal to the product of the
+   * matching values in this array and the other array.
+   * <p>
+   * This is used to multiply each value in this array by the corresponding value in the other array,
+   * returning a new array.
+   * <p>
+   * Element {@code n} in the resulting array is equal to element {@code n} in this array
+   * multiplied by element {@code n} in the other array.
+   * The arrays must be of the same size.
+   * <p>
+   * This is a special case of {@link #combine(DoubleArray, DoubleBinaryOperator)}.
+   * This instance is immutable and unaffected by this method.
+   *
+   * @param other  the other array
+   * @return a copy of this array with matching elements multiplied
+   * @throws IllegalArgumentException if the arrays have different sizes
+   */
+  public DoubleArray multipliedBy(DoubleArray other) {
+    if (array.length != other.array.length) {
+      throw new IllegalArgumentException("Arrays have different sizes");
+    }
+    double[] result = new double[array.length];
+    for (int i = 0; i < array.length; i++) {
+      result[i] = array[i] * other.array[i];
+    }
+    return new DoubleArray(result);
+  }
+
+  /**
+   * Returns an instance where each element is calculated by dividing values in this array by values in the other array.
+   * <p>
+   * This is used to divide each value in this array by the corresponding value in the other array,
+   * returning a new array.
+   * <p>
+   * Element {@code n} in the resulting array is equal to element {@code n} in this array
+   * divided by element {@code n} in the other array.
+   * The arrays must be of the same size.
+   * <p>
+   * This is a special case of {@link #combine(DoubleArray, DoubleBinaryOperator)}.
+   * This instance is immutable and unaffected by this method.
+   *
+   * @param other  the other array
+   * @return a copy of this array with matching elements divided
+   * @throws IllegalArgumentException if the arrays have different sizes
+   */
+  public DoubleArray dividedBy(DoubleArray other) {
+    if (array.length != other.array.length) {
+      throw new IllegalArgumentException("Arrays have different sizes");
+    }
+    double[] result = new double[array.length];
+    for (int i = 0; i < array.length; i++) {
+      result[i] = array[i] / other.array[i];
+    }
+    return new DoubleArray(result);
+  }
+
+  /**
    * Returns an instance where each element is formed by some combination of the matching
    * values in this array and the other array.
    * <p>
@@ -770,7 +851,7 @@ public final class DoubleArray
    * @return the result of the reduction
    * @throws IllegalArgumentException if the arrays have different sizes
    */
-  public double combineReduce(DoubleArray other, DoubleTenaryOperator operator) {
+  public double combineReduce(DoubleArray other, DoubleTernaryOperator operator) {
     if (array.length != other.array.length) {
       throw new IllegalArgumentException("Arrays have different sizes");
     }
@@ -893,13 +974,13 @@ public final class DoubleArray
   }
 
   /**
-   * Returns the total of all the values in the array.
+   * Returns the sum of all the values in the array.
    * <p>
    * This is a special case of {@link #reduce(double, DoubleBinaryOperator)}.
    * 
    * @return the total of all the values
    */
-  public double total() {
+  public double sum() {
     double total = 0;
     for (int i = 0; i < array.length; i++) {
       total += array[i];
