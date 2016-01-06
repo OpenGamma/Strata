@@ -308,6 +308,7 @@ public final class SabrHaganVolatilityFunctionProvider
    * @param volatilityD2 The array of array used to return the second order derivative. 
    * @return The Black implied volatility.
    */
+  @Override
   public double getVolatilityAdjoint2(
       double forward,
       double strike,
