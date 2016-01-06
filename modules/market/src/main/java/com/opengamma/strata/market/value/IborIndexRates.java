@@ -14,7 +14,6 @@ import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.key.IborIndexRatesKey;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -90,6 +89,20 @@ public interface IborIndexRates
    * @throws RuntimeException if the value cannot be obtained
    */
   public abstract double rate(LocalDate fixingDate);
+  
+  /**
+   * Ignores the time-series to get the forward rate at the specified fixing date, used in rare and special cases.
+   * In most cases callers should use {@link IborIndexRates#rate(LocalDate) rate(LocalDate)}.
+   * <p>
+   * An instance of {@code IborIndexRates} is typically based on a forward curve and a historic time-series.
+   * The {@code rate(LocalDate)} method uses either the curve or time-series, depending on whether the
+   * fixing date is before or after the valuation date. This method only queries the forward curve,
+   * totally ignoring the time-series, which is needed for rare and special cases only.
+   * 
+   * @param fixingDate  the fixing date to query the rate for
+   * @return the rate of the index as given by the forward curve
+   */
+  public abstract double rateIgnoringTimeSeries(LocalDate fixingDate);
 
   /**
    * Calculates the point sensitivity of the historic or forward rate at the specified fixing date.
@@ -104,19 +117,22 @@ public interface IborIndexRates
    */
   public abstract PointSensitivityBuilder ratePointSensitivity(LocalDate fixingDate);
 
-  //-------------------------------------------------------------------------
   /**
-   * Calculates the unit parameter sensitivity of the forward rate at the specified fixing date.
-   * <p>
-   * This returns the unit sensitivity to each parameter on the underlying curve at the specified date.
-   * The sensitivity refers to the result of {@link #rate(LocalDate)}.
    * 
-   * @param fixingDate  the fixing date to find the sensitivity for
-   * @return the parameter sensitivity
-   * @throws RuntimeException if the value cannot be obtained
+   * This method should only be used in rare and special cases.
+   * In most cases callers should use {@link IborIndexRates#ratePointSensitivity(LocalDate) ratePointSensitivity(LocalDate)}.
+   * <p>
+   * An instance of {@code IborIndexRates} is typically based on a forward curve and a historic time-series.
+   * The {@code ratePointSensitivity(LocalDate)} method uses either the curve or time-series, depending on whether the
+   * fixing date is before or after the valuation date. This method only queries the forward curve,
+   * totally ignoring the time-series, which is needed for rare and special cases only.
+   * 
+   * @param fixingDate  the fixing date to query the rate for
+   * @return the point sensitivity of the rate to the forward curve
    */
-  public abstract CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate fixingDate);
+  public abstract PointSensitivityBuilder rateIgnoringTimeSeriesPointSensitivity(LocalDate fixingDate);
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the curve parameter sensitivity from the point sensitivity.
    * <p>

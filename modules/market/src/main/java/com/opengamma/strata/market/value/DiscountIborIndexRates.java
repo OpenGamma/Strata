@@ -126,7 +126,7 @@ public final class DiscountIborIndexRates
     if (!fixingDate.isAfter(getValuationDate())) {
       return historicRate(fixingDate);
     }
-    return forwardRate(fixingDate);
+    return rateIgnoringTimeSeries(fixingDate);
   }
 
   // historic rate
@@ -141,12 +141,12 @@ public final class DiscountIborIndexRates
       }
       throw new IllegalArgumentException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
     } else {
-      return forwardRate(fixingDate);
+      return rateIgnoringTimeSeries(fixingDate);
     }
   }
 
-  // forward rate
-  private double forwardRate(LocalDate fixingDate) {
+  @Override
+  public double rateIgnoringTimeSeries(LocalDate fixingDate) {
     LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
     LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
     double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
@@ -169,15 +169,9 @@ public final class DiscountIborIndexRates
     return IborRateSensitivity.of(index, fixingDate, 1d);
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate fixingDate) {
-    LocalDate valuationDate = getValuationDate();
-    if (fixingDate.isBefore(valuationDate) ||
-        (fixingDate.equals(valuationDate) && timeSeries.get(fixingDate).isPresent())) {
-      return CurveUnitParameterSensitivities.empty();
-    }
-    return discountFactors.unitParameterSensitivity(fixingDate);
+  public PointSensitivityBuilder rateIgnoringTimeSeriesPointSensitivity(LocalDate fixingDate) {
+    return IborRateSensitivity.of(index, fixingDate, 1d);    
   }
 
   //-------------------------------------------------------------------------

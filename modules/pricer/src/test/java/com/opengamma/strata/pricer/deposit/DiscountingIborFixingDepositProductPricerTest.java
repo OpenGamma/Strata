@@ -109,7 +109,7 @@ public class DiscountingIborFixingDepositProductPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void par_spread() {
+  public void par_spread_no_fixing() {
     double parSpread = PRICER.parSpread(DEPOSIT, IMM_PROV_NOFIX);
     IborFixingDeposit deposit0 = DEPOSIT.toBuilder().fixedRate(RATE + parSpread).build();
     CurrencyAmount pv0 = PRICER.presentValue(deposit0, IMM_PROV_NOFIX);
@@ -117,9 +117,15 @@ public class DiscountingIborFixingDepositProductPricerTest {
     double parSpread2 = PRICER.parSpread(DEPOSIT, IMM_PROV_NOFIX);
     assertEquals(parSpread, parSpread2, TOLERANCE_RATE);
   }
+  
+  public void par_spread_fixing() {
+    double parSpread1 = PRICER.parSpread(DEPOSIT, IMM_PROV_FIX);
+    double parSpread2 = PRICER.parSpread(DEPOSIT, IMM_PROV_NOFIX);
+    assertEquals(parSpread1, parSpread2, TOLERANCE_RATE);
+  }
 
   //-------------------------------------------------------------------------
-  public void par_spread_sensitivity() {
+  public void par_spread_sensitivity_no_fixing() {
     PointSensitivities computedNoFix = PRICER.parSpreadSensitivity(DEPOSIT, IMM_PROV_NOFIX);
     CurveCurrencyParameterSensitivities sensiComputedNoFix = IMM_PROV_NOFIX.curveParameterSensitivity(computedNoFix);
     CurveCurrencyParameterSensitivities sensiExpected =
@@ -128,6 +134,12 @@ public class DiscountingIborFixingDepositProductPricerTest {
     PointSensitivities computedFix = PRICER.parSpreadSensitivity(DEPOSIT, IMM_PROV_FIX);
     CurveCurrencyParameterSensitivities sensiComputedFix = IMM_PROV_NOFIX.curveParameterSensitivity(computedFix);
     assertTrue(sensiComputedFix.equalWithTolerance(sensiExpected, TOLERANCE_RATE_DELTA));
+  }
+  
+  public void par_spread_sensitivity_fixing() {
+    PointSensitivities computedNoFix = PRICER.parSpreadSensitivity(DEPOSIT, IMM_PROV_NOFIX);
+    PointSensitivities computedFix = PRICER.parSpreadSensitivity(DEPOSIT, IMM_PROV_FIX);
+    assertTrue(computedNoFix.equalWithTolerance(computedFix, TOLERANCE_PV_DELTA));
   }
 
 }
