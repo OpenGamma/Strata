@@ -44,7 +44,7 @@ import com.opengamma.strata.product.swap.SwapIndices;
 @Test
 public class CmsTradeTest {
 
-  private static final double NOTIONAL = 1.0e6;
+  private static final ValueSchedule NOTIONAL = ValueSchedule.of(1.0e6);
   private static final SwapIndex INDEX = SwapIndices.EUR_EURIBOR_1100_10Y;
   private static final LocalDate START = LocalDate.of(2015, 10, 21);
   private static final LocalDate END = LocalDate.of(2017, 10, 21);
@@ -52,40 +52,38 @@ public class CmsTradeTest {
   private static final BusinessDayAdjustment BUSS_ADJ =
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, EUTA);
   private static final PeriodicSchedule SCHEDULE =
-      PeriodicSchedule.of(START, END, FREQUENCY, BUSS_ADJ, StubConvention.SHORT_INITIAL, RollConventions.NONE);
+      PeriodicSchedule.of(START, END, FREQUENCY, BUSS_ADJ, StubConvention.NONE, RollConventions.NONE);
   private static final ValueSchedule STRIKE = ValueSchedule.of(0.0125);
 
   private static final LocalDate TRADE = LocalDate.of(2015, 9, 21);
   private static final LocalDate SETTLE = LocalDate.of(2015, 9, 23);
   private static final TradeInfo INFO = TradeInfo.builder().tradeDate(TRADE).settlementDate(SETTLE).build();
 
-  private static final Cms CAP = Cms.builder()
-      .cmsLeg(CmsLeg.builder()
+  private static final Cms CAP = Cms.of(
+      CmsLeg.builder()
           .capSchedule(STRIKE)
           .index(INDEX)
           .notional(NOTIONAL)
           .payReceive(RECEIVE)
-          .periodicSchedule(SCHEDULE)
-          .build())
-      .build();
-  private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(EUR, -0.001 * NOTIONAL), SETTLE);
-  private static final Cms CMS = Cms.builder()
-      .cmsLeg(CmsLeg.builder()
+          .paymentSchedule(SCHEDULE)
+          .build());
+  private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(EUR, -0.001 * 1.0e6), SETTLE);
+  private static final Cms CMS = Cms.of(
+      CmsLeg.builder()
           .capSchedule(STRIKE)
           .index(INDEX)
           .notional(NOTIONAL)
           .payReceive(RECEIVE)
-          .periodicSchedule(SCHEDULE)
-          .build())
-      .payLeg(RateCalculationSwapLeg.builder()
+          .paymentSchedule(SCHEDULE)
+          .build(),
+      RateCalculationSwapLeg.builder()
           .payReceive(PAY)
           .accrualSchedule(SCHEDULE)
           .calculation(FixedRateCalculation.of(0.01, ACT_360))
           .paymentSchedule(
               PaymentSchedule.builder().paymentFrequency(FREQUENCY).paymentDateOffset(DaysAdjustment.NONE).build())
-          .notionalSchedule(NotionalSchedule.of(CurrencyAmount.of(EUR, NOTIONAL)))
-          .build())
-      .build();
+          .notionalSchedule(NotionalSchedule.of(CurrencyAmount.of(EUR, 1.0e6)))
+          .build());
 
   public void test_builder() {
     CmsTrade test = CmsTrade.builder().product(CAP).premium(PREMIUM).tradeInfo(INFO).build();

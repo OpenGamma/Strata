@@ -45,7 +45,7 @@ import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
  * The value of the period is based on the observed value of {@code SwapIndex}.
  * <p>
  * The payment is a CMS coupon, CMS caplet or CMS floorlet. 
- * If {@code caplet} ({@code floorlet}) is not null, the payment a caplet (floorlet). 
+ * If {@code caplet} ({@code floorlet}) is not null, the payment is a caplet (floorlet). 
  * If both of {@code caplet} and {@code floorlet} are null, this class represents a CMS coupon payment.
  * Thus at least one of the fields must be null.
  */

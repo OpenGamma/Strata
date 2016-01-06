@@ -43,7 +43,7 @@ import com.opengamma.strata.product.swap.SwapLeg;
 @Test
 public class CmsTest {
 
-  private static final double NOTIONAL = 1.0e6;
+  private static final ValueSchedule NOTIONAL = ValueSchedule.of(1.0e6);
   private static final SwapIndex INDEX = SwapIndices.EUR_EURIBOR_1100_10Y;
   private static final LocalDate START = LocalDate.of(2015, 10, 21);
   private static final LocalDate END = LocalDate.of(2017, 10, 21);
@@ -51,14 +51,14 @@ public class CmsTest {
   private static final BusinessDayAdjustment BUSS_ADJ_EUR =
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, EUTA);
   private static final PeriodicSchedule SCHEDULE_EUR =
-      PeriodicSchedule.of(START, END, FREQUENCY, BUSS_ADJ_EUR, StubConvention.SHORT_INITIAL, RollConventions.NONE);
+      PeriodicSchedule.of(START, END, FREQUENCY, BUSS_ADJ_EUR, StubConvention.NONE, RollConventions.NONE);
   private static final ValueSchedule STRIKE = ValueSchedule.of(0.0125);
   private static final CmsLeg CMS_LEG = CmsLeg.builder()
       .capSchedule(STRIKE)
       .index(INDEX)
       .notional(NOTIONAL)
       .payReceive(RECEIVE)
-      .periodicSchedule(SCHEDULE_EUR)
+      .paymentSchedule(SCHEDULE_EUR)
       .build();
   private static final SwapLeg PAY_LEG = RateCalculationSwapLeg.builder()
       .payReceive(PAY)
@@ -68,30 +68,30 @@ public class CmsTest {
       .paymentSchedule(
           PaymentSchedule.builder().paymentFrequency(FREQUENCY).paymentDateOffset(DaysAdjustment.NONE).build())
       .notionalSchedule(
-          NotionalSchedule.of(CurrencyAmount.of(EUR, NOTIONAL)))
+          NotionalSchedule.of(CurrencyAmount.of(EUR, 1.0e6)))
       .build();
 
-  public void test_builder_twoLegs() {
-    Cms test = Cms.builder().cmsLeg(CMS_LEG).payLeg(PAY_LEG).build();
+  public void test_of_twoLegs() {
+    Cms test = Cms.of(CMS_LEG, PAY_LEG);
     assertEquals(test.getCmsLeg(), CMS_LEG);
     assertEquals(test.getPayLeg().get(), PAY_LEG);
   }
 
-  public void test_builder_oneLeg() {
-    Cms test = Cms.builder().cmsLeg(CMS_LEG).build();
+  public void test_of_oneLeg() {
+    Cms test = Cms.of(CMS_LEG);
     assertEquals(test.getCmsLeg(), CMS_LEG);
     assertFalse(test.getPayLeg().isPresent());
   }
 
   public void test_expand_twoLegs() {
-    Cms base = Cms.builder().cmsLeg(CMS_LEG).payLeg(PAY_LEG).build();
+    Cms base = Cms.of(CMS_LEG, PAY_LEG);
     ExpandedCms test = base.expand();
     assertEquals(test.getCmsLeg(), CMS_LEG.expand());
     assertEquals(test.getPayLeg().get(), PAY_LEG.expand());
   }
 
   public void test_expand_oneLeg() {
-    Cms base = Cms.builder().cmsLeg(CMS_LEG).build();
+    Cms base = Cms.of(CMS_LEG);
     ExpandedCms test = base.expand();
     assertEquals(test.getCmsLeg(), CMS_LEG.expand());
     assertFalse(test.getPayLeg().isPresent());
@@ -99,22 +99,21 @@ public class CmsTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    Cms test1 = Cms.builder().cmsLeg(CMS_LEG).payLeg(PAY_LEG).build();
+    Cms test1 = Cms.of(CMS_LEG, PAY_LEG);
     coverImmutableBean(test1);
-    Cms test2 = Cms.builder()
-        .cmsLeg(CmsLeg.builder()
+    Cms test2 = Cms.of(
+        CmsLeg.builder()
             .floorSchedule(STRIKE)
             .index(INDEX)
             .notional(NOTIONAL)
             .payReceive(RECEIVE)
-            .periodicSchedule(SCHEDULE_EUR)
-            .build())
-        .build();
+            .paymentSchedule(SCHEDULE_EUR)
+            .build());
     coverBeanEquals(test1, test2);
   }
 
   public void test_serialization() {
-    Cms test = Cms.builder().cmsLeg(CMS_LEG).payLeg(PAY_LEG).build();
+    Cms test = Cms.of(CMS_LEG, PAY_LEG);
     assertSerialization(test);
   }
 

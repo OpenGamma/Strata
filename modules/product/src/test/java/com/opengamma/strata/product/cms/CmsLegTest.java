@@ -45,27 +45,33 @@ import com.opengamma.strata.product.swap.SwapIndices;
 @Test
 public class CmsLegTest {
 
-  private static final double NOTIONAL = 1.0e6;
   private static final SwapIndex INDEX = SwapIndices.EUR_EURIBOR_1100_10Y;
   private static final LocalDate START = LocalDate.of(2015, 10, 21);
   private static final LocalDate END = LocalDate.of(2017, 10, 21);
   private static final Frequency FREQUENCY = Frequency.P12M;
   private static final BusinessDayAdjustment BUSS_ADJ =
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, SAT_SUN);
-  private static final PeriodicSchedule SCHEDULE =
-      PeriodicSchedule.of(START, END, FREQUENCY, BUSS_ADJ, StubConvention.LONG_INITIAL, RollConventions.EOM);
+  private static final PeriodicSchedule SCHEDULE = PeriodicSchedule.builder()
+      .startDate(START)
+      .endDate(END)
+      .frequency(FREQUENCY)
+      .businessDayAdjustment(BUSS_ADJ)
+      .build();
   private static final BusinessDayAdjustment BUSS_ADJ_EUR =
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, EUTA);
   private static final PeriodicSchedule SCHEDULE_EUR =
-      PeriodicSchedule.of(START, END, FREQUENCY, BUSS_ADJ_EUR, StubConvention.SHORT_INITIAL, RollConventions.NONE);
+      PeriodicSchedule.of(START, END, FREQUENCY, BUSS_ADJ_EUR, StubConvention.NONE, RollConventions.NONE);
   private static final DaysAdjustment FIXING_OFFSET = DaysAdjustment.ofBusinessDays(-3, SAT_SUN);
   private static final DaysAdjustment PAYMENT_OFFSET = DaysAdjustment.ofBusinessDays(2, SAT_SUN);
   private static final ValueSchedule CAP = ValueSchedule.of(0.0125);
-  private static final List<ValueStep> STEPS = new ArrayList<ValueStep>();
+  private static final List<ValueStep> FLOOR_STEPS = new ArrayList<ValueStep>();
+  private static final List<ValueStep> NOTIONAL_STEPS = new ArrayList<ValueStep>();
   static {
-    STEPS.add(ValueStep.of(1, ValueAdjustment.ofReplace(0.02)));
+    FLOOR_STEPS.add(ValueStep.of(1, ValueAdjustment.ofReplace(0.02)));
+    NOTIONAL_STEPS.add(ValueStep.of(1, ValueAdjustment.ofReplace(1.2e6)));
   }
-  private static final ValueSchedule FLOOR = ValueSchedule.of(0.011, STEPS);
+  private static final ValueSchedule FLOOR = ValueSchedule.of(0.011, FLOOR_STEPS);
+  private static final ValueSchedule NOTIONAL = ValueSchedule.of(1.0e6, NOTIONAL_STEPS);
 
   public void test_builder_full() {
     CmsLeg test = CmsLeg.builder()
@@ -77,7 +83,7 @@ public class CmsLegTest {
         .index(INDEX)
         .notional(NOTIONAL)
         .payReceive(PAY)
-        .periodicSchedule(SCHEDULE)
+        .paymentSchedule(SCHEDULE)
         .build();
     assertEquals(test.getPayReceive(), PAY);
     assertFalse(test.getCapSchedule().isPresent());
@@ -88,7 +94,7 @@ public class CmsLegTest {
     assertEquals(test.getStartDate(), START);
     assertEquals(test.getEndDate(), SCHEDULE.getAdjustedEndDate());
     assertEquals(test.getIndex(), INDEX);
-    assertEquals(test.getPeriodicSchedule(), SCHEDULE);
+    assertEquals(test.getPaymentSchedule(), SCHEDULE);
     assertEquals(test.getFixingDateOffset(), FIXING_OFFSET);
     assertEquals(test.getPaymentDateOffset(), PAYMENT_OFFSET);
  }
@@ -102,7 +108,7 @@ public class CmsLegTest {
         .index(INDEX)
         .notional(NOTIONAL)
         .payReceive(PAY)
-        .periodicSchedule(SCHEDULE)
+        .paymentSchedule(SCHEDULE)
         .build();
     assertEquals(test.getPayReceive(), PAY);
     assertFalse(test.getCapSchedule().isPresent());
@@ -113,7 +119,7 @@ public class CmsLegTest {
     assertEquals(test.getStartDate(), START);
     assertEquals(test.getEndDate(), SCHEDULE.getAdjustedEndDate());
     assertEquals(test.getIndex(), INDEX);
-    assertEquals(test.getPeriodicSchedule(), SCHEDULE);
+    assertEquals(test.getPaymentSchedule(), SCHEDULE);
     assertEquals(test.getFixingDateOffset(), FIXING_OFFSET);
     assertEquals(test.getPaymentDateOffset(), PAYMENT_OFFSET);
   }
@@ -124,7 +130,7 @@ public class CmsLegTest {
         .index(INDEX)
         .notional(NOTIONAL)
         .payReceive(RECEIVE)
-        .periodicSchedule(SCHEDULE_EUR)
+        .paymentSchedule(SCHEDULE_EUR)
         .build();
     assertEquals(test.getPayReceive(), RECEIVE);
     assertEquals(test.getCapSchedule().get(), CAP);
@@ -135,7 +141,7 @@ public class CmsLegTest {
     assertEquals(test.getStartDate(), START);
     assertEquals(test.getEndDate(), SCHEDULE_EUR.getAdjustedEndDate());
     assertEquals(test.getIndex(), INDEX);
-    assertEquals(test.getPeriodicSchedule(), SCHEDULE_EUR);
+    assertEquals(test.getPaymentSchedule(), SCHEDULE_EUR);
     assertEquals(test.getFixingDateOffset(), EUR_EURIBOR_6M.getFixingDateOffset());
     assertEquals(test.getPaymentDateOffset(), DaysAdjustment.NONE);
   }
@@ -145,7 +151,7 @@ public class CmsLegTest {
         .index(INDEX)
         .notional(NOTIONAL)
         .payReceive(RECEIVE)
-        .periodicSchedule(SCHEDULE_EUR)
+        .paymentSchedule(SCHEDULE_EUR)
         .build();
     assertEquals(test.getPayReceive(), RECEIVE);
     assertFalse(test.getCapSchedule().isPresent());
@@ -156,7 +162,7 @@ public class CmsLegTest {
     assertEquals(test.getStartDate(), START);
     assertEquals(test.getEndDate(), SCHEDULE_EUR.getAdjustedEndDate());
     assertEquals(test.getIndex(), INDEX);
-    assertEquals(test.getPeriodicSchedule(), SCHEDULE_EUR);
+    assertEquals(test.getPaymentSchedule(), SCHEDULE_EUR);
     assertEquals(test.getFixingDateOffset(), EUR_EURIBOR_6M.getFixingDateOffset());
     assertEquals(test.getPaymentDateOffset(), DaysAdjustment.NONE);
   }
@@ -167,7 +173,7 @@ public class CmsLegTest {
         .capSchedule(CAP)
         .notional(NOTIONAL)
         .payReceive(RECEIVE)
-        .periodicSchedule(SCHEDULE_EUR)
+        .paymentSchedule(SCHEDULE_EUR)
         .build());
     // floorSchedule and capSchedule are present
     assertThrowsIllegalArg(() -> CmsLeg.builder()
@@ -176,7 +182,16 @@ public class CmsLegTest {
         .index(INDEX)
         .notional(NOTIONAL)
         .payReceive(RECEIVE)
-        .periodicSchedule(SCHEDULE_EUR)
+        .paymentSchedule(SCHEDULE_EUR)
+        .build());
+    // stub is on
+    assertThrowsIllegalArg(() -> CmsLeg
+        .builder()
+        .index(INDEX)
+        .notional(NOTIONAL)
+        .payReceive(RECEIVE)
+        .paymentSchedule(
+            PeriodicSchedule.of(START, END, FREQUENCY, BUSS_ADJ_EUR, StubConvention.SHORT_INITIAL, RollConventions.NONE))
         .build());
   }
 
@@ -186,14 +201,14 @@ public class CmsLegTest {
         .index(INDEX)
         .notional(NOTIONAL)
         .payReceive(PAY)
-        .periodicSchedule(SCHEDULE_EUR)
+        .paymentSchedule(SCHEDULE_EUR)
         .build();
     ExpandedCmsLeg expandFloor = baseFloor.expand();
     LocalDate end1 = LocalDate.of(2016, 10, 21);
     CmsPeriod period1 = CmsPeriod.builder()
         .currency(EUR)
         .floorlet(FLOOR.getInitialValue())
-        .notional(-NOTIONAL)
+        .notional(-NOTIONAL.getInitialValue())
         .index(INDEX)
         .startDate(START)
         .endDate(end1)
@@ -206,7 +221,7 @@ public class CmsLegTest {
     CmsPeriod period2 = CmsPeriod.builder()
         .currency(EUR)
         .floorlet(FLOOR.getSteps().get(0).getValue().getModifyingValue())
-        .notional(-NOTIONAL)
+        .notional(-NOTIONAL.getSteps().get(0).getValue().getModifyingValue())
         .index(INDEX)
         .startDate(end1)
         .endDate(SCHEDULE_EUR.getAdjustedEndDate())
@@ -230,13 +245,13 @@ public class CmsLegTest {
         .capSchedule(CAP)
         .notional(NOTIONAL)
         .payReceive(PAY)
-        .periodicSchedule(SCHEDULE_EUR)
+        .paymentSchedule(SCHEDULE_EUR)
         .paymentDateOffset(PAYMENT_OFFSET)
         .build();
     ExpandedCmsLeg expandCap = baseCap.expand();
     CmsPeriod periodCap1 = CmsPeriod.builder()
         .currency(EUR)
-        .notional(-NOTIONAL)
+        .notional(-NOTIONAL.getInitialValue())
         .index(INDEX)
         .caplet(CAP.getInitialValue())
         .startDate(START)
@@ -249,7 +264,7 @@ public class CmsLegTest {
         .build();
     CmsPeriod periodCap2 = CmsPeriod.builder()
         .currency(EUR)
-        .notional(-NOTIONAL)
+        .notional(-NOTIONAL.getSteps().get(0).getValue().getModifyingValue())
         .index(INDEX)
         .caplet(CAP.getInitialValue())
         .startDate(end1)
@@ -277,15 +292,15 @@ public class CmsLegTest {
         .index(INDEX)
         .notional(NOTIONAL)
         .payReceive(RECEIVE)
-        .periodicSchedule(SCHEDULE_EUR)
+        .paymentSchedule(SCHEDULE_EUR)
         .build();
     coverImmutableBean(test1);
     CmsLeg test2 = CmsLeg.builder()
         .floorSchedule(FLOOR)
         .index(SwapIndices.CHF_LIBOR_1100_10Y)
-        .notional(1.0e7)
+        .notional(ValueSchedule.of(1.e6))
         .payReceive(PAY)
-        .periodicSchedule(SCHEDULE)
+        .paymentSchedule(SCHEDULE)
         .fixingDateOffset(FIXING_OFFSET)
         .paymentDateOffset(FIXING_OFFSET)
         .dayCount(ACT_365_ACTUAL)
@@ -299,7 +314,7 @@ public class CmsLegTest {
         .index(INDEX)
         .notional(NOTIONAL)
         .payReceive(RECEIVE)
-        .periodicSchedule(SCHEDULE_EUR)
+        .paymentSchedule(SCHEDULE_EUR)
         .build();
     assertSerialization(test);
   }

@@ -28,9 +28,10 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.swap.ExpandedSwapLeg;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapLeg;
+import org.joda.beans.BeanBuilder;
 
 /**
- * The class defines a constant maturity swap (CMS) or CMS cap/floor. 
+ * A constant maturity swap (CMS) or CMS cap/floor. 
  * <p>
  * The CMS product consists of two legs: CMS leg and pay leg. 
  * The CMS leg of CMS periodically pays coupons based on swap rate, the observed value of {@linkplain SwapIndex swap index},  
@@ -39,7 +40,7 @@ import com.opengamma.strata.product.swap.SwapLeg;
  * <p>
  * However, the pay leg is absent for certain CMS products. Instead the premium is paid upfront. See {@link CmsTrade}.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class ExpandedCms
     implements CmsProduct, ImmutableBean, Serializable {
 
@@ -54,12 +55,36 @@ public final class ExpandedCms
   /**
    * The pay leg of the product. 
    * <p>
-   * Typically this is associated with periodic fixed or Ibor rate payments without compounding or notioanl exchange. 
+   * Typically this is associated with periodic fixed or Ibor rate payments without compounding or notional exchange. 
    * <p>
    * These periodic payments are not made for certain CMS products. Instead the premium is paid upfront. 
    */
   @PropertyDefinition(get = "optional")
   private final ExpandedSwapLeg payLeg;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains CMS from CMS leg and pay leg. 
+   * 
+   * @param cmsLeg  the CMS leg
+   * @param payLeg  the pay leg
+   * @return the CMS
+   */
+  public static ExpandedCms of(ExpandedCmsLeg cmsLeg, ExpandedSwapLeg payLeg) {
+    return new ExpandedCms(cmsLeg, payLeg);
+  }
+
+  /**
+   * Obtains CMS from CMS leg. 
+   * <p>
+   * The pay leg is absent in the resulting CMS.
+   * 
+   * @param cmsLeg  the CMS leg
+   * @return the CMS
+   */
+  public static ExpandedCms of(ExpandedCmsLeg cmsLeg) {
+    return new ExpandedCms(cmsLeg, null);
+  }
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
@@ -94,14 +119,6 @@ public final class ExpandedCms
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static ExpandedCms.Builder builder() {
-    return new ExpandedCms.Builder();
-  }
 
   private ExpandedCms(
       ExpandedCmsLeg cmsLeg,
@@ -143,7 +160,7 @@ public final class ExpandedCms
   /**
    * Gets the pay leg of the product.
    * <p>
-   * Typically this is associated with periodic fixed or Ibor rate payments without compounding or notioanl exchange.
+   * Typically this is associated with periodic fixed or Ibor rate payments without compounding or notional exchange.
    * <p>
    * These periodic payments are not made for certain CMS products. Instead the premium is paid upfront.
    * @return the optional value of the property, not null
@@ -153,14 +170,6 @@ public final class ExpandedCms
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -238,7 +247,7 @@ public final class ExpandedCms
     }
 
     @Override
-    public ExpandedCms.Builder builder() {
+    public BeanBuilder<? extends ExpandedCms> builder() {
       return new ExpandedCms.Builder();
     }
 
@@ -296,7 +305,7 @@ public final class ExpandedCms
   /**
    * The bean-builder for {@code ExpandedCms}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<ExpandedCms> {
+  private static final class Builder extends DirectFieldsBeanBuilder<ExpandedCms> {
 
     private ExpandedCmsLeg cmsLeg;
     private ExpandedSwapLeg payLeg;
@@ -305,15 +314,6 @@ public final class ExpandedCms
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(ExpandedCms beanToCopy) {
-      this.cmsLeg = beanToCopy.getCmsLeg();
-      this.payLeg = beanToCopy.payLeg;
     }
 
     //-----------------------------------------------------------------------
@@ -373,35 +373,6 @@ public final class ExpandedCms
       return new ExpandedCms(
           cmsLeg,
           payLeg);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the CMS leg of the product.
-     * <p>
-     * This is associated with periodic payments based on swap rate.
-     * The payments are CMS coupons, CMS caplets or CMS floors.
-     * @param cmsLeg  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder cmsLeg(ExpandedCmsLeg cmsLeg) {
-      JodaBeanUtils.notNull(cmsLeg, "cmsLeg");
-      this.cmsLeg = cmsLeg;
-      return this;
-    }
-
-    /**
-     * Sets the pay leg of the product.
-     * <p>
-     * Typically this is associated with periodic fixed or Ibor rate payments without compounding or notioanl exchange.
-     * <p>
-     * These periodic payments are not made for certain CMS products. Instead the premium is paid upfront.
-     * @param payLeg  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder payLeg(ExpandedSwapLeg payLeg) {
-      this.payLeg = payLeg;
-      return this;
     }
 
     //-----------------------------------------------------------------------

@@ -11,7 +11,7 @@ import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapLeg;
 
 /**
- * The class defines a constant maturity swap (CMS) or CMS cap/floor. 
+ * A constant maturity swap (CMS) or CMS cap/floor. 
  * <p>
  * The CMS product consists of two legs: CMS leg and pay leg. 
  * The CMS leg of CMS periodically pays coupons based on swap rate, the observed value of {@linkplain SwapIndex swap index},  

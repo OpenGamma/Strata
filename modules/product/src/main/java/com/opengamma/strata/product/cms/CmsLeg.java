@@ -35,6 +35,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.swap.SwapIndex;
@@ -75,7 +76,7 @@ public final class CmsLeg
    * These are used directly or indirectly to determine other dates in the leg.
    */
   @PropertyDefinition(validate = "notNull")
-  private final PeriodicSchedule periodicSchedule;
+  private final PeriodicSchedule paymentSchedule;
   /**
    * The swap index.
    * <p>
@@ -97,8 +98,8 @@ public final class CmsLeg
    * The notional amount applicable during the period.
    * The currency of the notional is specified by {@code currency}.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
-  private final double notional;
+  @PropertyDefinition(validate = "notNull")
+  private final ValueSchedule notional;
   /**
    * The offset of the fixing date from each adjusted reset date.
    * <p>
@@ -133,6 +134,7 @@ public final class CmsLeg
    * <p>
    * This defines the strike value of a cap as an initial value and a list of adjustments. 
    * Thus individual caplets may have different strike values. 
+   * The cap rate is only allowed to change at payment period boundaries.
    * <p>
    * If the CMS product is not a cap, this field must be null. 
    */
@@ -143,6 +145,7 @@ public final class CmsLeg
    * <p>
    * This defines the strike value of a floor as an initial value and a list of adjustments. 
    * Thus individual floorlets may have different strike values. 
+   * The floor rate is only allowed to change at payment period boundaries.
    * <p>
    * If the CMS product is not a floor, this field must be null.
    */
@@ -172,25 +175,27 @@ public final class CmsLeg
   @ImmutableConstructor
   private CmsLeg(
       PayReceive payReceive,
-      PeriodicSchedule periodicSchedule,
+      PeriodicSchedule paymentSchedule,
       SwapIndex index,
       Currency currency,
-      double notional,
+      ValueSchedule notional,
       DaysAdjustment fixingDateOffset,
       DaysAdjustment paymentDateOffset,
       DayCount dayCount,
       ValueSchedule capSchedule,
       ValueSchedule floorSchedule) {
     this.payReceive = ArgChecker.notNull(payReceive, "payReceive");;
-    this.periodicSchedule = ArgChecker.notNull(periodicSchedule, "periodicSchedule");
+    this.paymentSchedule = ArgChecker.notNull(paymentSchedule, "paymentSchedule");
     this.index = ArgChecker.notNull(index, "index");
-    this.notional = ArgChecker.notNegative(notional, "notional");
+    this.notional = ArgChecker.notNull(notional, "notional");
     this.currency = currency;
     this.fixingDateOffset = fixingDateOffset;
     this.paymentDateOffset = paymentDateOffset;
     this.dayCount = dayCount;
     this.capSchedule = capSchedule;
     this.floorSchedule = floorSchedule;
+    ArgChecker.isTrue(!this.getPaymentSchedule().getStubConvention().isPresent() ||
+        this.getPaymentSchedule().getStubConvention().get().equals(StubConvention.NONE), "Stub period is not allowed");
     ArgChecker.isFalse(this.getCapSchedule().isPresent() && this.getFloorSchedule().isPresent(),
         "At least one of cap schedule and floor schedule should be empty");
   }
@@ -205,7 +210,7 @@ public final class CmsLeg
    * @return the start date of the leg
    */
   public LocalDate getStartDate() {
-    return periodicSchedule.getAdjustedStartDate();
+    return paymentSchedule.getAdjustedStartDate();
   }
 
   /**
@@ -217,7 +222,7 @@ public final class CmsLeg
    * @return the end date of the leg
    */
   public LocalDate getEndDate() {
-    return periodicSchedule.getAdjustedEndDate();
+    return paymentSchedule.getAdjustedEndDate();
   }
 
   //-------------------------------------------------------------------------
@@ -228,15 +233,16 @@ public final class CmsLeg
    */
   @SuppressWarnings("null")
   public ExpandedCmsLeg expand() {
-    Schedule adjustedSchedule = periodicSchedule.createSchedule();
+    Schedule adjustedSchedule = paymentSchedule.createSchedule();
     List<Double> cap = getCapSchedule().isPresent() ? capSchedule.resolveValues(adjustedSchedule.getPeriods()) : null;
     List<Double> floor = getFloorSchedule().isPresent() ? floorSchedule.resolveValues(adjustedSchedule.getPeriods()) : null;
-    double signedNotional = payReceive.normalize(notional);
+    List<Double> notionals = notional.resolveValues(adjustedSchedule.getPeriods());
     ImmutableList.Builder<CmsPeriod> cmsPeriodsBuild = ImmutableList.builder();
     for (int i = 0; i < adjustedSchedule.size(); i++) {
       SchedulePeriod period = adjustedSchedule.getPeriod(i);
       LocalDate fixingDate = fixingDateOffset.adjust(period.getStartDate());
       LocalDate paymentDate = paymentDateOffset.adjust(period.getEndDate());
+      double signedNotional = payReceive.normalize(notionals.get(i));
       cmsPeriodsBuild.add(CmsPeriod.builder()
           .unadjustedStartDate(period.getUnadjustedStartDate())
           .unadjustedEndDate(period.getUnadjustedEndDate())
@@ -320,8 +326,8 @@ public final class CmsLeg
    * These are used directly or indirectly to determine other dates in the leg.
    * @return the value of the property, not null
    */
-  public PeriodicSchedule getPeriodicSchedule() {
-    return periodicSchedule;
+  public PeriodicSchedule getPaymentSchedule() {
+    return paymentSchedule;
   }
 
   //-----------------------------------------------------------------------
@@ -353,9 +359,9 @@ public final class CmsLeg
    * <p>
    * The notional amount applicable during the period.
    * The currency of the notional is specified by {@code currency}.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
-  public double getNotional() {
+  public ValueSchedule getNotional() {
     return notional;
   }
 
@@ -406,6 +412,7 @@ public final class CmsLeg
    * <p>
    * This defines the strike value of a cap as an initial value and a list of adjustments.
    * Thus individual caplets may have different strike values.
+   * The cap rate is only allowed to change at payment period boundaries.
    * <p>
    * If the CMS product is not a cap, this field must be null.
    * @return the optional value of the property, not null
@@ -420,6 +427,7 @@ public final class CmsLeg
    * <p>
    * This defines the strike value of a floor as an initial value and a list of adjustments.
    * Thus individual floorlets may have different strike values.
+   * The floor rate is only allowed to change at payment period boundaries.
    * <p>
    * If the CMS product is not a floor, this field must be null.
    * @return the optional value of the property, not null
@@ -445,7 +453,7 @@ public final class CmsLeg
     if (obj != null && obj.getClass() == this.getClass()) {
       CmsLeg other = (CmsLeg) obj;
       return JodaBeanUtils.equal(payReceive, other.payReceive) &&
-          JodaBeanUtils.equal(periodicSchedule, other.periodicSchedule) &&
+          JodaBeanUtils.equal(paymentSchedule, other.paymentSchedule) &&
           JodaBeanUtils.equal(index, other.index) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(notional, other.notional) &&
@@ -462,7 +470,7 @@ public final class CmsLeg
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(payReceive);
-    hash = hash * 31 + JodaBeanUtils.hashCode(periodicSchedule);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentSchedule);
     hash = hash * 31 + JodaBeanUtils.hashCode(index);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
@@ -479,7 +487,7 @@ public final class CmsLeg
     StringBuilder buf = new StringBuilder(352);
     buf.append("CmsLeg{");
     buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
-    buf.append("periodicSchedule").append('=').append(periodicSchedule).append(',').append(' ');
+    buf.append("paymentSchedule").append('=').append(paymentSchedule).append(',').append(' ');
     buf.append("index").append('=').append(index).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
@@ -508,10 +516,10 @@ public final class CmsLeg
     private final MetaProperty<PayReceive> payReceive = DirectMetaProperty.ofImmutable(
         this, "payReceive", CmsLeg.class, PayReceive.class);
     /**
-     * The meta-property for the {@code periodicSchedule} property.
+     * The meta-property for the {@code paymentSchedule} property.
      */
-    private final MetaProperty<PeriodicSchedule> periodicSchedule = DirectMetaProperty.ofImmutable(
-        this, "periodicSchedule", CmsLeg.class, PeriodicSchedule.class);
+    private final MetaProperty<PeriodicSchedule> paymentSchedule = DirectMetaProperty.ofImmutable(
+        this, "paymentSchedule", CmsLeg.class, PeriodicSchedule.class);
     /**
      * The meta-property for the {@code index} property.
      */
@@ -525,8 +533,8 @@ public final class CmsLeg
     /**
      * The meta-property for the {@code notional} property.
      */
-    private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
-        this, "notional", CmsLeg.class, Double.TYPE);
+    private final MetaProperty<ValueSchedule> notional = DirectMetaProperty.ofImmutable(
+        this, "notional", CmsLeg.class, ValueSchedule.class);
     /**
      * The meta-property for the {@code fixingDateOffset} property.
      */
@@ -558,7 +566,7 @@ public final class CmsLeg
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "payReceive",
-        "periodicSchedule",
+        "paymentSchedule",
         "index",
         "currency",
         "notional",
@@ -579,8 +587,8 @@ public final class CmsLeg
       switch (propertyName.hashCode()) {
         case -885469925:  // payReceive
           return payReceive;
-        case 1847018066:  // periodicSchedule
-          return periodicSchedule;
+        case -1499086147:  // paymentSchedule
+          return paymentSchedule;
         case 100346066:  // index
           return index;
         case 575402001:  // currency
@@ -626,11 +634,11 @@ public final class CmsLeg
     }
 
     /**
-     * The meta-property for the {@code periodicSchedule} property.
+     * The meta-property for the {@code paymentSchedule} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<PeriodicSchedule> periodicSchedule() {
-      return periodicSchedule;
+    public MetaProperty<PeriodicSchedule> paymentSchedule() {
+      return paymentSchedule;
     }
 
     /**
@@ -653,7 +661,7 @@ public final class CmsLeg
      * The meta-property for the {@code notional} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> notional() {
+    public MetaProperty<ValueSchedule> notional() {
       return notional;
     }
 
@@ -703,8 +711,8 @@ public final class CmsLeg
       switch (propertyName.hashCode()) {
         case -885469925:  // payReceive
           return ((CmsLeg) bean).getPayReceive();
-        case 1847018066:  // periodicSchedule
-          return ((CmsLeg) bean).getPeriodicSchedule();
+        case -1499086147:  // paymentSchedule
+          return ((CmsLeg) bean).getPaymentSchedule();
         case 100346066:  // index
           return ((CmsLeg) bean).getIndex();
         case 575402001:  // currency
@@ -743,10 +751,10 @@ public final class CmsLeg
   public static final class Builder extends DirectFieldsBeanBuilder<CmsLeg> {
 
     private PayReceive payReceive;
-    private PeriodicSchedule periodicSchedule;
+    private PeriodicSchedule paymentSchedule;
     private SwapIndex index;
     private Currency currency;
-    private double notional;
+    private ValueSchedule notional;
     private DaysAdjustment fixingDateOffset;
     private DaysAdjustment paymentDateOffset;
     private DayCount dayCount;
@@ -765,7 +773,7 @@ public final class CmsLeg
      */
     private Builder(CmsLeg beanToCopy) {
       this.payReceive = beanToCopy.getPayReceive();
-      this.periodicSchedule = beanToCopy.getPeriodicSchedule();
+      this.paymentSchedule = beanToCopy.getPaymentSchedule();
       this.index = beanToCopy.getIndex();
       this.currency = beanToCopy.getCurrency();
       this.notional = beanToCopy.getNotional();
@@ -782,8 +790,8 @@ public final class CmsLeg
       switch (propertyName.hashCode()) {
         case -885469925:  // payReceive
           return payReceive;
-        case 1847018066:  // periodicSchedule
-          return periodicSchedule;
+        case -1499086147:  // paymentSchedule
+          return paymentSchedule;
         case 100346066:  // index
           return index;
         case 575402001:  // currency
@@ -811,8 +819,8 @@ public final class CmsLeg
         case -885469925:  // payReceive
           this.payReceive = (PayReceive) newValue;
           break;
-        case 1847018066:  // periodicSchedule
-          this.periodicSchedule = (PeriodicSchedule) newValue;
+        case -1499086147:  // paymentSchedule
+          this.paymentSchedule = (PeriodicSchedule) newValue;
           break;
         case 100346066:  // index
           this.index = (SwapIndex) newValue;
@@ -821,7 +829,7 @@ public final class CmsLeg
           this.currency = (Currency) newValue;
           break;
         case 1585636160:  // notional
-          this.notional = (Double) newValue;
+          this.notional = (ValueSchedule) newValue;
           break;
         case 873743726:  // fixingDateOffset
           this.fixingDateOffset = (DaysAdjustment) newValue;
@@ -873,7 +881,7 @@ public final class CmsLeg
       preBuild(this);
       return new CmsLeg(
           payReceive,
-          periodicSchedule,
+          paymentSchedule,
           index,
           currency,
           notional,
@@ -905,12 +913,12 @@ public final class CmsLeg
      * <p>
      * This is used to define the periodic payment periods.
      * These are used directly or indirectly to determine other dates in the leg.
-     * @param periodicSchedule  the new value, not null
+     * @param paymentSchedule  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder periodicSchedule(PeriodicSchedule periodicSchedule) {
-      JodaBeanUtils.notNull(periodicSchedule, "periodicSchedule");
-      this.periodicSchedule = periodicSchedule;
+    public Builder paymentSchedule(PeriodicSchedule paymentSchedule) {
+      JodaBeanUtils.notNull(paymentSchedule, "paymentSchedule");
+      this.paymentSchedule = paymentSchedule;
       return this;
     }
 
@@ -946,11 +954,11 @@ public final class CmsLeg
      * <p>
      * The notional amount applicable during the period.
      * The currency of the notional is specified by {@code currency}.
-     * @param notional  the new value
+     * @param notional  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder notional(double notional) {
-      ArgChecker.notNegative(notional, "notional");
+    public Builder notional(ValueSchedule notional) {
+      JodaBeanUtils.notNull(notional, "notional");
       this.notional = notional;
       return this;
     }
@@ -1007,6 +1015,7 @@ public final class CmsLeg
      * <p>
      * This defines the strike value of a cap as an initial value and a list of adjustments.
      * Thus individual caplets may have different strike values.
+     * The cap rate is only allowed to change at payment period boundaries.
      * <p>
      * If the CMS product is not a cap, this field must be null.
      * @param capSchedule  the new value
@@ -1022,6 +1031,7 @@ public final class CmsLeg
      * <p>
      * This defines the strike value of a floor as an initial value and a list of adjustments.
      * Thus individual floorlets may have different strike values.
+     * The floor rate is only allowed to change at payment period boundaries.
      * <p>
      * If the CMS product is not a floor, this field must be null.
      * @param floorSchedule  the new value
@@ -1038,7 +1048,7 @@ public final class CmsLeg
       StringBuilder buf = new StringBuilder(352);
       buf.append("CmsLeg.Builder{");
       buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
-      buf.append("periodicSchedule").append('=').append(JodaBeanUtils.toString(periodicSchedule)).append(',').append(' ');
+      buf.append("paymentSchedule").append('=').append(JodaBeanUtils.toString(paymentSchedule)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');

@@ -89,37 +89,37 @@ public class ExpandedCmsTest {
       .payReceive(PAY)
       .build();
 
-  public void test_builder_twoLegs() {
-    ExpandedCms test = ExpandedCms.builder().cmsLeg(CMS_LEG).payLeg(PAY_LEG).build();
+  public void test_of_twoLegs() {
+    ExpandedCms test = ExpandedCms.of(CMS_LEG, PAY_LEG);
     assertEquals(test.getCmsLeg(), CMS_LEG);
     assertEquals(test.getPayLeg().get(), PAY_LEG);
   }
 
-  public void test_builder_oneLeg() {
-    ExpandedCms test = ExpandedCms.builder().cmsLeg(CMS_LEG).build();
+  public void test_of_oneLeg() {
+    ExpandedCms test = ExpandedCms.of(CMS_LEG);
     assertEquals(test.getCmsLeg(), CMS_LEG);
     assertFalse(test.getPayLeg().isPresent());
   }
 
   public void test_expand() {
-    ExpandedCms test = ExpandedCms.builder().cmsLeg(CMS_LEG).payLeg(PAY_LEG).build();
+    ExpandedCms test = ExpandedCms.of(CMS_LEG, PAY_LEG);
     assertSame(test.expand(), test);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ExpandedCms test1 = ExpandedCms.builder().cmsLeg(CMS_LEG).payLeg(PAY_LEG).build();
+    ExpandedCms test1 = ExpandedCms.of(CMS_LEG, PAY_LEG);
     coverImmutableBean(test1);
     ExpandedCmsLeg cmsLeg = ExpandedCmsLeg.builder()
         .cmsPeriods(CMS_PERIOD_1)
         .payReceive(RECEIVE)
         .build();
-    ExpandedCms test2 = ExpandedCms.builder().cmsLeg(cmsLeg).build();
+    ExpandedCms test2 = ExpandedCms.of(cmsLeg);
     coverBeanEquals(test1, test2);
   }
 
   public void test_serialization() {
-    ExpandedCms test = ExpandedCms.builder().cmsLeg(CMS_LEG).payLeg(PAY_LEG).build();
+    ExpandedCms test = ExpandedCms.of(CMS_LEG, PAY_LEG);
     assertSerialization(test);
   }
 
