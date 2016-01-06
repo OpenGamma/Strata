@@ -27,11 +27,11 @@ import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.calc.runner.CalculationRunner;
-import com.opengamma.strata.calc.runner.CalculationRunnerFactory;
+import com.opengamma.strata.calc.runner.CalculationTaskRunner;
+import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -112,7 +112,7 @@ public class CalibrationXCcyCheckExample {
   public static void main(String[] args) {
 
     System.out.println("Starting curve calibration: configuration and data loaded from files");
-    Pair<List<Trade>, Results> results = getResults();
+    Pair<List<Trade>, Results> results = calculate();
     System.out.println("Computed PV for all instruments used in the calibration set");
 
     // check that all trades have a PV of near 0
@@ -153,7 +153,7 @@ public class CalibrationXCcyCheckExample {
     for (int i = 0; i < nbRep; i++) {
       long startTime = System.currentTimeMillis();
       for (int looprep = 0; looprep < nbTests; looprep++) {
-        Results r = getResults().getSecond();
+        Results r = calculate().getSecond();
         count += r.getColumnCount() + r.getRowCount();
       }
       long endTime = System.currentTimeMillis();
@@ -167,8 +167,16 @@ public class CalibrationXCcyCheckExample {
   }
 
   //-------------------------------------------------------------------------
-  // Compute the PV results for the instruments used in calibration from the config
-  private static Pair<List<Trade>, Results> getResults() {
+  // setup calculation runner component, which needs life-cycle management
+  // a typical application might use dependency injection to obtain the instance
+  private static Pair<List<Trade>, Results> calculate() {
+    try (CalculationTaskRunner runner = CalculationTaskRunner.ofMultiThreaded()) {
+      return calculate(runner);
+    }
+  }
+
+  // calculates the PV results for the instruments used in calibration from the config
+  private static Pair<List<Trade>, Results> calculate(CalculationTaskRunner runner) {
     // load quotes and FX rates
     Map<QuoteId, Double> quotes = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE);
     Map<FxRateId, FxRate> fxRates = FxRatesCsvLoader.load(VAL_DATE, FX_RATES_RESOURCE);
@@ -202,14 +210,19 @@ public class CalibrationXCcyCheckExample {
         .collect(toImmutableList());
 
     // the columns, specifying the measures to be calculated
-    List<Column> columns = ImmutableList.of(Column.of(Measure.PRESENT_VALUE));
-    // mappings that specify the name of the curve group used when building curves
-    MarketDataMappings marketDataMappings = MarketDataMappingsBuilder.create().curveGroup(CURVE_GROUP_NAME).build();
-    // rules specifying that marketDataMappings should be used for all trades
-    MarketDataRules marketDataRules = MarketDataRules.of(MarketDataRule.anyTarget(marketDataMappings));
+    List<Column> columns = ImmutableList.of(
+        Column.of(Measure.PRESENT_VALUE));
 
     // the configuration that defines how to create the curves when a curve group is requested
-    MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(CURVE_GROUP_NAME, curveGroupDefinition).build();
+    MarketDataConfig marketDataConfig = MarketDataConfig.builder()
+        .add(CURVE_GROUP_NAME, curveGroupDefinition)
+        .build();
+
+    // the configuration defining the curve group to use when finding a curve
+    MarketDataRules marketDataRules = MarketDataRules.of(
+        MarketDataRule.anyTarget(MarketDataMappingsBuilder.create()
+            .curveGroup(CURVE_GROUP_NAME)
+            .build()));
 
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()
@@ -217,10 +230,12 @@ public class CalibrationXCcyCheckExample {
         .marketDataRules(marketDataRules)
         .build();
 
-    // calculate the results
-    CalculationRunner runner = CalculationRunnerFactory.ofSingleThreaded()
-        .createWithMarketDataBuilder(trades, columns, rules, marketDataFactory(), marketDataConfig);
-    return Pair.of(trades, runner.calculateSingleScenario(marketSnapshot));
+    // calibrate the curves and calculate the results
+    CalculationTasks tasks = CalculationTasks.of(trades, columns, rules);
+    MarketDataRequirements reqs = tasks.getRequirements();
+    MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, marketSnapshot, marketDataConfig);
+    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData);
+    return Pair.of(trades, results);
   }
 
 }

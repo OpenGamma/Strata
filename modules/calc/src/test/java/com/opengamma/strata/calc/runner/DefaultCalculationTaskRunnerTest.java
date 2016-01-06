@@ -8,7 +8,6 @@ package com.opengamma.strata.calc.runner;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
@@ -33,26 +32,15 @@ import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
 
+/**
+ * Test {@link CalculationTaskRunner} and {@link DefaultCalculationTaskRunner}.
+ */
 @Test
-public class DefaultCalculationRunnerTest {
+public class DefaultCalculationTaskRunnerTest {
 
   private static final TestTarget TARGET = new TestTarget();
   private static final Measure MEASURE = Measure.of("PV");
   private static final LocalDate VAL_DATE = date(2011, 3, 8);
-
-  //-------------------------------------------------------------------------
-  public void test_of() {
-    DefaultScenarioResult<String> scenarioResult = DefaultScenarioResult.of("foo");
-    ScenarioResultFunction fn = new ScenarioResultFunction(scenarioResult);
-    CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
-    Column column = Column.of(Measure.PRESENT_VALUE);
-    CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
-
-    DefaultCalculationRunner test = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService(), tasks);
-
-    assertThat(test.getTasks().getTargets()).containsExactly(TARGET);
-    assertThat(test.getTasks().getColumns()).containsExactly(column);
-  }
 
   //-------------------------------------------------------------------------
   /**
@@ -65,16 +53,17 @@ public class DefaultCalculationRunnerTest {
     Column column = Column.of(Measure.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
-    DefaultCalculationRunner test = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService(), tasks);
+    // using the direct executor means there is no need to close/shutdown the runner
+    CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
 
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
-    Results results1 = test.calculateSingleScenario(marketData);
+    Results results1 = test.calculateSingleScenario(tasks, marketData);
     Result<?> result1 = results1.get(0, 0);
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
     CalculationEnvironment scenarioMarketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
-    Results results2 = test.calculateMultipleScenarios(scenarioMarketData);
+    Results results2 = test.calculateMultipleScenarios(tasks, scenarioMarketData);
     Result<?> result2 = results2.get(0, 0);
     // Check the result contains the scenario result wrapping the string
     assertThat(result2).hasValue(scenarioResult);
@@ -90,10 +79,11 @@ public class DefaultCalculationRunnerTest {
     Column column = Column.of(Measure.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
-    DefaultCalculationRunner test = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService(), tasks);
+    // using the direct executor means there is no need to close/shutdown the runner
+    CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
 
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
-    assertThrowsIllegalArg(() -> test.calculateSingleScenario(marketData));
+    assertThrowsIllegalArg(() -> test.calculateSingleScenario(tasks, marketData));
   }
 
   /**
@@ -106,18 +96,19 @@ public class DefaultCalculationRunnerTest {
     Column column = Column.of(Measure.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
-    DefaultCalculationRunner test = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService(), tasks);
+    // using the direct executor means there is no need to close/shutdown the runner
+    CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
     Listener listener = new Listener();
 
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
-    test.calculateSingleScenarioAsync(marketData, listener);
+    test.calculateSingleScenarioAsync(tasks, marketData, listener);
     CalculationResult calculationResult1 = listener.result;
     Result<?> result1 = calculationResult1.getResult();
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
     CalculationEnvironment scenarioMarketData = MarketEnvironment.builder().valuationDate(VAL_DATE).build();
-    test.calculateMultipleScenariosAsync(scenarioMarketData, listener);
+    test.calculateMultipleScenariosAsync(tasks, scenarioMarketData, listener);
     CalculationResult calculationResult2 = listener.result;
     Result<?> result2 = calculationResult2.getResult();
     // Check the result contains the scenario result wrapping the string

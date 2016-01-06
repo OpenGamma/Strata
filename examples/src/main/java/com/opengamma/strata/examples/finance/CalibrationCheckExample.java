@@ -19,15 +19,17 @@ import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.calc.runner.CalculationRunner;
-import com.opengamma.strata.calc.runner.CalculationRunnerFactory;
+import com.opengamma.strata.calc.runner.CalculationTaskRunner;
+import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -101,7 +103,7 @@ public class CalibrationCheckExample {
   public static void main(String[] args) {
 
     System.out.println("Starting curve calibration: configuration and data loaded from files");
-    Pair<List<Trade>, Results> results = getResults();
+    Pair<List<Trade>, Results> results = calculate();
     System.out.println("Computed PV for all instruments used in the calibration set");
 
     // check that all trades have a PV of near 0
@@ -140,7 +142,7 @@ public class CalibrationCheckExample {
     for (int i = 0; i < nbRep; i++) {
       long startTime = System.currentTimeMillis();
       for (int looprep = 0; looprep < nbTests; looprep++) {
-        Results r = getResults().getSecond();
+        Results r = calculate().getSecond();
         count += r.getColumnCount() + r.getRowCount();
       }
       long endTime = System.currentTimeMillis();
@@ -154,15 +156,28 @@ public class CalibrationCheckExample {
   }
 
   //-------------------------------------------------------------------------
-  // Compute the PV results for the instruments used in calibration from the config
-  private static Pair<List<Trade>, Results> getResults() {
+  // setup calculation runner component, which needs life-cycle management
+  // a typical application might use dependency injection to obtain the instance
+  private static Pair<List<Trade>, Results> calculate() {
+    try (CalculationTaskRunner runner = CalculationTaskRunner.ofMultiThreaded()) {
+      return calculate(runner);
+    }
+  }
+
+  // calculates the PV results for the instruments used in calibration from the config
+  private static Pair<List<Trade>, Results> calculate(CalculationTaskRunner runner) {
     // load quotes
     ImmutableMap<QuoteId, Double> quotes = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE);
 
-    // create the market data builder and populate with known data
+    // create the market data used for calculations
     MarketEnvironment marketSnapshot = MarketEnvironment.builder()
         .valuationDate(VAL_DATE)
         .addValues(quotes)
+        .build();
+
+    // create the market data used for building trades
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE)
+        .addValuesById(quotes)
         .build();
 
     // load the curve definition
@@ -177,7 +192,7 @@ public class CalibrationCheckExample {
         .flatMap(defn -> defn.getNodes().stream())
         // IborFixingDeposit is not a real trade, so there is no appropriate comparison
         .filter(node -> !(node instanceof IborFixingDepositCurveNode))
-        .map(node -> node.trade(VAL_DATE, ImmutableMarketData.builder(VAL_DATE).addValuesById(quotes).build()))
+        .map(node -> node.trade(VAL_DATE, marketData))
         .collect(toImmutableList());
 
     // the columns, specifying the measures to be calculated
@@ -201,10 +216,12 @@ public class CalibrationCheckExample {
         .marketDataRules(marketDataRules)
         .build();
 
-    // calculate the results
-    CalculationRunner runner = CalculationRunnerFactory.ofSingleThreaded()
-        .createWithMarketDataBuilder(trades, columns, rules, marketDataFactory(), marketDataConfig);
-    return Pair.of(trades, runner.calculateSingleScenario(marketSnapshot));
+    // calibrate the curves and calculate the results
+    CalculationTasks tasks = CalculationTasks.of(trades, columns, rules);
+    MarketDataRequirements reqs = tasks.getRequirements();
+    MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, marketSnapshot, marketDataConfig);
+    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData);
+    return Pair.of(trades, results);
   }
 
 }

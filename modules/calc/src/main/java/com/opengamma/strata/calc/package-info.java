@@ -7,8 +7,12 @@
 /**
  * Calculate risk measures on trades, applies scenarios and manages market data.
  * <p>
- * Defines the API for accessing the engine.
- * The engine provides a service for calculating values for risk measures for targets such as trades.
+ * The strata-pricer module provides the ability to calculate results for a single trade,
+ * single measure and single set of market data. The strata-calc module provides the ability
+ * to calculate results for many trades, many measures and many sets of market data.
+ * <p>
+ * The main entry point is {@link com.opengamma.strata.calc.CalculationRunner CalculationRunner}.
+ * It provides four "calculate" methods taking the trades, measures, market data and calculation rules.
  */
 package com.opengamma.strata.calc;
 

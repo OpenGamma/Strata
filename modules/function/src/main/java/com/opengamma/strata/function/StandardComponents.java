@@ -8,6 +8,7 @@ package com.opengamma.strata.function;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.config.pricing.PricingRules;
 import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketDataFactory;
@@ -15,7 +16,6 @@ import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.function.ObservableMarketDataFunction;
 import com.opengamma.strata.calc.marketdata.function.TimeSeriesProvider;
 import com.opengamma.strata.calc.marketdata.mapping.FeedIdMapping;
-import com.opengamma.strata.calc.runner.CalculationRunnerFactory;
 import com.opengamma.strata.function.marketdata.curve.CurveGroupMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.CurveInputsMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.DiscountCurveMarketDataFunction;
@@ -49,8 +49,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * For example it can create calibrated curves given market quotes.
  * However it cannot request market data from an external provider, such as Bloomberg,
  * or look up data from a data store, for example a time series database.
- * <p>
- * Instances of {@link CalculationRunnerFactory} are created directly using the static methods on the interface.
+ * Instances of {@link CalculationRunner} are created directly using the static methods on the interface.
  */
 public class StandardComponents {
 

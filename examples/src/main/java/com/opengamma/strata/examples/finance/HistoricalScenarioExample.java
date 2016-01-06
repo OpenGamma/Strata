@@ -34,12 +34,13 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
-import com.opengamma.strata.calc.runner.CalculationRunner;
-import com.opengamma.strata.calc.runner.CalculationRunnerFactory;
+import com.opengamma.strata.calc.runner.CalculationTaskRunner;
+import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.Messages;
@@ -86,6 +87,15 @@ public class HistoricalScenarioExample {
   private static final String MARKET_DATA_RESOURCE_ROOT = "example-historicalscenario-marketdata";
 
   public static void main(String[] args) {
+    // setup calculation runner component, which needs life-cycle management
+    // a typical application might use dependency injection to obtain the instance
+    try (CalculationTaskRunner runner = CalculationTaskRunner.ofMultiThreaded()) {
+      calculate(runner);
+    }
+  }
+
+  // obtains the data and calculates the grid of results
+  private static void calculate(CalculationTaskRunner runner) {
     // the trades for which to calculate a P&L series
     List<Trade> trades = ImmutableList.of(createTrade());
 
@@ -119,9 +129,11 @@ public class HistoricalScenarioExample {
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // calculate the results
-    CalculationRunner runner = CalculationRunnerFactory.ofSingleThreaded()
-        .createWithMarketDataBuilder(trades, columns, rules, marketDataFactory(), MarketDataConfig.empty(), historicalScenarios);
-    Results results = runner.calculateMultipleScenarios(marketSnapshot);
+    CalculationTasks tasks = CalculationTasks.of(trades, columns, rules);
+    MarketDataRequirements reqs = tasks.getRequirements();
+    MarketEnvironment enhancedMarketData = marketDataFactory()
+        .buildMarketData(reqs, marketSnapshot, MarketDataConfig.empty(), historicalScenarios);
+    Results results = runner.calculateMultipleScenarios(tasks, enhancedMarketData);
 
     // the results contain the one measure requested (Present Value) for each scenario
     ScenarioResult<?> scenarioValuations = (ScenarioResult<?>) results.get(0, 0).getValue();
