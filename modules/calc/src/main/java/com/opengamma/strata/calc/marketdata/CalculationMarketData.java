@@ -88,14 +88,14 @@ public interface CalculationMarketData {
     MarketDataBox<T> box = getValue(key.getMarketDataKey());
 
     if (box.isSingleValue()) {
-      return key.createScenarioValue(box);
+      return key.createScenarioValue(box, getScenarioCount());
     }
     ScenarioMarketDataValue<T> scenarioValue = box.getScenarioValue();
 
     if (key.getScenarioMarketDataType().isInstance(scenarioValue)) {
       return (U) scenarioValue;
     }
-    return key.createScenarioValue(box);
+    return key.createScenarioValue(box, getScenarioCount());
   }
 
   //-------------------------------------------------------------------------
