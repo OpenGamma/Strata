@@ -181,9 +181,9 @@ public class SabrSwaptionCashParYieldTradePricerTest {
   //-------------------------------------------------------------------------
   public void present_value_vol_sensitivity_premium_forward() {
     SwaptionSabrSensitivity vegaTrade = PRICER
-        .presentValueSabrParameterSensitivity(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
+        .presentValueSensitivitySabrParameter(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
     SwaptionSabrSensitivity vegaProduct = PRICER_PRODUCT
-        .presentValueSabrParameterSensitivity(SWAPTION_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
+        .presentValueSensitivitySabrParameter(SWAPTION_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
     assertEquals(vegaTrade.getAlphaSensitivity(), vegaProduct.getAlphaSensitivity(), NOTIONAL * TOL);
     assertEquals(vegaTrade.getBetaSensitivity(), vegaProduct.getBetaSensitivity(), NOTIONAL * TOL);
     assertEquals(vegaTrade.getRhoSensitivity(), vegaProduct.getRhoSensitivity(), NOTIONAL * TOL);

@@ -153,7 +153,13 @@ public class VolatilitySwaptionPhysicalProductPricer {
    * Calculates the present value delta of the swaption.
    * <p>
    * The present value delta is given by {@code pvbp * priceDelta} where {@code priceDelta}
-   * is the first derivative of the price with respect to forward.
+   * is the first derivative of the price with respect to forward. The derivative is computed in the formula
+   * underlying the volatility (Black or Normal), it does not take into account the potential change of implied 
+   * volatility induced by the change of forward. The number computed by this method is closely related
+   * to the {@link VolatilitySwaptionPhysicalProductPricer#presentValueSensitivityStickyStrike} method.
+   * <p>
+   * Related methods: Some concrete classes to this interface also implement a {@code presentValueSensitivity} 
+   * method which take into account the change of implied volatility.
    * <p>
    * The result is expressed using the currency of the swaption.
    * 

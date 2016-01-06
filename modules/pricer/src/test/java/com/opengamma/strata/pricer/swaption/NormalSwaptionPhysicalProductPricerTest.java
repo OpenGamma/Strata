@@ -195,32 +195,39 @@ public class NormalSwaptionPhysicalProductPricerTest {
   
   //-------------------------------------------------------------------------
   public void implied_volatility_round_trip() { // Compute pv and then implied vol from PV and compare with direct implied vol
-    CurrencyAmount pvLongRec=
+    CurrencyAmount pvLongRec =
         PRICER_SWAPTION_NORMAL.presentValue(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
-    double impliedLongRecComputed = 
-        PRICER_SWAPTION_NORMAL.impliedVolatilityFromPresentValue(SWAPTION_LONG_REC, MULTI_USD, 
+    double impliedLongRecComputed =
+        PRICER_SWAPTION_NORMAL.impliedVolatilityFromPresentValue(SWAPTION_LONG_REC, MULTI_USD,
             NORMAL_VOL_SWAPTION_PROVIDER_USD.getDayCount(), pvLongRec.getAmount());
-    double impliedLongRecInterpolated = 
+    double impliedLongRecInterpolated =
         PRICER_SWAPTION_NORMAL.impliedVolatility(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(impliedLongRecComputed, impliedLongRecInterpolated, TOLERANCE_RATE);
 
-    CurrencyAmount pvShortRec=
+    CurrencyAmount pvShortRec =
         PRICER_SWAPTION_NORMAL.presentValue(SWAPTION_SHORT_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
-    double impliedShortRecComputed = 
-        PRICER_SWAPTION_NORMAL.impliedVolatilityFromPresentValue(SWAPTION_SHORT_REC, MULTI_USD, 
+    double impliedShortRecComputed =
+        PRICER_SWAPTION_NORMAL.impliedVolatilityFromPresentValue(SWAPTION_SHORT_REC, MULTI_USD,
             NORMAL_VOL_SWAPTION_PROVIDER_USD.getDayCount(), pvShortRec.getAmount());
-    double impliedShortRecInterpolated = 
+    double impliedShortRecInterpolated =
         PRICER_SWAPTION_NORMAL.impliedVolatility(SWAPTION_SHORT_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(impliedShortRecComputed, impliedShortRecInterpolated, TOLERANCE_RATE);
 
-    CurrencyAmount pvLongPay=
+    CurrencyAmount pvLongPay =
         PRICER_SWAPTION_NORMAL.presentValue(SWAPTION_LONG_PAY, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
-    double impliedLongPayComputed = 
-        PRICER_SWAPTION_NORMAL.impliedVolatilityFromPresentValue(SWAPTION_LONG_PAY, MULTI_USD, 
+    double impliedLongPayComputed =
+        PRICER_SWAPTION_NORMAL.impliedVolatilityFromPresentValue(SWAPTION_LONG_PAY, MULTI_USD,
             NORMAL_VOL_SWAPTION_PROVIDER_USD.getDayCount(), pvLongPay.getAmount());
-    double impliedLongPayInterpolated = 
+    double impliedLongPayInterpolated =
         PRICER_SWAPTION_NORMAL.impliedVolatility(SWAPTION_LONG_PAY, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(impliedLongPayComputed, impliedLongPayInterpolated, TOLERANCE_RATE);
+  }
+
+  public void implied_volatility_wrong_sign() {
+    CurrencyAmount pvLongRec =
+        PRICER_SWAPTION_NORMAL.presentValue(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    assertThrowsIllegalArg(() -> PRICER_SWAPTION_NORMAL.impliedVolatilityFromPresentValue(SWAPTION_LONG_REC, MULTI_USD,
+        NORMAL_VOL_SWAPTION_PROVIDER_USD.getDayCount(), -pvLongRec.getAmount()));
   }
 
   //-------------------------------------------------------------------------
