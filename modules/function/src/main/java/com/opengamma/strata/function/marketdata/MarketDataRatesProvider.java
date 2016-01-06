@@ -83,11 +83,7 @@ public final class MarketDataRatesProvider
   //-------------------------------------------------------------------------
   // finds the time-series
   private LocalDateDoubleTimeSeries timeSeries(Index index) {
-    LocalDateDoubleTimeSeries series = marketData.getTimeSeries(IndexRateKey.of(index));
-    if (series == null) {
-      return LocalDateDoubleTimeSeries.empty();
-    }
-    return series;
+    return marketData.getTimeSeries(IndexRateKey.of(index));
   }
 
   //-------------------------------------------------------------------------
@@ -103,9 +99,6 @@ public final class MarketDataRatesProvider
   @Override
   public DiscountFactors discountFactors(Currency currency) {
     Curve curve = marketData.getValue(DiscountCurveKey.of(currency));
-    if (curve == null) {
-      throw new IllegalArgumentException("Unable to find discount curve: " + currency);
-    }
     return DiscountFactors.of(currency, getValuationDate(), curve);
   }
 
@@ -129,9 +122,6 @@ public final class MarketDataRatesProvider
   @Override
   public IborIndexRates iborIndexRates(IborIndex index) {
     Curve curve = marketData.getValue(IborIndexCurveKey.of(index));
-    if (curve == null) {
-      throw new IllegalArgumentException("Unable to find forward curve: " + index);
-    }
     return IborIndexRates.of(index, getValuationDate(), curve, timeSeries(index));
   }
 
@@ -139,9 +129,6 @@ public final class MarketDataRatesProvider
   @Override
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
     Curve curve = marketData.getValue(OvernightIndexCurveKey.of(index));
-    if (curve == null) {
-      throw new IllegalArgumentException("Unable to find forward curve: " + index);
-    }
     return OvernightIndexRates.of(index, getValuationDate(), curve, timeSeries(index));
   }
 
@@ -149,9 +136,6 @@ public final class MarketDataRatesProvider
   @Override
   public PriceIndexValues priceIndexValues(PriceIndex index) {
     Curve curve = marketData.getValue(PriceIndexCurveKey.of(index));
-    if (curve == null) {
-      throw new IllegalArgumentException("Unable to find forward curve: " + index);
-    }
     if (!(curve instanceof InterpolatedNodalCurve)) {
       throw new IllegalArgumentException("Curve must be an InterpolatedNodalCurve: " + index);
     }
