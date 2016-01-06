@@ -27,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.function.DoubleTenaryOperator;
+import com.opengamma.strata.collect.function.DoubleTernaryOperator;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
@@ -192,7 +192,7 @@ public final class InterpolatedNodalSurface
   }
 
   @Override
-  public InterpolatedNodalSurface shiftedBy(DoubleTenaryOperator operator) {
+  public InterpolatedNodalSurface shiftedBy(DoubleTernaryOperator operator) {
     return (InterpolatedNodalSurface) NodalSurface.super.shiftedBy(operator);
   }
 

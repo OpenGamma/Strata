@@ -10,7 +10,7 @@ import java.util.function.DoubleUnaryOperator;
 
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.function.DoubleTenaryOperator;
+import com.opengamma.strata.collect.function.DoubleTernaryOperator;
 
 /**
  * A surface based on {@code double} nodal points.
@@ -81,7 +81,7 @@ public interface NodalSurface
    * @param operator  the operator that provides the change
    * @return the new surface
    */
-  public default NodalSurface shiftedBy(DoubleTenaryOperator operator) {
+  public default NodalSurface shiftedBy(DoubleTernaryOperator operator) {
     DoubleArray xValues = getXValues();
     DoubleArray yValues = getYValues();
     DoubleArray zValues = getZValues();

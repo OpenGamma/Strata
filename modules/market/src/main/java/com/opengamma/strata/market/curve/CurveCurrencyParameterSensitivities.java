@@ -250,7 +250,7 @@ public final class CurveCurrencyParameterSensitivities
   public CurrencyAmount total(Currency resultCurrency, FxRateProvider rateProvider) {
     CurveCurrencyParameterSensitivities converted = convertedTo(resultCurrency, rateProvider);
     double total = converted.sensitivities.stream()
-        .mapToDouble(s -> s.getSensitivity().total())
+        .mapToDouble(s -> s.getSensitivity().sum())
         .sum();
     return CurrencyAmount.of(resultCurrency, total);
   }

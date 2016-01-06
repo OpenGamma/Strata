@@ -11,7 +11,7 @@ package com.opengamma.strata.collect.function;
  * All the inputs and outputs are of type {@code double}.
  */
 @FunctionalInterface
-public interface DoubleTenaryOperator {
+public interface DoubleTernaryOperator {
 
   /**
    * Applies the function.

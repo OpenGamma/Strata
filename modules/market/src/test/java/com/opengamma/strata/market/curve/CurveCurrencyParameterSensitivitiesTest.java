@@ -169,23 +169,23 @@ public class CurveCurrencyParameterSensitivitiesTest {
   //-------------------------------------------------------------------------
   public void test_total_singleCurrency() {
     assertThat(SENSI_1.total(USD, FxMatrix.empty()))
-        .hasAmount(VECTOR_USD1.total(), within(1E-8));
+        .hasAmount(VECTOR_USD1.sum(), within(1E-8));
   }
 
   public void test_total_multipleCurrency() {
     assertThat(SENSI_2.total(USD, FX_RATE))
-        .hasAmount(VECTOR_USD2.total() + VECTOR_EUR1.total() * 1.6d, within(1E-8));
+        .hasAmount(VECTOR_USD2.sum() + VECTOR_EUR1.sum() * 1.6d, within(1E-8));
   }
 
   public void test_totalMulti_singleCurrency() {
     assertThat(SENSI_1.total().size()).isEqualTo(1);
-    assertThat(SENSI_1.total().getAmount(USD).getAmount()).isCloseTo(VECTOR_USD1.total(), within(1E-8));
+    assertThat(SENSI_1.total().getAmount(USD).getAmount()).isCloseTo(VECTOR_USD1.sum(), within(1E-8));
   }
 
   public void test_totalMulti_multipleCurrency() {
     assertThat(SENSI_2.total().size()).isEqualTo(2);
-    assertThat(SENSI_2.total().getAmount(USD).getAmount()).isCloseTo(VECTOR_USD2.total(), within(1E-8));
-    assertThat(SENSI_2.total().getAmount(EUR).getAmount()).isCloseTo(VECTOR_EUR1.total(), within(1E-8));
+    assertThat(SENSI_2.total().getAmount(USD).getAmount()).isCloseTo(VECTOR_USD2.sum(), within(1E-8));
+    assertThat(SENSI_2.total().getAmount(EUR).getAmount()).isCloseTo(VECTOR_EUR1.sum(), within(1E-8));
   }
 
   //-------------------------------------------------------------------------

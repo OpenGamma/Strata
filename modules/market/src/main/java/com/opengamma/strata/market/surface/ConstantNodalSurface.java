@@ -28,7 +28,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.function.DoubleTenaryOperator;
+import com.opengamma.strata.collect.function.DoubleTernaryOperator;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 
 /**
@@ -144,7 +144,7 @@ public final class ConstantNodalSurface
   }
 
   @Override
-  public ConstantNodalSurface shiftedBy(DoubleTenaryOperator operator) {
+  public ConstantNodalSurface shiftedBy(DoubleTernaryOperator operator) {
     return (ConstantNodalSurface) NodalSurface.super.shiftedBy(operator);
   }
 
