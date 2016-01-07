@@ -98,7 +98,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
-    double price = Math.abs(pvbp) * swaptionVolatilities.price(expiry, putCall, strike, forward, volatility);
+    double price = Math.abs(pvbp) * swaptionVolatilities.price(expiry, tenor, putCall, strike, forward, volatility);
     return CurrencyAmount.of(fixedLeg.getCurrency(), price * expanded.getLongShort().sign());
   }
 
@@ -153,7 +153,13 @@ public class VolatilitySwaptionPhysicalProductPricer {
    * Calculates the present value delta of the swaption.
    * <p>
    * The present value delta is given by {@code pvbp * priceDelta} where {@code priceDelta}
-   * is the first derivative of the price with respect to forward.
+   * is the first derivative of the price with respect to forward. The derivative is computed in the formula
+   * underlying the volatility (Black or Normal), it does not take into account the potential change of implied 
+   * volatility induced by the change of forward. The number computed by this method is closely related
+   * to the {@link VolatilitySwaptionPhysicalProductPricer#presentValueSensitivityStickyStrike} method.
+   * <p>
+   * Related methods: Some concrete classes to this interface also implement a {@code presentValueSensitivity} 
+   * method which take into account the change of implied volatility.
    * <p>
    * The result is expressed using the currency of the swaption.
    * 
@@ -182,7 +188,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
-    double delta = numeraire * swaptionVolatilities.priceDelta(expiry, putCall, strike, forward, volatility);
+    double delta = numeraire * swaptionVolatilities.priceDelta(expiry, tenor, putCall, strike, forward, volatility);
     return CurrencyAmount.of(fixedLeg.getCurrency(), delta * expanded.getLongShort().sign());
   }
 
@@ -220,7 +226,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
-    double gamma = numeraire * swaptionVolatilities.priceGamma(expiry, putCall, strike, forward, volatility);
+    double gamma = numeraire * swaptionVolatilities.priceGamma(expiry, tenor, putCall, strike, forward, volatility);
     return CurrencyAmount.of(fixedLeg.getCurrency(), gamma * expanded.getLongShort().sign());
   }
 
@@ -258,7 +264,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
-    double theta = numeraire * swaptionVolatilities.priceTheta(expiry, putCall, strike, forward, volatility);
+    double theta = numeraire * swaptionVolatilities.priceTheta(expiry, tenor, putCall, strike, forward, volatility);
     return CurrencyAmount.of(fixedLeg.getCurrency(), theta * expanded.getLongShort().sign());
   }
 
@@ -293,8 +299,8 @@ public class VolatilitySwaptionPhysicalProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
-    double price = swaptionVolatilities.price(expiry, putCall, strike, forward, volatility);
-    double delta = swaptionVolatilities.priceDelta(expiry, putCall, strike, forward, volatility);
+    double price = swaptionVolatilities.price(expiry, tenor, putCall, strike, forward, volatility);
+    double delta = swaptionVolatilities.priceDelta(expiry, tenor, putCall, strike, forward, volatility);
     // Backward sweep
     PointSensitivityBuilder pvbpDr = getSwapPricer().getLegPricer().pvbpSensitivity(fixedLeg, ratesProvider);
     PointSensitivityBuilder forwardDr = getSwapPricer().parRateSensitivity(underlying, ratesProvider);
@@ -336,7 +342,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
     double numeraire = Math.abs(pvbp);
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
-    double vega = numeraire * swaptionVolatilities.priceVega(expiry, putCall, strike, forward, volatility);
+    double vega = numeraire * swaptionVolatilities.priceVega(expiry, tenor, putCall, strike, forward, volatility);
     return SwaptionSensitivity.of(
         swaptionVolatilities.getConvention(),
         expiryDateTime,

@@ -24,5 +24,6 @@ public interface VolatilityModel<T> {
    * @param t  the argument. 
    * @return the volatility
    */
-  public abstract double getVolatility(T t);
+  public abstract double volatility(T t);
+
 }

@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.swaption;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -33,6 +34,8 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
+import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
+import com.opengamma.strata.market.surface.ConstantNodalSurface;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
@@ -146,6 +149,7 @@ public class SabrSwaptionPhysicalProductPricerTest {
       SwaptionSabrRateVolatilityDataSet.getVolatilitiesUsd(VAL_DATE, false);
   // test parameters and calculator
   private static final double TOL = 1.0e-13;
+  private static final double TOLERANCE_DELTA = 1.0E-2;
   private static final double FD_EPS = 1.0e-6;
   private static final double REGRESSION_TOL = 1.0e-4; // due to tenor computation difference
   private static final SabrSwaptionPhysicalProductPricer SWAPTION_PRICER = SabrSwaptionPhysicalProductPricer.DEFAULT;
@@ -160,6 +164,16 @@ public class SabrSwaptionPhysicalProductPricerTest {
 
   public void validate_swap_fixed_leg() {
     assertThrowsIllegalArg(() -> SWAPTION_PRICER.presentValue(SWAPTION_BASIS, RATE_PROVIDER, VOL_PROVIDER));
+  }
+
+  public void no_pv_gamma() {
+    assertThrowsWithCause(() -> SWAPTION_PRICER.presentValueGamma(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER),
+        UnsupportedOperationException.class);
+  }
+
+  public void no_pv_theta() {
+    assertThrowsWithCause(() -> SWAPTION_PRICER.presentValueTheta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER),
+        UnsupportedOperationException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -305,6 +319,36 @@ public class SabrSwaptionPhysicalProductPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_presentValueDelta_parity() {
+    double pvbp = SWAP_PRICER.getLegPricer()
+        .pvbp(SWAPTION_REC_LONG.getUnderlying().getLegs(SwapLegType.FIXED).get(0), RATE_PROVIDER);
+    CurrencyAmount deltaRec = SWAPTION_PRICER.presentValueDelta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount deltaPay = SWAPTION_PRICER.presentValueDelta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(deltaRec.getAmount() + deltaPay.getAmount(), -pvbp, TOLERANCE_DELTA);
+  }
+
+  public void test_presentValueDelta_afterMaturity() {
+    CurrencyAmount deltaRec =
+        SWAPTION_PRICER.presentValueDelta(SWAPTION_REC_LONG, RATE_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
+    assertEquals(deltaRec.getAmount(), 0, TOLERANCE_DELTA);
+    CurrencyAmount deltaPay =
+        SWAPTION_PRICER.presentValueDelta(SWAPTION_PAY_SHORT, RATE_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
+    assertEquals(deltaPay.getAmount(), 0, TOLERANCE_DELTA);
+  }
+
+  public void test_presentValueDelta_atMaturity() {
+    double forward = SWAP_PRICER.parRate(SWAP_REC, RATE_PROVIDER_AT_MATURITY);
+    double pvbp = SWAP_PRICER.getLegPricer()
+        .pvbp(SWAPTION_REC_LONG.getUnderlying().getLegs(SwapLegType.FIXED).get(0), RATE_PROVIDER_AT_MATURITY);
+    CurrencyAmount deltaRec =
+        SWAPTION_PRICER.presentValueDelta(SWAPTION_REC_LONG, RATE_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+    assertEquals(deltaRec.getAmount(), RATE > forward ? -pvbp : 0, TOLERANCE_DELTA);
+    CurrencyAmount deltaPay =
+        SWAPTION_PRICER.presentValueDelta(SWAPTION_PAY_SHORT, RATE_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+    assertEquals(deltaPay.getAmount(), RATE > forward ? 0 : pvbp, TOLERANCE_DELTA);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
     PointSensitivityBuilder pointRec =
         SWAPTION_PRICER.presentValueSensitivity(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
@@ -317,6 +361,28 @@ public class SabrSwaptionPhysicalProductPricerTest {
     CurveCurrencyParameterSensitivities computedPay = RATE_PROVIDER.curveParameterSensitivity(pointPay.build());
     CurveCurrencyParameterSensitivities expectedPay =
         FD_CAL.sensitivity(RATE_PROVIDER, (p) -> SWAPTION_PRICER.presentValue(SWAPTION_PAY_SHORT, (p), VOL_PROVIDER));
+    assertTrue(computedPay.equalWithTolerance(expectedPay, NOTIONAL * FD_EPS * 100d));
+  }
+
+  public void test_presentValueSensitivity_stickyStrike() {
+    SwaptionVolatilities volSabr = SwaptionSabrRateVolatilityDataSet.getVolatilitiesUsd(VAL_DATE, false);
+    double impliedVol = SWAPTION_PRICER.impliedVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, volSabr);
+    SwaptionVolatilities volCst = BlackSwaptionExpiryTenorVolatilities.of(
+        ConstantNodalSurface.of("CST", impliedVol), VOL_PROVIDER.getConvention(),
+        VOL_PROVIDER.getValuationDateTime(), VOL_PROVIDER.getDayCount());
+    // To obtain a constant volatility surface which create a sticky strike sensitivity
+    PointSensitivityBuilder pointRec =
+        SWAPTION_PRICER.presentValueSensitivityStickyStrike(SWAPTION_REC_LONG, RATE_PROVIDER, volSabr);
+    CurveCurrencyParameterSensitivities computedRec = RATE_PROVIDER.curveParameterSensitivity(pointRec.build());
+    CurveCurrencyParameterSensitivities expectedRec =
+        FD_CAL.sensitivity(RATE_PROVIDER, (p) -> SWAPTION_PRICER.presentValue(SWAPTION_REC_LONG, (p), volCst));
+    assertTrue(computedRec.equalWithTolerance(expectedRec, NOTIONAL * FD_EPS * 100d));
+
+    PointSensitivityBuilder pointPay =
+        SWAPTION_PRICER.presentValueSensitivityStickyStrike(SWAPTION_PAY_SHORT, RATE_PROVIDER, volSabr);
+    CurveCurrencyParameterSensitivities computedPay = RATE_PROVIDER.curveParameterSensitivity(pointPay.build());
+    CurveCurrencyParameterSensitivities expectedPay =
+        FD_CAL.sensitivity(RATE_PROVIDER, (p) -> SWAPTION_PRICER.presentValue(SWAPTION_PAY_SHORT, (p), volCst));
     assertTrue(computedPay.equalWithTolerance(expectedPay, NOTIONAL * FD_EPS * 100d));
   }
 
@@ -369,6 +435,40 @@ public class SabrSwaptionPhysicalProductPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_presentValueVega_parity() {
+    SwaptionSensitivity vegaRec = SWAPTION_PRICER
+        .presentValueSensitivityVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    SwaptionSensitivity vegaPay = SWAPTION_PRICER
+        .presentValueSensitivityVolatility(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(vegaRec.getSensitivity(), -vegaPay.getSensitivity(), TOLERANCE_DELTA);
+  }
+
+  public void test_presentValueVega_atMaturity() {
+    SwaptionSensitivity vegaRec = SWAPTION_PRICER.presentValueSensitivityVolatility(
+        SWAPTION_REC_LONG, RATE_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+    assertEquals(vegaRec.getSensitivity(), 0, TOLERANCE_DELTA);
+    SwaptionSensitivity vegaPay = SWAPTION_PRICER.presentValueSensitivityVolatility(
+        SWAPTION_PAY_SHORT, RATE_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+    assertEquals(vegaPay.getSensitivity(), 0, TOLERANCE_DELTA);
+  }
+
+  public void test_presentValueVega_afterMaturity() {
+    SwaptionSensitivity vegaRec = SWAPTION_PRICER.presentValueSensitivityVolatility(
+        SWAPTION_REC_LONG, RATE_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
+    assertEquals(vegaRec.getSensitivity(), 0, TOLERANCE_DELTA);
+    SwaptionSensitivity vegaPay = SWAPTION_PRICER.presentValueSensitivityVolatility(
+        SWAPTION_PAY_SHORT, RATE_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
+    assertEquals(vegaPay.getSensitivity(), 0, TOLERANCE_DELTA);
+  }
+
+  public void test_presentValueVega_surface() {
+    SwaptionSensitivity vegaRec = SWAPTION_PRICER
+        .presentValueSensitivityVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    assertThrowsWithCause(() -> VOL_PROVIDER.surfaceCurrencyParameterSensitivity(vegaRec),
+        UnsupportedOperationException.class);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_presentValueSensitivitySabrParameter() {
     SwaptionSabrSensitivity sensiRec =
         SWAPTION_PRICER.presentValueSensitivitySabrParameter(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
@@ -380,7 +480,7 @@ public class SabrSwaptionPhysicalProductPricerTest {
         TENOR_YEAR, RATE, forward);
     double maturity = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiryDateTime());
     double[] volSensi = VOL_PROVIDER.getParameters()
-        .getVolatilityAdjoint(maturity, TENOR_YEAR, RATE, forward).getDerivatives().toArray();
+        .volatilityAdjoint(maturity, TENOR_YEAR, RATE, forward).getDerivatives().toArray();
     double vegaRec = pvbp * BlackFormulaRepository.vega(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
         RATE + SwaptionSabrRateVolatilityDataSet.SHIFT, maturity, volatility);
     double vegaPay = -pvbp * BlackFormulaRepository.vega(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
@@ -475,10 +575,10 @@ public class SabrSwaptionPhysicalProductPricerTest {
         SWAPTION_PRICER.presentValueSensitivity(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER_REGRESSION);
     CurveCurrencyParameterSensitivities sensiComputed = RATE_PROVIDER.curveParameterSensitivity(point.build());
     final double[] deltaDsc = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 109037.92080563342, 637123.4570377409,
-      -931862.187003511, -2556192.7520530378, -4233440.216336116, -5686205.439275854, -6160338.898970505,
-      -3709275.494841247, 0.0 };
+        -931862.187003511, -2556192.7520530378, -4233440.216336116, -5686205.439275854, -6160338.898970505,
+        -3709275.494841247, 0.0};
     final double[] deltaFwd = {0.0, 0.0, 0.0, 0.0, -1.0223186788452002E8, 2506923.9169937484, 4980364.73045286,
-      1.254633556119663E7, 1.528160539036628E8, 2.5824191204559547E8, 0.0, 0.0, 0.0, 0.0, 0.0 };
+        1.254633556119663E7, 1.528160539036628E8, 2.5824191204559547E8, 0.0, 0.0, 0.0, 0.0, 0.0};
     CurveCurrencyParameterSensitivities sensiExpected = CurveCurrencyParameterSensitivities.of(
         CurveCurrencyParameterSensitivity.of(SwaptionSabrRateVolatilityDataSet.META_DSC_USD, USD, DoubleArray.copyOf(deltaDsc)),
         CurveCurrencyParameterSensitivity.of(SwaptionSabrRateVolatilityDataSet.META_FWD_USD, USD, DoubleArray.copyOf(deltaFwd)));
@@ -494,27 +594,27 @@ public class SabrSwaptionPhysicalProductPricerTest {
     assertEquals(pointComputed.getNuSensitivity(), 400285.55052713456, REGRESSION_TOL * NOTIONAL);
     SurfaceCurrencyParameterSensitivities sensiComputed =
         VOL_PROVIDER_REGRESSION.surfaceCurrencyParameterSensitivity(pointComputed);
-    double[][] alphaExp = new double[][] { {10.0, 10.0, 0.0 }, {5.0, 5.0, 0.0 }, {1.0, 1.0, 0.0 }, {2.0, 1.0, 0.0 },
-      {2.0, 10.0, 2.631285063205345E7 }, {10.0, 1.0, 0.0 }, {1.0, 10.0, 4136.961894403858 }, {0.5, 5.0, 0.0 },
-      {0.0, 1.0, 0.0 }, {0.0, 10.0, 0.0 }, {0.5, 10.0, 0.0 }, {0.5, 1.0, 0.0 }, {10.0, 5.0, 0.0 }, {5.0, 10.0, 0.0 },
-      {5.0, 1.0, 0.0 }, {1.0, 5.0, 6204.475194599179 }, {2.0, 5.0, 3.94631212984123E7 }, {0.0, 5.0, 0.0 } };
-    double[][] betaExp = new double[][] { {10.0, 10.0, -0.0 }, {5.0, 5.0, -0.0 }, {1.0, 1.0, -0.0 }, {2.0, 1.0, -0.0 },
-      {2.0, 10.0, -4817403.70908317 }, {10.0, 1.0, -0.0 }, {1.0, 10.0, -757.402375482629 }, {0.5, 5.0, -0.0 },
-      {0.0, 1.0, -0.0 }, {0.0, 10.0, -0.0 }, {0.5, 10.0, -0.0 }, {0.5, 1.0, -0.0 }, {10.0, 5.0, -0.0 },
-      {5.0, 10.0, -0.0 }, {5.0, 1.0, -0.0 }, {1.0, 5.0, -1135.926404680998 }, {2.0, 5.0, -7224978.759366533 },
-      {0.0, 5.0, -0.0 } };
-    double[][] rhoExp = new double[][] { {10.0, 10.0, 0.0 }, {5.0, 5.0, 0.0 }, {1.0, 1.0, 0.0 }, {2.0, 1.0, 0.0 },
-      {2.0, 10.0, 106482.62725265314 }, {10.0, 1.0, 0.0 }, {1.0, 10.0, 16.741423326578513 }, {0.5, 5.0, 0.0 },
-      {0.0, 1.0, 0.0 }, {0.0, 10.0, 0.0 }, {0.5, 10.0, 0.0 }, {0.5, 1.0, 0.0 }, {10.0, 5.0, 0.0 }, {5.0, 10.0, 0.0 },
-      {5.0, 1.0, 0.0 }, {1.0, 5.0, 25.10821912392996 }, {2.0, 5.0, 159699.03429338703 }, {0.0, 5.0, 0.0 } };
-    double[][] nuExp = new double[][] { {10.0, 10.0, 0.0 }, {5.0, 5.0, 0.0 }, {1.0, 1.0, 0.0 }, {2.0, 1.0, 0.0 },
-      {2.0, 10.0, 160104.03018547 }, {10.0, 1.0, 0.0 }, {1.0, 10.0, 25.171893432592533 }, {0.5, 5.0, 0.0 },
-      {0.0, 1.0, 0.0 }, {0.0, 10.0, 0.0 }, {0.5, 10.0, 0.0 }, {0.5, 1.0, 0.0 }, {10.0, 5.0, 0.0 }, {5.0, 10.0, 0.0 },
-      {5.0, 1.0, 0.0 }, {1.0, 5.0, 37.751952372314484 }, {2.0, 5.0, 240118.59649585965 }, {0.0, 5.0, 0.0 } };
-    double[][][] exps = new double[][][] {alphaExp, betaExp, rhoExp, nuExp };
+    double[][] alphaExp = new double[][] { {10.0, 10.0, 0.0}, {5.0, 5.0, 0.0}, {1.0, 1.0, 0.0}, {2.0, 1.0, 0.0},
+        {2.0, 10.0, 2.631285063205345E7}, {10.0, 1.0, 0.0}, {1.0, 10.0, 4136.961894403858}, {0.5, 5.0, 0.0},
+        {0.0, 1.0, 0.0}, {0.0, 10.0, 0.0}, {0.5, 10.0, 0.0}, {0.5, 1.0, 0.0}, {10.0, 5.0, 0.0}, {5.0, 10.0, 0.0},
+        {5.0, 1.0, 0.0}, {1.0, 5.0, 6204.475194599179}, {2.0, 5.0, 3.94631212984123E7}, {0.0, 5.0, 0.0}};
+    double[][] betaExp = new double[][] { {10.0, 10.0, -0.0}, {5.0, 5.0, -0.0}, {1.0, 1.0, -0.0}, {2.0, 1.0, -0.0},
+        {2.0, 10.0, -4817403.70908317}, {10.0, 1.0, -0.0}, {1.0, 10.0, -757.402375482629}, {0.5, 5.0, -0.0},
+        {0.0, 1.0, -0.0}, {0.0, 10.0, -0.0}, {0.5, 10.0, -0.0}, {0.5, 1.0, -0.0}, {10.0, 5.0, -0.0},
+        {5.0, 10.0, -0.0}, {5.0, 1.0, -0.0}, {1.0, 5.0, -1135.926404680998}, {2.0, 5.0, -7224978.759366533},
+        {0.0, 5.0, -0.0}};
+    double[][] rhoExp = new double[][] { {10.0, 10.0, 0.0}, {5.0, 5.0, 0.0}, {1.0, 1.0, 0.0}, {2.0, 1.0, 0.0},
+        {2.0, 10.0, 106482.62725265314}, {10.0, 1.0, 0.0}, {1.0, 10.0, 16.741423326578513}, {0.5, 5.0, 0.0},
+        {0.0, 1.0, 0.0}, {0.0, 10.0, 0.0}, {0.5, 10.0, 0.0}, {0.5, 1.0, 0.0}, {10.0, 5.0, 0.0}, {5.0, 10.0, 0.0},
+        {5.0, 1.0, 0.0}, {1.0, 5.0, 25.10821912392996}, {2.0, 5.0, 159699.03429338703}, {0.0, 5.0, 0.0}};
+    double[][] nuExp = new double[][] { {10.0, 10.0, 0.0}, {5.0, 5.0, 0.0}, {1.0, 1.0, 0.0}, {2.0, 1.0, 0.0},
+        {2.0, 10.0, 160104.03018547}, {10.0, 1.0, 0.0}, {1.0, 10.0, 25.171893432592533}, {0.5, 5.0, 0.0},
+        {0.0, 1.0, 0.0}, {0.0, 10.0, 0.0}, {0.5, 10.0, 0.0}, {0.5, 1.0, 0.0}, {10.0, 5.0, 0.0}, {5.0, 10.0, 0.0},
+        {5.0, 1.0, 0.0}, {1.0, 5.0, 37.751952372314484}, {2.0, 5.0, 240118.59649585965}, {0.0, 5.0, 0.0}};
+    double[][][] exps = new double[][][] {alphaExp, betaExp, rhoExp, nuExp};
     SurfaceMetadata[] metadata = new SurfaceMetadata[] {SwaptionSabrRateVolatilityDataSet.META_ALPHA,
-      SwaptionSabrRateVolatilityDataSet.META_BETA_USD, SwaptionSabrRateVolatilityDataSet.META_RHO,
-      SwaptionSabrRateVolatilityDataSet.META_NU };
+        SwaptionSabrRateVolatilityDataSet.META_BETA_USD, SwaptionSabrRateVolatilityDataSet.META_RHO,
+        SwaptionSabrRateVolatilityDataSet.META_NU};
     SurfaceCurrencyParameterSensitivities sensiExpected = SurfaceCurrencyParameterSensitivities.empty();
     for (int i = 0; i < exps.length; ++i) {
       int size = exps[i].length;

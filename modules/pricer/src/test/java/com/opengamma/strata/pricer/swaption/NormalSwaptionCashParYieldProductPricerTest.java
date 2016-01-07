@@ -499,6 +499,13 @@ public class NormalSwaptionCashParYieldProductPricerTest {
     assertEquals(impliedShortRecComputed, impliedShortRecInterpolated, TOL);
   }
 
+  public void implied_volatility_wrong_sign() {
+    CurrencyAmount pvLongRec =
+        PRICER_SWAPTION.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    assertThrowsIllegalArg(() -> PRICER_SWAPTION.impliedVolatilityFromPresentValue(SWAPTION_REC_LONG, RATE_PROVIDER, 
+        VOL_PROVIDER.getDayCount(), -pvLongRec.getAmount()));
+  }
+
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivityStickyStrike() {
     PointSensitivities pointRec = PRICER_SWAPTION

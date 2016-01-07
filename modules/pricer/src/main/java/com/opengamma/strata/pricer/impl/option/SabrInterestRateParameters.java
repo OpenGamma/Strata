@@ -25,7 +25,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.surface.ConstantNodalSurface;
 import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.pricer.impl.volatility.VolatilityModel;
@@ -36,10 +35,10 @@ import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunc
  * The volatility surface description under SABR model.  
  * <p>
  * This is used in interest rate modeling. 
- * Each SABR parameter is {@link NodalSurface} spanned by expiry and tenor.
+ * Each SABR parameter is a {@link NodalSurface} defined by expiry and tenor.
  * <p>
  * The implementation allows for shifted SABR model. 
- * The shift parameter is also {@link NodalSurface} spanned by expiry and tenor.
+ * The shift parameter is also {@link NodalSurface} defined by expiry and tenor.
  */
 @BeanDefinition(builderScope = "private")
 public final class SabrInterestRateParameters
@@ -91,7 +90,7 @@ public final class SabrInterestRateParameters
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains {@code SABRInterestRateParameters} without shift from nodal surfaces and volatility function provider.
+   * Obtains {@code SabrInterestRateParameters} without shift from nodal surfaces and volatility function provider.
    * 
    * @param alphaSurface  the alpha surface
    * @param betaSurface  the beta surface
@@ -106,13 +105,14 @@ public final class SabrInterestRateParameters
       NodalSurface rhoSurface,
       NodalSurface nuSurface,
       VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider) {
+
     NodalSurface shiftSurface = ConstantNodalSurface.of("zero shift", 0d);
     return new SabrInterestRateParameters(
         alphaSurface, betaSurface, rhoSurface, nuSurface, sabrFunctionProvider, shiftSurface);
   }
 
   /**
-   * Obtains {@code SABRInterestRateParameters} with shift from nodal surfaces and volatility function provider.
+   * Obtains {@code SabrInterestRateParameters} with shift from nodal surfaces and volatility function provider.
    * 
    * @param alphaSurface  the alpha surface
    * @param betaSurface  the beta surface
@@ -129,6 +129,7 @@ public final class SabrInterestRateParameters
       NodalSurface nuSurface,
       VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider,
       NodalSurface shiftSurface) {
+
     return new SabrInterestRateParameters(
         alphaSurface, betaSurface, rhoSurface, nuSurface, sabrFunctionProvider, shiftSurface);
   }
@@ -137,97 +138,104 @@ public final class SabrInterestRateParameters
   /**
    * Return the alpha parameter for a pair of time to expiry and instrument tenor.
    * 
-   * @param expirytenor The expiry/tenor pair
+   * @param expiry  the expiry
+   * @param tenor  the tenor
    * @return The alpha parameter
    */
-  public double getAlpha(DoublesPair expirytenor) {
-    return alphaSurface.zValue(expirytenor);
+  public double alpha(double expiry, double tenor) {
+    return alphaSurface.zValue(expiry, tenor);
   }
 
   /**
    * Return the beta parameter for a pair of time to expiry and instrument tenor.
    * 
-   * @param expirytenor The expiry/tenor pair
+   * @param expiry  the expiry
+   * @param tenor  the tenor
    * @return The beta parameter
    */
-  public double getBeta(DoublesPair expirytenor) {
-    return betaSurface.zValue(expirytenor);
+  public double beta(double expiry, double tenor) {
+    return betaSurface.zValue(expiry, tenor);
   }
 
   /**
    * Return the rho parameter for a pair of time to expiry and instrument tenor.
    * 
-   * @param expirytenor The expiry/tenor pair
+   * @param expiry  the expiry
+   * @param tenor  the tenor
    * @return The rho parameter
    */
-  public double getRho(DoublesPair expirytenor) {
-    return rhoSurface.zValue(expirytenor);
+  public double rho(double expiry, double tenor) {
+    return rhoSurface.zValue(expiry, tenor);
   }
 
   /**
    * Return the nu parameter for a pair of time to expiry and instrument tenor.
    * 
-   * @param expirytenor The expiry/tenor pair
+   * @param expiry  the expiry
+   * @param tenor  the tenor
    * @return The nu parameter
    */
-  public double getNu(DoublesPair expirytenor) {
-    return nuSurface.zValue(expirytenor);
+  public double nu(double expiry, double tenor) {
+    return nuSurface.zValue(expiry, tenor);
   }
 
   /**
-   * Return the nu parameter for a pair of time to expiry and instrument tenor.
+   * Return the shift parameter for a pair of time to expiry and instrument tenor.
    * 
-   * @param expirytenor The expiry/tenor pair
-   * @return The nu parameter
+   * @param expiry  the expiry
+   * @param tenor  the tenor
+   * @return The shift parameter
    */
-  public double getShift(DoublesPair expirytenor) {
-    return shiftSurface.zValue(expirytenor);
+  public double shift(double expiry, double tenor) {
+    return shiftSurface.zValue(expiry, tenor);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double getVolatility(DoubleArray t) {
+  public double volatility(DoubleArray t) {
     ArgChecker.notNull(t, "data");
     ArgChecker.isTrue(t.size() == 4, "data should have four components (expiry time, tenor, strike and forward");
-    return getVolatility(t.get(0), t.get(1), t.get(2), t.get(3));
+    return volatility(t.get(0), t.get(1), t.get(2), t.get(3));
   }
 
   /**
    * Returns the volatility for given expiry, tenor, strike and forward rate.
    * 
-   * @param expiryTime  time to expiry
+   * @param expiry  time to expiry
    * @param tenor  tenor
    * @param strike  the strike
    * @param forward  the forward
    * @return the volatility
    */
-  public double getVolatility(double expiryTime, double tenor, double strike, double forward) {
-    DoublesPair expiryTenor = DoublesPair.of(expiryTime, tenor);
+  public double volatility(double expiry, double tenor, double strike, double forward) {
     SabrFormulaData data = SabrFormulaData.of(
-        getAlpha(expiryTenor), getBeta(expiryTenor), getRho(expiryTenor), getNu(expiryTenor));
-    double shift = getShift(expiryTenor);
-    return sabrFunctionProvider.getVolatility(forward + shift, strike + shift, expiryTime, data);
+        alpha(expiry, tenor), beta(expiry, tenor), rho(expiry, tenor), nu(expiry, tenor));
+    double shift = shift(expiry, tenor);
+    return sabrFunctionProvider.getVolatility(forward + shift, strike + shift, expiry, data);
   }
 
   /**
    * Returns the volatility sensitivity to forward, strike and the SABR model parameters.
    * <p>
-   * The derivatives are stored in an array with [0] Derivative w.r.t the forward, [1] the derivative w.r.t the strike, 
-   * [2] the derivative w.r.t. to alpha, [3] the derivative w.r.t. to beta, [4] the derivative w.r.t. to rho, and 
+   * The derivatives are stored in an array with
+   * [0] Derivative w.r.t the forward,
+   * [1] the derivative w.r.t the strike,
+   * [2] the derivative w.r.t. to alpha,
+   * [3] the derivative w.r.t. to beta,
+   * [4] the derivative w.r.t. to rho, and
    * [5] the derivative w.r.t. to nu.
    * 
-   * @param expiryTime  time to expiry
+   * @param expiry  time to expiry
    * @param tenor  tenor
    * @param strike  the strike
    * @param forward  the forward
    * @return the sensitivities
    */
-  public ValueDerivatives getVolatilityAdjoint(double expiryTime, double tenor, double strike, double forward) {
-    DoublesPair expirytTenor = DoublesPair.of(expiryTime, tenor);
+  public ValueDerivatives volatilityAdjoint(double expiry, double tenor, double strike, double forward) {
     SabrFormulaData data = SabrFormulaData.of(
-        getAlpha(expirytTenor), getBeta(expirytTenor), getRho(expirytTenor), getNu(expirytTenor));
-    double shift = getShift(expirytTenor);
-    return sabrFunctionProvider.getVolatilityAdjoint(forward + shift, strike + shift, expiryTime, data);
+        alpha(expiry, tenor), beta(expiry, tenor), rho(expiry, tenor), nu(expiry, tenor));
+    double shift = shift(expiry, tenor);
+    return sabrFunctionProvider.getVolatilityAdjoint(forward + shift, strike + shift, expiry, data);
   }
 
   //------------------------- AUTOGENERATED START -------------------------

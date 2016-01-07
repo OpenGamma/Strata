@@ -181,27 +181,27 @@ public final class NormalSwaptionExpiryTenorVolatilities
 
   //-------------------------------------------------------------------------
   @Override
-  public double price(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double price(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return NormalFormulaRepository.price(forward, strike, expiry, volatility, putCall);
   }
 
   @Override
-  public double priceDelta(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double priceDelta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return NormalFormulaRepository.delta(forward, strike, expiry, volatility, putCall);
   }
 
   @Override
-  public double priceGamma(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double priceGamma(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return NormalFormulaRepository.gamma(forward, strike, expiry, volatility, putCall);
   }
 
   @Override
-  public double priceTheta(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double priceTheta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return NormalFormulaRepository.theta(forward, strike, expiry, volatility, putCall);
   }
 
   @Override
-  public double priceVega(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double priceVega(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return NormalFormulaRepository.vega(forward, strike, expiry, volatility, putCall);
   }
 
