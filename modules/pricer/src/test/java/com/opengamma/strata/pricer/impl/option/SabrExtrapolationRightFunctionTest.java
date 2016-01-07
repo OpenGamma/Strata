@@ -23,6 +23,7 @@ import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunc
  */
 @Test
 public class SabrExtrapolationRightFunctionTest {
+
   private static final double NU = 0.50;
   private static final double RHO = -0.25;
   private static final double BETA = 0.50;
@@ -39,7 +40,7 @@ public class SabrExtrapolationRightFunctionTest {
   private static final double TOLERANCE_PRICE = 1.0E-10;
 
   /**
-   * Tests getter. 
+   * Tests getter.
    */
   public void getter() {
     SabrExtrapolationRightFunction func = SabrExtrapolationRightFunction.of(
@@ -81,7 +82,7 @@ public class SabrExtrapolationRightFunctionTest {
    * Tests the price for options in SABR model with extrapolation.
    */
   public void priceCloseToExpiry() {
-    double[] timeToExpiry = {1.0 / 365, 0.0 }; // One day and on expiry day.
+    double[] timeToExpiry = {1.0 / 365, 0.0}; // One day and on expiry day.
     double strikeIn = 0.08;
     double strikeAt = CUT_OFF_STRIKE;
     double strikeOut = 0.12;
@@ -557,7 +558,7 @@ public class SabrExtrapolationRightFunctionTest {
    */
   public void smileSmoothMaturity() {
     int nbPts = 100;
-    double[] timeToExpiry = new double[] {2.0, 1.0, 0.50, 0.25, 1.0d / 12.0d, 1.0d / 52.0d, 1.0d / 365d };
+    double[] timeToExpiry = new double[] {2.0, 1.0, 0.50, 0.25, 1.0d / 12.0d, 1.0d / 52.0d, 1.0d / 365d};
     int nbTTM = timeToExpiry.length;
     double rangeStrike = 0.02;
     double[] strike = new double[nbPts + 1];
@@ -602,7 +603,7 @@ public class SabrExtrapolationRightFunctionTest {
   private static final SabrHaganVolatilityFunctionProvider FUNC_HAGAN = SabrHaganVolatilityFunctionProvider.DEFAULT;
   @SuppressWarnings("unchecked")
   private static final VolatilityFunctionProvider<SabrFormulaData>[] FUNCTIONS =
-      new VolatilityFunctionProvider[] {FUNC_HAGAN }; // other volatility functions to be added
+      new VolatilityFunctionProvider[] {FUNC_HAGAN}; // other volatility functions to be added
 
   /**
    * Testing C2 continuity.
@@ -612,7 +613,7 @@ public class SabrExtrapolationRightFunctionTest {
     for (VolatilityFunctionProvider<SabrFormulaData> func : FUNCTIONS) {
       SabrExtrapolationRightFunction extrapolation =
           SabrExtrapolationRightFunction.of(FORWARD, SABR_DATA, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU, func);
-      for (PutCall isCall : new PutCall[] {PutCall.CALL, PutCall.PUT }) {
+      for (PutCall isCall : new PutCall[] {PutCall.CALL, PutCall.PUT}) {
         double priceBase = extrapolation.price(CUT_OFF_STRIKE, isCall);
         double priceUp = extrapolation.price(CUT_OFF_STRIKE + EPS, isCall);
         double priceDw = extrapolation.price(CUT_OFF_STRIKE - EPS, isCall);
@@ -645,7 +646,7 @@ public class SabrExtrapolationRightFunctionTest {
     for (VolatilityFunctionProvider<SabrFormulaData> func : FUNCTIONS) {
       SabrExtrapolationRightFunction right =
           SabrExtrapolationRightFunction.of(smallForward, SABR_DATA, smallCutoff, TIME_TO_EXPIRY, MU, func);
-      for (PutCall isCall : new PutCall[] {PutCall.CALL, PutCall.PUT }) {
+      for (PutCall isCall : new PutCall[] {PutCall.CALL, PutCall.PUT}) {
         double priceBase = right.price(smallCutoff, isCall);
         double priceUp = right.price(smallCutoff + EPS * 0.1, isCall);
         double priceDw = right.price(smallCutoff - EPS * 0.1, isCall);
@@ -664,7 +665,7 @@ public class SabrExtrapolationRightFunctionTest {
     for (VolatilityFunctionProvider<SabrFormulaData> func : FUNCTIONS) {
       SabrExtrapolationRightFunction right =
           SabrExtrapolationRightFunction.of(FORWARD * 0.01, SABR_DATA, CUT_OFF_STRIKE, smallExpiry, MU, func);
-      for (PutCall isCall : new PutCall[] {PutCall.CALL, PutCall.PUT }) {
+      for (PutCall isCall : new PutCall[] {PutCall.CALL, PutCall.PUT}) {
         double priceBase = right.price(CUT_OFF_STRIKE, isCall);
         double priceUp = right.price(CUT_OFF_STRIKE + EPS * 0.1, isCall);
         double priceDw = right.price(CUT_OFF_STRIKE - EPS * 0.1, isCall);

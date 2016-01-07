@@ -72,10 +72,10 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
    * @param forward  the forward value of the underlying
    * @param strike  the strike value of the option
    * @param timeToExpiry  the time to expiry of the option
-   * @param data The model data.
-   * @param volatilityD  the array used to return the first order derivative. 
-   * @param volatilityD2 The array of array used to return the second order derivative. 
-   * @return the volatility.
+   * @param data  the model data
+   * @param volatilityD  the array used to return the first order derivative
+   * @param volatilityD2  the array of array used to return the second order derivative
+   * @return the volatility
    */
   public abstract double getVolatilityAdjoint2(
       double forward,
