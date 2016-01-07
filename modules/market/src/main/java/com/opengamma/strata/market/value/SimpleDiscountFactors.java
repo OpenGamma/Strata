@@ -77,7 +77,7 @@ public final class SimpleDiscountFactors
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a new discount factors instance.
+   * Obtains an instance based on a discount factor curve.
    * <p>
    * The curve is specified by an instance of {@link Curve}, such as {@link InterpolatedNodalCurve}.
    * The curve must contain {@linkplain ValueType#YEAR_FRACTION year fractions}

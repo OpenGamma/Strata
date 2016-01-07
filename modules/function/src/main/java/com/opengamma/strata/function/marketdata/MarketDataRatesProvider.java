@@ -22,14 +22,17 @@ import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
-import com.opengamma.strata.market.key.IborIndexRatesKey;
+import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.key.DiscountCurveKey;
+import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
-import com.opengamma.strata.market.key.OvernightIndexRatesKey;
-import com.opengamma.strata.market.key.PriceIndexValuesKey;
+import com.opengamma.strata.market.key.OvernightIndexCurveKey;
+import com.opengamma.strata.market.key.PriceIndexCurveKey;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.DiscountFxForwardRates;
 import com.opengamma.strata.market.value.DiscountFxIndexRates;
+import com.opengamma.strata.market.value.ForwardPriceIndexValues;
 import com.opengamma.strata.market.value.FxForwardRates;
 import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
@@ -80,11 +83,7 @@ public final class MarketDataRatesProvider
   //-------------------------------------------------------------------------
   // finds the time-series
   private LocalDateDoubleTimeSeries timeSeries(Index index) {
-    LocalDateDoubleTimeSeries series = marketData.getTimeSeries(IndexRateKey.of(index));
-    if (series == null) {
-      return LocalDateDoubleTimeSeries.empty();
-    }
-    return series;
+    return marketData.getTimeSeries(IndexRateKey.of(index));
   }
 
   //-------------------------------------------------------------------------
@@ -99,15 +98,15 @@ public final class MarketDataRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public DiscountFactors discountFactors(Currency currency) {
-    return marketData.getValue(DiscountFactorsKey.of(currency));
+    Curve curve = marketData.getValue(DiscountCurveKey.of(currency));
+    return DiscountFactors.of(currency, getValuationDate(), curve);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public FxIndexRates fxIndexRates(FxIndex index) {
-    LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
     FxForwardRates fxForwardRates = fxForwardRates(index.getCurrencyPair());
-    return DiscountFxIndexRates.of(index, timeSeries, fxForwardRates);
+    return DiscountFxIndexRates.of(index, fxForwardRates, timeSeries(index));
   }
 
   //-------------------------------------------------------------------------
@@ -122,19 +121,25 @@ public final class MarketDataRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public IborIndexRates iborIndexRates(IborIndex index) {
-    return marketData.getValue(IborIndexRatesKey.of(index));
+    Curve curve = marketData.getValue(IborIndexCurveKey.of(index));
+    return IborIndexRates.of(index, getValuationDate(), curve, timeSeries(index));
   }
 
   //-------------------------------------------------------------------------
   @Override
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
-    return marketData.getValue(OvernightIndexRatesKey.of(index));
+    Curve curve = marketData.getValue(OvernightIndexCurveKey.of(index));
+    return OvernightIndexRates.of(index, getValuationDate(), curve, timeSeries(index));
   }
 
   //-------------------------------------------------------------------------
   @Override
   public PriceIndexValues priceIndexValues(PriceIndex index) {
-    return marketData.getValue(PriceIndexValuesKey.of(index));
+    Curve curve = marketData.getValue(PriceIndexCurveKey.of(index));
+    if (!(curve instanceof InterpolatedNodalCurve)) {
+      throw new IllegalArgumentException("Curve must be an InterpolatedNodalCurve: " + index);
+    }
+    return ForwardPriceIndexValues.of(index, getValuationDate(), (InterpolatedNodalCurve) curve, timeSeries(index));
   }
 
 }

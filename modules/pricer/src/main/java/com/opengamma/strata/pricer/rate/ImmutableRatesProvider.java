@@ -200,9 +200,9 @@ public final class ImmutableRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public FxIndexRates fxIndexRates(FxIndex index) {
-    LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
+    LocalDateDoubleTimeSeries fixings = timeSeries(index);
     FxForwardRates fxForwardRates = fxForwardRates(index.getCurrencyPair());
-    return DiscountFxIndexRates.of(index, timeSeries, fxForwardRates);
+    return DiscountFxIndexRates.of(index, fxForwardRates, fixings);
   }
 
   //-------------------------------------------------------------------------
@@ -216,18 +216,18 @@ public final class ImmutableRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public IborIndexRates iborIndexRates(IborIndex index) {
-    LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
+    LocalDateDoubleTimeSeries fixings = timeSeries(index);
     Curve curve = indexCurve(index);
     DiscountFactors dfc = DiscountFactors.of(index.getCurrency(), getValuationDate(), curve);
-    return DiscountIborIndexRates.of(index, timeSeries, dfc);
+    return DiscountIborIndexRates.of(index, dfc, fixings);
   }
 
   @Override
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
-    LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
+    LocalDateDoubleTimeSeries fixings = timeSeries(index);
     Curve curve = indexCurve(index);
     DiscountFactors dfc = DiscountFactors.of(index.getCurrency(), getValuationDate(), curve);
-    return DiscountOvernightIndexRates.of(index, timeSeries, dfc);
+    return DiscountOvernightIndexRates.of(index, dfc, fixings);
   }
 
   @Override

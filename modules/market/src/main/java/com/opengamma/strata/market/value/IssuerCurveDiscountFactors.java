@@ -58,7 +58,7 @@ public final class IssuerCurveDiscountFactors
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an instance of {@code IssuerCurveDiscountFactors} from discount factors and legal entity group.
+   * Obtains an instance based on discount factors and legal entity group.
    * 
    * @param discountFactors  the discount factors
    * @param legalEntityGroup  the legal entity group

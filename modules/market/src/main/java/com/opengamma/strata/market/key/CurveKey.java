@@ -9,7 +9,7 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.market.curve.Curve;
 
 /**
- * A market data key identifying a yield curve.
+ * A market data key identifying a curve.
  * <p>
  * This is implemented by keys that return a {@link Curve}.
  */

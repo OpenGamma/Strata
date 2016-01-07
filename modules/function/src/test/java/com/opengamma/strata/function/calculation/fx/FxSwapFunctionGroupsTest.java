@@ -32,8 +32,9 @@ import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
 import com.opengamma.strata.product.TradeInfo;
@@ -80,7 +81,7 @@ public class FxSwapFunctionGroupsTest {
     FunctionRequirements reqs = function.requirements(TRADE);
     assertThat(reqs.getOutputCurrencies()).containsOnly(ccy1, ccy2);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
-        ImmutableSet.of(DiscountFactorsKey.of(ccy1), DiscountFactorsKey.of(ccy2)));
+        ImmutableSet.of(DiscountCurveKey.of(ccy1), DiscountCurveKey.of(ccy2)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of());
     assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy1);
     DiscountFactors df1 = SimpleDiscountFactors.of(
@@ -89,7 +90,7 @@ public class FxSwapFunctionGroupsTest {
         ccy2, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
     TestMarketDataMap md = new TestMarketDataMap(
         valDate,
-        ImmutableMap.of(DiscountFactorsKey.of(ccy1), df1, DiscountFactorsKey.of(ccy2), df2),
+        ImmutableMap.of(DiscountCurveKey.of(ccy1), df1, DiscountCurveKey.of(ccy2), df2),
         ImmutableMap.of());
     assertThat(function.execute(TRADE, md)).isEqualTo(MultiCurrencyValuesArray.of(MultiCurrencyAmount.empty()));
   }
@@ -103,16 +104,13 @@ public class FxSwapFunctionGroupsTest {
     Currency ccy1 = TRADE.getProduct().getNearLeg().getBaseCurrencyAmount().getCurrency();
     Currency ccy2 = TRADE.getProduct().getNearLeg().getCounterCurrencyAmount().getCurrency();
     LocalDate valDate = TRADE.getProduct().getFarLeg().getPaymentDate().plusDays(7);
-    DiscountFactors df1 = SimpleDiscountFactors.of(
-        ccy1, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
-    DiscountFactors df2 = SimpleDiscountFactors.of(
-        ccy2, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
+    Curve df = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     FxRate fxRate = FxRate.of(ccy1, ccy2, 1.6d);
     TestMarketDataMap md = new TestMarketDataMap(
         valDate,
         ImmutableMap.of(
-            DiscountFactorsKey.of(ccy1), df1,
-            DiscountFactorsKey.of(ccy2), df2,
+            DiscountCurveKey.of(ccy1), df,
+            DiscountCurveKey.of(ccy2), df,
             FxRateKey.of(ccy1, ccy2), fxRate),
         ImmutableMap.of());
 

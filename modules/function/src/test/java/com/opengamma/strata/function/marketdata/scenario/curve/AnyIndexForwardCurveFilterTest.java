@@ -15,7 +15,8 @@ import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.id.RateIndexCurveId;
+import com.opengamma.strata.market.id.IborIndexCurveId;
+import com.opengamma.strata.market.id.IndexCurveId;
 
 /**
  * Test {@link AnyIndexForwardCurveFilter}.
@@ -25,8 +26,8 @@ public class AnyIndexForwardCurveFilterTest {
 
   public void match() {
     AnyIndexForwardCurveFilter test = AnyIndexForwardCurveFilter.INSTANCE;
-    assertThat(test.getMarketDataIdType()).isEqualTo(RateIndexCurveId.class);
-    RateIndexCurveId id = RateIndexCurveId.of(IborIndices.USD_LIBOR_1M, CurveGroupName.of("curveName"));
+    assertThat(test.getMarketDataIdType()).isEqualTo(IndexCurveId.class);
+    IndexCurveId id = IborIndexCurveId.of(IborIndices.USD_LIBOR_1M, CurveGroupName.of("curveName"));
     Curve curve = ConstantNodalCurve.of("curveName", 1);
     assertThat(test.matches(id, MarketDataBox.ofSingleValue(curve))).isTrue();
   }

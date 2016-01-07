@@ -34,7 +34,7 @@ import com.opengamma.strata.market.id.IndexRateId;
  * Market data key identifying the current and historical values for an index.
  * <p>
  * This is used when there is a need to obtain the current or historical index value.
- * The forward curve of the index is identified with an {@link RateIndexCurveKey}.
+ * The forward curve of the index is identified with an {@link OvernightIndexCurveKey}.
  */
 @BeanDefinition(builderScope = "private")
 public final class IndexRateKey

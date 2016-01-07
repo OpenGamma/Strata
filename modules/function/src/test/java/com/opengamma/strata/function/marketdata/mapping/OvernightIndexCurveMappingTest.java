@@ -14,14 +14,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.id.OvernightIndexRatesId;
-import com.opengamma.strata.market.key.OvernightIndexRatesKey;
+import com.opengamma.strata.market.id.OvernightIndexCurveId;
+import com.opengamma.strata.market.key.OvernightIndexCurveKey;
 
 /**
- * Test {@link OvernightIndexRatesMapping}.
+ * Test {@link OvernightIndexCurveMapping}.
  */
 @Test
-public class OvernightIndexRatesMappingTest {
+public class OvernightIndexCurveMappingTest {
 
   private static final CurveGroupName GROUP = CurveGroupName.of("Group");
   private static final CurveGroupName GROUP2 = CurveGroupName.of("Group2");
@@ -30,18 +30,18 @@ public class OvernightIndexRatesMappingTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    OvernightIndexRatesMapping test = OvernightIndexRatesMapping.of(GROUP, FEED);
+    OvernightIndexCurveMapping test = OvernightIndexCurveMapping.of(GROUP, FEED);
     assertEquals(test.getCurveGroupName(), GROUP);
     assertEquals(test.getMarketDataFeed(), FEED);
-    assertEquals(test.getMarketDataKeyType(), OvernightIndexRatesKey.class);
-    assertEquals(test.getIdForKey(OvernightIndexRatesKey.of(GBP_SONIA)), OvernightIndexRatesId.of(GBP_SONIA, GROUP, FEED));
+    assertEquals(test.getMarketDataKeyType(), OvernightIndexCurveKey.class);
+    assertEquals(test.getIdForKey(OvernightIndexCurveKey.of(GBP_SONIA)), OvernightIndexCurveId.of(GBP_SONIA, GROUP, FEED));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    OvernightIndexRatesMapping test = OvernightIndexRatesMapping.of(GROUP, FEED);
+    OvernightIndexCurveMapping test = OvernightIndexCurveMapping.of(GROUP, FEED);
     coverImmutableBean(test);
-    OvernightIndexRatesMapping test2 = OvernightIndexRatesMapping.of(GROUP2, FEED2);
+    OvernightIndexCurveMapping test2 = OvernightIndexCurveMapping.of(GROUP2, FEED2);
     coverBeanEquals(test, test2);
   }
 

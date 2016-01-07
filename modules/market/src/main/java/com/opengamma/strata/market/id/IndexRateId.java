@@ -33,7 +33,7 @@ import com.opengamma.strata.market.key.IndexRateKey;
 /**
  * A market data ID identifying the current and historical values for an {@link Index}.
  * <p>
- * The forward curve of the index is identified with an {@link RateIndexCurveId}.
+ * The forward curve of the index is identified with a separate ID, such as an {@link IborIndexCurveId}.
  */
 @BeanDefinition(builderScope = "private")
 public final class IndexRateId implements ObservableId, ImmutableBean, Serializable {

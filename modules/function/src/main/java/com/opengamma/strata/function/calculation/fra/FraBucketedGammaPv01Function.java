@@ -27,7 +27,7 @@ import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.key.DiscountCurveKey;
-import com.opengamma.strata.market.key.RateIndexCurveKey;
+import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.CurveGammaCalculator;
@@ -94,8 +94,8 @@ public class FraBucketedGammaPv01Function
 
   // validates that the indices all resolve to the single specified curve
   private void validateSingleCurve(Set<IborIndex> indices, MarketData marketData, NodalCurve nodalCurve) {
-    Set<RateIndexCurveKey> differentForwardCurves = indices.stream()
-        .map(RateIndexCurveKey::of)
+    Set<IborIndexCurveKey> differentForwardCurves = indices.stream()
+        .map(IborIndexCurveKey::of)
         .filter(k -> !nodalCurve.equals(marketData.getValue(k)))
         .collect(toSet());
     if (!differentForwardCurves.isEmpty()) {

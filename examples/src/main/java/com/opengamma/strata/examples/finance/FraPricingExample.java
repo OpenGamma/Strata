@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.examples.finance;
 
-import static com.opengamma.strata.function.StandardComponents.marketDataFactory;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -16,13 +14,10 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.calc.CalculationRules;
+import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
-import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.calc.runner.CalculationTaskRunner;
-import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.data.ExampleData;
@@ -51,13 +46,13 @@ public class FraPricingExample {
   public static void main(String[] args) {
     // setup calculation runner component, which needs life-cycle management
     // a typical application might use dependency injection to obtain the instance
-    try (CalculationTaskRunner runner = CalculationTaskRunner.ofMultiThreaded()) {
+    try (CalculationRunner runner = CalculationRunner.ofMultiThreaded()) {
       calculate(runner);
     }
   }
 
   // obtains the data and calculates the grid of results
-  private static void calculate(CalculationTaskRunner runner) {
+  private static void calculate(CalculationRunner runner) {
     // the trades that will have measures calculated
     List<Trade> trades = ImmutableList.of(createTrade1());
 
@@ -83,10 +78,7 @@ public class FraPricingExample {
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // calculate the results
-    CalculationTasks tasks = CalculationTasks.of(trades, columns, rules);
-    MarketDataRequirements reqs = tasks.getRequirements();
-    MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, marketSnapshot, MarketDataConfig.empty());
-    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData);
+    Results results = runner.calculateSingleScenario(trades, columns, rules, marketSnapshot);
 
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults = ReportCalculationResults.of(

@@ -102,7 +102,7 @@ public class ForwardOvernightCompoundedRateObservationFn
       this.index = observation.getIndex();
       this.rates = rates;
       this.fixingCalendar = index.getFixingCalendar();
-      this.indexFixingDateSeries = rates.getTimeSeries();
+      this.indexFixingDateSeries = rates.getFixings();
       // Details of the cutoff period
       this.firstFixing = observation.getStartDate();
       this.lastFixingP1 = observation.getEndDate();

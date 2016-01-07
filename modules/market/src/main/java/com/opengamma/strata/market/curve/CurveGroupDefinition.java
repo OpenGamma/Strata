@@ -54,7 +54,7 @@ import com.opengamma.strata.market.ValueType;
  * used for discounting it will be associated with one key of type {@code DiscountCurveKey}.
  * <p>
  * A single curve can also be used as both a discounting curve and a forward curve.
- * In that case its key set would contain a {@code DiscountCurveKey} and a {@code RateIndexCurveKey}.
+ * In that case its key set might contain a {@code DiscountCurveKey} and a {@code IborIndexCurveKey}.
  * <p>
  * Every curve must be associated with at least once key.
  */

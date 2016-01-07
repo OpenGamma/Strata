@@ -9,7 +9,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.basics.index.RateIndex;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
 
 /**
@@ -29,13 +29,12 @@ public final class MarketDataKeys {
    */
   public static MarketDataKey<?> indexCurve(Index index) {
     if (index instanceof IborIndex) {
-      return IborIndexRatesKey.of((IborIndex) index);
+      return IborIndexCurveKey.of((IborIndex) index);
     } else if (index instanceof OvernightIndex) {
-      return OvernightIndexRatesKey.of((OvernightIndex) index);
-    } else if (index instanceof RateIndex) {
-      return RateIndexCurveKey.of((RateIndex) index);
+      return OvernightIndexCurveKey.of((OvernightIndex) index);
+    } else if (index instanceof PriceIndex) {
+      return PriceIndexCurveKey.of((PriceIndex) index);
     } else {
-      // TODO Support FX and inflation curves when they're added
       throw new IllegalArgumentException("No curve key can be created for index " + index.getName());
     }
   }
@@ -46,12 +45,8 @@ public final class MarketDataKeys {
    * @param currency  the currency of the curve
    * @return a market data key for discount factors
    */
-  public static DiscountFactorsKey discountFactors(Currency currency) {
-    return DiscountFactorsKey.of(currency);
+  public static DiscountCurveKey discountFactors(Currency currency) {
+    return DiscountCurveKey.of(currency);
   }
 
-  // TODO fxRate(CurrencyPair)
-  // TODO fxRate(Currency, Currency)
-  // TODO quote(StandardId)
-  // TODO There must be others
 }

@@ -9,11 +9,10 @@ import java.time.YearMonth;
 
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.MarketDataValue;
+import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
-import com.opengamma.strata.market.key.PriceIndexValuesKey;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -24,19 +23,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * This is typically used in inflation products.
  */
 public interface PriceIndexValues
-    extends MarketDataValue<PriceIndexValues> {
-
-  /**
-   * Gets the market data key.
-   * <p>
-   * This returns the {@link PriceIndexValuesKey} that identifies this instance.
-   * 
-   * @return the market data key
-   */
-  @Override
-  public default PriceIndexValuesKey getKey() {
-    return PriceIndexValuesKey.of(getIndex());
-  }
+    extends MarketDataView {
 
   /**
    * Gets the Price index.
@@ -55,7 +42,7 @@ public interface PriceIndexValues
    * 
    * @return the time-series fixings
    */
-  public abstract LocalDateDoubleTimeSeries getTimeSeries();
+  public abstract LocalDateDoubleTimeSeries getFixings();
 
   /**
    * Gets the name of the underlying curve.

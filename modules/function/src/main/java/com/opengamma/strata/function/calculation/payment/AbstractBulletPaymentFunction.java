@@ -20,7 +20,7 @@ import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
@@ -64,8 +64,8 @@ public abstract class AbstractBulletPaymentFunction<T>
   @Override
   public FunctionRequirements requirements(BulletPaymentTrade trade) {
     Currency currency = trade.getProduct().getCurrency();
-    Set<DiscountFactorsKey> discountCurveKeys =
-        ImmutableSet.of(DiscountFactorsKey.of(currency));
+    Set<DiscountCurveKey> discountCurveKeys =
+        ImmutableSet.of(DiscountCurveKey.of(currency));
     return FunctionRequirements.builder()
         .singleValueRequirements(discountCurveKeys)
         .timeSeriesRequirements()

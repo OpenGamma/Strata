@@ -110,7 +110,7 @@ public class DiscountingFxResetNotionalExchangePricer
     FxIndexRates rates = provider.fxIndexRates(event.getIndex());
     double df = provider.discountFactor(event.getCurrency(), event.getPaymentDate());
     if (!event.getFixingDate().isAfter(provider.getValuationDate()) &&
-        rates.getTimeSeries().get(event.getFixingDate()).isPresent()) {
+        rates.getFixings().get(event.getFixingDate()).isPresent()) {
       double fxRate = rates.rate(event.getReferenceCurrency(), event.getFixingDate());
       return MultiCurrencyAmount.of(CurrencyAmount.of(event.getCurrency(), event.getNotional() * df * fxRate));
     }

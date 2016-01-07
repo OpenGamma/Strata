@@ -16,34 +16,35 @@ import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.id.RateIndexCurveId;
+import com.opengamma.strata.market.id.IborIndexCurveId;
+import com.opengamma.strata.market.id.IndexCurveId;
 
 /**
- * Test {@link CurveRateIndexFilter}.
+ * Test {@link IndexCurveFilter}.
  */
 @Test
-public class CurveRateIndexFilterTest {
+public class IndexCurveFilterTest {
 
   public void match() {
-    CurveRateIndexFilter test = CurveRateIndexFilter.of(IborIndices.USD_LIBOR_1M);
-    assertThat(test.getMarketDataIdType()).isEqualTo(RateIndexCurveId.class);
-    RateIndexCurveId id = RateIndexCurveId.of(IborIndices.USD_LIBOR_1M, CurveGroupName.of("curveName"));
+    IndexCurveFilter test = IndexCurveFilter.of(IborIndices.USD_LIBOR_1M);
+    assertThat(test.getMarketDataIdType()).isEqualTo(IndexCurveId.class);
+    IndexCurveId id = IborIndexCurveId.of(IborIndices.USD_LIBOR_1M, CurveGroupName.of("curveName"));
     Curve curve = ConstantNodalCurve.of("curveName", 1);
     assertThat(test.matches(id, MarketDataBox.ofSingleValue(curve))).isTrue();
   }
 
   public void noMatch() {
-    CurveRateIndexFilter test = CurveRateIndexFilter.of(IborIndices.USD_LIBOR_1M);
-    RateIndexCurveId id = RateIndexCurveId.of(IborIndices.USD_LIBOR_3M, CurveGroupName.of("curveName"));
+    IndexCurveFilter test = IndexCurveFilter.of(IborIndices.USD_LIBOR_1M);
+    IndexCurveId id = IborIndexCurveId.of(IborIndices.USD_LIBOR_3M, CurveGroupName.of("curveName"));
     Curve curve = ConstantNodalCurve.of("curveName", 1);
     assertThat(test.matches(id, MarketDataBox.ofSingleValue(curve))).isFalse();
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CurveRateIndexFilter test = CurveRateIndexFilter.of(IborIndices.USD_LIBOR_1M);
+    IndexCurveFilter test = IndexCurveFilter.of(IborIndices.USD_LIBOR_1M);
     coverImmutableBean(test);
-    CurveRateIndexFilter test2 = CurveRateIndexFilter.of(IborIndices.USD_LIBOR_3M);
+    IndexCurveFilter test2 = IndexCurveFilter.of(IborIndices.USD_LIBOR_3M);
     coverBeanEquals(test, test2);
   }
 

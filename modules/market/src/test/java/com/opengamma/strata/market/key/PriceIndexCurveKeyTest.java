@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.market.key;
 
-import static com.opengamma.strata.basics.index.IborIndices.CHF_LIBOR_12M;
-import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.basics.index.PriceIndices.EUR_AI_CPI;
+import static com.opengamma.strata.basics.index.PriceIndices.UK_RPI;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -17,28 +17,28 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.market.curve.Curve;
 
 /**
- * Test {@link RateIndexCurveKey}.
+ * Test {@link PriceIndexCurveKey}.
  */
 @Test
-public class RateIndexCurveKeyTest {
+public class PriceIndexCurveKeyTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    RateIndexCurveKey test = RateIndexCurveKey.of(GBP_LIBOR_3M);
-    assertEquals(test.getIndex(), GBP_LIBOR_3M);
+    PriceIndexCurveKey test = PriceIndexCurveKey.of(UK_RPI);
+    assertEquals(test.getIndex(), UK_RPI);
     assertEquals(test.getMarketDataType(), Curve.class);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    RateIndexCurveKey test = RateIndexCurveKey.of(GBP_LIBOR_3M);
+    PriceIndexCurveKey test = PriceIndexCurveKey.of(UK_RPI);
     coverImmutableBean(test);
-    RateIndexCurveKey test2 = RateIndexCurveKey.of(CHF_LIBOR_12M);
+    PriceIndexCurveKey test2 = PriceIndexCurveKey.of(EUR_AI_CPI);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    RateIndexCurveKey test = RateIndexCurveKey.of(GBP_LIBOR_3M);
+    PriceIndexCurveKey test = PriceIndexCurveKey.of(UK_RPI);
     assertSerialization(test);
   }
 

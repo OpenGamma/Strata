@@ -23,7 +23,7 @@ import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -86,10 +86,10 @@ public abstract class AbstractSwapFunction<T>
             .map(MarketDataKeys::indexCurve)
             .collect(toImmutableSet());
 
-    Set<DiscountFactorsKey> discountCurveKeys =
+    Set<DiscountCurveKey> discountCurveKeys =
         swap.getLegs().stream()
             .map(SwapLeg::getCurrency)
-            .map(DiscountFactorsKey::of)
+            .map(DiscountCurveKey::of)
             .collect(toImmutableSet());
 
     return FunctionRequirements.builder()

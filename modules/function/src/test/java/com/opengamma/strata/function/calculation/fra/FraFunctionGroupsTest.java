@@ -27,12 +27,11 @@ import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
-import com.opengamma.strata.market.key.IborIndexRatesKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
+import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
-import com.opengamma.strata.market.value.DiscountFactors;
-import com.opengamma.strata.market.value.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.fra.FraDummyData;
 import com.opengamma.strata.product.fra.FraTrade;
 
@@ -66,12 +65,11 @@ public class FraFunctionGroupsTest {
     FunctionRequirements reqs = function.requirements(TRADE);
     assertThat(reqs.getOutputCurrencies()).containsOnly(ccy);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
-        ImmutableSet.of(IborIndexRatesKey.of(index), DiscountFactorsKey.of(ccy)));
+        ImmutableSet.of(IborIndexCurveKey.of(index), DiscountCurveKey.of(ccy)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(index)));
     assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy);
-    DiscountFactors df = SimpleDiscountFactors.of(
-        ccy, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
-    TestMarketDataMap md = new TestMarketDataMap(valDate, ImmutableMap.of(DiscountFactorsKey.of(ccy), df), ImmutableMap.of());
+    Curve df = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
+    TestMarketDataMap md = new TestMarketDataMap(valDate, ImmutableMap.of(DiscountCurveKey.of(ccy), df), ImmutableMap.of());
     assertThat(function.execute(TRADE, md)).isEqualTo(FxConvertibleList.of(ImmutableList.of(CurrencyAmount.of(ccy, 0d))));
   }
 

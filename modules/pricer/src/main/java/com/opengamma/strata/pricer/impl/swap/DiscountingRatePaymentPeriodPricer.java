@@ -460,7 +460,7 @@ public class DiscountingRatePaymentPeriodPricer
       FxReset fxReset = period.getFxReset().get();
       FxIndexRates rates = provider.fxIndexRates(fxReset.getIndex());
       if (!fxReset.getFixingDate().isAfter(provider.getValuationDate()) &&
-          rates.getTimeSeries().get(fxReset.getFixingDate()).isPresent()) {
+          rates.getFixings().get(fxReset.getFixingDate()).isPresent()) {
         double fxRate = rates.rate(fxReset.getReferenceCurrency(), fxReset.getFixingDate());
         return MultiCurrencyAmount.of(period.getCurrency(),
             accrualWithNotional(period, period.getNotional() * fxRate * df, provider));

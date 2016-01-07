@@ -27,12 +27,14 @@ import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.CurveGroupId;
+import org.joda.beans.BeanBuilder;
 
 /**
- * Market data key identifying a group of curves that are built together.*
+ * Market data key identifying a group of curves that are built together.
  */
-@BeanDefinition
-public final class CurveGroupKey implements SimpleMarketDataKey<CurveGroup>, ImmutableBean, Serializable {
+@BeanDefinition(builderScope = "private")
+public final class CurveGroupKey
+    implements SimpleMarketDataKey<CurveGroup>, ImmutableBean, Serializable {
 
   /** The name of the curve group. */
   @PropertyDefinition(validate = "notNull")
@@ -87,14 +89,6 @@ public final class CurveGroupKey implements SimpleMarketDataKey<CurveGroup>, Imm
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static CurveGroupKey.Builder builder() {
-    return new CurveGroupKey.Builder();
-  }
-
   private CurveGroupKey(
       CurveGroupName name) {
     JodaBeanUtils.notNull(name, "name");
@@ -126,14 +120,6 @@ public final class CurveGroupKey implements SimpleMarketDataKey<CurveGroup>, Imm
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -200,7 +186,7 @@ public final class CurveGroupKey implements SimpleMarketDataKey<CurveGroup>, Imm
     }
 
     @Override
-    public CurveGroupKey.Builder builder() {
+    public BeanBuilder<? extends CurveGroupKey> builder() {
       return new CurveGroupKey.Builder();
     }
 
@@ -248,7 +234,7 @@ public final class CurveGroupKey implements SimpleMarketDataKey<CurveGroup>, Imm
   /**
    * The bean-builder for {@code CurveGroupKey}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<CurveGroupKey> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CurveGroupKey> {
 
     private CurveGroupName name;
 
@@ -256,14 +242,6 @@ public final class CurveGroupKey implements SimpleMarketDataKey<CurveGroup>, Imm
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(CurveGroupKey beanToCopy) {
-      this.name = beanToCopy.getName();
     }
 
     //-----------------------------------------------------------------------
@@ -317,18 +295,6 @@ public final class CurveGroupKey implements SimpleMarketDataKey<CurveGroup>, Imm
     public CurveGroupKey build() {
       return new CurveGroupKey(
           name);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the name of the curve group.
-     * @param name  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder name(CurveGroupName name) {
-      JodaBeanUtils.notNull(name, "name");
-      this.name = name;
-      return this;
     }
 
     //-----------------------------------------------------------------------

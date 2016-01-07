@@ -17,8 +17,8 @@ import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
-import com.opengamma.strata.market.key.IborIndexRatesKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
+import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
@@ -67,8 +67,8 @@ public abstract class AbstractIborFutureFunction<T>
 
     // the market data that is needed
     QuoteKey quoteKey = QuoteKey.of(trade.getSecurity().getStandardId());
-    IborIndexRatesKey indexForwardCurveKey = IborIndexRatesKey.of(product.getIndex());
-    DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(product.getCurrency());
+    IborIndexCurveKey indexForwardCurveKey = IborIndexCurveKey.of(product.getIndex());
+    DiscountCurveKey discountFactorsKey = DiscountCurveKey.of(product.getCurrency());
     IndexRateKey indexTimeSeriesKey = IndexRateKey.of(product.getIndex());
     return FunctionRequirements.builder()
         .singleValueRequirements(quoteKey, indexForwardCurveKey, discountFactorsKey)

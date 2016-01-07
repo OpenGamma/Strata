@@ -19,7 +19,7 @@ import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.deposit.ExpandedTermDeposit;
@@ -66,8 +66,8 @@ public abstract class AbstractTermDepositFunction<T>
   public FunctionRequirements requirements(TermDepositTrade trade) {
     TermDeposit deposit = trade.getProduct();
 
-    Set<DiscountFactorsKey> discountCurveKeys =
-        ImmutableSet.of(DiscountFactorsKey.of(deposit.getCurrency()));
+    Set<DiscountCurveKey> discountCurveKeys =
+        ImmutableSet.of(DiscountCurveKey.of(deposit.getCurrency()));
 
     return FunctionRequirements.builder()
         .singleValueRequirements(discountCurveKeys)

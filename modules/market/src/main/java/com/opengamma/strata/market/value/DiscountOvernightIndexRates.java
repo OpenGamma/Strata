@@ -56,20 +56,20 @@ public final class DiscountOvernightIndexRates
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final OvernightIndex index;
   /**
-   * The time-series.
-   * This covers known historical fixings and may be empty.
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final LocalDateDoubleTimeSeries timeSeries;
-  /**
    * The underlying discount factor curve.
    */
   @PropertyDefinition(validate = "notNull")
   private final DiscountFactors discountFactors;
+  /**
+   * The time-series of fixings, defaulted to an empty time-series.
+   * This includes the known historical fixings and may be empty.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final LocalDateDoubleTimeSeries fixings;
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a new Overnight index rates instance with no historic fixings.
+   * Obtains an instance based on discount factors with no historic fixings.
    * <p>
    * The forward curve is specified by an instance of {@link DiscountFactors}.
    * 
@@ -78,31 +78,31 @@ public final class DiscountOvernightIndexRates
    * @return the rates instance
    */
   public static DiscountOvernightIndexRates of(OvernightIndex index, DiscountFactors discountFactors) {
-    return of(index, LocalDateDoubleTimeSeries.empty(), discountFactors);
+    return of(index, discountFactors, LocalDateDoubleTimeSeries.empty());
   }
 
   /**
-   * Creates a new Overnight index rates instance.
+   * Obtains an instance based on discount factors and historic fixings.
    * <p>
    * The forward curve is specified by an instance of {@link DiscountFactors}.
    * 
    * @param index  the Overnight index
-   * @param knownFixings  the known historical fixings
    * @param discountFactors  the underlying discount factor forward curve
+   * @param fixings  the time-series of fixings
    * @return the rates instance
    */
   public static DiscountOvernightIndexRates of(
       OvernightIndex index,
-      LocalDateDoubleTimeSeries knownFixings,
-      DiscountFactors discountFactors) {
+      DiscountFactors discountFactors,
+      LocalDateDoubleTimeSeries fixings) {
 
-    return new DiscountOvernightIndexRates(index, knownFixings, discountFactors);
+    return new DiscountOvernightIndexRates(index, discountFactors, fixings);
   }
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.timeSeries = LocalDateDoubleTimeSeries.empty();
+    builder.fixings = LocalDateDoubleTimeSeries.empty();
   }
 
   //-------------------------------------------------------------------------
@@ -133,11 +133,11 @@ public final class DiscountOvernightIndexRates
 
   // historic rate
   private double historicRate(LocalDate fixingDate, LocalDate publicationDate) {
-    OptionalDouble fixedRate = timeSeries.get(fixingDate);
+    OptionalDouble fixedRate = fixings.get(fixingDate);
     if (fixedRate.isPresent()) {
       return fixedRate.getAsDouble();
     } else if (publicationDate.isBefore(getValuationDate())) { // the fixing is required
-      if (timeSeries.isEmpty()) {
+      if (fixings.isEmpty()) {
         throw new IllegalArgumentException(
             Messages.format("Unable to get fixing for {} on date {}, no time-series supplied", index, fixingDate));
       }
@@ -166,7 +166,7 @@ public final class DiscountOvernightIndexRates
     LocalDate valuationDate = getValuationDate();
     LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate);
     if (publicationDate.isBefore(valuationDate) ||
-        (publicationDate.equals(valuationDate) && timeSeries.get(fixingDate).isPresent())) {
+        (publicationDate.equals(valuationDate) && fixings.get(fixingDate).isPresent())) {
       return PointSensitivityBuilder.none();
     }
     LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
@@ -197,7 +197,7 @@ public final class DiscountOvernightIndexRates
     LocalDate valuationDate = getValuationDate();
     LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate);
     if (publicationDate.isBefore(valuationDate) ||
-        (publicationDate.equals(valuationDate) && timeSeries.get(fixingDate).isPresent())) {
+        (publicationDate.equals(valuationDate) && fixings.get(fixingDate).isPresent())) {
       return CurveUnitParameterSensitivities.empty();
     }
     return discountFactors.unitParameterSensitivity(fixingDate);
@@ -238,7 +238,7 @@ public final class DiscountOvernightIndexRates
    * @return the new instance
    */
   public DiscountOvernightIndexRates withDiscountFactors(DiscountFactors factors) {
-    return new DiscountOvernightIndexRates(index, timeSeries, factors);
+    return new DiscountOvernightIndexRates(index, factors, fixings);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -262,14 +262,14 @@ public final class DiscountOvernightIndexRates
 
   private DiscountOvernightIndexRates(
       OvernightIndex index,
-      LocalDateDoubleTimeSeries timeSeries,
-      DiscountFactors discountFactors) {
+      DiscountFactors discountFactors,
+      LocalDateDoubleTimeSeries fixings) {
     JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(timeSeries, "timeSeries");
     JodaBeanUtils.notNull(discountFactors, "discountFactors");
+    JodaBeanUtils.notNull(fixings, "fixings");
     this.index = index;
-    this.timeSeries = timeSeries;
     this.discountFactors = discountFactors;
+    this.fixings = fixings;
   }
 
   @Override
@@ -299,22 +299,22 @@ public final class DiscountOvernightIndexRates
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the time-series.
-   * This covers known historical fixings and may be empty.
-   * @return the value of the property, not null
-   */
-  @Override
-  public LocalDateDoubleTimeSeries getTimeSeries() {
-    return timeSeries;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the underlying discount factor curve.
    * @return the value of the property, not null
    */
   public DiscountFactors getDiscountFactors() {
     return discountFactors;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the time-series of fixings, defaulted to an empty time-series.
+   * This includes the known historical fixings and may be empty.
+   * @return the value of the property, not null
+   */
+  @Override
+  public LocalDateDoubleTimeSeries getFixings() {
+    return fixings;
   }
 
   //-----------------------------------------------------------------------
@@ -326,8 +326,8 @@ public final class DiscountOvernightIndexRates
     if (obj != null && obj.getClass() == this.getClass()) {
       DiscountOvernightIndexRates other = (DiscountOvernightIndexRates) obj;
       return JodaBeanUtils.equal(index, other.index) &&
-          JodaBeanUtils.equal(timeSeries, other.timeSeries) &&
-          JodaBeanUtils.equal(discountFactors, other.discountFactors);
+          JodaBeanUtils.equal(discountFactors, other.discountFactors) &&
+          JodaBeanUtils.equal(fixings, other.fixings);
     }
     return false;
   }
@@ -336,8 +336,8 @@ public final class DiscountOvernightIndexRates
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(index);
-    hash = hash * 31 + JodaBeanUtils.hashCode(timeSeries);
     hash = hash * 31 + JodaBeanUtils.hashCode(discountFactors);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixings);
     return hash;
   }
 
@@ -346,8 +346,8 @@ public final class DiscountOvernightIndexRates
     StringBuilder buf = new StringBuilder(128);
     buf.append("DiscountOvernightIndexRates{");
     buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(timeSeries).append(',').append(' ');
-    buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(discountFactors));
+    buf.append("discountFactors").append('=').append(discountFactors).append(',').append(' ');
+    buf.append("fixings").append('=').append(JodaBeanUtils.toString(fixings));
     buf.append('}');
     return buf.toString();
   }
@@ -368,23 +368,23 @@ public final class DiscountOvernightIndexRates
     private final MetaProperty<OvernightIndex> index = DirectMetaProperty.ofImmutable(
         this, "index", DiscountOvernightIndexRates.class, OvernightIndex.class);
     /**
-     * The meta-property for the {@code timeSeries} property.
-     */
-    private final MetaProperty<LocalDateDoubleTimeSeries> timeSeries = DirectMetaProperty.ofImmutable(
-        this, "timeSeries", DiscountOvernightIndexRates.class, LocalDateDoubleTimeSeries.class);
-    /**
      * The meta-property for the {@code discountFactors} property.
      */
     private final MetaProperty<DiscountFactors> discountFactors = DirectMetaProperty.ofImmutable(
         this, "discountFactors", DiscountOvernightIndexRates.class, DiscountFactors.class);
+    /**
+     * The meta-property for the {@code fixings} property.
+     */
+    private final MetaProperty<LocalDateDoubleTimeSeries> fixings = DirectMetaProperty.ofImmutable(
+        this, "fixings", DiscountOvernightIndexRates.class, LocalDateDoubleTimeSeries.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "index",
-        "timeSeries",
-        "discountFactors");
+        "discountFactors",
+        "fixings");
 
     /**
      * Restricted constructor.
@@ -397,10 +397,10 @@ public final class DiscountOvernightIndexRates
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case 779431844:  // timeSeries
-          return timeSeries;
         case -91613053:  // discountFactors
           return discountFactors;
+        case -843784602:  // fixings
+          return fixings;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -430,19 +430,19 @@ public final class DiscountOvernightIndexRates
     }
 
     /**
-     * The meta-property for the {@code timeSeries} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDateDoubleTimeSeries> timeSeries() {
-      return timeSeries;
-    }
-
-    /**
      * The meta-property for the {@code discountFactors} property.
      * @return the meta-property, not null
      */
     public MetaProperty<DiscountFactors> discountFactors() {
       return discountFactors;
+    }
+
+    /**
+     * The meta-property for the {@code fixings} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDateDoubleTimeSeries> fixings() {
+      return fixings;
     }
 
     //-----------------------------------------------------------------------
@@ -451,10 +451,10 @@ public final class DiscountOvernightIndexRates
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return ((DiscountOvernightIndexRates) bean).getIndex();
-        case 779431844:  // timeSeries
-          return ((DiscountOvernightIndexRates) bean).getTimeSeries();
         case -91613053:  // discountFactors
           return ((DiscountOvernightIndexRates) bean).getDiscountFactors();
+        case -843784602:  // fixings
+          return ((DiscountOvernightIndexRates) bean).getFixings();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -477,8 +477,8 @@ public final class DiscountOvernightIndexRates
   private static final class Builder extends DirectFieldsBeanBuilder<DiscountOvernightIndexRates> {
 
     private OvernightIndex index;
-    private LocalDateDoubleTimeSeries timeSeries;
     private DiscountFactors discountFactors;
+    private LocalDateDoubleTimeSeries fixings;
 
     /**
      * Restricted constructor.
@@ -493,10 +493,10 @@ public final class DiscountOvernightIndexRates
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case 779431844:  // timeSeries
-          return timeSeries;
         case -91613053:  // discountFactors
           return discountFactors;
+        case -843784602:  // fixings
+          return fixings;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -508,11 +508,11 @@ public final class DiscountOvernightIndexRates
         case 100346066:  // index
           this.index = (OvernightIndex) newValue;
           break;
-        case 779431844:  // timeSeries
-          this.timeSeries = (LocalDateDoubleTimeSeries) newValue;
-          break;
         case -91613053:  // discountFactors
           this.discountFactors = (DiscountFactors) newValue;
+          break;
+        case -843784602:  // fixings
+          this.fixings = (LocalDateDoubleTimeSeries) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -548,8 +548,8 @@ public final class DiscountOvernightIndexRates
     public DiscountOvernightIndexRates build() {
       return new DiscountOvernightIndexRates(
           index,
-          timeSeries,
-          discountFactors);
+          discountFactors,
+          fixings);
     }
 
     //-----------------------------------------------------------------------
@@ -558,8 +558,8 @@ public final class DiscountOvernightIndexRates
       StringBuilder buf = new StringBuilder(128);
       buf.append("DiscountOvernightIndexRates.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries)).append(',').append(' ');
-      buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(discountFactors));
+      buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(discountFactors)).append(',').append(' ');
+      buf.append("fixings").append('=').append(JodaBeanUtils.toString(fixings));
       buf.append('}');
       return buf.toString();
     }

@@ -19,9 +19,10 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
-import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -32,9 +33,10 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.id.DiscountCurveId;
+import com.opengamma.strata.market.id.IborIndexCurveId;
 import com.opengamma.strata.market.id.IndexCurveId;
+import com.opengamma.strata.market.id.OvernightIndexCurveId;
 import com.opengamma.strata.market.id.PriceIndexCurveId;
-import com.opengamma.strata.market.id.RateIndexCurveId;
 
 /**
  * Loads a set of curve group definitions into memory by reading from CSV resources.
@@ -107,11 +109,12 @@ public final class CurveGroupDefinitionCsvLoader {
 
   // creates a forward curve id
   private static CurveId createCurveId(Index index, CurveGroupName curveGroup) {
-    if (index instanceof PriceIndex) {
+    if (index instanceof IborIndex) {
+      return IborIndexCurveId.of((IborIndex) index, curveGroup);
+    } else if (index instanceof OvernightIndex) {
+      return OvernightIndexCurveId.of((OvernightIndex) index, curveGroup);
+    } else if (index instanceof PriceIndex) {
       return PriceIndexCurveId.of((PriceIndex) index, curveGroup);
-    }
-    if (index instanceof RateIndex) {
-      return RateIndexCurveId.of((RateIndex) index, curveGroup);
     }
     throw new IllegalArgumentException("Unexpected index type " + index.getClass().getName());
   }

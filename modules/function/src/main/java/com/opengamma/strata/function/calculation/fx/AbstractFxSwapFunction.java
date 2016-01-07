@@ -20,7 +20,7 @@ import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.fx.ExpandedFxSwap;
@@ -72,8 +72,8 @@ public abstract class AbstractFxSwapFunction<T>
     Currency baseCurrency = fx.getNearLeg().getBaseCurrencyAmount().getCurrency();
     Currency counterCurrency = fx.getNearLeg().getCounterCurrencyAmount().getCurrency();
 
-    Set<DiscountFactorsKey> discountCurveKeys =
-        ImmutableSet.of(DiscountFactorsKey.of(baseCurrency), DiscountFactorsKey.of(counterCurrency));
+    Set<DiscountCurveKey> discountCurveKeys =
+        ImmutableSet.of(DiscountCurveKey.of(baseCurrency), DiscountCurveKey.of(counterCurrency));
 
     return FunctionRequirements.builder()
         .singleValueRequirements(discountCurveKeys)

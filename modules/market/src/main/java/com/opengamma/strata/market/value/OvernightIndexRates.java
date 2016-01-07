@@ -9,13 +9,14 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.MarketDataValue;
+import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.Perturbation;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
-import com.opengamma.strata.market.key.OvernightIndexRatesKey;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -25,20 +26,54 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * This provides historic and forward rates for a single {@link OvernightIndex}, such as 'EUR-EONIA'.
  */
 public interface OvernightIndexRates
-    extends MarketDataValue<OvernightIndexRates> {
+    extends MarketDataView {
 
   /**
-   * Gets the market data key.
+   * Obtains an instance from a forward curve, with an empty time-series of fixings.
    * <p>
-   * This returns the {@link OvernightIndexRatesKey} that identifies this instance.
+   * The curve is specified by an instance of {@link Curve}, such as {@link InterpolatedNodalCurve}.
+   * The curve must have x-values of {@linkplain ValueType#YEAR_FRACTION year fractions} with
+   * the day count specified. The y-values must be {@linkplain ValueType#ZERO_RATE zero rates}
+   * or {@linkplain ValueType#DISCOUNT_FACTOR discount factors}.
    * 
-   * @return the market data key
+   * @param index  the index
+   * @param valuationDate  the valuation date for which the curve is valid
+   * @param forwardCurve  the forward curve
+   * @return the rates view
    */
-  @Override
-  public default OvernightIndexRatesKey getKey() {
-    return OvernightIndexRatesKey.of(getIndex());
+  public static OvernightIndexRates of(
+      OvernightIndex index,
+      LocalDate valuationDate,
+      Curve forwardCurve) {
+
+    return of(index, valuationDate, forwardCurve, LocalDateDoubleTimeSeries.empty());
   }
 
+  /**
+   * Obtains an instance from a curve and time-series of fixings.
+   * <p>
+   * The curve is specified by an instance of {@link Curve}, such as {@link InterpolatedNodalCurve}.
+   * The curve must have x-values of {@linkplain ValueType#YEAR_FRACTION year fractions} with
+   * the day count specified. The y-values must be {@linkplain ValueType#ZERO_RATE zero rates}
+   * or {@linkplain ValueType#DISCOUNT_FACTOR discount factors}.
+   * 
+   * @param index  the index
+   * @param valuationDate  the valuation date for which the curve is valid
+   * @param forwardCurve  the forward curve
+   * @param fixings  the time-series of fixings
+   * @return the rates view
+   */
+  public static OvernightIndexRates of(
+      OvernightIndex index,
+      LocalDate valuationDate,
+      Curve forwardCurve,
+      LocalDateDoubleTimeSeries fixings) {
+
+    DiscountFactors discountFactors = DiscountFactors.of(index.getCurrency(), valuationDate, forwardCurve);
+    return DiscountOvernightIndexRates.of(index, discountFactors, fixings);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the Overnight index.
    * <p>
@@ -56,7 +91,7 @@ public interface OvernightIndexRates
    * 
    * @return the time-series fixings
    */
-  public abstract LocalDateDoubleTimeSeries getTimeSeries();
+  public abstract LocalDateDoubleTimeSeries getFixings();
 
   /**
    * Gets the name of the underlying curve.
@@ -78,7 +113,7 @@ public interface OvernightIndexRates
   /**
    * Gets the historic or forward rate at the specified fixing date.
    * <p>
-   * The rate of the overnight index, such as 'EUR-EONIA', varies over time.
+   * The rate of the Overnight index, such as 'EUR-EONIA', varies over time.
    * This method obtains the actual or estimated rate for the fixing date.
    * <p>
    * This retrieves the actual rate if the fixing date is before the valuation date,

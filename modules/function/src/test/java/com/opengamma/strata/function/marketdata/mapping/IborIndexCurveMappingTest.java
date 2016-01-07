@@ -3,11 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.id;
+package com.opengamma.strata.function.marketdata.mapping;
 
-import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
-import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
-import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
@@ -16,13 +14,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.value.OvernightIndexRates;
+import com.opengamma.strata.market.id.IborIndexCurveId;
+import com.opengamma.strata.market.key.IborIndexCurveKey;
 
 /**
- * Test {@link OvernightIndexRatesId}.
+ * Test {@link IborIndexCurveMapping}.
  */
 @Test
-public class OvernightIndexRatesIdTest {
+public class IborIndexCurveMappingTest {
 
   private static final CurveGroupName GROUP = CurveGroupName.of("Group");
   private static final CurveGroupName GROUP2 = CurveGroupName.of("Group2");
@@ -31,24 +30,19 @@ public class OvernightIndexRatesIdTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    OvernightIndexRatesId test = OvernightIndexRatesId.of(GBP_SONIA, GROUP, FEED);
-    assertEquals(test.getIndex(), GBP_SONIA);
+    IborIndexCurveMapping test = IborIndexCurveMapping.of(GROUP, FEED);
     assertEquals(test.getCurveGroupName(), GROUP);
     assertEquals(test.getMarketDataFeed(), FEED);
-    assertEquals(test.getMarketDataType(), OvernightIndexRates.class);
+    assertEquals(test.getMarketDataKeyType(), IborIndexCurveKey.class);
+    assertEquals(test.getIdForKey(IborIndexCurveKey.of(GBP_LIBOR_3M)), IborIndexCurveId.of(GBP_LIBOR_3M, GROUP, FEED));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    OvernightIndexRatesId test = OvernightIndexRatesId.of(GBP_SONIA, GROUP, FEED);
+    IborIndexCurveMapping test = IborIndexCurveMapping.of(GROUP, FEED);
     coverImmutableBean(test);
-    OvernightIndexRatesId test2 = OvernightIndexRatesId.of(USD_FED_FUND, GROUP2, FEED2);
+    IborIndexCurveMapping test2 = IborIndexCurveMapping.of(GROUP2, FEED2);
     coverBeanEquals(test, test2);
-  }
-
-  public void test_serialization() {
-    OvernightIndexRatesId test = OvernightIndexRatesId.of(GBP_SONIA, GROUP, FEED);
-    assertSerialization(test);
   }
 
 }
