@@ -56,6 +56,35 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
     return ValueDerivatives.of(volatility, DoubleArray.ofUnsafe(res));
   }
 
+  /**
+   * Computes the first and second order derivatives of the volatility. 
+   * <p>
+   * The first derivative values will be stored in the input array {@code volatilityD} 
+   * The array contains, [0] Derivative w.r.t the forward, [1] the derivative w.r.t the strike, then followed by model 
+   * parameters. 
+   * Thus the length of the array should be 2 + (number of model parameters).  
+   * <p>
+   * The second derivative values will be stored in the input array {@code volatilityD2}. 
+   * Only the second order derivative with respect to the forward and strike must be implemented.
+   * The array contains [0][0] forward-forward; [0][1] forward-strike; [1][1] strike-strike.
+   * Thus the size should be 2 x 2.
+   * 
+   * @param forward  the forward value of the underlying
+   * @param strike  the strike value of the option
+   * @param timeToExpiry  the time to expiry of the option
+   * @param data  the model data
+   * @param volatilityD  the array used to return the first order derivative
+   * @param volatilityD2  the array of array used to return the second order derivative
+   * @return the volatility
+   */
+  public abstract double getVolatilityAdjoint2(
+      double forward,
+      double strike,
+      double timeToExpiry,
+      T data,
+      double[] volatilityD,
+      double[][] volatilityD2);
+
   //-------------------------------------------------------------------------
   private double forwardBar(double forward, double strike, double timeToExpiry, T data) {
     double volUp = getVolatility(forward + EPS, strike, timeToExpiry, data);

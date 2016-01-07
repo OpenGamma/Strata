@@ -303,11 +303,12 @@ public final class SabrHaganVolatilityFunctionProvider
    * @param forward  the forward value of the underlying
    * @param strike  the strike value of the option
    * @param timeToExpiry  the time to expiry of the option
-   * @param data The SABR data.
-   * @param volatilityD  the array used to return the first order derivative. 
-   * @param volatilityD2 The array of array used to return the second order derivative. 
-   * @return The Black implied volatility.
+   * @param data  the SABR data.
+   * @param volatilityD  the array used to return the first order derivative
+   * @param volatilityD2  the array of array used to return the second order derivative
+   * @return the Black implied volatility
    */
+  @Override
   public double getVolatilityAdjoint2(
       double forward,
       double strike,
