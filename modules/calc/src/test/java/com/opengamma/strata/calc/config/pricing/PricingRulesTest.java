@@ -26,9 +26,9 @@ public class PricingRulesTest {
 
   private static final CalculationTarget TRADE1 = new TestTrade1();
   private static final CalculationTarget TRADE2 = new TestTrade2();
-  private static final Measure FOO_MEASURE = Measure.of("foo");
-  private static final Measure BAR_MEASURE = Measure.of("bar");
-  private static final Measure BAZ_MEASURE = Measure.of("baz");
+  private static final Measure FOO_MEASURE = Measure.of("foo", Measure.singleType, Measure.scenarioType);
+  private static final Measure BAR_MEASURE = Measure.of("bar", Measure.singleType, Measure.scenarioType);
+  private static final Measure BAZ_MEASURE = Measure.of("baz", Measure.singleType, Measure.scenarioType);
 
   private static final FunctionGroup<TestTrade1> FUNCTION_GROUP1 =
       DefaultFunctionGroup.builder(TestTrade1.class)

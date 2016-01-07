@@ -26,9 +26,9 @@ import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 @Test
 public class PricingRuleTest {
 
-  private static final Measure MEASURE1 = Measure.of("1");
-  private static final Measure MEASURE2 = Measure.of("2");
-  private static final Measure MEASURE3 = Measure.of("3");
+  private static final Measure MEASURE1 = Measure.of("1", Measure.singleType, Measure.scenarioType);
+  private static final Measure MEASURE2 = Measure.of("2", Measure.singleType, Measure.scenarioType);
+  private static final Measure MEASURE3 = Measure.of("3", Measure.singleType, Measure.scenarioType);
 
   private static final FunctionGroup<TestTrade1> GROUP =
       DefaultFunctionGroup.builder(TestTrade1.class)

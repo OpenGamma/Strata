@@ -64,7 +64,7 @@ public class ValuePathEvaluator {
       if (rootType != ValueRootType.MEASURES || tokens.size() < 2) {
         return Optional.empty();
       }
-      Measure measure = Measure.of(tokens.get(1));
+      Measure measure = Measure.of(tokens.get(1), Measure.singleType, Measure.scenarioType);
       return Optional.of(measure);
     } catch (Exception ex) {
       return Optional.empty();

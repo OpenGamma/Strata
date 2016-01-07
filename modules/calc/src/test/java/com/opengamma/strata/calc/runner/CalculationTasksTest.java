@@ -46,8 +46,8 @@ public class CalculationTasksTest {
 
   private static final TestTarget TARGET1 = new TestTarget();
   private static final TestTarget TARGET2 = new TestTarget();
-  private static final Measure MEASURE1 = Measure.of("PV");
-  private static final Measure MEASURE2 = Measure.of("PV2");
+  private static final Measure MEASURE1 = Measure.of("PV", Measure.singleType, Measure.scenarioType);
+  private static final Measure MEASURE2 = Measure.of("PV2", Measure.singleType, Measure.scenarioType);
   private static final PricingRules PRICING_RULES = PricingRules.empty();
   private static final MarketDataMappings MD_MAPPINGS = MarketDataMappings.of(MarketDataFeed.NONE);
   private static final MarketDataRules MD_RULES = MarketDataRules.of(MarketDataRule.anyTarget(MD_MAPPINGS));

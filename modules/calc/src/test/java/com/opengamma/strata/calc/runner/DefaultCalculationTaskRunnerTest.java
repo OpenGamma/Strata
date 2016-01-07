@@ -39,7 +39,7 @@ import com.opengamma.strata.collect.result.Result;
 public class DefaultCalculationTaskRunnerTest {
 
   private static final TestTarget TARGET = new TestTarget();
-  private static final Measure MEASURE = Measure.of("PV");
+  private static final Measure MEASURE = Measure.of("PV", Measure.singleType, Measure.scenarioType);
   private static final LocalDate VAL_DATE = date(2011, 3, 8);
 
   //-------------------------------------------------------------------------

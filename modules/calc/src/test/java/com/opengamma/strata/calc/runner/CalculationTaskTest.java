@@ -8,7 +8,6 @@ package com.opengamma.strata.calc.runner;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +55,7 @@ public class CalculationTaskTest {
   private static final ReportingRules REPORTING_RULES_EMPTY = ReportingRules.empty();
   private static final ReportingRules REPORTING_RULES_USD = ReportingRules.fixedCurrency(Currency.USD);
   private static final TestTarget TARGET = new TestTarget();
-  private static final Measure MEASURE = Measure.of("PV");
+  private static final Measure MEASURE = Measure.of("PV", Measure.singleType, Measure.scenarioType);
 
   public void requirements() {
     MarketDataFeed marketDataFeed = MarketDataFeed.of("MarketDataVendor");

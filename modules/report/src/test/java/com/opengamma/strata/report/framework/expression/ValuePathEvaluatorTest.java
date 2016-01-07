@@ -85,7 +85,7 @@ public class ValuePathEvaluatorTest {
   //--------------------------------------------------------------------------------------------------
 
   private static ReportCalculationResults reportResults() {
-    Measure measure = Measure.of("Foo");
+    Measure measure = Measure.of("Foo", Measure.singleType, Measure.scenarioType);
     Column column = Column.of(measure);
     List<Column> columns = ImmutableList.of(column);
     List<? extends Result<?>> resultValues = ImmutableList.of(

@@ -80,7 +80,7 @@ class ResultsRow {
    */
   Result<?> getResult(String measureName) {
     try {
-      Column column = Column.of(Measure.of(measureName));
+      Column column = Column.of(Measure.of(measureName, Measure.singleType, Measure.scenarioType));
       int columnIndex = results.getColumns().indexOf(column);
       return columnIndex == -1 ?
           Result.failure(
