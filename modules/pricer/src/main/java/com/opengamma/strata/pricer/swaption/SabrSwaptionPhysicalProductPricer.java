@@ -33,7 +33,7 @@ import com.opengamma.strata.product.swaption.SwaptionProduct;
  * the method, {@link SabrSwaptionVolatilities#relativeTime(ZonedDateTime)}.
  */
 public class SabrSwaptionPhysicalProductPricer
-     extends VolatilitySwaptionPhysicalProductPricer {
+    extends VolatilitySwaptionPhysicalProductPricer {
 
   /**
    * Default implementation.

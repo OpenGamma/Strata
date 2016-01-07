@@ -51,6 +51,9 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
  * Volatility environment for swaptions in SABR model. 
  * <p>
  * The volatility is represented in terms of SABR model parameters.
+ * <p>
+ * The {@code surfaceCurrencyParameterSensitivity()}, {@code priceGamma()} and
+ * {@code priceTheta()} methods are not implemented.
  */
 @BeanDefinition(builderScope = "private")
 public final class SabrSwaptionVolatilities
@@ -201,13 +204,13 @@ public final class SabrSwaptionVolatilities
   //-------------------------------------------------------------------------
   @Override
   public double price(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
-    double shift = getParameters().shift(expiry, tenor);
+    double shift = parameters.shift(expiry, tenor);
     return BlackFormulaRepository.price(forward + shift, strike + shift, expiry, volatility, putCall.isCall());
   }
 
   @Override
   public double priceDelta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
-    double shift = getParameters().shift(expiry, tenor);
+    double shift = parameters.shift(expiry, tenor);
     return BlackFormulaRepository.delta(forward + shift, strike + shift, expiry, volatility, putCall.isCall());
   }
 
@@ -223,7 +226,7 @@ public final class SabrSwaptionVolatilities
 
   @Override
   public double priceVega(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
-    double shift = getParameters().shift(expiry, tenor);
+    double shift = parameters.shift(expiry, tenor);
     return BlackFormulaRepository.vega(forward + shift, strike + shift, expiry, volatility);
   }
 
