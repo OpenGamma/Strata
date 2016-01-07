@@ -21,7 +21,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.config.Measure;
 
 /**
@@ -43,11 +42,10 @@ final class SimpleColumnDefinition implements ColumnDefinition, ImmutableBean {
   /**
    * Returns the same {@linkplain #getMeasure() measure} for all targets.
    *
-   * @param target  a calculation target
    * @return the measure from this definition
    */
   @Override
-  public Measure getMeasure(CalculationTarget target) {
+  public Measure getMeasure() {
     return measure;
   }
 

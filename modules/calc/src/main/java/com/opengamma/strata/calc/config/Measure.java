@@ -178,4 +178,6 @@ public final class Measure<T, U extends ScenarioValuesList<T>>
   public Class<U> getScenarioType() {
     return scenarioType;
   }
+
+  // TODO Method to convert from List<type> to scenarioType
 }

@@ -24,7 +24,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.market.ScenarioValuesList;
+import com.opengamma.strata.calc.ColumnDefinition;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
@@ -43,6 +45,18 @@ public final class ScenarioResults implements ImmutableBean {
   /** The number of columns in the results. */
   @PropertyDefinition
   private final int columnCount;
+
+  /** Column indices keyed by column definition. */
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableMap<ColumnDefinition<?, ?>, Integer> columnsByDefinition;
+
+  /**
+   * Column indices by measure.
+   * <p>
+   * Measure is not necessarily unique so this data is only useful for the common case where there is only
+   * one column for each measure.
+   */
+  private final ImmutableMap<Measure, Integer> columnsByMeasure;
 
   /**
    * The results, with results for each target grouped together, ordered by column.
@@ -76,7 +90,13 @@ public final class ScenarioResults implements ImmutableBean {
   // The generated constructor parameter has the same type as the field, so in order to have
   // different types for the field and parameter the constructor must be hand written.
   @ImmutableConstructor
-  private ScenarioResults(int rowCount, int columnCount, List<? extends Result<?>> items) {
+  private ScenarioResults(
+      int rowCount,
+      int columnCount,
+      List<? extends Result<?>> items,
+      List<ColumnDefinition<?, ?>> columns) {
+
+    // TODO Ensure column definitions are unique
     this.rowCount = ArgChecker.notNegative(rowCount, "rowCount");
     this.columnCount = ArgChecker.notNegative(columnCount, "columnCount");
     this.items = ImmutableList.copyOf(items);
@@ -91,7 +111,11 @@ public final class ScenarioResults implements ImmutableBean {
     }
   }
 
-  // TODO Need 2 versions: (rowIndex, measure) and (rowIndex, colIndex, measure) for multiple cols for the same measure
+  // TODO Need 3 versions:
+  // (rowIndex, colIndex)
+  // (rowIndex, colDef)
+  // (rowIndex, measure) - this fails or is undefined if the same measure appears in multiple columns
+
   /**
    * Returns the results for a target and column for a set of scenarios.
    *
@@ -100,7 +124,7 @@ public final class ScenarioResults implements ImmutableBean {
    * @return the results for the specified row and column for a set of scenarios
    */
   @SuppressWarnings("unchecked")
-  public <T extends ScenarioValuesList<?>> Result<T> get(int rowIndex, int columnIndex, Measure<?, T> measure) {
+  public Result<?> get(int rowIndex, int columnIndex) {
     if (rowIndex < 0 || rowIndex >= rowCount) {
       throw new IllegalArgumentException(invalidRowIndexMessage(rowIndex));
     }
@@ -113,14 +137,77 @@ public final class ScenarioResults implements ImmutableBean {
     if (result.isFailure()) {
       return Result.failure(result);
     }
-    Object value = result.getValue();
+    return result;
+  }
 
-    if (!measure.getType().isInstance(value)) {
+  /**
+   * Returns the results for a target and column for a set of scenarios.
+   *
+   * @param rowIndex   the index of the row containing the results for a target
+   * @param columnIndex  the index of the column
+   * @return the results for the specified row and column for a set of scenarios
+   */
+  @SuppressWarnings("unchecked")
+  public <T extends ScenarioValuesList<?>> Result<T> get(int rowIndex, ColumnDefinition<?, T> column) {
+    if (rowIndex < 0 || rowIndex >= rowCount) {
+      throw new IllegalArgumentException(invalidRowIndexMessage(rowIndex));
+    }
+    Integer columnIndex = columnsByDefinition.get(column);
+
+    if (columnIndex == null) {
+      throw new IllegalArgumentException(invalidColumnMessage(column));
+    }
+    int index = (rowIndex * columnCount) + columnIndex;
+    Result<?> result = items.get(index);
+
+    if (result.isFailure()) {
+      return Result.failure(result);
+    }
+    Object value = result.getValue();
+    Measure<?, T> measure = column.getMeasure();
+
+    if (!measure.getScenarioType().isInstance(value)) {
       throw new IllegalArgumentException(
           Messages.format(
-              "Value type {} is not an instance of the measure type {}",
+              "Value type {} is not an instance of the measure scenario type {}",
               value.getClass().getName(),
-              measure.getType().getName()));
+              measure.getScenarioType().getName()));
+    }
+    return (Result<T>) result;
+  }
+
+  /**
+   * Returns the results for a target and column for a set of scenarios.
+   *
+   * @param rowIndex   the index of the row containing the results for a target
+   * @param columnIndex  the index of the column
+   * @return the results for the specified row and column for a set of scenarios
+   */
+  @SuppressWarnings("unchecked")
+  public <T extends ScenarioValuesList<?>> Result<T> get(int rowIndex, Measure<?, T> measure) {
+    if (rowIndex < 0 || rowIndex >= rowCount) {
+      throw new IllegalArgumentException(invalidRowIndexMessage(rowIndex));
+    }
+    Integer columnIndex = columnsByDefinition.get(column);
+
+    if (columnIndex == null) {
+      throw new IllegalArgumentException(invalidColumnMessage(column));
+    }
+    int index = (rowIndex * columnCount) + columnIndex;
+    Result<?> result = items.get(index);
+
+    if (result.isFailure()) {
+      return Result.failure(result);
+    }
+    Object value = result.getValue();
+    Measure<?, T> measure = column.getMeasure();
+
+    if (!measure.getScenarioType().isInstance(value)) {
+      throw new IllegalArgumentException(
+          Messages.format(
+              "Value type {} is not an instance of the measure scenario type {}",
+              value.getClass().getName(),
+              measure.getScenarioType().getName()));
     }
     return (Result<T>) result;
   }
@@ -135,6 +222,10 @@ public final class ScenarioResults implements ImmutableBean {
     return Messages.format(
         "Column index must be greater than or equal to zero and less than the column count ({}), but it was {}",
         columnIndex);
+  }
+
+  private String invalidColumnMessage(ColumnDefinition<?, ?> column) {
+    return "No column in the results matches the column definition " + column;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
