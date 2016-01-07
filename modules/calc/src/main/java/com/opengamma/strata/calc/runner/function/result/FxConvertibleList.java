@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -33,7 +34,6 @@ import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.function.CalculationMultiFunction;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
-import org.joda.beans.BeanBuilder;
 
 /**
  * A list of currency values representing the result of the same calculation performed for multiple scenarios.
@@ -67,7 +67,7 @@ public final class FxConvertibleList
   @Override
   public ScenarioResult<?> convertedTo(Currency reportingCurrency, CalculationMarketData marketData) {
     List<?> convertedValues = zipWithIndex(values.stream())
-        .map(tp -> tp.getFirst().convertedTo(reportingCurrency, ScenarioRateProvider.of(marketData, (long) tp.getSecond())))
+        .map(tp -> tp.getFirst().convertedTo(reportingCurrency, ScenarioRateProvider.of(marketData, tp.getSecond())))
         .collect(toImmutableList());
 
     return DefaultScenarioResult.of(convertedValues);
