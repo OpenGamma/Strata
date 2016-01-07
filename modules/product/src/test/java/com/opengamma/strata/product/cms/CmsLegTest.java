@@ -97,7 +97,7 @@ public class CmsLegTest {
     assertEquals(test.getPaymentSchedule(), SCHEDULE);
     assertEquals(test.getFixingDateOffset(), FIXING_OFFSET);
     assertEquals(test.getPaymentDateOffset(), PAYMENT_OFFSET);
- }
+  }
 
   public void test_builder_full_coupon() {
     CmsLeg test = CmsLeg.builder()

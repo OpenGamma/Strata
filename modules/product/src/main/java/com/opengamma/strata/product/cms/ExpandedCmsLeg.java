@@ -33,13 +33,15 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.swap.SwapIndex;
 
 /**
- * An expanded CMS leg of a constant maturity swap (CMS) product. 
+ * An expanded CMS leg of a constant maturity swap (CMS) product, with dates calculated ready for pricing.
  * <p>
- * The class defines a single CMS leg for CMS or CMS cap/floor in the form of a list of payment periods.
- * The CMS leg of the swap periodically pays coupons based on swap rate, the observed value of {@linkplain SwapIndex swap index}, 
- * whereas that of CMS cap/floor is a set of call/put options on successive swap rates, i.e., CMS caplets/floorlets.
+ * This defines a single CMS leg for CMS or CMS cap/floor.
+ * The CMS leg of CMS periodically pays coupons based on swap rate, which is the observed
+ * value of a {@linkplain SwapIndex swap index}.
+ * A CMS cap/floor instruments are defined as a set of call/put options on successive swap
+ * rates, creating CMS caplets/floorlets.
  * <p>
- * Individual payment periods of {@code cmsPeriods} are CMS coupons, CMS caps or CMS floorlets. See {@link CmsPeriod}.
+ * Each payment period can be a CMS coupon, CMS caplet or CMS floorlet.
  * All payments must be based on the same index and in the same currency. 
  */
 @BeanDefinition
@@ -51,15 +53,15 @@ public final class ExpandedCmsLeg
    * <p>
    * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
    * A value of 'Receive' implies that the resulting amount is received from the counterparty.
-   * Note that negative interest rates can result in a payment in the opposite
-   * direction to that implied by this indicator.
+   * Note that negative swap rates can result in a payment in the opposite direction
+   * to that implied by this indicator.
    * <p>
    * The value of this flag should match the signs of the payment period notionals.
    */
   @PropertyDefinition(validate = "notNull")
   private final PayReceive payReceive;
   /**
-   * Periodic payments based on the successive observed values of swap index. 
+   * The periodic payments based on the successive observed values of a swap index.
    * <p>
    * Each payment period represents part of the life-time of the leg.
    * In most cases, the periods do not overlap. However, since each payment period
@@ -176,8 +178,8 @@ public final class ExpandedCmsLeg
    * <p>
    * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
    * A value of 'Receive' implies that the resulting amount is received from the counterparty.
-   * Note that negative interest rates can result in a payment in the opposite
-   * direction to that implied by this indicator.
+   * Note that negative swap rates can result in a payment in the opposite direction
+   * to that implied by this indicator.
    * <p>
    * The value of this flag should match the signs of the payment period notionals.
    * @return the value of the property, not null
@@ -188,7 +190,7 @@ public final class ExpandedCmsLeg
 
   //-----------------------------------------------------------------------
   /**
-   * Gets periodic payments based on the successive observed values of swap index.
+   * Gets the periodic payments based on the successive observed values of a swap index.
    * <p>
    * Each payment period represents part of the life-time of the leg.
    * In most cases, the periods do not overlap. However, since each payment period
@@ -430,8 +432,8 @@ public final class ExpandedCmsLeg
      * <p>
      * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
      * A value of 'Receive' implies that the resulting amount is received from the counterparty.
-     * Note that negative interest rates can result in a payment in the opposite
-     * direction to that implied by this indicator.
+     * Note that negative swap rates can result in a payment in the opposite direction
+     * to that implied by this indicator.
      * <p>
      * The value of this flag should match the signs of the payment period notionals.
      * @param payReceive  the new value, not null
@@ -444,7 +446,7 @@ public final class ExpandedCmsLeg
     }
 
     /**
-     * Sets periodic payments based on the successive observed values of swap index.
+     * Sets the periodic payments based on the successive observed values of a swap index.
      * <p>
      * Each payment period represents part of the life-time of the leg.
      * In most cases, the periods do not overlap. However, since each payment period

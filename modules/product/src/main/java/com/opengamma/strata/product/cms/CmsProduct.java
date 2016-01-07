@@ -8,17 +8,20 @@ package com.opengamma.strata.product.cms;
 import com.opengamma.strata.product.Expandable;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.swap.SwapIndex;
-import com.opengamma.strata.product.swap.SwapLeg;
 
 /**
- * A constant maturity swap (CMS) or CMS cap/floor. 
+ * A product representing a constant maturity swap (CMS) or CMS cap/floor. 
  * <p>
- * The CMS product consists of two legs: CMS leg and pay leg. 
- * The CMS leg of CMS periodically pays coupons based on swap rate, the observed value of {@linkplain SwapIndex swap index},  
- * CMS cap/floor is a set of call/put options on successive swap rates, i.e., CMS caplets/floorlets. 
- * The other leg is typically the same as a swap leg of the standard interest rate swap. See {@link SwapLeg}.
+ * The CMS product consists of two legs, a CMS leg and a pay leg.
+ * The CMS leg of CMS periodically pays coupons based on swap rate, which is the observed
+ * value of a {@linkplain SwapIndex swap index}.
+ * The pay leg is any swap leg from a standard interest rate swap.The pay leg may be absent
+ * for certain CMS products, with the premium paid upfront instead, as defined on {@link CmsTrade}.
  * <p>
- * However, the pay leg is absent for certain CMS products. Instead the premium is paid upfront. See {@link CmsTrade}.
+ * For example, a CMS trade might involve an agreement to exchange the difference between
+ * the fixed rate of 1% and the swap rate of 5-year 'GBP-FIXED-6M-LIBOR-6M' swaps every 6 months for 2 years.
+ * <p>
+ * Implementations must be immutable and thread-safe beans.
  */
 public interface CmsProduct
     extends Product, Expandable<ExpandedCms> {

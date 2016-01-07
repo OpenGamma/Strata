@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableValidator;
@@ -27,18 +28,22 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.swap.ExpandedSwapLeg;
 import com.opengamma.strata.product.swap.SwapIndex;
-import com.opengamma.strata.product.swap.SwapLeg;
-import org.joda.beans.BeanBuilder;
 
 /**
- * A constant maturity swap (CMS) or CMS cap/floor. 
+ * An expanded constant maturity swap (CMS) or CMS cap/floor, with dates calculated ready for pricing.
  * <p>
- * The CMS product consists of two legs: CMS leg and pay leg. 
- * The CMS leg of CMS periodically pays coupons based on swap rate, the observed value of {@linkplain SwapIndex swap index},  
- * CMS cap/floor is a set of call/put options on successive swap rates, i.e., CMS caplets/floorlets. 
- * The other leg is typically the same as a swap leg of the standard interest rate swap. See {@link SwapLeg}.
+ * The CMS product consists of two legs, a CMS leg and a pay leg.
+ * The CMS leg of CMS periodically pays coupons based on swap rate, which is the observed
+ * value of a {@linkplain SwapIndex swap index}.
+ * The pay leg is any swap leg from a standard interest rate swap.The pay leg may be absent
+ * for certain CMS products, with the premium paid upfront instead, as defined on {@link CmsTrade}.
  * <p>
- * However, the pay leg is absent for certain CMS products. Instead the premium is paid upfront. See {@link CmsTrade}.
+ * CMS cap/floor instruments can be created. These are defined as a set of call/put options
+ * on successive swap rates, creating CMS caplets/floorlets.
+ * <p>
+ * An {@code ExpandedCms} contains information based on holiday calendars.
+ * If a holiday calendar changes, the adjusted dates may no longer be correct.
+ * Care must be taken when placing the expanded form in a cache or persistence layer.
  */
 @BeanDefinition(builderScope = "private")
 public final class ExpandedCms
@@ -53,7 +58,7 @@ public final class ExpandedCms
   @PropertyDefinition(validate = "notNull")
   private final ExpandedCmsLeg cmsLeg;
   /**
-   * The pay leg of the product. 
+   * The optional pay leg of the product. 
    * <p>
    * Typically this is associated with periodic fixed or Ibor rate payments without compounding or notional exchange. 
    * <p>
@@ -64,18 +69,7 @@ public final class ExpandedCms
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains CMS from CMS leg and pay leg. 
-   * 
-   * @param cmsLeg  the CMS leg
-   * @param payLeg  the pay leg
-   * @return the CMS
-   */
-  public static ExpandedCms of(ExpandedCmsLeg cmsLeg, ExpandedSwapLeg payLeg) {
-    return new ExpandedCms(cmsLeg, payLeg);
-  }
-
-  /**
-   * Obtains CMS from CMS leg. 
+   * Obtains an instance from a CMS leg with no pay leg. 
    * <p>
    * The pay leg is absent in the resulting CMS.
    * 
@@ -84,6 +78,17 @@ public final class ExpandedCms
    */
   public static ExpandedCms of(ExpandedCmsLeg cmsLeg) {
     return new ExpandedCms(cmsLeg, null);
+  }
+
+  /**
+   * Obtains an instance from a CMS leg and a pay leg. 
+   * 
+   * @param cmsLeg  the CMS leg
+   * @param payLeg  the pay leg
+   * @return the CMS
+   */
+  public static ExpandedCms of(ExpandedCmsLeg cmsLeg, ExpandedSwapLeg payLeg) {
+    return new ExpandedCms(cmsLeg, payLeg);
   }
 
   //-------------------------------------------------------------------------
@@ -158,7 +163,7 @@ public final class ExpandedCms
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the pay leg of the product.
+   * Gets the optional pay leg of the product.
    * <p>
    * Typically this is associated with periodic fixed or Ibor rate payments without compounding or notional exchange.
    * <p>

@@ -29,12 +29,12 @@ import com.opengamma.strata.product.ProductTrade;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
- * A trade in a constant maturity swap (CMS) product.
+ * A trade in a constant maturity swap (CMS).
  * <p>
  * An Over-The-Counter (OTC) trade in a {@link Cms}.
  * <p>
- * For example, a CMS trade involve an agreement to exchange the difference between fixed rate of 1% and the swap rate 
- * of 5-year 'GBP-FIXED-6M-LIBOR-6M' swap every 6 months for 2 years.
+ * For example, a CMS trade might involve an agreement to exchange the difference between
+ * the fixed rate of 1% and the swap rate of 5-year 'GBP-FIXED-6M-LIBOR-6M' swaps every 6 months for 2 years.
  */
 @BeanDefinition
 public final class CmsTrade
@@ -55,18 +55,18 @@ public final class CmsTrade
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Cms product;
   /**
-   * The premium of the product. 
+   * The optional premium of the product. 
    * <p>
-   * For certain CMS products, periodic payments based on fixed or Ibor rates are not made over the lifetime of the 
-   * product. Instead the premium is paid upfront. 
+   * For certain CMS products, a premium is paid upfront. This typically occurs instead
+   * of periodic payments based on fixed or Ibor rates over the lifetime of the product.
    * <p>
-   * The premium sign should be compatible with the product Pay/Receive flag. 
+   * The premium sign must be compatible with the product Pay/Receive flag. 
    */
   @PropertyDefinition(get = "optional")
   private final Payment premium;
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.tradeInfo = TradeInfo.EMPTY;
@@ -150,12 +150,12 @@ public final class CmsTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the premium of the product.
+   * Gets the optional premium of the product.
    * <p>
-   * For certain CMS products, periodic payments based on fixed or Ibor rates are not made over the lifetime of the
-   * product. Instead the premium is paid upfront.
+   * For certain CMS products, a premium is paid upfront. This typically occurs instead
+   * of periodic payments based on fixed or Ibor rates over the lifetime of the product.
    * <p>
-   * The premium sign should be compatible with the product Pay/Receive flag.
+   * The premium sign must be compatible with the product Pay/Receive flag.
    * @return the optional value of the property, not null
    */
   public Optional<Payment> getPremium() {
@@ -442,12 +442,12 @@ public final class CmsTrade
     }
 
     /**
-     * Sets the premium of the product.
+     * Sets the optional premium of the product.
      * <p>
-     * For certain CMS products, periodic payments based on fixed or Ibor rates are not made over the lifetime of the
-     * product. Instead the premium is paid upfront.
+     * For certain CMS products, a premium is paid upfront. This typically occurs instead
+     * of periodic payments based on fixed or Ibor rates over the lifetime of the product.
      * <p>
-     * The premium sign should be compatible with the product Pay/Receive flag.
+     * The premium sign must be compatible with the product Pay/Receive flag.
      * @param premium  the new value
      * @return this, for chaining, not null
      */
