@@ -129,10 +129,10 @@ public class HistoricalScenarioExample {
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // calculate the results
-    MarketDataRequirements reqs = CalculationTasks.of(trades, columns, rules).getRequirements();
+    MarketDataRequirements reqs = CalculationTasks.of(rules, trades, columns).getRequirements();
     MarketEnvironment enhancedMarketData = marketDataFactory()
         .buildMarketData(reqs, marketSnapshot, MarketDataConfig.empty(), historicalScenarios);
-    Results results = runner.calculateMultipleScenarios(trades, columns, rules, enhancedMarketData);
+    Results results = runner.calculateMultipleScenarios(rules, trades, columns, enhancedMarketData);
 
     // the results contain the one measure requested (Present Value) for each scenario
     ScenarioResult<?> scenarioValuations = (ScenarioResult<?>) results.get(0, 0).getValue();

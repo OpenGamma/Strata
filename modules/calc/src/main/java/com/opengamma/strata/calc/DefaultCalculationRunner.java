@@ -71,46 +71,47 @@ class DefaultCalculationRunner implements CalculationRunner {
   //-------------------------------------------------------------------------
   @Override
   public Results calculateSingleScenario(
+      CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationRules calculationRules,
       CalculationEnvironment marketData) {
 
-    CalculationTasks tasks = CalculationTasks.of(targets, columns, calculationRules);
+    CalculationTasks tasks = CalculationTasks.of(calculationRules, targets, columns);
     return taskRunner.calculateSingleScenario(tasks, marketData);
   }
 
   @Override
   public Results calculateMultipleScenarios(
+      CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationRules calculationRules,
       CalculationEnvironment marketData) {
 
-    CalculationTasks tasks = CalculationTasks.of(targets, columns, calculationRules);
+    CalculationTasks tasks = CalculationTasks.of(calculationRules, targets, columns);
     return taskRunner.calculateMultipleScenarios(tasks, marketData);
   }
 
   @Override
   public void calculateSingleScenarioAsync(
+      CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationRules calculationRules,
       CalculationEnvironment marketData,
       CalculationListener listener) {
 
-    CalculationTasks tasks = CalculationTasks.of(targets, columns, calculationRules);
+    CalculationTasks tasks = CalculationTasks.of(calculationRules, targets, columns);
     taskRunner.calculateSingleScenarioAsync(tasks, marketData, listener);
   }
 
   @Override
   public void calculateMultipleScenariosAsync(
-      List<? extends CalculationTarget> targets, List<Column> columns,
       CalculationRules calculationRules,
+      List<? extends CalculationTarget> targets,
+      List<Column> columns,
       CalculationEnvironment marketData,
       CalculationListener listener) {
 
-    CalculationTasks tasks = CalculationTasks.of(targets, columns, calculationRules);
+    CalculationTasks tasks = CalculationTasks.of(calculationRules, targets, columns);
     taskRunner.calculateMultipleScenariosAsync(tasks, marketData, listener);
   }
 
