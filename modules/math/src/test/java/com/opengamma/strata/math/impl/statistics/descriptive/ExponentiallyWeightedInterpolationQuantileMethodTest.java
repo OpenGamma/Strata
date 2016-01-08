@@ -43,6 +43,19 @@ public class ExponentiallyWeightedInterpolationQuantileMethodTest {
   private static final double TOLERANCE_QUANTILE = 1.0E-6;
   private static final double TOLERANCE_ES_NI = 1.0E-5;
 
+
+  public void lambda_negative() {
+    assertThrowsIllegalArg(() -> new ExponentiallyWeightedInterpolationQuantileMethod(-0.10d));
+  }
+  
+  public void lambda_zero() {
+    assertThrowsIllegalArg(() -> new ExponentiallyWeightedInterpolationQuantileMethod(0.0d));
+  }
+  
+  public void lambda_above_1() {
+    assertThrowsIllegalArg(() -> new ExponentiallyWeightedInterpolationQuantileMethod(1.10d));
+  }
+  
   public void quantile_not_extrapolated() {
     double level = 0.999;
     assertThrowsIllegalArg(() -> METHOD.quantileFromUnsorted(level, DATA_123));

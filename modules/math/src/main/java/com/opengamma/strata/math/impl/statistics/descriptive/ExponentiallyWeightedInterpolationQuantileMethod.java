@@ -23,9 +23,13 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
 
   /**
    * Constructor. 
+   * <p>
+   * The exponential weight lambda must be > 0 and < 1.0.
+   * 
    * @param lambda  the exponential weight
    */
   public ExponentiallyWeightedInterpolationQuantileMethod(double lambda) {
+    ArgChecker.inRangeExclusive(lambda, 0.0d, 1.0d, "exponential weight");
     this.lambda = lambda;
   }
 
@@ -176,7 +180,7 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
   /**
    * Returns the weights for a given sample size.
    * @param size  the sample size
-   * @return teh weights
+   * @return the weights
    */
   public double[] weights(int size){
     double w1 = (1.0 - 1.0D/lambda) / (1.0d - Math.pow(lambda, -size));
