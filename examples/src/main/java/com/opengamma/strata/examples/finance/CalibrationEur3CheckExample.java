@@ -219,7 +219,7 @@ public class CalibrationEur3CheckExample {
         .build();
 
     // calibrate the curves and calculate the results
-    MarketDataRequirements reqs = CalculationTasks.of(rules, trades, columns).getRequirements();
+    MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns);
     MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, marketSnapshot, marketDataConfig);
     Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData);
     return Pair.of(trades, results);
