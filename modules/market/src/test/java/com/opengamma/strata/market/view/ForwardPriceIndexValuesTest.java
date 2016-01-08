@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.value;
+package com.opengamma.strata.market.view;
 
 import static com.opengamma.strata.basics.index.PriceIndices.UK_HICP;
 import static com.opengamma.strata.basics.index.PriceIndices.USA_CPI_U;

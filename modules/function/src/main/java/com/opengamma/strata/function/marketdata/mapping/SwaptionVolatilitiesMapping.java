@@ -23,7 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMapping;
 import com.opengamma.strata.market.id.SwaptionVolatilitiesId;
 import com.opengamma.strata.market.key.SwaptionVolatilitiesKey;
-import com.opengamma.strata.market.value.SwaptionVolatilities;
+import com.opengamma.strata.market.view.SwaptionVolatilities;
 
 /**
  * Market data mapping for swaption volatilities.

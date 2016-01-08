@@ -36,11 +36,11 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.RepoCurveZeroRateSensitivity;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.BondGroup;
-import com.opengamma.strata.market.value.DiscountFactors;
-import com.opengamma.strata.market.value.IssuerCurveDiscountFactors;
 import com.opengamma.strata.market.value.LegalEntityGroup;
-import com.opengamma.strata.market.value.RepoCurveDiscountFactors;
-import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
+import com.opengamma.strata.market.view.DiscountFactors;
+import com.opengamma.strata.market.view.IssuerCurveDiscountFactors;
+import com.opengamma.strata.market.view.RepoCurveDiscountFactors;
+import com.opengamma.strata.market.view.ZeroRateDiscountFactors;
 
 /**
  * Test {@link LegalEntityDiscountingProvider}.

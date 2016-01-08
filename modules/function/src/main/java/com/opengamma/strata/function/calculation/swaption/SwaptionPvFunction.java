@@ -6,7 +6,7 @@
 package com.opengamma.strata.function.calculation.swaption;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.market.value.SwaptionVolatilities;
+import com.opengamma.strata.market.view.SwaptionVolatilities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.swaption.ExpandedSwaption;
 import com.opengamma.strata.product.swaption.SettlementType;

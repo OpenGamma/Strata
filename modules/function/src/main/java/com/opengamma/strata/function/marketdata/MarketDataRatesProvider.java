@@ -29,15 +29,15 @@ import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.OvernightIndexCurveKey;
 import com.opengamma.strata.market.key.PriceIndexCurveKey;
-import com.opengamma.strata.market.value.DiscountFactors;
-import com.opengamma.strata.market.value.DiscountFxForwardRates;
-import com.opengamma.strata.market.value.DiscountFxIndexRates;
-import com.opengamma.strata.market.value.ForwardPriceIndexValues;
-import com.opengamma.strata.market.value.FxForwardRates;
-import com.opengamma.strata.market.value.FxIndexRates;
-import com.opengamma.strata.market.value.IborIndexRates;
-import com.opengamma.strata.market.value.OvernightIndexRates;
-import com.opengamma.strata.market.value.PriceIndexValues;
+import com.opengamma.strata.market.view.DiscountFactors;
+import com.opengamma.strata.market.view.DiscountFxForwardRates;
+import com.opengamma.strata.market.view.DiscountFxIndexRates;
+import com.opengamma.strata.market.view.ForwardPriceIndexValues;
+import com.opengamma.strata.market.view.FxForwardRates;
+import com.opengamma.strata.market.view.FxIndexRates;
+import com.opengamma.strata.market.view.IborIndexRates;
+import com.opengamma.strata.market.view.OvernightIndexRates;
+import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.pricer.rate.AbstractRatesProvider;
 
 /**

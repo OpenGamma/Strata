@@ -10,7 +10,7 @@ import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.CompoundedRateType;
-import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.view.DiscountFactors;
 
 /**
  * Pricer for simple payments.
