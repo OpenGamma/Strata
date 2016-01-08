@@ -125,10 +125,10 @@ public class CurveScenarioExample {
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // calculate the results
-    MarketDataRequirements reqs = CalculationTasks.of(trades, columns, rules).getRequirements();
+    MarketDataRequirements reqs = CalculationTasks.of(rules, trades, columns).getRequirements();
     MarketEnvironment enhancedMarketData = marketDataFactory()
         .buildMarketData(reqs, marketSnapshot, MarketDataConfig.empty(), scenarioDefinition);
-    Results results = runner.calculateMultipleScenarios(trades, columns, rules, enhancedMarketData);
+    Results results = runner.calculateMultipleScenarios(rules, trades, columns, enhancedMarketData);
 
     // TODO Replace the results processing below with a report once the reporting framework supports scenarios
 

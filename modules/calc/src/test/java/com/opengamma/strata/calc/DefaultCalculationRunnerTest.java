@@ -44,8 +44,8 @@ public class DefaultCalculationRunnerTest {
 
     // use of try-with-resources checks class is AutoCloseable
     try (CalculationRunner test = CalculationRunner.of(MoreExecutors.newDirectExecutorService())) {
-      assertThat(test.calculateSingleScenario(targets, columns, rules, marketData).get(0, 0).isFailure()).isTrue();
-      assertThat(test.calculateMultipleScenarios(targets, columns, rules, marketData).get(0, 0).isFailure()).isTrue();
+      assertThat(test.calculateSingleScenario(rules, targets, columns, marketData).get(0, 0).isFailure()).isTrue();
+      assertThat(test.calculateMultipleScenarios(rules, targets, columns, marketData).get(0, 0).isFailure()).isTrue();
     }
   }
 

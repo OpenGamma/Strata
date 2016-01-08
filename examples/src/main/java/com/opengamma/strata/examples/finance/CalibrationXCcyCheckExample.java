@@ -231,9 +231,9 @@ public class CalibrationXCcyCheckExample {
         .build();
 
     // calibrate the curves and calculate the results
-    MarketDataRequirements reqs = CalculationTasks.of(trades, columns, rules).getRequirements();
+    MarketDataRequirements reqs = CalculationTasks.of(rules, trades, columns).getRequirements();
     MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, marketSnapshot, marketDataConfig);
-    Results results = runner.calculateSingleScenario(trades, columns, rules, enhancedMarketData);
+    Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData);
     return Pair.of(trades, results);
   }
 

@@ -150,7 +150,7 @@ public class SwapPricingTest {
     CalculationRules rules = CalculationRules.of(pricingRules, marketDataRules, reportingRules);
 
     // calculate results using the runner
-    CalculationTasks tasks = CalculationTasks.of(trades, columns, rules);
+    CalculationTasks tasks = CalculationTasks.of(rules, trades, columns);
     MarketDataRequirements reqs = tasks.getRequirements();
     MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, suppliedData, MarketDataConfig.empty());
     // using the direct executor means there is no need to close/shutdown the runner

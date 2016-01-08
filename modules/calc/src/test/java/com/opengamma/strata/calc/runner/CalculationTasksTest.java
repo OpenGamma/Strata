@@ -75,7 +75,7 @@ public class CalculationTasksTest {
     List<Column> columns = ImmutableList.of(Column.of(MEASURE1), Column.of(MEASURE2));
     CalculationRules calculationRules = CalculationRules.of(pricingRules, marketDataRules, REPORTING_RULES);
 
-    CalculationTasks test = CalculationTasks.of(targets, columns, calculationRules);
+    CalculationTasks test = CalculationTasks.of(calculationRules, targets, columns);
     assertThat(test.getTargets()).hasSize(2);
     assertThat(test.getTargets()).containsExactly(TARGET1, TARGET2);
     assertThat(test.getColumns()).hasSize(2);
@@ -102,7 +102,7 @@ public class CalculationTasksTest {
     List<TestTarget> targets = ImmutableList.of(TARGET1);
     List<Column> columns = ImmutableList.of(Column.of(MEASURE1));
 
-    CalculationTasks test = CalculationTasks.of(targets, columns, calculationRules);
+    CalculationTasks test = CalculationTasks.of(calculationRules, targets, columns);
 
     MarketDataRequirements requirements = test.getRequirements();
     Set<? extends MarketDataId<?>> nonObservables = requirements.getNonObservables();
@@ -127,7 +127,7 @@ public class CalculationTasksTest {
     List<TestTarget> targets = ImmutableList.of(TARGET1, TARGET1);
     List<Column> columns = ImmutableList.of(Column.of(MEASURE1), Column.of(MEASURE1), Column.of(MEASURE1));
     CalculationRules rules = CalculationRules.of(PRICING_RULES, MD_RULES, REPORTING_RULES);
-    CalculationTasks task = CalculationTasks.of(targets, columns, rules);
+    CalculationTasks task = CalculationTasks.of(rules, targets, columns);
     assertThat(task.toString()).isEqualTo("CalculationTasks[grid=2x3]");
   }
 
