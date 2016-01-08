@@ -603,6 +603,50 @@ public final class DoubleArray
 
   //-------------------------------------------------------------------------
   /**
+   * Returns an instance with the specified amount added to each value.
+   * <p>
+   * This is used to add to the contents of this array, returning a new array.
+   * <p>
+   * This is a special case of {@link #map(DoubleUnaryOperator)}.
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param amount  the amount to add, may be negative
+   * @return a copy of this array with the amount added to each value
+   */
+  public DoubleArray plus(double amount) {
+    if (amount == 0d) {
+      return this;
+    }
+    double[] result = new double[array.length];
+    for (int i = 0; i < array.length; i++) {
+      result[i] = array[i] + amount;
+    }
+    return new DoubleArray(result);
+  }
+
+  /**
+   * Returns an instance with the specified amount subtracted from each value.
+   * <p>
+   * This is used to subtract from the contents of this array, returning a new array.
+   * <p>
+   * This is a special case of {@link #map(DoubleUnaryOperator)}.
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param amount  the amount to subtract, may be negative
+   * @return a copy of this array with the amount subtracted from each value
+   */
+  public DoubleArray minus(double amount) {
+    if (amount == 0d) {
+      return this;
+    }
+    double[] result = new double[array.length];
+    for (int i = 0; i < array.length; i++) {
+      result[i] = array[i] - amount;
+    }
+    return new DoubleArray(result);
+  }
+
+  /**
    * Returns an instance with each value multiplied by the specified factor.
    * <p>
    * This is used to multiply the contents of this array, returning a new array.
