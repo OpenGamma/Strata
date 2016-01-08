@@ -284,6 +284,20 @@ public class DoubleArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_plus() {
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d);
+    assertMatrix(test.plus(5), 6d, 7d, 8d);
+    assertMatrix(test.plus(0), 1d, 2d, 3d);
+    assertMatrix(test.plus(-5), -4d, -3d, -2d);
+  }
+
+  public void test_minus() {
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d);
+    assertMatrix(test.minus(5), -4d, -3d, -2d);
+    assertMatrix(test.minus(0), 1d, 2d, 3d);
+    assertMatrix(test.minus(-5), 6d, 7d, 8d);
+  }
+
   public void test_multipliedBy() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     assertMatrix(test.multipliedBy(5), 5d, 10d, 15d);
@@ -307,14 +321,14 @@ public class DoubleArrayTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_plus() {
+  public void test_plus_array() {
     DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
     DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
     assertMatrix(test1.plus(test2), 1.5d, 2.6d, 3.7d);
     assertThrows(() -> test1.plus(DoubleArray.EMPTY), IllegalArgumentException.class);
   }
 
-  public void test_minus() {
+  public void test_minus_array() {
     DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
     DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
     assertMatrix(test1.minus(test2), 0.5d, 1.4d, 2.3d);
