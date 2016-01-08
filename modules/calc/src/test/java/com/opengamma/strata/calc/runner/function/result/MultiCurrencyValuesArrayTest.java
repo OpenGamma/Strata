@@ -75,6 +75,23 @@ public class MultiCurrencyValuesArrayTest {
     assertThrowsIllegalArg(() -> raggedArray.getValues(Currency.AUD));
   }
 
+  public void mapFactoryMethod() {
+    MultiCurrencyValuesArray array = MultiCurrencyValuesArray.of(
+        ImmutableMap.of(
+            Currency.GBP, DoubleArray.of(20, 21, 22),
+            Currency.USD, DoubleArray.of(30, 32, 33),
+            Currency.EUR, DoubleArray.of(40, 43, 44)));
+
+    assertThat(array).isEqualTo(VALUES_ARRAY);
+
+    assertThrowsIllegalArg(
+        () -> MultiCurrencyValuesArray.of(
+            ImmutableMap.of(
+                Currency.GBP, DoubleArray.of(20, 21),
+                Currency.EUR, DoubleArray.of(40, 43, 44))),
+        "Arrays must have the same size.*");
+  }
+
   public void getAllValuesUnsafe() {
     Map<Currency, DoubleArray> expected = ImmutableMap.of(
         Currency.GBP, DoubleArray.of(20, 21, 22),

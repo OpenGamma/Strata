@@ -32,6 +32,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -64,7 +65,7 @@ public final class MultiCurrencyValuesArray
 
   /** The currency values, keyed by currency. */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<Currency, DoubleArray> values;
+  private final ImmutableSortedMap<Currency, DoubleArray> values;
 
   /** The number of values for each currency. */
   private final int size;
@@ -103,9 +104,39 @@ public final class MultiCurrencyValuesArray
     return new MultiCurrencyValuesArray(doubleArrayMap);
   }
 
+  /**
+   * Returns an instance containing the values from a map of amounts with the same number of elements in each array.
+   *
+   * @param values  map of currencies to values
+   * @return an instance containing the values from the map
+   */
+  public static MultiCurrencyValuesArray of(Map<Currency, DoubleArray> values) {
+    values.values().stream().reduce((a1, a2) -> checkSize(a1, a2));
+    return new MultiCurrencyValuesArray(values);
+  }
+
+  /**
+   * Checks the size of the arrays are the same and throws an exception if not.
+   *
+   * @param array1  an array
+   * @param array2  an array
+   * @return array1
+   * @throws IllegalArgumentException if the array sizes are not equal
+   */
+  private static DoubleArray checkSize(DoubleArray array1, DoubleArray array2) {
+    if (array1.size() != array2.size()) {
+      throw new IllegalArgumentException(
+          Messages.format(
+              "Arrays must have the same size but found sizes {} and {}",
+              array1.size(),
+              array2.size()));
+    }
+    return array1;
+  }
+
   @ImmutableConstructor
   private MultiCurrencyValuesArray(Map<Currency, DoubleArray> values) {
-    this.values = ImmutableMap.copyOf(values);
+    this.values = ImmutableSortedMap.copyOf(values);
 
     if (values.isEmpty()) {
       size = 0;
