@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -31,7 +32,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -276,7 +276,7 @@ public final class MultiCurrencyValuesArray
    * Gets the currency values, keyed by currency.
    * @return the value of the property, not null
    */
-  public ImmutableMap<Currency, DoubleArray> getValues() {
+  public ImmutableSortedMap<Currency, DoubleArray> getValues() {
     return values;
   }
 
@@ -323,8 +323,8 @@ public final class MultiCurrencyValuesArray
      * The meta-property for the {@code values} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<Currency, DoubleArray>> values = DirectMetaProperty.ofImmutable(
-        this, "values", MultiCurrencyValuesArray.class, (Class) ImmutableMap.class);
+    private final MetaProperty<ImmutableSortedMap<Currency, DoubleArray>> values = DirectMetaProperty.ofImmutable(
+        this, "values", MultiCurrencyValuesArray.class, (Class) ImmutableSortedMap.class);
     /**
      * The meta-properties.
      */
@@ -367,7 +367,7 @@ public final class MultiCurrencyValuesArray
      * The meta-property for the {@code values} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<Currency, DoubleArray>> values() {
+    public MetaProperty<ImmutableSortedMap<Currency, DoubleArray>> values() {
       return values;
     }
 
@@ -398,7 +398,7 @@ public final class MultiCurrencyValuesArray
    */
   private static final class Builder extends DirectFieldsBeanBuilder<MultiCurrencyValuesArray> {
 
-    private Map<Currency, DoubleArray> values = ImmutableMap.of();
+    private SortedMap<Currency, DoubleArray> values = ImmutableSortedMap.of();
 
     /**
      * Restricted constructor.
@@ -422,7 +422,7 @@ public final class MultiCurrencyValuesArray
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -823812830:  // values
-          this.values = (Map<Currency, DoubleArray>) newValue;
+          this.values = (SortedMap<Currency, DoubleArray>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
