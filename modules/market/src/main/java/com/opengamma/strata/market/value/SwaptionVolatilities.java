@@ -3,12 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.swaption;
+package com.opengamma.strata.market.value;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 import com.opengamma.strata.basics.PutCall;
+import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
@@ -16,10 +17,11 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 /**
  * Volatilities for pricing swaptions.
  * <p>
- * Different implementations will uses different approaches to providing the volatilities,
- * such as {@linkplain NormalSwaptionVolatilities normal} and {@linkplain BlackSwaptionVolatilities Black}.
+ * This provides access to the volatilities for various pricing models, such as normal, Black and SABR.
+ * The price and derivatives are also made available.
  */
-public interface SwaptionVolatilities {
+public interface SwaptionVolatilities
+    extends MarketDataView {
 
   /**
    * Gets the convention of the swap for which the data is valid.
@@ -35,6 +37,7 @@ public interface SwaptionVolatilities {
    * 
    * @return the valuation date
    */
+  @Override
   public default LocalDate getValuationDate() {
     return getValuationDateTime().toLocalDate();
   }

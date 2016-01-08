@@ -20,6 +20,7 @@ import com.opengamma.strata.function.calculation.index.IborFutureFunctionGroups;
 import com.opengamma.strata.function.calculation.payment.BulletPaymentFunctionGroups;
 import com.opengamma.strata.function.calculation.swap.DeliverableSwapFutureFunctionGroups;
 import com.opengamma.strata.function.calculation.swap.SwapFunctionGroups;
+import com.opengamma.strata.function.calculation.swaption.SwaptionFunctionGroups;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.fra.FraTrade;
@@ -32,6 +33,7 @@ import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swaption.SwaptionTrade;
 
 /**
  * Contains standard sets of pricing rules that provide full access to the built-in asset class coverage.
@@ -56,6 +58,7 @@ final class StandardPricingRules {
       PricingRule.builder(GenericFutureOptionTrade.class).functionGroup(GenericFutureOptionFunctionGroups.market()).build(),
       PricingRule.builder(IborFutureTrade.class).functionGroup(IborFutureFunctionGroups.discounting()).build(),
       PricingRule.builder(SwapTrade.class).functionGroup(SwapFunctionGroups.discounting()).build(),
+      PricingRule.builder(SwaptionTrade.class).functionGroup(SwaptionFunctionGroups.standard()).build(),
       PricingRule.builder(TermDepositTrade.class).functionGroup(TermDepositFunctionGroups.discounting()).build());
 
   /**

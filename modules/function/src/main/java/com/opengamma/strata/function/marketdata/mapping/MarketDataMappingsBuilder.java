@@ -37,6 +37,7 @@ public class MarketDataMappingsBuilder {
    */
   private MarketDataMappingsBuilder(MarketDataFeed marketDataFeed) {
     this.marketDataFeed = marketDataFeed;
+    this.mappings.add(SwaptionVolatilitiesMapping.of());
   }
 
   //-------------------------------------------------------------------------

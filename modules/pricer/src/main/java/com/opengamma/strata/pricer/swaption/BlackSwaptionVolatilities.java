@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.swaption;
 
+import com.opengamma.strata.market.value.SwaptionVolatilities;
+
 /**
  * Volatility for swaptions in the log-normal or Black model.
  */
