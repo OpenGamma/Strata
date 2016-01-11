@@ -25,7 +25,6 @@ import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
@@ -192,43 +191,6 @@ public class DiscountOvernightIndexRatesTest {
     DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
     assertThrowsIllegalArg(() -> test.periodRatePointSensitivity(DATE_BEFORE, DATE_VAL));
     assertThrowsIllegalArg(() -> test.periodRatePointSensitivity(DATE_AFTER_END, DATE_AFTER));
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_unitParameterSensitivity_beforePublication_fixing() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    assertEquals(test.unitParameterSensitivity(DATE_BEFORE), CurveUnitParameterSensitivities.empty());
-  }
-
-  public void test_unitParameterSensitivity_beforePublication_noFixing_emptySeries() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES_EMPTY);
-    assertEquals(test.unitParameterSensitivity(DATE_BEFORE), CurveUnitParameterSensitivities.empty());
-  }
-
-  public void test_unitParameterSensitivity_beforePublication_noFixing_notEmptySeries() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES_MINIMAL);
-    assertEquals(test.unitParameterSensitivity(DATE_BEFORE), CurveUnitParameterSensitivities.empty());
-  }
-
-  public void test_unitParameterSensitivity_onPublication_fixing() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    assertEquals(test.unitParameterSensitivity(DATE_VAL), CurveUnitParameterSensitivities.empty());
-  }
-
-  public void test_unitParameterSensitivity_onPublication_noFixing() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES_EMPTY);
-    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_VAL);
-    CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CURVE.yValueParameterSensitivity(relativeYearFraction));
-    assertEquals(test.unitParameterSensitivity(DATE_VAL), expected);
-  }
-
-  public void test_unitParameterSensitivity_afterPublication_noFixing() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
-    CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CURVE.yValueParameterSensitivity(relativeYearFraction));
-    assertEquals(test.unitParameterSensitivity(DATE_AFTER), expected);
   }
 
   //-------------------------------------------------------------------------

@@ -193,18 +193,6 @@ public final class DiscountOvernightIndexRates
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate fixingDate) {
-    LocalDate valuationDate = getValuationDate();
-    LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate);
-    if (publicationDate.isBefore(valuationDate) ||
-        (publicationDate.equals(valuationDate) && fixings.get(fixingDate).isPresent())) {
-      return CurveUnitParameterSensitivities.empty();
-    }
-    return discountFactors.unitParameterSensitivity(fixingDate);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
   public CurveCurrencyParameterSensitivities curveParameterSensitivity(OvernightRateSensitivity pointSensitivity) {
     OvernightIndex index = pointSensitivity.getIndex();
     LocalDate startDate = index.calculateEffectiveFromFixing(pointSensitivity.getFixingDate());
