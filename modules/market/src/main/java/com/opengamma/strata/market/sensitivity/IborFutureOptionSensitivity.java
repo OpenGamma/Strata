@@ -78,7 +78,7 @@ public final class IborFutureOptionSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an {@code IborFutureOptionSensitivity} from the key and value.
+   * Obtains an instance based on the index.
    * <p>
    * The currency is defaulted from the index.
    * 
@@ -103,7 +103,7 @@ public final class IborFutureOptionSensitivity
   }
 
   /**
-   * Obtains an {@code IborFutureOptionSensitivity} from the key, sensitivity currency and value.
+   * Obtains an instance based on the index, specifying the sensitivity currency.
    * 
    * @param index  the index of the curve
    * @param expiryDate  the expiry date of the option

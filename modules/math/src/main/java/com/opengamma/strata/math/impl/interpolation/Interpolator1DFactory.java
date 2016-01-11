@@ -32,11 +32,6 @@ public final class Interpolator1DFactory {
   public static final String STEP_UPPER = "StepUpper";
   /** Double quadratic */
   public static final String DOUBLE_QUADRATIC = "DoubleQuadratic";
-  /**Monotonicity-Preserving-Cubic-Spline
-   * @deprecated Use the name PCHIP instead 
-   * */
-  @Deprecated
-  public static final String MONOTONIC_CUBIC = "MonotonicityPreservingCubicSpline";
   /**Piecewise Cubic Hermite Interpolating Polynomial (PCHIP)*/
   public static final String PCHIP = "PCHIP";
   /** Time square */
@@ -170,8 +165,6 @@ public final class Interpolator1DFactory {
     instanceNames.put(StepUpperInterpolator1D.class, STEP_UPPER);
     staticInstances.put(DOUBLE_QUADRATIC, DOUBLE_QUADRATIC_INSTANCE);
     instanceNames.put(DoubleQuadraticInterpolator1D.class, DOUBLE_QUADRATIC);
-    staticInstances.put(MONOTONIC_CUBIC, MONOTONIC_CUBIC_INSTANCE);
-    instanceNames.put(PCHIPInterpolator1D.class, MONOTONIC_CUBIC);
     staticInstances.put(PCHIP, PCHIP_INSTANCE);
     instanceNames.put(PCHIPInterpolator1D.class, PCHIP);
     staticInstances.put(TIME_SQUARE, TIME_SQUARE_INSTANCE);

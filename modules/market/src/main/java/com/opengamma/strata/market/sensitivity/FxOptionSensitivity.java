@@ -71,7 +71,7 @@ public final class FxOptionSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an {@code FxOptionSensitivity} from the key, value and currency.
+   * Obtains an instance based on the currency pair, specifying the sensitivity currency.
    * 
    * @param currencyPair  the currency pair
    * @param expiryDateTime  the expiry date and time of the option

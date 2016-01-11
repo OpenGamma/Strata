@@ -62,7 +62,7 @@ public final class IborRateSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an {@code IborRateSensitivity} from the index, fixing date and value.
+   * Obtains an instance based on the index.
    * <p>
    * The currency is defaulted from the index.
    * 
@@ -76,7 +76,7 @@ public final class IborRateSensitivity
   }
 
   /**
-   * Obtains an instance from the index, fixing date, sensitivity currency and value.
+   * Obtains an instance based on the index, specifying the sensitivity currency.
    * 
    * @param index  the index of the curve
    * @param fixingDate  the fixing date

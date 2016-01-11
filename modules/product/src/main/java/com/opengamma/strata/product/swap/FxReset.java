@@ -81,7 +81,7 @@ public final class FxReset
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an {@code FxReset} from the index, currency and fixing date.
+   * Obtains an instance from the index, currency and fixing date.
    * 
    * @param index  the FX index
    * @param referenceCurrency  the reference currency

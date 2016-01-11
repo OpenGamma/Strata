@@ -78,7 +78,7 @@ public final class BondFutureOptionSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an {@code BondFutureOptionSensitivity} from the key, sensitivity currency and value.
+   * Obtains an instance based on the security ID.
    * 
    * @param futureSecurityId  the underlying future ID of the curve
    * @param expiryDate  the expiry date of the option
