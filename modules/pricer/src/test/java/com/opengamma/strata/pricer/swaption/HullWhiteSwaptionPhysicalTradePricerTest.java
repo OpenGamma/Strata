@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.rate.swaption;
+package com.opengamma.strata.pricer.swaption;
 
 import static com.opengamma.strata.basics.BuySell.SELL;
 import static com.opengamma.strata.basics.currency.Currency.USD;
