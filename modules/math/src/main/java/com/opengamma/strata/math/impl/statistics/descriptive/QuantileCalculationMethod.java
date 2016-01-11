@@ -130,7 +130,7 @@ public abstract class QuantileCalculationMethod {
    * 
    * @param level  the quantile level
    * @param sample  the sample observations
-   * @return The quantile estimation
+   * @return The expected shortfall estimation
    */
   public double expectedShortfallFromUnsorted(double level, DoubleArray sample) {
     return expectedShortfallFromSorted(level, sample.sorted());
