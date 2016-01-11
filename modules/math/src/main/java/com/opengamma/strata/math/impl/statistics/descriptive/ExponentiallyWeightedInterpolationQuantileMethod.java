@@ -51,10 +51,48 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
     return q.getValue();
   }
   
+  /**
+   * Compute the quantile estimation and the details used in the result.
+   * <p>
+   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < level < 1 should be satisfied.
+   * This is measured from the bottom, that is, Thus the quantile estimation with the level 99% corresponds to 
+   * the smallest 99% observations.
+   * <p>
+   * The details consists on the indices of the samples actually used in the quantile computation - indices in the 
+   * input sample - and the weights for each of those samples. The details are sufficient to recompute the 
+   * quantile directly from the input sample.
+   * <p>
+   * The sample observations are supposed to be unsorted, the first step is to sort the data.
+   * 
+   * @param level  the quantile level
+   * @param sample  the sample observations
+   * @return The quantile estimation and its details
+   */
   public QuantileResult quantileDetailsFromUnsorted(double level, DoubleArray sample) {
     return quantileDetails(level, sample, true, false);
   }
-  
+
+  /**
+   * Compute the expected shortfall and the details used in the result.
+   * <p>
+   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < level < 1 should be satisfied.
+   * This is measured from the bottom, that is, Thus the expected shortfall with the level 99% corresponds to 
+   * the smallest 99% observations.
+   * <p>
+   * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
+   * expected short fall is computed with flat extrapolation.  
+   * Thus this is coherent to {@link #quantileWithExtrapolationFromUnsorted(double, DoubleArray)}.
+   * <p>
+   * The details consists on the indices of the samples actually used in the expected shortfall computation - indices 
+   * in the input sample - and the weights for each of those samples. The details are sufficient to recompute the 
+   * expected shortfall directly from the input sample.
+   * <p> 
+   * The sample observations are supposed to be unsorted, the first step is to sort the data.
+   * 
+   * @param level  the quantile level
+   * @param sample  the sample observations
+   * @return The expected shortfall estimation and its detail
+   */
   public QuantileResult expectedShortfallDetailsFromUnsorted(double level, DoubleArray sample) {
     return quantileDetails(level, sample, true, true);
   }
