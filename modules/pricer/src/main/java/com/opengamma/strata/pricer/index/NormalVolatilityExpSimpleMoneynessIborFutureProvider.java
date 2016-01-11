@@ -73,7 +73,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an {@code NormalVolatilityExpSimpleMoneynessIborFutureProvider}.
+   * Obtains an instance based on a surface.
    * 
    * @param surface  the normal volatility surface
    * @param isMoneynessOnPrice  flag indicating if the moneyness is on the price (true) or on the rate (false)

@@ -36,7 +36,7 @@ public final class SwaptionVolatilitiesMapping
     implements MarketDataMapping<SwaptionVolatilities, SwaptionVolatilitiesKey>, ImmutableBean, Serializable {
 
   /**
-   * Obtains a {@code SwaptionVolatilitiesMapping}.
+   * Obtains the standard instance.
    * <p>
    * The result will map a {@link SwaptionVolatilitiesKey} to a {@link SwaptionVolatilitiesId}.
    *

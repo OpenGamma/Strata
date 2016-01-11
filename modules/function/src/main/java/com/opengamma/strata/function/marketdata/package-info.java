@@ -5,7 +5,7 @@
  */
 
 /**
- * Market data functions.
+ * Base package for market data functions.
  */
 package com.opengamma.strata.function.marketdata;
 

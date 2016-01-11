@@ -62,7 +62,7 @@ public final class InflationRateSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an {@code InflationRateSensitivity} from the index, reference month and value.
+   * Obtains an instance based on the index.
    * <p>
    * The currency is defaulted from the index.
    * 
@@ -76,7 +76,7 @@ public final class InflationRateSensitivity
   }
 
   /**
-   * Obtains an {@code InflationRateSensitivity} from the index, reference month, sensitivity currency and value.
+   * Obtains an instance based on the index, specifying the sensitivity currency.
    * 
    * @param index  the index of prices
    * @param referenceMonth  the reference month for the index

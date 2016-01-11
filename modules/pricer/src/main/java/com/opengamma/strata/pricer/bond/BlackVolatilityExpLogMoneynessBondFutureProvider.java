@@ -75,7 +75,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an {@code BlackVolatilityExpLogMoneynessBondFutureProvider}.
+   * Obtains an instance based on a surface.
    * 
    * @param surface  the Black volatility surface
    * @param futureSecurityId  the ID of the underlying future

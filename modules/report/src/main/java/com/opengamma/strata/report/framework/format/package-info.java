@@ -5,7 +5,7 @@
  */
 
 /**
- * Classes that deal with the formatting of calculated values.
+ * Provide the ability to format calculated values.
  */
 package com.opengamma.strata.report.framework.format;
 

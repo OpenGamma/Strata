@@ -5,7 +5,7 @@
  */
 
 /**
- * Wrapper classes for Java arrays.
+ * Array data structures.
  * <p>
  * Wrappers are provided for {@code double[]} and {@code double[][]}.
  */
