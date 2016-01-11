@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.value;
+package com.opengamma.strata.market.view;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -92,7 +92,8 @@ public interface SwaptionVolatilities
    * @return the parameter sensitivity
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(SwaptionSensitivity pointSensitivity);
+  public abstract SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(
+      SwaptionSensitivity pointSensitivity);
 
   //-------------------------------------------------------------------------
   /**
@@ -111,7 +112,13 @@ public interface SwaptionVolatilities
    * @return the price
    * @throws RuntimeException if the value cannot be obtained
    */
-  public double price(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility);
+  public double price(
+      double expiry,
+      double tenor,
+      PutCall putCall,
+      double strike,
+      double forward,
+      double volatility);
 
   /**
    * Calculates the price delta.
@@ -131,7 +138,13 @@ public interface SwaptionVolatilities
    * @return the delta
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double priceDelta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility);
+  public abstract double priceDelta(
+      double expiry,
+      double tenor,
+      PutCall putCall,
+      double strike,
+      double forward,
+      double volatility);
 
   /**
    * Calculates the price gamma.
@@ -151,7 +164,13 @@ public interface SwaptionVolatilities
    * @return the gamma
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double priceGamma(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility);
+  public abstract double priceGamma(
+      double expiry,
+      double tenor,
+      PutCall putCall,
+      double strike,
+      double forward,
+      double volatility);
 
   /**
    * Calculates the price theta.
@@ -171,7 +190,13 @@ public interface SwaptionVolatilities
    * @return the theta
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double priceTheta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility);
+  public abstract double priceTheta(
+      double expiry,
+      double tenor,
+      PutCall putCall,
+      double strike,
+      double forward,
+      double volatility);
 
   /**
    * Calculates the price vega.
@@ -191,7 +216,13 @@ public interface SwaptionVolatilities
    * @return the vega
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double priceVega(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility);
+  public abstract double priceVega(
+      double expiry,
+      double tenor,
+      PutCall putCall,
+      double strike,
+      double forward,
+      double volatility);
 
   //-------------------------------------------------------------------------
   /**

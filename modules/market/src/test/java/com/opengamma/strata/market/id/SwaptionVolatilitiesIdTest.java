@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.market.key.SwaptionVolatilitiesKey;
-import com.opengamma.strata.market.value.SwaptionVolatilities;
+import com.opengamma.strata.market.view.SwaptionVolatilities;
 
 /**
  * Test {@link SwaptionVolatilitiesId}.

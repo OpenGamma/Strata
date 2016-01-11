@@ -3,11 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.value;
+package com.opengamma.strata.market.view;
 
 import java.time.LocalDate;
 
-import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.Perturbation;
@@ -15,17 +15,16 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
+import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
- * Provides access to rates for an Overnight index.
+ * Provides access to rates for an Ibor index.
  * <p>
- * This provides historic and forward rates for a single {@link OvernightIndex}, such as 'EUR-EONIA'.
+ * This provides historic and forward rates for a single {@link IborIndex}, such as 'GBP-LIBOR-3M'.
  */
-public interface OvernightIndexRates
+public interface IborIndexRates
     extends MarketDataView {
 
   /**
@@ -41,8 +40,8 @@ public interface OvernightIndexRates
    * @param forwardCurve  the forward curve
    * @return the rates view
    */
-  public static OvernightIndexRates of(
-      OvernightIndex index,
+  public static IborIndexRates of(
+      IborIndex index,
       LocalDate valuationDate,
       Curve forwardCurve) {
 
@@ -63,25 +62,25 @@ public interface OvernightIndexRates
    * @param fixings  the time-series of fixings
    * @return the rates view
    */
-  public static OvernightIndexRates of(
-      OvernightIndex index,
+  public static IborIndexRates of(
+      IborIndex index,
       LocalDate valuationDate,
       Curve forwardCurve,
       LocalDateDoubleTimeSeries fixings) {
 
     DiscountFactors discountFactors = DiscountFactors.of(index.getCurrency(), valuationDate, forwardCurve);
-    return DiscountOvernightIndexRates.of(index, discountFactors, fixings);
+    return DiscountIborIndexRates.of(index, discountFactors, fixings);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the Overnight index.
+   * Gets the Ibor index.
    * <p>
    * The index that the rates are for.
    * 
-   * @return the Overnight index
+   * @return the Ibor index
    */
-  public abstract OvernightIndex getIndex();
+  public abstract IborIndex getIndex();
 
   /**
    * Gets the time-series of fixings for the index.
@@ -113,13 +112,12 @@ public interface OvernightIndexRates
   /**
    * Gets the historic or forward rate at the specified fixing date.
    * <p>
-   * The rate of the Overnight index, such as 'EUR-EONIA', varies over time.
+   * The rate of the Ibor index, such as 'GBP-LIBOR-3M', varies over time.
    * This method obtains the actual or estimated rate for the fixing date.
    * <p>
    * This retrieves the actual rate if the fixing date is before the valuation date,
    * or the estimated rate if the fixing date is after the valuation date.
    * If the fixing date equals the valuation date, then the best available rate is returned.
-   * The reference period for the underlying deposit is computed from the index conventions.
    * 
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
@@ -128,11 +126,24 @@ public interface OvernightIndexRates
   public abstract double rate(LocalDate fixingDate);
 
   /**
+   * Ignores the time-series to get the forward rate at the specified fixing date, used in rare and special cases.
+   * In most cases callers should use {@link IborIndexRates#rate(LocalDate) rate(LocalDate)}.
+   * <p>
+   * An instance of {@code IborIndexRates} is typically based on a forward curve and a historic time-series.
+   * The {@code rate(LocalDate)} method uses either the curve or time-series, depending on whether the
+   * fixing date is before or after the valuation date. This method only queries the forward curve,
+   * totally ignoring the time-series, which is needed for rare and special cases only.
+   * 
+   * @param fixingDate  the fixing date to query the rate for
+   * @return the rate of the index as given by the forward curve
+   */
+  public abstract double rateIgnoringTimeSeries(LocalDate fixingDate);
+
+  /**
    * Calculates the point sensitivity of the historic or forward rate at the specified fixing date.
    * <p>
    * This returns a sensitivity instance referring to the curve used to determine the forward rate.
    * If a time-series was used, then there is no sensitivity.
-   * Otherwise, the sensitivity has the value 1.
    * The sensitivity refers to the result of {@link #rate(LocalDate)}.
    * 
    * @param fixingDate  the fixing date to find the sensitivity for
@@ -141,50 +152,22 @@ public interface OvernightIndexRates
    */
   public abstract PointSensitivityBuilder ratePointSensitivity(LocalDate fixingDate);
 
-  //-------------------------------------------------------------------------
   /**
-   * Gets the historic or forward rate at the specified fixing period.
+   * Ignores the time-series to get the forward rate point sensitivity at the specified fixing date,
+   * used in rare and special cases. In most cases callers should use
+   * {@link IborIndexRates#ratePointSensitivity(LocalDate) ratePointSensitivity(LocalDate)}.
    * <p>
-   * The start date should be on or after the valuation date. The end date should be after the start date.
-   * <p>
-   * This computes the forward rate in the simple simply compounded convention of the index between two given date.
-   * This is used mainly to speed-up computation by computing the rate on a longer period instead of each individual 
-   * overnight rate. When data related to the overnight index rate are stored based on the fixing date and not
-   * the start and end date of the period, the call may return an {@code IllegalArgumentException}.
+   * An instance of {@code IborIndexRates} is typically based on a forward curve and a historic time-series.
+   * The {@code ratePointSensitivity(LocalDate)} method uses either the curve or time-series, depending on whether the
+   * fixing date is before or after the valuation date. This method only queries the forward curve,
+   * totally ignoring the time-series, which is needed for rare and special cases only.
    * 
-   * @param startDate  the start or effective date of the period on which the rate is computed
-   * @param endDate  the end or maturity date of the period on which the rate is computed
-   * @return the simply compounded rate associated to the period for the index
-   * @throws RuntimeException if the value cannot be obtained
+   * @param fixingDate  the fixing date to query the rate for
+   * @return the point sensitivity of the rate to the forward curve
    */
-  public abstract double periodRate(LocalDate startDate, LocalDate endDate);
-
-  /**
-   * Calculates the point sensitivity of the historic or forward rate at the specified fixing period.
-   * <p>
-   * This returns a sensitivity instance referring to the curve used to determine the forward rate.
-   * The sensitivity refers to the result of {@link #periodRate(LocalDate, LocalDate)}.
-   * 
-   * @param startDate  the start or effective date of the period on which the rate is computed
-   * @param endDate  the end or maturity date of the period on which the rate is computed
-   * @return the point sensitivity of the rate
-   * @throws RuntimeException if the result cannot be calculated
-   */
-  public abstract PointSensitivityBuilder periodRatePointSensitivity(LocalDate startDate, LocalDate endDate);
+  public abstract PointSensitivityBuilder rateIgnoringTimeSeriesPointSensitivity(LocalDate fixingDate);
 
   //-------------------------------------------------------------------------
-  /**
-   * Calculates the unit parameter sensitivity of the forward rate at the specified fixing date.
-   * <p>
-   * This returns the unit sensitivity to each parameter on the underlying curve at the specified date.
-   * The sensitivity refers to the result of {@link #rate(LocalDate)}.
-   * 
-   * @param fixingDate  the fixing date to find the sensitivity for
-   * @return the parameter sensitivity
-   * @throws RuntimeException if the value cannot be obtained
-   */
-  public abstract CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate fixingDate);
-
   /**
    * Calculates the curve parameter sensitivity from the point sensitivity.
    * <p>
@@ -195,7 +178,7 @@ public interface OvernightIndexRates
    * @return the parameter sensitivity
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract CurveCurrencyParameterSensitivities curveParameterSensitivity(OvernightRateSensitivity pointSensitivity);
+  public abstract CurveCurrencyParameterSensitivities curveParameterSensitivity(IborRateSensitivity pointSensitivity);
 
   //-------------------------------------------------------------------------
   /**
@@ -207,6 +190,6 @@ public interface OvernightIndexRates
    * @return the perturbed instance
    * @throws RuntimeException if the perturbation cannot be applied
    */
-  public abstract OvernightIndexRates applyPerturbation(Perturbation<Curve> perturbation);
+  public abstract IborIndexRates applyPerturbation(Perturbation<Curve> perturbation);
 
 }

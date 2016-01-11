@@ -26,7 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.market.key.SwaptionVolatilitiesKey;
-import com.opengamma.strata.market.value.SwaptionVolatilities;
+import com.opengamma.strata.market.view.SwaptionVolatilities;
 
 /**
  * Market data ID identifying swaption volatilities based on Fixed-Ibor swaps.

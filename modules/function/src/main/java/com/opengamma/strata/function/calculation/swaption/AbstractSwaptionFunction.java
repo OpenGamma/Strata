@@ -26,7 +26,7 @@ import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.SwaptionVolatilitiesKey;
-import com.opengamma.strata.market.value.SwaptionVolatilities;
+import com.opengamma.strata.market.view.SwaptionVolatilities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swaption.VolatilitySwaptionCashParYieldProductPricer;
 import com.opengamma.strata.pricer.swaption.VolatilitySwaptionPhysicalProductPricer;

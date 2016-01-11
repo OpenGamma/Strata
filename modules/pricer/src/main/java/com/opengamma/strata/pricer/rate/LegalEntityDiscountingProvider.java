@@ -36,10 +36,10 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.RepoCurveZeroRateSensitivity;
 import com.opengamma.strata.market.value.BondGroup;
-import com.opengamma.strata.market.value.DiscountFactors;
-import com.opengamma.strata.market.value.IssuerCurveDiscountFactors;
 import com.opengamma.strata.market.value.LegalEntityGroup;
-import com.opengamma.strata.market.value.RepoCurveDiscountFactors;
+import com.opengamma.strata.market.view.DiscountFactors;
+import com.opengamma.strata.market.view.IssuerCurveDiscountFactors;
+import com.opengamma.strata.market.view.RepoCurveDiscountFactors;
 
 /**
  * The discounting factors provider, used to calculate analytic measures. 

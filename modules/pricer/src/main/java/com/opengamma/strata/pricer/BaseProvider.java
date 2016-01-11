@@ -11,7 +11,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.view.DiscountFactors;
 
 /**
  * A provider of data used for pricing.

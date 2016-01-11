@@ -41,16 +41,16 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.value.DiscountFactors;
-import com.opengamma.strata.market.value.DiscountFxForwardRates;
-import com.opengamma.strata.market.value.DiscountFxIndexRates;
-import com.opengamma.strata.market.value.DiscountIborIndexRates;
-import com.opengamma.strata.market.value.DiscountOvernightIndexRates;
-import com.opengamma.strata.market.value.FxForwardRates;
-import com.opengamma.strata.market.value.FxIndexRates;
-import com.opengamma.strata.market.value.IborIndexRates;
-import com.opengamma.strata.market.value.OvernightIndexRates;
-import com.opengamma.strata.market.value.PriceIndexValues;
+import com.opengamma.strata.market.view.DiscountFactors;
+import com.opengamma.strata.market.view.DiscountFxForwardRates;
+import com.opengamma.strata.market.view.DiscountFxIndexRates;
+import com.opengamma.strata.market.view.DiscountIborIndexRates;
+import com.opengamma.strata.market.view.DiscountOvernightIndexRates;
+import com.opengamma.strata.market.view.FxForwardRates;
+import com.opengamma.strata.market.view.FxIndexRates;
+import com.opengamma.strata.market.view.IborIndexRates;
+import com.opengamma.strata.market.view.OvernightIndexRates;
+import com.opengamma.strata.market.view.PriceIndexValues;
 
 
 /**

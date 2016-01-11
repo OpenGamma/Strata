@@ -10,6 +10,7 @@ import org.joda.convert.ToString;
 
 import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.view.DiscountFactors;
 
 /**
  * A compounded rate type. 
