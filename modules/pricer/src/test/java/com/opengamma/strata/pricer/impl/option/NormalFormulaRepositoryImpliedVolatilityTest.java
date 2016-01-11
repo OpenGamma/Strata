@@ -22,27 +22,30 @@ public class NormalFormulaRepositoryImpliedVolatilityTest {
   private static final double DF = 0.87;
   private static final double T = 4.5;
   private static final NormalFunctionData[] DATA;
-  private static final EuropeanVanillaOption[] OPTIONS;
-  private static final double[] PRICES;
-  private static final double[] STRIKES;
-  private static final double[] SIGMA;
-  private static final NormalPriceFunction FUNCTION = new NormalPriceFunction();
   private static final int N = 10;
+  private static final double[] PRICES;
+  private static final double[] STRIKES = new double[N];
+  private static final double[] STRIKES_ATM = new double[N];
+  private static final EuropeanVanillaOption[] OPTIONS = new EuropeanVanillaOption[N];
+  private static final double[] SIGMA;
+  private static final double[] SIGMA_BLACK = new double[N];
+  private static final NormalPriceFunction FUNCTION = new NormalPriceFunction();
 
   static {
     PRICES = new double[N];
-    STRIKES = new double[N];
     SIGMA = new double[N];
     DATA = new NormalFunctionData[N];
-    OPTIONS = new EuropeanVanillaOption[N];
     for (int i = 0; i < N; i++) {
       STRIKES[i] = FORWARD + (-N / 2 + i) * 10;
+      STRIKES_ATM[i] = FORWARD + (-0.5d * N + i) / 100.0d;
       SIGMA[i] = FORWARD * (0.05 + 4.0 * i / 100.0);
+      SIGMA_BLACK[i] = 0.20 + i / 100.0d;
       DATA[i] = NormalFunctionData.of(FORWARD, DF, SIGMA[i]);
       OPTIONS[i] = EuropeanVanillaOption.of(STRIKES[i], T, PutCall.CALL);
       PRICES[i] = FUNCTION.getPriceFunction(OPTIONS[i]).apply(DATA[i]);
     }
   }
+  private static final double TOLERANCE_PRICE = 1.0E-4;
 
   public void implied_volatility() {
     double[] impliedVolatility = new double[N];
@@ -73,6 +76,33 @@ public class NormalFormulaRepositoryImpliedVolatilityTest {
         data.getNormalVolatility(),
         data.getNumeraire(),
         option.getPutCall());
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void wrong_strike() {
+    NormalFormulaRepository.impliedVolatilityFromBlackVolatility(FORWARD, -1.0d, T, 0.20d);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void wrong_forward() {
+    NormalFormulaRepository.impliedVolatilityFromBlackVolatility(-1.0d, FORWARD, T, 0.20d);
+  }
+
+  @Test
+  public void price_comparison() {
+    priceCheck(STRIKES);
+    priceCheck(STRIKES_ATM);
+  }
+
+  private void priceCheck(double[] strikes) {
+    for (int i = 0; i < N; i++) {
+      double ivNormalComputed = NormalFormulaRepository
+          .impliedVolatilityFromBlackVolatility(FORWARD, strikes[i], T, SIGMA_BLACK[i]);
+      double priceNormalComputed = 
+          NormalFormulaRepository.price(FORWARD, strikes[i], T, ivNormalComputed, PutCall.CALL) * DF;
+      double priceBlack = BlackFormulaRepository.price(FORWARD, strikes[i], T, SIGMA_BLACK[i], true) * DF;
+      assertEquals(priceBlack, priceNormalComputed, TOLERANCE_PRICE);
+    }
   }
 
 }
