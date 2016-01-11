@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.rate.swaption;
+package com.opengamma.strata.pricer.swaption;
 
 import java.time.LocalDate;
 
@@ -111,7 +111,7 @@ public class HullWhiteSwaptionPhysicalProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the currency exposure of the swaption product.
+   * Calculates the currency exposure of the swaption product.
    * 
    * @param swaption  the product to price
    * @param ratesProvider  the rates provider

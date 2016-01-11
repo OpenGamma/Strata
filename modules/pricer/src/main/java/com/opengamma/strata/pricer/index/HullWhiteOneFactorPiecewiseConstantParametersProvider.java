@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -35,12 +34,13 @@ import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseCo
 import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseConstantParameters;
 
 /**
- * Parameter provider of Hull-White one factor model with piecewise constant volatility.
+ * Hull-White one factor model with piecewise constant volatility.
  * <p>
  * Reference: Henrard, M. "The Irony in the derivatives discounting Part II: the crisis", Wilmott Journal, 2010, 2, 301-316
  */
 @BeanDefinition(builderScope = "private")
-public final class HullWhiteOneFactorPiecewiseConstantParametersProvider implements ImmutableBean, Serializable {
+public final class HullWhiteOneFactorPiecewiseConstantParametersProvider
+    implements ImmutableBean, Serializable {
 
   /**
    * Hull-White one factor model with piecewise constant volatility.
@@ -67,7 +67,7 @@ public final class HullWhiteOneFactorPiecewiseConstantParametersProvider impleme
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a provider from Hull-White model parameters and the date-time for which it is valid.
+   * Obtains an instance from Hull-White model parameters and the date-time for which it is valid.
    * 
    * @param parameters  the Hull-White model parameters
    * @param dayCount  the day count applicable to the model
@@ -83,7 +83,7 @@ public final class HullWhiteOneFactorPiecewiseConstantParametersProvider impleme
   }
 
   /**
-   * Creates a provider from Hull-White model parameters and the date, time and zone for which it is valid.
+   * Obtains an instance from Hull-White model parameters and the date, time and zone for which it is valid.
    * 
    * @param parameters  the Hull-White model parameters
    * @param dayCount  the day count applicable to the model
@@ -102,25 +102,9 @@ public final class HullWhiteOneFactorPiecewiseConstantParametersProvider impleme
     return of(parameters, dayCount, valuationDate.atTime(valuationTime).atZone(valuationZone));
   }
 
-  /**
-   * Creates a provider from Hull-White model parameters, day count and valuation date. 
-   * 
-   * @param parameters  the Hull-White model parameters
-   * @param dayCount  the day count
-   * @param valuationDate  the valuation date
-   * @return the provider 
-   */
-  public static HullWhiteOneFactorPiecewiseConstantParametersProvider of(
-      HullWhiteOneFactorPiecewiseConstantParameters parameters,
-      DayCount dayCount,
-      LocalDate valuationDate) {
-    return new HullWhiteOneFactorPiecewiseConstantParametersProvider(
-        parameters, dayCount, valuationDate.atTime(LocalTime.NOON).atZone(ZoneOffset.UTC));
-  }
-
   //-------------------------------------------------------------------------
   /**
-   * Computes the future convexity factor for the specified period at the future reference date.
+   * Calculates the future convexity factor for the specified period at the future reference date.
    * 
    * @param referenceDate  the reference date
    * @param startDate  the start date of the period
@@ -135,7 +119,7 @@ public final class HullWhiteOneFactorPiecewiseConstantParametersProvider impleme
   }
 
   /**
-   * Computes the future convexity factor and its derivative for the specified period at the future reference date.
+   * Calculates the future convexity factor and its derivative for the specified period at the future reference date.
    * 
    * @param referenceDate  the reference date
    * @param startDate  the start date of the period
@@ -168,7 +152,7 @@ public final class HullWhiteOneFactorPiecewiseConstantParametersProvider impleme
   }
 
   /**
-   * Computes the alpha value for the specified period with respect to the maturity date.
+   * Calculates the alpha value for the specified period with respect to the maturity date.
    * <p>
    * The alpha is computed with a bond numeraire of {@code numeraireDate}.
    * 
@@ -187,7 +171,7 @@ public final class HullWhiteOneFactorPiecewiseConstantParametersProvider impleme
   }
 
   /**
-   * Computes the alpha and its derivative values for the specified period with respect to the maturity date.
+   * Calculates the alpha and its derivative values for the specified period with respect to the maturity date.
    * <p>
    * The alpha is computed with a bond numeraire of {@code numeraireDate}.
    * 

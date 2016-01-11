@@ -46,7 +46,7 @@ import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
- * Volatility environment for swaptions in the log-normal or Black model. 
+ * Volatility for swaptions in the log-normal or Black model. 
  * The volatility is represented by a surface on the expiry and swap tenor dimensions.
  */
 @BeanDefinition(builderScope = "private")
