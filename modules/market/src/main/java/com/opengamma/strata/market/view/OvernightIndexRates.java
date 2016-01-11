@@ -15,7 +15,6 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -173,18 +172,6 @@ public interface OvernightIndexRates
   public abstract PointSensitivityBuilder periodRatePointSensitivity(LocalDate startDate, LocalDate endDate);
 
   //-------------------------------------------------------------------------
-  /**
-   * Calculates the unit parameter sensitivity of the forward rate at the specified fixing date.
-   * <p>
-   * This returns the unit sensitivity to each parameter on the underlying curve at the specified date.
-   * The sensitivity refers to the result of {@link #rate(LocalDate)}.
-   * 
-   * @param fixingDate  the fixing date to find the sensitivity for
-   * @return the parameter sensitivity
-   * @throws RuntimeException if the value cannot be obtained
-   */
-  public abstract CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate fixingDate);
-
   /**
    * Calculates the curve parameter sensitivity from the point sensitivity.
    * <p>
