@@ -85,8 +85,8 @@ public class SabrSwaptionCashParYieldProductPricer
     double discountSettle = ratesProvider.discountFactor(fixedLeg.getCurrency(), settlementDate);
     double strike = calculateStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
-    double shift = swaptionVolatilities.getParameters().shift(expiry, tenor);
-    ValueDerivatives volatilityAdj = swaptionVolatilities.getParameters().volatilityAdjoint(expiry, tenor, strike, forward);
+    double shift = swaptionVolatilities.shift(expiry, tenor);
+    ValueDerivatives volatilityAdj = swaptionVolatilities.volatilityAdjoint(expiry, tenor, strike, forward);
     boolean isCall = fixedLeg.getPayReceive().isPay();
     double shiftedForward = forward + shift;
     double shiftedStrike = strike + shift;
@@ -125,7 +125,7 @@ public class SabrSwaptionCashParYieldProductPricer
     ExpandedSwap underlying = expanded.getUnderlying();
     ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
-    double shift = swaptionVolatilities.getParameters().shift(expiry, tenor);
+    double shift = swaptionVolatilities.shift(expiry, tenor);
     double strike = calculateStrike(fixedLeg);
     if (expiry < 0d) { // Option has expired already
       return SwaptionSabrSensitivity.of(
@@ -134,8 +134,7 @@ public class SabrSwaptionCashParYieldProductPricer
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
     double numeraire = calculateNumeraire(expanded, fixedLeg, forward, ratesProvider);
-    DoubleArray derivative =
-        swaptionVolatilities.getParameters().volatilityAdjoint(expiry, tenor, strike, forward).getDerivatives();
+    DoubleArray derivative = swaptionVolatilities.volatilityAdjoint(expiry, tenor, strike, forward).getDerivatives();
     double vega = numeraire * expanded.getLongShort().sign() *
         BlackFormulaRepository.vega(forward + shift, strike + shift, expiry, volatility);
     return SwaptionSabrSensitivity.of(
