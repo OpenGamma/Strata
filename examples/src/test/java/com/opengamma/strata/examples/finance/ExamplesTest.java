@@ -90,6 +90,11 @@ public class ExamplesTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_swapPricingWithCalibration_standalone() {
+    assertValidCapturedAsciiTable(caputureSystemOut(() -> SwapPricingWithCalibrationExample.main(NO_ARGS)));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_termDepositPricing_standalone() {
     assertValidCapturedAsciiTable(caputureSystemOut(() -> TermDepositPricingExample.main(NO_ARGS)));
   }
