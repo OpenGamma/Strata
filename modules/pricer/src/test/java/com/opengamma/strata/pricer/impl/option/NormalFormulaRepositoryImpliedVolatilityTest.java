@@ -80,12 +80,12 @@ public class NormalFormulaRepositoryImpliedVolatilityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void wrong_strike() {
-    NormalFormulaRepository.impliedVolatilityFromBlackVolatility(FORWARD, -1.0d, T, 0.20d);
+    NormalFormulaRepository.impliedVolatilityFromBlackApproximated(FORWARD, -1.0d, T, 0.20d);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void wrong_forward() {
-    NormalFormulaRepository.impliedVolatilityFromBlackVolatility(-1.0d, FORWARD, T, 0.20d);
+    NormalFormulaRepository.impliedVolatilityFromBlackApproximated(-1.0d, FORWARD, T, 0.20d);
   }
 
   @Test
@@ -97,7 +97,7 @@ public class NormalFormulaRepositoryImpliedVolatilityTest {
   private void priceCheck(double[] strikes) {
     for (int i = 0; i < N; i++) {
       double ivNormalComputed = NormalFormulaRepository
-          .impliedVolatilityFromBlackVolatility(FORWARD, strikes[i], T, SIGMA_BLACK[i]);
+          .impliedVolatilityFromBlackApproximated(FORWARD, strikes[i], T, SIGMA_BLACK[i]);
       double priceNormalComputed = 
           NormalFormulaRepository.price(FORWARD, strikes[i], T, ivNormalComputed, PutCall.CALL) * DF;
       double priceBlack = BlackFormulaRepository.price(FORWARD, strikes[i], T, SIGMA_BLACK[i], true) * DF;
