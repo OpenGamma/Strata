@@ -80,8 +80,8 @@ public class SabrSwaptionPhysicalProductPricer
     double pvbp = getSwapPricer().getLegPricer().pvbp(fixedLeg, ratesProvider);
     double strike = getSwapPricer().getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
-    double shift = swaptionVolatilities.getParameters().shift(expiry, tenor);
-    ValueDerivatives volatilityAdj = swaptionVolatilities.getParameters().volatilityAdjoint(expiry, tenor, strike, forward);
+    double shift = swaptionVolatilities.shift(expiry, tenor);
+    ValueDerivatives volatilityAdj = swaptionVolatilities.volatilityAdjoint(expiry, tenor, strike, forward);
     boolean isCall = fixedLeg.getPayReceive().isPay();
     // Payer at strike is exercise when rate > strike, i.e. call on rate
     // Backward sweep
@@ -120,7 +120,7 @@ public class SabrSwaptionPhysicalProductPricer
     ExpandedSwap underlying = expanded.getUnderlying();
     ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
-    double shift = swaptionVolatilities.getParameters().shift(expiry, tenor);
+    double shift = swaptionVolatilities.shift(expiry, tenor);
     double pvbp = getSwapPricer().getLegPricer().pvbp(fixedLeg, ratesProvider);
     double strike = getSwapPricer().getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
     if (expiry < 0d) { // Option has expired already
@@ -130,7 +130,7 @@ public class SabrSwaptionPhysicalProductPricer
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
     DoubleArray derivative =
-        swaptionVolatilities.getParameters().volatilityAdjoint(expiry, tenor, strike, forward).getDerivatives();
+        swaptionVolatilities.volatilityAdjoint(expiry, tenor, strike, forward).getDerivatives();
     // Backward sweep
     double vega = Math.abs(pvbp) * BlackFormulaRepository.vega(forward + shift, strike + shift, expiry, volatility)
         * expanded.getLongShort().sign();

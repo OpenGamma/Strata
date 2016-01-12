@@ -84,7 +84,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a volatility instance based on the specified surface.
+   * Obtains an instance from the implied volatility surface and the date-time for which it is valid.
    * <p>
    * The swap convention and valuation date-time are also specified.
    * 
@@ -92,7 +92,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
    * @param convention  the swap convention for which the data is valid
    * @param dayCount  the day count applicable to the model
    * @param valuationDateTime  the valuation date-time
-   * @return the provider
+   * @return the volatilities
    */
   public static NormalSwaptionExpiryTenorVolatilities of(
       NodalSurface surface,
@@ -104,7 +104,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
   }
 
   /**
-   * Obtains a volatility instance based on the specified surface.
+   * Obtains an instance from the implied volatility surface and the date, time and zone for which it is valid.
    * <p>
    * The swap convention and valuation date-time are also specified.
    * 
@@ -114,7 +114,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
    * @param valuationDate  the valuation date
    * @param valuationTime  the valuation time
    * @param valuationZone  the valuation time zone
-   * @return the provider
+   * @return the volatilities
    */
   public static NormalSwaptionExpiryTenorVolatilities of(
       NodalSurface surface,

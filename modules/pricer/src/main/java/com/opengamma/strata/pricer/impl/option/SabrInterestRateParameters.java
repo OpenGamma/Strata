@@ -90,7 +90,7 @@ public final class SabrInterestRateParameters
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains {@code SabrInterestRateParameters} without shift from nodal surfaces and volatility function provider.
+   * Obtains an instance without shift from nodal surfaces and volatility function provider.
    * 
    * @param alphaSurface  the alpha surface
    * @param betaSurface  the beta surface
@@ -112,7 +112,7 @@ public final class SabrInterestRateParameters
   }
 
   /**
-   * Obtains {@code SabrInterestRateParameters} with shift from nodal surfaces and volatility function provider.
+   * Obtains an instance with shift from nodal surfaces and volatility function provider.
    * 
    * @param alphaSurface  the alpha surface
    * @param betaSurface  the beta surface
@@ -136,55 +136,55 @@ public final class SabrInterestRateParameters
 
   //-------------------------------------------------------------------------
   /**
-   * Return the alpha parameter for a pair of time to expiry and instrument tenor.
+   * Calculates the alpha parameter for a pair of time to expiry and instrument tenor.
    * 
-   * @param expiry  the expiry
-   * @param tenor  the tenor
-   * @return The alpha parameter
+   * @param expiry  the time to expiry as a year fraction
+   * @param tenor  the tenor of the instrument as a year fraction
+   * @return the alpha parameter
    */
   public double alpha(double expiry, double tenor) {
     return alphaSurface.zValue(expiry, tenor);
   }
 
   /**
-   * Return the beta parameter for a pair of time to expiry and instrument tenor.
+   * Calculates the beta parameter for a pair of time to expiry and instrument tenor.
    * 
-   * @param expiry  the expiry
-   * @param tenor  the tenor
-   * @return The beta parameter
+   * @param expiry  the time to expiry as a year fraction
+   * @param tenor  the tenor of the instrument as a year fraction
+   * @return the beta parameter
    */
   public double beta(double expiry, double tenor) {
     return betaSurface.zValue(expiry, tenor);
   }
 
   /**
-   * Return the rho parameter for a pair of time to expiry and instrument tenor.
+   * Calculates the rho parameter for a pair of time to expiry and instrument tenor.
    * 
-   * @param expiry  the expiry
-   * @param tenor  the tenor
-   * @return The rho parameter
+   * @param expiry  the time to expiry as a year fraction
+   * @param tenor  the tenor of the instrument as a year fraction
+   * @return the rho parameter
    */
   public double rho(double expiry, double tenor) {
     return rhoSurface.zValue(expiry, tenor);
   }
 
   /**
-   * Return the nu parameter for a pair of time to expiry and instrument tenor.
+   * Calculates the nu parameter for a pair of time to expiry and instrument tenor.
    * 
-   * @param expiry  the expiry
-   * @param tenor  the tenor
-   * @return The nu parameter
+   * @param expiry  the time to expiry as a year fraction
+   * @param tenor  the tenor of the instrument as a year fraction
+   * @return the nu parameter
    */
   public double nu(double expiry, double tenor) {
     return nuSurface.zValue(expiry, tenor);
   }
 
   /**
-   * Return the shift parameter for a pair of time to expiry and instrument tenor.
+   * Calculates the shift parameter for a pair of time to expiry and instrument tenor.
    * 
-   * @param expiry  the expiry
-   * @param tenor  the tenor
-   * @return The shift parameter
+   * @param expiry  the time to expiry as a year fraction
+   * @param tenor  the tenor of the instrument as a year fraction
+   * @return the shift parameter
    */
   public double shift(double expiry, double tenor) {
     return shiftSurface.zValue(expiry, tenor);
@@ -199,10 +199,10 @@ public final class SabrInterestRateParameters
   }
 
   /**
-   * Returns the volatility for given expiry, tenor, strike and forward rate.
+   * Calculates the volatility for given expiry, tenor, strike and forward rate.
    * 
-   * @param expiry  time to expiry
-   * @param tenor  tenor
+   * @param expiry  the time to expiry as a year fraction
+   * @param tenor  the tenor as a year fraction
    * @param strike  the strike
    * @param forward  the forward
    * @return the volatility
@@ -215,21 +215,23 @@ public final class SabrInterestRateParameters
   }
 
   /**
-   * Returns the volatility sensitivity to forward, strike and the SABR model parameters.
+   * Calculates the volatility and associated sensitivities.
    * <p>
-   * The derivatives are stored in an array with
-   * [0] Derivative w.r.t the forward,
-   * [1] the derivative w.r.t the strike,
-   * [2] the derivative w.r.t. to alpha,
-   * [3] the derivative w.r.t. to beta,
-   * [4] the derivative w.r.t. to rho, and
-   * [5] the derivative w.r.t. to nu.
+   * The derivatives are stored in an array with:
+   * <ul>
+   * <li>[0] derivative with respect to the forward
+   * <li>[1] derivative with respect to the forward strike
+   * <li>[2] derivative with respect to the alpha
+   * <li>[3] derivative with respect to the beta
+   * <li>[4] derivative with respect to the rho
+   * <li>[5] derivative with respect to the nu
+   * </ul>
    * 
-   * @param expiry  time to expiry
-   * @param tenor  tenor
+   * @param expiry  the time to expiry as a year fraction
+   * @param tenor  the tenor of the instrument as a year fraction
    * @param strike  the strike
    * @param forward  the forward
-   * @return the sensitivities
+   * @return the volatility and associated sensitivities
    */
   public ValueDerivatives volatilityAdjoint(double expiry, double tenor, double strike, double forward) {
     SabrFormulaData data = SabrFormulaData.of(

@@ -219,13 +219,13 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       .underlying(SWAP_BASIS)
       .build();
 
-  private static final SabrSwaptionVolatilities VOL_PROVIDER_REG =
+  private static final SabrParametersSwaptionVolatilities VOL_PROVIDER_REG =
       SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(VAL_DATE_TIME.toLocalDate(), false);
-  private static final SabrSwaptionVolatilities VOL_PROVIDER =
+  private static final SabrParametersSwaptionVolatilities VOL_PROVIDER =
       SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(VAL_DATE_TIME.toLocalDate(), true);
-  private static final SabrSwaptionVolatilities VOL_PROVIDER_AT_MATURITY =
+  private static final SabrParametersSwaptionVolatilities VOL_PROVIDER_AT_MATURITY =
       SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(MATURITY.toLocalDate(), true);
-  private static final SabrSwaptionVolatilities VOL_PROVIDER_AFTER_MATURITY =
+  private static final SabrParametersSwaptionVolatilities VOL_PROVIDER_AFTER_MATURITY =
       SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(MATURITY.toLocalDate().plusDays(1), true);
   private static final ImmutableRatesProvider RATE_PROVIDER =
       SwaptionSabrRateVolatilityDataSet.getRatesProviderEur(VAL_DATE_TIME.toLocalDate());

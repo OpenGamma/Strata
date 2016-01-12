@@ -140,13 +140,13 @@ public class SabrSwaptionPhysicalProductPricerTest {
       SwaptionSabrRateVolatilityDataSet.getRatesProviderUsd(MATURITY_DATE.toLocalDate());
   private static final ImmutableRatesProvider RATE_PROVIDER_AFTER_MATURITY =
       SwaptionSabrRateVolatilityDataSet.getRatesProviderUsd(MATURITY_DATE.toLocalDate().plusDays(1));
-  private static final SabrSwaptionVolatilities VOL_PROVIDER =
+  private static final SabrParametersSwaptionVolatilities VOL_PROVIDER =
       SwaptionSabrRateVolatilityDataSet.getVolatilitiesUsd(VAL_DATE, true);
-  private static final SabrSwaptionVolatilities VOL_PROVIDER_AT_MATURITY =
+  private static final SabrParametersSwaptionVolatilities VOL_PROVIDER_AT_MATURITY =
       SwaptionSabrRateVolatilityDataSet.getVolatilitiesUsd(MATURITY_DATE.toLocalDate(), true);
-  private static final SabrSwaptionVolatilities VOL_PROVIDER_AFTER_MATURITY =
+  private static final SabrParametersSwaptionVolatilities VOL_PROVIDER_AFTER_MATURITY =
       SwaptionSabrRateVolatilityDataSet.getVolatilitiesUsd(MATURITY_DATE.toLocalDate().plusDays(1), true);
-  private static final SabrSwaptionVolatilities VOL_PROVIDER_REGRESSION =
+  private static final SabrParametersSwaptionVolatilities VOL_PROVIDER_REGRESSION =
       SwaptionSabrRateVolatilityDataSet.getVolatilitiesUsd(VAL_DATE, false);
   // test parameters and calculator
   private static final double TOL = 1.0e-13;

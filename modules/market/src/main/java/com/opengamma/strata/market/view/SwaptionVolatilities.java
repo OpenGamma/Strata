@@ -58,7 +58,7 @@ public interface SwaptionVolatilities
    * This relies on tenor supplied by {@link #tenor(LocalDate, LocalDate)}.
    * 
    * @param expiryDateTime  the option expiry
-   * @param tenor  the swaption tenor in years
+   * @param tenor  the tenor of the instrument as a year fraction
    * @param strike  the option strike rate
    * @param forward  the forward rate of the underlying swap
    * @return the volatility
@@ -74,8 +74,8 @@ public interface SwaptionVolatilities
    * This relies on expiry supplied by {@link #relativeTime(ZonedDateTime)}.
    * This relies on tenor supplied by {@link #tenor(LocalDate, LocalDate)}.
    * 
-   * @param expiry  the option expiry
-   * @param tenor  the swaption tenor in years
+   * @param expiry  the time to expiry as a year fraction
+   * @param tenor  the tenor of the instrument as a year fraction
    * @param strike  the option strike rate
    * @param forward  the forward rate of the underlying swap
    * @return the volatility
@@ -103,8 +103,8 @@ public interface SwaptionVolatilities
    * This relies on tenor supplied by {@link #tenor(LocalDate, LocalDate)}.
    * This relies on volatility supplied by {@link #volatility(double, double, double, double)}.
    * 
-   * @param expiry  the option expiry
-   * @param tenor  the swaption tenor in years
+   * @param expiry  the time to expiry as a year fraction
+   * @param tenor  the tenor of the instrument as a year fraction
    * @param putCall  whether the option is put or call
    * @param strike  the option strike rate
    * @param forward  the forward rate of the underlying swap
@@ -129,8 +129,8 @@ public interface SwaptionVolatilities
    * This relies on tenor supplied by {@link #tenor(LocalDate, LocalDate)}.
    * This relies on volatility supplied by {@link #volatility(double, double, double, double)}.
    * 
-   * @param expiry  the option expiry
-   * @param tenor  the swaption tenor in years
+   * @param expiry  the time to expiry as a year fraction
+   * @param tenor  the tenor of the instrument as a year fraction
    * @param putCall  whether the option is put or call
    * @param strike  the option strike rate
    * @param forward  the forward rate of the underlying swap
@@ -155,8 +155,8 @@ public interface SwaptionVolatilities
    * This relies on tenor supplied by {@link #tenor(LocalDate, LocalDate)}.
    * This relies on volatility supplied by {@link #volatility(double, double, double, double)}.
    * 
-   * @param expiry  the option expiry
-   * @param tenor  the swaption tenor in years
+   * @param expiry  the time to expiry as a year fraction
+   * @param tenor  the tenor of the instrument as a year fraction
    * @param putCall  whether the option is put or call
    * @param strike  the option strike rate
    * @param forward  the forward rate of the underlying swap
@@ -181,8 +181,8 @@ public interface SwaptionVolatilities
    * This relies on tenor supplied by {@link #tenor(LocalDate, LocalDate)}.
    * This relies on volatility supplied by {@link #volatility(double, double, double, double)}.
    * 
-   * @param expiry  the option expiry
-   * @param tenor  the swaption tenor in years
+   * @param expiry  the time to expiry as a year fraction
+   * @param tenor  the tenor of the instrument as a year fraction
    * @param putCall  whether the option is put or call
    * @param strike  the option strike rate
    * @param forward  the forward rate of the underlying swap
@@ -207,8 +207,8 @@ public interface SwaptionVolatilities
    * This relies on tenor supplied by {@link #tenor(LocalDate, LocalDate)}.
    * This relies on volatility supplied by {@link #volatility(double, double, double, double)}.
    * 
-   * @param expiry  the option expiry
-   * @param tenor  the swaption tenor in years
+   * @param expiry  the time to expiry as a year fraction
+   * @param tenor  the tenor of the instrument as a year fraction
    * @param putCall  whether the option is put or call
    * @param strike  the option strike rate
    * @param forward  the forward rate of the underlying swap
