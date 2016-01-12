@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 
@@ -29,6 +30,10 @@ public final class BlackFormulaRepository {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private static final double LARGE = 1e13;
   private static final double SMALL = 1e-13;
+  /** Limit defining "close of ATM forward" to avoid the formula singularity. **/
+  private static final double ATM_LIMIT = 1.0E-3;
+  private static final double ROOT_ACCURACY = 1.0E-7;
+  private static final NewtonRaphsonSingleRootFinder ROOT_FINDER = new NewtonRaphsonSingleRootFinder(ROOT_ACCURACY);
 
   // restricted constructor
   private BlackFormulaRepository() {
@@ -1165,6 +1170,75 @@ public final class BlackFormulaRepository {
     derivatives[2] = part1 * (-volatility * omega * n * 0.5 / sqrtt + volatility * volatility / 2) * part1Bar;
     derivatives[3] = part1 * (-sqrtt * omega * n + volatility * time) * part1Bar;
     return strike;
+  }
+  
+  /**
+   * Compute the normal implied volatility from a normal volatility using an approximate initial guess and a root-finder.
+   * <p>
+   * The forward and the strike must be positive.
+   * <p>
+   * Reference: Hagan, P. S. Volatility conversion calculator. Technical report, Bloomberg.
+   * 
+   * @param forward  the forward rate/price
+   * @param strike  the option strike
+   * @param timeToExpiry  the option time to expiration
+   * @param normalVolatility  the normal implied volatility
+   * @return the Black implied volatility
+   */
+  public static double impliedVolatilityFromNormalApproximated(
+      final double forward,
+      final double strike,
+      final double timeToExpiry,
+      final double normalVolatility) {
+    ArgChecker.isTrue(strike > 0, "strike must be strictly positive");
+    ArgChecker.isTrue(forward > 0, "strike must be strictly positive");
+    // initial guess
+    double guess = impliedVolatilityFromNormalApproximated2(forward, strike, timeToExpiry, normalVolatility);
+    // Newton-Raphson method
+    final Function<Double, Double> func = new Function<Double, Double>() {
+      @Override
+      public Double apply(Double volatility) {
+        return NormalFormulaRepository
+            .impliedVolatilityFromBlackApproximated(forward, strike, timeToExpiry, volatility) - normalVolatility;
+      }
+    };
+    return ROOT_FINDER.getRoot(func, guess);
+  }
+  
+  /**
+   * Compute the normal implied volatility from a normal volatility using an approximate explicit formula. 
+   * <p>
+   * The formula is usually not good enough to be used as such, but provide a good initial guess for a 
+   * root-finding procedure. Use {@link BlackFormulaRepository#impliedVolatilityFromNormalApproximated} for
+   * more precision.
+   * <p>
+   * The forward and the strike must be positive.
+   * <p>
+   * Reference: Hagan, P. S. Volatility conversion calculator. Technical report, Bloomberg.
+   * 
+   * @param forward  the forward rate/price
+   * @param strike  the option strike
+   * @param timeToExpiry  the option time to expiration
+   * @param normalVolatility  the normal implied volatility
+   * @return the Black implied volatility
+   */
+  public static double impliedVolatilityFromNormalApproximated2(
+      double forward,
+      double strike,
+      double timeToExpiry,
+      double normalVolatility) {
+    ArgChecker.isTrue(strike > 0, "strike must be strctly positive");
+    ArgChecker.isTrue(forward > 0, "strike must be strctly positive");
+    double lnFK = Math.log(forward / strike);
+    double s2t = normalVolatility * normalVolatility * timeToExpiry;
+    if (Math.abs((forward - strike) / strike) < ATM_LIMIT) {
+      double factor1 = 1.0d / Math.sqrt(forward * strike);
+      double factor2 = (1.0d + s2t / (24.0d * forward * strike)) / (1.0d + lnFK * lnFK / 24.0d);
+      return normalVolatility * factor1 * factor2;
+    }
+    double factor1 = lnFK / (forward - strike);
+    double factor2 = (1.0d + (1.0d - lnFK * lnFK / 120.0d) * s2t / (24.0d * forward * strike));
+    return normalVolatility * factor1 * factor2;
   }
 
 }

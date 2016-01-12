@@ -321,13 +321,13 @@ public final class NormalFormulaRepository {
    * @param blackVolatility  the Black implied volatility
    * @return the implied volatility
    */
-  public static double impliedVolatilityFromBlackVolatility(
+  public static double impliedVolatilityFromBlackApproximated(
       double forward,
       double strike,
       double timeToExpiry,
       double blackVolatility) {
-    ArgChecker.isTrue(strike > 0, "strike must be strctly positive");
-    ArgChecker.isTrue(forward > 0, "strike must be strctly positive");
+    ArgChecker.isTrue(strike > 0, "strike must be strictly positive");
+    ArgChecker.isTrue(forward > 0, "strike must be strictly positive");
     double lnFK = Math.log(forward / strike);
     double s2t = blackVolatility * blackVolatility * timeToExpiry;
     if (Math.abs((forward - strike) / strike) < ATM_LIMIT) {
