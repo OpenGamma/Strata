@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.swaption;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -14,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -49,7 +50,7 @@ import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
- * Volatility environment for swaptions in SABR model. 
+ * Volatility environment for swaptions in the SABR model. 
  * <p>
  * The volatility is represented in terms of SABR model parameters.
  * <p>
@@ -95,7 +96,7 @@ public final class SabrParametersSwaptionVolatilities
    * @param convention  the swap convention for which the data is valid
    * @param valuationDateTime  the valuation date-time
    * @param dayCount  the day count applicable to the model
-   * @return the provider
+   * @return the volatilities
    */
   public static SabrParametersSwaptionVolatilities of(
       SabrInterestRateParameters parameters,
@@ -115,7 +116,7 @@ public final class SabrParametersSwaptionVolatilities
    * @param valuationTime  the valuation time
    * @param valuationZone  the valuation time zone
    * @param dayCount  the day count applicable to the model
-   * @return the provider
+   * @return the volatilities
    */
   public static SabrParametersSwaptionVolatilities of(
       SabrInterestRateParameters parameters,
@@ -150,27 +151,27 @@ public final class SabrParametersSwaptionVolatilities
   }
 
   /**
-   * Calculates the sensitivity to the nodes of the underlying volatility objects 
+   * Calculates the surface parameter sensitivity from the point sensitivity.
    * <p>
-   * The underlying object is typically curve, surface or cube. 
+   * This is used to convert a single point sensitivity to surface parameter sensitivity.
    * 
-   * @param sensitivity  the point sensitivity
-   * @return the node sensitivity
+   * @param pointSensitivity  the point sensitivity to convert
+   * @return the parameter sensitivity
+   * @throws RuntimeException if the result cannot be calculated
    */
-  public SurfaceCurrencyParameterSensitivities surfaceCurrencyParameterSensitivity(SwaptionSabrSensitivity sensitivity) {
-    ArgChecker.isTrue(sensitivity.getConvention().equals(convention),
+  public SurfaceCurrencyParameterSensitivities surfaceCurrencyParameterSensitivity(SwaptionSabrSensitivity pointSensitivity) {
+    ArgChecker.isTrue(pointSensitivity.getConvention().equals(convention),
         "Swap convention of provider must be the same as swap convention of swaption sensitivity");
-    double expiry = relativeTime(sensitivity.getExpiry());
-    double tenor = sensitivity.getTenor();
-    DoublesPair expiryTenor = DoublesPair.of(expiry, tenor);
+    double expiry = relativeTime(pointSensitivity.getExpiry());
+    double tenor = pointSensitivity.getTenor();
     SurfaceCurrencyParameterSensitivity alphaSensi = surfaceCurrencyParameterSensitivity(
-        parameters.getAlphaSurface(), sensitivity.getCurrency(), sensitivity.getAlphaSensitivity(), expiryTenor);
+        parameters.getAlphaSurface(), pointSensitivity.getCurrency(), pointSensitivity.getAlphaSensitivity(), expiry, tenor);
     SurfaceCurrencyParameterSensitivity betaSensi = surfaceCurrencyParameterSensitivity(
-        parameters.getBetaSurface(), sensitivity.getCurrency(), sensitivity.getBetaSensitivity(), expiryTenor);
+        parameters.getBetaSurface(), pointSensitivity.getCurrency(), pointSensitivity.getBetaSensitivity(), expiry, tenor);
     SurfaceCurrencyParameterSensitivity rhoSensi = surfaceCurrencyParameterSensitivity(
-        parameters.getRhoSurface(), sensitivity.getCurrency(), sensitivity.getRhoSensitivity(), expiryTenor);
+        parameters.getRhoSurface(), pointSensitivity.getCurrency(), pointSensitivity.getRhoSensitivity(), expiry, tenor);
     SurfaceCurrencyParameterSensitivity nuSensi = surfaceCurrencyParameterSensitivity(
-        parameters.getNuSurface(), sensitivity.getCurrency(), sensitivity.getNuSensitivity(), expiryTenor);
+        parameters.getNuSurface(), pointSensitivity.getCurrency(), pointSensitivity.getNuSensitivity(), expiry, tenor);
     return SurfaceCurrencyParameterSensitivities.of(alphaSensi, betaSensi, rhoSensi, nuSensi);
   }
 
@@ -178,16 +179,18 @@ public final class SabrParametersSwaptionVolatilities
       NodalSurface surface,
       Currency currency,
       double factor,
-      DoublesPair expiryTenor) {
+      double expiry,
+      double tenor) {
 
-    Map<DoublesPair, Double> sensiMap = surface.zValueParameterSensitivity(expiryTenor);
+    Map<DoublesPair, Double> sensiMap = surface.zValueParameterSensitivity(expiry, tenor);
     return SurfaceCurrencyParameterSensitivity.of(
-        updateSurfaceMetadata(surface.getMetadata(), sensiMap.keySet()), currency,
-        DoubleArray.copyOf(sensiMap.values().parallelStream().map((p) -> (p) * factor).collect(Collectors.toList())));
+        updateSurfaceMetadata(surface.getMetadata(), sensiMap.keySet()),
+        currency,
+        DoubleArray.copyOf(sensiMap.values().stream().mapToDouble(p -> p * factor).toArray()));
   }
 
   private SurfaceMetadata updateSurfaceMetadata(SurfaceMetadata surfaceMetadata, Set<DoublesPair> pairs) {
-    List<SurfaceParameterMetadata> sortedMetaList = new ArrayList<SurfaceParameterMetadata>();
+    List<SurfaceParameterMetadata> orderedMetaList = new ArrayList<SurfaceParameterMetadata>();
     if (surfaceMetadata.getParameterMetadata().isPresent()) {
       List<SurfaceParameterMetadata> metaList =
           new ArrayList<SurfaceParameterMetadata>(surfaceMetadata.getParameterMetadata().get());
@@ -199,7 +202,7 @@ public final class SabrParametersSwaptionVolatilities
           SwaptionSurfaceExpiryTenorNodeMetadata casted =
               (SwaptionSurfaceExpiryTenorNodeMetadata) parameterMetadata;
           if (pair.getFirst() == casted.getYearFraction() && pair.getSecond() == casted.getTenor()) {
-            sortedMetaList.add(casted);
+            orderedMetaList.add(casted);
             metaList.remove(parameterMetadata);
             break metadataLoop;
           }
@@ -207,13 +210,11 @@ public final class SabrParametersSwaptionVolatilities
       }
       ArgChecker.isTrue(metaList.size() == 0, "Mismatch between surface parameter metadata list and doubles pair list");
     } else {
-      for (DoublesPair pair : pairs) {
-        SwaptionSurfaceExpiryTenorNodeMetadata parameterMetadata =
-            SwaptionSurfaceExpiryTenorNodeMetadata.of(pair.getFirst(), pair.getSecond());
-        sortedMetaList.add(parameterMetadata);
-      }
+      orderedMetaList = pairs.stream()
+          .map(pair -> SwaptionSurfaceExpiryTenorNodeMetadata.of(pair.getFirst(), pair.getSecond()))
+          .collect(toImmutableList());
     }
-    return surfaceMetadata.withParameterMetadata(sortedMetaList);
+    return surfaceMetadata.withParameterMetadata(orderedMetaList);
   }
 
   //-------------------------------------------------------------------------

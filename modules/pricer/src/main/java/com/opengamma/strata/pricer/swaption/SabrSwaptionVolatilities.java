@@ -19,8 +19,8 @@ public interface SabrSwaptionVolatilities
   /**
    * Calculates the shift parameter for the specified time to expiry and instrument tenor.
    * 
-   * @param expiry  the expiry
-   * @param tenor  the tenor
+   * @param expiry  the time to expiry as a year fraction
+   * @param tenor  the tenor of the instrument as a year fraction
    * @return the shift parameter
    */
   public abstract double shift(double expiry, double tenor);
@@ -30,16 +30,16 @@ public interface SabrSwaptionVolatilities
    * <p>
    * The derivatives are stored in an array with:
    * <ul>
-   * <li>[0] Derivative w.r.t the forward
-   * <li>[1] the derivative w.r.t the strike
-   * <li>[2] the derivative w.r.t. to alpha
-   * <li>[3] the derivative w.r.t. to beta
-   * <li>[4] the derivative w.r.t. to rho
-   * <li>[5] the derivative w.r.t. to nu
+   * <li>[0] derivative with respect to the forward
+   * <li>[1] derivative with respect to the forward strike
+   * <li>[2] derivative with respect to the alpha
+   * <li>[3] derivative with respect to the beta
+   * <li>[4] derivative with respect to the rho
+   * <li>[5] derivative with respect to the nu
    * </ul>
    * 
-   * @param expiry  time to expiry
-   * @param tenor  tenor of the instrument
+   * @param expiry  the time to expiry as a year fraction
+   * @param tenor  the tenor of the instrument as a year fraction
    * @param strike  the strike
    * @param forward  the forward
    * @return the volatility and associated sensitivities

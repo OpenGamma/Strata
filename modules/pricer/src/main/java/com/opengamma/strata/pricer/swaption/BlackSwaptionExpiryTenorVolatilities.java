@@ -82,13 +82,13 @@ public final class BlackSwaptionExpiryTenorVolatilities
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a provider from the implied volatility surface and the date-time for which it is valid.
+   * Obtains an instance from the implied volatility surface and the date-time for which it is valid.
    * 
    * @param surface  the implied volatility surface
    * @param convention  the swap convention for which the data is valid
    * @param valuationDateTime  the valuation date-time
    * @param dayCount  the day count applicable to the model
-   * @return the provider
+   * @return the volatilities
    */
   public static BlackSwaptionExpiryTenorVolatilities of(
       NodalSurface surface,
@@ -100,7 +100,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
   }
 
   /**
-   * Creates a provider from the implied volatility surface and the date, time and zone for which it is valid.
+   * Obtains an instance from the implied volatility surface and the date, time and zone for which it is valid.
    * 
    * @param surface  the implied volatility surface
    * @param convention  the swap convention for which the data is valid
@@ -108,7 +108,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
    * @param valuationTime  the valuation time
    * @param valuationZone  the valuation time zone
    * @param dayCount  the day count applicable to the model
-   * @return the provider
+   * @return the volatilities
    */
   public static BlackSwaptionExpiryTenorVolatilities of(
       NodalSurface surface,
