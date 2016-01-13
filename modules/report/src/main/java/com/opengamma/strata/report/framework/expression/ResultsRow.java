@@ -79,27 +79,48 @@ class ResultsRow {
    * @return the result of calculating the named measure for the trade in the row
    */
   Result<?> getResult(String measureName) {
+    List<String> validMeasureNames = measureNames(results.getTrades().get(rowIndex));
+    if (!validMeasureNames.contains(measureName)) {
+      return Result.failure(
+          FailureReason.INVALID_INPUT,
+          "Invalid measure name: {}. Valid measure names: {}",
+          measureName,
+          validMeasureNames);
+    }
     try {
       Column column = Column.of(Measure.of(measureName));
       int columnIndex = results.getColumns().indexOf(column);
-      return columnIndex == -1 ?
-          Result.failure(
-              FailureReason.INVALID_INPUT,
-              "Measure not found in results: '{}'. Valid measure names: {}",
-              measureName,
-              measureNames(results.getTrades().get(rowIndex))) :
-          results.getCalculationResults().get(rowIndex, columnIndex);
+      if (columnIndex == -1) {
+        return Result.failure(
+            FailureReason.INVALID_INPUT,
+            "Measure not found in results: '{}'. Valid measure names: {}",
+            measureName,
+            validMeasureNames);
+      }
+      Result<?> result = results.getCalculationResults().get(rowIndex, columnIndex);
+      if (result.isFailure() && result.getFailure().getReason() == FailureReason.ERROR) {
+        return Result.failure(
+            FailureReason.INVALID_INPUT,
+            "Unable to calculate measure '{}'. Reason: {}",
+            measureName,
+            validMeasureNames,
+            result.getFailure().getMessage());
+      }
+      return result;
+
     } catch (IllegalArgumentException ex) {
       return Result.failure(
           FailureReason.INVALID_INPUT,
-          "Invalid measure name: '{}'. Valid measure names: {}",
+          "Unable to calculate measure '{}'. Reason: {}. Valid measure names: {}",
           measureName,
-          measureNames(results.getTrades().get(rowIndex)));
+          ex.getMessage(),
+          validMeasureNames);
     }
   }
 
-  // TODO The pricing rules should be an argument, not hard-coded to be the standard rules
-  private static List<String> measureNames(Trade trade) {
+  // determine the available measures
+  static List<String> measureNames(Trade trade) {
+    // TODO The pricing rules should be an argument, not hard-coded to be the standard rules
     Set<Measure> validMeasures = StandardComponents.pricingRules().configuredMeasures(trade);
     return validMeasures.stream()
         .map(TypedString::toString)

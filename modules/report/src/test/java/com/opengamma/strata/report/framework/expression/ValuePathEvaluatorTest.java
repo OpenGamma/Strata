@@ -43,7 +43,7 @@ public class ValuePathEvaluatorTest {
   public void measurePath() {
     ReportCalculationResults reportResults = reportResults();
 
-    List<Result<?>> currencyResults = ValuePathEvaluator.evaluate("Measures.Foo.Currency", reportResults);
+    List<Result<?>> currencyResults = ValuePathEvaluator.evaluate("Measures.PresentValue.Currency", reportResults);
     List<Result<?>> expectedCurrencies = ImmutableList.of(
         Result.success(Currency.CAD),
         Result.success(Currency.AUD),
@@ -52,12 +52,53 @@ public class ValuePathEvaluatorTest {
 
     // Amount returns the CurrencyAmount which is slightly unexpected
     // It's required in order to be able to format the amount to the correct number of decimal places
-    List<Result<?>> amountResults = ValuePathEvaluator.evaluate("Measures.Foo.Amount", reportResults);
+    List<Result<?>> amountResults = ValuePathEvaluator.evaluate("Measures.PresentValue.Amount", reportResults);
     List<Result<?>> expectedAmounts = ImmutableList.of(
         Result.success(CurrencyAmount.of(Currency.CAD, 2d)),
         Result.success(CurrencyAmount.of(Currency.AUD, 3d)),
         Result.success(CurrencyAmount.of(Currency.CHF, 4d)));
     assertThat(amountResults).isEqualTo(expectedAmounts);
+  }
+
+  public void measurePath_failure_noDot() {
+    ReportCalculationResults reportResults = reportResults();
+
+    List<Result<?>> results = ValuePathEvaluator.evaluate("Measures", reportResults);
+    Result<?> result = results.get(0);
+    assertThat(result.isFailure()).isTrue();
+    assertThat(result.getFailure().getMessage()).contains("PresentValue");
+    assertThat(result.getFailure().getMessage()).contains("ParRate");
+  }
+
+  public void measurePath_failure_noMeasureName() {
+    ReportCalculationResults reportResults = reportResults();
+
+    List<Result<?>> results = ValuePathEvaluator.evaluate("Measures.", reportResults);
+    Result<?> result = results.get(0);
+    assertThat(result.isFailure()).isTrue();
+    assertThat(result.getFailure().getMessage()).contains("PresentValue");
+    assertThat(result.getFailure().getMessage()).contains("ParRate");
+  }
+
+  public void measurePath_failure_unknownMeasure() {
+    ReportCalculationResults reportResults = reportResults();
+
+    List<Result<?>> results = ValuePathEvaluator.evaluate("Measures.Wibble", reportResults);
+    Result<?> result = results.get(0);
+    assertThat(result.isFailure()).isTrue();
+    assertThat(result.getFailure().getMessage()).contains("Wibble");
+    assertThat(result.getFailure().getMessage()).contains("PresentValue");
+    assertThat(result.getFailure().getMessage()).contains("ParRate");
+  }
+
+  public void measurePath_failure_nonQueriedMeasure() {
+    ReportCalculationResults reportResults = reportResults();
+
+    List<Result<?>> results = ValuePathEvaluator.evaluate("Measures.ParSpread", reportResults);
+    Result<?> result = results.get(0);
+    assertThat(result.isFailure()).isTrue();
+    assertThat(result.getFailure().getMessage()).contains("PresentValue");
+    assertThat(result.getFailure().getMessage()).contains("ParRate");
   }
 
   public void tradePath() {
@@ -85,7 +126,7 @@ public class ValuePathEvaluatorTest {
   //--------------------------------------------------------------------------------------------------
 
   private static ReportCalculationResults reportResults() {
-    Measure measure = Measure.of("Foo");
+    Measure measure = Measure.of("PresentValue");
     Column column = Column.of(measure);
     List<Column> columns = ImmutableList.of(column);
     List<? extends Result<?>> resultValues = ImmutableList.of(
