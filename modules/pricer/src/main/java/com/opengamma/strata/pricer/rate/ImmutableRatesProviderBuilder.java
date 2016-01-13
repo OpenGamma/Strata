@@ -20,7 +20,7 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.value.PriceIndexValues;
+import com.opengamma.strata.market.view.PriceIndexValues;
 
 /**
  * Builder for the immutable rates provider.

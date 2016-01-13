@@ -55,17 +55,20 @@ public final class CalculationTasks {
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an instance from a set of targets, columns and rules.
+   * Obtains an instance from a set of targets, columns and rules.
+   * <p>
+   * The targets will typically be trades.
+   * The columns represent the measures to calculate.
    * 
+   * @param calculationRules  the rules defining how the calculation is performed
    * @param targets  the targets for which values of the measures will be calculated
    * @param columns  the columns that will be calculated
-   * @param calculationRules  the rules defining how the calculation is performed
    * @return the calculation tasks
    */
   public static CalculationTasks of(
+      CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
-      List<Column> columns,
-      CalculationRules calculationRules) {
+      List<Column> columns) {
 
     // Create columns with rules that are a combination of the column overrides and the defaults
     List<Column> effectiveColumns =

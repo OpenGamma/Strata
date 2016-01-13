@@ -25,11 +25,15 @@
 <listEntry value="com.opengamma.strata.market.id"/>
 <listEntry value="com.opengamma.strata.market.interpolator"/>
 <listEntry value="com.opengamma.strata.market.key"/>
+<listEntry value="com.opengamma.strata.market.key.scenario"/>
 <listEntry value="com.opengamma.strata.market.option"/>
 <listEntry value="com.opengamma.strata.market.sensitivity"/>
 <listEntry value="com.opengamma.strata.market.surface"/>
 <listEntry value="com.opengamma.strata.market.surface.meta"/>
 <listEntry value="com.opengamma.strata.market.value"/>
+<listEntry value="com.opengamma.strata.market.value.scenario"/>
+<listEntry value="com.opengamma.strata.market.view"/>
+<listEntry value="com.opengamma.strata.market.view.scenario"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <stringAttribute key="org.testng.eclipse.PRE_DEFINED_LISTENERS" value=""/>

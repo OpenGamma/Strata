@@ -169,11 +169,11 @@ public class SwaptionSabrRateVolatilityDataSet {
    * @param shift  nonzero shift if true, zero shift otherwise
    * @return the volatility provider
    */
-  public static SabrSwaptionVolatilities getVolatilitiesUsd(LocalDate valuationDate, boolean shift) {
+  public static SabrParametersSwaptionVolatilities getVolatilitiesUsd(LocalDate valuationDate, boolean shift) {
     ZonedDateTime dateTime = valuationDate.atStartOfDay(ZoneOffset.UTC);
     return shift ?
-        SabrSwaptionVolatilities.of(SABR_PARAM_SHIFT_USD, SWAP_CONVENTION_USD, dateTime, ACT_ACT_ISDA) :
-        SabrSwaptionVolatilities.of(SABR_PARAM_USD, SWAP_CONVENTION_USD, dateTime, ACT_ACT_ISDA);
+        SabrParametersSwaptionVolatilities.of(SABR_PARAM_SHIFT_USD, SWAP_CONVENTION_USD, dateTime, ACT_ACT_ISDA) :
+        SabrParametersSwaptionVolatilities.of(SABR_PARAM_USD, SWAP_CONVENTION_USD, dateTime, ACT_ACT_ISDA);
   }
 
   /*
@@ -272,10 +272,10 @@ public class SwaptionSabrRateVolatilityDataSet {
    * @param shift  nonzero shift if true, zero shift otherwise
    * @return the volatility provider
    */
-  public static SabrSwaptionVolatilities getVolatilitiesEur(LocalDate valuationDate, boolean shift) {
+  public static SabrParametersSwaptionVolatilities getVolatilitiesEur(LocalDate valuationDate, boolean shift) {
     ZonedDateTime dateTime = valuationDate.atStartOfDay(ZoneOffset.UTC);
     return shift ?
-        SabrSwaptionVolatilities.of(SABR_PARAM_SHIFT_EUR, SWAP_CONVENTION_EUR, dateTime, ACT_ACT_ISDA) :
-        SabrSwaptionVolatilities.of(SABR_PARAM_EUR, SWAP_CONVENTION_EUR, dateTime, ACT_ACT_ISDA);
+        SabrParametersSwaptionVolatilities.of(SABR_PARAM_SHIFT_EUR, SWAP_CONVENTION_EUR, dateTime, ACT_ACT_ISDA) :
+        SabrParametersSwaptionVolatilities.of(SABR_PARAM_EUR, SWAP_CONVENTION_EUR, dateTime, ACT_ACT_ISDA);
   }
 }

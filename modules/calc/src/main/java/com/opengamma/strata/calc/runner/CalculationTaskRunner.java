@@ -24,7 +24,7 @@ import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
  * are passed in using an instance of {@code CalculationTasks}.
  * <p>
  * The {@code CalculationTasks} instance is obtained using a
- * {@linkplain CalculationTasks#of(List, List, CalculationRules) static factory method}.
+ * {@linkplain CalculationTasks#of(CalculationRules, List, List) static factory method}.
  * It consists of a list of {@code CalculationTask} instances, where each task instance
  * corresponds to a single cell in the grid of results. When the {@code CalculationTasks}
  * instance is created for a set of trades and measures some one-off initialization is performed.

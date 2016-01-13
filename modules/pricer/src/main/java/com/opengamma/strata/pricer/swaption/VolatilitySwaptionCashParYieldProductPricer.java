@@ -15,6 +15,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
+import com.opengamma.strata.market.view.SwaptionVolatilities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.rate.FixedRateObservation;
@@ -105,7 +106,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
-    double price = numeraire * swaptionVolatilities.price(expiry, putCall, strike, forward, volatility);
+    double price = numeraire * swaptionVolatilities.price(expiry, tenor, putCall, strike, forward, volatility);
     return CurrencyAmount.of(fixedLeg.getCurrency(), price * expanded.getLongShort().sign());
   }
 
@@ -187,7 +188,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
-    double delta = numeraire * swaptionVolatilities.priceDelta(expiry, putCall, strike, forward, volatility);
+    double delta = numeraire * swaptionVolatilities.priceDelta(expiry, tenor, putCall, strike, forward, volatility);
     return CurrencyAmount.of(fixedLeg.getCurrency(), delta * expanded.getLongShort().sign());
   }
 
@@ -224,7 +225,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
-    double gamma = numeraire * swaptionVolatilities.priceGamma(expiry, putCall, strike, forward, volatility);
+    double gamma = numeraire * swaptionVolatilities.priceGamma(expiry, tenor, putCall, strike, forward, volatility);
     return CurrencyAmount.of(fixedLeg.getCurrency(), gamma * expanded.getLongShort().sign());
   }
 
@@ -261,7 +262,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
-    double theta = numeraire * swaptionVolatilities.priceTheta(expiry, putCall, strike, forward, volatility);
+    double theta = numeraire * swaptionVolatilities.priceTheta(expiry, tenor, putCall, strike, forward, volatility);
     return CurrencyAmount.of(fixedLeg.getCurrency(), theta * expanded.getLongShort().sign());
   }
 
@@ -299,8 +300,8 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
-    double price = swaptionVolatilities.price(expiry, putCall, strike, forward, volatility);
-    double delta = swaptionVolatilities.priceDelta(expiry, putCall, strike, forward, volatility);
+    double price = swaptionVolatilities.price(expiry, tenor, putCall, strike, forward, volatility);
+    double delta = swaptionVolatilities.priceDelta(expiry, tenor, putCall, strike, forward, volatility);
     // Backward sweep
     PointSensitivityBuilder forwardSensi = getSwapPricer().parRateSensitivity(underlying, ratesProvider);
     PointSensitivityBuilder discountSettleSensi =
@@ -342,7 +343,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     double numeraire = calculateNumeraire(expanded, fixedLeg, forward, ratesProvider);
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
-    double vega = numeraire * swaptionVolatilities.priceVega(expiry, putCall, strike, forward, volatility);
+    double vega = numeraire * swaptionVolatilities.priceVega(expiry, tenor, putCall, strike, forward, volatility);
     return SwaptionSensitivity.of(
         swaptionVolatilities.getConvention(),
         expiryDateTime,

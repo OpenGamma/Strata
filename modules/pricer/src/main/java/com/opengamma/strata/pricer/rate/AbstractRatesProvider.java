@@ -15,12 +15,12 @@ import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
-import com.opengamma.strata.market.value.DiscountFactors;
-import com.opengamma.strata.market.value.FxForwardRates;
-import com.opengamma.strata.market.value.FxIndexRates;
-import com.opengamma.strata.market.value.IborIndexRates;
-import com.opengamma.strata.market.value.OvernightIndexRates;
-import com.opengamma.strata.market.value.PriceIndexValues;
+import com.opengamma.strata.market.view.DiscountFactors;
+import com.opengamma.strata.market.view.FxForwardRates;
+import com.opengamma.strata.market.view.FxIndexRates;
+import com.opengamma.strata.market.view.IborIndexRates;
+import com.opengamma.strata.market.view.OvernightIndexRates;
+import com.opengamma.strata.market.view.PriceIndexValues;
 
 /**
  * An abstract rates provider implementation.

@@ -84,7 +84,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a volatility instance based on the specified surface.
+   * Obtains an instance from the implied volatility surface and the date-time for which it is valid.
    * <p>
    * The swap convention and valuation date-time are also specified.
    * 
@@ -92,7 +92,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
    * @param convention  the swap convention for which the data is valid
    * @param dayCount  the day count applicable to the model
    * @param valuationDateTime  the valuation date-time
-   * @return the provider
+   * @return the volatilities
    */
   public static NormalSwaptionExpiryTenorVolatilities of(
       NodalSurface surface,
@@ -104,7 +104,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
   }
 
   /**
-   * Obtains a volatility instance based on the specified surface.
+   * Obtains an instance from the implied volatility surface and the date, time and zone for which it is valid.
    * <p>
    * The swap convention and valuation date-time are also specified.
    * 
@@ -114,7 +114,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
    * @param valuationDate  the valuation date
    * @param valuationTime  the valuation time
    * @param valuationZone  the valuation time zone
-   * @return the provider
+   * @return the volatilities
    */
   public static NormalSwaptionExpiryTenorVolatilities of(
       NodalSurface surface,
@@ -181,27 +181,27 @@ public final class NormalSwaptionExpiryTenorVolatilities
 
   //-------------------------------------------------------------------------
   @Override
-  public double price(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double price(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return NormalFormulaRepository.price(forward, strike, expiry, volatility, putCall);
   }
 
   @Override
-  public double priceDelta(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double priceDelta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return NormalFormulaRepository.delta(forward, strike, expiry, volatility, putCall);
   }
 
   @Override
-  public double priceGamma(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double priceGamma(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return NormalFormulaRepository.gamma(forward, strike, expiry, volatility, putCall);
   }
 
   @Override
-  public double priceTheta(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double priceTheta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return NormalFormulaRepository.theta(forward, strike, expiry, volatility, putCall);
   }
 
   @Override
-  public double priceVega(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double priceVega(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return NormalFormulaRepository.vega(forward, strike, expiry, volatility, putCall);
   }
 

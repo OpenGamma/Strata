@@ -46,7 +46,7 @@ import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
- * Volatility environment for swaptions in the log-normal or Black model. 
+ * Volatility for swaptions in the log-normal or Black model. 
  * The volatility is represented by a surface on the expiry and swap tenor dimensions.
  */
 @BeanDefinition(builderScope = "private")
@@ -82,13 +82,13 @@ public final class BlackSwaptionExpiryTenorVolatilities
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a provider from the implied volatility surface and the date-time for which it is valid.
+   * Obtains an instance from the implied volatility surface and the date-time for which it is valid.
    * 
    * @param surface  the implied volatility surface
    * @param convention  the swap convention for which the data is valid
    * @param valuationDateTime  the valuation date-time
    * @param dayCount  the day count applicable to the model
-   * @return the provider
+   * @return the volatilities
    */
   public static BlackSwaptionExpiryTenorVolatilities of(
       NodalSurface surface,
@@ -100,7 +100,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
   }
 
   /**
-   * Creates a provider from the implied volatility surface and the date, time and zone for which it is valid.
+   * Obtains an instance from the implied volatility surface and the date, time and zone for which it is valid.
    * 
    * @param surface  the implied volatility surface
    * @param convention  the swap convention for which the data is valid
@@ -108,7 +108,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
    * @param valuationTime  the valuation time
    * @param valuationZone  the valuation time zone
    * @param dayCount  the day count applicable to the model
-   * @return the provider
+   * @return the volatilities
    */
   public static BlackSwaptionExpiryTenorVolatilities of(
       NodalSurface surface,
@@ -175,27 +175,27 @@ public final class BlackSwaptionExpiryTenorVolatilities
 
   //-------------------------------------------------------------------------
   @Override
-  public double price(double expiry, PutCall putCall, double strike, double forwardRate, double volatility) {
+  public double price(double expiry, double tenor, PutCall putCall, double strike, double forwardRate, double volatility) {
     return BlackFormulaRepository.price(forwardRate, strike, expiry, volatility, putCall.isCall());
   }
 
   @Override
-  public double priceDelta(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double priceDelta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return BlackFormulaRepository.delta(forward, strike, expiry, volatility, putCall.isCall());
   }
 
   @Override
-  public double priceGamma(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double priceGamma(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return BlackFormulaRepository.gamma(forward, strike, expiry, volatility);
   }
 
   @Override
-  public double priceTheta(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double priceTheta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return BlackFormulaRepository.driftlessTheta(forward, strike, expiry, volatility);
   }
 
   @Override
-  public double priceVega(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+  public double priceVega(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
     return BlackFormulaRepository.vega(forward, strike, expiry, volatility);
   }
 

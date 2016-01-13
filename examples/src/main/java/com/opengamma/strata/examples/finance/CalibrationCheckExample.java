@@ -29,7 +29,6 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -217,9 +216,9 @@ public class CalibrationCheckExample {
         .build();
 
     // calibrate the curves and calculate the results
-    MarketDataRequirements reqs = CalculationTasks.of(trades, columns, rules).getRequirements();
+    MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns);
     MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, marketSnapshot, marketDataConfig);
-    Results results = runner.calculateSingleScenario(trades, columns, rules, enhancedMarketData);
+    Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData);
     return Pair.of(trades, results);
   }
 

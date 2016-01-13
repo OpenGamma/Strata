@@ -92,7 +92,7 @@ final class StandardBoundCurveInterpolator
       StandardBoundCurveInterpolator base,
       BoundCurveExtrapolator extrapolatorLeft,
       BoundCurveExtrapolator extrapolatorRight) {
-    
+
     ArgChecker.notNull(extrapolatorLeft, "extrapolatorLeft");
     ArgChecker.notNull(extrapolatorRight, "extrapolatorRight");
     this.interpolator = base.interpolator;

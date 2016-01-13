@@ -8719,5 +8719,57 @@ public class BlackFormulaRepositoryTest {
       }
     };
   }
+  
+  private static final int N = 10;
+  private static final double[] STRIKES = new double[N];
+  private static final double[] STRIKES_ATM = new double[N];
+  private static final double[] SIGMA_NORMAL = new double[N];
+  static {
+    for (int i = 0; i < 10; i++) {
+      STRIKES[i] = FORWARD - 20 + 40 / N * i;
+      STRIKES_ATM[i] = FORWARD + (-0.5d * N + i) / 100.0d;
+      SIGMA_NORMAL[i] = 15.0 + i / 10.0d;
+    }
+  }
+  private static final double TOLERANCE_PRICE = 1.0E-4;
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void wrong_strike() {
+    BlackFormulaRepository.impliedVolatilityFromNormalApproximated(FORWARD, -1.0d, TIME_TO_EXPIRY, 0.20d);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void wrong_forward() {
+    BlackFormulaRepository.impliedVolatilityFromNormalApproximated(-1.0d, FORWARD, TIME_TO_EXPIRY, 0.20d);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void wrong_strike2() {
+    BlackFormulaRepository.impliedVolatilityFromNormalApproximated2(FORWARD, -1.0d, TIME_TO_EXPIRY, 0.20d);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void wrong_forward2() {
+    BlackFormulaRepository.impliedVolatilityFromNormalApproximated2(-1.0d, FORWARD, TIME_TO_EXPIRY, 0.20d);
+  }
+
+  @Test
+  public void price_comparison_normal() {
+    priceCheck(STRIKES);
+    priceCheck(STRIKES_ATM);
+  }
+
+  private void priceCheck(double[] strikes) {
+    for (int i = 5; i < N; i++) {
+      double ivBlackComputed = BlackFormulaRepository
+          .impliedVolatilityFromNormalApproximated(FORWARD, strikes[i], TIME_TO_EXPIRY, SIGMA_NORMAL[i]);
+      double priceBlackComputed = BlackFormulaRepository
+          .price(FORWARD, strikes[i], TIME_TO_EXPIRY, ivBlackComputed, true);
+      double priceNormal = NormalFormulaRepository
+          .price(FORWARD, strikes[i], TIME_TO_EXPIRY, SIGMA_NORMAL[i], CALL);
+      assertEquals("check " + i, 
+          priceNormal, priceBlackComputed, TOLERANCE_PRICE);
+    }
+  }
 
 }

@@ -75,7 +75,7 @@ public final class OvernightRateSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an {@code OvernightRateSensitivity} from the index, fixing date and value.
+   * Obtains an instance based on the index.
    * <p>
    * The currency is defaulted from the index.
    * The end date is calculated using the index to be the maturity date of a single day
@@ -92,7 +92,7 @@ public final class OvernightRateSensitivity
   }
 
   /**
-   * Obtains an {@code OvernightRateSensitivity} from the index, fixing date, end date, sensitivity currency and value.
+   * Obtains an instance based on the index, specifying the sensitivity currency.
    * 
    * @param index  the index of the curve
    * @param fixingDate  the fixing date

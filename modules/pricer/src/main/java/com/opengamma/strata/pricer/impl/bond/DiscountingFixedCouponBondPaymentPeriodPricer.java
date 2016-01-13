@@ -17,7 +17,7 @@ import com.opengamma.strata.market.sensitivity.IssuerCurveZeroRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.CompoundedRateType;
-import com.opengamma.strata.market.value.IssuerCurveDiscountFactors;
+import com.opengamma.strata.market.view.IssuerCurveDiscountFactors;
 import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
 
 /**

@@ -153,13 +153,13 @@ public class SabrSwaptionCashParYieldTradePricer {
    * @param swaptionVolatilities  the volatilities
    * @return the point sensitivity to the Black volatility
    */
-  public SwaptionSabrSensitivity presentValueSabrParameterSensitivity(
+  public SwaptionSabrSensitivity presentValueSensitivitySabrParameter(
       SwaptionTrade trade,
       RatesProvider ratesProvider,
       SabrSwaptionVolatilities swaptionVolatilities) {
 
     Swaption product = trade.getProduct();
-    return productPricer.presentValueSabrParameterSensitivity(product, ratesProvider, swaptionVolatilities);
+    return productPricer.presentValueSensitivitySabrParameter(product, ratesProvider, swaptionVolatilities);
   }
 
 }

@@ -5,7 +5,7 @@
  */
 
 /**
- * Root package for common data structures used by OpenGamma.
+ * Root package for common data structures used by Strata.
  * <p>
  * Each package focuses on a different data structure:
  * <ul>

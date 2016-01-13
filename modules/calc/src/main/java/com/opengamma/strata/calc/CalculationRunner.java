@@ -72,17 +72,17 @@ public interface CalculationRunner extends AutoCloseable {
    * This returns a grid of results based on the specified targets, columns, rules and market data.
    * The grid will contain a row for each target and a column for each measure.
    * 
+   * @param calculationRules  the rules defining how the calculation is performed
    * @param targets  the targets for which values of the measures will be calculated
    * @param columns  the configuration for the columns that will be calculated, including the measure and
    *   any column-specific overrides
-   * @param calculationRules  the rules defining how the calculation is performed
    * @param marketData  market data to be used in the calculations
    * @return the grid of calculation results, based on the targets and columns
    */
   public abstract Results calculateSingleScenario(
+      CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationRules calculationRules,
       CalculationEnvironment marketData);
 
   /**
@@ -91,17 +91,17 @@ public interface CalculationRunner extends AutoCloseable {
    * This returns a grid of results based on the specified targets, columns, rules and market data.
    * The grid will contain a row for each target and a column for each measure.
    * 
+   * @param calculationRules  the rules defining how the calculation is performed
    * @param targets  the targets for which values of the measures will be calculated
    * @param columns  the configuration for the columns that will be calculated, including the measure and
    *   any column-specific overrides
-   * @param calculationRules  the rules defining how the calculation is performed
    * @param marketData  the market data used in the calculations
    * @return the grid of calculation results, based on the targets and columns
    */
   public abstract Results calculateMultipleScenarios(
+      CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationRules calculationRules,
       CalculationEnvironment marketData);
 
   //-------------------------------------------------------------------------
@@ -113,17 +113,17 @@ public interface CalculationRunner extends AutoCloseable {
    * calculating aggregate results. If the individual results are discarded after they are incorporated into
    * the aggregate they can be garbage collected.
    * 
+   * @param calculationRules  the rules defining how the calculation is performed
    * @param targets  the targets for which values of the measures will be calculated
    * @param columns  the configuration for the columns that will be calculated, including the measure and
    *   any column-specific overrides
-   * @param calculationRules  the rules defining how the calculation is performed
    * @param marketData  market data to be used in the calculations
    * @param listener  listener that is invoked when individual results are calculated
    */
   public abstract void calculateSingleScenarioAsync(
+      CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationRules calculationRules,
       CalculationEnvironment marketData,
       CalculationListener listener);
 
@@ -135,17 +135,17 @@ public interface CalculationRunner extends AutoCloseable {
    * calculating aggregate results. If the individual results are discarded after they are incorporated into
    * the aggregate they can be garbage collected.
    * 
+   * @param calculationRules  the rules defining how the calculation is performed
    * @param targets  the targets for which values of the measures will be calculated
    * @param columns  the configuration for the columns that will be calculated, including the measure and
    *   any column-specific overrides
-   * @param calculationRules  the rules defining how the calculation is performed
    * @param marketData  the market data used in the calculations
    * @param listener  listener that is invoked when individual results are calculated
    */
   public abstract void calculateMultipleScenariosAsync(
+      CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationRules calculationRules,
       CalculationEnvironment marketData,
       CalculationListener listener);
 

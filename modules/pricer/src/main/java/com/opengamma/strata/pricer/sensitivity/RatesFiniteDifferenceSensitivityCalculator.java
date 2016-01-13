@@ -24,9 +24,9 @@ import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.market.value.DiscountFactors;
-import com.opengamma.strata.market.value.SimpleDiscountFactors;
-import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
+import com.opengamma.strata.market.view.DiscountFactors;
+import com.opengamma.strata.market.view.SimpleDiscountFactors;
+import com.opengamma.strata.market.view.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 

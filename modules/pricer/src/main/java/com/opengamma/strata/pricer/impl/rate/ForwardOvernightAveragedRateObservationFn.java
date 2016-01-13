@@ -11,7 +11,7 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.market.value.OvernightIndexRates;
+import com.opengamma.strata.market.view.OvernightIndexRates;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.rate.OvernightAveragedRateObservation;

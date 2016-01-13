@@ -53,7 +53,7 @@ public final class ObjDoublePair<A>
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an {@code ObjectDoublePair} from an {@code Object} and a {@code double}.
+   * Obtains an instance from an {@code Object} and a {@code double}.
    * 
    * @param <A> the first element type
    * @param first  the first element
@@ -65,7 +65,7 @@ public final class ObjDoublePair<A>
   }
 
   /**
-   * Obtains an {@code ObjectDoublePair} from a {@code Pair}.
+   * Obtains an instance from a {@code Pair}.
    * 
    * @param <A> the first element type
    * @param pair  the pair to convert

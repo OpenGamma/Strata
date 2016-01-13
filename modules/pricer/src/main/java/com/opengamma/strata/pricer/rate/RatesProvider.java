@@ -14,11 +14,11 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.market.value.FxForwardRates;
-import com.opengamma.strata.market.value.FxIndexRates;
-import com.opengamma.strata.market.value.IborIndexRates;
-import com.opengamma.strata.market.value.OvernightIndexRates;
-import com.opengamma.strata.market.value.PriceIndexValues;
+import com.opengamma.strata.market.view.FxForwardRates;
+import com.opengamma.strata.market.view.FxIndexRates;
+import com.opengamma.strata.market.view.IborIndexRates;
+import com.opengamma.strata.market.view.OvernightIndexRates;
+import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.pricer.BaseProvider;
 
 /**

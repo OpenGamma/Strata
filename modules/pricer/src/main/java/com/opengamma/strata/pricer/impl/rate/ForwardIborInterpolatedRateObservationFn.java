@@ -12,7 +12,7 @@ import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.market.value.IborIndexRates;
+import com.opengamma.strata.market.view.IborIndexRates;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;

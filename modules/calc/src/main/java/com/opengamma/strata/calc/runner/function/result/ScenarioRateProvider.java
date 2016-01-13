@@ -16,7 +16,7 @@ import com.opengamma.strata.collect.Messages;
 /**
  * A provider of FX rates which takes its data from one scenario in a set of data for multiple scenarios.
  */
-class ScenarioRateProvider implements FxRateProvider {
+public class ScenarioRateProvider implements FxRateProvider {
 
   /** The market data for a set of scenarios. */
   private final CalculationMarketData marketData;
@@ -31,8 +31,8 @@ class ScenarioRateProvider implements FxRateProvider {
    * @param scenarioIndex  the index of the scenario from which FX rates are taken
    * @return a rate provider which uses rates from the scenario at the specified index in the market data
    */
-  static ScenarioRateProvider of(CalculationMarketData marketData, Long scenarioIndex) {
-    return new ScenarioRateProvider(marketData, scenarioIndex.intValue());
+  public static ScenarioRateProvider of(CalculationMarketData marketData, int scenarioIndex) {
+    return new ScenarioRateProvider(marketData, scenarioIndex);
   }
 
   private ScenarioRateProvider(CalculationMarketData marketData, int scenarioIndex) {

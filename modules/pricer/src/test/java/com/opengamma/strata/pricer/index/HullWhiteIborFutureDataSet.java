@@ -11,6 +11,8 @@ import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.FxMatrix;
@@ -76,7 +78,8 @@ public class HullWhiteIborFutureDataSet {
    * @return  the parameter provider
    */
   public static HullWhiteOneFactorPiecewiseConstantParametersProvider createHullWhiteProvider(LocalDate valuationDate) {
-    return HullWhiteOneFactorPiecewiseConstantParametersProvider.of(MODEL_PARAMETERS, ACT_ACT_ISDA, valuationDate);
+    return HullWhiteOneFactorPiecewiseConstantParametersProvider.of(
+        MODEL_PARAMETERS, ACT_ACT_ISDA, valuationDate.atTime(LocalTime.NOON).atZone(ZoneOffset.UTC));
   }
 
   /**

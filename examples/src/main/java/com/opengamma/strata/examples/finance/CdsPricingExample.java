@@ -86,7 +86,7 @@ public class CdsPricingExample {
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // calculate the results
-    Results results = runner.calculateSingleScenario(trades, columns, rules, marketSnapshot);
+    Results results = runner.calculateSingleScenario(rules, trades, columns, marketSnapshot);
 
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults = ReportCalculationResults.of(
