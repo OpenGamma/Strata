@@ -91,6 +91,7 @@ public final class StandardLink<T extends IdentifiableBean>
    * <p>
    * The type is expressed as a standard {@link Class} object.
    *
+   * @param <R>  the type of the link
    * @param identifier  the primary identifier of the target
    * @param targetType  the type of the target
    * @return a new resolvable link
@@ -106,6 +107,7 @@ public final class StandardLink<T extends IdentifiableBean>
    * When the {@link #resolve(LinkResolver)} method is called, the embedded target will be
    * returned without needing to use the resolver.
    *
+   * @param <R>  the type of the link
    * @param target  the link target
    * @return a new resolved link
    */

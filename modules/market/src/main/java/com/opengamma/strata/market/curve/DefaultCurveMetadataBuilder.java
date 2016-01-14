@@ -168,6 +168,7 @@ public final class DefaultCurveMetadataBuilder {
    * This is stored in the additional information map using {@code Map.put} semantics,
    * removing the key if the instance is null.
    * 
+   * @param <T>  the type of the info
    * @param type  the type to store under
    * @param instance  the instance to store, may be null
    * @return this, for chaining
@@ -190,7 +191,7 @@ public final class DefaultCurveMetadataBuilder {
    * @param info  the information to add
    * @return this, for chaining
    */
-  public <T> DefaultCurveMetadataBuilder addInfo(Map<CurveInfoType<?>, Object> info) {
+  public DefaultCurveMetadataBuilder addInfo(Map<CurveInfoType<?>, Object> info) {
     ArgChecker.notNull(info, "infoMap");
     this.info.putAll(info);
     return this;
@@ -205,7 +206,7 @@ public final class DefaultCurveMetadataBuilder {
    * @param parameterMetadata  the parameter metadata
    * @return this, for chaining
    */
-  public <T> DefaultCurveMetadataBuilder addParameterMetadata(CurveParameterMetadata parameterMetadata) {
+  public DefaultCurveMetadataBuilder addParameterMetadata(CurveParameterMetadata parameterMetadata) {
     if (this.parameterMetadata == null) {
       this.parameterMetadata = new ArrayList<>();
     }

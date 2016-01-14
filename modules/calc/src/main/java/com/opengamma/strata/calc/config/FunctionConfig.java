@@ -82,6 +82,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
    * <p>
    * To create configuration that includes constructor arguments, use a {@linkplain #builder(Class) builder}.
    *
+   * @param <T>  the type of the calculation target
    * @param functionType  the type of the function
    * @return configuration for a function that doesn't contain any constructor arguments
    */
@@ -94,8 +95,8 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
   /**
    * Returns a mutable builder for building {@code FunctionConfig}.
    *
-   * @param functionType  the type of the function
    * @param <T>  the type of the calculation target
+   * @param functionType  the type of the function
    * @return a mutable builder for building {@code FunctionConfig}
    */
   public static <T extends CalculationTarget> FunctionConfigBuilder<T> builder(

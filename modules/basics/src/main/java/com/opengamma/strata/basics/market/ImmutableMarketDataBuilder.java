@@ -64,7 +64,7 @@ public class ImmutableMarketDataBuilder {
    * @param valuationDate  the valuation date to set
    * @return this builder
    */
-  public <T> ImmutableMarketDataBuilder valuationDate(LocalDate valuationDate) {
+  public ImmutableMarketDataBuilder valuationDate(LocalDate valuationDate) {
     ArgChecker.notNull(valuationDate, "valuationDate");
     this.valuationDate = valuationDate;
     return this;

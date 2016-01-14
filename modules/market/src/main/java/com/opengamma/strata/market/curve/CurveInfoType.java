@@ -40,6 +40,7 @@ public final class CurveInfoType<T>
    * <p>
    * Curve names may contain any character, but must not be empty.
    *
+  * @param <T>  the type associated with the info
    * @param name  the name of the curve
    * @return a curve with the specified name
    */

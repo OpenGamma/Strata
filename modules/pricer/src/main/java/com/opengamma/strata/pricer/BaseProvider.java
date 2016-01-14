@@ -48,6 +48,7 @@ public interface BaseProvider
    *   IborIndexRates rates = provider.data(IborIndexRatesKey.of(iborIndex));
    * </pre>
    * 
+   * @param <T>  the type of the value
    * @param key  the key defining the data that is required
    * @return the data associated with the key
    * @throws IllegalArgumentException if the data is not available

@@ -204,6 +204,7 @@ public final class ExplainKey<T>
    * <p>
    * Field names may contain any character, but must not be empty.
    *
+   * @param <R>  the inferred type of the key
    * @param name  the name of the field
    * @return a field with the specified name
    */

@@ -45,6 +45,7 @@ public final class FormatSettings<T>
   /**
    * Obtains settings from category and formatter.
    * 
+   * @param <T>  the type of the value
    * @param category  the category of the type
    * @param formatter  the formatter the use for the type
    * @return the format settings

@@ -50,6 +50,7 @@ public final class SingleMarketDataBox<T> implements ImmutableBean, MarketDataBo
   /**
    * Obtains an instance containing a single market data value.
    * 
+   * @param <T> the type of the value
    * @param value  the market data value
    * @return a market data box containing a single market data value
    */

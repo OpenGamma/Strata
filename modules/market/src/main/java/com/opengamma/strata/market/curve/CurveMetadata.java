@@ -64,6 +64,7 @@ public interface CurveMetadata {
    * The most common information is the {@linkplain CurveInfoType#DAY_COUNT day count}
    * and {@linkplain CurveInfoType#JACOBIAN curve calibration information}.
    * 
+   * @param <T>  the type of the info
    * @param type  the type to find
    * @return the curve information
    * @throws IllegalArgumentException if the information is not found
@@ -81,6 +82,7 @@ public interface CurveMetadata {
    * <p>
    * If the info is not found, optional empty is returned.
    * 
+   * @param <T>  the type of the info
    * @param type  the type to find
    * @return the curve information
    */

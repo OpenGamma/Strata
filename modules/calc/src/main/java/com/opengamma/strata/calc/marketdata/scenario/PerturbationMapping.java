@@ -45,9 +45,11 @@ public final class PerturbationMapping<T> implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final ScenarioPerturbation<T> perturbation;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a mapping containing a single perturbation.
    *
+   * @param <T>  the type of the market data handled by the mapping
    * @param marketDataType the type of market data handled by the mapping
    * @param filter  the filter used to choose the market data
    * @param perturbation  the perturbation applied to any market data matching the filter
@@ -61,6 +63,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
     return new PerturbationMapping<>(marketDataType, filter, perturbation);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns true if the filter matches the market data ID and value.
    *

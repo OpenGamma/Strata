@@ -46,6 +46,7 @@ public final class ScenarioValuesList<T>
   /**
    * Obtains an instance containing the specified values.
    *
+   * @param <T> the type of the value
    * @param values  the market data values, one for each scenario
    * @return a scenario values list containing the values
    */
@@ -57,6 +58,7 @@ public final class ScenarioValuesList<T>
   /**
    * Obtains an instance containing the specified values.
    *
+   * @param <T> the type of the value
    * @param values  the market data values, one for each scenario
    * @return a scenario values list containing the values
    */

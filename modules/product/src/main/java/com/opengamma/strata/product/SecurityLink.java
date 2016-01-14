@@ -94,6 +94,7 @@ public final class SecurityLink<P extends Product>
    * When the {@link #resolve(LinkResolver)} method is called, the resolver will be used
    * to find the security, for example from a database.
    *
+   * @param <R> the type of the product
    * @param identifier  the primary identifier of the security
    * @param productType  the type of the product
    * @return a new resolvable link
@@ -109,6 +110,7 @@ public final class SecurityLink<P extends Product>
    * When the {@link #resolve(LinkResolver)} method is called, the embedded target will be
    * returned without needing to use the resolver.
    *
+   * @param <R> the type of the product
    * @param target  the target security
    * @return a new resolved link
    */

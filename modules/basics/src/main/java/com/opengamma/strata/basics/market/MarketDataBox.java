@@ -41,8 +41,8 @@ public interface MarketDataBox<T> {
   /**
    * Obtains an instance containing a single market data value that is used in all scenarios.
    *
-   * @param singleValue  the market data value containing data for a single scenario
    * @param <T> the type of the market data value used in each scenario
+   * @param singleValue  the market data value containing data for a single scenario
    * @return a box containing a single market data value that is used in all scenarios
    */
   public static <T> MarketDataBox<T> ofSingleValue(T singleValue) {
@@ -52,8 +52,8 @@ public interface MarketDataBox<T> {
   /**
    * Obtains an instance containing a scenario market data value with data for multiple scenarios.
    *
-   * @param scenarioValue  the market data value containing data for multiple scenarios
    * @param <T> the type of the market data value used in each scenario
+   * @param scenarioValue  the market data value containing data for multiple scenarios
    * @return a box containing a scenario market data value with data for multiple scenarios
    */
   public static <T> MarketDataBox<T> ofScenarioValue(ScenarioMarketDataValue<T> scenarioValue) {
@@ -65,8 +65,8 @@ public interface MarketDataBox<T> {
    * <p>
    * The market data is made up of multiple single values, one for each scenario.
    *
-   * @param scenarioValues  the market data values for each scenario
    * @param <T> the type of the market data value used in each scenario
+   * @param scenarioValues  the market data values for each scenario
    * @return a box containing a scenario market data value with data for multiple scenarios
    */
   @SafeVarargs
@@ -77,6 +77,7 @@ public interface MarketDataBox<T> {
   /**
    * Obtains an instance containing a scenario market data value with data for multiple scenarios.
    *
+   * @param <T> the type of the market data value used in each scenario
    * @param scenarioValues  the market data values for each scenario
    * @return a box containing a scenario market data value with data for multiple scenarios
    */

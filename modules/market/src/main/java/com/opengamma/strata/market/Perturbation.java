@@ -24,6 +24,7 @@ public interface Perturbation<T> {
    * <p>
    * This is useful for creating base scenarios where none of the market data is perturbed.
    *
+   * @param <T>  the type of the market data handled by the perturbation
    * @return a perturbation that returns its input unchanged
    */
   public static <T> Perturbation<T> none() {

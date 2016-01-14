@@ -97,6 +97,7 @@ public interface LinkResolver {
    * This method is primarily useful where the type of the input objects is not known to be resolvable.
    * For example, this might occur when processing a {@code List<Object>}.
    * 
+   * @param <B>  the type of the beans
    * @param beans  the list of target beans
    * @return a new list of resolved beans
    */
@@ -116,6 +117,7 @@ public interface LinkResolver {
    * This method is primarily useful where the type of the input object is not known to be resolvable.
    * For example, this might occur when processing a {@code List<Object>}.
    * 
+   * @param <B>  the type of the bean
    * @param bean  the target bean
    * @return the resolved bean
    */
@@ -142,6 +144,8 @@ public interface LinkResolver {
    * This method is typically invoked from implementations of {@link Resolvable#resolveLinks(LinkResolver)}.
    * In that case, the above example would use {@code this} instead of {@code bean}.
    * 
+   * @param <B>  the type of the beans
+   * @param <T>  the type of the target within the bean
    * @param bean  the target bean
    * @param target  the target object within the bean, may be null
    * @param updateFn  the update function

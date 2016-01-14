@@ -61,6 +61,7 @@ public class FormatSettingsProvider {
   /**
    * Obtains the format settings for a given type.
    * 
+   * @param <T>  the type of the value
    * @param clazz  the type to format
    * @param defaultSettings  the default settings, used if no settings are found for the type
    * @return the format settings

@@ -52,6 +52,7 @@ public final class ImmutableTypedReferenceData
    * The type specified is the type used to access the value, and not necessarily
    * the same as the class of the value.
    * 
+   * @param <T>  the type of the data
    * @param type  the type of the reference data
    * @param value  the single reference data value
    * @return reference data containing the values

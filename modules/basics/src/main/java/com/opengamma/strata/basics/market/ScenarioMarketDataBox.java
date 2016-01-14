@@ -49,6 +49,7 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
   /**
    * Obtains an instance containing the specified value.
    * 
+   * @param <T> the type of the market data value
    * @param value  the market data value which can provide data for multiple scenarios
    * @return a market data box containing the value
    */
@@ -59,6 +60,7 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
   /**
    * Obtains an instance containing the specified market data values, one for each scenario.
    *
+   * @param <T> the type of the market data value
    * @param values  the single market data values, one for each scenario
    * @return a scenario market data box containing single market data values, one for each scenario
    */
@@ -70,6 +72,7 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
   /**
    * Obtains an instance containing the specified market data values, one for each scenario.
    *
+   * @param <T> the type of the market data value
    * @param values  single market data values, one for each scenario
    * @return a scenario market data box containing single market data values, one for each scenario
    */

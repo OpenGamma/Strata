@@ -45,9 +45,11 @@ public final class DefaultScenarioResult<T> implements ScenarioResult<T>, Immuta
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<T> results;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a set of scenario results containing the specified individual results.
    *
+   * @param <T>  the type of the result
    * @param results  the individual results
    * @return a set of scenario results containing the specified individual results
    */
@@ -58,6 +60,7 @@ public final class DefaultScenarioResult<T> implements ScenarioResult<T>, Immuta
   /**
    * Returns a set of scenario results containing the specified individual results.
    *
+   * @param <T>  the type of the result
    * @param results  the individual results
    * @return a set of scenario results containing the specified individual results
    */
@@ -66,6 +69,7 @@ public final class DefaultScenarioResult<T> implements ScenarioResult<T>, Immuta
     return new DefaultScenarioResult<>(ImmutableList.copyOf(results));
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public int size() {
     return results.size();
