@@ -26,7 +26,7 @@ public class MissingConfigCalculationFunction implements CalculationSingleFuncti
   public Void execute(CalculationTarget target, CalculationMarketData marketData) {
     // TODO Pass in the measure and include it in the error message
     throw new IllegalStateException(Messages.format(
-        "No rule configured for measure on ''", target.getClass().getSimpleName()));
+        "No rule configured for measure on '{}'", target.getClass().getSimpleName()));
   }
 
 }

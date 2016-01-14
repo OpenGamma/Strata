@@ -8,6 +8,7 @@ package com.opengamma.strata.report.framework.expression;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -39,14 +40,9 @@ class RootEvaluator extends TokenEvaluator<ResultsRow> {
   @Override
   public EvaluationResult evaluate(ResultsRow resultsRow, String firstToken, List<String> remainingTokens) {
     ValueRootType rootType = ValueRootType.parseToken(firstToken);
-
     switch (rootType) {
       case MEASURES:
-        return remainingTokens.isEmpty() ?
-            EvaluationResult.failure("A measure name must be specified when selecting a measure") :
-            EvaluationResult.of(
-                resultsRow.getResult(remainingTokens.get(0)),
-                remainingTokens.subList(1, remainingTokens.size()));
+        return evaluateMeasures(resultsRow, remainingTokens);
       case PRODUCT:
         return EvaluationResult.of(resultsRow.getProduct(), remainingTokens);
       case TRADE:
@@ -54,6 +50,19 @@ class RootEvaluator extends TokenEvaluator<ResultsRow> {
       default:
         throw new IllegalArgumentException("Unknown root token '" + rootType.token() + "'");
     }
+  }
+
+  // find the result starting from a measure
+  private EvaluationResult evaluateMeasures(ResultsRow resultsRow, List<String> remainingTokens) {
+    // if no measures, return list of valid measures
+    if (remainingTokens.isEmpty() || Strings.nullToEmpty(remainingTokens.get(0)).trim().isEmpty()) {
+      List<String> measureNames = ResultsRow.measureNames(resultsRow.getTrade());
+      return EvaluationResult.failure("No measure specified. Use one of: {}", measureNames);
+    }
+    // evaluate the measure name
+    String measureToken = remainingTokens.get(0);
+    return EvaluationResult.of(
+        resultsRow.getResult(measureToken), remainingTokens.subList(1, remainingTokens.size()));
   }
 
 }
