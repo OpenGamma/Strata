@@ -129,7 +129,7 @@ public class SabrSwaptionCashParYieldProductPricer
     double strike = calculateStrike(fixedLeg);
     if (expiry < 0d) { // Option has expired already
       return SwaptionSabrSensitivity.of(
-          swaptionVolatilities.getConvention(), expiryDateTime, tenor, strike, 0d, fixedLeg.getCurrency(), 0d, 0d, 0d, 0d);
+          swaptionVolatilities.getConvention(), expiryDateTime, tenor, fixedLeg.getCurrency(), 0d, 0d, 0d, 0d);
     }
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
     double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
@@ -141,8 +141,6 @@ public class SabrSwaptionCashParYieldProductPricer
         swaptionVolatilities.getConvention(),
         expiryDateTime,
         tenor,
-        strike,
-        forward,
         fixedLeg.getCurrency(),
         vega * derivative.get(2),
         vega * derivative.get(3),

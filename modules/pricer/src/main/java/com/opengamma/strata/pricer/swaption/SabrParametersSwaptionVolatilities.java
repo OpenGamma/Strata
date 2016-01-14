@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -37,6 +38,7 @@ import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
+import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivities;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.market.surface.NodalSurface;
@@ -151,9 +153,30 @@ public final class SabrParametersSwaptionVolatilities
   }
 
   /**
-   * Calculates the surface parameter sensitivity from the point sensitivity.
+   * Calculates the surface parameter sensitivities from the point sensitivities.
    * <p>
-   * This is used to convert a single point sensitivity to surface parameter sensitivity.
+   * This is used to convert a set of point sensitivities to surface parameter sensitivities.
+   * 
+   * @param pointSensitivities  the point sensitivities to convert
+   * @return the parameter sensitivity
+   * @throws RuntimeException if the result cannot be calculated
+   */
+  public SurfaceCurrencyParameterSensitivities surfaceCurrencyParameterSensitivity(
+      SwaptionSabrSensitivities pointSensitivities) {
+
+    List<SurfaceCurrencyParameterSensitivity> sensitivitiesTotal =
+        pointSensitivities.getSensitivities()
+            .stream()
+            .map(pointSensitivity -> surfaceCurrencyParameterSensitivity(pointSensitivity).getSensitivities())
+            .flatMap(list -> list.stream())
+            .collect(Collectors.toList());
+    return SurfaceCurrencyParameterSensitivities.of(sensitivitiesTotal);
+  }
+
+  /**
+   * Calculates the surface parameter sensitivities from the point sensitivity.
+   * <p>
+   * This is used to convert a single point sensitivity to surface parameter sensitivities.
    * 
    * @param pointSensitivity  the point sensitivity to convert
    * @return the parameter sensitivity
