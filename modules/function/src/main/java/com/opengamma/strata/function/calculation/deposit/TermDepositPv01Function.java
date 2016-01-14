@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.deposit;
 
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toMultiCurrencyArray;
+import static com.opengamma.strata.calc.runner.function.FunctionUtils.toMultiCurrencyValuesArray;
 
 import java.util.stream.IntStream;
 
@@ -39,6 +39,6 @@ public class TermDepositPv01Function
         .mapToObj(index -> new SingleCalculationMarketData(marketData, index))
         .map(MarketDataRatesProvider::new)
         .map(provider -> execute(product, provider))
-        .collect(toMultiCurrencyArray());
+        .collect(toMultiCurrencyValuesArray());
   }
 }

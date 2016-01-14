@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.index;
 
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toMultiCurrencyArray;
+import static com.opengamma.strata.calc.runner.function.FunctionUtils.toMultiCurrencyValuesArray;
 
 import java.util.stream.IntStream;
 
@@ -37,6 +37,6 @@ public class IborFuturePv01Function
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(index -> new SingleCalculationMarketData(marketData, index))
         .map(md -> execute(trade, md))
-        .collect(toMultiCurrencyArray());
+        .collect(toMultiCurrencyValuesArray());
   }
 }

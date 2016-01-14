@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.fx;
 
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toMultiCurrencyArray;
+import static com.opengamma.strata.calc.runner.function.FunctionUtils.toMultiCurrencyValuesArray;
 
 import java.util.stream.IntStream;
 
@@ -29,6 +29,6 @@ public abstract class MultiCurrencyAmountFxSwapFunction extends AbstractFxSwapFu
         .mapToObj(index -> new SingleCalculationMarketData(marketData, index))
         .map(MarketDataRatesProvider::new)
         .map(provider -> execute(product, provider))
-        .collect(toMultiCurrencyArray());
+        .collect(toMultiCurrencyValuesArray());
   }
 }
