@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.basics.currency.FxRateProvider;
@@ -53,16 +54,6 @@ public final class SwaptionSabrSensitivity
   */
   @PropertyDefinition
   private final double tenor;
-  /**
-  * The swaption strike rate.
-  */
-  @PropertyDefinition
-  private final double strike;
-  /**
-  * The underlying swap forward rate.
-  */
-  @PropertyDefinition
-  private final double forward;
   /**
   * The currency of the sensitivity.
   */
@@ -96,8 +87,6 @@ public final class SwaptionSabrSensitivity
    * @param convention  the convention of the swap for which the data is valid
    * @param expiry  the expiry date/time of the option
    * @param tenor  the underlying swap tenor
-   * @param strike  the swaption strike rate
-   * @param forward  the underlying swap forward rate
    * @param sensitivityCurrency  the currency of the sensitivity
    * @param alphaSensitivity  the value of the alpha sensitivity
    * @param betaSensitivity  the value of the beta sensitivity
@@ -109,16 +98,21 @@ public final class SwaptionSabrSensitivity
       FixedIborSwapConvention convention,
       ZonedDateTime expiry,
       double tenor,
-      double strike,
-      double forward,
       Currency sensitivityCurrency,
       double alphaSensitivity,
       double betaSensitivity,
       double rhoSensitivity,
       double nuSensitivity) {
 
-    return new SwaptionSabrSensitivity(convention, expiry, tenor, strike, forward, sensitivityCurrency,
-        alphaSensitivity, betaSensitivity, rhoSensitivity, nuSensitivity);
+    return new SwaptionSabrSensitivity(
+        convention,
+        expiry,
+        tenor,
+        sensitivityCurrency,
+        alphaSensitivity,
+        betaSensitivity,
+        rhoSensitivity,
+        nuSensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -132,8 +126,41 @@ public final class SwaptionSabrSensitivity
     if (this.currency.equals(currency)) {
       return this;
     }
-    return new SwaptionSabrSensitivity(convention, expiry, tenor, strike, forward, currency,
-        alphaSensitivity, betaSensitivity, rhoSensitivity, nuSensitivity);
+    return new SwaptionSabrSensitivity(
+        convention,
+        expiry,
+        tenor,
+        currency,
+        alphaSensitivity,
+        betaSensitivity,
+        rhoSensitivity,
+        nuSensitivity);
+  }
+
+  /**
+   * Returns an instance with the specified sensitivity values. 
+   * 
+   * @param alphaSensitivity  the value of the alpha sensitivity
+   * @param betaSensitivity  the value of the beta sensitivity
+   * @param rhoSensitivity  the value of the rho sensitivity
+   * @param nuSensitivity  the value of the nu sensitivity
+   * @return an instance with the specified sensitivity values
+   */
+  public SwaptionSabrSensitivity withSensitivities(
+      double alphaSensitivity,
+      double betaSensitivity,
+      double rhoSensitivity,
+      double nuSensitivity) {
+
+    return new SwaptionSabrSensitivity(
+        convention,
+        expiry,
+        tenor,
+        currency,
+        alphaSensitivity,
+        betaSensitivity,
+        rhoSensitivity,
+        nuSensitivity);
   }
 
   /**
@@ -143,8 +170,15 @@ public final class SwaptionSabrSensitivity
    * @return an instance with the sensitivity values rescaled
    */
   public SwaptionSabrSensitivity multipliedBy(double factor) {
-    return new SwaptionSabrSensitivity(convention, expiry, tenor, strike, forward, currency,
-        alphaSensitivity * factor, betaSensitivity * factor, rhoSensitivity * factor, nuSensitivity * factor);
+    return new SwaptionSabrSensitivity(
+        convention,
+        expiry,
+        tenor,
+        currency,
+        alphaSensitivity * factor,
+        betaSensitivity * factor,
+        rhoSensitivity * factor,
+        nuSensitivity * factor);
   }
 
   @Override
@@ -154,6 +188,23 @@ public final class SwaptionSabrSensitivity
     }
     double fxRate = rateProvider.fxRate(getCurrency(), resultCurrency);
     return withCurrency(resultCurrency).multipliedBy(fxRate);
+  }
+
+  /**
+   * Compares the key of two sensitivities, excluding the sensitivity values.
+   * <p>
+   * The comparison must check the convention, the expiry, the tenor and the currency.
+   * 
+   * @param other  the other sensitivity
+   * @return positive if greater, zero if equal, negative if less
+   */
+  public int compareKey(SwaptionSabrSensitivity other) {
+    return ComparisonChain.start()
+        .compare(convention.toString(), other.convention.toString())
+        .compare(expiry, other.expiry)
+        .compare(tenor, other.tenor)
+        .compare(currency, other.currency)
+        .result();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -179,8 +230,6 @@ public final class SwaptionSabrSensitivity
       FixedIborSwapConvention convention,
       ZonedDateTime expiry,
       double tenor,
-      double strike,
-      double forward,
       Currency currency,
       double alphaSensitivity,
       double betaSensitivity,
@@ -191,8 +240,6 @@ public final class SwaptionSabrSensitivity
     this.convention = convention;
     this.expiry = expiry;
     this.tenor = tenor;
-    this.strike = strike;
-    this.forward = forward;
     this.currency = currency;
     this.alphaSensitivity = alphaSensitivity;
     this.betaSensitivity = betaSensitivity;
@@ -240,24 +287,6 @@ public final class SwaptionSabrSensitivity
    */
   public double getTenor() {
     return tenor;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the swaption strike rate.
-   * @return the value of the property
-   */
-  public double getStrike() {
-    return strike;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the underlying swap forward rate.
-   * @return the value of the property
-   */
-  public double getForward() {
-    return forward;
   }
 
   //-----------------------------------------------------------------------
@@ -316,8 +345,6 @@ public final class SwaptionSabrSensitivity
       return JodaBeanUtils.equal(convention, other.convention) &&
           JodaBeanUtils.equal(expiry, other.expiry) &&
           JodaBeanUtils.equal(tenor, other.tenor) &&
-          JodaBeanUtils.equal(strike, other.strike) &&
-          JodaBeanUtils.equal(forward, other.forward) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(alphaSensitivity, other.alphaSensitivity) &&
           JodaBeanUtils.equal(betaSensitivity, other.betaSensitivity) &&
@@ -333,8 +360,6 @@ public final class SwaptionSabrSensitivity
     hash = hash * 31 + JodaBeanUtils.hashCode(convention);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiry);
     hash = hash * 31 + JodaBeanUtils.hashCode(tenor);
-    hash = hash * 31 + JodaBeanUtils.hashCode(strike);
-    hash = hash * 31 + JodaBeanUtils.hashCode(forward);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(alphaSensitivity);
     hash = hash * 31 + JodaBeanUtils.hashCode(betaSensitivity);
@@ -345,13 +370,11 @@ public final class SwaptionSabrSensitivity
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(352);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("SwaptionSabrSensitivity{");
     buf.append("convention").append('=').append(convention).append(',').append(' ');
     buf.append("expiry").append('=').append(expiry).append(',').append(' ');
     buf.append("tenor").append('=').append(tenor).append(',').append(' ');
-    buf.append("strike").append('=').append(strike).append(',').append(' ');
-    buf.append("forward").append('=').append(forward).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("alphaSensitivity").append('=').append(alphaSensitivity).append(',').append(' ');
     buf.append("betaSensitivity").append('=').append(betaSensitivity).append(',').append(' ');
@@ -387,16 +410,6 @@ public final class SwaptionSabrSensitivity
     private final MetaProperty<Double> tenor = DirectMetaProperty.ofImmutable(
         this, "tenor", SwaptionSabrSensitivity.class, Double.TYPE);
     /**
-     * The meta-property for the {@code strike} property.
-     */
-    private final MetaProperty<Double> strike = DirectMetaProperty.ofImmutable(
-        this, "strike", SwaptionSabrSensitivity.class, Double.TYPE);
-    /**
-     * The meta-property for the {@code forward} property.
-     */
-    private final MetaProperty<Double> forward = DirectMetaProperty.ofImmutable(
-        this, "forward", SwaptionSabrSensitivity.class, Double.TYPE);
-    /**
      * The meta-property for the {@code currency} property.
      */
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
@@ -429,8 +442,6 @@ public final class SwaptionSabrSensitivity
         "convention",
         "expiry",
         "tenor",
-        "strike",
-        "forward",
         "currency",
         "alphaSensitivity",
         "betaSensitivity",
@@ -452,10 +463,6 @@ public final class SwaptionSabrSensitivity
           return expiry;
         case 110246592:  // tenor
           return tenor;
-        case -891985998:  // strike
-          return strike;
-        case -677145915:  // forward
-          return forward;
         case 575402001:  // currency
           return currency;
         case -2039075231:  // alphaSensitivity
@@ -511,22 +518,6 @@ public final class SwaptionSabrSensitivity
     }
 
     /**
-     * The meta-property for the {@code strike} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> strike() {
-      return strike;
-    }
-
-    /**
-     * The meta-property for the {@code forward} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> forward() {
-      return forward;
-    }
-
-    /**
      * The meta-property for the {@code currency} property.
      * @return the meta-property, not null
      */
@@ -576,10 +567,6 @@ public final class SwaptionSabrSensitivity
           return ((SwaptionSabrSensitivity) bean).getExpiry();
         case 110246592:  // tenor
           return ((SwaptionSabrSensitivity) bean).getTenor();
-        case -891985998:  // strike
-          return ((SwaptionSabrSensitivity) bean).getStrike();
-        case -677145915:  // forward
-          return ((SwaptionSabrSensitivity) bean).getForward();
         case 575402001:  // currency
           return ((SwaptionSabrSensitivity) bean).getCurrency();
         case -2039075231:  // alphaSensitivity
@@ -614,8 +601,6 @@ public final class SwaptionSabrSensitivity
     private FixedIborSwapConvention convention;
     private ZonedDateTime expiry;
     private double tenor;
-    private double strike;
-    private double forward;
     private Currency currency;
     private double alphaSensitivity;
     private double betaSensitivity;
@@ -638,10 +623,6 @@ public final class SwaptionSabrSensitivity
           return expiry;
         case 110246592:  // tenor
           return tenor;
-        case -891985998:  // strike
-          return strike;
-        case -677145915:  // forward
-          return forward;
         case 575402001:  // currency
           return currency;
         case -2039075231:  // alphaSensitivity
@@ -668,12 +649,6 @@ public final class SwaptionSabrSensitivity
           break;
         case 110246592:  // tenor
           this.tenor = (Double) newValue;
-          break;
-        case -891985998:  // strike
-          this.strike = (Double) newValue;
-          break;
-        case -677145915:  // forward
-          this.forward = (Double) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
@@ -726,8 +701,6 @@ public final class SwaptionSabrSensitivity
           convention,
           expiry,
           tenor,
-          strike,
-          forward,
           currency,
           alphaSensitivity,
           betaSensitivity,
@@ -738,13 +711,11 @@ public final class SwaptionSabrSensitivity
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(352);
+      StringBuilder buf = new StringBuilder(288);
       buf.append("SwaptionSabrSensitivity.Builder{");
       buf.append("convention").append('=').append(JodaBeanUtils.toString(convention)).append(',').append(' ');
       buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
       buf.append("tenor").append('=').append(JodaBeanUtils.toString(tenor)).append(',').append(' ');
-      buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');
-      buf.append("forward").append('=').append(JodaBeanUtils.toString(forward)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("alphaSensitivity").append('=').append(JodaBeanUtils.toString(alphaSensitivity)).append(',').append(' ');
       buf.append("betaSensitivity").append('=').append(JodaBeanUtils.toString(betaSensitivity)).append(',').append(' ');
