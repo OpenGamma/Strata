@@ -33,7 +33,7 @@ import com.google.common.collect.ImmutableMap;
 /**
  * A stream implementation which adds methods for manipulating keys and values when streaming over map entries.
  */
-public class MapStream<K, V> implements Stream<Map.Entry<K, V>> {
+public final class MapStream<K, V> implements Stream<Map.Entry<K, V>> {
 
   /** The stream of map entries. */
   private final Stream<Map.Entry<K, V>> underlying;
@@ -46,6 +46,17 @@ public class MapStream<K, V> implements Stream<Map.Entry<K, V>> {
    */
   public static <K, V> MapStream<K, V> of(Map<K, V> map) {
     return new MapStream<>(map.entrySet().stream());
+  }
+
+  /**
+   * Returns an empty map stream.
+   *
+   * @param <K>  the key type
+   * @param <V>  the value type
+   * @return an empty map stream
+   */
+  public static <K, V> MapStream<K, V> empty() {
+    return new MapStream<>(Stream.empty());
   }
 
   private MapStream(Stream<Map.Entry<K, V>> underlying) {
@@ -161,19 +172,7 @@ public class MapStream<K, V> implements Stream<Map.Entry<K, V>> {
    *
    * @return an immutable map built from the entries in the stream
    */
-  public Map<K, V> toMap() {
-    return toImmutableMap();
-  }
-
-  /**
-   * Returns an immutable map built from the entries in the stream.
-   * <p>
-   * The keys must be unique or an exception will be thrown. Duplicate keys can be handled by using
-   * {@link #collect(Collector)} and {@code Collectors.toMap}.
-   *
-   * @return an immutable map built from the entries in the stream
-   */
-  public ImmutableMap<K, V> toImmutableMap() {
+  public ImmutableMap<K, V> toMap() {
     return underlying.collect(Guavate.toImmutableMap(e -> e.getKey(), e -> e.getValue()));
   }
 
@@ -382,7 +381,7 @@ public class MapStream<K, V> implements Stream<Map.Entry<K, V>> {
   //--------------------------------------------------------------------------------------------------
 
   private static <K, V> Map.Entry<K, V> entry(K k, V v) {
-    return new AbstractMap.SimpleEntry<>(k, v);
+    return new AbstractMap.SimpleImmutableEntry<>(k, v);
   }
 
   private static <K, V> MapStream<K, V> wrap(Stream<Map.Entry<K, V>> underlying) {

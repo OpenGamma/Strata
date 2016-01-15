@@ -9,9 +9,14 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.AbstractMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import org.testng.annotations.Test;
 
@@ -75,7 +80,47 @@ public class MapStreamTest {
     assertThrowsIllegalArg(() -> MapStream.of(map).mapKeys(k -> "key").toMap());
   }
 
-  public void toImmutableMapDuplicateKeys() {
-    assertThrowsIllegalArg(() -> MapStream.of(map).mapKeys(k -> "key").toImmutableMap());
+  public void coverage() {
+    MapStream.empty()
+        .filter(e -> false)
+        .distinct()
+        .sorted()
+        .sorted((e1, e2) -> 0)
+        .peek(e -> e.toString())
+        .limit(0)
+        .skip(0)
+        .sequential()
+        .parallel()
+        .unordered()
+        .onClose(() -> System.out.println())
+        .close();
+    MapStream.empty().anyMatch(e -> true);
+    MapStream.empty().allMatch(e -> true);
+    MapStream.empty().noneMatch(e -> true);
+    MapStream.empty().count();
+    MapStream.empty().findAny();
+    MapStream.empty().findFirst();
+    MapStream.empty().max((e1, e2) -> 0);
+    MapStream.empty().min((e1, e2) -> 0);
+    MapStream.empty().iterator();
+    MapStream.empty().spliterator();
+    MapStream.empty().isParallel();
+    MapStream.empty().map(e -> e);
+    MapStream.empty().mapToInt(e -> 0);
+    MapStream.empty().mapToLong(e -> 0);
+    MapStream.empty().mapToDouble(e -> 0);
+    MapStream.empty().flatMap(e -> Stream.empty());
+    MapStream.empty().flatMapToDouble(e -> DoubleStream.empty());
+    MapStream.empty().flatMapToInt(e -> IntStream.empty());
+    MapStream.empty().flatMapToLong(e -> LongStream.empty());
+    MapStream.empty().collect(toList());
+    MapStream.empty().collect(() -> null, (o, e) -> System.out.println(), (o1, o2) -> System.out.println());
+    MapStream.empty().toArray();
+    MapStream.empty().toArray(i -> new Object[0]);
+    MapStream.empty().forEach(e -> System.out.println());
+    MapStream.empty().forEachOrdered(e -> System.out.println());
+    MapStream.empty().reduce(new AbstractMap.SimpleEntry<>(null, null), (o1, o2) -> null);
+    MapStream.empty().reduce((o1, o2) -> null);
+    MapStream.empty().reduce(null, (o, e) -> null, (o1, o2) -> null);
   }
 }
