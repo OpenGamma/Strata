@@ -65,16 +65,38 @@ public class DoubleArrayMathTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_mutateByAddition() {
+  public void test_mutateByAddition_byConstant() {
     double[] testArray = ARRAY_1_2.clone();
     DoubleArrayMath.mutateByAddition(testArray, 2d);
     assertThat(testArray).contains(3d, 4d);
   }
 
-  public void test_mutateByMultiplication() {
+  public void test_mutateByMultiplication_byConstant() {
     double[] testArray = ARRAY_1_2.clone();
     DoubleArrayMath.mutateByMultiplication(testArray, 4d);
     assertThat(testArray).contains(4d, 8d);
+  }
+
+  public void test_mutateByAddition_byArray() {
+    double[] testArray = ARRAY_1_2.clone();
+    DoubleArrayMath.mutateByAddition(testArray, new double[]{2d, 3d});
+    assertThat(testArray).contains(3d, 5d);
+  }
+
+  public void test_mutateByMultiplication_byArray() {
+    double[] testArray = ARRAY_1_2.clone();
+    DoubleArrayMath.mutateByMultiplication(testArray, new double[]{4d, 5d});
+    assertThat(testArray).contains(4d, 10d);
+  }
+
+  public void test_mutateByAddition_byArray_sizeDifferent() {
+    double[] testArray = ARRAY_1_2.clone();
+    assertThrowsIllegalArg(() -> DoubleArrayMath.mutateByAddition(testArray, new double[]{2d}));
+  }
+
+  public void test_mutateByMultiplication_byArray_sizeDifferent() {
+    double[] testArray = ARRAY_1_2.clone();
+    assertThrowsIllegalArg(() -> DoubleArrayMath.mutateByMultiplication(testArray, new double[]{4d}));
   }
 
   public void test_mutate() {
