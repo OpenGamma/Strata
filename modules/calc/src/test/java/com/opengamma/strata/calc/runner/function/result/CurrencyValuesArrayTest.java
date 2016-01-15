@@ -5,8 +5,11 @@
  */
 package com.opengamma.strata.calc.runner.function.result;
 
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -18,7 +21,6 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
@@ -34,15 +36,35 @@ public class CurrencyValuesArrayTest {
 
   public void create() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
-    CurrencyValuesArray test = CurrencyValuesArray.of(Currency.GBP, values);
-    assertThat(test.getCurrency()).isEqualTo(Currency.GBP);
+    CurrencyValuesArray test = CurrencyValuesArray.of(GBP, values);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
     assertThat(test.getValues()).isEqualTo(values);
     assertThat(test.size()).isEqualTo(3);
-    assertThat(test.get(0)).isEqualTo(CurrencyAmount.of(Currency.GBP, 1));
-    assertThat(test.get(1)).isEqualTo(CurrencyAmount.of(Currency.GBP, 2));
-    assertThat(test.get(2)).isEqualTo(CurrencyAmount.of(Currency.GBP, 3));
-    assertThat(test.stream().collect(toList())).isEqualTo(ImmutableList.of(
-        CurrencyAmount.of(Currency.GBP, 1), CurrencyAmount.of(Currency.GBP, 2), CurrencyAmount.of(Currency.GBP, 3)));
+    assertThat(test.get(0)).isEqualTo(CurrencyAmount.of(GBP, 1));
+    assertThat(test.get(1)).isEqualTo(CurrencyAmount.of(GBP, 2));
+    assertThat(test.get(2)).isEqualTo(CurrencyAmount.of(GBP, 3));
+    assertThat(test.stream().collect(toList())).containsExactly(
+        CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
+  }
+
+  public void create_fromList() {
+    List<CurrencyAmount> values = ImmutableList.of(
+        CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
+    CurrencyValuesArray test = CurrencyValuesArray.of(values);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getValues()).isEqualTo(DoubleArray.of(1d, 2d, 3d));
+    assertThat(test.size()).isEqualTo(3);
+    assertThat(test.get(0)).isEqualTo(CurrencyAmount.of(GBP, 1));
+    assertThat(test.get(1)).isEqualTo(CurrencyAmount.of(GBP, 2));
+    assertThat(test.get(2)).isEqualTo(CurrencyAmount.of(GBP, 3));
+    assertThat(test.stream().collect(toList())).containsExactly(
+        CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
+  }
+
+  public void create_fromList_mixedCurrency() {
+    List<CurrencyAmount> values = ImmutableList.of(
+        CurrencyAmount.of(GBP, 1), CurrencyAmount.of(USD, 2), CurrencyAmount.of(GBP, 3));
+    assertThrowsIllegalArg(() -> CurrencyValuesArray.of(values));
   }
 
   /**
@@ -51,19 +73,19 @@ public class CurrencyValuesArrayTest {
   public void convert() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
-        .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
+        .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
-    CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
+    CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     CalculationEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(date(2011, 3, 8))
-        .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
+        .addValue(FxRateId.of(GBP, USD), rates)
         .build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
-    CurrencyValuesArray convertedList = list.convertedTo(Currency.USD, calculationMarketData);
+    CurrencyValuesArray convertedList = list.convertedTo(USD, calculationMarketData);
     DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
-    CurrencyValuesArray expectedList = CurrencyValuesArray.of(Currency.USD, expectedValues);
+    CurrencyValuesArray expectedList = CurrencyValuesArray.of(USD, expectedValues);
     assertThat(convertedList).isEqualTo(expectedList);
   }
 
@@ -72,12 +94,12 @@ public class CurrencyValuesArrayTest {
    */
   public void noConversionNecessary() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
-    CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
+    CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
-    CurrencyValuesArray convertedList = list.convertedTo(Currency.GBP, calculationMarketData);
+    CurrencyValuesArray convertedList = list.convertedTo(GBP, calculationMarketData);
     assertThat(convertedList).isEqualTo(list);
   }
 
@@ -86,13 +108,13 @@ public class CurrencyValuesArrayTest {
    */
   public void missingFxRates() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
-    CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
+    CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
     assertThrows(
-        () -> list.convertedTo(Currency.USD, calculationMarketData),
+        () -> list.convertedTo(USD, calculationMarketData),
         IllegalArgumentException.class,
         "No market data available for .*");
   }
@@ -103,28 +125,28 @@ public class CurrencyValuesArrayTest {
   public void wrongNumberOfFxRates() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     List<FxRate> rates = ImmutableList.of(1.61, 1.62).stream()
-        .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
+        .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
-    CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
+    CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     CalculationEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(date(2011, 3, 8))
-        .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
+        .addValue(FxRateId.of(GBP, USD), rates)
         .build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
     assertThrows(
-        () -> list.convertedTo(Currency.USD, calculationMarketData),
+        () -> list.convertedTo(USD, calculationMarketData),
         IllegalArgumentException.class,
         "Number of rates .* must be 1 or the same as the number of values .*");
   }
 
   public void coverage() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
-    CurrencyValuesArray test = CurrencyValuesArray.of(Currency.GBP, values);
+    CurrencyValuesArray test = CurrencyValuesArray.of(GBP, values);
     coverImmutableBean(test);
     DoubleArray values2 = DoubleArray.of(1, 2, 3);
-    CurrencyValuesArray test2 = CurrencyValuesArray.of(Currency.GBP, values2);
+    CurrencyValuesArray test2 = CurrencyValuesArray.of(USD, values2);
     coverBeanEquals(test, test2);
   }
 

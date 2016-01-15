@@ -89,7 +89,7 @@ public class FunctionUtilsTest {
             CurrencyAmount.of(Currency.EUR, 44)));
 
     MultiCurrencyValuesArray expected = MultiCurrencyValuesArray.of(amounts);
-    MultiCurrencyValuesArray array = amounts.stream().collect(FunctionUtils.toMultiCurrencyArray());
+    MultiCurrencyValuesArray array = amounts.stream().collect(FunctionUtils.toMultiCurrencyValuesArray());
     assertThat(array).isEqualTo(expected);
   }
 }
