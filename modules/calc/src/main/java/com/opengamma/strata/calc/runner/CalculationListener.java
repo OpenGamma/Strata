@@ -15,6 +15,7 @@ import com.opengamma.strata.calc.CalculationRunner;
  * <p>
  * It is not guaranteed to be the same thread invoking a listener each time.
  */
+@FunctionalInterface
 public interface CalculationListener {
 
   /**
@@ -29,5 +30,7 @@ public interface CalculationListener {
    * <p>
    * This is guaranteed to be called after all results have been passed to {@link #resultReceived}.
    */
-  public abstract void calculationsComplete();
+  public default void calculationsComplete() {
+    // Do nothing by default
+  }
 }
