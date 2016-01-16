@@ -10,6 +10,7 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -74,6 +75,12 @@ public class MapStreamTest {
     List<String> expected = ImmutableList.of("one1", "two2", "three3", "four4");
     List<String> result = MapStream.of(map).map((k, v) -> k + v).collect(toList());
     assertThat(result).isEqualTo(expected);
+  }
+
+  public void forEach() {
+    HashMap<Object, Object> mutableMap = new HashMap<>();
+    MapStream.of(map).forEach((k, v) -> mutableMap.put(k, v));
+    assertThat(mutableMap).isEqualTo(map);
   }
 
   public void toMapDuplicateKeys() {

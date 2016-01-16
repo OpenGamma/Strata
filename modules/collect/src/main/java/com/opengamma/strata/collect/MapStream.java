@@ -176,6 +176,15 @@ public final class MapStream<K, V> implements Stream<Map.Entry<K, V>> {
     return underlying.collect(Guavate.toImmutableMap(e -> e.getKey(), e -> e.getValue()));
   }
 
+  /**
+   * Performs an action for each entry in the stream, passing the key and value to the action.
+   *
+   * @param action  an action performed for each entry in the stream
+   */
+  public void forEach(BiConsumer<? super K, ? super V> action) {
+    underlying.forEach(e -> action.accept(e.getKey(), e.getValue()));
+  }
+
   //--------------------------------------------------------------------------------------------------
 
   @Override
