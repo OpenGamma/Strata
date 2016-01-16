@@ -5,15 +5,12 @@
  */
 package com.opengamma.strata.basics.currency;
 
-import static com.opengamma.strata.collect.Guavate.entriesToImmutableMap;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,6 +19,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.tuple.Pair;
 
 /**
@@ -444,7 +442,7 @@ public final class FxMatrix
     /**
      * Adds a collection of new rates for currency pairs to the builder.
      * Pairs that are already in the builder are treated as updates to the
-     * existing ratese -> !e.getKey().equals(commonCurrency) && !currencies.containsKey(e.getKey())
+     * existing rates -> !e.getKey().equals(commonCurrency) && !currencies.containsKey(e.getKey())
      *
      * @param rates  the currency pairs and rates to be added
      * @return the builder updated with the new rates
@@ -456,7 +454,7 @@ public final class FxMatrix
         ensureCapacity(rates.keySet().stream()
             .flatMap(cp -> Stream.of(cp.getBase(), cp.getCounter())));
 
-        rates.entrySet().stream().forEach(e -> addRate(e.getKey(), e.getValue()));
+        MapStream.of(rates).forEach((pair, rate) -> addRate(pair, rate));
       }
       return this;
     }
@@ -485,16 +483,11 @@ public final class FxMatrix
               currencies.keySet() + " and " + other.currencies.keySet()));
 
       // Add in all currencies that we don't already have
-      other.currencies.entrySet()
-          .stream()
-          .filter(isNewCurrency(commonCurrency))
-          .forEach(e -> addCurrencyPair(commonCurrency, e.getKey(), other.getRate(commonCurrency, e.getKey())));
+      MapStream.of(other.currencies)
+          .filterKeys(ccy -> !ccy.equals(commonCurrency) && !currencies.containsKey(ccy))
+          .forEach((ccy, idx) -> addCurrencyPair(commonCurrency, ccy, other.getRate(commonCurrency, ccy)));
 
       return this;
-    }
-
-    private Predicate<Map.Entry<Currency, Integer>> isNewCurrency(Currency commonCurrency) {
-      return e -> !e.getKey().equals(commonCurrency) && !currencies.containsKey(e.getKey());
     }
 
     private double getRate(Currency ccy1, Currency ccy2) {
@@ -533,19 +526,12 @@ public final class FxMatrix
 
       while (true) {
         int initialSize = disjointRates.size();
-        ImmutableMap<CurrencyPair, Double> addable = disjointRates.entrySet()
-            .stream()
-            .filter(e -> currencies.containsKey(e.getKey().getBase()) ||
-                currencies.containsKey(e.getKey().getCounter()))
-            .collect(entriesToImmutableMap());
+        ImmutableMap<CurrencyPair, Double> addable = MapStream.of(disjointRates)
+            .filterKeys(pair -> currencies.containsKey(pair.getBase()) || currencies.containsKey(pair.getCounter()))
+            .toMap();
 
-        addable.entrySet()
-            .stream()
-            .forEach(e -> addNewRate(e.getKey().getBase(), e.getKey().getCounter(), e.getValue()));
-
-        addable.keySet()
-            .stream()
-            .forEach(disjointRates::remove);
+        MapStream.of(addable).forEach((pair, rate) -> addNewRate(pair.getBase(), pair.getCounter(), rate));
+        addable.keySet().stream().forEach(disjointRates::remove);
 
         if (disjointRates.size() == initialSize) {
           // No effect so break out

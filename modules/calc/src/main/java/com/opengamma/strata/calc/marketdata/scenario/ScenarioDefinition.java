@@ -32,6 +32,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.MapStream;
 
 /**
  * A scenario definition defines how to create multiple sets of market data for running calculations over
@@ -293,9 +294,9 @@ public final class ScenarioDefinition implements ImmutableBean {
   @ImmutableValidator
   private void validate() {
     Map<String, List<String>> nameMap = scenarioNames.stream().collect(groupingBy(name -> name));
-    List<String> duplicateNames = nameMap.entrySet().stream()
-        .filter(tp -> tp.getValue().size() > 1)
-        .map(tp -> tp.getKey())
+    List<String> duplicateNames = MapStream.of(nameMap)
+        .filterValues(names -> names.size() > 1)
+        .map((name, names) -> name)
         .collect(toImmutableList());
 
     if (!duplicateNames.isEmpty()) {

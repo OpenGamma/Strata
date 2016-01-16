@@ -23,6 +23,7 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -142,8 +143,8 @@ public final class CurveGroupDefinitionCsvLoader {
         groups.put(groupName, curveGroupEntry(curveName, groupIds));
       }
     }
-    return groups.asMap().entrySet().stream()
-        .map(e -> CurveGroupDefinition.of(e.getKey(), e.getValue(), ImmutableList.of()))
+    return MapStream.of(groups.asMap())
+        .map((name, entry) -> CurveGroupDefinition.of(name, entry, ImmutableList.of()))
         .collect(toImmutableList());
   }
 

@@ -26,6 +26,7 @@ import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -99,8 +100,9 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
 
     // There is only a single map of values and single valuation date - create a single CurveInputs instance
     CurveMetadata curveMetadata = curveDefn.metadata(valuationDate.getSingleValue());
-    Map<? extends MarketDataKey<?>, ?> singleMarketDataValues = marketData.entrySet().stream()
-        .collect(toImmutableMap(e -> e.getKey(), e -> e.getValue().getSingleValue()));
+    Map<? extends MarketDataKey<?>, ?> singleMarketDataValues = MapStream.of(marketData)
+        .mapValues(box -> box.getSingleValue())
+        .toMap();
 
     CurveInputs curveInputs = CurveInputs.of(singleMarketDataValues, curveMetadata);
     return MarketDataBox.ofSingleValue(curveInputs);
@@ -142,7 +144,7 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
       Map<? extends MarketDataKey<?>, MarketDataBox<?>> values,
       int scenarioIndex) {
 
-    return values.entrySet().stream().collect(toImmutableMap(e -> e.getKey(), e -> e.getValue().getValue(scenarioIndex)));
+    return MapStream.of(values).mapValues(box -> box.getValue(scenarioIndex)).toMap();
   }
 
   private static int scenarioCount(
