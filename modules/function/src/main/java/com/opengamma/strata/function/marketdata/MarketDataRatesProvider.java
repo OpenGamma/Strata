@@ -81,8 +81,8 @@ public final class MarketDataRatesProvider
   }
 
   //-------------------------------------------------------------------------
-  // finds the time-series
-  private LocalDateDoubleTimeSeries timeSeries(Index index) {
+  @Override
+  public LocalDateDoubleTimeSeries timeSeries(Index index) {
     return marketData.getTimeSeries(IndexRateKey.of(index));
   }
 
