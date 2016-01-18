@@ -569,7 +569,7 @@ public final class DoubleArray
    * @return the boxed view of this array
    */
   public Array<Double> boxed() {
-    return new BoxedDoubleArray(array);
+    return new BoxedDoubleArray(this);
   }
 
   //-------------------------------------------------------------------------
