@@ -17,7 +17,7 @@ import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricer;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
-import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
@@ -108,11 +108,11 @@ public class TradeCalibrationMeasure<T extends Trade>
   /**
    * The value measure.
    */
-  private final ToDoubleBiFunction<T, ImmutableRatesProvider> valueFn;
+  private final ToDoubleBiFunction<T, RatesProvider> valueFn;
   /**
    * The sensitivity measure.
    */
-  private final BiFunction<T, ImmutableRatesProvider, PointSensitivities> sensitivityFn;
+  private final BiFunction<T, RatesProvider, PointSensitivities> sensitivityFn;
 
   //-------------------------------------------------------------------------
   /**
@@ -130,8 +130,8 @@ public class TradeCalibrationMeasure<T extends Trade>
   public static <R extends Trade> TradeCalibrationMeasure<R> of(
       String name,
       Class<R> tradeType,
-      ToDoubleBiFunction<R, ImmutableRatesProvider> valueFn,
-      BiFunction<R, ImmutableRatesProvider, PointSensitivities> sensitivityFn) {
+      ToDoubleBiFunction<R, RatesProvider> valueFn,
+      BiFunction<R, RatesProvider, PointSensitivities> sensitivityFn) {
 
     return new TradeCalibrationMeasure<R>(name, tradeType, valueFn, sensitivityFn);
   }
@@ -140,8 +140,8 @@ public class TradeCalibrationMeasure<T extends Trade>
   private TradeCalibrationMeasure(
       String name,
       Class<T> tradeType,
-      ToDoubleBiFunction<T, ImmutableRatesProvider> valueFn,
-      BiFunction<T, ImmutableRatesProvider, PointSensitivities> sensitivityFn) {
+      ToDoubleBiFunction<T, RatesProvider> valueFn,
+      BiFunction<T, RatesProvider, PointSensitivities> sensitivityFn) {
 
     this.name = name;
     this.tradeType = tradeType;
@@ -157,12 +157,12 @@ public class TradeCalibrationMeasure<T extends Trade>
 
   //-------------------------------------------------------------------------
   @Override
-  public double value(T trade, ImmutableRatesProvider provider) {
+  public double value(T trade, RatesProvider provider) {
     return valueFn.applyAsDouble(trade, provider);
   }
 
   @Override
-  public CurveCurrencyParameterSensitivities sensitivities(T trade, ImmutableRatesProvider provider) {
+  public CurveCurrencyParameterSensitivities sensitivities(T trade, RatesProvider provider) {
     PointSensitivities pts = sensitivityFn.apply(trade, provider);
     return provider.curveParameterSensitivity(pts);
   }
