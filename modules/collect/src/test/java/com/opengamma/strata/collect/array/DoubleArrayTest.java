@@ -19,6 +19,7 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.joda.beans.ImmutableBean;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -267,6 +268,37 @@ public class DoubleArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_boxed() {
+    DoubleArray test = DoubleArray.of(1d, 2d, 3d);
+    Array<Double> boxed = test.boxed();
+    assertEquals(boxed.size(), 3);
+    assertEquals(boxed.isEmpty(), false);
+    assertEquals(boxed.get(0), Double.valueOf(1d));
+    assertEquals(boxed.get(1), Double.valueOf(2d));
+    assertEquals(boxed.get(2), Double.valueOf(3d));
+    Double[] streamed = boxed.stream().toArray(Double[]::new);
+    assertTrue(Arrays.equals(streamed, new Double[] {1d, 2d, 3d}));
+
+    assertEquals(boxed.toString(), test.boxed().toString());
+    assertEquals(boxed.hashCode(), test.boxed().hashCode());
+    assertEquals(boxed, boxed);
+    assertEquals(boxed, test.boxed());
+    assertEquals(boxed.equals(DoubleArray.of(1d, 2d).boxed()), false);
+    assertEquals(boxed.equals(""), false);
+    assertEquals(boxed.equals(null), false);
+  }
+
+  public void test_boxed_empty() {
+    DoubleArray test = DoubleArray.of();
+    Array<Double> boxed = test.boxed();
+    assertEquals(boxed.size(), 0);
+    assertEquals(boxed.isEmpty(), true);
+    assertThrows(() -> boxed.get(0), IndexOutOfBoundsException.class);
+    Double[] streamed = boxed.stream().toArray(Double[]::new);
+    assertTrue(Arrays.equals(streamed, new Double[0]));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_forEach() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     double[] extracted = new double[3];
@@ -459,6 +491,12 @@ public class DoubleArrayTest {
     DoubleArray.of(1d, 2d, 3d).metaBean().metaProperty("array").metaBean();
     DoubleArray.of(1d, 2d, 3d).metaBean().metaProperty("array").propertyGenericType();
     DoubleArray.of(1d, 2d, 3d).metaBean().metaProperty("array").annotations();
+
+    ImmutableBean boxed = (ImmutableBean) DoubleArray.of(1d, 2d, 3d).boxed();
+    coverImmutableBean(boxed);
+    boxed.metaBean().metaProperty("array").metaBean();
+    boxed.metaBean().metaProperty("array").propertyGenericType();
+    boxed.metaBean().metaProperty("array").annotations();
   }
 
   //-------------------------------------------------------------------------

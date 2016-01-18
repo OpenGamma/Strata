@@ -560,6 +560,18 @@ public final class DoubleArray
     return DoubleStream.of(array);
   }
 
+  /**
+   * Returns a boxed view of this array.
+   * <p>
+   * This returns an implementation of {@link Array} backed by this {@code DoubleArray}.
+   * The underlying data is not copied.
+   *
+   * @return the boxed view of this array
+   */
+  public Array<Double> boxed() {
+    return new BoxedDoubleArray(this);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Applies an action to each value in the array.
