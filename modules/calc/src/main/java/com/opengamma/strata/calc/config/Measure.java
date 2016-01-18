@@ -43,9 +43,17 @@ public final class Measure
    */
   public static final Measure BUCKETED_GAMMA_PV01 = Measure.of("BucketedGammaPV01");
   /**
+   * Measure representing the cash flows of the calculation target.
+   */
+  public static final Measure CASH_FLOWS = Measure.of("CashFlows");
+  /**
    * Measure representing the currency exposure of the calculation target.
    */
   public static final Measure CURRENCY_EXPOSURE = Measure.of("CurrencyExposure");
+  /**
+   * Measure representing the current cash of the calculation target.
+   */
+  public static final Measure CURRENT_CASH = Measure.of("CurrentCash");
   /**
    * Measure representing a break-down of the present value calculation on the target.
    */

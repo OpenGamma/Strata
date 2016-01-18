@@ -23,12 +23,13 @@ public final class FxSingleFunctionGroups {
    */
   private static final FunctionGroup<FxSingleTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(FxSingleTrade.class).name("FxSingleDiscounting")
-          .addFunction(Measure.PAR_SPREAD, FxSingleParSpreadFunction.class)
-          .addFunction(Measure.PRESENT_VALUE, FxSinglePvFunction.class)
-          .addFunction(Measure.PV01, FxSinglePv01Function.class)
-          .addFunction(Measure.BUCKETED_PV01, FxSingleBucketedPv01Function.class)
-          .addFunction(Measure.CURRENCY_EXPOSURE, FxSingleCurrencyExposureFunction.class)
-          .addFunction(Measure.FORWARD_FX_RATE, FxSingleForwardFxRateFunction.class)
+          .addFunction(Measure.PAR_SPREAD, FxSingleCalculationFunction.class)
+          .addFunction(Measure.PRESENT_VALUE, FxSingleCalculationFunction.class)
+          .addFunction(Measure.PV01, FxSingleCalculationFunction.class)
+          .addFunction(Measure.BUCKETED_PV01, FxSingleCalculationFunction.class)
+          .addFunction(Measure.CURRENCY_EXPOSURE, FxSingleCalculationFunction.class)
+          .addFunction(Measure.CURRENT_CASH, FxSingleCalculationFunction.class)
+          .addFunction(Measure.FORWARD_FX_RATE, FxSingleCalculationFunction.class)
           .build();
 
   /**
@@ -44,11 +45,12 @@ public final class FxSingleFunctionGroups {
    * <p>
    * The supported built-in measures are:
    * <ul>
+   *   <li>{@linkplain Measure#PAR_SPREAD Par spread}
    *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
    *   <li>{@linkplain Measure#PV01 PV01}
    *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
-   *   <li>{@linkplain Measure#PAR_SPREAD Par spread}
    *   <li>{@linkplain Measure#CURRENCY_EXPOSURE Currency exposure}
+   *   <li>{@linkplain Measure#CURRENT_CASH Current cash}
    *   <li>{@linkplain Measure#FORWARD_FX_RATE Forward FX rate}
    * </ul>
    * 

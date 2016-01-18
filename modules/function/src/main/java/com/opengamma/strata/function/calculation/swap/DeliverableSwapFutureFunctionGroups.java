@@ -23,9 +23,9 @@ public final class DeliverableSwapFutureFunctionGroups {
    */
   private static final FunctionGroup<DeliverableSwapFutureTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(DeliverableSwapFutureTrade.class).name("DeliverableSwapFutureDiscounting")
-          .addFunction(Measure.PRESENT_VALUE, DeliverableSwapFuturePvFunction.class)
-          .addFunction(Measure.PV01, DeliverableSwapFuturePv01Function.class)
-          .addFunction(Measure.BUCKETED_PV01, DeliverableSwapFutureBucketedPv01Function.class)
+          .addFunction(Measure.PRESENT_VALUE, DeliverableSwapFutureCalculationFunction.class)
+          .addFunction(Measure.PV01, DeliverableSwapFutureCalculationFunction.class)
+          .addFunction(Measure.BUCKETED_PV01, DeliverableSwapFutureCalculationFunction.class)
           .build();
 
   /**

@@ -23,9 +23,9 @@ public final class BulletPaymentFunctionGroups {
    */
   private static final FunctionGroup<BulletPaymentTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(BulletPaymentTrade.class).name("BulletPaymentDiscounting")
-          .addFunction(Measure.PRESENT_VALUE, BulletPaymentPvFunction.class)
-          .addFunction(Measure.PV01, BulletPaymentPv01Function.class)
-          .addFunction(Measure.BUCKETED_PV01, BulletPaymentBucketedPv01Function.class)
+          .addFunction(Measure.PRESENT_VALUE, BulletPaymentCalculationFunction.class)
+          .addFunction(Measure.PV01, BulletPaymentCalculationFunction.class)
+          .addFunction(Measure.BUCKETED_PV01, BulletPaymentCalculationFunction.class)
           .build();
 
   /**

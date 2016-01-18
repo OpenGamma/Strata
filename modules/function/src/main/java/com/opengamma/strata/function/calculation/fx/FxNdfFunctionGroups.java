@@ -23,11 +23,12 @@ public final class FxNdfFunctionGroups {
    */
   private static final FunctionGroup<FxNdfTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(FxNdfTrade.class).name("FxNdfDiscounting")
-          .addFunction(Measure.PRESENT_VALUE, FxNdfPvFunction.class)
-          .addFunction(Measure.PV01, FxNdfPv01Function.class)
-          .addFunction(Measure.BUCKETED_PV01, FxNdfBucketedPv01Function.class)
-          .addFunction(Measure.CURRENCY_EXPOSURE, FxNdfCurrencyExposureFunction.class)
-          .addFunction(Measure.FORWARD_FX_RATE, FxNdfForwardFxRateFunction.class)
+          .addFunction(Measure.PRESENT_VALUE, FxNdfCalculationFunction.class)
+          .addFunction(Measure.PV01, FxNdfCalculationFunction.class)
+          .addFunction(Measure.BUCKETED_PV01, FxNdfCalculationFunction.class)
+          .addFunction(Measure.CURRENCY_EXPOSURE, FxNdfCalculationFunction.class)
+          .addFunction(Measure.CURRENT_CASH, FxNdfCalculationFunction.class)
+          .addFunction(Measure.FORWARD_FX_RATE, FxNdfCalculationFunction.class)
           .build();
 
   /**
@@ -47,6 +48,7 @@ public final class FxNdfFunctionGroups {
    *   <li>{@linkplain Measure#PV01 PV01}
    *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
    *   <li>{@linkplain Measure#CURRENCY_EXPOSURE Currency exposure}
+   *   <li>{@linkplain Measure#CURRENT_CASH Current cash}
    *   <li>{@linkplain Measure#FORWARD_FX_RATE Forward FX rate}
    * </ul>
    * 

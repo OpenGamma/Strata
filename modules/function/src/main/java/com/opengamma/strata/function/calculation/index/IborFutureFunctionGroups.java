@@ -23,10 +23,10 @@ public final class IborFutureFunctionGroups {
    */
   private static final FunctionGroup<IborFutureTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(IborFutureTrade.class).name("IborFutureDiscounting")
-          .addFunction(Measure.PAR_SPREAD, IborFutureParSpreadFunction.class)
-          .addFunction(Measure.PRESENT_VALUE, IborFuturePvFunction.class)
-          .addFunction(Measure.PV01, IborFuturePv01Function.class)
-          .addFunction(Measure.BUCKETED_PV01, IborFutureBucketedPv01Function.class)
+          .addFunction(Measure.PAR_SPREAD, IborFutureCalculationFunction.class)
+          .addFunction(Measure.PRESENT_VALUE, IborFutureCalculationFunction.class)
+          .addFunction(Measure.PV01, IborFutureCalculationFunction.class)
+          .addFunction(Measure.BUCKETED_PV01, IborFutureCalculationFunction.class)
           .build();
 
   /**

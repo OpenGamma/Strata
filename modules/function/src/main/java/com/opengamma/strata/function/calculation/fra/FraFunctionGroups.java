@@ -27,6 +27,7 @@ public final class FraFunctionGroups {
           .addFunction(Measure.PAR_SPREAD, FraCalculationFunction.class)
           .addFunction(Measure.PRESENT_VALUE, FraCalculationFunction.class)
           .addFunction(Measure.EXPLAIN_PRESENT_VALUE, FraCalculationFunction.class)
+          .addFunction(Measure.CASH_FLOWS, FraCalculationFunction.class)
           .addFunction(Measure.PV01, FraCalculationFunction.class)
           .addFunction(Measure.BUCKETED_PV01, FraCalculationFunction.class)
           .addFunction(Measure.BUCKETED_GAMMA_PV01, FraCalculationFunction.class)
@@ -49,6 +50,7 @@ public final class FraFunctionGroups {
    *   <li>{@linkplain Measure#PAR_SPREAD Par spread}
    *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
    *   <li>{@linkplain Measure#EXPLAIN_PRESENT_VALUE Explain present value}
+   *   <li>{@linkplain Measure#CASH_FLOWS Cash flows}
    *   <li>{@linkplain Measure#PV01 PV01}
    *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
    *   <li>{@linkplain Measure#BUCKETED_GAMMA_PV01 Bucketed Gamma PV01}

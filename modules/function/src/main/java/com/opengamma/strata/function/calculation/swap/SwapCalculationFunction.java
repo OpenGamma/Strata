@@ -3,12 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.calculation.fra;
+package com.opengamma.strata.function.calculation.swap;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -17,7 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.calc.config.Measure;
@@ -28,14 +27,15 @@ import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.market.key.DiscountCurveKey;
-import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
-import com.opengamma.strata.product.fra.ExpandedFra;
-import com.opengamma.strata.product.fra.Fra;
-import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.market.key.MarketDataKeys;
+import com.opengamma.strata.product.swap.ExpandedSwap;
+import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
- * Perform calculations on a single {@code FraTrade} for each of a set of scenarios.
+ * Perform calculations on a single {@code SwapTrade} for each of a set of scenarios.
  * <p>
  * This uses the standard discounting calculation method.
  * The supported built-in measures are:
@@ -47,31 +47,43 @@ import com.opengamma.strata.product.fra.FraTrade;
  *   <li>{@linkplain Measure#CASH_FLOWS Cash flows}
  *   <li>{@linkplain Measure#PV01 PV01}
  *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
- *   <li>{@linkplain Measure#BUCKETED_GAMMA_PV01 Bucketed Gamma PV01}
+ *   <li>{@linkplain Measure#BUCKETED_GAMMA_PV01 Gamma PV01}
+ *   <li>{@linkplain Measure#ACCRUED_INTEREST Accrued interest}
+ *   <li>{@linkplain Measure#LEG_INITIAL_NOTIONAL Leg initial notional}
+ *   <li>{@linkplain Measure#LEG_PRESENT_VALUE Leg present value}
+ *   <li>{@linkplain Measure#CURRENCY_EXPOSURE Currency exposure}
+ *   <li>{@linkplain Measure#CURRENT_CASH Current cash}
  * </ul>
+ * <p>
+ * The default reporting currency is determined from the first swap leg.
  */
-public class FraCalculationFunction
-    implements CalculationMultiFunction<FraTrade> {
+public class SwapCalculationFunction
+    implements CalculationMultiFunction<SwapTrade> {
 
   /**
    * The calculations by measure.
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measure.PAR_RATE, FraMeasureCalculations::parRate)
-          .put(Measure.PAR_SPREAD, FraMeasureCalculations::parSpread)
-          .put(Measure.PRESENT_VALUE, FraMeasureCalculations::presentValue)
-          .put(Measure.EXPLAIN_PRESENT_VALUE, FraMeasureCalculations::explainPresentValue)
-          .put(Measure.CASH_FLOWS, FraMeasureCalculations::cashFlows)
-          .put(Measure.PV01, FraMeasureCalculations::pv01)
-          .put(Measure.BUCKETED_PV01, FraMeasureCalculations::bucketedPv01)
-          .put(Measure.BUCKETED_GAMMA_PV01, FraMeasureCalculations::bucketedGammaPv01)
+          .put(Measure.PAR_RATE, SwapMeasureCalculations::parRate)
+          .put(Measure.PAR_SPREAD, SwapMeasureCalculations::parSpread)
+          .put(Measure.PRESENT_VALUE, SwapMeasureCalculations::presentValue)
+          .put(Measure.EXPLAIN_PRESENT_VALUE, SwapMeasureCalculations::explainPresentValue)
+          .put(Measure.CASH_FLOWS, SwapMeasureCalculations::cashFlows)
+          .put(Measure.PV01, SwapMeasureCalculations::pv01)
+          .put(Measure.BUCKETED_PV01, SwapMeasureCalculations::bucketedPv01)
+          .put(Measure.BUCKETED_GAMMA_PV01, SwapMeasureCalculations::bucketedGammaPv01)
+          .put(Measure.ACCRUED_INTEREST, SwapMeasureCalculations::accruedInterest)
+          .put(Measure.LEG_INITIAL_NOTIONAL, SwapMeasureCalculations::legInitialNotional)
+          .put(Measure.LEG_PRESENT_VALUE, SwapMeasureCalculations::legPresentValue)
+          .put(Measure.CURRENCY_EXPOSURE, SwapMeasureCalculations::currencyExposure)
+          .put(Measure.CURRENT_CASH, SwapMeasureCalculations::currentCash)
           .build();
 
   /**
    * Creates an instance.
    */
-  public FraCalculationFunction() {
+  public SwapCalculationFunction() {
   }
 
   //-------------------------------------------------------------------------
@@ -81,53 +93,54 @@ public class FraCalculationFunction
   }
 
   @Override
-  public Optional<Currency> defaultReportingCurrency(FraTrade target) {
-    return Optional.of(target.getProduct().getCurrency());
+  public Optional<Currency> defaultReportingCurrency(SwapTrade target) {
+    return Optional.of(target.getProduct().getLegs().get(0).getCurrency());
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(FraTrade trade, Set<Measure> measures) {
-    Fra product = trade.getProduct();
+  public FunctionRequirements requirements(SwapTrade trade, Set<Measure> measures) {
+    Swap product = trade.getProduct();
 
-    // Create a set of all indices referenced by the FRA
-    Set<IborIndex> indices = new HashSet<>();
+    // no market data for leg initial notional
+    if (measures.equals(ImmutableSet.of(Measure.LEG_INITIAL_NOTIONAL))) {
+      return FunctionRequirements.builder()
+          .outputCurrencies(product.getLegs().stream().map(SwapLeg::getCurrency).collect(toImmutableSet()))
+          .build();
+    }
 
-    // The main index is always present
-    indices.add(product.getIndex());
-
-    // The index used for linear interpolation is optional
-    product.getIndexInterpolated().ifPresent(indices::add);
-
-    // Create a key identifying the rate of each index referenced by the FRA
-    Set<ObservableKey> indexRateKeys = indices.stream()
-        .map(IndexRateKey::of)
-        .collect(toImmutableSet());
-
-    // Create a key identifying the forward curve of each index referenced by the FRA
-    Set<MarketDataKey<?>> indexCurveKeys = indices.stream()
-        .map(IborIndexCurveKey::of)
-        .collect(toImmutableSet());
-
-    // Create a key identifying the discount factors for the FRA currency
-    Set<DiscountCurveKey> discountFactorsKeys = ImmutableSet.of(DiscountCurveKey.of(product.getCurrency()));
+    // market data needed
+    Set<Index> indices = product.allIndices();
+    Set<ObservableKey> indexRateKeys =
+        indices.stream()
+            .map(IndexRateKey::of)
+            .collect(toImmutableSet());
+    Set<MarketDataKey<?>> indexCurveKeys =
+        indices.stream()
+            .map(MarketDataKeys::indexCurve)
+            .collect(toImmutableSet());
+    Set<DiscountCurveKey> discountCurveKeys =
+        product.getLegs().stream()
+            .map(SwapLeg::getCurrency)
+            .map(DiscountCurveKey::of)
+            .collect(toImmutableSet());
 
     return FunctionRequirements.builder()
-        .singleValueRequirements(Sets.union(indexCurveKeys, discountFactorsKeys))
+        .singleValueRequirements(Sets.union(indexCurveKeys, discountCurveKeys))
         .timeSeriesRequirements(indexRateKeys)
-        .outputCurrencies(product.getCurrency())
+        .outputCurrencies(product.getLegs().stream().map(SwapLeg::getCurrency).collect(toImmutableSet()))
         .build();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public Map<Measure, Result<ScenarioResult<?>>> calculate(
-      FraTrade trade,
+      SwapTrade trade,
       Set<Measure> measures,
       CalculationMarketData scenarioMarketData) {
 
     // expand the trade once for all measures and all scenarios
-    ExpandedFra product = trade.getProduct().expand();
+    ExpandedSwap product = trade.getProduct().expand();
 
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<ScenarioResult<?>>> results = new HashMap<>();
@@ -140,8 +153,8 @@ public class FraCalculationFunction
   // calculate one measure
   private Result<ScenarioResult<?>> calculate(
       Measure measure,
-      FraTrade trade,
-      ExpandedFra product,
+      SwapTrade trade,
+      ExpandedSwap product,
       CalculationMarketData scenarioMarketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
@@ -155,8 +168,8 @@ public class FraCalculationFunction
   @FunctionalInterface
   interface SingleMeasureCalculation {
     public abstract ScenarioResult<?> calculate(
-        FraTrade trade,
-        ExpandedFra product,
+        SwapTrade trade,
+        ExpandedSwap product,
         CalculationMarketData marketData);
   }
 

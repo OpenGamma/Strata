@@ -126,7 +126,7 @@ public class SwapPricingTest {
         .build();
 
     FunctionGroup<SwapTrade> functionGroup = DefaultFunctionGroup.builder(SwapTrade.class)
-        .addFunction(Measure.PRESENT_VALUE, SwapPvFunction.class)
+        .addFunction(Measure.PRESENT_VALUE, SwapCalculationFunction.class)
         .name("FunctionGroup")
         .build();
 
