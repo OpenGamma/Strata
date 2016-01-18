@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.calc;
 
-import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.config.Measure;
 
 /**
@@ -48,10 +47,9 @@ public interface ColumnDefinition {
   public abstract ColumnName getName();
 
   /**
-   * Returns the measure displayed in the column for the target
+   * Returns the measure displayed in the column
    *
-   * @param target  a calculation target
-   * @return the measure displayed in the column for the target
+   * @return the measure displayed in the column
    */
-  public abstract Measure getMeasure(CalculationTarget target);
+  public abstract Measure getMeasure();
 }
