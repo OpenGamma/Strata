@@ -172,8 +172,9 @@ public final class MarketEnvironmentBuilder {
   public MarketEnvironmentBuilder addValues(Map<? extends MarketDataId<?>, ?> values) {
     ArgChecker.notNull(values, "values");
     values.forEach((id, value) -> checkValueType(id, value));
+    // extra <Object> for Eclipse
     Map<? extends MarketDataId<?>, MarketDataBox<Object>> boxedValues =
-        MapStream.of(values).mapValues(value -> MarketDataBox.ofSingleValue(value)).toMap();
+        MapStream.of(values).mapValues(value -> MarketDataBox.<Object>ofSingleValue(value)).toMap();
 
     this.values.putAll(boxedValues);
     return this;
