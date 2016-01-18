@@ -146,7 +146,7 @@ public class CalibrationEurStandard {
       fwdIdValue[i + 1] = "FRA" + fwdFraTenors[i].toString() + "x" + fwdFraTenors[i].plusMonths(tenor).toString();
     }
     for (int i = 0; i < fwdIrsQuotes.length; i++) {
-      fwdIdValue[i + 1 + fwdFraQuotes.length] = "IRS" + fwdIrsTenors[i].toString();
+      fwdIdValue[i + 1 + fwdFraQuotes.length] = "IRS" + tenor + "M-" + fwdIrsTenors[i].toString();
     }
     return fwdIdValue;
   }
@@ -190,7 +190,7 @@ public class CalibrationEurStandard {
     for (int i = 0; i < fwd3IrsTenors.length; i++) {
       fwd3Nodes[i + 1 + fwd3FraTenors.length] = FixedIborSwapCurveNode.of(
           FixedIborSwapTemplate.of(Period.ZERO, Tenor.of(fwd3IrsTenors[i]), EUR_FIXED_1Y_EURIBOR_3M),
-          QuoteKey.of(StandardId.of(SCHEME, fwd3IdValues[i + 1])));
+          QuoteKey.of(StandardId.of(SCHEME, fwd3IdValues[i + 1 + fwd3FraTenors.length])));
     }
     CurveNode[] fwd6Nodes = new CurveNode[fwd6IdValues.length];
     fwd6Nodes[0] = IborFixingDepositCurveNode.of(IborFixingDepositTemplate.of(EUR_EURIBOR_6M),
@@ -202,7 +202,7 @@ public class CalibrationEurStandard {
     for (int i = 0; i < fwd6IrsTenors.length; i++) {
       fwd6Nodes[i + 1 + fwd6FraTenors.length] = FixedIborSwapCurveNode.of(
           FixedIborSwapTemplate.of(Period.ZERO, Tenor.of(fwd6IrsTenors[i]), EUR_FIXED_1Y_EURIBOR_6M),
-          QuoteKey.of(StandardId.of(SCHEME, fwd6IdValues[i + 1])));
+          QuoteKey.of(StandardId.of(SCHEME, fwd6IdValues[i + 1 + fwd6FraTenors.length])));
     }
     InterpolatedNodalCurveDefinition DSC_CURVE_DEFN =
         InterpolatedNodalCurveDefinition.builder()
