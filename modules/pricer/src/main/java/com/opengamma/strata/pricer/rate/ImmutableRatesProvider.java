@@ -167,8 +167,8 @@ public final class ImmutableRatesProvider
   }
 
   //-------------------------------------------------------------------------
-  // finds the time-series
-  private LocalDateDoubleTimeSeries timeSeries(Index index) {
+  @Override
+  public LocalDateDoubleTimeSeries timeSeries(Index index) {
     return timeSeries.getOrDefault(index, LocalDateDoubleTimeSeries.empty());
   }
 

@@ -9,8 +9,10 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -131,5 +133,16 @@ public interface RatesProvider
    * @return the currency exposure
    */
   MultiCurrencyAmount currencyExposure(PointSensitivities pointSensitivities);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the time series.
+   * <p>
+   * This returns time series for the index. 
+   * 
+   * @param index  the index
+   * @return the time series
+   */
+  public abstract LocalDateDoubleTimeSeries timeSeries(Index index);
 
 }

@@ -27,9 +27,11 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.view.DiscountFactors;
@@ -145,6 +147,11 @@ public class SimpleRatesProvider
 
   @Override
   public MultiCurrencyAmount currencyExposure(PointSensitivities pointSensitivities) {
+    throw new UnsupportedOperationException();
+  }
+  
+  @Override
+  public LocalDateDoubleTimeSeries timeSeries(Index index) {
     throw new UnsupportedOperationException();
   }
 
