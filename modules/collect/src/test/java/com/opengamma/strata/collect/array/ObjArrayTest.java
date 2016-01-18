@@ -77,6 +77,11 @@ public class ObjArrayTest {
     assertContent(ObjArray.copyOf(new Object[0]));
   }
 
+  public void test_filled_withValue() {
+    assertContent(ObjArray.filled(0, "1.5"));
+    assertContent(ObjArray.filled(3, "1.5"), "1.5", "1.5", "1.5");
+  }
+
   //-------------------------------------------------------------------------
   public void test_get() {
     ObjArray<String> test = ObjArray.of("1", "2", "3", "3", "4");

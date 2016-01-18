@@ -333,6 +333,23 @@ public final class ObjArray<T>
 
   //-------------------------------------------------------------------------
   /**
+   * Obtains an instance with all entries equal to the same value.
+   * 
+   * @param size  the number of elements
+   * @param value  the value of all the elements
+   * @return an array filled with the specified value
+   */
+  public static <R> ObjArray<R> filled(int size, R value) {
+    if (size == 0) {
+      return of();
+    }
+    Object[] array = new Object[size];
+    Arrays.fill(array, value);
+    return new ObjArray<R>(array);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Obtains an instance from an array.
    * 
    * @param array  the array to copy, cloned
