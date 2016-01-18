@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ShiftType;
@@ -72,7 +73,7 @@ public final class CurvePointShiftsBuilder {
   public CurvePointShiftsBuilder addShifts(int scenarioIndex, Map<?, Double> shiftMap) {
     ArgChecker.notNull(shiftMap, "shiftMap");
     ArgChecker.notNegative(scenarioIndex, "scenarioIndex");
-    shiftMap.entrySet().stream().forEach(e -> shifts.put(Pair.of(scenarioIndex, e.getKey()), e.getValue()));
+    MapStream.of(shiftMap).forEach((id, shift) -> shifts.put(Pair.of(scenarioIndex, id), shift));
     return this;
   }
 

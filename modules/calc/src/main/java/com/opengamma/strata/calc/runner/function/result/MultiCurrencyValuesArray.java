@@ -6,7 +6,6 @@
 package com.opengamma.strata.calc.runner.function.result;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,6 +42,7 @@ import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.function.CalculationMultiFunction;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 
@@ -98,9 +98,7 @@ public final class MultiCurrencyValuesArray
         currencyValues[i] = currencyAmount.getAmount();
       }
     }
-    Map<Currency, DoubleArray> doubleArrayMap =
-        valueMap.entrySet().stream().collect(toMap(e -> e.getKey(), e -> DoubleArray.ofUnsafe(e.getValue())));
-
+    Map<Currency, DoubleArray> doubleArrayMap = MapStream.of(valueMap).mapValues(v -> DoubleArray.ofUnsafe(v)).toMap();
     return new MultiCurrencyValuesArray(doubleArrayMap);
   }
 

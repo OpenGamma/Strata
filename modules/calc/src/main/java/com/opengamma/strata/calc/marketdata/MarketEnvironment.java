@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.calc.marketdata;
 
-import static com.opengamma.strata.collect.Guavate.entriesToImmutableMap;
-
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +32,7 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.calc.runner.MissingMappingId;
 import com.opengamma.strata.calc.runner.NoMatchingRuleId;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Failure;
 import com.opengamma.strata.collect.result.FailureException;
@@ -189,14 +188,13 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
    */
   public MarketEnvironment filter(MarketDataRequirements requirements) {
 
-    Map<MarketDataId<?>, MarketDataBox<?>> values = this.values.entrySet().stream()
-        .filter(tp -> requirements.getNonObservables().contains(tp.getKey()) ||
-            requirements.getObservables().contains(tp.getKey()))
-        .collect(entriesToImmutableMap());
+    Map<MarketDataId<?>, MarketDataBox<?>> values = MapStream.of(this.values)
+        .filterKeys(id -> requirements.getNonObservables().contains(id) || requirements.getObservables().contains(id))
+        .toMap();
 
-    Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = this.timeSeries.entrySet().stream()
-        .filter(tp -> requirements.getTimeSeries().contains(tp.getKey()))
-        .collect(entriesToImmutableMap());
+    Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = MapStream.of(this.timeSeries)
+        .filterKeys(id -> requirements.getTimeSeries().contains(id))
+        .toMap();
 
     return toBuilder()
         .values(values)

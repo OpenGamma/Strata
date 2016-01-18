@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.calc.marketdata;
 
-import static java.util.stream.Collectors.toMap;
-
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +15,7 @@ import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Failure;
 import com.opengamma.strata.collect.result.Result;
@@ -146,20 +145,20 @@ public final class MarketEnvironmentBuilder {
   }
 
   /**
-   * Adds a single item of market data, replacing any existing value with the same ID.
+   * Adds a single market data box, replacing any existing box with the same ID.
    * <p>
-   * The type of the value is checked to ensure it is compatible with the ID.
+   * The type of the box is checked to ensure it is compatible with the ID.
    *
    * @param id  the ID of the market data
-   * @param value  the market data value
+   * @param box  the market data box
    * @return this builder
    */
-  MarketEnvironmentBuilder addValueUnsafe(MarketDataId<?> id, MarketDataBox<?> value) {
+  MarketEnvironmentBuilder addValueUnsafe(MarketDataId<?> id, MarketDataBox<?> box) {
     ArgChecker.notNull(id, "id");
-    ArgChecker.notNull(value, "value");
-    updateScenarioCount(value);
-    checkType(id, value);
-    values.put(id, value);
+    ArgChecker.notNull(box, "box");
+    updateScenarioCount(box);
+    checkBoxType(id, box);
+    values.put(id, box);
     return this;
   }
 
@@ -172,9 +171,10 @@ public final class MarketEnvironmentBuilder {
    */
   public MarketEnvironmentBuilder addValues(Map<? extends MarketDataId<?>, ?> values) {
     ArgChecker.notNull(values, "values");
-    Map<? extends MarketDataId<?>, MarketDataBox<Object>> boxedValues = values.entrySet().stream()
-        .map(MarketEnvironmentBuilder::checkTypes)
-        .collect(toMap(e -> e.getKey(), e -> MarketDataBox.ofSingleValue(e.getValue())));
+    values.forEach((id, value) -> checkValueType(id, value));
+    Map<? extends MarketDataId<?>, MarketDataBox<Object>> boxedValues =
+        MapStream.of(values).mapValues(value -> MarketDataBox.ofSingleValue(value)).toMap();
+
     this.values.putAll(boxedValues);
     return this;
   }
@@ -218,7 +218,7 @@ public final class MarketEnvironmentBuilder {
 
     if (result.isSuccess()) {
       MarketDataBox<?> box = result.getValue();
-      checkType(id, box);
+      checkBoxType(id, box);
       updateScenarioCount(box);
       values.put(id, box);
       valueFailures.remove(id);
@@ -364,18 +364,17 @@ public final class MarketEnvironmentBuilder {
   }
 
   //-------------------------------------------------------------------------
-  private static Map.Entry<? extends MarketDataId<?>, ?> checkTypes(Map.Entry<? extends MarketDataId<?>, ?> entry) {
-    if (!entry.getKey().getMarketDataType().isInstance(entry.getValue())) {
+  private static void checkValueType(MarketDataId<?> id, Object value) {
+    if (!id.getMarketDataType().isInstance(value)) {
       throw new IllegalArgumentException(
           Messages.format(
               "Market data value {} does not match the type of the key {}",
-              entry.getValue(),
-              entry.getKey()));
+              value,
+              id));
     }
-    return entry;
   }
 
-  private static void checkType(MarketDataId<?> id, MarketDataBox<?> box) {
+  private static void checkBoxType(MarketDataId<?> id, MarketDataBox<?> box) {
     if (!id.getMarketDataType().isAssignableFrom(box.getMarketDataType())) {
       throw new IllegalArgumentException(
           Messages.format(

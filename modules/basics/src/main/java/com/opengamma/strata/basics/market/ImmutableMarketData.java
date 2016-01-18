@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
@@ -67,7 +68,7 @@ public final class ImmutableMarketData
    * @return a set of market data containing the values in the map
    */
   public static ImmutableMarketData of(LocalDate valuationDate, Map<? extends MarketDataKey<?>, ?> values) {
-    values.entrySet().stream().forEach(e -> checkType(e.getKey(), e.getValue()));
+    MapStream.of(values).forEach((key, value) -> checkType(key, value));
     return new ImmutableMarketData(valuationDate, values, ImmutableMap.of());
   }
 

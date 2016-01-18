@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.loader.csv;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableMap;
-
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,6 +14,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -109,11 +108,7 @@ public final class FixingSeriesCsvLoader {
       throw new IllegalArgumentException(
           Messages.format("Error processing resource as CSV file: {}", resource), ex);
     }
-
-    return builders.entrySet().stream()
-        .collect(toImmutableMap(
-            Map.Entry::getKey,
-            v -> v.getValue().build()));
+    return MapStream.of(builders).mapValues(builder -> builder.build()).toMap();
   }
 
   //-------------------------------------------------------------------------

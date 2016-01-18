@@ -38,6 +38,7 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Guavate;
+import com.opengamma.strata.collect.MapStream;
 
 /**
  * A map of currency amounts keyed by currency.
@@ -132,9 +133,7 @@ public final class MultiCurrencyAmount
    */
   public static MultiCurrencyAmount of(Map<Currency, Double> map) {
     ArgChecker.noNulls(map, "map");
-    return map.entrySet().stream()
-        .map(entry -> CurrencyAmount.of(entry.getKey(), entry.getValue()))
-        .collect(MultiCurrencyAmount.collectorInternal());
+    return MapStream.of(map).map(CurrencyAmount::of).collect(MultiCurrencyAmount.collectorInternal());
   }
 
   //-------------------------------------------------------------------------

@@ -196,8 +196,7 @@ public final class CurveGroupDefinition
    * @return the list of all trades
    */
   public ImmutableList<Trade> trades(LocalDate valuationDate, MarketData marketData) {
-    return curveDefinitionsByName.entrySet().stream()
-        .map(entry -> entry.getValue())
+    return curveDefinitionsByName.values().stream()
         .flatMap(curveDef -> curveDef.getNodes().stream())
         .map(node -> node.trade(valuationDate, marketData))
         .collect(toImmutableList());

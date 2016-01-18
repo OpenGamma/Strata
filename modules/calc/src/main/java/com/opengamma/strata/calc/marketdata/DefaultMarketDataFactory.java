@@ -32,6 +32,7 @@ import com.opengamma.strata.calc.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.calc.marketdata.mapping.MissingDataAwareFeedIdMapping;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -184,8 +185,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
       // Observable data is built in bulk so it can be efficiently requested from data provider in one operation
       Map<ObservableId, Result<Double>> observableResults = buildObservableData(observableIds);
-      observableResults.entrySet().stream()
-          .forEach(e -> addObservableResult(e.getKey(), e.getValue(), scenarioDefinition, dataBuilder));
+      MapStream.of(observableResults).forEach((id, res) -> addObservableResult(id, res, scenarioDefinition, dataBuilder));
 
       // Copy observable data from the supplied data to the builder, applying any matching perturbations
       leafRequirements.getObservables().stream()
@@ -203,8 +203,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       Map<MarketDataId<?>, Result<MarketDataBox<?>>> nonObservableResults =
           buildNonObservableData(nonObservableIds, marketDataConfig, marketData);
 
-      nonObservableResults.entrySet().stream()
-          .forEach(e -> addResult(e.getKey(), e.getValue(), scenarioDefinition, dataBuilder));
+      MapStream.of(nonObservableResults).forEach((id, result) -> addResult(id, result, scenarioDefinition, dataBuilder));
 
       // Copy supplied data to the scenario data after applying perturbations
       leafRequirements.getNonObservables().stream()

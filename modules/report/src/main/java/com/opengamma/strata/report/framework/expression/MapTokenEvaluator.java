@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.opengamma.strata.collect.MapStream;
+
 /**
  * Evaluates a token against a map.
  */
@@ -30,8 +32,8 @@ public class MapTokenEvaluator extends TokenEvaluator<Map<?, ?>> {
 
   @Override
   public EvaluationResult evaluate(Map<?, ?> map, String firstToken, List<String> remainingTokens) {
-    return map.entrySet().stream()
-        .filter(e -> firstToken.equalsIgnoreCase(e.getKey().toString()))
+    return MapStream.of(map)
+        .filterKeys(key -> firstToken.equalsIgnoreCase(key.toString()))
         .findFirst()
         .map(e -> EvaluationResult.success(e.getValue(), remainingTokens))
         .orElse(invalidTokenFailure(map, firstToken));
