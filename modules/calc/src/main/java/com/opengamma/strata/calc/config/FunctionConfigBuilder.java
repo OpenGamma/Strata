@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -23,7 +23,7 @@ public final class FunctionConfigBuilder<T extends CalculationTarget> {
   /**
    * The type of the function.
    */
-  private final Class<? extends CalculationSingleFunction<T, ?>> functionType;
+  private final Class<? extends CalculationFunction<T>> functionType;
   /**
    * The arguments to the function constructor.
    */
@@ -31,7 +31,7 @@ public final class FunctionConfigBuilder<T extends CalculationTarget> {
 
   //-------------------------------------------------------------------------
   // package-private constructor so it's visible from FunctionConfig.builder()
-  FunctionConfigBuilder(Class<? extends CalculationSingleFunction<T, ?>> functionType) {
+  FunctionConfigBuilder(Class<? extends CalculationFunction<T>> functionType) {
     this.functionType = ArgChecker.notNull(functionType, "functionType");
   }
 

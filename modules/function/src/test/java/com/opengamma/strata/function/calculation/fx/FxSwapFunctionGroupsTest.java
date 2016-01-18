@@ -24,11 +24,9 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FxRateKey;
-import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
@@ -75,9 +73,7 @@ public class FxSwapFunctionGroupsTest {
     Currency ccy2 = TRADE.getProduct().getNearLeg().getCounterCurrencyAmount().getCurrency();
     LocalDate valDate = TRADE.getProduct().getFarLeg().getPaymentDate().plusDays(7);
 
-    FunctionConfig<FxSwapTrade> config =
-        FxSwapFunctionGroups.discounting().functionConfig(TRADE, Measure.PRESENT_VALUE).get();
-    CalculationSingleFunction<FxSwapTrade, ?> function = config.createFunction();
+    FxSwapPvFunction function = new FxSwapPvFunction();
     FunctionRequirements reqs = function.requirements(TRADE);
     assertThat(reqs.getOutputCurrencies()).containsOnly(ccy1, ccy2);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(

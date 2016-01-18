@@ -9,7 +9,6 @@ import java.util.Optional;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 
 /**
  * Supertype of all functions that calculate values of measures for a target.
@@ -22,14 +21,6 @@ import com.opengamma.strata.calc.marketdata.FunctionRequirements;
  * @param <T>  the type of target handled by this function
  */
 public interface CalculationFunction<T extends CalculationTarget> {
-
-  /**
-   * Returns requirements specifying the market data the function needs to perform its calculations.
-   *
-   * @param target  a target
-   * @return requirements specifying the market data the function needs to perform its calculations for the target
-   */
-  public abstract FunctionRequirements requirements(T target);
 
   /**
    * Returns the default reporting currency for the result of performing the calculation for the target
@@ -47,4 +38,5 @@ public interface CalculationFunction<T extends CalculationTarget> {
   public default Optional<Currency> defaultReportingCurrency(T target) {
     return Optional.empty();
   }
+
 }

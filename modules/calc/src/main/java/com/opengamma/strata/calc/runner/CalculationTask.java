@@ -8,8 +8,10 @@ package com.opengamma.strata.calc.runner;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -26,8 +28,11 @@ import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirementsBuilder;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
+import com.opengamma.strata.calc.runner.function.CalculationMultiFunction;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.FailureReason;
@@ -61,7 +66,7 @@ public final class CalculationTask {
   /**
    * The function that will calculate the value.
    */
-  private final CalculationSingleFunction<CalculationTarget, ?> function;
+  private final CalculationFunction<CalculationTarget> function;
   /**
    * The mappings to select market data.
    */
@@ -92,7 +97,7 @@ public final class CalculationTask {
       Measure measure,
       int rowIndex,
       int columnIndex,
-      CalculationSingleFunction<? extends CalculationTarget, ?> function,
+      CalculationFunction<? extends CalculationTarget> function,
       MarketDataMappings marketDataMappings,
       ReportingRules reportingRules) {
 
@@ -125,7 +130,7 @@ public final class CalculationTask {
       Measure measure,
       int rowIndex,
       int columnIndex,
-      CalculationSingleFunction<? extends CalculationTarget, ?> function,
+      CalculationFunction<? extends CalculationTarget> function,
       MarketDataMappings marketDataMappings,
       ReportingRules reportingRules) {
 
@@ -136,7 +141,7 @@ public final class CalculationTask {
     this.marketDataMappings = ArgChecker.notNull(marketDataMappings, "marketDataMappings");
     this.reportingRules = ArgChecker.notNull(reportingRules, "reportingRules");
     // TODO check the target types are compatible
-    this.function = (CalculationSingleFunction<CalculationTarget, ?>) ArgChecker.notNull(function, "function");
+    this.function = (CalculationFunction<CalculationTarget>) ArgChecker.notNull(function, "function");
   }
 
   //-------------------------------------------------------------------------
@@ -164,8 +169,18 @@ public final class CalculationTask {
    *
    * @return requirements specifying the market data the function needs to perform its calculations
    */
+  @SuppressWarnings("unchecked")
   public MarketDataRequirements requirements() {
-    FunctionRequirements functionRequirements = function.requirements(target);
+    FunctionRequirements functionRequirements;
+    if (function instanceof CalculationSingleFunction) {
+      functionRequirements = ((CalculationSingleFunction<CalculationTarget, Object>) function).requirements(target);
+    } else if (function instanceof CalculationMultiFunction) {
+      ImmutableSet<Measure> measures = ImmutableSet.of();
+      functionRequirements = ((CalculationMultiFunction<CalculationTarget>) function).requirements(target, measures);
+    } else {
+      throw new IllegalStateException("Unknown function type: " + function.getClass().getName());
+    }
+
     MarketDataRequirementsBuilder requirementsBuilder = MarketDataRequirements.builder();
 
     functionRequirements.getTimeSeriesRequirements().stream()
@@ -212,17 +227,31 @@ public final class CalculationTask {
    * @param scenarioData  the market data used in the calculation
    * @return results of the calculation, one for every scenario in the market data
    */
+  @SuppressWarnings("unchecked")
   public CalculationResult execute(CalculationEnvironment scenarioData) {
     CalculationMarketData calculationData = new DefaultCalculationMarketData(scenarioData, marketDataMappings);
     Result<?> result;
 
     try {
-      Object value = function.execute(target, calculationData);
-      result = value instanceof Result ?
-          (Result<?>) value :
-          Result.success(value);
-    } catch (RuntimeException e) {
-      result = Result.failure(e);
+      if (function instanceof CalculationSingleFunction) {
+        Object value = ((CalculationSingleFunction<CalculationTarget, Object>) function).execute(target, calculationData);
+        result = value instanceof Result ? (Result<?>) value : Result.success(value);
+
+      } else if (function instanceof CalculationMultiFunction) {
+        ImmutableSet<Measure> measures = ImmutableSet.of(getMeasure());
+        Map<Measure, Result<ScenarioResult<?>>> map =
+            ((CalculationMultiFunction<CalculationTarget>) function).calculate(target, measures, calculationData);
+        if (!map.containsKey(getMeasure())) {
+          throw new IllegalStateException(Messages.format(
+              "Function '{}' did not return requested measure '{}'", function.getClass().getName(), getMeasure()));
+        }
+        result = map.get(getMeasure());
+
+      } else {
+        throw new IllegalStateException(Messages.format("Unknown function type '{}'", function.getClass().getName()));
+      }
+    } catch (RuntimeException ex) {
+      result = Result.failure(ex);
     }
     return CalculationResult.of(target, rowIndex, columnIndex, convertToReportingCurrency(result, calculationData));
   }

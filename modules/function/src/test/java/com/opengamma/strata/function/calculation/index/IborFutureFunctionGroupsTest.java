@@ -21,11 +21,9 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
@@ -62,9 +60,7 @@ public class IborFutureFunctionGroupsTest {
     IborIndex index = TRADE.getProduct().getIndex();
     LocalDate valDate = TRADE.getProduct().getLastTradeDate().plusDays(7);
 
-    FunctionConfig<IborFutureTrade> config =
-        IborFutureFunctionGroups.discounting().functionConfig(TRADE, Measure.PRESENT_VALUE).get();
-    CalculationSingleFunction<IborFutureTrade, ?> function = config.createFunction();
+    IborFuturePvFunction function = new IborFuturePvFunction();
     FunctionRequirements reqs = function.requirements(TRADE);
     assertThat(reqs.getOutputCurrencies()).containsOnly(ccy);
 
