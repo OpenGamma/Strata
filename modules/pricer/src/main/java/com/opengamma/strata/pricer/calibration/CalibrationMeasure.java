@@ -7,7 +7,7 @@ package com.opengamma.strata.pricer.calibration;
 
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
  * Provides access to the measures needed to perform curve calibration for a single type of trade.
@@ -37,7 +37,7 @@ public interface CalibrationMeasure<T extends Trade> {
    * @return the sensitivity
    * @throws IllegalArgumentException if the trade cannot be valued
    */
-  public abstract double value(T trade, ImmutableRatesProvider provider);
+  public abstract double value(T trade, RatesProvider provider);
 
   /**
    * Calculates the parameter sensitivities that relate to the value.
@@ -49,6 +49,6 @@ public interface CalibrationMeasure<T extends Trade> {
    * @return the sensitivity
    * @throws IllegalArgumentException if the trade cannot be valued
    */
-  public abstract CurveCurrencyParameterSensitivities sensitivities(T trade, ImmutableRatesProvider provider);
+  public abstract CurveCurrencyParameterSensitivities sensitivities(T trade, RatesProvider provider);
 
 }
