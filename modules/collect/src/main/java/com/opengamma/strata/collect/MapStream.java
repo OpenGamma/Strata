@@ -32,8 +32,12 @@ import com.google.common.collect.ImmutableMap;
 
 /**
  * A stream implementation which adds methods for manipulating keys and values when streaming over map entries.
+ * 
+ * @param <K>  the key type
+ * @param <V>  the value type
  */
-public final class MapStream<K, V> implements Stream<Map.Entry<K, V>> {
+public final class MapStream<K, V>
+    implements Stream<Map.Entry<K, V>> {
 
   /** The stream of map entries. */
   private final Stream<Map.Entry<K, V>> underlying;
