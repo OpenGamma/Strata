@@ -111,7 +111,7 @@ public final class CalculationTasks {
       CalculationTarget target,
       Column column) {
 
-    Measure measure = column.getMeasure(target);
+    Measure measure = column.getMeasure();
     Optional<ConfiguredFunctionGroup> functionGroup = column.getPricingRules().functionGroup(target, measure);
 
     // Use the mappings from the market data rules, else create a set of mappings that cause a failure to
@@ -155,7 +155,7 @@ public final class CalculationTasks {
 
     @SuppressWarnings("unchecked")
     FunctionGroup<T> functionGroup = (FunctionGroup<T>) configuredGroup.getFunctionGroup();
-    Measure measure = column.getMeasure(target);
+    Measure measure = column.getMeasure();
     return functionGroup.functionConfig(target, measure).orElse(FunctionConfig.missing());
   }
 
