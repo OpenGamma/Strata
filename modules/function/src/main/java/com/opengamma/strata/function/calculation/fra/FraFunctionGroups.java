@@ -23,13 +23,13 @@ public final class FraFunctionGroups {
    */
   private static final FunctionGroup<FraTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(FraTrade.class).name("FraDiscounting")
-          .addFunction(Measure.PAR_RATE, FraParRateFunction.class)
-          .addFunction(Measure.PAR_SPREAD, FraParSpreadFunction.class)
-          .addFunction(Measure.PRESENT_VALUE, FraPvFunction.class)
-          .addFunction(Measure.EXPLAIN_PRESENT_VALUE, FraExplainPvFunction.class)
-          .addFunction(Measure.PV01, FraPv01Function.class)
-          .addFunction(Measure.BUCKETED_PV01, FraBucketedPv01Function.class)
-          .addFunction(Measure.BUCKETED_GAMMA_PV01, FraBucketedGammaPv01Function.class)
+          .addFunction(Measure.PAR_RATE, FraCalculationFunction.class)
+          .addFunction(Measure.PAR_SPREAD, FraCalculationFunction.class)
+          .addFunction(Measure.PRESENT_VALUE, FraCalculationFunction.class)
+          .addFunction(Measure.EXPLAIN_PRESENT_VALUE, FraCalculationFunction.class)
+          .addFunction(Measure.PV01, FraCalculationFunction.class)
+          .addFunction(Measure.BUCKETED_PV01, FraCalculationFunction.class)
+          .addFunction(Measure.BUCKETED_GAMMA_PV01, FraCalculationFunction.class)
           .build();
 
   /**

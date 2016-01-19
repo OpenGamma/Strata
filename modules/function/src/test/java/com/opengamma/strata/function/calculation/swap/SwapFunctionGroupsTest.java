@@ -20,11 +20,9 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
@@ -65,8 +63,7 @@ public class SwapFunctionGroupsTest {
     IborIndex index = (IborIndex) TRADE.getProduct().allIndices().iterator().next();
     LocalDate valDate = TRADE.getProduct().getEndDate().plusDays(7);
 
-    FunctionConfig<SwapTrade> config = SwapFunctionGroups.discounting().functionConfig(TRADE, Measure.PRESENT_VALUE).get();
-    CalculationSingleFunction<SwapTrade, ?> function = config.createFunction();
+    SwapPvFunction function = new SwapPvFunction();
     FunctionRequirements reqs = function.requirements(TRADE);
     assertThat(reqs.getOutputCurrencies()).containsOnly(ccy);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(

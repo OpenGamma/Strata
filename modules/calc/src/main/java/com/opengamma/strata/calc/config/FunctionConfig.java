@@ -32,7 +32,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Primitives;
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.collect.Messages;
 
 /**
@@ -65,7 +65,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
    * The type of the function.
    */
   @PropertyDefinition(validate = "notNull", get = "private")
-  private final Class<? extends CalculationSingleFunction<T, ?>> functionType;
+  private final Class<? extends CalculationFunction<T>> functionType;
 
   /**
    * The constructor arguments used for building function instances, keyed by parameter name.
@@ -87,7 +87,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
    * @return configuration for a function that doesn't contain any constructor arguments
    */
   public static <T extends CalculationTarget> FunctionConfig<T> of(
-      Class<? extends CalculationSingleFunction<T, ?>> functionType) {
+      Class<? extends CalculationFunction<T>> functionType) {
 
     return new FunctionConfig<>(functionType, ImmutableMap.of());
   }
@@ -100,7 +100,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
    * @return a mutable builder for building {@code FunctionConfig}
    */
   public static <T extends CalculationTarget> FunctionConfigBuilder<T> builder(
-      Class<? extends CalculationSingleFunction<T, ?>> functionType) {
+      Class<? extends CalculationFunction<T>> functionType) {
 
     return new FunctionConfigBuilder<>(functionType);
   }
@@ -133,16 +133,16 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
    *   or if any of the supplied arguments have the same name as the arguments in the configuration
    */
   @SuppressWarnings("unchecked")
-  public CalculationSingleFunction<T, ?> createFunction(Map<String, Object> arguments) {
+  public CalculationFunction<T> createFunction(Map<String, Object> arguments) {
     Map<String, Object> mergedArguments = mergedArguments(arguments);
     Constructor<?> constructor = constructor(functionType);
     Object[] argumentArray = constructorArguments(constructor, mergedArguments);
 
     try {
-      return (CalculationSingleFunction<T, ?>) constructor.newInstance(argumentArray);
+      return (CalculationFunction<T>) constructor.newInstance(argumentArray);
     } catch (InvocationTargetException | InstantiationException | IllegalAccessException ex) {
       log.warn("Failed to create engine function", ex);
-      return (CalculationSingleFunction<T, ?>) new MissingConfigCalculationFunction();
+      return (CalculationFunction<T>) new MissingConfigCalculationFunction();
     }
   }
 
@@ -155,7 +155,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
    * @throws IllegalArgumentException if the function requires constructor arguments that have not been provided
    */
   @SuppressWarnings("unchecked")
-  public CalculationSingleFunction<T, ?> createFunction() {
+  public CalculationFunction<T> createFunction() {
     return createFunction(ImmutableMap.of());
   }
 
@@ -297,7 +297,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
    * @param arguments  the value of the property, not null
    */
   FunctionConfig(
-      Class<? extends CalculationSingleFunction<T, ?>> functionType,
+      Class<? extends CalculationFunction<T>> functionType,
       Map<String, Object> arguments) {
     JodaBeanUtils.notNull(functionType, "functionType");
     JodaBeanUtils.notNull(arguments, "arguments");
@@ -326,7 +326,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
    * Gets the type of the function.
    * @return the value of the property, not null
    */
-  private Class<? extends CalculationSingleFunction<T, ?>> getFunctionType() {
+  private Class<? extends CalculationFunction<T>> getFunctionType() {
     return functionType;
   }
 
@@ -387,7 +387,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
      * The meta-property for the {@code functionType} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Class<? extends CalculationSingleFunction<T, ?>>> functionType = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<Class<? extends CalculationFunction<T>>> functionType = DirectMetaProperty.ofImmutable(
         this, "functionType", FunctionConfig.class, (Class) Class.class);
     /**
      * The meta-property for the {@code arguments} property.
@@ -441,7 +441,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
      * The meta-property for the {@code functionType} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Class<? extends CalculationSingleFunction<T, ?>>> functionType() {
+    public MetaProperty<Class<? extends CalculationFunction<T>>> functionType() {
       return functionType;
     }
 
@@ -483,7 +483,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
    */
   private static final class Builder<T extends CalculationTarget> extends DirectFieldsBeanBuilder<FunctionConfig<T>> {
 
-    private Class<? extends CalculationSingleFunction<T, ?>> functionType;
+    private Class<? extends CalculationFunction<T>> functionType;
     private Map<String, Object> arguments = ImmutableMap.of();
 
     /**
@@ -510,7 +510,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
     public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -211170510:  // functionType
-          this.functionType = (Class<? extends CalculationSingleFunction<T, ?>>) newValue;
+          this.functionType = (Class<? extends CalculationFunction<T>>) newValue;
           break;
         case -2035517098:  // arguments
           this.arguments = (Map<String, Object>) newValue;

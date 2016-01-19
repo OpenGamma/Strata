@@ -26,7 +26,7 @@ public interface ScenarioResult<T> {
   /**
    * Returns the number of results.
    * <p>
-   * This is required to be the same as the number of scenarios in the market data provided to the function
+   * This is required to be the same as the number of scenarios in the market data provided to the function.
    *
    * @return the number of results
    */
@@ -34,6 +34,8 @@ public interface ScenarioResult<T> {
 
   /**
    * Returns the result at the specified index.
+   * <p>
+   * The index must be valid, between zero (inclusive) and {@code size()} (exclusive).
    *
    * @param index  the index of the result that should be returned
    * @return the result at the specified index
@@ -42,8 +44,11 @@ public interface ScenarioResult<T> {
 
   /**
    * Returns a stream of the results.
+   * <p>
+   * The stream will return one entry for each scenario.
    *
    * @return a stream of the results
    */
   public abstract Stream<T> stream();
+
 }

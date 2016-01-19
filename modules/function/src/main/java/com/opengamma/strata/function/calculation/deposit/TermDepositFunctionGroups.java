@@ -23,11 +23,11 @@ public final class TermDepositFunctionGroups {
    */
   private static final FunctionGroup<TermDepositTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(TermDepositTrade.class).name("TermDepositDiscounting")
-          .addFunction(Measure.PAR_RATE, TermDepositParRateFunction.class)
-          .addFunction(Measure.PAR_SPREAD, TermDepositParSpreadFunction.class)
-          .addFunction(Measure.PRESENT_VALUE, TermDepositPvFunction.class)
-          .addFunction(Measure.PV01, TermDepositPv01Function.class)
-          .addFunction(Measure.BUCKETED_PV01, TermDepositBucketedPv01Function.class)
+          .addFunction(Measure.PAR_RATE, TermDepositCalculationFunction.class)
+          .addFunction(Measure.PAR_SPREAD, TermDepositCalculationFunction.class)
+          .addFunction(Measure.PRESENT_VALUE, TermDepositCalculationFunction.class)
+          .addFunction(Measure.PV01, TermDepositCalculationFunction.class)
+          .addFunction(Measure.BUCKETED_PV01, TermDepositCalculationFunction.class)
           .build();
 
   /**

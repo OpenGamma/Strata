@@ -7,6 +7,7 @@ package com.opengamma.strata.calc.runner.function;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 
 /**
  * A function that calculates a value for a target using multiple sets of market data.
@@ -24,6 +25,16 @@ public interface CalculationSingleFunction<T extends CalculationTarget, R>
     extends CalculationFunction<T> {
 
   /**
+   * Determines the market data requirements that function has to perform its calculations.
+   * <p>
+   * Any market data needed by the {@code execute} method should be specified.
+   *
+   * @param target  the target of the calculation
+   * @return the requirements specifying the market data the function needs to perform calculations
+   */
+  public abstract FunctionRequirements requirements(T target);
+
+  /**
    * Calculates a value for the target using multiple sets of market data.
    * <p>
    * If the calculated value contains any currency amounts and implements {@link CurrencyConvertible}
@@ -34,4 +45,5 @@ public interface CalculationSingleFunction<T extends CalculationTarget, R>
    * @return the result of the calculation
    */
   public abstract R execute(T target, CalculationMarketData marketData);
+
 }

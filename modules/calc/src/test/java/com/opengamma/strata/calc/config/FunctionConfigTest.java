@@ -27,7 +27,8 @@ public class FunctionConfigTest {
 
   public void createFunctionWithNoArgsConstructor() {
     FunctionConfig<TestTarget> config = FunctionConfig.of(TestFunctionNoParams.class);
-    CalculationSingleFunction<TestTarget, ?> function = config.createFunction();
+    @SuppressWarnings("unchecked")
+    CalculationSingleFunction<TestTarget, ?> function = (CalculationSingleFunction<TestTarget, ?>) config.createFunction();
     Object result = function.execute(new TestTarget("foo"), MARKET_DATA);
     assertThat(result).isEqualTo("FOO");
   }
@@ -38,14 +39,17 @@ public class FunctionConfigTest {
             .addArgument("count", 2)
             .addArgument("str", "Foo")
             .build();
-    CalculationSingleFunction<TestTarget, ?> function = config.createFunction();
+    @SuppressWarnings("unchecked")
+    CalculationSingleFunction<TestTarget, ?> function = (CalculationSingleFunction<TestTarget, ?>) config.createFunction();
     Object result = function.execute(new TestTarget("Bar"), MARKET_DATA);
     assertThat(result).isEqualTo("FooBarFooBar");
   }
 
   public void createFunctionWithConstructorArgsPassedIn() {
     FunctionConfig<TestTarget> config = FunctionConfig.of(TestFunctionWithParams.class);
-    CalculationSingleFunction<TestTarget, ?> function = config.createFunction(ImmutableMap.of("count", 2, "str", "Foo"));
+    @SuppressWarnings("unchecked")
+    CalculationSingleFunction<TestTarget, ?> function =
+        (CalculationSingleFunction<TestTarget, ?>) config.createFunction(ImmutableMap.of("count", 2, "str", "Foo"));
     Object result = function.execute(new TestTarget("Bar"), MARKET_DATA);
     assertThat(result).isEqualTo("FooBarFooBar");
   }
@@ -55,7 +59,9 @@ public class FunctionConfigTest {
         FunctionConfig.builder(TestFunctionWithParams.class)
             .addArgument("count", 2)
             .build();
-    CalculationSingleFunction<TestTarget, ?> function = config.createFunction(ImmutableMap.of("str", "Foo"));
+    @SuppressWarnings("unchecked")
+    CalculationSingleFunction<TestTarget, ?> function =
+        (CalculationSingleFunction<TestTarget, ?>) config.createFunction(ImmutableMap.of("str", "Foo"));
     Object result = function.execute(new TestTarget("Bar"), MARKET_DATA);
     assertThat(result).isEqualTo("FooBarFooBar");
   }
