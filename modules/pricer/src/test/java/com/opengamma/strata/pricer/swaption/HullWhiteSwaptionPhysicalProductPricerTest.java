@@ -21,8 +21,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
@@ -218,20 +216,6 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
   //-------------------------------------------------------------------------
   public void validate_physical_settlement() {
     assertThrowsIllegalArg(() -> PRICER.presentValue(SWAPTION_CASH, RATE_PROVIDER, HW_PROVIDER));
-  }
-
-  public void test_noFixedLeg() {
-    Swap swap = Swap.of(IBOR_LEG_REC, IBOR_LEG_PAY);
-    Swaption swaption = Swaption
-        .builder()
-        .expiryDate(AdjustableDate.of(MATURITY.toLocalDate(), BDA_MF))
-        .expiryTime(LocalTime.NOON)
-        .expiryZone(ZoneOffset.UTC)
-        .swaptionSettlement(PAR_YIELD)
-        .longShort(LONG)
-        .underlying(swap)
-        .build();
-    assertThrowsIllegalArg(() -> PRICER.presentValue(swaption, RATE_PROVIDER, HW_PROVIDER));
   }
 
   //-------------------------------------------------------------------------

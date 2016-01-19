@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.product.swaption;
 
+import static com.opengamma.strata.collect.Guavate.ensureOnlyOne;
+
 import java.io.Serializable;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -27,15 +29,19 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.LongShort;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.SwapLegType;
 
 /**
  * An option on an underlying swap.
  * <p>
  * A swaption is a financial instrument that provides an option based on the future value of a swap.
  * The option is European, exercised only on the exercise date.
+ * The underlying swap must be a single currency, Fixed-Ibor swap with a single Ibor index and no interpolated stubs.
  */
 @BeanDefinition
 public final class Swaption
@@ -83,8 +89,8 @@ public final class Swaption
   /**
    * The underlying swap.
    * <p>
-   * At expiry, if the option is exercised, this swap will be entered into. The swap description is the swap 
-   * as viewed by the party long the option. 
+   * At expiry, if the option is exercised, this swap will be entered into.
+   * The swap description is the swap as viewed by the party long the option. 
    */
   @PropertyDefinition(validate = "notNull")
   private final Swap underlying;
@@ -93,6 +99,11 @@ public final class Swaption
   @ImmutableValidator
   private void validate() {
     ArgChecker.inOrderOrEqual(expiryDate.getUnadjusted(), underlying.getStartDate(), "expiryDate", "startDate");
+    ArgChecker.isTrue(!underlying.isCrossCurrency(), "Underlying swap must not be cross-currency");
+    ArgChecker.isTrue(underlying.getLegs(SwapLegType.FIXED).size() == 1, "Underlying swap must have one fixed leg");
+    ArgChecker.isTrue(underlying.getLegs(SwapLegType.IBOR).size() == 1, "Underlying swap must have one Ibor leg");
+    ArgChecker.isTrue(underlying.allIndices().size() == 1, "Underlying swap must have one index");
+    ArgChecker.isTrue(underlying.allIndices().iterator().next() instanceof IborIndex, "Underlying swap must have one Ibor index");
   }
 
   //-------------------------------------------------------------------------
@@ -107,6 +118,31 @@ public final class Swaption
    */
   public ZonedDateTime getExpiryDateTime() {
     return expiryDate.getUnadjusted().atTime(expiryTime).atZone(expiryZone);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the currency of the swaption.
+   * <p>
+   * This is the currency of the underlying swap, which is not allowed to be cross-currency.
+   * 
+   * @return the expiry date and time
+   */
+  public Currency getCurrency() {
+    return underlying.getLegs().stream()
+        .map(leg -> leg.getCurrency())
+        .distinct()
+        .reduce(ensureOnlyOne())
+        .get();
+  }
+
+  /**
+   * Gets the index of the underlying swap.
+   * 
+   * @return the Ibor index of the underlying swap
+   */
+  public IborIndex getIndex() {
+    return (IborIndex) underlying.allIndices().iterator().next();
   }
 
   //-------------------------------------------------------------------------
@@ -256,8 +292,8 @@ public final class Swaption
   /**
    * Gets the underlying swap.
    * <p>
-   * At expiry, if the option is exercised, this swap will be entered into. The swap description is the swap
-   * as viewed by the party long the option.
+   * At expiry, if the option is exercised, this swap will be entered into.
+   * The swap description is the swap as viewed by the party long the option.
    * @return the value of the property, not null
    */
   public Swap getUnderlying() {
@@ -676,8 +712,8 @@ public final class Swaption
     /**
      * Sets the underlying swap.
      * <p>
-     * At expiry, if the option is exercised, this swap will be entered into. The swap description is the swap
-     * as viewed by the party long the option.
+     * At expiry, if the option is exercised, this swap will be entered into.
+     * The swap description is the swap as viewed by the party long the option.
      * @param underlying  the new value, not null
      * @return this, for chaining, not null
      */

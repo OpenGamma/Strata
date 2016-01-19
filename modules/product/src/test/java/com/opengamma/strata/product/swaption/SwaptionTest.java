@@ -22,12 +22,17 @@ import java.time.ZoneId;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
+import com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions;
+import com.opengamma.strata.product.swap.type.IborIborSwapConventions;
+import com.opengamma.strata.product.swap.type.XCcyIborIborSwapConventions;
 
 /**
  * Test {@link Swaption}.
@@ -51,7 +56,14 @@ public class SwaptionTest {
       .cashSettlementMethod(CashSettlementMethod.PAR_YIELD)
       .settlementDate(SWAP.getStartDate())
       .build();
+  private static final Swap SWAP_OIS = FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS
+      .toTrade(TRADE_DATE, Tenor.TENOR_10Y, BuySell.BUY, NOTIONAL, FIXED_RATE).getProduct();
+  private static final Swap SWAP_BASIS = IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M
+      .toTrade(TRADE_DATE, Tenor.TENOR_10Y, BuySell.BUY, NOTIONAL, FIXED_RATE).getProduct();
+  private static final Swap SWAP_XCCY = XCcyIborIborSwapConventions.EUR_EURIBOR_3M_USD_LIBOR_3M
+      .toTrade(TRADE_DATE, Tenor.TENOR_10Y, BuySell.BUY, NOTIONAL, NOTIONAL * 1.1, FIXED_RATE).getProduct();
 
+  //-------------------------------------------------------------------------
   public void test_builder() {
     Swaption test = Swaption.builder()
         .expiryDate(ADJUSTABLE_EXPIRY_DATE)
@@ -68,6 +80,8 @@ public class SwaptionTest {
     assertEquals(test.getLongShort(), LONG);
     assertEquals(test.getSwaptionSettlement(), PHYSICAL_SETTLE);
     assertEquals(test.getUnderlying(), SWAP);
+    assertEquals(test.getCurrency(), Currency.USD);
+    assertEquals(test.getIndex(), IborIndices.USD_LIBOR_3M);
   }
 
   public void test_builder_expiryAfterStart() {
@@ -81,6 +95,40 @@ public class SwaptionTest {
         .build());
   }
 
+  public void test_builder_invalidSwapOis() {
+    assertThrowsIllegalArg(() -> Swaption.builder()
+        .expiryDate(ADJUSTABLE_EXPIRY_DATE)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .longShort(LONG)
+        .swaptionSettlement(PHYSICAL_SETTLE)
+        .underlying(SWAP_OIS)
+        .build());
+  }
+
+  public void test_builder_invalidSwapBasis() {
+    assertThrowsIllegalArg(() -> Swaption.builder()
+        .expiryDate(ADJUSTABLE_EXPIRY_DATE)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .longShort(LONG)
+        .swaptionSettlement(PHYSICAL_SETTLE)
+        .underlying(SWAP_BASIS)
+        .build());
+  }
+
+  public void test_builder_invalidSwapXCcy() {
+    assertThrowsIllegalArg(() -> Swaption.builder()
+        .expiryDate(ADJUSTABLE_EXPIRY_DATE)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .longShort(LONG)
+        .swaptionSettlement(PHYSICAL_SETTLE)
+        .underlying(SWAP_XCCY)
+        .build());
+  }
+
+  //-------------------------------------------------------------------------
   public void test_expand() {
     Swaption base = Swaption.builder()
         .expiryDate(ADJUSTABLE_EXPIRY_DATE)

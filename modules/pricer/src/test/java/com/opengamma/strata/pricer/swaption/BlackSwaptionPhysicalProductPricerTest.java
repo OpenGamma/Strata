@@ -45,8 +45,6 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLegType;
-import com.opengamma.strata.product.swap.type.IborIborSwapConvention;
-import com.opengamma.strata.product.swap.type.ImmutableIborIborSwapConvention;
 import com.opengamma.strata.product.swaption.CashSettlement;
 import com.opengamma.strata.product.swaption.CashSettlementMethod;
 import com.opengamma.strata.product.swaption.PhysicalSettlement;
@@ -73,11 +71,6 @@ public class BlackSwaptionPhysicalProductPricerTest {
   private static final Swap SWAP_REC = USD_FIXED_6M_LIBOR_3M
       .toTrade(VAL_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, SELL, NOTIONAL, STRIKE).getProduct();
   private static final Swap SWAP_PAY = USD_FIXED_6M_LIBOR_3M
-      .toTrade(VAL_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, BUY, NOTIONAL, STRIKE).getProduct();
-  //Only for ArgChecker, not real convention
-  private static final IborIborSwapConvention USD_LIBOR_3M_LIBOR_3M = ImmutableIborIborSwapConvention.of(
-      "USD-Swap", USD_FIXED_6M_LIBOR_3M.getFloatingLeg(), USD_FIXED_6M_LIBOR_3M.getFloatingLeg());
-  private static final Swap SWAP_BASIS = USD_LIBOR_3M_LIBOR_3M
       .toTrade(VAL_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, BUY, NOTIONAL, STRIKE).getProduct();
   private static final Swap SWAP_PAST = USD_FIXED_6M_LIBOR_3M // Only for checks; no actual computation on that swap
       .toTrade(SWAPTION_PAST_EXERCISE_DATE, SWAPTION_PAST_EXERCISE_DATE, SWAPTION_PAST_EXERCISE_DATE.plusYears(10),
@@ -119,14 +112,6 @@ public class BlackSwaptionPhysicalProductPricerTest {
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG)
       .underlying(SWAP_REC)
-      .build();
-  private static final Swaption SWAPTION_BASIS = Swaption.builder()
-      .swaptionSettlement(PHYSICAL_SETTLE)
-      .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
-      .expiryTime(SWAPTION_EXPIRY_TIME)
-      .expiryZone(SWAPTION_EXPIRY_ZONE)
-      .longShort(LongShort.LONG)
-      .underlying(SWAP_BASIS)
       .build();
   private static final Swaption SWAPTION_REC_AT_EXPIRY = Swaption.builder()
       .swaptionSettlement(PHYSICAL_SETTLE)
@@ -176,11 +161,6 @@ public class BlackSwaptionPhysicalProductPricerTest {
   //-------------------------------------------------------------------------
   public void validate_physical_settlement() {
     assertThrowsIllegalArg(() -> PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_REC_CASH, MULTI_USD,
-        BLACK_VOL_SWAPTION_PROVIDER_USD_STD));
-  }
-
-  public void validate_swap_fixed_leg() {
-    assertThrowsIllegalArg(() -> PRICER_SWAPTION_BLACK.presentValue(SWAPTION_BASIS, MULTI_USD,
         BLACK_VOL_SWAPTION_PROVIDER_USD_STD));
   }
 

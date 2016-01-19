@@ -28,7 +28,6 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.LongShort;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -37,8 +36,6 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
-import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -70,9 +67,6 @@ import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
-import com.opengamma.strata.product.swap.type.IborIborSwapConvention;
-import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
-import com.opengamma.strata.product.swap.type.ImmutableIborIborSwapConvention;
 import com.opengamma.strata.product.swaption.CashSettlement;
 import com.opengamma.strata.product.swaption.CashSettlementMethod;
 import com.opengamma.strata.product.swaption.PhysicalSettlement;
@@ -204,20 +198,6 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       .swaptionSettlement(PhysicalSettlement.DEFAULT)
       .underlying(SWAP_REC)
       .build();
-  private static final IborIborSwapConvention SWAP_BASIS_CONV = ImmutableIborIborSwapConvention.of(
-      "Test",
-      IborRateSwapLegConvention.of(IborIndices.EUR_LIBOR_3M),
-      IborRateSwapLegConvention.of(IborIndices.EUR_LIBOR_6M));
-  private static final Swap SWAP_BASIS = SWAP_BASIS_CONV.toTrade(
-      MATURITY.toLocalDate(), Tenor.ofYears(TENOR_YEAR), BuySell.BUY, NOTIONAL, 0d).getProduct();
-  private static final Swaption SWAPTION_BASIS = Swaption.builder()
-      .expiryDate(AdjustableDate.of(MATURITY.toLocalDate()))
-      .expiryTime(MATURITY.toLocalTime())
-      .expiryZone(MATURITY.getZone())
-      .longShort(LongShort.LONG)
-      .swaptionSettlement(PAR_YIELD)
-      .underlying(SWAP_BASIS)
-      .build();
 
   private static final SabrParametersSwaptionVolatilities VOL_PROVIDER_REG =
       SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(VAL_DATE_TIME.toLocalDate(), false);
@@ -245,10 +225,6 @@ public class SabrSwaptionCashParYieldProductPricerTest {
   //-------------------------------------------------------------------------
   public void validate_cash_settlement() {
     assertThrowsIllegalArg(() -> PRICER.presentValue(SWAPTION_PHYS, RATE_PROVIDER, VOL_PROVIDER));
-  }
-
-  public void validate_swap_fixed_leg() {
-    assertThrowsIllegalArg(() -> PRICER.presentValue(SWAPTION_BASIS, RATE_PROVIDER, VOL_PROVIDER));
   }
 
   public void no_pv_gamma() {
