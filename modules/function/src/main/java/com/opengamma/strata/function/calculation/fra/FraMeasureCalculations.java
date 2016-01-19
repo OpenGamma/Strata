@@ -73,10 +73,9 @@ final class FraMeasureCalculations {
       ExpandedFra product,
       CalculationMarketData marketData) {
 
-    DoubleArray array = DoubleArray.of(marketData.getScenarioCount(), i -> {
-      RatesProvider provider = new MarketDataRatesProvider(new SingleCalculationMarketData(marketData, i));
-      return PRICER.parRate(product, provider);
-    });
+    DoubleArray array = DoubleArray.of(
+        marketData.getScenarioCount(),
+        index -> PRICER.parRate(product, ratesProvider(marketData, index)));
     return ValuesArray.of(array);
   }
 
@@ -87,10 +86,9 @@ final class FraMeasureCalculations {
       ExpandedFra product,
       CalculationMarketData marketData) {
 
-    DoubleArray array = DoubleArray.of(marketData.getScenarioCount(), i -> {
-      RatesProvider provider = new MarketDataRatesProvider(new SingleCalculationMarketData(marketData, i));
-      return PRICER.parSpread(product, provider);
-    });
+    DoubleArray array = DoubleArray.of(
+        marketData.getScenarioCount(),
+        index -> PRICER.parSpread(product, ratesProvider(marketData, index)));
     return ValuesArray.of(array);
   }
 
@@ -227,8 +225,12 @@ final class FraMeasureCalculations {
   // common code, creating a stream of RatesProvider from CalculationMarketData
   private static Stream<MarketDataRatesProvider> ratesProviderStream(CalculationMarketData marketData) {
     return IntStream.range(0, marketData.getScenarioCount())
-        .mapToObj(index -> new SingleCalculationMarketData(marketData, index))
-        .map(market -> new MarketDataRatesProvider(market));
+        .mapToObj(index -> ratesProvider(marketData, index));
+  }
+
+  // creates a RatesProvider
+  private static MarketDataRatesProvider ratesProvider(CalculationMarketData marketData, int index) {
+    return new MarketDataRatesProvider(new SingleCalculationMarketData(marketData, index));
   }
 
 }
