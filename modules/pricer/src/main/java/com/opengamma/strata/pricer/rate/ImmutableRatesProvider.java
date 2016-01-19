@@ -44,7 +44,6 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.market.view.DiscountFxForwardRates;
 import com.opengamma.strata.market.view.DiscountFxIndexRates;
-import com.opengamma.strata.market.view.DiscountIborIndexRates;
 import com.opengamma.strata.market.view.DiscountOvernightIndexRates;
 import com.opengamma.strata.market.view.FxForwardRates;
 import com.opengamma.strata.market.view.FxIndexRates;
@@ -218,8 +217,7 @@ public final class ImmutableRatesProvider
   public IborIndexRates iborIndexRates(IborIndex index) {
     LocalDateDoubleTimeSeries fixings = timeSeries(index);
     Curve curve = indexCurve(index);
-    DiscountFactors dfc = DiscountFactors.of(index.getCurrency(), getValuationDate(), curve);
-    return DiscountIborIndexRates.of(index, dfc, fixings);
+    return IborIndexRates.of(index, valuationDate, curve, fixings);
   }
 
   @Override

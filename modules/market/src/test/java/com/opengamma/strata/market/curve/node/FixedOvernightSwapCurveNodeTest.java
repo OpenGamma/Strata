@@ -117,6 +117,7 @@ public class FixedOvernightSwapCurveNodeTest {
     double rate = 0.035;
     MarketData marketData = ImmutableMarketData.builder(valuationDate).addValue(QUOTE_KEY, rate).build();
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.ZERO_RATE), rate);
+    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.FORWARD_RATE), rate);
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR),
         Math.exp(-rate * TENOR_10Y.getPeriod().toTotalMonths() / 12d), 1.0E-12);
   }

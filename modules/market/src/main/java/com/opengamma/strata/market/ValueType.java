@@ -45,11 +45,14 @@ public final class ValueType
    * Type used when each value is the number of months relative to a base month - 'Months'.
    */
   public static final ValueType MONTHS = of("Months");
-
   /**
    * Type used when each value is a zero rate - 'ZeroRate'.
    */
   public static final ValueType ZERO_RATE = of("ZeroRate");
+  /**
+   * Type used when each value is a forward rate - 'ForwardRate'.
+   */
+  public static final ValueType FORWARD_RATE = of("ForwardRate");
   /**
    * Type used when each value is a discount factor - 'DiscountFactor'.
    */

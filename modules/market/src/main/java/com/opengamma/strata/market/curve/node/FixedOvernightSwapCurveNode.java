@@ -149,7 +149,7 @@ public final class FixedOvernightSwapCurveNode
 
   @Override
   public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
-    if (ValueType.ZERO_RATE.equals(valueType)) {
+    if (ValueType.ZERO_RATE.equals(valueType) || ValueType.FORWARD_RATE.equals(valueType)) {
       return marketData.getValue(rateKey);
     }
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {

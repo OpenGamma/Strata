@@ -145,6 +145,7 @@ public class TermDepositCurveNodeTest {
     double rate = 0.035;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, rate).build();
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.ZERO_RATE), rate);
+    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.FORWARD_RATE), rate);
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR),
         Math.exp(-rate * 0.25), 1.0e-12);
   }
