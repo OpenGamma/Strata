@@ -8,7 +8,6 @@ package com.opengamma.strata.function.calculation.fra;
 import static com.opengamma.strata.calc.runner.function.FunctionUtils.toCurrencyValuesArray;
 import static com.opengamma.strata.calc.runner.function.FunctionUtils.toMultiCurrencyValuesArray;
 import static com.opengamma.strata.calc.runner.function.FunctionUtils.toScenarioResult;
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toValuesArray;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.HashSet;
@@ -29,6 +28,7 @@ import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.function.calculation.rate.MarketDataUtils;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
@@ -73,9 +73,11 @@ final class FraMeasureCalculations {
       ExpandedFra product,
       CalculationMarketData marketData) {
 
-    return ratesProviderStream(marketData)
-        .map(provider -> PRICER.parRate(product, provider))
-        .collect(toValuesArray());
+    DoubleArray array = DoubleArray.of(marketData.getScenarioCount(), i -> {
+      RatesProvider provider = new MarketDataRatesProvider(new SingleCalculationMarketData(marketData, i));
+      return PRICER.parRate(product, provider);
+    });
+    return ValuesArray.of(array);
   }
 
   //-------------------------------------------------------------------------
@@ -85,9 +87,11 @@ final class FraMeasureCalculations {
       ExpandedFra product,
       CalculationMarketData marketData) {
 
-    return ratesProviderStream(marketData)
-        .map(provider -> PRICER.parSpread(product, provider))
-        .collect(toValuesArray());
+    DoubleArray array = DoubleArray.of(marketData.getScenarioCount(), i -> {
+      RatesProvider provider = new MarketDataRatesProvider(new SingleCalculationMarketData(marketData, i));
+      return PRICER.parSpread(product, provider);
+    });
+    return ValuesArray.of(array);
   }
 
   //-------------------------------------------------------------------------

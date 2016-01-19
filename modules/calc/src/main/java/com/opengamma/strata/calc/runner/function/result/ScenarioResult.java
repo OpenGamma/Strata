@@ -35,7 +35,7 @@ public interface ScenarioResult<T> {
   /**
    * Returns the result at the specified index.
    * <p>
-   * The index must be valid, between zero and the number of scenarios.
+   * The index must be valid, between zero (inclusive) and {@code size()} (exclusive).
    *
    * @param index  the index of the result that should be returned
    * @return the result at the specified index
