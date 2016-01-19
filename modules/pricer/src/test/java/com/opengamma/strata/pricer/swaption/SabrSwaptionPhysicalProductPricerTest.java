@@ -26,7 +26,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
@@ -48,9 +47,6 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLegType;
-import com.opengamma.strata.product.swap.type.IborIborSwapConvention;
-import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
-import com.opengamma.strata.product.swap.type.ImmutableIborIborSwapConvention;
 import com.opengamma.strata.product.swaption.CashSettlement;
 import com.opengamma.strata.product.swaption.CashSettlementMethod;
 import com.opengamma.strata.product.swaption.PhysicalSettlement;
@@ -119,20 +115,6 @@ public class SabrSwaptionPhysicalProductPricerTest {
       .swaptionSettlement(CASH_SETTLE)
       .underlying(SWAP_REC)
       .build();
-  private static final IborIborSwapConvention SWAP_BASIS_CONV = ImmutableIborIborSwapConvention.of(
-      "Test",
-      IborRateSwapLegConvention.of(IborIndices.USD_LIBOR_3M),
-      IborRateSwapLegConvention.of(IborIndices.USD_LIBOR_6M));
-  private static final Swap SWAP_BASIS = SWAP_BASIS_CONV.toTrade(
-      MATURITY_DATE.toLocalDate(), TENOR, BuySell.BUY, NOTIONAL, 0d).getProduct();
-  private static final Swaption SWAPTION_BASIS = Swaption.builder()
-      .expiryDate(AdjustableDate.of(MATURITY_DATE.toLocalDate()))
-      .expiryTime(MATURITY_DATE.toLocalTime())
-      .expiryZone(MATURITY_DATE.getZone())
-      .longShort(LongShort.LONG)
-      .swaptionSettlement(PHYSICAL_SETTLE)
-      .underlying(SWAP_BASIS)
-      .build();
   // providers
   private static final ImmutableRatesProvider RATE_PROVIDER =
       SwaptionSabrRateVolatilityDataSet.getRatesProviderUsd(VAL_DATE);
@@ -161,10 +143,6 @@ public class SabrSwaptionPhysicalProductPricerTest {
   //-------------------------------------------------------------------------
   public void validate_physical_settlement() {
     assertThrowsIllegalArg(() -> SWAPTION_PRICER.presentValue(SWAPTION_CASH, RATE_PROVIDER, VOL_PROVIDER));
-  }
-
-  public void validate_swap_fixed_leg() {
-    assertThrowsIllegalArg(() -> SWAPTION_PRICER.presentValue(SWAPTION_BASIS, RATE_PROVIDER, VOL_PROVIDER));
   }
 
   public void no_pv_gamma() {

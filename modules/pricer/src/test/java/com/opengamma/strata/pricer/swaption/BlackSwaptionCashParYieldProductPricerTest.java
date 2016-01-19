@@ -319,20 +319,6 @@ public class BlackSwaptionCashParYieldProductPricerTest {
     assertThrowsIllegalArg(() -> PRICER.impliedVolatility(swaption, RATE_PROVIDER, VOL_PROVIDER));
   }
 
-  public void test_noFixedLeg() {
-    Swap swap = Swap.of(IBOR_LEG_REC, IBOR_LEG_PAY);
-    Swaption swaption = Swaption
-        .builder()
-        .expiryDate(AdjustableDate.of(MATURITY, BDA_MF))
-        .expiryTime(LocalTime.NOON)
-        .expiryZone(ZoneOffset.UTC)
-        .swaptionSettlement(PAR_YIELD)
-        .longShort(LONG)
-        .underlying(swap)
-        .build();
-    assertThrowsIllegalArg(() -> PRICER.impliedVolatility(swaption, RATE_PROVIDER, VOL_PROVIDER));
-  }
-
   //-------------------------------------------------------------------------
   public void test_presentValueDelta() {
     CurrencyAmount computedRec = PRICER.presentValueDelta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
