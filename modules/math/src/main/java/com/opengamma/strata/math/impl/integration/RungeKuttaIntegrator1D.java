@@ -59,6 +59,10 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
 
   }
 
+  public double getRelativeTolerance() {
+    return _relTol;
+  }
+
   @Override
   public Double integrate(Function<Double, Double> f, Double lower, Double upper) {
     ArgChecker.notNull(lower, "lower");

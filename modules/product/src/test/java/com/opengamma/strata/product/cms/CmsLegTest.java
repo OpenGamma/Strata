@@ -224,6 +224,7 @@ public class CmsLegTest {
         .fixingDate(EUR_EURIBOR_6M.calculateFixingFromEffective(START))
         .paymentDate(end1)
         .yearFraction(EUR_EURIBOR_6M.getDayCount().yearFraction(START, end1))
+        .dayCount(EUR_EURIBOR_6M.getDayCount())
         .build();
     CmsPeriod period2 = CmsPeriod.builder()
         .currency(EUR)
@@ -237,6 +238,7 @@ public class CmsLegTest {
         .fixingDate(EUR_EURIBOR_6M.calculateFixingFromEffective(end1))
         .paymentDate(SCHEDULE_EUR.getAdjustedEndDate())
         .yearFraction(EUR_EURIBOR_6M.getDayCount().yearFraction(end1, SCHEDULE_EUR.getAdjustedEndDate()))
+        .dayCount(EUR_EURIBOR_6M.getDayCount())
         .build();
     assertEquals(expandFloor.getCurrency(), EUR);
     assertEquals(expandFloor.getStartDate(), baseFloor.getStartDate());
@@ -268,6 +270,7 @@ public class CmsLegTest {
         .fixingDate(EUR_EURIBOR_6M.calculateFixingFromEffective(end1))
         .paymentDate(end1)
         .yearFraction(EUR_EURIBOR_6M.getDayCount().yearFraction(START, end1))
+        .dayCount(EUR_EURIBOR_6M.getDayCount())
         .build();
     CmsPeriod period2End = CmsPeriod.builder()
         .currency(EUR)
@@ -281,6 +284,7 @@ public class CmsLegTest {
         .fixingDate(EUR_EURIBOR_6M.calculateFixingFromEffective(END))
         .paymentDate(SCHEDULE_EUR.getAdjustedEndDate())
         .yearFraction(EUR_EURIBOR_6M.getDayCount().yearFraction(end1, SCHEDULE_EUR.getAdjustedEndDate()))
+        .dayCount(EUR_EURIBOR_6M.getDayCount())
         .build();
     assertEquals(expandFloorEnd.getCurrency(), EUR);
     assertEquals(expandFloorEnd.getStartDate(), baseFloor.getStartDate());
@@ -312,6 +316,7 @@ public class CmsLegTest {
         .fixingDate(EUR_EURIBOR_6M.calculateFixingFromEffective(START))
         .paymentDate(PAYMENT_OFFSET.adjust(end1))
         .yearFraction(EUR_EURIBOR_6M.getDayCount().yearFraction(START, end1))
+        .dayCount(EUR_EURIBOR_6M.getDayCount())
         .build();
     CmsPeriod periodCap2 = CmsPeriod.builder()
         .currency(EUR)
@@ -325,6 +330,7 @@ public class CmsLegTest {
         .fixingDate(EUR_EURIBOR_6M.calculateFixingFromEffective(end1))
         .paymentDate(PAYMENT_OFFSET.adjust(SCHEDULE_EUR.getAdjustedEndDate()))
         .yearFraction(EUR_EURIBOR_6M.getDayCount().yearFraction(end1, SCHEDULE_EUR.getAdjustedEndDate()))
+        .dayCount(EUR_EURIBOR_6M.getDayCount())
         .build();
     assertEquals(expandCap.getCurrency(), EUR);
     assertEquals(expandCap.getStartDate(), baseCap.getStartDate());
