@@ -717,7 +717,6 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   public void test_mapDates() {
     List<Double> values = values(1, 2, 4, 5, 8);
-
     LocalDateDoubleTimeSeries base =
         LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, values).build();
     LocalDateDoubleTimeSeries test = base.mapDates(date -> date.plusYears(1));
