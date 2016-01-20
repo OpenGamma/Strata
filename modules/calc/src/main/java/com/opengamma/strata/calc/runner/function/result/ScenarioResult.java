@@ -7,14 +7,13 @@ package com.opengamma.strata.calc.runner.function.result;
 
 import java.util.stream.Stream;
 
-import com.opengamma.strata.calc.runner.function.CalculationMultiFunction;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
 
 /**
  * A container for multiple results produced by performing a single calculation across multiple scenarios.
  * <p>
- * This class is intended to be used as the return value from the {@code execute} method of
- * implementations of {@link CalculationSingleFunction} and {@link CalculationMultiFunction}.
+ * A {@link CalculationFunction} produces a map of measure to result.
+ * Each result is an instance of this type, providing access to the scenarios that were calculated.
  * <p>
  * The number of results is required to be the same as the number of scenarios in the market data
  * provided to the function.

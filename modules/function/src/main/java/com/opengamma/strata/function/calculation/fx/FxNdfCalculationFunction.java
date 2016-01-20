@@ -16,7 +16,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.function.CalculationMultiFunction;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
@@ -42,7 +42,7 @@ import com.opengamma.strata.product.fx.FxNdfTrade;
  * The default reporting currency is the settlement currency of the trade.
  */
 public class FxNdfCalculationFunction
-    implements CalculationMultiFunction<FxNdfTrade> {
+    implements CalculationFunction<FxNdfTrade> {
 
   /**
    * The calculations by measure.

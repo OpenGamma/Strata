@@ -17,7 +17,7 @@ import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.function.CalculationMultiFunction;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
@@ -39,7 +39,7 @@ import com.opengamma.strata.product.payment.BulletPaymentTrade;
  * </ul>
  */
 public class BulletPaymentCalculationFunction
-    implements CalculationMultiFunction<BulletPaymentTrade> {
+    implements CalculationFunction<BulletPaymentTrade> {
 
   /**
    * The calculations by measure.
