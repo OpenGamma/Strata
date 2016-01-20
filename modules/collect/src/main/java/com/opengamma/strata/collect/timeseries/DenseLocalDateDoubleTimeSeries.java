@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.collect.timeseries;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static java.time.temporal.ChronoField.DAY_OF_WEEK;
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -16,6 +17,7 @@ import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 import java.util.function.ObjDoubleConsumer;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -35,7 +37,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
+import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.function.ObjDoublePredicate;
 
@@ -57,7 +61,7 @@ class DenseLocalDateDoubleTimeSeries
    * array for weekends and providing the different date
    * calculations for each case.
    */
-  static enum DenseTimeSeriesCalculation {
+  enum DenseTimeSeriesCalculation {
     /**
      * Data is not held for weekends.
      */
@@ -410,6 +414,12 @@ class DenseLocalDateDoubleTimeSeries
     // As we may have changed the density of the series by filtering
     // go via the builder to get the best implementation
     return new LocalDateDoubleTimeSeriesBuilder(filteredPoints).build();
+  }
+
+  @Override
+  public LocalDateDoubleTimeSeries mapDates(Function<? super LocalDate, ? extends LocalDate> mapper) {
+    ImmutableList<LocalDate> dates = dates().map(mapper).collect(toImmutableList());
+    return LocalDateDoubleTimeSeries.builder().putAll(dates, Doubles.asList(points)).build();
   }
 
   @Override

@@ -14,6 +14,7 @@ import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 import java.util.function.ObjDoubleConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -277,6 +278,12 @@ final class SparseLocalDateDoubleTimeSeries
     for (int i = 0; i < size(); i++) {
       action.accept(dates[i], values[i]);
     }
+  }
+
+  @Override
+  public LocalDateDoubleTimeSeries mapDates(Function<? super LocalDate, ? extends LocalDate> mapper) {
+    ArgChecker.notNull(mapper, "mapper");
+    return createUnsafe(Arrays.stream(dates).map(mapper).toArray(size -> new LocalDate[size]), values);
   }
 
   @Override
