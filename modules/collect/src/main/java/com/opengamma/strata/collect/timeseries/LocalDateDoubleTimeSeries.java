@@ -262,6 +262,9 @@ public interface LocalDateDoubleTimeSeries {
    * with the new dates and the points from this time series.
    * <p>
    * This operation creates a new time series with the same data but the dates moved.
+   * <p>
+   * The operation must not change the dates in a way that reorders them. The mapped dates must be in ascending
+   * order or an exception is thrown.
    * <pre>
    *   updatedSeries = timeSeries.mapDates(date -> date.plusYears(1));
    * </pre>

@@ -526,6 +526,12 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     assertEquals(test, expected);
   }
 
+  public void test_mapDates_notAscending() {
+    List<Double> values = values(1, 2, 4);
+    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, values).build();
+    assertThrowsIllegalArg(() -> base.mapDates(date -> date(2016, 1, 6)));
+  }
+
   //-------------------------------------------------------------------------
   public void test_filter_byDate() {
     List<LocalDate> dates = dates(DATE_2010_01_01, DATE_2011_06_01, DATE_2012_01_01, DATE_2013_06_01, DATE_2014_01_01);
