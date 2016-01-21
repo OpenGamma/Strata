@@ -6,7 +6,6 @@
 package com.opengamma.strata.basics.index;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -126,12 +125,12 @@ public final class FloatingRateName
 
   // parse the config file FloatingRateName.ini
   private static ImmutableMap<String, FloatingRateName> parseIndices(IniFile ini) {
-    HashMap<String, FloatingRateName> mutableMap = new HashMap<>();
-    parseSection(ini.section("ibor"), "-", FloatingRateType.IBOR, mutableMap);
-    parseSection(ini.section("overnightCompounded"), "", FloatingRateType.OVERNIGHT_COMPOUNDED, mutableMap);
-    parseSection(ini.section("overnightAveraged"), "", FloatingRateType.OVERNIGHT_AVERAGED, mutableMap);
-    parseSection(ini.section("price"), "", FloatingRateType.PRICE, mutableMap);
-    return ImmutableMap.copyOf(mutableMap);
+    ImmutableMap.Builder<String, FloatingRateName> builder = ImmutableMap.builder();
+    parseSection(ini.section("ibor"), "-", FloatingRateType.IBOR, builder);
+    parseSection(ini.section("overnightCompounded"), "", FloatingRateType.OVERNIGHT_COMPOUNDED, builder);
+    parseSection(ini.section("overnightAveraged"), "", FloatingRateType.OVERNIGHT_AVERAGED, builder);
+    parseSection(ini.section("price"), "", FloatingRateType.PRICE, builder);
+    return builder.build();
   }
 
   // parse a single section
@@ -139,11 +138,11 @@ public final class FloatingRateName
       PropertySet section,
       String indexNameSuffix,
       FloatingRateType type,
-      HashMap<String, FloatingRateName> mutableMap) {
+      ImmutableMap.Builder<String, FloatingRateName> builder) {
 
     // find our names from the RHS of the key/value pairs
     for (String key : section.keys()) {
-      mutableMap.put(key, new FloatingRateName(key, section.value(key) + indexNameSuffix, type));
+      builder.put(key, new FloatingRateName(key, section.value(key) + indexNameSuffix, type));
     }
   }
 
