@@ -17,6 +17,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -38,6 +39,7 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.swap.FixingRelativeTo;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
 
@@ -103,9 +105,16 @@ public final class CmsLeg
   @PropertyDefinition(validate = "notNull")
   private final ValueSchedule notional;
   /**
+   * The base date that each fixing is made relative to, defaulted to 'PeriodStart'.
+   * <p>
+   * The fixing date is relative to either the start or end of each period.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final FixingRelativeTo fixingRelativeTo;
+  /**
    * The offset of the fixing date from each adjusted reset date.
    * <p>
-   * The offset is applied to the start date of each payment period.
+   * The offset is applied to the base date specified by {@code fixingRelativeTo}.
    * The offset is typically a negative number of business days.
    * <p>
    * When building, this will default to the fixing offset of the swap convention in the swap index if not specified.
@@ -155,6 +164,11 @@ public final class CmsLeg
   private final ValueSchedule floorSchedule;
 
   //-------------------------------------------------------------------------
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.fixingRelativeTo = FixingRelativeTo.PERIOD_START;
+  }
+
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
     if (builder.index != null) {
@@ -181,6 +195,7 @@ public final class CmsLeg
       SwapIndex index,
       Currency currency,
       ValueSchedule notional,
+      FixingRelativeTo fixingRelativeTo,
       DaysAdjustment fixingDateOffset,
       DaysAdjustment paymentDateOffset,
       DayCount dayCount,
@@ -191,6 +206,7 @@ public final class CmsLeg
     this.index = ArgChecker.notNull(index, "index");
     this.notional = ArgChecker.notNull(notional, "notional");
     this.currency = currency;
+    this.fixingRelativeTo = fixingRelativeTo;
     this.fixingDateOffset = fixingDateOffset;
     this.paymentDateOffset = paymentDateOffset;
     this.dayCount = dayCount;
@@ -242,7 +258,8 @@ public final class CmsLeg
     ImmutableList.Builder<CmsPeriod> cmsPeriodsBuild = ImmutableList.builder();
     for (int i = 0; i < adjustedSchedule.size(); i++) {
       SchedulePeriod period = adjustedSchedule.getPeriod(i);
-      LocalDate fixingDate = fixingDateOffset.adjust(period.getStartDate());
+      LocalDate fixingDate = fixingDateOffset.adjust(
+          (fixingRelativeTo.equals(FixingRelativeTo.PERIOD_START)) ? period.getStartDate() : period.getEndDate());
       LocalDate paymentDate = paymentDateOffset.adjust(period.getEndDate());
       double signedNotional = payReceive.normalize(notionals.get(i));
       cmsPeriodsBuild.add(CmsPeriod.builder()
@@ -370,9 +387,20 @@ public final class CmsLeg
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the base date that each fixing is made relative to, defaulted to 'PeriodStart'.
+   * <p>
+   * The fixing date is relative to either the start or end of each period.
+   * @return the value of the property, not null
+   */
+  public FixingRelativeTo getFixingRelativeTo() {
+    return fixingRelativeTo;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the offset of the fixing date from each adjusted reset date.
    * <p>
-   * The offset is applied to the start date of each payment period.
+   * The offset is applied to the base date specified by {@code fixingRelativeTo}.
    * The offset is typically a negative number of business days.
    * <p>
    * When building, this will default to the fixing offset of the swap convention in the swap index if not specified.
@@ -460,6 +488,7 @@ public final class CmsLeg
           JodaBeanUtils.equal(index, other.index) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(fixingRelativeTo, other.fixingRelativeTo) &&
           JodaBeanUtils.equal(fixingDateOffset, other.fixingDateOffset) &&
           JodaBeanUtils.equal(paymentDateOffset, other.paymentDateOffset) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
@@ -477,6 +506,7 @@ public final class CmsLeg
     hash = hash * 31 + JodaBeanUtils.hashCode(index);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixingRelativeTo);
     hash = hash * 31 + JodaBeanUtils.hashCode(fixingDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
@@ -487,13 +517,14 @@ public final class CmsLeg
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(352);
+    StringBuilder buf = new StringBuilder(384);
     buf.append("CmsLeg{");
     buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
     buf.append("paymentSchedule").append('=').append(paymentSchedule).append(',').append(' ');
     buf.append("index").append('=').append(index).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("fixingRelativeTo").append('=').append(fixingRelativeTo).append(',').append(' ');
     buf.append("fixingDateOffset").append('=').append(fixingDateOffset).append(',').append(' ');
     buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
@@ -539,6 +570,11 @@ public final class CmsLeg
     private final MetaProperty<ValueSchedule> notional = DirectMetaProperty.ofImmutable(
         this, "notional", CmsLeg.class, ValueSchedule.class);
     /**
+     * The meta-property for the {@code fixingRelativeTo} property.
+     */
+    private final MetaProperty<FixingRelativeTo> fixingRelativeTo = DirectMetaProperty.ofImmutable(
+        this, "fixingRelativeTo", CmsLeg.class, FixingRelativeTo.class);
+    /**
      * The meta-property for the {@code fixingDateOffset} property.
      */
     private final MetaProperty<DaysAdjustment> fixingDateOffset = DirectMetaProperty.ofImmutable(
@@ -573,6 +609,7 @@ public final class CmsLeg
         "index",
         "currency",
         "notional",
+        "fixingRelativeTo",
         "fixingDateOffset",
         "paymentDateOffset",
         "dayCount",
@@ -598,6 +635,8 @@ public final class CmsLeg
           return currency;
         case 1585636160:  // notional
           return notional;
+        case 232554996:  // fixingRelativeTo
+          return fixingRelativeTo;
         case 873743726:  // fixingDateOffset
           return fixingDateOffset;
         case -716438393:  // paymentDateOffset
@@ -669,6 +708,14 @@ public final class CmsLeg
     }
 
     /**
+     * The meta-property for the {@code fixingRelativeTo} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<FixingRelativeTo> fixingRelativeTo() {
+      return fixingRelativeTo;
+    }
+
+    /**
      * The meta-property for the {@code fixingDateOffset} property.
      * @return the meta-property, not null
      */
@@ -722,6 +769,8 @@ public final class CmsLeg
           return ((CmsLeg) bean).getCurrency();
         case 1585636160:  // notional
           return ((CmsLeg) bean).getNotional();
+        case 232554996:  // fixingRelativeTo
+          return ((CmsLeg) bean).getFixingRelativeTo();
         case 873743726:  // fixingDateOffset
           return ((CmsLeg) bean).getFixingDateOffset();
         case -716438393:  // paymentDateOffset
@@ -758,6 +807,7 @@ public final class CmsLeg
     private SwapIndex index;
     private Currency currency;
     private ValueSchedule notional;
+    private FixingRelativeTo fixingRelativeTo;
     private DaysAdjustment fixingDateOffset;
     private DaysAdjustment paymentDateOffset;
     private DayCount dayCount;
@@ -768,6 +818,7 @@ public final class CmsLeg
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -780,6 +831,7 @@ public final class CmsLeg
       this.index = beanToCopy.getIndex();
       this.currency = beanToCopy.getCurrency();
       this.notional = beanToCopy.getNotional();
+      this.fixingRelativeTo = beanToCopy.getFixingRelativeTo();
       this.fixingDateOffset = beanToCopy.getFixingDateOffset();
       this.paymentDateOffset = beanToCopy.getPaymentDateOffset();
       this.dayCount = beanToCopy.getDayCount();
@@ -801,6 +853,8 @@ public final class CmsLeg
           return currency;
         case 1585636160:  // notional
           return notional;
+        case 232554996:  // fixingRelativeTo
+          return fixingRelativeTo;
         case 873743726:  // fixingDateOffset
           return fixingDateOffset;
         case -716438393:  // paymentDateOffset
@@ -833,6 +887,9 @@ public final class CmsLeg
           break;
         case 1585636160:  // notional
           this.notional = (ValueSchedule) newValue;
+          break;
+        case 232554996:  // fixingRelativeTo
+          this.fixingRelativeTo = (FixingRelativeTo) newValue;
           break;
         case 873743726:  // fixingDateOffset
           this.fixingDateOffset = (DaysAdjustment) newValue;
@@ -888,6 +945,7 @@ public final class CmsLeg
           index,
           currency,
           notional,
+          fixingRelativeTo,
           fixingDateOffset,
           paymentDateOffset,
           dayCount,
@@ -968,9 +1026,22 @@ public final class CmsLeg
     }
 
     /**
+     * Sets the base date that each fixing is made relative to, defaulted to 'PeriodStart'.
+     * <p>
+     * The fixing date is relative to either the start or end of each period.
+     * @param fixingRelativeTo  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder fixingRelativeTo(FixingRelativeTo fixingRelativeTo) {
+      JodaBeanUtils.notNull(fixingRelativeTo, "fixingRelativeTo");
+      this.fixingRelativeTo = fixingRelativeTo;
+      return this;
+    }
+
+    /**
      * Sets the offset of the fixing date from each adjusted reset date.
      * <p>
-     * The offset is applied to the start date of each payment period.
+     * The offset is applied to the base date specified by {@code fixingRelativeTo}.
      * The offset is typically a negative number of business days.
      * <p>
      * When building, this will default to the fixing offset of the swap convention in the swap index if not specified.
@@ -1049,13 +1120,14 @@ public final class CmsLeg
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(352);
+      StringBuilder buf = new StringBuilder(384);
       buf.append("CmsLeg.Builder{");
       buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
       buf.append("paymentSchedule").append('=').append(JodaBeanUtils.toString(paymentSchedule)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+      buf.append("fixingRelativeTo").append('=').append(JodaBeanUtils.toString(fixingRelativeTo)).append(',').append(' ');
       buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(fixingDateOffset)).append(',').append(' ');
       buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
