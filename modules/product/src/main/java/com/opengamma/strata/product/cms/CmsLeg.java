@@ -17,6 +17,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -163,13 +164,15 @@ public final class CmsLeg
   private final ValueSchedule floorSchedule;
 
   //-------------------------------------------------------------------------
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.fixingRelativeTo = FixingRelativeTo.PERIOD_START;
+  }
+
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
     if (builder.index != null) {
       IborRateSwapLegConvention iborLeg = builder.index.getTemplate().getConvention().getFloatingLeg();
-      if(builder.fixingRelativeTo == null) {
-        builder.fixingRelativeTo = FixingRelativeTo.PERIOD_START;
-      }
       if (builder.fixingDateOffset == null) {
         builder.fixingDateOffset = iborLeg.getFixingDateOffset();
       }
@@ -256,7 +259,7 @@ public final class CmsLeg
     for (int i = 0; i < adjustedSchedule.size(); i++) {
       SchedulePeriod period = adjustedSchedule.getPeriod(i);
       LocalDate fixingDate = fixingDateOffset.adjust(
-          (fixingRelativeTo.equals(FixingRelativeTo.PERIOD_START))?period.getStartDate():period.getEndDate());
+          (fixingRelativeTo.equals(FixingRelativeTo.PERIOD_START)) ? period.getStartDate() : period.getEndDate());
       LocalDate paymentDate = paymentDateOffset.adjust(period.getEndDate());
       double signedNotional = payReceive.normalize(notionals.get(i));
       cmsPeriodsBuild.add(CmsPeriod.builder()
@@ -815,6 +818,7 @@ public final class CmsLeg
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**

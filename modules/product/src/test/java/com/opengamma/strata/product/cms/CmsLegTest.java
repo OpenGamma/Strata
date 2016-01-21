@@ -246,7 +246,7 @@ public class CmsLegTest {
     assertEquals(expandFloor.getCmsPeriods().size(), 2);
     assertEquals(expandFloor.getCmsPeriods().get(0), period1);
     assertEquals(expandFloor.getCmsPeriods().get(1), period2);
-    
+
     CmsLeg baseFloorEnd = CmsLeg.builder()
         .floorSchedule(FLOOR)
         .fixingRelativeTo(FixingRelativeTo.PERIOD_END)
