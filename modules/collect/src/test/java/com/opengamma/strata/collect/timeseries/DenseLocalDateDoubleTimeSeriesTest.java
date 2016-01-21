@@ -133,7 +133,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   public void test_of_collectionCollection_valueCollectionNull() {
     Collection<LocalDate> dates = dates(DATE_2011_01_01, DATE_2012_01_01);
 
-    LocalDateDoubleTimeSeries.builder().putAll(dates, null).build();
+    LocalDateDoubleTimeSeries.builder().putAll(dates, (double[]) null).build();
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
