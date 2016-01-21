@@ -14,6 +14,7 @@ import java.util.OptionalDouble;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoublePredicate;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 import java.util.function.ObjDoubleConsumer;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
@@ -257,12 +258,29 @@ public interface LocalDateDoubleTimeSeries {
   public abstract void forEach(ObjDoubleConsumer<LocalDate> action);
 
   /**
+   * Applies an operation to each date in the time series which creates a new date, returning a new time series
+   * with the new dates and the points from this time series.
+   * <p>
+   * This operation creates a new time series with the same data but the dates moved.
+   * <p>
+   * The operation must not change the dates in a way that reorders them. The mapped dates must be in ascending
+   * order or an exception is thrown.
+   * <pre>
+   *   updatedSeries = timeSeries.mapDates(date -> date.plusYears(1));
+   * </pre>
+   *
+   * @param mapper  the operation applied to each date in the time series
+   * @return a copy of this time series with new dates
+   */
+  public abstract LocalDateDoubleTimeSeries mapDates(Function<? super LocalDate, ? extends LocalDate> mapper);
+
+  /**
    * Applies an operation to each value in the time series.
    * <p>
    * This is generally used to apply a mathematical operation to the values.
    * For example, the operator could multiply each value by a constant, or take the inverse.
    * <pre>
-   *   multiplied = base.map(value -> value * 3);
+   *   multiplied = base.mapValues(value -> value * 3);
    * </pre>
    *
    * @param mapper  the operator to be applied to the values

@@ -8,6 +8,7 @@ package com.opengamma.strata.collect.timeseries;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
@@ -512,6 +513,23 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     LocalDateDoubleTimeSeries test = base.mapValues(d -> 1 / d);
     List<Double> expectedValues = values(1, 0.5, 0.25, 0.2, 0.125);
     assertEquals(test, LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, expectedValues).build());
+  }
+
+  public void test_mapDates() {
+    List<Double> values = values(1, 2, 4, 5, 8);
+    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, values).build();
+    LocalDateDoubleTimeSeries test = base.mapDates(date -> date.plusYears(1));
+    ImmutableList<LocalDate> expectedDates =
+        ImmutableList.of(DATE_2011_01_01, DATE_2012_01_01, DATE_2013_01_01, DATE_2014_01_01, LocalDate.of(2015, 1, 1));
+    LocalDateDoubleTimeSeries expected =
+        LocalDateDoubleTimeSeries.builder().putAll(expectedDates, base.values().boxed().collect(toList())).build();
+    assertEquals(test, expected);
+  }
+
+  public void test_mapDates_notAscending() {
+    List<Double> values = values(1, 2, 4);
+    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, values).build();
+    assertThrowsIllegalArg(() -> base.mapDates(date -> date(2016, 1, 6)));
   }
 
   //-------------------------------------------------------------------------
