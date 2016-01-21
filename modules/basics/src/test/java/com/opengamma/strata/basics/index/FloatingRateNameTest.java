@@ -28,47 +28,65 @@ public class FloatingRateNameTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "nameType")
   static Object[][] data_name_type() {
-    return new Object[][]{
-        {FloatingRateName.of("GBP-LIBOR-BBA"), "GBP-LIBOR-BBA", FloatingRateType.IBOR},
-        {FloatingRateName.of("CHF-LIBOR-BBA"), "CHF-LIBOR-BBA", FloatingRateType.IBOR},
-        {FloatingRateName.of("EUR-LIBOR-BBA"), "EUR-LIBOR-BBA", FloatingRateType.IBOR},
-        {FloatingRateName.of("JPY-LIBOR-BBA"), "JPY-LIBOR-BBA", FloatingRateType.IBOR},
-        {FloatingRateName.of("USD-LIBOR-BBA"), "USD-LIBOR-BBA", FloatingRateType.IBOR},
-        {FloatingRateName.of("EUR-EURIBOR-Reuters"), "EUR-EURIBOR-Reuters", FloatingRateType.IBOR},
-        {FloatingRateName.of("JPY-TIBOR-TIBM"), "JPY-TIBOR-TIBM", FloatingRateType.IBOR},
+    return new Object[][] {
+        {"GBP-LIBOR", "GBP-LIBOR-", FloatingRateType.IBOR},
+        {"GBP-LIBOR-BBA", "GBP-LIBOR-", FloatingRateType.IBOR},
+        {"CHF-LIBOR", "CHF-LIBOR-", FloatingRateType.IBOR},
+        {"CHF-LIBOR-BBA", "CHF-LIBOR-", FloatingRateType.IBOR},
+        {"EUR-LIBOR", "EUR-LIBOR-", FloatingRateType.IBOR},
+        {"EUR-LIBOR-BBA", "EUR-LIBOR-", FloatingRateType.IBOR},
+        {"JPY-LIBOR", "JPY-LIBOR-", FloatingRateType.IBOR},
+        {"JPY-LIBOR-BBA", "JPY-LIBOR-", FloatingRateType.IBOR},
+        {"USD-LIBOR", "USD-LIBOR-", FloatingRateType.IBOR},
+        {"USD-LIBOR-BBA", "USD-LIBOR-", FloatingRateType.IBOR},
+        {"EUR-EURIBOR", "EUR-EURIBOR-", FloatingRateType.IBOR},
+        {"EUR-EURIBOR-Reuters", "EUR-EURIBOR-", FloatingRateType.IBOR},
+        {"JPY-TIBOR-JAPAN", "JPY-TIBOR-JAPAN-", FloatingRateType.IBOR},
+        {"JPY-TIBOR-TIBM", "JPY-TIBOR-JAPAN-", FloatingRateType.IBOR},
 
-        {FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND"), "GBP-WMBA-SONIA-COMPOUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
-        {FloatingRateName.of("CHF-TOIS-OIS-COMPOUND"), "CHF-TOIS-OIS-COMPOUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
-        {FloatingRateName.of("EUR-EONIA-OIS-COMPOUND"), "EUR-EONIA-OIS-COMPOUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
-        {FloatingRateName.of("JPY-TONA-OIS-COMPOUND"), "JPY-TONA-OIS-COMPOUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
-        {FloatingRateName.of("USD-Federal Funds-H.15-OIS-COMPOUND"), "USD-Federal Funds-H.15-OIS-COMPOUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
-        {FloatingRateName.of("USD-Federal Funds-H.15"), "USD-Federal Funds-H.15", FloatingRateType.OVERNIGHT_AVERAGED},
+        {"GBP-SONIA", "GBP-SONIA", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"GBP-WMBA-SONIA-COMPOUND", "GBP-SONIA", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"CHF-TOIS", "CHF-TOIS", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"CHF-TOIS-OIS-COMPOUND", "CHF-TOIS", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"EUR-EONIA", "EUR-EONIA", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"EUR-EONIA-OIS-COMPOUND", "EUR-EONIA", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"JPY-TONAR", "JPY-TONAR", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"JPY-TONA-OIS-COMPOUND", "JPY-TONAR", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"USD-FED-FUND", "USD-FED-FUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"USD-Federal Funds-H.15-OIS-COMPOUND", "USD-FED-FUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
 
-        {FloatingRateName.of("UK-HICP"), "UK-HICP", FloatingRateType.PRICE},
-        {FloatingRateName.of("UK-RPI"), "UK-RPI", FloatingRateType.PRICE},
-        {FloatingRateName.of("UK-RPIX"), "UK-RPIX", FloatingRateType.PRICE},
-        {FloatingRateName.of("SWF-CPI"), "SWF-CPI", FloatingRateType.PRICE},
-        {FloatingRateName.of("EUR-AI-CPI"), "EUR-AI-CPI", FloatingRateType.PRICE},
-        {FloatingRateName.of("EUR-EXT-CPI"), "EUR-EXT-CPI", FloatingRateType.PRICE},
-        {FloatingRateName.of("JPY-CPI-EXF"), "JPY-CPI-EXF", FloatingRateType.PRICE},
-        {FloatingRateName.of("USA-CPI-U"), "USA-CPI-U", FloatingRateType.PRICE},
-        {FloatingRateName.of("FRC-EXT-CPI"), "FRC-EXT-CPI", FloatingRateType.PRICE},
+        {"USD-FED-FUND-AVG", "USD-FED-FUND", FloatingRateType.OVERNIGHT_AVERAGED},
+        {"USD-Federal Funds-H.15", "USD-FED-FUND", FloatingRateType.OVERNIGHT_AVERAGED},
+
+        {"UK-HICP", "UK-HICP", FloatingRateType.PRICE},
+        {"UK-RPI", "UK-RPI", FloatingRateType.PRICE},
+        {"UK-RPIX", "UK-RPIX", FloatingRateType.PRICE},
+        {"SWF-CPI", "SWF-CPI", FloatingRateType.PRICE},
+        {"EUR-AI-CPI", "EUR-AI-CPI", FloatingRateType.PRICE},
+        {"EUR-EXT-CPI", "EUR-EXT-CPI", FloatingRateType.PRICE},
+        {"JPY-CPI-EXF", "JPY-CPI-EXF", FloatingRateType.PRICE},
+        {"USA-CPI-U", "USA-CPI-U", FloatingRateType.PRICE},
+        {"FRC-EXT-CPI", "FRC-EXT-CPI", FloatingRateType.PRICE},
     };
   }
 
   @Test(dataProvider = "nameType")
-  public void test_name(FloatingRateName convention, String name, FloatingRateType type) {
+  public void test_name(String name, String indexName, FloatingRateType type) {
+    FloatingRateName convention = FloatingRateName.of(name);
     assertEquals(convention.getName(), name);
+    assertEquals(convention.getIndexName(), indexName);
     assertEquals(convention.getType(), type);
   }
 
   @Test(dataProvider = "nameType")
-  public void test_toString(FloatingRateName convention, String name, FloatingRateType type) {
+  public void test_toString(String name, String indexName, FloatingRateType type) {
+    FloatingRateName convention = FloatingRateName.of(name);
     assertEquals(convention.toString(), name);
   }
 
   @Test(dataProvider = "nameType")
-  public void test_of_lookup(FloatingRateName convention, String name, FloatingRateType type) {
+  public void test_of_lookup(String name, String indexName, FloatingRateType type) {
+    FloatingRateName convention = FloatingRateName.of(name);
     assertEquals(FloatingRateName.of(name), convention);
   }
 
