@@ -12,7 +12,7 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_F
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
-import static com.opengamma.strata.basics.index.PriceIndices.UK_RPI;
+import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.swap.SwapLegType.FIXED;
 import static com.opengamma.strata.product.swap.SwapLegType.IBOR;
@@ -375,7 +375,7 @@ public final class SwapDummyData {
           .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
           .build())
       .calculation(InflationRateCalculation.builder()
-          .index(UK_RPI)
+          .index(GB_RPI)
           .interpolated(false)
           .lag(Period.ofMonths(3))
           .build())

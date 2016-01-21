@@ -16,7 +16,7 @@ import static com.opengamma.strata.basics.date.Tenor.TENOR_5Y;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
-import static com.opengamma.strata.basics.index.PriceIndices.UK_RPI;
+import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_EUR;
@@ -129,7 +129,7 @@ public class DiscountingSwapProductPricerTest {
   private static final double CONSTANT_INDEX = 242d;
   private static final double START_INDEX = 218d;
   private static final PriceIndexValues PRICE_CURVE = ForwardPriceIndexValues.of(
-      UK_RPI,
+      GB_RPI,
       VAL_DATE_INFLATION,
       InterpolatedNodalCurve.of(
           Curves.prices("GB_RPI_CURVE_FLAT"),
@@ -243,7 +243,7 @@ public class DiscountingSwapProductPricerTest {
   public void test_parRate_inflation() {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
-    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(UK_RPI, PRICE_CURVE);
+    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
@@ -295,7 +295,7 @@ public class DiscountingSwapProductPricerTest {
     Swap swap = Swap.builder().legs(INFLATION_MONTHLY_SWAP_LEG_REC_GBP, fixedLeg).build();
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
-    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(UK_RPI, PRICE_CURVE);
+    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
@@ -391,7 +391,7 @@ public class DiscountingSwapProductPricerTest {
   public void test_presentValue_inflation() {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
-    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(UK_RPI, PRICE_CURVE);
+    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
@@ -449,7 +449,7 @@ public class DiscountingSwapProductPricerTest {
   public void test_forecastValue_inflation() {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
-    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(UK_RPI, PRICE_CURVE);
+    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
@@ -559,7 +559,7 @@ public class DiscountingSwapProductPricerTest {
   public void test_presentValueSensitivity_inflation() {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
-    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(UK_RPI, PRICE_CURVE);
+    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
@@ -610,7 +610,7 @@ public class DiscountingSwapProductPricerTest {
   public void test_forecastValueSensitivity_inflation() {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
-    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(UK_RPI, PRICE_CURVE);
+    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())

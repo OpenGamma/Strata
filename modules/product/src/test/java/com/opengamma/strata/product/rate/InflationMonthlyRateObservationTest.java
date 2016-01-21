@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.product.rate;
 
-import static com.opengamma.strata.basics.index.PriceIndices.SWF_CPI;
-import static com.opengamma.strata.basics.index.PriceIndices.UK_HICP;
+import static com.opengamma.strata.basics.index.PriceIndices.CH_CPI;
+import static com.opengamma.strata.basics.index.PriceIndices.GB_HICP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -32,51 +32,51 @@ public class InflationMonthlyRateObservationTest {
   //-------------------------------------------------------------------------
   public void test_of() {
     InflationMonthlyRateObservation test =
-        InflationMonthlyRateObservation.of(UK_HICP, START_MONTH, END_MONTH);
-    assertEquals(test.getIndex(), UK_HICP);
+        InflationMonthlyRateObservation.of(GB_HICP, START_MONTH, END_MONTH);
+    assertEquals(test.getIndex(), GB_HICP);
     assertEquals(test.getReferenceStartMonth(), START_MONTH);
     assertEquals(test.getReferenceEndMonth(), END_MONTH);
   }
 
   public void test_builder() {
     InflationMonthlyRateObservation test = InflationMonthlyRateObservation.builder()
-        .index(SWF_CPI)
+        .index(CH_CPI)
         .referenceStartMonth(START_MONTH)
         .referenceEndMonth(END_MONTH)
         .build();
-    assertEquals(test.getIndex(), SWF_CPI);
+    assertEquals(test.getIndex(), CH_CPI);
     assertEquals(test.getReferenceStartMonth(), START_MONTH);
     assertEquals(test.getReferenceEndMonth(), END_MONTH);
 
   }
 
   public void test_wrongMonthOrder() {
-    assertThrowsIllegalArg(() -> InflationMonthlyRateObservation.of(UK_HICP, END_MONTH, START_MONTH));
-    assertThrowsIllegalArg(() -> InflationMonthlyRateObservation.of(UK_HICP, START_MONTH, START_MONTH));
+    assertThrowsIllegalArg(() -> InflationMonthlyRateObservation.of(GB_HICP, END_MONTH, START_MONTH));
+    assertThrowsIllegalArg(() -> InflationMonthlyRateObservation.of(GB_HICP, START_MONTH, START_MONTH));
   }
 
   //-------------------------------------------------------------------------
   public void test_collectIndices() {
     InflationMonthlyRateObservation test =
-        InflationMonthlyRateObservation.of(UK_HICP, START_MONTH, END_MONTH);
+        InflationMonthlyRateObservation.of(GB_HICP, START_MONTH, END_MONTH);
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(UK_HICP));
+    assertEquals(builder.build(), ImmutableSet.of(GB_HICP));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     InflationMonthlyRateObservation test1 =
-        InflationMonthlyRateObservation.of(UK_HICP, START_MONTH, END_MONTH);
+        InflationMonthlyRateObservation.of(GB_HICP, START_MONTH, END_MONTH);
     coverImmutableBean(test1);
     InflationMonthlyRateObservation test2 =
-        InflationMonthlyRateObservation.of(SWF_CPI, YearMonth.of(2014, 4), YearMonth.of(2015, 4));
+        InflationMonthlyRateObservation.of(CH_CPI, YearMonth.of(2014, 4), YearMonth.of(2015, 4));
     coverBeanEquals(test1, test2);
   }
 
   public void test_serialization() {
     InflationMonthlyRateObservation test =
-        InflationMonthlyRateObservation.of(UK_HICP, START_MONTH, END_MONTH);
+        InflationMonthlyRateObservation.of(GB_HICP, START_MONTH, END_MONTH);
     assertSerialization(test);
   }
 

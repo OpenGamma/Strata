@@ -11,7 +11,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
-import static com.opengamma.strata.basics.index.PriceIndices.UK_RPI;
+import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -61,7 +61,7 @@ public class ImmutableRatesProviderTest {
   private static final Curve FED_FUND_CURVE = ConstantNodalCurve.of(
       Curves.zeroRates("USD-Discount", ACT_ACT_ISDA), 0.97d);
   private static final PriceIndexValues GBPRI_CURVE = ForwardPriceIndexValues.of(
-      UK_RPI,
+      GB_RPI,
       VAL_DATE,
       InterpolatedNodalCurve.of(
           Curves.prices("GB-RPI"), DoubleArray.of(1d, 10d), DoubleArray.of(252d, 252d), INTERPOLATOR),
@@ -164,13 +164,13 @@ public class ImmutableRatesProviderTest {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .priceIndexValues(GBPRI_CURVE)
         .build();
-    assertEquals(test.priceIndexValues(UK_RPI).getIndex(), UK_RPI);
+    assertEquals(test.priceIndexValues(GB_RPI).getIndex(), GB_RPI);
   }
 
   public void test_priceIndexValues_notKnown() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .build();
-    assertThrowsIllegalArg(() -> test.priceIndexValues(UK_RPI));
+    assertThrowsIllegalArg(() -> test.priceIndexValues(GB_RPI));
   }
 
   //-------------------------------------------------------------------------

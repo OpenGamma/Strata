@@ -8,7 +8,7 @@ package com.opengamma.strata.pricer.impl.rate;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
-import static com.opengamma.strata.basics.index.PriceIndices.USA_CPI_U;
+import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.collect.TestHelper.ignoreThrows;
@@ -179,7 +179,7 @@ public class DispatchingRateObservationFnTest {
     double mockRate = 223.0d;
     RateObservationFn<InflationMonthlyRateObservation> mockInfMon = mock(RateObservationFn.class);
     InflationMonthlyRateObservation ro =
-        InflationMonthlyRateObservation.of(USA_CPI_U, ACCRUAL_START_MONTH, ACCRUAL_END_MONTH);
+        InflationMonthlyRateObservation.of(US_CPI_U, ACCRUAL_START_MONTH, ACCRUAL_END_MONTH);
     when(mockInfMon.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV))
         .thenReturn(mockRate);
     DispatchingRateObservationFn test = new DispatchingRateObservationFn(
@@ -197,7 +197,7 @@ public class DispatchingRateObservationFnTest {
     double mockRate = 223.0d;
     RateObservationFn<InflationInterpolatedRateObservation> mockInfInt = mock(RateObservationFn.class);
     InflationInterpolatedRateObservation ro =
-        InflationInterpolatedRateObservation.of(USA_CPI_U, ACCRUAL_START_MONTH, ACCRUAL_END_MONTH, 0.3);
+        InflationInterpolatedRateObservation.of(US_CPI_U, ACCRUAL_START_MONTH, ACCRUAL_END_MONTH, 0.3);
     when(mockInfInt.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV))
         .thenReturn(mockRate);
     DispatchingRateObservationFn test = new DispatchingRateObservationFn(
@@ -249,9 +249,9 @@ public class DispatchingRateObservationFnTest {
     OvernightAveragedRateObservation onAvg =
         OvernightAveragedRateObservation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 0);
     InflationMonthlyRateObservation inflationMonthly =
-        InflationMonthlyRateObservation.of(USA_CPI_U, ACCRUAL_START_MONTH, ACCRUAL_END_MONTH);
+        InflationMonthlyRateObservation.of(US_CPI_U, ACCRUAL_START_MONTH, ACCRUAL_END_MONTH);
     InflationInterpolatedRateObservation inflationInterp =
-        InflationInterpolatedRateObservation.of(USA_CPI_U, ACCRUAL_START_MONTH, ACCRUAL_END_MONTH, 0.3);
+        InflationInterpolatedRateObservation.of(US_CPI_U, ACCRUAL_START_MONTH, ACCRUAL_END_MONTH, 0.3);
 
     RateObservation mock = mock(RateObservation.class);
     ignoreThrows(() -> test.rateSensitivity(fixed, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));

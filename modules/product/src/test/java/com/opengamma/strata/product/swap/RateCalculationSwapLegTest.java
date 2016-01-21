@@ -17,7 +17,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_GBP_ECB;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
-import static com.opengamma.strata.basics.index.PriceIndices.UK_RPI;
+import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.basics.schedule.Frequency.P12M;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P2M;
@@ -541,7 +541,7 @@ public class RateCalculationSwapLegTest {
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     InflationRateCalculation rateCalc = InflationRateCalculation.builder()
-        .index(UK_RPI)
+        .index(GB_RPI)
         .interpolated(false)
         .lag(Period.ofMonths(3))
         .build();
@@ -572,7 +572,7 @@ public class RateCalculationSwapLegTest {
             .yearFraction(1.0)
             .rateObservation(
                 InflationMonthlyRateObservation.of(
-                    UK_RPI,
+                    GB_RPI,
                     YearMonth.from(adj.adjust(DATE_14_06_09)).minusMonths(3),
                     YearMonth.from(adj.adjust(DATE_19_06_09)).minusMonths(3)))
             .build())
@@ -603,7 +603,7 @@ public class RateCalculationSwapLegTest {
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     InflationRateCalculation rateCalc = InflationRateCalculation.builder()
-        .index(UK_RPI)
+        .index(GB_RPI)
         .interpolated(true)
         .lag(Period.ofMonths(3))
         .build();
@@ -635,7 +635,7 @@ public class RateCalculationSwapLegTest {
             .yearFraction(1.0)
             .rateObservation(
                 InflationInterpolatedRateObservation.of(
-                    UK_RPI,
+                    GB_RPI,
                     YearMonth.from(adj.adjust(DATE_14_06_09)).minusMonths(3),
                     YearMonth.from(adj.adjust(DATE_19_06_09)).minusMonths(3),
                     weight))

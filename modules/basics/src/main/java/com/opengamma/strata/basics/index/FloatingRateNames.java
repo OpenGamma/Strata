@@ -64,21 +64,21 @@ final class FloatingRateNames {
   public static final FloatingRateName USD_FED_FUND_AVG = FloatingRateName.of("USD-FED-FUND-AVG");
 
   /**
-   * Constant for FRC-EXT-CPI Price index.
+   * Constant for GB-RPI Price index.
    */
-  public static final FloatingRateName FRC_EXT_CPI = FloatingRateName.of("FRC-EXT-CPI");
+  public static final FloatingRateName GB_RPI = FloatingRateName.of("GB-RPI");
   /**
-   * Constant for EUR-EXT-CPI Price index.
+   * Constant for EU-EXT-CPI Price index.
    */
-  public static final FloatingRateName EUR_EXT_CPI = FloatingRateName.of("EUR-EXT-CPI");
+  public static final FloatingRateName EU_EXT_CPI = FloatingRateName.of("EU-EXT-CPI");
   /**
-   * Constant for GBP-RPI Price index.
+   * Constant for US-CPI-U Price index.
    */
-  public static final FloatingRateName GBP_RPI = FloatingRateName.of("GBP-RPI");
+  public static final FloatingRateName US_CPI_U = FloatingRateName.of("US-CPI-U");
   /**
-   * Constant for USA-CPI-U Price index.
+   * Constant for FR-EXT-CPI Price index.
    */
-  public static final FloatingRateName USA_CPI_U = FloatingRateName.of("USA-CPI-U");
+  public static final FloatingRateName FR_EXT_CPI = FloatingRateName.of("FR-EXT-CPI");
 
   //-------------------------------------------------------------------------
   /**

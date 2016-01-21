@@ -32,13 +32,15 @@ public class PriceIndexTest {
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-        {PriceIndices.UK_HICP, "UK-HICP"},
-        {PriceIndices.UK_RPI, "UK-RPI"},
-        {PriceIndices.UK_RPIX, "UK-RPIX"},
-        {PriceIndices.SWF_CPI, "SWF-CPI"},
-        {PriceIndices.EUR_AI_CPI, "EUR-AI-CPI"},
-        {PriceIndices.JPY_CPI_EXF, "JPY-CPI-EXF"},
-        {PriceIndices.USA_CPI_U, "USA-CPI-U"},
+        {PriceIndices.GB_HICP, "GB-HICP"},
+        {PriceIndices.GB_RPI, "GB-RPI"},
+        {PriceIndices.GB_RPIX, "GB-RPIX"},
+        {PriceIndices.CH_CPI, "CH-CPI"},
+        {PriceIndices.EU_AI_CPI, "EU-AI-CPI"},
+        {PriceIndices.EU_EXT_CPI, "EU-EXT-CPI"},
+        {PriceIndices.JP_CPI_EXF, "JP-CPI-EXF"},
+        {PriceIndices.US_CPI_U, "US-CPI-U"},
+        {PriceIndices.FR_EXT_CPI, "FR-EXT-CPI"},
     };
   }
 
@@ -74,8 +76,8 @@ public class PriceIndexTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(PriceIndices.class);
-    coverImmutableBean((ImmutableBean) PriceIndices.USA_CPI_U);
-    coverBeanEquals((ImmutableBean) PriceIndices.USA_CPI_U, ImmutablePriceIndex.builder()
+    coverImmutableBean((ImmutableBean) PriceIndices.US_CPI_U);
+    coverBeanEquals((ImmutableBean) PriceIndices.US_CPI_U, ImmutablePriceIndex.builder()
         .name("Test")
         .region(Country.AR)
         .currency(Currency.ARS)
@@ -84,11 +86,11 @@ public class PriceIndexTest {
   }
 
   public void test_jodaConvert() {
-    assertJodaConvert(PriceIndex.class, PriceIndices.USA_CPI_U);
+    assertJodaConvert(PriceIndex.class, PriceIndices.US_CPI_U);
   }
 
   public void test_serialization() {
-    assertSerialization(PriceIndices.USA_CPI_U);
+    assertSerialization(PriceIndices.US_CPI_U);
   }
 
 }

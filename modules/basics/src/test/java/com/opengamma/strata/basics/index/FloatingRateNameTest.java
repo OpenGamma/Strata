@@ -58,15 +58,24 @@ public class FloatingRateNameTest {
         {"USD-FED-FUND-AVG", "USD-FED-FUND", FloatingRateType.OVERNIGHT_AVERAGED},
         {"USD-Federal Funds-H.15", "USD-FED-FUND", FloatingRateType.OVERNIGHT_AVERAGED},
 
-        {"UK-HICP", "UK-HICP", FloatingRateType.PRICE},
-        {"UK-RPI", "UK-RPI", FloatingRateType.PRICE},
-        {"UK-RPIX", "UK-RPIX", FloatingRateType.PRICE},
-        {"SWF-CPI", "SWF-CPI", FloatingRateType.PRICE},
-        {"EUR-AI-CPI", "EUR-AI-CPI", FloatingRateType.PRICE},
-        {"EUR-EXT-CPI", "EUR-EXT-CPI", FloatingRateType.PRICE},
-        {"JPY-CPI-EXF", "JPY-CPI-EXF", FloatingRateType.PRICE},
-        {"USA-CPI-U", "USA-CPI-U", FloatingRateType.PRICE},
-        {"FRC-EXT-CPI", "FRC-EXT-CPI", FloatingRateType.PRICE},
+        {"GB-HICP", "GB-HICP", FloatingRateType.PRICE},
+        {"UK-HICP", "GB-HICP", FloatingRateType.PRICE},
+        {"GB-RPI", "GB-RPI", FloatingRateType.PRICE},
+        {"UK-RPI", "GB-RPI", FloatingRateType.PRICE},
+        {"GB-RPIX", "GB-RPIX", FloatingRateType.PRICE},
+        {"UK-RPIX", "GB-RPIX", FloatingRateType.PRICE},
+        {"CH-CPI", "CH-CPI", FloatingRateType.PRICE},
+        {"SWF-CPI", "CH-CPI", FloatingRateType.PRICE},
+        {"EU-AI-CPI", "EU-AI-CPI", FloatingRateType.PRICE},
+        {"EUR-AI-CPI", "EU-AI-CPI", FloatingRateType.PRICE},
+        {"EU-EXT-CPI", "EU-EXT-CPI", FloatingRateType.PRICE},
+        {"EUR-EXT-CPI", "EU-EXT-CPI", FloatingRateType.PRICE},
+        {"JP-CPI-EXF", "JP-CPI-EXF", FloatingRateType.PRICE},
+        {"JPY-CPI-EXF", "JP-CPI-EXF", FloatingRateType.PRICE},
+        {"US-CPI-U", "US-CPI-U", FloatingRateType.PRICE},
+        {"USA-CPI-U", "US-CPI-U", FloatingRateType.PRICE},
+        {"FR-EXT-CPI", "FR-EXT-CPI", FloatingRateType.PRICE},
+        {"FRC-EXT-CPI", "FR-EXT-CPI", FloatingRateType.PRICE},
     };
   }
 
@@ -110,7 +119,7 @@ public class FloatingRateNameTest {
   }
 
   public void test_toPriceIndex() {
-    assertEquals(FloatingRateName.of("UK-HICP").toPriceIndex(), PriceIndices.UK_HICP);
+    assertEquals(FloatingRateName.of("UK-HICP").toPriceIndex(), PriceIndices.GB_HICP);
     assertThrows(() -> FloatingRateName.of("GBP-LIBOR-BBA").toPriceIndex(), IllegalStateException.class);
   }
 
