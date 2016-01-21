@@ -486,6 +486,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     private final double factor;
     private final SabrExtrapolationRightFunction sabrExtrapolation;
     private final PutCall putCall;
+    private final double sign;
 
     /**
      * Gets the nbFixedPeriod field.
@@ -542,6 +543,15 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     }
 
     /**
+     * Gets the sign field.
+     * 
+     * @return the sign
+     */
+    protected double getSign() {
+      return sign;
+    }
+
+    /**
      * Gets the sabrExtrapolation field.
      * 
      * @return the sabrExtrapolation
@@ -574,6 +584,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       this.putCall = cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.FLOORLET) ? PutCall.PUT : PutCall.CALL;
       this.strike = strike;
       this.factor = g(forward) / h(forward);
+      this.sign = this.putCall.isCall() ? 1d : -1d;
     }
 
     /**
@@ -587,7 +598,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
         public Double apply(Double x) {
           double[] kD = kpkpp(x);
           // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
-          return factor * (kD[1] * (x - strike) + 2d * kD[0]) * bs(x);
+          return factor * (sign * kD[1] * (x - strike) + 2d * kD[0]) * bs(x);
         }
       };
     }
@@ -605,7 +616,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
           double[] kD = kpkpp(x);
           // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
           DoubleArray priceDerivativeSABR = getSabrExtrapolation().priceAdjointSabr(x, putCall).getDerivatives();
-          return priceDerivativeSABR.get(i) * (factor * (kD[1] * (x - strike) + 2d * kD[0]));
+          return priceDerivativeSABR.get(i) * (factor * (sign * kD[1] * (x - strike) + 2d * kD[0]));
         }
       };
     }
@@ -621,7 +632,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
         public Double apply(Double x) {
           double[] kD = kpkpp(x);
           // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
-          return -kD[1] * bs(x);
+          return -sign * kD[1] * bs(x);
         }
       };
     }
@@ -761,7 +772,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
           double[] kD = kpkpp(x);
           // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
           double[] bs = bsbsp(x);
-          return (kD[1] * (x - getStrike()) + 2d * kD[0]) * (nnp[1] * bs[0] + nnp[0] * bs[1]);
+          return (getSign() * kD[1] * (x - getStrike()) + 2d * kD[0]) * (nnp[1] * bs[0] + nnp[0] * bs[1]);
         }
       };
     }
