@@ -29,41 +29,55 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxConvertible;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.function.CalculationMultiFunction;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
 
 /**
- * A list of currency values representing the result of the same calculation performed for multiple scenarios.
+ * A currency-convertible scenario result holding one value for each scenario.
  * <p>
- * The currency values implement {@link FxConvertible} which allows the calculation engine to automatically
- * convert them into the reporting currency.
+ * This contains a list of values that can be currency converted, one value for each scenario.
+ * The calculation runner is able to convert the currency of the values if required.
  * <p>
- * This class is intended to be used as the return value from the {@code execute} method of
- * implementations of {@link CalculationSingleFunction} and {@link CalculationMultiFunction}.
- * <p>
- * Instances of this class will be automatically converted to the reporting currency by the calculation engine.
+ * Note that it is recommended to use optimized storage classes if appropriate.
+ * Use {@link CurrencyValuesArray} for a list of {@link CurrencyAmount}.
+ * Use {@link MultiCurrencyValuesArray} for a list of {@link MultiCurrencyAmount}.
  */
 @BeanDefinition(builderScope = "private")
 public final class FxConvertibleList
     implements CurrencyConvertible<ScenarioResult<?>>, ScenarioResult<FxConvertible<?>>, ImmutableBean {
 
-  /** The currency values. */
+  /**
+   * The calculated values, one per scenario.
+   */
   @PropertyDefinition(validate = "notNull", builderType = "List<? extends FxConvertible<?>>")
-  private final List<FxConvertible<?>> values;
+  private final ImmutableList<FxConvertible<?>> values;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from the specified array of currency-convertible values.
+   *
+   * @param values  the values, one value for each scenario
+   * @return an instance with the specified values
+   */
+  @SafeVarargs
+  public static FxConvertibleList of(FxConvertible<?>... values) {
+    return new FxConvertibleList(ImmutableList.copyOf(values));
+  }
 
   /**
-   * Returns an instance containing the specified individual values.
+   * Obtains an instance from the specified list of currency-convertible values.
    *
-   * @param values  the individual currency values
-   * @return an instance containing the specified individual values
+   * @param values  the values, one value for each scenario
+   * @return an instance with the specified values
    */
   public static FxConvertibleList of(List<? extends FxConvertible<?>> values) {
     return new FxConvertibleList(values);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ScenarioResult<?> convertedTo(Currency reportingCurrency, CalculationMarketData marketData) {
     List<?> convertedValues = zipWithIndex(values.stream())
@@ -125,10 +139,10 @@ public final class FxConvertibleList
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency values.
+   * Gets the calculated values, one per scenario.
    * @return the value of the property, not null
    */
-  public List<FxConvertible<?>> getValues() {
+  public ImmutableList<FxConvertible<?>> getValues() {
     return values;
   }
 
@@ -175,8 +189,8 @@ public final class FxConvertibleList
      * The meta-property for the {@code values} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<FxConvertible<?>>> values = DirectMetaProperty.ofImmutable(
-        this, "values", FxConvertibleList.class, (Class) List.class);
+    private final MetaProperty<ImmutableList<FxConvertible<?>>> values = DirectMetaProperty.ofImmutable(
+        this, "values", FxConvertibleList.class, (Class) ImmutableList.class);
     /**
      * The meta-properties.
      */
@@ -219,7 +233,7 @@ public final class FxConvertibleList
      * The meta-property for the {@code values} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<List<FxConvertible<?>>> values() {
+    public MetaProperty<ImmutableList<FxConvertible<?>>> values() {
       return values;
     }
 

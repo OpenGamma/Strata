@@ -32,20 +32,18 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.function.CalculationMultiFunction;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * An array of currency values in one currency representing the result of the same calculation
- * performed for multiple scenarios.
+ * A currency-convertible scenario result for a single currency, holding one amount for each scenario.
  * <p>
- * This class is intended to be used as the return value from the {@code execute} method of
- * implementations of {@link CalculationSingleFunction} and {@link CalculationMultiFunction}.
+ * This contains a list of amounts in a single currency, one amount for each scenario.
+ * The calculation runner is able to convert the currency of the values if required.
  * <p>
- * Instances of this class will be automatically converted to the reporting currency by the calculation engine.
+ * This class uses less memory than an instance based on a list of {@link CurrencyAmount} instances.
+ * Internally, it stores the data using a single currency and a {@link DoubleArray}.
  */
 @BeanDefinition(builderScope = "private")
 public final class CurrencyValuesArray
@@ -68,7 +66,7 @@ public final class CurrencyValuesArray
    * Obtains an instance from the specified currency and array of values.
    *
    * @param currency  the currency of the values
-   * @param values  the currency values
+   * @param values  the values, one for each scenario
    * @return an instance with the specified currency and values
    */
   public static CurrencyValuesArray of(Currency currency, DoubleArray values) {
@@ -76,11 +74,11 @@ public final class CurrencyValuesArray
   }
 
   /**
-   * Obtains an instance from the specified array of amounts.
+   * Obtains an instance from the specified list of amounts.
    * <p>
    * All amounts must have the same currency.
    *
-   * @param amounts  the list of amounts
+   * @param amounts  the amounts, one for each scenario
    * @return an instance with the specified amounts
    * @throws IllegalArgumentException if multiple currencies are found
    */

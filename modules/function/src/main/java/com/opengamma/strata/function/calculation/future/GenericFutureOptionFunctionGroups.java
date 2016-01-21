@@ -23,7 +23,7 @@ public final class GenericFutureOptionFunctionGroups {
    */
   private static final FunctionGroup<GenericFutureOptionTrade> MARKET_GROUP =
       DefaultFunctionGroup.builder(GenericFutureOptionTrade.class).name("GenericFutureOptionTradeMarket")
-          .addFunction(Measure.PRESENT_VALUE, GenericFutureOptionPvFunction.class)
+          .addFunction(Measure.PRESENT_VALUE, GenericFutureOptionCalculationFunction.class)
           .build();
 
   /**

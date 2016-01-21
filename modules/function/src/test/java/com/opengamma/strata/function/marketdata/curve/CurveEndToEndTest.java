@@ -66,7 +66,7 @@ import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.function.calculation.swap.SwapPvFunction;
+import com.opengamma.strata.function.calculation.swap.SwapCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.ValueType;
@@ -207,7 +207,7 @@ public class CurveEndToEndTest {
   private static PricingRules pricingRules() {
     FunctionGroup<SwapTrade> swapGroup = DefaultFunctionGroup.builder(SwapTrade.class)
         .name("Swap")
-        .addFunction(Measure.PRESENT_VALUE, SwapPvFunction.class)
+        .addFunction(Measure.PRESENT_VALUE, SwapCalculationFunction.class)
         .build();
 
     FunctionGroup<FraTrade> fraGroup = DefaultFunctionGroup.builder(FraTrade.class)

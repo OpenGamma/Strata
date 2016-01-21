@@ -3,9 +3,8 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.calculation.deposit;
+package com.opengamma.strata.function.calculation.fx;
 
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toCurrencyValuesArray;
 import static com.opengamma.strata.calc.runner.function.FunctionUtils.toMultiCurrencyValuesArray;
 import static com.opengamma.strata.calc.runner.function.FunctionUtils.toScenarioResult;
 
@@ -15,7 +14,6 @@ import java.util.stream.Stream;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
-import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
@@ -23,49 +21,37 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
+import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.deposit.ExpandedTermDeposit;
-import com.opengamma.strata.product.deposit.TermDepositTrade;
+import com.opengamma.strata.product.fx.ExpandedFxSwap;
+import com.opengamma.strata.product.fx.FxSwapTrade;
 
 /**
- * Multi-scenario measure calculations for Term Deposit trades.
+ * Multi-scenario measure calculations for FX swap trades.
  * <p>
  * Each method corresponds to a measure, typically calculated by one or more calls to the pricer.
  */
-class TermDepositMeasureCalculations {
+final class FxSwapMeasureCalculations {
 
   /**
    * The pricer to use.
    */
-  private static final DiscountingTermDepositProductPricer PRICER = DiscountingTermDepositProductPricer.DEFAULT;
+  private static final DiscountingFxSwapProductPricer PRICER = DiscountingFxSwapProductPricer.DEFAULT;
+
   /**
    * One basis point, expressed as a {@code double}.
    */
   private static final double ONE_BASIS_POINT = 1e-4;
 
   // restricted constructor
-  private TermDepositMeasureCalculations() {
-  }
-
-  //-------------------------------------------------------------------------
-  // calculates par rate for all scenarios
-  static ValuesArray parRate(
-      TermDepositTrade trade,
-      ExpandedTermDeposit product,
-      CalculationMarketData marketData) {
-
-    DoubleArray array = DoubleArray.of(
-        marketData.getScenarioCount(),
-        index -> PRICER.parRate(product, ratesProvider(marketData, index)));
-    return ValuesArray.of(array);
+  private FxSwapMeasureCalculations() {
   }
 
   //-------------------------------------------------------------------------
   // calculates par spread for all scenarios
   static ValuesArray parSpread(
-      TermDepositTrade trade,
-      ExpandedTermDeposit product,
+      FxSwapTrade trade,
+      ExpandedFxSwap product,
       CalculationMarketData marketData) {
 
     DoubleArray array = DoubleArray.of(
@@ -76,21 +62,21 @@ class TermDepositMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
-  static CurrencyValuesArray presentValue(
-      TermDepositTrade trade,
-      ExpandedTermDeposit product,
+  static MultiCurrencyValuesArray presentValue(
+      FxSwapTrade trade,
+      ExpandedFxSwap product,
       CalculationMarketData marketData) {
 
     return ratesProviderStream(marketData)
         .map(provider -> PRICER.presentValue(product, provider))
-        .collect(toCurrencyValuesArray());
+        .collect(toMultiCurrencyValuesArray());
   }
 
   //-------------------------------------------------------------------------
   // calculates PV01 for all scenarios
   static MultiCurrencyValuesArray pv01(
-      TermDepositTrade trade,
-      ExpandedTermDeposit product,
+      FxSwapTrade trade,
+      ExpandedFxSwap product,
       CalculationMarketData marketData) {
 
     return ratesProviderStream(marketData)
@@ -100,7 +86,7 @@ class TermDepositMeasureCalculations {
 
   // PV01 for one scenario
   private static MultiCurrencyAmount calculatePv01(
-      ExpandedTermDeposit product,
+      ExpandedFxSwap product,
       RatesProvider provider) {
 
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, provider);
@@ -110,8 +96,8 @@ class TermDepositMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates bucketed PV01 for all scenarios
   static ScenarioResult<CurveCurrencyParameterSensitivities> bucketedPv01(
-      TermDepositTrade trade,
-      ExpandedTermDeposit product,
+      FxSwapTrade trade,
+      ExpandedFxSwap product,
       CalculationMarketData marketData) {
 
     return ratesProviderStream(marketData)
@@ -121,11 +107,35 @@ class TermDepositMeasureCalculations {
 
   // bucketed PV01 for one scenario
   private static CurveCurrencyParameterSensitivities calculateBucketedPv01(
-      ExpandedTermDeposit product,
+      ExpandedFxSwap product,
       RatesProvider provider) {
 
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, provider);
     return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates currency exposure for all scenarios
+  static MultiCurrencyValuesArray currencyExposure(
+      FxSwapTrade trade,
+      ExpandedFxSwap product,
+      CalculationMarketData marketData) {
+
+    return ratesProviderStream(marketData)
+        .map(provider -> PRICER.currencyExposure(product, provider))
+        .collect(toMultiCurrencyValuesArray());
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates current cash for all scenarios
+  static MultiCurrencyValuesArray currentCash(
+      FxSwapTrade trade,
+      ExpandedFxSwap product,
+      CalculationMarketData marketData) {
+
+    return ratesProviderStream(marketData)
+        .map(provider -> PRICER.currentCash(product, provider.getValuationDate()))
+        .collect(toMultiCurrencyValuesArray());
   }
 
   //-------------------------------------------------------------------------

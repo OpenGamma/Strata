@@ -23,7 +23,7 @@ public final class SwaptionFunctionGroups {
    */
   private static final FunctionGroup<SwaptionTrade> STANDARD_GROUP =
       DefaultFunctionGroup.builder(SwaptionTrade.class).name("Swaption")
-          .addFunction(Measure.PRESENT_VALUE, SwaptionPvFunction.class)
+          .addFunction(Measure.PRESENT_VALUE, SwaptionCalculationFunction.class)
           .build();
 
   /**

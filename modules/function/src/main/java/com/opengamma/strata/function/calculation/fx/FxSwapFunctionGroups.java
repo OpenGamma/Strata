@@ -23,11 +23,12 @@ public final class FxSwapFunctionGroups {
    */
   private static final FunctionGroup<FxSwapTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(FxSwapTrade.class).name("FxSwapDiscounting")
-          .addFunction(Measure.PAR_SPREAD, FxSwapParSpreadFunction.class)
-          .addFunction(Measure.PRESENT_VALUE, FxSwapPvFunction.class)
-          .addFunction(Measure.PV01, FxSwapPv01Function.class)
-          .addFunction(Measure.BUCKETED_PV01, FxSwapBucketedPv01Function.class)
-          .addFunction(Measure.CURRENCY_EXPOSURE, FxSwapCurrencyExposureFunction.class)
+          .addFunction(Measure.PAR_SPREAD, FxSwapCalculationFunction.class)
+          .addFunction(Measure.PRESENT_VALUE, FxSwapCalculationFunction.class)
+          .addFunction(Measure.PV01, FxSwapCalculationFunction.class)
+          .addFunction(Measure.BUCKETED_PV01, FxSwapCalculationFunction.class)
+          .addFunction(Measure.CURRENCY_EXPOSURE, FxSwapCalculationFunction.class)
+          .addFunction(Measure.CURRENT_CASH, FxSwapCalculationFunction.class)
           .build();
 
   /**
@@ -48,6 +49,7 @@ public final class FxSwapFunctionGroups {
    *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
    *   <li>{@linkplain Measure#PAR_SPREAD Par spread}
    *   <li>{@linkplain Measure#CURRENCY_EXPOSURE Currency exposure}
+   *   <li>{@linkplain Measure#CURRENT_CASH Current cash}
    * </ul>
    * 
    * @return the function group
