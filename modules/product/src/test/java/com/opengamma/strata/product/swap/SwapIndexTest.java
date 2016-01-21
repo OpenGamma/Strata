@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -30,7 +31,7 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
  */
 @Test
 public class SwapIndexTest {
-  
+
   private static ZoneId LONDON = ZoneId.of("Europe/London");
   private static ZoneId NEY_YORK = ZoneId.of("America/New_York");
   private static ZoneId FRANKFURT = ZoneId.of("Europe/Berlin");  // Frankfurt not defined in TZDB
@@ -84,15 +85,16 @@ public class SwapIndexTest {
         }
         assertTrue(zone.equals(FRANKFURT));
       }
-      if(name.contains("1100")) {
+      if (name.contains("1100")) {
         assertTrue(time.equals(LocalTime.of(11, 0)));
       }
-      if(name.contains("1200")) {
+      if (name.contains("1200")) {
         assertTrue(time.equals(LocalTime.of(12, 0)));
       }
-      if(name.contains("1500")) {
+      if (name.contains("1500")) {
         assertTrue(time.equals(LocalTime.of(15, 0)));
       }
+      assertEquals(index.calculateFixingDateTime(date(2015, 6, 30)), date(2015, 6, 30).atTime(time).atZone(zone));
     }
   }
 
