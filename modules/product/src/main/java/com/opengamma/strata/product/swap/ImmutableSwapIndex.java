@@ -6,6 +6,8 @@
 package com.opengamma.strata.product.swap;
 
 import java.io.Serializable;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -38,11 +40,22 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 @BeanDefinition
 public final class ImmutableSwapIndex
     implements SwapIndex, ImmutableBean, Serializable {
+
   /**
   * The index name.
   */
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String name;
+  /**
+   * The fixing time.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final LocalTime fixingTime;
+  /**
+  * The time-zone of the fixing time.
+  */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final ZoneId fixingZone;
   /**
   * The template for creating Fixed-Ibor swap.
   */
@@ -51,14 +64,20 @@ public final class ImmutableSwapIndex
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the specified name and template.
+   * Obtains an instance from the specified name, time and template.
    * 
    * @param name  the index name
+   * @param fixingTime  the fixing time
+   * @param fixingZone  the time-zone of the fixing time
    * @param template  the swap template
    * @return the index
    */
-  public static ImmutableSwapIndex of(String name, FixedIborSwapTemplate template) {
-    return new ImmutableSwapIndex(name, template);
+  public static ImmutableSwapIndex of(
+      String name,
+      LocalTime fixingTime,
+      ZoneId fixingZone,
+      FixedIborSwapTemplate template) {
+    return new ImmutableSwapIndex(name, fixingTime, fixingZone, template);
   }
 
   //-------------------------------------------------------------------------
@@ -118,10 +137,16 @@ public final class ImmutableSwapIndex
 
   private ImmutableSwapIndex(
       String name,
+      LocalTime fixingTime,
+      ZoneId fixingZone,
       FixedIborSwapTemplate template) {
     JodaBeanUtils.notEmpty(name, "name");
+    JodaBeanUtils.notNull(fixingTime, "fixingTime");
+    JodaBeanUtils.notNull(fixingZone, "fixingZone");
     JodaBeanUtils.notNull(template, "template");
     this.name = name;
+    this.fixingTime = fixingTime;
+    this.fixingZone = fixingZone;
     this.template = template;
   }
 
@@ -148,6 +173,26 @@ public final class ImmutableSwapIndex
   @Override
   public String getName() {
     return name;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the fixing time.
+   * @return the value of the property, not null
+   */
+  @Override
+  public LocalTime getFixingTime() {
+    return fixingTime;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the time-zone of the fixing time.
+   * @return the value of the property, not null
+   */
+  @Override
+  public ZoneId getFixingZone() {
+    return fixingZone;
   }
 
   //-----------------------------------------------------------------------
@@ -185,6 +230,16 @@ public final class ImmutableSwapIndex
     private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
         this, "name", ImmutableSwapIndex.class, String.class);
     /**
+     * The meta-property for the {@code fixingTime} property.
+     */
+    private final MetaProperty<LocalTime> fixingTime = DirectMetaProperty.ofImmutable(
+        this, "fixingTime", ImmutableSwapIndex.class, LocalTime.class);
+    /**
+     * The meta-property for the {@code fixingZone} property.
+     */
+    private final MetaProperty<ZoneId> fixingZone = DirectMetaProperty.ofImmutable(
+        this, "fixingZone", ImmutableSwapIndex.class, ZoneId.class);
+    /**
      * The meta-property for the {@code template} property.
      */
     private final MetaProperty<FixedIborSwapTemplate> template = DirectMetaProperty.ofImmutable(
@@ -195,6 +250,8 @@ public final class ImmutableSwapIndex
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "name",
+        "fixingTime",
+        "fixingZone",
         "template");
 
     /**
@@ -208,6 +265,10 @@ public final class ImmutableSwapIndex
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
+        case 1255686170:  // fixingTime
+          return fixingTime;
+        case 1255870713:  // fixingZone
+          return fixingZone;
         case -1321546630:  // template
           return template;
       }
@@ -239,6 +300,22 @@ public final class ImmutableSwapIndex
     }
 
     /**
+     * The meta-property for the {@code fixingTime} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalTime> fixingTime() {
+      return fixingTime;
+    }
+
+    /**
+     * The meta-property for the {@code fixingZone} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ZoneId> fixingZone() {
+      return fixingZone;
+    }
+
+    /**
      * The meta-property for the {@code template} property.
      * @return the meta-property, not null
      */
@@ -252,6 +329,10 @@ public final class ImmutableSwapIndex
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return ((ImmutableSwapIndex) bean).getName();
+        case 1255686170:  // fixingTime
+          return ((ImmutableSwapIndex) bean).getFixingTime();
+        case 1255870713:  // fixingZone
+          return ((ImmutableSwapIndex) bean).getFixingZone();
         case -1321546630:  // template
           return ((ImmutableSwapIndex) bean).getTemplate();
       }
@@ -276,6 +357,8 @@ public final class ImmutableSwapIndex
   public static final class Builder extends DirectFieldsBeanBuilder<ImmutableSwapIndex> {
 
     private String name;
+    private LocalTime fixingTime;
+    private ZoneId fixingZone;
     private FixedIborSwapTemplate template;
 
     /**
@@ -290,6 +373,8 @@ public final class ImmutableSwapIndex
      */
     private Builder(ImmutableSwapIndex beanToCopy) {
       this.name = beanToCopy.getName();
+      this.fixingTime = beanToCopy.getFixingTime();
+      this.fixingZone = beanToCopy.getFixingZone();
       this.template = beanToCopy.getTemplate();
     }
 
@@ -299,6 +384,10 @@ public final class ImmutableSwapIndex
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
+        case 1255686170:  // fixingTime
+          return fixingTime;
+        case 1255870713:  // fixingZone
+          return fixingZone;
         case -1321546630:  // template
           return template;
         default:
@@ -311,6 +400,12 @@ public final class ImmutableSwapIndex
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           this.name = (String) newValue;
+          break;
+        case 1255686170:  // fixingTime
+          this.fixingTime = (LocalTime) newValue;
+          break;
+        case 1255870713:  // fixingZone
+          this.fixingZone = (ZoneId) newValue;
           break;
         case -1321546630:  // template
           this.template = (FixedIborSwapTemplate) newValue;
@@ -349,6 +444,8 @@ public final class ImmutableSwapIndex
     public ImmutableSwapIndex build() {
       return new ImmutableSwapIndex(
           name,
+          fixingTime,
+          fixingZone,
           template);
     }
 
@@ -361,6 +458,28 @@ public final class ImmutableSwapIndex
     public Builder name(String name) {
       JodaBeanUtils.notEmpty(name, "name");
       this.name = name;
+      return this;
+    }
+
+    /**
+     * Sets the fixing time.
+     * @param fixingTime  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder fixingTime(LocalTime fixingTime) {
+      JodaBeanUtils.notNull(fixingTime, "fixingTime");
+      this.fixingTime = fixingTime;
+      return this;
+    }
+
+    /**
+     * Sets the time-zone of the fixing time.
+     * @param fixingZone  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder fixingZone(ZoneId fixingZone) {
+      JodaBeanUtils.notNull(fixingZone, "fixingZone");
+      this.fixingZone = fixingZone;
       return this;
     }
 
@@ -378,9 +497,11 @@ public final class ImmutableSwapIndex
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("ImmutableSwapIndex.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+      buf.append("fixingTime").append('=').append(JodaBeanUtils.toString(fixingTime)).append(',').append(' ');
+      buf.append("fixingZone").append('=').append(JodaBeanUtils.toString(fixingZone)).append(',').append(' ');
       buf.append("template").append('=').append(JodaBeanUtils.toString(template));
       buf.append('}');
       return buf.toString();

@@ -9,9 +9,13 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
+
+import java.time.LocalTime;
+import java.time.ZoneId;
 
 import org.testng.annotations.Test;
 
@@ -27,6 +31,10 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
  */
 @Test
 public class SwapIndexTest {
+
+  private static ZoneId LONDON = ZoneId.of("Europe/London");
+  private static ZoneId NEY_YORK = ZoneId.of("America/New_York");
+  private static ZoneId FRANKFURT = ZoneId.of("Europe/Berlin");  // Frankfurt not defined in TZDB
 
   public void test_notFound() {
     assertThrowsIllegalArg(() -> SwapIndex.of("foo"));
@@ -50,15 +58,14 @@ public class SwapIndexTest {
       FixedIborSwapTemplate temp = index.getTemplate();
       FixedIborSwapConvention conv = temp.getConvention();
       Tenor tenor = temp.getTenor();
+      LocalTime time = index.getFixingTime();
+      ZoneId zone = index.getFixingZone();
       // test consistency between name and template
       assertTrue(name.contains(tenor.toString()));
       if (name.startsWith("USD")) {
         assertTrue(name.contains("1100") || name.contains("1500"));
         assertTrue(conv.equals(FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M));
-      }
-      if (name.startsWith("JPY")) {
-        assertTrue(name.contains("1000") || name.contains("1500"));
-        assertTrue(conv.equals(FixedIborSwapConventions.JPY_FIXED_6M_LIBOR_6M));
+        assertTrue(zone.equals(NEY_YORK));
       }
       if (name.startsWith("GBP")) {
         assertTrue(name.contains("1100"));
@@ -67,6 +74,7 @@ public class SwapIndexTest {
         } else {
           assertTrue(conv.equals(FixedIborSwapConventions.GBP_FIXED_6M_LIBOR_6M));
         }
+        assertTrue(zone.equals(LONDON));
       }
       if (name.startsWith("EUR")) {
         assertTrue(name.contains("1100") || name.contains("1200"));
@@ -75,7 +83,18 @@ public class SwapIndexTest {
         } else {
           assertTrue(conv.equals(FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M));
         }
+        assertTrue(zone.equals(FRANKFURT));
       }
+      if (name.contains("1100")) {
+        assertTrue(time.equals(LocalTime.of(11, 0)));
+      }
+      if (name.contains("1200")) {
+        assertTrue(time.equals(LocalTime.of(12, 0)));
+      }
+      if (name.contains("1500")) {
+        assertTrue(time.equals(LocalTime.of(15, 0)));
+      }
+      assertEquals(index.calculateFixingDateTime(date(2015, 6, 30)), date(2015, 6, 30).atTime(time).atZone(zone));
     }
   }
 
@@ -83,6 +102,8 @@ public class SwapIndexTest {
   public void coverage() {
     ImmutableSwapIndex index = ImmutableSwapIndex.builder()
         .name("FooIndex")
+        .fixingTime(LocalTime.of(12, 30))
+        .fixingZone(ZoneId.of("Africa/Abidjan"))
         .template(FixedIborSwapTemplate.of(Tenor.TENOR_9M, FixedIborSwapConventions.CHF_FIXED_1Y_LIBOR_3M))
         .build();
     coverImmutableBean(index);
@@ -92,6 +113,8 @@ public class SwapIndexTest {
   public void test_serialization() {
     SwapIndex index = ImmutableSwapIndex.builder()
         .name("FooIndex")
+        .fixingTime(LocalTime.of(12, 30))
+        .fixingZone(ZoneId.of("Africa/Abidjan"))
         .template(FixedIborSwapTemplate.of(Tenor.TENOR_9M, FixedIborSwapConventions.CHF_FIXED_1Y_LIBOR_3M))
         .build();
     assertSerialization(index);

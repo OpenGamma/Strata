@@ -5,8 +5,12 @@
  */
 package com.opengamma.strata.product.swap;
 
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,7 +44,13 @@ final class SwapIndexCsvLookup
   private static final String NAME_FIELD = "Name";
   private static final String CONVENTION_FIELD = "Convention";
   private static final String TENOR_FIELD = "Tenor";
+  private static final String FIXING_TIME_FIELD = "FixingTime";
+  private static final String FIXING_ZONE_FIELD = "FixingZone";
 
+  /**
+   * The time formatter.
+   */
+  private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH[:mm]", Locale.ENGLISH);
   /**
    * The cache by name.
    */
@@ -80,8 +90,10 @@ final class SwapIndexCsvLookup
     String name = csv.field(row, NAME_FIELD);
     FixedIborSwapConvention convention = FixedIborSwapConvention.of(csv.field(row, CONVENTION_FIELD));
     Tenor tenor = Tenor.parse(csv.field(row, TENOR_FIELD));
+    LocalTime time = LocalTime.parse(csv.field(row, FIXING_TIME_FIELD), TIME_FORMAT);
+    ZoneId zoneId = ZoneId.of(csv.field(row, FIXING_ZONE_FIELD));
     // build result
-    return ImmutableSwapIndex.of(name, FixedIborSwapTemplate.of(tenor, convention));
+    return ImmutableSwapIndex.of(name, time, zoneId, FixedIborSwapTemplate.of(tenor, convention));
   }
 
 }
