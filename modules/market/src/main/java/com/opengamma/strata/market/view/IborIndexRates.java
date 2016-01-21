@@ -67,7 +67,9 @@ public interface IborIndexRates
       LocalDate valuationDate,
       Curve forwardCurve,
       LocalDateDoubleTimeSeries fixings) {
-
+    if (forwardCurve.getMetadata().getYValueType().equals(ValueType.FORWARD_RATE)) {
+      return SimpleIborIndexRates.of(index, valuationDate, forwardCurve, fixings);
+    }
     DiscountFactors discountFactors = DiscountFactors.of(index.getCurrency(), valuationDate, forwardCurve);
     return DiscountIborIndexRates.of(index, discountFactors, fixings);
   }

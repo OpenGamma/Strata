@@ -96,7 +96,8 @@ public final class RatesCurvesCsvLoader {
    */
   private static final Map<String, ValueType> VALUE_TYPE_MAP = ImmutableMap.of(
       "zero", ValueType.ZERO_RATE,
-      "df", ValueType.DISCOUNT_FACTOR);
+      "df", ValueType.DISCOUNT_FACTOR,
+      "forward", ValueType.FORWARD_RATE);
 
   //-------------------------------------------------------------------------
   /**

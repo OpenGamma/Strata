@@ -12,6 +12,7 @@ import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
 import static com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -59,6 +60,8 @@ import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.view.IborIndexRates;
+import com.opengamma.strata.market.view.SimpleIborIndexRates;
 import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -402,6 +405,7 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
     }
   }
 
+  /* Check calibration for discounting and forward curve interpolated on (pseudo-) discount factors. */
   public void calibration_present_value_discountCurve() {
     CurveInterpolator interp = CurveInterpolators.LOG_LINEAR;
     CurveExtrapolator extrapRight = CurveExtrapolators.LOG_LINEAR;
@@ -436,6 +440,46 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
         CALIBRATOR.calibrate(config, VAL_DATE_BD, ALL_QUOTES_BD, TS_EMPTY);
     assertResult(result, VAL_DATE_BD);
 
+    double shift = 1.0E-6;
+    Function<MarketData, ImmutableRatesProvider> f =
+        marketData -> CALIBRATOR.calibrate(config, VAL_DATE_BD, marketData, TS_EMPTY);
+    calibration_market_quote_sensitivity_check(f, config, shift, TS_EMPTY);
+  }
+
+  /* Check calibration for forward curve directly interpolated on forward rates. */
+  public void calibration_present_value_simple_forward() {
+    InterpolatedNodalCurveDefinition dsc =
+        InterpolatedNodalCurveDefinition.builder()
+            .name(DSCON_CURVE_NAME)
+            .xValueType(ValueType.YEAR_FRACTION)
+            .yValueType(ValueType.ZERO_RATE)
+            .dayCount(CURVE_DC)
+            .interpolator(INTERPOLATOR_LINEAR)
+            .extrapolatorLeft(EXTRAPOLATOR_FLAT)
+            .extrapolatorRight(EXTRAPOLATOR_FLAT)
+            .nodes(DSC_NODES).build();
+    InterpolatedNodalCurveDefinition fwd =
+        InterpolatedNodalCurveDefinition.builder()
+            .name(FWD3_CURVE_NAME)
+            .xValueType(ValueType.YEAR_FRACTION)
+            .yValueType(ValueType.FORWARD_RATE)
+            .dayCount(CURVE_DC)
+            .interpolator(INTERPOLATOR_LINEAR)
+            .extrapolatorLeft(EXTRAPOLATOR_FLAT)
+            .extrapolatorRight(EXTRAPOLATOR_FLAT)
+            .nodes(FWD3_NODES).build();
+    CurveGroupDefinition config =
+        CurveGroupDefinition.builder()
+            .name(CURVE_GROUP_NAME)
+            .addCurve(dsc, USD, USD_FED_FUND)
+            .addForwardCurve(fwd, USD_LIBOR_3M)
+            .build();
+    ImmutableRatesProvider result =
+        CALIBRATOR.calibrate(config, VAL_DATE_BD, ALL_QUOTES_BD, TS_EMPTY);
+    assertResult(result, VAL_DATE_BD);
+    IborIndexRates ibor3M = result.iborIndexRates(USD_LIBOR_3M);
+    assertTrue(ibor3M instanceof SimpleIborIndexRates, 
+        "USD-LIBOR-3M curve should be simple interpolation on forward rates");
     double shift = 1.0E-6;
     Function<MarketData, ImmutableRatesProvider> f =
         marketData -> CALIBRATOR.calibrate(config, VAL_DATE_BD, marketData, TS_EMPTY);

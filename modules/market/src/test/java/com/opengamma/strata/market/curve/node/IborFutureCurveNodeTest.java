@@ -118,6 +118,7 @@ public class IborFutureCurveNodeTest {
     double price = 0.99;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, price).build();
     assertEquals(node.initialGuess(date, marketData, ValueType.ZERO_RATE), 1.0 - price, TOLERANCE_RATE);
+    assertEquals(node.initialGuess(date, marketData, ValueType.FORWARD_RATE), 1.0 - price, TOLERANCE_RATE);
     double approximateMaturity =
         TEMPLATE.getMinimumPeriod().plus(TEMPLATE.getConvention().getIndex().getTenor()).toTotalMonths() / 12.0d;
     double df = Math.exp(-approximateMaturity * (1.0 - price));

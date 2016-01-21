@@ -119,6 +119,7 @@ public class FixedIborSwapCurveNodeTest {
     double rate = 0.035;
     MarketData marketData = ImmutableMarketData.builder(valuationDate).addValue(QUOTE_KEY, rate).build();
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.ZERO_RATE), rate);
+    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.FORWARD_RATE), rate);
     double df = Math.exp(-TENOR_10Y.get(ChronoUnit.YEARS) * rate);
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR), df, TOLERANCE_DF);
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.PRICE_INDEX), 0d);

@@ -158,6 +158,20 @@ public class ExamplesTest {
     assertFalse(captured.contains("Exception"));
   }
 
+  public void test_calibration_eur3() throws Exception {
+    String captured = caputureSystemOut(() -> CalibrationEur3CheckExample.main(NO_ARGS));
+    assertTrue(captured.contains("Checked PV for all instruments used in the calibration set are near to zero"));
+    assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("Exception"));
+  }
+
+  public void test_calibration_simple_forward() throws Exception {
+    String captured = caputureSystemOut(() -> CalibrationSimpleForwardCheckExample.main(NO_ARGS));
+    assertTrue(captured.contains("Checked PV for all instruments used in the calibration set are near to zero"));
+    assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("Exception"));
+  }
+
   //-------------------------------------------------------------------------
   private String[] toolArgs(String name) {
     return new String[] {

@@ -135,7 +135,7 @@ public final class IborFutureCurveNode
 
   @Override
   public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
-    if (ValueType.ZERO_RATE.equals(valueType)) {
+    if (ValueType.ZERO_RATE.equals(valueType) || ValueType.FORWARD_RATE.equals(valueType)) {
       return 1d - marketData.getValue(rateKey);
     }
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
