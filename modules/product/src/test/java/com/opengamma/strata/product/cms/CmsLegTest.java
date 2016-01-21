@@ -36,6 +36,7 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
+import com.opengamma.strata.product.swap.FixingRelativeTo;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapIndices;
 
@@ -77,6 +78,7 @@ public class CmsLegTest {
     CmsLeg test = CmsLeg.builder()
         .currency(GBP)
         .dayCount(ACT_365_ACTUAL)
+        .fixingRelativeTo(FixingRelativeTo.PERIOD_END)
         .fixingDateOffset(FIXING_OFFSET)
         .paymentDateOffset(PAYMENT_OFFSET)
         .floorSchedule(FLOOR)
@@ -95,6 +97,7 @@ public class CmsLegTest {
     assertEquals(test.getEndDate(), SCHEDULE.getAdjustedEndDate());
     assertEquals(test.getIndex(), INDEX);
     assertEquals(test.getPaymentSchedule(), SCHEDULE);
+    assertEquals(test.getFixingRelativeTo(), FixingRelativeTo.PERIOD_END);
     assertEquals(test.getFixingDateOffset(), FIXING_OFFSET);
     assertEquals(test.getPaymentDateOffset(), PAYMENT_OFFSET);
   }
@@ -103,6 +106,7 @@ public class CmsLegTest {
     CmsLeg test = CmsLeg.builder()
         .currency(GBP)
         .dayCount(ACT_365_ACTUAL)
+        .fixingRelativeTo(FixingRelativeTo.PERIOD_END)
         .fixingDateOffset(FIXING_OFFSET)
         .paymentDateOffset(PAYMENT_OFFSET)
         .index(INDEX)
@@ -120,6 +124,7 @@ public class CmsLegTest {
     assertEquals(test.getEndDate(), SCHEDULE.getAdjustedEndDate());
     assertEquals(test.getIndex(), INDEX);
     assertEquals(test.getPaymentSchedule(), SCHEDULE);
+    assertEquals(test.getFixingRelativeTo(), FixingRelativeTo.PERIOD_END);
     assertEquals(test.getFixingDateOffset(), FIXING_OFFSET);
     assertEquals(test.getPaymentDateOffset(), PAYMENT_OFFSET);
   }
@@ -142,6 +147,7 @@ public class CmsLegTest {
     assertEquals(test.getEndDate(), SCHEDULE_EUR.getAdjustedEndDate());
     assertEquals(test.getIndex(), INDEX);
     assertEquals(test.getPaymentSchedule(), SCHEDULE_EUR);
+    assertEquals(test.getFixingRelativeTo(), FixingRelativeTo.PERIOD_START);
     assertEquals(test.getFixingDateOffset(), EUR_EURIBOR_6M.getFixingDateOffset());
     assertEquals(test.getPaymentDateOffset(), DaysAdjustment.NONE);
   }
@@ -163,6 +169,7 @@ public class CmsLegTest {
     assertEquals(test.getEndDate(), SCHEDULE_EUR.getAdjustedEndDate());
     assertEquals(test.getIndex(), INDEX);
     assertEquals(test.getPaymentSchedule(), SCHEDULE_EUR);
+    assertEquals(test.getFixingRelativeTo(), FixingRelativeTo.PERIOD_START);
     assertEquals(test.getFixingDateOffset(), EUR_EURIBOR_6M.getFixingDateOffset());
     assertEquals(test.getPaymentDateOffset(), DaysAdjustment.NONE);
   }
@@ -239,6 +246,50 @@ public class CmsLegTest {
     assertEquals(expandFloor.getCmsPeriods().size(), 2);
     assertEquals(expandFloor.getCmsPeriods().get(0), period1);
     assertEquals(expandFloor.getCmsPeriods().get(1), period2);
+    
+    CmsLeg baseFloorEnd = CmsLeg.builder()
+        .floorSchedule(FLOOR)
+        .fixingRelativeTo(FixingRelativeTo.PERIOD_END)
+        .index(INDEX)
+        .notional(NOTIONAL)
+        .payReceive(PAY)
+        .paymentSchedule(SCHEDULE_EUR)
+        .build();
+    ExpandedCmsLeg expandFloorEnd = baseFloorEnd.expand();
+    CmsPeriod period1End = CmsPeriod.builder()
+        .currency(EUR)
+        .floorlet(FLOOR.getInitialValue())
+        .notional(-NOTIONAL.getInitialValue())
+        .index(INDEX)
+        .startDate(START)
+        .endDate(end1)
+        .unadjustedStartDate(START)
+        .unadjustedEndDate(end1)
+        .fixingDate(EUR_EURIBOR_6M.calculateFixingFromEffective(end1))
+        .paymentDate(end1)
+        .yearFraction(EUR_EURIBOR_6M.getDayCount().yearFraction(START, end1))
+        .build();
+    CmsPeriod period2End = CmsPeriod.builder()
+        .currency(EUR)
+        .floorlet(FLOOR.getSteps().get(0).getValue().getModifyingValue())
+        .notional(-NOTIONAL.getSteps().get(0).getValue().getModifyingValue())
+        .index(INDEX)
+        .startDate(end1)
+        .endDate(SCHEDULE_EUR.getAdjustedEndDate())
+        .unadjustedStartDate(end1)
+        .unadjustedEndDate(END)
+        .fixingDate(EUR_EURIBOR_6M.calculateFixingFromEffective(END))
+        .paymentDate(SCHEDULE_EUR.getAdjustedEndDate())
+        .yearFraction(EUR_EURIBOR_6M.getDayCount().yearFraction(end1, SCHEDULE_EUR.getAdjustedEndDate()))
+        .build();
+    assertEquals(expandFloorEnd.getCurrency(), EUR);
+    assertEquals(expandFloorEnd.getStartDate(), baseFloor.getStartDate());
+    assertEquals(expandFloorEnd.getEndDate(), baseFloor.getEndDate());
+    assertEquals(expandFloorEnd.getIndex(), INDEX);
+    assertEquals(expandFloorEnd.getPayReceive(), PAY);
+    assertEquals(expandFloorEnd.getCmsPeriods().size(), 2);
+    assertEquals(expandFloorEnd.getCmsPeriods().get(0), period1End);
+    assertEquals(expandFloorEnd.getCmsPeriods().get(1), period2End);
 
     CmsLeg baseCap = CmsLeg.builder()
         .index(INDEX)
@@ -301,6 +352,7 @@ public class CmsLegTest {
         .notional(ValueSchedule.of(1.e6))
         .payReceive(PAY)
         .paymentSchedule(SCHEDULE)
+        .fixingRelativeTo(FixingRelativeTo.PERIOD_END)
         .fixingDateOffset(FIXING_OFFSET)
         .paymentDateOffset(FIXING_OFFSET)
         .dayCount(ACT_365_ACTUAL)

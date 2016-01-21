@@ -201,8 +201,9 @@ public final class CmsPeriod
 
   private Swap createUnderlyingSwap() {
     FixedIborSwapConvention conv = index.getTemplate().getConvention();
-    LocalDate maturityDate = startDate.plus(index.getTemplate().getTenor());
-    return conv.toTrade(startDate, startDate, maturityDate, BuySell.BUY, 1d, 1d).getProduct();
+    LocalDate effectiveDate = conv.calculateSpotDateFromTradeDate(fixingDate);
+    LocalDate maturityDate = effectiveDate.plus(index.getTemplate().getTenor());
+    return conv.toTrade(effectiveDate, effectiveDate, maturityDate, BuySell.BUY, 1d, 1d).getProduct();
   }
 
   //-------------------------------------------------------------------------

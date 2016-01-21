@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapIndices;
 
@@ -28,12 +29,12 @@ import com.opengamma.strata.product.swap.SwapIndices;
 @Test
 public class CmsPeriodTest {
   private static final SwapIndex INDEX = SwapIndices.GBP_LIBOR_1100_15Y;
+  private static final LocalDate FIXING = LocalDate.of(2015, 10, 16);
   private static final LocalDate START = LocalDate.of(2015, 10, 22);
   private static final LocalDate END = LocalDate.of(2016, 10, 24);
   private static final LocalDate START_UNADJUSTED = LocalDate.of(2015, 10, 22);
   private static final LocalDate END_UNADJUSTED = LocalDate.of(2016, 10, 22);  // SAT
   private static final LocalDate PAYMENT = LocalDate.of(2016, 10, 26);
-  private static final LocalDate FIXING = LocalDate.of(2015, 10, 19);
   private static final double STRIKE = 0.015;
   private static final double NOTIONAL = 1.0e6;
   private static final double YEAR_FRACTION = 1.005;
@@ -65,8 +66,11 @@ public class CmsPeriodTest {
     assertEquals(testCaplet.getIndex(), INDEX);
     assertEquals(testCaplet.getNotional(), NOTIONAL);
     assertEquals(testCaplet.getYearFraction(), YEAR_FRACTION);
-    assertEquals(testCaplet.getUnderlyingSwap(), INDEX.getTemplate().getConvention()
-        .toTrade(START, START, START.plus(INDEX.getTemplate().getTenor()), BuySell.BUY, 1d, 1d).getProduct());
+    LocalDate swapEffectiveDate = INDEX.getTemplate().getConvention().calculateSpotDateFromTradeDate(FIXING);
+    LocalDate swapMaturityDate = swapEffectiveDate.plus(INDEX.getTemplate().getTenor());
+    Swap underlyingSwap = INDEX.getTemplate().getConvention()
+        .toTrade(swapEffectiveDate, swapEffectiveDate, swapMaturityDate, BuySell.BUY, 1d, 1d).getProduct();
+    assertEquals(testCaplet.getUnderlyingSwap(), underlyingSwap);
     CmsPeriod testFloorlet = CmsPeriod.builder()
         .floorlet(STRIKE)
         .currency(GBP)
@@ -93,8 +97,7 @@ public class CmsPeriodTest {
     assertEquals(testFloorlet.getIndex(), INDEX);
     assertEquals(testFloorlet.getNotional(), NOTIONAL);
     assertEquals(testFloorlet.getYearFraction(), YEAR_FRACTION);
-    assertEquals(testFloorlet.getUnderlyingSwap(), INDEX.getTemplate().getConvention()
-        .toTrade(START, START, START.plus(INDEX.getTemplate().getTenor()), BuySell.BUY, 1d, 1d).getProduct());
+    assertEquals(testFloorlet.getUnderlyingSwap(), underlyingSwap);
     CmsPeriod testCoupon = CmsPeriod.builder()
         .currency(GBP)
         .startDate(START)
@@ -120,8 +123,7 @@ public class CmsPeriodTest {
     assertEquals(testCoupon.getIndex(), INDEX);
     assertEquals(testCoupon.getNotional(), NOTIONAL);
     assertEquals(testCoupon.getYearFraction(), YEAR_FRACTION);
-    assertEquals(testCoupon.getUnderlyingSwap(), INDEX.getTemplate().getConvention()
-        .toTrade(START, START, START.plus(INDEX.getTemplate().getTenor()), BuySell.BUY, 1d, 1d).getProduct());
+    assertEquals(testCoupon.getUnderlyingSwap(), underlyingSwap);
   }
 
   public void test_builder_min() {
