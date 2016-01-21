@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.rate;
 
-import static com.opengamma.strata.basics.index.PriceIndices.UK_RPIX;
+import static com.opengamma.strata.basics.index.PriceIndices.GB_RPIX;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 import static org.testng.Assert.assertEquals;
@@ -57,7 +57,7 @@ public class ForwardInflationMonthlyRateObservationFnTest {
     ImmutableRatesProvider prov = createProvider(RATE_START, RATE_END);
 
     InflationMonthlyRateObservation ro =
-        InflationMonthlyRateObservation.of(UK_RPIX, REFERENCE_START_MONTH, REFERENCE_END_MONTH);
+        InflationMonthlyRateObservation.of(GB_RPIX, REFERENCE_START_MONTH, REFERENCE_END_MONTH);
     ForwardInflationMonthlyRateObservationFn obsFn = ForwardInflationMonthlyRateObservationFn.DEFAULT;
 
     double rateExpected = RATE_END / RATE_START - 1.0;
@@ -72,11 +72,11 @@ public class ForwardInflationMonthlyRateObservationFnTest {
     assertEquals(built.get(ExplainKey.OBSERVATIONS).get().size(), 2);
     ExplainMap explain0 = built.get(ExplainKey.OBSERVATIONS).get().get(0);
     assertEquals(explain0.get(ExplainKey.FIXING_DATE), Optional.of(REFERENCE_START_MONTH.atEndOfMonth()));
-    assertEquals(explain0.get(ExplainKey.INDEX), Optional.of(UK_RPIX));
+    assertEquals(explain0.get(ExplainKey.INDEX), Optional.of(GB_RPIX));
     assertEquals(explain0.get(ExplainKey.INDEX_VALUE), Optional.of(RATE_START));
     ExplainMap explain1 = built.get(ExplainKey.OBSERVATIONS).get().get(1);
     assertEquals(explain1.get(ExplainKey.FIXING_DATE), Optional.of(REFERENCE_END_MONTH.atEndOfMonth()));
-    assertEquals(explain1.get(ExplainKey.INDEX), Optional.of(UK_RPIX));
+    assertEquals(explain1.get(ExplainKey.INDEX), Optional.of(GB_RPIX));
     assertEquals(explain1.get(ExplainKey.INDEX_VALUE), Optional.of(RATE_END));
     assertEquals(built.get(ExplainKey.COMBINED_RATE).get().doubleValue(), rateExpected, EPS);
   }
@@ -90,7 +90,7 @@ public class ForwardInflationMonthlyRateObservationFnTest {
     ImmutableRatesProvider provEndDw = createProvider(RATE_START, RATE_END - EPS_FD);
 
     InflationMonthlyRateObservation ro =
-        InflationMonthlyRateObservation.of(UK_RPIX, REFERENCE_START_MONTH, REFERENCE_END_MONTH);
+        InflationMonthlyRateObservation.of(GB_RPIX, REFERENCE_START_MONTH, REFERENCE_END_MONTH);
     ForwardInflationMonthlyRateObservationFn obsFn = ForwardInflationMonthlyRateObservationFn.DEFAULT;
 
     double rateSrtUp = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, provStartUp);
@@ -99,9 +99,9 @@ public class ForwardInflationMonthlyRateObservationFnTest {
     double rateEndDw = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, provEndDw);
 
     PointSensitivityBuilder sensiStr =
-        InflationRateSensitivity.of(UK_RPIX, REFERENCE_START_MONTH, 0.5 * (rateSrtUp - rateSrtDw) / EPS_FD);
+        InflationRateSensitivity.of(GB_RPIX, REFERENCE_START_MONTH, 0.5 * (rateSrtUp - rateSrtDw) / EPS_FD);
     PointSensitivityBuilder sensiEnd =
-        InflationRateSensitivity.of(UK_RPIX, REFERENCE_END_MONTH, 0.5 * (rateEndUp - rateEndDw) / EPS_FD);
+        InflationRateSensitivity.of(GB_RPIX, REFERENCE_END_MONTH, 0.5 * (rateEndUp - rateEndDw) / EPS_FD);
     PointSensitivityBuilder sensiExpected = sensiStr.combinedWith(sensiEnd);
 
     PointSensitivityBuilder sensiComputed =
@@ -116,9 +116,9 @@ public class ForwardInflationMonthlyRateObservationFnTest {
     LocalDateDoubleTimeSeries timeSeries = LocalDateDoubleTimeSeries.of(VAL_DATE.with(lastDayOfMonth()), 300);
     InterpolatedNodalCurve curve = InterpolatedNodalCurve.of(
         Curves.prices("GB-RPIX"), DoubleArray.of(4, 16), DoubleArray.of(rateStart, rateEnd), INTERPOLATOR);
-    ForwardPriceIndexValues values = ForwardPriceIndexValues.of(UK_RPIX, VAL_DATE, curve, timeSeries);
+    ForwardPriceIndexValues values = ForwardPriceIndexValues.of(GB_RPIX, VAL_DATE, curve, timeSeries);
     return ImmutableRatesProvider.builder(VAL_DATE)
-        .priceIndexValues(ImmutableMap.of(UK_RPIX, values))
+        .priceIndexValues(ImmutableMap.of(GB_RPIX, values))
         .build();
   }
 

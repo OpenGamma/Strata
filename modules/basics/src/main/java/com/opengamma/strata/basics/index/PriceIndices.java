@@ -24,37 +24,47 @@ public final class PriceIndices {
    * The harmonized consumer price index for the United Kingdom,
    * "Non-revised Harmonised Index of Consumer Prices".
    */
-  public static final PriceIndex UK_HICP = PriceIndex.of("UK-HICP");
+  public static final PriceIndex GB_HICP = PriceIndex.of("GB-HICP");
   /**
    * The retail price index for the United Kingdom,
    * "Non-revised Retail Price Index All Items in the United Kingdom".
    */
-  public static final PriceIndex UK_RPI = PriceIndex.of("UK-RPI");
+  public static final PriceIndex GB_RPI = PriceIndex.of("GB-RPI");
   /**
    * The retail price index for the United Kingdom excluding mortgage interest payments,
    * "Non-revised Retail Price Index Excluding Mortgage Interest Payments in the United Kingdom".
    */
-  public static final PriceIndex UK_RPIX = PriceIndex.of("UK-RPIX");
+  public static final PriceIndex GB_RPIX = PriceIndex.of("GB-RPIX");
   /**
    * The consumer price index for Switzerland,
    * "Non-revised Consumer Price Index".
    */
-  public static final PriceIndex SWF_CPI = PriceIndex.of("SWF-CPI");
+  public static final PriceIndex CH_CPI = PriceIndex.of("CH-CPI");
   /**
    * The consumer price index for Europe,
    * "Non-revised Harmonised Index of Consumer Prices All Items".
    */
-  public static final PriceIndex EUR_AI_CPI = PriceIndex.of("EUR-AI-CPI");
+  public static final PriceIndex EU_AI_CPI = PriceIndex.of("EU-AI-CPI");
+  /**
+   * The consumer price index for Europe,
+   * "Non-revised Harmonised Index of Consumer Prices Excluding Tobacco".
+   */
+  public static final PriceIndex EU_EXT_CPI = PriceIndex.of("EU-EXT-CPI");
   /**
    * The consumer price index for Japan excluding fresh food,
    * "Non-revised Consumer Price Index Nationwide General Excluding Fresh Food".
    */
-  public static final PriceIndex JPY_CPI_EXF = PriceIndex.of("JPY-CPI-EXF");
+  public static final PriceIndex JP_CPI_EXF = PriceIndex.of("JP-CPI-EXF");
   /**
    * The consumer price index for US Urban consumers,
    * "Non-revised index of Consumer Prices for All Urban Consumers (CPI-U) before seasonal adjustment".
    */
-  public static final PriceIndex USA_CPI_U = PriceIndex.of("USA-CPI-U");
+  public static final PriceIndex US_CPI_U = PriceIndex.of("US-CPI-U");
+  /**
+   * The consumer price index for France,
+   * "Non-revised Harmonised Index of Consumer Prices Excluding Tobacco".
+   */
+  public static final PriceIndex FR_EXT_CPI = PriceIndex.of("FR-EXT-CPI");
 
   //-------------------------------------------------------------------------
   /**

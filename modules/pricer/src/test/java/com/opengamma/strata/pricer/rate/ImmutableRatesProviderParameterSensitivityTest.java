@@ -11,7 +11,7 @@ import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
-import static com.opengamma.strata.basics.index.PriceIndices.UK_RPI;
+import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -189,21 +189,21 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     String curveName = "GB_RPI_CURVE";
     InterpolatedNodalCurve interpCurve = InterpolatedNodalCurve.of(Curves.prices(curveName), x, y, interp);
     PriceIndexValues values = ForwardPriceIndexValues.of(
-        UK_RPI,
+        GB_RPI,
         valuationDate,
         interpCurve,
         LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 200));
     ImmutableRatesProvider provider = ImmutableRatesProvider.builder(VAL_DATE)
-        .priceIndexValues(ImmutableMap.of(UK_RPI, values))
+        .priceIndexValues(ImmutableMap.of(GB_RPI, values))
         .build();
 
     double pointSensiValue = 2.5;
     YearMonth refMonth = YearMonth.from(valuationDate.plusMonths(9));
-    InflationRateSensitivity pointSensi = InflationRateSensitivity.of(UK_RPI, refMonth, pointSensiValue);
+    InflationRateSensitivity pointSensi = InflationRateSensitivity.of(GB_RPI, refMonth, pointSensiValue);
     CurveCurrencyParameterSensitivities computed = provider.curveParameterSensitivity(pointSensi.build());
     DoubleArray sensiComputed = computed.getSensitivities().get(0).getSensitivity();
     DoubleArray sensiExpectedUnit =
-        provider.priceIndexValues(UK_RPI).unitParameterSensitivity(refMonth).getSensitivities().get(0).getSensitivity();
+        provider.priceIndexValues(GB_RPI).unitParameterSensitivity(refMonth).getSensitivities().get(0).getSensitivity();
     assertTrue(sensiComputed.equalWithTolerance(sensiExpectedUnit.multipliedBy(pointSensiValue), eps));
   }
 

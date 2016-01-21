@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.market.key;
 
-import static com.opengamma.strata.basics.index.PriceIndices.EUR_AI_CPI;
-import static com.opengamma.strata.basics.index.PriceIndices.UK_RPI;
+import static com.opengamma.strata.basics.index.PriceIndices.EU_AI_CPI;
+import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -24,21 +24,21 @@ public class PriceIndexCurveKeyTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    PriceIndexCurveKey test = PriceIndexCurveKey.of(UK_RPI);
-    assertEquals(test.getIndex(), UK_RPI);
+    PriceIndexCurveKey test = PriceIndexCurveKey.of(GB_RPI);
+    assertEquals(test.getIndex(), GB_RPI);
     assertEquals(test.getMarketDataType(), Curve.class);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    PriceIndexCurveKey test = PriceIndexCurveKey.of(UK_RPI);
+    PriceIndexCurveKey test = PriceIndexCurveKey.of(GB_RPI);
     coverImmutableBean(test);
-    PriceIndexCurveKey test2 = PriceIndexCurveKey.of(EUR_AI_CPI);
+    PriceIndexCurveKey test2 = PriceIndexCurveKey.of(EU_AI_CPI);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    PriceIndexCurveKey test = PriceIndexCurveKey.of(UK_RPI);
+    PriceIndexCurveKey test = PriceIndexCurveKey.of(GB_RPI);
     assertSerialization(test);
   }
 
