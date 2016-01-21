@@ -43,15 +43,15 @@ import com.opengamma.strata.collect.named.Named;
  * <p>
  * This class is designed to match the FpML/ISDA floating rate index concept.
  * The FpML concept provides a single key for floating rates of a variety of
- * types, mixing  Ibor, Overnight and Swap indices.
+ * types, mixing  Ibor, Overnight, Price and Swap indices.
  * It also sometimes includes a source, such as 'Bloomberg' or 'Reuters'.
  * This class matches the single concept and provided a bridge the the more
  * specific index implementations used for pricing.
  * <p>
  * The most common implementations are provided in {@link FloatingRateNames}.
  * <p>
- * The set of supported values, and their mapping to {@code IborIndex} and
- * {@code OvernightIndex}, is defined in the {@code FloatingRateName.ini}
+ * The set of supported values, and their mapping to {@code IborIndex}, {@code PriceIndex}
+ * and {@code OvernightIndex}, is defined in the {@code FloatingRateName.ini}
  * config file.
  */
 @BeanDefinition(builderScope = "private")
@@ -98,7 +98,7 @@ public final class FloatingRateName
     ArgChecker.notNull(uniqueName, "uniqueName");
     FloatingRateName index = DATA_MAP.get(uniqueName);
     if (index == null) {
-      throw new IllegalArgumentException("Unknown FpML Floating Rate Index: " + uniqueName);
+      throw new IllegalArgumentException("Unknown Floating Rate Name: " + uniqueName);
     }
     return index;
   }
@@ -126,23 +126,24 @@ public final class FloatingRateName
   // parse the config file FloatingRateName.ini
   private static ImmutableMap<String, FloatingRateName> parseIndices(IniFile ini) {
     ImmutableMap.Builder<String, FloatingRateName> builder = ImmutableMap.builder();
-    PropertySet iborSection = ini.section("ibor");
-    for (String key : iborSection.keys()) {
-      builder.put(key, new FloatingRateName(key, iborSection.value(key) + "-", FloatingRateType.IBOR));
-    }
-    PropertySet onCompoundedSection = ini.section("overnightCompounded");
-    for (String key : onCompoundedSection.keys()) {
-      builder.put(key, new FloatingRateName(key, onCompoundedSection.value(key), FloatingRateType.OVERNIGHT_COMPOUNDED));
-    }
-    PropertySet onAveragedSection = ini.section("overnightAveraged");
-    for (String key : onAveragedSection.keys()) {
-      builder.put(key, new FloatingRateName(key, onAveragedSection.value(key), FloatingRateType.OVERNIGHT_AVERAGED));
-    }
-    PropertySet priceSection = ini.section("price");
-    for (String key : priceSection.keys()) {
-      builder.put(key, new FloatingRateName(key, priceSection.value(key), FloatingRateType.PRICE));
-    }
+    parseSection(ini.section("ibor"), "-", FloatingRateType.IBOR, builder);
+    parseSection(ini.section("overnightCompounded"), "", FloatingRateType.OVERNIGHT_COMPOUNDED, builder);
+    parseSection(ini.section("overnightAveraged"), "", FloatingRateType.OVERNIGHT_AVERAGED, builder);
+    parseSection(ini.section("price"), "", FloatingRateType.PRICE, builder);
     return builder.build();
+  }
+
+  // parse a single section
+  private static void parseSection(
+      PropertySet section,
+      String indexNameSuffix,
+      FloatingRateType type,
+      ImmutableMap.Builder<String, FloatingRateName> builder) {
+
+    // find our names from the RHS of the key/value pairs
+    for (String key : section.keys()) {
+      builder.put(key, new FloatingRateName(key, section.value(key) + indexNameSuffix, type));
+    }
   }
 
   //-------------------------------------------------------------------------
