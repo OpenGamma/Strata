@@ -5,6 +5,9 @@
  */
 package com.opengamma.strata.product.swap;
 
+import java.time.LocalTime;
+import java.time.ZoneId;
+
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
@@ -73,5 +76,22 @@ public interface SwapIndex
   @ToString
   @Override
   public abstract String getName();
+  
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the fixing time of the index.
+   * <p>
+   * The fixing time is related to the fixing date and time-zone.
+   * @return the value of the property, not null
+   */
+  public abstract LocalTime getFixingTime();
+  
+  /**
+   * Gets the time-zone of the fixing time.
+   * <p>
+   * The fixing time-zone is related to the fixing date and time.
+   * @return the value of the property, not null
+   */
+  public abstract ZoneId getFixingZone();
 
 }

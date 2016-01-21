@@ -224,7 +224,7 @@ public class CmsPeriodTest {
         .currency(CHF)
         .startDate(LocalDate.of(2014, 11, 22))
         .endDate(LocalDate.of(2015, 11, 22))
-        .index(SwapIndices.CHF_LIBOR_1100_5Y)
+        .index(SwapIndices.EUR_EURIBOR_1100_5Y)
         .notional(1.0e7)
         .yearFraction(0.51)
         .build();

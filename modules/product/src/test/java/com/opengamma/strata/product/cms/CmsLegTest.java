@@ -297,7 +297,7 @@ public class CmsLegTest {
     coverImmutableBean(test1);
     CmsLeg test2 = CmsLeg.builder()
         .floorSchedule(FLOOR)
-        .index(SwapIndices.CHF_LIBOR_1100_10Y)
+        .index(SwapIndices.USD_LIBOR_1100_10Y)
         .notional(ValueSchedule.of(1.e6))
         .payReceive(PAY)
         .paymentSchedule(SCHEDULE)

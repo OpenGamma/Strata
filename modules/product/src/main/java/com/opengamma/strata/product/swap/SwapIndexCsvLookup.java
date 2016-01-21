@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.product.swap;
 
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +42,8 @@ final class SwapIndexCsvLookup
   private static final String NAME_FIELD = "Name";
   private static final String CONVENTION_FIELD = "Convention";
   private static final String TENOR_FIELD = "Tenor";
+  private static final String LOCALHOUR_FIELD = "LocalHour";
+  private static final String ZONEID_FIELD = "ZoneId";
 
   /**
    * The cache by name.
@@ -80,8 +84,10 @@ final class SwapIndexCsvLookup
     String name = csv.field(row, NAME_FIELD);
     FixedIborSwapConvention convention = FixedIborSwapConvention.of(csv.field(row, CONVENTION_FIELD));
     Tenor tenor = Tenor.parse(csv.field(row, TENOR_FIELD));
+    LocalTime time = LocalTime.of(Integer.parseInt(csv.field(row, LOCALHOUR_FIELD)), 0);
+    ZoneId zoneId = ZoneId.of(csv.field(row, ZONEID_FIELD));
     // build result
-    return ImmutableSwapIndex.of(name, FixedIborSwapTemplate.of(tenor, convention));
+    return ImmutableSwapIndex.of(name, time, zoneId, FixedIborSwapTemplate.of(tenor, convention));
   }
 
 }
