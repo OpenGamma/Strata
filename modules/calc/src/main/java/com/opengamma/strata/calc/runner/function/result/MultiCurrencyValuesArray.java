@@ -39,25 +39,19 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.function.CalculationMultiFunction;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * Arrays of currency values in multiple currencies representing the result of the same calculation
- * performed for multiple scenarios.
+ * A currency-convertible scenario result for multi-currency amounts, holding one amount for each scenario.
  * <p>
- * For a large number of values it is more efficient to use this class than a list of individual
- * {@link MultiCurrencyAmount} instances. Internally this class uses a single map and primitive double
- * arrays for greater efficiency that storing the amounts using {@link MultiCurrencyAmount}.
+ * This contains a list of amounts in a multiple currencies, one amount for each scenario.
+ * The calculation runner is able to convert the currency of the values if required.
  * <p>
- * This class is intended to be used as the return value from the {@code execute} method of
- * implementations of {@link CalculationSingleFunction} and {@link CalculationMultiFunction}.
- * <p>
- * Instances of this class will be automatically converted to the reporting currency by the calculation engine.
+ * This class uses less memory than an instance based on a list of {@link MultiCurrencyAmount} instances.
+ * Internally, it stores the data using a map of currency to {@link DoubleArray}.
  */
 @BeanDefinition(builderScope = "private")
 public final class MultiCurrencyValuesArray
@@ -70,10 +64,11 @@ public final class MultiCurrencyValuesArray
   /** The number of values for each currency. */
   private final int size;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns an instance containing the values from the amounts.
    *
-   * @param amounts  the amounts containing the currency amounts
+   * @param amounts  the amounts, one for each scenario
    * @return an instance containing the values from the list of amounts
    */
   public static MultiCurrencyValuesArray of(MultiCurrencyAmount... amounts) {
@@ -83,7 +78,7 @@ public final class MultiCurrencyValuesArray
   /**
    * Returns an instance containing the values from the list of amounts.
    *
-   * @param amounts  the amounts containing the currency amounts
+   * @param amounts  the amounts, one for each scenario
    * @return an instance containing the values from the list of amounts
    */
   public static MultiCurrencyValuesArray of(List<MultiCurrencyAmount> amounts) {
@@ -144,6 +139,7 @@ public final class MultiCurrencyValuesArray
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns the set of currencies for which this object contains values.
    *

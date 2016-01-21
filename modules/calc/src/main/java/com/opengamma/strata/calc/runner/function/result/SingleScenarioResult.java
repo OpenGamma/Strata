@@ -28,10 +28,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A multi-scenario container used when a single result is valid for all scenarios.
+ * A scenario result holding one value that is valid for all scenarios.
  * <p>
- * The results can be any type and the engine will not attempt to automatically
- * convert the currency to the reporting currency.
+ * This contains a single value where the same value is the result of each scenario.
+ * The calculation runner will not attempt to convert the currency of the value.
  * 
  * @param <T>  the type of the result
  */
@@ -52,12 +52,14 @@ public final class SingleScenarioResult<T>
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a set of scenario results containing the specified individual results.
+   * Obtains an instance from a single result and scenario count.
+   * <p>
+   * The single result is valid for each scenario.
    *
-   * @param <T>  the type of the result
+   * @param <T>  the type of the value
    * @param scenarioCount  the number of scenarios
-   * @param result  the single result valid for all scenarios
-   * @return a set of scenario results containing the specified individual results
+   * @param result  the single value valid for all scenarios
+   * @return an instance with the specified value and count
    */
   public static <T> SingleScenarioResult<T> of(int scenarioCount, T result) {
     return new SingleScenarioResult<>(scenarioCount, result);

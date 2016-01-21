@@ -24,16 +24,13 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.calc.runner.function.CalculationMultiFunction;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * An array of {@code double} values representing the result of the same calculation
- * performed for multiple scenarios.
+ * A scenario result holding one {@code double} value for each scenario.
  * <p>
- * This class is intended to be used as the return value from the {@code execute} method of
- * implementations of {@link CalculationSingleFunction} and {@link CalculationMultiFunction}.
+ * This contains a list of values, one value for each scenario.
+ * The calculation runner will not attempt to convert the currency of the values.
  */
 @BeanDefinition(builderScope = "private")
 public final class ValuesArray
@@ -49,7 +46,7 @@ public final class ValuesArray
   /**
    * Obtains an instance from the specified array of values.
    *
-   * @param values  the values
+   * @param values  the values, one value for each scenario
    * @return an instance with the specified values
    */
   public static ValuesArray of(DoubleArray values) {
@@ -57,9 +54,9 @@ public final class ValuesArray
   }
 
   /**
-   * Obtains an instance from the specified array of values.
+   * Obtains an instance from the specified list of values.
    *
-   * @param values  the values
+   * @param values  the values, one value for each scenario
    * @return an instance with the specified values
    */
   public static ValuesArray of(List<Double> values) {

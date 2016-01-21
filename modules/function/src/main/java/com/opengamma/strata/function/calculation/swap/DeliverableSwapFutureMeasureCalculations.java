@@ -114,7 +114,7 @@ class DeliverableSwapFutureMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // common code, creating a stream of RatesProvider from CalculationMarketData
+  // common code, creating a stream of MarketData from CalculationMarketData
   private static Stream<MarketData> marketDataStream(CalculationMarketData marketData) {
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(index -> new SingleCalculationMarketData(marketData, index));
