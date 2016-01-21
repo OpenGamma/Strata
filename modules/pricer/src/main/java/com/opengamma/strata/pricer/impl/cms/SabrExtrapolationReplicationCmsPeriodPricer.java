@@ -350,7 +350,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     double[] totalSensi = new double[4];
     for (int loopparameter = 0; loopparameter < 4; loopparameter++) {
       double integralPart = 0d;
-      Function<Double, Double> integrant = intProv.integrantVaga(loopparameter);
+      Function<Double, Double> integrant = intProv.integrantVega(loopparameter);
       try {
         if (intProv.getPutCall().isCall()) {
           integralPart = dfPayment *
@@ -417,7 +417,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
             "Unable to get fixing for {} on date {}, no time-series supplied", cmsPeriod.getIndex(), fixingDate));
       }
     }
-    strike = cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.COUPON) ? 0d : strike + shift;
+    strike += shift;
     double forward = swapPricer.parRate(expandedSwap, provider) + shift;
     double eta = cmsPeriod.getDayCount().relativeYearFraction(cmsPeriod.getPaymentDate(), swap.getStartDate());
     CmsIntegrantProvider intProv = new CmsIntegrantProvider(
@@ -433,7 +433,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       firstPart = -kpkpp[0] * intProv.bs(strike);
       thirdPart = integrateCall(integrator, integrant, swaptionVolatilities, forward, strike, expiryTime, tenor);
     } else {
-      firstPart = 3d * kpkpp[0] * intProv.bs(strike);
+      firstPart = -kpkpp[0] * intProv.bs(strike);
       thirdPart = integrator.integrate(integrant, 0d, strike);
     }
     double secondPart =
@@ -598,7 +598,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
         public Double apply(Double x) {
           double[] kD = kpkpp(x);
           // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
-          return factor * (sign * kD[1] * (x - strike) + 2d * kD[0]) * bs(x);
+          return factor * sign * (kD[1] * (x - strike) + 2d * kD[0]) * bs(x);
         }
       };
     }
@@ -609,14 +609,14 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
      * @param i  the index of SABR parameters
      * @return the vega integrant
      */
-    Function<Double, Double> integrantVaga(int i) {
+    Function<Double, Double> integrantVega(int i) {
       return new Function<Double, Double>() {
         @Override
         public Double apply(Double x) {
           double[] kD = kpkpp(x);
           // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
           DoubleArray priceDerivativeSABR = getSabrExtrapolation().priceAdjointSabr(x, putCall).getDerivatives();
-          return priceDerivativeSABR.get(i) * (factor * (sign * kD[1] * (x - strike) + 2d * kD[0]));
+          return priceDerivativeSABR.get(i) * (factor * sign * (kD[1] * (x - strike) + 2d * kD[0]));
         }
       };
     }
@@ -772,7 +772,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
           double[] kD = kpkpp(x);
           // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
           double[] bs = bsbsp(x);
-          return (getSign() * kD[1] * (x - getStrike()) + 2d * kD[0]) * (nnp[1] * bs[0] + nnp[0] * bs[1]);
+          return (kD[1] * (x - getStrike()) + 2d * kD[0]) * getSign() * (nnp[1] * bs[0] + nnp[0] * bs[1]);
         }
       };
     }
