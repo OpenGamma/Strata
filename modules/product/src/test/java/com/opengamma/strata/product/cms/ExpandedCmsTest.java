@@ -8,6 +8,7 @@ package com.opengamma.strata.product.cms;
 import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -47,6 +48,7 @@ public class ExpandedCmsTest {
       .endDate(DATE_2)
       .notional(NOTIONAL)
       .yearFraction(YEAR_FRACTION_1)
+      .dayCount(ACT_360)
       .build();
   private static final CmsPeriod CMS_PERIOD_2 = CmsPeriod.builder()
       .index(INDEX)
@@ -54,6 +56,7 @@ public class ExpandedCmsTest {
       .endDate(DATE_3)
       .notional(NOTIONAL)
       .yearFraction(YEAR_FRACTION_2)
+      .dayCount(ACT_360)
       .build();
   private static final ExpandedCmsLeg CMS_LEG = ExpandedCmsLeg.builder()
       .cmsPeriods(CMS_PERIOD_1, CMS_PERIOD_2)

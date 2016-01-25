@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -43,6 +44,7 @@ public class ExpandedCmsLegTest {
       .endDate(DATE_2)
       .notional(NOTIONAL)
       .yearFraction(YEAR_FRACTION_1)
+      .dayCount(ACT_360)
       .build();
   private static final CmsPeriod PERIOD_2 = CmsPeriod.builder()
       .caplet(STRIKE).index(INDEX)
@@ -50,6 +52,7 @@ public class ExpandedCmsLegTest {
       .endDate(DATE_3)
       .notional(NOTIONAL)
       .yearFraction(YEAR_FRACTION_2)
+      .dayCount(ACT_360)
       .build();
 
   public void test_builder() {
@@ -72,7 +75,11 @@ public class ExpandedCmsLegTest {
         .caplet(STRIKE)
         .index(SwapIndices.GBP_LIBOR_1100_10Y)
         .startDate(DATE_2)
-        .endDate(DATE_3).notional(NOTIONAL).yearFraction(YEAR_FRACTION_2).build();
+        .endDate(DATE_3)
+        .notional(NOTIONAL)
+        .yearFraction(YEAR_FRACTION_2)
+        .dayCount(ACT_360)
+        .build();
     assertThrowsIllegalArg(() -> ExpandedCmsLeg.builder().payReceive(RECEIVE).cmsPeriods(PERIOD_1, period3).build());
     CmsPeriod period4 = CmsPeriod.builder()
         .caplet(STRIKE)
@@ -81,6 +88,7 @@ public class ExpandedCmsLegTest {
         .endDate(DATE_3)
         .notional(NOTIONAL)
         .yearFraction(YEAR_FRACTION_2)
+        .dayCount(ACT_360)
         .currency(EUR).build();
     assertThrowsIllegalArg(() -> ExpandedCmsLeg.builder().payReceive(RECEIVE).cmsPeriods(PERIOD_1, period4).build());
   }
@@ -99,6 +107,7 @@ public class ExpandedCmsLegTest {
         .endDate(DATE_2)
         .notional(-NOTIONAL)
         .yearFraction(YEAR_FRACTION_1)
+        .dayCount(ACT_360)
         .build();
     CmsPeriod p2 = CmsPeriod.builder()
         .caplet(STRIKE).index(INDEX)
@@ -106,6 +115,7 @@ public class ExpandedCmsLegTest {
         .endDate(DATE_3)
         .notional(-NOTIONAL)
         .yearFraction(YEAR_FRACTION_2)
+        .dayCount(ACT_360)
         .build();
     ExpandedCmsLeg test2 = ExpandedCmsLeg.builder()
         .payReceive(PAY)

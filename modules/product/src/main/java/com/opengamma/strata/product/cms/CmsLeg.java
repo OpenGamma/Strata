@@ -274,6 +274,7 @@ public final class CmsLeg
           .yearFraction(period.yearFraction(dayCount, adjustedSchedule))
           .caplet(getCapSchedule().isPresent() ? cap.get(i) : null)
           .floorlet(getFloorSchedule().isPresent() ? floor.get(i) : null)
+          .dayCount(dayCount)
           .build());
     }
     return ExpandedCmsLeg.builder()

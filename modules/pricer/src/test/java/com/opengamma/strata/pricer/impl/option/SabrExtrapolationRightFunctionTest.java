@@ -34,7 +34,7 @@ public class SabrExtrapolationRightFunctionTest {
   private static final double MU = 4.0;
   private static final double TIME_TO_EXPIRY = 2.0;
   private static final SabrExtrapolationRightFunction SABR_EXTRAPOLATION =
-      SabrExtrapolationRightFunction.of(FORWARD, SABR_DATA, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+      SabrExtrapolationRightFunction.of(FORWARD, TIME_TO_EXPIRY, SABR_DATA, CUT_OFF_STRIKE, MU);
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
   private static final SabrHaganVolatilityFunctionProvider SABR_FUNCTION = SabrHaganVolatilityFunctionProvider.DEFAULT;
   private static final double TOLERANCE_PRICE = 1.0E-10;
@@ -88,7 +88,7 @@ public class SabrExtrapolationRightFunctionTest {
     double strikeOut = 0.12;
     for (int loopexp = 0; loopexp < timeToExpiry.length; loopexp++) {
       SabrExtrapolationRightFunction sabrExtra =
-          SabrExtrapolationRightFunction.of(FORWARD, SABR_DATA, CUT_OFF_STRIKE, timeToExpiry[loopexp], MU);
+          SabrExtrapolationRightFunction.of(FORWARD, timeToExpiry[loopexp], SABR_DATA, CUT_OFF_STRIKE, MU);
       EuropeanVanillaOption optionIn = EuropeanVanillaOption.of(strikeIn, timeToExpiry[loopexp], PutCall.CALL);
       EuropeanVanillaOption optionAt = EuropeanVanillaOption.of(strikeAt, timeToExpiry[loopexp], PutCall.CALL);
       EuropeanVanillaOption optionOut = EuropeanVanillaOption.of(strikeOut, timeToExpiry[loopexp], PutCall.CALL);
@@ -123,7 +123,7 @@ public class SabrExtrapolationRightFunctionTest {
     double shiftF = 0.000001;
     SabrFormulaData sabrDataFP = SabrFormulaData.of(ALPHA, BETA, RHO, NU);
     SabrExtrapolationRightFunction sabrExtrapolationFP =
-        SabrExtrapolationRightFunction.of(FORWARD + shiftF, sabrDataFP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+        SabrExtrapolationRightFunction.of(FORWARD + shiftF, TIME_TO_EXPIRY, sabrDataFP, CUT_OFF_STRIKE, MU);
     // Below cut-off strike
     double priceIn = SABR_EXTRAPOLATION.price(optionIn.getStrike(), optionIn.getPutCall());
     double priceInFP = sabrExtrapolationFP.price(optionIn.getStrike(), optionIn.getPutCall());
@@ -167,7 +167,7 @@ public class SabrExtrapolationRightFunctionTest {
     double shiftF = 0.000001;
     SabrFormulaData sabrDataFP = SabrFormulaData.of(ALPHA, BETA, RHO, NU);
     SabrExtrapolationRightFunction sabrExtrapolationFP =
-        SabrExtrapolationRightFunction.of(FORWARD + shiftF, sabrDataFP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+        SabrExtrapolationRightFunction.of(FORWARD + shiftF, TIME_TO_EXPIRY, sabrDataFP, CUT_OFF_STRIKE, MU);
     // Below cut-off strike
     double priceIn = func.price(optionIn.getStrike(), optionIn.getPutCall());
     double priceInFP = sabrExtrapolationFP.price(optionIn.getStrike(), optionIn.getPutCall());
@@ -280,13 +280,13 @@ public class SabrExtrapolationRightFunctionTest {
     SabrFormulaData sabrDataRP = SabrFormulaData.of(ALPHA, BETA, RHO + shift, NU);
     SabrFormulaData sabrDataNP = SabrFormulaData.of(ALPHA, BETA, RHO, NU + shift);
     SabrExtrapolationRightFunction sabrExtrapolationAP =
-        SabrExtrapolationRightFunction.of(FORWARD, sabrDataAP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+        SabrExtrapolationRightFunction.of(FORWARD, TIME_TO_EXPIRY, sabrDataAP, CUT_OFF_STRIKE, MU);
     SabrExtrapolationRightFunction sabrExtrapolationBP =
-        SabrExtrapolationRightFunction.of(FORWARD, sabrDataBP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+        SabrExtrapolationRightFunction.of(FORWARD, TIME_TO_EXPIRY, sabrDataBP, CUT_OFF_STRIKE, MU);
     SabrExtrapolationRightFunction sabrExtrapolationRP =
-        SabrExtrapolationRightFunction.of(FORWARD, sabrDataRP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+        SabrExtrapolationRightFunction.of(FORWARD, TIME_TO_EXPIRY, sabrDataRP, CUT_OFF_STRIKE, MU);
     SabrExtrapolationRightFunction sabrExtrapolationNP =
-        SabrExtrapolationRightFunction.of(FORWARD, sabrDataNP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+        SabrExtrapolationRightFunction.of(FORWARD, TIME_TO_EXPIRY, sabrDataNP, CUT_OFF_STRIKE, MU);
     // Below cut-off strike
     double priceInExpected = SABR_EXTRAPOLATION.price(optionIn.getStrike(), optionIn.getPutCall());
     double[] priceInPP = new double[4];
@@ -369,13 +369,13 @@ public class SabrExtrapolationRightFunctionTest {
     SabrFormulaData sabrDataRP = SabrFormulaData.of(ALPHA, BETA, RHO + shift, NU);
     SabrFormulaData sabrDataNP = SabrFormulaData.of(ALPHA, BETA, RHO, NU + shift);
     SabrExtrapolationRightFunction sabrExtrapolationAP =
-        SabrExtrapolationRightFunction.of(FORWARD, sabrDataAP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+        SabrExtrapolationRightFunction.of(FORWARD, TIME_TO_EXPIRY, sabrDataAP, CUT_OFF_STRIKE, MU);
     SabrExtrapolationRightFunction sabrExtrapolationBP =
-        SabrExtrapolationRightFunction.of(FORWARD, sabrDataBP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+        SabrExtrapolationRightFunction.of(FORWARD, TIME_TO_EXPIRY, sabrDataBP, CUT_OFF_STRIKE, MU);
     SabrExtrapolationRightFunction sabrExtrapolationRP =
-        SabrExtrapolationRightFunction.of(FORWARD, sabrDataRP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+        SabrExtrapolationRightFunction.of(FORWARD, TIME_TO_EXPIRY, sabrDataRP, CUT_OFF_STRIKE, MU);
     SabrExtrapolationRightFunction sabrExtrapolationNP =
-        SabrExtrapolationRightFunction.of(FORWARD, sabrDataNP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+        SabrExtrapolationRightFunction.of(FORWARD, TIME_TO_EXPIRY, sabrDataNP, CUT_OFF_STRIKE, MU);
     // Below cut-off strike
     double priceInExpected = func.price(optionIn.getStrike(), optionIn.getPutCall());
     double[] priceInPP = new double[4];
@@ -456,20 +456,20 @@ public class SabrExtrapolationRightFunctionTest {
     SabrFormulaData sabrData = SabrFormulaData.of(alpha, beta, rho, nu);
     double forward = 0.0404500579038675;
     SabrExtrapolationRightFunction sabrExtrapolation =
-        SabrExtrapolationRightFunction.of(forward, sabrData, cutOff, t, mu);
+        SabrExtrapolationRightFunction.of(forward, t, sabrData, cutOff, mu);
     double shift = 0.000001;
     SabrFormulaData sabrDataAP = SabrFormulaData.of(alpha + shift, beta, rho, nu);
     SabrFormulaData sabrDataBP = SabrFormulaData.of(alpha, beta + shift, rho, nu);
     SabrFormulaData sabrDataRP = SabrFormulaData.of(alpha, beta, rho + shift, nu);
     SabrFormulaData sabrDataNP = SabrFormulaData.of(alpha, beta, rho, nu + shift);
     SabrExtrapolationRightFunction sabrExtrapolationAP =
-        SabrExtrapolationRightFunction.of(forward, sabrDataAP, cutOff, t, mu);
+        SabrExtrapolationRightFunction.of(forward, t, sabrDataAP, cutOff, mu);
     SabrExtrapolationRightFunction sabrExtrapolationBP =
-        SabrExtrapolationRightFunction.of(forward, sabrDataBP, cutOff, t, mu);
+        SabrExtrapolationRightFunction.of(forward, t, sabrDataBP, cutOff, mu);
     SabrExtrapolationRightFunction sabrExtrapolationRP =
-        SabrExtrapolationRightFunction.of(forward, sabrDataRP, cutOff, t, mu);
+        SabrExtrapolationRightFunction.of(forward, t, sabrDataRP, cutOff, mu);
     SabrExtrapolationRightFunction sabrExtrapolationNP =
-        SabrExtrapolationRightFunction.of(forward, sabrDataNP, cutOff, t, mu);
+        SabrExtrapolationRightFunction.of(forward, t, sabrDataNP, cutOff, mu);
     // Above cut-off strike
     double[] abc = sabrExtrapolation.getParameter();
     double[][] abcDP = sabrExtrapolation.getParameterDerivativeSabr();
@@ -567,8 +567,8 @@ public class SabrExtrapolationRightFunctionTest {
     }
     SabrExtrapolationRightFunction[] sabrExtrapolation = new SabrExtrapolationRightFunction[nbTTM];
     for (int loopmat = 0; loopmat < nbTTM; loopmat++) {
-      sabrExtrapolation[loopmat] = SabrExtrapolationRightFunction.of(FORWARD, SABR_DATA, CUT_OFF_STRIKE,
-          timeToExpiry[loopmat], MU);
+      sabrExtrapolation[loopmat] = SabrExtrapolationRightFunction.of(FORWARD, timeToExpiry[loopmat], SABR_DATA,
+          CUT_OFF_STRIKE, MU);
     }
     double[][] price = new double[nbTTM][nbPts + 1];
     for (int loopmat = 0; loopmat < nbTTM; loopmat++) {
