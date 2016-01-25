@@ -329,12 +329,16 @@ public final class Tenor
   /**
    * Normalizes the months and years of this tenor.
    * <p>
-   * This method returns a tenor of an equivalent length but with any number
-   * of months greater than 12 normalized into a combination of months and years.
+   * This method returns a normalized tenor of an equivalent length.
+   * If the period is exactly 1 year then the result will be expressed as 12 months.
+   * Otherwise, the result will be expressed using {@link Period#normalized()}.
    *
    * @return the normalized tenor
    */
   public Tenor normalized() {
+    if (period.getDays() == 0 && period.toTotalMonths() == 12) {
+      return TENOR_12M;
+    }
     Period norm = period.normalized();
     return (norm != period ? Tenor.of(norm) : this);
   }
