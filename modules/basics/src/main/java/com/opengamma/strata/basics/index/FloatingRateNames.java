@@ -1,16 +1,16 @@
 /**
- * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.index;
 
 /**
- * Constants and implementations for standard Floating rate indices.
+ * Constants and implementations for standard Floating rate names.
  * <p>
- * Each constant returns a standard definition of the specified index.
+ * Each constant refers to a standard definition of the specified index.
  */
-final class FloatingRateNames {
+public final class FloatingRateNames {
 
   /**
    * Constant for GBP-LIBOR.

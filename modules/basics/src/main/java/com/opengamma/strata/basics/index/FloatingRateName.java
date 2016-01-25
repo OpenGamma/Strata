@@ -162,7 +162,7 @@ public final class FloatingRateName
     if (!type.isIbor()) {
       throw new IllegalStateException("Incorrect index type, expected Ibor: " + name);
     }
-    return IborIndex.of(indexName + tenor.toString());
+    return IborIndex.of(indexName + tenor.normalized().toString());
   }
 
   /**
