@@ -496,7 +496,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
    */
   private class CmsIntegrantProvider {
     /* Small parameter below which a value is regarded as 0. */
-    protected static final double EPS = 1.0E-5;
+    protected static final double EPS = 1.0E-4;
     private final int nbFixedPeriod;
     private final int nbFixedPaymentYear;
     private final double tau;

@@ -282,9 +282,9 @@ public class SabrExtrapolationRightFunction {
       }
     } else { // Uses extrapolation for call.
       if (parameterDerivativeSabr == null) {
-        parameterDerivativeSabr = computesParametersDerivativeSabr();
+        parameterDerivativeSabr = computesParametersDerivativeSabr(); 
+        // Derivatives computed only once and only when required
       }
-      double[][] parameterDerivativeSabr = computesParametersDerivativeSabr();
       double f = extrapolation(strike);
       double fDa = f;
       double fDb = f / strike;
