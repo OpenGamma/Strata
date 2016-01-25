@@ -359,7 +359,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
         cmsPeriod, expandedSwap, swaptionVolatilities, forward, strikeCpn, expiryTime, tenor, cutOffStrike, eta);
     double factor = dfPayment / intProv.h(forward) * intProv.g(forward);
     double factor2 = factor * intProv.k(strikeCpn);
-    double[] strikePartPrice = intProv.getSabrExtrapolation().priceAdjointSabr(strikeCpn + shift, intProv.getPutCall())
+    double[] strikePartPrice = intProv.getSabrExtrapolation()
+        .priceAdjointSabr(Math.max(0d, strikeCpn + shift), intProv.getPutCall()) // handle tiny but negative number
         .getDerivatives().multipliedBy(factor2).toArray();
     double absoluteTolerance = 1d / (factor * Math.abs(cmsPeriod.getNotional()) * cmsPeriod.getYearFraction());
     RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, REL_TOL_VEGA, NUM_ITER);
@@ -622,7 +623,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
         public Double apply(Double x) {
           double[] kD = kpkpp(x);
           // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
-          DoubleArray priceDerivativeSABR = getSabrExtrapolation().priceAdjointSabr(x + shift, putCall).getDerivatives();
+          double xShifted = Math.max(x + shift, 0d); // handle tiny but negative number
+          DoubleArray priceDerivativeSABR = getSabrExtrapolation().priceAdjointSabr(xShifted, putCall).getDerivatives();
           return priceDerivativeSABR.get(i) * (factor * (kD[1] * (x - strike) + 2d * kD[0]));
         }
       };
@@ -736,7 +738,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
      * @return the Black prcie.
      */
     double bs(double strike) {
-      return sabrExtrapolation.price(strike + shift, putCall);
+      double strikeShifted = Math.max(strike + getShift(), 0d); // handle tiny but negative number
+      return sabrExtrapolation.price(strikeShifted, putCall);
     }
   }
   
@@ -795,8 +798,9 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
      */
     private double[] bsbsp(double strike) {
       double[] result = new double[2];
-      result[0] = getSabrExtrapolation().price(strike + getShift(), getPutCall());
-      result[1] = getSabrExtrapolation().priceDerivativeForward(strike + getShift(), getPutCall());
+      double strikeShifted = Math.max(strike + getShift(), 0d); // handle tiny but negative number
+      result[0] = getSabrExtrapolation().price(strikeShifted, getPutCall());
+      result[1] = getSabrExtrapolation().priceDerivativeForward(strikeShifted, getPutCall());
       return result;
     }
 

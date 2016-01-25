@@ -211,6 +211,16 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     CurrencyAmount pvCpn = PRICER.presentValue(COUPON, RATES_PROVIDER, VOLATILITIES_SHIFT);
     double pvStrike = STRIKE * NOTIONAL * ACC_FACTOR * RATES_PROVIDER.discountFactor(EUR, PAYMENT);
     assertEquals(pvCap.getAmount() - pvFloor.getAmount(), pvCpn.getAmount() - pvStrike, 1.0E+3);    
+    CurrencyAmount pvCap1 = PRICER.presentValue(CAPLET_NEGATIVE, RATES_PROVIDER, VOLATILITIES_SHIFT);
+    CurrencyAmount pvFloor1 = PRICER.presentValue(FLOORLET_NEGATIVE, RATES_PROVIDER, VOLATILITIES_SHIFT);
+    CurrencyAmount pvCpn1 = PRICER.presentValue(COUPON, RATES_PROVIDER, VOLATILITIES_SHIFT);
+    double pvStrike1 = STRIKE_NEGATIVE * NOTIONAL * ACC_FACTOR * RATES_PROVIDER.discountFactor(EUR, PAYMENT);
+    assertEquals(pvCap1.getAmount() - pvFloor1.getAmount(), pvCpn1.getAmount() - pvStrike1, 1.0E+3);
+    CurrencyAmount pvCap2 = PRICER.presentValue(CAPLET, RATES_PROVIDER, VOLATILITIES);
+    CurrencyAmount pvFloor2 = PRICER.presentValue(FLOORLET, RATES_PROVIDER, VOLATILITIES);
+    CurrencyAmount pvCpn2 = PRICER.presentValue(COUPON, RATES_PROVIDER, VOLATILITIES);
+    double pvStrike2 = STRIKE * NOTIONAL * ACC_FACTOR * RATES_PROVIDER.discountFactor(EUR, PAYMENT);
+    assertEquals(pvCap2.getAmount() - pvFloor2.getAmount(), pvCpn2.getAmount() - pvStrike2, 1.0E+3);
   }
 
   //-------------------------------------------------------------------------
