@@ -114,17 +114,17 @@ public class SabrExtrapolationRightFunction {
    * The default volatility provider is {@link SabrHaganVolatilityFunctionProvider}.
    * 
    * @param forward  the forward
+   * @param timeToExpiry  the time to expiration
    * @param sabrData  the SABR formula data
    * @param cutOffStrike  the cut-off-strike
-   * @param timeToExpiry  the time to expiration
    * @param mu  the mu parameter
    * @return the instance
    */
   public static SabrExtrapolationRightFunction of(
       double forward,
+      double timeToExpiry,
       SabrFormulaData sabrData,
       double cutOffStrike,
-      double timeToExpiry,
       double mu) {
 
     return new SabrExtrapolationRightFunction(

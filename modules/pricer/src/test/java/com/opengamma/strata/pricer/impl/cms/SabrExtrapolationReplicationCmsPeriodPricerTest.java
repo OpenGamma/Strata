@@ -14,11 +14,13 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -31,14 +33,22 @@ import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
+import com.opengamma.strata.math.impl.integration.RungeKuttaIntegrator1D;
+import com.opengamma.strata.pricer.impl.option.SabrExtrapolationRightFunction;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
+import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrFormulaData;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrHaganVolatilityFunctionProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SwaptionSabrRateVolatilityDataSet;
 import com.opengamma.strata.product.cms.CmsPeriod;
+import com.opengamma.strata.product.swap.ExpandedSwap;
+import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.SwapIndex;
+import com.opengamma.strata.product.swap.SwapLegType;
 
 /**
  * Test {@link SabrExtrapolationReplicationCmsPeriodPricer}.
@@ -48,6 +58,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
 
   private static final LocalDate VALUATION = LocalDate.of(2010, 8, 18);
   private static final LocalDate FIXING = LocalDate.of(2020, 4, 24);
+  private static final ZonedDateTime FIXING_TIME = 
+      FIXING.atTime(EUR_EURIBOR_1100_5Y.getFixingTime()).atZone(EUR_EURIBOR_1100_5Y.getFixingZone());
   private static final LocalDate START = LocalDate.of(2020, 4, 28);
   private static final LocalDate END = LocalDate.of(2021, 4, 28);
   private static final LocalDate AFTER_FIXING = LocalDate.of(2020, 8, 11);
@@ -91,7 +103,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
       SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(AFTER_PAYMENT, true);
 
   private static final double ACC_FACTOR = ACT_360.relativeYearFraction(START, END);
-  private static final double NOTIONAL = 10000000;
+  private static final double NOTIONAL = 10000000; // 10m
   private static final double STRIKE = 0.04;
   private static final double STRIKE_NEGATIVE = -0.01;
   // CMS - buy
@@ -119,7 +131,9 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   private static final SabrExtrapolationReplicationCmsPeriodPricer PRICER =
       SabrExtrapolationReplicationCmsPeriodPricer.of(CUT_OFF_STRIKE, MU);
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CAL =
-      new RatesFiniteDifferenceSensitivityCalculator(EPS);
+      new RatesFiniteDifferenceSensitivityCalculator(EPS);  
+  private static final DiscountingSwapProductPricer PRICER_SWAP =
+      DiscountingSwapProductPricer.DEFAULT;
 
   public void test_presentValue_zero() {
     CurrencyAmount pv = PRICER.presentValue(COUPON, RATES_PROVIDER, VOLATILITIES);
@@ -130,7 +144,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     CurrencyAmount pvShift = PRICER.presentValue(COUPON, RATES_PROVIDER, VOLATILITIES_SHIFT);
     CurrencyAmount pvCapletShift = PRICER.presentValue(CAPLET_SHIFT, RATES_PROVIDER, VOLATILITIES_SHIFT);
     CurrencyAmount pvFloorletShift = PRICER.presentValue(FLOORLET_SHIFT, RATES_PROVIDER, VOLATILITIES_SHIFT);
-    assertEquals(pvShift.getAmount(), pvCapletShift.getAmount(), NOTIONAL * TOL);
+    double dfPayment = RATES_PROVIDER.discountFactor(EUR, PAYMENT);
+    assertEquals(pvShift.getAmount(), pvCapletShift.getAmount() - SHIFT * dfPayment * NOTIONAL * ACC_FACTOR, NOTIONAL * TOL);
     assertEquals(pvFloorletShift.getAmount(), 0d, NOTIONAL * TOL);
   }
 
@@ -188,6 +203,15 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     assertThrowsIllegalArg(() -> PRICER.presentValue(CAPLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
     assertThrowsIllegalArg(() -> PRICER.presentValue(FLOORLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
   }
+  
+  public void test_presentValue_cap_floor_parity() { 
+    // Cap/Floor parity is not perfect as the cash swaption standard formula is not arbitrage free.
+    CurrencyAmount pvCap = PRICER.presentValue(CAPLET, RATES_PROVIDER, VOLATILITIES_SHIFT);
+    CurrencyAmount pvFloor = PRICER.presentValue(FLOORLET, RATES_PROVIDER, VOLATILITIES_SHIFT);
+    CurrencyAmount pvCpn = PRICER.presentValue(COUPON, RATES_PROVIDER, VOLATILITIES_SHIFT);
+    double pvStrike = STRIKE * NOTIONAL * ACC_FACTOR * RATES_PROVIDER.discountFactor(EUR, PAYMENT);
+    assertEquals(pvCap.getAmount() - pvFloor.getAmount(), pvCpn.getAmount() - pvStrike, 1.0E+3);    
+  }
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
@@ -210,6 +234,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   }
 
   public void test_presentValueSensitivity_shift() {
+//    CurrencyAmount tmp = PRICER.presentValue(COUPON, RATES_PROVIDER, VOLATILITIES_SHIFT);
     PointSensitivityBuilder pvPointCoupon = PRICER.presentValueSensitivity(COUPON, RATES_PROVIDER, VOLATILITIES_SHIFT);
     CurveCurrencyParameterSensitivities computedCoupon = RATES_PROVIDER
         .curveParameterSensitivity(pvPointCoupon.build());
@@ -330,7 +355,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     SwaptionSabrSensitivity pvFloorPoint =
         PRICER.presentValueSensitivitySabrParameter(FLOORLET_SELL, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
     SwaptionSabrSensitivity expected = SwaptionSabrSensitivity.of(
-        EUR_EURIBOR_1100_5Y.getTemplate().getConvention(), FIXING.atStartOfDay(ZoneOffset.UTC), 5d, EUR, 0d, 0d, 0d, 0d);
+        EUR_EURIBOR_1100_5Y.getTemplate().getConvention(), FIXING_TIME, 5d, EUR, 0d, 0d, 0d, 0d);
     assertEquals(pvCouponPoint, expected);
     assertEquals(pvCapPoint, expected);
     assertEquals(pvFloorPoint, expected);
@@ -348,7 +373,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     SwaptionSabrSensitivity pvSensiFloorletOtm =
         PRICER.presentValueSensitivitySabrParameter(FLOORLET_NEGATIVE, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
     SwaptionSabrSensitivity expected = SwaptionSabrSensitivity.of(
-        EUR_EURIBOR_1100_5Y.getTemplate().getConvention(), FIXING.atStartOfDay(ZoneOffset.UTC), 5d, EUR, 0d, 0d, 0d, 0d);
+        EUR_EURIBOR_1100_5Y.getTemplate().getConvention(), FIXING_TIME, 5d, EUR, 0d, 0d, 0d, 0d);
     assertEquals(pvSensi, expected);
     assertEquals(pvSensiCapletOtm, expected);
     assertEquals(pvSensiCapletItm, expected);
@@ -373,7 +398,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     SwaptionSabrSensitivity sensiFloor =
         PRICER.presentValueSensitivitySabrParameter(FLOORLET, RATES_PROVIDER_AFTER_PAY, VOLATILITIES_AFTER_PAY);
     SwaptionSabrSensitivity sensiExpected = SwaptionSabrSensitivity.of(
-        EUR_EURIBOR_1100_5Y.getTemplate().getConvention(), FIXING.atStartOfDay(ZoneOffset.UTC), 5d, EUR, 0d, 0d, 0d, 0d);
+        EUR_EURIBOR_1100_5Y.getTemplate().getConvention(), FIXING_TIME, 5d, EUR, 0d, 0d, 0d, 0d);
     assertEquals(sensi, sensiExpected);
     assertEquals(sensiCap, sensiExpected);
     assertEquals(sensiFloor, sensiExpected);
@@ -667,6 +692,196 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         .yearFraction(ACC_FACTOR)
         .floorlet(strike)
         .build();
+  }
+
+  //-------------------------------------------------------------------------
+  private static final double TOLERANCE_K_P = 1.0E-8;
+  private static final double TOLERANCE_K_PP = 1.0E-4;
+  private static final double TOLERANCE_PV = 1.0E+0;
+
+  /* Check that the internal function used in the integrant (h, G and k in the documentation) are correctly implemented. */
+  public void integrant_internal() {
+    SwapIndex index = CAPLET.getIndex();
+    LocalDate effectiveDate = CAPLET.getUnderlyingSwap().getStartDate();
+    ExpandedSwap expanded = CAPLET.getUnderlyingSwap().expand();
+    double tenor = VOLATILITIES_SHIFT.tenor(effectiveDate, CAPLET.getUnderlyingSwap().getEndDate());
+    double theta = VOLATILITIES_SHIFT.relativeTime(
+        CAPLET.getFixingDate().atTime(index.getFixingTime()).atZone(index.getFixingZone()));
+    double delta = index.getTemplate().getConvention().getFixedLeg()
+        .getDayCount().relativeYearFraction(effectiveDate, PAYMENT);
+    double S0 = PRICER_SWAP.parRate(COUPON.getUnderlyingSwap(), RATES_PROVIDER);
+    CmsIntegrantProvider integrant = new CmsIntegrantProvider(CAPLET, expanded, STRIKE, tenor, theta,
+        S0, -delta, VOLATILITIES_SHIFT, CUT_OFF_STRIKE, MU);
+    // Integrant internal
+    double h = integrant.h(STRIKE);
+    double hExpected = Math.pow(1 + STRIKE, -delta);
+    assertEquals(h, hExpected, TOLERANCE_K_P);
+    double g = integrant.g(STRIKE);
+    double gExpected = (1.0 - 1.0 / Math.pow(1 + STRIKE, tenor)) / STRIKE;
+    assertEquals(g, gExpected, TOLERANCE_K_P);
+    double kExpected = integrant.h(STRIKE) / integrant.g(STRIKE);
+    double k = integrant.k(STRIKE);
+    assertEquals(k, kExpected, TOLERANCE_K_P);
+    double shiftFd = 1.0E-5;
+    double kP = integrant.h(STRIKE + shiftFd) / integrant.g(STRIKE + shiftFd);
+    double kM = integrant.h(STRIKE - shiftFd) / integrant.g(STRIKE - shiftFd);
+    double[] kpkpp = integrant.kpkpp(STRIKE);
+    assertEquals(kpkpp[0], (kP - kM) / (2 * shiftFd), TOLERANCE_K_P);
+    assertEquals(kpkpp[1], (kP + kM - 2 * k) / (shiftFd * shiftFd), TOLERANCE_K_PP);
+  }
+
+  /* Check the present value v.  */
+  public void test_presentValue_replication_cap() {
+    SwapIndex index = CAPLET.getIndex();
+    LocalDate effectiveDate = CAPLET.getUnderlyingSwap().getStartDate();
+    ExpandedSwap expanded = CAPLET.getUnderlyingSwap().expand();
+    double tenor = VOLATILITIES.tenor(effectiveDate, CAPLET.getUnderlyingSwap().getEndDate());
+    double theta = VOLATILITIES.relativeTime(
+        CAPLET.getFixingDate().atTime(index.getFixingTime()).atZone(index.getFixingZone()));
+    double delta = index.getTemplate().getConvention().getFixedLeg()
+        .getDayCount().relativeYearFraction(effectiveDate, PAYMENT);
+    double ptp = RATES_PROVIDER.discountFactor(EUR, PAYMENT);
+    double S0 = PRICER_SWAP.parRate(COUPON.getUnderlyingSwap(), RATES_PROVIDER);
+    CmsIntegrantProvider integrant = new CmsIntegrantProvider(CAPLET, expanded, STRIKE, tenor, theta,
+        S0, -delta, VOLATILITIES_SHIFT, CUT_OFF_STRIKE, MU);
+    // Strike part
+    double h_1S0 = 1.0 / integrant.h(S0);
+    double gS0 = integrant.g(S0);
+    double kK = integrant.k(STRIKE);
+    double bsS0 = integrant.bs(STRIKE);
+    double strikePart = ptp * h_1S0 * gS0 * kK * bsS0;
+    // Integral part
+    RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(1.0E-7, 1.0E-10, 10);
+    double integralPart = ptp * integrator.integrate(integrant.integrant(), STRIKE, 100.0);
+    double pvExpected = (strikePart + integralPart) * NOTIONAL * ACC_FACTOR;
+    CurrencyAmount pvComputed = PRICER.presentValue(CAPLET, RATES_PROVIDER, VOLATILITIES_SHIFT);
+    assertEquals(pvComputed.getAmount(),  pvExpected, TOLERANCE_PV);    
+  }
+
+  //-------------------------------------------------------------------------
+  /** Simplified integrant for testing; only cap; underlying with annual payments */
+  private class CmsIntegrantProvider {
+    private final int nbFixedPeriod;
+    private final double eta;
+    private final double strike;
+    private final double shift;
+    private final double factor;
+    private final SabrExtrapolationRightFunction sabrExtrapolation;
+
+    public CmsIntegrantProvider(
+        CmsPeriod cmsPeriod,
+        ExpandedSwap swap,
+        double strike,
+        double tenor,
+        double timeToExpiry,
+        double forward,
+        double eta,
+        SabrParametersSwaptionVolatilities swaptionVolatilities,
+        double cutOffStrike,
+        double mu) {
+
+      ExpandedSwapLeg fixedLeg = swap.getLegs(SwapLegType.FIXED).get(0);
+      this.nbFixedPeriod = fixedLeg.getPaymentPeriods().size();
+      this.eta = eta;
+      SabrInterestRateParameters params = swaptionVolatilities.getParameters();
+      SabrFormulaData sabrPoint = SabrFormulaData.of(params.alpha(timeToExpiry, tenor),
+          params.beta(timeToExpiry, tenor), params.rho(timeToExpiry, tenor), params.nu(timeToExpiry, tenor));
+      this.shift = params.shift(timeToExpiry, tenor);
+      this.sabrExtrapolation = SabrExtrapolationRightFunction
+          .of(forward + shift, timeToExpiry, sabrPoint, cutOffStrike + shift, mu);
+      this.strike = strike;
+      this.factor = g(forward) / h(forward);
+    }
+
+    /**
+     * Obtains the integrant used in price replication.
+     * 
+     * @return the integrant
+     */
+    Function<Double, Double> integrant(){
+      return new Function<Double, Double>() {
+        @Override
+        public Double apply(Double x) {
+          double[] kD = kpkpp(x);
+          // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
+          return factor * (kD[1] * (x - strike) + 2d * kD[0]) * bs(x);
+        }
+      };
+    }
+
+    /**
+     * The approximation of the discount factor as function of the swap rate.
+     * 
+     * @param x  the swap rate.
+     * @return the discount factor.
+     */
+    double h(double x) {
+      return Math.pow(1d + x, eta);
+    }
+
+    /**
+     * The cash annuity.
+     * 
+     * @param x  the swap rate.
+     * @return the annuity.
+     */
+    double g(double x) {
+        double periodFactor = 1d + x;
+        double nPeriodDiscount = Math.pow(periodFactor, -nbFixedPeriod);
+        return (1d - nPeriodDiscount) / x;
+    }
+
+    /**
+     * The factor used in the strike part and in the integration of the replication.
+     * 
+     * @param x  the swap rate.
+     * @return the factor.
+     */
+    double k(double x) {
+      double g;
+      double h;
+        double periodFactor = 1d + x;
+        double nPeriodDiscount = Math.pow(periodFactor, -nbFixedPeriod);
+        g = (1d - nPeriodDiscount) / x;
+        h = Math.pow(1.0 + x, eta);
+      return h / g;
+    }
+
+    /**
+     * The first and second derivative of the function k.
+     * <p>
+     * The first element is the first derivative and the second element is second derivative.
+     * 
+     * @param x  the swap rate.
+     * @return the derivatives
+     */
+    protected double[] kpkpp(double x) {
+      double periodFactor = 1d + x;
+      double nPeriodDiscount = Math.pow(periodFactor, -nbFixedPeriod);
+      /*The value of the annuity and its first and second derivative. */
+      double g, gp, gpp;
+        g = (1d - nPeriodDiscount) / x;
+        gp = -g / x + nbFixedPeriod * nPeriodDiscount / (x  * periodFactor);
+        gpp = 2d / (x * x) * g - 2d * nbFixedPeriod * nPeriodDiscount / (x * x * periodFactor)
+            - (nbFixedPeriod + 1d) * nbFixedPeriod * nPeriodDiscount
+            / (x * periodFactor * periodFactor);
+      double h = Math.pow(1d + x, eta);
+      double hp = eta * h / periodFactor;
+      double hpp = (eta - 1d) * hp / periodFactor;
+      double kp = hp / g - h * gp / (g * g);
+      double kpp = hpp / g - 2d * hp * gp / (g * g) - h * (gpp / (g * g) - 2d * (gp * gp) / (g * g * g));
+      return new double[] {kp, kpp };
+    }
+
+    /**
+     * The Black price with numeraire 1 as function of the strike.
+     * 
+     * @param strike  the strike.
+     * @return the Black price.
+     */
+    double bs(double strike) {
+      return sabrExtrapolation.price(strike + shift, PutCall.CALL);
+    }
   }
 
 }
