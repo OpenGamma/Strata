@@ -65,7 +65,6 @@ import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
-import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.calculation.swap.SwapCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
@@ -262,7 +261,7 @@ public class CurveEndToEndTest {
     }
 
     @Override
-    public Map<Measure, Result<ScenarioResult<?>>> calculate(
+    public Map<Measure, Result<?>> calculate(
         FraTrade trade,
         Set<Measure> measures,
         CalculationMarketData marketData) {

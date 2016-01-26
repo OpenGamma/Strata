@@ -40,7 +40,6 @@ import com.opengamma.strata.calc.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
-import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
 
 /**
@@ -162,7 +161,7 @@ public class CalculationTasksTest {
     }
 
     @Override
-    public Map<Measure, Result<ScenarioResult<?>>> calculate(
+    public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
         CalculationMarketData marketData) {

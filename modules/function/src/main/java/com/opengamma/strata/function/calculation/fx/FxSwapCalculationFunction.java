@@ -99,7 +99,7 @@ public class FxSwapCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
-  public Map<Measure, Result<ScenarioResult<?>>> calculate(
+  public Map<Measure, Result<?>> calculate(
       FxSwapTrade trade,
       Set<Measure> measures,
       CalculationMarketData scenarioMarketData) {
@@ -108,7 +108,7 @@ public class FxSwapCalculationFunction
     ExpandedFxSwap product = trade.getProduct().expand();
 
     // loop around measures, calculating all scenarios for one measure
-    Map<Measure, Result<ScenarioResult<?>>> results = new HashMap<>();
+    Map<Measure, Result<?>> results = new HashMap<>();
     for (Measure measure : measures) {
       results.put(measure, calculate(measure, trade, product, scenarioMarketData));
     }
@@ -116,7 +116,7 @@ public class FxSwapCalculationFunction
   }
 
   // calculate one measure
-  private Result<ScenarioResult<?>> calculate(
+  private Result<?> calculate(
       Measure measure,
       FxSwapTrade trade,
       ExpandedFxSwap product,

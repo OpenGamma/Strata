@@ -30,7 +30,6 @@ import com.opengamma.strata.calc.marketdata.MarketDataRequirementsBuilder;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
-import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.FailureReason;
@@ -236,7 +235,7 @@ public final class CalculationTask {
    */
   private Result<?> calculate(CalculationMarketData calculationData) {
     ImmutableSet<Measure> measures = ImmutableSet.of(getMeasure());
-    Map<Measure, Result<ScenarioResult<?>>> map = function.calculate(target, measures, calculationData);
+    Map<Measure, Result<?>> map = function.calculate(target, measures, calculationData);
     if (!map.containsKey(getMeasure())) {
       return Result.failure(
           FailureReason.CALCULATION_FAILED,

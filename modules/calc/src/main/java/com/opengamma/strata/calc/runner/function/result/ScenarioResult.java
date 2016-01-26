@@ -12,11 +12,10 @@ import com.opengamma.strata.calc.runner.function.CalculationFunction;
 /**
  * A container for multiple results produced by performing a single calculation across multiple scenarios.
  * <p>
- * A {@link CalculationFunction} produces a map of measure to result.
- * Each result is an instance of this type, providing access to the scenarios that were calculated.
- * <p>
- * The number of results is required to be the same as the number of scenarios in the market data
- * provided to the function.
+ * A {@link CalculationFunction} produces a map of measure to result, where the value of
+ * the result is typically an instance of {@code ScenarioResult}. This interface represents
+ * the common case where there is one calculated value for each scenario. In this case, the
+ * size must match the number of scenarios in the market data provided to the function.
  *
  * @param <T> the type of the individual results
  */

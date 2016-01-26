@@ -143,7 +143,7 @@ public class DefaultCalculationTaskRunnerTest {
     }
 
     @Override
-    public Map<Measure, Result<ScenarioResult<?>>> calculate(
+    public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
         CalculationMarketData marketData) {
@@ -173,7 +173,7 @@ public class DefaultCalculationTaskRunnerTest {
     }
 
     @Override
-    public Map<Measure, Result<ScenarioResult<?>>> calculate(
+    public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
         CalculationMarketData marketData) {

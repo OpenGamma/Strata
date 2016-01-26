@@ -134,7 +134,7 @@ public class SwapCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
-  public Map<Measure, Result<ScenarioResult<?>>> calculate(
+  public Map<Measure, Result<?>> calculate(
       SwapTrade trade,
       Set<Measure> measures,
       CalculationMarketData scenarioMarketData) {
@@ -143,7 +143,7 @@ public class SwapCalculationFunction
     ExpandedSwap product = trade.getProduct().expand();
 
     // loop around measures, calculating all scenarios for one measure
-    Map<Measure, Result<ScenarioResult<?>>> results = new HashMap<>();
+    Map<Measure, Result<?>> results = new HashMap<>();
     for (Measure measure : measures) {
       results.put(measure, calculate(measure, trade, product, scenarioMarketData));
     }
@@ -151,7 +151,7 @@ public class SwapCalculationFunction
   }
 
   // calculate one measure
-  private Result<ScenarioResult<?>> calculate(
+  private Result<?> calculate(
       Measure measure,
       SwapTrade trade,
       ExpandedSwap product,

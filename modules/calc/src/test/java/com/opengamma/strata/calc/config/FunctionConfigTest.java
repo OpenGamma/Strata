@@ -23,7 +23,6 @@ import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
-import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
 
 @Test
@@ -37,7 +36,7 @@ public class FunctionConfigTest {
     FunctionConfig<TestTarget> config = FunctionConfig.of(TestFunctionNoParams.class);
     @SuppressWarnings("unchecked")
     CalculationFunction<TestTarget> function = config.createFunction();
-    Map<Measure, Result<ScenarioResult<?>>> result = function.calculate(new TestTarget("foo"), MEASURES, MARKET_DATA);
+    Map<Measure, Result<?>> result = function.calculate(new TestTarget("foo"), MEASURES, MARKET_DATA);
     assertThat(result.get(MEASURE).isSuccess()).isTrue();
     assertThat(result.get(MEASURE).getValue()).isEqualTo(DefaultScenarioResult.of("FOO"));
   }
@@ -49,7 +48,7 @@ public class FunctionConfigTest {
             .addArgument("str", "Foo")
             .build();
     CalculationFunction<TestTarget> function = config.createFunction();
-    Map<Measure, Result<ScenarioResult<?>>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA);
+    Map<Measure, Result<?>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA);
     assertThat(result.get(MEASURE).isSuccess()).isTrue();
     assertThat(result.get(MEASURE).getValue()).isEqualTo(DefaultScenarioResult.of("FooBarFooBar"));
   }
@@ -57,7 +56,7 @@ public class FunctionConfigTest {
   public void createFunctionWithConstructorArgsPassedIn() {
     FunctionConfig<TestTarget> config = FunctionConfig.of(TestFunctionWithParams.class);
     CalculationFunction<TestTarget> function = config.createFunction(ImmutableMap.of("count", 2, "str", "Foo"));
-    Map<Measure, Result<ScenarioResult<?>>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA);
+    Map<Measure, Result<?>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA);
     assertThat(result.get(MEASURE).isSuccess()).isTrue();
     assertThat(result.get(MEASURE).getValue()).isEqualTo(DefaultScenarioResult.of("FooBarFooBar"));
   }
@@ -68,7 +67,7 @@ public class FunctionConfigTest {
             .addArgument("count", 2)
             .build();
     CalculationFunction<TestTarget> function = config.createFunction(ImmutableMap.of("str", "Foo"));
-    Map<Measure, Result<ScenarioResult<?>>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA);
+    Map<Measure, Result<?>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA);
     assertThat(result.get(MEASURE).isSuccess()).isTrue();
     assertThat(result.get(MEASURE).getValue()).isEqualTo(DefaultScenarioResult.of("FooBarFooBar"));
   }
@@ -123,7 +122,7 @@ public class FunctionConfigTest {
     }
 
     @Override
-    public Map<Measure, Result<ScenarioResult<?>>> calculate(
+    public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
         CalculationMarketData marketData) {
@@ -156,7 +155,7 @@ public class FunctionConfigTest {
     }
 
     @Override
-    public Map<Measure, Result<ScenarioResult<?>>> calculate(
+    public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
         CalculationMarketData marketData) {
@@ -184,7 +183,7 @@ public class FunctionConfigTest {
     }
 
     @Override
-    public Map<Measure, Result<ScenarioResult<?>>> calculate(
+    public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
         CalculationMarketData marketData) {
@@ -215,7 +214,7 @@ public class FunctionConfigTest {
     }
 
     @Override
-    public Map<Measure, Result<ScenarioResult<?>>> calculate(
+    public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
         CalculationMarketData marketData) {

@@ -62,7 +62,7 @@ public interface CalculationFunction<T extends CalculationTarget> {
   }
 
   /**
-   * Determines the market data requirements that function has to perform its calculations.
+   * Determines the market data required by this function to perform its calculations.
    * <p>
    * Any market data needed by the {@code calculate} method should be specified.
    *
@@ -78,13 +78,19 @@ public interface CalculationFunction<T extends CalculationTarget> {
    * The set of measures must only contain measures that the function supports,
    * as returned by {@link #supportedMeasures()}. The market data must provide at least the
    * set of data requested by {@link #requirements(CalculationTarget, Set)}.
+   * <p>
+   * The result of this method will often be an instance of {@link ScenarioResult}, which
+   * handles the common case where there is one calculated value for each scenario.
+   * However, it is also possible for the function to calculate an aggregated result, such
+   * as the maximum or minimum value across all scenarios, in which case the result would
+   * not implement {@code ScenarioResult}.
    *
    * @param target  the target of the calculation
    * @param measures  the set of measures to calculate
    * @param marketData  the market data to be used in the calculation
    * @return the read-only map of calculated values, keyed by their measure
    */
-  public abstract Map<Measure, Result<ScenarioResult<?>>> calculate(
+  public abstract Map<Measure, Result<?>> calculate(
       T target,
       Set<Measure> measures,
       CalculationMarketData marketData);

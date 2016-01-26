@@ -319,7 +319,7 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public Map<Measure, Result<ScenarioResult<?>>> calculate(
+    public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
         CalculationMarketData marketData) {
@@ -368,7 +368,7 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public Map<Measure, Result<ScenarioResult<?>>> calculate(
+    public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
         CalculationMarketData marketData) {
@@ -405,14 +405,14 @@ public class CalculationTaskTest {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Map<Measure, Result<ScenarioResult<?>>> calculate(
+    public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
         CalculationMarketData marketData) {
 
       T obj = supplier.get();
       if (obj instanceof Result<?>) {
-        return ImmutableMap.of(MEASURE, (Result<ScenarioResult<?>>) obj);
+        return ImmutableMap.of(MEASURE, (Result<?>) obj);
       }
       DefaultScenarioResult<Object> array = DefaultScenarioResult.of(obj);
       return ImmutableMap.of(MEASURE, Result.success(array));
@@ -438,7 +438,7 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public Map<Measure, Result<ScenarioResult<?>>> calculate(
+    public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
         CalculationMarketData marketData) {
