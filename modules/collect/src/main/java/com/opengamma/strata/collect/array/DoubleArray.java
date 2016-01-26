@@ -363,9 +363,9 @@ public final class DoubleArray
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from an array of {@code double}.
+   * Creates an instance from a {@code double[}.
    * 
-   * @param array  the array to copy, cloned
+   * @param array  the array, assigned not cloned
    */
   private DoubleArray(double[] array) {
     this.array = array;
@@ -558,6 +558,18 @@ public final class DoubleArray
    */
   public DoubleStream stream() {
     return DoubleStream.of(array);
+  }
+
+  /**
+   * Returns a boxed view of this array.
+   * <p>
+   * This returns an implementation of {@link Array} backed by this {@code DoubleArray}.
+   * The underlying data is not copied.
+   *
+   * @return the boxed view of this array
+   */
+  public Array<Double> boxed() {
+    return new BoxedDoubleArray(this);
   }
 
   //-------------------------------------------------------------------------
@@ -1234,7 +1246,7 @@ public final class DoubleArray
 
     @Override
     protected void removeRange(int fromIndex, int toIndex) {
-      throw new UnsupportedOperationException("Unable to remove from ImmutableDoubleArray");
+      throw new UnsupportedOperationException("Unable to remove range from DoubleArray");
     }
   }
 
