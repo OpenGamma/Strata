@@ -16,7 +16,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.function.CalculationMultiFunction;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
@@ -42,7 +42,7 @@ import com.opengamma.strata.product.fx.FxNdfTrade;
  * The default reporting currency is the settlement currency of the trade.
  */
 public class FxNdfCalculationFunction
-    implements CalculationMultiFunction<FxNdfTrade> {
+    implements CalculationFunction<FxNdfTrade> {
 
   /**
    * The calculations by measure.
@@ -93,7 +93,7 @@ public class FxNdfCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
-  public Map<Measure, Result<ScenarioResult<?>>> calculate(
+  public Map<Measure, Result<?>> calculate(
       FxNdfTrade trade,
       Set<Measure> measures,
       CalculationMarketData scenarioMarketData) {
@@ -102,7 +102,7 @@ public class FxNdfCalculationFunction
     ExpandedFxNdf product = trade.getProduct().expand();
 
     // loop around measures, calculating all scenarios for one measure
-    Map<Measure, Result<ScenarioResult<?>>> results = new HashMap<>();
+    Map<Measure, Result<?>> results = new HashMap<>();
     for (Measure measure : measures) {
       results.put(measure, calculate(measure, trade, product, scenarioMarketData));
     }
@@ -110,7 +110,7 @@ public class FxNdfCalculationFunction
   }
 
   // calculate one measure
-  private Result<ScenarioResult<?>> calculate(
+  private Result<?> calculate(
       Measure measure,
       FxNdfTrade trade,
       ExpandedFxNdf product,

@@ -10,27 +10,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
+import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
+import com.opengamma.strata.collect.result.Result;
 
 @Test
 public class FunctionConfigTest {
 
+  private static final Measure MEASURE = Measure.of("TestString");
+  private static final Set<Measure> MEASURES = ImmutableSet.of(MEASURE);
   private static final CalculationMarketData MARKET_DATA = mock(CalculationMarketData.class);
 
   public void createFunctionWithNoArgsConstructor() {
     FunctionConfig<TestTarget> config = FunctionConfig.of(TestFunctionNoParams.class);
     @SuppressWarnings("unchecked")
-    CalculationSingleFunction<TestTarget, ?> function = (CalculationSingleFunction<TestTarget, ?>) config.createFunction();
-    Object result = function.execute(new TestTarget("foo"), MARKET_DATA);
-    assertThat(result).isEqualTo("FOO");
+    CalculationFunction<TestTarget> function = config.createFunction();
+    Map<Measure, Result<?>> result = function.calculate(new TestTarget("foo"), MEASURES, MARKET_DATA);
+    assertThat(result.get(MEASURE).isSuccess()).isTrue();
+    assertThat(result.get(MEASURE).getValue()).isEqualTo(DefaultScenarioResult.of("FOO"));
   }
 
   public void createFunctionWithConstructorArgsFromConfig() {
@@ -39,19 +47,18 @@ public class FunctionConfigTest {
             .addArgument("count", 2)
             .addArgument("str", "Foo")
             .build();
-    @SuppressWarnings("unchecked")
-    CalculationSingleFunction<TestTarget, ?> function = (CalculationSingleFunction<TestTarget, ?>) config.createFunction();
-    Object result = function.execute(new TestTarget("Bar"), MARKET_DATA);
-    assertThat(result).isEqualTo("FooBarFooBar");
+    CalculationFunction<TestTarget> function = config.createFunction();
+    Map<Measure, Result<?>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA);
+    assertThat(result.get(MEASURE).isSuccess()).isTrue();
+    assertThat(result.get(MEASURE).getValue()).isEqualTo(DefaultScenarioResult.of("FooBarFooBar"));
   }
 
   public void createFunctionWithConstructorArgsPassedIn() {
     FunctionConfig<TestTarget> config = FunctionConfig.of(TestFunctionWithParams.class);
-    @SuppressWarnings("unchecked")
-    CalculationSingleFunction<TestTarget, ?> function =
-        (CalculationSingleFunction<TestTarget, ?>) config.createFunction(ImmutableMap.of("count", 2, "str", "Foo"));
-    Object result = function.execute(new TestTarget("Bar"), MARKET_DATA);
-    assertThat(result).isEqualTo("FooBarFooBar");
+    CalculationFunction<TestTarget> function = config.createFunction(ImmutableMap.of("count", 2, "str", "Foo"));
+    Map<Measure, Result<?>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA);
+    assertThat(result.get(MEASURE).isSuccess()).isTrue();
+    assertThat(result.get(MEASURE).getValue()).isEqualTo(DefaultScenarioResult.of("FooBarFooBar"));
   }
 
   public void createFunctionWithMixedConstructorArgs() {
@@ -59,11 +66,10 @@ public class FunctionConfigTest {
         FunctionConfig.builder(TestFunctionWithParams.class)
             .addArgument("count", 2)
             .build();
-    @SuppressWarnings("unchecked")
-    CalculationSingleFunction<TestTarget, ?> function =
-        (CalculationSingleFunction<TestTarget, ?>) config.createFunction(ImmutableMap.of("str", "Foo"));
-    Object result = function.execute(new TestTarget("Bar"), MARKET_DATA);
-    assertThat(result).isEqualTo("FooBarFooBar");
+    CalculationFunction<TestTarget> function = config.createFunction(ImmutableMap.of("str", "Foo"));
+    Map<Measure, Result<?>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA);
+    assertThat(result.get(MEASURE).isSuccess()).isTrue();
+    assertThat(result.get(MEASURE).getValue()).isEqualTo(DefaultScenarioResult.of("FooBarFooBar"));
   }
 
   public void createFunctionMissingArguments() {
@@ -92,8 +98,8 @@ public class FunctionConfigTest {
     assertThrows(() -> config.createFunction(ImmutableMap.of("count", 2)), IllegalArgumentException.class, msgRegex);
   }
 
+  //-------------------------------------------------------------------------
   private static final class TestTarget implements CalculationTarget {
-
     private final String str;
 
     private TestTarget(String str) {
@@ -101,22 +107,34 @@ public class FunctionConfigTest {
     }
   }
 
+  //-------------------------------------------------------------------------
   /** An engine function with no constructor parameters. */
-  public static final class TestFunctionNoParams implements CalculationSingleFunction<TestTarget, String> {
+  public static final class TestFunctionNoParams implements CalculationFunction<TestTarget> {
 
     @Override
-    public FunctionRequirements requirements(TestTarget target) {
+    public Set<Measure> supportedMeasures() {
+      return MEASURES;
+    }
+
+    @Override
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
       return FunctionRequirements.empty();
     }
 
     @Override
-    public String execute(TestTarget target, CalculationMarketData marketData) {
-      return target.str.toUpperCase(Locale.ENGLISH);
+    public Map<Measure, Result<?>> calculate(
+        TestTarget target,
+        Set<Measure> measures,
+        CalculationMarketData marketData) {
+
+      DefaultScenarioResult<String> array = DefaultScenarioResult.of(target.str.toUpperCase(Locale.ENGLISH));
+      return ImmutableMap.of(MEASURE, Result.success(array));
     }
   }
 
+  //-------------------------------------------------------------------------
   /** An engine function with constructor parameters. */
-  public static final class TestFunctionWithParams implements CalculationSingleFunction<TestTarget, String> {
+  public static final class TestFunctionWithParams implements CalculationFunction<TestTarget> {
 
     private final int count;
     private final String str;
@@ -127,35 +145,57 @@ public class FunctionConfigTest {
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target) {
+    public Set<Measure> supportedMeasures() {
+      return MEASURES;
+    }
+
+    @Override
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
       return FunctionRequirements.empty();
     }
 
     @Override
-    public String execute(TestTarget target, CalculationMarketData marketData) {
-      return Strings.repeat(str + target.str, count);
+    public Map<Measure, Result<?>> calculate(
+        TestTarget target,
+        Set<Measure> measures,
+        CalculationMarketData marketData) {
+
+      DefaultScenarioResult<String> array = DefaultScenarioResult.of(Strings.repeat(str + target.str, count));
+      return ImmutableMap.of(MEASURE, Result.success(array));
     }
   }
 
+  //-------------------------------------------------------------------------
   /** An engine function that can't be instantiated because it has no public constructor. */
-  public static final class TestFunctionNoPublicConstructor implements CalculationSingleFunction<TestTarget, String> {
+  public static final class TestFunctionNoPublicConstructor implements CalculationFunction<TestTarget> {
 
     TestFunctionNoPublicConstructor() {
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target) {
+    public Set<Measure> supportedMeasures() {
+      return MEASURES;
+    }
+
+    @Override
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
       return FunctionRequirements.empty();
     }
 
     @Override
-    public String execute(TestTarget target, CalculationMarketData marketData) {
-      return "";
+    public Map<Measure, Result<?>> calculate(
+        TestTarget target,
+        Set<Measure> measures,
+        CalculationMarketData marketData) {
+
+      DefaultScenarioResult<String> array = DefaultScenarioResult.of("");
+      return ImmutableMap.of(MEASURE, Result.success(array));
     }
   }
 
+  //-------------------------------------------------------------------------
   /** An engine function that can't be instantiated because it has multiple public constructors. */
-  public static final class TestFunctionMultiplePublicConstructors implements CalculationSingleFunction<TestTarget, String> {
+  public static final class TestFunctionMultiplePublicConstructors implements CalculationFunction<TestTarget> {
 
     public TestFunctionMultiplePublicConstructors() {
     }
@@ -164,13 +204,24 @@ public class FunctionConfigTest {
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target) {
+    public Set<Measure> supportedMeasures() {
+      return MEASURES;
+    }
+
+    @Override
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
       return FunctionRequirements.empty();
     }
 
     @Override
-    public String execute(TestTarget target, CalculationMarketData marketData) {
-      return "";
+    public Map<Measure, Result<?>> calculate(
+        TestTarget target,
+        Set<Measure> measures,
+        CalculationMarketData marketData) {
+
+      DefaultScenarioResult<String> array = DefaultScenarioResult.of("");
+      return ImmutableMap.of(MEASURE, Result.success(array));
     }
   }
+
 }

@@ -10,10 +10,13 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 
 import java.time.LocalDate;
+import java.util.Map;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.CalculationTarget;
@@ -27,7 +30,7 @@ import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.TestKey;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
@@ -39,8 +42,9 @@ import com.opengamma.strata.collect.result.Result;
 public class DefaultCalculationTaskRunnerTest {
 
   private static final TestTarget TARGET = new TestTarget();
-  private static final Measure MEASURE = Measure.of("PV");
   private static final LocalDate VAL_DATE = date(2011, 3, 8);
+  private static final Measure MEASURE = Measure.of("PV");
+  private static final Set<Measure> MEASURES = ImmutableSet.of(MEASURE);
 
   //-------------------------------------------------------------------------
   /**
@@ -116,12 +120,19 @@ public class DefaultCalculationTaskRunnerTest {
   }
 
   //-------------------------------------------------------------------------
-  private static class TestTarget implements CalculationTarget { }
+  private static class TestTarget implements CalculationTarget {
+  }
 
-  public static final class TestFunction implements CalculationSingleFunction<TestTarget, Object> {
+  //-------------------------------------------------------------------------
+  public static final class TestFunction implements CalculationFunction<TestTarget> {
 
     @Override
-    public FunctionRequirements requirements(TestTarget target) {
+    public Set<Measure> supportedMeasures() {
+      return MEASURES;
+    }
+
+    @Override
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
       return FunctionRequirements.builder()
           .singleValueRequirements(
               ImmutableSet.of(
@@ -132,13 +143,18 @@ public class DefaultCalculationTaskRunnerTest {
     }
 
     @Override
-    public Object execute(TestTarget target, CalculationMarketData marketData) {
-      return "bar";
+    public Map<Measure, Result<?>> calculate(
+        TestTarget target,
+        Set<Measure> measures,
+        CalculationMarketData marketData) {
+
+      DefaultScenarioResult<String> array = DefaultScenarioResult.of("bar");
+      return ImmutableMap.of(MEASURE, Result.success(array));
     }
   }
 
-  private static final class ScenarioResultFunction
-      implements CalculationSingleFunction<TestTarget, ScenarioResult<String>> {
+  //-------------------------------------------------------------------------
+  private static final class ScenarioResultFunction implements CalculationFunction<TestTarget> {
 
     private final ScenarioResult<String> result;
 
@@ -147,16 +163,26 @@ public class DefaultCalculationTaskRunnerTest {
     }
 
     @Override
-    public ScenarioResult<String> execute(TestTarget target, CalculationMarketData marketData) {
-      return result;
+    public Set<Measure> supportedMeasures() {
+      return MEASURES;
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target) {
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
       return FunctionRequirements.empty();
+    }
+
+    @Override
+    public Map<Measure, Result<?>> calculate(
+        TestTarget target,
+        Set<Measure> measures,
+        CalculationMarketData marketData) {
+
+      return ImmutableMap.of(MEASURE, Result.success(result));
     }
   }
 
+  //-------------------------------------------------------------------------
   private static final class Listener implements CalculationListener {
 
     private CalculationResult result;

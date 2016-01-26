@@ -8,11 +8,13 @@ package com.opengamma.strata.calc.runner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
@@ -36,7 +38,9 @@ import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.TestKey;
 import com.opengamma.strata.calc.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
+import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
+import com.opengamma.strata.collect.result.Result;
 
 /**
  * Test {@link CalculationTasks}.
@@ -48,6 +52,7 @@ public class CalculationTasksTest {
   private static final TestTarget TARGET2 = new TestTarget();
   private static final Measure MEASURE1 = Measure.of("PV");
   private static final Measure MEASURE2 = Measure.of("PV2");
+  private static final Set<Measure> MEASURES = ImmutableSet.of(MEASURE1, MEASURE2);
   private static final PricingRules PRICING_RULES = PricingRules.empty();
   private static final MarketDataMappings MD_MAPPINGS = MarketDataMappings.of(MarketDataFeed.NONE);
   private static final MarketDataRules MD_RULES = MarketDataRules.of(MarketDataRule.anyTarget(MD_MAPPINGS));
@@ -136,13 +141,16 @@ public class CalculationTasksTest {
 
   }
 
-  /**
-   * Function that returns a value that is not currency convertible.
-   */
-  public static final class TestFunction implements CalculationSingleFunction<TestTarget, Object> {
+  // function for testing
+  public static final class TestFunction implements CalculationFunction<TestTarget> {
 
     @Override
-    public FunctionRequirements requirements(TestTarget target) {
+    public Set<Measure> supportedMeasures() {
+      return MEASURES;
+    }
+
+    @Override
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
       return FunctionRequirements.builder()
           .singleValueRequirements(
               ImmutableSet.of(
@@ -153,8 +161,13 @@ public class CalculationTasksTest {
     }
 
     @Override
-    public Object execute(TestTarget target, CalculationMarketData marketData) {
-      return "bar";
+    public Map<Measure, Result<?>> calculate(
+        TestTarget target,
+        Set<Measure> measures,
+        CalculationMarketData marketData) {
+
+      DefaultScenarioResult<String> array = DefaultScenarioResult.of("bar");
+      return ImmutableMap.of(MEASURE1, Result.success(array));
     }
   }
 

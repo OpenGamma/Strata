@@ -17,7 +17,7 @@ import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.function.CalculationMultiFunction;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
@@ -39,7 +39,7 @@ import com.opengamma.strata.product.payment.BulletPaymentTrade;
  * </ul>
  */
 public class BulletPaymentCalculationFunction
-    implements CalculationMultiFunction<BulletPaymentTrade> {
+    implements CalculationFunction<BulletPaymentTrade> {
 
   /**
    * The calculations by measure.
@@ -85,7 +85,7 @@ public class BulletPaymentCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
-  public Map<Measure, Result<ScenarioResult<?>>> calculate(
+  public Map<Measure, Result<?>> calculate(
       BulletPaymentTrade trade,
       Set<Measure> measures,
       CalculationMarketData scenarioMarketData) {
@@ -94,7 +94,7 @@ public class BulletPaymentCalculationFunction
     Payment payment = trade.getProduct().expandToPayment();
 
     // loop around measures, calculating all scenarios for one measure
-    Map<Measure, Result<ScenarioResult<?>>> results = new HashMap<>();
+    Map<Measure, Result<?>> results = new HashMap<>();
     for (Measure measure : measures) {
       results.put(measure, calculate(measure, trade, payment, scenarioMarketData));
     }
@@ -102,7 +102,7 @@ public class BulletPaymentCalculationFunction
   }
 
   // calculate one measure
-  private Result<ScenarioResult<?>> calculate(
+  private Result<?> calculate(
       Measure measure,
       BulletPaymentTrade trade,
       Payment product,

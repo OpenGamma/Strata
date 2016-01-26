@@ -18,7 +18,7 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.function.CalculationMultiFunction;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
@@ -56,7 +56,7 @@ import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
  * The default reporting currency is determined to be the currency of the fee leg.
  */
 public class CdsCalculationFunction
-    implements CalculationMultiFunction<CdsTrade> {
+    implements CalculationFunction<CdsTrade> {
 
   /**
    * The calculations by measure.
@@ -135,7 +135,7 @@ public class CdsCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
-  public Map<Measure, Result<ScenarioResult<?>>> calculate(
+  public Map<Measure, Result<?>> calculate(
       CdsTrade trade,
       Set<Measure> measures,
       CalculationMarketData scenarioMarketData) {
@@ -144,7 +144,7 @@ public class CdsCalculationFunction
     ExpandedCds product = trade.getProduct().expand();
 
     // loop around measures, calculating all scenarios for one measure
-    Map<Measure, Result<ScenarioResult<?>>> results = new HashMap<>();
+    Map<Measure, Result<?>> results = new HashMap<>();
     for (Measure measure : measures) {
       results.put(measure, calculate(measure, trade, product, scenarioMarketData));
     }
@@ -152,7 +152,7 @@ public class CdsCalculationFunction
   }
 
   // calculate one measure
-  private Result<ScenarioResult<?>> calculate(
+  private Result<?> calculate(
       Measure measure,
       CdsTrade trade,
       ExpandedCds product,

@@ -15,7 +15,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.function.CalculationMultiFunction;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
@@ -39,7 +39,7 @@ import com.opengamma.strata.product.index.IborFutureTrade;
  * </ul>
  */
 public class IborFutureCalculationFunction
-    implements CalculationMultiFunction<IborFutureTrade> {
+    implements CalculationFunction<IborFutureTrade> {
 
   /**
    * The calculations by measure.
@@ -88,13 +88,13 @@ public class IborFutureCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
-  public Map<Measure, Result<ScenarioResult<?>>> calculate(
+  public Map<Measure, Result<?>> calculate(
       IborFutureTrade trade,
       Set<Measure> measures,
       CalculationMarketData scenarioMarketData) {
 
     // loop around measures, calculating all scenarios for one measure
-    Map<Measure, Result<ScenarioResult<?>>> results = new HashMap<>();
+    Map<Measure, Result<?>> results = new HashMap<>();
     for (Measure measure : measures) {
       results.put(measure, calculate(measure, trade, scenarioMarketData));
     }
@@ -102,7 +102,7 @@ public class IborFutureCalculationFunction
   }
 
   // calculate one measure
-  private Result<ScenarioResult<?>> calculate(
+  private Result<?> calculate(
       Measure measure,
       IborFutureTrade trade,
       CalculationMarketData scenarioMarketData) {

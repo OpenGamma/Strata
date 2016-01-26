@@ -29,10 +29,7 @@ import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirementsBuilder;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
-import com.opengamma.strata.calc.runner.function.CalculationMultiFunction;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
-import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.FailureReason;
@@ -171,15 +168,8 @@ public final class CalculationTask {
    */
   @SuppressWarnings("unchecked")
   public MarketDataRequirements requirements() {
-    FunctionRequirements functionRequirements;
-    if (function instanceof CalculationSingleFunction) {
-      functionRequirements = ((CalculationSingleFunction<CalculationTarget, Object>) function).requirements(target);
-    } else if (function instanceof CalculationMultiFunction) {
-      ImmutableSet<Measure> measures = ImmutableSet.of();
-      functionRequirements = ((CalculationMultiFunction<CalculationTarget>) function).requirements(target, measures);
-    } else {
-      throw new IllegalStateException("Unknown function type: " + function.getClass().getName());
-    }
+    ImmutableSet<Measure> measures = ImmutableSet.of(getMeasure());
+    FunctionRequirements functionRequirements = function.requirements(target, measures);
 
     MarketDataRequirementsBuilder requirementsBuilder = MarketDataRequirements.builder();
 
@@ -222,7 +212,9 @@ public final class CalculationTask {
   }
 
   /**
-   * Performs calculations for the target using multiple sets of market data.
+   * Executes the task, performing calculations for the target using multiple sets of market data.
+   * <p>
+   * This invokes the function with the correct set of market data.
    *
    * @param scenarioData  the market data used in the calculation
    * @return results of the calculation, one for every scenario in the market data
@@ -230,30 +222,28 @@ public final class CalculationTask {
   @SuppressWarnings("unchecked")
   public CalculationResult execute(CalculationEnvironment scenarioData) {
     CalculationMarketData calculationData = new DefaultCalculationMarketData(scenarioData, marketDataMappings);
-    Result<?> result;
+    Result<?> result = Result.wrap(() -> calculate(calculationData));
+    Result<?> converted = convertToReportingCurrency(result, calculationData);
+    return CalculationResult.of(target, rowIndex, columnIndex, converted);
+  }
 
-    try {
-      if (function instanceof CalculationSingleFunction) {
-        Object value = ((CalculationSingleFunction<CalculationTarget, Object>) function).execute(target, calculationData);
-        result = value instanceof Result ? (Result<?>) value : Result.success(value);
-
-      } else if (function instanceof CalculationMultiFunction) {
-        ImmutableSet<Measure> measures = ImmutableSet.of(getMeasure());
-        Map<Measure, Result<ScenarioResult<?>>> map =
-            ((CalculationMultiFunction<CalculationTarget>) function).calculate(target, measures, calculationData);
-        if (!map.containsKey(getMeasure())) {
-          throw new IllegalStateException(Messages.format(
-              "Function '{}' did not return requested measure '{}'", function.getClass().getName(), getMeasure()));
-        }
-        result = map.get(getMeasure());
-
-      } else {
-        throw new IllegalStateException(Messages.format("Unknown function type '{}'", function.getClass().getName()));
-      }
-    } catch (RuntimeException ex) {
-      result = Result.failure(ex);
+  /**
+   * Calculates the result for the specified market data.
+   * 
+   * @param calculationData  the market data
+   * @return the result
+   */
+  private Result<?> calculate(CalculationMarketData calculationData) {
+    ImmutableSet<Measure> measures = ImmutableSet.of(getMeasure());
+    Map<Measure, Result<?>> map = function.calculate(target, measures, calculationData);
+    if (!map.containsKey(getMeasure())) {
+      return Result.failure(
+          FailureReason.CALCULATION_FAILED,
+          "Function '{}' did not return requested measure '{}'",
+          function.getClass().getName(),
+          getMeasure());
     }
-    return CalculationResult.of(target, rowIndex, columnIndex, convertToReportingCurrency(result, calculationData));
+    return map.get(getMeasure());
   }
 
   /**

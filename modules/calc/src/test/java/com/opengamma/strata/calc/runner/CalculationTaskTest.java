@@ -11,6 +11,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -40,8 +41,10 @@ import com.opengamma.strata.calc.marketdata.TestKey;
 import com.opengamma.strata.calc.marketdata.TestMapping;
 import com.opengamma.strata.calc.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
+import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
@@ -57,6 +60,7 @@ public class CalculationTaskTest {
   private static final ReportingRules REPORTING_RULES_USD = ReportingRules.fixedCurrency(Currency.USD);
   private static final TestTarget TARGET = new TestTarget();
   private static final Measure MEASURE = Measure.of("PV");
+  private static final Set<Measure> MEASURES = ImmutableSet.of(MEASURE);
 
   public void requirements() {
     MarketDataFeed marketDataFeed = MarketDataFeed.of("MarketDataVendor");
@@ -158,7 +162,7 @@ public class CalculationTaskTest {
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
-    assertThat(result).hasValue("bar");
+    assertThat(result).hasValue(DefaultScenarioResult.of("bar"));
   }
 
   /**
@@ -193,7 +197,7 @@ public class CalculationTaskTest {
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
-    assertThat(result).hasValue("bar");
+    assertThat(result).hasValue(DefaultScenarioResult.of("bar"));
   }
 
   /**
@@ -222,7 +226,7 @@ public class CalculationTaskTest {
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
-    assertThat(result).hasValue("foo");
+    assertThat(result).hasValue(DefaultScenarioResult.of("foo"));
   }
 
   /**
@@ -245,13 +249,14 @@ public class CalculationTaskTest {
    * Tests that executing a function that returns a success result returns the underlying result without wrapping it.
    */
   public void executeSuccessResultValue() {
-    SupplierFunction<Result<String>> fn = SupplierFunction.of(() -> Result.success("foo"));
+    SupplierFunction<Result<ScenarioResult<String>>> fn =
+        SupplierFunction.of(() -> Result.success(DefaultScenarioResult.of("foo")));
     CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MAPPINGS, REPORTING_RULES_USD);
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
-    assertThat(result).hasValue("foo");
+    assertThat(result).hasValue(DefaultScenarioResult.of("foo"));
   }
 
   /**
@@ -289,16 +294,21 @@ public class CalculationTaskTest {
 
   //-------------------------------------------------------------------------
   private static class TestTarget implements CalculationTarget {
-
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Function that returns a value that is not currency convertible.
    */
-  public static final class TestFunction implements CalculationSingleFunction<TestTarget, Object> {
+  public static final class TestFunction implements CalculationFunction<TestTarget> {
 
     @Override
-    public FunctionRequirements requirements(TestTarget target) {
+    public Set<Measure> supportedMeasures() {
+      return MEASURES;
+    }
+
+    @Override
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
       return FunctionRequirements.builder()
           .singleValueRequirements(
               ImmutableSet.of(
@@ -309,16 +319,22 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public Object execute(TestTarget target, CalculationMarketData marketData) {
-      return "bar";
+    public Map<Measure, Result<?>> calculate(
+        TestTarget target,
+        Set<Measure> measures,
+        CalculationMarketData marketData) {
+
+      DefaultScenarioResult<String> array = DefaultScenarioResult.of("bar");
+      return ImmutableMap.of(MEASURE, Result.success(array));
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Function that returns a value that is currency convertible.
    */
   private static final class ConvertibleFunction
-      implements CalculationSingleFunction<TestTarget, CurrencyValuesArray> {
+      implements CalculationFunction<TestTarget> {
 
     private final Supplier<CurrencyValuesArray> supplier;
     private final Optional<Currency> reportingCurrency;
@@ -337,25 +353,35 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public CurrencyValuesArray execute(TestTarget target, CalculationMarketData marketData) {
-      return supplier.get();
-    }
-
-    @Override
-    public FunctionRequirements requirements(TestTarget target) {
-      return FunctionRequirements.empty();
+    public Set<Measure> supportedMeasures() {
+      return MEASURES;
     }
 
     @Override
     public Optional<Currency> defaultReportingCurrency(TestTarget target) {
       return reportingCurrency;
     }
+
+    @Override
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
+      return FunctionRequirements.empty();
+    }
+
+    @Override
+    public Map<Measure, Result<?>> calculate(
+        TestTarget target,
+        Set<Measure> measures,
+        CalculationMarketData marketData) {
+
+      return ImmutableMap.of(MEASURE, Result.success(supplier.get()));
+    }
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Function that returns a value from a Supplier.
    */
-  private static final class SupplierFunction<T> implements CalculationSingleFunction<TestTarget, T> {
+  private static final class SupplierFunction<T> implements CalculationFunction<TestTarget> {
 
     private final Supplier<T> supplier;
 
@@ -368,31 +394,57 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public T execute(TestTarget target, CalculationMarketData marketData) {
-      return supplier.get();
+    public Set<Measure> supportedMeasures() {
+      return MEASURES;
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target) {
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
       return FunctionRequirements.empty();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Map<Measure, Result<?>> calculate(
+        TestTarget target,
+        Set<Measure> measures,
+        CalculationMarketData marketData) {
+
+      T obj = supplier.get();
+      if (obj instanceof Result<?>) {
+        return ImmutableMap.of(MEASURE, (Result<?>) obj);
+      }
+      DefaultScenarioResult<Object> array = DefaultScenarioResult.of(obj);
+      return ImmutableMap.of(MEASURE, Result.success(array));
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Function that returns requirements containing output currencies.
    */
-  private static final class OutputCurrenciesFunction implements CalculationSingleFunction<TestTarget, Object> {
+  private static final class OutputCurrenciesFunction implements CalculationFunction<TestTarget> {
 
     @Override
-    public Object execute(TestTarget target, CalculationMarketData marketData) {
-      throw new UnsupportedOperationException("execute not implemented");
+    public Set<Measure> supportedMeasures() {
+      return MEASURES;
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target) {
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
       return FunctionRequirements.builder()
           .outputCurrencies(Currency.GBP, Currency.EUR, Currency.USD)
           .build();
     }
+
+    @Override
+    public Map<Measure, Result<?>> calculate(
+        TestTarget target,
+        Set<Measure> measures,
+        CalculationMarketData marketData) {
+
+      throw new UnsupportedOperationException("calculate not implemented");
+    }
   }
+
 }

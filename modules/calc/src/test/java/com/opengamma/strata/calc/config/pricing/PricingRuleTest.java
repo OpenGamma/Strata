@@ -5,20 +5,24 @@
  */
 package com.opengamma.strata.calc.config.pricing;
 
-import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
+import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
+import com.opengamma.strata.collect.result.Result;
 
 /**
  * Test {@link PricingRule}.
@@ -104,35 +108,61 @@ public class PricingRuleTest {
     assertThat(measures).containsOnly(MEASURE1, MEASURE2);
   }
 
+  //-------------------------------------------------------------------------
   private static final class TestTrade1 implements CalculationTarget {
   }
 
+  //-------------------------------------------------------------------------
   private static final class TestTrade2 implements CalculationTarget {
   }
 
-  private static final class TestFunction1 implements CalculationSingleFunction<TestTrade1, Object> {
+  //-------------------------------------------------------------------------
+  // function for testing
+  public static final class TestFunction1 implements CalculationFunction<TestTrade1> {
 
     @Override
-    public FunctionRequirements requirements(TestTrade1 trade) {
+    public Set<Measure> supportedMeasures() {
+      return ImmutableSet.of(MEASURE1);
+    }
+
+    @Override
+    public FunctionRequirements requirements(TestTrade1 target, Set<Measure> measures) {
       return FunctionRequirements.empty();
     }
 
     @Override
-    public Object execute(TestTrade1 target, CalculationMarketData marketData) {
-      return "foo";
+    public Map<Measure, Result<?>> calculate(
+        TestTrade1 target,
+        Set<Measure> measures,
+        CalculationMarketData marketData) {
+
+      DefaultScenarioResult<String> array = DefaultScenarioResult.of("foo");
+      return ImmutableMap.of(MEASURE1, Result.success(array));
     }
   }
 
-  private static final class TestFunction2 implements CalculationSingleFunction<TestTrade1, Object> {
+  //-------------------------------------------------------------------------
+  // function for testing
+  public static final class TestFunction2 implements CalculationFunction<TestTrade1> {
 
     @Override
-    public FunctionRequirements requirements(TestTrade1 trade) {
+    public Set<Measure> supportedMeasures() {
+      return ImmutableSet.of(MEASURE1);
+    }
+
+    @Override
+    public FunctionRequirements requirements(TestTrade1 target, Set<Measure> measures) {
       return FunctionRequirements.empty();
     }
 
     @Override
-    public Object execute(TestTrade1 target, CalculationMarketData marketData) {
-      return "foo";
+    public Map<Measure, Result<?>> calculate(
+        TestTrade1 target,
+        Set<Measure> measures,
+        CalculationMarketData marketData) {
+
+      DefaultScenarioResult<String> array = DefaultScenarioResult.of("foo");
+      return ImmutableMap.of(MEASURE1, Result.success(array));
     }
   }
 
