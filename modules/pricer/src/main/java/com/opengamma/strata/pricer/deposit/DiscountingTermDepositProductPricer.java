@@ -109,6 +109,21 @@ public class DiscountingTermDepositProductPricer {
     return (dfStart / dfEnd - 1d) / accrualFactor;
   }
 
+  /**
+   * Calculates the par rate curve sensitivity.
+   * <p>
+   * The calculation is based on both of initial and final payments.
+   * Thus the number resulting may not be meaningful when deposit has already started and only the final
+   * payment remains (no initial payment).
+   * 
+   * @param product  the product to price
+   * @param provider  the rates provider
+   * @return the par rate curve sensitivity
+   */
+  public PointSensitivities parRateSensitivity(TermDepositProduct product, RatesProvider provider) {
+    return parSpreadSensitivity(product, provider);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Calculates the spread to be added to the deposit rate to have a zero present value.

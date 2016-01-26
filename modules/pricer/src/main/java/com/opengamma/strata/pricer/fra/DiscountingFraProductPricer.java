@@ -148,6 +148,20 @@ public class DiscountingFraProductPricer {
   }
 
   /**
+   * Calculates the par rate curve sensitivity of the FRA product.
+   * <p>
+   * The par rate curve sensitivity of the product is the sensitivity of the par rate to
+   * the underlying curves.
+   * 
+   * @param product  the FRA product for which the curve sensitivity of the par rate should be computed
+   * @param provider  the rates provider
+   * @return the par rate sensitivity
+   */
+  public PointSensitivities parRateSensitivity(FraProduct product, RatesProvider provider) {
+    return forwardRateSensitivity(product.expand(), provider).build();
+  }
+
+  /**
    * Calculates the par spread of the FRA product.
    * <p>
    * This is spread to be added to the fixed rate to have a present value of 0.

@@ -54,7 +54,7 @@ import com.opengamma.strata.product.rate.IborRateObservation;
 import com.opengamma.strata.product.rate.RateObservation;
 
 /**
- * Test.
+ * Tests {@link DiscountingFraProductPricer}.
  */
 @Test
 public class DiscountingFraProductPricerTest {
@@ -497,33 +497,39 @@ public class DiscountingFraProductPricerTest {
    * Test par spread sensitivity for ISDA FRA Discounting method. 
    */
   public void test_parSpreadSensitivity_ISDA() {
-    PointSensitivities sensi = DEFAULT_PRICER.parSpreadSensitivity(FRA, IMM_PROV);
-    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(sensi);
+    PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(FRA, IMM_PROV);
+    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(sensiSpread);
     CurveCurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
         (p) -> CurrencyAmount.of(FRA.getCurrency(), DEFAULT_PRICER.parSpread(FRA, (p))));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, EPS_FD));
+    PointSensitivities sensiRate = DEFAULT_PRICER.parRateSensitivity(FRA, IMM_PROV);
+    assertTrue(sensiSpread.equalWithTolerance(sensiRate, EPS_FD));
   }
 
   /**
    * Test par spread sensitivity for NONE FRA Discounting method. 
    */
   public void test_parSpreadSensitivity_NONE() {
-    PointSensitivities sensi = DEFAULT_PRICER.parSpreadSensitivity(FRA_NONE, IMM_PROV);
-    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(sensi);
+    PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(FRA_NONE, IMM_PROV);
+    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(sensiSpread);
     CurveCurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
         (p) -> CurrencyAmount.of(FRA_NONE.getCurrency(), DEFAULT_PRICER.parSpread(FRA_NONE, (p))));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, EPS_FD));
+    PointSensitivities sensiRate = DEFAULT_PRICER.parRateSensitivity(FRA_NONE, IMM_PROV);
+    assertTrue(sensiSpread.equalWithTolerance(sensiRate, EPS_FD));
   }
 
   /**
    * Test par spread sensitivity for AFMA FRA Discounting method. 
    */
   public void test_parSpreadSensitivity_AFMA() {
-    PointSensitivities sensi = DEFAULT_PRICER.parSpreadSensitivity(FRA_AFMA, IMM_PROV);
-    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(sensi);
+    PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(FRA_AFMA, IMM_PROV);
+    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(sensiSpread);
     CurveCurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
         (p) -> CurrencyAmount.of(FRA_AFMA.getCurrency(), DEFAULT_PRICER.parSpread(FRA_AFMA, (p))));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, EPS_FD));
+    PointSensitivities sensiRate = DEFAULT_PRICER.parRateSensitivity(FRA_AFMA, IMM_PROV);
+    assertTrue(sensiSpread.equalWithTolerance(sensiRate, EPS_FD));
   }
 
   private Fra createNewFra(Fra product, double newFixedRate) {

@@ -97,6 +97,19 @@ public class DiscountingIborFixingDepositProductPricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates the deposit fair rate sensitivity to the curves.
+   * 
+   * @param product  the product to price
+   * @param provider  the rates provider
+   * @return the par rate curve sensitivity
+   */
+  public PointSensitivities parRateSensitivity(IborFixingDepositProduct product, RatesProvider provider) {
+    ExpandedIborFixingDeposit deposit = product.expand();
+    return forwardRateSensitivity(deposit, provider).build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the spread to be added to the deposit rate to have a zero present value.
    * 
    * @param product  the product to price

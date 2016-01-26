@@ -167,6 +167,12 @@ public class DiscountingTermDepositProductPricerTest {
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));
   }
 
+  public void test_parRateSensitivity() {
+    PointSensitivities computedSpread = PRICER.parSpreadSensitivity(TERM_DEPOSIT, IMM_PROV);
+    PointSensitivities computedRate = PRICER.parRateSensitivity(TERM_DEPOSIT, IMM_PROV);
+    assertTrue(computedSpread.equalWithTolerance(computedRate, NOTIONAL * EPS_FD));
+  }
+
   private SimpleRatesProvider provider(LocalDate valuationDate, double dfStart, double dfEnd) {
     DiscountFactors mockDf = mock(DiscountFactors.class);
     when(mockDf.discountFactor(START_DATE)).thenReturn(dfStart);
