@@ -287,7 +287,7 @@ public final class MultiCurrencyValuesArray
     if (other.size() != size) {
       throw new IllegalArgumentException(
           Messages.format(
-              "Sizes must be equal when adding, this size is {}, other size is {}",
+              "Sizes must be equal when subtracting, this size is {}, other size is {}",
               size,
               other.size()));
     }
