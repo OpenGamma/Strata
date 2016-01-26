@@ -220,4 +220,117 @@ public class MultiCurrencyValuesArrayTest {
     coverBeanEquals(VALUES_ARRAY, test2);
   }
 
+  public void plusArray() {
+    MultiCurrencyValuesArray array1 = MultiCurrencyValuesArray.of(
+        ImmutableMap.of(
+            Currency.USD, DoubleArray.of(30, 32, 33),
+            Currency.EUR, DoubleArray.of(40, 43, 44),
+            Currency.CHF, DoubleArray.of(50, 54, 56)));
+    MultiCurrencyValuesArray array2 = MultiCurrencyValuesArray.of(
+        ImmutableMap.of(
+            Currency.GBP, DoubleArray.of(20, 21, 22),
+            Currency.EUR, DoubleArray.of(140, 143, 144),
+            Currency.CHF, DoubleArray.of(250, 254, 256)));
+    MultiCurrencyValuesArray expected = MultiCurrencyValuesArray.of(
+        ImmutableMap.of(
+            Currency.GBP, DoubleArray.of(20, 21, 22),
+            Currency.USD, DoubleArray.of(30, 32, 33),
+            Currency.EUR, DoubleArray.of(180, 186, 188),
+            Currency.CHF, DoubleArray.of(300, 308, 312)));
+
+    assertThat(array1.plus(array2)).isEqualTo(expected);
+  }
+
+  public void plusAmount() {
+    MultiCurrencyValuesArray array = MultiCurrencyValuesArray.of(
+        ImmutableMap.of(
+            Currency.USD, DoubleArray.of(30, 32, 33),
+            Currency.EUR, DoubleArray.of(40, 43, 44),
+            Currency.CHF, DoubleArray.of(50, 54, 56)));
+    MultiCurrencyAmount amount = MultiCurrencyAmount.of(
+        ImmutableMap.of(
+            Currency.GBP, 21d,
+            Currency.EUR, 143d,
+            Currency.CHF, 254d));
+    MultiCurrencyValuesArray expected = MultiCurrencyValuesArray.of(
+        ImmutableMap.of(
+            Currency.GBP, DoubleArray.of(21, 21, 21),
+            Currency.USD, DoubleArray.of(30, 32, 33),
+            Currency.EUR, DoubleArray.of(183, 186, 187),
+            Currency.CHF, DoubleArray.of(304, 308, 310)));
+
+    assertThat(array.plus(amount)).isEqualTo(expected);
+  }
+
+  public void plusDifferentSize() {
+    MultiCurrencyValuesArray array1 = MultiCurrencyValuesArray.of(
+        ImmutableMap.of(
+            Currency.USD, DoubleArray.of(30, 32),
+            Currency.EUR, DoubleArray.of(40, 43),
+            Currency.CHF, DoubleArray.of(50, 54)));
+    MultiCurrencyValuesArray array2 = MultiCurrencyValuesArray.of(
+        ImmutableMap.of(
+            Currency.GBP, DoubleArray.of(20, 21, 22),
+            Currency.EUR, DoubleArray.of(140, 143, 144),
+            Currency.CHF, DoubleArray.of(250, 254, 256)));
+
+    assertThrowsIllegalArg(() -> array1.plus(array2));
+  }
+
+  public void minusArray() {
+    MultiCurrencyValuesArray array1 = MultiCurrencyValuesArray.of(
+        ImmutableMap.of(
+            Currency.USD, DoubleArray.of(30, 32, 33),
+            Currency.EUR, DoubleArray.of(40, 43, 44),
+            Currency.CHF, DoubleArray.of(50, 54, 56)));
+    MultiCurrencyValuesArray array2 = MultiCurrencyValuesArray.of(
+        ImmutableMap.of(
+            Currency.GBP, DoubleArray.of(20, 21, 22),
+            Currency.EUR, DoubleArray.of(140, 143, 144),
+            Currency.CHF, DoubleArray.of(250, 254, 256)));
+    MultiCurrencyValuesArray expected = MultiCurrencyValuesArray.of(
+        ImmutableMap.of(
+            Currency.GBP, DoubleArray.of(-20, -21, -22),
+            Currency.USD, DoubleArray.of(30, 32, 33),
+            Currency.EUR, DoubleArray.of(-100, -100, -100),
+            Currency.CHF, DoubleArray.of(-200, -200, -200)));
+
+    assertThat(array1.minus(array2)).isEqualTo(expected);
+  }
+
+  public void minusAmount() {
+    MultiCurrencyValuesArray array = MultiCurrencyValuesArray.of(
+        ImmutableMap.of(
+            Currency.USD, DoubleArray.of(30, 32, 33),
+            Currency.EUR, DoubleArray.of(40, 43, 44),
+            Currency.CHF, DoubleArray.of(50, 54, 56)));
+    MultiCurrencyAmount amount = MultiCurrencyAmount.of(
+        ImmutableMap.of(
+            Currency.GBP, 21d,
+            Currency.EUR, 143d,
+            Currency.CHF, 254d));
+    MultiCurrencyValuesArray expected = MultiCurrencyValuesArray.of(
+        ImmutableMap.of(
+            Currency.GBP, DoubleArray.of(-21, -21, -21),
+            Currency.USD, DoubleArray.of(30, 32, 33),
+            Currency.EUR, DoubleArray.of(-103, -100, -99),
+            Currency.CHF, DoubleArray.of(-204, -200, -198)));
+
+    assertThat(array.minus(amount)).isEqualTo(expected);
+  }
+
+  public void minusDifferentSize() {
+    MultiCurrencyValuesArray array1 = MultiCurrencyValuesArray.of(
+      ImmutableMap.of(
+          Currency.USD, DoubleArray.of(30, 32),
+          Currency.EUR, DoubleArray.of(40, 43),
+          Currency.CHF, DoubleArray.of(50, 54)));
+    MultiCurrencyValuesArray array2 = MultiCurrencyValuesArray.of(
+        ImmutableMap.of(
+            Currency.GBP, DoubleArray.of(20, 21, 22),
+            Currency.EUR, DoubleArray.of(140, 143, 144),
+            Currency.CHF, DoubleArray.of(250, 254, 256)));
+
+    assertThrowsIllegalArg(() -> array1.minus(array2));
+  }
 }
