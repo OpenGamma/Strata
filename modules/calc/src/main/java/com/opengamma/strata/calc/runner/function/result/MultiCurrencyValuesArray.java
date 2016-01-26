@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -43,6 +44,7 @@ import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -98,6 +100,29 @@ public final class MultiCurrencyValuesArray
     }
     Map<Currency, DoubleArray> doubleArrayMap = MapStream.of(valueMap).mapValues(v -> DoubleArray.ofUnsafe(v)).toMap();
     return new MultiCurrencyValuesArray(doubleArrayMap);
+  }
+
+  /**
+   * Obtains an instance using a function to create the entries.
+   * <p>
+   * The function is passed the scenario index and returns the value for that index.
+   * 
+   * @param size  the number of elements
+   * @param valueFunction  the function used to obtain each value
+   * @return an instance initialized using the function
+   * @throws IllegalArgumentException is size is zero or less
+   */
+  public static MultiCurrencyValuesArray of(int size, IntFunction<MultiCurrencyAmount> valueFunction) {
+    ArgChecker.notNegativeOrZero(size, "size");
+    Map<Currency, double[]> map = new HashMap<>();
+    for (int i = 0; i < size; i++) {
+      MultiCurrencyAmount mca = valueFunction.apply(i);
+      for (CurrencyAmount ca : mca.getAmounts()) {
+        double[] array = map.computeIfAbsent(ca.getCurrency(), c -> new double[size]);
+        array[i] = ca.getAmount();
+      }
+    }
+    return new MultiCurrencyValuesArray(MapStream.of(map).mapValues(array -> DoubleArray.ofUnsafe(array)).toMap());
   }
 
   /**

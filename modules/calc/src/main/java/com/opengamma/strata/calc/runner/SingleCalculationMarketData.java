@@ -11,6 +11,7 @@ import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
@@ -28,13 +29,24 @@ public final class SingleCalculationMarketData implements MarketData {
   /** The index of the scenario in {@link #marketData} from which data is returned. */
   private final int scenarioIndex;
 
+  //-------------------------------------------------------------------------
   /**
-   * Creates a set of market data that uses the data of the scenario at the specified index.
+   * Obtains an instance from an underlying set of market data and scenario index.
+   * <p>
+   * This provides a single scenario view of the underlying market data.
    *
-   * @param marketData  market data for multiple scenarios
-   * @param scenarioIndex  the index of the scenario whose data is returned by the new slice
+   * @param marketData  the market data
+   * @param scenarioIndex  the index of the scenario to be viewed
+   * @return the market data
+   * @throws IllegalArgumentException if the scenario index is invalid
    */
-  public SingleCalculationMarketData(CalculationMarketData marketData, int scenarioIndex) {
+  public static SingleCalculationMarketData of(CalculationMarketData marketData, int scenarioIndex) {
+    return new SingleCalculationMarketData(marketData, scenarioIndex);
+  }
+
+  // restricted constructor
+  private SingleCalculationMarketData(CalculationMarketData marketData, int scenarioIndex) {
+    ArgChecker.inRange(scenarioIndex, 0, marketData.getScenarioCount(), "scenarioIndex");
     this.marketData = marketData;
     this.scenarioIndex = scenarioIndex;
   }

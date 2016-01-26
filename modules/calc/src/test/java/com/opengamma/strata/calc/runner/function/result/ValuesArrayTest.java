@@ -45,6 +45,17 @@ public class ValuesArrayTest {
     assertThat(test.stream().collect(toList())).containsExactly(1d, 2d, 3d);
   }
 
+  public void create_fromFunction() {
+    List<Double> values = ImmutableList.of(1d, 2d, 3d);
+    ValuesArray test = ValuesArray.of(3, i -> values.get(i));
+    assertThat(test.getValues()).isEqualTo(DoubleArray.of(1d, 2d, 3d));
+    assertThat(test.size()).isEqualTo(3);
+    assertThat(test.get(0)).isEqualTo(1d);
+    assertThat(test.get(1)).isEqualTo(2d);
+    assertThat(test.get(2)).isEqualTo(3);
+    assertThat(test.stream().collect(toList())).containsExactly(1d, 2d, 3d);
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     DoubleArray values = DoubleArray.of(1, 2, 3);

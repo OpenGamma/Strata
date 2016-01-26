@@ -28,7 +28,6 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
@@ -102,7 +101,7 @@ public class SwapCalculationFunctionTest {
   public void test_simpleMeasures() {
     SwapCalculationFunction function = new SwapCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = new MarketDataRatesProvider(new SingleCalculationMarketData(md, 0));
+    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingSwapProductPricer pricer = DiscountingSwapProductPricer.DEFAULT;
     MultiCurrencyAmount expectedPv = pricer.presentValue(TRADE.getProduct(), provider);
     double expectedParRate = pricer.parRate(TRADE.getProduct(), provider);
@@ -135,7 +134,7 @@ public class SwapCalculationFunctionTest {
   public void test_pv01() {
     SwapCalculationFunction function = new SwapCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = new MarketDataRatesProvider(new SingleCalculationMarketData(md, 0));
+    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingSwapProductPricer pricer = DiscountingSwapProductPricer.DEFAULT;
     PointSensitivities pvPointSens = pricer.presentValueSensitivity(TRADE.getProduct(), provider).build();
     CurveCurrencyParameterSensitivities pvParamSens = provider.curveParameterSensitivity(pvPointSens);
@@ -160,7 +159,7 @@ public class SwapCalculationFunctionTest {
 
     Set<Measure> measures = ImmutableSet.of(Measure.ACCRUED_INTEREST);
     CalculationMarketData md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
-    MarketDataRatesProvider provider = new MarketDataRatesProvider(new SingleCalculationMarketData(md, 0));
+    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
 
     // create a period with altered end date, and price it
     ExpandedSwapLeg expanded = FIXED_RATECALC_SWAP_LEG.expand();

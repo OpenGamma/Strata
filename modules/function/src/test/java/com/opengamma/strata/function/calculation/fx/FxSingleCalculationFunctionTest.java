@@ -29,7 +29,6 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
@@ -89,7 +88,7 @@ public class FxSingleCalculationFunctionTest {
   public void test_simpleMeasures() {
     FxSingleCalculationFunction function = new FxSingleCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = new MarketDataRatesProvider(new SingleCalculationMarketData(md, 0));
+    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingFxSingleProductPricer pricer = DiscountingFxSingleProductPricer.DEFAULT;
     MultiCurrencyAmount expectedPv = pricer.presentValue(TRADE.getProduct(), provider);
     double expectedParSpread = pricer.parSpread(TRADE.getProduct(), provider);
@@ -115,7 +114,7 @@ public class FxSingleCalculationFunctionTest {
   public void test_pv01() {
     FxSingleCalculationFunction function = new FxSingleCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = new MarketDataRatesProvider(new SingleCalculationMarketData(md, 0));
+    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingFxSingleProductPricer pricer = DiscountingFxSingleProductPricer.DEFAULT;
     PointSensitivities pvPointSens = pricer.presentValueSensitivity(TRADE.getProduct(), provider);
     CurveCurrencyParameterSensitivities pvParamSens = provider.curveParameterSensitivity(pvPointSens);

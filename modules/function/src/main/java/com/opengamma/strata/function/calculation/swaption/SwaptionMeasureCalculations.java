@@ -5,14 +5,9 @@
  */
 package com.opengamma.strata.function.calculation.swaption;
 
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toCurrencyValuesArray;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.SwaptionVolatilitiesKey;
@@ -53,22 +48,24 @@ final class SwaptionMeasureCalculations {
       CalculationMarketData marketData,
       SwaptionVolatilitiesKey volKey) {
 
-    List<CurrencyAmount> result = new ArrayList<>();
-    for (int i = 0; i < marketData.getScenarioCount(); i++) {
-      RatesProvider provider = ratesProvider(marketData, i);
-      SwaptionVolatilities volatilities = provider.data(volKey);
-      if (product.getSwaptionSettlement().getSettlementType() == SettlementType.PHYSICAL) {
-        result.add(PHYSICAL.presentValue(product, provider, volatilities));
-      } else {
-        result.add(CASH_PAR_YIELD.presentValue(product, provider, volatilities));
-      }
-    }
-    return result.stream().collect(toCurrencyValuesArray());
+    return CurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculatePresentValue(product, marketData.scenario(i), volKey));
   }
 
-  // creates a RatesProvider
-  private static RatesProvider ratesProvider(CalculationMarketData marketData, int index) {
-    return new MarketDataRatesProvider(new SingleCalculationMarketData(marketData, index));
+  // present value for one scenario
+  private static CurrencyAmount calculatePresentValue(
+      ExpandedSwaption product,
+      MarketData marketData,
+      SwaptionVolatilitiesKey volKey) {
+
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+    SwaptionVolatilities volatilities = provider.data(volKey);
+    if (product.getSwaptionSettlement().getSettlementType() == SettlementType.PHYSICAL) {
+      return PHYSICAL.presentValue(product, provider, volatilities);
+    } else {
+      return CASH_PAR_YIELD.presentValue(product, provider, volatilities);
+    }
   }
 
 }

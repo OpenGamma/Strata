@@ -67,6 +67,27 @@ public class CurrencyValuesArrayTest {
     assertThrowsIllegalArg(() -> CurrencyValuesArray.of(values));
   }
 
+  public void create_fromFunction() {
+    List<CurrencyAmount> values = ImmutableList.of(
+        CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
+    CurrencyValuesArray test = CurrencyValuesArray.of(3, i -> values.get(i));
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getValues()).isEqualTo(DoubleArray.of(1d, 2d, 3d));
+    assertThat(test.size()).isEqualTo(3);
+    assertThat(test.get(0)).isEqualTo(CurrencyAmount.of(GBP, 1));
+    assertThat(test.get(1)).isEqualTo(CurrencyAmount.of(GBP, 2));
+    assertThat(test.get(2)).isEqualTo(CurrencyAmount.of(GBP, 3));
+    assertThat(test.stream().collect(toList())).containsExactly(
+        CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
+  }
+
+  public void create_fromFunction_mixedCurrency() {
+    List<CurrencyAmount> values = ImmutableList.of(
+        CurrencyAmount.of(GBP, 1), CurrencyAmount.of(USD, 2), CurrencyAmount.of(GBP, 3));
+    assertThrowsIllegalArg(() -> CurrencyValuesArray.of(3, i -> values.get(i)));
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Test that values are converted to the reporting currency using the rates in the market data.
    */
@@ -81,7 +102,7 @@ public class CurrencyValuesArrayTest {
         .addValue(FxRateId.of(GBP, USD), rates)
         .build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
-    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
+    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData, mappings);
 
     CurrencyValuesArray convertedList = list.convertedTo(USD, calculationMarketData);
     DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
@@ -97,7 +118,7 @@ public class CurrencyValuesArrayTest {
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
-    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
+    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData, mappings);
 
     CurrencyValuesArray convertedList = list.convertedTo(GBP, calculationMarketData);
     assertThat(convertedList).isEqualTo(list);
@@ -111,7 +132,7 @@ public class CurrencyValuesArrayTest {
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
-    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
+    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData, mappings);
 
     assertThrows(
         () -> list.convertedTo(USD, calculationMarketData),
@@ -133,7 +154,7 @@ public class CurrencyValuesArrayTest {
         .addValue(FxRateId.of(GBP, USD), rates)
         .build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
-    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
+    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData, mappings);
 
     assertThrows(
         () -> list.convertedTo(USD, calculationMarketData),

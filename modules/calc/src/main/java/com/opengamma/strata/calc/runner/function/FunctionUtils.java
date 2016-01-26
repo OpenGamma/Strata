@@ -36,12 +36,11 @@ public final class FunctionUtils {
    *
    * @return a collector used to create a {@code FxConvertibleList} from a stream of {@code FxConvertible}
    */
-  public static Collector<FxConvertible<?>, ImmutableList.Builder<FxConvertible<?>>, FxConvertibleList>
-      toFxConvertibleList() {
+  public static <T extends FxConvertible<?>> Collector<T, ImmutableList.Builder<T>, FxConvertibleList<T>> toFxConvertibleList() {
 
     // edited to compile in Eclipse
     return Collector.of(
-        ImmutableList.Builder<FxConvertible<?>>::new,
+        ImmutableList.Builder<T>::new,
         (bld, v) -> bld.add(v),
         (l, r) -> l.addAll(r.build()),
         builder -> FxConvertibleList.of(builder.build()));

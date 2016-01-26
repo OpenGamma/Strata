@@ -8,9 +8,11 @@ package com.opengamma.strata.calc.marketdata;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.util.stream.Stream;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
@@ -109,7 +111,7 @@ public class CalculationMarketDataTest {
 
     @Override
     public MarketDataBox<LocalDate> getValuationDate() {
-      throw new UnsupportedOperationException("getValuationDate not implemented");
+      throw new UnsupportedOperationException("getValuationDate() not implemented");
     }
 
     @Override
@@ -118,8 +120,18 @@ public class CalculationMarketDataTest {
     }
 
     @Override
+    public Stream<MarketData> scenarios() {
+      throw new UnsupportedOperationException("scenarios() not implemented");
+    }
+
+    @Override
+    public MarketData scenario(int scenarioIndex) {
+      throw new UnsupportedOperationException("scenario(int) not implemented");
+    }
+
+    @Override
     public boolean containsValue(MarketDataKey<?> key) {
-      throw new UnsupportedOperationException("containsValue not implemented");
+      throw new UnsupportedOperationException("containsValue(MarketDataKey) not implemented");
     }
 
     @SuppressWarnings("unchecked")
@@ -130,12 +142,12 @@ public class CalculationMarketDataTest {
 
     @Override
     public boolean containsTimeSeries(ObservableKey key) {
-      throw new UnsupportedOperationException("containsTimeSeries not implemented");
+      throw new UnsupportedOperationException("containsTimeSeries(ObservableKey) not implemented");
     }
 
     @Override
     public LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key) {
-      throw new UnsupportedOperationException("getTimeSeries not implemented");
+      throw new UnsupportedOperationException("getTimeSeries(ObservableKey) not implemented");
     }
   }
 }

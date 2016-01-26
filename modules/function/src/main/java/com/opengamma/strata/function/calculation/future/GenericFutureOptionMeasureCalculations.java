@@ -5,15 +5,9 @@
  */
 package com.opengamma.strata.function.calculation.future;
 
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toCurrencyValuesArray;
-
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.future.GenericFutureOption;
@@ -36,9 +30,9 @@ class GenericFutureOptionMeasureCalculations {
       GenericFutureOptionTrade trade,
       CalculationMarketData marketData) {
 
-    return marketDataStream(marketData)
-        .map(market -> calculatePresentValue(trade, market))
-        .collect(toCurrencyValuesArray());
+    return CurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculatePresentValue(trade, marketData.scenario(i)));
   }
 
   //-------------------------------------------------------------------------
@@ -55,13 +49,6 @@ class GenericFutureOptionMeasureCalculations {
     double unitPv = (price / tickSize) * tickValue;
     double pv = unitPv * trade.getQuantity();
     return CurrencyAmount.of(product.getCurrency(), pv);
-  }
-
-  //-------------------------------------------------------------------------
-  // common code, creating a stream of MarketData from CalculationMarketData
-  private static Stream<MarketData> marketDataStream(CalculationMarketData marketData) {
-    return IntStream.range(0, marketData.getScenarioCount())
-        .mapToObj(index -> new SingleCalculationMarketData(marketData, index));
   }
 
 }

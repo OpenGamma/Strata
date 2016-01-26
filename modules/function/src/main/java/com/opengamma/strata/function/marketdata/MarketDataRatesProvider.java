@@ -41,9 +41,9 @@ import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.pricer.rate.AbstractRatesProvider;
 
 /**
- * A rates provider based on market data from the engine.
+ * A rates provider based on an underlying set of market data.
  * <p>
- * This provides the environmental information against which pricing occurs.
+ * This provides the market data information against which pricing occurs.
  * This includes FX rates, discount factors and forward curves.
  */
 public final class MarketDataRatesProvider
@@ -59,16 +59,26 @@ public final class MarketDataRatesProvider
    */
   private final MarketData marketData;
 
+  //-------------------------------------------------------------------------
   /**
-   * Creates an instance.
+   * Obtains an instance from an underlying set of market data.
+   * <p>
+   * This provides a rates provider view of the underlying market data.
    * 
    * @param marketData  the underlying market data
+   * @return the rates provider
    */
-  public MarketDataRatesProvider(MarketData marketData) {
+  public static MarketDataRatesProvider of(MarketData marketData) {
+    return new MarketDataRatesProvider(marketData);
+  }
+
+  // restricted constructor
+  private MarketDataRatesProvider(MarketData marketData) {
     JodaBeanUtils.notNull(marketData, "marketData");
     this.marketData = marketData;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public LocalDate getValuationDate() {
     return marketData.getValuationDate();
