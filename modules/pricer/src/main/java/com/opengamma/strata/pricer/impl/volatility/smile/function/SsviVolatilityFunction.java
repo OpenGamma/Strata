@@ -54,7 +54,19 @@ public final class SsviVolatilityFunction
     double w = 0.5 * theta * (1.0d + rho * phi * k + Math.sqrt(1.0d + 2 * rho * phi * k + phi * k * phi * k));
     return Math.sqrt(w / timeToExpiry);
   }
-
+  
+  /**
+   * Computes the implied volatility in the SSVI formula and its derivatives.
+   * <p>
+   * The derivatives are stored in an array with the derivatives: [0] w.r.t the forward, [1] w.r.t the strike, 
+   * [2] w.r.t. to time to expiry, [3] w.r.t. to ATM volatility, [4] w.r.t. to rho, and [5] w.r.t. to eta.
+   * 
+   * @param forward  the forward value of the underlying
+   * @param strike  the strike value of the option
+   * @param timeToExpiry  the time to expiry of the option
+   * @param data The SSVI data.
+   * @return the volatility and sensitivities
+   */
   @Override
   public ValueDerivatives getVolatilityAdjoint(double forward, double strike, double timeToExpiry, SsviFormulaData data) {
     ArgChecker.isTrue(timeToExpiry > MIN_TIME_TO_EXPIRY, "time to expiry must not be zero to be able to compute volatility");
@@ -70,19 +82,19 @@ public final class SsviVolatilityFunction
     double volatility = Math.sqrt(w / timeToExpiry);
     // Backward sweep.
     double[] derivatives = new double[6]; // 6 inputs
-    double volatilityBar = 1.0; // OK
-    double wBar = 0.5 * volatility / w * volatilityBar; // OK
+    double volatilityBar = 1.0;
+    double wBar = 0.5 * volatility / w * volatilityBar;
     derivatives[2] += -0.5 * volatility / timeToExpiry * volatilityBar;
     double thetaBar = w / theta * wBar;
-    derivatives[4] += 0.5 * theta * phi * k * wBar; // OK
+    derivatives[4] += 0.5 * theta * phi * k * wBar;
     double phiBar = 0.5 * theta * rho * k * wBar;
-    double kBar = 0.5 * theta * rho * phi * wBar; // OK
-    double sBar = 0.5 * theta * wBar; // OK
-    derivatives[4] += phi * k / s * sBar; // OK
+    double kBar = 0.5 * theta * rho * phi * wBar;
+    double sBar = 0.5 * theta * wBar;
+    derivatives[4] += phi * k / s * sBar;
     phiBar += (rho * k + phi * k * k) / s * sBar;
     kBar += (rho * phi + phi * phi * k) / s * sBar;
-    derivatives[1] += 1.0d / strike * kBar; // OK
-    derivatives[0] += -1.0d / forward * kBar; // OK
+    derivatives[1] += 1.0d / strike * kBar;
+    derivatives[0] += -1.0d / forward * kBar;
     derivatives[5] += phiBar / stheta;
     double sthetaBar = -eta / (stheta * stheta) * phiBar;
     thetaBar += 0.5 / stheta * sthetaBar;
