@@ -6,7 +6,9 @@
 package com.opengamma.strata.calc.marketdata;
 
 import java.time.LocalDate;
+import java.util.stream.Stream;
 
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
@@ -21,6 +23,16 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  * The set of data provided by this interface is a subset of the set provided by {@link CalculationEnvironment}.
  * For example a function might request a USD discounting curve, but the scenario market data can contain
  * multiple curve groups, each with a USD discounting curve.
+ * <p>
+ * There are two ways to access the available market data.
+ * <p>
+ * The first way is to use the value access methods on this interface which return the data
+ * associated with a single key for all scenarios. The two key methods are
+ * {@link #getValue(MarketDataKey)} and {@link #getScenarioValue(ScenarioMarketDataKey)}.
+ * <p>
+ * The second way is to use the method {@link #scenarios()} or {@link #scenario(int)}
+ * which return all the data associated with a single scenario.
+ * This approach is convenient for single scenario pricers, but may have a small overhead.
  * <p>
  * Typically a set of {@link MarketDataRules} are used to choose the item of market data from the global set.
  * <p>
@@ -41,6 +53,29 @@ public interface CalculationMarketData {
    * @return the number of scenarios
    */
   public abstract int getScenarioCount();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a stream of market data, one for each scenario.
+   * <p>
+   * The stream will return instances of {@link MarketData}, where each represents
+   * a single scenario view of the complete set of data.
+   *
+   * @return the stream of market data, one for the each scenario
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public abstract Stream<MarketData> scenarios();
+
+  /**
+   * Returns market data for a single scenario.
+   * <p>
+   * This returns a view of the market data for the single specified scenario.
+   *
+   * @param scenarioIndex  the scenario index
+   * @return the market data for the specified scenario
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public abstract MarketData scenario(int scenarioIndex);
 
   //-------------------------------------------------------------------------
   /**

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.IntToDoubleFunction;
 import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
@@ -24,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
@@ -61,6 +63,21 @@ public final class ValuesArray
    */
   public static ValuesArray of(List<Double> values) {
     return new ValuesArray(DoubleArray.copyOf(values));
+  }
+
+  /**
+   * Obtains an instance using a function to create the entries.
+   * <p>
+   * The function is passed the scenario index and returns the value for that index.
+   * 
+   * @param size  the number of elements
+   * @param valueFunction  the function used to obtain each value
+   * @return an instance initialized using the function
+   * @throws IllegalArgumentException is size is zero or less
+   */
+  public static ValuesArray of(int size, IntToDoubleFunction valueFunction) {
+    ArgChecker.notNegativeOrZero(size, "size");
+    return new ValuesArray(DoubleArray.of(size, valueFunction));
   }
 
   //-------------------------------------------------------------------------

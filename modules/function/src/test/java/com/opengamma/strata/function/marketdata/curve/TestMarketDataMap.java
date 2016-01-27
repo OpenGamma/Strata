@@ -7,11 +7,15 @@ package com.opengamma.strata.function.marketdata.curve;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
@@ -43,6 +47,17 @@ public final class TestMarketDataMap implements CalculationMarketData {
   @Override
   public int getScenarioCount() {
     return 1;
+  }
+
+  @Override
+  public Stream<MarketData> scenarios() {
+    return IntStream.range(0, getScenarioCount())
+        .mapToObj(scenarioIndex -> SingleCalculationMarketData.of(this, scenarioIndex));
+  }
+
+  @Override
+  public MarketData scenario(int scenarioIndex) {
+    return SingleCalculationMarketData.of(this, scenarioIndex);
   }
 
   @Override

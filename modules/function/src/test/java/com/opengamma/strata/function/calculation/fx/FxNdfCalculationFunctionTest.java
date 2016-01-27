@@ -30,11 +30,9 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
-import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
-import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
@@ -100,7 +98,7 @@ public class FxNdfCalculationFunctionTest {
   public void test_simpleMeasures() {
     FxNdfCalculationFunction function = new FxNdfCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = new MarketDataRatesProvider(new SingleCalculationMarketData(md, 0));
+    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingFxNdfProductPricer pricer = DiscountingFxNdfProductPricer.DEFAULT;
     CurrencyAmount expectedPv = pricer.presentValue(TRADE.getProduct(), provider);
     MultiCurrencyAmount expectedCurrencyExp = pricer.currencyExposure(TRADE.getProduct(), provider);
@@ -117,13 +115,13 @@ public class FxNdfCalculationFunctionTest {
         .containsEntry(
             Measure.CURRENT_CASH, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedCash))))
         .containsEntry(
-            Measure.FORWARD_FX_RATE, Result.success(DefaultScenarioResult.of(ImmutableList.of(expectedForwardFx))));
+            Measure.FORWARD_FX_RATE, Result.success(ScenarioResult.of(ImmutableList.of(expectedForwardFx))));
   }
 
   public void test_pv01() {
     FxNdfCalculationFunction function = new FxNdfCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = new MarketDataRatesProvider(new SingleCalculationMarketData(md, 0));
+    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingFxNdfProductPricer pricer = DiscountingFxNdfProductPricer.DEFAULT;
     PointSensitivities pvPointSens = pricer.presentValueSensitivity(TRADE.getProduct(), provider);
     CurveCurrencyParameterSensitivities pvParamSens = provider.curveParameterSensitivity(pvPointSens);
@@ -135,7 +133,7 @@ public class FxNdfCalculationFunctionTest {
         .containsEntry(
             Measure.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
-            Measure.BUCKETED_PV01, Result.success(FxConvertibleList.of(ImmutableList.of(expectedBucketedPv01))));
+            Measure.BUCKETED_PV01, Result.success(ScenarioResult.of(ImmutableList.of(expectedBucketedPv01))));
   }
 
   //-------------------------------------------------------------------------

@@ -38,7 +38,7 @@ public class FxConvertibleListTest {
         CurrencyAmount.of(Currency.GBP, 1),
         CurrencyAmount.of(Currency.GBP, 2),
         CurrencyAmount.of(Currency.GBP, 3));
-    FxConvertibleList test = FxConvertibleList.of(values);
+    FxConvertibleList<CurrencyAmount> test = FxConvertibleList.of(values);
     assertThat(test.getValues()).isEqualTo(values);
     assertThat(test.size()).isEqualTo(3);
     assertThat(test.get(0)).isEqualTo(CurrencyAmount.of(Currency.GBP, 1));
@@ -56,7 +56,7 @@ public class FxConvertibleListTest {
         CurrencyAmount.of(Currency.GBP, 1),
         CurrencyAmount.of(Currency.GBP, 2),
         CurrencyAmount.of(Currency.GBP, 3));
-    FxConvertibleList list = FxConvertibleList.of(values);
+    FxConvertibleList<CurrencyAmount> list = FxConvertibleList.of(values);
     List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
@@ -65,7 +65,7 @@ public class FxConvertibleListTest {
         .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
-    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
+    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData, mappings);
 
     ScenarioResult<?> convertedList = list.convertedTo(Currency.USD, calculationMarketData);
     List<CurrencyAmount> expectedValues = ImmutableList.of(
@@ -93,7 +93,7 @@ public class FxConvertibleListTest {
             CurrencyAmount.of(Currency.GBP, 3),
             CurrencyAmount.of(Currency.USD, 30),
             CurrencyAmount.of(Currency.EUR, 300)));
-    FxConvertibleList list = FxConvertibleList.of(values);
+    FxConvertibleList<MultiCurrencyAmount> list = FxConvertibleList.of(values);
     List<FxRate> usdRates = ImmutableList.of(1.61, 1.62, 1.63).stream()
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
@@ -106,7 +106,7 @@ public class FxConvertibleListTest {
         .addValue(FxRateId.of(Currency.EUR, Currency.USD), eurRates)
         .build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
-    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
+    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData, mappings);
 
     ScenarioResult<?> convertedList = list.convertedTo(Currency.USD, calculationMarketData);
     List<CurrencyAmount> expectedValues = ImmutableList.of(
@@ -125,12 +125,12 @@ public class FxConvertibleListTest {
         CurrencyAmount.of(Currency.GBP, 1),
         CurrencyAmount.of(Currency.GBP, 2),
         CurrencyAmount.of(Currency.GBP, 3));
-    FxConvertibleList list = FxConvertibleList.of(values);
+    FxConvertibleList<CurrencyAmount> list = FxConvertibleList.of(values);
     CalculationEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(MarketDataBox.ofScenarioValues(date(2011, 3, 8), date(2011, 3, 9), date(2011, 3, 10)))
         .build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
-    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
+    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData, mappings);
 
     ScenarioResult<?> convertedList = list.convertedTo(Currency.GBP, calculationMarketData);
     ScenarioResult<CurrencyAmount> expectedList = DefaultScenarioResult.of(values);
@@ -145,11 +145,11 @@ public class FxConvertibleListTest {
         CurrencyAmount.of(Currency.GBP, 1),
         CurrencyAmount.of(Currency.GBP, 2),
         CurrencyAmount.of(Currency.GBP, 3));
-    FxConvertibleList list = FxConvertibleList.of(values);
+    FxConvertibleList<CurrencyAmount> list = FxConvertibleList.of(values);
     CalculationEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(date(2011, 3, 8)).build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
-    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
+    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData, mappings);
 
     assertThrows(
         () -> list.convertedTo(Currency.USD, calculationMarketData),
@@ -168,13 +168,13 @@ public class FxConvertibleListTest {
     List<FxRate> rates = ImmutableList.of(1.61, 1.62).stream()
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
-    FxConvertibleList list = FxConvertibleList.of(values);
+    FxConvertibleList<CurrencyAmount> list = FxConvertibleList.of(values);
     CalculationEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(date(2011, 3, 8))
         .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
-    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
+    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData, mappings);
 
     assertThrows(
         () -> list.convertedTo(Currency.USD, calculationMarketData),
@@ -187,10 +187,10 @@ public class FxConvertibleListTest {
         CurrencyAmount.of(Currency.GBP, 1),
         CurrencyAmount.of(Currency.GBP, 2),
         CurrencyAmount.of(Currency.GBP, 3));
-    FxConvertibleList test = FxConvertibleList.of(values);
+    FxConvertibleList<CurrencyAmount> test = FxConvertibleList.of(values);
     coverImmutableBean(test);
     List<CurrencyAmount> values2 = ImmutableList.of(CurrencyAmount.of(Currency.GBP, 2));
-    FxConvertibleList test2 = FxConvertibleList.of(values2);
+    FxConvertibleList<CurrencyAmount> test2 = FxConvertibleList.of(values2);
     coverBeanEquals(test, test2);
   }
 

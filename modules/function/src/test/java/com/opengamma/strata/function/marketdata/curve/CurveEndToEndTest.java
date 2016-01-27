@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.function.marketdata.curve;
 
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toFxConvertibleList;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -21,7 +20,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.IntStream;
 
 import org.testng.annotations.Test;
 
@@ -62,9 +60,9 @@ import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.calc.runner.Results;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
-import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
+import com.opengamma.strata.calc.runner.function.FunctionUtils;
+import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.calculation.swap.SwapCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
@@ -267,11 +265,10 @@ public class CurveEndToEndTest {
         CalculationMarketData marketData) {
 
       ExpandedFra product = trade.getProduct().expand();
-      FxConvertibleList pv = IntStream.range(0, marketData.getScenarioCount())
-          .mapToObj(index -> new SingleCalculationMarketData(marketData, index))
-          .map(MarketDataRatesProvider::new)
+      CurrencyValuesArray pv = marketData.scenarios()
+          .map(MarketDataRatesProvider::of)
           .map(provider -> DiscountingFraProductPricer.DEFAULT.presentValue(product, provider))
-          .collect(toFxConvertibleList());
+          .collect(FunctionUtils.toCurrencyValuesArray());
       return ImmutableMap.of(Measure.PRESENT_VALUE, Result.success(pv));
     }
   }

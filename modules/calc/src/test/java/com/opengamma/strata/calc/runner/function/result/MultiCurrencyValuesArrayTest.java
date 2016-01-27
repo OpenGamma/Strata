@@ -75,6 +75,18 @@ public class MultiCurrencyValuesArrayTest {
     assertThrowsIllegalArg(() -> raggedArray.getValues(Currency.AUD));
   }
 
+  public void createByFunction() {
+    MultiCurrencyAmount mca1 = MultiCurrencyAmount.of(CurrencyAmount.of(Currency.GBP, 10), CurrencyAmount.of(Currency.USD, 20));
+    MultiCurrencyAmount mca2 = MultiCurrencyAmount.of(CurrencyAmount.of(Currency.GBP, 10), CurrencyAmount.of(Currency.EUR, 30));
+    MultiCurrencyAmount mca3 = MultiCurrencyAmount.of(CurrencyAmount.of(Currency.USD, 40));
+    List<MultiCurrencyAmount> amounts = ImmutableList.of(mca1, mca2, mca3);
+
+    MultiCurrencyValuesArray test = MultiCurrencyValuesArray.of(3, i -> amounts.get(i));
+    assertThat(test.get(0)).isEqualTo(mca1.plus(Currency.EUR, 0));
+    assertThat(test.get(1)).isEqualTo(mca2.plus(Currency.USD, 0));
+    assertThat(test.get(2)).isEqualTo(mca3.plus(Currency.GBP, 0).plus(Currency.EUR, 0));
+  }
+
   public void mapFactoryMethod() {
     MultiCurrencyValuesArray array = MultiCurrencyValuesArray.of(
         ImmutableMap.of(
@@ -145,7 +157,7 @@ public class MultiCurrencyValuesArrayTest {
         .addValue(FxRateId.of(Currency.USD, Currency.CAD), usdCadRate)
         .build();
     DefaultCalculationMarketData marketData =
-        new DefaultCalculationMarketData(marketEnvironment, MarketDataMappings.empty());
+        DefaultCalculationMarketData.of(marketEnvironment, MarketDataMappings.empty());
     CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.CAD, marketData);
     DoubleArray expected = DoubleArray.of(
         20 * 2.00 + 30 * 1.30 + 40 * 1.4,
@@ -166,7 +178,7 @@ public class MultiCurrencyValuesArrayTest {
         .addValue(FxRateId.of(Currency.EUR, Currency.GBP), eurGbpRate)
         .build();
     DefaultCalculationMarketData marketData =
-        new DefaultCalculationMarketData(marketEnvironment, MarketDataMappings.empty());
+        DefaultCalculationMarketData.of(marketEnvironment, MarketDataMappings.empty());
     CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.GBP, marketData);
     assertThat(convertedArray.getCurrency()).isEqualTo(Currency.GBP);
     double[] expected = new double[]{

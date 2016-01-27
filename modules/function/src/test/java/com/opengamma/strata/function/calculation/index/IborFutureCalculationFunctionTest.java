@@ -26,7 +26,6 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
 import com.opengamma.strata.collect.id.StandardId;
@@ -82,7 +81,7 @@ public class IborFutureCalculationFunctionTest {
   public void test_simpleMeasures() {
     IborFutureCalculationFunction function = new IborFutureCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = new MarketDataRatesProvider(new SingleCalculationMarketData(md, 0));
+    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     CurrencyAmount expectedPv = DiscountingIborFutureTradePricer.DEFAULT.presentValue(TRADE, provider, MARKET_PRICE / 100);
     double expectedParSpread = DiscountingIborFutureTradePricer.DEFAULT.parSpread(TRADE, provider, MARKET_PRICE / 100);
 

@@ -10,9 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -25,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import org.joda.beans.BeanBuilder;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A scenario result holding one value for each scenario.
@@ -66,6 +68,25 @@ public final class DefaultScenarioResult<T> implements ScenarioResult<T>, Immuta
    */
   public static <T> DefaultScenarioResult<T> of(List<T> values) {
     return new DefaultScenarioResult<>(values);
+  }
+
+  /**
+   * Obtains an instance using a function to create the entries.
+   * <p>
+   * The function is passed the scenario index and returns the value for that index.
+   * 
+   * @param size  the number of elements
+   * @param valueFunction  the function used to obtain each value
+   * @return an instance initialized using the function
+   * @throws IllegalArgumentException is size is zero or less
+   */
+  public static <T> DefaultScenarioResult<T> of(int size, IntFunction<T> valueFunction) {
+    ArgChecker.notNegativeOrZero(size, "size");
+    ImmutableList.Builder<T> builder = ImmutableList.builder();
+    for (int i = 0; i < size; i++) {
+      builder.add(valueFunction.apply(i));
+    }
+    return new DefaultScenarioResult<>(builder.build());
   }
 
   //-------------------------------------------------------------------------

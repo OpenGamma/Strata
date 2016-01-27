@@ -5,21 +5,14 @@
  */
 package com.opengamma.strata.function.calculation.deposit;
 
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toCurrencyValuesArray;
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toMultiCurrencyValuesArray;
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toScenarioResult;
-
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
-import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -55,10 +48,15 @@ class TermDepositMeasureCalculations {
       ExpandedTermDeposit product,
       CalculationMarketData marketData) {
 
-    DoubleArray array = DoubleArray.of(
+    return ValuesArray.of(
         marketData.getScenarioCount(),
-        index -> PRICER.parRate(product, ratesProvider(marketData, index)));
-    return ValuesArray.of(array);
+        i -> calculateParRate(product, marketData.scenario(i)));
+  }
+
+  // par rate for one scenario
+  private static double calculateParRate(ExpandedTermDeposit product, MarketData marketData) {
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+    return PRICER.parRate(product, provider);
   }
 
   //-------------------------------------------------------------------------
@@ -68,10 +66,15 @@ class TermDepositMeasureCalculations {
       ExpandedTermDeposit product,
       CalculationMarketData marketData) {
 
-    DoubleArray array = DoubleArray.of(
+    return ValuesArray.of(
         marketData.getScenarioCount(),
-        index -> PRICER.parSpread(product, ratesProvider(marketData, index)));
-    return ValuesArray.of(array);
+        i -> calculateParSpread(product, marketData.scenario(i)));
+  }
+
+  // par spread for one scenario
+  private static double calculateParSpread(ExpandedTermDeposit product, MarketData marketData) {
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+    return PRICER.parSpread(product, provider);
   }
 
   //-------------------------------------------------------------------------
@@ -81,9 +84,15 @@ class TermDepositMeasureCalculations {
       ExpandedTermDeposit product,
       CalculationMarketData marketData) {
 
-    return ratesProviderStream(marketData)
-        .map(provider -> PRICER.presentValue(product, provider))
-        .collect(toCurrencyValuesArray());
+    return CurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculatePresentValue(product, marketData.scenario(i)));
+  }
+
+  // present value for one scenario
+  private static CurrencyAmount calculatePresentValue(ExpandedTermDeposit product, MarketData marketData) {
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+    return PRICER.presentValue(product, provider);
   }
 
   //-------------------------------------------------------------------------
@@ -93,16 +102,14 @@ class TermDepositMeasureCalculations {
       ExpandedTermDeposit product,
       CalculationMarketData marketData) {
 
-    return ratesProviderStream(marketData)
-        .map(provider -> calculatePv01(product, provider))
-        .collect(toMultiCurrencyValuesArray());
+    return MultiCurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculatePv01(product, marketData.scenario(i)));
   }
 
   // PV01 for one scenario
-  private static MultiCurrencyAmount calculatePv01(
-      ExpandedTermDeposit product,
-      RatesProvider provider) {
-
+  private static MultiCurrencyAmount calculatePv01(ExpandedTermDeposit product, MarketData marketData) {
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, provider);
     return provider.curveParameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
@@ -114,30 +121,19 @@ class TermDepositMeasureCalculations {
       ExpandedTermDeposit product,
       CalculationMarketData marketData) {
 
-    return ratesProviderStream(marketData)
-        .map(provider -> calculateBucketedPv01(product, provider))
-        .collect(toScenarioResult());
+    return ScenarioResult.of(
+        marketData.getScenarioCount(),
+        i -> calculateBucketedPv01(product, marketData.scenario(i)));
   }
 
   // bucketed PV01 for one scenario
   private static CurveCurrencyParameterSensitivities calculateBucketedPv01(
       ExpandedTermDeposit product,
-      RatesProvider provider) {
+      MarketData marketData) {
 
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, provider);
     return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
-  }
-
-  //-------------------------------------------------------------------------
-  // common code, creating a stream of RatesProvider from CalculationMarketData
-  private static Stream<RatesProvider> ratesProviderStream(CalculationMarketData marketData) {
-    return IntStream.range(0, marketData.getScenarioCount())
-        .mapToObj(index -> ratesProvider(marketData, index));
-  }
-
-  // creates a RatesProvider
-  private static RatesProvider ratesProvider(CalculationMarketData marketData, int index) {
-    return new MarketDataRatesProvider(new SingleCalculationMarketData(marketData, index));
   }
 
 }

@@ -5,19 +5,12 @@
  */
 package com.opengamma.strata.function.calculation.fx;
 
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toMultiCurrencyValuesArray;
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toScenarioResult;
-
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
-import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -54,10 +47,15 @@ final class FxSwapMeasureCalculations {
       ExpandedFxSwap product,
       CalculationMarketData marketData) {
 
-    DoubleArray array = DoubleArray.of(
+    return ValuesArray.of(
         marketData.getScenarioCount(),
-        index -> PRICER.parSpread(product, ratesProvider(marketData, index)));
-    return ValuesArray.of(array);
+        i -> calculateParSpread(product, marketData.scenario(i)));
+  }
+
+  // par spread for one scenario
+  private static double calculateParSpread(ExpandedFxSwap product, MarketData marketData) {
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+    return PRICER.parSpread(product, provider);
   }
 
   //-------------------------------------------------------------------------
@@ -67,9 +65,15 @@ final class FxSwapMeasureCalculations {
       ExpandedFxSwap product,
       CalculationMarketData marketData) {
 
-    return ratesProviderStream(marketData)
-        .map(provider -> PRICER.presentValue(product, provider))
-        .collect(toMultiCurrencyValuesArray());
+    return MultiCurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculatePresentValue(product, marketData.scenario(i)));
+  }
+
+  // present value for one scenario
+  private static MultiCurrencyAmount calculatePresentValue(ExpandedFxSwap product, MarketData marketData) {
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+    return PRICER.presentValue(product, provider);
   }
 
   //-------------------------------------------------------------------------
@@ -79,16 +83,14 @@ final class FxSwapMeasureCalculations {
       ExpandedFxSwap product,
       CalculationMarketData marketData) {
 
-    return ratesProviderStream(marketData)
-        .map(provider -> calculatePv01(product, provider))
-        .collect(toMultiCurrencyValuesArray());
+    return MultiCurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculatePv01(product, marketData.scenario(i)));
   }
 
   // PV01 for one scenario
-  private static MultiCurrencyAmount calculatePv01(
-      ExpandedFxSwap product,
-      RatesProvider provider) {
-
+  private static MultiCurrencyAmount calculatePv01(ExpandedFxSwap product, MarketData marketData) {
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, provider);
     return provider.curveParameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
@@ -100,16 +102,17 @@ final class FxSwapMeasureCalculations {
       ExpandedFxSwap product,
       CalculationMarketData marketData) {
 
-    return ratesProviderStream(marketData)
-        .map(provider -> calculateBucketedPv01(product, provider))
-        .collect(toScenarioResult());
+    return ScenarioResult.of(
+        marketData.getScenarioCount(),
+        i -> calculateBucketedPv01(product, marketData.scenario(i)));
   }
 
   // bucketed PV01 for one scenario
   private static CurveCurrencyParameterSensitivities calculateBucketedPv01(
       ExpandedFxSwap product,
-      RatesProvider provider) {
+      MarketData marketData) {
 
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, provider);
     return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
   }
@@ -121,9 +124,15 @@ final class FxSwapMeasureCalculations {
       ExpandedFxSwap product,
       CalculationMarketData marketData) {
 
-    return ratesProviderStream(marketData)
-        .map(provider -> PRICER.currencyExposure(product, provider))
-        .collect(toMultiCurrencyValuesArray());
+    return MultiCurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculateCurrencyExposure(product, marketData.scenario(i)));
+  }
+
+  // currency exposure for one scenario
+  private static MultiCurrencyAmount calculateCurrencyExposure(ExpandedFxSwap product, MarketData marketData) {
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+    return PRICER.currencyExposure(product, provider);
   }
 
   //-------------------------------------------------------------------------
@@ -133,21 +142,15 @@ final class FxSwapMeasureCalculations {
       ExpandedFxSwap product,
       CalculationMarketData marketData) {
 
-    return ratesProviderStream(marketData)
-        .map(provider -> PRICER.currentCash(product, provider.getValuationDate()))
-        .collect(toMultiCurrencyValuesArray());
+    return MultiCurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculateCurrentCash(product, marketData.scenario(i)));
   }
 
-  //-------------------------------------------------------------------------
-  // common code, creating a stream of RatesProvider from CalculationMarketData
-  private static Stream<RatesProvider> ratesProviderStream(CalculationMarketData marketData) {
-    return IntStream.range(0, marketData.getScenarioCount())
-        .mapToObj(index -> ratesProvider(marketData, index));
-  }
-
-  // creates a RatesProvider
-  private static RatesProvider ratesProvider(CalculationMarketData marketData, int index) {
-    return new MarketDataRatesProvider(new SingleCalculationMarketData(marketData, index));
+  // current cash for one scenario
+  private static MultiCurrencyAmount calculateCurrentCash(ExpandedFxSwap product, MarketData marketData) {
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+    return PRICER.currentCash(product, provider.getValuationDate());
   }
 
 }

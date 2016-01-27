@@ -5,18 +5,10 @@
  */
 package com.opengamma.strata.function.calculation.swap;
 
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toCurrencyValuesArray;
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toMultiCurrencyValuesArray;
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toScenarioResult;
-
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -55,9 +47,9 @@ class DeliverableSwapFutureMeasureCalculations {
       DeliverableSwapFutureTrade trade,
       CalculationMarketData marketData) {
 
-    return marketDataStream(marketData)
-        .map(md -> calculatePresentValue(trade, md))
-        .collect(toCurrencyValuesArray());
+    return CurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculatePresentValue(trade, marketData.scenario(i)));
   }
 
   // present value for one scenario
@@ -65,7 +57,7 @@ class DeliverableSwapFutureMeasureCalculations {
       DeliverableSwapFutureTrade trade,
       MarketData marketData) {
 
-    RatesProvider provider = new MarketDataRatesProvider(marketData);
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
     QuoteKey key = QuoteKey.of(trade.getSecurity().getStandardId());
     double price = marketData.getValue(key) / 100;  // convert market quote to value needed
     return PRICER.presentValue(trade, provider, price);
@@ -77,9 +69,9 @@ class DeliverableSwapFutureMeasureCalculations {
       DeliverableSwapFutureTrade trade,
       CalculationMarketData marketData) {
 
-    return marketDataStream(marketData)
-        .map(md -> calculatePv01(trade, md))
-        .collect(toMultiCurrencyValuesArray());
+    return MultiCurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculatePv01(trade, marketData.scenario(i)));
   }
 
   // PV01 for one scenario
@@ -87,7 +79,7 @@ class DeliverableSwapFutureMeasureCalculations {
       DeliverableSwapFutureTrade trade,
       MarketData marketData) {
 
-    RatesProvider provider = new MarketDataRatesProvider(marketData);
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, provider);
     return provider.curveParameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
@@ -98,9 +90,9 @@ class DeliverableSwapFutureMeasureCalculations {
       DeliverableSwapFutureTrade trade,
       CalculationMarketData marketData) {
 
-    return marketDataStream(marketData)
-        .map(md -> calculateBucketedPv01(trade, md))
-        .collect(toScenarioResult());
+    return ScenarioResult.of(
+        marketData.getScenarioCount(),
+        i -> calculateBucketedPv01(trade, marketData.scenario(i)));
   }
 
   // bucketed PV01 for one scenario
@@ -108,16 +100,9 @@ class DeliverableSwapFutureMeasureCalculations {
       DeliverableSwapFutureTrade trade,
       MarketData marketData) {
 
-    RatesProvider provider = new MarketDataRatesProvider(marketData);
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, provider);
     return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
-  }
-
-  //-------------------------------------------------------------------------
-  // common code, creating a stream of MarketData from CalculationMarketData
-  private static Stream<MarketData> marketDataStream(CalculationMarketData marketData) {
-    return IntStream.range(0, marketData.getScenarioCount())
-        .mapToObj(index -> new SingleCalculationMarketData(marketData, index));
   }
 
 }

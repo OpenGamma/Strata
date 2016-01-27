@@ -29,10 +29,9 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
-import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
@@ -93,7 +92,7 @@ public class BulletPaymentCalculationFunctionTest {
   public void test_simpleMeasures() {
     BulletPaymentCalculationFunction function = new BulletPaymentCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = new MarketDataRatesProvider(new SingleCalculationMarketData(md, 0));
+    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingPaymentPricer pricer = DiscountingPaymentPricer.DEFAULT;
     CurrencyAmount expectedPv = pricer.presentValue(TRADE.getProduct().expandToPayment(), provider);
 
@@ -106,7 +105,7 @@ public class BulletPaymentCalculationFunctionTest {
   public void test_pv01() {
     BulletPaymentCalculationFunction function = new BulletPaymentCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = new MarketDataRatesProvider(new SingleCalculationMarketData(md, 0));
+    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingPaymentPricer pricer = DiscountingPaymentPricer.DEFAULT;
     PointSensitivities pvPointSens = pricer.presentValueSensitivity(TRADE.getProduct().expandToPayment(), provider).build();
     CurveCurrencyParameterSensitivities pvParamSens = provider.curveParameterSensitivity(pvPointSens);
@@ -118,7 +117,7 @@ public class BulletPaymentCalculationFunctionTest {
         .containsEntry(
             Measure.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
-            Measure.BUCKETED_PV01, Result.success(FxConvertibleList.of(ImmutableList.of(expectedBucketedPv01))));
+            Measure.BUCKETED_PV01, Result.success(ScenarioResult.of(ImmutableList.of(expectedBucketedPv01))));
   }
 
   //-------------------------------------------------------------------------

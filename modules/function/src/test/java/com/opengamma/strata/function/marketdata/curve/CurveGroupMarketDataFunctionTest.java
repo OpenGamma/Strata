@@ -37,7 +37,6 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
@@ -130,8 +129,7 @@ public class CurveGroupMarketDataFunctionTest {
 
     MarketData marketData = ImmutableMarketData.of(valuationDate, marketDataMap);
     TestMarketDataMap calculationMarketData = new TestMarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
-    MarketDataRatesProvider ratesProvider =
-        new MarketDataRatesProvider(new SingleCalculationMarketData(calculationMarketData, 0));
+    MarketDataRatesProvider ratesProvider = MarketDataRatesProvider.of(calculationMarketData.scenario(0));
 
     // The PV should be zero for an instrument used to build the curve
     nodes.stream().forEach(node -> checkFraPvIsZero(node, valuationDate, ratesProvider, marketData));
@@ -176,8 +174,7 @@ public class CurveGroupMarketDataFunctionTest {
         .build();
     MarketData marketData = ImmutableMarketData.of(valuationDate, marketDataMap);
     TestMarketDataMap calculationMarketData = new TestMarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
-    MarketDataRatesProvider ratesProvider =
-        new MarketDataRatesProvider(new SingleCalculationMarketData(calculationMarketData, 0));
+    MarketDataRatesProvider ratesProvider = MarketDataRatesProvider.of(calculationMarketData.scenario(0));
 
     checkFraPvIsZero((FraCurveNode) nodes.get(0), valuationDate, ratesProvider, marketData);
     checkFraPvIsZero((FraCurveNode) nodes.get(1), valuationDate, ratesProvider, marketData);

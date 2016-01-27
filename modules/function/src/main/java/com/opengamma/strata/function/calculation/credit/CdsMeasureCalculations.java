@@ -5,20 +5,12 @@
  */
 package com.opengamma.strata.function.calculation.credit;
 
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toCurrencyValuesArray;
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toScenarioResult;
-
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
-import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.IsdaCreditCurveInputs;
 import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
@@ -58,10 +50,9 @@ class CdsMeasureCalculations {
       ExpandedCds product,
       CalculationMarketData marketData) {
 
-    DoubleArray array = DoubleArray.of(
+    return ValuesArray.of(
         marketData.getScenarioCount(),
-        index -> calculateParRate(trade, product, singleScenarioMarketData(marketData, index)));
-    return ValuesArray.of(array);
+        index -> calculateParRate(trade, product, marketData.scenario(index)));
   }
 
   // par rate for one scenario
@@ -88,9 +79,9 @@ class CdsMeasureCalculations {
       ExpandedCds product,
       CalculationMarketData marketData) {
 
-    return marketDataStream(marketData)
-        .map(md -> calculatePresentValue(trade, product, md))
-        .collect(toCurrencyValuesArray());
+    return CurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculatePresentValue(trade, product, marketData.scenario(i)));
   }
 
   // present value for one scenario
@@ -118,9 +109,9 @@ class CdsMeasureCalculations {
       ExpandedCds product,
       CalculationMarketData marketData) {
 
-    return marketDataStream(marketData)
-        .map(md -> calculateIr01ParallelZero(trade, product, md))
-        .collect(toCurrencyValuesArray());
+    return CurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculateIr01ParallelZero(trade, product, marketData.scenario(i)));
   }
 
   // IR01 for one scenario
@@ -148,9 +139,9 @@ class CdsMeasureCalculations {
       ExpandedCds product,
       CalculationMarketData marketData) {
 
-    return marketDataStream(marketData)
-        .map(md -> calculateIr01BucketedZero(trade, product, md))
-        .collect(toScenarioResult());
+    return ScenarioResult.of(
+        marketData.getScenarioCount(),
+        i -> calculateIr01BucketedZero(trade, product, marketData.scenario(i)));
   }
 
   // bucketed IR01 for one scenario
@@ -178,9 +169,9 @@ class CdsMeasureCalculations {
       ExpandedCds product,
       CalculationMarketData marketData) {
 
-    return marketDataStream(marketData)
-        .map(md -> calculateIr01ParallelPar(trade, product, md))
-        .collect(toCurrencyValuesArray());
+    return CurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculateIr01ParallelPar(trade, product, marketData.scenario(i)));
   }
 
   // IR01 for one scenario
@@ -208,9 +199,9 @@ class CdsMeasureCalculations {
       ExpandedCds product,
       CalculationMarketData marketData) {
 
-    return marketDataStream(marketData)
-        .map(md -> calculateIr01BucketedPar(trade, product, md))
-        .collect(toScenarioResult());
+    return ScenarioResult.of(
+        marketData.getScenarioCount(),
+        i -> calculateIr01BucketedPar(trade, product, marketData.scenario(i)));
   }
 
   // bucketed IR01 for one scenario
@@ -238,9 +229,9 @@ class CdsMeasureCalculations {
       ExpandedCds product,
       CalculationMarketData marketData) {
 
-    return marketDataStream(marketData)
-        .map(md -> calculateCs01ParallelPar(trade, product, md))
-        .collect(toCurrencyValuesArray());
+    return CurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculateCs01ParallelPar(trade, product, marketData.scenario(i)));
   }
 
   // present value for one scenario
@@ -268,9 +259,9 @@ class CdsMeasureCalculations {
       ExpandedCds product,
       CalculationMarketData marketData) {
 
-    return marketDataStream(marketData)
-        .map(md -> calculateCs01BucketedPar(trade, product, md))
-        .collect(toScenarioResult());
+    return ScenarioResult.of(
+        marketData.getScenarioCount(),
+        i -> calculateCs01BucketedPar(trade, product, marketData.scenario(i)));
   }
 
   // bucketed CS01 for one scenario
@@ -298,9 +289,9 @@ class CdsMeasureCalculations {
       ExpandedCds product,
       CalculationMarketData marketData) {
 
-    return marketDataStream(marketData)
-        .map(md -> calculateCs01ParallelHazard(trade, product, md))
-        .collect(toCurrencyValuesArray());
+    return CurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculateCs01ParallelHazard(trade, product, marketData.scenario(i)));
   }
 
   // CS01 for one scenario
@@ -328,9 +319,9 @@ class CdsMeasureCalculations {
       ExpandedCds product,
       CalculationMarketData marketData) {
 
-    return marketDataStream(marketData)
-        .map(md -> calculateCs01BucketedHazard(trade, product, md))
-        .collect(toScenarioResult());
+    return ScenarioResult.of(
+        marketData.getScenarioCount(),
+        i -> calculateCs01BucketedHazard(trade, product, marketData.scenario(i)));
   }
 
   // bucketed CS01 for one scenario
@@ -358,9 +349,9 @@ class CdsMeasureCalculations {
       ExpandedCds product,
       CalculationMarketData marketData) {
 
-    return marketDataStream(marketData)
-        .map(md -> calculateRecovery01(trade, product, md))
-        .collect(toCurrencyValuesArray());
+    return CurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculateRecovery01(trade, product, marketData.scenario(i)));
   }
 
   // recovery01 for one scenario
@@ -388,9 +379,9 @@ class CdsMeasureCalculations {
       ExpandedCds product,
       CalculationMarketData marketData) {
 
-    return marketDataStream(marketData)
-        .map(md -> calculateJumpToDefault(trade, product, md))
-        .collect(toCurrencyValuesArray());
+    return CurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculateJumpToDefault(trade, product, marketData.scenario(i)));
   }
 
   // jump to default for one scenario
@@ -412,17 +403,6 @@ class CdsMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // common code, creating a stream of MarketData from CalculationMarketData
-  private static Stream<MarketData> marketDataStream(CalculationMarketData marketData) {
-    return IntStream.range(0, marketData.getScenarioCount())
-        .mapToObj(index -> new SingleCalculationMarketData(marketData, index));
-  }
-
-  // creates a MarketData
-  private static MarketData singleScenarioMarketData(CalculationMarketData marketData, int index) {
-    return new SingleCalculationMarketData(marketData, index);
-  }
-
   // obtains the credit curve inputs
   private static IsdaCreditCurveInputs creditCurveInputs(CdsTrade trade, MarketData marketData) {
     ReferenceInformation refInfo = trade.getProduct().getReferenceInformation();

@@ -5,17 +5,11 @@
  */
 package com.opengamma.strata.function.calculation.payment;
 
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toCurrencyValuesArray;
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toMultiCurrencyValuesArray;
-import static com.opengamma.strata.calc.runner.function.FunctionUtils.toScenarioResult;
-
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -53,9 +47,15 @@ class BulletPaymentMeasureCalculations {
       Payment payment,
       CalculationMarketData marketData) {
 
-    return ratesProviderStream(marketData)
-        .map(provider -> PRICER.presentValue(payment, provider))
-        .collect(toCurrencyValuesArray());
+    return CurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculatePresentValue(payment, marketData.scenario(i)));
+  }
+
+  // present value for one scenario
+  private static CurrencyAmount calculatePresentValue(Payment payment, MarketData marketData) {
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+    return PRICER.presentValue(payment, provider);
   }
 
   //-------------------------------------------------------------------------
@@ -65,16 +65,14 @@ class BulletPaymentMeasureCalculations {
       Payment payment,
       CalculationMarketData marketData) {
 
-    return ratesProviderStream(marketData)
-        .map(provider -> calculatePv01(payment, provider))
-        .collect(toMultiCurrencyValuesArray());
+    return MultiCurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculatePv01(payment, marketData.scenario(i)));
   }
 
   // PV01 for one scenario
-  private static MultiCurrencyAmount calculatePv01(
-      Payment payment,
-      RatesProvider provider) {
-
+  private static MultiCurrencyAmount calculatePv01(Payment payment, MarketData marketData) {
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(payment, provider).build();
     return provider.curveParameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
@@ -86,26 +84,16 @@ class BulletPaymentMeasureCalculations {
       Payment payment,
       CalculationMarketData marketData) {
 
-    return ratesProviderStream(marketData)
-        .map(provider -> calculateBucketedPv01(payment, provider))
-        .collect(toScenarioResult());
+    return ScenarioResult.of(
+        marketData.getScenarioCount(),
+        i -> calculateBucketedPv01(payment, marketData.scenario(i)));
   }
 
   // bucketed PV01 for one scenario
-  private static CurveCurrencyParameterSensitivities calculateBucketedPv01(
-      Payment payment,
-      RatesProvider provider) {
-
+  private static CurveCurrencyParameterSensitivities calculateBucketedPv01(Payment payment, MarketData marketData) {
+    RatesProvider provider = MarketDataRatesProvider.of(marketData);
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(payment, provider).build();
     return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
-  }
-
-  //-------------------------------------------------------------------------
-  // common code, creating a stream of RatesProvider from CalculationMarketData
-  private static Stream<RatesProvider> ratesProviderStream(CalculationMarketData marketData) {
-    return IntStream.range(0, marketData.getScenarioCount())
-        .mapToObj(index -> new SingleCalculationMarketData(marketData, index))
-        .map(market -> new MarketDataRatesProvider(market));
   }
 
 }

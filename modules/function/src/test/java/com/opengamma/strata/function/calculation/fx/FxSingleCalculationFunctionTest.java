@@ -29,10 +29,8 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
-import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
-import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
@@ -89,7 +87,7 @@ public class FxSingleCalculationFunctionTest {
   public void test_simpleMeasures() {
     FxSingleCalculationFunction function = new FxSingleCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = new MarketDataRatesProvider(new SingleCalculationMarketData(md, 0));
+    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingFxSingleProductPricer pricer = DiscountingFxSingleProductPricer.DEFAULT;
     MultiCurrencyAmount expectedPv = pricer.presentValue(TRADE.getProduct(), provider);
     double expectedParSpread = pricer.parSpread(TRADE.getProduct(), provider);
@@ -109,13 +107,13 @@ public class FxSingleCalculationFunctionTest {
         .containsEntry(
             Measure.CURRENT_CASH, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedCash))))
         .containsEntry(
-            Measure.FORWARD_FX_RATE, Result.success(DefaultScenarioResult.of(ImmutableList.of(expectedForwardFx))));
+            Measure.FORWARD_FX_RATE, Result.success(ScenarioResult.of(ImmutableList.of(expectedForwardFx))));
   }
 
   public void test_pv01() {
     FxSingleCalculationFunction function = new FxSingleCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = new MarketDataRatesProvider(new SingleCalculationMarketData(md, 0));
+    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingFxSingleProductPricer pricer = DiscountingFxSingleProductPricer.DEFAULT;
     PointSensitivities pvPointSens = pricer.presentValueSensitivity(TRADE.getProduct(), provider);
     CurveCurrencyParameterSensitivities pvParamSens = provider.curveParameterSensitivity(pvPointSens);
@@ -127,7 +125,7 @@ public class FxSingleCalculationFunctionTest {
         .containsEntry(
             Measure.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
-            Measure.BUCKETED_PV01, Result.success(FxConvertibleList.of(ImmutableList.of(expectedBucketedPv01))));
+            Measure.BUCKETED_PV01, Result.success(ScenarioResult.of(ImmutableList.of(expectedBucketedPv01))));
   }
 
   //-------------------------------------------------------------------------

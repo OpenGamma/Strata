@@ -5,9 +5,14 @@
  */
 package com.opengamma.strata.calc.runner.function.result;
 
+import java.util.List;
+import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A container for multiple results produced by performing a single calculation across multiple scenarios.
@@ -21,6 +26,59 @@ import com.opengamma.strata.calc.runner.function.CalculationFunction;
  */
 public interface ScenarioResult<T> {
 
+  /**
+   * Obtains an instance from the specified array of values.
+   *
+   * @param <T>  the type of the result
+   * @param values  the values, one value for each scenario
+   * @return an instance with the specified values
+   */
+  @SafeVarargs
+  public static <T> ScenarioResult<T> of(T... values) {
+    return of(ImmutableList.copyOf(values));
+  }
+
+  /**
+   * Obtains an instance from the specified list of values.
+   * <p>
+   * The values will be checked to see if they are currency convertible.
+   * If they are, then the {@code ScenarioResult} that is returned will be currency convertible.
+   *
+   * @param <T>  the type of the result
+   * @param values  the values, one value for each scenario
+   * @return an instance with the specified values
+   */
+  public static <T> ScenarioResult<T> of(List<T> values) {
+    // If all the results are FxConvertible wrap in a type that implements CurrencyConvertible
+    if (values.stream().allMatch(FxConvertible.class::isInstance)) {
+      return FxConvertibleList.casting(values);
+    }
+    return DefaultScenarioResult.of(values);
+  }
+
+  /**
+   * Obtains an instance using a function to create the entries.
+   * <p>
+   * The function is passed the scenario index and returns the value for that index.
+   * 
+   * @param size  the number of elements
+   * @param valueFunction  the function used to obtain each value
+   * @return an instance initialized using the function
+   * @throws IllegalArgumentException is size is zero or less
+   */
+  public static <T> ScenarioResult<T> of(int size, IntFunction<T> valueFunction) {
+    ArgChecker.notNegativeOrZero(size, "size");
+    boolean convertible = true;
+    ImmutableList.Builder<T> builder = ImmutableList.builder();
+    for (int i = 0; i < size; i++) {
+      T value = valueFunction.apply(i);
+      builder.add(value);
+      convertible &= value instanceof FxConvertible;
+    }
+    return convertible ? FxConvertibleList.casting(builder.build()) : ScenarioResult.of(builder.build());
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns the number of results.
    * <p>

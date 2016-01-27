@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
@@ -34,6 +35,7 @@ import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A currency-convertible scenario result holding one value for each scenario.
@@ -44,37 +46,78 @@ import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
  * Note that it is recommended to use optimized storage classes if appropriate.
  * Use {@link CurrencyValuesArray} for a list of {@link CurrencyAmount}.
  * Use {@link MultiCurrencyValuesArray} for a list of {@link MultiCurrencyAmount}.
+ * 
+ * @param <T>  the type of the each convertible
  */
 @BeanDefinition(builderScope = "private")
-public final class FxConvertibleList
-    implements CurrencyConvertible<ScenarioResult<?>>, ScenarioResult<FxConvertible<?>>, ImmutableBean {
+public final class FxConvertibleList<T extends FxConvertible<?>>
+    implements CurrencyConvertible<ScenarioResult<?>>, ScenarioResult<T>, ImmutableBean {
 
   /**
    * The calculated values, one per scenario.
    */
-  @PropertyDefinition(validate = "notNull", builderType = "List<? extends FxConvertible<?>>")
-  private final ImmutableList<FxConvertible<?>> values;
+  @PropertyDefinition(validate = "notNull", builderType = "List<? extends T>")
+  private final ImmutableList<T> values;
 
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance from the specified array of currency-convertible values.
    *
+   * @param <T>  the type of FX convertible element
    * @param values  the values, one value for each scenario
    * @return an instance with the specified values
    */
   @SafeVarargs
-  public static FxConvertibleList of(FxConvertible<?>... values) {
-    return new FxConvertibleList(ImmutableList.copyOf(values));
+  public static <T extends FxConvertible<?>> FxConvertibleList<T> of(T... values) {
+    return new FxConvertibleList<>(ImmutableList.copyOf(values));
   }
 
   /**
    * Obtains an instance from the specified list of currency-convertible values.
    *
+   * @param <T>  the type of FX convertible element
    * @param values  the values, one value for each scenario
    * @return an instance with the specified values
    */
-  public static FxConvertibleList of(List<? extends FxConvertible<?>> values) {
-    return new FxConvertibleList(values);
+  public static <T extends FxConvertible<?>> FxConvertibleList<T> of(List<? extends T> values) {
+    return new FxConvertibleList<>(values);
+  }
+
+  /**
+   * Obtains an instance using a function to create the entries.
+   * <p>
+   * The function is passed the scenario index and returns the value for that index.
+   * 
+   * @param <T>  the type of FX convertible element
+   * @param size  the number of elements
+   * @param valueFunction  the function used to obtain each value
+   * @return an instance initialized using the function
+   * @throws IllegalArgumentException is size is zero or less
+   */
+  public static <T extends FxConvertible<?>> FxConvertibleList<T> of(int size, IntFunction<T> valueFunction) {
+    ArgChecker.notNegativeOrZero(size, "size");
+    ImmutableList.Builder<T> builder = ImmutableList.builder();
+    for (int i = 0; i < size; i++) {
+      builder.add(valueFunction.apply(i));
+    }
+    return new FxConvertibleList<>(builder.build());
+  }
+
+  /**
+   * Obtains an instance from the specified list of currency-convertible values.
+   * <p>
+   * This is a nasty non-public method that hides the casts necessary.
+   * All elements in the input list must be pre-checked to ensure that they are {@code FxConvertible}.
+   * This code should be a private static method on {@code ScenarioResult} but interfaces cannot have private methods.
+   *
+   * @param <T>  the input and result type
+   * @param values  the values, one value for each scenario, all implementing {@link FxConvertible}
+   * @return an instance with the specified values
+   */
+  @SuppressWarnings("unchecked")
+  static <T> ScenarioResult<T> casting(List<T> values) {
+    List<FxConvertible<?>> convertibleResults = (List<FxConvertible<?>>) values;
+    return (ScenarioResult<T>) FxConvertibleList.of(convertibleResults);
   }
 
   //-------------------------------------------------------------------------
@@ -93,12 +136,12 @@ public final class FxConvertibleList
   }
 
   @Override
-  public FxConvertible<?> get(int index) {
+  public T get(int index) {
     return values.get(index);
   }
 
   @Override
-  public Stream<FxConvertible<?>> stream() {
+  public Stream<T> stream() {
     return values.stream();
   }
 
@@ -108,7 +151,19 @@ public final class FxConvertibleList
    * The meta-bean for {@code FxConvertibleList}.
    * @return the meta-bean, not null
    */
+  @SuppressWarnings("rawtypes")
   public static FxConvertibleList.Meta meta() {
+    return FxConvertibleList.Meta.INSTANCE;
+  }
+
+  /**
+   * The meta-bean for {@code FxConvertibleList}.
+   * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("unchecked")
+  public static <R extends FxConvertible<?>> FxConvertibleList.Meta<R> metaFxConvertibleList(Class<R> cls) {
     return FxConvertibleList.Meta.INSTANCE;
   }
 
@@ -117,13 +172,14 @@ public final class FxConvertibleList
   }
 
   private FxConvertibleList(
-      List<? extends FxConvertible<?>> values) {
+      List<? extends T> values) {
     JodaBeanUtils.notNull(values, "values");
     this.values = ImmutableList.copyOf(values);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public FxConvertibleList.Meta metaBean() {
+  public FxConvertibleList.Meta<T> metaBean() {
     return FxConvertibleList.Meta.INSTANCE;
   }
 
@@ -142,7 +198,7 @@ public final class FxConvertibleList
    * Gets the calculated values, one per scenario.
    * @return the value of the property, not null
    */
-  public ImmutableList<FxConvertible<?>> getValues() {
+  public ImmutableList<T> getValues() {
     return values;
   }
 
@@ -153,7 +209,7 @@ public final class FxConvertibleList
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      FxConvertibleList other = (FxConvertibleList) obj;
+      FxConvertibleList<?> other = (FxConvertibleList<?>) obj;
       return JodaBeanUtils.equal(values, other.values);
     }
     return false;
@@ -178,18 +234,20 @@ public final class FxConvertibleList
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FxConvertibleList}.
+   * @param <T>  the type
    */
-  public static final class Meta extends DirectMetaBean {
+  public static final class Meta<T extends FxConvertible<?>> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
      * The meta-property for the {@code values} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<FxConvertible<?>>> values = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableList<T>> values = DirectMetaProperty.ofImmutable(
         this, "values", FxConvertibleList.class, (Class) ImmutableList.class);
     /**
      * The meta-properties.
@@ -214,13 +272,14 @@ public final class FxConvertibleList
     }
 
     @Override
-    public BeanBuilder<? extends FxConvertibleList> builder() {
-      return new FxConvertibleList.Builder();
+    public BeanBuilder<? extends FxConvertibleList<T>> builder() {
+      return new FxConvertibleList.Builder<T>();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends FxConvertibleList> beanType() {
-      return FxConvertibleList.class;
+    public Class<? extends FxConvertibleList<T>> beanType() {
+      return (Class) FxConvertibleList.class;
     }
 
     @Override
@@ -233,7 +292,7 @@ public final class FxConvertibleList
      * The meta-property for the {@code values} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<FxConvertible<?>>> values() {
+    public MetaProperty<ImmutableList<T>> values() {
       return values;
     }
 
@@ -242,7 +301,7 @@ public final class FxConvertibleList
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -823812830:  // values
-          return ((FxConvertibleList) bean).getValues();
+          return ((FxConvertibleList<?>) bean).getValues();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -261,10 +320,11 @@ public final class FxConvertibleList
   //-----------------------------------------------------------------------
   /**
    * The bean-builder for {@code FxConvertibleList}.
+   * @param <T>  the type
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<FxConvertibleList> {
+  private static final class Builder<T extends FxConvertible<?>> extends DirectFieldsBeanBuilder<FxConvertibleList<T>> {
 
-    private List<? extends FxConvertible<?>> values = ImmutableList.of();
+    private List<? extends T> values = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -285,10 +345,10 @@ public final class FxConvertibleList
 
     @SuppressWarnings("unchecked")
     @Override
-    public Builder set(String propertyName, Object newValue) {
+    public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -823812830:  // values
-          this.values = (List<? extends FxConvertible<?>>) newValue;
+          this.values = (List<? extends T>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -297,32 +357,32 @@ public final class FxConvertibleList
     }
 
     @Override
-    public Builder set(MetaProperty<?> property, Object value) {
+    public Builder<T> set(MetaProperty<?> property, Object value) {
       super.set(property, value);
       return this;
     }
 
     @Override
-    public Builder setString(String propertyName, String value) {
+    public Builder<T> setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
     @Override
-    public Builder setString(MetaProperty<?> property, String value) {
+    public Builder<T> setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
     @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+    public Builder<T> setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;
     }
 
     @Override
-    public FxConvertibleList build() {
-      return new FxConvertibleList(
+    public FxConvertibleList<T> build() {
+      return new FxConvertibleList<T>(
           values);
     }
 

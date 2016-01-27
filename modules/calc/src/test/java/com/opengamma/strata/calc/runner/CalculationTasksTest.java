@@ -39,7 +39,7 @@ import com.opengamma.strata.calc.marketdata.TestKey;
 import com.opengamma.strata.calc.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
-import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
 
 /**
@@ -166,7 +166,7 @@ public class CalculationTasksTest {
         Set<Measure> measures,
         CalculationMarketData marketData) {
 
-      DefaultScenarioResult<String> array = DefaultScenarioResult.of("bar");
+      ScenarioResult<String> array = ScenarioResult.of("bar");
       return ImmutableMap.of(MEASURE1, Result.success(array));
     }
   }

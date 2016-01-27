@@ -22,7 +22,7 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
-import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
 
 @Test
@@ -38,7 +38,7 @@ public class FunctionConfigTest {
     CalculationFunction<TestTarget> function = config.createFunction();
     Map<Measure, Result<?>> result = function.calculate(new TestTarget("foo"), MEASURES, MARKET_DATA);
     assertThat(result.get(MEASURE).isSuccess()).isTrue();
-    assertThat(result.get(MEASURE).getValue()).isEqualTo(DefaultScenarioResult.of("FOO"));
+    assertThat(result.get(MEASURE).getValue()).isEqualTo(ScenarioResult.of("FOO"));
   }
 
   public void createFunctionWithConstructorArgsFromConfig() {
@@ -50,7 +50,7 @@ public class FunctionConfigTest {
     CalculationFunction<TestTarget> function = config.createFunction();
     Map<Measure, Result<?>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA);
     assertThat(result.get(MEASURE).isSuccess()).isTrue();
-    assertThat(result.get(MEASURE).getValue()).isEqualTo(DefaultScenarioResult.of("FooBarFooBar"));
+    assertThat(result.get(MEASURE).getValue()).isEqualTo(ScenarioResult.of("FooBarFooBar"));
   }
 
   public void createFunctionWithConstructorArgsPassedIn() {
@@ -58,7 +58,7 @@ public class FunctionConfigTest {
     CalculationFunction<TestTarget> function = config.createFunction(ImmutableMap.of("count", 2, "str", "Foo"));
     Map<Measure, Result<?>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA);
     assertThat(result.get(MEASURE).isSuccess()).isTrue();
-    assertThat(result.get(MEASURE).getValue()).isEqualTo(DefaultScenarioResult.of("FooBarFooBar"));
+    assertThat(result.get(MEASURE).getValue()).isEqualTo(ScenarioResult.of("FooBarFooBar"));
   }
 
   public void createFunctionWithMixedConstructorArgs() {
@@ -69,7 +69,7 @@ public class FunctionConfigTest {
     CalculationFunction<TestTarget> function = config.createFunction(ImmutableMap.of("str", "Foo"));
     Map<Measure, Result<?>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA);
     assertThat(result.get(MEASURE).isSuccess()).isTrue();
-    assertThat(result.get(MEASURE).getValue()).isEqualTo(DefaultScenarioResult.of("FooBarFooBar"));
+    assertThat(result.get(MEASURE).getValue()).isEqualTo(ScenarioResult.of("FooBarFooBar"));
   }
 
   public void createFunctionMissingArguments() {
@@ -127,7 +127,7 @@ public class FunctionConfigTest {
         Set<Measure> measures,
         CalculationMarketData marketData) {
 
-      DefaultScenarioResult<String> array = DefaultScenarioResult.of(target.str.toUpperCase(Locale.ENGLISH));
+      ScenarioResult<String> array = ScenarioResult.of(target.str.toUpperCase(Locale.ENGLISH));
       return ImmutableMap.of(MEASURE, Result.success(array));
     }
   }
@@ -160,7 +160,7 @@ public class FunctionConfigTest {
         Set<Measure> measures,
         CalculationMarketData marketData) {
 
-      DefaultScenarioResult<String> array = DefaultScenarioResult.of(Strings.repeat(str + target.str, count));
+      ScenarioResult<String> array = ScenarioResult.of(Strings.repeat(str + target.str, count));
       return ImmutableMap.of(MEASURE, Result.success(array));
     }
   }
@@ -188,7 +188,7 @@ public class FunctionConfigTest {
         Set<Measure> measures,
         CalculationMarketData marketData) {
 
-      DefaultScenarioResult<String> array = DefaultScenarioResult.of("");
+      ScenarioResult<String> array = ScenarioResult.of("");
       return ImmutableMap.of(MEASURE, Result.success(array));
     }
   }
@@ -219,7 +219,7 @@ public class FunctionConfigTest {
         Set<Measure> measures,
         CalculationMarketData marketData) {
 
-      DefaultScenarioResult<String> array = DefaultScenarioResult.of("");
+      ScenarioResult<String> array = ScenarioResult.of("");
       return ImmutableMap.of(MEASURE, Result.success(array));
     }
   }
