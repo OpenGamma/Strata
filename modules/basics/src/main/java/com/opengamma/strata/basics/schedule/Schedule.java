@@ -29,6 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount.ScheduleInfo;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -354,6 +355,30 @@ public final class Schedule
 
   //-------------------------------------------------------------------------
   /**
+   * Converts this schedule to a schedule where all the start and end dates are
+   * adjusted using the specified adjustment.
+   * <p>
+   * The result will have the same number of periods, but each start date and
+   * end date is replaced by the adjusted date as returned by the adjustment.
+   * The unadjusted start date and unadjusted end date of each period will not be changed.
+   * 
+   * @param businessDayAdjustment  the adjustment to use
+   * @return the adjusted schedule
+   */
+  public Schedule toAdjusted(BusinessDayAdjustment businessDayAdjustment) {
+    // implementation needs to return 'this' if unchanged to optimize downstream code
+    boolean adjusted = false;
+    ImmutableList.Builder<SchedulePeriod> builder = ImmutableList.builder();
+    for (SchedulePeriod period : periods) {
+      SchedulePeriod adjPeriod = period.toAdjusted(businessDayAdjustment);
+      builder.add(adjPeriod);
+      adjusted |= (adjPeriod != period);
+    }
+    return adjusted ? new Schedule(builder.build(), frequency, rollConvention) : this;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Converts this schedule to a schedule where every adjusted date is reset
    * to the unadjusted equivalent.
    * <p>
@@ -365,7 +390,7 @@ public final class Schedule
   public Schedule toUnadjusted() {
     return toBuilder()
         .periods(periods.stream()
-            .map(p -> SchedulePeriod.of(p.getUnadjustedStartDate(), p.getUnadjustedEndDate()))
+            .map(p -> p.toUnadjusted())
             .collect(toImmutableList()))
         .build();
   }

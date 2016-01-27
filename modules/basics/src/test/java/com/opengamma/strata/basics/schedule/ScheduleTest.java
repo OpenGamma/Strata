@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.basics.schedule;
 
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
+import static com.opengamma.strata.basics.date.HolidayCalendars.SAT_SUN;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P2M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
@@ -18,6 +20,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.Month.AUGUST;
 import static java.time.Month.DECEMBER;
 import static java.time.Month.JULY;
+import static java.time.Month.JUNE;
 import static java.time.Month.NOVEMBER;
 import static java.time.Month.OCTOBER;
 import static java.time.Month.SEPTEMBER;
@@ -29,6 +32,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 
 /**
  * Test {@link Schedule}.
@@ -36,6 +40,8 @@ import com.google.common.collect.ImmutableList;
 @Test
 public class ScheduleTest {
 
+  private static final LocalDate JUN_15 = date(2014, JUNE, 15);
+  private static final LocalDate JUN_16 = date(2014, JUNE, 16);
   private static final LocalDate JUL_04 = date(2014, JULY, 4);
   private static final LocalDate JUL_16 = date(2014, JULY, 16);
   private static final LocalDate JUL_17 = date(2014, JULY, 17);
@@ -407,6 +413,22 @@ public class ScheduleTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_toAdjusted() {
+    SchedulePeriod period1 = SchedulePeriod.of(JUN_15, SEP_17);
+    SchedulePeriod period2 = SchedulePeriod.of(SEP_17, SEP_30);
+    Schedule test = Schedule.builder()
+        .periods(period1, period2)
+        .frequency(P3M)
+        .rollConvention(DAY_17)
+        .build();
+    assertEquals(test.toAdjusted(BusinessDayAdjustment.NONE), test);
+    assertEquals(test.toAdjusted(BusinessDayAdjustment.of(FOLLOWING, SAT_SUN)), Schedule.builder()
+        .periods(SchedulePeriod.of(JUN_16, SEP_17, JUN_15, SEP_17), period2)
+        .frequency(P3M)
+        .rollConvention(DAY_17)
+        .build());
+  }
+
   public void test_toUnadjusted() {
     SchedulePeriod a = SchedulePeriod.of(JUL_17, OCT_17, JUL_16, OCT_15);
     SchedulePeriod b = SchedulePeriod.of(JUL_16, OCT_15, JUL_16, OCT_15);
