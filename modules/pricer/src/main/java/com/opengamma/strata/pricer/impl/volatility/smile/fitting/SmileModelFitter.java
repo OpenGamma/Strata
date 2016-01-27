@@ -171,7 +171,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   /**
    * Obtains the maximum number of iterations.
    * 
-   * @return  the maximum number. 
+   * @return the maximum number. 
    */
   protected abstract DoubleArray getMaximumStep();
 
@@ -179,7 +179,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * Obtains the nonlinear transformation of parameters from the initial values. 
    * 
    * @param start  the initial values
-   * @return  the nonlinear transformation
+   * @return the nonlinear transformation
    */
   protected abstract NonLinearParameterTransforms getTransform(DoubleArray start);
 
@@ -188,7 +188,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * 
    * @param start  the initial values
    * @param fixed  the parameters are fixed
-   * @return  the nonlinear transformation
+   * @return the nonlinear transformation
    */
   protected abstract NonLinearParameterTransforms getTransform(DoubleArray start, BitSet fixed);
 

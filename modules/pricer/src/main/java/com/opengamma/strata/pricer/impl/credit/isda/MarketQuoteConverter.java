@@ -36,21 +36,24 @@ public class MarketQuoteConverter {
   //**************************************************************************************************************
 
   /**
-   * The clean price as a fraction of notional (it is often expressed as a percentage of notional)
-   * @param fractionalPUF The points up-front (as a fraction)
-   * @return The clean price  (as a fraction)
+   * The clean price as a fraction of notional (it is often expressed as a percentage of notional).
+   * 
+   * @param fractionalPUF  the points up-front (as a fraction)
+   * @return the clean price (as a fraction)
    */
   public double cleanPrice(double fractionalPUF) {
     return 1 - fractionalPUF;
   }
 
   /**
-   * The clean price as a fraction of notional (it is often expressed as a percentage of notional)  - this requires that a
-   * credit curve is bootstrapped first
-   * @param cds The CDS to be traded
-   * @param yieldCurve the yield/discount curve
-   * @param creditCurve the credit/hazard curve
-   * @param coupon The fractional quoted spread (coupon) of the CDS
+   * The clean price as a fraction of notional (it is often expressed as a percentage of notional).
+   * <p>
+   * This requires that a credit curve is bootstrapped first.
+   * 
+   * @param cds  the CDS to be traded
+   * @param yieldCurve  the yield/discount curve
+   * @param creditCurve  the credit/hazard curve
+   * @param coupon  the fractional quoted spread (coupon) of the CDS
    * @return the clean price  (as a fraction)
    */
   public double cleanPrice(
@@ -64,13 +67,14 @@ public class MarketQuoteConverter {
   }
 
   /**
-   * The principal - this is the clean present value
-   * @param notional The notional of the trade
-   * @param cds The CDS to be traded
-   * @param yieldCurve the yield/discount curve
-   * @param creditCurve the credit/hazard curve
-   * @param coupon The fractional quoted spread (coupon) of the CDS
-   * @return The principle
+   * The principal - this is the clean present value.
+   * 
+   * @param notional  the notional of the trade
+   * @param cds  the CDS to be traded
+   * @param yieldCurve  the yield/discount curve
+   * @param creditCurve  the credit/hazard curve
+   * @param coupon  the fractional quoted spread (coupon) of the CDS
+   * @return the principle
    */
   public double principal(
       double notional,
@@ -83,13 +87,14 @@ public class MarketQuoteConverter {
   }
 
   /**
-   * Get the points up-front  - this requires that a credit curve is bootstrapped first
-   * @param cds The CDS to be traded
-   * @param premium The standard premium of the CDS <b>expressed as a fraction</b>
-   * @param yieldCurve the yield/discount curve
-   * @param creditCurve the credit/hazard curve
-   * @return  points up-front - these are usually quoted as a percentage of the notional - here we return a fraction of notional,
-   *  so 0.01 is 1(%) points up-front
+   * Get the points up-front  - this requires that a credit curve is bootstrapped first.
+   * 
+   * @param cds  the CDS to be traded
+   * @param premium  the standard premium of the CDS <b>expressed as a fraction</b>
+   * @param yieldCurve  the yield/discount curve
+   * @param creditCurve  the credit/hazard curve
+   * @return points up-front - these are usually quoted as a percentage of the notional.
+   *  Here we return a fraction of notional, so 0.01 is 1(%) points up-front
    */
   public double pointsUpFront(
       CdsAnalytic cds,
@@ -101,12 +106,16 @@ public class MarketQuoteConverter {
   }
 
   /**
-   * Get the points up-front for a collection of CDSs - this requires that a credit curve is bootstrapped first. This will
-   * give a slightly different answer to using a single (flat) credit curve for each CDS (the latter is the market standard)
-   * @param  cds collection of CDSs
-   * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
-   * @param yieldCurve the yield/discount curve
-   * @param creditCurve the credit/hazard curve
+   * Get the points up-front for a collection of CDSs - this requires that a credit curve
+   * is bootstrapped first.
+   * <p>
+   * This will give a slightly different answer to using a single (flat) credit curve for each
+   * CDS (the latter is the market standard).
+   * 
+   * @param cds  the collection of CDSs
+   * @param premium  the single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+   * @param yieldCurve  the yield/discount curve
+   * @param creditCurve  the credit/hazard curve
    * @return points up-front (as fractions)
    */
   public double[] pointsUpFront(
@@ -125,12 +134,16 @@ public class MarketQuoteConverter {
   }
 
   /**
-   * Get the points up-front for a collection of CDSs - this requires that a credit curve is bootstrapped first. This will
-   * give a slightly different answer to using a single (flat) credit curve for each CDS (the latter is the market standard)
-   * @param  cds collection of CDSs
-   * @param premiums The premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
-   * @param yieldCurve the yield/discount curve
-   * @param creditCurve the credit/hazard curve
+   * Get the points up-front for a collection of CDSs.
+   * <p>
+   * This requires that a credit curve is bootstrapped first. This will give a slightly
+   * different answer to using a single (flat) credit curve for each CDS
+   * (the latter is the market standard).
+   * 
+   * @param cds  the collection of CDSs
+   * @param premiums  the premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+   * @param yieldCurve  the yield/discount curve
+   * @param creditCurve  the credit/hazard curve
    * @return points-upfront (as fractions)
    */
   public double[] pointsUpFront(
@@ -151,9 +164,10 @@ public class MarketQuoteConverter {
 
   /**
    * The par spreads for a collection of CDSs where a single, non-flat, credit/hazard curve is known.
-   * @param cds collection of CDSs
-   * @param yieldCurve the yield/discount curve
-   * @param creditCurve the credit/hazard curve
+   * 
+   * @param cds  the collection of CDSs
+   * @param yieldCurve  the yield/discount curve
+   * @param creditCurve  the credit/hazard curve
    * @return par spreads
    */
   public double[] parSpreads(CdsAnalytic[] cds, IsdaCompliantYieldCurve yieldCurve, IsdaCompliantCreditCurve creditCurve) {

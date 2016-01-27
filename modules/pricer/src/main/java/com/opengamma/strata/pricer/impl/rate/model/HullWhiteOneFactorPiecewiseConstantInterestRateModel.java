@@ -7,20 +7,15 @@ package com.opengamma.strata.pricer.impl.rate.model;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
+import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.light.LightMetaBean;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
@@ -33,7 +28,7 @@ import com.opengamma.strata.math.impl.rootfinding.RidderSingleRootFinder;
 /**
  * Methods related to the Hull-White one factor (extended Vasicek) model with piecewise constant volatility.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(style = "light")
 public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implements ImmutableBean, Serializable {
 
   /**
@@ -832,14 +827,19 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code HullWhiteOneFactorPiecewiseConstantInterestRateModel}.
+   */
+  private static MetaBean META_BEAN = LightMetaBean.of(HullWhiteOneFactorPiecewiseConstantInterestRateModel.class);
+
+  /**
+   * The meta-bean for {@code HullWhiteOneFactorPiecewiseConstantInterestRateModel}.
    * @return the meta-bean, not null
    */
-  public static HullWhiteOneFactorPiecewiseConstantInterestRateModel.Meta meta() {
-    return HullWhiteOneFactorPiecewiseConstantInterestRateModel.Meta.INSTANCE;
+  public static MetaBean meta() {
+    return META_BEAN;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(HullWhiteOneFactorPiecewiseConstantInterestRateModel.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(META_BEAN);
   }
 
   /**
@@ -851,8 +851,8 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
   }
 
   @Override
-  public HullWhiteOneFactorPiecewiseConstantInterestRateModel.Meta metaBean() {
-    return HullWhiteOneFactorPiecewiseConstantInterestRateModel.Meta.INSTANCE;
+  public MetaBean metaBean() {
+    return META_BEAN;
   }
 
   @Override
@@ -889,106 +889,6 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
     buf.append("HullWhiteOneFactorPiecewiseConstantInterestRateModel{");
     buf.append('}');
     return buf.toString();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The meta-bean for {@code HullWhiteOneFactorPiecewiseConstantInterestRateModel}.
-   */
-  public static final class Meta extends DirectMetaBean {
-    /**
-     * The singleton instance of the meta-bean.
-     */
-    static final Meta INSTANCE = new Meta();
-
-    /**
-     * The meta-properties.
-     */
-    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null);
-
-    /**
-     * Restricted constructor.
-     */
-    private Meta() {
-    }
-
-    @Override
-    public BeanBuilder<? extends HullWhiteOneFactorPiecewiseConstantInterestRateModel> builder() {
-      return new HullWhiteOneFactorPiecewiseConstantInterestRateModel.Builder();
-    }
-
-    @Override
-    public Class<? extends HullWhiteOneFactorPiecewiseConstantInterestRateModel> beanType() {
-      return HullWhiteOneFactorPiecewiseConstantInterestRateModel.class;
-    }
-
-    @Override
-    public Map<String, MetaProperty<?>> metaPropertyMap() {
-      return metaPropertyMap$;
-    }
-
-    //-----------------------------------------------------------------------
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The bean-builder for {@code HullWhiteOneFactorPiecewiseConstantInterestRateModel}.
-   */
-  private static final class Builder extends DirectFieldsBeanBuilder<HullWhiteOneFactorPiecewiseConstantInterestRateModel> {
-
-    /**
-     * Restricted constructor.
-     */
-    private Builder() {
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public Object get(String propertyName) {
-      throw new NoSuchElementException("Unknown property: " + propertyName);
-    }
-
-    @Override
-    public Builder set(String propertyName, Object newValue) {
-      throw new NoSuchElementException("Unknown property: " + propertyName);
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
-      return this;
-    }
-
-    @Override
-    public HullWhiteOneFactorPiecewiseConstantInterestRateModel build() {
-      return new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public String toString() {
-      return "HullWhiteOneFactorPiecewiseConstantInterestRateModel.Builder{}";
-    }
-
   }
 
   ///CLOVER:ON

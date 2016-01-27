@@ -75,6 +75,13 @@ public final class NormalFormulaRepository {
   //-------------------------------------------------------------------------
   /**
    * Computes the price and first order derivatives.
+   * <p>
+   * The derivatives are stored in an array with:
+   * <ul>
+   * <li>[0] derivative with respect to the forward
+   * <li>[1] derivative with respect to the volatility
+   * <li>[2] derivative with respect to the strike
+   * </ul>
    * 
    * @param forward  the forward value of the underlying
    * @param strike  the strike
@@ -82,8 +89,7 @@ public final class NormalFormulaRepository {
    * @param normalVol  the normal volatility
    * @param numeraire  the numeraire
    * @param putCall  whether it is put or call
-   * @return a {@link ValueDerivatives} with the price in the value and the derivatives with
-   *  respect to [0] the forward, [1] the volatility and [2] the strike
+   * @return the price and associated derivatives
    */
   public static ValueDerivatives priceAdjoint(
       double forward,

@@ -52,11 +52,17 @@ public final class BlackPriceFunction {
 
   /**
    * Computes the Black price and its derivatives.
+   * <p>
+   * The derivatives are stored in an array with:
+   * <ul>
+   * <li>[0] derivative with respect to the forward
+   * <li>[1] derivative with respect to the volatility
+   * <li>[2] derivative with respect to the strike
+   * </ul>
    * 
    * @param option  the option description
    * @param data  the model data
-   * @return a {@link ValueDerivatives} with the price in the value and the derivatives with
-   *  respect to [0] the forward, [1] the volatility and [2] the strike
+   * @return the price and associated derivatives
    */
   public ValueDerivatives getPriceAdjoint(EuropeanVanillaOption option, BlackFunctionData data) {
     double strike = option.getStrike();

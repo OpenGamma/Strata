@@ -6,18 +6,14 @@
 package com.opengamma.strata.pricer.impl.volatility.smile.function;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
+import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.light.LightMetaBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +31,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * <p>
  * Reference: Hagan, P.; Kumar, D.; Lesniewski, A. & Woodward, D. "Managing smile risk", Wilmott Magazine, 2002, September, 84-108
  */
-@BeanDefinition
+@BeanDefinition(style = "light")
 public final class SabrHaganVolatilityFunctionProvider
     extends VolatilityFunctionProvider<SabrFormulaData> implements ImmutableBean, Serializable {
 
@@ -54,6 +50,7 @@ public final class SabrHaganVolatilityFunctionProvider
   private static final double RHO_EPS_NEGATIVE = 1e-8;
   private static final double ATM_EPS = 1e-7;
 
+  //-------------------------------------------------------------------------
   @Override
   public double getVolatility(double forward, double strike, double timeToExpiry, SabrFormulaData data) {
     ArgChecker.isTrue(forward > 0.0, "forward must be greater than zero");
@@ -120,15 +117,21 @@ public final class SabrHaganVolatilityFunctionProvider
   /**
    * Computes the implied volatility in the SABR model and its derivatives.
    * <p>
-   * The derivatives are stored in an array with [0] Derivative w.r.t the forward, [1] the derivative w.r.t the strike, 
-   * [2] the derivative w.r.t. to alpha, [3] the derivative w.r.t. to beta, [4] the derivative w.r.t. to rho, and 
-   * [5] the derivative w.r.t. to nu.
+   * The derivatives are stored in an array with:
+   * <ul>
+   * <li>[0] derivative with respect to the forward
+   * <li>[1] derivative with respect to the strike
+   * <li>[2] derivative with respect to the alpha
+   * <li>[3] derivative with respect to the beta
+   * <li>[4] derivative with respect to the rho
+   * <li>[5] derivative with respect to the nu
+   * </ul>
    * 
    * @param forward  the forward value of the underlying
    * @param strike  the strike value of the option
    * @param timeToExpiry  the time to expiry of the option
-   * @param data The SABR data.
-   * @return the volatility and sensitivities
+   * @param data  the SABR data
+   * @return the volatility and associated derivatives
    */
   @Override
   public ValueDerivatives getVolatilityAdjoint(double forward, double strike, double timeToExpiry, SabrFormulaData data) {
@@ -567,14 +570,19 @@ public final class SabrHaganVolatilityFunctionProvider
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code SabrHaganVolatilityFunctionProvider}.
+   */
+  private static MetaBean META_BEAN = LightMetaBean.of(SabrHaganVolatilityFunctionProvider.class);
+
+  /**
+   * The meta-bean for {@code SabrHaganVolatilityFunctionProvider}.
    * @return the meta-bean, not null
    */
-  public static SabrHaganVolatilityFunctionProvider.Meta meta() {
-    return SabrHaganVolatilityFunctionProvider.Meta.INSTANCE;
+  public static MetaBean meta() {
+    return META_BEAN;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(SabrHaganVolatilityFunctionProvider.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(META_BEAN);
   }
 
   /**
@@ -582,20 +590,12 @@ public final class SabrHaganVolatilityFunctionProvider
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static SabrHaganVolatilityFunctionProvider.Builder builder() {
-    return new SabrHaganVolatilityFunctionProvider.Builder();
-  }
-
   private SabrHaganVolatilityFunctionProvider() {
   }
 
   @Override
-  public SabrHaganVolatilityFunctionProvider.Meta metaBean() {
-    return SabrHaganVolatilityFunctionProvider.Meta.INSTANCE;
+  public MetaBean metaBean() {
+    return META_BEAN;
   }
 
   @Override
@@ -609,105 +609,6 @@ public final class SabrHaganVolatilityFunctionProvider
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * The meta-bean for {@code SabrHaganVolatilityFunctionProvider}.
-   */
-  public static final class Meta extends DirectMetaBean {
-    /**
-     * The singleton instance of the meta-bean.
-     */
-    static final Meta INSTANCE = new Meta();
-
-    /**
-     * The meta-properties.
-     */
-    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null);
-
-    /**
-     * Restricted constructor.
-     */
-    private Meta() {
-    }
-
-    @Override
-    public SabrHaganVolatilityFunctionProvider.Builder builder() {
-      return new SabrHaganVolatilityFunctionProvider.Builder();
-    }
-
-    @Override
-    public Class<? extends SabrHaganVolatilityFunctionProvider> beanType() {
-      return SabrHaganVolatilityFunctionProvider.class;
-    }
-
-    @Override
-    public Map<String, MetaProperty<?>> metaPropertyMap() {
-      return metaPropertyMap$;
-    }
-
-    //-----------------------------------------------------------------------
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The bean-builder for {@code SabrHaganVolatilityFunctionProvider}.
-   */
-  public static final class Builder extends DirectFieldsBeanBuilder<SabrHaganVolatilityFunctionProvider> {
-
-    /**
-     * Restricted constructor.
-     */
-    private Builder() {
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public Object get(String propertyName) {
-      throw new NoSuchElementException("Unknown property: " + propertyName);
-    }
-
-    @Override
-    public Builder set(String propertyName, Object newValue) {
-      throw new NoSuchElementException("Unknown property: " + propertyName);
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
-      return this;
-    }
-
-    @Override
-    public SabrHaganVolatilityFunctionProvider build() {
-      return new SabrHaganVolatilityFunctionProvider();
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public String toString() {
-      return "SabrHaganVolatilityFunctionProvider.Builder{}";
-    }
-
-  }
-
   ///CLOVER:ON
   //-------------------------- AUTOGENERATED END --------------------------
 }

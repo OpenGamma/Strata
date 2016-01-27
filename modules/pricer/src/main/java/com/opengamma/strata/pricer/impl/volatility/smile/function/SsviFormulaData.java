@@ -6,23 +6,16 @@
 package com.opengamma.strata.pricer.impl.volatility.smile.function;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
+import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.light.LightMetaBean;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -32,18 +25,20 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * <p>
  * The bundle contains the SSVI model parameters, ATM volatility, rho and eta. 
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(style = "light")
 public final class SsviFormulaData
     implements SmileModelData, ImmutableBean, Serializable {
+
   /**
    * The number of model parameters. 
    */
   private static final int NUM_PARAMETERS = 3;
+
   /**
    * The model parameters. 
    * <p>
-   * This should be initialized as an array with length 3.
-   * The parameters in the array are in the order of ATM volatility, rho and eta.
+   * This must be an array of length 3.
+   * The parameters in the array are in the order of sigma (ATM volatility), rho and eta.
    * The constraints for the parameters are defined in {@link #isAllowed(int, double)}.
    */
   @PropertyDefinition(validate = "notNull")
@@ -51,11 +46,11 @@ public final class SsviFormulaData
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance of the SABR formula data. 
+   * Obtains an instance of the SSVI formula data. 
    * 
    * @param sigma  the sigma parameter, ATM volatility
    * @param rho  the rho parameter
-   * @param eta  the eta parameter 
+   * @param eta  the eta parameter
    * @return the instance
    */
   public static SsviFormulaData of(double sigma, double rho, double eta) {
@@ -63,12 +58,12 @@ public final class SsviFormulaData
   }
 
   /**
-   * Obtains an instance of the SABR formula data. 
+   * Obtains an instance of the SSVI formula data. 
    * <p>
-   * The parameters in the input array should be in the order of alpha, beta, rho and nu.  
+   * The parameters in the input array should be in the order of sigma (ATM volatility), rho and eta.  
    * 
    * @param parameters  the parameters
-   * @return  the instance
+   * @return the instance
    */
   public static SsviFormulaData of(double[] parameters) {
     ArgChecker.notNull(parameters, "parameters");
@@ -78,14 +73,14 @@ public final class SsviFormulaData
 
   @ImmutableValidator
   private void validate() {
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < NUM_PARAMETERS; ++i) {
       ArgChecker.isTrue(isAllowed(i, parameters.get(i)), "the {}-th parameter is not allowed", i);
     }
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the sigma parameter. 
+   * Gets the sigma parameter. 
    * 
    * @return the sigma parameter
    */
@@ -94,7 +89,7 @@ public final class SsviFormulaData
   }
 
   /**
-   * Obtains the rho parameter. 
+   * Gets the rho parameter. 
    * 
    * @return the rho parameter
    */
@@ -103,7 +98,7 @@ public final class SsviFormulaData
   }
 
   /**
-   * Obtains the eta parameters.
+   * Gets the eta parameters.
    * 
    * @return the eta parameter
    */
@@ -111,31 +106,32 @@ public final class SsviFormulaData
     return parameters.get(2);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Obtains a new SSVI formula data bundle with sigma replaced. 
+   * Returns a copy of this instance with sigma replaced.
    * 
    * @param sigma  the new sigma
-   * @return the new bundle
+   * @return the new data instance
    */
   public SsviFormulaData withSigma(double sigma) {
     return of(sigma, getRho(), getEta());
   }
 
   /**
-   * Obtains a new SSVI formula data bundle with rho replaced. 
+   * Returns a copy of this instance with rho replaced.
    * 
    * @param rho  the new rho
-   * @return the new bundle
+   * @return the new data instance
    */
   public SsviFormulaData withRho(double rho) {
     return of(getSigma(), rho, getEta());
   }
 
   /**
-   * Obtains a new SSVI formula data bundle with eta replaced. 
+   * Returns a copy of this instance with eta replaced.
    * 
    * @param eta  the new eta
-   * @return the new bundle
+   * @return the new data instance
    */
   public SsviFormulaData withEta(double eta) {
     return of(getSigma(), getRho(), eta);
@@ -169,7 +165,7 @@ public final class SsviFormulaData
 
   @Override
   public SsviFormulaData with(int index, double value) {
-    ArgChecker.inRangeExclusive(index, -1, NUM_PARAMETERS, "index");
+    ArgChecker.inRange(index, 0, NUM_PARAMETERS, "index");
     double[] paramsCp = parameters.toArray();
     paramsCp[index] = value;
     return of(paramsCp);
@@ -179,14 +175,19 @@ public final class SsviFormulaData
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code SsviFormulaData}.
+   */
+  private static MetaBean META_BEAN = LightMetaBean.of(SsviFormulaData.class);
+
+  /**
+   * The meta-bean for {@code SsviFormulaData}.
    * @return the meta-bean, not null
    */
-  public static SsviFormulaData.Meta meta() {
-    return SsviFormulaData.Meta.INSTANCE;
+  public static MetaBean meta() {
+    return META_BEAN;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(SsviFormulaData.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(META_BEAN);
   }
 
   /**
@@ -202,8 +203,8 @@ public final class SsviFormulaData
   }
 
   @Override
-  public SsviFormulaData.Meta metaBean() {
-    return SsviFormulaData.Meta.INSTANCE;
+  public MetaBean metaBean() {
+    return META_BEAN;
   }
 
   @Override
@@ -220,8 +221,8 @@ public final class SsviFormulaData
   /**
    * Gets the model parameters.
    * <p>
-   * This should be initialized as an array with length 3.
-   * The parameters in the array are in the order of ATM volatility, rho and eta.
+   * This must be an array of length 3.
+   * The parameters in the array are in the order of sigma (ATM volatility), rho and eta.
    * The constraints for the parameters are defined in {@link #isAllowed(int, double)}.
    * @return the value of the property, not null
    */
@@ -256,167 +257,6 @@ public final class SsviFormulaData
     buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters));
     buf.append('}');
     return buf.toString();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The meta-bean for {@code SsviFormulaData}.
-   */
-  public static final class Meta extends DirectMetaBean {
-    /**
-     * The singleton instance of the meta-bean.
-     */
-    static final Meta INSTANCE = new Meta();
-
-    /**
-     * The meta-property for the {@code parameters} property.
-     */
-    private final MetaProperty<DoubleArray> parameters = DirectMetaProperty.ofImmutable(
-        this, "parameters", SsviFormulaData.class, DoubleArray.class);
-    /**
-     * The meta-properties.
-     */
-    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
-        "parameters");
-
-    /**
-     * Restricted constructor.
-     */
-    private Meta() {
-    }
-
-    @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case 458736106:  // parameters
-          return parameters;
-      }
-      return super.metaPropertyGet(propertyName);
-    }
-
-    @Override
-    public BeanBuilder<? extends SsviFormulaData> builder() {
-      return new SsviFormulaData.Builder();
-    }
-
-    @Override
-    public Class<? extends SsviFormulaData> beanType() {
-      return SsviFormulaData.class;
-    }
-
-    @Override
-    public Map<String, MetaProperty<?>> metaPropertyMap() {
-      return metaPropertyMap$;
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code parameters} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DoubleArray> parameters() {
-      return parameters;
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
-      switch (propertyName.hashCode()) {
-        case 458736106:  // parameters
-          return ((SsviFormulaData) bean).getParameters();
-      }
-      return super.propertyGet(bean, propertyName, quiet);
-    }
-
-    @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
-      metaProperty(propertyName);
-      if (quiet) {
-        return;
-      }
-      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
-    }
-
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The bean-builder for {@code SsviFormulaData}.
-   */
-  private static final class Builder extends DirectFieldsBeanBuilder<SsviFormulaData> {
-
-    private DoubleArray parameters;
-
-    /**
-     * Restricted constructor.
-     */
-    private Builder() {
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public Object get(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case 458736106:  // parameters
-          return parameters;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-    }
-
-    @Override
-    public Builder set(String propertyName, Object newValue) {
-      switch (propertyName.hashCode()) {
-        case 458736106:  // parameters
-          this.parameters = (DoubleArray) newValue;
-          break;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
-      return this;
-    }
-
-    @Override
-    public SsviFormulaData build() {
-      return new SsviFormulaData(
-          parameters);
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public String toString() {
-      StringBuilder buf = new StringBuilder(64);
-      buf.append("SsviFormulaData.Builder{");
-      buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters));
-      buf.append('}');
-      return buf.toString();
-    }
-
   }
 
   ///CLOVER:ON

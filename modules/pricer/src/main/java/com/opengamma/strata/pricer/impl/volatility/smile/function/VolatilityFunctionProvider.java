@@ -41,7 +41,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
    * @param strike  the strike value of the option
    * @param timeToExpiry  the time to expiry of the option
    * @param data  the model data
-   * @return the sensitivities
+   * @return the volatility and associated derivatives
    */
   public ValueDerivatives getVolatilityAdjoint(double forward, double strike, double timeToExpiry, T data) {
     ArgChecker.isTrue(forward >= 0.0, "forward must be greater than zero");

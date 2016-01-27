@@ -179,7 +179,7 @@ public final class HullWhiteOneFactorPiecewiseConstantParametersProvider
    * @param endDate  the end date of the period
    * @param numeraireDate  the numeraire date
    * @param maturityDate  the maturity date
-   * @return  the alpha adjoint
+   * @return the alpha adjoint
    */
   public ValueDerivatives alphaAdjoint(
       LocalDate startDate,

@@ -5,22 +5,15 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
+import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.light.LightMetaBean;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
@@ -40,7 +33,7 @@ import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunc
  * The implementation allows for shifted SABR model. 
  * The shift parameter is also {@link NodalSurface} defined by expiry and tenor.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(style = "light")
 public final class SabrInterestRateParameters
     implements VolatilityModel<DoubleArray>, ImmutableBean {
 
@@ -231,7 +224,7 @@ public final class SabrInterestRateParameters
    * @param tenor  the tenor of the instrument as a year fraction
    * @param strike  the strike
    * @param forward  the forward
-   * @return the volatility and associated sensitivities
+   * @return the volatility and associated derivatives
    */
   public ValueDerivatives volatilityAdjoint(double expiry, double tenor, double strike, double forward) {
     SabrFormulaData data = SabrFormulaData.of(
@@ -244,14 +237,19 @@ public final class SabrInterestRateParameters
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code SabrInterestRateParameters}.
+   */
+  private static MetaBean META_BEAN = LightMetaBean.of(SabrInterestRateParameters.class);
+
+  /**
+   * The meta-bean for {@code SabrInterestRateParameters}.
    * @return the meta-bean, not null
    */
-  public static SabrInterestRateParameters.Meta meta() {
-    return SabrInterestRateParameters.Meta.INSTANCE;
+  public static MetaBean meta() {
+    return META_BEAN;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(SabrInterestRateParameters.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(META_BEAN);
   }
 
   private SabrInterestRateParameters(
@@ -276,8 +274,8 @@ public final class SabrInterestRateParameters
   }
 
   @Override
-  public SabrInterestRateParameters.Meta metaBean() {
-    return SabrInterestRateParameters.Meta.INSTANCE;
+  public MetaBean metaBean() {
+    return META_BEAN;
   }
 
   @Override
@@ -399,299 +397,6 @@ public final class SabrInterestRateParameters
     buf.append("shiftSurface").append('=').append(JodaBeanUtils.toString(shiftSurface));
     buf.append('}');
     return buf.toString();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The meta-bean for {@code SabrInterestRateParameters}.
-   */
-  public static final class Meta extends DirectMetaBean {
-    /**
-     * The singleton instance of the meta-bean.
-     */
-    static final Meta INSTANCE = new Meta();
-
-    /**
-     * The meta-property for the {@code alphaSurface} property.
-     */
-    private final MetaProperty<NodalSurface> alphaSurface = DirectMetaProperty.ofImmutable(
-        this, "alphaSurface", SabrInterestRateParameters.class, NodalSurface.class);
-    /**
-     * The meta-property for the {@code betaSurface} property.
-     */
-    private final MetaProperty<NodalSurface> betaSurface = DirectMetaProperty.ofImmutable(
-        this, "betaSurface", SabrInterestRateParameters.class, NodalSurface.class);
-    /**
-     * The meta-property for the {@code rhoSurface} property.
-     */
-    private final MetaProperty<NodalSurface> rhoSurface = DirectMetaProperty.ofImmutable(
-        this, "rhoSurface", SabrInterestRateParameters.class, NodalSurface.class);
-    /**
-     * The meta-property for the {@code nuSurface} property.
-     */
-    private final MetaProperty<NodalSurface> nuSurface = DirectMetaProperty.ofImmutable(
-        this, "nuSurface", SabrInterestRateParameters.class, NodalSurface.class);
-    /**
-     * The meta-property for the {@code sabrFunctionProvider} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<VolatilityFunctionProvider<SabrFormulaData>> sabrFunctionProvider = DirectMetaProperty.ofImmutable(
-        this, "sabrFunctionProvider", SabrInterestRateParameters.class, (Class) VolatilityFunctionProvider.class);
-    /**
-     * The meta-property for the {@code shiftSurface} property.
-     */
-    private final MetaProperty<NodalSurface> shiftSurface = DirectMetaProperty.ofImmutable(
-        this, "shiftSurface", SabrInterestRateParameters.class, NodalSurface.class);
-    /**
-     * The meta-properties.
-     */
-    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
-        "alphaSurface",
-        "betaSurface",
-        "rhoSurface",
-        "nuSurface",
-        "sabrFunctionProvider",
-        "shiftSurface");
-
-    /**
-     * Restricted constructor.
-     */
-    private Meta() {
-    }
-
-    @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case 667823471:  // alphaSurface
-          return alphaSurface;
-        case -526589795:  // betaSurface
-          return betaSurface;
-        case 65433972:  // rhoSurface
-          return rhoSurface;
-        case 605272294:  // nuSurface
-          return nuSurface;
-        case 678202663:  // sabrFunctionProvider
-          return sabrFunctionProvider;
-        case 1038377419:  // shiftSurface
-          return shiftSurface;
-      }
-      return super.metaPropertyGet(propertyName);
-    }
-
-    @Override
-    public BeanBuilder<? extends SabrInterestRateParameters> builder() {
-      return new SabrInterestRateParameters.Builder();
-    }
-
-    @Override
-    public Class<? extends SabrInterestRateParameters> beanType() {
-      return SabrInterestRateParameters.class;
-    }
-
-    @Override
-    public Map<String, MetaProperty<?>> metaPropertyMap() {
-      return metaPropertyMap$;
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code alphaSurface} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<NodalSurface> alphaSurface() {
-      return alphaSurface;
-    }
-
-    /**
-     * The meta-property for the {@code betaSurface} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<NodalSurface> betaSurface() {
-      return betaSurface;
-    }
-
-    /**
-     * The meta-property for the {@code rhoSurface} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<NodalSurface> rhoSurface() {
-      return rhoSurface;
-    }
-
-    /**
-     * The meta-property for the {@code nuSurface} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<NodalSurface> nuSurface() {
-      return nuSurface;
-    }
-
-    /**
-     * The meta-property for the {@code sabrFunctionProvider} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<VolatilityFunctionProvider<SabrFormulaData>> sabrFunctionProvider() {
-      return sabrFunctionProvider;
-    }
-
-    /**
-     * The meta-property for the {@code shiftSurface} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<NodalSurface> shiftSurface() {
-      return shiftSurface;
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
-      switch (propertyName.hashCode()) {
-        case 667823471:  // alphaSurface
-          return ((SabrInterestRateParameters) bean).getAlphaSurface();
-        case -526589795:  // betaSurface
-          return ((SabrInterestRateParameters) bean).getBetaSurface();
-        case 65433972:  // rhoSurface
-          return ((SabrInterestRateParameters) bean).getRhoSurface();
-        case 605272294:  // nuSurface
-          return ((SabrInterestRateParameters) bean).getNuSurface();
-        case 678202663:  // sabrFunctionProvider
-          return ((SabrInterestRateParameters) bean).getSabrFunctionProvider();
-        case 1038377419:  // shiftSurface
-          return ((SabrInterestRateParameters) bean).getShiftSurface();
-      }
-      return super.propertyGet(bean, propertyName, quiet);
-    }
-
-    @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
-      metaProperty(propertyName);
-      if (quiet) {
-        return;
-      }
-      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
-    }
-
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The bean-builder for {@code SabrInterestRateParameters}.
-   */
-  private static final class Builder extends DirectFieldsBeanBuilder<SabrInterestRateParameters> {
-
-    private NodalSurface alphaSurface;
-    private NodalSurface betaSurface;
-    private NodalSurface rhoSurface;
-    private NodalSurface nuSurface;
-    private VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider;
-    private NodalSurface shiftSurface;
-
-    /**
-     * Restricted constructor.
-     */
-    private Builder() {
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public Object get(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case 667823471:  // alphaSurface
-          return alphaSurface;
-        case -526589795:  // betaSurface
-          return betaSurface;
-        case 65433972:  // rhoSurface
-          return rhoSurface;
-        case 605272294:  // nuSurface
-          return nuSurface;
-        case 678202663:  // sabrFunctionProvider
-          return sabrFunctionProvider;
-        case 1038377419:  // shiftSurface
-          return shiftSurface;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Builder set(String propertyName, Object newValue) {
-      switch (propertyName.hashCode()) {
-        case 667823471:  // alphaSurface
-          this.alphaSurface = (NodalSurface) newValue;
-          break;
-        case -526589795:  // betaSurface
-          this.betaSurface = (NodalSurface) newValue;
-          break;
-        case 65433972:  // rhoSurface
-          this.rhoSurface = (NodalSurface) newValue;
-          break;
-        case 605272294:  // nuSurface
-          this.nuSurface = (NodalSurface) newValue;
-          break;
-        case 678202663:  // sabrFunctionProvider
-          this.sabrFunctionProvider = (VolatilityFunctionProvider<SabrFormulaData>) newValue;
-          break;
-        case 1038377419:  // shiftSurface
-          this.shiftSurface = (NodalSurface) newValue;
-          break;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
-      return this;
-    }
-
-    @Override
-    public SabrInterestRateParameters build() {
-      return new SabrInterestRateParameters(
-          alphaSurface,
-          betaSurface,
-          rhoSurface,
-          nuSurface,
-          sabrFunctionProvider,
-          shiftSurface);
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public String toString() {
-      StringBuilder buf = new StringBuilder(224);
-      buf.append("SabrInterestRateParameters.Builder{");
-      buf.append("alphaSurface").append('=').append(JodaBeanUtils.toString(alphaSurface)).append(',').append(' ');
-      buf.append("betaSurface").append('=').append(JodaBeanUtils.toString(betaSurface)).append(',').append(' ');
-      buf.append("rhoSurface").append('=').append(JodaBeanUtils.toString(rhoSurface)).append(',').append(' ');
-      buf.append("nuSurface").append('=').append(JodaBeanUtils.toString(nuSurface)).append(',').append(' ');
-      buf.append("sabrFunctionProvider").append('=').append(JodaBeanUtils.toString(sabrFunctionProvider)).append(',').append(' ');
-      buf.append("shiftSurface").append('=').append(JodaBeanUtils.toString(shiftSurface));
-      buf.append('}');
-      return buf.toString();
-    }
-
   }
 
   ///CLOVER:ON
