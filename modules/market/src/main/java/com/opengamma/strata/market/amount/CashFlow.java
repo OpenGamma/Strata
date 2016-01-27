@@ -27,13 +27,15 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxConvertible;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 
 /**
  * A single cash flow of a currency amount on a specific date.
  */
 @BeanDefinition(builderScope = "private")
 public final class CashFlow
-    implements Comparable<CashFlow>, ImmutableBean, Serializable {
+    implements FxConvertible<CashFlow>, Comparable<CashFlow>, ImmutableBean, Serializable {
 
   /**
    * The payment date.
@@ -120,6 +122,28 @@ public final class CashFlow
    */
   public static CashFlow ofForecastValue(LocalDate paymentDate, Currency currency, double forecastValue, double discountFactor) {
     return ofForecastValue(paymentDate, CurrencyAmount.of(currency, forecastValue), discountFactor);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts this cash flow to an equivalent amount in the specified currency.
+   * <p>
+   * The result will have both the present and forecast value expressed in terms of the given currency.
+   * If conversion is needed, the provider will be used to supply the FX rate.
+   * 
+   * @param resultCurrency  the currency of the result
+   * @param rateProvider  the provider of FX rates
+   * @return the converted instance, in the specified currency
+   * @throws RuntimeException if no FX rate could be found
+   */
+  @Override
+  public CashFlow convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
+    if (presentValue.getCurrency().equals(resultCurrency) && forecastValue.getCurrency().equals(resultCurrency)) {
+      return this;
+    }
+    CurrencyAmount pv = presentValue.convertedTo(resultCurrency, rateProvider);
+    CurrencyAmount fv = forecastValue.convertedTo(resultCurrency, rateProvider);
+    return new CashFlow(paymentDate, pv, fv, discountFactor);
   }
 
   //-------------------------------------------------------------------------
