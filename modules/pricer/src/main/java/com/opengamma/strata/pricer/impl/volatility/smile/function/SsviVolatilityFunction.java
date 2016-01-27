@@ -10,16 +10,10 @@ import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.Property;
-
-import java.util.Map;
-import java.util.NoSuchElementException;
-
 import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.MetaBean;
+import org.joda.beans.Property;
+import org.joda.beans.impl.light.LightMetaBean;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
@@ -30,7 +24,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * <p>
  * Reference: Gatheral, Jim and Jacquier, Antoine. Arbitrage-free SVI volatility surfaces. arXiv:1204.0646v4, 2013. Section 4.
  */
-@BeanDefinition
+@BeanDefinition(style = "light")
 public final class SsviVolatilityFunction
     extends VolatilityFunctionProvider<SsviFormulaData> implements ImmutableBean, Serializable {
 
@@ -38,10 +32,11 @@ public final class SsviVolatilityFunction
    * Default implementation. 
    */
   public static final SsviVolatilityFunction DEFAULT = new SsviVolatilityFunction();
-  
+
   /** SSVI volatility description diverge for theta -> 0. Lower bound for which time to expiry is accepted. */
   public static final double MIN_TIME_TO_EXPIRY = 1.0E-3;
 
+  //-------------------------------------------------------------------------
   @Override
   public double getVolatility(double forward, double strike, double timeToExpiry, SsviFormulaData data) {
     ArgChecker.isTrue(timeToExpiry > MIN_TIME_TO_EXPIRY, "time to expiry must not be zero to be able to compute volatility");
@@ -54,18 +49,25 @@ public final class SsviVolatilityFunction
     double w = 0.5 * theta * (1.0d + rho * phi * k + Math.sqrt(1.0d + 2 * rho * phi * k + phi * k * phi * k));
     return Math.sqrt(w / timeToExpiry);
   }
-  
+
   /**
    * Computes the implied volatility in the SSVI formula and its derivatives.
    * <p>
-   * The derivatives are stored in an array with the derivatives: [0] w.r.t the forward, [1] w.r.t the strike, 
-   * [2] w.r.t. to time to expiry, [3] w.r.t. to ATM volatility, [4] w.r.t. to rho, and [5] w.r.t. to eta.
+   * The derivatives are stored in an array with:
+   * <ul>
+   * <li>[0] derivative with respect to the forward
+   * <li>[1] derivative with respect to the strike
+   * <li>[2] derivative with respect to the time to expiry
+   * <li>[3] derivative with respect to the sigma (ATM volatility)
+   * <li>[4] derivative with respect to the rho
+   * <li>[5] derivative with respect to the eta
+   * </ul>
    * 
    * @param forward  the forward value of the underlying
    * @param strike  the strike value of the option
    * @param timeToExpiry  the time to expiry of the option
-   * @param data The SSVI data.
-   * @return the volatility and sensitivities
+   * @param data  the SSVI data
+   * @return the volatility and associated derivatives
    */
   @Override
   public ValueDerivatives getVolatilityAdjoint(double forward, double strike, double timeToExpiry, SsviFormulaData data) {
@@ -104,7 +106,7 @@ public final class SsviVolatilityFunction
   }
 
   @Override
-  public double getVolatilityAdjoint2(double forward, double strike, double timeToExpiry, 
+  public double getVolatilityAdjoint2(double forward, double strike, double timeToExpiry,
       SsviFormulaData data, double[] volatilityD, double[][] volatilityD2) {
     throw new UnsupportedOperationException("Not implemented");
   }
@@ -113,14 +115,19 @@ public final class SsviVolatilityFunction
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code SsviVolatilityFunction}.
+   */
+  private static MetaBean META_BEAN = LightMetaBean.of(SsviVolatilityFunction.class);
+
+  /**
+   * The meta-bean for {@code SsviVolatilityFunction}.
    * @return the meta-bean, not null
    */
-  public static SsviVolatilityFunction.Meta meta() {
-    return SsviVolatilityFunction.Meta.INSTANCE;
+  public static MetaBean meta() {
+    return META_BEAN;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(SsviVolatilityFunction.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(META_BEAN);
   }
 
   /**
@@ -128,20 +135,12 @@ public final class SsviVolatilityFunction
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static SsviVolatilityFunction.Builder builder() {
-    return new SsviVolatilityFunction.Builder();
-  }
-
   private SsviVolatilityFunction() {
   }
 
   @Override
-  public SsviVolatilityFunction.Meta metaBean() {
-    return SsviVolatilityFunction.Meta.INSTANCE;
+  public MetaBean metaBean() {
+    return META_BEAN;
   }
 
   @Override
@@ -178,106 +177,6 @@ public final class SsviVolatilityFunction
     buf.append("SsviVolatilityFunction{");
     buf.append('}');
     return buf.toString();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The meta-bean for {@code SsviVolatilityFunction}.
-   */
-  public static final class Meta extends DirectMetaBean {
-    /**
-     * The singleton instance of the meta-bean.
-     */
-    static final Meta INSTANCE = new Meta();
-
-    /**
-     * The meta-properties.
-     */
-    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null);
-
-    /**
-     * Restricted constructor.
-     */
-    private Meta() {
-    }
-
-    @Override
-    public SsviVolatilityFunction.Builder builder() {
-      return new SsviVolatilityFunction.Builder();
-    }
-
-    @Override
-    public Class<? extends SsviVolatilityFunction> beanType() {
-      return SsviVolatilityFunction.class;
-    }
-
-    @Override
-    public Map<String, MetaProperty<?>> metaPropertyMap() {
-      return metaPropertyMap$;
-    }
-
-    //-----------------------------------------------------------------------
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The bean-builder for {@code SsviVolatilityFunction}.
-   */
-  public static final class Builder extends DirectFieldsBeanBuilder<SsviVolatilityFunction> {
-
-    /**
-     * Restricted constructor.
-     */
-    private Builder() {
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public Object get(String propertyName) {
-      throw new NoSuchElementException("Unknown property: " + propertyName);
-    }
-
-    @Override
-    public Builder set(String propertyName, Object newValue) {
-      throw new NoSuchElementException("Unknown property: " + propertyName);
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
-      return this;
-    }
-
-    @Override
-    public SsviVolatilityFunction build() {
-      return new SsviVolatilityFunction();
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public String toString() {
-      return "SsviVolatilityFunction.Builder{}";
-    }
-
   }
 
   ///CLOVER:ON

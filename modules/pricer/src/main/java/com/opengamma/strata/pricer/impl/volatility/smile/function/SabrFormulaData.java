@@ -6,23 +6,16 @@
 package com.opengamma.strata.pricer.impl.volatility.smile.function;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
+import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.light.LightMetaBean;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -32,17 +25,19 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * <p>
  * The bundle contains the SABR model parameters, alpha, beta, rho and nu, as an array. 
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(style = "light")
 public final class SabrFormulaData
     implements SmileModelData, ImmutableBean, Serializable {
+
   /**
    * The number of model parameters. 
    */
   private static final int NUM_PARAMETERS = 4;
+
   /**
    * The model parameters. 
    * <p>
-   * This should be initialized as an array with length 4.
+   * This must be an array of length 4.
    * The parameters in the array are in the order of alpha, beta, rho and nu.
    * The constraints for the parameters are defined in {@link #isAllowed(int, double)}.
    */
@@ -55,7 +50,7 @@ public final class SabrFormulaData
    * 
    * @param alpha  the alpha parameter
    * @param beta  the beta parameter
-   * @param rho  the rho parameter 
+   * @param rho  the rho parameter
    * @param nu  the nu parameter
    * @return the instance
    */
@@ -69,7 +64,7 @@ public final class SabrFormulaData
    * The parameters in the input array should be in the order of alpha, beta, rho and nu.  
    * 
    * @param parameters  the parameters
-   * @return  the instance
+   * @return the instance
    */
   public static SabrFormulaData of(double[] parameters) {
     ArgChecker.notNull(parameters, "parameters");
@@ -79,14 +74,14 @@ public final class SabrFormulaData
 
   @ImmutableValidator
   private void validate() {
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < NUM_PARAMETERS; ++i) {
       ArgChecker.isTrue(isAllowed(i, parameters.get(i)), "the {}-th parameter is not allowed", i);
     }
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the alpha parameter. 
+   * Gets the alpha parameter. 
    * 
    * @return the alpha parameter
    */
@@ -95,7 +90,7 @@ public final class SabrFormulaData
   }
 
   /**
-   * Obtains the beta parameter. 
+   * Gets the beta parameter. 
    * 
    * @return the beta parameter
    */
@@ -104,7 +99,7 @@ public final class SabrFormulaData
   }
 
   /**
-   * Obtains the rho parameter. 
+   * Gets the rho parameter. 
    * 
    * @return the rho parameter
    */
@@ -121,41 +116,42 @@ public final class SabrFormulaData
     return parameters.get(3);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Obtains a new SABR formula data bundle with alpha replaced. 
+   * Returns a copy of this instance with alpha replaced.
    * 
    * @param alpha  the new alpha
-   * @return the new bundle
+   * @return the new data instance
    */
   public SabrFormulaData withAlpha(double alpha) {
     return of(alpha, getBeta(), getRho(), getNu());
   }
 
   /**
-   * Obtains a new SABR formula data bundle with beta replaced. 
+   * Returns a copy of this instance with beta replaced.
    * 
    * @param beta  the new beta
-   * @return the new bundle
+   * @return the new data instance
    */
   public SabrFormulaData withBeta(double beta) {
     return of(getAlpha(), beta, getRho(), getNu());
   }
 
   /**
-   * Obtains a new SABR formula data bundle with rho replaced. 
+   * Returns a copy of this instance with rho replaced.
    * 
    * @param rho  the new rho
-   * @return the new bundle
+   * @return the new data instance
    */
   public SabrFormulaData withRho(double rho) {
     return of(getAlpha(), getBeta(), rho, getNu());
   }
 
   /**
-   * Obtains a new SABR formula data bundle with nu replaced. 
+   * Returns a copy of this instance with nu replaced.
    * 
    * @param nu  the new nu
-   * @return the new bundle
+   * @return the new data instance
    */
   public SabrFormulaData withNu(double nu) {
     return of(getAlpha(), getBeta(), getRho(), nu);
@@ -189,7 +185,7 @@ public final class SabrFormulaData
 
   @Override
   public SabrFormulaData with(int index, double value) {
-    ArgChecker.inRangeExclusive(index, -1, NUM_PARAMETERS, "index");
+    ArgChecker.inRange(index, 0, NUM_PARAMETERS, "index");
     double[] paramsCp = parameters.toArray();
     paramsCp[index] = value;
     return of(paramsCp);
@@ -199,14 +195,19 @@ public final class SabrFormulaData
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code SabrFormulaData}.
+   */
+  private static MetaBean META_BEAN = LightMetaBean.of(SabrFormulaData.class);
+
+  /**
+   * The meta-bean for {@code SabrFormulaData}.
    * @return the meta-bean, not null
    */
-  public static SabrFormulaData.Meta meta() {
-    return SabrFormulaData.Meta.INSTANCE;
+  public static MetaBean meta() {
+    return META_BEAN;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(SabrFormulaData.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(META_BEAN);
   }
 
   /**
@@ -222,8 +223,8 @@ public final class SabrFormulaData
   }
 
   @Override
-  public SabrFormulaData.Meta metaBean() {
-    return SabrFormulaData.Meta.INSTANCE;
+  public MetaBean metaBean() {
+    return META_BEAN;
   }
 
   @Override
@@ -240,7 +241,7 @@ public final class SabrFormulaData
   /**
    * Gets the model parameters.
    * <p>
-   * This should be initialized as an array with length 4.
+   * This must be an array of length 4.
    * The parameters in the array are in the order of alpha, beta, rho and nu.
    * The constraints for the parameters are defined in {@link #isAllowed(int, double)}.
    * @return the value of the property, not null
@@ -276,167 +277,6 @@ public final class SabrFormulaData
     buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters));
     buf.append('}');
     return buf.toString();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The meta-bean for {@code SabrFormulaData}.
-   */
-  public static final class Meta extends DirectMetaBean {
-    /**
-     * The singleton instance of the meta-bean.
-     */
-    static final Meta INSTANCE = new Meta();
-
-    /**
-     * The meta-property for the {@code parameters} property.
-     */
-    private final MetaProperty<DoubleArray> parameters = DirectMetaProperty.ofImmutable(
-        this, "parameters", SabrFormulaData.class, DoubleArray.class);
-    /**
-     * The meta-properties.
-     */
-    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
-        "parameters");
-
-    /**
-     * Restricted constructor.
-     */
-    private Meta() {
-    }
-
-    @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case 458736106:  // parameters
-          return parameters;
-      }
-      return super.metaPropertyGet(propertyName);
-    }
-
-    @Override
-    public BeanBuilder<? extends SabrFormulaData> builder() {
-      return new SabrFormulaData.Builder();
-    }
-
-    @Override
-    public Class<? extends SabrFormulaData> beanType() {
-      return SabrFormulaData.class;
-    }
-
-    @Override
-    public Map<String, MetaProperty<?>> metaPropertyMap() {
-      return metaPropertyMap$;
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code parameters} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DoubleArray> parameters() {
-      return parameters;
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
-      switch (propertyName.hashCode()) {
-        case 458736106:  // parameters
-          return ((SabrFormulaData) bean).getParameters();
-      }
-      return super.propertyGet(bean, propertyName, quiet);
-    }
-
-    @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
-      metaProperty(propertyName);
-      if (quiet) {
-        return;
-      }
-      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
-    }
-
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The bean-builder for {@code SabrFormulaData}.
-   */
-  private static final class Builder extends DirectFieldsBeanBuilder<SabrFormulaData> {
-
-    private DoubleArray parameters;
-
-    /**
-     * Restricted constructor.
-     */
-    private Builder() {
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public Object get(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case 458736106:  // parameters
-          return parameters;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-    }
-
-    @Override
-    public Builder set(String propertyName, Object newValue) {
-      switch (propertyName.hashCode()) {
-        case 458736106:  // parameters
-          this.parameters = (DoubleArray) newValue;
-          break;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
-      return this;
-    }
-
-    @Override
-    public SabrFormulaData build() {
-      return new SabrFormulaData(
-          parameters);
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public String toString() {
-      StringBuilder buf = new StringBuilder(64);
-      buf.append("SabrFormulaData.Builder{");
-      buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters));
-      buf.append('}');
-      return buf.toString();
-    }
-
   }
 
   ///CLOVER:ON

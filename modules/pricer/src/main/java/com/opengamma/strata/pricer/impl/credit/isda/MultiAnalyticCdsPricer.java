@@ -260,7 +260,7 @@ public class MultiAnalyticCdsPricer {
    * @param yieldCurve The yield (or discount) curve
    * @param creditCurve the credit (or survival) curve
    * @param creditCurveNode The credit curve node
-   * @return  sensitivity (on a unit notional)
+   * @return sensitivity (on a unit notional)
    */
 
   //TODO this is identical to the function in AnalyticCDSPricer 
@@ -403,12 +403,14 @@ public class MultiAnalyticCdsPricer {
   }
 
   /**
-   * The sensitivity of the PV of the protection leg to the zero hazard rate of a given node (knot) of the credit curve.
-   * @param cds analytic description of a CDS traded at a certain time
-   * @param yieldCurve The yield (or discount) curve
-   * @param creditCurve the credit (or survival) curve
-   * @param creditCurveNode The credit curve node
-   * @return  sensitivity (on a unit notional)
+   * The sensitivity of the PV of the protection leg to the zero hazard rate of a given
+   * node (knot) of the credit curve.
+   * 
+   * @param cds  the analytic description of a CDS traded at a certain time
+   * @param yieldCurve  the yield (or discount) curve
+   * @param creditCurve  the credit (or survival) curve
+   * @param creditCurveNode  the credit curve node
+   * @return sensitivity (on a unit notional)
    */
   //        (creditCurveNode != creditCurve.getNumberOfKnots() - 1 && cds.getProtectionStart() >= creditCurve.getTimeAtIndex(creditCurveNode + 1))) {
   //      return 0.0; // can't have any sensitivity in this case

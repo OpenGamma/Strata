@@ -49,23 +49,29 @@ public class IsdaCompliantPresentValueCreditDefaultSwap {
   }
 
   /**
-   * This is the present value of the premium leg per unit of fractional spread - hence it is equal to 10,000 times the RPV01
-   * (Risky PV01). The actual PV of the leg is this multiplied by the notional and the fractional spread (i.e. spread in basis
-   * points divided by 10,000) <p>
-   * This mimics the ISDA c function <b>JpmcdsCdsFeeLegPV</b>
-   * @param today The 'current' date
-   * @param stepinDate Date when party assumes ownership. This is normally today + 1 (T+1). Aka assignment date or effective date.
-   * @param valueDate The valuation date. The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
-   * @param startDate The protection start date. If protectStart = true, then protections starts at the beginning of the day, otherwise it
-   * is at the end.
-   * @param endDate The protection end date (the protection ends at end of day)
-   * @param payAccOnDefault Is the accrued premium paid in the event of a default
-   * @param tenor The nominal step between premium payments (e.g. 3 months, 6 months).
-   * @param stubType the stub convention
-   * @param yieldCurve Curve from which payments are discounted
-   * @param hazardRateCurve Curve giving survival probability
-   * @param protectStart Does protection start at the beginning of the day
-   * @param priceType Clean or Dirty price. The clean price removes the accrued premium if the trade is between payment times.
+   * This is the present value of the premium leg per unit of fractional spread.
+   * <p>
+   * It hence it is equal to 10,000 times the RPV01 (Risky PV01). The actual PV of the leg
+   * is this multiplied by the notional and the fractional spread (i.e. spread in basis
+   * points divided by 10,000).
+   * <p>
+   * This mimics the ISDA c function <b>JpmcdsCdsFeeLegPV</b>.
+   * 
+   * @param today  the 'current' date
+   * @param stepinDate  the date when party assumes ownership. This is normally today + 1 (T+1).
+   *  Aka assignment date or effective date.
+   * @param valueDate  the valuation date. The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
+   * @param startDate  the protection start date. If protectStart = true, then protections starts
+   *  at the beginning of the day, otherwise it is at the end.
+   * @param endDate  the protection end date (the protection ends at end of day)
+   * @param payAccOnDefault  is the accrued premium paid in the event of a default
+   * @param tenor  the nominal step between premium payments (e.g. 3 months, 6 months)
+   * @param stubType  the stub convention
+   * @param yieldCurve  the curve from which payments are discounted
+   * @param hazardRateCurve  the curve giving survival probability
+   * @param protectStart  whether protection starts at the beginning of the day
+   * @param priceType  the Clean or Dirty price flag. The clean price removes the accrued premium
+   *  if the trade is between payment times.
    * @return 10,000 times the RPV01 (on a notional of 1)
    */
   public double pvPremiumLegPerUnitSpread(
@@ -155,14 +161,17 @@ public class IsdaCompliantPresentValueCreditDefaultSwap {
   }
 
   /**
-   * Computes the risky present value of a premium payment<p>
-   * This mimics the ISDA c code function <b>FeePaymentPVWithTimeLine<b>
-   * @param today
-   * @param valueDate
-   * @param stepinDate
-   * @param accStartDate
-   * @param accEndDate
-   * @param payAccOnDefault
+   * Computes the risky present value of a premium payment.
+   * <p>
+   * This mimics the ISDA c code function <b>FeePaymentPVWithTimeLine<b>.
+   * 
+   * @param today  the date today
+   * @param accStartDate  the start date
+   * @param accEndDate  the end date
+   * @param paymentDate  the payment date
+   * @param obsOffset  the offset
+   * @param yieldCurve  the yield curve
+   * @param hazardRateCurve  the hazard curve
    * @return PV
    */
   private double[] calculateSinglePeriodRPV01(
@@ -193,17 +202,17 @@ public class IsdaCompliantPresentValueCreditDefaultSwap {
   }
 
   /**
-   * this mimics the ISDA c JpmcdsAccrualOnDefaultPVWithTimeLine
-   * @param today
-   * @param valueDate
-   * @param offsetStepinDate
-   * @param offsetAccStartDate
-   * @param offsetAccEndDate
-   * @param obsOffset
-   * @param yieldCurve
-   * @param hazardRateCurve
-   * @param integrationSchedule
-   * @return The single period accrual on default
+   * This mimics the ISDA c JpmcdsAccrualOnDefaultPVWithTimeLine.
+   * 
+   * @param today  the date today
+   * @param offsetStepinDate  the step in date
+   * @param offsetAccStartDate  the start date
+   * @param offsetAccEndDate  the end date
+   * @param accTime  the time
+   * @param yieldCurve  the yield curve
+   * @param hazardRateCurve  the hazard rate curve
+   * @param integrationSchedule  the schedule
+   * @return the single period accrual on default
    */
   private double calculateSinglePeriodAccrualOnDefault(
       LocalDate today,
@@ -267,9 +276,9 @@ public class IsdaCompliantPresentValueCreditDefaultSwap {
   /**
    * Calculate the accrued premium at the start of a trade.
    * 
-   * @param premiumLegSchedule
-   * @param stepinDate The trade effective date
-   * @return  accrued premium
+   * @param premiumLegSchedule  the schedule
+   * @param stepinDate  the trade effective date
+   * @return accrued premium
    */
   private double calculateAccruedInterest(IsdaPremiumLegSchedule premiumLegSchedule, LocalDate stepinDate) {
 
@@ -298,16 +307,18 @@ public class IsdaCompliantPresentValueCreditDefaultSwap {
    * Get the value of the protection leg for unit notional<p>
    * This mimics the ISDA c function <b>JpmcdsCdsContingentLegPV</b>.
    *
-   * @param today The 'current' date
-   * @param stepinDate Date when party assumes ownership. This is normally today + 1 (T+1). Aka assignment date or effective date.
-   * @param valueDate The valuation date. The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
-   * @param startDate The protection start date. If protectStart = true, then protections starts at the beginning of the day, otherwise it
-   * is at the end.
-   * @param endDate The protection end date (the protection ends at end of day)
-   * @param yieldCurve Curve from which payments are discounted
-   * @param hazardRateCurve Curve giving survival probability
-   * @param recoveryRate The recovery rate of the protected debt
-   * @param protectStart Does protection start at the beginning of the day
+   * @param today  the date today
+   * @param stepinDate  the date when party assumes ownership. This is normally today
+   *  + 1 (T+1). Aka assignment date or effective date.
+   * @param valueDate  the valuation date. The date that values are PVed to. Is is
+   *  normally today + 3 business days.  Aka cash-settle date.
+   * @param startDate  the protection start date. If protectStart = true, then protections
+   *  starts at the beginning of the day, otherwise it* is at the end.
+   * @param endDate  the protection end date (the protection ends at end of day)
+   * @param yieldCurve  the curve from which payments are discounted
+   * @param hazardRateCurve  the curve giving survival probability
+   * @param recoveryRate  the recovery rate of the protected debt
+   * @param protectStart  whether protection starts at the beginning of the day
    * @return unit notional PV of protection (or contingent) leg
    */
   public double calculateProtectionLeg(

@@ -6,23 +6,16 @@
 package com.opengamma.strata.pricer.impl.rate.model;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
+import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.light.LightMetaBean;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -30,7 +23,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 /**
  * Data bundle related to the Hull-White one factor (extended Vasicek) model with piecewise constant volatility.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(style = "light")
 public final class HullWhiteOneFactorPiecewiseConstantParameters implements ImmutableBean, Serializable {
 
   /**
@@ -155,14 +148,19 @@ public final class HullWhiteOneFactorPiecewiseConstantParameters implements Immu
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code HullWhiteOneFactorPiecewiseConstantParameters}.
+   */
+  private static MetaBean META_BEAN = LightMetaBean.of(HullWhiteOneFactorPiecewiseConstantParameters.class);
+
+  /**
+   * The meta-bean for {@code HullWhiteOneFactorPiecewiseConstantParameters}.
    * @return the meta-bean, not null
    */
-  public static HullWhiteOneFactorPiecewiseConstantParameters.Meta meta() {
-    return HullWhiteOneFactorPiecewiseConstantParameters.Meta.INSTANCE;
+  public static MetaBean meta() {
+    return META_BEAN;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(HullWhiteOneFactorPiecewiseConstantParameters.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(META_BEAN);
   }
 
   /**
@@ -184,8 +182,8 @@ public final class HullWhiteOneFactorPiecewiseConstantParameters implements Immu
   }
 
   @Override
-  public HullWhiteOneFactorPiecewiseConstantParameters.Meta metaBean() {
-    return HullWhiteOneFactorPiecewiseConstantParameters.Meta.INSTANCE;
+  public MetaBean metaBean() {
+    return META_BEAN;
   }
 
   @Override
@@ -264,219 +262,6 @@ public final class HullWhiteOneFactorPiecewiseConstantParameters implements Immu
     buf.append("volatilityTime").append('=').append(JodaBeanUtils.toString(volatilityTime));
     buf.append('}');
     return buf.toString();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The meta-bean for {@code HullWhiteOneFactorPiecewiseConstantParameters}.
-   */
-  public static final class Meta extends DirectMetaBean {
-    /**
-     * The singleton instance of the meta-bean.
-     */
-    static final Meta INSTANCE = new Meta();
-
-    /**
-     * The meta-property for the {@code meanReversion} property.
-     */
-    private final MetaProperty<Double> meanReversion = DirectMetaProperty.ofImmutable(
-        this, "meanReversion", HullWhiteOneFactorPiecewiseConstantParameters.class, Double.TYPE);
-    /**
-     * The meta-property for the {@code volatility} property.
-     */
-    private final MetaProperty<DoubleArray> volatility = DirectMetaProperty.ofImmutable(
-        this, "volatility", HullWhiteOneFactorPiecewiseConstantParameters.class, DoubleArray.class);
-    /**
-     * The meta-property for the {@code volatilityTime} property.
-     */
-    private final MetaProperty<DoubleArray> volatilityTime = DirectMetaProperty.ofImmutable(
-        this, "volatilityTime", HullWhiteOneFactorPiecewiseConstantParameters.class, DoubleArray.class);
-    /**
-     * The meta-properties.
-     */
-    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
-        "meanReversion",
-        "volatility",
-        "volatilityTime");
-
-    /**
-     * Restricted constructor.
-     */
-    private Meta() {
-    }
-
-    @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case -2016560896:  // meanReversion
-          return meanReversion;
-        case -1917967323:  // volatility
-          return volatility;
-        case 70078610:  // volatilityTime
-          return volatilityTime;
-      }
-      return super.metaPropertyGet(propertyName);
-    }
-
-    @Override
-    public BeanBuilder<? extends HullWhiteOneFactorPiecewiseConstantParameters> builder() {
-      return new HullWhiteOneFactorPiecewiseConstantParameters.Builder();
-    }
-
-    @Override
-    public Class<? extends HullWhiteOneFactorPiecewiseConstantParameters> beanType() {
-      return HullWhiteOneFactorPiecewiseConstantParameters.class;
-    }
-
-    @Override
-    public Map<String, MetaProperty<?>> metaPropertyMap() {
-      return metaPropertyMap$;
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code meanReversion} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> meanReversion() {
-      return meanReversion;
-    }
-
-    /**
-     * The meta-property for the {@code volatility} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DoubleArray> volatility() {
-      return volatility;
-    }
-
-    /**
-     * The meta-property for the {@code volatilityTime} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DoubleArray> volatilityTime() {
-      return volatilityTime;
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
-      switch (propertyName.hashCode()) {
-        case -2016560896:  // meanReversion
-          return ((HullWhiteOneFactorPiecewiseConstantParameters) bean).getMeanReversion();
-        case -1917967323:  // volatility
-          return ((HullWhiteOneFactorPiecewiseConstantParameters) bean).getVolatility();
-        case 70078610:  // volatilityTime
-          return ((HullWhiteOneFactorPiecewiseConstantParameters) bean).getVolatilityTime();
-      }
-      return super.propertyGet(bean, propertyName, quiet);
-    }
-
-    @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
-      metaProperty(propertyName);
-      if (quiet) {
-        return;
-      }
-      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
-    }
-
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The bean-builder for {@code HullWhiteOneFactorPiecewiseConstantParameters}.
-   */
-  private static final class Builder extends DirectFieldsBeanBuilder<HullWhiteOneFactorPiecewiseConstantParameters> {
-
-    private double meanReversion;
-    private DoubleArray volatility;
-    private DoubleArray volatilityTime;
-
-    /**
-     * Restricted constructor.
-     */
-    private Builder() {
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public Object get(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case -2016560896:  // meanReversion
-          return meanReversion;
-        case -1917967323:  // volatility
-          return volatility;
-        case 70078610:  // volatilityTime
-          return volatilityTime;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-    }
-
-    @Override
-    public Builder set(String propertyName, Object newValue) {
-      switch (propertyName.hashCode()) {
-        case -2016560896:  // meanReversion
-          this.meanReversion = (Double) newValue;
-          break;
-        case -1917967323:  // volatility
-          this.volatility = (DoubleArray) newValue;
-          break;
-        case 70078610:  // volatilityTime
-          this.volatilityTime = (DoubleArray) newValue;
-          break;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
-      return this;
-    }
-
-    @Override
-    public HullWhiteOneFactorPiecewiseConstantParameters build() {
-      return new HullWhiteOneFactorPiecewiseConstantParameters(
-          meanReversion,
-          volatility,
-          volatilityTime);
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public String toString() {
-      StringBuilder buf = new StringBuilder(128);
-      buf.append("HullWhiteOneFactorPiecewiseConstantParameters.Builder{");
-      buf.append("meanReversion").append('=').append(JodaBeanUtils.toString(meanReversion)).append(',').append(' ');
-      buf.append("volatility").append('=').append(JodaBeanUtils.toString(volatility)).append(',').append(' ');
-      buf.append("volatilityTime").append('=').append(JodaBeanUtils.toString(volatilityTime));
-      buf.append('}');
-      return buf.toString();
-    }
-
   }
 
   ///CLOVER:ON

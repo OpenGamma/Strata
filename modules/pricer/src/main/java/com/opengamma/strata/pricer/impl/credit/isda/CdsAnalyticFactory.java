@@ -258,7 +258,7 @@ public class CdsAnalyticFactory {
   /**
    * Set the coupon interval (default is 3M)
    * @param couponInterval The coupon interval
-   * @return  A new factory with the coupon interval set
+   * @return a new factory with the coupon interval set
    */
   public CdsAnalyticFactory with(Period couponInterval) {
     return new CdsAnalyticFactory(
@@ -269,7 +269,7 @@ public class CdsAnalyticFactory {
   /**
    * Sets the stub convention.
    * @param stubType The stub type 
-   * @return  A new factory with the stub-type interval set
+   * @return a new factory with the stub-type interval set
    */
   public CdsAnalyticFactory with(StubConvention stubType) {
     return new CdsAnalyticFactory(
@@ -291,7 +291,7 @@ public class CdsAnalyticFactory {
   /**
    * Set the recovery rate (default is 40%)
    * @param recovery The recovery rate
-   * @return  A new factory with recovery rate set
+   * @return a new factory with recovery rate set
    */
   public CdsAnalyticFactory withRecoveryRate(double recovery) {
     return new CdsAnalyticFactory(

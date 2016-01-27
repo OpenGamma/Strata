@@ -35,7 +35,7 @@ public interface SmileModelData {
    * 
    * @param index  the index 
    * @param value  the value
-   * @return  true if allowed, false otherwise
+   * @return true if allowed, false otherwise
    */
   public abstract boolean isAllowed(int index, double value);
 
@@ -46,7 +46,7 @@ public interface SmileModelData {
    * 
    * @param index  the index
    * @param value  the value
-   * @return  the new bundle
+   * @return the new bundle
    */
   public abstract SmileModelData with(int index, double value);
 

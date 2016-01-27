@@ -160,10 +160,10 @@ public class IsdaCompliantScheduleGenerator {
   /**
    * Year fractions from a fixed date to a set of dates using the specified day-count.
    * 
-   * @param today the date to measure from 
-   * @param dates set of dates to measure to 
-   * @param dayCount The day-count
-   * @return  set of year fractions (array of double)
+   * @param today  the date to measure from 
+   * @param dates  the set of dates to measure to 
+   * @param dayCount  the day-count
+   * @return set of year fractions (array of double)
    */
   public static double[] getYearFractionFromToday(LocalDate today, LocalDate[] dates, DayCount dayCount) {
     ArgChecker.notNull(today, "null today");
