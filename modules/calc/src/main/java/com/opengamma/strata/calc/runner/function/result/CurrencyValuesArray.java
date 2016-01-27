@@ -99,9 +99,13 @@ public final class CurrencyValuesArray
   /**
    * Obtains an instance using a function to create the entries.
    * <p>
-   * The function is passed the scenario index and returns the value for that index.
+   * The function is passed the scenario index and returns the {@code CurrencyAmount} for that index.
+   * <p>
+   * In some cases it may be possible to specify the currency with a function providing a {@code double}.
+   * To do this, use {@link DoubleArray#of(int, java.util.function.IntToDoubleFunction)} and
+   * then call {@link #of(Currency, DoubleArray)}.
    * 
-   * @param size  the number of elements
+   * @param size  the number of elements, at least size one
    * @param valueFunction  the function used to obtain each value
    * @return an instance initialized using the function
    * @throws IllegalArgumentException is size is zero or less

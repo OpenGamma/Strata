@@ -28,9 +28,8 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
-import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
@@ -122,9 +121,9 @@ public class SwapCalculationFunctionTest {
         .containsEntry(
             Measure.PAR_SPREAD, Result.success(ValuesArray.of(ImmutableList.of(expectedParSpread))))
         .containsEntry(
-            Measure.EXPLAIN_PRESENT_VALUE, Result.success(DefaultScenarioResult.of(ImmutableList.of(expectedExplainPv))))
+            Measure.EXPLAIN_PRESENT_VALUE, Result.success(ScenarioResult.of(ImmutableList.of(expectedExplainPv))))
         .containsEntry(
-            Measure.CASH_FLOWS, Result.success(DefaultScenarioResult.of(ImmutableList.of(expectedCashFlows))))
+            Measure.CASH_FLOWS, Result.success(ScenarioResult.of(ImmutableList.of(expectedCashFlows))))
         .containsEntry(
             Measure.CURRENCY_EXPOSURE, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedExposure))))
         .containsEntry(
@@ -146,7 +145,7 @@ public class SwapCalculationFunctionTest {
         .containsEntry(
             Measure.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
-            Measure.BUCKETED_PV01, Result.success(FxConvertibleList.of(ImmutableList.of(expectedBucketedPv01))));
+            Measure.BUCKETED_PV01, Result.success(ScenarioResult.of(ImmutableList.of(expectedBucketedPv01))));
   }
 
   public void test_accruedInterest() {

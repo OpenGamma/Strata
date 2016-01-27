@@ -22,8 +22,6 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
-import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.SingleScenarioResult;
@@ -140,7 +138,7 @@ final class SwapMeasureCalculations {
       ExpandedSwap product,
       CalculationMarketData marketData) {
 
-    return DefaultScenarioResult.of(
+    return ScenarioResult.of(
         marketData.getScenarioCount(),
         i -> calculateExplainPresentValue(product, marketData.scenario(i)));
   }
@@ -158,7 +156,7 @@ final class SwapMeasureCalculations {
       ExpandedSwap product,
       CalculationMarketData marketData) {
 
-    return DefaultScenarioResult.of(
+    return ScenarioResult.of(
         marketData.getScenarioCount(),
         i -> calculateCashFlows(product, marketData.scenario(i)));
   }
@@ -195,7 +193,7 @@ final class SwapMeasureCalculations {
       ExpandedSwap product,
       CalculationMarketData marketData) {
 
-    return FxConvertibleList.of(
+    return ScenarioResult.of(
         marketData.getScenarioCount(),
         i -> calculateBucketedPv01(product, marketData.scenario(i)));
   }
@@ -217,7 +215,7 @@ final class SwapMeasureCalculations {
       ExpandedSwap product,
       CalculationMarketData marketData) {
 
-    return DefaultScenarioResult.of(
+    return ScenarioResult.of(
         marketData.getScenarioCount(),
         i -> calculateBucketedGammaPv01(trade, product, marketData.scenario(i)));
   }
@@ -348,7 +346,7 @@ final class SwapMeasureCalculations {
       ExpandedSwap product,
       CalculationMarketData marketData) {
 
-    return DefaultScenarioResult.of(
+    return ScenarioResult.of(
         marketData.getScenarioCount(),
         i -> calculateLegPresentValue(product, marketData.scenario(i)));
   }

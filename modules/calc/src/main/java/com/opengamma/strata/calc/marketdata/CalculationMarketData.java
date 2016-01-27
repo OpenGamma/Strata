@@ -25,10 +25,14 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  * multiple curve groups, each with a USD discounting curve.
  * <p>
  * There are two ways to access the available market data.
- * The first way is to use the method {@link #getValue(MarketDataKey)} which returns
- * the data associated with a single key for all scenarios.
+ * <p>
+ * The first way is to use the value access methods on this interface which return the data
+ * associated with a single key for all scenarios. The two key methods are
+ * {@link #getValue(MarketDataKey)} and {@link #getScenarioValue(ScenarioMarketDataKey)}.
+ * <p>
  * The second way is to use the method {@link #scenarios()} or {@link #scenario(int)}
  * which return all the data associated with a single scenario.
+ * This approach is convenient for single scenario pricers, but may have a small overhead.
  * <p>
  * Typically a set of {@link MarketDataRules} are used to choose the item of market data from the global set.
  * <p>

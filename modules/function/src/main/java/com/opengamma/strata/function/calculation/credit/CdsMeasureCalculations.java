@@ -9,7 +9,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
-import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
@@ -140,7 +139,7 @@ class CdsMeasureCalculations {
       ExpandedCds product,
       CalculationMarketData marketData) {
 
-    return DefaultScenarioResult.of(
+    return ScenarioResult.of(
         marketData.getScenarioCount(),
         i -> calculateIr01BucketedZero(trade, product, marketData.scenario(i)));
   }
@@ -200,7 +199,7 @@ class CdsMeasureCalculations {
       ExpandedCds product,
       CalculationMarketData marketData) {
 
-    return DefaultScenarioResult.of(
+    return ScenarioResult.of(
         marketData.getScenarioCount(),
         i -> calculateIr01BucketedPar(trade, product, marketData.scenario(i)));
   }
@@ -260,7 +259,7 @@ class CdsMeasureCalculations {
       ExpandedCds product,
       CalculationMarketData marketData) {
 
-    return DefaultScenarioResult.of(
+    return ScenarioResult.of(
         marketData.getScenarioCount(),
         i -> calculateCs01BucketedPar(trade, product, marketData.scenario(i)));
   }
@@ -320,7 +319,7 @@ class CdsMeasureCalculations {
       ExpandedCds product,
       CalculationMarketData marketData) {
 
-    return DefaultScenarioResult.of(
+    return ScenarioResult.of(
         marketData.getScenarioCount(),
         i -> calculateCs01BucketedHazard(trade, product, marketData.scenario(i)));
   }

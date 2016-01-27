@@ -9,8 +9,6 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
-import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
@@ -105,7 +103,7 @@ final class FxSingleMeasureCalculations {
       ExpandedFxSingle product,
       CalculationMarketData marketData) {
 
-    return FxConvertibleList.of(
+    return ScenarioResult.of(
         marketData.getScenarioCount(),
         i -> calculateBucketedPv01(product, marketData.scenario(i)));
   }
@@ -163,7 +161,7 @@ final class FxSingleMeasureCalculations {
       ExpandedFxSingle product,
       CalculationMarketData marketData) {
 
-    return DefaultScenarioResult.of(
+    return ScenarioResult.of(
         marketData.getScenarioCount(),
         i -> calculateForwardFxRate(product, marketData.scenario(i)));
   }

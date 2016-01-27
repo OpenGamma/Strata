@@ -43,7 +43,6 @@ import com.opengamma.strata.calc.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
-import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.result.FailureReason;
@@ -162,7 +161,7 @@ public class CalculationTaskTest {
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
-    assertThat(result).hasValue(DefaultScenarioResult.of("bar"));
+    assertThat(result).hasValue(ScenarioResult.of("bar"));
   }
 
   /**
@@ -197,7 +196,7 @@ public class CalculationTaskTest {
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
-    assertThat(result).hasValue(DefaultScenarioResult.of("bar"));
+    assertThat(result).hasValue(ScenarioResult.of("bar"));
   }
 
   /**
@@ -226,7 +225,7 @@ public class CalculationTaskTest {
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
-    assertThat(result).hasValue(DefaultScenarioResult.of("foo"));
+    assertThat(result).hasValue(ScenarioResult.of("foo"));
   }
 
   /**
@@ -250,13 +249,13 @@ public class CalculationTaskTest {
    */
   public void executeSuccessResultValue() {
     SupplierFunction<Result<ScenarioResult<String>>> fn =
-        SupplierFunction.of(() -> Result.success(DefaultScenarioResult.of("foo")));
+        SupplierFunction.of(() -> Result.success(ScenarioResult.of("foo")));
     CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MAPPINGS, REPORTING_RULES_USD);
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
-    assertThat(result).hasValue(DefaultScenarioResult.of("foo"));
+    assertThat(result).hasValue(ScenarioResult.of("foo"));
   }
 
   /**
@@ -324,7 +323,7 @@ public class CalculationTaskTest {
         Set<Measure> measures,
         CalculationMarketData marketData) {
 
-      DefaultScenarioResult<String> array = DefaultScenarioResult.of("bar");
+      ScenarioResult<String> array = ScenarioResult.of("bar");
       return ImmutableMap.of(MEASURE, Result.success(array));
     }
   }
@@ -414,7 +413,7 @@ public class CalculationTaskTest {
       if (obj instanceof Result<?>) {
         return ImmutableMap.of(MEASURE, (Result<?>) obj);
       }
-      DefaultScenarioResult<Object> array = DefaultScenarioResult.of(obj);
+      ScenarioResult<Object> array = ScenarioResult.of(obj);
       return ImmutableMap.of(MEASURE, Result.success(array));
     }
   }

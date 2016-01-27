@@ -11,7 +11,6 @@ import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
-import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
@@ -85,7 +84,7 @@ class BulletPaymentMeasureCalculations {
       Payment payment,
       CalculationMarketData marketData) {
 
-    return FxConvertibleList.of(
+    return ScenarioResult.of(
         marketData.getScenarioCount(),
         i -> calculateBucketedPv01(payment, marketData.scenario(i)));
   }

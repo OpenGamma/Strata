@@ -20,7 +20,7 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
-import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
+import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
 
 /**
@@ -158,7 +158,7 @@ public class PricingRulesTest {
         Set<Measure> measures,
         CalculationMarketData marketData) {
 
-      DefaultScenarioResult<String> array = DefaultScenarioResult.of("foo");
+      ScenarioResult<String> array = ScenarioResult.of("foo");
       return ImmutableMap.of(FOO_MEASURE, Result.success(array));
     }
   }
@@ -183,7 +183,7 @@ public class PricingRulesTest {
         Set<Measure> measures,
         CalculationMarketData marketData) {
 
-      DefaultScenarioResult<String> array = DefaultScenarioResult.of("foo");
+      ScenarioResult<String> array = ScenarioResult.of("foo");
       return ImmutableMap.of(FOO_MEASURE, Result.success(array));
     }
   }
@@ -208,7 +208,7 @@ public class PricingRulesTest {
         Set<Measure> measures,
         CalculationMarketData marketData) {
 
-      DefaultScenarioResult<String> array = DefaultScenarioResult.of("bar");
+      ScenarioResult<String> array = ScenarioResult.of("bar");
       return ImmutableMap.of(BAR_MEASURE, Result.success(array));
     }
   }

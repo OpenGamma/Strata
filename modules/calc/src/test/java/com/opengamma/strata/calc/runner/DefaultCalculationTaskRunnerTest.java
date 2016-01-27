@@ -31,7 +31,6 @@ import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.TestKey;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
-import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
 
@@ -51,7 +50,7 @@ public class DefaultCalculationTaskRunnerTest {
    * Test that ScenarioResults containing a single value are unwrapped when calling calculate() with BaseMarketData.
    */
   public void unwrapScenarioResults() {
-    DefaultScenarioResult<String> scenarioResult = DefaultScenarioResult.of("foo");
+    ScenarioResult<String> scenarioResult = ScenarioResult.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(scenarioResult);
     CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
     Column column = Column.of(Measure.PRESENT_VALUE);
@@ -77,7 +76,7 @@ public class DefaultCalculationTaskRunnerTest {
    * Test that ScenarioResults containing multiple values are an error.
    */
   public void unwrapMultipleScenarioResults() {
-    DefaultScenarioResult<String> scenarioResult = DefaultScenarioResult.of("foo", "bar");
+    ScenarioResult<String> scenarioResult = ScenarioResult.of("foo", "bar");
     ScenarioResultFunction fn = new ScenarioResultFunction(scenarioResult);
     CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
     Column column = Column.of(Measure.PRESENT_VALUE);
@@ -94,7 +93,7 @@ public class DefaultCalculationTaskRunnerTest {
    * Test that ScenarioResults containing a single value are unwrapped when calling calculateAsync() with BaseMarketData.
    */
   public void unwrapScenarioResultsAsync() {
-    DefaultScenarioResult<String> scenarioResult = DefaultScenarioResult.of("foo");
+    ScenarioResult<String> scenarioResult = ScenarioResult.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(scenarioResult);
     CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
     Column column = Column.of(Measure.PRESENT_VALUE);
@@ -148,7 +147,7 @@ public class DefaultCalculationTaskRunnerTest {
         Set<Measure> measures,
         CalculationMarketData marketData) {
 
-      DefaultScenarioResult<String> array = DefaultScenarioResult.of("bar");
+      ScenarioResult<String> array = ScenarioResult.of("bar");
       return ImmutableMap.of(MEASURE, Result.success(array));
     }
   }

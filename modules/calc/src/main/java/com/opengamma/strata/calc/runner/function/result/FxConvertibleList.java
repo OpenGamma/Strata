@@ -47,7 +47,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * Use {@link CurrencyValuesArray} for a list of {@link CurrencyAmount}.
  * Use {@link MultiCurrencyValuesArray} for a list of {@link MultiCurrencyAmount}.
  * 
- * @param <T>  the type of the result
+ * @param <T>  the type of the each convertible
  */
 @BeanDefinition(builderScope = "private")
 public final class FxConvertibleList<T extends FxConvertible<?>>
@@ -63,21 +63,23 @@ public final class FxConvertibleList<T extends FxConvertible<?>>
   /**
    * Obtains an instance from the specified array of currency-convertible values.
    *
+   * @param <T>  the type of FX convertible element
    * @param values  the values, one value for each scenario
    * @return an instance with the specified values
    */
   @SafeVarargs
-  public static <R extends FxConvertible<?>> FxConvertibleList<R> of(R... values) {
+  public static <T extends FxConvertible<?>> FxConvertibleList<T> of(T... values) {
     return new FxConvertibleList<>(ImmutableList.copyOf(values));
   }
 
   /**
    * Obtains an instance from the specified list of currency-convertible values.
    *
+   * @param <T>  the type of FX convertible element
    * @param values  the values, one value for each scenario
    * @return an instance with the specified values
    */
-  public static <R extends FxConvertible<?>> FxConvertibleList<R> of(List<? extends R> values) {
+  public static <T extends FxConvertible<?>> FxConvertibleList<T> of(List<? extends T> values) {
     return new FxConvertibleList<>(values);
   }
 
@@ -86,18 +88,36 @@ public final class FxConvertibleList<T extends FxConvertible<?>>
    * <p>
    * The function is passed the scenario index and returns the value for that index.
    * 
+   * @param <T>  the type of FX convertible element
    * @param size  the number of elements
    * @param valueFunction  the function used to obtain each value
    * @return an instance initialized using the function
    * @throws IllegalArgumentException is size is zero or less
    */
-  public static <R extends FxConvertible<?>> FxConvertibleList<R> of(int size, IntFunction<R> valueFunction) {
+  public static <T extends FxConvertible<?>> FxConvertibleList<T> of(int size, IntFunction<T> valueFunction) {
     ArgChecker.notNegativeOrZero(size, "size");
-    ImmutableList.Builder<R> builder = ImmutableList.builder();
+    ImmutableList.Builder<T> builder = ImmutableList.builder();
     for (int i = 0; i < size; i++) {
       builder.add(valueFunction.apply(i));
     }
     return new FxConvertibleList<>(builder.build());
+  }
+
+  /**
+   * Obtains an instance from the specified list of currency-convertible values.
+   * <p>
+   * This is a nasty non-public method that hides the casts necessary.
+   * All elements in the input list must be pre-checked to ensure that they are {@code FxConvertible}.
+   * This code should be a private static method on {@code ScenarioResult} but interfaces cannot have private methods.
+   *
+   * @param <T>  the input and result type
+   * @param values  the values, one value for each scenario, all implementing {@link FxConvertible}
+   * @return an instance with the specified values
+   */
+  @SuppressWarnings("unchecked")
+  static <T> ScenarioResult<T> casting(List<T> values) {
+    List<FxConvertible<?>> convertibleResults = (List<FxConvertible<?>>) values;
+    return (ScenarioResult<T>) FxConvertibleList.of(convertibleResults);
   }
 
   //-------------------------------------------------------------------------
