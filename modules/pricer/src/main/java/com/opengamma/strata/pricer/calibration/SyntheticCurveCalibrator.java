@@ -26,6 +26,7 @@ import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -38,6 +39,21 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * of instruments, even if they are not the most liquid in a market.
  */
 public class SyntheticCurveCalibrator {
+
+  /**
+   * The default synthetic curve calibrator.
+   * <p>
+   * This uses the default StandardCurveCalibrator and the measures from {@link MarketQuoteMeasure}}.
+   */
+  static final SyntheticCurveCalibrator DEFAULT =
+      SyntheticCurveCalibrator.of(
+          CalibrationMeasures.of(
+              MarketQuoteMeasure.FRA_MQ,
+              MarketQuoteMeasure.IBOR_FIXING_DEPOSIT_MQ,
+              MarketQuoteMeasure.IBOR_FUTURE_MQ,
+              MarketQuoteMeasure.SWAP_MQ,
+              MarketQuoteMeasure.TERM_DEPOSIT_MQ),
+          CurveCalibrator.defaultCurveCalibrator());
 
   /** The market-quotes measures used to produce the synthetic quotes. */
   private final CalibrationMeasures marketQuotesMeasures;
@@ -67,15 +83,28 @@ public class SyntheticCurveCalibrator {
   }
 
   /**
-   * Calibrates synthetic curves from an existing RatesProvider and the configuration of the new curves.
+   * Calibrates synthetic curves from the configuration of the new curves and an existing {@link MarketData}.
    * 
-   * @param inputMulticurve  the input rates provider
    * @param group  the curve group definition for the synthetic curves and instruments
+   * @param marketData  the market data
    * @return the rates provider
    */
   public ImmutableRatesProvider calibrate(
-      RatesProvider inputMulticurve,
-      CurveGroupDefinition group) {
+      CurveGroupDefinition group,
+      MarketData marketData) {
+    return calibrate(group, MarketDataRatesProvider.of(marketData));
+  }
+
+  /**
+   * Calibrates synthetic curves from the configuration of the new curves and an existing RatesProvider.
+   * 
+   * @param group  the curve group definition for the synthetic curves and instruments
+   * @param inputMulticurve  the input rates provider
+   * @return the rates provider
+   */
+  public ImmutableRatesProvider calibrate(
+      CurveGroupDefinition group,
+      RatesProvider inputMulticurve) {
     LocalDate valuationDate = inputMulticurve.getValuationDate();
     // Computes the synthetic market quotes
     MarketData marketQuotesSy = marketData(inputMulticurve, group);
