@@ -44,7 +44,7 @@ public class SchedulePeriodTest {
   private static final LocalDate JUL_17 = date(2014, JULY, 17);
   private static final LocalDate JUL_18 = date(2014, JULY, 18);
   private static final LocalDate AUG_17 = date(2014, AUGUST, 17);  // Sunday
-  private static final LocalDate AUG_18 = date(2014, AUGUST, 18);  // Sunday
+  private static final LocalDate AUG_18 = date(2014, AUGUST, 18);  // Monday
   private static final LocalDate SEP_17 = date(2014, SEPTEMBER, 17);
   private static final double TOLERANCE = 1.0E-6;
 
