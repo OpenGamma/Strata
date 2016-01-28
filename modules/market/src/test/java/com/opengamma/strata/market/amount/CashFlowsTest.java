@@ -18,6 +18,7 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.currency.FxRate;
 
 /**
  * Test {@link CashFlows}.
@@ -25,6 +26,7 @@ import com.google.common.collect.ImmutableList;
 @Test
 public class CashFlowsTest {
 
+  private static final double TOLERANCE = 1e-8;
   private static final LocalDate PAYMENT_DATE_1 = LocalDate.of(2015, 6, 22);
   private static final LocalDate PAYMENT_DATE_2 = LocalDate.of(2015, 12, 21);
   private static final double FORECAST_VALUE_1 = 0.0132;
@@ -76,6 +78,20 @@ public class CashFlowsTest {
     CashFlows expected = CashFlows.of(ImmutableList.of(CASH_FLOW_2, CASH_FLOW_1, CASH_FLOW_3));
     assertEquals(test, expected);
     assertEquals(test.sorted(), test);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_convertedTo() {
+    CashFlows base = CashFlows.of(ImmutableList.of(CASH_FLOW_1, CASH_FLOW_2));
+    CashFlows test = base.convertedTo(USD, FxRate.of(GBP, USD, 1.5));
+    assertEquals(test.getCashFlow(0), CASH_FLOW_1);
+    CashFlow converted = test.getCashFlow(1);
+    assertEquals(converted.getPaymentDate(), CASH_FLOW_2.getPaymentDate());
+    assertEquals(converted.getDiscountFactor(), CASH_FLOW_2.getDiscountFactor(), TOLERANCE);
+    assertEquals(converted.getPresentValue().getCurrency(), USD);
+    assertEquals(converted.getPresentValue().getAmount(), CASH_FLOW_2.getPresentValue().getAmount() * 1.5, TOLERANCE);
+    assertEquals(converted.getForecastValue().getCurrency(), USD);
+    assertEquals(converted.getForecastValue().getAmount(), CASH_FLOW_2.getForecastValue().getAmount() * 1.5, TOLERANCE);
   }
 
   //-------------------------------------------------------------------------

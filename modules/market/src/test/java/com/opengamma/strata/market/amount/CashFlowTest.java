@@ -20,6 +20,8 @@ import org.assertj.core.data.Offset;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.currency.FxRate;
 
 /**
  * Test {@link CashFlow}.
@@ -68,6 +70,29 @@ public class CashFlowTest {
 
   public void test_ofForecastValue_Currency() {
     CashFlow test = CashFlow.ofForecastValue(PAYMENT_DATE, GBP, FORECAST_VALUE, DISCOUNT_FACTOR);
+    assertThat(test.getPaymentDate()).isEqualTo(PAYMENT_DATE);
+    assertThat(test.getPresentValue()).hasCurrency(GBP);
+    assertThat(test.getPresentValue()).hasAmount(PRESENT_VALUE, TOLERANCE);
+    assertThat(test.getForecastValue()).hasCurrency(GBP);
+    assertThat(test.getForecastValue()).hasAmount(FORECAST_VALUE, TOLERANCE);
+    assertThat(test.getDiscountFactor()).isCloseTo(DISCOUNT_FACTOR, TOLERANCE);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_convertedTo() {
+    CashFlow base = CashFlow.ofForecastValue(PAYMENT_DATE, GBP, FORECAST_VALUE, DISCOUNT_FACTOR);
+    CashFlow test = base.convertedTo(USD, FxRate.of(GBP, USD, 1.5));
+    assertThat(test.getPaymentDate()).isEqualTo(PAYMENT_DATE);
+    assertThat(test.getPresentValue()).hasCurrency(USD);
+    assertThat(test.getPresentValue()).hasAmount(PRESENT_VALUE * 1.5, TOLERANCE);
+    assertThat(test.getForecastValue()).hasCurrency(USD);
+    assertThat(test.getForecastValue()).hasAmount(FORECAST_VALUE * 1.5, TOLERANCE);
+    assertThat(test.getDiscountFactor()).isCloseTo(DISCOUNT_FACTOR, TOLERANCE);
+  }
+
+  public void test_convertedTo_noConversion() {
+    CashFlow base = CashFlow.ofForecastValue(PAYMENT_DATE, GBP, FORECAST_VALUE, DISCOUNT_FACTOR);
+    CashFlow test = base.convertedTo(GBP, FxMatrix.empty());
     assertThat(test.getPaymentDate()).isEqualTo(PAYMENT_DATE);
     assertThat(test.getPresentValue()).hasCurrency(GBP);
     assertThat(test.getPresentValue()).hasAmount(PRESENT_VALUE, TOLERANCE);
