@@ -7,7 +7,6 @@ package com.opengamma.strata.function.calculation.future;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -63,8 +62,8 @@ public class GenericFutureCalculationFunction
   }
 
   @Override
-  public Optional<Currency> naturalCurrency(GenericFutureTrade target) {
-    return Optional.of(target.getProduct().getCurrency());
+  public Currency naturalCurrency(GenericFutureTrade target) {
+    return target.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------

@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
@@ -26,6 +27,11 @@ public class MissingConfigCalculationFunction
   @Override
   public Set<Measure> supportedMeasures() {
     return ImmutableSet.of();
+  }
+
+  @Override
+  public Currency naturalCurrency(CalculationTarget target) {
+    throw new IllegalStateException("Function has no currency-convertible measures");
   }
 
   @Override

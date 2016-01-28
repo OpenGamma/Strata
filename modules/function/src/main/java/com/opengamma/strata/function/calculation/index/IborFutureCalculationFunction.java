@@ -7,7 +7,6 @@ package com.opengamma.strata.function.calculation.index;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -74,8 +73,8 @@ public class IborFutureCalculationFunction
   }
 
   @Override
-  public Optional<Currency> naturalCurrency(IborFutureTrade target) {
-    return Optional.of(target.getProduct().getCurrency());
+  public Currency naturalCurrency(IborFutureTrade target) {
+    return target.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------

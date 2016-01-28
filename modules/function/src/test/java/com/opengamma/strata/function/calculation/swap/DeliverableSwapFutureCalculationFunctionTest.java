@@ -128,7 +128,7 @@ public class DeliverableSwapFutureCalculationFunctionTest {
             DiscountCurveKey.of(CURRENCY),
             IborIndexCurveKey.of(INDEX)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(INDEX)));
-    assertThat(function.naturalCurrency(TRADE)).hasValue(CURRENCY);
+    assertThat(function.naturalCurrency(TRADE)).isEqualTo(CURRENCY);
   }
 
   public void test_simpleMeasures() {

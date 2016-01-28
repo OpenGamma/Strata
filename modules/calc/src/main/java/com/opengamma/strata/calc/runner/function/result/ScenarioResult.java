@@ -10,7 +10,6 @@ import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -40,19 +39,12 @@ public interface ScenarioResult<T> {
 
   /**
    * Obtains an instance from the specified list of values.
-   * <p>
-   * The values will be checked to see if they are currency convertible.
-   * If they are, then the {@code ScenarioResult} that is returned will be currency convertible.
    *
    * @param <T>  the type of the result
    * @param values  the values, one value for each scenario
    * @return an instance with the specified values
    */
   public static <T> ScenarioResult<T> of(List<T> values) {
-    // If all the results are FxConvertible wrap in a type that implements CurrencyConvertible
-    if (values.stream().allMatch(FxConvertible.class::isInstance)) {
-      return FxConvertibleList.casting(values);
-    }
     return DefaultScenarioResult.of(values);
   }
 
@@ -68,19 +60,16 @@ public interface ScenarioResult<T> {
    */
   public static <T> ScenarioResult<T> of(int size, IntFunction<T> valueFunction) {
     ArgChecker.notNegativeOrZero(size, "size");
-    boolean convertible = true;
     ImmutableList.Builder<T> builder = ImmutableList.builder();
     for (int i = 0; i < size; i++) {
-      T value = valueFunction.apply(i);
-      builder.add(value);
-      convertible &= value instanceof FxConvertible;
+      builder.add(valueFunction.apply(i));
     }
-    return convertible ? FxConvertibleList.casting(builder.build()) : ScenarioResult.of(builder.build());
+    return ScenarioResult.of(builder.build());
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the number of results.
+   * Returns the number of values in the result.
    * <p>
    * This is required to be the same as the number of scenarios in the market data provided to the function.
    *
@@ -89,7 +78,7 @@ public interface ScenarioResult<T> {
   public abstract int size();
 
   /**
-   * Returns the result at the specified index.
+   * Returns the value at the specified index.
    * <p>
    * The index must be valid, between zero (inclusive) and {@code size()} (exclusive).
    *
@@ -99,11 +88,11 @@ public interface ScenarioResult<T> {
   public abstract T get(int index);
 
   /**
-   * Returns a stream of the results.
+   * Returns a stream of the values.
    * <p>
-   * The stream will return one entry for each scenario.
+   * The stream will return one value for each scenario.
    *
-   * @return a stream of the results
+   * @return a stream of the values
    */
   public abstract Stream<T> stream();
 

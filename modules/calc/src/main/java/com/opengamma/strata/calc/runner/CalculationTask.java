@@ -9,7 +9,6 @@ import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
@@ -179,10 +178,8 @@ public final class CalculationTask {
     for (MarketDataKey<?> key : functionRequirements.getSingleValueRequirements()) {
       requirementsBuilder.addValues(marketDataMappings.getIdForKey(key));
     }
-    Optional<Currency> optionalReportingCurrency = reportingCurrency();
-    if (optionalReportingCurrency.isPresent()) {
-      Currency reportingCurrency = optionalReportingCurrency.get();
-
+    if (measure.isCurrencyConvertible()) {
+      Currency reportingCurrency = reportingCurrency();
       // Add requirements for the FX rates needed to convert the output values into the reporting currency
       List<MarketDataId<FxRate>> fxRateIds = functionRequirements.getOutputCurrencies().stream()
           .filter(outputCurrency -> !outputCurrency.equals(reportingCurrency))
@@ -198,10 +195,11 @@ public final class CalculationTask {
   /**
    * Returns an optional containing the first currency from the arguments or empty if both arguments are empty.
    */
-  private Optional<Currency> reportingCurrency() {
+  private Currency reportingCurrency() {
     if (reportingCurrency.isSpecific()) {
-      return Optional.of(reportingCurrency.getCurrency());
+      return reportingCurrency.getCurrency();
     }
+    // this should never throw an exception, because it is only called if the measure is currency-convertible
     return function.naturalCurrency(target);
   }
 
@@ -240,41 +238,23 @@ public final class CalculationTask {
     return map.get(getMeasure());
   }
 
-  /**
-   * Converts the value in a result to the reporting currency.
-   * <p>
-   * If the result is a failure or does not contain an value that can be converted it is returned unchanged.
-   * If the rules specify a reporting currency but the conversion cannot be performed, a failure is
-   * returned with details of the problem.
-   *
-   * @param result  the result of a calculation
-   * @param marketData  market data containing FX rates needed to perform currency conversion
-   * @return a result containing the value from the input result, converted to the reporting currency if possible
-   */
+  // converts the value, if appropriate
   private Result<?> convertToReportingCurrency(Result<?> result, CalculationMarketData marketData) {
-    if (!result.isSuccess()) {
-      return result;
+    // the result is only converted if it is a success and both the measure and value are convertible
+    if (result.isSuccess() && measure.isCurrencyConvertible() && result.getValue() instanceof CurrencyConvertible) {
+      CurrencyConvertible<?> convertible = (CurrencyConvertible<?>) result.getValue();
+      return performCurrencyConversion(convertible, marketData);
     }
-    if (!measure.isCurrencyConvertible()) {
-      return result;
-    }
-    Object value = result.getValue();
+    return result;
+  }
 
-    if (!(value instanceof CurrencyConvertible)) {
-      return result;
-    }
-    Optional<Currency> optionalReportingCurrency = reportingCurrency();
-    if (!optionalReportingCurrency.isPresent()) {
-      return Result.failure(FailureReason.MISSING_DATA, "No reporting currency available for convert value {}", value);
-    }
-    Currency reportingCurrency = optionalReportingCurrency.get();
-    CurrencyConvertible<?> convertible = (CurrencyConvertible<?>) value;
-
+  // converts the value
+  private Result<?> performCurrencyConversion(CurrencyConvertible<?> value, CalculationMarketData marketData) {
+    Currency currency = reportingCurrency();
     try {
-      Object convertedValue = convertible.convertedTo(reportingCurrency, marketData);
-      return Result.success(convertedValue);
-    } catch (RuntimeException e) {
-      return Result.failure(FailureReason.ERROR, e, "Failed to convert value {} to currency {}", value, reportingCurrency);
+      return Result.success(value.convertedTo(currency, marketData));
+    } catch (RuntimeException ex) {
+      return Result.failure(FailureReason.ERROR, ex, "Failed to convert value {} to currency {}", value, currency);
     }
   }
 

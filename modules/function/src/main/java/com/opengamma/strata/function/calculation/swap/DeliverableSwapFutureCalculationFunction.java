@@ -9,7 +9,6 @@ import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -79,8 +78,8 @@ public class DeliverableSwapFutureCalculationFunction
   }
 
   @Override
-  public Optional<Currency> naturalCurrency(DeliverableSwapFutureTrade target) {
-    return Optional.of(target.getProduct().getCurrency());
+  public Currency naturalCurrency(DeliverableSwapFutureTrade target) {
+    return target.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------

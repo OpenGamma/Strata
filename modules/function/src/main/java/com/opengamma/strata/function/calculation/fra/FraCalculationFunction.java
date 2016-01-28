@@ -10,7 +10,6 @@ import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -89,8 +88,8 @@ public class FraCalculationFunction
   }
 
   @Override
-  public Optional<Currency> naturalCurrency(FraTrade target) {
-    return Optional.of(target.getProduct().getCurrency());
+  public Currency naturalCurrency(FraTrade target) {
+    return target.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------

@@ -5,13 +5,16 @@
  */
 package com.opengamma.strata.calc.runner;
 
+import static com.opengamma.strata.basics.currency.Currency.EUR;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -95,18 +98,18 @@ public class CalculationTaskTest {
   public void convertResultCurrencyUsingReportingCurrency() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
-        .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
+        .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
-    CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
+    CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     CalculationEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(date(2011, 3, 8))
-        .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
+        .addValue(FxRateId.of(GBP, USD), rates)
         .build();
-    ConvertibleFunction fn = ConvertibleFunction.of(() -> list);
+    ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
 
     DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
-    CurrencyValuesArray expectedArray = CurrencyValuesArray.of(Currency.USD, expectedValues);
+    CurrencyValuesArray expectedArray = CurrencyValuesArray.of(USD, expectedValues);
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
@@ -119,18 +122,18 @@ public class CalculationTaskTest {
   public void currencyConversionHonoursConvertibleFlagOnMeasure() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
-        .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
+        .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
-    CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
+    CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     CalculationEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(date(2011, 3, 8))
-        .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
+        .addValue(FxRateId.of(GBP, USD), rates)
         .build();
-    ConvertibleFunction fn = ConvertibleFunction.of(() -> list);
+    ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
     CalculationTask task =
         CalculationTask.of(TARGET, Measures.PRESENT_VALUE_MULTI_CCY, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
 
-    CurrencyValuesArray expectedArray = CurrencyValuesArray.of(Currency.GBP, values);
+    CurrencyValuesArray expectedArray = CurrencyValuesArray.of(GBP, values);
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
@@ -144,18 +147,18 @@ public class CalculationTaskTest {
   public void convertResultCurrencyUsingDefaultReportingCurrency() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
-        .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
+        .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
-    CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
+    CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     CalculationEnvironment marketData = MarketEnvironment.builder()
         .valuationDate(date(2011, 3, 8))
-        .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
+        .addValue(FxRateId.of(GBP, USD), rates)
         .build();
-    ConvertibleFunction fn = ConvertibleFunction.of(() -> list, Currency.USD);
+    ConvertibleFunction fn = ConvertibleFunction.of(() -> list, USD);
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_EMPTY);
 
     DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
-    CurrencyValuesArray expectedArray = CurrencyValuesArray.of(Currency.USD, expectedValues);
+    CurrencyValuesArray expectedArray = CurrencyValuesArray.of(USD, expectedValues);
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
@@ -166,7 +169,9 @@ public class CalculationTaskTest {
    * Test that the result is returned unchanged if it is a failure.
    */
   public void convertResultCurrencyFailure() {
-    ConvertibleFunction fn = ConvertibleFunction.of(() -> { throw new RuntimeException("This is a failure"); });
+    ConvertibleFunction fn = ConvertibleFunction.of(() -> {
+      throw new RuntimeException("This is a failure");
+    }, GBP);
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
 
@@ -189,28 +194,6 @@ public class CalculationTaskTest {
   }
 
   /**
-   * Test a failure is returned for a convertible value if there is no reporting currency.
-   */
-  public void convertResultCurrencyNoReportingCurrency() {
-    DoubleArray values = DoubleArray.of(1, 2, 3);
-    List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
-        .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
-        .collect(toImmutableList());
-    CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
-    CalculationEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(date(2011, 3, 8))
-        .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
-        .build();
-    ConvertibleFunction fn = ConvertibleFunction.of(() -> list);
-    ReportingCurrency reportingCurrency = REPORTING_CURRENCY_EMPTY;
-    CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, reportingCurrency);
-
-    CalculationResult calculationResult = task.execute(marketData);
-    Result<?> result = calculationResult.getResult();
-    assertThat(result).hasFailureMessageMatching("No reporting currency available.*");
-  }
-
-  /**
    * Test a non-convertible result is returned even if there is no reporting currency.
    */
   public void nonConvertibleResultReturnedWhenNoReportingCurrency() {
@@ -228,10 +211,10 @@ public class CalculationTaskTest {
    */
   public void convertResultCurrencyConversionFails() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
-    CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
+    CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     // Market data doesn't include FX rates, conversion to USD will fail
     CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
-    ConvertibleFunction fn = ConvertibleFunction.of(() -> list);
+    ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
 
     CalculationResult calculationResult = task.execute(marketData);
@@ -305,8 +288,8 @@ public class CalculationTaskTest {
     MarketDataRequirements requirements = task.requirements();
 
     assertThat(requirements.getNonObservables()).containsOnly(
-        FxRateId.of(Currency.GBP, Currency.USD),
-        FxRateId.of(Currency.EUR, Currency.USD));
+        FxRateId.of(GBP, USD),
+        FxRateId.of(EUR, USD));
   }
 
   public void testToString() {
@@ -328,6 +311,11 @@ public class CalculationTaskTest {
     @Override
     public Set<Measure> supportedMeasures() {
       return MEASURES;
+    }
+
+    @Override
+    public Currency naturalCurrency(TestTarget target) {
+      return USD;
     }
 
     @Override
@@ -360,19 +348,15 @@ public class CalculationTaskTest {
       implements CalculationFunction<TestTarget> {
 
     private final Supplier<CurrencyValuesArray> supplier;
-    private final Optional<Currency> reportingCurrency;
+    private final Currency naturalCurrency;
 
-    public static ConvertibleFunction of(Supplier<CurrencyValuesArray> supplier) {
-      return new ConvertibleFunction(supplier, Optional.empty());
+    static ConvertibleFunction of(Supplier<CurrencyValuesArray> supplier, Currency naturalCurrency) {
+      return new ConvertibleFunction(supplier, naturalCurrency);
     }
 
-    public static ConvertibleFunction of(Supplier<CurrencyValuesArray> supplier, Currency reportingCurrency) {
-      return new ConvertibleFunction(supplier, Optional.of(reportingCurrency));
-    }
-
-    private ConvertibleFunction(Supplier<CurrencyValuesArray> supplier, Optional<Currency> reportingCurrency) {
+    private ConvertibleFunction(Supplier<CurrencyValuesArray> supplier, Currency naturalCurrency) {
       this.supplier = supplier;
-      this.reportingCurrency = reportingCurrency;
+      this.naturalCurrency = naturalCurrency;
     }
 
     @Override
@@ -381,8 +365,8 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public Optional<Currency> naturalCurrency(TestTarget target) {
-      return reportingCurrency;
+    public Currency naturalCurrency(TestTarget target) {
+      return naturalCurrency;
     }
 
     @Override
@@ -423,6 +407,11 @@ public class CalculationTaskTest {
     }
 
     @Override
+    public Currency naturalCurrency(TestTarget target) {
+      return USD;
+    }
+
+    @Override
     public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
       return FunctionRequirements.empty();
     }
@@ -455,9 +444,14 @@ public class CalculationTaskTest {
     }
 
     @Override
+    public Currency naturalCurrency(TestTarget target) {
+      return USD;
+    }
+
+    @Override
     public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
       return FunctionRequirements.builder()
-          .outputCurrencies(Currency.GBP, Currency.EUR, Currency.USD)
+          .outputCurrencies(GBP, EUR, USD)
           .build();
     }
 

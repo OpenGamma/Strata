@@ -7,7 +7,6 @@ package com.opengamma.strata.function.calculation.credit;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -98,8 +97,8 @@ public class CdsCalculationFunction
   }
 
   @Override
-  public Optional<Currency> naturalCurrency(CdsTrade target) {
-    return Optional.of(target.getProduct().getFeeLeg().getPeriodicPayments().getNotional().getCurrency());
+  public Currency naturalCurrency(CdsTrade target) {
+    return target.getProduct().getFeeLeg().getPeriodicPayments().getNotional().getCurrency();
   }
 
   //-------------------------------------------------------------------------

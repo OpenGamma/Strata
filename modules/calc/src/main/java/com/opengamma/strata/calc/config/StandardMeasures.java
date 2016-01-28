@@ -31,24 +31,30 @@ final class StandardMeasures {
   public static final Measure CURRENT_CASH = ImmutableMeasure.of("CurrentCash");
   /**
    * Measure representing a break-down of the present value calculation on the target.
+   * <p>
+   * No currency conversion is performed on the result.
    */
-  public static final Measure EXPLAIN_PRESENT_VALUE = ImmutableMeasure.of("ExplainPresentValue");
+  public static final Measure EXPLAIN_PRESENT_VALUE = ImmutableMeasure.of("ExplainPresentValue", false);
   /**
    * Measure representing the forward FX rate of the calculation target.
    */
-  public static final Measure FORWARD_FX_RATE = ImmutableMeasure.of("ForwardFxRate");
+  public static final Measure FORWARD_FX_RATE = ImmutableMeasure.of("ForwardFxRate", false);
   /**
    * Measure representing the initial notional amount of each leg of the calculation target.
    */
   public static final Measure LEG_INITIAL_NOTIONAL = ImmutableMeasure.of("LegInitialNotional");
   /**
    * Measure representing the par rate of the calculation target.
+   * <p>
+   * The result is a decimal rate, and as such no currency conversion is performed.
    */
-  public static final Measure PAR_RATE = ImmutableMeasure.of("ParRate");
+  public static final Measure PAR_RATE = ImmutableMeasure.of("ParRate", false);
   /**
    * Measure representing the par spread of the calculation target.
+   * <p>
+   * The result is a decimal rate, and as such no currency conversion is performed.
    */
-  public static final Measure PAR_SPREAD = ImmutableMeasure.of("ParSpread");
+  public static final Measure PAR_SPREAD = ImmutableMeasure.of("ParSpread", false);
   /**
    * Measure representing the present value of the calculation target.
    */

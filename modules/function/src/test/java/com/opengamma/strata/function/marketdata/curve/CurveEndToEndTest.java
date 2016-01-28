@@ -45,8 +45,8 @@ import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.config.Measures;
+import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
@@ -229,6 +229,11 @@ public class CurveEndToEndTest {
     @Override
     public Set<Measure> supportedMeasures() {
       return ImmutableSet.of(Measures.PRESENT_VALUE);
+    }
+
+    @Override
+    public Currency naturalCurrency(FraTrade trade) {
+      return trade.getProduct().getCurrency();
     }
 
     @Override

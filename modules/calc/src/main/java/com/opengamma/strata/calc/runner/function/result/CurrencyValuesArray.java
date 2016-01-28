@@ -49,7 +49,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  */
 @BeanDefinition(builderScope = "private")
 public final class CurrencyValuesArray
-    implements CurrencyConvertible<CurrencyValuesArray>, ScenarioResult<CurrencyAmount>, ImmutableBean {
+    implements ScenarioResult<CurrencyAmount>, CurrencyConvertible<CurrencyValuesArray>, ImmutableBean {
 
   /**
    * The currency of the values.

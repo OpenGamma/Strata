@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.calc.config;
 
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -19,6 +20,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
@@ -28,7 +30,7 @@ import com.opengamma.strata.collect.result.Result;
 @Test
 public class FunctionConfigTest {
 
-  private static final Measure MEASURE = Measure.of("PresentValue");
+  private static final Measure MEASURE = Measures.PRESENT_VALUE;
   private static final Set<Measure> MEASURES = ImmutableSet.of(MEASURE);
   private static final CalculationMarketData MARKET_DATA = mock(CalculationMarketData.class);
 
@@ -117,6 +119,11 @@ public class FunctionConfigTest {
     }
 
     @Override
+    public Currency naturalCurrency(TestTarget target) {
+      return USD;
+    }
+
+    @Override
     public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
       return FunctionRequirements.empty();
     }
@@ -150,6 +157,11 @@ public class FunctionConfigTest {
     }
 
     @Override
+    public Currency naturalCurrency(TestTarget target) {
+      return USD;
+    }
+
+    @Override
     public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
       return FunctionRequirements.empty();
     }
@@ -175,6 +187,11 @@ public class FunctionConfigTest {
     @Override
     public Set<Measure> supportedMeasures() {
       return MEASURES;
+    }
+
+    @Override
+    public Currency naturalCurrency(TestTarget target) {
+      return USD;
     }
 
     @Override
@@ -206,6 +223,11 @@ public class FunctionConfigTest {
     @Override
     public Set<Measure> supportedMeasures() {
       return MEASURES;
+    }
+
+    @Override
+    public Currency naturalCurrency(TestTarget target) {
+      return USD;
     }
 
     @Override
