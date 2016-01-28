@@ -215,6 +215,13 @@ public class SimpleDiscountFactorsTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_unitParameterSensitivity_val_date() {
+    // Discount factor at valuation date is always 0, no sensitivity.
+    SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
+    assertEquals(test.unitParameterSensitivity(DATE_VAL), CurveUnitParameterSensitivities.empty());
+  }
+
+  //-------------------------------------------------------------------------
   // proper end-to-end FD tests are elsewhere
   public void test_curveParameterSensitivity() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
