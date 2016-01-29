@@ -83,8 +83,22 @@ public class MapStreamTest {
     assertThat(mutableMap).isEqualTo(map);
   }
 
+  public void ofCollection() {
+    List<String> letters = ImmutableList.of("a", "b", "c");
+    Map<String, String> expected = ImmutableMap.of("A", "a", "B", "b", "C", "c");
+    Map<String, String> result = MapStream.of(letters, letter -> letter.toUpperCase(Locale.ENGLISH)).toMap();
+    assertThat(result).isEqualTo(expected);
+  }
+
   public void toMapDuplicateKeys() {
     assertThrowsIllegalArg(() -> MapStream.of(map).mapKeys(k -> "key").toMap());
+  }
+
+  public void toMapWithMerge() {
+    Map<String, Integer> map = ImmutableMap.of("a", 1, "aa", 2, "b", 10, "bb", 20, "c", 1);
+    Map<String, Integer> expected = ImmutableMap.of("a", 3, "b", 30, "c", 1);
+    Map<String, Integer> result = MapStream.of(map).mapKeys(s -> s.substring(0, 1)).toMap((v1, v2) -> v1 + v2);
+    assertThat(result).isEqualTo(expected);
   }
 
   public void coverage() {
