@@ -7,12 +7,11 @@ package com.opengamma.strata.calc.config;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
-
-import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -25,13 +24,17 @@ public class ReportingCurrencyTest {
   public void test_NATURAL() {
     ReportingCurrency test = ReportingCurrency.NATURAL;
     assertEquals(test.getType(), ReportingCurrencyType.NATURAL);
-    assertEquals(test.getCurrency(), Optional.empty());
+    assertEquals(test.isNatural(), true);
+    assertEquals(test.isSpecific(), false);
+    assertThrows(() -> test.getCurrency(), IllegalStateException.class);
   }
 
-  public void test_of() {
+  public void test_of_specific() {
     ReportingCurrency test = ReportingCurrency.of(USD);
     assertEquals(test.getType(), ReportingCurrencyType.SPECIFIC);
-    assertEquals(test.getCurrency(), Optional.of(USD));
+    assertEquals(test.isNatural(), false);
+    assertEquals(test.isSpecific(), true);
+    assertEquals(test.getCurrency(), USD);
   }
 
   public void test_type() {

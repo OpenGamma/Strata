@@ -199,8 +199,8 @@ public final class CalculationTask {
    * Returns an optional containing the first currency from the arguments or empty if both arguments are empty.
    */
   private Optional<Currency> reportingCurrency() {
-    if (reportingCurrency.getCurrency().isPresent()) {
-      return reportingCurrency.getCurrency();
+    if (reportingCurrency.isSpecific()) {
+      return Optional.of(reportingCurrency.getCurrency());
     }
     return function.naturalCurrency(target);
   }
