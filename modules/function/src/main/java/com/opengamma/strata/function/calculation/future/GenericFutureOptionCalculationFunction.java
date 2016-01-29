@@ -55,7 +55,7 @@ public class GenericFutureOptionCalculationFunction
   }
 
   @Override
-  public Optional<Currency> defaultReportingCurrency(GenericFutureOptionTrade target) {
+  public Optional<Currency> naturalCurrency(GenericFutureOptionTrade target) {
     return Optional.of(target.getProduct().getCurrency());
   }
 

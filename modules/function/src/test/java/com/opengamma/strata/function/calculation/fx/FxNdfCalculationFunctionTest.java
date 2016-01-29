@@ -92,7 +92,7 @@ public class FxNdfCalculationFunctionTest {
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
         ImmutableSet.of(DiscountCurveKey.of(GBP), DiscountCurveKey.of(USD)));
     assertThat(reqs.getTimeSeriesRequirements()).isEmpty();
-    assertThat(function.defaultReportingCurrency(TRADE)).hasValue(GBP);
+    assertThat(function.naturalCurrency(TRADE)).hasValue(GBP);
   }
 
   public void test_simpleMeasures() {

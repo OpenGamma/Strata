@@ -43,7 +43,7 @@ import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
  *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
  * </ul>
  * <p>
- * The default reporting currency is determined from the first swap leg.
+ * The "natural" currency is the currency of the swap leg that is received.
  */
 public class DeliverableSwapFutureCalculationFunction
     implements CalculationFunction<DeliverableSwapFutureTrade> {
@@ -71,7 +71,7 @@ public class DeliverableSwapFutureCalculationFunction
   }
 
   @Override
-  public Optional<Currency> defaultReportingCurrency(DeliverableSwapFutureTrade target) {
+  public Optional<Currency> naturalCurrency(DeliverableSwapFutureTrade target) {
     return Optional.of(target.getProduct().getCurrency());
   }
 

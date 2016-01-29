@@ -64,7 +64,7 @@ public class BulletPaymentCalculationFunction
   }
 
   @Override
-  public Optional<Currency> defaultReportingCurrency(BulletPaymentTrade target) {
+  public Optional<Currency> naturalCurrency(BulletPaymentTrade target) {
     return Optional.of(target.getProduct().getCurrency());
   }
 

@@ -20,7 +20,7 @@ import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.ReportingRules;
+import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.config.pricing.ConfiguredFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
@@ -91,7 +91,7 @@ public final class CalculationTasks {
   }
 
   // TODO This needs to handle a whole set of columns and return a list of config
-  // TODO Need to group the columns by configured function group, market data mappings and reporting rules.
+  // TODO Need to group the columns by configured function group, market data mappings and reporting currency.
   //   Columns are only eligible to be calculated by the same fn if all the rules are the same
   //   Need a compound key? ConfigKey[ConfiguredFunctionGroup, MarketDataMappings]. ConfigGroup?
   //   What's the value? Column? Measure? Index? Some combination of the 3?
@@ -102,28 +102,27 @@ public final class CalculationTasks {
    * @param rowIndex  the row index of the value in the results grid
    * @param columnIndex  the column index of the value in the results grid
    * @param target  the target for which the measure will be calculated
-   * @param column  the column for which the value is calculated
+   * @param effectiveColumn  the effective column, where the default and column rules have been merged
    * @return configuration for calculating the value for the target
    */
   private static CalculationTask createTask(
       int rowIndex,
       int columnIndex,
       CalculationTarget target,
-      Column column) {
+      Column effectiveColumn) {
 
-    Measure measure = column.getMeasure();
-    Optional<ConfiguredFunctionGroup> functionGroup = column.getPricingRules().functionGroup(target, measure);
+    Measure measure = effectiveColumn.getMeasure();
+    Optional<ConfiguredFunctionGroup> functionGroup = effectiveColumn.getPricingRules().functionGroup(target, measure);
 
     // Use the mappings from the market data rules, else create a set of mappings that cause a failure to
     // be returned in the market data with an error message saying the rules didn't match the target
     MarketDataMappings marketDataMappings =
-        column.getMarketDataRules().mappings(target)
+        effectiveColumn.getMarketDataRules().mappings(target)
             .orElse(NoMatchingRuleMappings.INSTANCE);
 
-    ReportingRules reportingRules = column.getReportingRules();
-
+    ReportingCurrency reportingCurrency = effectiveColumn.getReportingCurrency().get();  // rules merged, so get() is safe
     FunctionConfig<?> functionConfig = functionGroup
-        .map(group -> functionConfig(group, target, column))
+        .map(group -> functionConfig(group, target, effectiveColumn))
         .orElse(FunctionConfig.missing());
 
     Map<String, Object> functionArguments = functionGroup
@@ -137,7 +136,7 @@ public final class CalculationTasks {
         columnIndex,
         functionConfig.createFunction(functionArguments),
         marketDataMappings,
-        reportingRules);
+        reportingCurrency);
   }
 
   /**

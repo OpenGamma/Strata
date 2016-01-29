@@ -27,7 +27,7 @@ import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.ReportingRules;
+import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.calc.config.pricing.PricingRule;
@@ -56,7 +56,7 @@ public class CalculationTasksTest {
   private static final PricingRules PRICING_RULES = PricingRules.empty();
   private static final MarketDataMappings MD_MAPPINGS = MarketDataMappings.of(MarketDataFeed.NONE);
   private static final MarketDataRules MD_RULES = MarketDataRules.of(MarketDataRule.anyTarget(MD_MAPPINGS));
-  private static final ReportingRules REPORTING_RULES = ReportingRules.fixedCurrency(Currency.USD);
+  private static final ReportingCurrency REPORTING_CURRENCY = ReportingCurrency.of(Currency.USD);
 
   //-------------------------------------------------------------------------
   public void createCalculationConfig() {
@@ -78,7 +78,7 @@ public class CalculationTasksTest {
     DefaultPricingRules pricingRules = DefaultPricingRules.of(pricingRule);
     List<TestTarget> targets = ImmutableList.of(TARGET1, TARGET2);
     List<Column> columns = ImmutableList.of(Column.of(MEASURE1), Column.of(MEASURE2));
-    CalculationRules calculationRules = CalculationRules.of(pricingRules, marketDataRules, REPORTING_RULES);
+    CalculationRules calculationRules = CalculationRules.of(pricingRules, marketDataRules, REPORTING_CURRENCY);
 
     CalculationTasks test = CalculationTasks.of(calculationRules, targets, columns);
     assertThat(test.getTargets()).hasSize(2);
@@ -103,7 +103,7 @@ public class CalculationTasksTest {
         .addMeasures(MEASURE1)
         .build();
     DefaultPricingRules pricingRules = DefaultPricingRules.of(pricingRule);
-    CalculationRules calculationRules = CalculationRules.of(pricingRules, MarketDataRules.empty(), REPORTING_RULES);
+    CalculationRules calculationRules = CalculationRules.of(pricingRules, MarketDataRules.empty(), REPORTING_CURRENCY);
     List<TestTarget> targets = ImmutableList.of(TARGET1);
     List<Column> columns = ImmutableList.of(Column.of(MEASURE1));
 
@@ -131,7 +131,7 @@ public class CalculationTasksTest {
   public void testToString() {
     List<TestTarget> targets = ImmutableList.of(TARGET1, TARGET1);
     List<Column> columns = ImmutableList.of(Column.of(MEASURE1), Column.of(MEASURE1), Column.of(MEASURE1));
-    CalculationRules rules = CalculationRules.of(PRICING_RULES, MD_RULES, REPORTING_RULES);
+    CalculationRules rules = CalculationRules.of(PRICING_RULES, MD_RULES, REPORTING_CURRENCY);
     CalculationTasks task = CalculationTasks.of(rules, targets, columns);
     assertThat(task.toString()).isEqualTo("CalculationTasks[grid=2x3]");
   }

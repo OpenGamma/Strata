@@ -65,7 +65,7 @@ public class IborFutureCalculationFunction
   }
 
   @Override
-  public Optional<Currency> defaultReportingCurrency(IborFutureTrade target) {
+  public Optional<Currency> naturalCurrency(IborFutureTrade target) {
     return Optional.of(target.getProduct().getCurrency());
   }
 
