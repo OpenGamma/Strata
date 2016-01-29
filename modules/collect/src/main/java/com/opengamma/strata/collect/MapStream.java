@@ -6,6 +6,7 @@
 package com.opengamma.strata.collect;
 
 import java.util.AbstractMap;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
@@ -50,6 +51,18 @@ public final class MapStream<K, V>
    */
   public static <K, V> MapStream<K, V> of(Map<K, V> map) {
     return new MapStream<>(map.entrySet().stream());
+  }
+
+  /**
+   * Returns a stream of map entries where the values are taken from a collection and the keys are created by
+   * applying a function to each value.
+   *
+   * @param collection  the collection of values
+   * @param keyFunction  a function that returns the key for a value
+   * @return a stream of map entries derived from the values in the collection
+   */
+  public static <K, V> MapStream<K, V> of(Collection<V> collection, Function<V, K> keyFunction) {
+    return new MapStream<>(collection.stream().map(v -> entry(keyFunction.apply(v), v)));
   }
 
   /**
@@ -178,6 +191,19 @@ public final class MapStream<K, V>
    */
   public ImmutableMap<K, V> toMap() {
     return underlying.collect(Guavate.toImmutableMap(e -> e.getKey(), e -> e.getValue()));
+  }
+
+  /**
+   * Returns an immutable map built from the entries in the stream.
+   * <p>
+   * If the same key maps to multiple values the merge function is invoked with both values and the return
+   * value is used in the map.
+   *
+   * @param mergeFn  function used to merge values when the same key appears multiple times in the stream
+   * @return an immutable map built from the entries in the stream
+   */
+  public ImmutableMap<K, V> toMap(BiFunction<? super V, ? super V, ? extends V> mergeFn) {
+    return underlying.collect(Guavate.toImmutableMap(e -> e.getKey(), e -> e.getValue(), mergeFn));
   }
 
   /**

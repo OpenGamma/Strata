@@ -6,6 +6,7 @@
 package com.opengamma.strata.collect;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
@@ -360,6 +361,38 @@ public final class Guavate {
         Collector.Characteristics.UNORDERED);
   }
 
+  /**
+   * Collector used at the end of a stream to build an immutable map.
+   * <p>
+   * A collector is used to gather data at the end of a stream operation.
+   * This method returns a collector allowing streams to be gathered into
+   * an {@link ImmutableMap}.
+   * <p>
+   * This returns a map by converting each stream element to a key and value.
+   * If the same key is generated more than once the merge function is applied to the
+   * values and the return value of the function is used as the value in the map.
+   *
+   * @param <T> the type of the stream elements
+   * @param <K> the type of the keys in the result map
+   * @param <V> the type of the values in the result map
+   * @param keyExtractor  function to produce keys from stream elements
+   * @param valueExtractor  function to produce values from stream elements
+   * @param mergeFn  function to merge values with the same key
+   * @return the immutable map collector
+   */
+  public static <T, K, V> Collector<T, Map<K, V>, ImmutableMap<K, V>> toImmutableMap(
+      Function<? super T, ? extends K> keyExtractor,
+      Function<? super T, ? extends V> valueExtractor,
+      BiFunction<? super V, ? super V, ? extends V> mergeFn) {
+
+    return Collector.of(
+        HashMap<K, V>::new,
+        (map, val) -> map.merge(keyExtractor.apply(val), valueExtractor.apply(val), mergeFn),
+        (m1, m2) -> mergeMaps(m1, m2, mergeFn),
+        map -> ImmutableMap.copyOf(map),
+        Collector.Characteristics.UNORDERED);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Collector used at the end of a stream to build an immutable sorted map.
@@ -587,5 +620,37 @@ public final class Guavate {
    */
   public static <K, V> Collector<Pair<K, V>, ?, ImmutableMap<K, V>> pairsToImmutableMap() {
     return toImmutableMap(Pair::getFirst, Pair::getSecond);
+  }
+
+  //--------------------------------------------------------------------------------------------------
+
+  /**
+   * Helper method to merge two mutable maps by inserting all values from {@code map2} into {@code map1}.
+   * <p>
+   * If {@code map1} already contains a mapping for a key the merge function is applied to the existing value and
+   * the new value, and the return value is inserted.
+   *
+   * @param map1  the map into which values are copied
+   * @param map2  the map from which values are copied
+   * @param mergeFn  function applied to the existing and new values if the map contains the key
+   * @param <K>  the key type
+   * @param <V>  the value type
+   * @return {@code map1} with the values from {@code map2} inserted
+   */
+  private static <K, V> Map<K, V> mergeMaps(
+      Map<K, V> map1,
+      Map<K, V> map2,
+      BiFunction<? super V, ? super V, ? extends V> mergeFn) {
+
+    for (Map.Entry<K, V> entry : map2.entrySet()) {
+      V existingValue = map1.get(entry.getKey());
+
+      if (existingValue == null) {
+        map1.put(entry.getKey(), entry.getValue());
+      } else {
+        map1.put(entry.getKey(), mergeFn.apply(existingValue, entry.getValue()));
+      }
+    }
+    return map1;
   }
 }
