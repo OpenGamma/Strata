@@ -201,7 +201,7 @@ public final class SimpleDiscountFactors
   //-------------------------------------------------------------------------
   @Override
   public CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate date) {
-    if(date.equals(valuationDate)) {
+    if (date.equals(valuationDate)) {
       return CurveUnitParameterSensitivities.empty(); // Discount factor in 0 is always 1, no sensitivity.
     }
     double relativeYearFraction = relativeYearFraction(date);
