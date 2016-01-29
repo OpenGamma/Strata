@@ -45,7 +45,7 @@ import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.ReportingRules;
+import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
@@ -174,7 +174,7 @@ public class CurveEndToEndTest {
     CalculationRules calculationRules = CalculationRules.builder()
         .pricingRules(pricingRules())
         .marketDataRules(marketDataRules)
-        .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
+        .reportingCurrency(ReportingCurrency.of(Currency.USD))
         .build();
 
     // Calculate the results and check the PVs for the node instruments are zero ----------------------

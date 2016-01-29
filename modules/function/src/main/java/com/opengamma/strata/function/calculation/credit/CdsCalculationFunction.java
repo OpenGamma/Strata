@@ -53,7 +53,7 @@ import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
  *   <li>{@linkplain Measure#JUMP_TO_DEFAULT Jump to Default}
  * </ul>
  * <p>
- * The default reporting currency is determined to be the currency of the fee leg.
+ * The "natural" currency is the currency of the fee leg.
  */
 public class CdsCalculationFunction
     implements CalculationFunction<CdsTrade> {
@@ -90,7 +90,7 @@ public class CdsCalculationFunction
   }
 
   @Override
-  public Optional<Currency> defaultReportingCurrency(CdsTrade target) {
+  public Optional<Currency> naturalCurrency(CdsTrade target) {
     return Optional.of(target.getProduct().getFeeLeg().getPeriodicPayments().getNotional().getCurrency());
   }
 

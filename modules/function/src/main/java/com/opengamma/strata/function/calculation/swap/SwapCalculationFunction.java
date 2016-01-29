@@ -55,7 +55,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
  *   <li>{@linkplain Measure#CURRENT_CASH Current cash}
  * </ul>
  * <p>
- * The default reporting currency is determined from the first swap leg.
+ * The "natural" currency is the currency of the swaption, which is limited to be single-currency.
  */
 public class SwapCalculationFunction
     implements CalculationFunction<SwapTrade> {
@@ -93,7 +93,7 @@ public class SwapCalculationFunction
   }
 
   @Override
-  public Optional<Currency> defaultReportingCurrency(SwapTrade target) {
+  public Optional<Currency> naturalCurrency(SwapTrade target) {
     return Optional.of(target.getProduct().getLegs().get(0).getCurrency());
   }
 

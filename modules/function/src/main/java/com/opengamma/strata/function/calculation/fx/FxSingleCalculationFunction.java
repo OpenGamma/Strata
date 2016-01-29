@@ -41,8 +41,7 @@ import com.opengamma.strata.product.fx.FxSingleTrade;
  *   <li>{@linkplain Measure#FORWARD_FX_RATE Forward FX rate}
  * </ul>
  * <p>
- * The default reporting currency is determined to be the base currency of the market convention
- * pair of the two trade currencies.
+ * The "natural" currency is the base currency of the market convention pair of the two trade currencies.
  */
 public class FxSingleCalculationFunction
     implements CalculationFunction<FxSingleTrade> {
@@ -74,7 +73,7 @@ public class FxSingleCalculationFunction
   }
 
   @Override
-  public Optional<Currency> defaultReportingCurrency(FxSingleTrade target) {
+  public Optional<Currency> naturalCurrency(FxSingleTrade target) {
     Currency base = target.getProduct().getBaseCurrencyAmount().getCurrency();
     Currency counter = target.getProduct().getCounterCurrencyAmount().getCurrency();
     CurrencyPair marketConventionPair = CurrencyPair.of(base, counter).toConventional();

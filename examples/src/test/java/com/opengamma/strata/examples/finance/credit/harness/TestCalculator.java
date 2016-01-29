@@ -19,7 +19,7 @@ import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.ReportingRules;
+import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -71,7 +71,7 @@ public class TestCalculator implements Calculator {
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(StandardComponents.pricingRules())
         .marketDataRules(marketDataBuilder.rules())
-        .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
+        .reportingCurrency(ReportingCurrency.of(Currency.USD))
         .build();
 
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);

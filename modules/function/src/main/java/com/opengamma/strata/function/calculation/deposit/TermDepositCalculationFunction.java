@@ -66,7 +66,7 @@ public class TermDepositCalculationFunction
   }
 
   @Override
-  public Optional<Currency> defaultReportingCurrency(TermDepositTrade target) {
+  public Optional<Currency> naturalCurrency(TermDepositTrade target) {
     return Optional.of(target.getProduct().getCurrency());
   }
 

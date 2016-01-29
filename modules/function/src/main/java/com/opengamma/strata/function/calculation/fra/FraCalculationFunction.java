@@ -81,7 +81,7 @@ public class FraCalculationFunction
   }
 
   @Override
-  public Optional<Currency> defaultReportingCurrency(FraTrade target) {
+  public Optional<Currency> naturalCurrency(FraTrade target) {
     return Optional.of(target.getProduct().getCurrency());
   }
 

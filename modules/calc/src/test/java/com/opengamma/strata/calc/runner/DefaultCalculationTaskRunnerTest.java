@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.calc.runner;
 
+import static com.opengamma.strata.calc.config.ReportingCurrency.NATURAL;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -23,7 +24,6 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.market.TestObservableKey;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.ReportingRules;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
@@ -52,7 +52,7 @@ public class DefaultCalculationTaskRunnerTest {
   public void unwrapScenarioResults() {
     ScenarioResult<String> scenarioResult = ScenarioResult.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(scenarioResult);
-    CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
+    CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MarketDataMappings.empty(), NATURAL);
     Column column = Column.of(Measure.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
@@ -78,7 +78,7 @@ public class DefaultCalculationTaskRunnerTest {
   public void unwrapMultipleScenarioResults() {
     ScenarioResult<String> scenarioResult = ScenarioResult.of("foo", "bar");
     ScenarioResultFunction fn = new ScenarioResultFunction(scenarioResult);
-    CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
+    CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MarketDataMappings.empty(), NATURAL);
     Column column = Column.of(Measure.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
@@ -95,7 +95,7 @@ public class DefaultCalculationTaskRunnerTest {
   public void unwrapScenarioResultsAsync() {
     ScenarioResult<String> scenarioResult = ScenarioResult.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(scenarioResult);
-    CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
+    CalculationTask task = CalculationTask.of(TARGET, MEASURE, 0, 0, fn, MarketDataMappings.empty(), NATURAL);
     Column column = Column.of(Measure.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 

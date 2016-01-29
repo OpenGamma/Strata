@@ -83,7 +83,7 @@ public class FraCalculationFunctionTest {
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
         ImmutableSet.of(DiscountCurveKey.of(CURRENCY), IborIndexCurveKey.of(INDEX)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(INDEX)));
-    assertThat(function.defaultReportingCurrency(TRADE)).hasValue(CURRENCY);
+    assertThat(function.naturalCurrency(TRADE)).hasValue(CURRENCY);
   }
 
   public void test_simpleMeasures() {

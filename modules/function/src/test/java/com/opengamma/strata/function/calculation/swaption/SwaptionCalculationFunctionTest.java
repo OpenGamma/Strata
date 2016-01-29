@@ -113,7 +113,7 @@ public class SwaptionCalculationFunctionTest {
             IborIndexCurveKey.of(INDEX),
             SwaptionVolatilitiesKey.of(INDEX)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(INDEX)));
-    assertThat(function.defaultReportingCurrency(TRADE)).hasValue(CURRENCY);
+    assertThat(function.naturalCurrency(TRADE)).hasValue(CURRENCY);
   }
 
   public void test_simpleMeasures() {

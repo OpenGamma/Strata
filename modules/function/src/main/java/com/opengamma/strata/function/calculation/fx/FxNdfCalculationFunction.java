@@ -39,7 +39,7 @@ import com.opengamma.strata.product.fx.FxNdfTrade;
  *   <li>{@linkplain Measure#FORWARD_FX_RATE Forward FX rate}
  * </ul>
  * <p>
- * The default reporting currency is the settlement currency of the trade.
+ * The "natural" currency is the settlement currency of the trade.
  */
 public class FxNdfCalculationFunction
     implements CalculationFunction<FxNdfTrade> {
@@ -70,7 +70,7 @@ public class FxNdfCalculationFunction
   }
 
   @Override
-  public Optional<Currency> defaultReportingCurrency(FxNdfTrade target) {
+  public Optional<Currency> naturalCurrency(FxNdfTrade target) {
     return Optional.of(target.getProduct().getSettlementCurrency());
   }
 

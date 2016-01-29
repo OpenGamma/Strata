@@ -14,7 +14,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.ReportingRules;
 import com.opengamma.strata.calc.config.pricing.PricingRules;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 
@@ -39,7 +38,7 @@ public class DefaultCalculationRunnerTest {
     Column column1 = Column.of(Measure.PRESENT_VALUE);
     Column column2 = Column.of(Measure.BUCKETED_PV01);
     ImmutableList<Column> columns = ImmutableList.of(column1, column2);
-    CalculationRules rules = CalculationRules.of(PricingRules.empty(), MarketDataRules.empty(), ReportingRules.empty());
+    CalculationRules rules = CalculationRules.of(PricingRules.empty(), MarketDataRules.empty());
     CalculationEnvironment marketData = CalculationEnvironment.empty();
 
     // use of try-with-resources checks class is AutoCloseable

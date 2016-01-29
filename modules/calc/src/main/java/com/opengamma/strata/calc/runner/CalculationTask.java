@@ -20,7 +20,7 @@ import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.ReportingRules;
+import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.DefaultCalculationMarketData;
@@ -69,10 +69,9 @@ public final class CalculationTask {
    */
   private final MarketDataMappings marketDataMappings;
   /**
-   * The rules for reporting the output.
-   * These will be required when we add support for functions that perform their own currency conversion.
+   * The reporting currency.
    */
-  private final ReportingRules reportingRules;
+  private final ReportingCurrency reportingCurrency;
 
   //-------------------------------------------------------------------------
   /**
@@ -86,7 +85,7 @@ public final class CalculationTask {
    * @param columnIndex  the column index of the value in the results grid
    * @param function  the function that performs the calculation
    * @param marketDataMappings  the mappings that specify the market data that should be used in the calculation
-   * @param reportingRules  the reporting rules to control the output
+   * @param reportingCurrency  the reporting currency
    * @return the configuration for a task that will calculate the value of a measure for a target
    */
   public static CalculationTask of(
@@ -96,7 +95,7 @@ public final class CalculationTask {
       int columnIndex,
       CalculationFunction<? extends CalculationTarget> function,
       MarketDataMappings marketDataMappings,
-      ReportingRules reportingRules) {
+      ReportingCurrency reportingCurrency) {
 
     return new CalculationTask(
         target,
@@ -105,13 +104,13 @@ public final class CalculationTask {
         columnIndex,
         function,
         marketDataMappings,
-        reportingRules);
+        reportingCurrency);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Creates a task, based on the target, the location of the result in the results grid, the function,
-   * mappings and reporting rules.
+   * mappings and reporting currency.
    *
    * @param target  the target for which the value will be calculated
    * @param measure  the measure being calculated
@@ -119,7 +118,7 @@ public final class CalculationTask {
    * @param columnIndex  the column index of the value in the results grid
    * @param function  the function that performs the calculation
    * @param marketDataMappings  the mappings that specify the market data that should be used in the calculation
-   * @param reportingRules  the reporting rules to control the output
+   * @param reportingCurrency  the reporting currency
    */
   @SuppressWarnings("unchecked")
   private CalculationTask(
@@ -129,14 +128,14 @@ public final class CalculationTask {
       int columnIndex,
       CalculationFunction<? extends CalculationTarget> function,
       MarketDataMappings marketDataMappings,
-      ReportingRules reportingRules) {
+      ReportingCurrency reportingCurrency) {
 
     this.target = ArgChecker.notNull(target, "target");
     this.measure = ArgChecker.notNull(measure, "measure");
     this.rowIndex = ArgChecker.notNegative(rowIndex, "rowIndex");
     this.columnIndex = ArgChecker.notNegative(columnIndex, "columnIndex");
     this.marketDataMappings = ArgChecker.notNull(marketDataMappings, "marketDataMappings");
-    this.reportingRules = ArgChecker.notNull(reportingRules, "reportingRules");
+    this.reportingCurrency = ArgChecker.notNull(reportingCurrency, "reportingCurrency");
     // TODO check the target types are compatible
     this.function = (CalculationFunction<CalculationTarget>) ArgChecker.notNull(function, "function");
   }
@@ -180,9 +179,7 @@ public final class CalculationTask {
     for (MarketDataKey<?> key : functionRequirements.getSingleValueRequirements()) {
       requirementsBuilder.addValues(marketDataMappings.getIdForKey(key));
     }
-    Optional<Currency> optionalReportingCurrency =
-        reportingCurrency(reportingRules.reportingCurrency(target), function.defaultReportingCurrency(target));
-
+    Optional<Currency> optionalReportingCurrency = reportingCurrency();
     if (optionalReportingCurrency.isPresent()) {
       Currency reportingCurrency = optionalReportingCurrency.get();
 
@@ -201,14 +198,11 @@ public final class CalculationTask {
   /**
    * Returns an optional containing the first currency from the arguments or empty if both arguments are empty.
    */
-  private static Optional<Currency> reportingCurrency(Optional<Currency> ccy1, Optional<Currency> ccy2) {
-    if (ccy1.isPresent()) {
-      return ccy1;
+  private Optional<Currency> reportingCurrency() {
+    if (reportingCurrency.getCurrency().isPresent()) {
+      return reportingCurrency.getCurrency();
     }
-    if (ccy2.isPresent()) {
-      return ccy2;
-    }
-    return Optional.empty();
+    return function.naturalCurrency(target);
   }
 
   /**
@@ -250,11 +244,7 @@ public final class CalculationTask {
    * Converts the value in a result to the reporting currency.
    * <p>
    * If the result is a failure or does not contain an value that can be converted it is returned unchanged.
-   * <p>
-   * The reporting rules are used to determine the reporting currency for the target. If the rules do
-   * not specify a reporting currency for the target the input result is returned.
-   * <p>
-   * If the rules specify a reporting currency but the conversion cannot be performed a failure is
+   * If the rules specify a reporting currency but the conversion cannot be performed, a failure is
    * returned with details of the problem.
    *
    * @param result  the result of a calculation
@@ -270,9 +260,7 @@ public final class CalculationTask {
     if (!(value instanceof CurrencyConvertible)) {
       return result;
     }
-    Optional<Currency> optionalReportingCurrency =
-        reportingCurrency(reportingRules.reportingCurrency(target), function.defaultReportingCurrency(target));
-
+    Optional<Currency> optionalReportingCurrency = reportingCurrency();
     if (!optionalReportingCurrency.isPresent()) {
       return Result.failure(FailureReason.MISSING_DATA, "No reporting currency available for convert value {}", value);
     }
