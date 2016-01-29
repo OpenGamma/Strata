@@ -102,7 +102,7 @@ public final class CalculationTasks {
    * @param rowIndex  the row index of the value in the results grid
    * @param columnIndex  the column index of the value in the results grid
    * @param target  the target for which the measure will be calculated
-   * @param effectiveColumn  the effective column with all rules merged
+   * @param effectiveColumn  the effective column, where the default and column rules have been merged
    * @return configuration for calculating the value for the target
    */
   private static CalculationTask createTask(

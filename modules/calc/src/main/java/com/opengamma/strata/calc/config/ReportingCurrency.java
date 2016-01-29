@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 
@@ -32,7 +33,8 @@ import com.opengamma.strata.calc.runner.function.CalculationFunction;
  * <p>
  * This is used to specify the currency that the result should be reporting in.
  * The currency specified may be explicit, using {@link #of(Currency)}, or implicit
- * using {@link #NATURAL}.
+ * using {@link #NATURAL}. The "natural" currency of a target is obtained from
+ * {@link CalculationFunction#naturalCurrency(CalculationTarget)}.
  */
 @BeanDefinition(builderScope = "private")
 public final class ReportingCurrency
@@ -42,7 +44,7 @@ public final class ReportingCurrency
    * An instance requesting the "natural" currency of the target.
    * <p>
    * When converting calculation results, conversion will occur to the "natural" currency of the target.
-   * The "natural" currency of a target is obtained from {@link CalculationFunction}.
+   * The "natural" currency of a target is obtained from {@link CalculationFunction#naturalCurrency(CalculationTarget)}.
    */
   public static final ReportingCurrency NATURAL = new ReportingCurrency(ReportingCurrencyType.NATURAL, null);
 

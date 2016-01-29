@@ -51,27 +51,34 @@ public final class Column implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final ColumnName name;
   /**
-   * The pricing rules that apply to this column, overriding the default rules.
-   * In most cases, there is no need to override the rules on a per-column basis.
+   * The pricing rules that apply to this column, merged with the default rules.
+   * <p>
+   * The final set of rules for a column consist of the default rules merged with
+   * the column-specific rules, with the column-specific rules taking precedence.
+   * In most cases, there is no need to specify column-specific rules.
    */
   @PropertyDefinition(validate = "notNull")
   private final PricingRules pricingRules;
   /**
-   * The market data rules that apply to this column, overriding the default rules.
-   * In most cases, there is no need to override the rules on a per-column basis.
+   * The market data rules that apply to this column, merged with the default rules.
+   * <p>
+   * The final set of rules for a column consist of the default rules merged with
+   * the column-specific rules, with the column-specific rules taking precedence.
+   * In most cases, there is no need to specify column-specific rules.
    */
   @PropertyDefinition(validate = "notNull")
   private final MarketDataRules marketDataRules;
   /**
    * The reporting currency that applies to this column, overriding the default reporting currency.
-   * The common case is to specify a default reporting currency
+   * <p>
+   * In most cases, there is no need to specify a column-specific reporting currency.
    */
   @PropertyDefinition(get = "optional")
   private final ReportingCurrency reportingCurrency;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the specified measure.
+   * Obtains an instance that will calculate the specified measure.
    * <p>
    * The column name will be the name of the measure.
    * The rules will be empty, thus the column will use the default rules.
@@ -88,7 +95,7 @@ public final class Column implements ImmutableBean {
   }
 
   /**
-   * Obtains an instance from the specified measure and reporting currency.
+   * Obtains an instance that will calculate the specified measure, defining the reporting currency.
    * <p>
    * The column name will be the name of the measure.
    * The rules will be empty, thus the column will use the default rules.
@@ -107,7 +114,7 @@ public final class Column implements ImmutableBean {
   }
 
   /**
-   * Obtains an instance from the specified measure and column name.
+   * Obtains an instance that will calculate the specified measure, defining the column name.
    * <p>
    * The rules will be empty, thus the column will use the default rules.
    * The reporting currency will be empty, thus the column will use the default reporting currency.
@@ -125,7 +132,7 @@ public final class Column implements ImmutableBean {
   }
 
   /**
-   * Obtains an instance from the specified measure, column name and reporting currency.
+   * Obtains an instance that will calculate the specified measure, defining the column name and reporting currency.
    * <p>
    * The column name will be the name of the measure.
    * The rules will be empty, thus the column will use the default rules.
@@ -247,8 +254,11 @@ public final class Column implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the pricing rules that apply to this column, overriding the default rules.
-   * In most cases, there is no need to override the rules on a per-column basis.
+   * Gets the pricing rules that apply to this column, merged with the default rules.
+   * <p>
+   * The final set of rules for a column consist of the default rules merged with
+   * the column-specific rules, with the column-specific rules taking precedence.
+   * In most cases, there is no need to specify column-specific rules.
    * @return the value of the property, not null
    */
   public PricingRules getPricingRules() {
@@ -257,8 +267,11 @@ public final class Column implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the market data rules that apply to this column, overriding the default rules.
-   * In most cases, there is no need to override the rules on a per-column basis.
+   * Gets the market data rules that apply to this column, merged with the default rules.
+   * <p>
+   * The final set of rules for a column consist of the default rules merged with
+   * the column-specific rules, with the column-specific rules taking precedence.
+   * In most cases, there is no need to specify column-specific rules.
    * @return the value of the property, not null
    */
   public MarketDataRules getMarketDataRules() {
@@ -268,7 +281,8 @@ public final class Column implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the reporting currency that applies to this column, overriding the default reporting currency.
-   * The common case is to specify a default reporting currency
+   * <p>
+   * In most cases, there is no need to specify a column-specific reporting currency.
    * @return the optional value of the property, not null
    */
   public Optional<ReportingCurrency> getReportingCurrency() {
@@ -614,8 +628,11 @@ public final class Column implements ImmutableBean {
     }
 
     /**
-     * Sets the pricing rules that apply to this column, overriding the default rules.
-     * In most cases, there is no need to override the rules on a per-column basis.
+     * Sets the pricing rules that apply to this column, merged with the default rules.
+     * <p>
+     * The final set of rules for a column consist of the default rules merged with
+     * the column-specific rules, with the column-specific rules taking precedence.
+     * In most cases, there is no need to specify column-specific rules.
      * @param pricingRules  the new value, not null
      * @return this, for chaining, not null
      */
@@ -626,8 +643,11 @@ public final class Column implements ImmutableBean {
     }
 
     /**
-     * Sets the market data rules that apply to this column, overriding the default rules.
-     * In most cases, there is no need to override the rules on a per-column basis.
+     * Sets the market data rules that apply to this column, merged with the default rules.
+     * <p>
+     * The final set of rules for a column consist of the default rules merged with
+     * the column-specific rules, with the column-specific rules taking precedence.
+     * In most cases, there is no need to specify column-specific rules.
      * @param marketDataRules  the new value, not null
      * @return this, for chaining, not null
      */
@@ -639,7 +659,8 @@ public final class Column implements ImmutableBean {
 
     /**
      * Sets the reporting currency that applies to this column, overriding the default reporting currency.
-     * The common case is to specify a default reporting currency
+     * <p>
+     * In most cases, there is no need to specify a column-specific reporting currency.
      * @param reportingCurrency  the new value
      * @return this, for chaining, not null
      */

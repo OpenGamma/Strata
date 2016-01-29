@@ -54,7 +54,7 @@ public final class CalculationRules implements ImmutableBean {
   /**
    * The rules that define what market data should be used in each calculation.
    * <p>
-   * This controls which view of the market data should be used for a calculation.
+   * This controls which subset of the complete set of market data should be used for a calculation.
    * This defaults to an empty instance if using the builder.
    */
   @PropertyDefinition(validate = "notNull")
@@ -171,7 +171,7 @@ public final class CalculationRules implements ImmutableBean {
   /**
    * Gets the rules that define what market data should be used in each calculation.
    * <p>
-   * This controls which view of the market data should be used for a calculation.
+   * This controls which subset of the complete set of market data should be used for a calculation.
    * This defaults to an empty instance if using the builder.
    * @return the value of the property, not null
    */
@@ -462,7 +462,7 @@ public final class CalculationRules implements ImmutableBean {
     /**
      * Sets the rules that define what market data should be used in each calculation.
      * <p>
-     * This controls which view of the market data should be used for a calculation.
+     * This controls which subset of the complete set of market data should be used for a calculation.
      * This defaults to an empty instance if using the builder.
      * @param marketDataRules  the new value, not null
      * @return this, for chaining, not null
