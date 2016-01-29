@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.deposit;
 
-import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
@@ -23,11 +23,11 @@ public final class TermDepositFunctionGroups {
    */
   private static final FunctionGroup<TermDepositTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(TermDepositTrade.class).name("TermDepositDiscounting")
-          .addFunction(Measure.PAR_RATE, TermDepositCalculationFunction.class)
-          .addFunction(Measure.PAR_SPREAD, TermDepositCalculationFunction.class)
-          .addFunction(Measure.PRESENT_VALUE, TermDepositCalculationFunction.class)
-          .addFunction(Measure.PV01, TermDepositCalculationFunction.class)
-          .addFunction(Measure.BUCKETED_PV01, TermDepositCalculationFunction.class)
+          .addFunction(Measures.PAR_RATE, TermDepositCalculationFunction.class)
+          .addFunction(Measures.PAR_SPREAD, TermDepositCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE, TermDepositCalculationFunction.class)
+          .addFunction(Measures.PV01, TermDepositCalculationFunction.class)
+          .addFunction(Measures.BUCKETED_PV01, TermDepositCalculationFunction.class)
           .build();
 
   /**
@@ -43,11 +43,11 @@ public final class TermDepositFunctionGroups {
    * <p>
    * The supported built-in measures are:
    * <ul>
-   *   <li>{@linkplain Measure#PAR_RATE Par rate}
-   *   <li>{@linkplain Measure#PAR_SPREAD Par spread}
-   *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
-   *   <li>{@linkplain Measure#PV01 PV01}
-   *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
+   *   <li>{@linkplain Measures#PAR_RATE Par rate}
+   *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
+   *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PV01 PV01}
+   *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
    * </ul>
    * 
    * @return the function group

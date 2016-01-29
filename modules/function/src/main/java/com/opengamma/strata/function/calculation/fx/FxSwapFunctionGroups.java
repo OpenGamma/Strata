@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.fx;
 
-import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.product.fx.FxSwapTrade;
@@ -23,12 +23,12 @@ public final class FxSwapFunctionGroups {
    */
   private static final FunctionGroup<FxSwapTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(FxSwapTrade.class).name("FxSwapDiscounting")
-          .addFunction(Measure.PAR_SPREAD, FxSwapCalculationFunction.class)
-          .addFunction(Measure.PRESENT_VALUE, FxSwapCalculationFunction.class)
-          .addFunction(Measure.PV01, FxSwapCalculationFunction.class)
-          .addFunction(Measure.BUCKETED_PV01, FxSwapCalculationFunction.class)
-          .addFunction(Measure.CURRENCY_EXPOSURE, FxSwapCalculationFunction.class)
-          .addFunction(Measure.CURRENT_CASH, FxSwapCalculationFunction.class)
+          .addFunction(Measures.PAR_SPREAD, FxSwapCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE, FxSwapCalculationFunction.class)
+          .addFunction(Measures.PV01, FxSwapCalculationFunction.class)
+          .addFunction(Measures.BUCKETED_PV01, FxSwapCalculationFunction.class)
+          .addFunction(Measures.CURRENCY_EXPOSURE, FxSwapCalculationFunction.class)
+          .addFunction(Measures.CURRENT_CASH, FxSwapCalculationFunction.class)
           .build();
 
   /**
@@ -44,12 +44,12 @@ public final class FxSwapFunctionGroups {
    * <p>
    * The supported built-in measures are:
    * <ul>
-   *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
-   *   <li>{@linkplain Measure#PV01 PV01}
-   *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
-   *   <li>{@linkplain Measure#PAR_SPREAD Par spread}
-   *   <li>{@linkplain Measure#CURRENCY_EXPOSURE Currency exposure}
-   *   <li>{@linkplain Measure#CURRENT_CASH Current cash}
+   *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PV01 PV01}
+   *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
+   *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
+   *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
+   *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
    * </ul>
    * 
    * @return the function group

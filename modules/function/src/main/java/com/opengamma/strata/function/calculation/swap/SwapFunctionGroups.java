@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.swap;
 
-import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -23,19 +23,19 @@ public final class SwapFunctionGroups {
    */
   private static final FunctionGroup<SwapTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(SwapTrade.class).name("SwapDiscounting")
-          .addFunction(Measure.PAR_RATE, SwapCalculationFunction.class)
-          .addFunction(Measure.PAR_SPREAD, SwapCalculationFunction.class)
-          .addFunction(Measure.LEG_INITIAL_NOTIONAL, SwapCalculationFunction.class)
-          .addFunction(Measure.PRESENT_VALUE, SwapCalculationFunction.class)
-          .addFunction(Measure.EXPLAIN_PRESENT_VALUE, SwapCalculationFunction.class)
-          .addFunction(Measure.CASH_FLOWS, SwapCalculationFunction.class)
-          .addFunction(Measure.LEG_PRESENT_VALUE, SwapCalculationFunction.class)
-          .addFunction(Measure.PV01, SwapCalculationFunction.class)
-          .addFunction(Measure.BUCKETED_PV01, SwapCalculationFunction.class)
-          .addFunction(Measure.BUCKETED_GAMMA_PV01, SwapCalculationFunction.class)
-          .addFunction(Measure.ACCRUED_INTEREST, SwapCalculationFunction.class)
-          .addFunction(Measure.CURRENCY_EXPOSURE, SwapCalculationFunction.class)
-          .addFunction(Measure.CURRENT_CASH, SwapCalculationFunction.class)
+          .addFunction(Measures.PAR_RATE, SwapCalculationFunction.class)
+          .addFunction(Measures.PAR_SPREAD, SwapCalculationFunction.class)
+          .addFunction(Measures.LEG_INITIAL_NOTIONAL, SwapCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE, SwapCalculationFunction.class)
+          .addFunction(Measures.EXPLAIN_PRESENT_VALUE, SwapCalculationFunction.class)
+          .addFunction(Measures.CASH_FLOWS, SwapCalculationFunction.class)
+          .addFunction(Measures.LEG_PRESENT_VALUE, SwapCalculationFunction.class)
+          .addFunction(Measures.PV01, SwapCalculationFunction.class)
+          .addFunction(Measures.BUCKETED_PV01, SwapCalculationFunction.class)
+          .addFunction(Measures.BUCKETED_GAMMA_PV01, SwapCalculationFunction.class)
+          .addFunction(Measures.ACCRUED_INTEREST, SwapCalculationFunction.class)
+          .addFunction(Measures.CURRENCY_EXPOSURE, SwapCalculationFunction.class)
+          .addFunction(Measures.CURRENT_CASH, SwapCalculationFunction.class)
           .build();
 
   /**
@@ -51,19 +51,19 @@ public final class SwapFunctionGroups {
    * <p>
    * The supported built-in measures are:
    * <ul>
-   *   <li>{@linkplain Measure#PAR_RATE Par rate}
-   *   <li>{@linkplain Measure#PAR_SPREAD Par spread}
-   *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
-   *   <li>{@linkplain Measure#EXPLAIN_PRESENT_VALUE Explain present value}
-   *   <li>{@linkplain Measure#CASH_FLOWS Cash flows}
-   *   <li>{@linkplain Measure#PV01 PV01}
-   *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
-   *   <li>{@linkplain Measure#BUCKETED_GAMMA_PV01 Gamma PV01}
-   *   <li>{@linkplain Measure#ACCRUED_INTEREST Accrued interest}
-   *   <li>{@linkplain Measure#LEG_INITIAL_NOTIONAL Leg initial notional}
-   *   <li>{@linkplain Measure#LEG_PRESENT_VALUE Leg present value}
-   *   <li>{@linkplain Measure#CURRENCY_EXPOSURE Currency exposure}
-   *   <li>{@linkplain Measure#CURRENT_CASH Current cash}
+   *   <li>{@linkplain Measures#PAR_RATE Par rate}
+   *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
+   *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#EXPLAIN_PRESENT_VALUE Explain present value}
+   *   <li>{@linkplain Measures#CASH_FLOWS Cash flows}
+   *   <li>{@linkplain Measures#PV01 PV01}
+   *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
+   *   <li>{@linkplain Measures#BUCKETED_GAMMA_PV01 Gamma PV01}
+   *   <li>{@linkplain Measures#ACCRUED_INTEREST Accrued interest}
+   *   <li>{@linkplain Measures#LEG_INITIAL_NOTIONAL Leg initial notional}
+   *   <li>{@linkplain Measures#LEG_PRESENT_VALUE Leg present value}
+   *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
+   *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
    * </ul>
    * 
    * @return the function group

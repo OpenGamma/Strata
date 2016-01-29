@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
@@ -28,7 +29,7 @@ import com.opengamma.strata.product.future.GenericFutureTrade;
  * <p>
  * The supported built-in measures are:
  * <ul>
- *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
+ *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  * </ul>
  */
 public class GenericFutureCalculationFunction
@@ -39,7 +40,7 @@ public class GenericFutureCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measure.PRESENT_VALUE, GenericFutureMeasureCalculations::presentValue)
+          .put(Measures.PRESENT_VALUE, GenericFutureMeasureCalculations::presentValue)
           .build();
 
   /**

@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.future;
 
-import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.product.future.GenericFutureOptionTrade;
@@ -23,7 +23,7 @@ public final class GenericFutureOptionFunctionGroups {
    */
   private static final FunctionGroup<GenericFutureOptionTrade> MARKET_GROUP =
       DefaultFunctionGroup.builder(GenericFutureOptionTrade.class).name("GenericFutureOptionTradeMarket")
-          .addFunction(Measure.PRESENT_VALUE, GenericFutureOptionCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE, GenericFutureOptionCalculationFunction.class)
           .build();
 
   /**
@@ -39,7 +39,7 @@ public final class GenericFutureOptionFunctionGroups {
    * <p>
    * The supported built-in measures are:
    * <ul>
-   *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
    * </ul>
    * 
    * @return the function group

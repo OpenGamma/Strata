@@ -16,6 +16,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
@@ -39,18 +40,18 @@ import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
  * <p>
  * The supported built-in measures are:
  * <ul>
- *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
- *   <li>{@linkplain Measure#PAR_RATE Par rate}
- *   <li>{@linkplain Measure#IR01_PARALLEL_ZERO Scalar IR01, based on zero rates}
- *   <li>{@linkplain Measure#IR01_BUCKETED_ZERO Vector curve node IR01, based on zero rates}
- *   <li>{@linkplain Measure#IR01_PARALLEL_PAR Scalar IR01, based on par interest rates}
- *   <li>{@linkplain Measure#IR01_BUCKETED_PAR Vector curve node IR01, based on par interest rates}
- *   <li>{@linkplain Measure#CS01_PARALLEL_PAR Scalar CS01, based on credit par rates}
- *   <li>{@linkplain Measure#CS01_BUCKETED_PAR Vector curve node CS01, based on credit par rates}
- *   <li>{@linkplain Measure#CS01_PARALLEL_HAZARD Scalar CS01, based on hazard rates}
- *   <li>{@linkplain Measure#CS01_BUCKETED_HAZARD Vector curve node CS01, based on hazard rates}
- *   <li>{@linkplain Measure#RECOVERY01 Recovery01}
- *   <li>{@linkplain Measure#JUMP_TO_DEFAULT Jump to Default}
+ *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+ *   <li>{@linkplain Measures#PAR_RATE Par rate}
+ *   <li>{@linkplain Measures#IR01_PARALLEL_ZERO Scalar IR01, based on zero rates}
+ *   <li>{@linkplain Measures#IR01_BUCKETED_ZERO Vector curve node IR01, based on zero rates}
+ *   <li>{@linkplain Measures#IR01_PARALLEL_PAR Scalar IR01, based on par interest rates}
+ *   <li>{@linkplain Measures#IR01_BUCKETED_PAR Vector curve node IR01, based on par interest rates}
+ *   <li>{@linkplain Measures#CS01_PARALLEL_PAR Scalar CS01, based on credit par rates}
+ *   <li>{@linkplain Measures#CS01_BUCKETED_PAR Vector curve node CS01, based on credit par rates}
+ *   <li>{@linkplain Measures#CS01_PARALLEL_HAZARD Scalar CS01, based on hazard rates}
+ *   <li>{@linkplain Measures#CS01_BUCKETED_HAZARD Vector curve node CS01, based on hazard rates}
+ *   <li>{@linkplain Measures#RECOVERY01 Recovery01}
+ *   <li>{@linkplain Measures#JUMP_TO_DEFAULT Jump to Default}
  * </ul>
  * <p>
  * The "natural" currency is the currency of the fee leg.
@@ -63,18 +64,18 @@ public class CdsCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measure.PAR_RATE, CdsMeasureCalculations::parRate)
-          .put(Measure.PRESENT_VALUE, CdsMeasureCalculations::presentValue)
-          .put(Measure.IR01_PARALLEL_ZERO, CdsMeasureCalculations::ir01ParallelZero)
-          .put(Measure.IR01_BUCKETED_ZERO, CdsMeasureCalculations::ir01BucketedZero)
-          .put(Measure.IR01_PARALLEL_PAR, CdsMeasureCalculations::ir01ParallelPar)
-          .put(Measure.IR01_BUCKETED_PAR, CdsMeasureCalculations::ir01BucketedPar)
-          .put(Measure.CS01_PARALLEL_PAR, CdsMeasureCalculations::cs01ParallelPar)
-          .put(Measure.CS01_BUCKETED_PAR, CdsMeasureCalculations::cs01BucketedPar)
-          .put(Measure.CS01_PARALLEL_HAZARD, CdsMeasureCalculations::cs01ParallelHazard)
-          .put(Measure.CS01_BUCKETED_HAZARD, CdsMeasureCalculations::cs01BucketedHazard)
-          .put(Measure.RECOVERY01, CdsMeasureCalculations::recovery01)
-          .put(Measure.JUMP_TO_DEFAULT, CdsMeasureCalculations::jumpToDefault)
+          .put(Measures.PAR_RATE, CdsMeasureCalculations::parRate)
+          .put(Measures.PRESENT_VALUE, CdsMeasureCalculations::presentValue)
+          .put(Measures.IR01_PARALLEL_ZERO, CdsMeasureCalculations::ir01ParallelZero)
+          .put(Measures.IR01_BUCKETED_ZERO, CdsMeasureCalculations::ir01BucketedZero)
+          .put(Measures.IR01_PARALLEL_PAR, CdsMeasureCalculations::ir01ParallelPar)
+          .put(Measures.IR01_BUCKETED_PAR, CdsMeasureCalculations::ir01BucketedPar)
+          .put(Measures.CS01_PARALLEL_PAR, CdsMeasureCalculations::cs01ParallelPar)
+          .put(Measures.CS01_BUCKETED_PAR, CdsMeasureCalculations::cs01BucketedPar)
+          .put(Measures.CS01_PARALLEL_HAZARD, CdsMeasureCalculations::cs01ParallelHazard)
+          .put(Measures.CS01_BUCKETED_HAZARD, CdsMeasureCalculations::cs01BucketedHazard)
+          .put(Measures.RECOVERY01, CdsMeasureCalculations::recovery01)
+          .put(Measures.JUMP_TO_DEFAULT, CdsMeasureCalculations::jumpToDefault)
           .build();
 
   /**

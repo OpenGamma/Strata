@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.index;
 
-import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.product.index.IborFutureTrade;
@@ -23,10 +23,10 @@ public final class IborFutureFunctionGroups {
    */
   private static final FunctionGroup<IborFutureTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(IborFutureTrade.class).name("IborFutureDiscounting")
-          .addFunction(Measure.PAR_SPREAD, IborFutureCalculationFunction.class)
-          .addFunction(Measure.PRESENT_VALUE, IborFutureCalculationFunction.class)
-          .addFunction(Measure.PV01, IborFutureCalculationFunction.class)
-          .addFunction(Measure.BUCKETED_PV01, IborFutureCalculationFunction.class)
+          .addFunction(Measures.PAR_SPREAD, IborFutureCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE, IborFutureCalculationFunction.class)
+          .addFunction(Measures.PV01, IborFutureCalculationFunction.class)
+          .addFunction(Measures.BUCKETED_PV01, IborFutureCalculationFunction.class)
           .build();
 
   /**
@@ -42,10 +42,10 @@ public final class IborFutureFunctionGroups {
    * <p>
    * The supported built-in measures are:
    * <ul>
-   *   <li>{@linkplain Measure#PAR_SPREAD Par spread}
-   *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
-   *   <li>{@linkplain Measure#PV01 PV01}
-   *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
+   *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
+   *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PV01 PV01}
+   *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
    * </ul>
    * 
    * @return the function group

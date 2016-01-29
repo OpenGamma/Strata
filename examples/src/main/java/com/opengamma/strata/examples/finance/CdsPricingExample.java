@@ -15,7 +15,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.examples.data.ExampleData;
@@ -59,18 +59,18 @@ public class CdsPricingExample {
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
-        Column.of(Measure.PRESENT_VALUE),
-        Column.of(Measure.PAR_RATE),
-        Column.of(Measure.RECOVERY01),
-        Column.of(Measure.JUMP_TO_DEFAULT),
-        Column.of(Measure.IR01_PARALLEL_PAR),
-        Column.of(Measure.IR01_PARALLEL_ZERO),
-        Column.of(Measure.CS01_PARALLEL_PAR),
-        Column.of(Measure.CS01_PARALLEL_HAZARD),
-        Column.of(Measure.IR01_BUCKETED_PAR),
-        Column.of(Measure.IR01_BUCKETED_ZERO),
-        Column.of(Measure.CS01_BUCKETED_PAR),
-        Column.of(Measure.CS01_BUCKETED_HAZARD));
+        Column.of(Measures.PRESENT_VALUE),
+        Column.of(Measures.PAR_RATE),
+        Column.of(Measures.RECOVERY01),
+        Column.of(Measures.JUMP_TO_DEFAULT),
+        Column.of(Measures.IR01_PARALLEL_PAR),
+        Column.of(Measures.IR01_PARALLEL_ZERO),
+        Column.of(Measures.CS01_PARALLEL_PAR),
+        Column.of(Measures.CS01_PARALLEL_HAZARD),
+        Column.of(Measures.IR01_BUCKETED_PAR),
+        Column.of(Measures.IR01_BUCKETED_ZERO),
+        Column.of(Measures.CS01_BUCKETED_PAR),
+        Column.of(Measures.CS01_BUCKETED_HAZARD));
 
     // use the built-in example market data
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();

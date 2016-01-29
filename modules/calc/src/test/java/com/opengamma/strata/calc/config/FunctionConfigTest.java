@@ -28,7 +28,7 @@ import com.opengamma.strata.collect.result.Result;
 @Test
 public class FunctionConfigTest {
 
-  private static final Measure MEASURE = Measure.of("TestString");
+  private static final Measure MEASURE = Measure.of("PresentValue");
   private static final Set<Measure> MEASURES = ImmutableSet.of(MEASURE);
   private static final CalculationMarketData MARKET_DATA = mock(CalculationMarketData.class);
 

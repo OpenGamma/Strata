@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
@@ -72,9 +73,9 @@ public class GenericFutureCalculationFunctionTest {
   public void test_group() {
     FunctionGroup<GenericFutureTrade> test = GenericFutureFunctionGroups.market();
     assertThat(test.configuredMeasures(TRADE)).contains(
-        Measure.PRESENT_VALUE);
+        Measures.PRESENT_VALUE);
     FunctionConfig<GenericFutureTrade> config =
-        GenericFutureFunctionGroups.market().functionConfig(TRADE, Measure.PRESENT_VALUE).get();
+        GenericFutureFunctionGroups.market().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
     assertThat(config.createFunction()).isInstanceOf(GenericFutureCalculationFunction.class);
   }
 
@@ -95,10 +96,10 @@ public class GenericFutureCalculationFunctionTest {
     double unitPv = (MARKET_PRICE / TICK_SIZE) * TICK_VALUE;
     CurrencyAmount expectedPv = CurrencyAmount.of(CURRENCY, unitPv * QUANTITY);
 
-    Set<Measure> measures = ImmutableSet.of(Measure.PRESENT_VALUE);
+    Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE);
     assertThat(function.calculate(TRADE, measures, md))
         .containsEntry(
-            Measure.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))));
+            Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))));
   }
 
   //-------------------------------------------------------------------------

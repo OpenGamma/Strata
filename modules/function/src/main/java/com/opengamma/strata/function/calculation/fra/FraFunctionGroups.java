@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.fra;
 
-import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.product.fra.FraTrade;
@@ -23,14 +23,14 @@ public final class FraFunctionGroups {
    */
   private static final FunctionGroup<FraTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(FraTrade.class).name("FraDiscounting")
-          .addFunction(Measure.PAR_RATE, FraCalculationFunction.class)
-          .addFunction(Measure.PAR_SPREAD, FraCalculationFunction.class)
-          .addFunction(Measure.PRESENT_VALUE, FraCalculationFunction.class)
-          .addFunction(Measure.EXPLAIN_PRESENT_VALUE, FraCalculationFunction.class)
-          .addFunction(Measure.CASH_FLOWS, FraCalculationFunction.class)
-          .addFunction(Measure.PV01, FraCalculationFunction.class)
-          .addFunction(Measure.BUCKETED_PV01, FraCalculationFunction.class)
-          .addFunction(Measure.BUCKETED_GAMMA_PV01, FraCalculationFunction.class)
+          .addFunction(Measures.PAR_RATE, FraCalculationFunction.class)
+          .addFunction(Measures.PAR_SPREAD, FraCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE, FraCalculationFunction.class)
+          .addFunction(Measures.EXPLAIN_PRESENT_VALUE, FraCalculationFunction.class)
+          .addFunction(Measures.CASH_FLOWS, FraCalculationFunction.class)
+          .addFunction(Measures.PV01, FraCalculationFunction.class)
+          .addFunction(Measures.BUCKETED_PV01, FraCalculationFunction.class)
+          .addFunction(Measures.BUCKETED_GAMMA_PV01, FraCalculationFunction.class)
           .build();
 
   /**
@@ -46,14 +46,14 @@ public final class FraFunctionGroups {
    * <p>
    * The supported built-in measures are:
    * <ul>
-   *   <li>{@linkplain Measure#PAR_RATE Par rate}
-   *   <li>{@linkplain Measure#PAR_SPREAD Par spread}
-   *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
-   *   <li>{@linkplain Measure#EXPLAIN_PRESENT_VALUE Explain present value}
-   *   <li>{@linkplain Measure#CASH_FLOWS Cash flows}
-   *   <li>{@linkplain Measure#PV01 PV01}
-   *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
-   *   <li>{@linkplain Measure#BUCKETED_GAMMA_PV01 Bucketed Gamma PV01}
+   *   <li>{@linkplain Measures#PAR_RATE Par rate}
+   *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
+   *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#EXPLAIN_PRESENT_VALUE Explain present value}
+   *   <li>{@linkplain Measures#CASH_FLOWS Cash flows}
+   *   <li>{@linkplain Measures#PV01 PV01}
+   *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
+   *   <li>{@linkplain Measures#BUCKETED_GAMMA_PV01 Bucketed Gamma PV01}
    * </ul>
    * 
    * @return the function group

@@ -22,7 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Maps;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.market.explain.ExplainKey;
@@ -101,7 +101,7 @@ public class CashFlowReportRunner
   @Override
   public ReportRequirements requirements(CashFlowReportTemplate reportTemplate) {
     return ReportRequirements.builder()
-        .tradeMeasureRequirements(Column.of(Measure.EXPLAIN_PRESENT_VALUE))
+        .tradeMeasureRequirements(Column.of(Measures.EXPLAIN_PRESENT_VALUE))
         .build();
   }
 
@@ -118,18 +118,18 @@ public class CashFlowReportRunner
               "Please filter the portfolio to a single trade.", tradeCount));
     }
 
-    int columnIdx = calculationResults.getColumns().indexOf(Column.of(Measure.EXPLAIN_PRESENT_VALUE));
+    int columnIdx = calculationResults.getColumns().indexOf(Column.of(Measures.EXPLAIN_PRESENT_VALUE));
     if (columnIdx == -1) {
       throw new IllegalArgumentException(
           Messages.format("Unable to find column for required measure '{}' in calculation results",
-              Measure.EXPLAIN_PRESENT_VALUE));
+              Measures.EXPLAIN_PRESENT_VALUE));
     }
 
     Result<?> result = calculationResults.getCalculationResults().get(0, columnIdx);
     if (result.isFailure()) {
       throw new IllegalArgumentException(
           Messages.format("Failure result found for required measure '{}': {}",
-              Measure.EXPLAIN_PRESENT_VALUE, result.getFailure().getMessage()));
+              Measures.EXPLAIN_PRESENT_VALUE, result.getFailure().getMessage()));
     }
     ExplainMap explainMap = (ExplainMap) result.getValue();
 

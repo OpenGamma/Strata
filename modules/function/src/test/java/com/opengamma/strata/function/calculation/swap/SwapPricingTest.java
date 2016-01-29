@@ -40,8 +40,8 @@ import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
-import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingCurrency;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
@@ -126,12 +126,12 @@ public class SwapPricingTest {
         .build();
 
     FunctionGroup<SwapTrade> functionGroup = DefaultFunctionGroup.builder(SwapTrade.class)
-        .addFunction(Measure.PRESENT_VALUE, SwapCalculationFunction.class)
+        .addFunction(Measures.PRESENT_VALUE, SwapCalculationFunction.class)
         .name("FunctionGroup")
         .build();
 
     PricingRule<SwapTrade> pricingRule = PricingRule.builder(SwapTrade.class)
-        .addMeasures(Measure.PRESENT_VALUE)
+        .addMeasures(Measures.PRESENT_VALUE)
         .functionGroup(functionGroup)
         .build();
 
@@ -145,7 +145,7 @@ public class SwapPricingTest {
 
     // create the calculation runner
     List<SwapTrade> trades = ImmutableList.of(trade);
-    List<Column> columns = ImmutableList.of(Column.of(Measure.PRESENT_VALUE));
+    List<Column> columns = ImmutableList.of(Column.of(Measures.PRESENT_VALUE));
     CalculationRules rules = CalculationRules.of(pricingRules, marketDataRules, ReportingCurrency.of(USD));
 
     // calculate results using the runner

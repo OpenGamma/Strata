@@ -19,6 +19,7 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
@@ -38,9 +39,9 @@ import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
  * This uses the standard discounting calculation method.
  * The supported built-in measures are:
  * <ul>
- *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
- *   <li>{@linkplain Measure#PV01 PV01}
- *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
+ *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+ *   <li>{@linkplain Measures#PV01 PV01}
+ *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
  * </ul>
  * <p>
  * The "natural" currency is the currency of the swap leg that is received.
@@ -53,9 +54,9 @@ public class DeliverableSwapFutureCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measure.PRESENT_VALUE, DeliverableSwapFutureMeasureCalculations::presentValue)
-          .put(Measure.PV01, DeliverableSwapFutureMeasureCalculations::pv01)
-          .put(Measure.BUCKETED_PV01, DeliverableSwapFutureMeasureCalculations::bucketedPv01)
+          .put(Measures.PRESENT_VALUE, DeliverableSwapFutureMeasureCalculations::presentValue)
+          .put(Measures.PV01, DeliverableSwapFutureMeasureCalculations::pv01)
+          .put(Measures.BUCKETED_PV01, DeliverableSwapFutureMeasureCalculations::bucketedPv01)
           .build();
 
   /**
