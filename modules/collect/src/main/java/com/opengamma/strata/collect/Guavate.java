@@ -387,7 +387,7 @@ public final class Guavate {
 
     return Collector.of(
         HashMap<K, V>::new,
-        (map, val) -> putWithMerge(map, keyExtractor.apply(val), valueExtractor.apply(val), mergeFn),
+        (map, val) -> map.merge(keyExtractor.apply(val), valueExtractor.apply(val), mergeFn),
         (m1, m2) -> mergeMaps(m1, m2, mergeFn),
         map -> ImmutableMap.copyOf(map),
         Collector.Characteristics.UNORDERED);
@@ -623,34 +623,6 @@ public final class Guavate {
   }
 
   //--------------------------------------------------------------------------------------------------
-
-  /**
-   * Helper method which puts a value into a mutable map.
-   * <p>
-   * If the map already contains a mapping for the key the merge function is applied to the existing value and
-   * the new value, and the return value is inserted.
-   *
-   * @param map  the map
-   * @param key  the key
-   * @param val  the value
-   * @param mergeFn  function applied to the existing and new values if the map contains the key
-   * @param <K>  the key type
-   * @param <V>  the value type
-   */
-  private static <K, V> void putWithMerge(
-      Map<K, V> map,
-      K key,
-      V val,
-      BiFunction<? super V, ? super V, ? extends V> mergeFn) {
-
-    V existingVal = map.get(key);
-
-    if (existingVal == null) {
-      map.put(key, val);
-    } else {
-      map.put(key, mergeFn.apply(existingVal, val));
-    }
-  }
 
   /**
    * Helper method to merge two mutable maps by inserting all values from {@code map2} into {@code map1}.
