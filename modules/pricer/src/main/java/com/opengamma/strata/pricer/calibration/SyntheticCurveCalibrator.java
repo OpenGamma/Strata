@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -72,6 +72,26 @@ public class SyntheticCurveCalibrator {
       CurveCalibrator calibrator) {
     return new SyntheticCurveCalibrator(marketQuotesMeasures, calibrator);
   }
+  
+  /**
+   * Returns the market quote measures.
+   * 
+   * @return  the measures
+   */
+  public CalibrationMeasures getMarketQuotesMeasures() {
+    return marketQuotesMeasures;
+  }
+
+  /**
+   * Returns the curve calibrator.
+   * 
+   * @return  the calibrator
+   */
+  public CurveCalibrator getCalibrator() {
+    return calibrator;
+  }
+
+
 
   //-------------------------------------------------------------------------
   // restricted constructor

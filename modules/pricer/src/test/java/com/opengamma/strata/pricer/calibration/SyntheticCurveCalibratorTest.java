@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -93,6 +93,12 @@ public class SyntheticCurveCalibratorTest {
       CALIBRATOR.calibrate(GROUPS_IN, VALUATION_DATE, MARKET_QUOTES_INPUT, TS_LARGE);
   
   private static final double TOLERANCE_MQ = 1.0E-8;
+
+  public void test_of() {
+    SyntheticCurveCalibrator test = SyntheticCurveCalibrator.of(MQ_MEASURES, CALIBRATOR);
+    assertEquals(test.getMarketQuotesMeasures(), MQ_MEASURES);
+    assertEquals(test.getCalibrator(), CALIBRATOR);
+  }
 
   // Check market data computation
   public void market_data() {
