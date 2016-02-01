@@ -48,7 +48,7 @@ public final class ImmutableMeasure
   /**
    * Flag indicating whether measure values should be automatically converted to the reporting currency.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(overrideGet = true)
   private final boolean currencyConvertible;
 
   //--------------------------------------------------------------------------------------------------
@@ -122,7 +122,6 @@ public final class ImmutableMeasure
       String name,
       boolean currencyConvertible) {
     JodaBeanUtils.notNull(name, "name");
-    JodaBeanUtils.notNull(currencyConvertible, "currencyConvertible");
     this.name = name;
     this.currencyConvertible = currencyConvertible;
     validate();
@@ -158,7 +157,7 @@ public final class ImmutableMeasure
   //-----------------------------------------------------------------------
   /**
    * Gets flag indicating whether measure values should be automatically converted to the reporting currency.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   @Override
   public boolean isCurrencyConvertible() {
@@ -394,11 +393,10 @@ public final class ImmutableMeasure
 
     /**
      * Sets flag indicating whether measure values should be automatically converted to the reporting currency.
-     * @param currencyConvertible  the new value, not null
+     * @param currencyConvertible  the new value
      * @return this, for chaining, not null
      */
     public Builder currencyConvertible(boolean currencyConvertible) {
-      JodaBeanUtils.notNull(currencyConvertible, "currencyConvertible");
       this.currencyConvertible = currencyConvertible;
       return this;
     }
