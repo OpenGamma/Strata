@@ -107,10 +107,16 @@ public class FxNdfCalculationFunctionTest {
     FxRate expectedForwardFx = pricer.forwardFxRate(TRADE.getProduct(), provider);
 
     Set<Measure> measures = ImmutableSet.of(
-        Measures.PRESENT_VALUE, Measures.CURRENCY_EXPOSURE, Measures.CURRENT_CASH, Measures.FORWARD_FX_RATE);
+        Measures.PRESENT_VALUE,
+        Measures.PRESENT_VALUE_MULTI_CCY,
+        Measures.CURRENCY_EXPOSURE,
+        Measures.CURRENT_CASH,
+        Measures.FORWARD_FX_RATE);
     assertThat(function.calculate(TRADE, measures, md))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
+        .containsEntry(
+            Measures.PRESENT_VALUE_MULTI_CCY, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
             Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedCurrencyExp))))
         .containsEntry(

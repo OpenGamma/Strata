@@ -54,6 +54,13 @@ final class StandardMeasures {
    */
   public static final Measure PRESENT_VALUE = ImmutableMeasure.of("PresentValue");
   /**
+   * Measure representing the present value of the calculation target.
+   * <p>
+   * Calculated values are not converted to the reporting currency and may contain values in multiple currencies
+   * if the target contains multiple currencies.
+   */
+  public static final Measure PRESENT_VALUE_MULTI_CURRENCY = ImmutableMeasure.of("PresentValueMultiCurrency", false);
+  /**
    * Measure representing the present value of each leg of the calculation target.
    */
   public static final Measure LEG_PRESENT_VALUE = ImmutableMeasure.of("LegPresentValue");

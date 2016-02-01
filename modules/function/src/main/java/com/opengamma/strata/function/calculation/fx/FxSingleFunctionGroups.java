@@ -25,6 +25,7 @@ public final class FxSingleFunctionGroups {
       DefaultFunctionGroup.builder(FxSingleTrade.class).name("FxSingleDiscounting")
           .addFunction(Measures.PAR_SPREAD, FxSingleCalculationFunction.class)
           .addFunction(Measures.PRESENT_VALUE, FxSingleCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE_MULTI_CCY, FxSingleCalculationFunction.class)
           .addFunction(Measures.PV01, FxSingleCalculationFunction.class)
           .addFunction(Measures.BUCKETED_PV01, FxSingleCalculationFunction.class)
           .addFunction(Measures.CURRENCY_EXPOSURE, FxSingleCalculationFunction.class)
@@ -47,6 +48,7 @@ public final class FxSingleFunctionGroups {
    * <ul>
    *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
    *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
    *   <li>{@linkplain Measures#PV01 PV01}
    *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
    *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}

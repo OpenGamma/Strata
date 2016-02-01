@@ -69,6 +69,13 @@ public final class Measures {
    */
   public static final Measure PRESENT_VALUE = Measure.of(StandardMeasures.PRESENT_VALUE.getName());
   /**
+   * Measure representing the present value of the calculation target.
+   * <p>
+   * Calculated values are not converted to the reporting currency and may contain values in multiple currencies
+   * if the target contains multiple currencies.
+   */
+  public static final Measure PRESENT_VALUE_MULTI_CCY = Measure.of(StandardMeasures.PRESENT_VALUE_MULTI_CURRENCY.getName());
+  /**
    * Measure representing the present value of each leg of the calculation target.
    */
   public static final Measure LEG_PRESENT_VALUE = Measure.of(StandardMeasures.LEG_PRESENT_VALUE.getName());

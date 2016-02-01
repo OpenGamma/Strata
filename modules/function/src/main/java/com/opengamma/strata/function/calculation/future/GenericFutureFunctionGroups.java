@@ -40,6 +40,7 @@ public final class GenericFutureFunctionGroups {
    * The supported built-in measures are:
    * <ul>
    *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
    * </ul>
    * 
    * @return the function group

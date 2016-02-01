@@ -20,6 +20,7 @@ import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
+import com.opengamma.strata.calc.runner.function.FunctionUtils;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
@@ -41,6 +42,7 @@ import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
  * The supported built-in measures are:
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+ *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
  *   <li>{@linkplain Measures#PAR_RATE Par rate}
  *   <li>{@linkplain Measures#IR01_PARALLEL_ZERO Scalar IR01, based on zero rates}
  *   <li>{@linkplain Measures#IR01_BUCKETED_ZERO Vector curve node IR01, based on zero rates}
@@ -78,6 +80,11 @@ public class CdsCalculationFunction
           .put(Measures.JUMP_TO_DEFAULT, CdsMeasureCalculations::jumpToDefault)
           .build();
 
+  private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()
+      .addAll(CALCULATORS.keySet())
+      .add(Measures.PRESENT_VALUE_MULTI_CCY)
+      .build();
+
   /**
    * Creates an instance.
    */
@@ -87,7 +94,7 @@ public class CdsCalculationFunction
   //-------------------------------------------------------------------------
   @Override
   public Set<Measure> supportedMeasures() {
-    return CALCULATORS.keySet();
+    return MEASURES;
   }
 
   @Override
@@ -149,6 +156,8 @@ public class CdsCalculationFunction
     for (Measure measure : measures) {
       results.put(measure, calculate(measure, trade, product, scenarioMarketData));
     }
+    // The calculated value is the same for these two measures but they are handled differently WRT FX conversion
+    FunctionUtils.duplicateResult(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY, results);
     return results;
   }
 

@@ -26,6 +26,7 @@ public final class FraFunctionGroups {
           .addFunction(Measures.PAR_RATE, FraCalculationFunction.class)
           .addFunction(Measures.PAR_SPREAD, FraCalculationFunction.class)
           .addFunction(Measures.PRESENT_VALUE, FraCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE_MULTI_CCY, FraCalculationFunction.class)
           .addFunction(Measures.EXPLAIN_PRESENT_VALUE, FraCalculationFunction.class)
           .addFunction(Measures.CASH_FLOWS, FraCalculationFunction.class)
           .addFunction(Measures.PV01, FraCalculationFunction.class)
@@ -49,6 +50,7 @@ public final class FraFunctionGroups {
    *   <li>{@linkplain Measures#PAR_RATE Par rate}
    *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
    *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
    *   <li>{@linkplain Measures#EXPLAIN_PRESENT_VALUE Explain present value}
    *   <li>{@linkplain Measures#CASH_FLOWS Cash flows}
    *   <li>{@linkplain Measures#PV01 PV01}

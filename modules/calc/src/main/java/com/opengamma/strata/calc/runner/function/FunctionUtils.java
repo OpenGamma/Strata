@@ -7,6 +7,7 @@ package com.opengamma.strata.calc.runner.function;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 
@@ -14,12 +15,14 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.FxConvertibleList;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
+import com.opengamma.strata.collect.result.Result;
 
 /**
  * Static utility methods useful when writing calculation functions.
@@ -148,7 +151,7 @@ public final class FunctionUtils {
   }
 
   /**
-   * Returns a collector that builds a scenerio result based on {@code Double}.
+   * Returns a collector that builds a scenario result based on {@code Double}.
    * <p>
    * This is used at the end of a stream to collect per-scenario instances of {@code Double}
    * into a single instance of {@link ValuesArray}, which is designed to be space-efficient.
@@ -167,6 +170,22 @@ public final class FunctionUtils {
           return l;
         },
         list -> ValuesArray.of(list));
+  }
+
+  /**
+   * Checks if a map of results contains a value for a key, and if it does inserts it into the map for a different key.
+   *
+   * @param existingKey  a key for which the map possibly contains a value
+   * @param newKey  the key which is inserted into the map
+   * @param mutableMeasureMap  a mutable map of values, keyed by measure
+   */
+  public static void duplicateResult(Measure existingKey, Measure newKey, Map<Measure, Result<?>> mutableMeasureMap) {
+    Result<?> result = mutableMeasureMap.get(existingKey);
+
+    if (result == null) {
+      return;
+    }
+    mutableMeasureMap.put(newKey, result);
   }
 
 }

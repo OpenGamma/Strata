@@ -26,6 +26,7 @@ public final class TermDepositFunctionGroups {
           .addFunction(Measures.PAR_RATE, TermDepositCalculationFunction.class)
           .addFunction(Measures.PAR_SPREAD, TermDepositCalculationFunction.class)
           .addFunction(Measures.PRESENT_VALUE, TermDepositCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE_MULTI_CCY, TermDepositCalculationFunction.class)
           .addFunction(Measures.PV01, TermDepositCalculationFunction.class)
           .addFunction(Measures.BUCKETED_PV01, TermDepositCalculationFunction.class)
           .build();
@@ -46,6 +47,7 @@ public final class TermDepositFunctionGroups {
    *   <li>{@linkplain Measures#PAR_RATE Par rate}
    *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
    *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
    *   <li>{@linkplain Measures#PV01 PV01}
    *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
    * </ul>

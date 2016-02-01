@@ -25,6 +25,7 @@ public final class FxSwapFunctionGroups {
       DefaultFunctionGroup.builder(FxSwapTrade.class).name("FxSwapDiscounting")
           .addFunction(Measures.PAR_SPREAD, FxSwapCalculationFunction.class)
           .addFunction(Measures.PRESENT_VALUE, FxSwapCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE_MULTI_CCY, FxSwapCalculationFunction.class)
           .addFunction(Measures.PV01, FxSwapCalculationFunction.class)
           .addFunction(Measures.BUCKETED_PV01, FxSwapCalculationFunction.class)
           .addFunction(Measures.CURRENCY_EXPOSURE, FxSwapCalculationFunction.class)
@@ -45,6 +46,7 @@ public final class FxSwapFunctionGroups {
    * The supported built-in measures are:
    * <ul>
    *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
    *   <li>{@linkplain Measures#PV01 PV01}
    *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
    *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
