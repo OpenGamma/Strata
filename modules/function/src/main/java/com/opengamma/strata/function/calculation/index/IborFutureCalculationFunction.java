@@ -13,6 +13,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
@@ -32,10 +33,10 @@ import com.opengamma.strata.product.index.IborFutureTrade;
  * This uses the standard discounting calculation method.
  * The supported built-in measures are:
  * <ul>
- *   <li>{@linkplain Measure#PAR_SPREAD Par spread}
- *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
- *   <li>{@linkplain Measure#PV01 PV01}
- *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
+ *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
+ *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+ *   <li>{@linkplain Measures#PV01 PV01}
+ *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
  * </ul>
  */
 public class IborFutureCalculationFunction
@@ -46,10 +47,10 @@ public class IborFutureCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measure.PAR_SPREAD, IborFutureMeasureCalculations::parSpread)
-          .put(Measure.PRESENT_VALUE, IborFutureMeasureCalculations::presentValue)
-          .put(Measure.PV01, IborFutureMeasureCalculations::pv01)
-          .put(Measure.BUCKETED_PV01, IborFutureMeasureCalculations::bucketedPv01)
+          .put(Measures.PAR_SPREAD, IborFutureMeasureCalculations::parSpread)
+          .put(Measures.PRESENT_VALUE, IborFutureMeasureCalculations::presentValue)
+          .put(Measures.PV01, IborFutureMeasureCalculations::pv01)
+          .put(Measures.BUCKETED_PV01, IborFutureMeasureCalculations::bucketedPv01)
           .build();
 
   /**

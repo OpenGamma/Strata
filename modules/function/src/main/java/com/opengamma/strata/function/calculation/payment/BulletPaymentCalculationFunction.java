@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
@@ -31,11 +32,11 @@ import com.opengamma.strata.product.payment.BulletPaymentTrade;
  * This uses the standard discounting calculation method.
  * The supported built-in measures are:
  * <ul>
- *   <li>{@linkplain Measure#PAR_RATE Par rate}
- *   <li>{@linkplain Measure#PAR_SPREAD Par spread}
- *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
- *   <li>{@linkplain Measure#PV01 PV01}
- *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
+ *   <li>{@linkplain Measures#PAR_RATE Par rate}
+ *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
+ *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+ *   <li>{@linkplain Measures#PV01 PV01}
+ *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
  * </ul>
  */
 public class BulletPaymentCalculationFunction
@@ -46,9 +47,9 @@ public class BulletPaymentCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measure.PRESENT_VALUE, BulletPaymentMeasureCalculations::presentValue)
-          .put(Measure.PV01, BulletPaymentMeasureCalculations::pv01)
-          .put(Measure.BUCKETED_PV01, BulletPaymentMeasureCalculations::bucketedPv01)
+          .put(Measures.PRESENT_VALUE, BulletPaymentMeasureCalculations::presentValue)
+          .put(Measures.PV01, BulletPaymentMeasureCalculations::pv01)
+          .put(Measures.BUCKETED_PV01, BulletPaymentMeasureCalculations::bucketedPv01)
           .build();
 
   /**

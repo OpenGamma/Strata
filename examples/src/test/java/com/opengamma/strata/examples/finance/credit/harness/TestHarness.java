@@ -15,6 +15,7 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
@@ -100,35 +101,35 @@ public class TestHarness {
     }
 
     public ScalarMeasureOnADay pvShouldBe(double expected) {
-      return new ScalarMeasureOnADay(Measure.PRESENT_VALUE, expected, tradeSource);
+      return new ScalarMeasureOnADay(Measures.PRESENT_VALUE, expected, tradeSource);
     }
 
     public ScalarMeasureOnADay parRateShouldBe(double expected) {
-      return new ScalarMeasureOnADay(Measure.PAR_RATE, expected, tradeSource);
+      return new ScalarMeasureOnADay(Measures.PAR_RATE, expected, tradeSource);
     }
 
     public ScalarMeasureOnADay jumpToDefaultShouldBe(double expected) {
-      return new ScalarMeasureOnADay(Measure.JUMP_TO_DEFAULT, expected, tradeSource);
+      return new ScalarMeasureOnADay(Measures.JUMP_TO_DEFAULT, expected, tradeSource);
     }
 
     public ScalarMeasureOnADay recovery01ShouldBe(double expected) {
-      return new ScalarMeasureOnADay(Measure.RECOVERY01, expected, tradeSource);
+      return new ScalarMeasureOnADay(Measures.RECOVERY01, expected, tradeSource);
     }
 
     public ScalarMeasureOnADay ir01ParallelParShouldBe(double expected) {
-      return new ScalarMeasureOnADay(Measure.IR01_PARALLEL_PAR, expected, tradeSource);
+      return new ScalarMeasureOnADay(Measures.IR01_PARALLEL_PAR, expected, tradeSource);
     }
 
     public VectorMeasureOnADay ir01BucketedParShouldBe(double... expected) {
-      return new VectorMeasureOnADay(Measure.IR01_BUCKETED_PAR, expected, tradeSource);
+      return new VectorMeasureOnADay(Measures.IR01_BUCKETED_PAR, expected, tradeSource);
     }
 
     public ScalarMeasureOnADay cs01ParallelParShouldBe(double expected) {
-      return new ScalarMeasureOnADay(Measure.CS01_PARALLEL_PAR, expected, tradeSource);
+      return new ScalarMeasureOnADay(Measures.CS01_PARALLEL_PAR, expected, tradeSource);
     }
 
     public VectorMeasureOnADay cs01BucketedParShouldBe(double... expected) {
-      return new VectorMeasureOnADay(Measure.CS01_BUCKETED_PAR, expected, tradeSource);
+      return new VectorMeasureOnADay(Measures.CS01_BUCKETED_PAR, expected, tradeSource);
     }
 
   }

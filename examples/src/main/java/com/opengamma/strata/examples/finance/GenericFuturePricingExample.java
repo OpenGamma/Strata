@@ -19,7 +19,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.id.StandardId;
@@ -65,7 +65,7 @@ public class GenericFuturePricingExample {
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
-        Column.of(Measure.PRESENT_VALUE));
+        Column.of(Measures.PRESENT_VALUE));
 
     // use the built-in example market data
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();

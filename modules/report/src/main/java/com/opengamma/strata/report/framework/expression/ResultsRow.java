@@ -15,7 +15,6 @@ import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.collect.type.TypedString;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.ProductTrade;
@@ -123,7 +122,7 @@ class ResultsRow {
     // TODO The pricing rules should be an argument, not hard-coded to be the standard rules
     Set<Measure> validMeasures = StandardComponents.pricingRules().configuredMeasures(trade);
     return validMeasures.stream()
-        .map(TypedString::toString)
+        .map(Measure::getName)
         .sorted()
         .collect(toImmutableList());
   }

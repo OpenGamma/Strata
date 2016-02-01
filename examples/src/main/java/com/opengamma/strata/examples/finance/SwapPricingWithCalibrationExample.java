@@ -31,7 +31,7 @@ import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
-import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -127,14 +127,14 @@ public class SwapPricingWithCalibrationExample {
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
-        Column.of(Measure.LEG_INITIAL_NOTIONAL),
-        Column.of(Measure.PRESENT_VALUE),
-        Column.of(Measure.LEG_PRESENT_VALUE),
-        Column.of(Measure.PV01),
-        Column.of(Measure.PAR_RATE),
-        Column.of(Measure.ACCRUED_INTEREST),
-        Column.of(Measure.BUCKETED_PV01),
-        Column.of(Measure.BUCKETED_GAMMA_PV01));
+        Column.of(Measures.LEG_INITIAL_NOTIONAL),
+        Column.of(Measures.PRESENT_VALUE),
+        Column.of(Measures.LEG_PRESENT_VALUE),
+        Column.of(Measures.PV01),
+        Column.of(Measures.PAR_RATE),
+        Column.of(Measures.ACCRUED_INTEREST),
+        Column.of(Measures.BUCKETED_PV01),
+        Column.of(Measures.BUCKETED_GAMMA_PV01));
 
     // load quotes
     ImmutableMap<QuoteId, Double> quotes = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE);

@@ -23,6 +23,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
@@ -62,16 +63,16 @@ public class FraCalculationFunctionTest {
   public void test_group() {
     FunctionGroup<FraTrade> test = FraFunctionGroups.discounting();
     assertThat(test.configuredMeasures(TRADE)).contains(
-        Measure.PAR_RATE,
-        Measure.PAR_SPREAD,
-        Measure.PRESENT_VALUE,
-        Measure.EXPLAIN_PRESENT_VALUE,
-        Measure.CASH_FLOWS,
-        Measure.PV01,
-        Measure.BUCKETED_PV01,
-        Measure.BUCKETED_GAMMA_PV01);
+        Measures.PAR_RATE,
+        Measures.PAR_SPREAD,
+        Measures.PRESENT_VALUE,
+        Measures.EXPLAIN_PRESENT_VALUE,
+        Measures.CASH_FLOWS,
+        Measures.PV01,
+        Measures.BUCKETED_PV01,
+        Measures.BUCKETED_GAMMA_PV01);
     FunctionConfig<FraTrade> config =
-        FraFunctionGroups.discounting().functionConfig(TRADE, Measure.PRESENT_VALUE).get();
+        FraFunctionGroups.discounting().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
     assertThat(config.createFunction()).isInstanceOf(FraCalculationFunction.class);
   }
 
@@ -98,18 +99,18 @@ public class FraCalculationFunctionTest {
     CashFlows expectedCashFlows = pricer.cashFlows(TRADE.getProduct(), provider);
 
     Set<Measure> measures = ImmutableSet.of(
-        Measure.PRESENT_VALUE, Measure.PAR_RATE, Measure.PAR_SPREAD, Measure.EXPLAIN_PRESENT_VALUE, Measure.CASH_FLOWS);
+        Measures.PRESENT_VALUE, Measures.PAR_RATE, Measures.PAR_SPREAD, Measures.EXPLAIN_PRESENT_VALUE, Measures.CASH_FLOWS);
     assertThat(function.calculate(TRADE, measures, md))
         .containsEntry(
-            Measure.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
+            Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
-            Measure.PAR_RATE, Result.success(ValuesArray.of(ImmutableList.of(expectedParRate))))
+            Measures.PAR_RATE, Result.success(ValuesArray.of(ImmutableList.of(expectedParRate))))
         .containsEntry(
-            Measure.PAR_SPREAD, Result.success(ValuesArray.of(ImmutableList.of(expectedParSpread))))
+            Measures.PAR_SPREAD, Result.success(ValuesArray.of(ImmutableList.of(expectedParSpread))))
         .containsEntry(
-            Measure.EXPLAIN_PRESENT_VALUE, Result.success(ScenarioResult.of(ImmutableList.of(expectedExplainPv))))
+            Measures.EXPLAIN_PRESENT_VALUE, Result.success(ScenarioResult.of(ImmutableList.of(expectedExplainPv))))
         .containsEntry(
-            Measure.CASH_FLOWS, Result.success(ScenarioResult.of(ImmutableList.of(expectedCashFlows))));
+            Measures.CASH_FLOWS, Result.success(ScenarioResult.of(ImmutableList.of(expectedCashFlows))));
   }
 
   public void test_pv01() {
@@ -122,12 +123,12 @@ public class FraCalculationFunctionTest {
     MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
 
-    Set<Measure> measures = ImmutableSet.of(Measure.PV01, Measure.BUCKETED_PV01);
+    Set<Measure> measures = ImmutableSet.of(Measures.PV01, Measures.BUCKETED_PV01);
     assertThat(function.calculate(TRADE, measures, md))
         .containsEntry(
-            Measure.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
+            Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
-            Measure.BUCKETED_PV01, Result.success(ScenarioResult.of(ImmutableList.of(expectedBucketedPv01))));
+            Measures.BUCKETED_PV01, Result.success(ScenarioResult.of(ImmutableList.of(expectedBucketedPv01))));
   }
 
   //-------------------------------------------------------------------------

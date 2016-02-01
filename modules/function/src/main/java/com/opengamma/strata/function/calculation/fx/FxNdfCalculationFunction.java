@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
@@ -31,12 +32,12 @@ import com.opengamma.strata.product.fx.FxNdfTrade;
  * This uses the standard discounting calculation method.
  * The supported built-in measures are:
  * <ul>
- *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
- *   <li>{@linkplain Measure#PV01 PV01}
- *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
- *   <li>{@linkplain Measure#CURRENCY_EXPOSURE Currency exposure}
- *   <li>{@linkplain Measure#CURRENT_CASH Current cash}
- *   <li>{@linkplain Measure#FORWARD_FX_RATE Forward FX rate}
+ *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+ *   <li>{@linkplain Measures#PV01 PV01}
+ *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
+ *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
+ *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain Measures#FORWARD_FX_RATE Forward FX rate}
  * </ul>
  * <p>
  * The "natural" currency is the settlement currency of the trade.
@@ -49,12 +50,12 @@ public class FxNdfCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measure.PRESENT_VALUE, FxNdfMeasureCalculations::presentValue)
-          .put(Measure.PV01, FxNdfMeasureCalculations::pv01)
-          .put(Measure.BUCKETED_PV01, FxNdfMeasureCalculations::bucketedPv01)
-          .put(Measure.CURRENCY_EXPOSURE, FxNdfMeasureCalculations::currencyExposure)
-          .put(Measure.CURRENT_CASH, FxNdfMeasureCalculations::currentCash)
-          .put(Measure.FORWARD_FX_RATE, FxNdfMeasureCalculations::forwardFxRate)
+          .put(Measures.PRESENT_VALUE, FxNdfMeasureCalculations::presentValue)
+          .put(Measures.PV01, FxNdfMeasureCalculations::pv01)
+          .put(Measures.BUCKETED_PV01, FxNdfMeasureCalculations::bucketedPv01)
+          .put(Measures.CURRENCY_EXPOSURE, FxNdfMeasureCalculations::currencyExposure)
+          .put(Measures.CURRENT_CASH, FxNdfMeasureCalculations::currentCash)
+          .put(Measures.FORWARD_FX_RATE, FxNdfMeasureCalculations::forwardFxRate)
           .build();
 
   /**

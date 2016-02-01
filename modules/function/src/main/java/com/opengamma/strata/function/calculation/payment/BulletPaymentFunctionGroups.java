@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.payment;
 
-import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
@@ -23,9 +23,9 @@ public final class BulletPaymentFunctionGroups {
    */
   private static final FunctionGroup<BulletPaymentTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(BulletPaymentTrade.class).name("BulletPaymentDiscounting")
-          .addFunction(Measure.PRESENT_VALUE, BulletPaymentCalculationFunction.class)
-          .addFunction(Measure.PV01, BulletPaymentCalculationFunction.class)
-          .addFunction(Measure.BUCKETED_PV01, BulletPaymentCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE, BulletPaymentCalculationFunction.class)
+          .addFunction(Measures.PV01, BulletPaymentCalculationFunction.class)
+          .addFunction(Measures.BUCKETED_PV01, BulletPaymentCalculationFunction.class)
           .build();
 
   /**
@@ -41,9 +41,9 @@ public final class BulletPaymentFunctionGroups {
    * <p>
    * The supported built-in measures are:
    * <ul>
-   *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
-   *   <li>{@linkplain Measure#PV01 PV01}
-   *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
+   *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PV01 PV01}
+   *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
    * </ul>
    * 
    * @return the function group

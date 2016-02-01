@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
@@ -34,7 +35,7 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
  * This uses the standard discounting calculation method.
  * The supported built-in measures are:
  * <ul>
- *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
+ *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  * </ul>
  * <p>
  * The "natural" currency is determined from the first swap leg.
@@ -47,7 +48,7 @@ public class SwaptionCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measure.PRESENT_VALUE, SwaptionMeasureCalculations::presentValue)
+          .put(Measures.PRESENT_VALUE, SwaptionMeasureCalculations::presentValue)
           .build();
 
   /**

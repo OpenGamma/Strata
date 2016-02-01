@@ -16,7 +16,7 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.id.StandardId;
@@ -58,11 +58,11 @@ public class FraPricingExample {
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
-        Column.of(Measure.PRESENT_VALUE),
-        Column.of(Measure.PV01),
-        Column.of(Measure.PAR_RATE),
-        Column.of(Measure.PAR_SPREAD),
-        Column.of(Measure.BUCKETED_PV01));
+        Column.of(Measures.PRESENT_VALUE),
+        Column.of(Measures.PV01),
+        Column.of(Measures.PAR_RATE),
+        Column.of(Measures.PAR_SPREAD),
+        Column.of(Measures.BUCKETED_PV01));
 
     // use the built-in example market data
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();

@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
@@ -30,36 +31,32 @@ import com.opengamma.strata.collect.result.Result;
 @Test
 public class PricingRuleTest {
 
-  private static final Measure MEASURE1 = Measure.of("1");
-  private static final Measure MEASURE2 = Measure.of("2");
-  private static final Measure MEASURE3 = Measure.of("3");
-
   private static final FunctionGroup<TestTrade1> GROUP =
       DefaultFunctionGroup.builder(TestTrade1.class)
           .name("GroupName")
-          .addFunction(MEASURE1, FunctionConfig.of(TestFunction1.class))
-          .addFunction(MEASURE2, FunctionConfig.of(TestFunction2.class))
+          .addFunction(Measures.PRESENT_VALUE, FunctionConfig.of(TestFunction1.class))
+          .addFunction(Measures.PAR_RATE, FunctionConfig.of(TestFunction2.class))
           .build();
 
   private static final PricingRule<TestTrade1> PRICING_RULE =
       PricingRule.builder(TestTrade1.class)
           .functionGroup(GROUP)
           .addArgument("foo", "bar")
-          .addMeasures(MEASURE1, MEASURE2)
+          .addMeasures(Measures.PRESENT_VALUE, Measures.PAR_RATE)
           .build();
 
   public void groupAvailable() {
-    Optional<ConfiguredFunctionGroup> result = PRICING_RULE.functionGroup(new TestTrade1(), MEASURE1);
+    Optional<ConfiguredFunctionGroup> result = PRICING_RULE.functionGroup(new TestTrade1(), Measures.PRESENT_VALUE);
     assertThat(result).hasValue(ConfiguredFunctionGroup.of(GROUP, ImmutableMap.of("foo", "bar")));
   }
 
   public void differentTargetType() {
-    Optional<ConfiguredFunctionGroup> result = PRICING_RULE.functionGroup(new TestTrade2(), MEASURE1);
+    Optional<ConfiguredFunctionGroup> result = PRICING_RULE.functionGroup(new TestTrade2(), Measures.PRESENT_VALUE);
     assertThat(result).isEmpty();
   }
 
   public void measureNotFound() {
-    Optional<ConfiguredFunctionGroup> result = PRICING_RULE.functionGroup(new TestTrade1(), MEASURE3);
+    Optional<ConfiguredFunctionGroup> result = PRICING_RULE.functionGroup(new TestTrade1(), Measures.PV01);
     assertThat(result).isEmpty();
   }
 
@@ -67,21 +64,21 @@ public class PricingRuleTest {
     FunctionGroup<TestTrade1> group =
         DefaultFunctionGroup.builder(TestTrade1.class)
             .name("GroupName")
-            .addFunction(MEASURE1, FunctionConfig.of(TestFunction1.class))
-            .addFunction(MEASURE2, FunctionConfig.of(TestFunction2.class))
+            .addFunction(Measures.PRESENT_VALUE, FunctionConfig.of(TestFunction1.class))
+            .addFunction(Measures.PAR_RATE, FunctionConfig.of(TestFunction2.class))
             .build();
 
     PricingRule<TestTrade1> pricingRule =
         PricingRule.builder(TestTrade1.class)
             .functionGroup(group)
-            .addMeasures(MEASURE1)
+            .addMeasures(Measures.PRESENT_VALUE)
             .build();
 
-    Optional<ConfiguredFunctionGroup> functionGroup = pricingRule.functionGroup(new TestTrade2(), MEASURE2);
+    Optional<ConfiguredFunctionGroup> functionGroup = pricingRule.functionGroup(new TestTrade2(), Measures.PAR_RATE);
     assertThat(functionGroup).isEmpty();
 
     Set<Measure> trade1Measures = pricingRule.configuredMeasures(new TestTrade1());
-    assertThat(trade1Measures).containsOnly(MEASURE1);
+    assertThat(trade1Measures).containsOnly(Measures.PRESENT_VALUE);
 
     Set<Measure> trade2Measures = pricingRule.configuredMeasures(new TestTrade2());
     assertThat(trade2Measures).isEmpty();
@@ -96,16 +93,16 @@ public class PricingRuleTest {
             .functionGroup(GROUP)
             .build();
 
-    Optional<ConfiguredFunctionGroup> functionGroup = rule.functionGroup(new TestTrade1(), MEASURE1);
+    Optional<ConfiguredFunctionGroup> functionGroup = rule.functionGroup(new TestTrade1(), Measures.PRESENT_VALUE);
     assertThat(functionGroup).hasValue(ConfiguredFunctionGroup.of(GROUP));
 
     Set<Measure> measures = rule.configuredMeasures(new TestTrade1());
-    assertThat(measures).containsOnly(MEASURE1, MEASURE2);
+    assertThat(measures).containsOnly(Measures.PRESENT_VALUE, Measures.PAR_RATE);
   }
 
   public void measuresMatchingFunctionGroup() {
     Set<Measure> measures = PRICING_RULE.configuredMeasures(new TestTrade1());
-    assertThat(measures).containsOnly(MEASURE1, MEASURE2);
+    assertThat(measures).containsOnly(Measures.PRESENT_VALUE, Measures.PAR_RATE);
   }
 
   //-------------------------------------------------------------------------
@@ -122,7 +119,7 @@ public class PricingRuleTest {
 
     @Override
     public Set<Measure> supportedMeasures() {
-      return ImmutableSet.of(MEASURE1);
+      return ImmutableSet.of(Measures.PRESENT_VALUE);
     }
 
     @Override
@@ -137,7 +134,7 @@ public class PricingRuleTest {
         CalculationMarketData marketData) {
 
       ScenarioResult<String> array = ScenarioResult.of("foo");
-      return ImmutableMap.of(MEASURE1, Result.success(array));
+      return ImmutableMap.of(Measures.PRESENT_VALUE, Result.success(array));
     }
   }
 
@@ -147,7 +144,7 @@ public class PricingRuleTest {
 
     @Override
     public Set<Measure> supportedMeasures() {
-      return ImmutableSet.of(MEASURE1);
+      return ImmutableSet.of(Measures.PRESENT_VALUE);
     }
 
     @Override
@@ -162,7 +159,7 @@ public class PricingRuleTest {
         CalculationMarketData marketData) {
 
       ScenarioResult<String> array = ScenarioResult.of("foo");
-      return ImmutableMap.of(MEASURE1, Result.success(array));
+      return ImmutableMap.of(Measures.PRESENT_VALUE, Result.success(array));
     }
   }
 

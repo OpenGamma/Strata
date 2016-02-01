@@ -46,6 +46,7 @@ import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingCurrency;
+import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
@@ -179,7 +180,7 @@ public class CurveEndToEndTest {
 
     // Calculate the results and check the PVs for the node instruments are zero ----------------------
 
-    List<Column> columns = ImmutableList.of(Column.of(Measure.PRESENT_VALUE));
+    List<Column> columns = ImmutableList.of(Column.of(Measures.PRESENT_VALUE));
     MarketEnvironment knownMarketData = MarketEnvironment.builder()
         .valuationDate(date(2011, 3, 8))
         .addValues(parRateData)
@@ -205,12 +206,12 @@ public class CurveEndToEndTest {
   private static PricingRules pricingRules() {
     FunctionGroup<SwapTrade> swapGroup = DefaultFunctionGroup.builder(SwapTrade.class)
         .name("Swap")
-        .addFunction(Measure.PRESENT_VALUE, SwapCalculationFunction.class)
+        .addFunction(Measures.PRESENT_VALUE, SwapCalculationFunction.class)
         .build();
 
     FunctionGroup<FraTrade> fraGroup = DefaultFunctionGroup.builder(FraTrade.class)
         .name("Fra")
-        .addFunction(Measure.PRESENT_VALUE, TestFraPresentValueFunction.class)
+        .addFunction(Measures.PRESENT_VALUE, TestFraPresentValueFunction.class)
         .build();
 
     return DefaultPricingRules.of(
@@ -227,7 +228,7 @@ public class CurveEndToEndTest {
 
     @Override
     public Set<Measure> supportedMeasures() {
-      return ImmutableSet.of(Measure.PRESENT_VALUE);
+      return ImmutableSet.of(Measures.PRESENT_VALUE);
     }
 
     @Override
@@ -269,7 +270,7 @@ public class CurveEndToEndTest {
           .map(MarketDataRatesProvider::of)
           .map(provider -> DiscountingFraProductPricer.DEFAULT.presentValue(product, provider))
           .collect(FunctionUtils.toCurrencyValuesArray());
-      return ImmutableMap.of(Measure.PRESENT_VALUE, Result.success(pv));
+      return ImmutableMap.of(Measures.PRESENT_VALUE, Result.success(pv));
     }
   }
 
