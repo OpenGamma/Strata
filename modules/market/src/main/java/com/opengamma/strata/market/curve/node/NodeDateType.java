@@ -12,22 +12,23 @@ import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * Flag indicating how the date associated to a node should be computed.
+ * The types of curve node date.
  * <p>
- * 
+ * This is used to identify how the date of a node should be calculated.
  */
 public enum NodeDateType {
 
   /**
-   * Fixed date externally provided.
+   * Defines a fixed date that is externally provided.
    */
   FIXED_DATE,
   /**
-   * Last payment date referenced in the trade.
+   * Defines the last payment date referenced in the trade.
    */
   LAST_PAYMENT_DATE,
   /**
-   * Last fixing date referenced in the trade. Used only for instruments referencing an Ibor index.
+   * Defines the last fixing date referenced in the trade.
+   * Used only for instruments referencing an Ibor index.
    */
   LAST_FIXING_DATE;
 

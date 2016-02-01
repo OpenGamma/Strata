@@ -84,12 +84,12 @@ public final class XCcyIborIborSwapCurveNode
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String label;
   /**
-   * The type of date associated to the node. Defaulted to LAST_PAYMENT_DATE.
+   * The method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
    */
   @PropertyDefinition
   private final NodeDateType nodeDateType;
   /**
-   * The date associated to the node. Used only is the nodeDateType is FIXED_DATE. Null in other cases.
+   * The fixed date to be used on the node, only used when the type is 'FixedDate'.
    */
   @PropertyDefinition(get = "field")
   private final LocalDate nodeDate;
@@ -166,12 +166,12 @@ public final class XCcyIborIborSwapCurveNode
 
   @Override
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
-    if(nodeDateType.equals(NodeDateType.FIXED_DATE)) {
+    if (nodeDateType.equals(NodeDateType.FIXED_DATE)) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
     }
     SwapTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1, 0);
     Tenor tenor = template.getTenor();
-    if(nodeDateType.equals(NodeDateType.LAST_PAYMENT_DATE)) {
+    if (nodeDateType.equals(NodeDateType.LAST_PAYMENT_DATE)) {
       return TenorCurveNodeMetadata.of(trade.getProduct().getEndDate(), tenor, label);
     }
     if (nodeDateType.equals(NodeDateType.LAST_FIXING_DATE)) {
@@ -183,7 +183,7 @@ public final class XCcyIborIborSwapCurveNode
       RatePaymentPeriod lastPeriod = (RatePaymentPeriod) periods.get(nbPeriods - 1);
       List<RateAccrualPeriod> accruals = lastPeriod.getAccrualPeriods();
       int nbAccruals = accruals.size();
-      IborRateObservation ibor = (IborRateObservation) accruals.get(nbAccruals -1).getRateObservation();
+      IborRateObservation ibor = (IborRateObservation) accruals.get(nbAccruals - 1).getRateObservation();
       return TenorCurveNodeMetadata.of(ibor.getFixingDate(), tenor, label);
     }
     throw new UnsupportedOperationException("Node date type " + nodeDateType.toString());
@@ -208,7 +208,7 @@ public final class XCcyIborIborSwapCurveNode
   private FxRateKey fxKey() {
     return FxRateKey.of(template.getCurrencyPair());
   }
-  
+
   /**
    * Checks if the type is 'FixedDate'.
    * <p>
@@ -218,7 +218,7 @@ public final class XCcyIborIborSwapCurveNode
   public boolean isFixedDate() {
     return (nodeDateType == NodeDateType.FIXED_DATE);
   }
-  
+
   /**
    * Gets the node date if the type is 'FixedDate'.
    * <p>
@@ -234,16 +234,16 @@ public final class XCcyIborIborSwapCurveNode
     }
     return nodeDate;
   }
-  
+
   @ImmutableValidator
   private void validate() {
-    if(nodeDateType.equals(NodeDateType.FIXED_DATE)) {
+    if (nodeDateType.equals(NodeDateType.FIXED_DATE)) {
       ArgChecker.isTrue(nodeDate != null, "Node date must be present when node date type is FIXED_DATE");
     } else {
-      ArgChecker.isTrue(nodeDate == null, "Node date must be null when node date type is not FIXED_DATE");      
+      ArgChecker.isTrue(nodeDate == null, "Node date must be null when node date type is not FIXED_DATE");
     }
   }
-  
+
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.nodeDateType = NodeDateType.LAST_PAYMENT_DATE;
@@ -352,7 +352,7 @@ public final class XCcyIborIborSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type of date associated to the node. Defaulted to LAST_PAYMENT_DATE.
+   * Gets the method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
    * @return the value of the property
    */
   public NodeDateType getNodeDateType() {
@@ -747,7 +747,7 @@ public final class XCcyIborIborSwapCurveNode
     }
 
     /**
-     * Sets the type of date associated to the node. Defaulted to LAST_PAYMENT_DATE.
+     * Sets the method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
      * @param nodeDateType  the new value
      * @return this, for chaining, not null
      */
@@ -757,7 +757,7 @@ public final class XCcyIborIborSwapCurveNode
     }
 
     /**
-     * Sets the date associated to the node. Used only is the nodeDateType is FIXED_DATE. Null in other cases.
+     * Sets the fixed date to be used on the node, only used when the type is 'FixedDate'.
      * @param nodeDate  the new value
      * @return this, for chaining, not null
      */

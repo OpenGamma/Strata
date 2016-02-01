@@ -69,12 +69,12 @@ public final class FxSwapCurveNode
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String label;
   /**
-   * The type of date associated to the node. Defaulted to LAST_PAYMENT_DATE.
+   * The method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
    */
   @PropertyDefinition
   private final NodeDateType nodeDateType;
   /**
-   * The date associated to the node. Used only is the nodeDateType is FIXED_DATE. Null in other cases.
+   * The fixed date to be used on the node, only used when the type is 'FixedDate'.
    */
   @PropertyDefinition(get = "field")
   private final LocalDate nodeDate;
@@ -128,10 +128,10 @@ public final class FxSwapCurveNode
 
   @Override
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
-    if(nodeDateType.equals(NodeDateType.FIXED_DATE)) {
+    if (nodeDateType.equals(NodeDateType.FIXED_DATE)) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
     }
-    if(nodeDateType.equals(NodeDateType.LAST_PAYMENT_DATE)) {
+    if (nodeDateType.equals(NodeDateType.LAST_PAYMENT_DATE)) {
       FxSwapTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1, 0);
       LocalDate farDate = trade.getProduct().getFarLeg().getPaymentDate();
       return TenorCurveNodeMetadata.of(farDate, Tenor.of(template.getPeriodToFar()), label);
@@ -158,7 +158,7 @@ public final class FxSwapCurveNode
   private FxRateKey fxKey() {
     return FxRateKey.of(template.getCurrencyPair());
   }
-  
+
   /**
    * Checks if the type is 'FixedDate'.
    * <p>
@@ -168,7 +168,7 @@ public final class FxSwapCurveNode
   public boolean isFixedDate() {
     return (nodeDateType == NodeDateType.FIXED_DATE);
   }
-  
+
   /**
    * Gets the node date if the type is 'FixedDate'.
    * <p>
@@ -184,16 +184,16 @@ public final class FxSwapCurveNode
     }
     return nodeDate;
   }
-  
+
   @ImmutableValidator
   private void validate() {
-    if(nodeDateType.equals(NodeDateType.FIXED_DATE)) {
+    if (nodeDateType.equals(NodeDateType.FIXED_DATE)) {
       ArgChecker.isTrue(nodeDate != null, "Node date must be present when node date type is FIXED_DATE");
     } else {
-      ArgChecker.isTrue(nodeDate == null, "Node date must be null when node date type is not FIXED_DATE");      
+      ArgChecker.isTrue(nodeDate == null, "Node date must be null when node date type is not FIXED_DATE");
     }
   }
-  
+
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.nodeDateType = NodeDateType.LAST_PAYMENT_DATE;
@@ -291,7 +291,7 @@ public final class FxSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type of date associated to the node. Defaulted to LAST_PAYMENT_DATE.
+   * Gets the method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
    * @return the value of the property
    */
   public NodeDateType getNodeDateType() {
@@ -647,7 +647,7 @@ public final class FxSwapCurveNode
     }
 
     /**
-     * Sets the type of date associated to the node. Defaulted to LAST_PAYMENT_DATE.
+     * Sets the method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
      * @param nodeDateType  the new value
      * @return this, for chaining, not null
      */
@@ -657,7 +657,7 @@ public final class FxSwapCurveNode
     }
 
     /**
-     * Sets the date associated to the node. Used only is the nodeDateType is FIXED_DATE. Null in other cases.
+     * Sets the fixed date to be used on the node, only used when the type is 'FixedDate'.
      * @param nodeDate  the new value
      * @return this, for chaining, not null
      */
