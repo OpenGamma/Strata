@@ -35,7 +35,7 @@ import com.opengamma.strata.product.swap.SwapLeg;
  * The CMS product consists of two legs, a CMS leg and a pay leg.
  * The CMS leg of CMS periodically pays coupons based on swap rate, which is the observed
  * value of a {@linkplain SwapIndex swap index}.
- * The pay leg is any swap leg from a standard interest rate swap.The pay leg may be absent
+ * The pay leg is any swap leg from a standard interest rate swap. The pay leg may be absent
  * for certain CMS products, with the premium paid upfront instead, as defined on {@link CmsTrade}.
  * <p>
  * CMS cap/floor instruments can be created. These are defined as a set of call/put options

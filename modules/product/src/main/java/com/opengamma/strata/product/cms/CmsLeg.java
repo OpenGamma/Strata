@@ -82,12 +82,15 @@ public final class CmsLeg
   @PropertyDefinition(validate = "notNull")
   private final PeriodicSchedule paymentSchedule;
   /**
-   * The swap index.
+   * The offset of payment from the base calculation period date.
    * <p>
-   * The swap rate to be paid is the observed value of this index. 
+   * The offset is applied to the adjusted end date of each payment period.
+   * Offset can be based on calendar days or business days.
+   * <p>
+   * When building, this will default to the payment offset of the swap convention in the swap index if not specified.
    */
   @PropertyDefinition(validate = "notNull")
-  private final SwapIndex index;
+  private final DaysAdjustment paymentDateOffset;
   /**
    * The currency of the leg associated with the notional.
    * <p>
@@ -97,13 +100,20 @@ public final class CmsLeg
   @PropertyDefinition(validate = "notNull")
   private final Currency currency;
   /**
-   * The notional amount, must be nonnegative.
+   * The notional amount, must be non-negative.
    * <p>
    * The notional amount applicable during the period.
    * The currency of the notional is specified by {@code currency}.
    */
   @PropertyDefinition(validate = "notNull")
   private final ValueSchedule notional;
+  /**
+   * The swap index.
+   * <p>
+   * The swap rate to be paid is the observed value of this index. 
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final SwapIndex index;
   /**
    * The base date that each fixing is made relative to, defaulted to 'PeriodStart'.
    * <p>
@@ -122,16 +132,6 @@ public final class CmsLeg
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment fixingDateOffset;
   /**
-   * The offset of payment from the base calculation period date.
-   * <p>
-   * The offset is applied to the adjusted end date of each payment period.
-   * Offset can be based on calendar days or business days.
-   * <p>
-   * When building, this will default to the payment offset of the swap convention in the swap index if not specified.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final DaysAdjustment paymentDateOffset;
-  /**
    * The day count convention.
    * <p>
    * This is used to convert dates to a numerical value.
@@ -141,24 +141,24 @@ public final class CmsLeg
   @PropertyDefinition(validate = "notNull")
   private final DayCount dayCount;
   /**
-   * The optional cap schedule.
+   * The cap schedule, optional.
    * <p>
    * This defines the strike value of a cap as an initial value and a list of adjustments. 
    * Thus individual caplets may have different strike values. 
    * The cap rate is only allowed to change at payment period boundaries.
    * <p>
-   * If the CMS product is not a cap, the cap schedule will be absent.
+   * If the product is not a cap, the cap schedule will be absent.
    */
   @PropertyDefinition(get = "optional")
   private final ValueSchedule capSchedule;
   /**
-   * The optional floor schedule.
+   * The floor schedule, optional.
    * <p>
    * This defines the strike value of a floor as an initial value and a list of adjustments. 
    * Thus individual floorlets may have different strike values. 
    * The floor rate is only allowed to change at payment period boundaries.
    * <p>
-   * If the CMS product is not a floor, the floor schedule will be absent.
+   * If the product is not a floor, the floor schedule will be absent.
    */
   @PropertyDefinition(get = "optional")
   private final ValueSchedule floorSchedule;
@@ -192,23 +192,23 @@ public final class CmsLeg
   private CmsLeg(
       PayReceive payReceive,
       PeriodicSchedule paymentSchedule,
-      SwapIndex index,
+      DaysAdjustment paymentDateOffset,
       Currency currency,
       ValueSchedule notional,
+      SwapIndex index,
       FixingRelativeTo fixingRelativeTo,
       DaysAdjustment fixingDateOffset,
-      DaysAdjustment paymentDateOffset,
       DayCount dayCount,
       ValueSchedule capSchedule,
       ValueSchedule floorSchedule) {
     this.payReceive = ArgChecker.notNull(payReceive, "payReceive");
     this.paymentSchedule = ArgChecker.notNull(paymentSchedule, "paymentSchedule");
-    this.index = ArgChecker.notNull(index, "index");
-    this.notional = ArgChecker.notNull(notional, "notional");
+    this.paymentDateOffset = paymentDateOffset;
     this.currency = currency;
+    this.notional = ArgChecker.notNull(notional, "notional");
+    this.index = ArgChecker.notNull(index, "index");
     this.fixingRelativeTo = fixingRelativeTo;
     this.fixingDateOffset = fixingDateOffset;
-    this.paymentDateOffset = paymentDateOffset;
     this.dayCount = dayCount;
     this.capSchedule = capSchedule;
     this.floorSchedule = floorSchedule;
@@ -220,7 +220,7 @@ public final class CmsLeg
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the start date of the leg.
+   * Gets the accrual start date of the leg.
    * <p>
    * This is the first accrual date in the leg, often known as the effective date.
    * This date has been adjusted to be a valid business day.
@@ -232,9 +232,9 @@ public final class CmsLeg
   }
 
   /**
-   * Gets the end date of the leg.
+   * Gets the accrual end date of the leg.
    * <p>
-   * This is the last accrual date in the leg, often known as the maturity date.
+   * This is the last accrual date in the leg, often known as the termination date.
    * This date has been adjusted to be a valid business day.
    * 
    * @return the end date of the leg
@@ -353,13 +353,16 @@ public final class CmsLeg
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the swap index.
+   * Gets the offset of payment from the base calculation period date.
    * <p>
-   * The swap rate to be paid is the observed value of this index.
+   * The offset is applied to the adjusted end date of each payment period.
+   * Offset can be based on calendar days or business days.
+   * <p>
+   * When building, this will default to the payment offset of the swap convention in the swap index if not specified.
    * @return the value of the property, not null
    */
-  public SwapIndex getIndex() {
-    return index;
+  public DaysAdjustment getPaymentDateOffset() {
+    return paymentDateOffset;
   }
 
   //-----------------------------------------------------------------------
@@ -376,7 +379,7 @@ public final class CmsLeg
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the notional amount, must be nonnegative.
+   * Gets the notional amount, must be non-negative.
    * <p>
    * The notional amount applicable during the period.
    * The currency of the notional is specified by {@code currency}.
@@ -384,6 +387,17 @@ public final class CmsLeg
    */
   public ValueSchedule getNotional() {
     return notional;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the swap index.
+   * <p>
+   * The swap rate to be paid is the observed value of this index.
+   * @return the value of the property, not null
+   */
+  public SwapIndex getIndex() {
+    return index;
   }
 
   //-----------------------------------------------------------------------
@@ -413,20 +427,6 @@ public final class CmsLeg
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the offset of payment from the base calculation period date.
-   * <p>
-   * The offset is applied to the adjusted end date of each payment period.
-   * Offset can be based on calendar days or business days.
-   * <p>
-   * When building, this will default to the payment offset of the swap convention in the swap index if not specified.
-   * @return the value of the property, not null
-   */
-  public DaysAdjustment getPaymentDateOffset() {
-    return paymentDateOffset;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the day count convention.
    * <p>
    * This is used to convert dates to a numerical value.
@@ -440,13 +440,13 @@ public final class CmsLeg
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the optional cap schedule.
+   * Gets the cap schedule, optional.
    * <p>
    * This defines the strike value of a cap as an initial value and a list of adjustments.
    * Thus individual caplets may have different strike values.
    * The cap rate is only allowed to change at payment period boundaries.
    * <p>
-   * If the CMS product is not a cap, the cap schedule will be absent.
+   * If the product is not a cap, the cap schedule will be absent.
    * @return the optional value of the property, not null
    */
   public Optional<ValueSchedule> getCapSchedule() {
@@ -455,13 +455,13 @@ public final class CmsLeg
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the optional floor schedule.
+   * Gets the floor schedule, optional.
    * <p>
    * This defines the strike value of a floor as an initial value and a list of adjustments.
    * Thus individual floorlets may have different strike values.
    * The floor rate is only allowed to change at payment period boundaries.
    * <p>
-   * If the CMS product is not a floor, the floor schedule will be absent.
+   * If the product is not a floor, the floor schedule will be absent.
    * @return the optional value of the property, not null
    */
   public Optional<ValueSchedule> getFloorSchedule() {
@@ -486,12 +486,12 @@ public final class CmsLeg
       CmsLeg other = (CmsLeg) obj;
       return JodaBeanUtils.equal(payReceive, other.payReceive) &&
           JodaBeanUtils.equal(paymentSchedule, other.paymentSchedule) &&
-          JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(paymentDateOffset, other.paymentDateOffset) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(index, other.index) &&
           JodaBeanUtils.equal(fixingRelativeTo, other.fixingRelativeTo) &&
           JodaBeanUtils.equal(fixingDateOffset, other.fixingDateOffset) &&
-          JodaBeanUtils.equal(paymentDateOffset, other.paymentDateOffset) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(capSchedule, other.capSchedule) &&
           JodaBeanUtils.equal(floorSchedule, other.floorSchedule);
@@ -504,12 +504,12 @@ public final class CmsLeg
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(payReceive);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentSchedule);
-    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
     hash = hash * 31 + JodaBeanUtils.hashCode(fixingRelativeTo);
     hash = hash * 31 + JodaBeanUtils.hashCode(fixingDateOffset);
-    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(capSchedule);
     hash = hash * 31 + JodaBeanUtils.hashCode(floorSchedule);
@@ -522,12 +522,12 @@ public final class CmsLeg
     buf.append("CmsLeg{");
     buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
     buf.append("paymentSchedule").append('=').append(paymentSchedule).append(',').append(' ');
-    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("index").append('=').append(index).append(',').append(' ');
     buf.append("fixingRelativeTo").append('=').append(fixingRelativeTo).append(',').append(' ');
     buf.append("fixingDateOffset").append('=').append(fixingDateOffset).append(',').append(' ');
-    buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("capSchedule").append('=').append(capSchedule).append(',').append(' ');
     buf.append("floorSchedule").append('=').append(JodaBeanUtils.toString(floorSchedule));
@@ -556,10 +556,10 @@ public final class CmsLeg
     private final MetaProperty<PeriodicSchedule> paymentSchedule = DirectMetaProperty.ofImmutable(
         this, "paymentSchedule", CmsLeg.class, PeriodicSchedule.class);
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code paymentDateOffset} property.
      */
-    private final MetaProperty<SwapIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", CmsLeg.class, SwapIndex.class);
+    private final MetaProperty<DaysAdjustment> paymentDateOffset = DirectMetaProperty.ofImmutable(
+        this, "paymentDateOffset", CmsLeg.class, DaysAdjustment.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -571,6 +571,11 @@ public final class CmsLeg
     private final MetaProperty<ValueSchedule> notional = DirectMetaProperty.ofImmutable(
         this, "notional", CmsLeg.class, ValueSchedule.class);
     /**
+     * The meta-property for the {@code index} property.
+     */
+    private final MetaProperty<SwapIndex> index = DirectMetaProperty.ofImmutable(
+        this, "index", CmsLeg.class, SwapIndex.class);
+    /**
      * The meta-property for the {@code fixingRelativeTo} property.
      */
     private final MetaProperty<FixingRelativeTo> fixingRelativeTo = DirectMetaProperty.ofImmutable(
@@ -580,11 +585,6 @@ public final class CmsLeg
      */
     private final MetaProperty<DaysAdjustment> fixingDateOffset = DirectMetaProperty.ofImmutable(
         this, "fixingDateOffset", CmsLeg.class, DaysAdjustment.class);
-    /**
-     * The meta-property for the {@code paymentDateOffset} property.
-     */
-    private final MetaProperty<DaysAdjustment> paymentDateOffset = DirectMetaProperty.ofImmutable(
-        this, "paymentDateOffset", CmsLeg.class, DaysAdjustment.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
@@ -607,12 +607,12 @@ public final class CmsLeg
         this, null,
         "payReceive",
         "paymentSchedule",
-        "index",
+        "paymentDateOffset",
         "currency",
         "notional",
+        "index",
         "fixingRelativeTo",
         "fixingDateOffset",
-        "paymentDateOffset",
         "dayCount",
         "capSchedule",
         "floorSchedule");
@@ -630,18 +630,18 @@ public final class CmsLeg
           return payReceive;
         case -1499086147:  // paymentSchedule
           return paymentSchedule;
-        case 100346066:  // index
-          return index;
+        case -716438393:  // paymentDateOffset
+          return paymentDateOffset;
         case 575402001:  // currency
           return currency;
         case 1585636160:  // notional
           return notional;
+        case 100346066:  // index
+          return index;
         case 232554996:  // fixingRelativeTo
           return fixingRelativeTo;
         case 873743726:  // fixingDateOffset
           return fixingDateOffset;
-        case -716438393:  // paymentDateOffset
-          return paymentDateOffset;
         case 1905311443:  // dayCount
           return dayCount;
         case -596212599:  // capSchedule
@@ -685,11 +685,11 @@ public final class CmsLeg
     }
 
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code paymentDateOffset} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SwapIndex> index() {
-      return index;
+    public MetaProperty<DaysAdjustment> paymentDateOffset() {
+      return paymentDateOffset;
     }
 
     /**
@@ -709,6 +709,14 @@ public final class CmsLeg
     }
 
     /**
+     * The meta-property for the {@code index} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SwapIndex> index() {
+      return index;
+    }
+
+    /**
      * The meta-property for the {@code fixingRelativeTo} property.
      * @return the meta-property, not null
      */
@@ -722,14 +730,6 @@ public final class CmsLeg
      */
     public MetaProperty<DaysAdjustment> fixingDateOffset() {
       return fixingDateOffset;
-    }
-
-    /**
-     * The meta-property for the {@code paymentDateOffset} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DaysAdjustment> paymentDateOffset() {
-      return paymentDateOffset;
     }
 
     /**
@@ -764,18 +764,18 @@ public final class CmsLeg
           return ((CmsLeg) bean).getPayReceive();
         case -1499086147:  // paymentSchedule
           return ((CmsLeg) bean).getPaymentSchedule();
-        case 100346066:  // index
-          return ((CmsLeg) bean).getIndex();
+        case -716438393:  // paymentDateOffset
+          return ((CmsLeg) bean).getPaymentDateOffset();
         case 575402001:  // currency
           return ((CmsLeg) bean).getCurrency();
         case 1585636160:  // notional
           return ((CmsLeg) bean).getNotional();
+        case 100346066:  // index
+          return ((CmsLeg) bean).getIndex();
         case 232554996:  // fixingRelativeTo
           return ((CmsLeg) bean).getFixingRelativeTo();
         case 873743726:  // fixingDateOffset
           return ((CmsLeg) bean).getFixingDateOffset();
-        case -716438393:  // paymentDateOffset
-          return ((CmsLeg) bean).getPaymentDateOffset();
         case 1905311443:  // dayCount
           return ((CmsLeg) bean).getDayCount();
         case -596212599:  // capSchedule
@@ -805,12 +805,12 @@ public final class CmsLeg
 
     private PayReceive payReceive;
     private PeriodicSchedule paymentSchedule;
-    private SwapIndex index;
+    private DaysAdjustment paymentDateOffset;
     private Currency currency;
     private ValueSchedule notional;
+    private SwapIndex index;
     private FixingRelativeTo fixingRelativeTo;
     private DaysAdjustment fixingDateOffset;
-    private DaysAdjustment paymentDateOffset;
     private DayCount dayCount;
     private ValueSchedule capSchedule;
     private ValueSchedule floorSchedule;
@@ -829,12 +829,12 @@ public final class CmsLeg
     private Builder(CmsLeg beanToCopy) {
       this.payReceive = beanToCopy.getPayReceive();
       this.paymentSchedule = beanToCopy.getPaymentSchedule();
-      this.index = beanToCopy.getIndex();
+      this.paymentDateOffset = beanToCopy.getPaymentDateOffset();
       this.currency = beanToCopy.getCurrency();
       this.notional = beanToCopy.getNotional();
+      this.index = beanToCopy.getIndex();
       this.fixingRelativeTo = beanToCopy.getFixingRelativeTo();
       this.fixingDateOffset = beanToCopy.getFixingDateOffset();
-      this.paymentDateOffset = beanToCopy.getPaymentDateOffset();
       this.dayCount = beanToCopy.getDayCount();
       this.capSchedule = beanToCopy.capSchedule;
       this.floorSchedule = beanToCopy.floorSchedule;
@@ -848,18 +848,18 @@ public final class CmsLeg
           return payReceive;
         case -1499086147:  // paymentSchedule
           return paymentSchedule;
-        case 100346066:  // index
-          return index;
+        case -716438393:  // paymentDateOffset
+          return paymentDateOffset;
         case 575402001:  // currency
           return currency;
         case 1585636160:  // notional
           return notional;
+        case 100346066:  // index
+          return index;
         case 232554996:  // fixingRelativeTo
           return fixingRelativeTo;
         case 873743726:  // fixingDateOffset
           return fixingDateOffset;
-        case -716438393:  // paymentDateOffset
-          return paymentDateOffset;
         case 1905311443:  // dayCount
           return dayCount;
         case -596212599:  // capSchedule
@@ -880,8 +880,8 @@ public final class CmsLeg
         case -1499086147:  // paymentSchedule
           this.paymentSchedule = (PeriodicSchedule) newValue;
           break;
-        case 100346066:  // index
-          this.index = (SwapIndex) newValue;
+        case -716438393:  // paymentDateOffset
+          this.paymentDateOffset = (DaysAdjustment) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
@@ -889,14 +889,14 @@ public final class CmsLeg
         case 1585636160:  // notional
           this.notional = (ValueSchedule) newValue;
           break;
+        case 100346066:  // index
+          this.index = (SwapIndex) newValue;
+          break;
         case 232554996:  // fixingRelativeTo
           this.fixingRelativeTo = (FixingRelativeTo) newValue;
           break;
         case 873743726:  // fixingDateOffset
           this.fixingDateOffset = (DaysAdjustment) newValue;
-          break;
-        case -716438393:  // paymentDateOffset
-          this.paymentDateOffset = (DaysAdjustment) newValue;
           break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
@@ -943,12 +943,12 @@ public final class CmsLeg
       return new CmsLeg(
           payReceive,
           paymentSchedule,
-          index,
+          paymentDateOffset,
           currency,
           notional,
+          index,
           fixingRelativeTo,
           fixingDateOffset,
-          paymentDateOffset,
           dayCount,
           capSchedule,
           floorSchedule);
@@ -986,15 +986,18 @@ public final class CmsLeg
     }
 
     /**
-     * Sets the swap index.
+     * Sets the offset of payment from the base calculation period date.
      * <p>
-     * The swap rate to be paid is the observed value of this index.
-     * @param index  the new value, not null
+     * The offset is applied to the adjusted end date of each payment period.
+     * Offset can be based on calendar days or business days.
+     * <p>
+     * When building, this will default to the payment offset of the swap convention in the swap index if not specified.
+     * @param paymentDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder index(SwapIndex index) {
-      JodaBeanUtils.notNull(index, "index");
-      this.index = index;
+    public Builder paymentDateOffset(DaysAdjustment paymentDateOffset) {
+      JodaBeanUtils.notNull(paymentDateOffset, "paymentDateOffset");
+      this.paymentDateOffset = paymentDateOffset;
       return this;
     }
 
@@ -1013,7 +1016,7 @@ public final class CmsLeg
     }
 
     /**
-     * Sets the notional amount, must be nonnegative.
+     * Sets the notional amount, must be non-negative.
      * <p>
      * The notional amount applicable during the period.
      * The currency of the notional is specified by {@code currency}.
@@ -1023,6 +1026,19 @@ public final class CmsLeg
     public Builder notional(ValueSchedule notional) {
       JodaBeanUtils.notNull(notional, "notional");
       this.notional = notional;
+      return this;
+    }
+
+    /**
+     * Sets the swap index.
+     * <p>
+     * The swap rate to be paid is the observed value of this index.
+     * @param index  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder index(SwapIndex index) {
+      JodaBeanUtils.notNull(index, "index");
+      this.index = index;
       return this;
     }
 
@@ -1056,22 +1072,6 @@ public final class CmsLeg
     }
 
     /**
-     * Sets the offset of payment from the base calculation period date.
-     * <p>
-     * The offset is applied to the adjusted end date of each payment period.
-     * Offset can be based on calendar days or business days.
-     * <p>
-     * When building, this will default to the payment offset of the swap convention in the swap index if not specified.
-     * @param paymentDateOffset  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder paymentDateOffset(DaysAdjustment paymentDateOffset) {
-      JodaBeanUtils.notNull(paymentDateOffset, "paymentDateOffset");
-      this.paymentDateOffset = paymentDateOffset;
-      return this;
-    }
-
-    /**
      * Sets the day count convention.
      * <p>
      * This is used to convert dates to a numerical value.
@@ -1087,13 +1087,13 @@ public final class CmsLeg
     }
 
     /**
-     * Sets the optional cap schedule.
+     * Sets the cap schedule, optional.
      * <p>
      * This defines the strike value of a cap as an initial value and a list of adjustments.
      * Thus individual caplets may have different strike values.
      * The cap rate is only allowed to change at payment period boundaries.
      * <p>
-     * If the CMS product is not a cap, the cap schedule will be absent.
+     * If the product is not a cap, the cap schedule will be absent.
      * @param capSchedule  the new value
      * @return this, for chaining, not null
      */
@@ -1103,13 +1103,13 @@ public final class CmsLeg
     }
 
     /**
-     * Sets the optional floor schedule.
+     * Sets the floor schedule, optional.
      * <p>
      * This defines the strike value of a floor as an initial value and a list of adjustments.
      * Thus individual floorlets may have different strike values.
      * The floor rate is only allowed to change at payment period boundaries.
      * <p>
-     * If the CMS product is not a floor, the floor schedule will be absent.
+     * If the product is not a floor, the floor schedule will be absent.
      * @param floorSchedule  the new value
      * @return this, for chaining, not null
      */
@@ -1125,12 +1125,12 @@ public final class CmsLeg
       buf.append("CmsLeg.Builder{");
       buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
       buf.append("paymentSchedule").append('=').append(JodaBeanUtils.toString(paymentSchedule)).append(',').append(' ');
-      buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+      buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+      buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("fixingRelativeTo").append('=').append(JodaBeanUtils.toString(fixingRelativeTo)).append(',').append(' ');
       buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(fixingDateOffset)).append(',').append(' ');
-      buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("capSchedule").append('=').append(JodaBeanUtils.toString(capSchedule)).append(',').append(' ');
       buf.append("floorSchedule").append('=').append(JodaBeanUtils.toString(floorSchedule));

@@ -33,8 +33,8 @@ import com.opengamma.strata.product.TradeInfo;
  * <p>
  * An Over-The-Counter (OTC) trade in a {@link IborCapFloor}.
  * <p>
- * An Ibor cap/floor is a financial instrument that provides a set of call/put options on successive Ibor rates, i.e., 
- * Ibor caplets/floorlets.
+ * An Ibor cap/floor is a financial instrument that provides a set of call/put options on
+ * successive Ibor rates, known as Ibor caplets/floorlets.
  */
 @BeanDefinition
 public final class IborCapFloorTrade
@@ -57,7 +57,8 @@ public final class IborCapFloorTrade
   /**
    * The optional premium of the product. 
    * <p>
-   * A premium is paid upfront. This typically occurs instead of periodic payments over the lifetime of the product.
+   * For most Ibor cap/floor products, a premium is paid upfront. This typically occurs instead
+   * of periodic payments based on fixed or Ibor rates over the lifetime of the product.
    * <p>
    * The premium sign must be compatible with the product Pay/Receive flag. 
    */
@@ -65,7 +66,7 @@ public final class IborCapFloorTrade
   private final Payment premium;
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.tradeInfo = TradeInfo.EMPTY;
@@ -151,7 +152,8 @@ public final class IborCapFloorTrade
   /**
    * Gets the optional premium of the product.
    * <p>
-   * A premium is paid upfront. This typically occurs instead of periodic payments over the lifetime of the product.
+   * For most Ibor cap/floor products, a premium is paid upfront. This typically occurs instead
+   * of periodic payments based on fixed or Ibor rates over the lifetime of the product.
    * <p>
    * The premium sign must be compatible with the product Pay/Receive flag.
    * @return the optional value of the property, not null
@@ -442,7 +444,8 @@ public final class IborCapFloorTrade
     /**
      * Sets the optional premium of the product.
      * <p>
-     * A premium is paid upfront. This typically occurs instead of periodic payments over the lifetime of the product.
+     * For most Ibor cap/floor products, a premium is paid upfront. This typically occurs instead
+     * of periodic payments based on fixed or Ibor rates over the lifetime of the product.
      * <p>
      * The premium sign must be compatible with the product Pay/Receive flag.
      * @param premium  the new value

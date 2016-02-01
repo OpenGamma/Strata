@@ -58,8 +58,8 @@ public class IborCapFloorLegTest {
       .build();
   private static final DaysAdjustment PAYMENT_OFFSET = DaysAdjustment.ofBusinessDays(2, EUTA);
 
-  private static final double[] NOTIONALS = new double[] {1.0e6, 1.2e6, 0.8e6, 1.0e6 };
-  private static final double[] STRIKES = new double[] {0.03, 0.0275, 0.02, 0.0345 };
+  private static final double[] NOTIONALS = new double[] {1.0e6, 1.2e6, 0.8e6, 1.0e6};
+  private static final double[] STRIKES = new double[] {0.03, 0.0275, 0.02, 0.0345};
   private static final ValueSchedule CAP = ValueSchedule.of(0.0325);
   private static final List<ValueStep> FLOOR_STEPS = new ArrayList<ValueStep>();
   private static final List<ValueStep> NOTIONAL_STEPS = new ArrayList<ValueStep>();
@@ -171,7 +171,7 @@ public class IborCapFloorLegTest {
         .payReceive(RECEIVE)
         .build();
     LocalDate[] unadjustedDates =
-        new LocalDate[] {START, START.plusMonths(3), START.plusMonths(6), START.plusMonths(9), START.plusMonths(12) };
+        new LocalDate[] {START, START.plusMonths(3), START.plusMonths(6), START.plusMonths(9), START.plusMonths(12)};
     IborCapletFloorletPeriod[] periods = new IborCapletFloorletPeriod[4];
     for (int i = 0; i < 4; ++i) {
       LocalDate start = BUSS_ADJ.adjust(unadjustedDates[i]);
@@ -210,11 +210,11 @@ public class IborCapFloorLegTest {
         .payReceive(PAY)
         .build();
     LocalDate[] unadjustedDates =
-        new LocalDate[] {START, START.plusMonths(3), START.plusMonths(6), START.plusMonths(9), START.plusMonths(12) };
-    IborCapletFloorletPeriod [] periods = new IborCapletFloorletPeriod [4];
+        new LocalDate[] {START, START.plusMonths(3), START.plusMonths(6), START.plusMonths(9), START.plusMonths(12)};
+    IborCapletFloorletPeriod[] periods = new IborCapletFloorletPeriod[4];
     for (int i = 0; i < 4; ++i) {
       LocalDate start = BUSS_ADJ.adjust(unadjustedDates[i]);
-      LocalDate end = BUSS_ADJ.adjust(unadjustedDates[i+1]);
+      LocalDate end = BUSS_ADJ.adjust(unadjustedDates[i + 1]);
       double yearFraction = EUR_EURIBOR_3M.getDayCount().relativeYearFraction(start, end);
       periods[i] = IborCapletFloorletPeriod.builder()
           .floorlet(STRIKES[i])
