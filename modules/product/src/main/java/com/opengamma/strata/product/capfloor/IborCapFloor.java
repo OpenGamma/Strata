@@ -1,9 +1,9 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.product.cms;
+package com.opengamma.strata.product.capfloor;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -26,98 +26,91 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapLeg;
 
 /**
- * A constant maturity swap (CMS) or CMS cap/floor.
+ * An Ibor cap/floor product.
  * <p>
- * The CMS product consists of two legs, a CMS leg and a pay leg.
- * The CMS leg of CMS periodically pays coupons based on swap rate, which is the observed
- * value of a {@linkplain SwapIndex swap index}.
- * The pay leg is any swap leg from a standard interest rate swap. The pay leg may be absent
- * for certain CMS products, with the premium paid upfront instead, as defined on {@link CmsTrade}.
- * <p>
- * CMS cap/floor instruments can be created. These are defined as a set of call/put options
- * on successive swap rates, creating CMS caplets/floorlets.
- * <p>
- * For example, a CMS trade might involve an agreement to exchange the difference between
- * the fixed rate of 1% and the swap rate of 5-year 'GBP-FIXED-6M-LIBOR-6M' swaps every 6 months for 2 years.
+ * The Ibor cap/floor product consists of two legs, a cap/floor leg and a pay leg.
+ * The cap/floor leg involves a set of call/put options on successive Ibor index rates,
+ * known as Ibor caplets/floorlets.
+ * The pay leg is any swap leg from a standard interest rate swap. The pay leg is absent for typical
+ * Ibor cap/floor products, with the premium paid upfront instead, as defined in {@link IborCapFloorTrade}.
  */
 @BeanDefinition(builderScope = "private")
-public final class Cms
-    implements CmsProduct, ImmutableBean, Serializable {
+public final class IborCapFloor
+    implements IborCapFloorProduct, ImmutableBean, Serializable {
 
   /**
-   * The CMS leg of the product.
+   * The Ibor cap/floor leg of the product.
    * <p>
-   * This is associated with periodic payments based on swap rate. 
-   * The payments are CMS coupons, CMS caplets or CMS floors. 
+   * This is associated with periodic payments based on Ibor rate. 
+   * The payments are Ibor caplets or Ibor floorlets. 
    */
   @PropertyDefinition(validate = "notNull")
-  private final CmsLeg cmsLeg;
+  private final IborCapFloorLeg capFloorLeg;
   /**
    * The optional pay leg of the product. 
-   * <p>
-   * Typically this is associated with periodic fixed or Ibor rate payments without compounding or notional exchange. 
-   * <p>
-   * These periodic payments are not made over the lifetime of the product for certain CMS products. Instead the 
-   * premium is paid upfront. 
+  * <p>
+  * These periodic payments are not made for typical cap/floor products. Instead the premium is paid upfront. 
    */
   @PropertyDefinition(get = "optional")
   private final SwapLeg payLeg;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from a CMS leg with no pay leg. 
+   * Obtains an instance from a cap/floor leg with no pay leg. 
    * <p>
-   * The pay leg is absent in the resulting CMS.
+   * The pay leg is absent in the resulting cap/floor.
    * 
-   * @param cmsLeg  the CMS leg
-   * @return the CMS
+   * @param capFloorLeg  the cap/floor leg
+   * @return the cap/floor
    */
-  public static Cms of(CmsLeg cmsLeg) {
-    return new Cms(cmsLeg, null);
+  public static IborCapFloor of(IborCapFloorLeg capFloorLeg) {
+    return new IborCapFloor(capFloorLeg, null);
   }
 
   /**
-   * Obtains an instance from a CMS leg and a pay leg. 
+   * Obtains an instance from a cap/floor leg and a pay leg. 
    * 
-   * @param cmsLeg  the CMS leg
+   * @param capFloorLeg  the cap/floor leg
    * @param payLeg  the pay leg
-   * @return the CMS
+   * @return the cap/floor
    */
-  public static Cms of(CmsLeg cmsLeg, SwapLeg payLeg) {
-    return new Cms(cmsLeg, payLeg);
+  public static IborCapFloor of(IborCapFloorLeg capFloorLeg, SwapLeg payLeg) {
+    return new IborCapFloor(capFloorLeg, payLeg);
   }
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
     if (getPayLeg().isPresent()) {
-      ArgChecker.isFalse(payLeg.getPayReceive().equals(cmsLeg.getPayReceive()),
+      ArgChecker.isFalse(payLeg.getPayReceive().equals(capFloorLeg.getPayReceive()),
           "Two legs should have different Pay/Receive flags");
     }
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public ExpandedCms expand() {
-    return ExpandedCms.of(cmsLeg.expand(), getPayLeg().isPresent() ? payLeg.expand() : null);
+  public ExpandedIborCapFloor expand() {
+    if (payLeg == null) {
+      return ExpandedIborCapFloor.of(capFloorLeg.expand());
+    }
+    return ExpandedIborCapFloor.of(capFloorLeg.expand(), payLeg.expand());
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code Cms}.
+   * The meta-bean for {@code IborCapFloor}.
    * @return the meta-bean, not null
    */
-  public static Cms.Meta meta() {
-    return Cms.Meta.INSTANCE;
+  public static IborCapFloor.Meta meta() {
+    return IborCapFloor.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(Cms.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(IborCapFloor.Meta.INSTANCE);
   }
 
   /**
@@ -125,18 +118,18 @@ public final class Cms
    */
   private static final long serialVersionUID = 1L;
 
-  private Cms(
-      CmsLeg cmsLeg,
+  private IborCapFloor(
+      IborCapFloorLeg capFloorLeg,
       SwapLeg payLeg) {
-    JodaBeanUtils.notNull(cmsLeg, "cmsLeg");
-    this.cmsLeg = cmsLeg;
+    JodaBeanUtils.notNull(capFloorLeg, "capFloorLeg");
+    this.capFloorLeg = capFloorLeg;
     this.payLeg = payLeg;
     validate();
   }
 
   @Override
-  public Cms.Meta metaBean() {
-    return Cms.Meta.INSTANCE;
+  public IborCapFloor.Meta metaBean() {
+    return IborCapFloor.Meta.INSTANCE;
   }
 
   @Override
@@ -151,24 +144,21 @@ public final class Cms
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the CMS leg of the product.
+   * Gets the Ibor cap/floor leg of the product.
    * <p>
-   * This is associated with periodic payments based on swap rate.
-   * The payments are CMS coupons, CMS caplets or CMS floors.
+   * This is associated with periodic payments based on Ibor rate.
+   * The payments are Ibor caplets or Ibor floorlets.
    * @return the value of the property, not null
    */
-  public CmsLeg getCmsLeg() {
-    return cmsLeg;
+  public IborCapFloorLeg getCapFloorLeg() {
+    return capFloorLeg;
   }
 
   //-----------------------------------------------------------------------
   /**
    * Gets the optional pay leg of the product.
    * <p>
-   * Typically this is associated with periodic fixed or Ibor rate payments without compounding or notional exchange.
-   * <p>
-   * These periodic payments are not made over the lifetime of the product for certain CMS products. Instead the
-   * premium is paid upfront.
+   * These periodic payments are not made for typical cap/floor products. Instead the premium is paid upfront.
    * @return the optional value of the property, not null
    */
   public Optional<SwapLeg> getPayLeg() {
@@ -182,8 +172,8 @@ public final class Cms
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      Cms other = (Cms) obj;
-      return JodaBeanUtils.equal(cmsLeg, other.cmsLeg) &&
+      IborCapFloor other = (IborCapFloor) obj;
+      return JodaBeanUtils.equal(capFloorLeg, other.capFloorLeg) &&
           JodaBeanUtils.equal(payLeg, other.payLeg);
     }
     return false;
@@ -192,7 +182,7 @@ public final class Cms
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(cmsLeg);
+    hash = hash * 31 + JodaBeanUtils.hashCode(capFloorLeg);
     hash = hash * 31 + JodaBeanUtils.hashCode(payLeg);
     return hash;
   }
@@ -200,8 +190,8 @@ public final class Cms
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
-    buf.append("Cms{");
-    buf.append("cmsLeg").append('=').append(cmsLeg).append(',').append(' ');
+    buf.append("IborCapFloor{");
+    buf.append("capFloorLeg").append('=').append(capFloorLeg).append(',').append(' ');
     buf.append("payLeg").append('=').append(JodaBeanUtils.toString(payLeg));
     buf.append('}');
     return buf.toString();
@@ -209,7 +199,7 @@ public final class Cms
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code Cms}.
+   * The meta-bean for {@code IborCapFloor}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -218,21 +208,21 @@ public final class Cms
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code cmsLeg} property.
+     * The meta-property for the {@code capFloorLeg} property.
      */
-    private final MetaProperty<CmsLeg> cmsLeg = DirectMetaProperty.ofImmutable(
-        this, "cmsLeg", Cms.class, CmsLeg.class);
+    private final MetaProperty<IborCapFloorLeg> capFloorLeg = DirectMetaProperty.ofImmutable(
+        this, "capFloorLeg", IborCapFloor.class, IborCapFloorLeg.class);
     /**
      * The meta-property for the {@code payLeg} property.
      */
     private final MetaProperty<SwapLeg> payLeg = DirectMetaProperty.ofImmutable(
-        this, "payLeg", Cms.class, SwapLeg.class);
+        this, "payLeg", IborCapFloor.class, SwapLeg.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "cmsLeg",
+        "capFloorLeg",
         "payLeg");
 
     /**
@@ -244,8 +234,8 @@ public final class Cms
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1356515323:  // cmsLeg
-          return cmsLeg;
+        case 2124672084:  // capFloorLeg
+          return capFloorLeg;
         case -995239866:  // payLeg
           return payLeg;
       }
@@ -253,13 +243,13 @@ public final class Cms
     }
 
     @Override
-    public BeanBuilder<? extends Cms> builder() {
-      return new Cms.Builder();
+    public BeanBuilder<? extends IborCapFloor> builder() {
+      return new IborCapFloor.Builder();
     }
 
     @Override
-    public Class<? extends Cms> beanType() {
-      return Cms.class;
+    public Class<? extends IborCapFloor> beanType() {
+      return IborCapFloor.class;
     }
 
     @Override
@@ -269,11 +259,11 @@ public final class Cms
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code cmsLeg} property.
+     * The meta-property for the {@code capFloorLeg} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CmsLeg> cmsLeg() {
-      return cmsLeg;
+    public MetaProperty<IborCapFloorLeg> capFloorLeg() {
+      return capFloorLeg;
     }
 
     /**
@@ -288,10 +278,10 @@ public final class Cms
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -1356515323:  // cmsLeg
-          return ((Cms) bean).getCmsLeg();
+        case 2124672084:  // capFloorLeg
+          return ((IborCapFloor) bean).getCapFloorLeg();
         case -995239866:  // payLeg
-          return ((Cms) bean).payLeg;
+          return ((IborCapFloor) bean).payLeg;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -309,11 +299,11 @@ public final class Cms
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code Cms}.
+   * The bean-builder for {@code IborCapFloor}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<Cms> {
+  private static final class Builder extends DirectFieldsBeanBuilder<IborCapFloor> {
 
-    private CmsLeg cmsLeg;
+    private IborCapFloorLeg capFloorLeg;
     private SwapLeg payLeg;
 
     /**
@@ -326,8 +316,8 @@ public final class Cms
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1356515323:  // cmsLeg
-          return cmsLeg;
+        case 2124672084:  // capFloorLeg
+          return capFloorLeg;
         case -995239866:  // payLeg
           return payLeg;
         default:
@@ -338,8 +328,8 @@ public final class Cms
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -1356515323:  // cmsLeg
-          this.cmsLeg = (CmsLeg) newValue;
+        case 2124672084:  // capFloorLeg
+          this.capFloorLeg = (IborCapFloorLeg) newValue;
           break;
         case -995239866:  // payLeg
           this.payLeg = (SwapLeg) newValue;
@@ -375,9 +365,9 @@ public final class Cms
     }
 
     @Override
-    public Cms build() {
-      return new Cms(
-          cmsLeg,
+    public IborCapFloor build() {
+      return new IborCapFloor(
+          capFloorLeg,
           payLeg);
     }
 
@@ -385,8 +375,8 @@ public final class Cms
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
-      buf.append("Cms.Builder{");
-      buf.append("cmsLeg").append('=').append(JodaBeanUtils.toString(cmsLeg)).append(',').append(' ');
+      buf.append("IborCapFloor.Builder{");
+      buf.append("capFloorLeg").append('=').append(JodaBeanUtils.toString(capFloorLeg)).append(',').append(' ');
       buf.append("payLeg").append('=').append(JodaBeanUtils.toString(payLeg));
       buf.append('}');
       return buf.toString();

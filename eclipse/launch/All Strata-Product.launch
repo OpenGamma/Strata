@@ -18,6 +18,8 @@
 <listEntry value="com.opengamma.strata.product"/>
 <listEntry value="com.opengamma.strata.product.bond"/>
 <listEntry value="com.opengamma.strata.product.bond.type"/>
+<listEntry value="com.opengamma.strata.product.capfloor"/>
+<listEntry value="com.opengamma.strata.product.capfloor.type"/>
 <listEntry value="com.opengamma.strata.product.cms"/>
 <listEntry value="com.opengamma.strata.product.cms.type"/>
 <listEntry value="com.opengamma.strata.product.credit"/>
