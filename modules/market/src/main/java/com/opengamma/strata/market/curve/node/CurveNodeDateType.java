@@ -16,21 +16,21 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * This is used to identify how the date of a node should be calculated.
  */
-public enum NodeDateType {
+public enum CurveNodeDateType {
 
   /**
    * Defines a fixed date that is externally provided.
    */
-  FIXED_DATE,
+  FIXED,
   /**
    * Defines the last payment date referenced in the trade.
    */
-  LAST_PAYMENT_DATE,
+  LAST_PAYMENT,
   /**
    * Defines the last fixing date referenced in the trade.
    * Used only for instruments referencing an Ibor index.
    */
-  LAST_FIXING_DATE;
+  LAST_FIXING;
 
   //-------------------------------------------------------------------------
   /**
@@ -41,7 +41,7 @@ public enum NodeDateType {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static NodeDateType of(String uniqueName) {
+  public static CurveNodeDateType of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
   }

@@ -51,27 +51,7 @@ public class FixedOvernightSwapCurveNodeTest {
   private static final String LABEL = "Label";
   private static final String LABEL_AUTO = "10Y";
 
-
-  public void test_builder_incorrect_no_fixed_date() {
-  assertThrowsIllegalArg(() -> FixedOvernightSwapCurveNode.builder()
-      .label(LABEL)
-      .template(TEMPLATE)
-      .rateKey(QUOTE_KEY)
-      .additionalSpread(SPREAD)
-      .nodeDateType(NodeDateType.FIXED_DATE).build());
-  }
-
-  public void test_builder_incorrect_fixed_date() {
-  assertThrowsIllegalArg(() -> FixedOvernightSwapCurveNode.builder()
-      .label(LABEL)
-      .template(TEMPLATE)
-      .rateKey(QUOTE_KEY)
-      .additionalSpread(SPREAD)
-      .nodeDateType(NodeDateType.LAST_PAYMENT_DATE)
-      .nodeDate(VAL_DATE).build());
-  }
-  
-  public void test_builder_default() {
+  public void test_builder() {
     FixedOvernightSwapCurveNode test = FixedOvernightSwapCurveNode.builder()
         .label(LABEL)
         .template(TEMPLATE)
@@ -82,25 +62,7 @@ public class FixedOvernightSwapCurveNodeTest {
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getNodeDateType(), NodeDateType.LAST_PAYMENT_DATE);
-    assertThrowsWithCause(() -> test.getNodeDate(), IllegalStateException.class);
-  }
-
-  public void test_builder_fixed() {
-    FixedOvernightSwapCurveNode test = FixedOvernightSwapCurveNode.builder()
-        .label(LABEL)
-        .template(TEMPLATE)
-        .rateKey(QUOTE_KEY)
-        .additionalSpread(SPREAD)
-        .nodeDateType(NodeDateType.FIXED_DATE)
-        .nodeDate(VAL_DATE)
-        .build();
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getAdditionalSpread(), SPREAD);
-    assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getNodeDateType(), NodeDateType.FIXED_DATE);
-    assertEquals(test.getNodeDate(), VAL_DATE);
+    assertEquals(test.getDate(), CurveNodeDate.LAST_PAYMENT);
   }
 
   public void test_of_noSpread() {
@@ -176,18 +138,18 @@ public class FixedOvernightSwapCurveNodeTest {
 
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
-    FixedOvernightSwapCurveNode node = FixedOvernightSwapCurveNode.builder().template(TEMPLATE).rateKey(QUOTE_KEY)
-        .additionalSpread(SPREAD).nodeDateType(NodeDateType.FIXED_DATE).nodeDate(nodeDate).build();
+    FixedOvernightSwapCurveNode node =
+        FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL).withDate(CurveNodeDate.of(nodeDate));
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
     assertEquals(metadata.getDate(), nodeDate);
     assertEquals(metadata.getLabel(), node.getLabel());
   }
-  
+
   public void test_metadata_last_fixing() {
-    FixedOvernightSwapCurveNode node = FixedOvernightSwapCurveNode.builder().template(TEMPLATE).rateKey(QUOTE_KEY)
-        .additionalSpread(SPREAD).nodeDateType(NodeDateType.LAST_FIXING_DATE).build();
-    assertThrowsWithCause(() ->  node.metadata(VAL_DATE), UnsupportedOperationException.class);   
+    FixedOvernightSwapCurveNode node =
+        FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL).withDate(CurveNodeDate.LAST_FIXING);
+    assertThrowsWithCause(() -> node.metadata(VAL_DATE), UnsupportedOperationException.class);
   }
 
   //-------------------------------------------------------------------------

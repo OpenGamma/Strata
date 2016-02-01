@@ -55,11 +55,11 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.node.CurveNodeDate;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FixedOvernightSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.curve.node.IborFixingDepositCurveNode;
-import com.opengamma.strata.market.curve.node.NodeDateType;
 import com.opengamma.strata.market.curve.node.TermDepositCurveNode;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
@@ -67,8 +67,6 @@ import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
-import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.datasets.MeetingDatesDataSets;
 import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
@@ -173,9 +171,11 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
           ImmutableTermDepositConvention.of(USD, bda, ACT_360, DaysAdjustment.ofBusinessDays(DSC_DEPO_OFFSET[i], USNY));
       LocalDate nodeDate = FOMC_NODES.get(i);
       if (nodeDate != null) {
-        DSC_NODES[i] = TermDepositCurveNode.builder().template(TermDepositTemplate.of(Period.ofDays(1), convention))
-            .rateKey(QuoteKey.of(StandardId.of(SCHEME, DSC_ID_VALUE[i]))).nodeDateType(NodeDateType.FIXED_DATE)
-            .nodeDate(nodeDate).build();
+        DSC_NODES[i] = TermDepositCurveNode.builder()
+            .template(TermDepositTemplate.of(Period.ofDays(1), convention))
+            .rateKey(QuoteKey.of(StandardId.of(SCHEME, DSC_ID_VALUE[i])))
+            .date(CurveNodeDate.of(nodeDate))
+            .build();
       } else {
         DSC_NODES[i] = TermDepositCurveNode.of(TermDepositTemplate.of(Period.ofDays(1), convention),
             QuoteKey.of(StandardId.of(SCHEME, DSC_ID_VALUE[i])));
@@ -187,7 +187,8 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
         DSC_NODES[DSC_NB_DEPO_NODES + i] = FixedOvernightSwapCurveNode.builder()
             .template(FixedOvernightSwapTemplate.of(Period.ZERO, Tenor.of(DSC_OIS_TENORS[i]), USD_FIXED_1Y_FED_FUND_OIS))
             .rateKey(QuoteKey.of(StandardId.of(SCHEME, DSC_ID_VALUE[DSC_NB_DEPO_NODES + i])))
-            .nodeDateType(NodeDateType.FIXED_DATE).nodeDate(nodeDate).build();
+            .date(CurveNodeDate.of(nodeDate))
+            .build();
       } else {
         DSC_NODES[DSC_NB_DEPO_NODES + i] = FixedOvernightSwapCurveNode.of(
             FixedOvernightSwapTemplate.of(Period.ZERO, Tenor.of(DSC_OIS_TENORS[i]), USD_FIXED_1Y_FED_FUND_OIS),

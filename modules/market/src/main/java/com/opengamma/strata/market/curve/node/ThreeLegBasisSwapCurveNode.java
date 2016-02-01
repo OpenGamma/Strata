@@ -17,7 +17,6 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.ImmutablePreBuild;
-import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -29,11 +28,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
@@ -82,12 +78,7 @@ public final class ThreeLegBasisSwapCurveNode
    * The method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
    */
   @PropertyDefinition
-  private final NodeDateType nodeDateType;
-  /**
-   * The fixed date to be used on the node, only used when the type is 'FixedDate'.
-   */
-  @PropertyDefinition(get = "field")
-  private final LocalDate nodeDate;
+  private final CurveNodeDate date;
 
   //-------------------------------------------------------------------------
   /**
@@ -138,7 +129,12 @@ public final class ThreeLegBasisSwapCurveNode
       double additionalSpread,
       String label) {
 
-    return new ThreeLegBasisSwapCurveNode(template, rateKey, additionalSpread, label, NodeDateType.LAST_PAYMENT_DATE, null);
+    return new ThreeLegBasisSwapCurveNode(template, rateKey, additionalSpread, label, CurveNodeDate.LAST_PAYMENT);
+  }
+
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.date = CurveNodeDate.LAST_PAYMENT;
   }
 
   @ImmutablePreBuild
@@ -156,27 +152,34 @@ public final class ThreeLegBasisSwapCurveNode
 
   @Override
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
-    if (nodeDateType.equals(NodeDateType.FIXED_DATE)) {
+    LocalDate nodeDate = date.calculate(
+        () -> calculateLastPaymentDate(valuationDate),
+        () -> calculateLastFixingDate(valuationDate));
+    if (date.isFixed()) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
     }
+    return TenorCurveNodeMetadata.of(nodeDate, template.getTenor(), label);
+  }
+
+  // calculate the last payment date
+  private LocalDate calculateLastPaymentDate(LocalDate valuationDate) {
     SwapTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1);
-    Tenor tenor = template.getTenor();
-    if (nodeDateType.equals(NodeDateType.LAST_PAYMENT_DATE)) {
-      return TenorCurveNodeMetadata.of(trade.getProduct().getEndDate(), tenor, label);
-    }
-    if (nodeDateType.equals(NodeDateType.LAST_FIXING_DATE)) {
-      SwapLeg iborLeg = trade.getProduct().getLegs(SwapLegType.IBOR).get(1);
-      // Select the 'second' Ibor leg, i.e. the flat floating leg
-      ExpandedSwapLeg iborLegExpanded = iborLeg.expand();
-      List<PaymentPeriod> periods = iborLegExpanded.getPaymentPeriods();
-      int nbPeriods = periods.size();
-      RatePaymentPeriod lastPeriod = (RatePaymentPeriod) periods.get(nbPeriods - 1);
-      List<RateAccrualPeriod> accruals = lastPeriod.getAccrualPeriods();
-      int nbAccruals = accruals.size();
-      IborRateObservation ibor = (IborRateObservation) accruals.get(nbAccruals - 1).getRateObservation();
-      return TenorCurveNodeMetadata.of(ibor.getFixingDate(), tenor, label);
-    }
-    throw new UnsupportedOperationException("Node date type " + nodeDateType.toString());
+    return trade.getProduct().getEndDate();
+  }
+
+  // calculate the last fixing date
+  private LocalDate calculateLastFixingDate(LocalDate valuationDate) {
+    SwapTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1);
+    SwapLeg iborLeg = trade.getProduct().getLegs(SwapLegType.IBOR).get(1);
+    // Select the 'second' Ibor leg, i.e. the flat floating leg
+    ExpandedSwapLeg iborLegExpanded = iborLeg.expand();
+    List<PaymentPeriod> periods = iborLegExpanded.getPaymentPeriods();
+    int nbPeriods = periods.size();
+    RatePaymentPeriod lastPeriod = (RatePaymentPeriod) periods.get(nbPeriods - 1);
+    List<RateAccrualPeriod> accruals = lastPeriod.getAccrualPeriods();
+    int nbAccruals = accruals.size();
+    IborRateObservation ibor = (IborRateObservation) accruals.get(nbAccruals - 1).getRateObservation();
+    return ibor.getFixingDate();
   }
 
   @Override
@@ -193,45 +196,15 @@ public final class ThreeLegBasisSwapCurveNode
     return 0d;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Checks if the type is 'FixedDate'.
-   * <p>
+   * Returns a copy of this node with the specified date.
    * 
-   * @return true if the type is 'FixedDate'
+   * @param date  the date to use
+   * @return the node based on this node with the specified date
    */
-  public boolean isFixedDate() {
-    return (nodeDateType == NodeDateType.FIXED_DATE);
-  }
-
-  /**
-   * Gets the node date if the type is 'FixedDate'.
-   * <p>
-   * If the type is 'FixedDate', this returns the node date.
-   * Otherwise, this throws an exception.
-   * 
-   * @return the node date, only available if the type is 'FixedDate'
-   * @throws IllegalStateException if called on a failure result
-   */
-  public LocalDate getNodeDate() {
-    if (!isFixedDate()) {
-      throw new IllegalStateException(Messages.format("No currency available for type '{}'", nodeDateType));
-    }
-    return nodeDate;
-  }
-
-  @ImmutableValidator
-  private void validate() {
-    if (nodeDateType.equals(NodeDateType.FIXED_DATE)) {
-      ArgChecker.isTrue(nodeDate != null, "Node date must be present when node date type is FIXED_DATE");
-    } else {
-      ArgChecker.isTrue(nodeDate == null, "Node date must be null when node date type is not FIXED_DATE");
-    }
-  }
-
-  @ImmutableDefaults
-  private static void applyDefaults(Builder builder) {
-    builder.nodeDateType = NodeDateType.LAST_PAYMENT_DATE;
-    builder.nodeDate = null;
+  public ThreeLegBasisSwapCurveNode withDate(CurveNodeDate date) {
+    return new ThreeLegBasisSwapCurveNode(template, rateKey, additionalSpread, label, date);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -266,8 +239,7 @@ public final class ThreeLegBasisSwapCurveNode
       ObservableKey rateKey,
       double additionalSpread,
       String label,
-      NodeDateType nodeDateType,
-      LocalDate nodeDate) {
+      CurveNodeDate date) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(rateKey, "rateKey");
     JodaBeanUtils.notEmpty(label, "label");
@@ -275,9 +247,7 @@ public final class ThreeLegBasisSwapCurveNode
     this.rateKey = rateKey;
     this.additionalSpread = additionalSpread;
     this.label = label;
-    this.nodeDateType = nodeDateType;
-    this.nodeDate = nodeDate;
-    validate();
+    this.date = date;
   }
 
   @Override
@@ -339,8 +309,8 @@ public final class ThreeLegBasisSwapCurveNode
    * Gets the method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
    * @return the value of the property
    */
-  public NodeDateType getNodeDateType() {
-    return nodeDateType;
+  public CurveNodeDate getDate() {
+    return date;
   }
 
   //-----------------------------------------------------------------------
@@ -363,8 +333,7 @@ public final class ThreeLegBasisSwapCurveNode
           JodaBeanUtils.equal(rateKey, other.rateKey) &&
           JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
           JodaBeanUtils.equal(label, other.label) &&
-          JodaBeanUtils.equal(nodeDateType, other.nodeDateType) &&
-          JodaBeanUtils.equal(nodeDate, other.nodeDate);
+          JodaBeanUtils.equal(date, other.date);
     }
     return false;
   }
@@ -376,21 +345,19 @@ public final class ThreeLegBasisSwapCurveNode
     hash = hash * 31 + JodaBeanUtils.hashCode(rateKey);
     hash = hash * 31 + JodaBeanUtils.hashCode(additionalSpread);
     hash = hash * 31 + JodaBeanUtils.hashCode(label);
-    hash = hash * 31 + JodaBeanUtils.hashCode(nodeDateType);
-    hash = hash * 31 + JodaBeanUtils.hashCode(nodeDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(date);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("ThreeLegBasisSwapCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
     buf.append("rateKey").append('=').append(rateKey).append(',').append(' ');
     buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
     buf.append("label").append('=').append(label).append(',').append(' ');
-    buf.append("nodeDateType").append('=').append(nodeDateType).append(',').append(' ');
-    buf.append("nodeDate").append('=').append(JodaBeanUtils.toString(nodeDate));
+    buf.append("date").append('=').append(JodaBeanUtils.toString(date));
     buf.append('}');
     return buf.toString();
   }
@@ -426,15 +393,10 @@ public final class ThreeLegBasisSwapCurveNode
     private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
         this, "label", ThreeLegBasisSwapCurveNode.class, String.class);
     /**
-     * The meta-property for the {@code nodeDateType} property.
+     * The meta-property for the {@code date} property.
      */
-    private final MetaProperty<NodeDateType> nodeDateType = DirectMetaProperty.ofImmutable(
-        this, "nodeDateType", ThreeLegBasisSwapCurveNode.class, NodeDateType.class);
-    /**
-     * The meta-property for the {@code nodeDate} property.
-     */
-    private final MetaProperty<LocalDate> nodeDate = DirectMetaProperty.ofImmutable(
-        this, "nodeDate", ThreeLegBasisSwapCurveNode.class, LocalDate.class);
+    private final MetaProperty<CurveNodeDate> date = DirectMetaProperty.ofImmutable(
+        this, "date", ThreeLegBasisSwapCurveNode.class, CurveNodeDate.class);
     /**
      * The meta-properties.
      */
@@ -444,8 +406,7 @@ public final class ThreeLegBasisSwapCurveNode
         "rateKey",
         "additionalSpread",
         "label",
-        "nodeDateType",
-        "nodeDate");
+        "date");
 
     /**
      * Restricted constructor.
@@ -464,10 +425,8 @@ public final class ThreeLegBasisSwapCurveNode
           return additionalSpread;
         case 102727412:  // label
           return label;
-        case 937712682:  // nodeDateType
-          return nodeDateType;
-        case 1122582736:  // nodeDate
-          return nodeDate;
+        case 3076014:  // date
+          return date;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -521,19 +480,11 @@ public final class ThreeLegBasisSwapCurveNode
     }
 
     /**
-     * The meta-property for the {@code nodeDateType} property.
+     * The meta-property for the {@code date} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<NodeDateType> nodeDateType() {
-      return nodeDateType;
-    }
-
-    /**
-     * The meta-property for the {@code nodeDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> nodeDate() {
-      return nodeDate;
+    public MetaProperty<CurveNodeDate> date() {
+      return date;
     }
 
     //-----------------------------------------------------------------------
@@ -548,10 +499,8 @@ public final class ThreeLegBasisSwapCurveNode
           return ((ThreeLegBasisSwapCurveNode) bean).getAdditionalSpread();
         case 102727412:  // label
           return ((ThreeLegBasisSwapCurveNode) bean).getLabel();
-        case 937712682:  // nodeDateType
-          return ((ThreeLegBasisSwapCurveNode) bean).getNodeDateType();
-        case 1122582736:  // nodeDate
-          return ((ThreeLegBasisSwapCurveNode) bean).nodeDate;
+        case 3076014:  // date
+          return ((ThreeLegBasisSwapCurveNode) bean).getDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -577,8 +526,7 @@ public final class ThreeLegBasisSwapCurveNode
     private ObservableKey rateKey;
     private double additionalSpread;
     private String label;
-    private NodeDateType nodeDateType;
-    private LocalDate nodeDate;
+    private CurveNodeDate date;
 
     /**
      * Restricted constructor.
@@ -596,8 +544,7 @@ public final class ThreeLegBasisSwapCurveNode
       this.rateKey = beanToCopy.getRateKey();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
       this.label = beanToCopy.getLabel();
-      this.nodeDateType = beanToCopy.getNodeDateType();
-      this.nodeDate = beanToCopy.nodeDate;
+      this.date = beanToCopy.getDate();
     }
 
     //-----------------------------------------------------------------------
@@ -612,10 +559,8 @@ public final class ThreeLegBasisSwapCurveNode
           return additionalSpread;
         case 102727412:  // label
           return label;
-        case 937712682:  // nodeDateType
-          return nodeDateType;
-        case 1122582736:  // nodeDate
-          return nodeDate;
+        case 3076014:  // date
+          return date;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -636,11 +581,8 @@ public final class ThreeLegBasisSwapCurveNode
         case 102727412:  // label
           this.label = (String) newValue;
           break;
-        case 937712682:  // nodeDateType
-          this.nodeDateType = (NodeDateType) newValue;
-          break;
-        case 1122582736:  // nodeDate
-          this.nodeDate = (LocalDate) newValue;
+        case 3076014:  // date
+          this.date = (CurveNodeDate) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -680,8 +622,7 @@ public final class ThreeLegBasisSwapCurveNode
           rateKey,
           additionalSpread,
           label,
-          nodeDateType,
-          nodeDate);
+          date);
     }
 
     //-----------------------------------------------------------------------
@@ -732,35 +673,24 @@ public final class ThreeLegBasisSwapCurveNode
 
     /**
      * Sets the method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
-     * @param nodeDateType  the new value
+     * @param date  the new value
      * @return this, for chaining, not null
      */
-    public Builder nodeDateType(NodeDateType nodeDateType) {
-      this.nodeDateType = nodeDateType;
-      return this;
-    }
-
-    /**
-     * Sets the fixed date to be used on the node, only used when the type is 'FixedDate'.
-     * @param nodeDate  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder nodeDate(LocalDate nodeDate) {
-      this.nodeDate = nodeDate;
+    public Builder date(CurveNodeDate date) {
+      this.date = date;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("ThreeLegBasisSwapCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("rateKey").append('=').append(JodaBeanUtils.toString(rateKey)).append(',').append(' ');
       buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');
       buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
-      buf.append("nodeDateType").append('=').append(JodaBeanUtils.toString(nodeDateType)).append(',').append(' ');
-      buf.append("nodeDate").append('=').append(JodaBeanUtils.toString(nodeDate));
+      buf.append("date").append('=').append(JodaBeanUtils.toString(date));
       buf.append('}');
       return buf.toString();
     }

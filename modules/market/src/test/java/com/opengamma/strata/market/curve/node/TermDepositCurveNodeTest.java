@@ -62,7 +62,22 @@ public class TermDepositCurveNodeTest {
   private static final String LABEL = "Label";
   private static final String LABEL_AUTO = "3M";
 
-  public void test_builder_default() {
+  public void test_builder() {
+    TermDepositCurveNode test = TermDepositCurveNode.builder()
+        .label(LABEL)
+        .template(TEMPLATE)
+        .rateKey(QUOTE_KEY)
+        .additionalSpread(SPREAD)
+        .date(CurveNodeDate.LAST_FIXING)
+        .build();
+    assertEquals(test.getLabel(), LABEL);
+    assertEquals(test.getRateKey(), QUOTE_KEY);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
+    assertEquals(test.getTemplate(), TEMPLATE);
+    assertEquals(test.getDate(), CurveNodeDate.LAST_FIXING);
+  }
+
+  public void test_builder_defaults() {
     TermDepositCurveNode test = TermDepositCurveNode.builder()
         .label(LABEL)
         .template(TEMPLATE)
@@ -73,46 +88,7 @@ public class TermDepositCurveNodeTest {
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getNodeDateType(), NodeDateType.LAST_PAYMENT_DATE);
-    assertThrowsWithCause(() -> test.getNodeDate(), IllegalStateException.class);
-  }
-
-  public void test_builder_fixed() {
-    TermDepositCurveNode test = TermDepositCurveNode.builder()
-        .label(LABEL)
-        .template(TEMPLATE)
-        .rateKey(QUOTE_KEY)
-        .additionalSpread(SPREAD)
-        .nodeDateType(NodeDateType.FIXED_DATE)
-        .nodeDate(VAL_DATE)
-        .build();
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getAdditionalSpread(), SPREAD);
-    assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getNodeDateType(), NodeDateType.FIXED_DATE);
-    assertEquals(test.getNodeDate(), VAL_DATE);
-  }
-
-  public void test_builder_incorrect_no_fixed_date() {
-  assertThrowsIllegalArg(() -> TermDepositCurveNode.builder()
-      .label(LABEL)
-      .template(TEMPLATE)
-      .rateKey(QUOTE_KEY)
-      .additionalSpread(SPREAD)
-      .nodeDateType(NodeDateType.FIXED_DATE)
-      .build());
-  }
-
-  public void test_builder_incorrect_fixed_date() {
-    assertThrowsIllegalArg(() -> TermDepositCurveNode.builder()
-        .label(LABEL)
-        .template(TEMPLATE)
-        .rateKey(QUOTE_KEY)
-        .additionalSpread(SPREAD)
-        .nodeDateType(NodeDateType.LAST_PAYMENT_DATE)
-        .nodeDate(VAL_DATE)
-        .build());
+    assertEquals(test.getDate(), CurveNodeDate.LAST_PAYMENT);
   }
 
   public void test_of_noSpread() {
@@ -202,24 +178,18 @@ public class TermDepositCurveNodeTest {
 
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
-    TermDepositCurveNode node = TermDepositCurveNode.builder()
-        .label(LABEL)
-        .template(TEMPLATE)
-        .rateKey(QUOTE_KEY)
-        .additionalSpread(SPREAD)
-        .nodeDateType(NodeDateType.FIXED_DATE)
-        .nodeDate(nodeDate)
-        .build();
+    TermDepositCurveNode node =
+        TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD).withDate(CurveNodeDate.of(nodeDate));
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
     assertEquals(metadata.getDate(), nodeDate);
     assertEquals(metadata.getLabel(), node.getLabel());
   }
-  
+
   public void test_metadata_last_fixing() {
-    TermDepositCurveNode node = TermDepositCurveNode.builder().template(TEMPLATE)
-        .rateKey(QUOTE_KEY).nodeDateType(NodeDateType.LAST_FIXING_DATE).build();
-    assertThrowsWithCause(() ->  node.metadata(VAL_DATE), UnsupportedOperationException.class);   
+    TermDepositCurveNode node =
+        TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD).withDate(CurveNodeDate.LAST_FIXING);
+    assertThrowsWithCause(() -> node.metadata(VAL_DATE), UnsupportedOperationException.class);
   }
 
   //-------------------------------------------------------------------------

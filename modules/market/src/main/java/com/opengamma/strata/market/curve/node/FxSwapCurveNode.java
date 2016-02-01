@@ -16,7 +16,6 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.ImmutablePreBuild;
-import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -34,8 +33,6 @@ import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.SimpleMarketDataKey;
-import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
@@ -72,12 +69,7 @@ public final class FxSwapCurveNode
    * The method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
    */
   @PropertyDefinition
-  private final NodeDateType nodeDateType;
-  /**
-   * The fixed date to be used on the node, only used when the type is 'FixedDate'.
-   */
-  @PropertyDefinition(get = "field")
-  private final LocalDate nodeDate;
+  private final CurveNodeDate date;
 
   //-------------------------------------------------------------------------
   /**
@@ -112,6 +104,11 @@ public final class FxSwapCurveNode
         .build();
   }
 
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.date = CurveNodeDate.LAST_PAYMENT;
+  }
+
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
     if (builder.label == null && builder.template != null) {
@@ -128,15 +125,25 @@ public final class FxSwapCurveNode
 
   @Override
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
-    if (nodeDateType.equals(NodeDateType.FIXED_DATE)) {
+    LocalDate nodeDate = date.calculate(
+        () -> calculateLastPaymentDate(valuationDate),
+        () -> calculateLastFixingDate(valuationDate));
+    if (date.isFixed()) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
     }
-    if (nodeDateType.equals(NodeDateType.LAST_PAYMENT_DATE)) {
-      FxSwapTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1, 0);
-      LocalDate farDate = trade.getProduct().getFarLeg().getPaymentDate();
-      return TenorCurveNodeMetadata.of(farDate, Tenor.of(template.getPeriodToFar()), label);
-    }
-    throw new UnsupportedOperationException("Node date type " + nodeDateType.toString());
+    Tenor tenor = Tenor.of(template.getPeriodToFar());
+    return TenorCurveNodeMetadata.of(nodeDate, tenor, label);
+  }
+
+  // calculate the last payment date
+  private LocalDate calculateLastPaymentDate(LocalDate valuationDate) {
+    FxSwapTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1, 0);
+    return trade.getProduct().getFarLeg().getPaymentDate();
+  }
+
+  // calculate the last fixing date
+  private LocalDate calculateLastFixingDate(LocalDate valuationDate) {
+    throw new UnsupportedOperationException("Node date of 'LastFixing' is not supported for FxSwap");
   }
 
   @Override
@@ -159,45 +166,15 @@ public final class FxSwapCurveNode
     return FxRateKey.of(template.getCurrencyPair());
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Checks if the type is 'FixedDate'.
-   * <p>
+   * Returns a copy of this node with the specified date.
    * 
-   * @return true if the type is 'FixedDate'
+   * @param date  the date to use
+   * @return the node based on this node with the specified date
    */
-  public boolean isFixedDate() {
-    return (nodeDateType == NodeDateType.FIXED_DATE);
-  }
-
-  /**
-   * Gets the node date if the type is 'FixedDate'.
-   * <p>
-   * If the type is 'FixedDate', this returns the node date.
-   * Otherwise, this throws an exception.
-   * 
-   * @return the node date, only available if the type is 'FixedDate'
-   * @throws IllegalStateException if called on a failure result
-   */
-  public LocalDate getNodeDate() {
-    if (!isFixedDate()) {
-      throw new IllegalStateException(Messages.format("No currency available for type '{}'", nodeDateType));
-    }
-    return nodeDate;
-  }
-
-  @ImmutableValidator
-  private void validate() {
-    if (nodeDateType.equals(NodeDateType.FIXED_DATE)) {
-      ArgChecker.isTrue(nodeDate != null, "Node date must be present when node date type is FIXED_DATE");
-    } else {
-      ArgChecker.isTrue(nodeDate == null, "Node date must be null when node date type is not FIXED_DATE");
-    }
-  }
-
-  @ImmutableDefaults
-  private static void applyDefaults(Builder builder) {
-    builder.nodeDateType = NodeDateType.LAST_PAYMENT_DATE;
-    builder.nodeDate = null;
+  public FxSwapCurveNode withDate(CurveNodeDate date) {
+    return new FxSwapCurveNode(template, farForwardPointsKey, label, date);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -231,17 +208,14 @@ public final class FxSwapCurveNode
       FxSwapTemplate template,
       ObservableKey farForwardPointsKey,
       String label,
-      NodeDateType nodeDateType,
-      LocalDate nodeDate) {
+      CurveNodeDate date) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(farForwardPointsKey, "farForwardPointsKey");
     JodaBeanUtils.notEmpty(label, "label");
     this.template = template;
     this.farForwardPointsKey = farForwardPointsKey;
     this.label = label;
-    this.nodeDateType = nodeDateType;
-    this.nodeDate = nodeDate;
-    validate();
+    this.date = date;
   }
 
   @Override
@@ -294,8 +268,8 @@ public final class FxSwapCurveNode
    * Gets the method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
    * @return the value of the property
    */
-  public NodeDateType getNodeDateType() {
-    return nodeDateType;
+  public CurveNodeDate getDate() {
+    return date;
   }
 
   //-----------------------------------------------------------------------
@@ -317,8 +291,7 @@ public final class FxSwapCurveNode
       return JodaBeanUtils.equal(template, other.template) &&
           JodaBeanUtils.equal(farForwardPointsKey, other.farForwardPointsKey) &&
           JodaBeanUtils.equal(label, other.label) &&
-          JodaBeanUtils.equal(nodeDateType, other.nodeDateType) &&
-          JodaBeanUtils.equal(nodeDate, other.nodeDate);
+          JodaBeanUtils.equal(date, other.date);
     }
     return false;
   }
@@ -329,20 +302,18 @@ public final class FxSwapCurveNode
     hash = hash * 31 + JodaBeanUtils.hashCode(template);
     hash = hash * 31 + JodaBeanUtils.hashCode(farForwardPointsKey);
     hash = hash * 31 + JodaBeanUtils.hashCode(label);
-    hash = hash * 31 + JodaBeanUtils.hashCode(nodeDateType);
-    hash = hash * 31 + JodaBeanUtils.hashCode(nodeDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(date);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("FxSwapCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
     buf.append("farForwardPointsKey").append('=').append(farForwardPointsKey).append(',').append(' ');
     buf.append("label").append('=').append(label).append(',').append(' ');
-    buf.append("nodeDateType").append('=').append(nodeDateType).append(',').append(' ');
-    buf.append("nodeDate").append('=').append(JodaBeanUtils.toString(nodeDate));
+    buf.append("date").append('=').append(JodaBeanUtils.toString(date));
     buf.append('}');
     return buf.toString();
   }
@@ -373,15 +344,10 @@ public final class FxSwapCurveNode
     private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
         this, "label", FxSwapCurveNode.class, String.class);
     /**
-     * The meta-property for the {@code nodeDateType} property.
+     * The meta-property for the {@code date} property.
      */
-    private final MetaProperty<NodeDateType> nodeDateType = DirectMetaProperty.ofImmutable(
-        this, "nodeDateType", FxSwapCurveNode.class, NodeDateType.class);
-    /**
-     * The meta-property for the {@code nodeDate} property.
-     */
-    private final MetaProperty<LocalDate> nodeDate = DirectMetaProperty.ofImmutable(
-        this, "nodeDate", FxSwapCurveNode.class, LocalDate.class);
+    private final MetaProperty<CurveNodeDate> date = DirectMetaProperty.ofImmutable(
+        this, "date", FxSwapCurveNode.class, CurveNodeDate.class);
     /**
      * The meta-properties.
      */
@@ -390,8 +356,7 @@ public final class FxSwapCurveNode
         "template",
         "farForwardPointsKey",
         "label",
-        "nodeDateType",
-        "nodeDate");
+        "date");
 
     /**
      * Restricted constructor.
@@ -408,10 +373,8 @@ public final class FxSwapCurveNode
           return farForwardPointsKey;
         case 102727412:  // label
           return label;
-        case 937712682:  // nodeDateType
-          return nodeDateType;
-        case 1122582736:  // nodeDate
-          return nodeDate;
+        case 3076014:  // date
+          return date;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -457,19 +420,11 @@ public final class FxSwapCurveNode
     }
 
     /**
-     * The meta-property for the {@code nodeDateType} property.
+     * The meta-property for the {@code date} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<NodeDateType> nodeDateType() {
-      return nodeDateType;
-    }
-
-    /**
-     * The meta-property for the {@code nodeDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> nodeDate() {
-      return nodeDate;
+    public MetaProperty<CurveNodeDate> date() {
+      return date;
     }
 
     //-----------------------------------------------------------------------
@@ -482,10 +437,8 @@ public final class FxSwapCurveNode
           return ((FxSwapCurveNode) bean).getFarForwardPointsKey();
         case 102727412:  // label
           return ((FxSwapCurveNode) bean).getLabel();
-        case 937712682:  // nodeDateType
-          return ((FxSwapCurveNode) bean).getNodeDateType();
-        case 1122582736:  // nodeDate
-          return ((FxSwapCurveNode) bean).nodeDate;
+        case 3076014:  // date
+          return ((FxSwapCurveNode) bean).getDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -510,8 +463,7 @@ public final class FxSwapCurveNode
     private FxSwapTemplate template;
     private ObservableKey farForwardPointsKey;
     private String label;
-    private NodeDateType nodeDateType;
-    private LocalDate nodeDate;
+    private CurveNodeDate date;
 
     /**
      * Restricted constructor.
@@ -528,8 +480,7 @@ public final class FxSwapCurveNode
       this.template = beanToCopy.getTemplate();
       this.farForwardPointsKey = beanToCopy.getFarForwardPointsKey();
       this.label = beanToCopy.getLabel();
-      this.nodeDateType = beanToCopy.getNodeDateType();
-      this.nodeDate = beanToCopy.nodeDate;
+      this.date = beanToCopy.getDate();
     }
 
     //-----------------------------------------------------------------------
@@ -542,10 +493,8 @@ public final class FxSwapCurveNode
           return farForwardPointsKey;
         case 102727412:  // label
           return label;
-        case 937712682:  // nodeDateType
-          return nodeDateType;
-        case 1122582736:  // nodeDate
-          return nodeDate;
+        case 3076014:  // date
+          return date;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -563,11 +512,8 @@ public final class FxSwapCurveNode
         case 102727412:  // label
           this.label = (String) newValue;
           break;
-        case 937712682:  // nodeDateType
-          this.nodeDateType = (NodeDateType) newValue;
-          break;
-        case 1122582736:  // nodeDate
-          this.nodeDate = (LocalDate) newValue;
+        case 3076014:  // date
+          this.date = (CurveNodeDate) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -606,8 +552,7 @@ public final class FxSwapCurveNode
           template,
           farForwardPointsKey,
           label,
-          nodeDateType,
-          nodeDate);
+          date);
     }
 
     //-----------------------------------------------------------------------
@@ -648,34 +593,23 @@ public final class FxSwapCurveNode
 
     /**
      * Sets the method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
-     * @param nodeDateType  the new value
+     * @param date  the new value
      * @return this, for chaining, not null
      */
-    public Builder nodeDateType(NodeDateType nodeDateType) {
-      this.nodeDateType = nodeDateType;
-      return this;
-    }
-
-    /**
-     * Sets the fixed date to be used on the node, only used when the type is 'FixedDate'.
-     * @param nodeDate  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder nodeDate(LocalDate nodeDate) {
-      this.nodeDate = nodeDate;
+    public Builder date(CurveNodeDate date) {
+      this.date = date;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("FxSwapCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("farForwardPointsKey").append('=').append(JodaBeanUtils.toString(farForwardPointsKey)).append(',').append(' ');
       buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
-      buf.append("nodeDateType").append('=').append(JodaBeanUtils.toString(nodeDateType)).append(',').append(' ');
-      buf.append("nodeDate").append('=').append(JodaBeanUtils.toString(nodeDate));
+      buf.append("date").append('=').append(JodaBeanUtils.toString(date));
       buf.append('}');
       return buf.toString();
     }

@@ -9,7 +9,6 @@ import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -54,7 +53,7 @@ public class ThreeLegBasisSwapCurveNodeTest {
   private static final String LABEL = "Label";
   private static final String LABEL_AUTO = "10Y";
 
-  public void test_builder_default() {
+  public void test_builder() {
     ThreeLegBasisSwapCurveNode test = ThreeLegBasisSwapCurveNode.builder()
         .label(LABEL)
         .template(TEMPLATE)
@@ -65,44 +64,7 @@ public class ThreeLegBasisSwapCurveNodeTest {
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getNodeDateType(), NodeDateType.LAST_PAYMENT_DATE);
-    assertThrowsWithCause(() -> test.getNodeDate(), IllegalStateException.class);
-  }
-
-  public void test_builder_fixed() {
-    ThreeLegBasisSwapCurveNode test = ThreeLegBasisSwapCurveNode.builder()
-        .label(LABEL)
-        .template(TEMPLATE)
-        .rateKey(QUOTE_KEY)
-        .additionalSpread(SPREAD)
-        .nodeDateType(NodeDateType.FIXED_DATE)
-        .nodeDate(VAL_DATE)
-        .build();
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getAdditionalSpread(), SPREAD);
-    assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getNodeDateType(), NodeDateType.FIXED_DATE);
-    assertEquals(test.getNodeDate(), VAL_DATE);
-  }
-
-  public void test_builder_incorrect_no_fixed_date() {
-  assertThrowsIllegalArg(() -> ThreeLegBasisSwapCurveNode.builder()
-      .label(LABEL)
-      .template(TEMPLATE)
-      .rateKey(QUOTE_KEY)
-      .additionalSpread(SPREAD)
-      .nodeDateType(NodeDateType.FIXED_DATE).build());
-  }
-
-  public void test_builder_incorrect_fixed_date() {
-  assertThrowsIllegalArg(() -> ThreeLegBasisSwapCurveNode.builder()
-      .label(LABEL)
-      .template(TEMPLATE)
-      .rateKey(QUOTE_KEY)
-      .additionalSpread(SPREAD)
-      .nodeDateType(NodeDateType.LAST_PAYMENT_DATE)
-      .nodeDate(VAL_DATE).build());
+    assertEquals(test.getDate(), CurveNodeDate.LAST_PAYMENT);
   }
 
   public void test_of_noSpread() {
@@ -175,28 +137,23 @@ public class ThreeLegBasisSwapCurveNodeTest {
 
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
-    ThreeLegBasisSwapCurveNode node = ThreeLegBasisSwapCurveNode.builder().template(TEMPLATE).rateKey(QUOTE_KEY)
-        .additionalSpread(SPREAD).nodeDateType(NodeDateType.FIXED_DATE).nodeDate(nodeDate).build();
+    ThreeLegBasisSwapCurveNode node =
+        ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL).withDate(CurveNodeDate.of(nodeDate));
     DatedCurveParameterMetadata metadata = node.metadata(VAL_DATE);
     assertEquals(metadata.getDate(), nodeDate);
     assertEquals(metadata.getLabel(), node.getLabel());
   }
 
   public void test_metadata_last_fixing() {
-    ThreeLegBasisSwapCurveNode node = ThreeLegBasisSwapCurveNode.builder()
-        .label(LABEL)
-        .template(TEMPLATE)
-        .rateKey(QUOTE_KEY)
-        .additionalSpread(SPREAD)
-        .nodeDateType(NodeDateType.LAST_FIXING_DATE)
-        .build();
+    ThreeLegBasisSwapCurveNode node =
+        ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL).withDate(CurveNodeDate.LAST_FIXING);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     SwapTrade trade = node.trade(valuationDate, ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, 0.0d).build());
     trade.getProduct().expand();
     LocalDate fixingExpected = LocalDate.of(2024, 7, 24);
     DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
     assertEquals(metadata.getDate(), fixingExpected);
-    assertEquals(metadata.getLabel(), node.getLabel());    
+    assertEquals(metadata.getLabel(), node.getLabel());
   }
 
   //-------------------------------------------------------------------------

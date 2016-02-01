@@ -71,7 +71,7 @@ public class FxSwapCurveNodeTest {
       .addValue(QUOTE_KEY_PTS, FX_RATE_PTS)
       .build();
 
-  public void test_builder_default() {
+  public void test_builder() {
     FxSwapCurveNode test = FxSwapCurveNode.builder()
         .label(LABEL)
         .template(TEMPLATE)
@@ -80,23 +80,7 @@ public class FxSwapCurveNodeTest {
     assertEquals(test.getLabel(), LABEL);
     assertEquals(test.getFarForwardPointsKey(), QUOTE_KEY_PTS);
     assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getNodeDateType(), NodeDateType.LAST_PAYMENT_DATE);
-    assertThrowsWithCause(() -> test.getNodeDate(), IllegalStateException.class);
-  }
-
-  public void test_builder_fixed() {
-    FxSwapCurveNode test = FxSwapCurveNode.builder()
-        .label(LABEL)
-        .template(TEMPLATE)
-        .farForwardPointsKey(QUOTE_KEY_PTS)
-        .nodeDateType(NodeDateType.FIXED_DATE)
-        .nodeDate(VAL_DATE)
-        .build();
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getFarForwardPointsKey(), QUOTE_KEY_PTS);
-    assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getNodeDateType(), NodeDateType.FIXED_DATE);
-    assertEquals(test.getNodeDate(), VAL_DATE);
+    assertEquals(test.getDate(), CurveNodeDate.LAST_PAYMENT);
   }
 
   public void test_of() {
@@ -157,18 +141,16 @@ public class FxSwapCurveNodeTest {
 
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
-    FxSwapCurveNode node = FxSwapCurveNode.builder().template(TEMPLATE)
-        .farForwardPointsKey(QUOTE_KEY_PTS).nodeDateType(NodeDateType.FIXED_DATE).nodeDate(nodeDate).build();
+    FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS).withDate(CurveNodeDate.of(nodeDate));
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
     assertEquals(metadata.getDate(), nodeDate);
     assertEquals(metadata.getLabel(), node.getLabel());
   }
-  
+
   public void test_metadata_last_fixing() {
-    FxSwapCurveNode node = FxSwapCurveNode.builder().template(TEMPLATE)
-        .farForwardPointsKey(QUOTE_KEY_PTS).nodeDateType(NodeDateType.LAST_FIXING_DATE).build();
-    assertThrowsWithCause(() ->  node.metadata(VAL_DATE), UnsupportedOperationException.class);   
+    FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS).withDate(CurveNodeDate.LAST_FIXING);
+    assertThrowsWithCause(() -> node.metadata(VAL_DATE), UnsupportedOperationException.class);
   }
 
   //-------------------------------------------------------------------------

@@ -7,7 +7,6 @@ package com.opengamma.strata.market.curve.node;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -54,7 +53,7 @@ public class IborFutureCurveNodeTest {
 
   private static final double TOLERANCE_RATE = 1.0E-8;
 
-  public void test_builder_default() {
+  public void test_builder() {
     IborFutureCurveNode test = IborFutureCurveNode.builder()
         .label(LABEL)
         .template(TEMPLATE)
@@ -64,42 +63,7 @@ public class IborFutureCurveNodeTest {
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getNodeDateType(), NodeDateType.LAST_PAYMENT_DATE);
-    assertThrowsWithCause(() -> test.getNodeDate(), IllegalStateException.class);
-  }
-
-  public void test_builder_fixed() {
-    IborFutureCurveNode test = IborFutureCurveNode.builder()
-        .label(LABEL)
-        .template(TEMPLATE)
-        .rateKey(QUOTE_KEY)
-        .additionalSpread(SPREAD)
-        .nodeDateType(NodeDateType.FIXED_DATE)
-        .nodeDate(VAL_DATE)
-        .build();
-    assertEquals(test.getRateKey(), QUOTE_KEY);
-    assertEquals(test.getAdditionalSpread(), SPREAD);
-    assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getNodeDateType(), NodeDateType.FIXED_DATE);
-    assertEquals(test.getNodeDate(), VAL_DATE);
-  }
-
-  public void test_builder_incorrect_no_fixed_date() {
-  assertThrowsIllegalArg(() -> IborFutureCurveNode.builder()
-      .label(LABEL)
-      .template(TEMPLATE)
-      .rateKey(QUOTE_KEY)
-      .additionalSpread(SPREAD).nodeDateType(NodeDateType.FIXED_DATE)
-      .build());
-  }
-
-  public void test_builder_incorrect_fixed_date() {
-  assertThrowsIllegalArg(() -> IborFutureCurveNode.builder()
-      .label(LABEL)
-      .template(TEMPLATE)
-      .rateKey(QUOTE_KEY)
-      .additionalSpread(SPREAD).nodeDateType(NodeDateType.LAST_PAYMENT_DATE).nodeDate(VAL_DATE)
-      .build());
+    assertEquals(test.getDate(), CurveNodeDate.LAST_PAYMENT);
   }
 
   public void test_of_no_spread() {
@@ -178,26 +142,16 @@ public class IborFutureCurveNodeTest {
 
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
-    IborFutureCurveNode node = IborFutureCurveNode.builder()
-        .label(LABEL)
-        .template(TEMPLATE)
-        .rateKey(QUOTE_KEY)
-        .additionalSpread(SPREAD)
-        .nodeDateType(NodeDateType.FIXED_DATE)
-        .nodeDate(nodeDate)
-        .build();
+    IborFutureCurveNode node =
+        IborFutureCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL).withDate(CurveNodeDate.of(nodeDate));
     DatedCurveParameterMetadata metadata = node.metadata(VAL_DATE);
     assertEquals(metadata.getDate(), nodeDate);
     assertEquals(metadata.getLabel(), node.getLabel());
   }
 
   public void test_metadata_last_fixing() {
-    IborFutureCurveNode node = IborFutureCurveNode.builder()
-        .label(LABEL)
-        .template(TEMPLATE)
-        .rateKey(QUOTE_KEY)
-        .additionalSpread(SPREAD)
-        .nodeDateType(NodeDateType.LAST_FIXING_DATE).build();
+    IborFutureCurveNode node =
+        IborFutureCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL).withDate(CurveNodeDate.LAST_FIXING);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     IborFutureTrade trade = node.trade(valuationDate, ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, 0.0d).build());
     LocalDate fixingDate = trade.getProduct().getFixingDate();
