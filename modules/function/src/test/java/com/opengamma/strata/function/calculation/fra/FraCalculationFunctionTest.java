@@ -104,6 +104,8 @@ public class FraCalculationFunctionTest {
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
+            Measures.PRESENT_VALUE_MULTI_CCY, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
+        .containsEntry(
             Measures.PAR_RATE, Result.success(ValuesArray.of(ImmutableList.of(expectedParRate))))
         .containsEntry(
             Measures.PAR_SPREAD, Result.success(ValuesArray.of(ImmutableList.of(expectedParSpread))))

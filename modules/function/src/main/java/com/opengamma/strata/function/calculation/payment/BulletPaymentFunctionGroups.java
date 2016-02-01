@@ -24,6 +24,7 @@ public final class BulletPaymentFunctionGroups {
   private static final FunctionGroup<BulletPaymentTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(BulletPaymentTrade.class).name("BulletPaymentDiscounting")
           .addFunction(Measures.PRESENT_VALUE, BulletPaymentCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE_MULTI_CCY, BulletPaymentCalculationFunction.class)
           .addFunction(Measures.PV01, BulletPaymentCalculationFunction.class)
           .addFunction(Measures.BUCKETED_PV01, BulletPaymentCalculationFunction.class)
           .build();
@@ -42,6 +43,7 @@ public final class BulletPaymentFunctionGroups {
    * The supported built-in measures are:
    * <ul>
    *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
    *   <li>{@linkplain Measures#PV01 PV01}
    *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
    * </ul>

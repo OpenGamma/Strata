@@ -24,6 +24,7 @@ public final class SwaptionFunctionGroups {
   private static final FunctionGroup<SwaptionTrade> STANDARD_GROUP =
       DefaultFunctionGroup.builder(SwaptionTrade.class).name("Swaption")
           .addFunction(Measures.PRESENT_VALUE, SwaptionCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE_MULTI_CCY, SwaptionCalculationFunction.class)
           .build();
 
   /**
@@ -40,6 +41,7 @@ public final class SwaptionFunctionGroups {
    * The supported built-in measures are:
    * <ul>
    *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
    * </ul>
    * 
    * @return the function group

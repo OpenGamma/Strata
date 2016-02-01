@@ -19,6 +19,7 @@ import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
+import com.opengamma.strata.calc.runner.function.FunctionUtils;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
@@ -35,6 +36,7 @@ import com.opengamma.strata.product.payment.BulletPaymentTrade;
  *   <li>{@linkplain Measures#PAR_RATE Par rate}
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+ *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
  *   <li>{@linkplain Measures#PV01 PV01}
  *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
  * </ul>
@@ -52,6 +54,11 @@ public class BulletPaymentCalculationFunction
           .put(Measures.BUCKETED_PV01, BulletPaymentMeasureCalculations::bucketedPv01)
           .build();
 
+  private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()
+      .addAll(CALCULATORS.keySet())
+      .add(Measures.PRESENT_VALUE_MULTI_CCY)
+      .build();
+
   /**
    * Creates an instance.
    */
@@ -61,7 +68,7 @@ public class BulletPaymentCalculationFunction
   //-------------------------------------------------------------------------
   @Override
   public Set<Measure> supportedMeasures() {
-    return CALCULATORS.keySet();
+    return MEASURES;
   }
 
   @Override
@@ -99,6 +106,8 @@ public class BulletPaymentCalculationFunction
     for (Measure measure : measures) {
       results.put(measure, calculate(measure, trade, payment, scenarioMarketData));
     }
+    // The calculated value is the same for these two measures but they are handled differently WRT FX conversion
+    FunctionUtils.duplicateResult(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY, results);
     return results;
   }
 

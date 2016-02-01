@@ -103,10 +103,16 @@ public class TermDepositCalculationFunctionTest {
     double expectedParRate = pricer.parRate(TRADE.getProduct(), provider);
     double expectedParSpread = pricer.parSpread(TRADE.getProduct(), provider);
 
-    Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.PAR_RATE, Measures.PAR_SPREAD);
+    Set<Measure> measures = ImmutableSet.of(
+        Measures.PRESENT_VALUE,
+        Measures.PRESENT_VALUE_MULTI_CCY,
+        Measures.PAR_RATE,
+        Measures.PAR_SPREAD);
     assertThat(function.calculate(TRADE, measures, md))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
+        .containsEntry(
+            Measures.PRESENT_VALUE_MULTI_CCY, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
             Measures.PAR_RATE, Result.success(ValuesArray.of(ImmutableList.of(expectedParRate))))
         .containsEntry(

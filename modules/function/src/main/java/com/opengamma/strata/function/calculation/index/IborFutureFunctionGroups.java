@@ -25,6 +25,7 @@ public final class IborFutureFunctionGroups {
       DefaultFunctionGroup.builder(IborFutureTrade.class).name("IborFutureDiscounting")
           .addFunction(Measures.PAR_SPREAD, IborFutureCalculationFunction.class)
           .addFunction(Measures.PRESENT_VALUE, IborFutureCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE_MULTI_CCY, IborFutureCalculationFunction.class)
           .addFunction(Measures.PV01, IborFutureCalculationFunction.class)
           .addFunction(Measures.BUCKETED_PV01, IborFutureCalculationFunction.class)
           .build();
@@ -44,6 +45,7 @@ public final class IborFutureFunctionGroups {
    * <ul>
    *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
    *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
    *   <li>{@linkplain Measures#PV01 PV01}
    *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
    * </ul>

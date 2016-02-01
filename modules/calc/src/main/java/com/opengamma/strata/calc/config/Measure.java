@@ -28,7 +28,7 @@ public interface Measure extends Named {
    * Obtains an instance from the specified unique name.
    *
    * @param uniqueName  the unique name
-   * @return the convention
+   * @return the measure
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
@@ -37,10 +37,21 @@ public interface Measure extends Named {
     return extendedEnum().lookup(uniqueName);
   }
 
+  //--------------------------------------------------------------------------------------------------
+
+  /**
+   * Flag indicating whether measure values should be automatically converted to the reporting currency.
+   *
+   * @return true if measure values should be automatically converted to the reporting currency
+   */
+  public abstract boolean isCurrencyConvertible();
+
+  //--------------------------------------------------------------------------------------------------
+
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of the convention to be looked up.
+   * This helper allows instances of the measure to be looked up.
    * It also provides the complete set of available instances.
    *
    * @return the extended enum helper

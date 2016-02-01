@@ -23,6 +23,7 @@ import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
+import com.opengamma.strata.calc.runner.function.FunctionUtils;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
@@ -40,6 +41,7 @@ import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
  * The supported built-in measures are:
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+ *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
  *   <li>{@linkplain Measures#PV01 PV01}
  *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
  * </ul>
@@ -59,6 +61,11 @@ public class DeliverableSwapFutureCalculationFunction
           .put(Measures.BUCKETED_PV01, DeliverableSwapFutureMeasureCalculations::bucketedPv01)
           .build();
 
+  private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()
+      .addAll(CALCULATORS.keySet())
+      .add(Measures.PRESENT_VALUE_MULTI_CCY)
+      .build();
+
   /**
    * Creates an instance.
    */
@@ -68,7 +75,7 @@ public class DeliverableSwapFutureCalculationFunction
   //-------------------------------------------------------------------------
   @Override
   public Set<Measure> supportedMeasures() {
-    return CALCULATORS.keySet();
+    return MEASURES;
   }
 
   @Override
@@ -116,6 +123,8 @@ public class DeliverableSwapFutureCalculationFunction
     for (Measure measure : measures) {
       results.put(measure, calculate(measure, trade, scenarioMarketData));
     }
+    // The calculated value is the same for these two measures but they are handled differently WRT FX conversion
+    FunctionUtils.duplicateResult(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY, results);
     return results;
   }
 

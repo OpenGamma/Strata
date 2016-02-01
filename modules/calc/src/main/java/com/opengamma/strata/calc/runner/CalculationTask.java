@@ -255,6 +255,9 @@ public final class CalculationTask {
     if (!result.isSuccess()) {
       return result;
     }
+    if (!measure.isCurrencyConvertible()) {
+      return result;
+    }
     Object value = result.getValue();
 
     if (!(value instanceof CurrencyConvertible)) {

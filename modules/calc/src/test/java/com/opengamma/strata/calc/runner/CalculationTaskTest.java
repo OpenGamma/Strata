@@ -58,7 +58,8 @@ public class CalculationTaskTest {
   private static final ReportingCurrency REPORTING_CURRENCY_EMPTY = ReportingCurrency.NATURAL;
   private static final ReportingCurrency REPORTING_CURRENCY_USD = ReportingCurrency.of(Currency.USD);
   private static final TestTarget TARGET = new TestTarget();
-  private static final Set<Measure> MEASURES = ImmutableSet.of(Measures.PRESENT_VALUE);
+  private static final Set<Measure> MEASURES =
+      ImmutableSet.of(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY);
 
   public void requirements() {
     MarketDataFeed marketDataFeed = MarketDataFeed.of("MarketDataVendor");
@@ -106,6 +107,30 @@ public class CalculationTaskTest {
 
     DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
     CurrencyValuesArray expectedArray = CurrencyValuesArray.of(Currency.USD, expectedValues);
+
+    CalculationResult calculationResult = task.execute(marketData);
+    Result<?> result = calculationResult.getResult();
+    assertThat(result).hasValue(expectedArray);
+  }
+
+  /**
+   * Test that the result is not converted if the isCurrencyConvertible flag on the measure is false.
+   */
+  public void currencyConversionHonoursConvertibleFlagOnMeasure() {
+    DoubleArray values = DoubleArray.of(1, 2, 3);
+    List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
+        .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
+        .collect(toImmutableList());
+    CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
+    CalculationEnvironment marketData = MarketEnvironment.builder()
+        .valuationDate(date(2011, 3, 8))
+        .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
+        .build();
+    ConvertibleFunction fn = ConvertibleFunction.of(() -> list);
+    CalculationTask task =
+        CalculationTask.of(TARGET, Measures.PRESENT_VALUE_MULTI_CCY, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
+
+    CurrencyValuesArray expectedArray = CurrencyValuesArray.of(Currency.GBP, values);
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
@@ -371,7 +396,8 @@ public class CalculationTaskTest {
         Set<Measure> measures,
         CalculationMarketData marketData) {
 
-      return ImmutableMap.of(Measures.PRESENT_VALUE, Result.success(supplier.get()));
+      Result<CurrencyValuesArray> result = Result.success(supplier.get());
+      return ImmutableMap.of(Measures.PRESENT_VALUE, result, Measures.PRESENT_VALUE_MULTI_CCY, result);
     }
   }
 

@@ -86,10 +86,15 @@ public class IborFutureCalculationFunctionTest {
     CurrencyAmount expectedPv = DiscountingIborFutureTradePricer.DEFAULT.presentValue(TRADE, provider, MARKET_PRICE / 100);
     double expectedParSpread = DiscountingIborFutureTradePricer.DEFAULT.parSpread(TRADE, provider, MARKET_PRICE / 100);
 
-    Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.PAR_SPREAD);
+    Set<Measure> measures = ImmutableSet.of(
+        Measures.PRESENT_VALUE,
+        Measures.PRESENT_VALUE_MULTI_CCY,
+        Measures.PAR_SPREAD);
     assertThat(function.calculate(TRADE, measures, md))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
+        .containsEntry(
+            Measures.PRESENT_VALUE_MULTI_CCY, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
             Measures.PAR_SPREAD, Result.success(ValuesArray.of(ImmutableList.of(expectedParSpread))));
   }

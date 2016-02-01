@@ -24,6 +24,7 @@ public final class DeliverableSwapFutureFunctionGroups {
   private static final FunctionGroup<DeliverableSwapFutureTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(DeliverableSwapFutureTrade.class).name("DeliverableSwapFutureDiscounting")
           .addFunction(Measures.PRESENT_VALUE, DeliverableSwapFutureCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE_MULTI_CCY, DeliverableSwapFutureCalculationFunction.class)
           .addFunction(Measures.PV01, DeliverableSwapFutureCalculationFunction.class)
           .addFunction(Measures.BUCKETED_PV01, DeliverableSwapFutureCalculationFunction.class)
           .build();
@@ -42,6 +43,7 @@ public final class DeliverableSwapFutureFunctionGroups {
    * The supported built-in measures are:
    * <ul>
    *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
    *   <li>{@linkplain Measures#PV01 PV01}
    *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
    * </ul>

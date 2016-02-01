@@ -24,6 +24,7 @@ public final class FxNdfFunctionGroups {
   private static final FunctionGroup<FxNdfTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(FxNdfTrade.class).name("FxNdfDiscounting")
           .addFunction(Measures.PRESENT_VALUE, FxNdfCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE_MULTI_CCY, FxNdfCalculationFunction.class)
           .addFunction(Measures.PV01, FxNdfCalculationFunction.class)
           .addFunction(Measures.BUCKETED_PV01, FxNdfCalculationFunction.class)
           .addFunction(Measures.CURRENCY_EXPOSURE, FxNdfCalculationFunction.class)
@@ -45,6 +46,7 @@ public final class FxNdfFunctionGroups {
    * The supported built-in measures are:
    * <ul>
    *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
    *   <li>{@linkplain Measures#PV01 PV01}
    *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
    *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}

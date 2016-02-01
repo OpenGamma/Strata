@@ -24,6 +24,7 @@ public final class CdsFunctionGroups {
   private static final FunctionGroup<CdsTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(CdsTrade.class).name("CdsDiscounting")
           .addFunction(Measures.PRESENT_VALUE, CdsCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE_MULTI_CCY, CdsCalculationFunction.class)
           .addFunction(Measures.PAR_RATE, CdsCalculationFunction.class)
           .addFunction(Measures.IR01_PARALLEL_ZERO, CdsCalculationFunction.class)
           .addFunction(Measures.IR01_BUCKETED_ZERO, CdsCalculationFunction.class)
@@ -51,6 +52,7 @@ public final class CdsFunctionGroups {
    * The supported built-in measures are:
    * <ul>
    *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
    *   <li>{@linkplain Measures#PAR_RATE Par rate}
    *   <li>{@linkplain Measures#IR01_PARALLEL_ZERO Scalar IR01, based on zero rates}
    *   <li>{@linkplain Measures#IR01_BUCKETED_ZERO Vector curve node IR01, based on zero rates}

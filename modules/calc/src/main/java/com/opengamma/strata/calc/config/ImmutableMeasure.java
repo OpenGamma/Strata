@@ -45,6 +45,12 @@ public final class ImmutableMeasure
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final String name;
 
+  /**
+   * Flag indicating whether measure values should be automatically converted to the reporting currency.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final boolean currencyConvertible;
+
   //--------------------------------------------------------------------------------------------------
 
   @ImmutableValidator
@@ -55,7 +61,7 @@ public final class ImmutableMeasure
   }
 
   /**
-   * Returns a measure with the specified name.
+   * Returns a measure with the specified name whose values will be automatically converted to the reporting currency.
    * <p>
    * Measure names must only contains the characters A-Z, a-z, 0-9 and -.
    *
@@ -63,7 +69,21 @@ public final class ImmutableMeasure
    * @return a measure with the specified name
    */
   public static ImmutableMeasure of(String name) {
-    return new ImmutableMeasure(name);
+    return new ImmutableMeasure(name, true);
+  }
+
+  /**
+   * Returns a measure with the specified name.
+   * <p>
+   * Measure names must only contains the characters A-Z, a-z, 0-9 and -.
+   *
+   * @param name  the measure name
+   * @param isCurrencyConvertible  flag indicating whether measure values should be automatically
+   * converted to the reporting currency.
+   * @return a measure with the specified name
+   */
+  public static ImmutableMeasure of(String name, boolean isCurrencyConvertible) {
+    return new ImmutableMeasure(name, isCurrencyConvertible);
   }
 
   @Override
@@ -99,9 +119,12 @@ public final class ImmutableMeasure
   }
 
   private ImmutableMeasure(
-      String name) {
+      String name,
+      boolean currencyConvertible) {
     JodaBeanUtils.notNull(name, "name");
+    JodaBeanUtils.notNull(currencyConvertible, "currencyConvertible");
     this.name = name;
+    this.currencyConvertible = currencyConvertible;
     validate();
   }
 
@@ -134,6 +157,16 @@ public final class ImmutableMeasure
 
   //-----------------------------------------------------------------------
   /**
+   * Gets flag indicating whether measure values should be automatically converted to the reporting currency.
+   * @return the value of the property, not null
+   */
+  @Override
+  public boolean isCurrencyConvertible() {
+    return currencyConvertible;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -148,7 +181,8 @@ public final class ImmutableMeasure
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ImmutableMeasure other = (ImmutableMeasure) obj;
-      return JodaBeanUtils.equal(name, other.name);
+      return JodaBeanUtils.equal(name, other.name) &&
+          (currencyConvertible == other.currencyConvertible);
     }
     return false;
   }
@@ -157,6 +191,7 @@ public final class ImmutableMeasure
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(currencyConvertible);
     return hash;
   }
 
@@ -176,11 +211,17 @@ public final class ImmutableMeasure
     private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
         this, "name", ImmutableMeasure.class, String.class);
     /**
+     * The meta-property for the {@code currencyConvertible} property.
+     */
+    private final MetaProperty<Boolean> currencyConvertible = DirectMetaProperty.ofImmutable(
+        this, "currencyConvertible", ImmutableMeasure.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "name");
+        "name",
+        "currencyConvertible");
 
     /**
      * Restricted constructor.
@@ -193,6 +234,8 @@ public final class ImmutableMeasure
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
+        case 1098971060:  // currencyConvertible
+          return currencyConvertible;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -221,12 +264,22 @@ public final class ImmutableMeasure
       return name;
     }
 
+    /**
+     * The meta-property for the {@code currencyConvertible} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Boolean> currencyConvertible() {
+      return currencyConvertible;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return ((ImmutableMeasure) bean).getName();
+        case 1098971060:  // currencyConvertible
+          return ((ImmutableMeasure) bean).isCurrencyConvertible();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -249,6 +302,7 @@ public final class ImmutableMeasure
   public static final class Builder extends DirectFieldsBeanBuilder<ImmutableMeasure> {
 
     private String name;
+    private boolean currencyConvertible;
 
     /**
      * Restricted constructor.
@@ -262,6 +316,7 @@ public final class ImmutableMeasure
      */
     private Builder(ImmutableMeasure beanToCopy) {
       this.name = beanToCopy.getName();
+      this.currencyConvertible = beanToCopy.isCurrencyConvertible();
     }
 
     //-----------------------------------------------------------------------
@@ -270,6 +325,8 @@ public final class ImmutableMeasure
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
+        case 1098971060:  // currencyConvertible
+          return currencyConvertible;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -280,6 +337,9 @@ public final class ImmutableMeasure
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           this.name = (String) newValue;
+          break;
+        case 1098971060:  // currencyConvertible
+          this.currencyConvertible = (Boolean) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -314,7 +374,8 @@ public final class ImmutableMeasure
     @Override
     public ImmutableMeasure build() {
       return new ImmutableMeasure(
-          name);
+          name,
+          currencyConvertible);
     }
 
     //-----------------------------------------------------------------------
@@ -331,12 +392,24 @@ public final class ImmutableMeasure
       return this;
     }
 
+    /**
+     * Sets flag indicating whether measure values should be automatically converted to the reporting currency.
+     * @param currencyConvertible  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder currencyConvertible(boolean currencyConvertible) {
+      JodaBeanUtils.notNull(currencyConvertible, "currencyConvertible");
+      this.currencyConvertible = currencyConvertible;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(64);
+      StringBuilder buf = new StringBuilder(96);
       buf.append("ImmutableMeasure.Builder{");
-      buf.append("name").append('=').append(JodaBeanUtils.toString(name));
+      buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+      buf.append("currencyConvertible").append('=').append(JodaBeanUtils.toString(currencyConvertible));
       buf.append('}');
       return buf.toString();
     }

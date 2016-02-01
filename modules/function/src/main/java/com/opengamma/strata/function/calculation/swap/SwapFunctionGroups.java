@@ -27,6 +27,7 @@ public final class SwapFunctionGroups {
           .addFunction(Measures.PAR_SPREAD, SwapCalculationFunction.class)
           .addFunction(Measures.LEG_INITIAL_NOTIONAL, SwapCalculationFunction.class)
           .addFunction(Measures.PRESENT_VALUE, SwapCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE_MULTI_CCY, SwapCalculationFunction.class)
           .addFunction(Measures.EXPLAIN_PRESENT_VALUE, SwapCalculationFunction.class)
           .addFunction(Measures.CASH_FLOWS, SwapCalculationFunction.class)
           .addFunction(Measures.LEG_PRESENT_VALUE, SwapCalculationFunction.class)
@@ -54,6 +55,7 @@ public final class SwapFunctionGroups {
    *   <li>{@linkplain Measures#PAR_RATE Par rate}
    *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
    *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
    *   <li>{@linkplain Measures#EXPLAIN_PRESENT_VALUE Explain present value}
    *   <li>{@linkplain Measures#CASH_FLOWS Cash flows}
    *   <li>{@linkplain Measures#PV01 PV01}
