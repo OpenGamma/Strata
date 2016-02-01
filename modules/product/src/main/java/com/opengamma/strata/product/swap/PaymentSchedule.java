@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -26,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -50,6 +52,12 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
  * When applying the frequency, it is converted into an integer value, representing the
  * number of accrual periods per payment period. The accrual periods are allocated by rolling
  * forwards or backwards, applying the same direction as accrual schedule generation.
+ * <p>
+ * A different business day adjustment may be specified for the payment schedule to that
+ * used for the accrual schedule. When expanding the swap, the adjustment will be applied
+ * as part of the process that creates the payment date. Note that the start and end dates
+ * of the payment period, as defined by the payment schedule, cannot be observed on the
+ * resulting {@link RatePaymentPeriod} instance.
  */
 @BeanDefinition
 public final class PaymentSchedule
@@ -65,6 +73,21 @@ public final class PaymentSchedule
    */
   @PropertyDefinition(validate = "notNull")
   private final Frequency paymentFrequency;
+  /**
+   * The business day adjustment to apply, optional.
+   * <p>
+   * Each date in the calculated schedule is determined relative to the accrual schedule.
+   * Normally, the accrual schedule is adjusted ensuring each date is not a holiday.
+   * As such, there is typically no reason to adjust the date before applying the payment date offset.
+   * <p>
+   * If the accrual dates are unadjusted, or for some other reason, it may be
+   * desirable to adjust the schedule dates before applying the payment date offset.
+   * This optional property allows that to happen.
+   * Note that the payment date offset itself provides the ability to adjust dates
+   * after the offset is applied.
+   */
+  @PropertyDefinition(get = "optional")
+  private final BusinessDayAdjustment businessDayAdjustment;
   /**
    * The base date that each payment is made relative to, defaulted to 'PeriodEnd'.
    * <p>
@@ -122,7 +145,11 @@ public final class PaymentSchedule
     // derive schedule, retaining stubs as payment periods
     int accrualPeriodsPerPayment = paymentFrequency.exactDivide(accrualSchedule.getFrequency());
     boolean rollForwards = !accrualSchedule.getInitialStub().isPresent();
-    return accrualSchedule.mergeRegular(accrualPeriodsPerPayment, rollForwards);
+    Schedule paySchedule = accrualSchedule.mergeRegular(accrualPeriodsPerPayment, rollForwards);
+    if (businessDayAdjustment != null) {
+      return paySchedule.toAdjusted(businessDayAdjustment);
+    }
+    return paySchedule;
   }
 
   //-------------------------------------------------------------------------
@@ -160,18 +187,18 @@ public final class PaymentSchedule
         paymentPeriods.add(createPaymentPeriod(period, paymentAccrualPeriods, dayCount, notionalSchedule, notional));
       }
     } else {
-      // multiple accrual periods per payment period
+      // multiple accrual periods per payment period, or accrual/payment schedules differ
       int accrualIndex = 0;
       for (int paymentIndex = 0; paymentIndex < paymentSchedule.size(); paymentIndex++) {
-        SchedulePeriod period = paymentSchedule.getPeriod(paymentIndex);
+        SchedulePeriod payPeriod = paymentSchedule.getPeriod(paymentIndex);
         double notional = payReceive.normalize(notionals.get(paymentIndex));
         int accrualStartIndex = accrualIndex;
         RateAccrualPeriod accrual = accrualPeriods.get(accrualIndex);
-        while (accrual.getEndDate().isBefore(period.getEndDate())) {
+        while (accrual.getUnadjustedEndDate().isBefore(payPeriod.getUnadjustedEndDate())) {
           accrual = accrualPeriods.get(++accrualIndex);
         }
         List<RateAccrualPeriod> paymentAccrualPeriods = accrualPeriods.subList(accrualStartIndex, accrualIndex + 1);
-        paymentPeriods.add(createPaymentPeriod(period, paymentAccrualPeriods, dayCount, notionalSchedule, notional));
+        paymentPeriods.add(createPaymentPeriod(payPeriod, paymentAccrualPeriods, dayCount, notionalSchedule, notional));
         accrualIndex++;
       }
     }
@@ -185,6 +212,7 @@ public final class PaymentSchedule
       DayCount dayCount,
       NotionalSchedule notionalAmount,
       double notional) {
+    // FpML cash flow example 3 shows payment offset calculated from adjusted accrual date (not unadjusted)
     return RatePaymentPeriod.builder()
         .paymentDate(paymentDateOffset.adjust(paymentRelativeTo.selectBaseDate(paymentPeriod)))
         .accrualPeriods(periods)
@@ -232,6 +260,7 @@ public final class PaymentSchedule
 
   private PaymentSchedule(
       Frequency paymentFrequency,
+      BusinessDayAdjustment businessDayAdjustment,
       PaymentRelativeTo paymentRelativeTo,
       DaysAdjustment paymentDateOffset,
       CompoundingMethod compoundingMethod) {
@@ -240,6 +269,7 @@ public final class PaymentSchedule
     JodaBeanUtils.notNull(paymentDateOffset, "paymentDateOffset");
     JodaBeanUtils.notNull(compoundingMethod, "compoundingMethod");
     this.paymentFrequency = paymentFrequency;
+    this.businessDayAdjustment = businessDayAdjustment;
     this.paymentRelativeTo = paymentRelativeTo;
     this.paymentDateOffset = paymentDateOffset;
     this.compoundingMethod = compoundingMethod;
@@ -272,6 +302,25 @@ public final class PaymentSchedule
    */
   public Frequency getPaymentFrequency() {
     return paymentFrequency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the business day adjustment to apply, optional.
+   * <p>
+   * Each date in the calculated schedule is determined relative to the accrual schedule.
+   * Normally, the accrual schedule is adjusted ensuring each date is not a holiday.
+   * As such, there is typically no reason to adjust the date before applying the payment date offset.
+   * <p>
+   * If the accrual dates are unadjusted, or for some other reason, it may be
+   * desirable to adjust the schedule dates before applying the payment date offset.
+   * This optional property allows that to happen.
+   * Note that the payment date offset itself provides the ability to adjust dates
+   * after the offset is applied.
+   * @return the optional value of the property, not null
+   */
+  public Optional<BusinessDayAdjustment> getBusinessDayAdjustment() {
+    return Optional.ofNullable(businessDayAdjustment);
   }
 
   //-----------------------------------------------------------------------
@@ -325,6 +374,7 @@ public final class PaymentSchedule
     if (obj != null && obj.getClass() == this.getClass()) {
       PaymentSchedule other = (PaymentSchedule) obj;
       return JodaBeanUtils.equal(paymentFrequency, other.paymentFrequency) &&
+          JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
           JodaBeanUtils.equal(paymentRelativeTo, other.paymentRelativeTo) &&
           JodaBeanUtils.equal(paymentDateOffset, other.paymentDateOffset) &&
           JodaBeanUtils.equal(compoundingMethod, other.compoundingMethod);
@@ -336,6 +386,7 @@ public final class PaymentSchedule
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentFrequency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentRelativeTo);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(compoundingMethod);
@@ -344,9 +395,10 @@ public final class PaymentSchedule
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("PaymentSchedule{");
     buf.append("paymentFrequency").append('=').append(paymentFrequency).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
     buf.append("paymentRelativeTo").append('=').append(paymentRelativeTo).append(',').append(' ');
     buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
     buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod));
@@ -370,6 +422,11 @@ public final class PaymentSchedule
     private final MetaProperty<Frequency> paymentFrequency = DirectMetaProperty.ofImmutable(
         this, "paymentFrequency", PaymentSchedule.class, Frequency.class);
     /**
+     * The meta-property for the {@code businessDayAdjustment} property.
+     */
+    private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
+        this, "businessDayAdjustment", PaymentSchedule.class, BusinessDayAdjustment.class);
+    /**
      * The meta-property for the {@code paymentRelativeTo} property.
      */
     private final MetaProperty<PaymentRelativeTo> paymentRelativeTo = DirectMetaProperty.ofImmutable(
@@ -390,6 +447,7 @@ public final class PaymentSchedule
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "paymentFrequency",
+        "businessDayAdjustment",
         "paymentRelativeTo",
         "paymentDateOffset",
         "compoundingMethod");
@@ -405,6 +463,8 @@ public final class PaymentSchedule
       switch (propertyName.hashCode()) {
         case 863656438:  // paymentFrequency
           return paymentFrequency;
+        case -1065319863:  // businessDayAdjustment
+          return businessDayAdjustment;
         case -1357627123:  // paymentRelativeTo
           return paymentRelativeTo;
         case -716438393:  // paymentDateOffset
@@ -440,6 +500,14 @@ public final class PaymentSchedule
     }
 
     /**
+     * The meta-property for the {@code businessDayAdjustment} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<BusinessDayAdjustment> businessDayAdjustment() {
+      return businessDayAdjustment;
+    }
+
+    /**
      * The meta-property for the {@code paymentRelativeTo} property.
      * @return the meta-property, not null
      */
@@ -469,6 +537,8 @@ public final class PaymentSchedule
       switch (propertyName.hashCode()) {
         case 863656438:  // paymentFrequency
           return ((PaymentSchedule) bean).getPaymentFrequency();
+        case -1065319863:  // businessDayAdjustment
+          return ((PaymentSchedule) bean).businessDayAdjustment;
         case -1357627123:  // paymentRelativeTo
           return ((PaymentSchedule) bean).getPaymentRelativeTo();
         case -716438393:  // paymentDateOffset
@@ -497,6 +567,7 @@ public final class PaymentSchedule
   public static final class Builder extends DirectFieldsBeanBuilder<PaymentSchedule> {
 
     private Frequency paymentFrequency;
+    private BusinessDayAdjustment businessDayAdjustment;
     private PaymentRelativeTo paymentRelativeTo;
     private DaysAdjustment paymentDateOffset;
     private CompoundingMethod compoundingMethod;
@@ -514,6 +585,7 @@ public final class PaymentSchedule
      */
     private Builder(PaymentSchedule beanToCopy) {
       this.paymentFrequency = beanToCopy.getPaymentFrequency();
+      this.businessDayAdjustment = beanToCopy.businessDayAdjustment;
       this.paymentRelativeTo = beanToCopy.getPaymentRelativeTo();
       this.paymentDateOffset = beanToCopy.getPaymentDateOffset();
       this.compoundingMethod = beanToCopy.getCompoundingMethod();
@@ -525,6 +597,8 @@ public final class PaymentSchedule
       switch (propertyName.hashCode()) {
         case 863656438:  // paymentFrequency
           return paymentFrequency;
+        case -1065319863:  // businessDayAdjustment
+          return businessDayAdjustment;
         case -1357627123:  // paymentRelativeTo
           return paymentRelativeTo;
         case -716438393:  // paymentDateOffset
@@ -541,6 +615,9 @@ public final class PaymentSchedule
       switch (propertyName.hashCode()) {
         case 863656438:  // paymentFrequency
           this.paymentFrequency = (Frequency) newValue;
+          break;
+        case -1065319863:  // businessDayAdjustment
+          this.businessDayAdjustment = (BusinessDayAdjustment) newValue;
           break;
         case -1357627123:  // paymentRelativeTo
           this.paymentRelativeTo = (PaymentRelativeTo) newValue;
@@ -585,6 +662,7 @@ public final class PaymentSchedule
     public PaymentSchedule build() {
       return new PaymentSchedule(
           paymentFrequency,
+          businessDayAdjustment,
           paymentRelativeTo,
           paymentDateOffset,
           compoundingMethod);
@@ -604,6 +682,26 @@ public final class PaymentSchedule
     public Builder paymentFrequency(Frequency paymentFrequency) {
       JodaBeanUtils.notNull(paymentFrequency, "paymentFrequency");
       this.paymentFrequency = paymentFrequency;
+      return this;
+    }
+
+    /**
+     * Sets the business day adjustment to apply, optional.
+     * <p>
+     * Each date in the calculated schedule is determined relative to the accrual schedule.
+     * Normally, the accrual schedule is adjusted ensuring each date is not a holiday.
+     * As such, there is typically no reason to adjust the date before applying the payment date offset.
+     * <p>
+     * If the accrual dates are unadjusted, or for some other reason, it may be
+     * desirable to adjust the schedule dates before applying the payment date offset.
+     * This optional property allows that to happen.
+     * Note that the payment date offset itself provides the ability to adjust dates
+     * after the offset is applied.
+     * @param businessDayAdjustment  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder businessDayAdjustment(BusinessDayAdjustment businessDayAdjustment) {
+      this.businessDayAdjustment = businessDayAdjustment;
       return this;
     }
 
@@ -650,9 +748,10 @@ public final class PaymentSchedule
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("PaymentSchedule.Builder{");
       buf.append("paymentFrequency").append('=').append(JodaBeanUtils.toString(paymentFrequency)).append(',').append(' ');
+      buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
       buf.append("paymentRelativeTo").append('=').append(JodaBeanUtils.toString(paymentRelativeTo)).append(',').append(' ');
       buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
       buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod));

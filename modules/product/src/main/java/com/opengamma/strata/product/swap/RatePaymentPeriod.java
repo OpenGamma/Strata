@@ -141,10 +141,10 @@ public final class RatePaymentPeriod
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the start date of the period.
+   * Gets the accrual start date of the period.
    * <p>
    * This is the first accrual date in the period.
-   * This date has been adjusted to be a valid business day.
+   * This date has typically been adjusted to be a valid business day.
    * 
    * @return the start date of the period
    */
@@ -154,10 +154,10 @@ public final class RatePaymentPeriod
   }
 
   /**
-   * Gets the end date of the period.
+   * Gets the accrual end date of the period.
    * <p>
    * This is the last accrual date in the period.
-   * This date has been adjusted to be a valid business day.
+   * This date has typically been adjusted to be a valid business day.
    * 
    * @return the end date of the period
    */

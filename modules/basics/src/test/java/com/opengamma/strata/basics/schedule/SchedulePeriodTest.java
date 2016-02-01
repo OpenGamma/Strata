@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.basics.schedule;
 
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
+import static com.opengamma.strata.basics.date.HolidayCalendars.SAT_SUN;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P2M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
@@ -33,7 +35,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 @Test
 public class SchedulePeriodTest {
 
-  private static final LocalDate JUN_15 = date(2014, JUNE, 15);
+  private static final LocalDate JUN_15 = date(2014, JUNE, 15);  // Sunday
   private static final LocalDate JUN_16 = date(2014, JUNE, 16);
   private static final LocalDate JUN_17 = date(2014, JUNE, 17);
   private static final LocalDate JUN_18 = date(2014, JUNE, 18);
@@ -41,7 +43,8 @@ public class SchedulePeriodTest {
   private static final LocalDate JUL_05 = date(2014, JULY, 5);
   private static final LocalDate JUL_17 = date(2014, JULY, 17);
   private static final LocalDate JUL_18 = date(2014, JULY, 18);
-  private static final LocalDate AUG_17 = date(2014, AUGUST, 17);
+  private static final LocalDate AUG_17 = date(2014, AUGUST, 17);  // Sunday
+  private static final LocalDate AUG_18 = date(2014, AUGUST, 18);  // Monday
   private static final LocalDate SEP_17 = date(2014, SEPTEMBER, 17);
   private static final double TOLERANCE = 1.0E-6;
 
@@ -186,6 +189,23 @@ public class SchedulePeriodTest {
     assertThrowsIllegalArg(() -> test.subSchedule(P1M, RollConventions.DAY_17, null, BusinessDayAdjustment.NONE));
     assertThrowsIllegalArg(() -> test.subSchedule(P1M, RollConventions.DAY_17, StubConvention.NONE, null));
     assertThrowsIllegalArg(() -> test.subSchedule(null, null, null, null));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_toAdjusted() {
+    SchedulePeriod test1 = SchedulePeriod.of(JUN_15, SEP_17);
+    assertEquals(test1.toAdjusted(BusinessDayAdjustment.NONE), test1);
+    assertEquals(test1.toAdjusted(BusinessDayAdjustment.of(FOLLOWING, SAT_SUN)),
+        SchedulePeriod.of(JUN_16, SEP_17, JUN_15, SEP_17));
+    SchedulePeriod test2 = SchedulePeriod.of(JUN_16, AUG_17);
+    assertEquals(test2.toAdjusted(BusinessDayAdjustment.of(FOLLOWING, SAT_SUN)),
+        SchedulePeriod.of(JUN_16, AUG_18, JUN_16, AUG_17));
+  }
+
+  public void test_toUnadjusted() {
+    assertEquals(SchedulePeriod.of(JUN_15, SEP_17).toUnadjusted(), SchedulePeriod.of(JUN_15, SEP_17));
+    assertEquals(SchedulePeriod.of(JUN_16, SEP_17, JUN_15, SEP_17).toUnadjusted(), SchedulePeriod.of(JUN_15, SEP_17));
+    assertEquals(SchedulePeriod.of(JUN_16, JUL_18, JUN_16, JUL_17).toUnadjusted(), SchedulePeriod.of(JUN_16, JUL_17));
   }
 
   //-------------------------------------------------------------------------

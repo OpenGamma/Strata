@@ -257,6 +257,43 @@ public final class SchedulePeriod
 
   //-------------------------------------------------------------------------
   /**
+   * Converts this period to one where the start and end dates are adjusted using the specified adjustment.
+   * <p>
+   * The start date of the result will be the start date of this period as altered by the specified adjustment.
+   * The end date of the result will be the end date of this period as altered by the specified adjustment.
+   * The unadjusted start date and unadjusted end date will be the same as in this period.
+   * 
+   * @param businessDayAdjustment  the adjustment to use
+   * @return the adjusted schedule period
+   */
+  public SchedulePeriod toAdjusted(BusinessDayAdjustment businessDayAdjustment) {
+    // implementation needs to return 'this' if unchanged to optimize downstream code
+    LocalDate resultStart = businessDayAdjustment.adjust(startDate);
+    LocalDate resultEnd = businessDayAdjustment.adjust(endDate);
+    if (resultStart.equals(startDate) && resultEnd.equals(endDate)) {
+      return this;
+    }
+    return of(resultStart, resultEnd, unadjustedStartDate, unadjustedEndDate);
+  }
+
+  /**
+   * Converts this period to one where the start and end dates are set to the unadjusted dates.
+   * <p>
+   * The start date of the result will be the unadjusted start date of this period.
+   * The end date of the result will be the unadjusted end date of this period.
+   * The unadjusted start date and unadjusted end date will be the same as in this period.
+   * 
+   * @return the unadjusted schedule period
+   */
+  public SchedulePeriod toUnadjusted() {
+    if (unadjustedStartDate.equals(startDate) && unadjustedEndDate.equals(endDate)) {
+      return this;
+    }
+    return of(unadjustedStartDate, unadjustedEndDate);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Compares this period to another by unadjusted start date, then unadjusted end date.
    * 
    * @param other  the other period

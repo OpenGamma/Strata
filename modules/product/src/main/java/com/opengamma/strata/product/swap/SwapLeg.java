@@ -54,20 +54,20 @@ public interface SwapLeg {
   public abstract PayReceive getPayReceive();
 
   /**
-   * Gets the start date of the leg.
+   * Gets the accrual start date of the leg.
    * <p>
    * This is the first accrual date in the leg, often known as the effective date.
-   * This date has been adjusted to be a valid business day.
+   * This date has typically been adjusted to be a valid business day.
    * 
    * @return the start date of the leg
    */
   public abstract LocalDate getStartDate();
 
   /**
-   * Gets the end date of the leg.
+   * Gets the accrual end date of the leg.
    * <p>
-   * This is the last accrual date in the leg, often known as the maturity date.
-   * This date has been adjusted to be a valid business day.
+   * This is the last accrual date in the leg, often known as the termination date.
+   * This date has typically been adjusted to be a valid business day.
    * 
    * @return the end date of the leg
    */

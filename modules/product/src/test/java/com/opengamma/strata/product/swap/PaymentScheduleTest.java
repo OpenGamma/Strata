@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product.swap;
 
+import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P2M;
@@ -22,10 +23,13 @@ import static com.opengamma.strata.product.swap.PaymentRelativeTo.PERIOD_START;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
@@ -46,6 +50,8 @@ public class PaymentScheduleTest {
   private static final LocalDate DATE_04_07 = date(2014, 4, 7);
   private static final LocalDate DATE_05_05 = date(2014, 5, 5);
   private static final LocalDate DATE_05_06 = date(2014, 5, 6);
+  private static final BusinessDayAdjustment BDA = BusinessDayAdjustment.of(
+      MODIFIED_FOLLOWING, HolidayCalendars.SAT_SUN);
 
   private static final SchedulePeriod ACCRUAL1STUB = SchedulePeriod.of(DATE_01_08, DATE_02_05, DATE_01_08, DATE_02_05);
   private static final SchedulePeriod ACCRUAL1 = SchedulePeriod.of(DATE_01_06, DATE_02_05, DATE_01_05, DATE_02_05);
@@ -91,6 +97,7 @@ public class PaymentScheduleTest {
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     assertEquals(test.getPaymentFrequency(), P1M);
+    assertEquals(test.getBusinessDayAdjustment(), Optional.empty());
     assertEquals(test.getPaymentDateOffset(), DaysAdjustment.ofBusinessDays(2, GBLO));
     assertEquals(test.getPaymentRelativeTo(), PERIOD_END);
     assertEquals(test.getCompoundingMethod(), NONE);
@@ -205,6 +212,7 @@ public class PaymentScheduleTest {
     coverImmutableBean(test);
     PaymentSchedule test2 = PaymentSchedule.builder()
         .paymentFrequency(P3M)
+        .businessDayAdjustment(BDA)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(3, GBLO))
         .paymentRelativeTo(PERIOD_START)
         .compoundingMethod(STRAIGHT)

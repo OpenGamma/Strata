@@ -106,10 +106,12 @@ public final class RateCalculationSwapLeg
   }
 
   /**
-   * Gets the start date of the leg.
+   * Gets the accrual start date of the leg.
    * <p>
    * This is the first accrual date in the leg, often known as the effective date.
-   * This date has been adjusted to be a valid business day.
+   * This date has typically been adjusted to be a valid business day.
+   * <p>
+   * Defined as the effective date by the 2006 ISDA definitions article 3.2.
    * 
    * @return the start date of the period
    */
@@ -120,10 +122,12 @@ public final class RateCalculationSwapLeg
   }
 
   /**
-   * Gets the end date of the leg.
+   * Gets the accrual end date of the leg.
    * <p>
-   * This is the last accrual date in the leg, often known as the maturity date.
-   * This date has been adjusted to be a valid business day.
+   * This is the last accrual date in the leg, often known as the termination date.
+   * This date has been typically adjusted to be a valid business day.
+   * <p>
+   * Defined as the termination date by the 2006 ISDA definitions article 3.3.
    * 
    * @return the end date of the period
    */

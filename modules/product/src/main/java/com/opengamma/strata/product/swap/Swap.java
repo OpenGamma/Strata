@@ -139,10 +139,10 @@ public final class Swap
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the start date of the swap.
+   * Gets the accrual start date of the swap.
    * <p>
    * This is the earliest accrual date of the legs, often known as the effective date.
-   * This date has been adjusted to be a valid business day.
+   * This date has typically been adjusted to be a valid business day.
    * 
    * @return the start date of the swap
    */
@@ -155,10 +155,10 @@ public final class Swap
   }
 
   /**
-   * Gets the end date of the swap.
+   * Gets the accrual end date of the swap.
    * <p>
-   * This is the latest accrual date of the legs, often known as the maturity date.
-   * This date has been adjusted to be a valid business day.
+   * This is the latest accrual date of the legs, often known as the termination date.
+   * This date has typically been adjusted to be a valid business day.
    * 
    * @return the end date of the swap
    */
