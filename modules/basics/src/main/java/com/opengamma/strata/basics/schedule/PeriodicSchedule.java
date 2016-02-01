@@ -99,6 +99,10 @@ import com.opengamma.strata.collect.ArgChecker;
  * All calculated dates will match the roll convention.
  * If this is not possible due to the dates specified then an exception will be thrown during schedule creation.
  * <p>
+ * It is permitted to have 'firstRegularStartDate' equal to 'endDate', or 'lastRegularEndDate' equal to 'startDate'.
+ * In both cases, the effect is to define a schedule that is entirely "stub" and has no regular periods.
+ * The resulting schedule will retain the frequency specified here, even though it is not used.
+ * <p>
  * The schedule operates primarily on "unadjusted" dates.
  * An unadjusted date can be any day, including non-business days.
  * When the unadjusted schedule has been determined, the appropriate business day adjustment
@@ -441,6 +445,10 @@ public final class PeriodicSchedule
     LocalDate regEnd = getEffectiveLastRegularEndDate();
     boolean explicitInitialStub = !startDate.equals(regStart);
     boolean explicitFinalStub = !endDate.equals(regEnd);
+    // handle case where whole period is stub
+    if (regStart.equals(endDate) || regEnd.equals(startDate)) {
+      return ImmutableList.of(effectiveStartDate, endDate);
+    }
     // handle TERM frequency
     if (frequency == Frequency.TERM) {
       if (explicitInitialStub || explicitFinalStub) {
