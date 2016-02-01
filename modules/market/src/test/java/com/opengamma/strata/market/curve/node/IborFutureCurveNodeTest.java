@@ -7,6 +7,7 @@ package com.opengamma.strata.market.curve.node;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -28,6 +29,7 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.YearMonthCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.index.IborFutureTrade;
@@ -52,7 +54,7 @@ public class IborFutureCurveNodeTest {
 
   private static final double TOLERANCE_RATE = 1.0E-8;
 
-  public void test_builder() {
+  public void test_builder_default() {
     IborFutureCurveNode test = IborFutureCurveNode.builder()
         .label(LABEL)
         .template(TEMPLATE)
@@ -62,6 +64,42 @@ public class IborFutureCurveNodeTest {
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
+    assertEquals(test.getNodeDateType(), NodeDateType.LAST_PAYMENT_DATE);
+    assertThrowsWithCause(() -> test.getNodeDate(), IllegalStateException.class);
+  }
+
+  public void test_builder_fixed() {
+    IborFutureCurveNode test = IborFutureCurveNode.builder()
+        .label(LABEL)
+        .template(TEMPLATE)
+        .rateKey(QUOTE_KEY)
+        .additionalSpread(SPREAD)
+        .nodeDateType(NodeDateType.FIXED_DATE)
+        .nodeDate(VAL_DATE)
+        .build();
+    assertEquals(test.getRateKey(), QUOTE_KEY);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
+    assertEquals(test.getTemplate(), TEMPLATE);
+    assertEquals(test.getNodeDateType(), NodeDateType.FIXED_DATE);
+    assertEquals(test.getNodeDate(), VAL_DATE);
+  }
+
+  public void test_builder_incorrect_no_fixed_date() {
+  assertThrowsIllegalArg(() -> IborFutureCurveNode.builder()
+      .label(LABEL)
+      .template(TEMPLATE)
+      .rateKey(QUOTE_KEY)
+      .additionalSpread(SPREAD).nodeDateType(NodeDateType.FIXED_DATE)
+      .build());
+  }
+
+  public void test_builder_incorrect_fixed_date() {
+  assertThrowsIllegalArg(() -> IborFutureCurveNode.builder()
+      .label(LABEL)
+      .template(TEMPLATE)
+      .rateKey(QUOTE_KEY)
+      .additionalSpread(SPREAD).nodeDateType(NodeDateType.LAST_PAYMENT_DATE).nodeDate(VAL_DATE)
+      .build());
   }
 
   public void test_of_no_spread() {
@@ -126,7 +164,7 @@ public class IborFutureCurveNodeTest {
     assertEquals(node.initialGuess(date, marketData, ValueType.UNKNOWN), 0.0d, TOLERANCE_RATE);
   }
 
-  public void test_metadata() {
+  public void test_metadata_last_payment() {
     IborFutureCurveNode node = IborFutureCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL);
     LocalDate date = LocalDate.of(2015, 10, 20);
     LocalDate referenceDate = TEMPLATE.referenceDate(date);
@@ -135,6 +173,37 @@ public class IborFutureCurveNodeTest {
     assertEquals(metadata.getLabel(), LABEL);
     assertTrue(metadata instanceof YearMonthCurveNodeMetadata);
     assertEquals(((YearMonthCurveNodeMetadata) metadata).getDate(), maturityDate);
+    assertEquals(((YearMonthCurveNodeMetadata) metadata).getYearMonth(), YearMonth.from(referenceDate));
+  }
+
+  public void test_metadata_fixed() {
+    LocalDate nodeDate = VAL_DATE.plusMonths(1);
+    IborFutureCurveNode node = IborFutureCurveNode.builder()
+        .label(LABEL)
+        .template(TEMPLATE)
+        .rateKey(QUOTE_KEY)
+        .additionalSpread(SPREAD)
+        .nodeDateType(NodeDateType.FIXED_DATE)
+        .nodeDate(nodeDate)
+        .build();
+    DatedCurveParameterMetadata metadata = node.metadata(VAL_DATE);
+    assertEquals(metadata.getDate(), nodeDate);
+    assertEquals(metadata.getLabel(), node.getLabel());
+  }
+
+  public void test_metadata_last_fixing() {
+    IborFutureCurveNode node = IborFutureCurveNode.builder()
+        .label(LABEL)
+        .template(TEMPLATE)
+        .rateKey(QUOTE_KEY)
+        .additionalSpread(SPREAD)
+        .nodeDateType(NodeDateType.LAST_FIXING_DATE).build();
+    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
+    IborFutureTrade trade = node.trade(valuationDate, ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, 0.0d).build());
+    LocalDate fixingDate = trade.getProduct().getFixingDate();
+    DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
+    assertEquals(metadata.getDate(), fixingDate);
+    LocalDate referenceDate = TEMPLATE.referenceDate(valuationDate);
     assertEquals(((YearMonthCurveNodeMetadata) metadata).getYearMonth(), YearMonth.from(referenceDate));
   }
 

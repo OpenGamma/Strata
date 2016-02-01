@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -37,6 +38,7 @@ import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.fx.FxSwapTrade;
@@ -69,7 +71,7 @@ public class FxSwapCurveNodeTest {
       .addValue(QUOTE_KEY_PTS, FX_RATE_PTS)
       .build();
 
-  public void test_builder() {
+  public void test_builder_default() {
     FxSwapCurveNode test = FxSwapCurveNode.builder()
         .label(LABEL)
         .template(TEMPLATE)
@@ -78,6 +80,23 @@ public class FxSwapCurveNodeTest {
     assertEquals(test.getLabel(), LABEL);
     assertEquals(test.getFarForwardPointsKey(), QUOTE_KEY_PTS);
     assertEquals(test.getTemplate(), TEMPLATE);
+    assertEquals(test.getNodeDateType(), NodeDateType.LAST_PAYMENT_DATE);
+    assertThrowsWithCause(() -> test.getNodeDate(), IllegalStateException.class);
+  }
+
+  public void test_builder_fixed() {
+    FxSwapCurveNode test = FxSwapCurveNode.builder()
+        .label(LABEL)
+        .template(TEMPLATE)
+        .farForwardPointsKey(QUOTE_KEY_PTS)
+        .nodeDateType(NodeDateType.FIXED_DATE)
+        .nodeDate(VAL_DATE)
+        .build();
+    assertEquals(test.getLabel(), LABEL);
+    assertEquals(test.getFarForwardPointsKey(), QUOTE_KEY_PTS);
+    assertEquals(test.getTemplate(), TEMPLATE);
+    assertEquals(test.getNodeDateType(), NodeDateType.FIXED_DATE);
+    assertEquals(test.getNodeDate(), VAL_DATE);
   }
 
   public void test_of() {
@@ -126,7 +145,7 @@ public class FxSwapCurveNodeTest {
     assertEquals(node.initialGuess(valuationDate, OV, ValueType.DISCOUNT_FACTOR), 1.0d);
   }
 
-  public void test_metadata() {
+  public void test_metadata_last_payment() {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     LocalDate endDate = CONVENTION.getBusinessDayAdjustment()
@@ -134,6 +153,22 @@ public class FxSwapCurveNodeTest {
     CurveParameterMetadata metadata = node.metadata(valuationDate);
     assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), endDate);
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), Tenor.of(FAR_PERIOD));
+  }
+
+  public void test_metadata_fixed() {
+    LocalDate nodeDate = VAL_DATE.plusMonths(1);
+    FxSwapCurveNode node = FxSwapCurveNode.builder().template(TEMPLATE)
+        .farForwardPointsKey(QUOTE_KEY_PTS).nodeDateType(NodeDateType.FIXED_DATE).nodeDate(nodeDate).build();
+    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
+    DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
+    assertEquals(metadata.getDate(), nodeDate);
+    assertEquals(metadata.getLabel(), node.getLabel());
+  }
+  
+  public void test_metadata_last_fixing() {
+    FxSwapCurveNode node = FxSwapCurveNode.builder().template(TEMPLATE)
+        .farForwardPointsKey(QUOTE_KEY_PTS).nodeDateType(NodeDateType.LAST_FIXING_DATE).build();
+    assertThrowsWithCause(() ->  node.metadata(VAL_DATE), UnsupportedOperationException.class);   
   }
 
   //-------------------------------------------------------------------------

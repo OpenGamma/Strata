@@ -7,6 +7,7 @@ package com.opengamma.strata.market.curve.node;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -14,7 +15,9 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.ImmutablePreBuild;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -27,14 +30,25 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.SimpleMarketDataKey;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
+import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
+import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.PaymentPeriod;
+import com.opengamma.strata.product.swap.RateAccrualPeriod;
+import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.XCcyIborIborSwapTemplate;
 
@@ -67,8 +81,18 @@ public final class XCcyIborIborSwapCurveNode
    * <p>
    * When building, this will default based on the tenor if not specified.
    */
-  @PropertyDefinition(validate = "notEmpty")
+  @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String label;
+  /**
+   * The type of date associated to the node. Defaulted to LAST_PAYMENT_DATE.
+   */
+  @PropertyDefinition
+  private final NodeDateType nodeDateType;
+  /**
+   * The date associated to the node. Used only is the nodeDateType is FIXED_DATE. Null in other cases.
+   */
+  @PropertyDefinition(get = "field")
+  private final LocalDate nodeDate;
 
   //-------------------------------------------------------------------------
   /**
@@ -124,7 +148,7 @@ public final class XCcyIborIborSwapCurveNode
       double additionalSpread,
       String label) {
 
-    return new XCcyIborIborSwapCurveNode(template, spreadKey, additionalSpread, label);
+    return new XCcyIborIborSwapCurveNode(template, spreadKey, additionalSpread, label, NodeDateType.LAST_PAYMENT_DATE, null);
   }
 
   @ImmutablePreBuild
@@ -142,8 +166,27 @@ public final class XCcyIborIborSwapCurveNode
 
   @Override
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
+    if(nodeDateType.equals(NodeDateType.FIXED_DATE)) {
+      return SimpleCurveNodeMetadata.of(nodeDate, label);
+    }
     SwapTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1, 0);
-    return TenorCurveNodeMetadata.of(trade.getProduct().getEndDate(), template.getTenor(), label);
+    Tenor tenor = template.getTenor();
+    if(nodeDateType.equals(NodeDateType.LAST_PAYMENT_DATE)) {
+      return TenorCurveNodeMetadata.of(trade.getProduct().getEndDate(), tenor, label);
+    }
+    if (nodeDateType.equals(NodeDateType.LAST_FIXING_DATE)) {
+      SwapLeg iborLeg = trade.getProduct().getLegs(SwapLegType.IBOR).get(1);
+      // Select the 'second' Ibor leg, i.e. the flat leg
+      ExpandedSwapLeg iborLegExpanded = iborLeg.expand();
+      List<PaymentPeriod> periods = iborLegExpanded.getPaymentPeriods();
+      int nbPeriods = periods.size();
+      RatePaymentPeriod lastPeriod = (RatePaymentPeriod) periods.get(nbPeriods - 1);
+      List<RateAccrualPeriod> accruals = lastPeriod.getAccrualPeriods();
+      int nbAccruals = accruals.size();
+      IborRateObservation ibor = (IborRateObservation) accruals.get(nbAccruals -1).getRateObservation();
+      return TenorCurveNodeMetadata.of(ibor.getFixingDate(), tenor, label);
+    }
+    throw new UnsupportedOperationException("Node date type " + nodeDateType.toString());
   }
 
   @Override
@@ -164,6 +207,47 @@ public final class XCcyIborIborSwapCurveNode
 
   private FxRateKey fxKey() {
     return FxRateKey.of(template.getCurrencyPair());
+  }
+  
+  /**
+   * Checks if the type is 'FixedDate'.
+   * <p>
+   * 
+   * @return true if the type is 'FixedDate'
+   */
+  public boolean isFixedDate() {
+    return (nodeDateType == NodeDateType.FIXED_DATE);
+  }
+  
+  /**
+   * Gets the node date if the type is 'FixedDate'.
+   * <p>
+   * If the type is 'FixedDate', this returns the node date.
+   * Otherwise, this throws an exception.
+   * 
+   * @return the node date, only available if the type is 'FixedDate'
+   * @throws IllegalStateException if called on a failure result
+   */
+  public LocalDate getNodeDate() {
+    if (!isFixedDate()) {
+      throw new IllegalStateException(Messages.format("No currency available for type '{}'", nodeDateType));
+    }
+    return nodeDate;
+  }
+  
+  @ImmutableValidator
+  private void validate() {
+    if(nodeDateType.equals(NodeDateType.FIXED_DATE)) {
+      ArgChecker.isTrue(nodeDate != null, "Node date must be present when node date type is FIXED_DATE");
+    } else {
+      ArgChecker.isTrue(nodeDate == null, "Node date must be null when node date type is not FIXED_DATE");      
+    }
+  }
+  
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.nodeDateType = NodeDateType.LAST_PAYMENT_DATE;
+    builder.nodeDate = null;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -197,7 +281,9 @@ public final class XCcyIborIborSwapCurveNode
       XCcyIborIborSwapTemplate template,
       ObservableKey spreadKey,
       double additionalSpread,
-      String label) {
+      String label,
+      NodeDateType nodeDateType,
+      LocalDate nodeDate) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(spreadKey, "spreadKey");
     JodaBeanUtils.notEmpty(label, "label");
@@ -205,6 +291,9 @@ public final class XCcyIborIborSwapCurveNode
     this.spreadKey = spreadKey;
     this.additionalSpread = additionalSpread;
     this.label = label;
+    this.nodeDateType = nodeDateType;
+    this.nodeDate = nodeDate;
+    validate();
   }
 
   @Override
@@ -256,8 +345,18 @@ public final class XCcyIborIborSwapCurveNode
    * When building, this will default based on the tenor if not specified.
    * @return the value of the property, not empty
    */
+  @Override
   public String getLabel() {
     return label;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the type of date associated to the node. Defaulted to LAST_PAYMENT_DATE.
+   * @return the value of the property
+   */
+  public NodeDateType getNodeDateType() {
+    return nodeDateType;
   }
 
   //-----------------------------------------------------------------------
@@ -279,7 +378,9 @@ public final class XCcyIborIborSwapCurveNode
       return JodaBeanUtils.equal(template, other.template) &&
           JodaBeanUtils.equal(spreadKey, other.spreadKey) &&
           JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
-          JodaBeanUtils.equal(label, other.label);
+          JodaBeanUtils.equal(label, other.label) &&
+          JodaBeanUtils.equal(nodeDateType, other.nodeDateType) &&
+          JodaBeanUtils.equal(nodeDate, other.nodeDate);
     }
     return false;
   }
@@ -291,17 +392,21 @@ public final class XCcyIborIborSwapCurveNode
     hash = hash * 31 + JodaBeanUtils.hashCode(spreadKey);
     hash = hash * 31 + JodaBeanUtils.hashCode(additionalSpread);
     hash = hash * 31 + JodaBeanUtils.hashCode(label);
+    hash = hash * 31 + JodaBeanUtils.hashCode(nodeDateType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(nodeDate);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("XCcyIborIborSwapCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
     buf.append("spreadKey").append('=').append(spreadKey).append(',').append(' ');
     buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
-    buf.append("label").append('=').append(JodaBeanUtils.toString(label));
+    buf.append("label").append('=').append(label).append(',').append(' ');
+    buf.append("nodeDateType").append('=').append(nodeDateType).append(',').append(' ');
+    buf.append("nodeDate").append('=').append(JodaBeanUtils.toString(nodeDate));
     buf.append('}');
     return buf.toString();
   }
@@ -337,6 +442,16 @@ public final class XCcyIborIborSwapCurveNode
     private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
         this, "label", XCcyIborIborSwapCurveNode.class, String.class);
     /**
+     * The meta-property for the {@code nodeDateType} property.
+     */
+    private final MetaProperty<NodeDateType> nodeDateType = DirectMetaProperty.ofImmutable(
+        this, "nodeDateType", XCcyIborIborSwapCurveNode.class, NodeDateType.class);
+    /**
+     * The meta-property for the {@code nodeDate} property.
+     */
+    private final MetaProperty<LocalDate> nodeDate = DirectMetaProperty.ofImmutable(
+        this, "nodeDate", XCcyIborIborSwapCurveNode.class, LocalDate.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -344,7 +459,9 @@ public final class XCcyIborIborSwapCurveNode
         "template",
         "spreadKey",
         "additionalSpread",
-        "label");
+        "label",
+        "nodeDateType",
+        "nodeDate");
 
     /**
      * Restricted constructor.
@@ -363,6 +480,10 @@ public final class XCcyIborIborSwapCurveNode
           return additionalSpread;
         case 102727412:  // label
           return label;
+        case 937712682:  // nodeDateType
+          return nodeDateType;
+        case 1122582736:  // nodeDate
+          return nodeDate;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -415,6 +536,22 @@ public final class XCcyIborIborSwapCurveNode
       return label;
     }
 
+    /**
+     * The meta-property for the {@code nodeDateType} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<NodeDateType> nodeDateType() {
+      return nodeDateType;
+    }
+
+    /**
+     * The meta-property for the {@code nodeDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> nodeDate() {
+      return nodeDate;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -427,6 +564,10 @@ public final class XCcyIborIborSwapCurveNode
           return ((XCcyIborIborSwapCurveNode) bean).getAdditionalSpread();
         case 102727412:  // label
           return ((XCcyIborIborSwapCurveNode) bean).getLabel();
+        case 937712682:  // nodeDateType
+          return ((XCcyIborIborSwapCurveNode) bean).getNodeDateType();
+        case 1122582736:  // nodeDate
+          return ((XCcyIborIborSwapCurveNode) bean).nodeDate;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -452,11 +593,14 @@ public final class XCcyIborIborSwapCurveNode
     private ObservableKey spreadKey;
     private double additionalSpread;
     private String label;
+    private NodeDateType nodeDateType;
+    private LocalDate nodeDate;
 
     /**
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -468,6 +612,8 @@ public final class XCcyIborIborSwapCurveNode
       this.spreadKey = beanToCopy.getSpreadKey();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
       this.label = beanToCopy.getLabel();
+      this.nodeDateType = beanToCopy.getNodeDateType();
+      this.nodeDate = beanToCopy.nodeDate;
     }
 
     //-----------------------------------------------------------------------
@@ -482,6 +628,10 @@ public final class XCcyIborIborSwapCurveNode
           return additionalSpread;
         case 102727412:  // label
           return label;
+        case 937712682:  // nodeDateType
+          return nodeDateType;
+        case 1122582736:  // nodeDate
+          return nodeDate;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -501,6 +651,12 @@ public final class XCcyIborIborSwapCurveNode
           break;
         case 102727412:  // label
           this.label = (String) newValue;
+          break;
+        case 937712682:  // nodeDateType
+          this.nodeDateType = (NodeDateType) newValue;
+          break;
+        case 1122582736:  // nodeDate
+          this.nodeDate = (LocalDate) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -539,7 +695,9 @@ public final class XCcyIborIborSwapCurveNode
           template,
           spreadKey,
           additionalSpread,
-          label);
+          label,
+          nodeDateType,
+          nodeDate);
     }
 
     //-----------------------------------------------------------------------
@@ -588,15 +746,37 @@ public final class XCcyIborIborSwapCurveNode
       return this;
     }
 
+    /**
+     * Sets the type of date associated to the node. Defaulted to LAST_PAYMENT_DATE.
+     * @param nodeDateType  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder nodeDateType(NodeDateType nodeDateType) {
+      this.nodeDateType = nodeDateType;
+      return this;
+    }
+
+    /**
+     * Sets the date associated to the node. Used only is the nodeDateType is FIXED_DATE. Null in other cases.
+     * @param nodeDate  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder nodeDate(LocalDate nodeDate) {
+      this.nodeDate = nodeDate;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(224);
       buf.append("XCcyIborIborSwapCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("spreadKey").append('=').append(JodaBeanUtils.toString(spreadKey)).append(',').append(' ');
       buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');
-      buf.append("label").append('=').append(JodaBeanUtils.toString(label));
+      buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
+      buf.append("nodeDateType").append('=').append(JodaBeanUtils.toString(nodeDateType)).append(',').append(' ');
+      buf.append("nodeDate").append('=').append(JodaBeanUtils.toString(nodeDate));
       buf.append('}');
       return buf.toString();
     }

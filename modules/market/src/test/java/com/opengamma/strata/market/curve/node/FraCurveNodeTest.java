@@ -14,6 +14,7 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -36,12 +37,14 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.type.FraTemplate;
+import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Test {@link FraCurveNode}.
@@ -59,7 +62,7 @@ public class FraCurveNodeTest {
   private static final String LABEL = "Label";
   private static final String LABEL_AUTO = "5M";
 
-  public void test_builder() {
+  public void test_builder_default() {
     FraCurveNode test = FraCurveNode.builder()
         .label(LABEL)
         .template(TEMPLATE)
@@ -70,6 +73,44 @@ public class FraCurveNodeTest {
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
+    assertEquals(test.getNodeDateType(), NodeDateType.LAST_PAYMENT_DATE);
+    assertThrowsWithCause(() -> test.getNodeDate(), IllegalStateException.class);
+  }
+
+  public void test_builder_fixed() {
+    FraCurveNode test = FraCurveNode.builder()
+        .label(LABEL)
+        .template(TEMPLATE)
+        .rateKey(QUOTE_KEY)
+        .additionalSpread(SPREAD)
+        .nodeDateType(NodeDateType.FIXED_DATE)
+        .nodeDate(VAL_DATE)
+        .build();
+    assertEquals(test.getLabel(), LABEL);
+    assertEquals(test.getRateKey(), QUOTE_KEY);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
+    assertEquals(test.getTemplate(), TEMPLATE);
+    assertEquals(test.getNodeDateType(), NodeDateType.FIXED_DATE);
+    assertEquals(test.getNodeDate(), VAL_DATE);
+  }  
+
+  public void test_builder_incorrect_no_fixed_date() {
+  assertThrowsIllegalArg(() -> FraCurveNode.builder()
+      .label(LABEL)
+      .template(TEMPLATE)
+      .rateKey(QUOTE_KEY)
+      .additionalSpread(SPREAD)
+      .nodeDateType(NodeDateType.FIXED_DATE).build());
+  }
+
+  public void test_builder_incorrect_fixed_date() {
+  assertThrowsIllegalArg(() -> FraCurveNode.builder()
+      .label(LABEL)
+      .template(TEMPLATE)
+      .rateKey(QUOTE_KEY)
+      .additionalSpread(SPREAD)
+      .nodeDateType(NodeDateType.LAST_PAYMENT_DATE)
+      .nodeDate(VAL_DATE).build());
   }
 
   public void test_of_noSpread() {
@@ -151,12 +192,32 @@ public class FraCurveNodeTest {
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.PRICE_INDEX), 0d);
   }
 
-  public void test_metadata() {
+  public void test_metadata_last_payment() {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     LocalDate endDate = OFFSET.adjust(valuationDate).plus(PERIOD_TO_START).plusMonths(3);
     CurveParameterMetadata metadata = node.metadata(valuationDate);
     assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), endDate);
+    assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), TENOR_5M);
+  }
+
+  public void test_metadata_fixed() {
+    LocalDate nodeDate = VAL_DATE.plusMonths(1);
+    FraCurveNode node = FraCurveNode.builder().template(TEMPLATE).rateKey(QUOTE_KEY).additionalSpread(SPREAD)
+        .nodeDateType(NodeDateType.FIXED_DATE).nodeDate(nodeDate).build();
+    DatedCurveParameterMetadata metadata = node.metadata(VAL_DATE);
+    assertEquals(metadata.getDate(), nodeDate);
+    assertEquals(metadata.getLabel(), node.getLabel());
+  }
+
+  public void test_metadata_last_fixing() {
+    FraCurveNode node = FraCurveNode.builder().template(TEMPLATE).rateKey(QUOTE_KEY).additionalSpread(SPREAD)
+        .nodeDateType(NodeDateType.LAST_FIXING_DATE).build();
+    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
+    FraTrade trade = node.trade(valuationDate, ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, 0.0d).build());
+    LocalDate fixingDate = ((IborRateObservation) (trade.getProduct().expand().getFloatingRate())).getFixingDate();
+    DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
+    assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), fixingDate);
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), TENOR_5M);
   }
 

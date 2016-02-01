@@ -11,6 +11,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -34,6 +35,7 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.TradeInfo;
@@ -60,7 +62,7 @@ public class TermDepositCurveNodeTest {
   private static final String LABEL = "Label";
   private static final String LABEL_AUTO = "3M";
 
-  public void test_builder() {
+  public void test_builder_default() {
     TermDepositCurveNode test = TermDepositCurveNode.builder()
         .label(LABEL)
         .template(TEMPLATE)
@@ -71,6 +73,46 @@ public class TermDepositCurveNodeTest {
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
+    assertEquals(test.getNodeDateType(), NodeDateType.LAST_PAYMENT_DATE);
+    assertThrowsWithCause(() -> test.getNodeDate(), IllegalStateException.class);
+  }
+
+  public void test_builder_fixed() {
+    TermDepositCurveNode test = TermDepositCurveNode.builder()
+        .label(LABEL)
+        .template(TEMPLATE)
+        .rateKey(QUOTE_KEY)
+        .additionalSpread(SPREAD)
+        .nodeDateType(NodeDateType.FIXED_DATE)
+        .nodeDate(VAL_DATE)
+        .build();
+    assertEquals(test.getLabel(), LABEL);
+    assertEquals(test.getRateKey(), QUOTE_KEY);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
+    assertEquals(test.getTemplate(), TEMPLATE);
+    assertEquals(test.getNodeDateType(), NodeDateType.FIXED_DATE);
+    assertEquals(test.getNodeDate(), VAL_DATE);
+  }
+
+  public void test_builder_incorrect_no_fixed_date() {
+  assertThrowsIllegalArg(() -> TermDepositCurveNode.builder()
+      .label(LABEL)
+      .template(TEMPLATE)
+      .rateKey(QUOTE_KEY)
+      .additionalSpread(SPREAD)
+      .nodeDateType(NodeDateType.FIXED_DATE)
+      .build());
+  }
+
+  public void test_builder_incorrect_fixed_date() {
+    assertThrowsIllegalArg(() -> TermDepositCurveNode.builder()
+        .label(LABEL)
+        .template(TEMPLATE)
+        .rateKey(QUOTE_KEY)
+        .additionalSpread(SPREAD)
+        .nodeDateType(NodeDateType.LAST_PAYMENT_DATE)
+        .nodeDate(VAL_DATE)
+        .build());
   }
 
   public void test_of_noSpread() {
@@ -150,12 +192,34 @@ public class TermDepositCurveNodeTest {
         Math.exp(-rate * 0.25), 1.0e-12);
   }
 
-  public void test_metadata() {
+  public void test_metadata_last_payment() {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     CurveParameterMetadata metadata = node.metadata(valuationDate);
     assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), LocalDate.of(2015, 4, 27));
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), Tenor.TENOR_3M);
+  }
+
+  public void test_metadata_fixed() {
+    LocalDate nodeDate = VAL_DATE.plusMonths(1);
+    TermDepositCurveNode node = TermDepositCurveNode.builder()
+        .label(LABEL)
+        .template(TEMPLATE)
+        .rateKey(QUOTE_KEY)
+        .additionalSpread(SPREAD)
+        .nodeDateType(NodeDateType.FIXED_DATE)
+        .nodeDate(nodeDate)
+        .build();
+    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
+    DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
+    assertEquals(metadata.getDate(), nodeDate);
+    assertEquals(metadata.getLabel(), node.getLabel());
+  }
+  
+  public void test_metadata_last_fixing() {
+    TermDepositCurveNode node = TermDepositCurveNode.builder().template(TEMPLATE)
+        .rateKey(QUOTE_KEY).nodeDateType(NodeDateType.LAST_FIXING_DATE).build();
+    assertThrowsWithCause(() ->  node.metadata(VAL_DATE), UnsupportedOperationException.class);   
   }
 
   //-------------------------------------------------------------------------

@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -32,6 +33,7 @@ import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -62,7 +64,7 @@ public class XCcyIborIborSwapCurveNodeTest {
       .addValue(FX_KEY, FX_EUR_USD)
       .build();
 
-  public void test_builder() {
+  public void test_builder_default() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.builder()
         .label(LABEL)
         .template(TEMPLATE)
@@ -73,6 +75,44 @@ public class XCcyIborIborSwapCurveNodeTest {
     assertEquals(test.getSpreadKey(), SPREAD_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD_ADJ);
     assertEquals(test.getTemplate(), TEMPLATE);
+    assertEquals(test.getNodeDateType(), NodeDateType.LAST_PAYMENT_DATE);
+    assertThrowsWithCause(() -> test.getNodeDate(), IllegalStateException.class);
+  }
+
+  public void test_builder_fixed() {
+    XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.builder()
+        .label(LABEL)
+        .template(TEMPLATE)
+        .spreadKey(SPREAD_KEY)
+        .additionalSpread(SPREAD_ADJ)
+        .nodeDateType(NodeDateType.FIXED_DATE)
+        .nodeDate(VAL_DATE)
+        .build();
+    assertEquals(test.getLabel(), LABEL);
+    assertEquals(test.getSpreadKey(), SPREAD_KEY);
+    assertEquals(test.getAdditionalSpread(), SPREAD_ADJ);
+    assertEquals(test.getTemplate(), TEMPLATE);
+    assertEquals(test.getNodeDateType(), NodeDateType.FIXED_DATE);
+    assertEquals(test.getNodeDate(), VAL_DATE);
+  }
+
+  public void test_builder_incorrect_no_fixed_date() {
+  assertThrowsIllegalArg(() -> XCcyIborIborSwapCurveNode.builder()
+      .label(LABEL)
+      .template(TEMPLATE)
+      .spreadKey(SPREAD_KEY)
+      .additionalSpread(SPREAD_ADJ)
+      .nodeDateType(NodeDateType.FIXED_DATE).build());
+  }
+
+  public void test_builder_incorrect_fixed_date() {
+  assertThrowsIllegalArg(() -> XCcyIborIborSwapCurveNode.builder()
+      .label(LABEL)
+      .template(TEMPLATE)
+      .spreadKey(SPREAD_KEY)
+      .additionalSpread(SPREAD_ADJ)
+      .nodeDateType(NodeDateType.LAST_PAYMENT_DATE)
+      .nodeDate(VAL_DATE).build());
   }
 
   public void test_of_noSpread() {
@@ -131,13 +171,42 @@ public class XCcyIborIborSwapCurveNodeTest {
     assertEquals(node.initialGuess(valuationDate, OV, ValueType.DISCOUNT_FACTOR), 1.0d);
   }
 
-  public void test_metadata() {
+  public void test_metadata_last_payment() {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, SPREAD_ADJ);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     CurveParameterMetadata metadata = node.metadata(valuationDate);
     // 2015-01-22 is Thursday, start is 2015-01-26, but 2025-01-26 is Sunday, so end is 2025-01-27
     assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), LocalDate.of(2025, 1, 27));
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), Tenor.TENOR_10Y);
+  }
+
+  public void test_metadata_fixed() {
+    LocalDate nodeDate = VAL_DATE.plusMonths(1);
+    XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.builder()
+        .label(LABEL)
+        .template(TEMPLATE)
+        .spreadKey(SPREAD_KEY)
+        .additionalSpread(SPREAD_ADJ)
+        .nodeDateType(NodeDateType.FIXED_DATE)
+        .nodeDate(nodeDate)
+        .build();
+    DatedCurveParameterMetadata metadata = node.metadata(VAL_DATE);
+    assertEquals(metadata.getDate(), nodeDate);
+    assertEquals(metadata.getLabel(), node.getLabel());
+  }
+
+  public void test_metadata_last_fixing() {
+    XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.builder()
+        .label(LABEL)
+        .template(TEMPLATE)
+        .spreadKey(SPREAD_KEY)
+        .additionalSpread(SPREAD_ADJ)
+        .nodeDateType(NodeDateType.LAST_FIXING_DATE).build();
+    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
+    DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
+    LocalDate fixingExpected = LocalDate.of(2024, 10, 24);
+    assertEquals(metadata.getDate(), fixingExpected);
+    assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), TENOR_10Y);
   }
 
   //-------------------------------------------------------------------------

@@ -44,14 +44,16 @@ public final class DummyFraCurveNode
   private final ObservableKey rateKey;
   @PropertyDefinition
   private final double spread;
+  @PropertyDefinition(validate = "notEmpty", overrideGet = true)
+  private final String label;
 
   //-------------------------------------------------------------------------
   public static DummyFraCurveNode of(Period periodToStart, IborIndex index, ObservableKey rateKey) {
-    return new DummyFraCurveNode(periodToStart, periodToStart.plus(index.getTenor().getPeriod()), rateKey, 0);
+    return new DummyFraCurveNode(periodToStart, periodToStart.plus(index.getTenor().getPeriod()), rateKey, 0, "Dummy");
   }
 
   public static DummyFraCurveNode of(Period periodToStart, IborIndex index, ObservableKey rateKey, double spread) {
-    return new DummyFraCurveNode(periodToStart, periodToStart.plus(index.getTenor().getPeriod()), rateKey, spread);
+    return new DummyFraCurveNode(periodToStart, periodToStart.plus(index.getTenor().getPeriod()), rateKey, spread, "Dummy");
   }
 
   //-------------------------------------------------------------------------
@@ -108,14 +110,17 @@ public final class DummyFraCurveNode
       Period periodToStart,
       Period periodToEnd,
       ObservableKey rateKey,
-      double spread) {
+      double spread,
+      String label) {
     JodaBeanUtils.notNull(periodToStart, "periodToStart");
     JodaBeanUtils.notNull(periodToEnd, "periodToEnd");
     JodaBeanUtils.notNull(rateKey, "rateKey");
+    JodaBeanUtils.notEmpty(label, "label");
     this.periodToStart = periodToStart;
     this.periodToEnd = periodToEnd;
     this.rateKey = rateKey;
     this.spread = spread;
+    this.label = label;
   }
 
   @Override
@@ -170,6 +175,16 @@ public final class DummyFraCurveNode
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the label.
+   * @return the value of the property, not empty
+   */
+  @Override
+  public String getLabel() {
+    return label;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -180,7 +195,8 @@ public final class DummyFraCurveNode
       return JodaBeanUtils.equal(periodToStart, other.periodToStart) &&
           JodaBeanUtils.equal(periodToEnd, other.periodToEnd) &&
           JodaBeanUtils.equal(rateKey, other.rateKey) &&
-          JodaBeanUtils.equal(spread, other.spread);
+          JodaBeanUtils.equal(spread, other.spread) &&
+          JodaBeanUtils.equal(label, other.label);
     }
     return false;
   }
@@ -192,17 +208,19 @@ public final class DummyFraCurveNode
     hash = hash * 31 + JodaBeanUtils.hashCode(periodToEnd);
     hash = hash * 31 + JodaBeanUtils.hashCode(rateKey);
     hash = hash * 31 + JodaBeanUtils.hashCode(spread);
+    hash = hash * 31 + JodaBeanUtils.hashCode(label);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("DummyFraCurveNode{");
     buf.append("periodToStart").append('=').append(periodToStart).append(',').append(' ');
     buf.append("periodToEnd").append('=').append(periodToEnd).append(',').append(' ');
     buf.append("rateKey").append('=').append(rateKey).append(',').append(' ');
-    buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
+    buf.append("spread").append('=').append(spread).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();
   }
