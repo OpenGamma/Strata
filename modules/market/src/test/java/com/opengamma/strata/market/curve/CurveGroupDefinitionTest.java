@@ -185,4 +185,16 @@ public class CurveGroupDefinitionTest {
     assertSerialization(test);
   }
 
+  public void test_withName() {
+    CurveGroupDefinition test = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("Test"))
+        .addDiscountCurve(CURVE_DEFN1, GBP)
+        .build();
+    CurveGroupDefinition expected = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("NewName"))
+        .addDiscountCurve(CURVE_DEFN1, GBP)
+        .build();
+    CurveGroupDefinition withNewName = test.withName(CurveGroupName.of("NewName"));
+    assertEquals(withNewName, expected);
+  }
 }
