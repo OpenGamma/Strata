@@ -14,6 +14,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
+import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -156,6 +157,13 @@ public final class Column implements ImmutableBean {
   private static void applyDefaults(Builder builder) {
     builder.pricingRules(PricingRules.empty());
     builder.marketDataRules(MarketDataRules.empty());
+  }
+
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.name == null && builder.measure != null) {
+      builder.name(ColumnName.of(builder.measure.getName()));
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -592,6 +600,7 @@ public final class Column implements ImmutableBean {
 
     @Override
     public Column build() {
+      preBuild(this);
       return new Column(
           measure,
           name,
