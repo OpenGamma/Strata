@@ -65,8 +65,6 @@ public class IborIndexTest {
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO)));
     assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getFixingTime(), LocalTime.of(11, 0));
-    assertEquals(test.getFixingZone(), ZoneId.of("Europe/London"));
     assertEquals(test.toString(), "GBP-LIBOR-3M");
   }
 
@@ -83,6 +81,9 @@ public class IborIndexTest {
     assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12)), date(2014, 10, 13));
     assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12)), date(2014, 10, 13));
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12)), date(2015, 1, 13));
+    // fixing time and zone
+    assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
+        date(2014, 10, 13).atTime(LocalTime.of(11, 0)).atZone(ZoneId.of("Europe/London")));
   }
 
   public void test_usdLibor3m() {
@@ -98,8 +99,6 @@ public class IborIndexTest {
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO.combineWith(USNY))));
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.toString(), "USD-LIBOR-3M");
-    assertEquals(test.getFixingTime(), LocalTime.of(11, 0));
-    assertEquals(test.getFixingZone(), ZoneId.of("Europe/London"));
   }
 
   public void test_usdLibor3m_dates() {
@@ -119,6 +118,9 @@ public class IborIndexTest {
     assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12)), date(2014, 10, 15));
     assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12)), date(2014, 10, 10));
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12)), date(2015, 1, 14));
+    // fixing time and zone
+    assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
+        date(2014, 10, 13).atTime(LocalTime.of(11, 0)).atZone(ZoneId.of("Europe/London")));
   }
 
   public void test_euibor3m() {
@@ -133,8 +135,6 @@ public class IborIndexTest {
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA)));
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.toString(), "EUR-EURIBOR-3M");
-    assertEquals(test.getFixingTime(), LocalTime.of(11, 0));
-    assertEquals(test.getFixingZone(), ZoneId.of("Europe/Brussels"));
   }
 
   public void test_euribor3m_dates() {
@@ -150,6 +150,9 @@ public class IborIndexTest {
     assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12)), date(2014, 10, 15));
     assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12)), date(2014, 10, 9));
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12)), date(2015, 1, 13));
+    // fixing time and zone
+    assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
+        date(2014, 10, 13).atTime(LocalTime.of(11, 0)).atZone(ZoneId.of("Europe/Brussels")));
   }
 
   public void test_tibor_japan3m() {
@@ -164,8 +167,24 @@ public class IborIndexTest {
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO)));
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.toString(), "JPY-TIBOR-JAPAN-3M");
-    assertEquals(test.getFixingTime(), LocalTime.of(11, 50));
-    assertEquals(test.getFixingZone(), ZoneId.of("Asia/Tokyo"));
+  }
+
+  public void test_tibor_japan3m_dates() {
+    IborIndex test = IborIndex.of("JPY-TIBOR-JAPAN-3M");
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 27)), date(2014, 10, 29));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 29)), date(2014, 10, 27));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 29)), date(2015, 1, 29));
+    // weekend
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10)), date(2014, 10, 15));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 15)), date(2014, 10, 10));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 15)), date(2015, 1, 15));
+    // input date is Sunday
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12)), date(2014, 10, 16));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12)), date(2014, 10, 9));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12)), date(2015, 1, 14));
+    // fixing time and zone
+    assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
+        date(2014, 10, 13).atTime(LocalTime.of(11, 50)).atZone(ZoneId.of("Asia/Tokyo")));
   }
 
   public void test_tibor_euroyen3m() {
@@ -180,8 +199,24 @@ public class IborIndexTest {
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO)));
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.toString(), "JPY-TIBOR-EUROYEN-3M");
-    assertEquals(test.getFixingTime(), LocalTime.of(11, 50));
-    assertEquals(test.getFixingZone(), ZoneId.of("Asia/Tokyo"));
+  }
+
+  public void test_tibor_euroyen3m_dates() {
+    IborIndex test = IborIndex.of("JPY-TIBOR-EUROYEN-3M");
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 27)), date(2014, 10, 29));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 29)), date(2014, 10, 27));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 29)), date(2015, 1, 29));
+    // weekend
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10)), date(2014, 10, 15));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 15)), date(2014, 10, 10));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 15)), date(2015, 1, 15));
+    // input date is Sunday
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12)), date(2014, 10, 16));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12)), date(2014, 10, 9));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12)), date(2015, 1, 14));
+    // fixing time and zone
+    assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
+        date(2014, 10, 13).atTime(LocalTime.of(11, 50)).atZone(ZoneId.of("Asia/Tokyo")));
   }
 
   public void test_usdLibor_all() {

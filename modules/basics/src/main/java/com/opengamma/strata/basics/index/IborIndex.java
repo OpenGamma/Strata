@@ -6,8 +6,7 @@
 package com.opengamma.strata.basics.index;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -83,22 +82,12 @@ public interface IborIndex
   public abstract HolidayCalendar getFixingCalendar();
 
   /**
-   * Gets the fixing time of the index.
-   * <p>
-   * The fixing time is related to the fixing date and time-zone.
+   * Converts the fixing date from {@code LocalDate} to {@code ZonedDateTime}.
    * 
-   * @return the fixing time
+   * @param fixingDate  the fixing date
+   * @return  the zoned date-time
    */
-  public abstract LocalTime getFixingTime();
-
-  /**
-   * Gets the time-zone of the fixing time.
-   * <p>
-   * The fixing time-zone is related to the fixing date and time.
-   * 
-   * @return the time-zone of the fixing time
-   */
-  public abstract ZoneId getFixingZone();
+  public abstract ZonedDateTime calculateFixingDateTime(LocalDate fixingDate);
 
   /**
    * Gets the tenor of the index.

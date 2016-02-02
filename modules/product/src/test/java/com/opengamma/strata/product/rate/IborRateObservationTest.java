@@ -32,8 +32,6 @@ public class IborRateObservationTest {
         .fixingDate(date(2014, 6, 30))
         .build();
     assertEquals(test, expected);
-    assertEquals(test.getFixingDateTime(),
-        date(2014, 6, 30).atTime(GBP_LIBOR_3M.getFixingTime()).atZone(GBP_LIBOR_3M.getFixingZone()));
   }
 
   public void test_of_null() {

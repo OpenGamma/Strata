@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -71,14 +72,14 @@ public final class ImmutableIborIndex
    * <p>
    * The rate is fixed at the fixing time of the fixing date. 
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   private final LocalTime fixingTime;
   /**
   * The fixing time-zone.
   * <p>
   * The time-zone of the fixing time.
   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   private final ZoneId fixingZone;
   /**
    * The adjustment applied to the effective date to obtain the fixing date.
@@ -121,6 +122,11 @@ public final class ImmutableIborIndex
   @Override
   public Tenor getTenor() {
     return maturityDateOffset.getTenor();
+  }
+
+  @Override
+  public ZonedDateTime calculateFixingDateTime(LocalDate fixingDate) {
+    return fixingDate.atTime(fixingTime).atZone(fixingZone);
   }
 
   //-------------------------------------------------------------------------
@@ -329,7 +335,6 @@ public final class ImmutableIborIndex
    * The rate is fixed at the fixing time of the fixing date.
    * @return the value of the property, not null
    */
-  @Override
   public LocalTime getFixingTime() {
     return fixingTime;
   }
@@ -341,7 +346,6 @@ public final class ImmutableIborIndex
    * The time-zone of the fixing time.
    * @return the value of the property, not null
    */
-  @Override
   public ZoneId getFixingZone() {
     return fixingZone;
   }
