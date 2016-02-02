@@ -7,7 +7,6 @@ package com.opengamma.strata.function.calculation.payment;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -72,8 +71,8 @@ public class BulletPaymentCalculationFunction
   }
 
   @Override
-  public Optional<Currency> naturalCurrency(BulletPaymentTrade target) {
-    return Optional.of(target.getProduct().getCurrency());
+  public Currency naturalCurrency(BulletPaymentTrade target) {
+    return target.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------

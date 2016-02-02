@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.calc.runner;
 
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -149,6 +150,11 @@ public class CalculationTasksTest {
     @Override
     public Set<Measure> supportedMeasures() {
       return MEASURES;
+    }
+
+    @Override
+    public Currency naturalCurrency(TestTarget target) {
+      return USD;
     }
 
     @Override

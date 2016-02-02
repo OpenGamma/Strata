@@ -7,7 +7,6 @@ package com.opengamma.strata.function.calculation.fx;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -78,8 +77,8 @@ public class FxNdfCalculationFunction
   }
 
   @Override
-  public Optional<Currency> naturalCurrency(FxNdfTrade target) {
-    return Optional.of(target.getProduct().getSettlementCurrency());
+  public Currency naturalCurrency(FxNdfTrade target) {
+    return target.getProduct().getSettlementCurrency();
   }
 
   //-------------------------------------------------------------------------

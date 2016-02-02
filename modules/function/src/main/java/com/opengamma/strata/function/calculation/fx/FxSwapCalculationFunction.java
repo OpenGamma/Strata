@@ -7,7 +7,6 @@ package com.opengamma.strata.function.calculation.fx;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -80,11 +79,11 @@ public class FxSwapCalculationFunction
   }
 
   @Override
-  public Optional<Currency> naturalCurrency(FxSwapTrade target) {
+  public Currency naturalCurrency(FxSwapTrade target) {
     Currency base = target.getProduct().getNearLeg().getBaseCurrencyAmount().getCurrency();
     Currency counter = target.getProduct().getNearLeg().getCounterCurrencyAmount().getCurrency();
     CurrencyPair marketConventionPair = CurrencyPair.of(base, counter).toConventional();
-    return Optional.of(marketConventionPair.getBase());
+    return marketConventionPair.getBase();
   }
 
   //-------------------------------------------------------------------------

@@ -16,6 +16,8 @@ import com.opengamma.strata.collect.named.Named;
  * <p>
  * A measure identifies the calculation result that is required.
  * For example present value, par rate or spread.
+ * The standard set of measures which can be calculated by Strata is available
+ * in {@link Measures}.
  * <p>
  * Some measures represent aspects of the calculation target rather than a calculation.
  * For example, the target identifier, counterparty and trade date.

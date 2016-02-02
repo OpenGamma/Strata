@@ -7,7 +7,6 @@ package com.opengamma.strata.function.calculation.swaption;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -72,8 +71,8 @@ public class SwaptionCalculationFunction
   }
 
   @Override
-  public Optional<Currency> naturalCurrency(SwaptionTrade target) {
-    return Optional.of(target.getProduct().getCurrency());
+  public Currency naturalCurrency(SwaptionTrade target) {
+    return target.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------

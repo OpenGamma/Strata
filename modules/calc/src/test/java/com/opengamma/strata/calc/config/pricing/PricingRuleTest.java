@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.calc.config.pricing;
 
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
@@ -16,6 +17,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -123,6 +125,11 @@ public class PricingRuleTest {
     }
 
     @Override
+    public Currency naturalCurrency(TestTrade1 target) {
+      return USD;
+    }
+
+    @Override
     public FunctionRequirements requirements(TestTrade1 target, Set<Measure> measures) {
       return FunctionRequirements.empty();
     }
@@ -145,6 +152,11 @@ public class PricingRuleTest {
     @Override
     public Set<Measure> supportedMeasures() {
       return ImmutableSet.of(Measures.PRESENT_VALUE);
+    }
+
+    @Override
+    public Currency naturalCurrency(TestTrade1 target) {
+      return USD;
     }
 
     @Override

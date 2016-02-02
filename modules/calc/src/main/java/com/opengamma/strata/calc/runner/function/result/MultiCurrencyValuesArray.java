@@ -60,7 +60,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  */
 @BeanDefinition(builderScope = "private")
 public final class MultiCurrencyValuesArray
-    implements CurrencyConvertible<CurrencyValuesArray>, ScenarioResult<MultiCurrencyAmount>, ImmutableBean {
+    implements ScenarioResult<MultiCurrencyAmount>, CurrencyConvertible<CurrencyValuesArray>, ImmutableBean {
 
   /** The currency values, keyed by currency. */
   @PropertyDefinition(validate = "notNull")
@@ -233,6 +233,7 @@ public final class MultiCurrencyValuesArray
     return IntStream.range(0, size).mapToObj(this::get);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public CurrencyValuesArray convertedTo(Currency reportingCurrency, CalculationMarketData marketData) {
     double[] singleCurrencyValues = new double[size];
@@ -254,6 +255,7 @@ public final class MultiCurrencyValuesArray
     return CurrencyValuesArray.of(reportingCurrency, DoubleArray.ofUnsafe(singleCurrencyValues));
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a new array containing the values from this array added to the values in the other array.
    * <p>

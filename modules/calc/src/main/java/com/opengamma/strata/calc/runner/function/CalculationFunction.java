@@ -6,7 +6,6 @@
 package com.opengamma.strata.calc.runner.function;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import com.opengamma.strata.basics.CalculationTarget;
@@ -54,14 +53,17 @@ public interface CalculationFunction<T extends CalculationTarget> {
    * Most targets have a "natural" currency, for example the currency of a FRA or
    * the base currency of an FX forward.
    * <p>
-   * The default implementation returns an empty optional.
+   * It is required that all functions that return a currency-convertible measure
+   * must choose a "natural" currency for each trade. The choice must be consistent
+   * not random, given the same trade the same currency must be returned.
+   * This might involve picking, the first leg or base currency from a currency pair.
+   * An exception must only be thrown if the function handles no currency-convertible measures.
    *
    * @param target  the target of the calculation
-   * @return the "natural" currency of the target, empty if the target has no reference to currencies
+   * @return the "natural" currency of the target
+   * @throws IllegalStateException if the function calculates no currency-convertible measures
    */
-  public default Optional<Currency> naturalCurrency(T target) {
-    return Optional.empty();
-  }
+  public abstract Currency naturalCurrency(T target);
 
   /**
    * Determines the market data required by this function to perform its calculations.

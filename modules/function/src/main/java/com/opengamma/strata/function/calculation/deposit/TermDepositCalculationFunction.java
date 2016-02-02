@@ -7,7 +7,6 @@ package com.opengamma.strata.function.calculation.deposit;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -74,8 +73,8 @@ public class TermDepositCalculationFunction
   }
 
   @Override
-  public Optional<Currency> naturalCurrency(TermDepositTrade target) {
-    return Optional.of(target.getProduct().getCurrency());
+  public Currency naturalCurrency(TermDepositTrade target) {
+    return target.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------
