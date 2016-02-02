@@ -22,7 +22,7 @@ import com.opengamma.strata.collect.named.Named;
  * <p>
  * See {@link FpmlDocumentParser} for the main entry point for FpML parsing.
  */
-public interface FpmlTradeParser
+public interface FpmlParserPlugin
     extends Named {
 
   /**
@@ -33,7 +33,7 @@ public interface FpmlTradeParser
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static FpmlTradeParser of(String uniqueName) {
+  public static FpmlParserPlugin of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return extendedEnum().lookup(uniqueName);
   }
@@ -46,7 +46,7 @@ public interface FpmlTradeParser
    * 
    * @return the extended enum helper
    */
-  public static ExtendedEnum<FpmlTradeParser> extendedEnum() {
+  public static ExtendedEnum<FpmlParserPlugin> extendedEnum() {
     return FpmlDocumentParser.ENUM_LOOKUP;
   }
 

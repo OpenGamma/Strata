@@ -31,7 +31,7 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlParseException;
-import com.opengamma.strata.loader.fpml.FpmlTradeParser;
+import com.opengamma.strata.loader.fpml.FpmlParserPlugin;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
@@ -58,19 +58,19 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * <p>
  * This parser handles the subset of FpML necessary to populate the trade model.
  */
-final class SwapFpmlTradeParser
-    implements FpmlTradeParser {
+final class SwapFpmlParserPlugin
+    implements FpmlParserPlugin {
   // this class is loaded by ExtendedEnum reflection
 
   /**
    * The singleton instance of the parser.
    */
-  public static final SwapFpmlTradeParser INSTANCE = new SwapFpmlTradeParser();
+  public static final SwapFpmlParserPlugin INSTANCE = new SwapFpmlParserPlugin();
 
   /**
    * Restricted constructor.
    */
-  private SwapFpmlTradeParser() {
+  private SwapFpmlParserPlugin() {
   }
 
   //-------------------------------------------------------------------------

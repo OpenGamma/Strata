@@ -28,8 +28,8 @@ import com.opengamma.strata.product.TradeInfo;
  * This handles the subset of FpML necessary to populate the trade model.
  * The standard parsers accept FpML v5.8, which is often the same as earlier versions.
  * <p>
- * The trade parsers implement {@link FpmlTradeParser} and are pluggable using
- * the {@code FpmlTradeParser.ini} configuration file.
+ * The trade parsers implement {@link FpmlParserPlugin} and are pluggable using
+ * the {@code FpmlParserPlugin.ini} configuration file.
  */
 public final class FpmlDocumentParser {
   // Notes: Streaming trades directly from the file is difficult due to the
@@ -38,7 +38,7 @@ public final class FpmlDocumentParser {
   /**
    * The lookup of trade parsers.
    */
-  static final ExtendedEnum<FpmlTradeParser> ENUM_LOOKUP = ExtendedEnum.of(FpmlTradeParser.class);
+  static final ExtendedEnum<FpmlParserPlugin> ENUM_LOOKUP = ExtendedEnum.of(FpmlParserPlugin.class);
 
   /**
    * The FpML document.
@@ -133,7 +133,7 @@ public final class FpmlDocumentParser {
         tradeInfoBuilder.id(StandardId.of("FpML-tradeId", tradeIdValue));  // TODO: tradeIdScheme not used as URI clashes
       }
     }
-    for (Entry<String, FpmlTradeParser> entry : ENUM_LOOKUP.lookupAll().entrySet()) {
+    for (Entry<String, FpmlParserPlugin> entry : ENUM_LOOKUP.lookupAll().entrySet()) {
       Optional<XmlElement> productOptEl = tradeEl.findChild(entry.getKey());
       if (productOptEl.isPresent()) {
         return entry.getValue().parseTrade(tradeEl, document);
