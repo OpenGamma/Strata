@@ -11,6 +11,7 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_P
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.basics.date.HolidayCalendars.NO_HOLIDAYS;
 import static com.opengamma.strata.basics.date.HolidayCalendars.SAT_SUN;
+import static com.opengamma.strata.basics.schedule.Frequency.P12M;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P2M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
@@ -345,6 +346,13 @@ public class PeriodicScheduleTest {
 
         // TERM period
         {JUN_04, SEP_17, TERM, STUB_NONE, null, null, null,
+            ImmutableList.of(JUN_04, SEP_17),
+            ImmutableList.of(JUN_04, SEP_17)},
+        // TERM period defined as a stub and no regular periods
+        {JUN_04, SEP_17, P12M, SHORT_INITIAL, null, SEP_17, null,
+            ImmutableList.of(JUN_04, SEP_17),
+            ImmutableList.of(JUN_04, SEP_17)},
+        {JUN_04, SEP_17, P12M, SHORT_INITIAL, null, null, JUN_04,
             ImmutableList.of(JUN_04, SEP_17),
             ImmutableList.of(JUN_04, SEP_17)},
 
@@ -817,8 +825,8 @@ public class PeriodicScheduleTest {
     PeriodicSchedule f = of(
         start, end, freq, BDA, stubConv == STUB_NONE ? SHORT_FINAL : STUB_NONE, rollConv, firstReg, lastReg, null, null, null);
     PeriodicSchedule g = of(start, end, freq, BDA, stubConv, SFE, firstReg, lastReg, null, null, null);
-    PeriodicSchedule h = of(start, end, freq, BDA, stubConv, rollConv, start.plusDays(1), lastReg, null, null, null);
-    PeriodicSchedule i = of(start, end, freq, BDA, stubConv, rollConv, firstReg, end.minusDays(1), null, null, null);
+    PeriodicSchedule h = of(start, end, freq, BDA, stubConv, rollConv, start.plusDays(1), null, null, null, null);
+    PeriodicSchedule i = of(start, end, freq, BDA, stubConv, rollConv, null, end.minusDays(1), null, null, null);
     PeriodicSchedule j = of(start, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, BDA, null, null);
     PeriodicSchedule k = of(start, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, BDA, null);
     PeriodicSchedule m = of(
