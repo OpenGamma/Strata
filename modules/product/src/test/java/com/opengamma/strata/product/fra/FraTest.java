@@ -28,6 +28,8 @@ import static com.opengamma.strata.product.fra.FraDiscountingMethod.AFMA;
 import static com.opengamma.strata.product.fra.FraDiscountingMethod.ISDA;
 import static org.testng.Assert.assertEquals;
 
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Optional;
 
 import org.testng.annotations.Test;
@@ -87,6 +89,8 @@ public class FraTest {
         .effectiveDateOffset(PLUS_TWO_DAYS)
         .maturityDateOffset(TenorAdjustment.ofLastDay(TENOR_3M, BDA_MOD_FOLLOW))
         .fixingCalendar(SAT_SUN)
+        .fixingTime(LocalTime.NOON)
+        .fixingZone(ZoneId.of("Australia/Sydney"))
         .build();
     Fra test = Fra.builder()
         .buySell(BUY)
@@ -122,6 +126,8 @@ public class FraTest {
         .effectiveDateOffset(PLUS_TWO_DAYS)
         .maturityDateOffset(TenorAdjustment.ofLastDay(TENOR_3M, BDA_MOD_FOLLOW))
         .fixingCalendar(SAT_SUN)
+        .fixingTime(LocalTime.NOON)
+        .fixingZone(ZoneId.of("NZ"))
         .build();
     Fra test = Fra.builder()
         .buySell(BUY)
