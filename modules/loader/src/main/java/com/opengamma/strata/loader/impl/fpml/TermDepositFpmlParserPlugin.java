@@ -11,7 +11,7 @@ import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
-import com.opengamma.strata.loader.fpml.FpmlTradeParser;
+import com.opengamma.strata.loader.fpml.FpmlParserPlugin;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.deposit.TermDeposit;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
@@ -21,19 +21,19 @@ import com.opengamma.strata.product.deposit.TermDepositTrade;
  * <p>
  * This parser handles the subset of FpML necessary to populate the trade model.
  */
-final class TermDepositFpmlTradeParser
-    implements FpmlTradeParser {
+final class TermDepositFpmlParserPlugin
+    implements FpmlParserPlugin {
   // this class is loaded by ExtendedEnum reflection
 
   /**
    * The singleton instance of the parser.
    */
-  public static final TermDepositFpmlTradeParser INSTANCE = new TermDepositFpmlTradeParser();
+  public static final TermDepositFpmlParserPlugin INSTANCE = new TermDepositFpmlParserPlugin();
 
   /**
    * Restricted constructor.
    */
-  private TermDepositFpmlTradeParser() {
+  private TermDepositFpmlParserPlugin() {
   }
 
   //-------------------------------------------------------------------------
