@@ -44,7 +44,6 @@ import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.meta.GenericVolatilitySurfaceYearFractionMetadata;
-import com.opengamma.strata.market.view.IborCapletFloorletVolatilities;
 import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
 
 /**
@@ -54,7 +53,7 @@ import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
  */
 @BeanDefinition(builderScope = "private")
 public final class NormalIborCapletFloorletExpiryStrikeVolatilities
-    implements IborCapletFloorletVolatilities, ImmutableBean, Serializable {
+    implements NormalIborCapletFloorletVolatilities, ImmutableBean, Serializable {
 
   /** 
    * The normal volatility surface.  

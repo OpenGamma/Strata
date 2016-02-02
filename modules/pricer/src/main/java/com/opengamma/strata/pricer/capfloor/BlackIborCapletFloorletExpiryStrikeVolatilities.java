@@ -47,7 +47,7 @@ import com.opengamma.strata.market.surface.meta.GenericVolatilitySurfaceYearFrac
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 
 /**
- * Volatility for Ibor caplet/floorlet in the log-normal or Black model nased on a surface.
+ * Volatility for Ibor caplet/floorlet in the log-normal or Black model based on a surface.
  * <p> 
  * The volatility is represented by a surface on the expiry and strike dimensions.
  */
