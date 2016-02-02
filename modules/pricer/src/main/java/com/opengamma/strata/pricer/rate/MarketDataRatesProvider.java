@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.marketdata;
+package com.opengamma.strata.pricer.rate;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -38,7 +38,6 @@ import com.opengamma.strata.market.view.FxIndexRates;
 import com.opengamma.strata.market.view.IborIndexRates;
 import com.opengamma.strata.market.view.OvernightIndexRates;
 import com.opengamma.strata.market.view.PriceIndexValues;
-import com.opengamma.strata.pricer.rate.AbstractRatesProvider;
 
 /**
  * A rates provider based on an underlying set of market data.

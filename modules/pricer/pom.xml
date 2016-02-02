@@ -54,6 +54,11 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-loader</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <!-- ==================================================================== -->

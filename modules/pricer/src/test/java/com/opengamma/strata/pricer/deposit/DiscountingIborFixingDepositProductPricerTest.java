@@ -131,6 +131,10 @@ public class DiscountingIborFixingDepositProductPricerTest {
     CurveCurrencyParameterSensitivities sensiExpected =
         CAL_FD.sensitivity(IMM_PROV_NOFIX, (p) -> CurrencyAmount.of(EUR, PRICER.parSpread(DEPOSIT, (p))));
     assertTrue(sensiComputedNoFix.equalWithTolerance(sensiExpected, TOLERANCE_RATE_DELTA));
+    // Par rate and par spread sensitivities are equal
+    PointSensitivities computedParRateNoFix = PRICER.parRateSensitivity(DEPOSIT, IMM_PROV_NOFIX);
+    CurveCurrencyParameterSensitivities sensiComputedParRateNoFix = IMM_PROV_NOFIX.curveParameterSensitivity(computedParRateNoFix);
+    assertTrue(sensiComputedNoFix.equalWithTolerance(sensiComputedParRateNoFix, TOLERANCE_RATE_DELTA));
     PointSensitivities computedFix = PRICER.parSpreadSensitivity(DEPOSIT, IMM_PROV_FIX);
     CurveCurrencyParameterSensitivities sensiComputedFix = IMM_PROV_NOFIX.curveParameterSensitivity(computedFix);
     assertTrue(sensiComputedFix.equalWithTolerance(sensiExpected, TOLERANCE_RATE_DELTA));
@@ -140,6 +144,8 @@ public class DiscountingIborFixingDepositProductPricerTest {
     PointSensitivities computedNoFix = PRICER.parSpreadSensitivity(DEPOSIT, IMM_PROV_NOFIX);
     PointSensitivities computedFix = PRICER.parSpreadSensitivity(DEPOSIT, IMM_PROV_FIX);
     assertTrue(computedNoFix.equalWithTolerance(computedFix, TOLERANCE_PV_DELTA));
+    PointSensitivities computedParRateFix = PRICER.parRateSensitivity(DEPOSIT, IMM_PROV_FIX);
+    assertTrue(computedParRateFix.equalWithTolerance(computedFix, TOLERANCE_PV_DELTA));
   }
 
 }
