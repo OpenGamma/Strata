@@ -370,15 +370,19 @@ public final class ImmutableHolidayCalendar
     // shift to move the target day-of-month into bit-0, removing earlier days
     int shifted = monthData >> (baseDom - 1);
     // return last business day-of-month if no more business days in the month
+    int dom;
     if (shifted == 0) {
       // need to find the most significant bit, which is the last business day
       // use JDK numberOfLeadingZeros() method which is mapped to a fast intrinsic
       int leading = Integer.numberOfLeadingZeros(monthData);
-      return LocalDate.of(baseYear, baseMonth, 32 - leading);
+      dom = 32 - leading;
+    } else {
+      // find least significant bit, which is the next/same business day
+      // use JDK numberOfTrailingZeros() method which is mapped to a fast intrinsic
+      dom = baseDom + Integer.numberOfTrailingZeros(shifted);
     }
-    // find least significant bit, which is the next/same business day
-    // use JDK numberOfTrailingZeros() method which is mapped to a fast intrinsic
-    return LocalDate.of(baseYear, baseMonth, baseDom + Integer.numberOfTrailingZeros(shifted));
+    // only one call to LocalDate to aid inlining
+    return LocalDate.of(baseYear, baseMonth, dom);
   }
 
   //-------------------------------------------------------------------------
