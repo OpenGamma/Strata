@@ -23,9 +23,9 @@ public enum CurveNodeDateType {
    */
   FIXED,
   /**
-   * Defines the last payment date referenced in the trade.
+   * Defines the end date of the trade.
    */
-  LAST_PAYMENT,
+  END,
   /**
    * Defines the last fixing date referenced in the trade.
    * Used only for instruments referencing an Ibor index.

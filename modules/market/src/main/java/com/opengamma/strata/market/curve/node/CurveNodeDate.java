@@ -43,7 +43,7 @@ public final class CurveNodeDate
   /**
    * An instance defining the curve node date as the last payment date of the trade.
    */
-  public static final CurveNodeDate LAST_PAYMENT = new CurveNodeDate(CurveNodeDateType.LAST_PAYMENT, null);
+  public static final CurveNodeDate LAST_PAYMENT = new CurveNodeDate(CurveNodeDateType.END, null);
   /**
    * An instance defining the curve node date as the last fixing date date of the trade.
    * Used only for instruments referencing an Ibor index.
@@ -77,7 +77,7 @@ public final class CurveNodeDate
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.type = CurveNodeDateType.LAST_PAYMENT;
+    builder.type = CurveNodeDateType.END;
   }
 
   @ImmutableValidator
@@ -96,7 +96,7 @@ public final class CurveNodeDate
    * @return true if the type is 'LastPayment'
    */
   public boolean isLastPayment() {
-    return (type == CurveNodeDateType.LAST_PAYMENT);
+    return (type == CurveNodeDateType.END);
   }
 
   /**
@@ -144,7 +144,7 @@ public final class CurveNodeDate
     switch (type) {
       case FIXED:
         return date;
-      case LAST_PAYMENT:
+      case END:
         return lastPaymentDateSupplier.get();
       case LAST_FIXING:
         return lastFixingDateSupplier.get();

@@ -141,7 +141,7 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
 
   /** Data for USD-DSCON curve */
   private static final Map<Integer, LocalDate> FOMC_NODES = fomcNodes(MeetingDatesDataSets.FOMC_MEETINGS,
-      VAL_DATE_BD, 7); // select the next 7 FOMC dates as curve nodes // TODO: replace
+      VAL_DATE_BD, 7); // select the next 7 FOMC dates as curve nodes
   /* Market values */
   private static final double[] DSC_MARKET_QUOTES = new double[] {
     0.001300, 0.001300,

@@ -34,7 +34,7 @@ public class CurveNodeDateTest {
     assertEquals(test.isFixed(), false);
     assertEquals(test.isLastPayment(), true);
     assertEquals(test.isLastFixing(), false);
-    assertEquals(test.getType(), CurveNodeDateType.LAST_PAYMENT);
+    assertEquals(test.getType(), CurveNodeDateType.END);
     assertThrowsWithCause(() -> test.getDate(), IllegalStateException.class);
   }
 
