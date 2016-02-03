@@ -23,23 +23,4 @@ public final class FpmlParseException
     super(message);
   }
 
-  /**
-   * Creates an instance based on a cause.
-   * 
-   * @param cause  the cause, null tolerant
-   */
-  public FpmlParseException(Throwable cause) {
-    super(cause);
-  }
-
-  /**
-   * Creates an instance based on a message and cause.
-   * 
-   * @param message  the message, null tolerant
-   * @param cause  the cause, null tolerant
-   */
-  public FpmlParseException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
 }

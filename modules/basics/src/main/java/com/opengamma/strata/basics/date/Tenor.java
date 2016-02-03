@@ -73,6 +73,10 @@ public final class Tenor
    */
   public static final Tenor TENOR_3W = ofWeeks(3);
   /**
+   * A tenor of 4 weeks.
+   */
+  public static final Tenor TENOR_4W = ofWeeks(4);
+  /**
    * A tenor of 6 weeks.
    */
   public static final Tenor TENOR_6W = ofWeeks(6);

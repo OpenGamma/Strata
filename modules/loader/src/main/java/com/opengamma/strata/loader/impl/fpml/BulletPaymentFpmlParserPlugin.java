@@ -35,7 +35,7 @@ final class BulletPaymentFpmlParserPlugin
 
   //-------------------------------------------------------------------------
   @Override
-  public Trade parseTrade(XmlElement tradeEl, FpmlDocument document) {
+  public Trade parseTrade(FpmlDocument document, XmlElement tradeEl) {
     // supported elements:
     // 'payment/payerPartyReference'
     // 'payment/receiverPartyReference'

@@ -15,8 +15,10 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
@@ -47,6 +49,7 @@ import com.opengamma.strata.product.TradeInfo;
 /**
  * Provides data about the whole FpML document and parse helper methods.
  * <p>
+ * This is primarily used to support implementations of {@link FpmlParserPlugin}.
  * See {@link FpmlDocumentParser} for the main entry point for FpML parsing.
  */
 public final class FpmlDocument {
@@ -56,6 +59,8 @@ public final class FpmlDocument {
   // If last date was last business day of month, then all subsequent dates are last business day of month
   // While close to ModifiedFollowing, it is unclear is that is correct for BusinessDayConvention
   // FpML also has a 'NotApplicable' option, which probably should map to null in the caller
+
+  private static final Logger log = LoggerFactory.getLogger(FpmlDocument.class);
 
   /**
    * The 'id' attribute key.
@@ -107,6 +112,10 @@ public final class FpmlDocument {
    * The map of index tenors, designed to normalize and reduce object creation.
    */
   private static final Map<String, Tenor> TENOR_MAP = ImmutableMap.<String, Tenor>builder()
+      .put("7D", Tenor.TENOR_1W)
+      .put("14D", Tenor.TENOR_2W)
+      .put("21D", Tenor.TENOR_3W)
+      .put("28D", Tenor.TENOR_4W)
       .put("1W", Tenor.TENOR_1W)
       .put("2W", Tenor.TENOR_2W)
       .put("1M", Tenor.TENOR_1M)
@@ -116,6 +125,22 @@ public final class FpmlDocument {
       .put("12M", Tenor.TENOR_12M)
       .put("1Y", Tenor.TENOR_12M)
       .build();
+
+  /**
+   * Constant defining the "any" selector.
+   * This must be defined as a constant so that == works when comparing it.
+   * FpmlPartySelector is an interface and can only define public constants, thus it is declared here.
+   */
+  static final FpmlPartySelector ANY_SELECTOR = allParties -> Optional.empty();
+  /**
+   * Constant defining the "standard" trade info parser.
+   */
+  static final FpmlTradeInfoParserPlugin TRADE_INFO_STANDARD = (doc, tradeDate, allTradeIds) -> {
+    TradeInfo.Builder builder = TradeInfo.builder();
+    builder.tradeDate(tradeDate);
+    builder.id(allTradeIds.get(doc.getOurPartyHrefId()).stream().findFirst().orElse(null));
+    return builder;
+  };
 
   /**
    * The parsed file.
@@ -133,6 +158,10 @@ public final class FpmlDocument {
    * The party reference id.
    */
   private final String ourPartyHrefId;
+  /**
+   * The trade info builder.
+   */
+  private final FpmlTradeInfoParserPlugin tradeInfoParser;
 
   //-------------------------------------------------------------------------
   /**
@@ -144,13 +173,20 @@ public final class FpmlDocument {
    * 
    * @param fpmlRootEl  the source of the FpML XML document
    * @param references  the map of id/href to referenced element
-   * @param ourParty  our party identifier, as stored in {@code <partyId>}, may be null
+   * @param ourPartySelector  the selector used to find "our" party within the set of parties in the FpML document
+   * @param tradeInfoParser  the trade info parser
    */
-  public FpmlDocument(XmlElement fpmlRootEl, Map<String, XmlElement> references, String ourParty) {
+  public FpmlDocument(
+      XmlElement fpmlRootEl,
+      Map<String, XmlElement> references,
+      FpmlPartySelector ourPartySelector,
+      FpmlTradeInfoParserPlugin tradeInfoParser) {
+
     this.fpmlRoot = fpmlRootEl;
     this.references = ImmutableMap.copyOf(references);
     this.parties = parseParties(fpmlRootEl);
-    this.ourPartyHrefId = findOurParty(ourParty);
+    this.ourPartyHrefId = findOurParty(ourPartySelector);
+    this.tradeInfoParser = tradeInfoParser;
   }
 
   // parse all the root-level party elements
@@ -174,17 +210,22 @@ public final class FpmlDocument {
   }
 
   // locate our party href/id reference
-  private String findOurParty(String ourParty) {
-    if (ourParty.isEmpty()) {
+  private String findOurParty(FpmlPartySelector ourPartySelector) {
+    // check for "any" selector to avoid logging message in normal case
+    if (ourPartySelector == FpmlPartySelector.any()) {
       return "";
     }
-    for (Entry<String, String> entry : parties.entries()) {
-      if (ourParty.equals(entry.getValue())) {
-        return entry.getKey();
+    Optional<String> selected = ourPartySelector.selectParty(parties);
+    if (selected.isPresent()) {
+      String selectedId = selected.get();
+      if (!parties.keySet().contains(selectedId)) {
+        throw new FpmlParseException(Messages.format(
+            "Selector returned an ID '{}' that is not present in the document: {}", selectedId, parties));
       }
+      return selectedId;
     }
-    throw new FpmlParseException(Messages.format(
-        "Document does not contain our party ID: {} not found in {}", ourParty, parties));
+    log.warn("Failed to resolve \"our\" counterparty from FpML document, using leg defaults instead: " + parties);
+    return "";
   }
 
   //-------------------------------------------------------------------------
@@ -239,20 +280,33 @@ public final class FpmlDocument {
    * @throws RuntimeException if unable to parse
    */
   public TradeInfo.Builder parseTradeInfo(XmlElement tradeEl) {
-    TradeInfo.Builder tradeInfoBuilder = TradeInfo.builder();
     XmlElement tradeHeaderEl = tradeEl.getChild("tradeHeader");
-    tradeInfoBuilder.tradeDate(parseDate(tradeHeaderEl.getChild("tradeDate")));
+    LocalDate tradeDate = parseDate(tradeHeaderEl.getChild("tradeDate"));
+    return tradeInfoParser.parseTrade(this, tradeDate, parseAllTradeIds(tradeHeaderEl));
+  }
+
+  // find all trade IDs by party herf id
+  private ListMultimap<String, StandardId> parseAllTradeIds(XmlElement tradeHeaderEl) {
+    // look through each partyTradeIdentifier
+    ListMultimap<String, StandardId> allIds = ArrayListMultimap.create();
     List<XmlElement> partyTradeIdentifierEls = tradeHeaderEl.getChildren("partyTradeIdentifier");
     for (XmlElement partyTradeIdentifierEl : partyTradeIdentifierEls) {
-      String partyReferenceHref = partyTradeIdentifierEl.getChild("partyReference").getAttribute(HREF);
-      if (partyReferenceHref.equals(ourPartyHrefId)) {
-        XmlElement firstTradeIdEl = partyTradeIdentifierEl.getChildren("tradeId").get(0);
-        String tradeIdValue = firstTradeIdEl.getContent();
-        // TODO: tradeIdScheme not used as URI not allowed in StandardId
-        tradeInfoBuilder.id(StandardId.of("FpML-tradeId", tradeIdValue));
+      Optional<XmlElement> partyRefOptEl = partyTradeIdentifierEl.findChild("partyReference");
+      if (partyRefOptEl.isPresent() && partyRefOptEl.get().findAttribute(HREF).isPresent()) {
+        String partyHref = partyRefOptEl.get().findAttribute(HREF).get();
+        // try to find a tradeId, either in versionedTradeId or as a direct child
+        Optional<XmlElement> vtradeIdOptEl = partyTradeIdentifierEl.findChild("versionedTradeId");
+        Optional<XmlElement> tradeIdOptEl = vtradeIdOptEl
+            .map(vt -> Optional.of(vt.getChild("tradeId")))
+            .orElse(partyTradeIdentifierEl.findChild("tradeId"));
+        if (tradeIdOptEl.isPresent() && tradeIdOptEl.get().findAttribute("tradeIdScheme").isPresent()) {
+          XmlElement tradeIdEl = tradeIdOptEl.get();
+          String scheme = tradeIdEl.getAttribute("tradeIdScheme");
+          allIds.put(partyHref, StandardId.of(StandardId.encodeScheme(scheme), tradeIdEl.getContent()));
+        }
       }
     }
-    return tradeInfoBuilder;
+    return allIds;
   }
 
   //-------------------------------------------------------------------------

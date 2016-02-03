@@ -60,12 +60,12 @@ public interface FpmlParserPlugin
    * It is intended that this method is only called when the specified trade element
    * contains a child element of the correct type for this parser.
    * 
-   * @param tradeEl  the trade element parse
    * @param document  the document-wide information and parser helper
+   * @param tradeEl  the trade element to parse
    * @return the trade object
    * @throws RuntimeException if unable to parse
    */
-  public abstract Trade parseTrade(XmlElement tradeEl, FpmlDocument document);
+  public abstract Trade parseTrade(FpmlDocument document, XmlElement tradeEl);
 
   //-------------------------------------------------------------------------
   /**

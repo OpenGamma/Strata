@@ -53,7 +53,7 @@ final class FxSingleLegFpmlParserPlugin
 
   //-------------------------------------------------------------------------
   @Override
-  public Trade parseTrade(XmlElement tradeEl, FpmlDocument document) {
+  public Trade parseTrade(FpmlDocument document, XmlElement tradeEl) {
     // supported elements:
     // 'exchangedCurrency1/paymentAmount'
     // 'exchangedCurrency2/paymentAmount'
