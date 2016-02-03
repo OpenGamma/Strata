@@ -124,24 +124,12 @@ public final class ImmutableIborIndex
     return maturityDateOffset.getTenor();
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ZonedDateTime calculateFixingDateTime(LocalDate fixingDate) {
     return fixingDate.atTime(fixingTime).atZone(fixingZone);
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Calculates the effective date from the fixing date.
-   * <p>
-   * The fixing date is the date on which the index is to be observed.
-   * The effective date is the date on which the implied deposit starts.
-   * <p>
-   * No error is thrown if the input date is not a valid fixing date.
-   * Instead, the fixing date is moved to the next valid fixing date and then processed.
-   * 
-   * @param fixingDate  the fixing date
-   * @return the effective date
-   */
   @Override
   public LocalDate calculateEffectiveFromFixing(LocalDate fixingDate) {
     ArgChecker.notNull(fixingDate, "fixingDate");
@@ -149,18 +137,6 @@ public final class ImmutableIborIndex
     return effectiveDateOffset.adjust(fixingBusinessDay);
   }
 
-  /**
-   * Calculates the fixing date from the effective date.
-   * <p>
-   * The fixing date is the date on which the index is to be observed.
-   * The effective date is the date on which the implied deposit starts.
-   * <p>
-   * No error is thrown if the input date is not a valid effective date.
-   * Instead, the effective date is moved to the next valid effective date and then processed.
-   * 
-   * @param effectiveDate  the effective date
-   * @return the fixing date
-   */
   @Override
   public LocalDate calculateFixingFromEffective(LocalDate effectiveDate) {
     ArgChecker.notNull(effectiveDate, "effectiveDate");
@@ -168,18 +144,6 @@ public final class ImmutableIborIndex
     return fixingDateOffset.adjust(effectiveBusinessDay);
   }
 
-  /**
-   * Calculates the maturity date from the effective date.
-   * <p>
-   * The effective date is the date on which the implied deposit starts.
-   * The maturity date is the date on which the implied deposit ends.
-   * <p>
-   * No error is thrown if the input date is not a valid effective date.
-   * Instead, the effective date is moved to the next valid effective date and then processed.
-   * 
-   * @param effectiveDate  the effective date
-   * @return the maturity date
-   */
   @Override
   public LocalDate calculateMaturityFromEffective(LocalDate effectiveDate) {
     ArgChecker.notNull(effectiveDate, "effectiveDate");
