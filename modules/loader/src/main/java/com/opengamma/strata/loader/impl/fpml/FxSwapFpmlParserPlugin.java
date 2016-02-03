@@ -41,7 +41,7 @@ final class FxSwapFpmlParserPlugin
 
   //-------------------------------------------------------------------------
   @Override
-  public Trade parseTrade(XmlElement tradeEl, FpmlDocument document) {
+  public Trade parseTrade(FpmlDocument document, XmlElement tradeEl) {
     // supported elements:
     // 'nearLeg'
     // 'farLeg'
