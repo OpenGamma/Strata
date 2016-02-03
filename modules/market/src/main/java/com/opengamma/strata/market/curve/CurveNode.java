@@ -66,5 +66,12 @@ public interface CurveNode {
    * @return the initial guess of the calibrated value
    */
   public abstract double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType);
+  
+  /**
+   * Gets the label to use for the node.
+   * 
+   * @return the label, not empty
+   */
+  public abstract String getLabel();
 
 }

@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -63,6 +64,7 @@ public class ThreeLegBasisSwapCurveNodeTest {
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
+    assertEquals(test.getDate(), CurveNodeDate.END);
   }
 
   public void test_of_noSpread() {
@@ -125,12 +127,33 @@ public class ThreeLegBasisSwapCurveNodeTest {
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR), 1.0d);
   }
 
-  public void test_metadata() {
+  public void test_metadata_end() {
     ThreeLegBasisSwapCurveNode node = ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     CurveParameterMetadata metadata = node.metadata(valuationDate);
     assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), LocalDate.of(2025, 1, 27));
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), Tenor.TENOR_10Y);
+  }
+
+  public void test_metadata_fixed() {
+    LocalDate nodeDate = VAL_DATE.plusMonths(1);
+    ThreeLegBasisSwapCurveNode node =
+        ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL).withDate(CurveNodeDate.of(nodeDate));
+    DatedCurveParameterMetadata metadata = node.metadata(VAL_DATE);
+    assertEquals(metadata.getDate(), nodeDate);
+    assertEquals(metadata.getLabel(), node.getLabel());
+  }
+
+  public void test_metadata_last_fixing() {
+    ThreeLegBasisSwapCurveNode node =
+        ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL).withDate(CurveNodeDate.LAST_FIXING);
+    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
+    SwapTrade trade = node.trade(valuationDate, ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, 0.0d).build());
+    trade.getProduct().expand();
+    LocalDate fixingExpected = LocalDate.of(2024, 7, 24);
+    DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
+    assertEquals(metadata.getDate(), fixingExpected);
+    assertEquals(metadata.getLabel(), node.getLabel());
   }
 
   //-------------------------------------------------------------------------

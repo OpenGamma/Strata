@@ -6,14 +6,17 @@
 package com.opengamma.strata.pricer.calibration;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
 import static com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
@@ -32,7 +35,9 @@ import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
@@ -50,25 +55,31 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.node.CurveNodeDate;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FixedOvernightSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.curve.node.IborFixingDepositCurveNode;
+import com.opengamma.strata.market.curve.node.TermDepositCurveNode;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.market.view.IborIndexRates;
-import com.opengamma.strata.market.view.SimpleIborIndexRates;
+import com.opengamma.strata.pricer.datasets.MeetingDatesDataSets;
 import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
+import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
 import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
+import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
+import com.opengamma.strata.product.deposit.type.ImmutableTermDepositConvention;
+import com.opengamma.strata.product.deposit.type.TermDepositConvention;
+import com.opengamma.strata.product.deposit.type.TermDepositTemplate;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.type.FraTemplate;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -79,15 +90,17 @@ import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 /**
  * Test for curve calibration with 2 curves in USD.
  * One curve is Discounting and Fed Fund forward and the other one is Libor 3M forward.
+ * The discounting curve is calibrated with the dates of the next FOMC meetings are nodes.
  */
 @Test
-public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
+public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
 
   private static final LocalDate VAL_DATE_BD = LocalDate.of(2015, 7, 21);
-  private static final LocalDate VAL_DATE_HO = LocalDate.of(2015, 12, 25);
 
   private static final CurveInterpolator INTERPOLATOR_LINEAR = CurveInterpolators.LINEAR;
+  private static final CurveInterpolator INTERPOLATOR_LOGLINEAR = CurveInterpolators.LOG_LINEAR;
   private static final CurveExtrapolator EXTRAPOLATOR_FLAT = CurveExtrapolators.FLAT;
+  private static final CurveExtrapolator EXTRAPOLATOR_EXP = CurveExtrapolators.EXPONENTIAL;
   private static final DayCount CURVE_DC = ACT_365F;
   private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
 
@@ -127,29 +140,60 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
   }
 
   /** Data for USD-DSCON curve */
+  private static final Map<Integer, LocalDate> FOMC_NODES = fomcNodes(MeetingDatesDataSets.FOMC_MEETINGS,
+      VAL_DATE_BD, 7); // select the next 7 FOMC dates as curve nodes
   /* Market values */
   private static final double[] DSC_MARKET_QUOTES = new double[] {
-      0.00072000, 0.00082000, 0.00093000, 0.00090000, 0.00105000,
-      0.00118500, 0.00318650, 0.00318650, 0.00704000, 0.01121500, 0.01515000,
-      0.01845500, 0.02111000, 0.02332000, 0.02513500, 0.02668500};
+    0.001300, 0.001300,
+    0.001435, 0.001680, 0.002105, 0.002385,
+    0.002845, 0.003100, 0.003920, 0.005635, 0.007515,
+    0.010550, 0.013225, 0.05450 };
   private static final int DSC_NB_NODES = DSC_MARKET_QUOTES.length;
   private static final String[] DSC_ID_VALUE = new String[] {
-      "OIS1M", "OIS2M", "OIS3M", "OIS6M", "OIS9M",
-      "OIS1Y", "OIS18M", "OIS2Y", "OIS3Y", "OIS4Y", "OIS5Y",
-      "OIS6Y", "OIS7Y", "OIS8Y", "OIS9Y", "OIS10Y"};
+    "USD-ON", "USD-TN",
+    "OIS2M", "OIS3M", "OIS5M", "OIS6M",
+    "OIS8M", "OIS9M", "OIS1Y", "OIS18M", "OIS2Y",
+    "OIS3Y", "OIS4Y", "OIS5Y" };
   /* Nodes */
   private static final CurveNode[] DSC_NODES = new CurveNode[DSC_NB_NODES];
   /* Tenors */
+  private static final int[] DSC_DEPO_OFFSET = new int[] {0, 1};
+  private static final int DSC_NB_DEPO_NODES = DSC_DEPO_OFFSET.length;  
   private static final Period[] DSC_OIS_TENORS = new Period[] {
-      Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
-      Period.ofYears(1), Period.ofMonths(18), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
-      Period.ofYears(6), Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10)};
+      Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(5), Period.ofMonths(6),
+      Period.ofMonths(8), Period.ofMonths(9), Period.ofYears(1), Period.ofMonths(18), Period.ofYears(2), 
+      Period.ofYears(3), Period.ofYears(4), Period.ofYears(5)};
   private static final int DSC_NB_OIS_NODES = DSC_OIS_TENORS.length;
   static {
+    for (int i = 0; i < DSC_NB_DEPO_NODES; i++) {
+      BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, USNY);
+      TermDepositConvention convention =
+          ImmutableTermDepositConvention.of(USD, bda, ACT_360, DaysAdjustment.ofBusinessDays(DSC_DEPO_OFFSET[i], USNY));
+      LocalDate nodeDate = FOMC_NODES.get(i);
+      if (nodeDate != null) {
+        DSC_NODES[i] = TermDepositCurveNode.builder()
+            .template(TermDepositTemplate.of(Period.ofDays(1), convention))
+            .rateKey(QuoteKey.of(StandardId.of(SCHEME, DSC_ID_VALUE[i])))
+            .date(CurveNodeDate.of(nodeDate))
+            .build();
+      } else {
+        DSC_NODES[i] = TermDepositCurveNode.of(TermDepositTemplate.of(Period.ofDays(1), convention),
+            QuoteKey.of(StandardId.of(SCHEME, DSC_ID_VALUE[i])));
+      }
+    }
     for (int i = 0; i < DSC_NB_OIS_NODES; i++) {
-      DSC_NODES[i] = FixedOvernightSwapCurveNode.of(
-          FixedOvernightSwapTemplate.of(Period.ZERO, Tenor.of(DSC_OIS_TENORS[i]), USD_FIXED_1Y_FED_FUND_OIS),
-          QuoteKey.of(StandardId.of(SCHEME, DSC_ID_VALUE[i])));
+      LocalDate nodeDate = FOMC_NODES.get(DSC_NB_DEPO_NODES + i);
+      if (nodeDate != null) {
+        DSC_NODES[DSC_NB_DEPO_NODES + i] = FixedOvernightSwapCurveNode.builder()
+            .template(FixedOvernightSwapTemplate.of(Period.ZERO, Tenor.of(DSC_OIS_TENORS[i]), USD_FIXED_1Y_FED_FUND_OIS))
+            .rateKey(QuoteKey.of(StandardId.of(SCHEME, DSC_ID_VALUE[DSC_NB_DEPO_NODES + i])))
+            .date(CurveNodeDate.of(nodeDate))
+            .build();
+      } else {
+        DSC_NODES[DSC_NB_DEPO_NODES + i] = FixedOvernightSwapCurveNode.of(
+            FixedOvernightSwapTemplate.of(Period.ZERO, Tenor.of(DSC_OIS_TENORS[i]), USD_FIXED_1Y_FED_FUND_OIS),
+            QuoteKey.of(StandardId.of(SCHEME, DSC_ID_VALUE[DSC_NB_DEPO_NODES + i])));
+      }
     }
   }
 
@@ -158,16 +202,12 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
   private static final double[] FWD3_MARKET_QUOTES = new double[] {
       0.00236600,
       0.00258250, 0.00296050,
-      0.00294300, 0.00503000, 0.00939150, 0.01380800, 0.01732000,
-      0.02396200, 0.02930000, 0.03195000, 0.03423500, 0.03615500,
-      0.03696850, 0.03734500};
+      0.00294300, 0.00503000, 0.00939150, 0.01380800, 0.01732000};
   private static final int FWD3_NB_NODES = FWD3_MARKET_QUOTES.length;
   private static final String[] FWD3_ID_VALUE = new String[] {
       "Fixing",
       "FRA3Mx6M", "FRA6Mx9M",
-      "IRS1Y", "IRS2Y", "IRS3Y", "IRS4Y", "IRS5Y",
-      "IRS7Y", "IRS10Y", "IRS12Y", "IRS15Y", "IRS20Y",
-      "IRS25Y", "IRS30Y"};
+      "IRS1Y", "IRS2Y", "IRS3Y", "IRS4Y", "IRS5Y"};
   /* Nodes */
   private static final CurveNode[] FWD3_NODES = new CurveNode[FWD3_NB_NODES];
   /* Tenors */
@@ -175,9 +215,7 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
       Period.ofMonths(3), Period.ofMonths(6)};
   private static final int FWD3_NB_FRA_NODES = FWD3_FRA_TENORS.length;
   private static final Period[] FWD3_IRS_TENORS = new Period[] {
-      Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
-      Period.ofYears(7), Period.ofYears(10), Period.ofYears(12), Period.ofYears(15), Period.ofYears(20),
-      Period.ofYears(25), Period.ofYears(30)};
+      Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5)};
   private static final int FWD3_NB_IRS_NODES = FWD3_IRS_TENORS.length;
   static {
     FWD3_NODES[0] = IborFixingDepositCurveNode.of(IborFixingDepositTemplate.of(USD_LIBOR_3M),
@@ -205,9 +243,6 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
     }
     ALL_QUOTES_BD = builder.build();
   }
-  
-  /** All quotes for the curve calibration on holiday. */
-  private static final ImmutableMarketData ALL_QUOTES_HO = ALL_QUOTES_BD.toBuilder().valuationDate(VAL_DATE_HO).build();
 
   /** All nodes by groups. */
   private static final List<List<CurveNode[]>> CURVES_NODES = new ArrayList<>();
@@ -239,6 +274,8 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
       DiscountingFraTradePricer.DEFAULT;
   private static final DiscountingSwapProductPricer SWAP_PRICER =
       DiscountingSwapProductPricer.DEFAULT;
+  private static final DiscountingTermDepositProductPricer DEPO_PRICER =
+      DiscountingTermDepositProductPricer.DEFAULT;
   private static final MarketQuoteSensitivityCalculator MQC = MarketQuoteSensitivityCalculator.DEFAULT;
 
   private static final CalibrationMeasures CALIBRATION_MEASURES = CalibrationMeasures.DEFAULT;
@@ -246,17 +283,17 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
 
   // Constants
   private static final double TOLERANCE_PV = 1.0E-6;
-  private static final double TOLERANCE_PV_DELTA = 1.0E+2;
+  private static final double TOLERANCE_PV_DELTA = 2.0E+2;
 
   private static final CurveGroupName CURVE_GROUP_NAME = CurveGroupName.of("USD-DSCON-LIBOR3M");
   private static final InterpolatedNodalCurveDefinition DSC_CURVE_DEFN =
       InterpolatedNodalCurveDefinition.builder()
           .name(DSCON_CURVE_NAME)
           .xValueType(ValueType.YEAR_FRACTION)
-          .yValueType(ValueType.ZERO_RATE)
+          .yValueType(ValueType.DISCOUNT_FACTOR)
           .dayCount(CURVE_DC)
-          .interpolator(INTERPOLATOR_LINEAR)
-          .extrapolatorLeft(EXTRAPOLATOR_FLAT)
+          .interpolator(INTERPOLATOR_LOGLINEAR)
+          .extrapolatorLeft(EXTRAPOLATOR_EXP)
           .extrapolatorRight(EXTRAPOLATOR_FLAT)
           .nodes(DSC_NODES).build();
   private static final InterpolatedNodalCurveDefinition FWD3_CURVE_DEFN =
@@ -288,7 +325,7 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
   private static final ImmutableRatesProvider KNOWN_DATA = ImmutableRatesProvider.builder(VAL_DATE_BD).build();
 
   //-------------------------------------------------------------------------
-  public void calibration_present_value_oneGroup_no_fixing() {
+  public void calibration_present_value_oneGroup_no_fixing() throws IOException {
     ImmutableRatesProvider result =
         CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE_BD, ALL_QUOTES_BD, TS_EMPTY);
     assertResult(result, VAL_DATE_BD);
@@ -298,12 +335,6 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
     ImmutableRatesProvider result =
         CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE_BD, ALL_QUOTES_BD, TS_BD_LIBOR3M);
     assertResult(result, VAL_DATE_BD);
-  }
-  
-  public void calibration_present_value_oneGroup_holiday() {
-    ImmutableRatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE_HO, ALL_QUOTES_HO, TS_HO_LIBOR3M);
-    assertResult(result, VAL_DATE_HO);
   }
 
   public void calibration_present_value_twoGroups() {
@@ -319,10 +350,16 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
     for (int i = 0; i < dscNodes.length; i++) {
       dscTrades.add(dscNodes[i].trade(valDate, ALL_QUOTES_BD));
     }
+    // Depo
+    for (int i = 0; i < DSC_NB_DEPO_NODES; i++) {
+      CurrencyAmount pvIrs = DEPO_PRICER
+          .presentValue(((TermDepositTrade) dscTrades.get(i)).getProduct(), result);
+      assertEquals(pvIrs.getAmount(), 0.0, TOLERANCE_PV);
+    }
     // OIS
     for (int i = 0; i < DSC_NB_OIS_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) dscTrades.get(i)).getProduct(), result);
+          .presentValue(((SwapTrade) dscTrades.get(DSC_NB_DEPO_NODES + i)).getProduct(), result);
       assertEquals(pvIrs.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd3
@@ -363,13 +400,6 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
     calibration_market_quote_sensitivity_check(f, CURVE_GROUP_CONFIG, shift, TS_BD_LIBOR3M);
   }
 
-  public void calibration_market_quote_sensitivity_two_group() {
-    double shift = 1.0E-6;
-    Function<MarketData, ImmutableRatesProvider> calibrator =
-        marketData -> CALIBRATOR.calibrate(ImmutableList.of(GROUP_1, GROUP_2), KNOWN_DATA, marketData);
-    calibration_market_quote_sensitivity_check(calibrator, CURVE_GROUP_CONFIG, shift, TS_EMPTY);
-  }
-
   private void calibration_market_quote_sensitivity_check(
       Function<MarketData, ImmutableRatesProvider> calibrator,
       CurveGroupDefinition config,
@@ -405,127 +435,6 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
     }
   }
 
-  /* Check calibration for discounting and forward curve interpolated on (pseudo-) discount factors. */
-  public void calibration_present_value_discountCurve() {
-    CurveInterpolator interp = CurveInterpolators.LOG_LINEAR;
-    CurveExtrapolator extrapRight = CurveExtrapolators.LOG_LINEAR;
-    CurveExtrapolator extrapLeft = CurveExtrapolators.QUADRATIC_LEFT;
-    InterpolatedNodalCurveDefinition dsc =
-        InterpolatedNodalCurveDefinition.builder()
-            .name(DSCON_CURVE_NAME)
-            .xValueType(ValueType.YEAR_FRACTION)
-            .yValueType(ValueType.DISCOUNT_FACTOR)
-            .dayCount(CURVE_DC)
-            .interpolator(interp)
-            .extrapolatorLeft(extrapLeft)
-            .extrapolatorRight(extrapRight)
-            .nodes(DSC_NODES).build();
-    InterpolatedNodalCurveDefinition fwd =
-        InterpolatedNodalCurveDefinition.builder()
-            .name(FWD3_CURVE_NAME)
-            .xValueType(ValueType.YEAR_FRACTION)
-            .yValueType(ValueType.DISCOUNT_FACTOR)
-            .dayCount(CURVE_DC)
-            .interpolator(interp)
-            .extrapolatorLeft(extrapLeft)
-            .extrapolatorRight(extrapRight)
-            .nodes(FWD3_NODES).build();
-    CurveGroupDefinition config =
-        CurveGroupDefinition.builder()
-            .name(CURVE_GROUP_NAME)
-            .addCurve(dsc, USD, USD_FED_FUND)
-            .addForwardCurve(fwd, USD_LIBOR_3M)
-            .build();
-    ImmutableRatesProvider result =
-        CALIBRATOR.calibrate(config, VAL_DATE_BD, ALL_QUOTES_BD, TS_EMPTY);
-    assertResult(result, VAL_DATE_BD);
-
-    double shift = 1.0E-6;
-    Function<MarketData, ImmutableRatesProvider> f =
-        marketData -> CALIBRATOR.calibrate(config, VAL_DATE_BD, marketData, TS_EMPTY);
-    calibration_market_quote_sensitivity_check(f, config, shift, TS_EMPTY);
-  }
-
-  /* Check calibration for forward curve directly interpolated on forward rates. */
-  public void calibration_present_value_simple_forward() {
-    InterpolatedNodalCurveDefinition dsc =
-        InterpolatedNodalCurveDefinition.builder()
-            .name(DSCON_CURVE_NAME)
-            .xValueType(ValueType.YEAR_FRACTION)
-            .yValueType(ValueType.ZERO_RATE)
-            .dayCount(CURVE_DC)
-            .interpolator(INTERPOLATOR_LINEAR)
-            .extrapolatorLeft(EXTRAPOLATOR_FLAT)
-            .extrapolatorRight(EXTRAPOLATOR_FLAT)
-            .nodes(DSC_NODES).build();
-    InterpolatedNodalCurveDefinition fwd =
-        InterpolatedNodalCurveDefinition.builder()
-            .name(FWD3_CURVE_NAME)
-            .xValueType(ValueType.YEAR_FRACTION)
-            .yValueType(ValueType.FORWARD_RATE)
-            .dayCount(CURVE_DC)
-            .interpolator(INTERPOLATOR_LINEAR)
-            .extrapolatorLeft(EXTRAPOLATOR_FLAT)
-            .extrapolatorRight(EXTRAPOLATOR_FLAT)
-            .nodes(FWD3_NODES).build();
-    CurveGroupDefinition config =
-        CurveGroupDefinition.builder()
-            .name(CURVE_GROUP_NAME)
-            .addCurve(dsc, USD, USD_FED_FUND)
-            .addForwardCurve(fwd, USD_LIBOR_3M)
-            .build();
-    ImmutableRatesProvider result =
-        CALIBRATOR.calibrate(config, VAL_DATE_BD, ALL_QUOTES_BD, TS_EMPTY);
-    assertResult(result, VAL_DATE_BD);
-    IborIndexRates ibor3M = result.iborIndexRates(USD_LIBOR_3M);
-    assertTrue(ibor3M instanceof SimpleIborIndexRates, 
-        "USD-LIBOR-3M curve should be simple interpolation on forward rates");
-    double shift = 1.0E-6;
-    Function<MarketData, ImmutableRatesProvider> f =
-        marketData -> CALIBRATOR.calibrate(config, VAL_DATE_BD, marketData, TS_EMPTY);
-    calibration_market_quote_sensitivity_check(f, config, shift, TS_EMPTY);
-  }
-
-  public void calibration_present_value_discountCurve_clamped() {
-    CurveInterpolator interp = CurveInterpolators.LOG_NATURAL_CUBIC_DISCOUNT_FACTOR;
-    CurveExtrapolator extrapRight = CurveExtrapolators.LOG_LINEAR;
-    CurveExtrapolator extrapLeft = CurveExtrapolators.INTERPOLATOR;
-    InterpolatedNodalCurveDefinition dsc =
-        InterpolatedNodalCurveDefinition.builder()
-            .name(DSCON_CURVE_NAME)
-            .xValueType(ValueType.YEAR_FRACTION)
-            .yValueType(ValueType.DISCOUNT_FACTOR)
-            .dayCount(CURVE_DC)
-            .interpolator(interp)
-            .extrapolatorLeft(extrapLeft)
-            .extrapolatorRight(extrapRight)
-            .nodes(DSC_NODES).build();
-    InterpolatedNodalCurveDefinition fwd =
-        InterpolatedNodalCurveDefinition.builder()
-            .name(FWD3_CURVE_NAME)
-            .xValueType(ValueType.YEAR_FRACTION)
-            .yValueType(ValueType.DISCOUNT_FACTOR)
-            .dayCount(CURVE_DC)
-            .interpolator(interp)
-            .extrapolatorLeft(extrapLeft)
-            .extrapolatorRight(extrapRight)
-            .nodes(FWD3_NODES).build();
-    CurveGroupDefinition config =
-        CurveGroupDefinition.builder()
-            .name(CURVE_GROUP_NAME)
-            .addCurve(dsc, USD, USD_FED_FUND)
-            .addForwardCurve(fwd, USD_LIBOR_3M)
-            .build();
-    ImmutableRatesProvider result =
-        CALIBRATOR.calibrate(config, VAL_DATE_BD, ALL_QUOTES_BD, TS_EMPTY);
-    assertResult(result, VAL_DATE_BD);
-
-    double shift = 1.0E-6;
-    Function<MarketData, ImmutableRatesProvider> f =
-        marketData -> CALIBRATOR.calibrate(config, VAL_DATE_BD, marketData, TS_EMPTY);
-    calibration_market_quote_sensitivity_check(f, config, shift, TS_EMPTY);
-  }
-
   //-------------------------------------------------------------------------
   @SuppressWarnings("unused")
   @Test(enabled = false)
@@ -547,7 +456,24 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
           + (endTime - startTime) + " ms.");
     }
     System.out.println("Avoiding hotspot: " + count);
-    // Previous run: 1500 ms for 100 calibrations (2 curve simultaneous - 30 nodes)
+    // Previous run: 375 ms for 100 calibrations (2 curve simultaneous - 30 nodes)
+  }
+
+  // Select the relevant FOMC meeting dates from a list of meetings
+  private static Map<Integer, LocalDate> fomcNodes(List<LocalDate> meetings, LocalDate calibrationDate, int nbNodes) {
+    Map<Integer, LocalDate> map = new HashMap<>();
+    LocalDate currentDate = calibrationDate;
+    Integer node = 0;
+    int i = 0;
+    while ((i < meetings.size()) && (node < nbNodes)) {
+      if (meetings.get(i).isAfter(currentDate)) {
+        map.put(node + 1, meetings.get(i)); // fixed dates periods start after ON
+        node++;
+        currentDate = meetings.get(i);
+      }
+      i++;
+    }
+    return map;
   }
 
 }

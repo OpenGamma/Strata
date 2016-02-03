@@ -36,12 +36,14 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.type.FraTemplate;
+import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Test {@link FraCurveNode}.
@@ -65,11 +67,27 @@ public class FraCurveNodeTest {
         .template(TEMPLATE)
         .rateKey(QUOTE_KEY)
         .additionalSpread(SPREAD)
+        .date(CurveNodeDate.LAST_FIXING)
         .build();
     assertEquals(test.getLabel(), LABEL);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
+    assertEquals(test.getDate(), CurveNodeDate.LAST_FIXING);
+  }
+
+  public void test_builder_defaults() {
+    FraCurveNode test = FraCurveNode.builder()
+        .label(LABEL)
+        .template(TEMPLATE)
+        .rateKey(QUOTE_KEY)
+        .additionalSpread(SPREAD)
+        .build();
+    assertEquals(test.getLabel(), LABEL);
+    assertEquals(test.getRateKey(), QUOTE_KEY);
+    assertEquals(test.getAdditionalSpread(), SPREAD);
+    assertEquals(test.getTemplate(), TEMPLATE);
+    assertEquals(test.getDate(), CurveNodeDate.END);
   }
 
   public void test_of_noSpread() {
@@ -146,17 +164,35 @@ public class FraCurveNodeTest {
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.ZERO_RATE), rate);
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.FORWARD_RATE), rate);
     double approximateMaturity = TEMPLATE.getPeriodToEnd().toTotalMonths() / 12.0d;
-    double df =  Math.exp(-approximateMaturity * rate);
+    double df = Math.exp(-approximateMaturity * rate);
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR), df);
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.PRICE_INDEX), 0d);
   }
 
-  public void test_metadata() {
+  public void test_metadata_end() {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     LocalDate endDate = OFFSET.adjust(valuationDate).plus(PERIOD_TO_START).plusMonths(3);
     CurveParameterMetadata metadata = node.metadata(valuationDate);
     assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), endDate);
+    assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), TENOR_5M);
+  }
+
+  public void test_metadata_fixed() {
+    LocalDate nodeDate = VAL_DATE.plusMonths(1);
+    FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD).withDate(CurveNodeDate.of(nodeDate));
+    DatedCurveParameterMetadata metadata = node.metadata(VAL_DATE);
+    assertEquals(metadata.getDate(), nodeDate);
+    assertEquals(metadata.getLabel(), node.getLabel());
+  }
+
+  public void test_metadata_last_fixing() {
+    FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD).withDate(CurveNodeDate.LAST_FIXING);
+    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
+    FraTrade trade = node.trade(valuationDate, ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, 0.0d).build());
+    LocalDate fixingDate = ((IborRateObservation) (trade.getProduct().expand().getFloatingRate())).getFixingDate();
+    DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
+    assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), fixingDate);
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), TENOR_5M);
   }
 
