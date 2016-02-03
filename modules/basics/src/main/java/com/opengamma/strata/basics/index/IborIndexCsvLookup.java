@@ -9,8 +9,12 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,6 +68,14 @@ final class IborIndexCsvLookup
   private static final String EFFECTIVE_DATE_CALENDAR_FIELD = "Effective Date Calendar";
   private static final String TENOR_FIELD = "Tenor";
   private static final String TENOR_CONVENTION_FIELD = "Tenor Convention";
+  private static final String FIXING_TIME_FIELD = "FixingTime";
+  private static final String FIXING_ZONE_FIELD = "FixingZone";
+
+  /**
+   * The time formatter.
+   */
+  private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH[:mm]", Locale.ENGLISH);
+  /**
 
   /**
    * The cache by name.
@@ -110,6 +122,8 @@ final class IborIndexCsvLookup
     HolidayCalendar effectiveCal = HolidayCalendar.of(csv.field(row, EFFECTIVE_DATE_CALENDAR_FIELD));
     Tenor tenor = Tenor.parse(csv.field(row, TENOR_FIELD));
     PeriodAdditionConvention tenorConvention = PeriodAdditionConvention.of(csv.field(row, TENOR_CONVENTION_FIELD));
+    LocalTime time = LocalTime.parse(csv.field(row, FIXING_TIME_FIELD), TIME_FORMAT);
+    ZoneId zoneId = ZoneId.of(csv.field(row, FIXING_ZONE_FIELD));
     // interpret CSV
     DaysAdjustment fixingOffset = DaysAdjustment.ofBusinessDays(
         -offsetDays, offsetCal, BusinessDayAdjustment.of(PRECEDING, fixingCal)).normalize();
@@ -128,6 +142,8 @@ final class IborIndexCsvLookup
         .fixingDateOffset(fixingOffset)
         .effectiveDateOffset(effectiveOffset)
         .maturityDateOffset(tenorAdjustment)
+        .fixingTime(time)
+        .fixingZone(zoneId)
         .build();
   }
 

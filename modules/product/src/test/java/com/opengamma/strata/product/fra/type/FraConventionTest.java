@@ -30,7 +30,9 @@ import static com.opengamma.strata.product.fra.FraDiscountingMethod.ISDA;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.Period;
+import java.time.ZoneId;
 import java.util.Optional;
 
 import org.testng.annotations.DataProvider;
@@ -67,6 +69,8 @@ public class FraConventionTest {
       .effectiveDateOffset(PLUS_TWO_DAYS)
       .maturityDateOffset(TenorAdjustment.ofLastDay(TENOR_3M, BDA_MOD_FOLLOW))
       .fixingCalendar(SAT_SUN)
+      .fixingTime(LocalTime.NOON)
+      .fixingZone(ZoneId.of("Australia/Sydney"))
       .build();
   private static final ImmutableIborIndex NZD_INDEX = ImmutableIborIndex.builder()
       .name("NZD")
@@ -76,6 +80,8 @@ public class FraConventionTest {
       .effectiveDateOffset(PLUS_TWO_DAYS)
       .maturityDateOffset(TenorAdjustment.ofLastDay(TENOR_3M, BDA_MOD_FOLLOW))
       .fixingCalendar(SAT_SUN)
+      .fixingTime(LocalTime.NOON)
+      .fixingZone(ZoneId.of("NZ"))
       .build();
 
   //-------------------------------------------------------------------------
