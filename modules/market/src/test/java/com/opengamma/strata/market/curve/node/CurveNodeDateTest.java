@@ -29,10 +29,10 @@ public class CurveNodeDateTest {
   private static final LocalDate DATE3 = date(2015, 7, 2);
 
   //-------------------------------------------------------------------------
-  public void test_LAST_PAYMENT() {
-    CurveNodeDate test = CurveNodeDate.LAST_PAYMENT;
+  public void test_END() {
+    CurveNodeDate test = CurveNodeDate.END;
     assertEquals(test.isFixed(), false);
-    assertEquals(test.isLastPayment(), true);
+    assertEquals(test.isEnd(), true);
     assertEquals(test.isLastFixing(), false);
     assertEquals(test.getType(), CurveNodeDateType.END);
     assertThrowsWithCause(() -> test.getDate(), IllegalStateException.class);
@@ -41,7 +41,7 @@ public class CurveNodeDateTest {
   public void test_LAST_FIXING() {
     CurveNodeDate test = CurveNodeDate.LAST_FIXING;
     assertEquals(test.isFixed(), false);
-    assertEquals(test.isLastPayment(), false);
+    assertEquals(test.isEnd(), false);
     assertEquals(test.isLastFixing(), true);
     assertEquals(test.getType(), CurveNodeDateType.LAST_FIXING);
     assertThrowsWithCause(() -> test.getDate(), IllegalStateException.class);
@@ -50,7 +50,7 @@ public class CurveNodeDateTest {
   public void test_of() {
     CurveNodeDate test = CurveNodeDate.of(DATE1);
     assertEquals(test.isFixed(), true);
-    assertEquals(test.isLastPayment(), false);
+    assertEquals(test.isEnd(), false);
     assertEquals(test.isLastFixing(), false);
     assertEquals(test.getType(), CurveNodeDateType.FIXED);
     assertEquals(test.getDate(), DATE1);
@@ -62,7 +62,7 @@ public class CurveNodeDateTest {
         .set(CurveNodeDate.meta().date(), DATE1)
         .build();
     assertEquals(test.isFixed(), true);
-    assertEquals(test.isLastPayment(), false);
+    assertEquals(test.isEnd(), false);
     assertEquals(test.isLastFixing(), false);
     assertEquals(test.getType(), CurveNodeDateType.FIXED);
     assertEquals(test.getDate(), DATE1);
@@ -84,7 +84,7 @@ public class CurveNodeDateTest {
   //-------------------------------------------------------------------------
   public void test_calculate() {
     assertEquals(CurveNodeDate.of(DATE1).calculate(() -> DATE2, () -> DATE3), DATE1);
-    assertEquals(CurveNodeDate.LAST_PAYMENT.calculate(() -> DATE2, () -> DATE3), DATE2);
+    assertEquals(CurveNodeDate.END.calculate(() -> DATE2, () -> DATE3), DATE2);
     assertEquals(CurveNodeDate.LAST_FIXING.calculate(() -> DATE2, () -> DATE3), DATE3);
   }
 

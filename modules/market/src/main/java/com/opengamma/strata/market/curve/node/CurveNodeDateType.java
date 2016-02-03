@@ -24,6 +24,8 @@ public enum CurveNodeDateType {
   FIXED,
   /**
    * Defines the end date of the trade.
+   * This will typically be the last accrual date, but may be any suitable
+   * date at the end of the trade.
    */
   END,
   /**

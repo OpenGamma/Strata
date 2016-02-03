@@ -80,7 +80,7 @@ public class FxSwapCurveNodeTest {
     assertEquals(test.getLabel(), LABEL);
     assertEquals(test.getFarForwardPointsKey(), QUOTE_KEY_PTS);
     assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getDate(), CurveNodeDate.LAST_PAYMENT);
+    assertEquals(test.getDate(), CurveNodeDate.END);
   }
 
   public void test_of() {
@@ -129,7 +129,7 @@ public class FxSwapCurveNodeTest {
     assertEquals(node.initialGuess(valuationDate, OV, ValueType.DISCOUNT_FACTOR), 1.0d);
   }
 
-  public void test_metadata_last_payment() {
+  public void test_metadata_end() {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     LocalDate endDate = CONVENTION.getBusinessDayAdjustment()

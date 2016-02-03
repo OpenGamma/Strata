@@ -75,7 +75,7 @@ public final class FixedIborSwapCurveNode
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String label;
   /**
-   * The method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
+   * The method by which the date of the node is calculated, defaulted to 'End'.
    */
   @PropertyDefinition
   private final CurveNodeDate date;
@@ -130,12 +130,12 @@ public final class FixedIborSwapCurveNode
       double additionalSpread,
       String label) {
 
-    return new FixedIborSwapCurveNode(template, rateKey, additionalSpread, label, CurveNodeDate.LAST_PAYMENT);
+    return new FixedIborSwapCurveNode(template, rateKey, additionalSpread, label, CurveNodeDate.END);
   }
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.date = CurveNodeDate.LAST_PAYMENT;
+    builder.date = CurveNodeDate.END;
   }
 
   @ImmutablePreBuild
@@ -154,7 +154,7 @@ public final class FixedIborSwapCurveNode
   @Override
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
     LocalDate nodeDate = date.calculate(
-        () -> calculateLastPaymentDate(valuationDate),
+        () -> calculateEnd(valuationDate),
         () -> calculateLastFixingDate(valuationDate));
     if (date.isFixed()) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
@@ -162,8 +162,8 @@ public final class FixedIborSwapCurveNode
     return TenorCurveNodeMetadata.of(nodeDate, template.getTenor(), label);
   }
 
-  // calculate the last payment date
-  private LocalDate calculateLastPaymentDate(LocalDate valuationDate) {
+  // calculate the end date
+  private LocalDate calculateEnd(LocalDate valuationDate) {
     SwapTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1);
     return trade.getProduct().getEndDate();
   }
@@ -310,7 +310,7 @@ public final class FixedIborSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
+   * Gets the method by which the date of the node is calculated, defaulted to 'End'.
    * @return the value of the property
    */
   public CurveNodeDate getDate() {
@@ -676,7 +676,7 @@ public final class FixedIborSwapCurveNode
     }
 
     /**
-     * Sets the method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
+     * Sets the method by which the date of the node is calculated, defaulted to 'End'.
      * @param date  the new value
      * @return this, for chaining, not null
      */

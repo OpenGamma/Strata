@@ -74,7 +74,7 @@ public class XCcyIborIborSwapCurveNodeTest {
     assertEquals(test.getSpreadKey(), SPREAD_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD_ADJ);
     assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getDate(), CurveNodeDate.LAST_PAYMENT);
+    assertEquals(test.getDate(), CurveNodeDate.END);
   }
 
   public void test_of_noSpread() {
@@ -133,7 +133,7 @@ public class XCcyIborIborSwapCurveNodeTest {
     assertEquals(node.initialGuess(valuationDate, OV, ValueType.DISCOUNT_FACTOR), 1.0d);
   }
 
-  public void test_metadata_last_payment() {
+  public void test_metadata_end() {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, SPREAD_ADJ);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     CurveParameterMetadata metadata = node.metadata(valuationDate);

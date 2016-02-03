@@ -66,7 +66,7 @@ public final class FxSwapCurveNode
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String label;
   /**
-   * The method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
+   * The method by which the date of the node is calculated, defaulted to 'End'.
    */
   @PropertyDefinition
   private final CurveNodeDate date;
@@ -106,7 +106,7 @@ public final class FxSwapCurveNode
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.date = CurveNodeDate.LAST_PAYMENT;
+    builder.date = CurveNodeDate.END;
   }
 
   @ImmutablePreBuild
@@ -126,7 +126,7 @@ public final class FxSwapCurveNode
   @Override
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
     LocalDate nodeDate = date.calculate(
-        () -> calculateLastPaymentDate(valuationDate),
+        () -> calculateEnd(valuationDate),
         () -> calculateLastFixingDate(valuationDate));
     if (date.isFixed()) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
@@ -135,8 +135,8 @@ public final class FxSwapCurveNode
     return TenorCurveNodeMetadata.of(nodeDate, tenor, label);
   }
 
-  // calculate the last payment date
-  private LocalDate calculateLastPaymentDate(LocalDate valuationDate) {
+  // calculate the end date
+  private LocalDate calculateEnd(LocalDate valuationDate) {
     FxSwapTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1, 0);
     return trade.getProduct().getFarLeg().getPaymentDate();
   }
@@ -265,7 +265,7 @@ public final class FxSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
+   * Gets the method by which the date of the node is calculated, defaulted to 'End'.
    * @return the value of the property
    */
   public CurveNodeDate getDate() {
@@ -592,7 +592,7 @@ public final class FxSwapCurveNode
     }
 
     /**
-     * Sets the method by which the date of the node is calculated, defaulted to 'LastPaymentDate'.
+     * Sets the method by which the date of the node is calculated, defaulted to 'End'.
      * @param date  the new value
      * @return this, for chaining, not null
      */

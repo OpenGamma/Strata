@@ -62,7 +62,7 @@ public class FixedOvernightSwapCurveNodeTest {
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getDate(), CurveNodeDate.LAST_PAYMENT);
+    assertEquals(test.getDate(), CurveNodeDate.END);
   }
 
   public void test_of_noSpread() {
@@ -127,7 +127,7 @@ public class FixedOvernightSwapCurveNodeTest {
         Math.exp(-rate * TENOR_10Y.getPeriod().toTotalMonths() / 12d), 1.0E-12);
   }
 
-  public void test_metadata_last_payment() {
+  public void test_metadata_end() {
     FixedOvernightSwapCurveNode node = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     CurveParameterMetadata metadata = node.metadata(valuationDate);

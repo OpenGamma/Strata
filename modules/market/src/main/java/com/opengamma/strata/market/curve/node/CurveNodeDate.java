@@ -34,16 +34,16 @@ import com.opengamma.strata.collect.Messages;
  * The date of the curve node.
  * <p>
  * A {@code CurveNodeDate} provides a flexible mechanism of defining the date of the curve node.
- * It may be associated with the last payment date, the last fixing date, or specified exactly.
+ * It may be associated with the end date, the last fixing date, or specified exactly.
  */
 @BeanDefinition(builderScope = "private")
 public final class CurveNodeDate
     implements ImmutableBean, Serializable {
 
   /**
-   * An instance defining the curve node date as the last payment date of the trade.
+   * An instance defining the curve node date as the end date of the trade.
    */
-  public static final CurveNodeDate LAST_PAYMENT = new CurveNodeDate(CurveNodeDateType.END, null);
+  public static final CurveNodeDate END = new CurveNodeDate(CurveNodeDateType.END, null);
   /**
    * An instance defining the curve node date as the last fixing date date of the trade.
    * Used only for instruments referencing an Ibor index.
@@ -52,7 +52,7 @@ public final class CurveNodeDate
 
   //-------------------------------------------------------------------------
   /**
-   * The method by which the date of the node is calculated, defaulted to 'LastPayment'.
+   * The method by which the date of the node is calculated, defaulted to 'End'.
    */
   @PropertyDefinition
   private final CurveNodeDateType type;
@@ -91,11 +91,11 @@ public final class CurveNodeDate
 
   //-------------------------------------------------------------------------
   /**
-   * Checks if the type is 'LastPayment'.
+   * Checks if the type is 'End'.
    * 
-   * @return true if the type is 'LastPayment'
+   * @return true if the type is 'End'
    */
-  public boolean isLastPayment() {
+  public boolean isEnd() {
     return (type == CurveNodeDateType.END);
   }
 
@@ -136,16 +136,16 @@ public final class CurveNodeDate
   /**
    * Calculates the appropriate date for the node.
    * 
-   * @param lastPaymentDateSupplier  the supplier invoked to get the last payment date
+   * @param endDateSupplier  the supplier invoked to get the end date
    * @param lastFixingDateSupplier  the supplier invoked to get the last fixing date
    * @return the calculated date
    */
-  public LocalDate calculate(Supplier<LocalDate> lastPaymentDateSupplier, Supplier<LocalDate> lastFixingDateSupplier) {
+  public LocalDate calculate(Supplier<LocalDate> endDateSupplier, Supplier<LocalDate> lastFixingDateSupplier) {
     switch (type) {
       case FIXED:
         return date;
       case END:
-        return lastPaymentDateSupplier.get();
+        return endDateSupplier.get();
       case LAST_FIXING:
         return lastFixingDateSupplier.get();
     }
@@ -196,7 +196,7 @@ public final class CurveNodeDate
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the method by which the date of the node is calculated, defaulted to 'LastPayment'.
+   * Gets the method by which the date of the node is calculated, defaulted to 'End'.
    * @return the value of the property
    */
   public CurveNodeDateType getType() {
