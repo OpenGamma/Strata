@@ -22,10 +22,10 @@ public class StandardIdTest {
 
   //-------------------------------------------------------------------------
   public void test_factory_String_String() {
-    StandardId test = StandardId.of("Scheme:/+foo", "value");
-    assertEquals(test.getScheme(), "Scheme:/+foo");
+    StandardId test = StandardId.of("scheme:/+foo", "value");
+    assertEquals(test.getScheme(), "scheme:/+foo");
     assertEquals(test.getValue(), "value");
-    assertEquals(test.toString(), "Scheme:/+foo~value");
+    assertEquals(test.toString(), "scheme:/+foo~value");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

@@ -61,9 +61,9 @@ public final class StandardId
   private static final long serialVersionUID = 1L;
   /**
    * The valid regex for schemes.
-   * One letter, followed by zero-to-many letters, numbers or selected special characters.
+   * One-to-many letters, numbers or selected special characters.
    */
-  private static final Pattern REGEX_SCHEME = Pattern.compile("[A-Za-z][A-Za-z0-9:/+.=_-]*");
+  private static final Pattern REGEX_SCHEME = Pattern.compile("[A-Za-z0-9:/+.=_-]+");
   /**
    * The valid regex for values.
    * One-to-many ASCII characters excluding square brackets, pipe and tilde.
@@ -91,7 +91,7 @@ public final class StandardId
   /**
    * Obtains an instance from a scheme and value.
    * <p>
-   * The scheme must be non-empty and match the regular expression '{@code [A-Za-z][A-Za-z0-9:/+.=_-]*}'.
+   * The scheme must be non-empty and match the regular expression '{@code [A-Za-z0-9:/+.=_-]*}'.
    * <p>
    * The value must be non-empty and match the regular expression '{@code [!-z][ -z]*}'.
    *
