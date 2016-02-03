@@ -28,6 +28,7 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.google.common.collect.ComparisonChain;
+import com.google.common.net.PercentEscaper;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -60,14 +61,18 @@ public final class StandardId
   private static final long serialVersionUID = 1L;
   /**
    * The valid regex for schemes.
-   * One letter, followed by zero-to-many letters, numbers or selected special characters.
+   * One-to-many letters, numbers or selected special characters.
    */
-  private static final Pattern REGEX_SCHEME = Pattern.compile("[A-Za-z][A-Za-z0-9+.=_-]*");
+  private static final Pattern REGEX_SCHEME = Pattern.compile("[A-Za-z0-9:/+.=_-]+");
   /**
    * The valid regex for values.
    * One-to-many ASCII characters excluding square brackets, pipe and tilde.
    */
   private static final Pattern REGEX_VALUE = Pattern.compile("[!-z][ -z]*");
+  /**
+   * The escaper.
+   */
+  private static final PercentEscaper SCHEME_ESCAPER = new PercentEscaper(":/+.=_-", false);
 
   /**
    * The scheme that categorizes the identifier value.
@@ -86,7 +91,7 @@ public final class StandardId
   /**
    * Obtains an instance from a scheme and value.
    * <p>
-   * The scheme must be non-empty and match the regular expression '{@code [A-Za-z][A-Za-z0-9+.=_-]*}'.
+   * The scheme must be non-empty and match the regular expression '{@code [A-Za-z0-9:/+.=_-]*}'.
    * <p>
    * The value must be non-empty and match the regular expression '{@code [!-z][ -z]*}'.
    *
@@ -115,6 +120,18 @@ public final class StandardId
       throw new IllegalArgumentException("Invalid identifier format: " + str);
     }
     return new StandardId(str.substring(0, pos), str.substring(pos + 1));
+  }
+
+  /**
+   * Encode a string suitable for use as the scheme.
+   * <p>
+   * This uses percent encoding, just like URI.
+   * 
+   * @param scheme  the scheme to encode
+   * @return the encoded scheme
+   */
+  public static String encodeScheme(String scheme) {
+    return SCHEME_ESCAPER.escape(scheme);
   }
 
   //-------------------------------------------------------------------------

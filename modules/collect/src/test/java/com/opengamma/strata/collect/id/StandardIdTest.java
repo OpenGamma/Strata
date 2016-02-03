@@ -22,10 +22,10 @@ public class StandardIdTest {
 
   //-------------------------------------------------------------------------
   public void test_factory_String_String() {
-    StandardId test = StandardId.of("Scheme", "value");
-    assertEquals(test.getScheme(), "Scheme");
+    StandardId test = StandardId.of("scheme:/+foo", "value");
+    assertEquals(test.getScheme(), "scheme:/+foo");
     assertEquals(test.getValue(), "value");
-    assertEquals(test.toString(), "Scheme~value");
+    assertEquals(test.toString(), "scheme:/+foo~value");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -41,6 +41,12 @@ public class StandardIdTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_String_String_emptyValue() {
     StandardId.of("Scheme", "");
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_encodeScheme() {
+    String test = StandardId.encodeScheme("http://www.opengamma.com/foo/../~bar#test");
+    assertEquals(test, "http://www.opengamma.com/foo/../%7Ebar%23test");
   }
 
   //-------------------------------------------------------------------------
