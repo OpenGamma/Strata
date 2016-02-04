@@ -29,6 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * A single foreign exchange rate between two currencies, such as 'EUR/USD 1.25'.
@@ -183,6 +184,42 @@ public final class FxRate
    */
   public double convert(double amount, Currency fromCurrency, Currency toCurrency) {
     return amount * fxRate(fromCurrency, toCurrency);
+  }
+
+  /**
+   * Derives an FX rate from two related FX rates.
+   * <p>
+   * Given two FX rates it is possible to derive another rate if they have a currency in common.
+   * For example, given rates for EUR/GBP and EUR/CHF it is possible to derive rates for GBP/CHF.
+   * The result will always have a currency pair in the conventional order.
+   * <p>
+   * The cross is only returned if the two pairs contains three currencies in total,
+   * such as AAA/BBB and BBB/CCC. If the two inputs have two many currencies in common, or no
+   * currencies in common, an exception is thrown.
+   *
+   * @param other  the other rates
+   * @return a set of FX rates derived from these rates and the other rates
+   * @throws IllegalArgumentException if the cross rate cannot be calculated
+   */
+  public FxRate crossRate(FxRate other) {
+    return pair.cross(other.pair).map(cross -> computeCross(this, other, cross))
+        .orElseThrow(() -> new IllegalArgumentException(Messages.format(
+            "Unable to cross when no unique common currency: {} and {}", pair, other.pair)));
+  }
+
+  // computes the cross rate
+  private static FxRate computeCross(FxRate fx1, FxRate fx2, CurrencyPair crossPairAC) {
+    // aim is to convert AAA/BBB and BBB/CCC to AAA/CCC
+    Currency currA = crossPairAC.getBase();
+    Currency currC = crossPairAC.getCounter();
+    // given the conventional cross rate pair, order the two rates to match
+    boolean crossBaseCurrencyInFx1 = fx1.pair.contains(currA);
+    FxRate fxABorBA = crossBaseCurrencyInFx1 ? fx1 : fx2;
+    FxRate fxBCorCB = crossBaseCurrencyInFx1 ? fx2 : fx1;
+    // extract the rates, taking the inverse if the pair is in the inverse order
+    double rateAB = fxABorBA.getPair().getBase().equals(currA) ? fxABorBA.rate : 1d / fxABorBA.rate;
+    double rateBC = fxBCorCB.getPair().getCounter().equals(currC) ? fxBCorCB.rate : 1d / fxBCorCB.rate;
+    return FxRate.of(crossPairAC, rateAB * rateBC);
   }
 
   /**
