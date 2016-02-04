@@ -11,7 +11,6 @@ import static com.opengamma.strata.basics.currency.Currency.BRL;
 import static com.opengamma.strata.basics.currency.Currency.CAD;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -20,6 +19,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.testng.annotations.DataProvider;
@@ -44,6 +44,7 @@ public class CurrencyPairTest {
     CurrencyPair test = CurrencyPair.of(GBP, USD);
     assertEquals(test.getBase(), GBP);
     assertEquals(test.getCounter(), USD);
+    assertEquals(test.isIdentity(), false);
     assertEquals(test.toString(), "GBP/USD");
   }
 
@@ -51,6 +52,7 @@ public class CurrencyPairTest {
     CurrencyPair test = CurrencyPair.of(USD, GBP);
     assertEquals(test.getBase(), USD);
     assertEquals(test.getCounter(), GBP);
+    assertEquals(test.isIdentity(), false);
     assertEquals(test.toString(), "USD/GBP");
   }
 
@@ -58,6 +60,7 @@ public class CurrencyPairTest {
     CurrencyPair test = CurrencyPair.of(USD, USD);
     assertEquals(test.getBase(), USD);
     assertEquals(test.getCounter(), USD);
+    assertEquals(test.isIdentity(), true);
     assertEquals(test.toString(), "USD/USD");
   }
 
@@ -150,22 +153,33 @@ public class CurrencyPairTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_isRelatedTo_CurrencyPair() {
-    CurrencyPair test = CurrencyPair.of(GBP, USD);
-    assertEquals(test.isRelated(test), true);
-    assertEquals(test.isRelated(CurrencyPair.of(GBP, USD)), true);
-    assertEquals(test.isRelated(CurrencyPair.of(USD, GBP)), true);
-    assertEquals(test.isRelated(CurrencyPair.of(GBP, EUR)), true);
-    assertEquals(test.isRelated(CurrencyPair.of(EUR, GBP)), true);
-    assertEquals(test.isRelated(CurrencyPair.of(USD, EUR)), true);
-    assertEquals(test.isRelated(CurrencyPair.of(EUR, USD)), true);
-    assertEquals(test.isRelated(CurrencyPair.of(JPY, EUR)), false);
-    assertEquals(test.isRelated(CurrencyPair.of(EUR, JPY)), false);
+  public void test_cross_CurrencyPair() {
+    CurrencyPair gbpGbp = CurrencyPair.of(GBP, GBP);
+    CurrencyPair gbpUsd = CurrencyPair.of(GBP, USD);
+    CurrencyPair usdGbp = CurrencyPair.of(USD, GBP);
+    CurrencyPair eurGbp = CurrencyPair.of(EUR, GBP);
+    CurrencyPair eurUsd = CurrencyPair.of(EUR, USD);
+    CurrencyPair usdEur = CurrencyPair.of(USD, EUR);
+
+    assertEquals(gbpUsd.cross(gbpUsd), Optional.empty());
+    assertEquals(gbpUsd.cross(usdGbp), Optional.empty());
+    assertEquals(gbpGbp.cross(gbpUsd), Optional.empty());
+    assertEquals(gbpUsd.cross(gbpGbp), Optional.empty());
+
+    assertEquals(gbpUsd.cross(usdEur), Optional.of(eurGbp));
+    assertEquals(gbpUsd.cross(eurUsd), Optional.of(eurGbp));
+    assertEquals(usdGbp.cross(usdEur), Optional.of(eurGbp));
+    assertEquals(usdGbp.cross(eurUsd), Optional.of(eurGbp));
+
+    assertEquals(usdEur.cross(gbpUsd), Optional.of(eurGbp));
+    assertEquals(usdEur.cross(usdGbp), Optional.of(eurGbp));
+    assertEquals(eurUsd.cross(gbpUsd), Optional.of(eurGbp));
+    assertEquals(eurUsd.cross(usdGbp), Optional.of(eurGbp));
   }
 
-  public void test_isRelatedTo_CurrencyPair_null() {
+  public void test_cross_CurrencyPair_null() {
     CurrencyPair test = CurrencyPair.of(GBP, USD);
-    assertThrowsIllegalArg(() -> test.isRelated(null));
+    assertThrowsIllegalArg(() -> test.cross(null));
   }
 
   //-----------------------------------------------------------------------

@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.currency;
 
 import java.io.Serializable;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -152,6 +153,17 @@ public final class CurrencyPair
   }
 
   /**
+   * Checks if this currency pair is an identity pair.
+   * <p>
+   * The identity pair is one where the base and counter currency are the same..
+   * 
+   * @return true if this pair is an identity pair
+   */
+  public boolean isIdentity() {
+    return base.equals(counter);
+  }
+
+  /**
    * Checks if this currency pair is the inverse of the specified pair.
    * <p>
    * This could be used to check if an FX rate specified in one currency pair needs inverting.
@@ -165,17 +177,43 @@ public final class CurrencyPair
   }
 
   /**
-   * Checks if this currency pair is related to the specified pair.
+   * Finds the currency pair that is a cross between this pair and the other pair.
    * <p>
-   * Two pairs are related if they have at least one currency in common.
-   * This could be used to check if two FX rates can be combined into a single rate.
+   * The cross is only returned if the two pairs contains three currencies in total,
+   * such as AAA/BBB and BBB/CCC and neither pair is an identity such as AAA/AAA.
+   * <ul>
+   * <li>Given two pairs AAA/BBB and BBB/CCC the result will be AAA/CCC or CCC/AAA as per the market convention.
+   * <li>Given two pairs AAA/BBB and CCC/DDD the result will be empty.
+   * <li>Given two pairs AAA/AAA and AAA/BBB the result will be empty.
+   * <li>Given two pairs AAA/BBB and AAA/BBB the result will be empty.
+   * <li>Given two pairs AAA/AAA and AAA/AAA the result will be empty.
+   * </ul>
    * 
    * @param other  the other currency pair
-   * @return true if this pair contains either the base or counter currency of the specified pair
+   * @return the cross currency pair, or empty if no cross currency pair can be created
    */
-  public boolean isRelated(CurrencyPair other) {
-    ArgChecker.notNull(other, "currencyPair");
-    return contains(other.base) || contains(other.counter);
+  public Optional<CurrencyPair> cross(CurrencyPair other) {
+    ArgChecker.notNull(other, "other");
+    if (isIdentity() || other.isIdentity() || this.equals(other) || this.equals(other.inverse())) {
+      return Optional.empty();
+    }
+    // AAA/BBB cross BBB/CCC
+    if (counter.equals(other.base)) {
+      return Optional.of(of(base, other.counter).toConventional());
+    }
+    // AAA/BBB cross CCC/BBB
+    if (counter.equals(other.counter)) {
+      return Optional.of(of(base, other.base).toConventional());
+    }
+    // BBB/AAA cross BBB/CCC
+    if (base.equals(other.base)) {
+      return Optional.of(of(counter, other.counter).toConventional());
+    }
+    // BBB/AAA cross CCC/BBB
+    if (base.equals(other.counter)) {
+      return Optional.of(of(counter, other.base).toConventional());
+    }
+    return Optional.empty();
   }
 
   //-------------------------------------------------------------------------

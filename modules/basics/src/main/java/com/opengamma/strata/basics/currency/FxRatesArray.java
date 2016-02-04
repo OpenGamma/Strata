@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
@@ -128,6 +129,43 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
     }
     throw new IllegalArgumentException("Unknown rate: " + baseCurrency + "/" + counterCurrency);
   }
+
+  /**
+   * Derives a set of FX rates from these rates and another set of rates.
+   * <p>
+   * For example, given rates for EUR/GBP and EUR/CHF it is possible to derive rates for GBP/CHF.
+   * <p>
+   * There must be exactly one currency in common between the two currency pairs and
+   * each pair must contain two different currencies. The other rates must have the same scenario count
+   * as these rates.
+   * <p>
+   * The returned object contains rates for converting between the two currencies which only appear in
+   * one set of rates.
+   *
+   * @param other  the other rates
+   * @return a set of FX rates derived from these rates and the other rates
+   */
+  public FxRatesArray crossRates(FxRatesArray other) {
+    return pair.cross(other.pair).map(cross -> computeCross(other, cross))
+        .orElseThrow(() -> new IllegalArgumentException(Messages.format(
+            "Unable to cross when no unique common currency: {} and {}", pair, other.pair)));
+  }
+
+  private FxRatesArray computeCross(FxRatesArray other, CurrencyPair crossPairAC) {
+    // aim is to convert AAA/BBB and BBB/CCC to AAA/CCC
+    Currency currA = crossPairAC.getBase();
+    Currency currC = crossPairAC.getCounter();
+    // given the conventional cross rate pair, order the two rates to match
+    boolean crossBaseCurrencyInFx1 = pair.contains(currA);
+    FxRatesArray fxABorBA = crossBaseCurrencyInFx1 ? this : other;
+    FxRatesArray fxBCorCB = crossBaseCurrencyInFx1 ? other : this;
+    // extract the rates, taking the inverse if the pair is in the inverse order
+    DoubleArray ratesAB = fxABorBA.getPair().getBase().equals(currA) ? fxABorBA.rates : fxABorBA.rates.map(v -> 1 / v);
+    DoubleArray ratesBC = fxBCorCB.getPair().getCounter().equals(currC) ? fxBCorCB.rates : fxBCorCB.rates.map(v -> 1 / v);
+    return FxRatesArray.of(crossPairAC, ratesAB.multipliedBy(ratesBC));
+  }
+
+  //--------------------------------------------------------------------------------------------------
 
   @ImmutableValidator
   private void validate() {
