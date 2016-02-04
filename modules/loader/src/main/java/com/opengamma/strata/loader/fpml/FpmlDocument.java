@@ -39,6 +39,7 @@ import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FloatingRateName;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.collect.Messages;
@@ -523,9 +524,23 @@ public final class FpmlDocument {
 
   //-------------------------------------------------------------------------
   /**
+   * Converts an FpML 'FloatingRateIndex.model' to a {@code PriceIndex}.
+   * 
+   * @param baseEl  the FpML floating rate model element to parse 
+   * @return the index
+   * @throws RuntimeException if unable to parse
+   */
+  public PriceIndex parsePriceIndex(XmlElement baseEl) {
+    XmlElement indexEl = baseEl.getChild("floatingRateIndex");
+    validateScheme(indexEl, "floatingRateIndexScheme", "http://www.fpml.org/coding-scheme/inflation-index-description");
+    FloatingRateName floatingName = FloatingRateName.of(indexEl.getContent());
+    return floatingName.toPriceIndex();
+  }
+
+  /**
    * Converts an FpML 'FloatingRateIndex.model' to an {@code Index}.
    * 
-   * @param baseEl  the FpML floating rate index element to parse 
+   * @param baseEl  the FpML floating rate model element to parse 
    * @return the index
    * @throws RuntimeException if unable to parse
    */
