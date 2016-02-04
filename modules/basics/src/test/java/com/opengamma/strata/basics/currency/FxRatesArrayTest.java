@@ -72,6 +72,11 @@ public class FxRatesArrayTest {
     assertArraysEqual(eurGbp.crossRates(usdEur), expectedGbpUsd);
     assertArraysEqual(gbpEur.crossRates(eurUsd), expectedGbpUsd);
     assertArraysEqual(gbpEur.crossRates(usdEur), expectedGbpUsd);
+
+    assertArraysEqual(eurUsd.crossRates(eurGbp), expectedGbpUsd);
+    assertArraysEqual(usdEur.crossRates(eurGbp), expectedGbpUsd);
+    assertArraysEqual(eurUsd.crossRates(gbpEur), expectedGbpUsd);
+    assertArraysEqual(usdEur.crossRates(gbpEur), expectedGbpUsd);
   }
 
   public void crossRatesInvalidInputs() {

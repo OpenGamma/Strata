@@ -180,7 +180,7 @@ public final class CurrencyPair
    * Finds the currency pair that is a cross between this pair and the other pair.
    * <p>
    * The cross is only returned if the two pairs contains three currencies in total,
-   * such as AAA/BBB and BBB/CCC.
+   * such as AAA/BBB and BBB/CCC and neither pair is an identity such as AAA/AAA.
    * <ul>
    * <li>Given two pairs AAA/BBB and BBB/CCC the result will be AAA/CCC or CCC/AAA as per the market convention.
    * <li>Given two pairs AAA/BBB and CCC/DDD the result will be empty.
