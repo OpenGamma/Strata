@@ -90,6 +90,13 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  public void ofStream() {
+    Stream<String> letters = Stream.of("a", "b", "c");
+    Map<String, String> expected = ImmutableMap.of("A", "a", "B", "b", "C", "c");
+    Map<String, String> result = MapStream.of(letters, letter -> letter.toUpperCase(Locale.ENGLISH)).toMap();
+    assertThat(result).isEqualTo(expected);
+  }
+
   public void toMapDuplicateKeys() {
     assertThrowsIllegalArg(() -> MapStream.of(map).mapKeys(k -> "key").toMap());
   }
