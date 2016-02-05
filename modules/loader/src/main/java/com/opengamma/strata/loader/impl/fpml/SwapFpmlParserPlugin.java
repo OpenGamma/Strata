@@ -359,8 +359,8 @@ final class SwapFpmlParserPlugin
     //  'resetDates/rateCutOffDaysOffset' (OIS only)
     //  'resetDates/resetFrequency'
     //  'resetDates/resetDatesAdjustments'
-    //  'stubCalculationPeriodAmount/initalStub' (Ibor only)
-    //  'stubCalculationPeriodAmount/finalStub' (Ibor only)
+    //  'stubCalculationPeriodAmount/initalStub' (Ibor only, Overnight must match index)
+    //  'stubCalculationPeriodAmount/finalStub' (Ibor only, Overnight must match index)
     // ignored elements:
     //  'calculationPeriodAmount/calculation/floatingRateCalculation/finalRateRounding?'
     //  'calculationPeriodAmount/calculation/discounting?'
@@ -436,8 +436,16 @@ final class SwapFpmlParserPlugin
 
     } else if (index instanceof OvernightIndex) {
       OvernightRateCalculation.Builder overnightRateBuilder = OvernightRateCalculation.builder();
-      document.validateNotPresent(legEl, "stubCalculationPeriodAmount");
       document.validateNotPresent(floatingEl, "initialRate");  // TODO: should support this in the model
+      // stubs
+      legEl.findChild("stubCalculationPeriodAmount").ifPresent(stubsEl -> {
+        stubsEl.findChild("initialStub").ifPresent(el -> {
+          checkStubForOvernightIndex(el, document, (OvernightIndex) index);
+        });
+        stubsEl.findChild("finalStub").ifPresent(el -> {
+          checkStubForOvernightIndex(el, document, (OvernightIndex) index);
+        });
+      });
       // day count
       overnightRateBuilder.dayCount(document.parseDayCountFraction(calcEl.getChild("dayCountFraction")));
       // index
@@ -523,7 +531,7 @@ final class SwapFpmlParserPlugin
     builder.lag(document.parsePeriod(inflationEl.getChild("inflationLag")));
     // interpolation
     String interpStr = inflationEl.getChild("interpolationMethod").getContent();
-    builder.interpolated(interpStr.toLowerCase(Locale.ENGLISH).contains("linear") ? true : false);
+    builder.interpolated(interpStr.toLowerCase(Locale.ENGLISH).contains("linear"));
     // gearing
     inflationEl.findChild("floatingRateMultiplierSchedule").ifPresent(el -> {
       builder.gearing(parseSchedule(el, document));
@@ -564,6 +572,27 @@ final class SwapFpmlParserPlugin
       return StubCalculation.ofIborInterpolatedRate(
           (IborIndex) document.parseIndex(index1El),
           (IborIndex) document.parseIndex(index2El));
+    }
+    throw new FpmlParseException("Unknown stub structure: " + baseEl);
+  }
+
+  // checks that the index on a stub matches the main index (this is handling bad FpML)
+  private void checkStubForOvernightIndex(XmlElement baseEl, FpmlDocument document, OvernightIndex index) {
+    document.validateNotPresent(baseEl, "stubAmount");
+    document.validateNotPresent(baseEl, "stubRate");
+    List<XmlElement> indicesEls = baseEl.getChildren("floatingRate");
+    if (indicesEls.size() == 1) {
+      XmlElement indexEl = indicesEls.get(0);
+      document.validateNotPresent(indexEl, "floatingRateMultiplierSchedule");
+      document.validateNotPresent(indexEl, "spreadSchedule");
+      document.validateNotPresent(indexEl, "rateTreatment");
+      document.validateNotPresent(indexEl, "capRateSchedule");
+      document.validateNotPresent(indexEl, "floorRateSchedule");
+      Index parsed = document.parseIndex(indexEl);
+      if (parsed.equals(index)) {
+        return;
+      }
+      throw new FpmlParseException("OvernightIndex swap cannot have a different index in the stub: " + baseEl);
     }
     throw new FpmlParseException("Unknown stub structure: " + baseEl);
   }

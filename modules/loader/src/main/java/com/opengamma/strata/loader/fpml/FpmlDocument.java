@@ -303,7 +303,10 @@ public final class FpmlDocument {
         if (tradeIdOptEl.isPresent() && tradeIdOptEl.get().findAttribute("tradeIdScheme").isPresent()) {
           XmlElement tradeIdEl = tradeIdOptEl.get();
           String scheme = tradeIdEl.getAttribute("tradeIdScheme");
-          allIds.put(partyHref, StandardId.of(StandardId.encodeScheme(scheme), tradeIdEl.getContent()));
+          // ignore if there is an empty scheme or value
+          if (!scheme.isEmpty() && !tradeIdEl.getContent().isEmpty()) {
+            allIds.put(partyHref, StandardId.of(StandardId.encodeScheme(scheme), tradeIdEl.getContent()));
+          }
         }
       }
     }
