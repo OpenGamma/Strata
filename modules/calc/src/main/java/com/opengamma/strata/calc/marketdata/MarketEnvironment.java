@@ -25,6 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
@@ -124,6 +126,7 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
     return values.containsKey(id);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public <T> MarketDataBox<T> getValue(MarketDataId<T> id) {
     // Special handling of these special ID types to provide more helpful error messages
@@ -134,6 +137,12 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
     if (id instanceof MissingMappingId) {
       MarketDataKey<?> key = ((MissingMappingId) id).getKey();
       throw new IllegalArgumentException("No market data mapping found for " + key);
+    }
+    // Special case for FX rates containing the same currency twice, e.g. GBP/GBP. Always return a rate of 1.
+    if (id instanceof FxRateId && ((FxRateId) id).getPair().isIdentity()) {
+      FxRateId fxRateId = (FxRateId) id;
+      FxRate identityRate = FxRate.of(fxRateId.getPair(), 1);
+      return MarketDataBox.ofSingleValue((T) identityRate);
     }
     @SuppressWarnings("unchecked")
     MarketDataBox<T> value = (MarketDataBox<T>) values.get(id);
