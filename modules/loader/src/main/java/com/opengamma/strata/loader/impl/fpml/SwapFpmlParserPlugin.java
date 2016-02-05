@@ -8,6 +8,7 @@ package com.opengamma.strata.loader.impl.fpml;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
@@ -38,6 +39,7 @@ import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.FixingRelativeTo;
 import com.opengamma.strata.product.swap.IborRateAveragingMethod;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.InflationRateCalculation;
 import com.opengamma.strata.product.swap.KnownAmountSwapLeg;
 import com.opengamma.strata.product.swap.NegativeRateMethod;
 import com.opengamma.strata.product.swap.NotionalSchedule;
@@ -299,6 +301,51 @@ final class SwapFpmlParserPlugin
     // supported elements:
     //  'calculationPeriodAmount/calculation/fixedRateSchedule'
     //  'calculationPeriodAmount/calculation/floatingRateCalculation'
+    //  'calculationPeriodAmount/calculation/inflationRateCalculation'
+    Optional<XmlElement> fixedOptEl = calcEl.findChild("fixedRateSchedule");
+    Optional<XmlElement> floatingOptEl = calcEl.findChild("floatingRateCalculation");
+    Optional<XmlElement> inflationOptEl = calcEl.findChild("inflationRateCalculation");
+
+    if (fixedOptEl.isPresent()) {
+      return parseFixed(legEl, calcEl, fixedOptEl.get(), document);
+
+    } else if (floatingOptEl.isPresent()) {
+      return parseFloat(legEl, calcEl, floatingOptEl.get(), accrualSchedule, document);
+
+    } else if (inflationOptEl.isPresent()) {
+      return parseInflation(legEl, calcEl, inflationOptEl.get(), accrualSchedule, document);
+
+    } else {
+      throw new FpmlParseException(
+          "Invalid 'calculation' type, not fixedRateSchedule, floatingRateCalculation or inflationRateCalculation");
+    }
+  }
+
+  // Converts an FpML 'fixedRateSchedule' to a {@code RateCalculation}.
+  private RateCalculation parseFixed(XmlElement legEl, XmlElement calcEl, XmlElement fixedEl, FpmlDocument document) {
+    // supported elements:
+    //  'calculationPeriodAmount/calculation/fixedRateSchedule'
+    //  'calculationPeriodAmount/calculation/dayCountFraction'
+    // rejected elements:
+    //  'resetDates'
+    //  'stubCalculationPeriodAmount'
+    document.validateNotPresent(legEl, "resetDates");
+    document.validateNotPresent(legEl, "stubCalculationPeriodAmount");  // TODO: parse fixed stub rate
+    return FixedRateCalculation.builder()
+        .rate(parseSchedule(fixedEl, document))
+        .dayCount(document.parseDayCountFraction(calcEl.getChild("dayCountFraction")))
+        .build();
+  }
+
+  // Converts an FpML 'FloatingRateCalculation' to a {@code RateCalculation}.
+  private RateCalculation parseFloat(
+      XmlElement legEl,
+      XmlElement calcEl,
+      XmlElement floatingEl,
+      PeriodicSchedule accrualSchedule,
+      FpmlDocument document) {
+    // supported elements:
+    //  'calculationPeriodAmount/calculation/floatingRateCalculation'
     //  'calculationPeriodAmount/calculation/floatingRateCalculation/floatingRateIndex'
     //  'calculationPeriodAmount/calculation/floatingRateCalculation/indexTenor?'
     //  'calculationPeriodAmount/calculation/floatingRateCalculation/floatingRateMultiplierSchedule?'
@@ -312,8 +359,8 @@ final class SwapFpmlParserPlugin
     //  'resetDates/rateCutOffDaysOffset' (OIS only)
     //  'resetDates/resetFrequency'
     //  'resetDates/resetDatesAdjustments'
-    //  'stubCalculationPeriodAmount/initalStub' (Ibor only)
-    //  'stubCalculationPeriodAmount/finalStub' (Ibor only)
+    //  'stubCalculationPeriodAmount/initalStub' (Ibor only, Overnight must match index)
+    //  'stubCalculationPeriodAmount/finalStub' (Ibor only, Overnight must match index)
     // ignored elements:
     //  'calculationPeriodAmount/calculation/floatingRateCalculation/finalRateRounding?'
     //  'calculationPeriodAmount/calculation/discounting?'
@@ -326,129 +373,170 @@ final class SwapFpmlParserPlugin
     //  'resetDates/initialFixingDate'
     //  'stubCalculationPeriodAmount/initalStub/stubAmount'
     //  'stubCalculationPeriodAmount/finalStub/stubAmount'
-    Optional<XmlElement> fixedOptEl = calcEl.findChild("fixedRateSchedule");
-    Optional<XmlElement> floatingOptEl = calcEl.findChild("floatingRateCalculation");
-
-    if (fixedOptEl.isPresent()) {
-      // fixed
-      // TODO: stubCalculationPeriodAmount could affect this
-      return FixedRateCalculation.builder()
-          .rate(parseSchedule(fixedOptEl.get(), document))
-          .dayCount(document.parseDayCountFraction(calcEl.getChild("dayCountFraction")))
-          .build();
-
-    } else if (floatingOptEl.isPresent()) {
-      // float
-      XmlElement floatingEl = floatingOptEl.get();
-      document.validateNotPresent(floatingEl, "rateTreatment");
-      document.validateNotPresent(floatingEl, "capRateSchedule");
-      document.validateNotPresent(floatingEl, "floorRateSchedule");
-      Index index = document.parseIndex(floatingEl);
-      if (index instanceof IborIndex) {
-        IborRateCalculation.Builder iborRateBuilder = IborRateCalculation.builder();
-        // day count
-        iborRateBuilder.dayCount(document.parseDayCountFraction(calcEl.getChild("dayCountFraction")));
-        // index
-        iborRateBuilder.index((IborIndex) document.parseIndex(floatingEl));
-        // gearing
-        floatingEl.findChild("floatingRateMultiplierSchedule").ifPresent(el -> {
-          iborRateBuilder.gearing(parseSchedule(el, document));
-        });
-        // spread
-        if (floatingEl.getChildren("spreadSchedule").size() > 1) {
-          throw new FpmlParseException("Only one 'spreadSchedule' is supported");
-        }
-        floatingEl.findChild("spreadSchedule").ifPresent(el -> {
-          document.validateNotPresent(el, "type");
-          iborRateBuilder.spread(parseSchedule(el, document));
-        });
-        // initial fixed rate
-        floatingEl.findChild("initialRate").ifPresent(el -> {
-          iborRateBuilder.firstRegularRate(document.parseDecimal(el));
-        });
-        // negative rates
-        floatingEl.findChild("negativeInterestRateTreatment").ifPresent(el -> {
-          iborRateBuilder.negativeRateMethod(parseNegativeInterestRateTreatment(el));
-        });
-        // resets
-        XmlElement resetDatesEl = legEl.getChild("resetDates");
-        document.validateNotPresent(resetDatesEl, "initialFixingDate");
-        document.validateNotPresent(resetDatesEl, "rateCutOffDaysOffset");
-        resetDatesEl.findChild("resetRelativeTo").ifPresent(el -> {
-          iborRateBuilder.fixingRelativeTo(parseResetRelativeTo(el));
-        });
-        // fixing date offset
-        iborRateBuilder.fixingDateOffset(document.parseRelativeDateOffsetDays(resetDatesEl.getChild("fixingDates")));
-        Frequency resetFreq = document.parseFrequency(resetDatesEl.getChild("resetFrequency"));
-        if (!accrualSchedule.getFrequency().equals(resetFreq)) {
-          ResetSchedule.Builder resetScheduleBuilder = ResetSchedule.builder();
-          resetScheduleBuilder.resetFrequency(resetFreq);
-          floatingEl.findChild("averagingMethod").ifPresent(el -> {
-            resetScheduleBuilder.averagingMethod(parseAveragingMethod(el));
-          });
-          resetScheduleBuilder.businessDayAdjustment(
-              document.parseBusinessDayAdjustments(resetDatesEl.getChild("resetDatesAdjustments")));
-          iborRateBuilder.resetPeriods(resetScheduleBuilder.build());
-        }
-        // stubs
-        legEl.findChild("stubCalculationPeriodAmount").ifPresent(stubsEl -> {
-          stubsEl.findChild("initialStub").ifPresent(el -> {
-            iborRateBuilder.initialStub(parseStubCalculation(el, document));
-          });
-          stubsEl.findChild("finalStub").ifPresent(el -> {
-            iborRateBuilder.finalStub(parseStubCalculation(el, document));
-          });
-        });
-        return iborRateBuilder.build();
-
-      } else if (index instanceof OvernightIndex) {
-        OvernightRateCalculation.Builder overnightRateBuilder = OvernightRateCalculation.builder();
-        document.validateNotPresent(legEl, "stubCalculationPeriodAmount");
-        document.validateNotPresent(floatingEl, "initialRate");  // TODO: should support this in the model
-        // day count
-        overnightRateBuilder.dayCount(document.parseDayCountFraction(calcEl.getChild("dayCountFraction")));
-        // index
-        overnightRateBuilder.index((OvernightIndex) document.parseIndex(floatingEl));
-        // accrual method
-        FloatingRateName idx = FloatingRateName.of(floatingEl.getChild("floatingRateIndex").getContent());
-        if (idx.getType() == FloatingRateType.OVERNIGHT_COMPOUNDED) {
-          overnightRateBuilder.accrualMethod(OvernightAccrualMethod.COMPOUNDED);
-        }
-        // gearing
-        floatingEl.findChild("floatingRateMultiplierSchedule").ifPresent(el -> {
-          overnightRateBuilder.gearing(parseSchedule(el, document));
-        });
-        // spread
-        if (floatingEl.getChildren("spreadSchedule").size() > 1) {
-          throw new FpmlParseException("Only one 'spreadSchedule' is supported");
-        }
-        floatingEl.findChild("spreadSchedule").ifPresent(el -> {
-          document.validateNotPresent(el, "type");
-          overnightRateBuilder.spread(parseSchedule(el, document));
-        });
-        // negative rates
-        floatingEl.findChild("negativeInterestRateTreatment").ifPresent(el -> {
-          overnightRateBuilder.negativeRateMethod(parseNegativeInterestRateTreatment(el));
-        });
-        // rate cut off
-        XmlElement resetDatesEl = legEl.getChild("resetDates");
-        document.validateNotPresent(resetDatesEl, "initialFixingDate");
-        resetDatesEl.findChild("rateCutOffDaysOffset").ifPresent(el -> {
-          Period cutOff = document.parsePeriod(el);
-          if (cutOff.toTotalMonths() != 0) {
-            throw new FpmlParseException("Invalid 'rateCutOffDaysOffset' value, expected days-based period: " + cutOff);
-          }
-          overnightRateBuilder.rateCutOffDays(-cutOff.getDays());
-        });
-        return overnightRateBuilder.build();
-
-      } else {
-        throw new FpmlParseException("Invalid 'floatingRateIndex' type, not Ibor or Overnight");
+    document.validateNotPresent(floatingEl, "rateTreatment");
+    document.validateNotPresent(floatingEl, "capRateSchedule");
+    document.validateNotPresent(floatingEl, "floorRateSchedule");
+    Index index = document.parseIndex(floatingEl);
+    if (index instanceof IborIndex) {
+      IborRateCalculation.Builder iborRateBuilder = IborRateCalculation.builder();
+      // day count
+      iborRateBuilder.dayCount(document.parseDayCountFraction(calcEl.getChild("dayCountFraction")));
+      // index
+      iborRateBuilder.index((IborIndex) document.parseIndex(floatingEl));
+      // gearing
+      floatingEl.findChild("floatingRateMultiplierSchedule").ifPresent(el -> {
+        iborRateBuilder.gearing(parseSchedule(el, document));
+      });
+      // spread
+      if (floatingEl.getChildren("spreadSchedule").size() > 1) {
+        throw new FpmlParseException("Only one 'spreadSchedule' is supported");
       }
+      floatingEl.findChild("spreadSchedule").ifPresent(el -> {
+        document.validateNotPresent(el, "type");
+        iborRateBuilder.spread(parseSchedule(el, document));
+      });
+      // initial fixed rate
+      floatingEl.findChild("initialRate").ifPresent(el -> {
+        iborRateBuilder.firstRegularRate(document.parseDecimal(el));
+      });
+      // negative rates
+      floatingEl.findChild("negativeInterestRateTreatment").ifPresent(el -> {
+        iborRateBuilder.negativeRateMethod(parseNegativeInterestRateTreatment(el));
+      });
+      // resets
+      XmlElement resetDatesEl = legEl.getChild("resetDates");
+      document.validateNotPresent(resetDatesEl, "initialFixingDate");
+      document.validateNotPresent(resetDatesEl, "rateCutOffDaysOffset");
+      resetDatesEl.findChild("resetRelativeTo").ifPresent(el -> {
+        iborRateBuilder.fixingRelativeTo(parseResetRelativeTo(el));
+      });
+      // fixing date offset
+      iborRateBuilder.fixingDateOffset(document.parseRelativeDateOffsetDays(resetDatesEl.getChild("fixingDates")));
+      Frequency resetFreq = document.parseFrequency(resetDatesEl.getChild("resetFrequency"));
+      if (!accrualSchedule.getFrequency().equals(resetFreq)) {
+        ResetSchedule.Builder resetScheduleBuilder = ResetSchedule.builder();
+        resetScheduleBuilder.resetFrequency(resetFreq);
+        floatingEl.findChild("averagingMethod").ifPresent(el -> {
+          resetScheduleBuilder.averagingMethod(parseAveragingMethod(el));
+        });
+        resetScheduleBuilder.businessDayAdjustment(
+            document.parseBusinessDayAdjustments(resetDatesEl.getChild("resetDatesAdjustments")));
+        iborRateBuilder.resetPeriods(resetScheduleBuilder.build());
+      }
+      // stubs
+      legEl.findChild("stubCalculationPeriodAmount").ifPresent(stubsEl -> {
+        stubsEl.findChild("initialStub").ifPresent(el -> {
+          iborRateBuilder.initialStub(parseStubCalculation(el, document));
+        });
+        stubsEl.findChild("finalStub").ifPresent(el -> {
+          iborRateBuilder.finalStub(parseStubCalculation(el, document));
+        });
+      });
+      return iborRateBuilder.build();
+
+    } else if (index instanceof OvernightIndex) {
+      OvernightRateCalculation.Builder overnightRateBuilder = OvernightRateCalculation.builder();
+      document.validateNotPresent(floatingEl, "initialRate");  // TODO: should support this in the model
+      // stubs
+      legEl.findChild("stubCalculationPeriodAmount").ifPresent(stubsEl -> {
+        stubsEl.findChild("initialStub").ifPresent(el -> {
+          checkStubForOvernightIndex(el, document, (OvernightIndex) index);
+        });
+        stubsEl.findChild("finalStub").ifPresent(el -> {
+          checkStubForOvernightIndex(el, document, (OvernightIndex) index);
+        });
+      });
+      // day count
+      overnightRateBuilder.dayCount(document.parseDayCountFraction(calcEl.getChild("dayCountFraction")));
+      // index
+      overnightRateBuilder.index((OvernightIndex) document.parseIndex(floatingEl));
+      // accrual method
+      FloatingRateName idx = FloatingRateName.of(floatingEl.getChild("floatingRateIndex").getContent());
+      if (idx.getType() == FloatingRateType.OVERNIGHT_COMPOUNDED) {
+        overnightRateBuilder.accrualMethod(OvernightAccrualMethod.COMPOUNDED);
+      }
+      // gearing
+      floatingEl.findChild("floatingRateMultiplierSchedule").ifPresent(el -> {
+        overnightRateBuilder.gearing(parseSchedule(el, document));
+      });
+      // spread
+      if (floatingEl.getChildren("spreadSchedule").size() > 1) {
+        throw new FpmlParseException("Only one 'spreadSchedule' is supported");
+      }
+      floatingEl.findChild("spreadSchedule").ifPresent(el -> {
+        document.validateNotPresent(el, "type");
+        overnightRateBuilder.spread(parseSchedule(el, document));
+      });
+      // negative rates
+      floatingEl.findChild("negativeInterestRateTreatment").ifPresent(el -> {
+        overnightRateBuilder.negativeRateMethod(parseNegativeInterestRateTreatment(el));
+      });
+      // rate cut off
+      XmlElement resetDatesEl = legEl.getChild("resetDates");
+      document.validateNotPresent(resetDatesEl, "initialFixingDate");
+      resetDatesEl.findChild("rateCutOffDaysOffset").ifPresent(el -> {
+        Period cutOff = document.parsePeriod(el);
+        if (cutOff.toTotalMonths() != 0) {
+          throw new FpmlParseException("Invalid 'rateCutOffDaysOffset' value, expected days-based period: " + cutOff);
+        }
+        overnightRateBuilder.rateCutOffDays(-cutOff.getDays());
+      });
+      return overnightRateBuilder.build();
 
     } else {
-      throw new FpmlParseException("Invalid 'calculation' type, not fixedRateSchedule or floatingRateCalculation");
+      throw new FpmlParseException("Invalid 'floatingRateIndex' type, not Ibor or Overnight");
     }
+  }
+
+  // Converts an FpML 'InflationRateCalculation' to a {@code RateCalculation}.
+  private RateCalculation parseInflation(
+      XmlElement legEl,
+      XmlElement calcEl,
+      XmlElement inflationEl,
+      PeriodicSchedule accrualSchedule,
+      FpmlDocument document) {
+    // supported elements:
+    //  'calculationPeriodAmount/calculation/inflationRateCalculation'
+    //  'calculationPeriodAmount/calculation/inflationRateCalculation/floatingRateIndex'
+    //  'calculationPeriodAmount/calculation/inflationRateCalculation/indexTenor?'
+    //  'calculationPeriodAmount/calculation/inflationRateCalculation/floatingRateMultiplierSchedule?'
+    //  'calculationPeriodAmount/calculation/inflationRateCalculation/inflationLag'
+    //  'calculationPeriodAmount/calculation/inflationRateCalculation/interpolationMethod'
+    //  'calculationPeriodAmount/calculation/dayCountFraction'
+    // ignored elements:
+    // 'calculationPeriodAmount/calculation/inflationRateCalculation/indexSource'
+    // 'calculationPeriodAmount/calculation/inflationRateCalculation/mainPublication'
+    // 'calculationPeriodAmount/calculation/inflationRateCalculation/initialIndexLevel'
+    // 'calculationPeriodAmount/calculation/inflationRateCalculation/fallbackBondApplicable'
+    //  'calculationPeriodAmount/calculation/floatingRateCalculation/initialRate?'
+    //  'calculationPeriodAmount/calculation/floatingRateCalculation/finalRateRounding?'
+    //  'calculationPeriodAmount/calculation/floatingRateCalculation/averagingMethod?'
+    //  'calculationPeriodAmount/calculation/floatingRateCalculation/negativeInterestRateTreatment?'
+    //  'resetDates'
+    // rejected elements:
+    //  'calculationPeriodAmount/calculation/floatingRateCalculation/spreadSchedule*'
+    //  'calculationPeriodAmount/calculation/floatingRateCalculation/rateTreatment?'
+    //  'calculationPeriodAmount/calculation/floatingRateCalculation/capRateSchedule?'
+    //  'calculationPeriodAmount/calculation/floatingRateCalculation/floorRateSchedule?'
+    //  'stubCalculationPeriodAmount'
+    document.validateNotPresent(inflationEl, "spreadSchedule");
+    document.validateNotPresent(inflationEl, "rateTreatment");
+    document.validateNotPresent(inflationEl, "capRateSchedule");
+    document.validateNotPresent(inflationEl, "floorRateSchedule");
+    document.validateNotPresent(legEl, "stubCalculationPeriodAmount");  // TODO: parse fixed stub rate
+    InflationRateCalculation.Builder builder = InflationRateCalculation.builder();
+    // index
+    builder.index(document.parsePriceIndex(inflationEl));
+    // lag
+    builder.lag(document.parsePeriod(inflationEl.getChild("inflationLag")));
+    // interpolation
+    String interpStr = inflationEl.getChild("interpolationMethod").getContent();
+    builder.interpolated(interpStr.toLowerCase(Locale.ENGLISH).contains("linear"));
+    // gearing
+    inflationEl.findChild("floatingRateMultiplierSchedule").ifPresent(el -> {
+      builder.gearing(parseSchedule(el, document));
+    });
+    return builder.build();
   }
 
   //-------------------------------------------------------------------------
@@ -484,6 +572,27 @@ final class SwapFpmlParserPlugin
       return StubCalculation.ofIborInterpolatedRate(
           (IborIndex) document.parseIndex(index1El),
           (IborIndex) document.parseIndex(index2El));
+    }
+    throw new FpmlParseException("Unknown stub structure: " + baseEl);
+  }
+
+  // checks that the index on a stub matches the main index (this is handling bad FpML)
+  private void checkStubForOvernightIndex(XmlElement baseEl, FpmlDocument document, OvernightIndex index) {
+    document.validateNotPresent(baseEl, "stubAmount");
+    document.validateNotPresent(baseEl, "stubRate");
+    List<XmlElement> indicesEls = baseEl.getChildren("floatingRate");
+    if (indicesEls.size() == 1) {
+      XmlElement indexEl = indicesEls.get(0);
+      document.validateNotPresent(indexEl, "floatingRateMultiplierSchedule");
+      document.validateNotPresent(indexEl, "spreadSchedule");
+      document.validateNotPresent(indexEl, "rateTreatment");
+      document.validateNotPresent(indexEl, "capRateSchedule");
+      document.validateNotPresent(indexEl, "floorRateSchedule");
+      Index parsed = document.parseIndex(indexEl);
+      if (parsed.equals(index)) {
+        return;
+      }
+      throw new FpmlParseException("OvernightIndex swap cannot have a different index in the stub: " + baseEl);
     }
     throw new FpmlParseException("Unknown stub structure: " + baseEl);
   }

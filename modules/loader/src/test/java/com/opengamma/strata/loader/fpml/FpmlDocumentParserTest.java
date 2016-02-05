@@ -64,6 +64,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
+import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConvention;
@@ -95,6 +96,7 @@ import com.opengamma.strata.product.swap.ExpandedSwapLeg;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateAveragingMethod;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.InflationRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.OvernightRateCalculation;
 import com.opengamma.strata.product.swap.PaymentSchedule;
@@ -954,6 +956,65 @@ public class FpmlDocumentParserTest {
             .index(USD_LIBOR_6M)
             .dayCount(THIRTY_360_ISDA)
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, USNY))
+            .build())
+        .build();
+    assertEqualsBean((Bean) swap.getLegs().get(0), payLeg);
+    assertEqualsBean((Bean) swap.getLegs().get(1), recLeg);
+  }
+
+  //-------------------------------------------------------------------------
+  public void inflationSwap() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/inflation-swap-ex01-yoy.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    List<Trade> trades = FpmlDocumentParser.of(FpmlPartySelector.matching("Party2")).parseTrades(resource);
+    assertEquals(trades.size(), 1);
+    Trade trade = trades.get(0);
+    assertEquals(trade.getClass(), SwapTrade.class);
+    SwapTrade swapTrade = (SwapTrade) trade;
+    assertEquals(swapTrade.getTradeInfo().getTradeDate(), Optional.of(date(2003, 11, 15)));
+    Swap swap = swapTrade.getProduct();
+
+    NotionalSchedule notional = NotionalSchedule.of(EUR, 1d);
+    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(date(2003, 11, 20))
+            .endDate(date(2007, 11, 20))
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA))
+            .overrideStartDate(AdjustableDate.of(date(2003, 11, 12), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA)))
+            .frequency(Frequency.P12M)
+            .rollConvention(RollConventions.DAY_20)
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(Frequency.P12M)
+            .paymentDateOffset(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA)))
+            .build())
+        .notionalSchedule(notional)
+        .calculation(FixedRateCalculation.builder()
+            .dayCount(THIRTY_360_ISDA)
+            .rate(ValueSchedule.of(0.01))
+            .build())
+        .build();
+    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+        .payReceive(RECEIVE)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(date(2003, 11, 20))
+            .endDate(date(2007, 11, 20))
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA))
+            .overrideStartDate(AdjustableDate.of(date(2003, 11, 12), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA)))
+            .frequency(Frequency.P3M)
+            .rollConvention(RollConventions.DAY_20)
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(Frequency.P12M)
+            .paymentDateOffset(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA)))
+            .compoundingMethod(CompoundingMethod.NONE)
+            .build())
+        .notionalSchedule(notional)
+        .calculation(InflationRateCalculation.builder()
+            .index(PriceIndices.US_CPI_U)
+            .lag(Period.ofMonths(3))
+            .interpolated(true)
             .build())
         .build();
     assertEqualsBean((Bean) swap.getLegs().get(0), payLeg);
