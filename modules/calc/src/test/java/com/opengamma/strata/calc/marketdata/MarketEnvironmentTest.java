@@ -15,7 +15,10 @@ import java.util.Objects;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FieldName;
+import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
@@ -222,6 +225,17 @@ public class MarketEnvironmentTest {
         .build();
 
     assertThat(marketData1.mergedWith(marketData2)).isEqualTo(expected);
+  }
+
+  /**
+   * Test that an FxRate with a rate of 1 is returned if a rate is requested for a pair containing the same
+   * currency twice, e.g. GBP/GBP.
+   */
+  public void identityFxRate() {
+    MarketDataBox<FxRate> box = MarketEnvironment.empty().getValue(FxRateId.of(Currency.GBP, Currency.GBP));
+    assertThat(box.isSingleValue()).isTrue();
+    FxRate rate = box.getValue(0);
+    assertThat(rate.fxRate(Currency.GBP, Currency.GBP)).isEqualTo(1d);
   }
 
   //-------------------------------------------------------------------------
