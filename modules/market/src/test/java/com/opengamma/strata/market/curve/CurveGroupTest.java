@@ -16,12 +16,15 @@ import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
 import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
@@ -92,6 +95,15 @@ public class CurveGroupTest {
     CurveGroup group = CurveGroup.ofCurves(definition, IBOR_CURVE, IBOR_CURVE);
     assertThat(group.findForwardCurve(USD_LIBOR_1M)).hasValue(IBOR_CURVE);
     assertThat(group.findForwardCurve(USD_LIBOR_2M)).hasValue(IBOR_CURVE);
+  }
+
+  public void stream() {
+    CurveGroup test = CurveGroup.of(NAME, DISCOUNT_CURVES, IBOR_CURVES);
+    List<Curve> expected = ImmutableList.<Curve>builder()
+        .addAll(DISCOUNT_CURVES.values())
+        .addAll(IBOR_CURVES.values())
+        .build();
+    assertThat(test.stream().collect(toList())).containsOnlyElementsOf(expected);
   }
 
   //-------------------------------------------------------------------------
