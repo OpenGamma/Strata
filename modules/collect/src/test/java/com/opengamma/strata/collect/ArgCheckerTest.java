@@ -135,7 +135,7 @@ public class ArgCheckerTest {
     ArgChecker.matches(Pattern.compile("[A-Z]+"), "", "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*'123'.*")
   public void test_matches_String_noMatch() {
     ArgChecker.matches(Pattern.compile("[A-Z]+"), "123", "name");
   }

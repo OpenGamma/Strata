@@ -296,15 +296,15 @@ public final class ArgChecker {
   public static String matches(Pattern pattern, String argument, String name) {
     notNull(pattern, "pattern");
     notNull(argument, name);
-    if (pattern.matcher(argument).matches() == false) {
-      throw new IllegalArgumentException(matchesMsg(pattern, name));
+    if (!pattern.matcher(argument).matches()) {
+      throw new IllegalArgumentException(matchesMsg(pattern, name, argument));
     }
     return argument;
   }
 
   // extracted to aid inlining performance
-  private static String matchesMsg(Pattern pattern, String name) {
-    return "Argument '" + name + "' must match pattern: " + pattern;
+  private static String matchesMsg(Pattern pattern, String name, String value) {
+    return "Argument '" + name + "' with value '" + value + "' must match pattern: " + pattern;
   }
 
   //-------------------------------------------------------------------------
