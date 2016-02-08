@@ -26,7 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.id.LinkResolutionException;
 import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.collect.id.Resolvable;
+import com.opengamma.strata.collect.id.LinkResolvable;
 import com.opengamma.strata.collect.id.StandardId;
 
 /**
@@ -48,7 +48,7 @@ import com.opengamma.strata.collect.id.StandardId;
  */
 @BeanDefinition
 public final class UnitSecurity<P extends Product>
-    implements Security<P>, Resolvable<UnitSecurity<P>>, ImmutableBean, Serializable {
+    implements Security<P>, LinkResolvable<UnitSecurity<P>>, ImmutableBean, Serializable {
 
   /**
    * The primary standard identifier for the security.

@@ -8,7 +8,7 @@ package com.opengamma.strata.product;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.collect.id.LinkResolutionException;
 import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.collect.id.Resolvable;
+import com.opengamma.strata.collect.id.LinkResolvable;
 
 /**
  * A trade that is directly based on a security.
@@ -22,7 +22,7 @@ import com.opengamma.strata.collect.id.Resolvable;
  * @param <P>  the type of the product
  */
 public interface SecurityTrade<P extends Product>
-    extends FinanceTrade, Resolvable<SecurityTrade<P>> {
+    extends FinanceTrade, LinkResolvable<SecurityTrade<P>> {
 
   /**
    * Gets the link to the security that was traded.

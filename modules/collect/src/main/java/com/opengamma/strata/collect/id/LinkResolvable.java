@@ -14,14 +14,14 @@ package com.opengamma.strata.collect.id;
  * When the resolve method is called, the result is an object of the same, or compatible, type
  * that has all links resolved.
  * <p>
- * To resolve an arbitrary object, which may or may not implement {@code Resolvable},
+ * To resolve an arbitrary object, which may or may not implement {@code LinkResolvable},
  * see {@link LinkResolver#resolveLinksIn(Object)}.
  * <p>
  * Implementations must be immutable and thread-safe beans.
  * 
  * @param <T>  the resolved type, which is the type implementing this interface
  */
-public interface Resolvable<T> {
+public interface LinkResolvable<T> {
 
   /**
    * Resolves all links in the object graph.

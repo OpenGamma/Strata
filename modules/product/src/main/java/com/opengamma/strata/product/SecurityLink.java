@@ -29,7 +29,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.Link;
 import com.opengamma.strata.collect.id.LinkResolutionException;
 import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.collect.id.Resolvable;
+import com.opengamma.strata.collect.id.LinkResolvable;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.id.StandardLink;
 
@@ -59,7 +59,7 @@ import com.opengamma.strata.collect.id.StandardLink;
  */
 @BeanDefinition
 public final class SecurityLink<P extends Product>
-    implements Link<Security<P>>, Resolvable<SecurityLink<P>>, ImmutableBean, Serializable {
+    implements Link<Security<P>>, LinkResolvable<SecurityLink<P>>, ImmutableBean, Serializable {
 
   /**
    * The primary standard identifier of the security.
@@ -258,7 +258,7 @@ public final class SecurityLink<P extends Product>
    * Resolves this link, and any links that the security contains, using the specified resolver.
    * <p>
    * First, the security is resolved using {@link #resolve(LinkResolver)}.
-   * Second, if the security implements {@link Resolvable}, it is resolved as well.
+   * Second, if the security implements {@link LinkResolvable}, it is resolved as well.
    * The returned security should not contain any unresolved links.
    * <p>
    * An exception is thrown if a link cannot be resolved.
@@ -270,9 +270,9 @@ public final class SecurityLink<P extends Product>
   @Override
   public SecurityLink<P> resolveLinks(LinkResolver resolver) {
     Security<P> resolvedTarget = resolve(resolver);
-    if (resolvedTarget instanceof Resolvable) {
+    if (resolvedTarget instanceof LinkResolvable) {
       @SuppressWarnings("unchecked")
-      Resolvable<Security<P>> resolvableTarget = (Resolvable<Security<P>>) resolvedTarget;
+      LinkResolvable<Security<P>> resolvableTarget = (LinkResolvable<Security<P>>) resolvedTarget;
       resolvedTarget = resolvableTarget.resolveLinks(resolver);
     }
     return (resolvedTarget == this.target ? this : new SecurityLink<>(resolvedTarget));

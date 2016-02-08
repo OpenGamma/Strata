@@ -91,7 +91,7 @@ public interface Link<T extends IdentifiableBean>
    * without using the resolver.
    * <p>
    * The returned target may contain other unresolved links.
-   * See {@link Resolvable} for a mechanism to resolve all links in an object graph.
+   * See {@link LinkResolvable} for a mechanism to resolve all links in an object graph.
    *
    * @param resolver  the resolver to use for the resolution
    * @return the target

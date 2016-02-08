@@ -54,7 +54,7 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 @BeanDefinition(builderScope = "private")
 public final class StandardLink<T extends IdentifiableBean>
-    implements Link<T>, Resolvable<StandardLink<T>>, StandardIdentifiable, ImmutableBean, Serializable {
+    implements Link<T>, LinkResolvable<StandardLink<T>>, StandardIdentifiable, ImmutableBean, Serializable {
 
   /**
    * The primary standard identifier of the target.
@@ -199,7 +199,7 @@ public final class StandardLink<T extends IdentifiableBean>
    * Resolves this link, and any links that the target contains, using the specified resolver.
    * <p>
    * First, the target is resolved using {@link #resolve(LinkResolver)}.
-   * Second, if the target implements {@link Resolvable}, it is resolved as well.
+   * Second, if the target implements {@link LinkResolvable}, it is resolved as well.
    * The result is wrapped using {@link StandardLink#resolved(IdentifiableBean)}.
    * The returned target should not contain any unresolved links.
    *
@@ -210,9 +210,9 @@ public final class StandardLink<T extends IdentifiableBean>
   @Override
   public StandardLink<T> resolveLinks(LinkResolver resolver) {
     T resolvedTarget = resolve(resolver);
-    if (resolvedTarget instanceof Resolvable) {
+    if (resolvedTarget instanceof LinkResolvable) {
       @SuppressWarnings("unchecked")
-      Resolvable<T> resolvableTarget = (Resolvable<T>) resolvedTarget;
+      LinkResolvable<T> resolvableTarget = (LinkResolvable<T>) resolvedTarget;
       resolvedTarget = resolvableTarget.resolveLinks(resolver);
     }
     return (resolvedTarget == this.target ? this : new StandardLink<>(resolvedTarget));

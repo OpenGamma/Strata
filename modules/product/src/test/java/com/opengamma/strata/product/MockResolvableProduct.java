@@ -23,7 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.collect.id.Resolvable;
+import com.opengamma.strata.collect.id.LinkResolvable;
 import com.opengamma.strata.collect.id.StandardId;
 
 /**
@@ -31,7 +31,7 @@ import com.opengamma.strata.collect.id.StandardId;
  */
 @BeanDefinition
 public class MockResolvableProduct
-    implements ImmutableBean, Product, Resolvable<MockResolvableProduct>, Serializable {
+    implements ImmutableBean, Product, LinkResolvable<MockResolvableProduct>, Serializable {
 
   public static final MockResolvableProduct MOCK1 = MockResolvableProduct.builder().build();
   public static final Security<MockResolvableProduct> MOCK1_SECURITY =

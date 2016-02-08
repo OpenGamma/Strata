@@ -31,7 +31,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.id.LinkResolutionException;
 import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.collect.id.Resolvable;
+import com.opengamma.strata.collect.id.LinkResolvable;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.Security;
@@ -50,7 +50,7 @@ import com.opengamma.strata.product.SecurityLink;
  */
 @BeanDefinition
 public final class GenericFutureOption
-    implements Product, Resolvable<GenericFutureOption>, ImmutableBean, Serializable {
+    implements Product, LinkResolvable<GenericFutureOption>, ImmutableBean, Serializable {
 
   /**
    * The base product identifier.
