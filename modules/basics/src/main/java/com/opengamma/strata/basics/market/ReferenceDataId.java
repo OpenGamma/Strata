@@ -9,7 +9,16 @@ package com.opengamma.strata.basics.market;
  * An identifier for a unique item of reference data.
  * <p>
  * Reference data is obtained from an instance of {@link ReferenceData} using this identifier.
+ *
+ * @param <T>  the type of the reference data this identifier refers to
  */
-public interface ReferenceDataId {
+public interface ReferenceDataId<T> {
+
+  /**
+   * Gets the type of data this identifier refers to.
+   *
+   * @return the type of the reference data this identifier refers to
+   */
+  public abstract Class<T> getReferenceDataType();
 
 }

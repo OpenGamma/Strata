@@ -12,7 +12,7 @@ import com.opengamma.strata.collect.id.StandardId;
 /**
  * ObservableId implementation used in tests.
  */
-public class TestObservableId implements ObservableId, ReferenceDataId {
+public class TestObservableId implements ObservableId, ReferenceDataId<String> {
 
   private final StandardId id;
 
@@ -61,6 +61,11 @@ public class TestObservableId implements ObservableId, ReferenceDataId {
   @Override
   public ObservableKey toMarketDataKey() {
     return TestObservableKey.of(id);
+  }
+
+  @Override
+  public Class<String> getReferenceDataType() {
+    return String.class;
   }
 
   //-------------------------------------------------------------------------
