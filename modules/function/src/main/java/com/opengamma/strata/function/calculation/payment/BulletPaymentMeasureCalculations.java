@@ -18,7 +18,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.payment.BulletPaymentTrade;
+import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
 
 /**
  * Multi-scenario measure calculations for Bullet Payment trades.
@@ -43,10 +43,10 @@ class BulletPaymentMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
   static CurrencyValuesArray presentValue(
-      BulletPaymentTrade trade,
-      Payment payment,
+      ResolvedBulletPaymentTrade trade,
       CalculationMarketData marketData) {
 
+    Payment payment = trade.getProduct().getPayment();
     return CurrencyValuesArray.of(
         marketData.getScenarioCount(),
         i -> calculatePresentValue(payment, marketData.scenario(i)));
@@ -61,10 +61,10 @@ class BulletPaymentMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates PV01 for all scenarios
   static MultiCurrencyValuesArray pv01(
-      BulletPaymentTrade trade,
-      Payment payment,
+      ResolvedBulletPaymentTrade trade,
       CalculationMarketData marketData) {
 
+    Payment payment = trade.getProduct().getPayment();
     return MultiCurrencyValuesArray.of(
         marketData.getScenarioCount(),
         i -> calculatePv01(payment, marketData.scenario(i)));
@@ -80,10 +80,10 @@ class BulletPaymentMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates bucketed PV01 for all scenarios
   static ScenarioResult<CurveCurrencyParameterSensitivities> bucketedPv01(
-      BulletPaymentTrade trade,
-      Payment payment,
+      ResolvedBulletPaymentTrade trade,
       CalculationMarketData marketData) {
 
+    Payment payment = trade.getProduct().getPayment();
     return ScenarioResult.of(
         marketData.getScenarioCount(),
         i -> calculateBucketedPv01(payment, marketData.scenario(i)));

@@ -23,7 +23,9 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -65,6 +67,8 @@ public class BulletPaymentCalculationFunctionTest {
           .build())
       .product(PRODUCT)
       .build();
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
   private static final LocalDate VAL_DATE = TRADE.getProduct().getDate().adjusted().minusDays(7);
 
@@ -95,7 +99,8 @@ public class BulletPaymentCalculationFunctionTest {
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingPaymentPricer pricer = DiscountingPaymentPricer.DEFAULT;
-    CurrencyAmount expectedPv = pricer.presentValue(TRADE.getProduct().expandToPayment(), provider);
+    Payment resolved = TRADE.getProduct().resolve(REF_DATA).getPayment();
+    CurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY);
     assertThat(function.calculate(TRADE, measures, md))
@@ -110,7 +115,8 @@ public class BulletPaymentCalculationFunctionTest {
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingPaymentPricer pricer = DiscountingPaymentPricer.DEFAULT;
-    PointSensitivities pvPointSens = pricer.presentValueSensitivity(TRADE.getProduct().expandToPayment(), provider).build();
+    Payment resolved = TRADE.getProduct().resolve(REF_DATA).getPayment();
+    PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider).build();
     CurveCurrencyParameterSensitivities pvParamSens = provider.curveParameterSensitivity(pvPointSens);
     MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
