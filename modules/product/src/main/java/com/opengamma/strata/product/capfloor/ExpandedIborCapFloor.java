@@ -71,7 +71,6 @@ public final class ExpandedIborCapFloor
    * @return the cap/floor
    */
   public static ExpandedIborCapFloor of(ExpandedIborCapFloorLeg capFloorLeg) {
-    ArgChecker.notNull(capFloorLeg, "capFloorLeg");
     return new ExpandedIborCapFloor(capFloorLeg, null);
   }
 
@@ -83,7 +82,6 @@ public final class ExpandedIborCapFloor
    * @return the cap/floor
    */
   public static ExpandedIborCapFloor of(ExpandedIborCapFloorLeg capFloorLeg, ExpandedSwapLeg payLeg) {
-    ArgChecker.notNull(capFloorLeg, "capFloorLeg");
     ArgChecker.notNull(payLeg, "payLeg");
     return new ExpandedIborCapFloor(capFloorLeg, payLeg);
   }

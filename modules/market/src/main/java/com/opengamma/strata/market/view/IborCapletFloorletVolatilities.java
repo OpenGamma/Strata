@@ -7,11 +7,16 @@ package com.opengamma.strata.market.view;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.sensitivity.IborCapletFloorletSensitivity;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 
 /**
@@ -70,6 +75,26 @@ public interface IborCapletFloorletVolatilities
    * @throws RuntimeException if the value cannot be obtained
    */
   public abstract double volatility(double expiry, double strike, double forward);
+
+  /**
+   * Calculates the surface parameter sensitivities from the point sensitivities. 
+   * 
+   * @param pointSensitivities  the point sensitivities
+   * @return the parameter sensitivity
+   * @throws RuntimeException if the result cannot be calculated
+   */
+  default SurfaceCurrencyParameterSensitivities surfaceCurrencyParameterSensitivity(
+        PointSensitivities pointSensitivities) {
+    List<SurfaceCurrencyParameterSensitivity> sensitivitiesTotal = pointSensitivities.getSensitivities()
+              .stream()
+              .filter(pointSensitivity -> (pointSensitivity instanceof IborCapletFloorletSensitivity))
+              .map(pointSensitivity -> surfaceCurrencyParameterSensitivity((IborCapletFloorletSensitivity) pointSensitivity))
+              .collect(Collectors.toList());
+    SurfaceCurrencyParameterSensitivities sensi = SurfaceCurrencyParameterSensitivities.of(sensitivitiesTotal);
+    // sensi should be single SurfaceCurrencyParameterSensitivity or empty
+    ArgChecker.isTrue(sensi.getSensitivities().size() <= 1, "The underlying surface must be unique");
+    return sensi;
+    }
 
   /**
    * Calculates the surface parameter sensitivity from the point sensitivity.
