@@ -61,31 +61,20 @@ public class PricingRulesTest {
           .addMeasures(Measures.PRESENT_VALUE)
           .build();
 
-  private static final PricingRules PRICING_RULES1 = DefaultPricingRules.of(PRICING_RULE1);
-  private static final PricingRules PRICING_RULES2 = DefaultPricingRules.of(PRICING_RULE2);
+  private static final PricingRules PRICING_RULES1 = PricingRules.of(PRICING_RULE1);
+  private static final PricingRules PRICING_RULES2 = PricingRules.of(PRICING_RULE2);
 
   public void ofEmpty() {
     PricingRules rules = PricingRules.of();
     Optional<ConfiguredFunctionGroup> functionGroup = rules.functionGroup(TRADE1, Measures.PRESENT_VALUE);
     Set<Measure> measures = rules.configuredMeasures(TRADE1);
 
-    assertThat(rules).isInstanceOf(EmptyPricingRules.class);
     assertThat(functionGroup).isEmpty();
     assertThat(measures).isEmpty();
   }
 
-  public void ofSingle() {
-    PricingRules rules = PricingRules.of(PRICING_RULES1);
-    Optional<ConfiguredFunctionGroup> functionGroup = rules.functionGroup(TRADE1, Measures.PRESENT_VALUE);
-    Set<Measure> measures = rules.configuredMeasures(TRADE1);
-
-    assertThat(rules).isInstanceOf(DefaultPricingRules.class);
-    assertThat(functionGroup).hasValue(ConfiguredFunctionGroup.of(FUNCTION_GROUP1));
-    assertThat(measures).containsOnly(Measures.PRESENT_VALUE, Measures.PAR_RATE);
-  }
-
-  public void ofMultiple() {
-    PricingRules rules = PricingRules.of(PRICING_RULES1, PRICING_RULES2);
+  public void composedWith() {
+    PricingRules rules = PRICING_RULES1.composedWith(PRICING_RULES2);
     Optional<ConfiguredFunctionGroup> functionGroup1 = rules.functionGroup(TRADE1, Measures.PRESENT_VALUE);
     Optional<ConfiguredFunctionGroup> functionGroup2 = rules.functionGroup(TRADE1, Measures.PAR_RATE);
     Optional<ConfiguredFunctionGroup> functionGroup3 = rules.functionGroup(TRADE2, Measures.PRESENT_VALUE);
