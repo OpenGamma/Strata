@@ -69,7 +69,6 @@ public class PricingRulesTest {
     Optional<ConfiguredFunctionGroup> functionGroup = rules.functionGroup(TRADE1, Measures.PRESENT_VALUE);
     Set<Measure> measures = rules.configuredMeasures(TRADE1);
 
-    assertThat(rules).isInstanceOf(EmptyPricingRules.class);
     assertThat(functionGroup).isEmpty();
     assertThat(measures).isEmpty();
   }
