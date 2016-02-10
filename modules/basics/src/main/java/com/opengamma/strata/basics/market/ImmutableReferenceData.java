@@ -88,8 +88,13 @@ public final class ImmutableReferenceData
   // validates a single entry
   private static <T> void validateEntry(ReferenceDataId<?> id, Object value) {
     if (!id.getReferenceDataType().isInstance(value)) {
+      if (value == null) {
+        throw new IllegalArgumentException(Messages.format(
+            "Reference data must not be null for identifier '{}'", id));
+      }
       throw new ClassCastException(Messages.format(
-          "Value does not implement parameterized type for identifier '{}' of type '{}'", id, id.getClass().getSimpleName()));
+          "Value '{}' does not implement parameterized type '{}' for identifier '{}'",
+          value, id.getClass().getSimpleName(), id));
     }
   }
 

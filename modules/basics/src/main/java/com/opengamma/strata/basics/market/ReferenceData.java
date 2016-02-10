@@ -24,7 +24,7 @@ public interface ReferenceData {
   /**
    * Obtains an instance from a map of reference data.
    * <p>
-   * Each entry in the map is a single piece of reference data, keyed by the matching identifier.
+   * Each entry in the map is a unit of reference data, keyed by the matching identifier.
    * For example, a {@code HolidayCalendarId} associated with a {@code HolidayCalendar}.
    * The caller must ensure that the each entry in the map corresponds with the parameterized
    * type on the identifier.

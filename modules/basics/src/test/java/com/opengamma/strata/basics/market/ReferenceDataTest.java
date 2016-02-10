@@ -11,6 +11,7 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -76,6 +77,12 @@ public class ReferenceDataTest {
   public void test_of_badType() {
     Map<ReferenceDataId<?>, Object> dataMap = ImmutableMap.of(ID1, 67);  // 67 is not a String
     assertThrows(() -> ReferenceData.of(dataMap), ClassCastException.class);
+  }
+
+  public void test_of_null() {
+    Map<ReferenceDataId<?>, Object> dataMap = new HashMap<>();
+    dataMap.put(ID1, null);
+    assertThrows(() -> ReferenceData.of(dataMap), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
