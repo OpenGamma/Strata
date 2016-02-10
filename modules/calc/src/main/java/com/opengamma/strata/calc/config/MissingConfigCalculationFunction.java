@@ -46,7 +46,7 @@ public class MissingConfigCalculationFunction
       CalculationMarketData marketData) {
 
     throw new IllegalStateException(Messages.format(
-        "No rule configured for measure on '{}'", target.getClass().getSimpleName()));
+        "No rule configured for measures {} on '{}'", measures, target.getClass().getSimpleName()));
   }
 
 }
