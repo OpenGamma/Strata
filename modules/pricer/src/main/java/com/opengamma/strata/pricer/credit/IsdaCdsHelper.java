@@ -31,7 +31,7 @@ import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurveBuil
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurveBuild;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaInstrumentTypes;
-import com.opengamma.strata.product.credit.ExpandedCds;
+import com.opengamma.strata.product.credit.ResolvedCds;
 import com.opengamma.strata.product.credit.type.CdsConvention;
 import com.opengamma.strata.product.credit.type.IsdaYieldCurveConvention;
 
@@ -82,7 +82,7 @@ public class IsdaCdsHelper {
    */
   public static CurrencyAmount price(
       LocalDate valuationDate,
-      ExpandedCds product,
+      ResolvedCds product,
       NodalCurve yieldCurve,
       NodalCurve creditCurve,
       double recoveryRate,
@@ -141,7 +141,7 @@ public class IsdaCdsHelper {
    * @return the par spread of the expanded CDS product
    */
   public static double parSpread(LocalDate valuationDate,
-      ExpandedCds product,
+      ResolvedCds product,
       NodalCurve yieldCurve,
       NodalCurve creditCurve,
       double recoveryRate) {
@@ -262,7 +262,7 @@ public class IsdaCdsHelper {
   }
 
   // Converts the expanded CDS product to the corresponding analytics form.
-  private static CdsAnalytic toAnalytic(LocalDate valuationDate, ExpandedCds product, double recoveryRate) {
+  private static CdsAnalytic toAnalytic(LocalDate valuationDate, ResolvedCds product, double recoveryRate) {
     try {
       return new CdsAnalytic(
           valuationDate,

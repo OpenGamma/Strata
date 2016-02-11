@@ -13,9 +13,13 @@ import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
 import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_INITIAL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
+
+import java.util.Optional;
+import java.util.OptionalDouble;
 
 import org.testng.annotations.Test;
 
@@ -26,29 +30,33 @@ import com.opengamma.strata.basics.schedule.Frequency;
  * Test.
  */
 @Test
-public class ExpandedCdsTest {
+public class ResolvedCdsTest {
 
   public void test_builder_notEnoughData() {
-    assertThrowsIllegalArg(() -> ExpandedCds.builder().build());
+    assertThrowsIllegalArg(() -> ResolvedCds.builder().build());
   }
 
   //-------------------------------------------------------------------------
-  public void test_expand() {
-    assertEquals(CdsSingleNameTest.sut().expand(), sut());
-    assertEquals(sut().expand(), sut());
+  public void test_getters() {
+    assertEquals(sutSingleName().getUpfrontFeeAmount(), OptionalDouble.of(1_000_000d));
+    assertEquals(sutSingleName().getUpfrontFeePaymentDate(), Optional.of(date(2014, 3, 23)));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverImmutableBean(sut());
+    coverImmutableBean(sutSingleName());
+    coverImmutableBean(sutIndex());
+    coverBeanEquals(sutSingleName(), sutIndex());
   }
 
   public void test_serialization() {
-    assertSerialization(sut());
+    assertSerialization(sutSingleName());
+    assertSerialization(sutIndex());
   }
 
-  static ExpandedCds sut() {
-    return ExpandedCds.builder()
+  //-------------------------------------------------------------------------
+  static ResolvedCds sutSingleName() {
+    return ResolvedCds.builder()
         .buySellProtection(BUY)
         .currency(USD)
         .notional(100_000_000d)
@@ -56,6 +64,26 @@ public class ExpandedCdsTest {
         .startDate(date(2014, 3, 20))
         .endDate(date(2019, 6, 20))
         .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, USNY))
+        .referenceInformation(SingleNameReferenceInformationTest.sut())
+        .payAccruedOnDefault(true)
+        .paymentInterval(Frequency.P3M.getPeriod())
+        .stubConvention(SHORT_INITIAL)
+        .accrualDayCount(ACT_360)
+        .upfrontFeeAmount(1_000_000d)
+        .upfrontFeePaymentDate(date(2014, 3, 23))
+        .build();
+  }
+
+  static ResolvedCds sutIndex() {
+    return ResolvedCds.builder()
+        .buySellProtection(BUY)
+        .currency(USD)
+        .notional(100_000_000d)
+        .coupon(.00100)
+        .startDate(date(2014, 3, 20))
+        .endDate(date(2019, 6, 20))
+        .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, USNY))
+        .referenceInformation(IndexReferenceInformationTest.sut())
         .payAccruedOnDefault(true)
         .paymentInterval(Frequency.P3M.getPeriod())
         .stubConvention(SHORT_INITIAL)
