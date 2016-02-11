@@ -75,8 +75,9 @@ public class MarketQuoteMeasure<T extends Trade>
       MarketQuoteMeasure.of(
           "IborFixingDepositParRateDiscounting",
           IborFixingDepositTrade.class,
-          (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.parRate(trade.getProduct(), p),
-          (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.parRateSensitivity(trade.getProduct(), p));
+          (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.parRate(trade.getProduct().resolve(REF_DATA), p),
+          (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.parRateSensitivity(
+              trade.getProduct().resolve(REF_DATA), p));
 
   /**
    * The measure for {@link TermDepositTrade} using par rate discounting.
@@ -85,8 +86,8 @@ public class MarketQuoteMeasure<T extends Trade>
       MarketQuoteMeasure.of(
           "TermDepositParRateDiscounting",
           TermDepositTrade.class,
-          (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parRate(trade.getProduct(), p),
-          (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parRateSensitivity(trade.getProduct(), p));
+          (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parRate(trade.getProduct().resolve(REF_DATA), p),
+          (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parRateSensitivity(trade.getProduct().resolve(REF_DATA), p));
 
   //-------------------------------------------------------------------------
   /**

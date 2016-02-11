@@ -205,8 +205,8 @@ public class CalibrationDiscountingSimpleEur3Test {
     }
     // OIS
     for (int loopnode = 0; loopnode < DSC_MARKET_QUOTES.length; loopnode++) {
-      PointSensitivities pts = SWAP_PRICER
-          .parRateSensitivity(((SwapTrade) dscTrades.get(loopnode)).getProduct(), provider).build();
+      PointSensitivities pts = SWAP_PRICER.parRateSensitivity(
+          ((SwapTrade) dscTrades.get(loopnode)).getProduct(), provider).build();
       CurveCurrencyParameterSensitivities ps = provider.curveParameterSensitivity(pts);
       CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);
       assertEquals(mqs.size(), 3); // Calibration of all curves simultaneously
@@ -228,16 +228,16 @@ public class CalibrationDiscountingSimpleEur3Test {
     for (int loopnode = 0; loopnode < fwd3MarketQuotes.length; loopnode++) {
       PointSensitivities pts = null;
       if (fwd3Trades.get(loopnode) instanceof IborFixingDepositTrade) {
-        pts = PRICER_FIXING
-            .parSpreadSensitivity(((IborFixingDepositTrade) fwd3Trades.get(loopnode)).getProduct(), provider);
+        pts = PRICER_FIXING.parSpreadSensitivity(
+            ((IborFixingDepositTrade) fwd3Trades.get(loopnode)).getProduct().resolve(REF_DATA), provider);
       }
       if (fwd3Trades.get(loopnode) instanceof FraTrade) {
-        pts = PRICER_FRA
-            .parSpreadSensitivity(((FraTrade) fwd3Trades.get(loopnode)).getProduct().resolve(REF_DATA), provider);
+        pts = PRICER_FRA.parSpreadSensitivity(
+            ((FraTrade) fwd3Trades.get(loopnode)).getProduct().resolve(REF_DATA), provider);
       }
       if (fwd3Trades.get(loopnode) instanceof SwapTrade) {
-        pts = SWAP_PRICER
-            .parSpreadSensitivity(((SwapTrade) fwd3Trades.get(loopnode)).getProduct(), provider).build();
+        pts = SWAP_PRICER.parSpreadSensitivity(
+            ((SwapTrade) fwd3Trades.get(loopnode)).getProduct(), provider).build();
       }
       CurveCurrencyParameterSensitivities ps = provider.curveParameterSensitivity(pts);
       CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);
@@ -264,16 +264,16 @@ public class CalibrationDiscountingSimpleEur3Test {
     for (int loopnode = 0; loopnode < fwd6MarketQuotes.length; loopnode++) {
       PointSensitivities pts = null;
       if (fwd6Trades.get(loopnode) instanceof IborFixingDepositTrade) {
-        pts = PRICER_FIXING
-            .parSpreadSensitivity(((IborFixingDepositTrade) fwd6Trades.get(loopnode)).getProduct(), provider);
+        pts = PRICER_FIXING.parSpreadSensitivity(
+            ((IborFixingDepositTrade) fwd6Trades.get(loopnode)).getProduct().resolve(REF_DATA), provider);
       }
       if (fwd6Trades.get(loopnode) instanceof FraTrade) {
-        pts = PRICER_FRA
-            .parSpreadSensitivity(((FraTrade) fwd6Trades.get(loopnode)).getProduct().resolve(REF_DATA), provider);
+        pts = PRICER_FRA.parSpreadSensitivity(
+            ((FraTrade) fwd6Trades.get(loopnode)).getProduct().resolve(REF_DATA), provider);
       }
       if (fwd6Trades.get(loopnode) instanceof SwapTrade) {
-        pts = SWAP_PRICER
-            .parSpreadSensitivity(((SwapTrade) fwd6Trades.get(loopnode)).getProduct(), provider).build();
+        pts = SWAP_PRICER.parSpreadSensitivity(
+            ((SwapTrade) fwd6Trades.get(loopnode)).getProduct(), provider).build();
       }
       CurveCurrencyParameterSensitivities ps = provider.curveParameterSensitivity(pts);
       CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);

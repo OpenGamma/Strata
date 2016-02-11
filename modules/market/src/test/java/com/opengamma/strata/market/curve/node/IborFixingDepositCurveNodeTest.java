@@ -38,6 +38,7 @@ import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.deposit.IborFixingDeposit;
 import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
+import com.opengamma.strata.product.deposit.ResolvedIborFixingDeposit;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
 import com.opengamma.strata.product.deposit.type.ImmutableIborFixingDepositConvention;
 import com.opengamma.strata.product.rate.IborRateObservation;
@@ -170,7 +171,8 @@ public class IborFixingDepositCurveNodeTest {
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     IborFixingDepositTrade trade =
         node.trade(valuationDate, ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, 0.0d).build());
-    LocalDate fixingDate = ((IborRateObservation) trade.getProduct().expand().getFloatingRate()).getFixingDate();
+    ResolvedIborFixingDeposit product = trade.getProduct().resolve(REF_DATA);
+    LocalDate fixingDate = ((IborRateObservation) product.getFloatingRate()).getFixingDate();
     DatedCurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), fixingDate);
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor().getPeriod(), TEMPLATE.getDepositPeriod());

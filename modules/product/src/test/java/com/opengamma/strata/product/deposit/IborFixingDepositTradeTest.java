@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -27,6 +28,8 @@ import com.opengamma.strata.product.TradeInfo;
  */
 @Test
 public class IborFixingDepositTradeTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   private static final IborFixingDeposit DEPOSIT = IborFixingDeposit.builder()
       .buySell(BuySell.BUY)
@@ -40,6 +43,12 @@ public class IborFixingDepositTradeTest {
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 1, 15)).build();
 
   //-------------------------------------------------------------------------
+  public void test_of() {
+    IborFixingDepositTrade test = IborFixingDepositTrade.of(TRADE_INFO, DEPOSIT);
+    assertEquals(test.getProduct(), DEPOSIT);
+    assertEquals(test.getTradeInfo(), TRADE_INFO);
+  }
+
   public void test_builder() {
     IborFixingDepositTrade test = IborFixingDepositTrade.builder()
         .product(DEPOSIT)
@@ -47,6 +56,13 @@ public class IborFixingDepositTradeTest {
         .build();
     assertEquals(test.getProduct(), DEPOSIT);
     assertEquals(test.getTradeInfo(), TRADE_INFO);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_resolve() {
+    IborFixingDepositTrade test = IborFixingDepositTrade.of(TRADE_INFO, DEPOSIT);
+    assertEquals(test.resolve(REF_DATA).getTradeInfo(), TRADE_INFO);
+    assertEquals(test.resolve(REF_DATA).getProduct(), DEPOSIT.resolve(REF_DATA));
   }
 
   //-------------------------------------------------------------------------

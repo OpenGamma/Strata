@@ -77,8 +77,9 @@ public class TradeCalibrationMeasure<T extends Trade>
       TradeCalibrationMeasure.of(
           "IborFixingDepositParSpreadDiscounting",
           IborFixingDepositTrade.class,
-          (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.parSpread(trade.getProduct(), p),
-          (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.parSpreadSensitivity(trade.getProduct(), p));
+          (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.parSpread(trade.getProduct().resolve(REF_DATA), p),
+          (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.parSpreadSensitivity(
+              trade.getProduct().resolve(REF_DATA), p));
 
   /**
    * The calibrator for {@link TermDepositTrade} using par spread discounting.
@@ -87,8 +88,9 @@ public class TradeCalibrationMeasure<T extends Trade>
       TradeCalibrationMeasure.of(
           "TermDepositParSpreadDiscounting",
           TermDepositTrade.class,
-          (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parSpread(trade.getProduct(), p),
-          (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parSpreadSensitivity(trade.getProduct(), p));
+              (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parSpread(trade.getProduct().resolve(REF_DATA), p),
+              (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parSpreadSensitivity(
+                  trade.getProduct().resolve(REF_DATA), p));
 
   /**
    * The calibrator for {@link FxSwapTrade} using par spread discounting.

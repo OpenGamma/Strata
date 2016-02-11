@@ -18,10 +18,10 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 /**
- * Test {@link ExpandedTermDeposit}.
+ * Test {@link ResolvedTermDeposit}.
  */
 @Test
-public class ExpandedTermDepositTest {
+public class ResolvedTermDepositTest {
 
   private static final LocalDate START_DATE = LocalDate.of(2015, 1, 19);
   private static final LocalDate END_DATE = LocalDate.of(2015, 7, 20);
@@ -32,7 +32,7 @@ public class ExpandedTermDepositTest {
 
   //-------------------------------------------------------------------------
   public void test_builder() {
-    ExpandedTermDeposit test = ExpandedTermDeposit.builder()
+    ResolvedTermDeposit test = ResolvedTermDeposit.builder()
         .currency(GBP)
         .notional(PRINCIPAL)
         .startDate(START_DATE)
@@ -50,7 +50,7 @@ public class ExpandedTermDepositTest {
   }
 
   public void test_builder_wrongDates() {
-    assertThrowsIllegalArg(() -> ExpandedTermDeposit.builder()
+    assertThrowsIllegalArg(() -> ResolvedTermDeposit.builder()
         .currency(GBP)
         .notional(PRINCIPAL)
         .startDate(START_DATE)
@@ -61,21 +61,8 @@ public class ExpandedTermDepositTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_expand() {
-    ExpandedTermDeposit test = ExpandedTermDeposit.builder()
-        .currency(GBP)
-        .notional(PRINCIPAL)
-        .startDate(START_DATE)
-        .endDate(END_DATE)
-        .yearFraction(YEAR_FRACTION)
-        .rate(RATE)
-        .build();
-    assertEquals(test.expand(), test);
-  }
-
-  //-------------------------------------------------------------------------
   public void coverage() {
-    ExpandedTermDeposit test1 = ExpandedTermDeposit.builder()
+    ResolvedTermDeposit test1 = ResolvedTermDeposit.builder()
         .currency(GBP)
         .notional(PRINCIPAL)
         .startDate(START_DATE)
@@ -84,7 +71,7 @@ public class ExpandedTermDepositTest {
         .rate(RATE)
         .build();
     coverImmutableBean(test1);
-    ExpandedTermDeposit test2 = ExpandedTermDeposit.builder()
+    ResolvedTermDeposit test2 = ResolvedTermDeposit.builder()
         .currency(GBP)
         .notional(-50000000)
         .startDate(START_DATE)
@@ -96,7 +83,7 @@ public class ExpandedTermDepositTest {
   }
 
   public void test_serialization() {
-    ExpandedTermDeposit test = ExpandedTermDeposit.builder()
+    ResolvedTermDeposit test = ResolvedTermDeposit.builder()
         .currency(GBP)
         .notional(PRINCIPAL)
         .startDate(START_DATE)

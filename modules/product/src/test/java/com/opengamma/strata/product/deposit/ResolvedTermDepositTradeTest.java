@@ -6,9 +6,7 @@
 package com.opengamma.strata.product.deposit;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -19,40 +17,39 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
- * Test {@link TermDepositTrade}. 
+ * Test {@link ResolvedTermDepositTrade}. 
  */
 @Test
-public class TermDepositTradeTest {
+public class ResolvedTermDepositTradeTest {
 
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final LocalDate START_DATE = LocalDate.of(2015, 1, 19);
+  private static final LocalDate END_DATE = LocalDate.of(2015, 7, 20);
+  private static final double YEAR_FRACTION = ACT_365F.yearFraction(START_DATE, END_DATE);
+  private static final double PRINCIPAL = 100000000d;
+  private static final double RATE = 0.0250;
 
-  private static final TermDeposit DEPOSIT = TermDeposit.builder()
-      .buySell(BuySell.BUY)
+  private static final ResolvedTermDeposit DEPOSIT = ResolvedTermDeposit.builder()
       .currency(GBP)
-      .notional(100000000d)
-      .startDate(LocalDate.of(2015, 1, 19))
-      .endDate(LocalDate.of(2015, 7, 19))
-      .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
-      .dayCount(ACT_365F)
-      .rate(0.0250)
+      .notional(PRINCIPAL)
+      .startDate(START_DATE)
+      .endDate(END_DATE)
+      .yearFraction(YEAR_FRACTION)
+      .rate(RATE)
       .build();
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    TermDepositTrade test = TermDepositTrade.of(TRADE_INFO, DEPOSIT);
+    ResolvedTermDepositTrade test = ResolvedTermDepositTrade.of(TRADE_INFO, DEPOSIT);
     assertEquals(test.getProduct(), DEPOSIT);
     assertEquals(test.getTradeInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
-    TermDepositTrade test = TermDepositTrade.builder()
+    ResolvedTermDepositTrade test = ResolvedTermDepositTrade.builder()
         .product(DEPOSIT)
         .tradeInfo(TRADE_INFO)
         .build();
@@ -61,27 +58,20 @@ public class TermDepositTradeTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_resolve() {
-    TermDepositTrade test = TermDepositTrade.of(TRADE_INFO, DEPOSIT);
-    assertEquals(test.resolve(REF_DATA).getTradeInfo(), TRADE_INFO);
-    assertEquals(test.resolve(REF_DATA).getProduct(), DEPOSIT.resolve(REF_DATA));
-  }
-
-  //-------------------------------------------------------------------------
   public void coverage() {
-    TermDepositTrade test1 = TermDepositTrade.builder()
+    ResolvedTermDepositTrade test1 = ResolvedTermDepositTrade.builder()
         .product(DEPOSIT)
         .tradeInfo(TRADE_INFO)
         .build();
     coverImmutableBean(test1);
-    TermDepositTrade test2 = TermDepositTrade.builder()
+    ResolvedTermDepositTrade test2 = ResolvedTermDepositTrade.builder()
         .product(DEPOSIT)
         .build();
     coverBeanEquals(test1, test2);
   }
 
   public void test_serialization() {
-    TermDepositTrade test = TermDepositTrade.builder()
+    ResolvedTermDepositTrade test = ResolvedTermDepositTrade.builder()
         .product(DEPOSIT)
         .tradeInfo(TRADE_INFO)
         .build();

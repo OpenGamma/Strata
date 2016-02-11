@@ -41,6 +41,7 @@ import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.ImmutableMarketDataBuilder;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.ValueType;
@@ -83,6 +84,9 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
   private static final CurveInterpolator INTERPOLATOR_LINEAR = CurveInterpolators.LINEAR;
   private static final CurveExtrapolator EXTRAPOLATOR_FLAT = CurveExtrapolators.FLAT;
   private static final DayCount CURVE_DC = ACT_365F;
+
+  // reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   private static final String SCHEME = "CALIBRATION";
 
@@ -229,14 +233,14 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     }
     // Depo
     for (int i = 0; i < USD_DSC_NB_DEPO_NODES; i++) {
-      CurrencyAmount pvDep = DEPO_PRICER
-          .presentValue(((TermDepositTrade) usdTrades.get(i)).getProduct(), result);
+      CurrencyAmount pvDep = DEPO_PRICER.presentValue(
+          ((TermDepositTrade) usdTrades.get(i)).getProduct().resolve(REF_DATA), result);
       assertEquals(pvDep.getAmount(), 0.0, TOLERANCE_PV);
     }
     // OIS
     for (int i = 0; i < USD_DSC_NB_OIS_NODES; i++) {
-      MultiCurrencyAmount pvOis = SWAP_PRICER
-          .presentValue(((SwapTrade) usdTrades.get(USD_DSC_NB_DEPO_NODES + i)).getProduct(), result);
+      MultiCurrencyAmount pvOis = SWAP_PRICER.presentValue(
+          ((SwapTrade) usdTrades.get(USD_DSC_NB_DEPO_NODES + i)).getProduct(), result);
       assertEquals(pvOis.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV EUR;
@@ -246,8 +250,8 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     }
     // Depo
     for (int i = 0; i < EUR_DSC_NB_FX_NODES; i++) {
-      MultiCurrencyAmount pvFx = FX_PRICER
-          .presentValue(((FxSwapTrade) eurTrades.get(i)).getProduct(), result);
+      MultiCurrencyAmount pvFx = FX_PRICER.presentValue(
+          ((FxSwapTrade) eurTrades.get(i)).getProduct(), result);
       assertEquals(pvFx.convertedTo(USD, result).getAmount(), 0.0, TOLERANCE_PV);
     }
   }

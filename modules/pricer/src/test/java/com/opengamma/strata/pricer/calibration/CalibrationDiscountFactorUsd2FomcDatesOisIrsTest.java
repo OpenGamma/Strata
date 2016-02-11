@@ -355,14 +355,14 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
     }
     // Depo
     for (int i = 0; i < DSC_NB_DEPO_NODES; i++) {
-      CurrencyAmount pvIrs = DEPO_PRICER
-          .presentValue(((TermDepositTrade) dscTrades.get(i)).getProduct(), result);
+      CurrencyAmount pvIrs = DEPO_PRICER.presentValue(
+          ((TermDepositTrade) dscTrades.get(i)).getProduct().resolve(REF_DATA), result);
       assertEquals(pvIrs.getAmount(), 0.0, TOLERANCE_PV);
     }
     // OIS
     for (int i = 0; i < DSC_NB_OIS_NODES; i++) {
-      MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) dscTrades.get(DSC_NB_DEPO_NODES + i)).getProduct(), result);
+      MultiCurrencyAmount pvIrs = SWAP_PRICER.presentValue(
+          ((SwapTrade) dscTrades.get(DSC_NB_DEPO_NODES + i)).getProduct(), result);
       assertEquals(pvIrs.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd3
@@ -372,19 +372,19 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
       fwd3Trades.add(fwd3Nodes[i].trade(valDate, ALL_QUOTES_BD));
     }
     // Fixing 
-    CurrencyAmount pvFixing =
-        FIXING_PRICER.presentValue(((IborFixingDepositTrade) fwd3Trades.get(0)).getProduct(), result);
+    CurrencyAmount pvFixing = FIXING_PRICER.presentValue(
+        ((IborFixingDepositTrade) fwd3Trades.get(0)).getProduct().resolve(REF_DATA), result);
     assertEquals(pvFixing.getAmount(), 0.0, TOLERANCE_PV);
     // FRA
     for (int i = 0; i < FWD3_NB_FRA_NODES; i++) {
-      CurrencyAmount pvFra =
-          FRA_PRICER.presentValue(((FraTrade) fwd3Trades.get(i + 1)).resolve(REF_DATA), result);
+      CurrencyAmount pvFra = FRA_PRICER.presentValue(
+          ((FraTrade) fwd3Trades.get(i + 1)).resolve(REF_DATA), result);
       assertEquals(pvFra.getAmount(), 0.0, TOLERANCE_PV);
     }
     // IRS
     for (int i = 0; i < FWD3_NB_IRS_NODES; i++) {
-      MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) fwd3Trades.get(i + 1 + FWD3_NB_FRA_NODES)).getProduct(), result);
+      MultiCurrencyAmount pvIrs = SWAP_PRICER.presentValue(
+          ((SwapTrade) fwd3Trades.get(i + 1 + FWD3_NB_FRA_NODES)).getProduct(), result);
       assertEquals(pvIrs.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
   }

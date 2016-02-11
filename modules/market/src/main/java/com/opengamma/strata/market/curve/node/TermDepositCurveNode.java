@@ -36,7 +36,7 @@ import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
-import com.opengamma.strata.product.deposit.ExpandedTermDeposit;
+import com.opengamma.strata.product.deposit.ResolvedTermDeposit;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.deposit.type.TermDepositTemplate;
 
@@ -146,7 +146,7 @@ public final class TermDepositCurveNode
   @Override
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date.calculate(
-        () -> calculateEnd(valuationDate),
+        () -> calculateEnd(valuationDate, refData),
         () -> calculateLastFixingDate(valuationDate));
     if (date.isFixed()) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
@@ -156,8 +156,8 @@ public final class TermDepositCurveNode
   }
 
   // calculate the end date
-  private LocalDate calculateEnd(LocalDate valuationDate) {
-    ExpandedTermDeposit deposit = template.createTrade(valuationDate, BuySell.BUY, 0d, 0d).getProduct().expand();
+  private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
+    ResolvedTermDeposit deposit = template.createTrade(valuationDate, BuySell.BUY, 0d, 0d).getProduct().resolve(refData);
     return deposit.getEndDate();
   }
 

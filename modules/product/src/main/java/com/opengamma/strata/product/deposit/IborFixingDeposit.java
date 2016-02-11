@@ -32,7 +32,10 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
@@ -47,7 +50,7 @@ import com.opengamma.strata.product.rate.IborRateObservation;
  */
 @BeanDefinition
 public final class IborFixingDeposit
-    implements IborFixingDepositProduct, ImmutableBean, Serializable {
+    implements Product, Resolvable<ResolvedIborFixingDeposit>, ImmutableBean, Serializable {
 
   /**
    * Whether the Ibor fixing deposit is 'Buy' or 'Sell'.
@@ -165,22 +168,14 @@ public final class IborFixingDeposit
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Expands this Ibor fixing deposit.
-   * <p>
-   * Expanding an Ibor fixing deposit causes the dates to be adjusted according to the relevant
-   * holiday calendar. Other one-off calculations may also be performed.
-   * 
-   * @return the equivalent expanded Ibor fixing deposit
-   * @throws RuntimeException if unable to expand due to an invalid definition
-   */
   @Override
-  public ExpandedIborFixingDeposit expand() {
-    LocalDate start = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(startDate);
-    LocalDate end = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(endDate);
+  public ResolvedIborFixingDeposit resolve(ReferenceData refData) {
+    BusinessDayAdjustment bda = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE);
+    LocalDate start = bda.adjust(startDate);
+    LocalDate end = bda.adjust(endDate);
     double yearFraction = dayCount.yearFraction(start, end);
     LocalDate fixingDate = fixingDateOffset.adjust(startDate);
-    return ExpandedIborFixingDeposit.builder()
+    return ResolvedIborFixingDeposit.builder()
         .startDate(start)
         .endDate(end)
         .yearFraction(yearFraction)

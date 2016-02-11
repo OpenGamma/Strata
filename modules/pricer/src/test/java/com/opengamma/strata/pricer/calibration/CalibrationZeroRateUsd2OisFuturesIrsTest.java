@@ -43,6 +43,7 @@ import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.ImmutableMarketDataBuilder;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.ValueType;
@@ -98,6 +99,9 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
   private static final CurveInterpolator INTERPOLATOR_LINEAR = CurveInterpolators.LINEAR;
   private static final CurveExtrapolator EXTRAPOLATOR_FLAT = CurveExtrapolators.FLAT;
   private static final DayCount CURVE_DC = ACT_365F;
+
+  // reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   private static final String SCHEME = "CALIBRATION";
 
@@ -331,14 +335,14 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
     }
     // Depo
     for (int i = 0; i < DSC_NB_DEPO_NODES; i++) {
-      CurrencyAmount pvIrs = DEPO_PRICER
-          .presentValue(((TermDepositTrade) dscTrades.get(i)).getProduct(), result);
+      CurrencyAmount pvIrs = DEPO_PRICER.presentValue(
+          ((TermDepositTrade) dscTrades.get(i)).getProduct().resolve(REF_DATA), result);
       assertEquals(pvIrs.getAmount(), 0.0, TOLERANCE_PV);
     }
     // OIS
     for (int i = 0; i < DSC_NB_OIS_NODES; i++) {
-      MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) dscTrades.get(DSC_NB_DEPO_NODES + i)).getProduct(), result);
+      MultiCurrencyAmount pvIrs = SWAP_PRICER.presentValue(
+          ((SwapTrade) dscTrades.get(DSC_NB_DEPO_NODES + i)).getProduct(), result);
       assertEquals(pvIrs.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd3
@@ -348,19 +352,19 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
       fwd3Trades.add(fwd3Nodes[i].trade(VAL_DATE, ALL_QUOTES));
     }
     // Fixing 
-    CurrencyAmount pvFixing3 =
-        FIXING_PRICER.presentValue(((IborFixingDepositTrade) fwd3Trades.get(0)).getProduct(), result);
+    CurrencyAmount pvFixing3 = FIXING_PRICER.presentValue(
+        ((IborFixingDepositTrade) fwd3Trades.get(0)).getProduct().resolve(REF_DATA), result);
     assertEquals(pvFixing3.getAmount(), 0.0, TOLERANCE_PV);
     // Futures
     for (int i = 0; i < FWD3_NB_FUT_NODES; i++) {
-      CurrencyAmount pvFut =
-          FUT_PRICER.presentValue(((IborFutureTrade) fwd3Trades.get(i + 1)), result, 0.0);
+      CurrencyAmount pvFut = FUT_PRICER.presentValue(
+          ((IborFutureTrade) fwd3Trades.get(i + 1)), result, 0.0);
       assertEquals(pvFut.getAmount(), 0.0, TOLERANCE_PV);
     }
     // IRS
     for (int i = 0; i < FWD3_NB_IRS_NODES; i++) {
-      MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) fwd3Trades.get(i + 1 + FWD3_NB_FUT_NODES)).getProduct(), result);
+      MultiCurrencyAmount pvIrs = SWAP_PRICER.presentValue(
+          ((SwapTrade) fwd3Trades.get(i + 1 + FWD3_NB_FUT_NODES)).getProduct(), result);
       assertEquals(pvIrs.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
   }

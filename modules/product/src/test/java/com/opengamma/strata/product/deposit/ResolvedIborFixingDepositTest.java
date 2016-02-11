@@ -22,10 +22,10 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
- * Test {@link ExpandedTermDeposit}.
+ * Test {@link ResolvedTermDeposit}.
  */
 @Test
-public class ExpandedIborFixingDepositTest {
+public class ResolvedIborFixingDepositTest {
 
   private static final LocalDate FIXING_DATE = LocalDate.of(2015, 1, 19);
   private static final LocalDate START_DATE = LocalDate.of(2015, 1, 19);
@@ -37,7 +37,7 @@ public class ExpandedIborFixingDepositTest {
 
   //-------------------------------------------------------------------------
   public void test_builder() {
-    ExpandedIborFixingDeposit test = ExpandedIborFixingDeposit.builder()
+    ResolvedIborFixingDeposit test = ResolvedIborFixingDeposit.builder()
         .currency(GBP)
         .notional(NOTIONAL)
         .startDate(START_DATE)
@@ -56,7 +56,7 @@ public class ExpandedIborFixingDepositTest {
   }
 
   public void test_builder_wrongDates() {
-    assertThrowsIllegalArg(() -> ExpandedIborFixingDeposit.builder()
+    assertThrowsIllegalArg(() -> ResolvedIborFixingDeposit.builder()
         .currency(GBP)
         .notional(NOTIONAL)
         .startDate(LocalDate.of(2015, 8, 20))
@@ -68,22 +68,8 @@ public class ExpandedIborFixingDepositTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_expand() {
-    ExpandedIborFixingDeposit test = ExpandedIborFixingDeposit.builder()
-        .currency(GBP)
-        .notional(NOTIONAL)
-        .startDate(START_DATE)
-        .endDate(END_DATE)
-        .yearFraction(YEAR_FRACTION)
-        .floatingRate(RATE_OBS)
-        .fixedRate(RATE)
-        .build();
-    assertEquals(test.expand(), test);
-  }
-
-  //-------------------------------------------------------------------------
   public void coverage() {
-    ExpandedIborFixingDeposit test1 = ExpandedIborFixingDeposit.builder()
+    ResolvedIborFixingDeposit test1 = ResolvedIborFixingDeposit.builder()
         .currency(GBP)
         .notional(NOTIONAL)
         .startDate(START_DATE)
@@ -93,7 +79,7 @@ public class ExpandedIborFixingDepositTest {
         .fixedRate(RATE)
         .build();
     coverImmutableBean(test1);
-    ExpandedIborFixingDeposit test2 = ExpandedIborFixingDeposit.builder()
+    ResolvedIborFixingDeposit test2 = ResolvedIborFixingDeposit.builder()
         .currency(GBP)
         .notional(-100000000d)
         .startDate(START_DATE)
@@ -106,7 +92,7 @@ public class ExpandedIborFixingDepositTest {
   }
 
   public void test_serialization() {
-    ExpandedIborFixingDeposit test = ExpandedIborFixingDeposit.builder()
+    ResolvedIborFixingDeposit test = ResolvedIborFixingDeposit.builder()
         .currency(GBP)
         .notional(NOTIONAL)
         .startDate(START_DATE)
