@@ -37,6 +37,7 @@ import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.product.deposit.ResolvedTermDeposit;
+import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.deposit.type.TermDepositTemplate;
 
@@ -170,6 +171,11 @@ public final class TermDepositCurveNode
   public TermDepositTrade trade(LocalDate valuationDate, MarketData marketData) {
     double fixedRate = marketData.getValue(rateKey) + additionalSpread;
     return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate);
+  }
+
+  @Override
+  public ResolvedTermDepositTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData).resolve(refData);
   }
 
   @Override

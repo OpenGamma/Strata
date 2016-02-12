@@ -40,6 +40,7 @@ import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
 
 /**
@@ -153,6 +154,11 @@ public final class FxSwapCurveNode
     double rate = fxRate.fxRate(template.getCurrencyPair());
     double fxPts = marketData.getValue(farForwardPointsKey);
     return template.createTrade(valuationDate, BuySell.BUY, 1d, rate, fxPts);
+  }
+
+  @Override
+  public ResolvedFxSwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData).resolve(refData);
   }
 
   @Override

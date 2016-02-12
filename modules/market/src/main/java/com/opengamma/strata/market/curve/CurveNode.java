@@ -11,6 +11,7 @@ import java.util.Set;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.market.ValueType;
 
@@ -51,6 +52,21 @@ public interface CurveNode {
    * @return a trade representing the instrument at the node
    */
   public abstract Trade trade(LocalDate valuationDate, MarketData marketData);
+
+  /**
+   * Creates a resolved trade representing the instrument at the node.
+   * <p>
+   * This uses the observed market data to build the trade that the node represents.
+   * The trade is then resolved using the specified reference data if necessary.
+   *
+   * @param valuationDate  the valuation date used when calibrating the curve
+   * @param marketData  the market data required to build a trade for the instrument
+   * @param refData  the reference data, used to resolve the trade
+   * @return a trade representing the instrument at the node
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   * @throws RuntimeException if unable to resolve due to an invalid definition
+   */
+  public abstract Trade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData);
 
   /**
    * Gets the initial guess used for calibrating the node.

@@ -38,6 +38,7 @@ import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.ResolvedFra;
+import com.opengamma.strata.product.fra.ResolvedFraTrade;
 import com.opengamma.strata.product.fra.type.FraTemplate;
 import com.opengamma.strata.product.rate.IborRateObservation;
 
@@ -169,6 +170,11 @@ public final class FraCurveNode
   public FraTrade trade(LocalDate valuationDate, MarketData marketData) {
     double fixedRate = marketData.getValue(rateKey) + additionalSpread;
     return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate);
+  }
+
+  @Override
+  public ResolvedFraTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData).resolve(refData);
   }
 
   @Override

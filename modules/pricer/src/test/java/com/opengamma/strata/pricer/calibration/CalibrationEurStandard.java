@@ -28,6 +28,7 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.ImmutableMarketDataBuilder;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.ValueType;
@@ -56,6 +57,9 @@ public class CalibrationEurStandard {
   private static final LocalDate VAL_DATE = LocalDate.of(2015, 6, 30);
   private static final DayCount CURVE_DC = ACT_365F;
   private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
+
+  // reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   private static final String SCHEME = "CALIBRATION";
 
@@ -121,7 +125,7 @@ public class CalibrationEurStandard {
     CurveGroupDefinition config = config(dscOisTenors, dscIdValues, fwd3FraTenors, fwd3IrsTenors, fwd3IdValues,
         fwd6FraTenors, fwd6IrsTenors, fwd6IdValues);
     /* Results */
-    return CALIBRATOR.calibrate(config, valuationDate, allQuotes, TS);
+    return CALIBRATOR.calibrate(config, valuationDate, allQuotes, REF_DATA, TS);
   }
 
   public static String[] dscIdValues(Period[] dscOisTenors) {

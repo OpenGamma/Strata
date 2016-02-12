@@ -37,10 +37,11 @@ import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.product.rate.IborRateObservation;
-import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -187,6 +188,11 @@ public final class FixedIborSwapCurveNode
   public SwapTrade trade(LocalDate valuationDate, MarketData marketData) {
     double fixedRate = marketData.getValue(rateKey) + additionalSpread;
     return template.createTrade(valuationDate, BuySell.BUY, 1, fixedRate);
+  }
+
+  @Override
+  public ResolvedSwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData).resolve(refData);
   }
 
   @Override

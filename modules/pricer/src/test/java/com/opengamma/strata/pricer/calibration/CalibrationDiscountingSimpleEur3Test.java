@@ -34,9 +34,9 @@ import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
-import com.opengamma.strata.product.fra.FraTrade;
-import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
+import com.opengamma.strata.product.fra.ResolvedFraTrade;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 
 /**
  * Test curve calibration
@@ -125,42 +125,42 @@ public class CalibrationDiscountingSimpleEur3Test {
     ImmutableList<CurveNode> dscNodes = definitions.get(0).getNodes();
     List<Trade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.size(); i++) {
-      dscTrades.add(dscNodes.get(i).trade(VAL_DATE, allQuotes));
+      dscTrades.add(dscNodes.get(i).trade(VAL_DATE, allQuotes, REF_DATA));
     }
     // OIS
     for (int i = 0; i < DSC_MARKET_QUOTES.length; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) dscTrades.get(i)).getProduct().resolve(REF_DATA), result);
+          .presentValue(((ResolvedSwapTrade) dscTrades.get(i)).getProduct(), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd3
     ImmutableList<CurveNode> fwd3Nodes = definitions.get(1).getNodes();
     List<Trade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.size(); i++) {
-      fwd3Trades.add(fwd3Nodes.get(i).trade(VAL_DATE, allQuotes));
+      fwd3Trades.add(fwd3Nodes.get(i).trade(VAL_DATE, allQuotes, REF_DATA));
     }
     // FRA
     for (int i = 0; i < FWD3_FRA_QUOTES.length; i++) {
       CurrencyAmount pvFra = PRICER_FRA
-          .presentValue(((FraTrade) fwd3Trades.get(i + 1)).getProduct().resolve(REF_DATA), result);
+          .presentValue(((ResolvedFraTrade) fwd3Trades.get(i + 1)).getProduct(), result);
       assertEquals(pvFra.getAmount(), 0.0, TOLERANCE_PV);
     }
     // IRS
     for (int i = 0; i < FWD3_IRS_QUOTES.length; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) fwd3Trades.get(i + 1 + FWD3_FRA_QUOTES.length)).getProduct().resolve(REF_DATA), result);
+          .presentValue(((ResolvedSwapTrade) fwd3Trades.get(i + 1 + FWD3_FRA_QUOTES.length)).getProduct(), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd6
     ImmutableList<CurveNode> fwd6Nodes = definitions.get(2).getNodes();
     List<Trade> fwd6Trades = new ArrayList<>();
     for (int i = 0; i < fwd6Nodes.size(); i++) {
-      fwd6Trades.add(fwd6Nodes.get(i).trade(VAL_DATE, allQuotes));
+      fwd6Trades.add(fwd6Nodes.get(i).trade(VAL_DATE, allQuotes, REF_DATA));
     }
     // IRS
     for (int i = 0; i < FWD6_IRS_QUOTES.length; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) fwd6Trades.get(i + 1 + FWD6_FRA_QUOTES.length)).getProduct().resolve(REF_DATA), result);
+          .presentValue(((ResolvedSwapTrade) fwd6Trades.get(i + 1 + FWD6_FRA_QUOTES.length)).getProduct(), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
   }
@@ -201,12 +201,12 @@ public class CalibrationDiscountingSimpleEur3Test {
     ImmutableList<CurveNode> dscNodes = definitions.get(0).getNodes();
     List<Trade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.size(); i++) {
-      dscTrades.add(dscNodes.get(i).trade(VAL_DATE, allQuotes));
+      dscTrades.add(dscNodes.get(i).trade(VAL_DATE, allQuotes, REF_DATA));
     }
     // OIS
     for (int loopnode = 0; loopnode < DSC_MARKET_QUOTES.length; loopnode++) {
       PointSensitivities pts = SWAP_PRICER.parRateSensitivity(
-          ((SwapTrade) dscTrades.get(loopnode)).getProduct().resolve(REF_DATA), provider).build();
+          ((ResolvedSwapTrade) dscTrades.get(loopnode)).getProduct(), provider).build();
       CurveCurrencyParameterSensitivities ps = provider.curveParameterSensitivity(pts);
       CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);
       assertEquals(mqs.size(), 3); // Calibration of all curves simultaneously
@@ -223,21 +223,21 @@ public class CalibrationDiscountingSimpleEur3Test {
     ImmutableList<CurveNode> fwd3Nodes = definitions.get(1).getNodes();
     List<Trade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.size(); i++) {
-      fwd3Trades.add(fwd3Nodes.get(i).trade(VAL_DATE, allQuotes));
+      fwd3Trades.add(fwd3Nodes.get(i).trade(VAL_DATE, allQuotes, REF_DATA));
     }
     for (int loopnode = 0; loopnode < fwd3MarketQuotes.length; loopnode++) {
       PointSensitivities pts = null;
-      if (fwd3Trades.get(loopnode) instanceof IborFixingDepositTrade) {
+      if (fwd3Trades.get(loopnode) instanceof ResolvedIborFixingDepositTrade) {
         pts = PRICER_FIXING.parSpreadSensitivity(
-            ((IborFixingDepositTrade) fwd3Trades.get(loopnode)).getProduct().resolve(REF_DATA), provider);
+            ((ResolvedIborFixingDepositTrade) fwd3Trades.get(loopnode)).getProduct(), provider);
       }
-      if (fwd3Trades.get(loopnode) instanceof FraTrade) {
+      if (fwd3Trades.get(loopnode) instanceof ResolvedFraTrade) {
         pts = PRICER_FRA.parSpreadSensitivity(
-            ((FraTrade) fwd3Trades.get(loopnode)).getProduct().resolve(REF_DATA), provider);
+            ((ResolvedFraTrade) fwd3Trades.get(loopnode)).getProduct(), provider);
       }
-      if (fwd3Trades.get(loopnode) instanceof SwapTrade) {
+      if (fwd3Trades.get(loopnode) instanceof ResolvedSwapTrade) {
         pts = SWAP_PRICER.parSpreadSensitivity(
-            ((SwapTrade) fwd3Trades.get(loopnode)).getProduct().resolve(REF_DATA), provider).build();
+            ((ResolvedSwapTrade) fwd3Trades.get(loopnode)).getProduct(), provider).build();
       }
       CurveCurrencyParameterSensitivities ps = provider.curveParameterSensitivity(pts);
       CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);
@@ -259,21 +259,21 @@ public class CalibrationDiscountingSimpleEur3Test {
     ImmutableList<CurveNode> fwd6Nodes = definitions.get(2).getNodes();
     List<Trade> fwd6Trades = new ArrayList<>();
     for (int i = 0; i < fwd6Nodes.size(); i++) {
-      fwd6Trades.add(fwd6Nodes.get(i).trade(VAL_DATE, allQuotes));
+      fwd6Trades.add(fwd6Nodes.get(i).trade(VAL_DATE, allQuotes, REF_DATA));
     }
     for (int loopnode = 0; loopnode < fwd6MarketQuotes.length; loopnode++) {
       PointSensitivities pts = null;
-      if (fwd6Trades.get(loopnode) instanceof IborFixingDepositTrade) {
+      if (fwd6Trades.get(loopnode) instanceof ResolvedIborFixingDepositTrade) {
         pts = PRICER_FIXING.parSpreadSensitivity(
-            ((IborFixingDepositTrade) fwd6Trades.get(loopnode)).getProduct().resolve(REF_DATA), provider);
+            ((ResolvedIborFixingDepositTrade) fwd6Trades.get(loopnode)).getProduct(), provider);
       }
-      if (fwd6Trades.get(loopnode) instanceof FraTrade) {
+      if (fwd6Trades.get(loopnode) instanceof ResolvedFraTrade) {
         pts = PRICER_FRA.parSpreadSensitivity(
-            ((FraTrade) fwd6Trades.get(loopnode)).getProduct().resolve(REF_DATA), provider);
+            ((ResolvedFraTrade) fwd6Trades.get(loopnode)).getProduct(), provider);
       }
-      if (fwd6Trades.get(loopnode) instanceof SwapTrade) {
+      if (fwd6Trades.get(loopnode) instanceof ResolvedSwapTrade) {
         pts = SWAP_PRICER.parSpreadSensitivity(
-            ((SwapTrade) fwd6Trades.get(loopnode)).getProduct().resolve(REF_DATA), provider).build();
+            ((ResolvedSwapTrade) fwd6Trades.get(loopnode)).getProduct(), provider).build();
       }
       CurveCurrencyParameterSensitivities ps = provider.curveParameterSensitivity(pts);
       CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);

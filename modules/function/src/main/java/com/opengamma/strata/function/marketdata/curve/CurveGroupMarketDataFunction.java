@@ -19,6 +19,7 @@ import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -42,6 +43,9 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
  * This function calibrates curves, turning a {@link CurveGroupDefinition} into a {@link CurveGroup}.
  */
 public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGroup, CurveGroupId> {
+
+  // hard-coded reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /**
    * The default analytics object that performs the curve calibration.
@@ -224,6 +228,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         groupDefn,
         valuationDate,
         marketData,
+        REF_DATA,
         ImmutableMap.of());
 
     return CurveGroup.of(

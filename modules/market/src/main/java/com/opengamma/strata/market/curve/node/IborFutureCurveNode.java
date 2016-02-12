@@ -34,6 +34,7 @@ import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.YearMonthCurveNodeMetadata;
 import com.opengamma.strata.product.index.IborFutureTrade;
+import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 import com.opengamma.strata.product.index.type.IborFutureTemplate;
 
 /**
@@ -156,6 +157,11 @@ public final class IborFutureCurveNode
   public IborFutureTrade trade(LocalDate valuationDate, MarketData marketData) {
     double price = marketData.getValue(rateKey) + additionalSpread;
     return template.createTrade(valuationDate, 1L, 1d, price);
+  }
+
+  @Override
+  public ResolvedIborFutureTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData).resolve(refData);
   }
 
   @Override

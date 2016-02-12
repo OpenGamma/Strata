@@ -170,10 +170,10 @@ public class CurveGroupDefinitionTest {
     MarketData marketData = ImmutableMarketData.builder(valuationDate)
         .addValues(ImmutableMap.of(GBP_LIBOR_1M_ID, 0.5d, GBP_LIBOR_3M_ID, 1.5d))
         .build();
-    Trade trade1 = NODE1.trade(valuationDate, marketData);
-    Trade trade2 = NODE2.trade(valuationDate, marketData);
+    Trade trade1 = NODE1.trade(valuationDate, marketData, REF_DATA);
+    Trade trade2 = NODE2.trade(valuationDate, marketData, REF_DATA);
     assertEquals(test.getTotalParameterCount(), 2);
-    assertEquals(test.trades(valuationDate, marketData), ImmutableList.of(trade1, trade2));
+    assertEquals(test.trades(valuationDate, marketData, REF_DATA), ImmutableList.of(trade1, trade2));
     assertEquals(test.initialGuesses(valuationDate, marketData), ImmutableList.of(0.5d, 1.5d));
   }
 

@@ -41,6 +41,7 @@ import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.product.rate.IborRateObservation;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
@@ -199,6 +200,11 @@ public final class XCcyIborIborSwapCurveNode
     FxRate fxRate = marketData.getValue(fxKey());
     double rate = fxRate.fxRate(template.getCurrencyPair());
     return template.createTrade(valuationDate, BuySell.BUY, 1, rate, marketQuote);
+  }
+
+  @Override
+  public ResolvedSwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData).resolve(refData);
   }
 
   @Override

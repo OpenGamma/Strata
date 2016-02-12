@@ -55,11 +55,11 @@ import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPr
 import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
+import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
-import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.fra.ResolvedFraTrade;
 import com.opengamma.strata.product.fra.type.FraTemplate;
-import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 
 /**
@@ -188,27 +188,27 @@ public class CalibrationDiscountingSimple1Test {
   //-------------------------------------------------------------------------
   public void calibration_present_value() {
     ImmutableRatesProvider result2 =
-        CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VAL_DATE, ALL_QUOTES, TS);
+        CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
     // Test PV
     CurveNode[] fwd3Nodes = CURVES_NODES.get(0).get(0);
     List<Trade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.length; i++) {
-      fwd3Trades.add(fwd3Nodes[i].trade(VAL_DATE, ALL_QUOTES));
+      fwd3Trades.add(fwd3Nodes[i].trade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
     // Fixing 
     CurrencyAmount pvFixing2 = FIXING_PRICER.presentValue(
-        ((IborFixingDepositTrade) fwd3Trades.get(0)).getProduct().resolve(REF_DATA), result2);
+        ((ResolvedIborFixingDepositTrade) fwd3Trades.get(0)).getProduct(), result2);
     assertEquals(pvFixing2.getAmount(), 0.0, TOLERANCE_PV);
     // FRA
     for (int i = 0; i < FWD3_NB_FRA_NODES; i++) {
       CurrencyAmount pvFra2 = FRA_PRICER.presentValue(
-          ((FraTrade) fwd3Trades.get(i + 1)).resolve(REF_DATA), result2);
+          ((ResolvedFraTrade) fwd3Trades.get(i + 1)), result2);
       assertEquals(pvFra2.getAmount(), 0.0, TOLERANCE_PV);
     }
     // IRS
     for (int i = 0; i < FWD3_NB_IRS_NODES; i++) {
       MultiCurrencyAmount pvIrs2 = SWAP_PRICER.presentValue(
-          ((SwapTrade) fwd3Trades.get(i + 1 + FWD3_NB_FRA_NODES)).getProduct().resolve(REF_DATA), result2);
+          ((ResolvedSwapTrade) fwd3Trades.get(i + 1 + FWD3_NB_FRA_NODES)).getProduct(), result2);
       assertEquals(pvIrs2.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
   }
@@ -225,7 +225,7 @@ public class CalibrationDiscountingSimple1Test {
       startTime = System.currentTimeMillis();
       for (int looprep = 0; looprep < nbTests; looprep++) {
         ImmutableRatesProvider result =
-            CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VAL_DATE, ALL_QUOTES, TS);
+            CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
         count += result.getDiscountCurves().size() + result.getIndexCurves().size();
       }
       endTime = System.currentTimeMillis();

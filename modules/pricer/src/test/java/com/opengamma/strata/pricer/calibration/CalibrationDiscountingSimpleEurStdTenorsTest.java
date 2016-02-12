@@ -52,7 +52,7 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 
@@ -219,43 +219,43 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
   //-------------------------------------------------------------------------
   public void calibration_present_value() {
     ImmutableRatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, TS);
+        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
 
     ImmutableList<NodalCurveDefinition> definitions = CURVE_GROUP_CONFIG.getCurveDefinitions();
     // Test PV Dsc
     ImmutableList<CurveNode> dscNodes = definitions.get(0).getNodes();
     List<Trade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.size(); i++) {
-      dscTrades.add(dscNodes.get(i).trade(VAL_DATE, ALL_QUOTES));
+      dscTrades.add(dscNodes.get(i).trade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
     // OIS
     for (int i = 0; i < DSC_NB_OIS_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) dscTrades.get(i)).getProduct().resolve(REF_DATA), result);
+          .presentValue(((ResolvedSwapTrade) dscTrades.get(i)).getProduct(), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd3
     ImmutableList<CurveNode> fwd3Nodes = definitions.get(1).getNodes();
     List<Trade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.size(); i++) {
-      fwd3Trades.add(fwd3Nodes.get(i).trade(VAL_DATE, ALL_QUOTES));
+      fwd3Trades.add(fwd3Nodes.get(i).trade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
     // IRS
     for (int i = 0; i < FWD3_NB_IRS_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) fwd3Trades.get(i)).getProduct().resolve(REF_DATA), result);
+          .presentValue(((ResolvedSwapTrade) fwd3Trades.get(i)).getProduct(), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd6
     ImmutableList<CurveNode> fwd6Nodes = definitions.get(2).getNodes();
     List<Trade> fwd6Trades = new ArrayList<>();
     for (int i = 0; i < fwd6Nodes.size(); i++) {
-      fwd6Trades.add(fwd6Nodes.get(i).trade(VAL_DATE, ALL_QUOTES));
+      fwd6Trades.add(fwd6Nodes.get(i).trade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
     // IRS
     for (int i = 0; i < FWD6_NB_IRS_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) fwd6Trades.get(i)).getProduct().resolve(REF_DATA), result);
+          .presentValue(((ResolvedSwapTrade) fwd6Trades.get(i)).getProduct(), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
   }

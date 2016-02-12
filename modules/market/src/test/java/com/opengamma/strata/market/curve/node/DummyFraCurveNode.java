@@ -76,6 +76,11 @@ public final class DummyFraCurveNode
   }
 
   @Override
+  public DummyFraTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData);
+  }
+
+  @Override
   public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
     if (ValueType.ZERO_RATE.equals(valueType)) {
       return marketData.getValue(rateKey);

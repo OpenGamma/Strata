@@ -7,13 +7,18 @@ package com.opengamma.strata.pricer.calibration;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.Trade;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.Unchecked;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
@@ -135,7 +140,7 @@ public final class CalibrationMeasures {
    * @throws IllegalArgumentException if the trade cannot be valued
    */
   public double value(Trade trade, RatesProvider provider) {
-    CalibrationMeasure<Trade> measure = getMeasure(trade.getClass());
+    CalibrationMeasure<Trade> measure = getMeasure(trade);
     return measure.value(trade, provider);
   }
 
@@ -166,7 +171,7 @@ public final class CalibrationMeasures {
 
   // determine the curve parameter sensitivities, removing the curency
   private CurveUnitParameterSensitivities extractSensitivities(Trade trade, RatesProvider provider) {
-    CalibrationMeasure<Trade> measure = getMeasure(trade.getClass());
+    CalibrationMeasure<Trade> measure = getMeasure(trade);
     CurveCurrencyParameterSensitivities paramSens = measure.sensitivities(trade, provider);
     CurveUnitParameterSensitivities unitSens = CurveUnitParameterSensitivities.empty();
     for (CurveCurrencyParameterSensitivity ccySens : paramSens.getSensitivities()) {
@@ -178,10 +183,22 @@ public final class CalibrationMeasures {
   //-------------------------------------------------------------------------
   // finds the correct measure implementation
   @SuppressWarnings("unchecked")
-  private <T extends Trade> CalibrationMeasure<Trade> getMeasure(Class<?> tradeType) {
+  private <T extends Trade> CalibrationMeasure<Trade> getMeasure(Trade trade) {
+    Class<? extends Trade> tradeType = trade.getClass();
     CalibrationMeasure<? extends Trade> measure = measuresByTrade.get(tradeType);
     if (measure == null) {
-      throw new IllegalArgumentException("Trade type " + tradeType.getName() + " is not supported for calibration");
+      if (trade instanceof Resolvable) {
+        Method method = Unchecked.wrap(() -> tradeType.getMethod("resolve", ReferenceData.class));
+        Class<?> resolvedType = method.getReturnType();
+        if (measuresByTrade.containsKey(resolvedType)) {
+          throw new IllegalArgumentException(Messages.format(
+              "Trade type '{}' must be resolved to '{}' for calibration",
+              tradeType.getSimpleName(),
+              resolvedType.getSimpleName()));
+        }
+      }
+      throw new IllegalArgumentException(Messages.format(
+          "Trade type '{}' is not supported for calibration", tradeType.getSimpleName()));
     }
     // cast makes life easier for the code using this method
     return (CalibrationMeasure<Trade>) measure;

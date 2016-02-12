@@ -38,6 +38,7 @@ import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.product.deposit.ResolvedIborFixingDeposit;
+import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
 
 /**
@@ -175,6 +176,11 @@ public final class IborFixingDepositCurveNode
   public IborFixingDepositTrade trade(LocalDate valuationDate, MarketData marketData) {
     double fixedRate = marketData.getValue(rateKey) + additionalSpread;
     return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate);
+  }
+
+  @Override
+  public ResolvedIborFixingDepositTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData).resolve(refData);
   }
 
   @Override

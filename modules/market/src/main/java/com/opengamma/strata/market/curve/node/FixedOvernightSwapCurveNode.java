@@ -35,6 +35,7 @@ import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 
@@ -174,6 +175,11 @@ public final class FixedOvernightSwapCurveNode
   public SwapTrade trade(LocalDate valuationDate, MarketData marketData) {
     double fixedRate = marketData.getValue(rateKey) + additionalSpread;
     return template.createTrade(valuationDate, BuySell.BUY, 1, fixedRate);
+  }
+
+  @Override
+  public ResolvedSwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData).resolve(refData);
   }
 
   @Override

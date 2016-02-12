@@ -65,12 +65,11 @@ import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.product.deposit.TermDepositTrade;
+import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
 import com.opengamma.strata.product.deposit.type.TermDepositTemplate;
-import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
-import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 
 /**
@@ -222,7 +221,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
   //-------------------------------------------------------------------------
   public void calibration_present_value_oneGroup() {
     ImmutableRatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, TS);
+        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
     assertPresentValue(result);
   }
   
@@ -230,29 +229,29 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     // Test PV USD;
     List<Trade> usdTrades = new ArrayList<>();
     for (int i = 0; i < USD_DSC_NODES.length; i++) {
-      usdTrades.add(USD_DSC_NODES[i].trade(VAL_DATE, ALL_QUOTES));
+      usdTrades.add(USD_DSC_NODES[i].trade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
     // Depo
     for (int i = 0; i < USD_DSC_NB_DEPO_NODES; i++) {
       CurrencyAmount pvDep = DEPO_PRICER.presentValue(
-          ((TermDepositTrade) usdTrades.get(i)).getProduct().resolve(REF_DATA), result);
+          ((ResolvedTermDepositTrade) usdTrades.get(i)).getProduct(), result);
       assertEquals(pvDep.getAmount(), 0.0, TOLERANCE_PV);
     }
     // OIS
     for (int i = 0; i < USD_DSC_NB_OIS_NODES; i++) {
       MultiCurrencyAmount pvOis = SWAP_PRICER.presentValue(
-          ((SwapTrade) usdTrades.get(USD_DSC_NB_DEPO_NODES + i)).getProduct().resolve(REF_DATA), result);
+          ((ResolvedSwapTrade) usdTrades.get(USD_DSC_NB_DEPO_NODES + i)).getProduct(), result);
       assertEquals(pvOis.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV EUR;
     List<Trade> eurTrades = new ArrayList<>();
     for (int i = 0; i < EUR_DSC_NODES.length; i++) {
-      eurTrades.add(EUR_DSC_NODES[i].trade(VAL_DATE, ALL_QUOTES));
+      eurTrades.add(EUR_DSC_NODES[i].trade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
     // Depo
     for (int i = 0; i < EUR_DSC_NB_FX_NODES; i++) {
       MultiCurrencyAmount pvFx = FX_PRICER.presentValue(
-          ((FxSwapTrade) eurTrades.get(i)).getProduct().resolve(REF_DATA), result);
+          ((ResolvedFxSwapTrade) eurTrades.get(i)).getProduct(), result);
       assertEquals(pvFx.convertedTo(USD, result).getAmount(), 0.0, TOLERANCE_PV);
     }
   }
@@ -260,7 +259,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
   public void calibration_market_quote_sensitivity_one_group() {
     double shift = 1.0E-6;
     Function<MarketData, ImmutableRatesProvider> f =
-        ov -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ov, TS);
+        ov -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ov, REF_DATA, TS);
     calibration_market_quote_sensitivity_check(f, shift);
   }
 
@@ -274,7 +273,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     ResolvedFxSwapTrade trade = EUR_USD
         .createTrade(VAL_DATE, Period.ofWeeks(6), Period.ofMonths(5), BuySell.BUY, notional, fx, fxPts).resolve(REF_DATA);
     ImmutableRatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, TS);
+        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
     PointSensitivities pts = FX_PRICER.presentValueSensitivity(trade.getProduct(), result);
     CurveCurrencyParameterSensitivities ps = result.curveParameterSensitivity(pts);
     CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, result);
