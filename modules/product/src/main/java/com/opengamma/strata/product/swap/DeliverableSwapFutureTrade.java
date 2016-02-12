@@ -24,9 +24,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.SecurityLink;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.TradeInfo;
@@ -38,7 +38,8 @@ import com.opengamma.strata.product.TradeInfo;
  */
 @BeanDefinition
 public final class DeliverableSwapFutureTrade
-    implements SecurityTrade<DeliverableSwapFuture>, Resolvable<ResolvedDeliverableSwapFutureTrade>, ImmutableBean, Serializable {
+    implements ImmutableBean, Serializable,
+    SecurityTrade<DeliverableSwapFuture>, ResolvableTrade<ResolvedDeliverableSwapFutureTrade> {
 
   /**
    * The additional trade information, defaulted to an empty instance.

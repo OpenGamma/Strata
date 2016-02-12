@@ -13,10 +13,8 @@ package com.opengamma.strata.product;
  * Resolved objects may be bound to data that changes over time, such as holiday calendars.
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
- * 
- * @param <P>  the type of the product
  */
-public interface ResolvedTrade<P extends ResolvedProduct>
+public interface ResolvedTrade
     extends FinanceTrade {
 
   /**
@@ -26,6 +24,6 @@ public interface ResolvedTrade<P extends ResolvedProduct>
    * 
    * @return the product
    */
-  public abstract P getProduct();
+  public abstract ResolvedProduct getProduct();
 
 }

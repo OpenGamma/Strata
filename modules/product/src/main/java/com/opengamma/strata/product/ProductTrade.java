@@ -14,10 +14,8 @@ import com.opengamma.strata.basics.Trade;
  * This design is typically used for Over-The-Counter (OTC) trades, where the instrument is not fungible.
  * <p>
  * Implementations of this interface must be immutable beans.
- * 
- * @param <P>  the type of the product
  */
-public interface ProductTrade<P extends Product>
+public interface ProductTrade
     extends FinanceTrade {
 
   /**
@@ -27,6 +25,6 @@ public interface ProductTrade<P extends Product>
    * 
    * @return the product
    */
-  public abstract P getProduct();
+  public abstract Product getProduct();
 
 }

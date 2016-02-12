@@ -25,8 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.product.ProductTrade;
+import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -39,7 +39,7 @@ import com.opengamma.strata.product.TradeInfo;
  */
 @BeanDefinition
 public final class SwaptionTrade
-    implements ProductTrade<Swaption>, Resolvable<ResolvedSwaptionTrade>, ImmutableBean, Serializable {
+    implements ProductTrade, ResolvableTrade<ResolvedSwaptionTrade>, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.

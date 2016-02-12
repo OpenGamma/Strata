@@ -42,7 +42,7 @@ import com.opengamma.strata.product.TradeInfo;
  */
 @BeanDefinition
 public final class ResolvedFixedCouponBondTrade
-    implements ResolvedTrade<ResolvedFixedCouponBond>, ImmutableBean, Serializable {
+    implements ResolvedTrade, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.

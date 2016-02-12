@@ -63,7 +63,7 @@ class ResultsRow {
     Trade trade = getTrade();
 
     if (trade instanceof ProductTrade) {
-      return Result.success(((ProductTrade<?>) trade).getProduct());
+      return Result.success(((ProductTrade) trade).getProduct());
     }
     if (trade instanceof SecurityTrade) {
       return Result.success(((SecurityTrade<?>) trade).getProduct());

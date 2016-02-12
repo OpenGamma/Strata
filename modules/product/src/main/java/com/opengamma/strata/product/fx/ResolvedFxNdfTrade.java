@@ -40,7 +40,7 @@ import com.opengamma.strata.product.TradeInfo;
  */
 @BeanDefinition
 public final class ResolvedFxNdfTrade
-    implements ResolvedTrade<ResolvedFxNdf>, ImmutableBean, Serializable {
+    implements ResolvedTrade, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.

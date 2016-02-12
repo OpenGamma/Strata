@@ -41,7 +41,7 @@ import com.opengamma.strata.product.TradeInfo;
  */
 @BeanDefinition
 public final class ResolvedIborFutureTrade
-    implements ResolvedTrade<ResolvedIborFuture>, ImmutableBean, Serializable {
+    implements ResolvedTrade, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.

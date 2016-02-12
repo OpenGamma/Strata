@@ -26,8 +26,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.product.ProductTrade;
+import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -40,7 +40,7 @@ import com.opengamma.strata.product.TradeInfo;
  */
 @BeanDefinition
 public final class CmsTrade
-    implements ProductTrade<Cms>, Resolvable<ResolvedCmsTrade>, ImmutableBean, Serializable {
+    implements ProductTrade, ResolvableTrade<ResolvedCmsTrade>, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.
