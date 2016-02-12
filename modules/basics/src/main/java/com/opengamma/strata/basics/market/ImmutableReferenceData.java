@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * An immutable set of reference data
@@ -44,21 +45,57 @@ public final class ImmutableReferenceData
   /**
    * The typed reference data values by identifier.
    */
-  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends ReferenceDataId, TypedReferenceData>")
-  private final ImmutableMap<ReferenceDataId, TypedReferenceData> typedValues;
+  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends ReferenceDataId<?>, ?>")
+  private final ImmutableMap<ReferenceDataId<?>, Object> values;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from a map of typed reference data.
+   * Obtains an instance from a map of reference data.
    * <p>
-   * Each identifier in the map refers to an instance of {@link TypedReferenceData}.
-   * This allows multiple values to be connected to the same identifier, accessed by type.
-   * 
-   * @param typedValues  the typed reference data values
-   * @return reference data containing the values
+   * Each entry in the map is a single piece of reference data, keyed by the matching identifier.
+   * For example, a {@code HolidayCalendarId} associated with a {@code HolidayCalendar}.
+   * The caller must ensure that the each entry in the map corresponds with the parameterized
+   * type on the identifier.
+   *
+   * @param values  the reference data values
+   * @return the reference data instance
+   * @throws ClassCastException if a value does not match the parameterized type associated with the key
    */
-  public static ImmutableReferenceData of(Map<? extends ReferenceDataId, TypedReferenceData> typedValues) {
-    return new ImmutableReferenceData(typedValues);
+  public static ImmutableReferenceData of(Map<? extends ReferenceDataId<?>, ?> values) {
+    // validation handles case where value does not match key
+    values.forEach((id, value) -> validateEntry(id, value));
+    return new ImmutableReferenceData(values);
+  }
+
+  /**
+   * Obtains an instance from a single reference data entry.
+   * <p>
+   * This returns an instance containing a single entry based on the specified identifier and value.
+   * This is primarily of interest to test cases.
+   *
+   * @param <T>  the type of the reference data
+   * @param id  the identifier
+   * @param value  the reference data values
+   * @return the reference data instance
+   * @throws ClassCastException if the value does not match the parameterized type associated with the key
+   */
+  public static <T> ImmutableReferenceData of(ReferenceDataId<T> id, T value) {
+    // validation handles edge case where input by raw or polluted types
+    validateEntry(id, value);
+    return new ImmutableReferenceData(ImmutableMap.of(id, value));
+  }
+
+  // validates a single entry
+  private static <T> void validateEntry(ReferenceDataId<?> id, Object value) {
+    if (!id.getReferenceDataType().isInstance(value)) {
+      if (value == null) {
+        throw new IllegalArgumentException(Messages.format(
+            "Reference data must not be null for identifier '{}'", id));
+      }
+      throw new ClassCastException(Messages.format(
+          "Value '{}' does not implement parameterized type '{}' for identifier '{}'",
+          value, id.getClass().getSimpleName(), id));
+    }
   }
 
   /**
@@ -72,22 +109,55 @@ public final class ImmutableReferenceData
 
   //-------------------------------------------------------------------------
   @Override
-  public Optional<TypedReferenceData> findTyped(ReferenceDataId identifier) {
-    return Optional.ofNullable(typedValues.get(identifier));
+  public boolean containsValue(ReferenceDataId<?> id) {
+    // overridden for performance
+    return values.containsKey(id);
   }
 
   @Override
-  public Set<ReferenceDataId> identifiers() {
-    return typedValues.keySet();
+  public <T> T getValue(ReferenceDataId<T> id) {
+    // overridden for performance
+    // no type check against id.getReferenceDataType() as checked in factory
+    @SuppressWarnings("unchecked")
+    T value = (T) values.get(id);
+    if (value == null) {
+      throw new ReferenceDataNotFoundException(Messages.format(
+          "Reference data not found for identifier '{}' of type '{}'", id, id.getClass().getSimpleName()));
+    }
+    return value;
+  }
+
+  @Override
+  public <T> Optional<T> findValue(ReferenceDataId<T> id) {
+    // no type check against id.getReferenceDataType() as checked in factory
+    @SuppressWarnings("unchecked")
+    T value = (T) values.get(id);
+    return Optional.ofNullable(value);
+  }
+
+  @Override
+  public Set<ReferenceDataId<?>> identifiers() {
+    return values.keySet();
   }
 
   @Override
   public ReferenceData combinedWith(ReferenceData other) {
-    Map<ReferenceDataId, TypedReferenceData> combined = new HashMap<>(typedValues);
-    for (ReferenceDataId identifier : other.identifiers()) {
-      combined.merge(identifier, other.getTyped(identifier), TypedReferenceData::combinedWith);
+    Map<ReferenceDataId<?>, Object> combined = new HashMap<>(values);
+    for (ReferenceDataId<?> identifier : other.identifiers()) {
+      combined.merge(identifier, other.getValue(identifier), (v1, v2) -> ensureEqual(identifier, v1, v2));
     }
     return ImmutableReferenceData.of(combined);
+  }
+
+  // ensure that the two objects are equal
+  private Object ensureEqual(ReferenceDataId<?> id, Object v1, Object v2) {
+    if (v1.equals(v2)) {
+      return v1;
+    }
+    throw new IllegalArgumentException(Messages.format(
+        "Unable to combine reference data, values differ for identifier '{}' of type '{}'",
+        id,
+        id.getClass().getSimpleName()));
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -111,12 +181,12 @@ public final class ImmutableReferenceData
 
   /**
    * Creates an instance.
-   * @param typedValues  the value of the property, not null
+   * @param values  the value of the property, not null
    */
   ImmutableReferenceData(
-      Map<? extends ReferenceDataId, TypedReferenceData> typedValues) {
-    JodaBeanUtils.notNull(typedValues, "typedValues");
-    this.typedValues = ImmutableMap.copyOf(typedValues);
+      Map<? extends ReferenceDataId<?>, ?> values) {
+    JodaBeanUtils.notNull(values, "values");
+    this.values = ImmutableMap.copyOf(values);
   }
 
   @Override
@@ -139,8 +209,8 @@ public final class ImmutableReferenceData
    * Gets the typed reference data values by identifier.
    * @return the value of the property, not null
    */
-  public ImmutableMap<ReferenceDataId, TypedReferenceData> getTypedValues() {
-    return typedValues;
+  public ImmutableMap<ReferenceDataId<?>, Object> getValues() {
+    return values;
   }
 
   //-----------------------------------------------------------------------
@@ -151,7 +221,7 @@ public final class ImmutableReferenceData
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ImmutableReferenceData other = (ImmutableReferenceData) obj;
-      return JodaBeanUtils.equal(typedValues, other.typedValues);
+      return JodaBeanUtils.equal(values, other.values);
     }
     return false;
   }
@@ -159,7 +229,7 @@ public final class ImmutableReferenceData
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(typedValues);
+    hash = hash * 31 + JodaBeanUtils.hashCode(values);
     return hash;
   }
 
@@ -167,7 +237,7 @@ public final class ImmutableReferenceData
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("ImmutableReferenceData{");
-    buf.append("typedValues").append('=').append(JodaBeanUtils.toString(typedValues));
+    buf.append("values").append('=').append(JodaBeanUtils.toString(values));
     buf.append('}');
     return buf.toString();
   }
@@ -183,17 +253,17 @@ public final class ImmutableReferenceData
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code typedValues} property.
+     * The meta-property for the {@code values} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<ReferenceDataId, TypedReferenceData>> typedValues = DirectMetaProperty.ofImmutable(
-        this, "typedValues", ImmutableReferenceData.class, (Class) ImmutableMap.class);
+    private final MetaProperty<ImmutableMap<ReferenceDataId<?>, Object>> values = DirectMetaProperty.ofImmutable(
+        this, "values", ImmutableReferenceData.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "typedValues");
+        "values");
 
     /**
      * Restricted constructor.
@@ -204,8 +274,8 @@ public final class ImmutableReferenceData
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 173566508:  // typedValues
-          return typedValues;
+        case -823812830:  // values
+          return values;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -227,19 +297,19 @@ public final class ImmutableReferenceData
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code typedValues} property.
+     * The meta-property for the {@code values} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<ReferenceDataId, TypedReferenceData>> typedValues() {
-      return typedValues;
+    public MetaProperty<ImmutableMap<ReferenceDataId<?>, Object>> values() {
+      return values;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 173566508:  // typedValues
-          return ((ImmutableReferenceData) bean).getTypedValues();
+        case -823812830:  // values
+          return ((ImmutableReferenceData) bean).getValues();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -261,7 +331,7 @@ public final class ImmutableReferenceData
    */
   private static final class Builder extends DirectFieldsBeanBuilder<ImmutableReferenceData> {
 
-    private Map<? extends ReferenceDataId, TypedReferenceData> typedValues = ImmutableMap.of();
+    private Map<? extends ReferenceDataId<?>, ?> values = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -273,8 +343,8 @@ public final class ImmutableReferenceData
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 173566508:  // typedValues
-          return typedValues;
+        case -823812830:  // values
+          return values;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -284,8 +354,8 @@ public final class ImmutableReferenceData
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 173566508:  // typedValues
-          this.typedValues = (Map<? extends ReferenceDataId, TypedReferenceData>) newValue;
+        case -823812830:  // values
+          this.values = (Map<? extends ReferenceDataId<?>, ?>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -320,7 +390,7 @@ public final class ImmutableReferenceData
     @Override
     public ImmutableReferenceData build() {
       return new ImmutableReferenceData(
-          typedValues);
+          values);
     }
 
     //-----------------------------------------------------------------------
@@ -328,7 +398,7 @@ public final class ImmutableReferenceData
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("ImmutableReferenceData.Builder{");
-      buf.append("typedValues").append('=').append(JodaBeanUtils.toString(typedValues));
+      buf.append("values").append('=').append(JodaBeanUtils.toString(values));
       buf.append('}');
       return buf.toString();
     }

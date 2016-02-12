@@ -12,26 +12,28 @@ import java.util.Set;
 import com.opengamma.strata.collect.Messages;
 
 /**
- * Provides access to reference data, such as securities and time-series.
+ * Provides access to reference data, such as holiday calendars and securities.
  * <p>
  * Reference data is looked up using implementations of {@link ReferenceDataId}.
- * The result is an instance of {@link TypedReferenceData} that allows multiple pieces
- * of reference data to be associated with the same identifier, based on the data type.
+ * The identifier is parameterized with the type of the reference data to be returned.
  * <p>
  * The standard implementation is {@link ImmutableReferenceData}.
  */
 public interface ReferenceData {
 
   /**
-   * Obtains an instance from a map of typed reference data.
+   * Obtains an instance from a map of reference data.
    * <p>
-   * Each identifier in the map refers to an instance of {@link TypedReferenceData}.
-   * This allows multiple values to be connected to the same identifier, accessed by type.
+   * Each entry in the map is a unit of reference data, keyed by the matching identifier.
+   * For example, a {@code HolidayCalendarId} associated with a {@code HolidayCalendar}.
+   * The caller must ensure that the each entry in the map corresponds with the parameterized
+   * type on the identifier.
    *
    * @param values  the reference data values
-   * @return reference data containing the values
+   * @return the reference data instance
+   * @throws ClassCastException if a value does not match the parameterized type associated with the key
    */
-  public static ReferenceData of(Map<? extends ReferenceDataId, TypedReferenceData> values) {
+  public static ReferenceData of(Map<? extends ReferenceDataId<?>, ?> values) {
     return ImmutableReferenceData.of(values);
   }
 
@@ -46,81 +48,54 @@ public interface ReferenceData {
 
   //-------------------------------------------------------------------------
   /**
-   * Checks if this typed reference data contains a value for the specified identifier and type.
+   * Checks if this reference data contains a value for the specified identifier.
    *
-   * @param identifier  the reference data identifier to find
-   * @param type  the reference data type to find
-   * @return true if a value is contained for the identifier and type
+   * @param id  the identifier to find
+   * @return true if the reference data contains a value for the identifier
    */
-  public default boolean containsValue(ReferenceDataId identifier, Class<?> type) {
-    return findValue(identifier, type).isPresent();
+  public default boolean containsValue(ReferenceDataId<?> id) {
+    return findValue(id).isPresent();
   }
 
   /**
-   * Gets the reference data value for the specified identifier and type.
+   * Gets the reference data value associated with the specified identifier.
    * <p>
-   * The result will be a single piece of reference data of the specified type.
+   * If this reference data instance contains the identifier, the value will be returned.
+   * Otherwise, an exception will be thrown.
    *
    * @param <T>  the type of the reference data
-   * @param identifier  the reference data identifier to find
-   * @param type  the reference data type to find
+   * @param id  the identifier to find
    * @return the reference data value
-   * @throws IllegalArgumentException if no value is found
+   * @throws ReferenceDataNotFoundException if the identifier is not found
    */
-  public default <T> T getValue(ReferenceDataId identifier, Class<T> type) {
-    return findValue(identifier, type)
-        .orElseThrow(() -> new IllegalArgumentException(Messages.format(
-            "No reference data found for identifier '{}' and type '{}'", identifier, type.getClass().getSimpleName())));
+  public default <T> T getValue(ReferenceDataId<T> id) {
+    return findValue(id)
+        .orElseThrow(() -> new ReferenceDataNotFoundException(Messages.format(
+            "Reference data not found for '{}' of type '{}'", id, id.getClass().getSimpleName())));
   }
 
   /**
-   * Finds the reference data value for the specified identifier and type.
+   * Finds the reference data value associated with the specified identifier.
    * <p>
-   * The result will be a single piece of reference data of the specified type.
-   * An empty optional is returned if the type is not found.
+   * If this reference data instance contains the identifier, the value will be returned.
+   * Otherwise, an empty optional will be returned.
    *
    * @param <T>  the type of the reference data
-   * @param identifier  the reference data identifier to find
-   * @param type  the reference data type to find
+   * @param id  the identifier to find
    * @return the reference data value, empty if not found
    */
-  public default <T> Optional<T> findValue(ReferenceDataId identifier, Class<T> type) {
-    return findTyped(identifier).flatMap(t -> t.findValue(type));
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the typed reference data for the specified identifier.
-   * <p>
-   * The result will be an instance of {@link TypedReferenceData} that can be queried for the value.
-   *
-   * @param identifier  the reference data identifier to find
-   * @return the typed reference data
-   * @throws IllegalArgumentException if no value is found
-   */
-  public default TypedReferenceData getTyped(ReferenceDataId identifier) {
-    return findTyped(identifier)
-        .orElseThrow(() -> new IllegalArgumentException(Messages.format(
-            "No reference data found for identifier '{}'", identifier)));
-  }
-
-  /**
-   * Finds the typed reference data for the specified identifier.
-   * <p>
-   * The result will be a single piece of reference data of the specified type.
-   * An empty optional is returned if the type is not found.
-   *
-   * @param identifier  the reference data identifier to find
-   * @return the typed reference data, empty if not found
-   */
-  public abstract Optional<TypedReferenceData> findTyped(ReferenceDataId identifier);
+  public abstract <T> Optional<T> findValue(ReferenceDataId<T> id);
 
   /**
    * Gets the available identifiers.
+   * <p>
+   * This returns the set of reference data identifiers that are available.
+   * An implementation may choose to return a subset or an empty set if it
+   * is not possible to determine the available identifiers.
    *
    * @return the available identifiers
    */
-  public abstract Set<ReferenceDataId> identifiers();
+  public abstract Set<ReferenceDataId<?>> identifiers();
 
   //-------------------------------------------------------------------------
   /**
