@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
@@ -33,6 +34,7 @@ import com.opengamma.strata.market.id.DiscountCurveId;
 @Test
 public class DiscountCurveMarketDataFunctionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2011, 3, 8);
   private static final CurveGroupName CURVE_GROUP_NAME = CurveGroupName.of("groupName");
   private static final MarketDataFeed FEED = MarketDataFeed.of("Feed");
@@ -50,7 +52,7 @@ public class DiscountCurveMarketDataFunctionTest {
     MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE).addValue(groupId, curveGroup).build();
     DiscountCurveMarketDataFunction builder = new DiscountCurveMarketDataFunction();
 
-    MarketDataBox<Curve> result = builder.build(curveId, marketData, MarketDataConfig.empty());
+    MarketDataBox<Curve> result = builder.build(curveId, MarketDataConfig.empty(), marketData, REF_DATA);
     assertThat(result).isEqualTo(MarketDataBox.ofSingleValue(curve));
   }
 
@@ -68,10 +70,10 @@ public class DiscountCurveMarketDataFunctionTest {
     MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE).addValue(groupId, curveGroup).build();
     DiscountCurveMarketDataFunction builder = new DiscountCurveMarketDataFunction();
 
-    MarketDataBox<Curve> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
+    MarketDataBox<Curve> result1 = builder.build(curveId1, MarketDataConfig.empty(), marketData, REF_DATA);
     assertThat(result1).isEqualTo(MarketDataBox.ofSingleValue(curve1));
 
-    MarketDataBox<Curve> result2 = builder.build(curveId2, marketData, MarketDataConfig.empty());
+    MarketDataBox<Curve> result2 = builder.build(curveId2, MarketDataConfig.empty(), marketData, REF_DATA);
     assertThat(result2).isEqualTo(MarketDataBox.ofSingleValue(curve2));
   }
 
@@ -106,16 +108,16 @@ public class DiscountCurveMarketDataFunctionTest {
 
     DiscountCurveMarketDataFunction builder = new DiscountCurveMarketDataFunction();
 
-    MarketDataBox<Curve> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
+    MarketDataBox<Curve> result1 = builder.build(curveId1, MarketDataConfig.empty(), marketData, REF_DATA);
     assertThat(result1).isEqualTo(MarketDataBox.ofSingleValue(curve1));
 
-    MarketDataBox<Curve> result2 = builder.build(curveId2, marketData, MarketDataConfig.empty());
+    MarketDataBox<Curve> result2 = builder.build(curveId2, MarketDataConfig.empty(), marketData, REF_DATA);
     assertThat(result2).isEqualTo(MarketDataBox.ofSingleValue(curve2));
 
-    MarketDataBox<Curve> result3 = builder.build(curveId3, marketData, MarketDataConfig.empty());
+    MarketDataBox<Curve> result3 = builder.build(curveId3, MarketDataConfig.empty(), marketData, REF_DATA);
     assertThat(result3).isEqualTo(MarketDataBox.ofSingleValue(curve3));
 
-    MarketDataBox<Curve> result4 = builder.build(curveId4, marketData, MarketDataConfig.empty());
+    MarketDataBox<Curve> result4 = builder.build(curveId4, MarketDataConfig.empty(), marketData, REF_DATA);
     assertThat(result4).isEqualTo(MarketDataBox.ofSingleValue(curve4));
   }
 
@@ -124,7 +126,7 @@ public class DiscountCurveMarketDataFunctionTest {
     DiscountCurveMarketDataFunction test = new DiscountCurveMarketDataFunction();
 
     DiscountCurveId id = DiscountCurveId.of(AUD, CURVE_GROUP_NAME, FEED);
-    assertThrows(() -> test.build(id, marketData, MarketDataConfig.empty()), IllegalArgumentException.class);
+    assertThrows(() -> test.build(id, MarketDataConfig.empty(), marketData, REF_DATA), IllegalArgumentException.class);
   }
 
   public void test_noCurveOfDesiredCurrencyInGroup() {
@@ -140,7 +142,7 @@ public class DiscountCurveMarketDataFunctionTest {
     DiscountCurveMarketDataFunction test = new DiscountCurveMarketDataFunction();
 
     DiscountCurveId id = DiscountCurveId.of(AUD, CURVE_GROUP_NAME, FEED);
-    assertThrows(() -> test.build(id, marketData, MarketDataConfig.empty()), IllegalArgumentException.class);
+    assertThrows(() -> test.build(id, MarketDataConfig.empty(), marketData, REF_DATA), IllegalArgumentException.class);
   }
 
 }

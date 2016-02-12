@@ -118,7 +118,7 @@ public class CurveGroupMarketDataFunctionTest {
         .addValue(CurveInputsId.of(groupName, curveName, MarketDataFeed.NONE), curveInputs)
         .build();
     MarketDataBox<CurveGroup> curveGroup =
-        function.buildCurveGroup(groupDefn, CALIBRATOR, marketEnvironment, MarketDataFeed.NONE);
+        function.buildCurveGroup(groupDefn, CALIBRATOR, marketEnvironment, REF_DATA, MarketDataFeed.NONE);
 
     Curve curve = curveGroup.getSingleValue().findDiscountCurve(Currency.USD).get();
 
@@ -164,7 +164,7 @@ public class CurveGroupMarketDataFunctionTest {
         .build();
 
     MarketDataBox<CurveGroup> curveGroup =
-        function.buildCurveGroup(groupDefn, CALIBRATOR, marketEnvironment, MarketDataFeed.NONE);
+        function.buildCurveGroup(groupDefn, CALIBRATOR, marketEnvironment, REF_DATA, MarketDataFeed.NONE);
     Curve curve = curveGroup.getSingleValue().findDiscountCurve(Currency.USD).get();
 
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
@@ -250,7 +250,7 @@ public class CurveGroupMarketDataFunctionTest {
         .build();
 
     CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction();
-    MarketDataBox<CurveGroup> curveGroup = function.build(curveGroupId, marketData, marketDataConfig);
+    MarketDataBox<CurveGroup> curveGroup = function.build(curveGroupId, marketDataConfig, marketData, REF_DATA);
 
     // Check the FRA curve identifiers are the expected tenors
     Curve forwardCurve = curveGroup.getSingleValue().findForwardCurve(IborIndices.USD_LIBOR_3M).get();
@@ -337,7 +337,7 @@ public class CurveGroupMarketDataFunctionTest {
         .addValue(CurveInputsId.of(curveGroupName, curveName1, MarketDataFeed.NONE), curveInputs1)
         .addValue(CurveInputsId.of(curveGroupName, curveName2, MarketDataFeed.NONE), curveInputs2)
         .build();
-    fn.buildCurveGroup(groupDefinition, CALIBRATOR, marketData, MarketDataFeed.NONE);
+    fn.buildCurveGroup(groupDefinition, CALIBRATOR, marketData, REF_DATA, MarketDataFeed.NONE);
 
     // This has a duplicate key with a different value which should fail
     Map<MarketDataKey<?>, Object> badMarketDataMap = ImmutableMap.of(
@@ -349,7 +349,8 @@ public class CurveGroupMarketDataFunctionTest {
         .addValue(CurveInputsId.of(curveGroupName, curveName2, MarketDataFeed.NONE), badCurveInputs)
         .build();
     String msg = "Multiple unequal values found for key .*\\. Values: .* and .*";
-    assertThrowsIllegalArg(() -> fn.buildCurveGroup(groupDefinition, CALIBRATOR, badMarketData, MarketDataFeed.NONE), msg);
+    assertThrowsIllegalArg(
+        () -> fn.buildCurveGroup(groupDefinition, CALIBRATOR, badMarketData, REF_DATA, MarketDataFeed.NONE), msg);
   }
 
   //-----------------------------------------------------------------------------------------------------------

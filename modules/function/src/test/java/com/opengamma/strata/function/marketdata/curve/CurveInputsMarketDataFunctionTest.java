@@ -170,7 +170,7 @@ public class CurveInputsMarketDataFunctionTest {
 
     CurveInputsMarketDataFunction marketDataFunction = new CurveInputsMarketDataFunction();
     CurveInputsId curveInputsId = CurveInputsId.of(groupDefn.getName(), curveDefn.getName(), MarketDataFeed.NONE);
-    MarketDataBox<CurveInputs> result = marketDataFunction.build(curveInputsId, marketData, marketDataConfig);
+    MarketDataBox<CurveInputs> result = marketDataFunction.build(curveInputsId, marketDataConfig, marketData, REF_DATA);
 
     CurveInputs curveInputs = result.getSingleValue();
     assertThat(curveInputs.getMarketData().get(idA.toMarketDataKey())).isEqualTo(1d);
@@ -193,7 +193,7 @@ public class CurveInputsMarketDataFunctionTest {
         CurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), MarketDataFeed.NONE);
     MarketEnvironment emptyData = MarketEnvironment.empty();
     assertThrows(
-        () -> marketDataFunction.build(curveInputsId, emptyData, MarketDataConfig.empty()),
+        () -> marketDataFunction.build(curveInputsId, MarketDataConfig.empty(), emptyData, REF_DATA),
         IllegalArgumentException.class,
         "No configuration found of type .*");
   }
@@ -210,7 +210,7 @@ public class CurveInputsMarketDataFunctionTest {
     MarketEnvironment emptyData = MarketEnvironment.empty();
 
     assertThrows(
-        () -> marketDataFunction.build(curveInputsId, emptyData, marketDataConfig),
+        () -> marketDataFunction.build(curveInputsId, marketDataConfig, emptyData, REF_DATA),
         IllegalArgumentException.class,
         "No curve named .*");}
 
@@ -245,7 +245,7 @@ public class CurveInputsMarketDataFunctionTest {
     CurveInputsId curveInputsId = CurveInputsId.of(groupDefn.getName(), curve.getName(), MarketDataFeed.NONE);
 
     assertThrows(
-        () -> marketDataFunction.build(curveInputsId, emptyData, marketDataConfig),
+        () -> marketDataFunction.build(curveInputsId, marketDataConfig, emptyData, REF_DATA),
         IllegalArgumentException.class,
         "No market data available for .*");
   }

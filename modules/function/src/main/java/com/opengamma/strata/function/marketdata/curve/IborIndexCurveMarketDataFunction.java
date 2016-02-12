@@ -8,6 +8,7 @@ package com.opengamma.strata.function.marketdata.curve;
 import java.util.Optional;
 
 import com.opengamma.strata.basics.market.MarketDataBox;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -38,8 +39,9 @@ public final class IborIndexCurveMarketDataFunction implements MarketDataFunctio
   @Override
   public MarketDataBox<Curve> build(
       IborIndexCurveId id,
+      MarketDataConfig marketDataConfig,
       CalculationEnvironment marketData,
-      MarketDataConfig marketDataConfig) {
+      ReferenceData refData) {
 
     CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
     MarketDataBox<CurveGroup> curveGroupBox = marketData.getValue(curveGroupId);

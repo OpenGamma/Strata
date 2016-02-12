@@ -20,6 +20,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
@@ -31,6 +32,7 @@ import com.opengamma.strata.market.key.QuoteKey;
 @Test
 public class FxRateMarketDataFunctionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("test", "EUR/USD"));
   private static final QuoteId QUOTE_ID = QUOTE_KEY.toMarketDataId(MarketDataFeed.NONE);
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(Currency.EUR, Currency.USD);
@@ -66,7 +68,7 @@ public class FxRateMarketDataFunctionTest {
     CalculationEnvironment marketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(QUOTE_ID, quoteBox)
         .build();
-    MarketDataBox<FxRate> rateBox = function.build(RATE_ID, marketData, config());
+    MarketDataBox<FxRate> rateBox = function.build(RATE_ID, config(), marketData, REF_DATA);
     assertThat(rateBox.isSingleValue()).isTrue();
     assertThat(rateBox.getSingleValue()).isEqualTo(FxRate.of(CURRENCY_PAIR, 1.1d));
   }
@@ -77,7 +79,7 @@ public class FxRateMarketDataFunctionTest {
     CalculationEnvironment marketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(QUOTE_ID, quoteBox)
         .build();
-    MarketDataBox<FxRate> rateBox = function.build(FxRateId.of(CURRENCY_PAIR.inverse()), marketData, config());
+    MarketDataBox<FxRate> rateBox = function.build(FxRateId.of(CURRENCY_PAIR.inverse()), config(), marketData, REF_DATA);
     assertThat(rateBox.isSingleValue()).isTrue();
     assertThat(rateBox.getSingleValue()).isEqualTo(FxRate.of(CURRENCY_PAIR, 1.1d));
   }
@@ -88,7 +90,7 @@ public class FxRateMarketDataFunctionTest {
     CalculationEnvironment marketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(QUOTE_ID, quoteBox)
         .build();
-    MarketDataBox<FxRate> rateBox = function.build(RATE_ID, marketData, config());
+    MarketDataBox<FxRate> rateBox = function.build(RATE_ID, config(), marketData, REF_DATA);
     assertThat(rateBox.isSingleValue()).isFalse();
     assertThat(rateBox.getScenarioCount()).isEqualTo(3);
     assertThat(rateBox.getValue(0)).isEqualTo(FxRate.of(CURRENCY_PAIR, 1.1d));
@@ -99,14 +101,14 @@ public class FxRateMarketDataFunctionTest {
   public void buildMissingConfig() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     String regex = "No default configuration found with type .*FxRateConfig";
-    assertThrowsIllegalArg(() -> function.build(RATE_ID, CalculationEnvironment.empty(), MarketDataConfig.empty()), regex);
+    assertThrowsIllegalArg(() -> function.build(RATE_ID, MarketDataConfig.empty(), CalculationEnvironment.empty(), REF_DATA), regex);
   }
 
   public void buildNoConfigForPair() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     String regex = "No FX rate configuration available for GBP/USD";
     CurrencyPair gbpUsd = CurrencyPair.of(Currency.GBP, Currency.USD);
-    assertThrowsIllegalArg(() -> function.build(FxRateId.of(gbpUsd), CalculationEnvironment.empty(), config()), regex);
+    assertThrowsIllegalArg(() -> function.build(FxRateId.of(gbpUsd), config(), CalculationEnvironment.empty(), REF_DATA), regex);
   }
 
   private static MarketDataConfig config() {

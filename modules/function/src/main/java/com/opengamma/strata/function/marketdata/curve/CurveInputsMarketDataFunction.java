@@ -43,9 +43,6 @@ import com.opengamma.strata.market.id.CurveInputsId;
  */
 public final class CurveInputsMarketDataFunction implements MarketDataFunction<CurveInputs, CurveInputsId> {
 
-  // hard-coded reference data
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
-
   @Override
   public MarketDataRequirements requirements(CurveInputsId id, MarketDataConfig marketDataConfig) {
     CurveGroupDefinition groupConfig = marketDataConfig.get(CurveGroupDefinition.class, id.getCurveGroupName());
@@ -71,8 +68,9 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
   @Override
   public MarketDataBox<CurveInputs> build(
       CurveInputsId id,
+      MarketDataConfig marketDataConfig,
       CalculationEnvironment marketData,
-      MarketDataConfig marketDataConfig) {
+      ReferenceData refData) {
 
     CurveGroupName groupName = id.getCurveGroupName();
     CurveName curveName = id.getCurveName();
@@ -92,7 +90,6 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
     boolean multipleInputValues = marketDataValues.values().stream().anyMatch(MarketDataBox::isScenarioValue);
     boolean multipleValuationDates = valuationDate.isScenarioValue();
 
-    ReferenceData refData = REF_DATA;
     return multipleInputValues || multipleValuationDates ?
         buildMultipleCurveInputs(curveDefn, marketDataValues, valuationDate, refData) :
         buildSingleCurveInputs(curveDefn, marketDataValues, valuationDate, refData);
