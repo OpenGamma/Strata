@@ -17,6 +17,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.base.Strings;
 import com.opengamma.strata.basics.Trade;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
@@ -198,10 +199,14 @@ public class ReportRunnerTool implements AutoCloseable {
       throw new IllegalArgumentException("No trades found. Please check the input portfolio or trade ID filter.");
     }
 
+    // the reference data, such as holidays, indices and securities
+    ReferenceData refData = ReferenceData.standard();
+
     // calculate the results
     CalculationTasks tasks = CalculationTasks.of(rules, trades, columns);
     MarketDataRequirements reqs = tasks.getRequirements();
-    MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, marketSnapshot, MarketDataConfig.empty());
+    MarketEnvironment enhancedMarketData = marketDataFactory()
+        .buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData);
     Results results = runner.getTaskRunner().calculateSingleScenario(tasks, enhancedMarketData);
 
     return ReportCalculationResults.builder()

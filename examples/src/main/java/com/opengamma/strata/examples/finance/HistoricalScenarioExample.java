@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.calc.CalculationRules;
@@ -127,10 +128,13 @@ public class HistoricalScenarioExample {
     LocalDate valuationDate = LocalDate.of(2015, 4, 23);
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
+    // the reference data, such as holidays, indices and securities
+    ReferenceData refData = ReferenceData.standard();
+
     // calculate the results
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns);
     MarketEnvironment enhancedMarketData = marketDataFactory()
-        .buildMarketData(reqs, marketSnapshot, MarketDataConfig.empty(), historicalScenarios);
+        .buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData, historicalScenarios);
     Results results = runner.calculateMultipleScenarios(rules, trades, columns, enhancedMarketData);
 
     // the results contain the one measure requested (Present Value) for each scenario

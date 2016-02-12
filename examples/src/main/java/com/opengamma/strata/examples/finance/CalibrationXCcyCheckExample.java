@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
@@ -227,9 +228,13 @@ public class CalibrationXCcyCheckExample {
         .marketDataRules(marketDataRules)
         .build();
 
+    // the reference data, such as holidays, indices and securities
+    ReferenceData refData = ReferenceData.standard();
+
     // calibrate the curves and calculate the results
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns);
-    MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, marketSnapshot, marketDataConfig);
+    MarketEnvironment enhancedMarketData = marketDataFactory()
+        .buildMarketData(reqs, marketDataConfig, marketSnapshot, refData);
     Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData);
     return Pair.of(trades, results);
   }

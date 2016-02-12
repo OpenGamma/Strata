@@ -44,9 +44,6 @@ import com.opengamma.strata.collect.tuple.Pair;
  */
 public final class DefaultMarketDataFactory implements MarketDataFactory {
 
-  // hard-coded reference data
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
-
   /** Provides time series of observable market data values. */
   private final TimeSeriesProvider timeSeriesProvider;
 
@@ -117,17 +114,19 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   @Override
   public MarketEnvironment buildMarketData(
       MarketDataRequirements requirements,
+      MarketDataConfig marketDataConfig,
       CalculationEnvironment suppliedData,
-      MarketDataConfig marketDataConfig) {
+      ReferenceData refData) {
 
-    return buildMarketData(requirements, suppliedData, marketDataConfig, ScenarioDefinition.empty());
+    return buildMarketData(requirements, marketDataConfig, suppliedData, refData, ScenarioDefinition.empty());
   }
 
   @Override
   public MarketEnvironment buildMarketData(
       MarketDataRequirements requirements,
-      CalculationEnvironment suppliedData,
       MarketDataConfig marketDataConfig,
+      CalculationEnvironment suppliedData,
+      ReferenceData refData,
       ScenarioDefinition scenarioDefinition) {
 
     MarketEnvironmentBuilder dataBuilder = MarketEnvironment.builder(suppliedData.getValuationDate());
@@ -205,7 +204,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
           .collect(toImmutableSet());
 
       Map<MarketDataId<?>, Result<MarketDataBox<?>>> nonObservableResults =
-          buildNonObservableData(nonObservableIds, marketDataConfig, marketData, REF_DATA);
+          buildNonObservableData(nonObservableIds, marketDataConfig, marketData, refData);
 
       MapStream.of(nonObservableResults).forEach((id, result) -> addResult(id, result, scenarioDefinition, dataBuilder));
 

@@ -24,6 +24,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.calc.CalculationRules;
@@ -170,9 +171,13 @@ public class SwapPricingWithCalibrationExample {
         .marketDataRules(marketDataRules)
         .build();
 
+    // the reference data, such as holidays, indices and securities
+    ReferenceData refData = ReferenceData.standard();
+
     // calibrate the curves and calculate the results
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns);
-    MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, marketSnapshot, marketDataConfig);
+    MarketEnvironment enhancedMarketData = marketDataFactory()
+        .buildMarketData(reqs, marketDataConfig, marketSnapshot, refData);
     Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData);
 
     // use the report runner to transform the engine results into a trade report

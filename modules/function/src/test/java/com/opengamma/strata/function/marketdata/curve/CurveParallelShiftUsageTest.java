@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataBox;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
@@ -36,6 +37,8 @@ import com.opengamma.strata.market.id.DiscountCurveId;
 @Test
 public class CurveParallelShiftUsageTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   public void absoluteScenarios() {
     CurveName curveName = CurveName.of("curveName");
     CurveGroupName curveGroupName = CurveGroupName.of("curveGroupName");
@@ -56,8 +59,9 @@ public class CurveParallelShiftUsageTest {
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(curveId).build();
     MarketEnvironment scenarioData = marketDataFactory.buildMarketData(
         requirements,
-        marketData,
         MarketDataConfig.empty(),
+        marketData,
+        REF_DATA,
         scenarioDefinition);
     MarketDataBox<Curve> curves = scenarioData.getValue(curveId);
     assertThat(curves.getScenarioCount()).isEqualTo(3);
