@@ -32,6 +32,7 @@ import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.CurveInputsId;
+import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
@@ -45,17 +46,18 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   /**
    * The default analytics object that performs the curve calibration.
    */
-  private final CurveCalibrator curveCalibrator;
+  private final CalibrationMeasures calibrationMeasures;
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a new function for building curve groups using the standard curve calibrator.
+   * Creates a new function for building curve groups using the standard measures.
    * <p>
-   * The default calibrator is {@link CurveCalibrator#standard()}. The {@link MarketDataConfig}
-   * may contain a {@link RootFinderConfig} that alters the tolerances used in calibration.
+   * This will use the standard {@linkplain CalibrationMeasures#PAR_SPREAD par spread} measures
+   * for calibration. The {@link MarketDataConfig} may contain a {@link RootFinderConfig}
+   * to define the tolerances.
    */
   public CurveGroupMarketDataFunction() {
-    this(CurveCalibrator.standard());
+    this(CalibrationMeasures.PAR_SPREAD);
   }
 
   /**
@@ -64,10 +66,10 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * The default calibrator is specified. The {@link MarketDataConfig} may contain a
    * {@link RootFinderConfig} that alters the tolerances used in calibration.
    *
-   * @param curveCalibrator  the default calibrator
+   * @param calibrationMeasures  the calibration measures to be used in the calibrator
    */
-  public CurveGroupMarketDataFunction(CurveCalibrator curveCalibrator) {
-    this.curveCalibrator = ArgChecker.notNull(curveCalibrator, "curveCalibrator");
+  public CurveGroupMarketDataFunction(CalibrationMeasures calibrationMeasures) {
+    this.calibrationMeasures = ArgChecker.notNull(calibrationMeasures, "calibrationMeasures");
   }
 
   //-------------------------------------------------------------------------
@@ -93,13 +95,9 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       MarketDataConfig marketDataConfig) {
 
     // create the calibrator, using the configured RootFinderConfig if found
-    CurveCalibrator calibrator = marketDataConfig.find(RootFinderConfig.class)
-        .map(rfc -> CurveCalibrator.of(
-            rfc.getAbsoluteTolerance(),
-            rfc.getRelativeTolerance(),
-            rfc.getMaximumSteps(),
-            curveCalibrator.getMeasures()))
-        .orElse(curveCalibrator);
+    RootFinderConfig rfc = marketDataConfig.find(RootFinderConfig.class).orElse(RootFinderConfig.standard());
+    CurveCalibrator calibrator = CurveCalibrator.of(
+        rfc.getAbsoluteTolerance(), rfc.getRelativeTolerance(), rfc.getMaximumSteps(), calibrationMeasures);
 
     // calibrate
     CurveGroupName groupName = id.getName();

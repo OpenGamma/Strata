@@ -110,7 +110,7 @@ public class CurveGroupMarketDataFunctionTest {
         .addCurve(curveDefn, Currency.USD, IborIndices.USD_LIBOR_3M)
         .build();
 
-    CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction(CALIBRATOR);
+    CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction();
     LocalDate valuationDate = date(2011, 3, 8);
     MarketEnvironment marketEnvironment = MarketEnvironment.builder()
         .valuationDate(valuationDate)
@@ -146,7 +146,7 @@ public class CurveGroupMarketDataFunctionTest {
         .addCurve(curveDefn, Currency.USD, IborIndices.USD_LIBOR_3M)
         .build();
 
-    CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction(CALIBRATOR);
+    CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction();
     LocalDate valuationDate = date(2011, 3, 8);
 
     Map<MarketDataKey<?>, Double> inputData = ImmutableMap.<MarketDataKey<?>, Double>builder()
@@ -250,7 +250,7 @@ public class CurveGroupMarketDataFunctionTest {
         .addValue(CurveInputsId.of(groupName, fraCurveDefn.getName(), MarketDataFeed.NONE), fraCurveInputs)
         .build();
 
-    CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction(CALIBRATOR);
+    CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction();
     MarketDataBox<CurveGroup> curveGroup = function.build(curveGroupId, marketData, marketDataConfig);
 
     // Check the FRA curve identifiers are the expected tenors
@@ -321,8 +321,7 @@ public class CurveGroupMarketDataFunctionTest {
         .addDiscountCurve(curve2, Currency.USD)
         .build();
 
-    CurveCalibrator curveCalibrator = CALIBRATOR;
-    CurveGroupMarketDataFunction fn = new CurveGroupMarketDataFunction(curveCalibrator);
+    CurveGroupMarketDataFunction fn = new CurveGroupMarketDataFunction();
     Map<MarketDataKey<?>, Object> marketDataMap1 = ImmutableMap.of(
         FxRateKey.of(Currency.EUR, Currency.USD),
         FxRate.of(Currency.EUR, Currency.USD, 1.01),
