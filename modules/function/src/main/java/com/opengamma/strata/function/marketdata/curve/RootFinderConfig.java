@@ -40,8 +40,8 @@ public final class RootFinderConfig implements ImmutableBean, Serializable {
   /** The default maximum number of steps for the root finder. */
   public static final int DEFAULT_MAXIMUM_STEPS = 1000;
 
-  /** The default configuration returned from {@link #defaults()}. */
-  private static final RootFinderConfig DEFAULT_CONFIG =
+  /** The standard configuration. */
+  private static final RootFinderConfig STANDARD =
       new RootFinderConfig(DEFAULT_ABSOLUTE_TOLERANCE, DEFAULT_RELATIVE_TOLERANCE, DEFAULT_MAXIMUM_STEPS);
 
   /** The absolute tolerance for the root finder. */
@@ -56,13 +56,14 @@ public final class RootFinderConfig implements ImmutableBean, Serializable {
   @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final int maximumSteps;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns default root finder configuration, using the {@code DEFAULT} constants from this class.
+   * Returns standard root finder configuration, using the {@code DEFAULT} constants from this class.
    *
-   * @return default root finder configuration, using the {@code DEFAULT} constants from this class
+   * @return the standard root finder configuration, using the {@code DEFAULT} constants from this class
    */
-  public static RootFinderConfig defaults() {
-    return DEFAULT_CONFIG;
+  public static RootFinderConfig standard() {
+    return STANDARD;
   }
 
   @ImmutableDefaults

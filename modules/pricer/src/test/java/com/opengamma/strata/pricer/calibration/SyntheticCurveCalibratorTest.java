@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.pricer.calibration;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -29,8 +29,6 @@ import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.id.QuoteId;
-import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
-import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -77,15 +75,10 @@ public class SyntheticCurveCalibratorTest {
     TS_LARGE.put(EUR_EURIBOR_3M, tsEur3);
     TS_LARGE.put(EUR_EURIBOR_6M, tsEur6);
   }
-  private static final CurveCalibrator CALIBRATOR = StandardCurveCalibrator.DEFAULT;
-  private static final CalibrationMeasures MQ_MEASURES = CalibrationMeasures.of(
-      MarketQuoteMeasure.FRA_MQ,
-      MarketQuoteMeasure.IBOR_FIXING_DEPOSIT_MQ,
-      MarketQuoteMeasure.IBOR_FUTURE_MQ,
-      MarketQuoteMeasure.SWAP_MQ,
-      MarketQuoteMeasure.TERM_DEPOSIT_MQ);
+  private static final CurveCalibrator CALIBRATOR = CurveCalibrator.standard();
+  private static final CalibrationMeasures MQ_MEASURES = CalibrationMeasures.MARKET_QUOTE;
   private static final SyntheticCurveCalibrator CALIBRATOR_SYNTHETIC = 
-      SyntheticCurveCalibrator.of(MQ_MEASURES, CALIBRATOR);
+      SyntheticCurveCalibrator.of(CALIBRATOR, MQ_MEASURES);
   
   private static final ImmutableRatesProvider MULTICURVE_INPUT_TSEMPTY =
       CALIBRATOR.calibrate(GROUPS_IN, VALUATION_DATE, MARKET_QUOTES_INPUT, TS_EMPTY);
@@ -94,12 +87,15 @@ public class SyntheticCurveCalibratorTest {
   
   private static final double TOLERANCE_MQ = 1.0E-8;
 
+  //-------------------------------------------------------------------------
   public void test_of() {
-    SyntheticCurveCalibrator test = SyntheticCurveCalibrator.of(MQ_MEASURES, CALIBRATOR);
-    assertEquals(test.getMarketQuotesMeasures(), MQ_MEASURES);
+    SyntheticCurveCalibrator test = SyntheticCurveCalibrator.of(CALIBRATOR, MQ_MEASURES);
+    assertEquals(test.getMeasures(), MQ_MEASURES);
     assertEquals(test.getCalibrator(), CALIBRATOR);
+    assertEquals(test.toString(), "SyntheticCurveCalibrator[CurveCalibrator[ParSpread], MarketQuote]");
   }
 
+  //-------------------------------------------------------------------------
   // Check market data computation
   public void market_data() {
     CurveGroupDefinition group = GROUPS_SYN;
@@ -142,7 +138,7 @@ public class SyntheticCurveCalibratorTest {
 
   // Check synthetic calibration in the case of existing time-series with fixing on the valuation date
   public void calibrate_ts_vd() {
-    SyntheticCurveCalibrator calibratorDefault = SyntheticCurveCalibrator.DEFAULT;
+    SyntheticCurveCalibrator calibratorDefault = SyntheticCurveCalibrator.standard();
     MarketData mad = calibratorDefault.marketData(MULTICURVE_INPUT_TSLARGE, GROUPS_SYN);
     ImmutableRatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN, MULTICURVE_INPUT_TSLARGE);
     multicurveSyn = multicurveSyn.toBuilder().timeSeries(TS_LARGE).build(); // To ensure TS are present
@@ -157,6 +153,7 @@ public class SyntheticCurveCalibratorTest {
     }
   }
 
+  //-------------------------------------------------------------------------
   @Test(enabled = false) // enabled = false for standard testing. Used only to assess the performance
   public void performance() {
     long start, end;
