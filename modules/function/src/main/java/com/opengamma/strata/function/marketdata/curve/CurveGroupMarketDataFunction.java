@@ -23,6 +23,7 @@ import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
@@ -36,39 +37,39 @@ import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
- * Market data function that builds a {@link CurveGroup}.
+ * Market data function that builds a curve group.
+ * <p>
+ * This function calibrates curves, turning a {@link CurveGroupDefinition} into a {@link CurveGroup}.
  */
 public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGroup, CurveGroupId> {
 
-  /** The analytics object that performs the curve calibration. */
-  private final CurveCalibrator curveCalibrator;
-
-  // TODO Where should the root finder config come from?
-  //   Should it be possible to override it for each call? Put it in MarketDataConfig?
-  //   Is it a system-wide setting?
-
   /**
-   * Creates a new function for building curve groups that delegates to a {@link CurveCalibrator}
-   * to perform calibration.
-   *
-   * @param rootFinderConfig  the configuration for the root finder used when calibrating curves
-   * @param measures  the measures used for calibration
+   * The default analytics object that performs the curve calibration.
    */
-  public CurveGroupMarketDataFunction(RootFinderConfig rootFinderConfig, CalibrationMeasures measures) {
-    this.curveCalibrator = CurveCalibrator.of(
-        rootFinderConfig.getAbsoluteTolerance(),
-        rootFinderConfig.getRelativeTolerance(),
-        rootFinderConfig.getMaximumSteps(),
-        measures);
+  private final CalibrationMeasures calibrationMeasures;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a new function for building curve groups using the standard measures.
+   * <p>
+   * This will use the standard {@linkplain CalibrationMeasures#PAR_SPREAD par spread} measures
+   * for calibration. The {@link MarketDataConfig} may contain a {@link RootFinderConfig}
+   * to define the tolerances.
+   */
+  public CurveGroupMarketDataFunction() {
+    this(CalibrationMeasures.PAR_SPREAD);
   }
 
   /**
-   * Creates a new function for building curve groups that delegates to {@code curveCalibrator} to perform calibration.
+   * Creates a new function for building curve groups.
+   * <p>
+   * The default calibrator is specified. The {@link MarketDataConfig} may contain a
+   * {@link RootFinderConfig} that alters the tolerances used in calibration.
    *
-   * @param curveCalibrator  performs the calibration
+   * @param calibrationMeasures  the calibration measures to be used in the calibrator
    */
-  public CurveGroupMarketDataFunction(CurveCalibrator curveCalibrator) {
-    this.curveCalibrator = curveCalibrator;
+  public CurveGroupMarketDataFunction(CalibrationMeasures calibrationMeasures) {
+    this.calibrationMeasures = ArgChecker.notNull(calibrationMeasures, "calibrationMeasures");
   }
 
   //-------------------------------------------------------------------------
@@ -93,9 +94,15 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       CalculationEnvironment marketData,
       MarketDataConfig marketDataConfig) {
 
+    // create the calibrator, using the configured RootFinderConfig if found
+    RootFinderConfig rfc = marketDataConfig.find(RootFinderConfig.class).orElse(RootFinderConfig.standard());
+    CurveCalibrator calibrator = CurveCalibrator.of(
+        rfc.getAbsoluteTolerance(), rfc.getRelativeTolerance(), rfc.getMaximumSteps(), calibrationMeasures);
+
+    // calibrate
     CurveGroupName groupName = id.getName();
     CurveGroupDefinition groupDefn = marketDataConfig.get(CurveGroupDefinition.class, groupName);
-    return buildCurveGroup(groupDefn, marketData, id.getMarketDataFeed());
+    return buildCurveGroup(groupDefn, calibrator, marketData, id.getMarketDataFeed());
   }
 
   @Override
@@ -108,12 +115,14 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * Builds a curve group given the configuration for the group and a set of market data.
    *
    * @param groupDefn  the definition of the curve group
+   * @param calibrator  the calibrator
    * @param marketData  the market data containing any values required to build the curve group
    * @param feed  the market data feed that is the source of the observable data
    * @return a result containing the curve group or details of why it couldn't be built
    */
   MarketDataBox<CurveGroup> buildCurveGroup(
       CurveGroupDefinition groupDefn,
+      CurveCalibrator calibrator,
       CalculationEnvironment marketData,
       MarketDataFeed feed) {
 
@@ -128,12 +137,14 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     boolean multipleValues = inputBoxes.stream().anyMatch(MarketDataBox::isScenarioValue);
 
     return multipleValues ?
-        buildMultipleCurveGroups(groupDefn, marketData.getValuationDate(), inputBoxes) :
-        buildSingleCurveGroup(groupDefn, marketData.getValuationDate(), inputBoxes);
+        buildMultipleCurveGroups(groupDefn, calibrator, marketData.getValuationDate(), inputBoxes) :
+        buildSingleCurveGroup(groupDefn, calibrator, marketData.getValuationDate(), inputBoxes);
   }
 
+  // calibrates when there are multiple groups
   private MarketDataBox<CurveGroup> buildMultipleCurveGroups(
       CurveGroupDefinition groupDefn,
+      CurveCalibrator calibrator,
       MarketDataBox<LocalDate> valuationDateBox,
       List<MarketDataBox<CurveInputs>> inputBoxes) {
 
@@ -144,7 +155,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       List<CurveInputs> curveInputsList = inputsForScenario(inputBoxes, i);
       LocalDate valuationDate = valuationDateBox.getValue(scenarioCount);
       MarketData inputs = inputsByKey(valuationDate, curveInputsList);
-      builder.add(buildGroup(groupDefn, valuationDate, inputs));
+      builder.add(buildGroup(groupDefn, calibrator, valuationDate, inputs));
     }
     ImmutableList<CurveGroup> curveGroups = builder.build();
     return MarketDataBox.ofScenarioValues(curveGroups);
@@ -156,15 +167,17 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         .collect(toImmutableList());
   }
 
+  // calibrates when there is a single group
   private MarketDataBox<CurveGroup> buildSingleCurveGroup(
       CurveGroupDefinition groupDefn,
+      CurveCalibrator calibrator,
       MarketDataBox<LocalDate> valuationDateBox,
       List<MarketDataBox<CurveInputs>> inputBoxes) {
 
     List<CurveInputs> inputs = inputBoxes.stream().map(MarketDataBox::getSingleValue).collect(toImmutableList());
     LocalDate valuationDate = valuationDateBox.getValue(0);
     MarketData inputValues = inputsByKey(valuationDate, inputs);
-    CurveGroup curveGroup = buildGroup(groupDefn, valuationDateBox.getSingleValue(), inputValues);
+    CurveGroup curveGroup = buildGroup(groupDefn, calibrator, valuationDateBox.getSingleValue(), inputValues);
     return MarketDataBox.ofSingleValue(curveGroup);
   }
 
@@ -202,11 +215,12 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
 
   private CurveGroup buildGroup(
       CurveGroupDefinition groupDefn,
+      CurveCalibrator calibrator,
       LocalDate valuationDate,
       MarketData marketData) {
 
     // perform the calibration
-    ImmutableRatesProvider calibratedProvider = curveCalibrator.calibrate(
+    ImmutableRatesProvider calibratedProvider = calibrator.calibrate(
         groupDefn,
         valuationDate,
         marketData,

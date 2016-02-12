@@ -158,8 +158,7 @@ public class CalibrationDiscountingSimple1Test {
   private static final DiscountingSwapProductPricer SWAP_PRICER =
       DiscountingSwapProductPricer.DEFAULT;
 
-  private static final CalibrationMeasures CALIBRATION_MEASURES = CalibrationMeasures.DEFAULT;
-  private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100, CALIBRATION_MEASURES);
+  private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100);
 
   // Constants
   private static final double TOLERANCE_PV = 1.0E-6;

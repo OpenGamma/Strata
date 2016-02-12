@@ -6,7 +6,6 @@
 package com.opengamma.strata.pricer.calibration;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
-import static java.util.stream.Collectors.joining;
 
 import java.util.List;
 
@@ -14,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.Trade;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
@@ -30,17 +30,37 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 public final class CalibrationMeasures {
 
   /**
-   * The default instance.
-   * This computes par spread for Term Deposits, IborFixingDeposit, Fra, Ibor Futures and Swap by discounting.
+   * The par spread instance, which is the default used in curve calibration.
+   * <p>
+   * This computes par spread for Term Deposits, IborFixingDeposit, FRA, Ibor Futures
+   * Swap and FX Swap by discounting.
    */
-  public static final CalibrationMeasures DEFAULT = CalibrationMeasures.of(
-      TradeCalibrationMeasure.TERM_DEPOSIT_PAR_SPREAD,
-      TradeCalibrationMeasure.IBOR_FIXING_DEPOSIT_PAR_SPREAD,
+  public static final CalibrationMeasures PAR_SPREAD = CalibrationMeasures.of(
+      "ParSpread",
       TradeCalibrationMeasure.FRA_PAR_SPREAD,
+      TradeCalibrationMeasure.FX_SWAP_PAR_SPREAD,
+      TradeCalibrationMeasure.IBOR_FIXING_DEPOSIT_PAR_SPREAD,
       TradeCalibrationMeasure.IBOR_FUTURE_PAR_SPREAD,
       TradeCalibrationMeasure.SWAP_PAR_SPREAD,
-      TradeCalibrationMeasure.FX_SWAP_PAR_SPREAD);
+      TradeCalibrationMeasure.TERM_DEPOSIT_PAR_SPREAD);
+  /**
+   * The market quote instance, which is the default used in synthetic curve calibration.
+   * <p>
+   * This computes par rate for Term Deposits, IborFixingDeposit, FRA and Swap by discounting,
+   * and price Ibor Futures by discounting.
+   */
+  public static final CalibrationMeasures MARKET_QUOTE = CalibrationMeasures.of(
+      "MarketQuote",
+      MarketQuoteMeasure.FRA_MQ,
+      MarketQuoteMeasure.IBOR_FIXING_DEPOSIT_MQ,
+      MarketQuoteMeasure.IBOR_FUTURE_MQ,
+      MarketQuoteMeasure.SWAP_MQ,
+      MarketQuoteMeasure.TERM_DEPOSIT_MQ);
 
+  /**
+   * The name of the set of measures.
+   */
+  private final String name;
   /**
    * The calibration measure providers keyed by type.
    */
@@ -52,12 +72,13 @@ public final class CalibrationMeasures {
    * <p>
    * Each measure must be for a different trade type.
    * 
+   * @param name  the name of the set of measures
    * @param measures  the list of measures
    * @return the calibration measures
    * @throws IllegalArgumentException if a trade type is specified more than once
    */
-  public static CalibrationMeasures of(List<? extends CalibrationMeasure<? extends Trade>> measures) {
-    return new CalibrationMeasures(measures);
+  public static CalibrationMeasures of(String name, List<? extends CalibrationMeasure<? extends Trade>> measures) {
+    return new CalibrationMeasures(name, measures);
   }
 
   /**
@@ -65,23 +86,34 @@ public final class CalibrationMeasures {
    * <p>
    * Each measure must be for a different trade type.
    * 
+   * @param name  the name of the set of measures
    * @param measures  the list of measures
    * @return the calibration measures
    * @throws IllegalArgumentException if a trade type is specified more than once
    */
   @SafeVarargs
-  public static CalibrationMeasures of(CalibrationMeasure<? extends Trade>... measures) {
-    return new CalibrationMeasures(ImmutableList.copyOf(measures));
+  public static CalibrationMeasures of(String name, CalibrationMeasure<? extends Trade>... measures) {
+    return new CalibrationMeasures(name, ImmutableList.copyOf(measures));
   }
 
   //-------------------------------------------------------------------------
   // restricted constructor
-  private CalibrationMeasures(List<? extends CalibrationMeasure<? extends Trade>> measures) {
-    measuresByTrade = measures.stream()
+  private CalibrationMeasures(String name, List<? extends CalibrationMeasure<? extends Trade>> measures) {
+    this.name = ArgChecker.notEmpty(name, "name");
+    this.measuresByTrade = measures.stream()
         .collect(toImmutableMap(CalibrationMeasure::getTradeType, m -> m));
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the name of the set of measures.
+   * 
+   * @return the name
+   */
+  public String getName() {
+    return name;
+  }
+
   /**
    * Gets the supported trade types.
    * 
@@ -158,9 +190,7 @@ public final class CalibrationMeasures {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return measuresByTrade.values().stream()
-        .map(CalibrationMeasure::toString)
-        .collect(joining(", ", "[", "]"));
+    return name;
   }
 
 }

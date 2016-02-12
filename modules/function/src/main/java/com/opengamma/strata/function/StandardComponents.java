@@ -21,9 +21,7 @@ import com.opengamma.strata.function.marketdata.curve.CurveInputsMarketDataFunct
 import com.opengamma.strata.function.marketdata.curve.DiscountCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.IborIndexCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.OvernightIndexCurveMarketDataFunction;
-import com.opengamma.strata.function.marketdata.curve.RootFinderConfig;
 import com.opengamma.strata.function.marketdata.fx.FxRateMarketDataFunction;
-import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.fra.FraTrade;
@@ -109,7 +107,7 @@ public class StandardComponents {
         new DiscountCurveMarketDataFunction(),
         new IborIndexCurveMarketDataFunction(),
         new OvernightIndexCurveMarketDataFunction(),
-        new CurveGroupMarketDataFunction(RootFinderConfig.defaults(), CalibrationMeasures.DEFAULT),
+        new CurveGroupMarketDataFunction(),
         new CurveInputsMarketDataFunction(),
         new FxRateMarketDataFunction());
   }
