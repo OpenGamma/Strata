@@ -5,7 +5,9 @@
  */
 package com.opengamma.strata.collect.io;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -41,13 +43,30 @@ public final class CsvRow {
    * See {@link CsvFile}.
    * 
    * @param headers  the headers
+   * @param fields  the fields
+   */
+  private CsvRow(ImmutableList<String> headers, ImmutableList<String> fields) {
+    this.headers = headers;
+    // need to allow duplicate headers and only store the first instance
+    Map<String, Integer> searchHeaders = new HashMap<>();
+    for (int i = 0; i < headers.size(); i++) {
+      String searchHeader = headers.get(i).toLowerCase(Locale.ENGLISH);
+      searchHeaders.putIfAbsent(searchHeader, i);
+    }
+    this.searchHeaders = ImmutableMap.copyOf(searchHeaders);
+    this.fields = fields;
+  }
+
+  /**
+   * Creates an instance, specifying the headers and row.
+   * <p>
+   * See {@link CsvFile}.
+   * 
+   * @param headers  the headers
    * @param searchHeaders  the search headers
    * @param fields  the fields
    */
-  CsvRow(
-      ImmutableList<String> headers, 
-      ImmutableMap<String, Integer> searchHeaders, 
-      ImmutableList<String> fields) {
+  CsvRow(ImmutableList<String> headers, ImmutableMap<String, Integer> searchHeaders, ImmutableList<String> fields) {
     
     this.headers = headers;
     this.searchHeaders = searchHeaders;
@@ -153,6 +172,32 @@ public final class CsvRow {
       }
     }
     return Optional.empty();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a sub-row, containing a selection of fields by index.
+   * <p>
+   * All fields after the specified index are included.
+   * 
+   * @param startInclusive  the start index, inclusive
+   * @return the sub row
+   */
+  public CsvRow subRow(int startInclusive) {
+    return subRow(startInclusive, fields.size());
+  }
+
+  /**
+   * Obtains a sub-row, containing a selection of fields by index.
+   * 
+   * @param startInclusive  the start index, inclusive
+   * @param endExclusive  the end index, exclusive
+   * @return the sub row
+   */
+  public CsvRow subRow(int startInclusive, int endExclusive) {
+    return new CsvRow(
+        headers.subList(Math.min(startInclusive, headers.size()), Math.min(endExclusive, headers.size())),
+        fields.subList(startInclusive, endExclusive));
   }
 
   //-------------------------------------------------------------------------

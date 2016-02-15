@@ -115,26 +115,26 @@ public final class CsvFile {
     ImmutableList.Builder<String> builder = ImmutableList.builder();
     int start = 0;
     String terminated = line + separator;
-    int nextComma = terminated.indexOf(separator, start);
-    while (nextComma >= 0) {
-      String possible = terminated.substring(start, nextComma).trim();
+    int nextSeparator = terminated.indexOf(separator, start);
+    while (nextSeparator >= 0) {
+      String possible = terminated.substring(start, nextSeparator).trim();
       if (possible.startsWith("\"")) {
         while (true) {
           if (possible.substring(1).replace("\"\"", "").endsWith("\"")) {
             possible = possible.substring(1, possible.length() - 1).replace("\"\"", "\"");
             break;
           } else {
-            nextComma = terminated.indexOf(separator, nextComma + 1);
-            if (nextComma < 0) {
+            nextSeparator = terminated.indexOf(separator, nextSeparator + 1);
+            if (nextSeparator < 0) {
               throw new IllegalArgumentException("Mismatched quotes on line: " + line);
             }
-            possible = terminated.substring(start, nextComma).trim();
+            possible = terminated.substring(start, nextSeparator).trim();
           }
         }
       }
       builder.add(possible);
-      start = nextComma + 1;
-      nextComma = terminated.indexOf(separator, start);
+      start = nextSeparator + 1;
+      nextSeparator = terminated.indexOf(separator, start);
     }
     ImmutableList<String> fields = builder.build();
     if (!hasContent(fields)) {
@@ -144,7 +144,7 @@ public final class CsvFile {
   }
 
   // determines whether there is any content on a line
-  // this handles lines that contain commas but nothing else
+  // this handles lines that contain separators but nothing else
   private static boolean hasContent(ImmutableList<String> fields) {
     for (String field : fields) {
       if (!field.trim().isEmpty()) {

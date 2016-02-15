@@ -58,6 +58,10 @@ public class CsvFileTest {
       "\"alpha\"\",\"be\"\"\", \"\"at\"\", one\"\n" +
       "r21,\" r22 \"\n";
 
+  private final String CSV5 = "" +
+      "a,b,c,b,c\n" +
+      "aa,b1,c1,b2,c2\n";
+
   //-------------------------------------------------------------------------
   public void test_of_ioException() {
     assertThrows(
@@ -91,6 +95,10 @@ public class CsvFileTest {
     assertEquals(csvFile.row(2).fieldCount(), 2);
     assertEquals(csvFile.row(2).field(0), "r21");
     assertEquals(csvFile.row(2).field(1), "r22");
+
+    assertEquals(csvFile.row(0).subRow(0).fieldCount(), 2);
+    assertEquals(csvFile.row(0).subRow(1).fieldCount(), 1);
+    assertEquals(csvFile.row(0).subRow(2).fieldCount(), 0);
   }
 
   public void test_simple_no_header_tabs() {
@@ -146,6 +154,27 @@ public class CsvFileTest {
     assertEquals(csvFile.row(0).findField(Pattern.compile("h[13]")), Optional.of("r11"));
     assertEquals(csvFile.row(0).findField(Pattern.compile("h[24]")), Optional.of("r12"));
     assertEquals(csvFile.row(0).findField(Pattern.compile("zzz")), Optional.empty());
+
+    assertEquals(csvFile.row(0).subRow(0).fieldCount(), 2);
+    assertEquals(csvFile.row(0).subRow(1).fieldCount(), 1);
+    assertEquals(csvFile.row(0).subRow(2).fieldCount(), 0);
+
+    assertEquals(csvFile.row(0).subRow(0, 0).fieldCount(), 0);
+    assertEquals(csvFile.row(0).subRow(0, 1).fieldCount(), 1);
+    assertEquals(csvFile.row(0).subRow(2, 2).fieldCount(), 0);
+  }
+
+  public void test_duplicate_headers() {
+    CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV5), true);
+    assertEquals(csvFile.headers(), ImmutableList.of("a", "b", "c", "b", "c"));
+    assertEquals(csvFile.row(0).getField("a"), "aa");
+    assertEquals(csvFile.row(0).getField("b"), "b1");
+    assertEquals(csvFile.row(0).getField("c"), "c1");
+
+    assertEquals(csvFile.row(0).subRow(1, 3).getField("b"), "b1");
+    assertEquals(csvFile.row(0).subRow(1, 3).getField("c"), "c1");
+    assertEquals(csvFile.row(0).subRow(3).getField("b"), "b2");
+    assertEquals(csvFile.row(0).subRow(3).getField("c"), "c2");
   }
 
   public void test_comment_blank_no_header() {
