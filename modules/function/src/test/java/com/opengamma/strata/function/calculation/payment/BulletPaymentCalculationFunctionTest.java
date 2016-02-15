@@ -103,7 +103,7 @@ public class BulletPaymentCalculationFunctionTest {
     CurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY);
-    assertThat(function.calculate(TRADE, measures, md))
+    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
@@ -122,7 +122,7 @@ public class BulletPaymentCalculationFunctionTest {
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PV01, Measures.BUCKETED_PV01);
-    assertThat(function.calculate(TRADE, measures, md))
+    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
         .containsEntry(
             Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(

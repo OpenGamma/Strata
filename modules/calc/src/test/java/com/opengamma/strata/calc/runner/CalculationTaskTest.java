@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.TestObservableKey;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -328,7 +329,8 @@ public class CalculationTaskTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       ScenarioResult<String> array = ScenarioResult.of("bar");
       return ImmutableMap.of(Measures.PRESENT_VALUE, Result.success(array));
@@ -373,7 +375,8 @@ public class CalculationTaskTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       Result<CurrencyValuesArray> result = Result.success(supplier.get());
       return ImmutableMap.of(Measures.PRESENT_VALUE, result, Measures.PRESENT_VALUE_MULTI_CCY, result);
@@ -416,7 +419,8 @@ public class CalculationTaskTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       T obj = supplier.get();
       if (obj instanceof Result<?>) {
@@ -454,7 +458,8 @@ public class CalculationTaskTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       throw new UnsupportedOperationException("calculate not implemented");
     }

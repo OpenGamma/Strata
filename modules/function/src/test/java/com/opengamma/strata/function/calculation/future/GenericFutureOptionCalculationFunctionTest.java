@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -43,6 +44,7 @@ import com.opengamma.strata.product.future.GenericFutureOptionTrade;
 @Test
 public class GenericFutureOptionCalculationFunctionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double MARKET_PRICE = 99.42;
   private static final double TICK_SIZE = 0.01;
   private static final int TICK_VALUE = 10;
@@ -97,7 +99,7 @@ public class GenericFutureOptionCalculationFunctionTest {
     CurrencyAmount expectedPv = CurrencyAmount.of(CURRENCY, unitPv * QUANTITY);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE);
-    assertThat(function.calculate(TRADE, measures, md))
+    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE_MULTI_CCY, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(

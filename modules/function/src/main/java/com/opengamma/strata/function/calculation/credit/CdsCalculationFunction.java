@@ -85,9 +85,6 @@ public class CdsCalculationFunction
       .add(Measures.PRESENT_VALUE_MULTI_CCY)
       .build();
 
-  // hard-coded reference data
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
-
   /**
    * Creates an instance.
    */
@@ -149,10 +146,11 @@ public class CdsCalculationFunction
   public Map<Measure, Result<?>> calculate(
       CdsTrade trade,
       Set<Measure> measures,
-      CalculationMarketData scenarioMarketData) {
+      CalculationMarketData scenarioMarketData,
+      ReferenceData refData) {
 
     // resolve the trade once for all measures and all scenarios
-    ResolvedCdsTrade resolved = trade.resolve(REF_DATA);
+    ResolvedCdsTrade resolved = trade.resolve(refData);
 
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<?>> results = new HashMap<>();

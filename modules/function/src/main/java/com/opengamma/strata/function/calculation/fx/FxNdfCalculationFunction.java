@@ -65,9 +65,6 @@ public class FxNdfCalculationFunction
       .add(Measures.PRESENT_VALUE_MULTI_CCY)
       .build();
 
-  // hard-coded reference data
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
-
   /**
    * Creates an instance.
    */
@@ -107,10 +104,11 @@ public class FxNdfCalculationFunction
   public Map<Measure, Result<?>> calculate(
       FxNdfTrade trade,
       Set<Measure> measures,
-      CalculationMarketData scenarioMarketData) {
+      CalculationMarketData scenarioMarketData,
+      ReferenceData refData) {
 
     // resolve the trade once for all measures and all scenarios
-    ResolvedFxNdfTrade resolved = trade.resolve(REF_DATA);
+    ResolvedFxNdfTrade resolved = trade.resolve(refData);
 
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<?>> results = new HashMap<>();

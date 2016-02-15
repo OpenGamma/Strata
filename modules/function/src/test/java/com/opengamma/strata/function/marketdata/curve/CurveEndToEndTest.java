@@ -268,9 +268,10 @@ public class CurveEndToEndTest {
     public Map<Measure, Result<?>> calculate(
         FraTrade trade,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
-      ResolvedFra product = trade.getProduct().resolve(REF_DATA);
+      ResolvedFra product = trade.getProduct().resolve(refData);
       CurrencyValuesArray pv = marketData.scenarios()
           .map(MarketDataRatesProvider::of)
           .map(provider -> DiscountingFraProductPricer.DEFAULT.presentValue(product, provider))

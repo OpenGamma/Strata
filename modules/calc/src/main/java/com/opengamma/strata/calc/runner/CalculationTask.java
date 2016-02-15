@@ -18,6 +18,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
@@ -41,6 +42,9 @@ import com.opengamma.strata.collect.result.Result;
  * Without this class the engine would need to keep track of which functions to use for each input.
  */
 public final class CalculationTask {
+
+  // hard-coded reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /**
    * The target for which the value will be calculated.
@@ -227,7 +231,7 @@ public final class CalculationTask {
    */
   private Result<?> calculate(CalculationMarketData calculationData) {
     ImmutableSet<Measure> measures = ImmutableSet.of(getMeasure());
-    Map<Measure, Result<?>> map = function.calculate(target, measures, calculationData);
+    Map<Measure, Result<?>> map = function.calculate(target, measures, calculationData, REF_DATA);
     if (!map.containsKey(getMeasure())) {
       return Result.failure(
           FailureReason.CALCULATION_FAILED,

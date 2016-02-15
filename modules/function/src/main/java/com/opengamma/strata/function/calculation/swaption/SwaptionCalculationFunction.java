@@ -59,9 +59,6 @@ public class SwaptionCalculationFunction
       .add(Measures.PRESENT_VALUE_MULTI_CCY)
       .build();
 
-  // hard-coded reference data
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
-
   /**
    * Creates an instance.
    */
@@ -102,10 +99,11 @@ public class SwaptionCalculationFunction
   public Map<Measure, Result<?>> calculate(
       SwaptionTrade trade,
       Set<Measure> measures,
-      CalculationMarketData scenarioMarketData) {
+      CalculationMarketData scenarioMarketData,
+      ReferenceData refData) {
 
     // expand the trade once for all measures and all scenarios
-    ResolvedSwaptionTrade resolved = trade.resolve(REF_DATA);
+    ResolvedSwaptionTrade resolved = trade.resolve(refData);
     IborIndex index = trade.getProduct().getIndex();
     SwaptionVolatilitiesKey volKey = SwaptionVolatilitiesKey.of(index);
 

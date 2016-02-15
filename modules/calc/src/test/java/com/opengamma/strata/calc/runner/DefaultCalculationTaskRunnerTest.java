@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.TestObservableKey;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
@@ -152,7 +153,8 @@ public class DefaultCalculationTaskRunnerTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       ScenarioResult<String> array = ScenarioResult.of("bar");
       return ImmutableMap.of(Measures.PRESENT_VALUE, Result.success(array));
@@ -189,7 +191,8 @@ public class DefaultCalculationTaskRunnerTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       return ImmutableMap.of(measure, Result.success(result));
     }

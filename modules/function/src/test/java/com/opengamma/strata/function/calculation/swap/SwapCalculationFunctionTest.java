@@ -122,7 +122,7 @@ public class SwapCalculationFunctionTest {
         Measures.PAR_SPREAD,
         Measures.EXPLAIN_PRESENT_VALUE,
         Measures.CASH_FLOWS, Measures.CURRENCY_EXPOSURE, Measures.CURRENT_CASH);
-    assertThat(function.calculate(TRADE, measures, md))
+    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
@@ -153,7 +153,7 @@ public class SwapCalculationFunctionTest {
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PV01, Measures.BUCKETED_PV01);
-    assertThat(function.calculate(TRADE, measures, md))
+    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
         .containsEntry(
             Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
@@ -186,7 +186,7 @@ public class SwapCalculationFunctionTest {
         ccy, DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(rpp2, provider));
 
     MultiCurrencyValuesArray expectedArray = MultiCurrencyValuesArray.of(MultiCurrencyAmount.of(expected));
-    assertThat(function.calculate(trade, measures, md))
+    assertThat(function.calculate(trade, measures, md, REF_DATA))
         .containsEntry(Measures.ACCRUED_INTEREST, Result.success(expectedArray));
   }
 

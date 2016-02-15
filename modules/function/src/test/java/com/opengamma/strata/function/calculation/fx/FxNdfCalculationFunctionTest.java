@@ -116,7 +116,7 @@ public class FxNdfCalculationFunctionTest {
         Measures.CURRENCY_EXPOSURE,
         Measures.CURRENT_CASH,
         Measures.FORWARD_FX_RATE);
-    assertThat(function.calculate(TRADE, measures, md))
+    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
@@ -141,7 +141,7 @@ public class FxNdfCalculationFunctionTest {
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PV01, Measures.BUCKETED_PV01);
-    assertThat(function.calculate(TRADE, measures, md))
+    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
         .containsEntry(
             Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(

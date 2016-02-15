@@ -12,6 +12,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
@@ -82,7 +83,8 @@ public class GenericFutureCalculationFunction
   public Map<Measure, Result<?>> calculate(
       GenericFutureTrade trade,
       Set<Measure> measures,
-      CalculationMarketData scenarioMarketData) {
+      CalculationMarketData scenarioMarketData,
+      ReferenceData refData) {
 
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<?>> results = new HashMap<>();

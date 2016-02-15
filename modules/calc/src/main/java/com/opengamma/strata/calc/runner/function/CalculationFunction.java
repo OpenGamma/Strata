@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingCurrency;
@@ -28,7 +29,7 @@ import com.opengamma.strata.collect.result.Result;
  * <li>{@link #supportedMeasures()} - the set of measures that can be calculated
  * <li>{@link #naturalCurrency(CalculationTarget)} - the "natural" currency of the target
  * <li>{@link #requirements(CalculationTarget, Set)} - the market data requirements for performing the calculation
- * <li>{@link #calculate(CalculationTarget, Set, CalculationMarketData)} - perform the calculation
+ * <li>{@link #calculate(CalculationTarget, Set, CalculationMarketData, ReferenceData)} - perform the calculation
  * </ul>
  * <p>
  * If any of the calculated values contain any currency amounts and implement {@link CurrencyConvertible}
@@ -91,12 +92,14 @@ public interface CalculationFunction<T extends CalculationTarget> {
    *
    * @param target  the target of the calculation
    * @param measures  the set of measures to calculate
-   * @param marketData  the market data to be used in the calculation
+   * @param marketData  the multi-scenario market data to be used in the calculation
+   * @param refData  the reference data to be used in the calculation
    * @return the read-only map of calculated values, keyed by their measure
    */
   public abstract Map<Measure, Result<?>> calculate(
       T target,
       Set<Measure> measures,
-      CalculationMarketData marketData);
+      CalculationMarketData marketData,
+      ReferenceData refData);
 
 }

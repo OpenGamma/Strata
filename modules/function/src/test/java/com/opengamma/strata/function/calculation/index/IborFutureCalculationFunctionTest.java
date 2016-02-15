@@ -95,7 +95,7 @@ public class IborFutureCalculationFunctionTest {
         Measures.PRESENT_VALUE,
         Measures.PRESENT_VALUE_MULTI_CCY,
         Measures.PAR_SPREAD);
-    assertThat(function.calculate(TRADE, measures, md))
+    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
