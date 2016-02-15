@@ -17,6 +17,7 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
@@ -91,10 +92,10 @@ public final class FixingSeriesCsvLoader {
     Map<ObservableId, LocalDateDoubleTimeSeriesBuilder> builders = new HashMap<>();
     try {
       CsvFile csv = CsvFile.of(resource.getCharSource(), true);
-      for (int i = 0; i < csv.rowCount(); i++) {
-        String referenceStr = csv.field(i, REFERENCE_FIELD);
-        String dateStr = csv.field(i, DATE_FIELD);
-        String valueStr = csv.field(i, VALUE_FIELD);
+      for (CsvRow row : csv.rows()) {
+        String referenceStr = row.getField(REFERENCE_FIELD);
+        String dateStr = row.getField(DATE_FIELD);
+        String valueStr = row.getField(VALUE_FIELD);
 
         Index index = LoaderUtils.findIndex(referenceStr);
         ObservableId id = IndexRateId.of(index);

@@ -24,6 +24,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.calc.marketdata.MarketEnvironmentBuilder;
 import com.opengamma.strata.collect.io.CsvFile;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.IsdaCreditCurveInputs;
 import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveInputsId;
@@ -178,9 +179,9 @@ public class MarkitSingleNameCreditCurveDataParser {
   private static Map<MarkitRedCode, CdsConvention> parseStaticData(CharSource source) {
     CsvFile csv = CsvFile.of(source, true);
     Map<MarkitRedCode, CdsConvention> result = Maps.newHashMap();
-    for (int i = 0; i < csv.rowCount(); i++) {
-      String redCodeText = csv.field(i, "RedCode");
-      String conventionText = csv.field(i, "Convention");
+    for (CsvRow row : csv.rows()) {
+      String redCodeText = row.getField("RedCode");
+      String conventionText = row.getField("Convention");
       result.put(MarkitRedCode.of(redCodeText), CdsConvention.of(conventionText));
     }
     return result;

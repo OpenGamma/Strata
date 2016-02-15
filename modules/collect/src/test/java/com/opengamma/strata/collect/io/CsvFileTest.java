@@ -16,6 +16,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.testng.annotations.Test;
 
@@ -34,6 +36,11 @@ public class CsvFileTest {
       "r11,r12\n" +
       "r21,r22";
 
+  private final String CSV1T = "" +
+      "h1\th2\n" +
+      "r11\tr12\n" +
+      "r21\tr22";
+
   private final String CSV2 = "" +
       "h1,h2\n" +
       "#r11,r12\n" +
@@ -50,6 +57,10 @@ public class CsvFileTest {
       "\"alpha\",\"be, \"\"at\"\", one\"\n" +
       "\"alpha\"\",\"be\"\"\", \"\"at\"\", one\"\n" +
       "r21,\" r22 \"\n";
+
+  private final String CSV5 = "" +
+      "a,b,c,b,c\n" +
+      "aa,b1,c1,b2,c2\n";
 
   //-------------------------------------------------------------------------
   public void test_of_ioException() {
@@ -72,15 +83,40 @@ public class CsvFileTest {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1), false);
     assertEquals(csvFile.headers().size(), 0);
     assertEquals(csvFile.rowCount(), 3);
-    assertEquals(csvFile.row(0).size(), 2);
-    assertEquals(csvFile.row(0).get(0), "h1");
-    assertEquals(csvFile.row(0).get(1), "h2");
-    assertEquals(csvFile.row(1).size(), 2);
-    assertEquals(csvFile.row(1).get(0), "r11");
-    assertEquals(csvFile.row(1).get(1), "r12");
-    assertEquals(csvFile.row(2).size(), 2);
-    assertEquals(csvFile.row(2).get(0), "r21");
-    assertEquals(csvFile.row(2).get(1), "r22");
+    assertEquals(csvFile.row(0).headers().size(), 0);
+    assertEquals(csvFile.row(0).fieldCount(), 2);
+    assertEquals(csvFile.row(0).field(0), "h1");
+    assertEquals(csvFile.row(0).field(1), "h2");
+    assertEquals(csvFile.row(1).headers().size(), 0);
+    assertEquals(csvFile.row(1).fieldCount(), 2);
+    assertEquals(csvFile.row(1).field(0), "r11");
+    assertEquals(csvFile.row(1).field(1), "r12");
+    assertEquals(csvFile.row(2).headers().size(), 0);
+    assertEquals(csvFile.row(2).fieldCount(), 2);
+    assertEquals(csvFile.row(2).field(0), "r21");
+    assertEquals(csvFile.row(2).field(1), "r22");
+
+    assertEquals(csvFile.row(0).subRow(0).fieldCount(), 2);
+    assertEquals(csvFile.row(0).subRow(1).fieldCount(), 1);
+    assertEquals(csvFile.row(0).subRow(2).fieldCount(), 0);
+  }
+
+  public void test_simple_no_header_tabs() {
+    CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1T), false, '\t');
+    assertEquals(csvFile.headers().size(), 0);
+    assertEquals(csvFile.rowCount(), 3);
+    assertEquals(csvFile.row(0).headers().size(), 0);
+    assertEquals(csvFile.row(0).fieldCount(), 2);
+    assertEquals(csvFile.row(0).field(0), "h1");
+    assertEquals(csvFile.row(0).field(1), "h2");
+    assertEquals(csvFile.row(1).headers().size(), 0);
+    assertEquals(csvFile.row(1).fieldCount(), 2);
+    assertEquals(csvFile.row(1).field(0), "r11");
+    assertEquals(csvFile.row(1).field(1), "r12");
+    assertEquals(csvFile.row(2).headers().size(), 0);
+    assertEquals(csvFile.row(2).fieldCount(), 2);
+    assertEquals(csvFile.row(2).field(0), "r21");
+    assertEquals(csvFile.row(2).field(1), "r22");
   }
 
   public void test_simple_with_header() {
@@ -90,29 +126,67 @@ public class CsvFileTest {
     assertEquals(headers.get(0), "h1");
     assertEquals(headers.get(1), "h2");
     assertEquals(csvFile.rowCount(), 2);
-    assertEquals(csvFile.row(0).size(), 2);
-    assertEquals(csvFile.row(0).get(0), "r11");
-    assertEquals(csvFile.row(0).get(1), "r12");
-    assertEquals(csvFile.row(1).size(), 2);
-    assertEquals(csvFile.row(1).get(0), "r21");
-    assertEquals(csvFile.row(1).get(1), "r22");
+    assertEquals(csvFile.row(0).headers(), headers);
+    assertEquals(csvFile.row(0).fieldCount(), 2);
+    assertEquals(csvFile.row(0).field(0), "r11");
+    assertEquals(csvFile.row(0).field(1), "r12");
+    assertEquals(csvFile.row(1).headers(), headers);
+    assertEquals(csvFile.row(1).fieldCount(), 2);
+    assertEquals(csvFile.row(1).field(0), "r21");
+    assertEquals(csvFile.row(1).field(1), "r22");
 
-    assertEquals(csvFile.field(0, "h1"), "r11");
-    assertEquals(csvFile.field(0, "h2"), "r12");
-    assertEquals(csvFile.field(1, "h1"), "r21");
-    assertEquals(csvFile.field(1, "h2"), "r22");
+    assertEquals(csvFile.row(0).getField("h1"), "r11");
+    assertEquals(csvFile.row(0).getField("h2"), "r12");
+    assertEquals(csvFile.row(1).getField("h1"), "r21");
+    assertEquals(csvFile.row(1).getField("h2"), "r22");
+    assertThrowsIllegalArg(() -> csvFile.row(0).getField("zzz"));
+
+    assertEquals(csvFile.row(0).findField("h1"), Optional.of("r11"));
+    assertEquals(csvFile.row(0).findField("h2"), Optional.of("r12"));
+    assertEquals(csvFile.row(1).findField("h1"), Optional.of("r21"));
+    assertEquals(csvFile.row(1).findField("h2"), Optional.of("r22"));
+    assertEquals(csvFile.row(0).findField("zzz"), Optional.empty());
+
+    assertEquals(csvFile.row(0).getField(Pattern.compile("h[13]")), "r11");
+    assertEquals(csvFile.row(0).getField(Pattern.compile("h[24]")), "r12");
+    assertThrowsIllegalArg(() -> csvFile.row(0).getField(Pattern.compile("zzz")));
+
+    assertEquals(csvFile.row(0).findField(Pattern.compile("h[13]")), Optional.of("r11"));
+    assertEquals(csvFile.row(0).findField(Pattern.compile("h[24]")), Optional.of("r12"));
+    assertEquals(csvFile.row(0).findField(Pattern.compile("zzz")), Optional.empty());
+
+    assertEquals(csvFile.row(0).subRow(0).fieldCount(), 2);
+    assertEquals(csvFile.row(0).subRow(1).fieldCount(), 1);
+    assertEquals(csvFile.row(0).subRow(2).fieldCount(), 0);
+
+    assertEquals(csvFile.row(0).subRow(0, 0).fieldCount(), 0);
+    assertEquals(csvFile.row(0).subRow(0, 1).fieldCount(), 1);
+    assertEquals(csvFile.row(0).subRow(2, 2).fieldCount(), 0);
+  }
+
+  public void test_duplicate_headers() {
+    CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV5), true);
+    assertEquals(csvFile.headers(), ImmutableList.of("a", "b", "c", "b", "c"));
+    assertEquals(csvFile.row(0).getField("a"), "aa");
+    assertEquals(csvFile.row(0).getField("b"), "b1");
+    assertEquals(csvFile.row(0).getField("c"), "c1");
+
+    assertEquals(csvFile.row(0).subRow(1, 3).getField("b"), "b1");
+    assertEquals(csvFile.row(0).subRow(1, 3).getField("c"), "c1");
+    assertEquals(csvFile.row(0).subRow(3).getField("b"), "b2");
+    assertEquals(csvFile.row(0).subRow(3).getField("c"), "c2");
   }
 
   public void test_comment_blank_no_header() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV2), false);
     assertEquals(csvFile.headers().size(), 0);
     assertEquals(csvFile.rowCount(), 2);
-    assertEquals(csvFile.row(0).size(), 2);
-    assertEquals(csvFile.row(0).get(0), "h1");
-    assertEquals(csvFile.row(0).get(1), "h2");
-    assertEquals(csvFile.row(1).size(), 2);
-    assertEquals(csvFile.row(1).get(0), "r21");
-    assertEquals(csvFile.row(1).get(1), "r22");
+    assertEquals(csvFile.row(0).fieldCount(), 2);
+    assertEquals(csvFile.row(0).field(0), "h1");
+    assertEquals(csvFile.row(0).field(1), "h2");
+    assertEquals(csvFile.row(1).fieldCount(), 2);
+    assertEquals(csvFile.row(1).field(0), "r21");
+    assertEquals(csvFile.row(1).field(1), "r22");
   }
 
   public void test_comment_blank_with_header() {
@@ -123,45 +197,47 @@ public class CsvFileTest {
     assertEquals(headers.get(1), "h2");
     assertEquals(csvFile.rows().size(), 1);
     assertEquals(csvFile.rowCount(), 1);
-    assertEquals(csvFile.row(0).size(), 2);
-    assertEquals(csvFile.row(0).get(0), "r21");
-    assertEquals(csvFile.row(0).get(1), "r22");
+    assertEquals(csvFile.row(0).fieldCount(), 2);
+    assertEquals(csvFile.row(0).field(0), "r21");
+    assertEquals(csvFile.row(0).field(1), "r22");
     assertEquals(csvFile.rows().get(0), csvFile.row(0));
   }
 
   public void test_simple_no_header_access_by_field() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1), false);
-    assertThrowsIllegalArg(() -> csvFile.field(0, "h1"));
+    assertEquals(csvFile.row(0).findField("h1"), Optional.empty());
+    assertThrowsIllegalArg(() -> csvFile.row(0).getField("h1"));
   }
 
   public void test_simple_with_header_access_by_invalid_field() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1), true);
-    assertThrowsIllegalArg(() -> csvFile.field(0, "h3"));
+    assertEquals(csvFile.row(0).findField("h3"), Optional.empty());
+    assertThrowsIllegalArg(() -> csvFile.row(0).getField("h3"));
   }
 
   public void test_blank_row() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV3), false);
     assertEquals(csvFile.rowCount(), 2);
-    assertEquals(csvFile.row(0).size(), 2);
-    assertEquals(csvFile.row(0).get(0), "r11");
-    assertEquals(csvFile.row(0).get(1), "r12");
-    assertEquals(csvFile.row(1).size(), 2);
-    assertEquals(csvFile.row(1).get(0), "r21");
-    assertEquals(csvFile.row(1).get(1), "r22");
+    assertEquals(csvFile.row(0).fieldCount(), 2);
+    assertEquals(csvFile.row(0).field(0), "r11");
+    assertEquals(csvFile.row(0).field(1), "r12");
+    assertEquals(csvFile.row(1).fieldCount(), 2);
+    assertEquals(csvFile.row(1).field(0), "r21");
+    assertEquals(csvFile.row(1).field(1), "r22");
   }
 
   public void test_quoting() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV4), false);
     assertEquals(csvFile.rowCount(), 3);
-    assertEquals(csvFile.row(0).size(), 2);
-    assertEquals(csvFile.row(0).get(0), "alpha");
-    assertEquals(csvFile.row(0).get(1), "be, \"at\", one");
-    assertEquals(csvFile.row(1).size(), 2);
-    assertEquals(csvFile.row(1).get(0), "alpha\",\"be\"");
-    assertEquals(csvFile.row(1).get(1), "\"at\", one");
-    assertEquals(csvFile.row(2).size(), 2);
-    assertEquals(csvFile.row(2).get(0), "r21");
-    assertEquals(csvFile.row(2).get(1), " r22 ");
+    assertEquals(csvFile.row(0).fieldCount(), 2);
+    assertEquals(csvFile.row(0).field(0), "alpha");
+    assertEquals(csvFile.row(0).field(1), "be, \"at\", one");
+    assertEquals(csvFile.row(1).fieldCount(), 2);
+    assertEquals(csvFile.row(1).field(0), "alpha\",\"be\"");
+    assertEquals(csvFile.row(1).field(1), "\"at\", one");
+    assertEquals(csvFile.row(2).fieldCount(), 2);
+    assertEquals(csvFile.row(2).field(0), "r21");
+    assertEquals(csvFile.row(2).field(1), " r22 ");
   }
 
   public void test_quoting_mismatched() {
@@ -177,7 +253,9 @@ public class CsvFileTest {
     List<List<String>> rows = Arrays.asList(Arrays.asList("a", "x"), Arrays.asList("b", "y"));
     CsvFile csvFile = CsvFile.of(headers, rows);
     assertEquals(csvFile.headers(), headers);
-    assertEquals(csvFile.rows(), rows);
+    assertEquals(csvFile.rows().size(), 2);
+    assertEquals(csvFile.row(0).fields(), Arrays.asList("a", "x"));
+    assertEquals(csvFile.row(1).fields(), Arrays.asList("b", "y"));
   }
 
   public void test_of_lists_noHeaderNoRows() {
@@ -193,7 +271,9 @@ public class CsvFileTest {
     List<List<String>> rows = Arrays.asList(Arrays.asList("a", "x"), Arrays.asList("b", "y"));
     CsvFile csvFile = CsvFile.of(headers, rows);
     assertEquals(csvFile.headers(), headers);
-    assertEquals(csvFile.rows(), rows);
+    assertEquals(csvFile.rows().size(), 2);
+    assertEquals(csvFile.row(0).fields(), Arrays.asList("a", "x"));
+    assertEquals(csvFile.row(1).fields(), Arrays.asList("b", "y"));
   }
 
   public void test_of_lists_sizeMismatch() {
@@ -208,7 +288,7 @@ public class CsvFileTest {
     CsvFile a2 = CsvFile.of(CharSource.wrap(CSV1), true);
     CsvFile b = CsvFile.of(CharSource.wrap(CSV2), true);
     CsvFile c = CsvFile.of(CharSource.wrap(CSV3), false);
-
+    // file
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
@@ -217,6 +297,15 @@ public class CsvFileTest {
     assertEquals(a1.equals(""), false);
     assertEquals(a1.hashCode(), a2.hashCode());
     assertNotNull(a1.toString());
+    // row
+    assertEquals(a1.row(0).equals(a1.row(0)), true);
+    assertEquals(a1.row(0).equals(a2.row(0)), true);
+    assertEquals(a1.row(0).equals(b.row(0)), false);
+    assertEquals(c.row(0).equals(c.row(1)), false);
+    assertEquals(a1.row(0).equals(""), false);
+    assertEquals(a1.row(0).equals(null), false);
+    assertEquals(a1.row(0).hashCode(), a2.row(0).hashCode());
+    assertNotNull(a1.row(0).toString());
   }
 
 }

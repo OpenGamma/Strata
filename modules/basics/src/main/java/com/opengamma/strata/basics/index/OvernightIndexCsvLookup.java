@@ -16,6 +16,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.collect.io.CsvFile;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceConfig;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.named.NamedLookup;
@@ -70,8 +71,8 @@ final class OvernightIndexCsvLookup
     for (ResourceLocator resource : resources) {
       try {
         CsvFile csv = CsvFile.of(resource.getCharSource(), true);
-        for (int i = 0; i < csv.rowCount(); i++) {
-          OvernightIndex parsed = parseOvernightIndex(csv, i);
+        for (CsvRow row : csv.rows()) {
+          OvernightIndex parsed = parseOvernightIndex(row);
           map.put(parsed.getName(), parsed);
         }
       } catch (RuntimeException ex) {
@@ -82,13 +83,13 @@ final class OvernightIndexCsvLookup
     return ImmutableMap.copyOf(map);
   }
 
-  private static OvernightIndex parseOvernightIndex(CsvFile csv, int row) {
-    String name = csv.field(row, NAME_FIELD);
-    Currency currency = Currency.parse(csv.field(row, CURRENCY_FIELD));
-    DayCount dayCount = DayCount.of(csv.field(row, DAY_COUNT_FIELD));
-    HolidayCalendar fixingCal = HolidayCalendar.of(csv.field(row, FIXING_CALENDAR_FIELD));
-    int publicationDays = Integer.parseInt(csv.field(row, PUBLICATION_DAYS_FIELD));
-    int effectiveDays = Integer.parseInt(csv.field(row, EFFECTIVE_DAYS_FIELD));
+  private static OvernightIndex parseOvernightIndex(CsvRow row) {
+    String name = row.getField(NAME_FIELD);
+    Currency currency = Currency.parse(row.getField(CURRENCY_FIELD));
+    DayCount dayCount = DayCount.of(row.getField(DAY_COUNT_FIELD));
+    HolidayCalendar fixingCal = HolidayCalendar.of(row.getField(FIXING_CALENDAR_FIELD));
+    int publicationDays = Integer.parseInt(row.getField(PUBLICATION_DAYS_FIELD));
+    int effectiveDays = Integer.parseInt(row.getField(EFFECTIVE_DAYS_FIELD));
     // build result
     return ImmutableOvernightIndex.builder()
         .name(name)

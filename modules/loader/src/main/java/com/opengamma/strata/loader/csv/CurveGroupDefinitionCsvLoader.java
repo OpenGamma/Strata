@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
@@ -77,12 +78,11 @@ public final class CurveGroupDefinitionCsvLoader {
   public static List<CurveGroupDefinition> loadCurveGroups(ResourceLocator groupsResource) {
     Map<CurveName, Set<CurveId>> curveGroups = new HashMap<>();
     CsvFile csv = CsvFile.of(groupsResource.getCharSource(), true);
-
-    for (int i = 0; i < csv.rowCount(); i++) {
-      String curveGroupStr = csv.field(i, GROUPS_NAME);
-      String curveTypeStr = csv.field(i, GROUPS_CURVE_TYPE);
-      String referenceStr = csv.field(i, GROUPS_REFERENCE);
-      String curveNameStr = csv.field(i, GROUPS_CURVE_NAME);
+    for (CsvRow row : csv.rows()) {
+      String curveGroupStr = row.getField(GROUPS_NAME);
+      String curveTypeStr = row.getField(GROUPS_CURVE_TYPE);
+      String referenceStr = row.getField(GROUPS_REFERENCE);
+      String curveNameStr = row.getField(GROUPS_CURVE_NAME);
 
       CurveId curveId = createCurveId(CurveGroupName.of(curveGroupStr), curveTypeStr, referenceStr);
       CurveName curveName = CurveName.of(curveNameStr);

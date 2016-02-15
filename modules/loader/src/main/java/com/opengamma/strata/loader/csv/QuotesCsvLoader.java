@@ -16,6 +16,7 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.io.CsvFile;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.market.id.QuoteId;
 
@@ -101,14 +102,14 @@ public final class QuotesCsvLoader {
 
     try {
       CsvFile csv = CsvFile.of(resource.getCharSource(), true);
-      for (int i = 0; i < csv.rowCount(); i++) {
-        String dateText = csv.field(i, DATE_FIELD);
+      for (CsvRow row : csv.rows()) {
+        String dateText = row.getField(DATE_FIELD);
         LocalDate date = LocalDate.parse(dateText);
         if (date.equals(marketDataDate)) {
-          String symbologyStr = csv.field(i, SYMBOLOGY_FIELD);
-          String tickerStr = csv.field(i, TICKER_FIELD);
-          String fieldNameStr = csv.field(i, FIELD_NAME_FIELD);
-          String valueStr = csv.field(i, VALUE_FIELD);
+          String symbologyStr = row.getField(SYMBOLOGY_FIELD);
+          String tickerStr = row.getField(TICKER_FIELD);
+          String fieldNameStr = row.getField(FIELD_NAME_FIELD);
+          String valueStr = row.getField(VALUE_FIELD);
 
           double value = Double.valueOf(valueStr);
           StandardId id = StandardId.of(symbologyStr, tickerStr);

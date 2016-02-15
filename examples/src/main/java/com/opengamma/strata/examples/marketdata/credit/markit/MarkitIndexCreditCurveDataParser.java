@@ -21,6 +21,7 @@ import com.opengamma.strata.calc.marketdata.MarketEnvironmentBuilder;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.io.CsvFile;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.IsdaCreditCurveInputs;
 import com.opengamma.strata.market.id.IsdaIndexCreditCurveInputsId;
@@ -84,15 +85,14 @@ public class MarkitIndexCreditCurveDataParser {
     Map<MarkitRedCode, StaticData> staticDataMap = parseStaticData(staticDataSource);
 
     CsvFile csv = CsvFile.of(curveSource, true);
-    for (int i = 0; i < csv.rowCount(); i++) {
-
-      String seriesText = csv.field(i, Columns.Series.getColumnName());
-      String versionText = csv.field(i, Columns.Version.getColumnName());
-      String termText = csv.field(i, Columns.Term.getColumnName());
-      String redCodeText = csv.field(i, Columns.RedCode.getColumnName());
-      String maturityText = csv.field(i, Columns.Maturity.getColumnName());
-      String compositeSpreadText = csv.field(i, Columns.CompositeSpread.getColumnName());
-      String modelSpreadText = csv.field(i, Columns.ModelSpread.getColumnName());
+    for (CsvRow row : csv.rows()) {
+      String seriesText = row.getField(Columns.Series.getColumnName());
+      String versionText = row.getField(Columns.Version.getColumnName());
+      String termText = row.getField(Columns.Term.getColumnName());
+      String redCodeText = row.getField(Columns.RedCode.getColumnName());
+      String maturityText = row.getField(Columns.Maturity.getColumnName());
+      String compositeSpreadText = row.getField(Columns.CompositeSpread.getColumnName());
+      String modelSpreadText = row.getField(Columns.ModelSpread.getColumnName());
 
       StandardId indexId = MarkitRedCode.id(redCodeText);
       int indexSeries = Integer.parseInt(seriesText);
@@ -167,12 +167,12 @@ public class MarkitIndexCreditCurveDataParser {
     CsvFile csv = CsvFile.of(source, true);
 
     Map<MarkitRedCode, StaticData> result = Maps.newHashMap();
-    for (int i = 0; i < csv.rowCount(); i++) {
-      String redCodeText = csv.field(i, "RedCode");
-      String fromDateText = csv.field(i, "From Date");
-      String conventionText = csv.field(i, "Convention");
-      String recoveryRateText = csv.field(i, "Recovery Rate");
-      String indexFactorText = csv.field(i, "Index Factor");
+    for (CsvRow row : csv.rows()) {
+      String redCodeText = row.getField("RedCode");
+      String fromDateText = row.getField("From Date");
+      String conventionText = row.getField("Convention");
+      String recoveryRateText = row.getField("Recovery Rate");
+      String indexFactorText = row.getField("Index Factor");
 
       MarkitRedCode redCode = MarkitRedCode.of(redCodeText);
       LocalDate fromDate = LocalDate.parse(fromDateText, DATE_FORMAT);
