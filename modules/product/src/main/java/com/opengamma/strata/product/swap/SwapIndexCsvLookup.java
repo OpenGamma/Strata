@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.io.CsvFile;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceConfig;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.named.NamedLookup;
@@ -74,8 +75,8 @@ final class SwapIndexCsvLookup
     for (ResourceLocator resource : resources) {
       try {
         CsvFile csv = CsvFile.of(resource.getCharSource(), true);
-        for (int i = 0; i < csv.rowCount(); i++) {
-          SwapIndex parsed = parseSwapIndex(csv, i);
+        for (CsvRow row : csv.rows()) {
+          SwapIndex parsed = parseSwapIndex(row);
           map.put(parsed.getName(), parsed);
         }
       } catch (RuntimeException ex) {
@@ -86,12 +87,12 @@ final class SwapIndexCsvLookup
     return ImmutableMap.copyOf(map);
   }
 
-  private static SwapIndex parseSwapIndex(CsvFile csv, int row) {
-    String name = csv.field(row, NAME_FIELD);
-    FixedIborSwapConvention convention = FixedIborSwapConvention.of(csv.field(row, CONVENTION_FIELD));
-    Tenor tenor = Tenor.parse(csv.field(row, TENOR_FIELD));
-    LocalTime time = LocalTime.parse(csv.field(row, FIXING_TIME_FIELD), TIME_FORMAT);
-    ZoneId zoneId = ZoneId.of(csv.field(row, FIXING_ZONE_FIELD));
+  private static SwapIndex parseSwapIndex(CsvRow row) {
+    String name = row.getField(NAME_FIELD);
+    FixedIborSwapConvention convention = FixedIborSwapConvention.of(row.getField(CONVENTION_FIELD));
+    Tenor tenor = Tenor.parse(row.getField(TENOR_FIELD));
+    LocalTime time = LocalTime.parse(row.getField(FIXING_TIME_FIELD), TIME_FORMAT);
+    ZoneId zoneId = ZoneId.of(row.getField(FIXING_ZONE_FIELD));
     // build result
     return ImmutableSwapIndex.of(name, time, zoneId, FixedIborSwapTemplate.of(tenor, convention));
   }

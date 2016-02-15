@@ -26,6 +26,7 @@ import com.google.common.collect.Multimap;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
@@ -189,14 +190,13 @@ public final class RatesCurvesCsvLoader {
   static Map<CurveName, LoadedCurveSettings> loadCurveSettings(ResourceLocator settingsResource) {
     ImmutableMap.Builder<CurveName, LoadedCurveSettings> builder = ImmutableMap.builder();
     CsvFile csv = CsvFile.of(settingsResource.getCharSource(), true);
-
-    for (int i = 0; i < csv.rowCount(); i++) {
-      String curveNameStr = csv.field(i, SETTINGS_CURVE_NAME);
-      String valueTypeStr = csv.field(i, SETTINGS_VALUE_TYPE);
-      String dayCountStr = csv.field(i, SETTINGS_DAY_COUNT);
-      String interpolatorStr = csv.field(i, SETTINGS_INTERPOLATOR);
-      String leftExtrapolatorStr = csv.field(i, SETTINGS_LEFT_EXTRAPOLATOR);
-      String rightExtrapolatorStr = csv.field(i, SETTINGS_RIGHT_EXTRAPOLATOR);
+    for (CsvRow row : csv.rows()) {
+      String curveNameStr = row.getField(SETTINGS_CURVE_NAME);
+      String valueTypeStr = row.getField(SETTINGS_VALUE_TYPE);
+      String dayCountStr = row.getField(SETTINGS_DAY_COUNT);
+      String interpolatorStr = row.getField(SETTINGS_INTERPOLATOR);
+      String leftExtrapolatorStr = row.getField(SETTINGS_LEFT_EXTRAPOLATOR);
+      String rightExtrapolatorStr = row.getField(SETTINGS_RIGHT_EXTRAPOLATOR);
 
       CurveName curveName = CurveName.of(curveNameStr);
       ValueType valueType = VALUE_TYPE_MAP.get(valueTypeStr.toLowerCase(Locale.ENGLISH));
@@ -227,13 +227,12 @@ public final class RatesCurvesCsvLoader {
 
     CsvFile csv = CsvFile.of(curvesResource.getCharSource(), true);
     Map<LoadedCurveKey, List<LoadedCurveNode>> allNodes = new HashMap<>();
-
-    for (int i = 0; i < csv.rowCount(); i++) {
-      String valuationDateStr = csv.field(i, CURVE_DATE);
-      String curveNameStr = csv.field(i, CURVE_NAME);
-      String pointDateStr = csv.field(i, CURVE_POINT_DATE);
-      String pointValueStr = csv.field(i, CURVE_POINT_VALUE);
-      String pointLabel = csv.field(i, CURVE_POINT_LABEL);
+    for (CsvRow row : csv.rows()) {
+      String valuationDateStr = row.getField(CURVE_DATE);
+      String curveNameStr = row.getField(CURVE_NAME);
+      String pointDateStr = row.getField(CURVE_POINT_DATE);
+      String pointValueStr = row.getField(CURVE_POINT_VALUE);
+      String pointLabel = row.getField(CURVE_POINT_LABEL);
 
       LocalDate valuationDate = LocalDate.parse(valuationDateStr);
       if (requestedDate == null || valuationDate.equals(requestedDate)) {

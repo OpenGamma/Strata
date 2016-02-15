@@ -16,6 +16,7 @@ import com.google.common.collect.Maps;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.io.CsvFile;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
 import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
@@ -46,12 +47,12 @@ public class MarkitYieldCurveDataParser {
     // parse the curve data
     Map<IsdaYieldCurveConvention, List<Point>> curveData = Maps.newHashMap();
     CsvFile csv = CsvFile.of(source, true);
-    for (int i = 0; i < csv.rowCount(); i++) {
-      String dateText = csv.field(i, DATE);
-      String tenorText = csv.field(i, TENOR);
-      String instrumentText = csv.field(i, INSTRUMENT);
-      String rateText = csv.field(i, RATE);
-      String conventionText = csv.field(i, CONVENTION);
+    for (CsvRow row : csv.rows()) {
+      String dateText = row.getField(DATE);
+      String tenorText = row.getField(TENOR);
+      String instrumentText = row.getField(INSTRUMENT);
+      String rateText = row.getField(RATE);
+      String conventionText = row.getField(CONVENTION);
 
       Point point = new Point(
           Tenor.parse(tenorText),

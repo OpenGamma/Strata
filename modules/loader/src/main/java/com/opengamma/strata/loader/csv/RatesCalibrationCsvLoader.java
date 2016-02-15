@@ -24,6 +24,7 @@ import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.io.CsvFile;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveName;
@@ -187,16 +188,16 @@ public final class RatesCalibrationCsvLoader {
 
     CsvFile csv = CsvFile.of(resource.getCharSource(), true);
     Map<CurveName, List<CurveNode>> allNodes = new HashMap<>();
-    for (int i = 0; i < csv.rowCount(); i++) {
-      String curveNameStr = csv.field(i, CURVE_NAME);
-      String label = csv.field(i, CURVE_LABEL);
-      String symbologyQuoteStr = csv.field(i, CURVE_SYMBOLOGY_QUOTE);
-      String tickerQuoteStr = csv.field(i, CURVE_TICKER_QUOTE);
-      String fieldQuoteStr = csv.field(i, CURVE_FIELD_QUOTE);
-      String typeStr = csv.field(i, CURVE_TYPE);
-      String conventionStr = csv.field(i, CURVE_CONVENTION);
-      String timeStr = csv.field(i, CURVE_TIME);
-      String spreadStr = csv.field(i, CURVE_SPREAD);
+    for (CsvRow row : csv.rows()) {
+      String curveNameStr = row.getField(CURVE_NAME);
+      String label = row.getField(CURVE_LABEL);
+      String symbologyQuoteStr = row.getField(CURVE_SYMBOLOGY_QUOTE);
+      String tickerQuoteStr = row.getField(CURVE_TICKER_QUOTE);
+      String fieldQuoteStr = row.getField(CURVE_FIELD_QUOTE);
+      String typeStr = row.getField(CURVE_TYPE);
+      String conventionStr = row.getField(CURVE_CONVENTION);
+      String timeStr = row.getField(CURVE_TIME);
+      String spreadStr = row.getField(CURVE_SPREAD);
 
       CurveName curveName = CurveName.of(curveNameStr);
       StandardId quoteId = StandardId.of(symbologyQuoteStr, tickerQuoteStr);

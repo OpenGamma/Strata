@@ -14,6 +14,7 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.collect.io.CsvFile;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 
 /**
@@ -94,12 +95,12 @@ public final class FxRatesCsvLoader {
 
     try {
       CsvFile csv = CsvFile.of(resource.getCharSource(), true);
-      for (int i = 0; i < csv.rowCount(); i++) {
-        String dateText = csv.field(i, DATE_FIELD);
+      for (CsvRow row : csv.rows()) {
+        String dateText = row.getField(DATE_FIELD);
         LocalDate date = LocalDate.parse(dateText);
         if (date.equals(marketDataDate)) {
-          String currencyPairStr = csv.field(i, CURRENCY_PAIR_FIELD);
-          String valueStr = csv.field(i, VALUE_FIELD);
+          String currencyPairStr = row.getField(CURRENCY_PAIR_FIELD);
+          String valueStr = row.getField(VALUE_FIELD);
           CurrencyPair currencyPair = CurrencyPair.parse(currencyPairStr);
           double value = Double.valueOf(valueStr);
           builder.put(FxRateId.of(currencyPair), FxRate.of(currencyPair, value));
