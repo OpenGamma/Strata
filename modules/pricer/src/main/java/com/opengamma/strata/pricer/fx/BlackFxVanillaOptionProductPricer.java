@@ -15,15 +15,13 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.fx.FxSingle;
-import com.opengamma.strata.product.fx.FxSingleProduct;
-import com.opengamma.strata.product.fx.FxVanillaOption;
-import com.opengamma.strata.product.fx.FxVanillaOptionProduct;
+import com.opengamma.strata.product.fx.ResolvedFxSingle;
+import com.opengamma.strata.product.fx.ResolvedFxVanillaOption;
 
 /**
  * Pricer for foreign exchange vanilla option transaction products with a lognormal model.
  * <p>
- * This function provides the ability to price an {@link FxVanillaOptionProduct}.
+ * This function provides the ability to price an {@link ResolvedFxVanillaOption}.
  */
 public class BlackFxVanillaOptionProductPricer {
 
@@ -41,7 +39,7 @@ public class BlackFxVanillaOptionProductPricer {
   /**
    * Creates an instance.
    * 
-   * @param fxPricer  the pricer for {@link FxSingleProduct}
+   * @param fxPricer  the pricer for {@link ResolvedFxSingle}
    */
   public BlackFxVanillaOptionProductPricer(
       DiscountingFxSingleProductPricer fxPricer) {
@@ -64,17 +62,17 @@ public class BlackFxVanillaOptionProductPricer {
    * <p>
    * The price of the product is the value on the valuation date.
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the price of the product
    */
   public double price(
-      FxVanillaOption option,
+      ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
-    FxSingle underlying = option.getUnderlying();
+    ResolvedFxSingle underlying = option.getUnderlying();
     double forwardPrice = undiscountedPrice(option, ratesProvider, volatilityProvider);
     double discountFactor = ratesProvider.discountFactor(option.getPayoffCurrency(), underlying.getPaymentDate());
     return discountFactor * forwardPrice;
@@ -85,13 +83,13 @@ public class BlackFxVanillaOptionProductPricer {
    * <p>
    * The present value of the product is the value on the valuation date.
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the present value of the product
    */
   public CurrencyAmount presentValue(
-      FxVanillaOption option,
+      ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
@@ -101,15 +99,15 @@ public class BlackFxVanillaOptionProductPricer {
 
   // the price without discounting
   private double undiscountedPrice(
-      FxVanillaOption option,
+      ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
-    double timeToExpiry = volatilityProvider.relativeTime(option.getExpiryDateTime());
+    double timeToExpiry = volatilityProvider.relativeTime(option.getExpiry());
     if (timeToExpiry <= 0d) {
       return 0d;
     }
-    FxSingle underlying = option.getUnderlying();
+    ResolvedFxSingle underlying = option.getUnderlying();
     FxRate forward = fxPricer.forwardFxRate(underlying, ratesProvider);
     FxRate strike = option.getStrike();
     CurrencyPair strikePair = strike.getPair();
@@ -117,7 +115,7 @@ public class BlackFxVanillaOptionProductPricer {
     double strikeRate = strike.fxRate(strikePair);
     boolean isCall = option.getPutCall().isCall();
     double volatility = volatilityProvider.getVolatility(
-        strikePair, option.getExpiryDateTime(), strikeRate, forwardRate);
+        strikePair, option.getExpiry(), strikeRate, forwardRate);
     return BlackFormulaRepository.price(forwardRate, strikeRate, timeToExpiry, volatility, isCall);
   }
 
@@ -127,17 +125,17 @@ public class BlackFxVanillaOptionProductPricer {
    * <p>
    * The delta is the first derivative of the option price with respect to spot. 
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the delta of the product
    */
   public double delta(
-      FxVanillaOption option,
+      ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
-    FxSingle underlying = option.getUnderlying();
+    ResolvedFxSingle underlying = option.getUnderlying();
     double fwdDelta = undiscountedDelta(option, ratesProvider, volatilityProvider);
     double discountFactor = ratesProvider.discountFactor(option.getPayoffCurrency(), underlying.getPaymentDate());
     double fwdRateSpotSensitivity = fxPricer.forwardFxRateSpotSensitivity(underlying, ratesProvider);
@@ -149,13 +147,13 @@ public class BlackFxVanillaOptionProductPricer {
    * <p>
    * The present value delta is the first derivative of the present value with respect to spot. 
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the present value delta of the product
    */
   public CurrencyAmount presentValueDelta(
-      FxVanillaOption option,
+      ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
@@ -171,20 +169,20 @@ public class BlackFxVanillaOptionProductPricer {
    * <p>
    * The volatility is fixed in this sensitivity computation.
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the present value curve sensitivity of the product
    */
   public PointSensitivities presentValueSensitivity(
-      FxVanillaOption option,
+      ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
-    if (volatilityProvider.relativeTime(option.getExpiryDateTime()) <= 0d) {
+    if (volatilityProvider.relativeTime(option.getExpiry()) <= 0d) {
       return PointSensitivities.empty();
     }
-    FxSingle underlying = option.getUnderlying();
+    ResolvedFxSingle underlying = option.getUnderlying();
     double fwdDelta = undiscountedDelta(option, ratesProvider, volatilityProvider);
     double discountFactor = ratesProvider.discountFactor(option.getPayoffCurrency(), underlying.getPaymentDate());
     double notional = signedNotional(option);
@@ -198,15 +196,15 @@ public class BlackFxVanillaOptionProductPricer {
 
   // the delta without discounting
   private double undiscountedDelta(
-      FxVanillaOption option,
+      ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
-    double timeToExpiry = volatilityProvider.relativeTime(option.getExpiryDateTime());
+    double timeToExpiry = volatilityProvider.relativeTime(option.getExpiry());
     if (timeToExpiry <= 0d) {
       return 0d;
     }
-    FxSingle underlying = option.getUnderlying();
+    ResolvedFxSingle underlying = option.getUnderlying();
     FxRate forward = fxPricer.forwardFxRate(underlying, ratesProvider);
     FxRate strike = option.getStrike();
     CurrencyPair strikePair = strike.getPair();
@@ -214,7 +212,7 @@ public class BlackFxVanillaOptionProductPricer {
     double strikeRate = strike.fxRate(strikePair);
     boolean isCall = option.getPutCall().isCall();
     double volatility = volatilityProvider.getVolatility(
-        strikePair, option.getExpiryDateTime(), strikeRate, forwardRate);
+        strikePair, option.getExpiry(), strikeRate, forwardRate);
     return BlackFormulaRepository.delta(forwardRate, strikeRate, timeToExpiry, volatility, isCall);
   }
 
@@ -224,28 +222,28 @@ public class BlackFxVanillaOptionProductPricer {
    * <p>
    * The gamma is the second derivative of the option price with respect to spot. 
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the gamma of the product
    */
   public double gamma(
-      FxVanillaOption option,
+      ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
-    double timeToExpiry = volatilityProvider.relativeTime(option.getExpiryDateTime());
+    double timeToExpiry = volatilityProvider.relativeTime(option.getExpiry());
     if (timeToExpiry <= 0d) {
       return 0d;
     }
-    FxSingle underlying = option.getUnderlying();
+    ResolvedFxSingle underlying = option.getUnderlying();
     FxRate forward = fxPricer.forwardFxRate(underlying, ratesProvider);
     FxRate strike = option.getStrike();
     CurrencyPair strikePair = strike.getPair();
     double forwardRate = forward.fxRate(strikePair);
     double strikeRate = strike.fxRate(strikePair);
     double volatility = volatilityProvider.getVolatility(
-        strikePair, option.getExpiryDateTime(), strikeRate, forwardRate);
+        strikePair, option.getExpiry(), strikeRate, forwardRate);
     double forwardGamma = BlackFormulaRepository.gamma(forwardRate, strikeRate, timeToExpiry, volatility);
     double discountFactor = ratesProvider.discountFactor(option.getPayoffCurrency(), underlying.getPaymentDate());
     double fwdRateSpotSensitivity = fxPricer.forwardFxRateSpotSensitivity(underlying, ratesProvider);
@@ -257,13 +255,13 @@ public class BlackFxVanillaOptionProductPricer {
    * <p>
    * The present value gamma is the second derivative of the present value with respect to spot. 
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the present value gamma of the product
    */
   public CurrencyAmount presentValueGamma(
-      FxVanillaOption option,
+      ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
@@ -277,28 +275,28 @@ public class BlackFxVanillaOptionProductPricer {
    * <p>
    * The vega is the first derivative of the option price with respect to volatility. 
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the vega of the product
    */
   public double vega(
-      FxVanillaOption option,
+      ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
-    double timeToExpiry = volatilityProvider.relativeTime(option.getExpiryDateTime());
+    double timeToExpiry = volatilityProvider.relativeTime(option.getExpiry());
     if (timeToExpiry <= 0d) {
       return 0d;
     }
-    FxSingle underlying = option.getUnderlying();
+    ResolvedFxSingle underlying = option.getUnderlying();
     FxRate forward = fxPricer.forwardFxRate(underlying, ratesProvider);
     FxRate strike = option.getStrike();
     CurrencyPair strikePair = strike.getPair();
     double forwardRate = forward.fxRate(strikePair);
     double strikeRate = strike.fxRate(strikePair);
     double volatility = volatilityProvider.getVolatility(
-        strikePair, option.getExpiryDateTime(), strikeRate, forwardRate);
+        strikePair, option.getExpiry(), strikeRate, forwardRate);
     double fwdVega = BlackFormulaRepository.vega(forwardRate, strikeRate, timeToExpiry, volatility);
     double discountFactor = ratesProvider.discountFactor(option.getPayoffCurrency(), underlying.getPaymentDate());
     return discountFactor * fwdVega;
@@ -309,13 +307,13 @@ public class BlackFxVanillaOptionProductPricer {
    * <p>
    * The present value vega is the first derivative of the present value with respect to volatility. 
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the present value vega of the product
    */
   public CurrencyAmount presentValueVega(
-      FxVanillaOption option,
+      ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
@@ -328,25 +326,25 @@ public class BlackFxVanillaOptionProductPricer {
    * <p>
    * The result is a single sensitivity to the volatility used.
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the present value sensitivity
    */
   public PointSensitivityBuilder presentValueSensitivityBlackVolatility(
-      FxVanillaOption option,
+      ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
-    if (volatilityProvider.relativeTime(option.getExpiryDateTime()) <= 0d) {
+    if (volatilityProvider.relativeTime(option.getExpiry()) <= 0d) {
       return PointSensitivityBuilder.none();
     }
-    FxSingle underlying = option.getUnderlying();
+    ResolvedFxSingle underlying = option.getUnderlying();
     FxRate forward = fxPricer.forwardFxRate(underlying, ratesProvider);
     FxRate strike = option.getStrike();
     CurrencyPair strikePair = strike.getPair();
     CurrencyAmount valueVega = presentValueVega(option, ratesProvider, volatilityProvider);
-    return FxOptionSensitivity.of(strikePair, option.getExpiryDateTime(), strike.fxRate(strikePair),
+    return FxOptionSensitivity.of(strikePair, option.getExpiry(), strike.fxRate(strikePair),
         forward.fxRate(strikePair), valueVega.getCurrency(), valueVega.getAmount());
   }
 
@@ -357,28 +355,28 @@ public class BlackFxVanillaOptionProductPricer {
    * The theta is the negative of the first derivative of the option price with respect to time parameter
    * in Black formula (the discounted driftless theta).
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the theta of the product
    */
   public double theta(
-      FxVanillaOption option,
+      ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
-    double timeToExpiry = volatilityProvider.relativeTime(option.getExpiryDateTime());
+    double timeToExpiry = volatilityProvider.relativeTime(option.getExpiry());
     if (timeToExpiry <= 0d) {
       return 0d;
     }
-    FxSingle underlying = option.getUnderlying();
+    ResolvedFxSingle underlying = option.getUnderlying();
     FxRate forward = fxPricer.forwardFxRate(underlying, ratesProvider);
     FxRate strike = option.getStrike();
     CurrencyPair strikePair = strike.getPair();
     double forwardRate = forward.fxRate(strikePair);
     double strikeRate = strike.fxRate(strikePair);
     double volatility = volatilityProvider.getVolatility(
-        strikePair, option.getExpiryDateTime(), strikeRate, forwardRate);
+        strikePair, option.getExpiry(), strikeRate, forwardRate);
     double fwdTheta = BlackFormulaRepository.driftlessTheta(forwardRate, strikeRate, timeToExpiry, volatility);
     double discountFactor = ratesProvider.discountFactor(option.getPayoffCurrency(), underlying.getPaymentDate());
     return discountFactor * fwdTheta;
@@ -390,13 +388,13 @@ public class BlackFxVanillaOptionProductPricer {
    * The present value theta is the negative of the first derivative of the present value with time parameter
    * in Black formula, i.e., the driftless theta of the present value.
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the present value vega of the product
    */
   public CurrencyAmount presentValueTheta(
-      FxVanillaOption option,
+      ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
@@ -408,18 +406,18 @@ public class BlackFxVanillaOptionProductPricer {
   /**
    * Calculates the implied Black volatility of the foreign exchange vanilla option product.
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the implied volatility of the product
    * @throws IllegalArgumentException if the option has expired
    */
   public double impliedVolatility(
-      FxVanillaOption option,
+      ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
-    double timeToExpiry = volatilityProvider.relativeTime(option.getExpiryDateTime());
+    double timeToExpiry = volatilityProvider.relativeTime(option.getExpiry());
     if (timeToExpiry <= 0d) {
       throw new IllegalArgumentException("valuation is after option's expiry.");
     }
@@ -427,20 +425,20 @@ public class BlackFxVanillaOptionProductPricer {
     FxRate strike = option.getStrike();
     CurrencyPair strikePair = strike.getPair();
     return volatilityProvider.getVolatility(
-        strikePair, option.getExpiryDateTime(), strike.fxRate(strikePair), forward.fxRate(strikePair));
+        strikePair, option.getExpiry(), strike.fxRate(strikePair), forward.fxRate(strikePair));
   }
 
   //-------------------------------------------------------------------------
   /**
    * Calculates the currency exposure of the foreign exchange vanilla option product.
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(
-      FxVanillaOption option,
+      ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
@@ -456,7 +454,7 @@ public class BlackFxVanillaOptionProductPricer {
 
   //-------------------------------------------------------------------------
   // signed notional amount to computed present value and value Greeks
-  private double signedNotional(FxVanillaOption option) {
+  private double signedNotional(ResolvedFxVanillaOption option) {
     return (option.getLongShort().isLong() ? 1d : -1d) * option.getUnderlying().getReceiveCurrencyAmount().getAmount();
   }
 

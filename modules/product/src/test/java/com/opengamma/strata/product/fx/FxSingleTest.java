@@ -23,6 +23,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test {@link FxSingle}.
@@ -30,6 +31,7 @@ import com.opengamma.strata.basics.currency.Payment;
 @Test
 public class FxSingleTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
   private static final CurrencyAmount GBP_M1000 = CurrencyAmount.of(GBP, -1_000);
   private static final CurrencyAmount USD_P1600 = CurrencyAmount.of(USD, 1_600);
@@ -40,7 +42,7 @@ public class FxSingleTest {
 
   //-------------------------------------------------------------------------
   public void test_of_rightOrder() {
-    FxSingle test = FxSingle.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
+    FxSingle test = sut();
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
@@ -161,9 +163,9 @@ public class FxSingleTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_expand() {
-    FxSingle fwd = FxSingle.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
-    ExpandedFxSingle test = fwd.expand();
+  public void test_resolve() {
+    FxSingle fwd = sut();
+    ResolvedFxSingle test = fwd.resolve(REF_DATA);
     assertEquals(test.getBaseCurrencyPayment(), Payment.of(GBP_P1000, DATE_2015_06_30));
     assertEquals(test.getCounterCurrencyPayment(), Payment.of(USD_M1600, DATE_2015_06_30));
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
@@ -171,15 +173,21 @@ public class FxSingleTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    FxSingle test = FxSingle.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
-    coverImmutableBean(test);
-    FxSingle test2 = FxSingle.of(GBP_M1000, EUR_P1600, DATE_2015_06_29);
-    coverBeanEquals(test, test2);
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
   }
 
   public void test_serialization() {
-    FxSingle test = FxSingle.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
-    assertSerialization(test);
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static FxSingle sut() {
+    return FxSingle.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
+  }
+
+  static FxSingle sut2() {
+    return FxSingle.of(GBP_M1000, EUR_P1600, DATE_2015_06_29);
   }
 
 }

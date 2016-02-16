@@ -80,6 +80,7 @@ import com.opengamma.strata.product.deposit.type.TermDepositTemplate;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.type.FraTemplate;
 import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
@@ -431,7 +432,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     // FX
     for (int i = 0; i < EUR_DSC_NB_FX_NODES; i++) {
       MultiCurrencyAmount pvFx = FX_PRICER.presentValue(
-          ((FxSwapTrade) eurTrades.get(i)).getProduct(), result);
+          ((FxSwapTrade) eurTrades.get(i)).getProduct().resolve(REF_DATA), result);
       assertEquals(pvFx.convertedTo(USD, result).getAmount(), 0.0, TOLERANCE_PV);
     }
     // XCCY
@@ -476,8 +477,8 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     double notional = 100_000_000.0;
     double fx = 1.1111;
     double fxPts = 0.0012;
-    FxSwapTrade trade = EUR_USD
-        .createTrade(VAL_DATE, Period.ofWeeks(6), Period.ofMonths(5), BuySell.BUY, notional, fx, fxPts);
+    ResolvedFxSwapTrade trade = EUR_USD
+        .createTrade(VAL_DATE, Period.ofWeeks(6), Period.ofMonths(5), BuySell.BUY, notional, fx, fxPts).resolve(REF_DATA);
     ImmutableRatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, TS);
     PointSensitivities pts = FX_PRICER.presentValueSensitivity(trade.getProduct(), result);
     CurveCurrencyParameterSensitivities ps = result.curveParameterSensitivity(pts);

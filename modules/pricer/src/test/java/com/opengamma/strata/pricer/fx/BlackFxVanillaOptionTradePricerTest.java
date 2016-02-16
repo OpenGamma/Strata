@@ -31,9 +31,9 @@ import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.fx.FxSingle;
-import com.opengamma.strata.product.fx.FxVanillaOption;
-import com.opengamma.strata.product.fx.FxVanillaOptionTrade;
+import com.opengamma.strata.product.fx.ResolvedFxSingle;
+import com.opengamma.strata.product.fx.ResolvedFxVanillaOption;
+import com.opengamma.strata.product.fx.ResolvedFxVanillaOptionTrade;
 
 /**
  * Test {@link BlackFxVanillaOptionTradePricer}. 
@@ -68,27 +68,24 @@ public class BlackFxVanillaOptionTradePricerTest {
   private static final double NOTIONAL = 1.0e6;
   private static final CurrencyAmount EUR_AMOUNT = CurrencyAmount.of(EUR, NOTIONAL);
   private static final CurrencyAmount USD_AMOUNT = CurrencyAmount.of(USD, -NOTIONAL * FX_MATRIX.fxRate(EUR, USD));
-  private static final FxSingle FX_PRODUCT = FxSingle.of(EUR_AMOUNT, USD_AMOUNT, PAYMENT_DATE);
+  private static final ResolvedFxSingle FX_PRODUCT = ResolvedFxSingle.of(EUR_AMOUNT, USD_AMOUNT, PAYMENT_DATE);
 
   private static final double STRIKE_RATE = 1.45;
   private static final FxRate STRIKE = FxRate.of(EUR, USD, STRIKE_RATE);
   private static final PutCall CALL = PutCall.CALL;
   private static final LongShort SHORT = LongShort.SHORT;
-  private static final LocalDate EXPIRY_DATE = LocalDate.of(2014, 5, 9);
-  private static final LocalTime EXPIRY_TIME = LocalTime.of(13, 10);
-  private static final FxVanillaOption OPTION_PRODUCT = FxVanillaOption.builder()
+  private static final ZonedDateTime EXPIRY = ZonedDateTime.of(2014, 5, 9, 13, 10, 0, 0, ZONE);
+  private static final ResolvedFxVanillaOption OPTION_PRODUCT = ResolvedFxVanillaOption.builder()
       .putCall(CALL)
       .longShort(SHORT)
-      .expiryDate(EXPIRY_DATE)
-      .expiryTime(EXPIRY_TIME)
-      .expiryZone(ZONE)
+      .expiry(EXPIRY)
       .underlying(FX_PRODUCT)
       .strike(STRIKE)
       .build();
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(VAL_DATE).build();
   private static final LocalDate CASH_SETTLE_DATE = LocalDate.of(2014, 1, 25);
   private static final Payment PREMIUM = Payment.of(EUR, NOTIONAL * 0.027, CASH_SETTLE_DATE);
-  private static final FxVanillaOptionTrade OPTION_TRADE = FxVanillaOptionTrade.builder()
+  private static final ResolvedFxVanillaOptionTrade OPTION_TRADE = ResolvedFxVanillaOptionTrade.builder()
       .premium(PREMIUM)
       .product(OPTION_PRODUCT)
       .tradeInfo(TRADE_INFO)

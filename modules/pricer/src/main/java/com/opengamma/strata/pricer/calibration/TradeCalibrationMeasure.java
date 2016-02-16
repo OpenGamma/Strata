@@ -100,8 +100,8 @@ public class TradeCalibrationMeasure<T extends Trade>
       TradeCalibrationMeasure.of(
           "FxSwapParSpreadDiscounting",
           FxSwapTrade.class,
-          (trade, p) -> DiscountingFxSwapProductPricer.DEFAULT.parSpread(trade.getProduct(), p),
-          (trade, p) -> DiscountingFxSwapProductPricer.DEFAULT.parSpreadSensitivity(trade.getProduct(), p));
+          (trade, p) -> DiscountingFxSwapProductPricer.DEFAULT.parSpread(trade.getProduct().resolve(REF_DATA), p),
+          (trade, p) -> DiscountingFxSwapProductPricer.DEFAULT.parSpreadSensitivity(trade.getProduct().resolve(REF_DATA), p));
 
   //-------------------------------------------------------------------------
   /**

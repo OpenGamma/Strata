@@ -26,27 +26,33 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.ResolvedProduct;
 
 /**
- * An expanded single FX transaction, the low level representation of a simple foreign exchange.
+ * A single FX transaction, resolved for pricing.
  * <p>
- * This represents a single foreign exchange on a specific date.
+ * This is the resolved form of {@link FxSingle} and is an input to the pricers.
+ * Applications will typically create a {@code ResolvedFxSingle} from a {@code FxSingle}
+ * using {@link FxSingle#resolve(ReferenceData)}.
+ * <p>
  * The two payments are identified as the base and counter currencies in a standardized currency pair.
  * For example, a EUR/USD exchange always has EUR as the base payment and USD as the counter payment.
  * See {@link CurrencyPair} for details of the configuration that determines the ordering.
  * <p>
- * An {@code ExpandedFx} may contain information based on holiday calendars.
- * If a holiday calendar changes, the adjusted dates may no longer be correct.
- * Care must be taken when placing the expanded form in a cache or persistence layer.
- * Application code should use {@link FxSingle}, not this class.
+ * A {@code ResolvedFxSingle} is bound to data that changes over time, such as holiday calendars.
+ * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
+ * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
 @BeanDefinition(builderScope = "private")
-public final class ExpandedFxSingle
-    implements FxSingleProduct, ImmutableBean, Serializable {
+public final class ResolvedFxSingle
+    implements ResolvedProduct, ImmutableBean, Serializable {
 
   /**
    * The payment in the base currency, positive if receiving, negative if paying.
@@ -69,7 +75,7 @@ public final class ExpandedFxSingle
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an {@code ExpandedFx} from two equivalent payments in different currencies.
+   * Creates an {@code ResolvedFxSingle} from two equivalent payments in different currencies.
    * <p>
    * The payments must be of the correct type, one pay and one receive.
    * The currencies of the payments must differ.
@@ -80,19 +86,19 @@ public final class ExpandedFxSingle
    * 
    * @param payment1  the first payment
    * @param payment2  the second payment
-   * @return the expanded foreign exchange transaction
+   * @return the resolved foreign exchange transaction
    */
-  public static ExpandedFxSingle of(Payment payment1, Payment payment2) {
+  public static ResolvedFxSingle of(Payment payment1, Payment payment2) {
     CurrencyPair pair = CurrencyPair.of(payment2.getCurrency(), payment1.getCurrency());
     if (pair.isConventional()) {
-      return new ExpandedFxSingle(payment2, payment1);
+      return new ResolvedFxSingle(payment2, payment1);
     } else {
-      return new ExpandedFxSingle(payment1, payment2);
+      return new ResolvedFxSingle(payment1, payment2);
     }
   }
 
   /**
-   * Creates an {@code ExpandedFx} from two amounts and the value date.
+   * Creates an {@code ResolvedFxSingle} from two amounts and the value date.
    * <p>
    * The amounts must be of the correct type, one pay and one receive.
    * The currencies of the payments must differ.
@@ -104,10 +110,36 @@ public final class ExpandedFxSingle
    * @param amount1  the amount in the first currency
    * @param amount2  the amount in the second currency
    * @param valueDate  the value date
-   * @return the expanded foreign exchange transaction
+   * @return the resolved foreign exchange transaction
    */
-  public static ExpandedFxSingle of(CurrencyAmount amount1, CurrencyAmount amount2, LocalDate valueDate) {
-    return ExpandedFxSingle.of(Payment.of(amount1, valueDate), Payment.of(amount2, valueDate));
+  public static ResolvedFxSingle of(CurrencyAmount amount1, CurrencyAmount amount2, LocalDate valueDate) {
+    return ResolvedFxSingle.of(Payment.of(amount1, valueDate), Payment.of(amount2, valueDate));
+  }
+
+  /**
+   * Creates an {@code ResolvedFxSingle} using a rate.
+   * <p>
+   * This create an FX specifying a value date, notional in one currency, the second currency
+   * and the FX rate between the two.
+   * The currencies of the payments must differ.
+   * <p>
+   * This factory identifies the currency pair of the exchange and assigns the payments
+   * to match the base or counter currency of the standardized currency pair.
+   * For example, a EUR/USD exchange always has EUR as the base payment and USD as the counter payment.
+   * <p>
+   * No payment date adjustments apply.
+   * 
+   * @param amountCurrency1  the amount of the near leg in the first currency
+   * @param fxRate  the near FX rate
+   * @param paymentDate  date that the FX settles
+   * @return the resolved foreign exchange transaction
+   */
+  public static ResolvedFxSingle of(CurrencyAmount amountCurrency1, FxRate fxRate, LocalDate paymentDate) {
+    CurrencyPair pair = fxRate.getPair();
+    ArgChecker.isTrue(pair.contains(amountCurrency1.getCurrency()));
+    Currency currency2 = pair.getBase().equals(amountCurrency1.getCurrency()) ? pair.getCounter() : pair.getBase();
+    CurrencyAmount amountCurrency2 = amountCurrency1.convertedTo(currency2, fxRate).negated();
+    return ResolvedFxSingle.of(Payment.of(amountCurrency1, paymentDate), Payment.of(amountCurrency2, paymentDate));
   }
 
   //-------------------------------------------------------------------------
@@ -183,33 +215,22 @@ public final class ExpandedFxSingle
    * 
    * @return the inverse transaction
    */
-  public ExpandedFxSingle inverse() {
-    return new ExpandedFxSingle(baseCurrencyPayment.negated(), counterCurrencyPayment.negated());
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Expands this transaction, trivially returning {@code this}.
-   * 
-   * @return this transaction
-   */
-  @Override
-  public ExpandedFxSingle expand() {
-    return this;
+  public ResolvedFxSingle inverse() {
+    return new ResolvedFxSingle(baseCurrencyPayment.negated(), counterCurrencyPayment.negated());
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code ExpandedFxSingle}.
+   * The meta-bean for {@code ResolvedFxSingle}.
    * @return the meta-bean, not null
    */
-  public static ExpandedFxSingle.Meta meta() {
-    return ExpandedFxSingle.Meta.INSTANCE;
+  public static ResolvedFxSingle.Meta meta() {
+    return ResolvedFxSingle.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(ExpandedFxSingle.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ResolvedFxSingle.Meta.INSTANCE);
   }
 
   /**
@@ -217,7 +238,7 @@ public final class ExpandedFxSingle
    */
   private static final long serialVersionUID = 1L;
 
-  private ExpandedFxSingle(
+  private ResolvedFxSingle(
       Payment baseCurrencyPayment,
       Payment counterCurrencyPayment) {
     JodaBeanUtils.notNull(baseCurrencyPayment, "baseCurrencyPayment");
@@ -228,8 +249,8 @@ public final class ExpandedFxSingle
   }
 
   @Override
-  public ExpandedFxSingle.Meta metaBean() {
-    return ExpandedFxSingle.Meta.INSTANCE;
+  public ResolvedFxSingle.Meta metaBean() {
+    return ResolvedFxSingle.Meta.INSTANCE;
   }
 
   @Override
@@ -275,7 +296,7 @@ public final class ExpandedFxSingle
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ExpandedFxSingle other = (ExpandedFxSingle) obj;
+      ResolvedFxSingle other = (ResolvedFxSingle) obj;
       return JodaBeanUtils.equal(baseCurrencyPayment, other.baseCurrencyPayment) &&
           JodaBeanUtils.equal(counterCurrencyPayment, other.counterCurrencyPayment);
     }
@@ -293,7 +314,7 @@ public final class ExpandedFxSingle
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
-    buf.append("ExpandedFxSingle{");
+    buf.append("ResolvedFxSingle{");
     buf.append("baseCurrencyPayment").append('=').append(baseCurrencyPayment).append(',').append(' ');
     buf.append("counterCurrencyPayment").append('=').append(JodaBeanUtils.toString(counterCurrencyPayment));
     buf.append('}');
@@ -302,7 +323,7 @@ public final class ExpandedFxSingle
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code ExpandedFxSingle}.
+   * The meta-bean for {@code ResolvedFxSingle}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -314,12 +335,12 @@ public final class ExpandedFxSingle
      * The meta-property for the {@code baseCurrencyPayment} property.
      */
     private final MetaProperty<Payment> baseCurrencyPayment = DirectMetaProperty.ofImmutable(
-        this, "baseCurrencyPayment", ExpandedFxSingle.class, Payment.class);
+        this, "baseCurrencyPayment", ResolvedFxSingle.class, Payment.class);
     /**
      * The meta-property for the {@code counterCurrencyPayment} property.
      */
     private final MetaProperty<Payment> counterCurrencyPayment = DirectMetaProperty.ofImmutable(
-        this, "counterCurrencyPayment", ExpandedFxSingle.class, Payment.class);
+        this, "counterCurrencyPayment", ResolvedFxSingle.class, Payment.class);
     /**
      * The meta-properties.
      */
@@ -346,13 +367,13 @@ public final class ExpandedFxSingle
     }
 
     @Override
-    public BeanBuilder<? extends ExpandedFxSingle> builder() {
-      return new ExpandedFxSingle.Builder();
+    public BeanBuilder<? extends ResolvedFxSingle> builder() {
+      return new ResolvedFxSingle.Builder();
     }
 
     @Override
-    public Class<? extends ExpandedFxSingle> beanType() {
-      return ExpandedFxSingle.class;
+    public Class<? extends ResolvedFxSingle> beanType() {
+      return ResolvedFxSingle.class;
     }
 
     @Override
@@ -382,9 +403,9 @@ public final class ExpandedFxSingle
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 765258148:  // baseCurrencyPayment
-          return ((ExpandedFxSingle) bean).getBaseCurrencyPayment();
+          return ((ResolvedFxSingle) bean).getBaseCurrencyPayment();
         case -863240423:  // counterCurrencyPayment
-          return ((ExpandedFxSingle) bean).getCounterCurrencyPayment();
+          return ((ResolvedFxSingle) bean).getCounterCurrencyPayment();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -402,9 +423,9 @@ public final class ExpandedFxSingle
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code ExpandedFxSingle}.
+   * The bean-builder for {@code ResolvedFxSingle}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<ExpandedFxSingle> {
+  private static final class Builder extends DirectFieldsBeanBuilder<ResolvedFxSingle> {
 
     private Payment baseCurrencyPayment;
     private Payment counterCurrencyPayment;
@@ -468,9 +489,9 @@ public final class ExpandedFxSingle
     }
 
     @Override
-    public ExpandedFxSingle build() {
+    public ResolvedFxSingle build() {
       preBuild(this);
-      return new ExpandedFxSingle(
+      return new ResolvedFxSingle(
           baseCurrencyPayment,
           counterCurrencyPayment);
     }
@@ -479,7 +500,7 @@ public final class ExpandedFxSingle
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
-      buf.append("ExpandedFxSingle.Builder{");
+      buf.append("ResolvedFxSingle.Builder{");
       buf.append("baseCurrencyPayment").append('=').append(JodaBeanUtils.toString(baseCurrencyPayment)).append(',').append(' ');
       buf.append("counterCurrencyPayment").append('=').append(JodaBeanUtils.toString(counterCurrencyPayment));
       buf.append('}');

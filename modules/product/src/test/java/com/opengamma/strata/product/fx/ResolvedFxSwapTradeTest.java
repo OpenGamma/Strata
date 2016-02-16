@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -13,37 +13,26 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
- * Test {@link FxNdfTrade}.
+ * Test {@link ResolvedFxSwapTrade}.
  */
 @Test
-public class FxNdfTradeTest {
+public class ResolvedFxSwapTradeTest {
 
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final FxNdf PRODUCT = FxNdfTest.sut();
+  private static final ResolvedFxSwap SWAP1 = ResolvedFxSwapTest.sut();
+  private static final ResolvedFxSwap SWAP2 = ResolvedFxSwapTest.sut2();
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 1, 15)).build();
 
   //-------------------------------------------------------------------------
-  public void test_of() {
-    FxNdfTrade test = FxNdfTrade.of(TRADE_INFO, PRODUCT);
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
-  }
-
   public void test_builder() {
-    FxNdfTrade test = sut();
-    assertEquals(test.getProduct(), PRODUCT);
+    ResolvedFxSwapTrade test = ResolvedFxSwapTrade.builder()
+        .tradeInfo(TRADE_INFO)
+        .product(SWAP1)
+        .build();
     assertEquals(test.getTradeInfo(), TRADE_INFO);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_resolve() {
-    FxNdfTrade test = sut();
-    ResolvedFxNdfTrade expected = ResolvedFxNdfTrade.of(TRADE_INFO, PRODUCT.resolve(REF_DATA));
-    assertEquals(test.resolve(REF_DATA), expected);
+    assertEquals(test.getProduct(), SWAP1);
   }
 
   //-------------------------------------------------------------------------
@@ -57,16 +46,16 @@ public class FxNdfTradeTest {
   }
 
   //-------------------------------------------------------------------------
-  static FxNdfTrade sut() {
-    return FxNdfTrade.builder()
-        .product(PRODUCT)
+  static ResolvedFxSwapTrade sut() {
+    return ResolvedFxSwapTrade.builder()
         .tradeInfo(TRADE_INFO)
+        .product(SWAP1)
         .build();
   }
 
-  static FxNdfTrade sut2() {
-    return FxNdfTrade.builder()
-        .product(PRODUCT)
+  static ResolvedFxSwapTrade sut2() {
+    return ResolvedFxSwapTrade.builder()
+        .product(SWAP2)
         .build();
   }
 

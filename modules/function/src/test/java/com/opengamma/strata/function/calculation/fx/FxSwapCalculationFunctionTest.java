@@ -24,6 +24,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -47,6 +48,7 @@ import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSwap;
 import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fx.ResolvedFxSwap;
 
 /**
  * Test {@link FxSwapCalculationFunction}.
@@ -54,6 +56,7 @@ import com.opengamma.strata.product.fx.FxSwapTrade;
 @Test
 public class FxSwapCalculationFunctionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
   private static final CurrencyAmount USD_M1600 = CurrencyAmount.of(USD, -1_600);
   private static final FxSingle LEG1 = FxSingle.of(GBP_P1000, USD_M1600, date(2015, 6, 30));
@@ -98,10 +101,11 @@ public class FxSwapCalculationFunctionTest {
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingFxSwapProductPricer pricer = DiscountingFxSwapProductPricer.DEFAULT;
-    MultiCurrencyAmount expectedPv = pricer.presentValue(TRADE.getProduct(), provider);
-    double expectedParSpread = pricer.parSpread(TRADE.getProduct(), provider);
-    MultiCurrencyAmount expectedCurrencyExp = pricer.currencyExposure(TRADE.getProduct(), provider);
-    MultiCurrencyAmount expectedCash = pricer.currentCash(TRADE.getProduct(), provider.getValuationDate());
+    ResolvedFxSwap resolved = TRADE.getProduct().resolve(REF_DATA);
+    MultiCurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
+    double expectedParSpread = pricer.parSpread(resolved, provider);
+    MultiCurrencyAmount expectedCurrencyExp = pricer.currencyExposure(resolved, provider);
+    MultiCurrencyAmount expectedCash = pricer.currentCash(resolved, provider.getValuationDate());
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
@@ -128,7 +132,8 @@ public class FxSwapCalculationFunctionTest {
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingFxSwapProductPricer pricer = DiscountingFxSwapProductPricer.DEFAULT;
-    PointSensitivities pvPointSens = pricer.presentValueSensitivity(TRADE.getProduct(), provider);
+    ResolvedFxSwap resolved = TRADE.getProduct().resolve(REF_DATA);
+    PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider);
     CurveCurrencyParameterSensitivities pvParamSens = provider.curveParameterSensitivity(pvPointSens);
     MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);

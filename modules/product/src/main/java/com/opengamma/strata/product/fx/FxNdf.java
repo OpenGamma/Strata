@@ -29,6 +29,9 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.Resolvable;
+import com.opengamma.strata.product.Product;
 
 /**
  * A Non-Deliverable Forward (NDF).
@@ -40,7 +43,7 @@ import com.opengamma.strata.basics.index.FxIndex;
  */
 @BeanDefinition
 public final class FxNdf
-    implements FxNdfProduct, ImmutableBean, Serializable {
+    implements Product, Resolvable<ResolvedFxNdf>, ImmutableBean, Serializable {
 
   /**
    * The notional amount in the settlement currency, positive if receiving, negative if paying.
@@ -117,14 +120,9 @@ public final class FxNdf
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Expands this FX forward into an {@code ExpandedFxNdf}.
-   * 
-   * @return the transaction
-   */
   @Override
-  public ExpandedFxNdf expand() {
-    return ExpandedFxNdf.builder()
+  public ResolvedFxNdf resolve(ReferenceData refData) {
+    return ResolvedFxNdf.builder()
         .settlementCurrencyNotional(settlementCurrencyNotional)
         .agreedFxRate(agreedFxRate)
         .paymentDate(paymentDate)

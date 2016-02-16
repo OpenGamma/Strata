@@ -6,24 +6,17 @@
 package com.opengamma.strata.product.fx;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
-import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
-
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.LongShort;
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -32,71 +25,57 @@ import com.opengamma.strata.product.TradeInfo;
 @Test
 public class FxVanillaOptionTradeTest {
 
-  private static final LocalDate EXPIRY_DATE = LocalDate.of(2015, 2, 14);
-  private static final LocalTime EXPIRY_TIME = LocalTime.of(12, 15);
-  private static final ZoneId EXPIRY_ZONE = ZoneId.of("Z");
-  private static final LongShort LONG = LongShort.LONG;
-  private static final PutCall CALL = PutCall.CALL;
-  private static final FxRate STRIKE = FxRate.of(EUR, USD, 1.3);
-  private static final LocalDate PAYMENT_DATE = LocalDate.of(2015, 2, 16);
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double NOTIONAL = 1.0e6;
-  private static final CurrencyAmount EUR_AMOUNT = CurrencyAmount.of(EUR, NOTIONAL);
-  private static final CurrencyAmount USD_AMOUNT = CurrencyAmount.of(USD, -NOTIONAL * 1.35);
-  private static final FxSingle FX = FxSingle.of(EUR_AMOUNT, USD_AMOUNT, PAYMENT_DATE);
-  private static final FxVanillaOption FX_OPTION = FxVanillaOption.builder()
-      .expiryDate(EXPIRY_DATE)
-      .expiryTime(EXPIRY_TIME)
-      .expiryZone(EXPIRY_ZONE)
-      .longShort(LONG)
-      .putCall(CALL)
-      .strike(STRIKE)
-      .underlying(FX)
-      .build();
+  private static final FxVanillaOption PRODUCT = FxVanillaOptionTest.sut();
+  private static final FxVanillaOption PRODUCT2 = FxVanillaOptionTest.sut2();
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 11, 12)).build();
   private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(EUR, NOTIONAL * 0.05), date(2014, 11, 14));
 
+  //-------------------------------------------------------------------------
   public void test_builder() {
-    FxVanillaOptionTrade test = FxVanillaOptionTrade.builder()
-        .product(FX_OPTION)
-        .tradeInfo(TRADE_INFO)
-        .premium(PREMIUM)
-        .build();
-    assertEquals(test.getProduct(), FX_OPTION);
+    FxVanillaOptionTrade test = sut();
+    assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getTradeInfo(), TRADE_INFO);
     assertEquals(test.getPremium(), PREMIUM);
   }
 
-  public void coverage() {
-    FxVanillaOptionTrade test1 = FxVanillaOptionTrade.builder()
-        .product(FX_OPTION)
+  //-------------------------------------------------------------------------
+  public void test_resolve() {
+    FxVanillaOptionTrade test = sut();
+    ResolvedFxVanillaOptionTrade expected = ResolvedFxVanillaOptionTrade.builder()
         .tradeInfo(TRADE_INFO)
+        .product(PRODUCT.resolve(REF_DATA))
         .premium(PREMIUM)
         .build();
-    coverImmutableBean(test1);
-    FxVanillaOption option = FxVanillaOption.builder()
-        .expiryDate(EXPIRY_DATE)
-        .expiryTime(EXPIRY_TIME)
-        .expiryZone(EXPIRY_ZONE)
-        .longShort(LONG)
-        .putCall(PutCall.PUT)
-        .strike(STRIKE)
-        .underlying(FX)
-        .build();
-    Payment premium = Payment.of(CurrencyAmount.of(EUR, NOTIONAL * 0.01), date(2014, 11, 13));
-    FxVanillaOptionTrade test2 = FxVanillaOptionTrade.builder()
-        .product(option)
-        .premium(premium)
-        .build();
-    coverBeanEquals(test1, test2);
+    assertEquals(test.resolve(REF_DATA), expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
   }
 
   public void test_serialization() {
-    FxVanillaOptionTrade test = FxVanillaOptionTrade.builder()
-        .product(FX_OPTION)
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static FxVanillaOptionTrade sut() {
+    return FxVanillaOptionTrade.builder()
         .tradeInfo(TRADE_INFO)
+        .product(PRODUCT)
         .premium(PREMIUM)
         .build();
-    assertSerialization(test);
+  }
+
+  static FxVanillaOptionTrade sut2() {
+    Payment premium = Payment.of(CurrencyAmount.of(EUR, NOTIONAL * 0.01), date(2014, 11, 13));
+    return FxVanillaOptionTrade.builder()
+        .product(PRODUCT2)
+        .premium(premium)
+        .build();
   }
 
 }

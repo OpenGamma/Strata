@@ -8,6 +8,7 @@ package com.opengamma.strata.product.fx;
 import static java.lang.Math.signum;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -26,22 +27,27 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.ResolvedProduct;
 
 /**
- * An expanded FX swap transaction, the low level representation of an FX swap.
+ * An FX Swap, resolved for pricing.
  * <p>
- * An FX swap is a financial instrument that represents the exchange of an equivalent amount
- * in two different currencies between counterparties on two different dates.
+ * This is the resolved form of {@link FxSwap} and is an input to the pricers.
+ * Applications will typically create a {@code ResolvedFxSwap} from a {@code FxSwap}
+ * using {@link FxSwap#resolve(ReferenceData)}.
  * <p>
- * An {@code ExpandedFxSwap} may contain information based on holiday calendars.
- * If a holiday calendar changes, the adjusted dates may no longer be correct.
- * Care must be taken when placing the expanded form in a cache or persistence layer.
- * Application code should use {@link FxSwap}, not this class.
+ * A {@code ResolvedFxSwap} is bound to data that changes over time, such as holiday calendars.
+ * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
+ * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
 @BeanDefinition(builderScope = "private")
-public final class ExpandedFxSwap
-    implements FxSwapProduct, ImmutableBean, Serializable {
+public final class ResolvedFxSwap
+    implements ResolvedProduct, ImmutableBean, Serializable {
 
   /**
    * The foreign exchange transaction at the earlier date.
@@ -50,7 +56,7 @@ public final class ExpandedFxSwap
    * The payment date of this transaction must be before that of the far leg.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ExpandedFxSingle nearLeg;
+  private final ResolvedFxSingle nearLeg;
   /**
    * The foreign exchange transaction at the later date.
    * <p>
@@ -58,21 +64,56 @@ public final class ExpandedFxSwap
    * The payment date of this transaction must be after that of the near leg.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ExpandedFxSingle farLeg;
+  private final ResolvedFxSingle farLeg;
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an {@code ExpandedFxSwap} from two legs.
+   * Creates a {@code ResolvedFxSwap} from two legs.
    * <p>
    * The transactions must be passed in with payment dates in the correct order.
    * The currency pair of each leg must match and have amounts flowing in opposite directions.
    * 
    * @param nearLeg  the earlier leg
    * @param farLeg  the later leg
-   * @return the expanded FX swap
+   * @return the resolved FX swap
    */
-  public static ExpandedFxSwap of(ExpandedFxSingle nearLeg, ExpandedFxSingle farLeg) {
-    return new ExpandedFxSwap(nearLeg, farLeg);
+  public static ResolvedFxSwap of(ResolvedFxSingle nearLeg, ResolvedFxSingle farLeg) {
+    return new ResolvedFxSwap(nearLeg, farLeg);
+  }
+
+  /**
+   * Creates a {@code ResolvedFxSwap} using forward points.
+   * <p>
+   * The FX rate at the near date is specified as {@code fxRate}.
+   * The FX rate at the far date is equal to {@code fxRate + forwardPoints}
+   * <p>
+   * The two currencies must not be equal.
+   * The near date must be before the far date.
+   * Conventions will be used to determine the base and counter currency.
+   * 
+   * @param amountCurrency1  the amount of the near leg in the first currency
+   * @param currency2  the second currency
+   * @param nearFxRate  the near FX rate, where {@code (1.0 * amountCurrency1 = fxRate * amountCurrency2)}
+   * @param forwardPoints  the forward points, where the far FX rate is {@code (fxRate + forwardPoints)}
+   * @param nearDate  the near value date
+   * @param farDate  the far value date
+   * @return the resolved FX swap
+   */
+  public static ResolvedFxSwap ofForwardPoints(
+      CurrencyAmount amountCurrency1,
+      Currency currency2,
+      double nearFxRate,
+      double forwardPoints,
+      LocalDate nearDate,
+      LocalDate farDate) {
+
+    Currency currency1 = amountCurrency1.getCurrency();
+    ArgChecker.isFalse(currency1.equals(currency2), "Currencies must not be equal");
+    ArgChecker.notNegativeOrZero(nearFxRate, "fxRate");
+    double farFxRate = nearFxRate + forwardPoints;
+    ResolvedFxSingle nearLeg = ResolvedFxSingle.of(amountCurrency1, FxRate.of(currency1, currency2, nearFxRate), nearDate);
+    ResolvedFxSingle farLeg = ResolvedFxSingle.of(amountCurrency1.negated(), FxRate.of(currency1, currency2, farFxRate), farDate);
+    return of(nearLeg, farLeg);
   }
 
   //-------------------------------------------------------------------------
@@ -89,29 +130,18 @@ public final class ExpandedFxSwap
     }
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Expands this FX swap, trivially returning {@code this}.
-   * 
-   * @return this
-   */
-  @Override
-  public ExpandedFxSwap expand() {
-    return this;
-  }
-
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code ExpandedFxSwap}.
+   * The meta-bean for {@code ResolvedFxSwap}.
    * @return the meta-bean, not null
    */
-  public static ExpandedFxSwap.Meta meta() {
-    return ExpandedFxSwap.Meta.INSTANCE;
+  public static ResolvedFxSwap.Meta meta() {
+    return ResolvedFxSwap.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(ExpandedFxSwap.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ResolvedFxSwap.Meta.INSTANCE);
   }
 
   /**
@@ -119,9 +149,9 @@ public final class ExpandedFxSwap
    */
   private static final long serialVersionUID = 1L;
 
-  private ExpandedFxSwap(
-      ExpandedFxSingle nearLeg,
-      ExpandedFxSingle farLeg) {
+  private ResolvedFxSwap(
+      ResolvedFxSingle nearLeg,
+      ResolvedFxSingle farLeg) {
     JodaBeanUtils.notNull(nearLeg, "nearLeg");
     JodaBeanUtils.notNull(farLeg, "farLeg");
     this.nearLeg = nearLeg;
@@ -130,8 +160,8 @@ public final class ExpandedFxSwap
   }
 
   @Override
-  public ExpandedFxSwap.Meta metaBean() {
-    return ExpandedFxSwap.Meta.INSTANCE;
+  public ResolvedFxSwap.Meta metaBean() {
+    return ResolvedFxSwap.Meta.INSTANCE;
   }
 
   @Override
@@ -152,7 +182,7 @@ public final class ExpandedFxSwap
    * The payment date of this transaction must be before that of the far leg.
    * @return the value of the property, not null
    */
-  public ExpandedFxSingle getNearLeg() {
+  public ResolvedFxSingle getNearLeg() {
     return nearLeg;
   }
 
@@ -164,7 +194,7 @@ public final class ExpandedFxSwap
    * The payment date of this transaction must be after that of the near leg.
    * @return the value of the property, not null
    */
-  public ExpandedFxSingle getFarLeg() {
+  public ResolvedFxSingle getFarLeg() {
     return farLeg;
   }
 
@@ -175,7 +205,7 @@ public final class ExpandedFxSwap
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ExpandedFxSwap other = (ExpandedFxSwap) obj;
+      ResolvedFxSwap other = (ResolvedFxSwap) obj;
       return JodaBeanUtils.equal(nearLeg, other.nearLeg) &&
           JodaBeanUtils.equal(farLeg, other.farLeg);
     }
@@ -193,7 +223,7 @@ public final class ExpandedFxSwap
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
-    buf.append("ExpandedFxSwap{");
+    buf.append("ResolvedFxSwap{");
     buf.append("nearLeg").append('=').append(nearLeg).append(',').append(' ');
     buf.append("farLeg").append('=').append(JodaBeanUtils.toString(farLeg));
     buf.append('}');
@@ -202,7 +232,7 @@ public final class ExpandedFxSwap
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code ExpandedFxSwap}.
+   * The meta-bean for {@code ResolvedFxSwap}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -213,13 +243,13 @@ public final class ExpandedFxSwap
     /**
      * The meta-property for the {@code nearLeg} property.
      */
-    private final MetaProperty<ExpandedFxSingle> nearLeg = DirectMetaProperty.ofImmutable(
-        this, "nearLeg", ExpandedFxSwap.class, ExpandedFxSingle.class);
+    private final MetaProperty<ResolvedFxSingle> nearLeg = DirectMetaProperty.ofImmutable(
+        this, "nearLeg", ResolvedFxSwap.class, ResolvedFxSingle.class);
     /**
      * The meta-property for the {@code farLeg} property.
      */
-    private final MetaProperty<ExpandedFxSingle> farLeg = DirectMetaProperty.ofImmutable(
-        this, "farLeg", ExpandedFxSwap.class, ExpandedFxSingle.class);
+    private final MetaProperty<ResolvedFxSingle> farLeg = DirectMetaProperty.ofImmutable(
+        this, "farLeg", ResolvedFxSwap.class, ResolvedFxSingle.class);
     /**
      * The meta-properties.
      */
@@ -246,13 +276,13 @@ public final class ExpandedFxSwap
     }
 
     @Override
-    public BeanBuilder<? extends ExpandedFxSwap> builder() {
-      return new ExpandedFxSwap.Builder();
+    public BeanBuilder<? extends ResolvedFxSwap> builder() {
+      return new ResolvedFxSwap.Builder();
     }
 
     @Override
-    public Class<? extends ExpandedFxSwap> beanType() {
-      return ExpandedFxSwap.class;
+    public Class<? extends ResolvedFxSwap> beanType() {
+      return ResolvedFxSwap.class;
     }
 
     @Override
@@ -265,7 +295,7 @@ public final class ExpandedFxSwap
      * The meta-property for the {@code nearLeg} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ExpandedFxSingle> nearLeg() {
+    public MetaProperty<ResolvedFxSingle> nearLeg() {
       return nearLeg;
     }
 
@@ -273,7 +303,7 @@ public final class ExpandedFxSwap
      * The meta-property for the {@code farLeg} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ExpandedFxSingle> farLeg() {
+    public MetaProperty<ResolvedFxSingle> farLeg() {
       return farLeg;
     }
 
@@ -282,9 +312,9 @@ public final class ExpandedFxSwap
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 1825755334:  // nearLeg
-          return ((ExpandedFxSwap) bean).getNearLeg();
+          return ((ResolvedFxSwap) bean).getNearLeg();
         case -1281739913:  // farLeg
-          return ((ExpandedFxSwap) bean).getFarLeg();
+          return ((ResolvedFxSwap) bean).getFarLeg();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -302,12 +332,12 @@ public final class ExpandedFxSwap
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code ExpandedFxSwap}.
+   * The bean-builder for {@code ResolvedFxSwap}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<ExpandedFxSwap> {
+  private static final class Builder extends DirectFieldsBeanBuilder<ResolvedFxSwap> {
 
-    private ExpandedFxSingle nearLeg;
-    private ExpandedFxSingle farLeg;
+    private ResolvedFxSingle nearLeg;
+    private ResolvedFxSingle farLeg;
 
     /**
      * Restricted constructor.
@@ -332,10 +362,10 @@ public final class ExpandedFxSwap
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 1825755334:  // nearLeg
-          this.nearLeg = (ExpandedFxSingle) newValue;
+          this.nearLeg = (ResolvedFxSingle) newValue;
           break;
         case -1281739913:  // farLeg
-          this.farLeg = (ExpandedFxSingle) newValue;
+          this.farLeg = (ResolvedFxSingle) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -368,8 +398,8 @@ public final class ExpandedFxSwap
     }
 
     @Override
-    public ExpandedFxSwap build() {
-      return new ExpandedFxSwap(
+    public ResolvedFxSwap build() {
+      return new ResolvedFxSwap(
           nearLeg,
           farLeg);
     }
@@ -378,7 +408,7 @@ public final class ExpandedFxSwap
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
-      buf.append("ExpandedFxSwap.Builder{");
+      buf.append("ResolvedFxSwap.Builder{");
       buf.append("nearLeg").append('=').append(JodaBeanUtils.toString(nearLeg)).append(',').append(' ');
       buf.append("farLeg").append('=').append(JodaBeanUtils.toString(farLeg));
       buf.append('}');

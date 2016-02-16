@@ -14,13 +14,12 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.fx.ExpandedFxNdf;
-import com.opengamma.strata.product.fx.FxNdfProduct;
+import com.opengamma.strata.product.fx.ResolvedFxNdf;
 
 /**
  * Pricer for FX non-deliverable forward (NDF) products.
  * <p>
- * This function provides the ability to price an {@link FxNdfProduct}.
+ * This function provides the ability to price an {@link ResolvedFxNdf}.
  * The product is priced using forward curves for the currency pair.
  */
 public class DiscountingFxNdfProductPricer {
@@ -43,12 +42,11 @@ public class DiscountingFxNdfProductPricer {
    * The present value of the product is the value on the valuation date.
    * The present value is returned in the settlement currency.
    * 
-   * @param product  the product to price
+   * @param ndf  the product
    * @param provider  the rates provider
    * @return the present value of the product in the settlement currency
    */
-  public CurrencyAmount presentValue(FxNdfProduct product, RatesProvider provider) {
-    ExpandedFxNdf ndf = product.expand();
+  public CurrencyAmount presentValue(ResolvedFxNdf ndf, RatesProvider provider) {
     Currency ccySettle = ndf.getSettlementCurrency();
     if (provider.getValuationDate().isAfter(ndf.getPaymentDate())) {
       return CurrencyAmount.zero(ccySettle);
@@ -68,12 +66,11 @@ public class DiscountingFxNdfProductPricer {
    * The present value sensitivity of the product is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param product  the product to price
+   * @param ndf  the product
    * @param provider  the rates provider
    * @return the point sensitivity of the present value
    */
-  public PointSensitivities presentValueSensitivity(FxNdfProduct product, RatesProvider provider) {
-    ExpandedFxNdf ndf = product.expand();
+  public PointSensitivities presentValueSensitivity(ResolvedFxNdf ndf, RatesProvider provider) {
     if (provider.getValuationDate().isAfter(ndf.getPaymentDate())) {
       return PointSensitivities.empty();
     }
@@ -98,12 +95,11 @@ public class DiscountingFxNdfProductPricer {
   /**
    * Computes the currency exposure by discounting each payment in its own currency.
    * 
-   * @param product  the product to price
+   * @param ndf  the product
    * @param provider  the rates provider
    * @return the currency exposure
    */
-  public MultiCurrencyAmount currencyExposure(FxNdfProduct product, RatesProvider provider) {
-    ExpandedFxNdf ndf = product.expand();
+  public MultiCurrencyAmount currencyExposure(ResolvedFxNdf ndf, RatesProvider provider) {
     if (provider.getValuationDate().isAfter(ndf.getPaymentDate())) {
       return MultiCurrencyAmount.empty();
     }
@@ -120,12 +116,11 @@ public class DiscountingFxNdfProductPricer {
   /**
    * Calculates the current cash of the NDF product.
    * 
-   * @param product  the product to price
+   * @param ndf  the product
    * @param provider  the rates provider
    * @return the current cash of the product in the settlement currency
    */
-  public CurrencyAmount currentCash(FxNdfProduct product, RatesProvider provider) {
-    ExpandedFxNdf ndf = product.expand();
+  public CurrencyAmount currentCash(ResolvedFxNdf ndf, RatesProvider provider) {
     Currency ccySettle = ndf.getSettlementCurrency();
     if (provider.getValuationDate().isEqual(ndf.getPaymentDate())) {
       Currency ccyOther = ndf.getNonDeliverableCurrency();
@@ -142,12 +137,11 @@ public class DiscountingFxNdfProductPricer {
   /**
    * Calculates the forward exchange rate.
    * 
-   * @param product  the product to price
+   * @param ndf  the product
    * @param provider  the rates provider
    * @return the forward rate
    */
-  public FxRate forwardFxRate(FxNdfProduct product, RatesProvider provider) {
-    ExpandedFxNdf ndf = product.expand();
+  public FxRate forwardFxRate(ResolvedFxNdf ndf, RatesProvider provider) {
     Currency ccySettle = ndf.getSettlementCurrency();
     Currency ccyOther = ndf.getNonDeliverableCurrency();
     LocalDate fixingDate = ndf.getIndex().calculateFixingFromMaturity(ndf.getPaymentDate());
