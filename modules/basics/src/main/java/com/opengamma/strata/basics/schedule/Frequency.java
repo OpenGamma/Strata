@@ -11,6 +11,7 @@ import static java.time.temporal.ChronoUnit.YEARS;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.Period;
@@ -20,6 +21,7 @@ import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
 import java.time.temporal.UnsupportedTemporalTypeException;
 import java.util.List;
+import java.util.Locale;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -276,7 +278,8 @@ public final class Frequency
 
   // extracted to aid inlining
   private static String maxMonthMsg() {
-    return "Months must not exceed " + new DecimalFormat("#,###").format(MAX_MONTHS);
+    DecimalFormat formatter = new DecimalFormat("#,###", new DecimalFormatSymbols(Locale.ENGLISH));
+    return "Months must not exceed " + formatter.format(MAX_MONTHS);
   }
 
   /**
@@ -295,7 +298,8 @@ public final class Frequency
 
   // extracted to aid inlining
   private static String maxYearMsg() {
-    return "Years must not exceed " + new DecimalFormat("#,###").format(MAX_YEARS);
+    DecimalFormat formatter = new DecimalFormat("#,###", new DecimalFormatSymbols(Locale.ENGLISH));
+    return "Years must not exceed " + formatter.format(MAX_YEARS);
   }
 
   //-------------------------------------------------------------------------
