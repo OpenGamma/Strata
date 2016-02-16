@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.runner.CalculationListener;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
@@ -76,14 +77,16 @@ public interface CalculationRunner extends AutoCloseable {
    * @param targets  the targets for which values of the measures will be calculated
    * @param columns  the configuration for the columns that will be calculated, including the measure and
    *   any column-specific overrides
-   * @param marketData  market data to be used in the calculations
+   * @param marketData  the market data to be used in the calculations
+   * @param refData  the reference data to be used in the calculations
    * @return the grid of calculation results, based on the targets and columns
    */
   public abstract Results calculateSingleScenario(
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationEnvironment marketData);
+      CalculationEnvironment marketData,
+      ReferenceData refData);
 
   /**
    * Performs calculations for multiple scenarios, each with a different set of market data.
@@ -95,14 +98,16 @@ public interface CalculationRunner extends AutoCloseable {
    * @param targets  the targets for which values of the measures will be calculated
    * @param columns  the configuration for the columns that will be calculated, including the measure and
    *   any column-specific overrides
-   * @param marketData  the market data used in the calculations
+   * @param marketData  the market data to be used in the calculations
+   * @param refData  the reference data to be used in the calculations
    * @return the grid of calculation results, based on the targets and columns
    */
   public abstract Results calculateMultipleScenarios(
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationEnvironment marketData);
+      CalculationEnvironment marketData,
+      ReferenceData refData);
 
   //-------------------------------------------------------------------------
   /**
@@ -117,7 +122,8 @@ public interface CalculationRunner extends AutoCloseable {
    * @param targets  the targets for which values of the measures will be calculated
    * @param columns  the configuration for the columns that will be calculated, including the measure and
    *   any column-specific overrides
-   * @param marketData  market data to be used in the calculations
+   * @param marketData  the market data to be used in the calculations
+   * @param refData  the reference data to be used in the calculations
    * @param listener  listener that is invoked when individual results are calculated
    */
   public abstract void calculateSingleScenarioAsync(
@@ -125,6 +131,7 @@ public interface CalculationRunner extends AutoCloseable {
       List<? extends CalculationTarget> targets,
       List<Column> columns,
       CalculationEnvironment marketData,
+      ReferenceData refData,
       CalculationListener listener);
 
   /**
@@ -139,7 +146,8 @@ public interface CalculationRunner extends AutoCloseable {
    * @param targets  the targets for which values of the measures will be calculated
    * @param columns  the configuration for the columns that will be calculated, including the measure and
    *   any column-specific overrides
-   * @param marketData  the market data used in the calculations
+   * @param marketData  the market data to be used in the calculations
+   * @param refData  the reference data to be used in the calculations
    * @param listener  listener that is invoked when individual results are calculated
    */
   public abstract void calculateMultipleScenariosAsync(
@@ -147,6 +155,7 @@ public interface CalculationRunner extends AutoCloseable {
       List<? extends CalculationTarget> targets,
       List<Column> columns,
       CalculationEnvironment marketData,
+      ReferenceData refData,
       CalculationListener listener);
 
   //-------------------------------------------------------------------------

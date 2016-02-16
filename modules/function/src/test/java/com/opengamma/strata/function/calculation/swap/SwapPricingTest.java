@@ -154,7 +154,7 @@ public class SwapPricingTest {
         .buildMarketData(reqs, MarketDataConfig.empty(), suppliedData, REF_DATA);
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
-    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData);
+    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData, REF_DATA);
 
     Result<?> result = results.get(0, 0);
     assertThat(result).isSuccess();

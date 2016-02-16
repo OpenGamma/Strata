@@ -178,7 +178,7 @@ public class SwapPricingWithCalibrationExample {
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns);
     MarketEnvironment enhancedMarketData = marketDataFactory()
         .buildMarketData(reqs, marketDataConfig, marketSnapshot, refData);
-    Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData);
+    Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData, refData);
 
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults = ReportCalculationResults.of(VAL_DATE, trades, columns, results);

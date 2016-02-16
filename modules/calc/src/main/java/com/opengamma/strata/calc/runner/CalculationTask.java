@@ -43,9 +43,6 @@ import com.opengamma.strata.collect.result.Result;
  */
 public final class CalculationTask {
 
-  // hard-coded reference data
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
-
   /**
    * The target for which the value will be calculated.
    * This is typically a trade.
@@ -213,12 +210,13 @@ public final class CalculationTask {
    * This invokes the function with the correct set of market data.
    *
    * @param scenarioData  the market data used in the calculation
+   * @param refData  the reference data
    * @return results of the calculation, one for every scenario in the market data
    */
   @SuppressWarnings("unchecked")
-  public CalculationResult execute(CalculationEnvironment scenarioData) {
+  public CalculationResult execute(CalculationEnvironment scenarioData, ReferenceData refData) {
     CalculationMarketData calculationData = DefaultCalculationMarketData.of(scenarioData, marketDataMappings);
-    Result<?> result = Result.wrap(() -> calculate(calculationData));
+    Result<?> result = Result.wrap(() -> calculate(calculationData, refData));
     Result<?> converted = convertToReportingCurrency(result, calculationData);
     return CalculationResult.of(target, rowIndex, columnIndex, converted);
   }
@@ -226,12 +224,13 @@ public final class CalculationTask {
   /**
    * Calculates the result for the specified market data.
    * 
-   * @param calculationData  the market data
+   * @param marketData  the market data
+   * @param refData  the reference data
    * @return the result
    */
-  private Result<?> calculate(CalculationMarketData calculationData) {
+  private Result<?> calculate(CalculationMarketData marketData, ReferenceData refData) {
     ImmutableSet<Measure> measures = ImmutableSet.of(getMeasure());
-    Map<Measure, Result<?>> map = function.calculate(target, measures, calculationData, REF_DATA);
+    Map<Measure, Result<?>> map = function.calculate(target, measures, marketData, refData);
     if (!map.containsKey(getMeasure())) {
       return Result.failure(
           FailureReason.CALCULATION_FAILED,

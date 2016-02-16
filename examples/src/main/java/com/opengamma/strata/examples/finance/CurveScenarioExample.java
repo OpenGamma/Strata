@@ -131,7 +131,7 @@ public class CurveScenarioExample {
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns);
     MarketEnvironment enhancedMarketData = marketDataFactory()
         .buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData, scenarioDefinition);
-    Results results = runner.calculateMultipleScenarios(rules, trades, columns, enhancedMarketData);
+    Results results = runner.calculateMultipleScenarios(rules, trades, columns, enhancedMarketData, refData);
 
     // TODO Replace the results processing below with a report once the reporting framework supports scenarios
 

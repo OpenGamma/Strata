@@ -92,7 +92,7 @@ public class SwapReportRegressionTest {
     MarketEnvironment enhancedMarketData = marketDataFactory()
         .buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, REF_DATA);
     CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
-    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData);
+    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData, REF_DATA);
 
     ReportCalculationResults calculationResults = ReportCalculationResults.of(
         valuationDate,

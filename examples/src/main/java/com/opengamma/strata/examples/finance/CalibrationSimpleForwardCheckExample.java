@@ -222,7 +222,7 @@ public class CalibrationSimpleForwardCheckExample {
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns);
     MarketEnvironment enhancedMarketData = marketDataFactory()
         .buildMarketData(reqs, marketDataConfig, marketSnapshot, refData);
-    Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData);
+    Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData, refData);
     return Pair.of(trades, results);
   }
 
