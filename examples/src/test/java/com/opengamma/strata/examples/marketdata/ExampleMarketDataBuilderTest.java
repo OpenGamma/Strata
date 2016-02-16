@@ -33,7 +33,6 @@ import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.collect.Messages;
@@ -266,11 +265,10 @@ public class ExampleMarketDataBuilderTest {
         Messages.format("Snapshot contained unexpected market data: {}",
             Sets.difference(snapshot.getValues().keySet(), VALUES)));
 
-    MarketDataRules expectedRules = MarketDataRules.of(
-        MarketDataRule.anyTarget(
-            MarketDataMappingsBuilder.create()
-                .curveGroup(CurveGroupName.of("Default"))
-                .build()));
+    MarketDataRules expectedRules = MarketDataRules.anyTarget(
+        MarketDataMappingsBuilder.create()
+            .curveGroup(CurveGroupName.of("Default"))
+            .build());
     assertEquals(builder.rules(), expectedRules);
   }
 

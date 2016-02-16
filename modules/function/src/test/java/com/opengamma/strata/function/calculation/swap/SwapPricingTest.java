@@ -11,7 +11,6 @@ import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.function.StandardComponents.marketDataFactory;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -38,10 +37,9 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
-import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.config.Measures;
+import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
@@ -141,7 +139,7 @@ public class SwapPricingTest {
         .curveGroup(CURVE_GROUP_NAME)
         .build();
 
-    MarketDataRules marketDataRules = MarketDataRules.of(MarketDataRule.of(marketDataMappings, SwapTrade.class));
+    MarketDataRules marketDataRules = MarketDataRules.ofTargetTypes(marketDataMappings, SwapTrade.class);
 
     // create the calculation runner
     List<SwapTrade> trades = ImmutableList.of(trade);

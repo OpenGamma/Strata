@@ -25,7 +25,6 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.TestObservableKey;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -55,7 +54,7 @@ public class CalculationTasksTest {
   private static final Set<Measure> MEASURES = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.PAR_RATE);
   private static final PricingRules PRICING_RULES = PricingRules.empty();
   private static final MarketDataMappings MD_MAPPINGS = MarketDataMappings.of(MarketDataFeed.NONE);
-  private static final MarketDataRules MD_RULES = MarketDataRules.of(MarketDataRule.anyTarget(MD_MAPPINGS));
+  private static final MarketDataRules MD_RULES = MarketDataRules.anyTarget(MD_MAPPINGS);
   private static final ReportingCurrency REPORTING_CURRENCY = ReportingCurrency.of(Currency.USD);
 
   //-------------------------------------------------------------------------
@@ -64,7 +63,7 @@ public class CalculationTasksTest {
         .marketDataFeed(MarketDataFeed.of("MarketDataFeed"))
         .build();
 
-    MarketDataRules marketDataRules = MarketDataRules.of(MarketDataRule.of(marketDataMappings, TestTarget.class));
+    MarketDataRules marketDataRules = MarketDataRules.ofTargetTypes(marketDataMappings, TestTarget.class);
     DefaultFunctionGroup<TestTarget> functionGroup =
         DefaultFunctionGroup.builder(TestTarget.class)
             .name("DefaultGroup")

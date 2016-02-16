@@ -34,7 +34,6 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketEnvironmentBuilder;
@@ -206,11 +205,10 @@ public abstract class ExampleMarketDataBuilder {
    */
   public MarketDataRules rules() {
     // TODO - should be loaded from a CSV file - format to be defined
-    return MarketDataRules.of(
-        MarketDataRule.anyTarget(
-            MarketDataMappingsBuilder.create()
-                .curveGroup(CurveGroupName.of("Default"))
-                .build()));
+    return MarketDataRules.anyTarget(
+        MarketDataMappingsBuilder.create()
+            .curveGroup(CurveGroupName.of("Default"))
+            .build());
   }
 
   /**
