@@ -14,18 +14,18 @@ import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
-import com.opengamma.strata.product.cms.CmsProduct;
-import com.opengamma.strata.product.cms.CmsTrade;
+import com.opengamma.strata.product.cms.ResolvedCms;
+import com.opengamma.strata.product.cms.ResolvedCmsTrade;
 
 /**
  * Pricer for CMS trade by swaption replication on a SABR formula with extrapolation.
  * <p>
- * This function provides the ability to price {@link CmsTrade}. 
+ * This function provides the ability to price {@link ResolvedCmsTrade}. 
  */
 public class SabrExtrapolationReplicationCmsTradePricer {
 
   /**
-   * Pricer for {@link CmsProduct}.
+   * Pricer for {@link ResolvedCms}.
    */
   private final SabrExtrapolationReplicationCmsProductPricer productPricer;
   /**
@@ -36,7 +36,7 @@ public class SabrExtrapolationReplicationCmsTradePricer {
   /**
    * Creates an instance. 
    * 
-   * @param productPricer  the pricer for {@link CmsProduct}
+   * @param productPricer  the pricer for {@link ResolvedCms}
    * @param paymentPricer  the pricer for {@link Payment}
    */
   public SabrExtrapolationReplicationCmsTradePricer(
@@ -53,21 +53,21 @@ public class SabrExtrapolationReplicationCmsTradePricer {
    * <p>
    * The present value of the trade is the value on the valuation date.
    * 
-   * @param cms  the CMS trade
+   * @param trade  the CMS trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the swaption volatilities
    * @return the present value
    */
   public MultiCurrencyAmount presentValue(
-      CmsTrade cms,
+      ResolvedCmsTrade trade,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
-    MultiCurrencyAmount pvCms = productPricer.presentValue(cms.getProduct(), ratesProvider, swaptionVolatilities);
-    if (!cms.getPremium().isPresent()) {
+    MultiCurrencyAmount pvCms = productPricer.presentValue(trade.getProduct(), ratesProvider, swaptionVolatilities);
+    if (!trade.getPremium().isPresent()) {
       return pvCms;
     }
-    CurrencyAmount pvPremium = paymentPricer.presentValue(cms.getPremium().get(), ratesProvider);
+    CurrencyAmount pvPremium = paymentPricer.presentValue(trade.getPremium().get(), ratesProvider);
     return pvCms.plus(pvPremium);
   }
 
@@ -76,22 +76,22 @@ public class SabrExtrapolationReplicationCmsTradePricer {
    * <p>
    * The present value sensitivity of the trade is the sensitivity of the present value to the underlying curves.
    * 
-   * @param cms  the CMS trade
+   * @param trade  the CMS trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the swaption volatilities
    * @return the present value sensitivity
    */
   public PointSensitivityBuilder presentValueSensitivity(
-      CmsTrade cms,
+      ResolvedCmsTrade trade,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
     PointSensitivityBuilder pvSensiCms =
-        productPricer.presentValueSensitivity(cms.getProduct(), ratesProvider, swaptionVolatilities);
-    if (!cms.getPremium().isPresent()) {
+        productPricer.presentValueSensitivity(trade.getProduct(), ratesProvider, swaptionVolatilities);
+    if (!trade.getPremium().isPresent()) {
       return pvSensiCms;
     }
-    PointSensitivityBuilder pvSensiPremium = paymentPricer.presentValueSensitivity(cms.getPremium().get(), ratesProvider);
+    PointSensitivityBuilder pvSensiPremium = paymentPricer.presentValueSensitivity(trade.getPremium().get(), ratesProvider);
     return pvSensiCms.combinedWith(pvSensiPremium);
   }
 
@@ -101,17 +101,17 @@ public class SabrExtrapolationReplicationCmsTradePricer {
    * The present value sensitivity of the trade is the sensitivity of the present value to the SABR model parameters, 
    * alpha, beta, rho and nu.
    * 
-   * @param cms  the CMS trade
+   * @param trade  the CMS trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the swaption volatilities
    * @return the present value sensitivity
    */
   public SwaptionSabrSensitivities presentValueSensitivitySabrParameter(
-      CmsTrade cms,
+      ResolvedCmsTrade trade,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
-    return productPricer.presentValueSensitivitySabrParameter(cms.getProduct(), ratesProvider, swaptionVolatilities);
+    return productPricer.presentValueSensitivitySabrParameter(trade.getProduct(), ratesProvider, swaptionVolatilities);
   }
 
   /**
@@ -119,59 +119,59 @@ public class SabrExtrapolationReplicationCmsTradePricer {
    * <p>
    * The present value sensitivity of the trade is the sensitivity of the present value to the strike value. 
    * 
-   * @param cms  the CMS trade
+   * @param trade  the CMS trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the swaption volatilities
    * @return the present value sensitivity
    */
   public double presentValueSensitivityStrike(
-      CmsTrade cms,
+      ResolvedCmsTrade trade,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
-    return productPricer.presentValueSensitivityStrike(cms.getProduct(), ratesProvider, swaptionVolatilities);
+    return productPricer.presentValueSensitivityStrike(trade.getProduct(), ratesProvider, swaptionVolatilities);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Calculates the currency exposure of the trade.
    * 
-   * @param cms  the CMS trade
+   * @param trade  the CMS trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the swaption volatilities
    * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(
-      CmsTrade cms,
+      ResolvedCmsTrade trade,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
-    MultiCurrencyAmount ceCms = productPricer.currencyExposure(cms.getProduct(), ratesProvider, swaptionVolatilities);
-    if (!cms.getPremium().isPresent()) {
+    MultiCurrencyAmount ceCms = productPricer.currencyExposure(trade.getProduct(), ratesProvider, swaptionVolatilities);
+    if (!trade.getPremium().isPresent()) {
       return ceCms;
     }
-    CurrencyAmount pvPremium = paymentPricer.presentValue(cms.getPremium().get(), ratesProvider);
+    CurrencyAmount pvPremium = paymentPricer.presentValue(trade.getPremium().get(), ratesProvider);
     return ceCms.plus(pvPremium);
   }
 
   /**
    * Calculates the current cash of the trade.
    * 
-   * @param cms  the CMS trade
+   * @param trade  the CMS trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the swaption volatilities
    * @return the current cash
    */
   public MultiCurrencyAmount currentCash(
-      CmsTrade cms,
+      ResolvedCmsTrade trade,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
-    MultiCurrencyAmount ccCms = productPricer.currentCash(cms.getProduct(), ratesProvider, swaptionVolatilities);
-    if (!cms.getPremium().isPresent()) {
+    MultiCurrencyAmount ccCms = productPricer.currentCash(trade.getProduct(), ratesProvider, swaptionVolatilities);
+    if (!trade.getPremium().isPresent()) {
       return ccCms;
     }
-    Payment premium = cms.getPremium().get();
+    Payment premium = trade.getPremium().get();
     if (premium.getDate().equals(ratesProvider.getValuationDate())) {
       ccCms = ccCms.plus(premium.getCurrency(), premium.getAmount());
     }

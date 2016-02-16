@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.pricer.impl.capfloor.IborCapletFloorletDataSet;
 import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
+import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
@@ -57,7 +58,7 @@ public class IborCapFloorDataSet {
    * @param payRec  pay or receive
    * @return the instance
    */
-  public static IborCapFloorLeg createCapFloorLeg(
+  public static ResolvedIborCapFloorLeg createCapFloorLeg(
       IborIndex index,
       LocalDate startDate,
       LocalDate endDate,
@@ -77,7 +78,8 @@ public class IborCapFloorDataSet {
           .notional(notionalSchedule)
           .paymentSchedule(paySchedule)
           .payReceive(payRec)
-          .build();
+          .build()
+          .resolve(REF_DATA);
     }
     return IborCapFloorLeg.builder()
         .calculation(rateCalculation)
@@ -85,7 +87,8 @@ public class IborCapFloorDataSet {
         .notional(notionalSchedule)
         .paymentSchedule(paySchedule)
         .payReceive(payRec)
-        .build();
+        .build()
+        .resolve(REF_DATA);
   }
 
   /**

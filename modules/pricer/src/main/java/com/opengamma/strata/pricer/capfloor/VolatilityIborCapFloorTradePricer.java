@@ -13,14 +13,16 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.view.IborCapletFloorletVolatilities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.capfloor.IborCapFloorProduct;
 import com.opengamma.strata.product.capfloor.IborCapFloorTrade;
+import com.opengamma.strata.product.capfloor.ResolvedIborCapFloor;
+import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorTrade;
 
 /**
  * Pricer for cap/floor trades based on volatilities.
  * <p>
  * This function provides the ability to price {@link IborCapFloorTrade}. 
- * The pricing methodologies are defined in individual implementations of the volatilities, {@link IborCapletFloorletVolatilities}.
+ * The pricing methodologies are defined in individual implementations of the
+ * volatilities, {@link IborCapletFloorletVolatilities}.
  * <p>
  * Greeks of the underlying product are computed in the product pricer, {@link VolatilityIborCapFloorProductPricer}.
  */
@@ -32,7 +34,7 @@ public class VolatilityIborCapFloorTradePricer {
   public static final VolatilityIborCapFloorTradePricer DEFAULT =
       new VolatilityIborCapFloorTradePricer(VolatilityIborCapFloorProductPricer.DEFAULT, DiscountingPaymentPricer.DEFAULT);
   /**
-   * Pricer for {@link IborCapFloorProduct}.
+   * Pricer for {@link ResolvedIborCapFloor}.
    */
   private final VolatilityIborCapFloorProductPricer productPricer;
   /**
@@ -43,7 +45,7 @@ public class VolatilityIborCapFloorTradePricer {
   /**
    * Creates an instance. 
    * 
-   * @param productPricer  the pricer for {@link IborCapFloorProduct}
+   * @param productPricer  the pricer for {@link ResolvedIborCapFloor}
    * @param paymentPricer  the pricer for {@link Payment}
    */
   public VolatilityIborCapFloorTradePricer(
@@ -66,7 +68,7 @@ public class VolatilityIborCapFloorTradePricer {
    * @return the present value
    */
   public MultiCurrencyAmount presentValue(
-      IborCapFloorTrade trade,
+      ResolvedIborCapFloorTrade trade,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
@@ -89,7 +91,7 @@ public class VolatilityIborCapFloorTradePricer {
    * @return the present value sensitivity
    */
   public PointSensitivityBuilder presentValueSensitivity(
-      IborCapFloorTrade trade,
+      ResolvedIborCapFloorTrade trade,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
@@ -113,7 +115,7 @@ public class VolatilityIborCapFloorTradePricer {
    * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(
-      IborCapFloorTrade trade,
+      ResolvedIborCapFloorTrade trade,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
@@ -134,7 +136,7 @@ public class VolatilityIborCapFloorTradePricer {
    * @return the current cash
    */
   public MultiCurrencyAmount currentCash(
-      IborCapFloorTrade trade,
+      ResolvedIborCapFloorTrade trade,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 

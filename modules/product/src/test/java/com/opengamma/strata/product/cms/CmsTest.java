@@ -55,13 +55,7 @@ public class CmsTest {
   private static final PeriodicSchedule SCHEDULE_EUR =
       PeriodicSchedule.of(START, END, FREQUENCY, BUSS_ADJ_EUR, StubConvention.NONE, RollConventions.NONE);
   private static final ValueSchedule STRIKE = ValueSchedule.of(0.0125);
-  private static final CmsLeg CMS_LEG = CmsLeg.builder()
-      .capSchedule(STRIKE)
-      .index(INDEX)
-      .notional(NOTIONAL)
-      .payReceive(RECEIVE)
-      .paymentSchedule(SCHEDULE_EUR)
-      .build();
+  private static final CmsLeg CMS_LEG = CmsLegTest.sutCap();
   private static final SwapLeg PAY_LEG = RateCalculationSwapLeg.builder()
       .payReceive(PAY)
       .accrualSchedule(SCHEDULE_EUR)
@@ -73,8 +67,9 @@ public class CmsTest {
           NotionalSchedule.of(CurrencyAmount.of(EUR, 1.0e6)))
       .build();
 
+  //-------------------------------------------------------------------------
   public void test_of_twoLegs() {
-    Cms test = Cms.of(CMS_LEG, PAY_LEG);
+    Cms test = sutCap();
     assertEquals(test.getCmsLeg(), CMS_LEG);
     assertEquals(test.getPayLeg().get(), PAY_LEG);
   }
@@ -86,24 +81,36 @@ public class CmsTest {
   }
 
   public void test_resolve_twoLegs() {
-    Cms base = Cms.of(CMS_LEG, PAY_LEG);
-    ExpandedCms test = base.expand();
-    assertEquals(test.getCmsLeg(), CMS_LEG.expand());
+    Cms base = sutCap();
+    ResolvedCms test = base.resolve(REF_DATA);;
+    assertEquals(test.getCmsLeg(), CMS_LEG.resolve(REF_DATA));
     assertEquals(test.getPayLeg().get(), PAY_LEG.resolve(REF_DATA));
   }
 
   public void test_resolve_oneLeg() {
     Cms base = Cms.of(CMS_LEG);
-    ExpandedCms test = base.expand();
-    assertEquals(test.getCmsLeg(), CMS_LEG.expand());
+    ResolvedCms test = base.resolve(REF_DATA);;
+    assertEquals(test.getCmsLeg(), CMS_LEG.resolve(REF_DATA));
     assertFalse(test.getPayLeg().isPresent());
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    Cms test1 = Cms.of(CMS_LEG, PAY_LEG);
-    coverImmutableBean(test1);
-    Cms test2 = Cms.of(
+    coverImmutableBean(sutCap());
+    coverBeanEquals(sutCap(), sutFloor());
+  }
+
+  public void test_serialization() {
+    assertSerialization(sutCap());
+  }
+
+  //-------------------------------------------------------------------------
+  static Cms sutCap() {
+    return Cms.of(CMS_LEG, PAY_LEG);
+  }
+
+  static Cms sutFloor() {
+    return Cms.of(
         CmsLeg.builder()
             .floorSchedule(STRIKE)
             .index(INDEX)
@@ -111,12 +118,6 @@ public class CmsTest {
             .payReceive(RECEIVE)
             .paymentSchedule(SCHEDULE_EUR)
             .build());
-    coverBeanEquals(test1, test2);
-  }
-
-  public void test_serialization() {
-    Cms test = Cms.of(CMS_LEG, PAY_LEG);
-    assertSerialization(test);
   }
 
 }

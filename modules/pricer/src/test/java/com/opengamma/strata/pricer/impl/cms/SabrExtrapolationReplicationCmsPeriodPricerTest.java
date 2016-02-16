@@ -20,6 +20,7 @@ import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -48,8 +49,10 @@ import com.opengamma.strata.pricer.swaption.SwaptionSabrRateVolatilityDataSet;
 import com.opengamma.strata.product.cms.CmsPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
+import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapLegType;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
  * Test {@link SabrExtrapolationReplicationCmsPeriodPricer}.
@@ -671,6 +674,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         .notional(notional)
         .paymentDate(PAYMENT)
         .yearFraction(ACC_FACTOR)
+        .underlyingSwap(createUnderlyingSwap(FIXING))
         .build();
   }
 
@@ -687,6 +691,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         .paymentDate(PAYMENT)
         .yearFraction(ACC_FACTOR)
         .caplet(strike)
+        .underlyingSwap(createUnderlyingSwap(FIXING))
         .build();
   }
 
@@ -703,7 +708,17 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         .paymentDate(PAYMENT)
         .yearFraction(ACC_FACTOR)
         .floorlet(strike)
+        .underlyingSwap(createUnderlyingSwap(FIXING))
         .build();
+  }
+
+  // creates and resolves the underlying swap
+  private static ResolvedSwap createUnderlyingSwap(LocalDate fixingDate) {
+    FixedIborSwapConvention conv = EUR_EURIBOR_1100_5Y.getTemplate().getConvention();
+    LocalDate effectiveDate = conv.calculateSpotDateFromTradeDate(fixingDate);
+    LocalDate maturityDate = effectiveDate.plus(EUR_EURIBOR_1100_5Y.getTemplate().getTenor());
+    Swap swap = conv.toTrade(fixingDate, effectiveDate, maturityDate, BuySell.BUY, 1d, 1d).getProduct();
+    return swap.resolve(REF_DATA);
   }
 
   //-------------------------------------------------------------------------
@@ -715,13 +730,13 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   public void integrant_internal() {
     SwapIndex index = CAPLET.getIndex();
     LocalDate effectiveDate = CAPLET.getUnderlyingSwap().getStartDate();
-    ResolvedSwap expanded = CAPLET.getUnderlyingSwap().resolve(REF_DATA);
+    ResolvedSwap expanded = CAPLET.getUnderlyingSwap();
     double tenor = VOLATILITIES_SHIFT.tenor(effectiveDate, CAPLET.getUnderlyingSwap().getEndDate());
     double theta = VOLATILITIES_SHIFT.relativeTime(
         CAPLET.getFixingDate().atTime(index.getFixingTime()).atZone(index.getFixingZone()));
     double delta = index.getTemplate().getConvention().getFixedLeg()
         .getDayCount().relativeYearFraction(effectiveDate, PAYMENT);
-    double S0 = PRICER_SWAP.parRate(COUPON.getUnderlyingSwap().resolve(REF_DATA), RATES_PROVIDER);
+    double S0 = PRICER_SWAP.parRate(COUPON.getUnderlyingSwap(), RATES_PROVIDER);
     CmsIntegrantProvider integrant = new CmsIntegrantProvider(CAPLET, expanded, STRIKE, tenor, theta,
         S0, -delta, VOLATILITIES_SHIFT, CUT_OFF_STRIKE, MU);
     // Integrant internal
@@ -746,14 +761,14 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   public void test_presentValue_replication_cap() {
     SwapIndex index = CAPLET.getIndex();
     LocalDate effectiveDate = CAPLET.getUnderlyingSwap().getStartDate();
-    ResolvedSwap expanded = CAPLET.getUnderlyingSwap().resolve(REF_DATA);
+    ResolvedSwap expanded = CAPLET.getUnderlyingSwap();
     double tenor = VOLATILITIES.tenor(effectiveDate, CAPLET.getUnderlyingSwap().getEndDate());
     double theta = VOLATILITIES.relativeTime(
         CAPLET.getFixingDate().atTime(index.getFixingTime()).atZone(index.getFixingZone()));
     double delta = index.getTemplate().getConvention().getFixedLeg()
         .getDayCount().relativeYearFraction(effectiveDate, PAYMENT);
     double ptp = RATES_PROVIDER.discountFactor(EUR, PAYMENT);
-    double S0 = PRICER_SWAP.parRate(COUPON.getUnderlyingSwap().resolve(REF_DATA), RATES_PROVIDER);
+    double S0 = PRICER_SWAP.parRate(COUPON.getUnderlyingSwap(), RATES_PROVIDER);
     CmsIntegrantProvider integrant = new CmsIntegrantProvider(CAPLET, expanded, STRIKE, tenor, theta,
         S0, -delta, VOLATILITIES_SHIFT, CUT_OFF_STRIKE, MU);
     // Strike part

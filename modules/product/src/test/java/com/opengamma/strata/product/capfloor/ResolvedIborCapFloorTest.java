@@ -15,7 +15,6 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.swap.SwapLegType.FIXED;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
 
 import java.time.LocalDate;
 
@@ -23,15 +22,15 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.product.rate.FixedRateObservation;
 import com.opengamma.strata.product.rate.IborRateObservation;
-import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 
 /**
- * Test {@link ExpandedIborCapFloor}.
+ * Test {@link ResolvedIborCapFloor}.
  */
 @Test
-public class ExpandedIborCapFloorTest {
+public class ResolvedIborCapFloorTest {
 
   private static final double STRIKE = 0.0125;
   private static final double NOTIONAL = 1.0e6;
@@ -87,7 +86,7 @@ public class ExpandedIborCapFloorTest {
           IborRateObservation.of(EUR_EURIBOR_3M, LocalDate.of(2012, 3, 15)))
       .yearFraction(0.2528)
       .build();
-  private static final ExpandedIborCapFloorLeg CAPFLOOR_LEG = ExpandedIborCapFloorLeg.builder()
+  static final ResolvedIborCapFloorLeg CAPFLOOR_LEG = ResolvedIborCapFloorLeg.builder()
       .capletFloorletPeriods(PERIOD_1, PERIOD_2, PERIOD_3, PERIOD_4)
       .payReceive(RECEIVE)
       .build();
@@ -117,43 +116,39 @@ public class ExpandedIborCapFloorTest {
       .currency(EUR)
       .notional(-NOTIONAL)
       .build();
-  private static final ResolvedSwapLeg PAY_LEG = ResolvedSwapLeg.builder()
+  static final ResolvedSwapLeg PAY_LEG = ResolvedSwapLeg.builder()
       .paymentPeriods(PAY_PERIOD_1, PAY_PERIOD_2)
       .type(FIXED)
       .payReceive(PAY)
       .build();
 
+  //-------------------------------------------------------------------------
   public void test_of_oneLeg() {
-    ExpandedIborCapFloor test = ExpandedIborCapFloor.of(CAPFLOOR_LEG);
+    ResolvedIborCapFloor test = ResolvedIborCapFloor.of(CAPFLOOR_LEG);
     assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG);
     assertEquals(test.getPayLeg().isPresent(), false);
   }
 
   public void test_of_twoLegs() {
-    ExpandedIborCapFloor test = ExpandedIborCapFloor.of(CAPFLOOR_LEG, PAY_LEG);
+    ResolvedIborCapFloor test = ResolvedIborCapFloor.of(CAPFLOOR_LEG, PAY_LEG);
     assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG);
     assertEquals(test.getPayLeg().get(), PAY_LEG);
   }
 
-  public void test_expand() {
-    ExpandedIborCapFloor base = ExpandedIborCapFloor.of(CAPFLOOR_LEG, PAY_LEG);
-    assertSame(base.expand(), base);
-  }
-
   //-------------------------------------------------------------------------
   public void coverage() {
-    ExpandedIborCapFloor test1 = ExpandedIborCapFloor.of(CAPFLOOR_LEG, PAY_LEG);
+    ResolvedIborCapFloor test1 = ResolvedIborCapFloor.of(CAPFLOOR_LEG, PAY_LEG);
     coverImmutableBean(test1);
-    ExpandedIborCapFloorLeg capFloor = ExpandedIborCapFloorLeg.builder()
+    ResolvedIborCapFloorLeg capFloor = ResolvedIborCapFloorLeg.builder()
         .capletFloorletPeriods(PERIOD_1)
         .payReceive(PAY)
         .build();
-    ExpandedIborCapFloor test2 = ExpandedIborCapFloor.of(capFloor);
+    ResolvedIborCapFloor test2 = ResolvedIborCapFloor.of(capFloor);
     coverBeanEquals(test1, test2);
   }
 
   public void test_serialization() {
-    ExpandedIborCapFloor test = ExpandedIborCapFloor.of(CAPFLOOR_LEG);
+    ResolvedIborCapFloor test = ResolvedIborCapFloor.of(CAPFLOOR_LEG);
     assertSerialization(test);
   }
 

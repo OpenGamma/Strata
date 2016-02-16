@@ -89,15 +89,15 @@ public class IborCapFloorTest {
 
   public void test_resolve_oneLeg() {
     IborCapFloor base = IborCapFloor.of(CAPFLOOR_LEG);
-    ExpandedIborCapFloor test = base.expand();
-    assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG.expand());
+    ResolvedIborCapFloor test = base.resolve(REF_DATA);;
+    assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG.resolve(REF_DATA));
     assertEquals(test.getPayLeg().isPresent(), false);
   }
 
   public void test_resolve_twoLegs() {
     IborCapFloor base = IborCapFloor.of(CAPFLOOR_LEG, PAY_LEG);
-    ExpandedIborCapFloor test = base.expand();
-    assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG.expand());
+    ResolvedIborCapFloor test = base.resolve(REF_DATA);;
+    assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG.resolve(REF_DATA));
     assertEquals(test.getPayLeg().get(), PAY_LEG.resolve(REF_DATA));
   }
 

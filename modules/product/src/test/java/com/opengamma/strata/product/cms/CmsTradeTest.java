@@ -5,11 +5,7 @@
  */
 package com.opengamma.strata.product.cms;
 
-import static com.opengamma.strata.basics.PayReceive.PAY;
-import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -22,21 +18,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.BusinessDayConventions;
-import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.basics.schedule.PeriodicSchedule;
-import com.opengamma.strata.basics.schedule.RollConventions;
-import com.opengamma.strata.basics.schedule.StubConvention;
-import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.swap.FixedRateCalculation;
-import com.opengamma.strata.product.swap.NotionalSchedule;
-import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.product.swap.SwapIndex;
-import com.opengamma.strata.product.swap.SwapIndices;
 
 /**
  * Test {@link CmsTrade}.
@@ -44,72 +27,66 @@ import com.opengamma.strata.product.swap.SwapIndices;
 @Test
 public class CmsTradeTest {
 
-  private static final ValueSchedule NOTIONAL = ValueSchedule.of(1.0e6);
-  private static final SwapIndex INDEX = SwapIndices.EUR_EURIBOR_1100_10Y;
-  private static final LocalDate START = LocalDate.of(2015, 10, 21);
-  private static final LocalDate END = LocalDate.of(2017, 10, 21);
-  private static final Frequency FREQUENCY = Frequency.P12M;
-  private static final BusinessDayAdjustment BUSS_ADJ =
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, EUTA);
-  private static final PeriodicSchedule SCHEDULE =
-      PeriodicSchedule.of(START, END, FREQUENCY, BUSS_ADJ, StubConvention.NONE, RollConventions.NONE);
-  private static final ValueSchedule STRIKE = ValueSchedule.of(0.0125);
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final LocalDate TRADE_DATE = LocalDate.of(2015, 9, 21);
+  private static final LocalDate SETTLE_DATE = LocalDate.of(2015, 9, 23);
+  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(TRADE_DATE).settlementDate(SETTLE_DATE).build();
+  private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(EUR, -0.001 * 1.0e6), SETTLE_DATE);
 
-  private static final LocalDate TRADE = LocalDate.of(2015, 9, 21);
-  private static final LocalDate SETTLE = LocalDate.of(2015, 9, 23);
-  private static final TradeInfo INFO = TradeInfo.builder().tradeDate(TRADE).settlementDate(SETTLE).build();
+  private static final Cms PRODUCT_CAP = Cms.of(CmsTest.sutCap().getCmsLeg());
+  private static final Cms PRODUCT_CAP2 = CmsTest.sutCap();
 
-  private static final Cms CAP = Cms.of(
-      CmsLeg.builder()
-          .capSchedule(STRIKE)
-          .index(INDEX)
-          .notional(NOTIONAL)
-          .payReceive(RECEIVE)
-          .paymentSchedule(SCHEDULE)
-          .build());
-  private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(EUR, -0.001 * 1.0e6), SETTLE);
-  private static final Cms CMS = Cms.of(
-      CmsLeg.builder()
-          .capSchedule(STRIKE)
-          .index(INDEX)
-          .notional(NOTIONAL)
-          .payReceive(RECEIVE)
-          .paymentSchedule(SCHEDULE)
-          .build(),
-      RateCalculationSwapLeg.builder()
-          .payReceive(PAY)
-          .accrualSchedule(SCHEDULE)
-          .calculation(FixedRateCalculation.of(0.01, ACT_360))
-          .paymentSchedule(
-              PaymentSchedule.builder().paymentFrequency(FREQUENCY).paymentDateOffset(DaysAdjustment.NONE).build())
-          .notionalSchedule(NotionalSchedule.of(CurrencyAmount.of(EUR, 1.0e6)))
-          .build());
-
+  //-------------------------------------------------------------------------
   public void test_builder() {
-    CmsTrade test = CmsTrade.builder().product(CAP).premium(PREMIUM).tradeInfo(INFO).build();
+    CmsTrade test = sut();
     assertEquals(test.getPremium().get(), PREMIUM);
-    assertEquals(test.getProduct(), CAP);
-    assertEquals(test.getTradeInfo(), INFO);
+    assertEquals(test.getProduct(), PRODUCT_CAP);
+    assertEquals(test.getTradeInfo(), TRADE_INFO);
   }
 
   public void test_builder_noPrem() {
-    CmsTrade test = CmsTrade.builder().product(CMS).tradeInfo(INFO).build();
+    CmsTrade test = CmsTrade.builder()
+        .tradeInfo(TRADE_INFO)
+        .product(PRODUCT_CAP2)
+        .build();
     assertFalse(test.getPremium().isPresent());
-    assertEquals(test.getProduct(), CMS);
-    assertEquals(test.getTradeInfo(), INFO);
+    assertEquals(test.getProduct(), PRODUCT_CAP2);
+    assertEquals(test.getTradeInfo(), TRADE_INFO);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_resolve() {
+    ResolvedCmsTrade expected = ResolvedCmsTrade.builder()
+        .tradeInfo(TRADE_INFO)
+        .product(PRODUCT_CAP.resolve(REF_DATA))
+        .premium(PREMIUM)
+        .build();
+    assertEquals(sut().resolve(REF_DATA), expected);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CmsTrade test1 = CmsTrade.builder().product(CAP).premium(PREMIUM).tradeInfo(INFO).build();
-    coverImmutableBean(test1);
-    CmsTrade test2 = CmsTrade.builder().product(CMS).tradeInfo(TradeInfo.EMPTY).build();
-    coverBeanEquals(test1, test2);
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
   }
 
   public void test_serialization() {
-    CmsTrade test = CmsTrade.builder().product(CAP).premium(PREMIUM).tradeInfo(INFO).build();
-    assertSerialization(test);
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static CmsTrade sut() {
+    return CmsTrade.builder()
+        .tradeInfo(TRADE_INFO)
+        .product(PRODUCT_CAP)
+        .premium(PREMIUM)
+        .build();
+  }
+
+  static CmsTrade sut2() {
+    return CmsTrade.builder()
+        .product(PRODUCT_CAP2)
+        .build();
   }
 
 }

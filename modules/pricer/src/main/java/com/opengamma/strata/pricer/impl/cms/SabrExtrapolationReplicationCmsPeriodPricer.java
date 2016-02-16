@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -58,8 +57,6 @@ import com.opengamma.strata.product.swap.SwapLegType;
  */
 public class SabrExtrapolationReplicationCmsPeriodPricer {
 
-  // hard-coded reference data
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
   /**
    * Logger.
    */
@@ -159,7 +156,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       return CurrencyAmount.zero(ccy);
     }
     SwapIndex index = cmsPeriod.getIndex();
-    ResolvedSwap swap = cmsPeriod.getUnderlyingSwap().resolve(REF_DATA);
+    ResolvedSwap swap = cmsPeriod.getUnderlyingSwap();
     double dfPayment = provider.discountFactor(ccy, cmsPeriod.getPaymentDate());
     ZonedDateTime valuationDate = swaptionVolatilities.getValuationDateTime();
     LocalDate fixingDate = cmsPeriod.getFixingDate();
@@ -239,7 +236,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       return PointSensitivityBuilder.none();
     }
     SwapIndex index = cmsPeriod.getIndex();
-    ResolvedSwap swap = cmsPeriod.getUnderlyingSwap().resolve(REF_DATA);
+    ResolvedSwap swap = cmsPeriod.getUnderlyingSwap();
     double dfPayment = provider.discountFactor(ccy, cmsPeriod.getPaymentDate());
     ZonedDateTime valuationDate = swaptionVolatilities.getValuationDateTime();
     LocalDate fixingDate = cmsPeriod.getFixingDate();
@@ -328,7 +325,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
 
     Currency ccy = cmsPeriod.getCurrency();
     SwapIndex index = cmsPeriod.getIndex();
-    ResolvedSwap swap = cmsPeriod.getUnderlyingSwap().resolve(REF_DATA);
+    ResolvedSwap swap = cmsPeriod.getUnderlyingSwap();
     double dfPayment = provider.discountFactor(ccy, cmsPeriod.getPaymentDate());
     ZonedDateTime valuationDate = swaptionVolatilities.getValuationDateTime();
     LocalDate fixingDate = cmsPeriod.getFixingDate();
@@ -404,7 +401,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     if (provider.getValuationDate().isAfter(cmsPeriod.getPaymentDate())) {
       return 0d;
     }
-    ResolvedSwap swap = cmsPeriod.getUnderlyingSwap().resolve(REF_DATA);
+    ResolvedSwap swap = cmsPeriod.getUnderlyingSwap();
     double dfPayment = provider.discountFactor(ccy, cmsPeriod.getPaymentDate());
     ZonedDateTime valuationDate = swaptionVolatilities.getValuationDateTime();
     LocalDate fixingDate = cmsPeriod.getFixingDate();

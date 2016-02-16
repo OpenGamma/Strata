@@ -42,8 +42,8 @@ public final class ImmutableSwapIndex
     implements SwapIndex, ImmutableBean, Serializable {
 
   /**
-  * The index name.
-  */
+   * The index name.
+   */
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String name;
   /**
@@ -52,13 +52,13 @@ public final class ImmutableSwapIndex
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalTime fixingTime;
   /**
-  * The time-zone of the fixing time.
-  */
+   * The time-zone of the fixing time.
+   */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ZoneId fixingZone;
   /**
-  * The template for creating Fixed-Ibor swap.
-  */
+   * The template for creating Fixed-Ibor swap.
+   */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final FixedIborSwapTemplate template;
 

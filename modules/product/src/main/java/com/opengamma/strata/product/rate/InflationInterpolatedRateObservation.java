@@ -43,10 +43,10 @@ public class InflationInterpolatedRateObservation
     implements RateObservation, ImmutableBean, Serializable {
 
   /**
-  * The index of prices.
-  * <p>
-  * The pay-off is computed based on this index
-  */
+   * The index of prices.
+   * <p>
+   * The pay-off is computed based on this index
+   */
   @PropertyDefinition(validate = "notNull")
   private final PriceIndex index;
   /**

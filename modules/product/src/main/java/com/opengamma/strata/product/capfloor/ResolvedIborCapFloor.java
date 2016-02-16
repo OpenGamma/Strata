@@ -1,9 +1,9 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.product.cms;
+package com.opengamma.strata.product.capfloor;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -25,99 +25,91 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.ResolvedProduct;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
-import com.opengamma.strata.product.swap.SwapIndex;
 
 /**
- * An expanded constant maturity swap (CMS) or CMS cap/floor, with dates calculated ready for pricing.
+ * An Ibor cap/floor, resolved for pricing.
  * <p>
- * The CMS product consists of two legs, a CMS leg and a pay leg.
- * The CMS leg of CMS periodically pays coupons based on swap rate, which is the observed
- * value of a {@linkplain SwapIndex swap index}.
- * The pay leg is any swap leg from a standard interest rate swap.The pay leg may be absent
- * for certain CMS products, with the premium paid upfront instead, as defined on {@link CmsTrade}.
+ * This is the resolved form of {@link IborCapFloor} and is an input to the pricers.
+ * Applications will typically create a {@code ResolvedIborCapFloor} from a {@code IborCapFloor}
+ * using {@link IborCapFloor#resolve(ReferenceData)}.
  * <p>
- * CMS cap/floor instruments can be created. These are defined as a set of call/put options
- * on successive swap rates, creating CMS caplets/floorlets.
- * <p>
- * An {@code ExpandedCms} contains information based on holiday calendars.
- * If a holiday calendar changes, the adjusted dates may no longer be correct.
- * Care must be taken when placing the expanded form in a cache or persistence layer.
+ * A {@code ResolvedIborCapFloor} is bound to data that changes over time, such as holiday calendars.
+ * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
+ * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
 @BeanDefinition(builderScope = "private")
-public final class ExpandedCms
-    implements CmsProduct, ImmutableBean, Serializable {
+public final class ResolvedIborCapFloor
+    implements ResolvedProduct, ImmutableBean, Serializable {
 
   /**
-   * The CMS leg of the product.
+   * The Ibor cap/floor leg of the product.
    * <p>
-   * This is associated with periodic payments based on swap rate. 
-   * The payments are CMS coupons, CMS caplets or CMS floors. 
+   * This is associated with periodic payments based on Ibor rate. 
+   * The payments are Ibor caplets or Ibor floorlets. 
    */
   @PropertyDefinition(validate = "notNull")
-  private final ExpandedCmsLeg cmsLeg;
+  private final ResolvedIborCapFloorLeg capFloorLeg;
   /**
    * The optional pay leg of the product. 
    * <p>
-   * Typically this is associated with periodic fixed or Ibor rate payments without compounding or notional exchange. 
-   * <p>
-   * These periodic payments are not made for certain CMS products. Instead the premium is paid upfront. 
+   * These periodic payments are not made for typical cap/floor products. Instead the premium is paid upfront. 
    */
   @PropertyDefinition(get = "optional")
   private final ResolvedSwapLeg payLeg;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from a CMS leg with no pay leg. 
+   * Obtains an instance from a cap/floor leg with no pay leg. 
    * <p>
-   * The pay leg is absent in the resulting CMS.
+   * The pay leg is absent in the resulting cap/floor.
    * 
-   * @param cmsLeg  the CMS leg
-   * @return the CMS
+   * @param capFloorLeg  the cap/floor leg
+   * @return the cap/floor
    */
-  public static ExpandedCms of(ExpandedCmsLeg cmsLeg) {
-    return new ExpandedCms(cmsLeg, null);
+  public static ResolvedIborCapFloor of(ResolvedIborCapFloorLeg capFloorLeg) {
+    ArgChecker.notNull(capFloorLeg, "capFloorLeg");
+    return new ResolvedIborCapFloor(capFloorLeg, null);
   }
 
   /**
-   * Obtains an instance from a CMS leg and a pay leg. 
+   * Obtains an instance from a cap/floor leg and a pay leg. 
    * 
-   * @param cmsLeg  the CMS leg
+   * @param capFloorLeg  the cap/floor leg
    * @param payLeg  the pay leg
-   * @return the CMS
+   * @return the cap/floor
    */
-  public static ExpandedCms of(ExpandedCmsLeg cmsLeg, ResolvedSwapLeg payLeg) {
-    return new ExpandedCms(cmsLeg, payLeg);
+  public static ResolvedIborCapFloor of(ResolvedIborCapFloorLeg capFloorLeg, ResolvedSwapLeg payLeg) {
+    ArgChecker.notNull(capFloorLeg, "capFloorLeg");
+    ArgChecker.notNull(payLeg, "payLeg");
+    return new ResolvedIborCapFloor(capFloorLeg, payLeg);
   }
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
     if (getPayLeg().isPresent()) {
-      ArgChecker.isFalse(payLeg.getPayReceive().equals(cmsLeg.getPayReceive()),
+      ArgChecker.isFalse(
+          payLeg.getPayReceive().equals(capFloorLeg.getPayReceive()),
           "Two legs should have different Pay/Receive flags");
     }
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public ExpandedCms expand() {
-    return this;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code ExpandedCms}.
+   * The meta-bean for {@code ResolvedIborCapFloor}.
    * @return the meta-bean, not null
    */
-  public static ExpandedCms.Meta meta() {
-    return ExpandedCms.Meta.INSTANCE;
+  public static ResolvedIborCapFloor.Meta meta() {
+    return ResolvedIborCapFloor.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(ExpandedCms.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ResolvedIborCapFloor.Meta.INSTANCE);
   }
 
   /**
@@ -125,18 +117,18 @@ public final class ExpandedCms
    */
   private static final long serialVersionUID = 1L;
 
-  private ExpandedCms(
-      ExpandedCmsLeg cmsLeg,
+  private ResolvedIborCapFloor(
+      ResolvedIborCapFloorLeg capFloorLeg,
       ResolvedSwapLeg payLeg) {
-    JodaBeanUtils.notNull(cmsLeg, "cmsLeg");
-    this.cmsLeg = cmsLeg;
+    JodaBeanUtils.notNull(capFloorLeg, "capFloorLeg");
+    this.capFloorLeg = capFloorLeg;
     this.payLeg = payLeg;
     validate();
   }
 
   @Override
-  public ExpandedCms.Meta metaBean() {
-    return ExpandedCms.Meta.INSTANCE;
+  public ResolvedIborCapFloor.Meta metaBean() {
+    return ResolvedIborCapFloor.Meta.INSTANCE;
   }
 
   @Override
@@ -151,23 +143,21 @@ public final class ExpandedCms
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the CMS leg of the product.
+   * Gets the Ibor cap/floor leg of the product.
    * <p>
-   * This is associated with periodic payments based on swap rate.
-   * The payments are CMS coupons, CMS caplets or CMS floors.
+   * This is associated with periodic payments based on Ibor rate.
+   * The payments are Ibor caplets or Ibor floorlets.
    * @return the value of the property, not null
    */
-  public ExpandedCmsLeg getCmsLeg() {
-    return cmsLeg;
+  public ResolvedIborCapFloorLeg getCapFloorLeg() {
+    return capFloorLeg;
   }
 
   //-----------------------------------------------------------------------
   /**
    * Gets the optional pay leg of the product.
    * <p>
-   * Typically this is associated with periodic fixed or Ibor rate payments without compounding or notional exchange.
-   * <p>
-   * These periodic payments are not made for certain CMS products. Instead the premium is paid upfront.
+   * These periodic payments are not made for typical cap/floor products. Instead the premium is paid upfront.
    * @return the optional value of the property, not null
    */
   public Optional<ResolvedSwapLeg> getPayLeg() {
@@ -181,8 +171,8 @@ public final class ExpandedCms
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ExpandedCms other = (ExpandedCms) obj;
-      return JodaBeanUtils.equal(cmsLeg, other.cmsLeg) &&
+      ResolvedIborCapFloor other = (ResolvedIborCapFloor) obj;
+      return JodaBeanUtils.equal(capFloorLeg, other.capFloorLeg) &&
           JodaBeanUtils.equal(payLeg, other.payLeg);
     }
     return false;
@@ -191,7 +181,7 @@ public final class ExpandedCms
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(cmsLeg);
+    hash = hash * 31 + JodaBeanUtils.hashCode(capFloorLeg);
     hash = hash * 31 + JodaBeanUtils.hashCode(payLeg);
     return hash;
   }
@@ -199,8 +189,8 @@ public final class ExpandedCms
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
-    buf.append("ExpandedCms{");
-    buf.append("cmsLeg").append('=').append(cmsLeg).append(',').append(' ');
+    buf.append("ResolvedIborCapFloor{");
+    buf.append("capFloorLeg").append('=').append(capFloorLeg).append(',').append(' ');
     buf.append("payLeg").append('=').append(JodaBeanUtils.toString(payLeg));
     buf.append('}');
     return buf.toString();
@@ -208,7 +198,7 @@ public final class ExpandedCms
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code ExpandedCms}.
+   * The meta-bean for {@code ResolvedIborCapFloor}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -217,21 +207,21 @@ public final class ExpandedCms
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code cmsLeg} property.
+     * The meta-property for the {@code capFloorLeg} property.
      */
-    private final MetaProperty<ExpandedCmsLeg> cmsLeg = DirectMetaProperty.ofImmutable(
-        this, "cmsLeg", ExpandedCms.class, ExpandedCmsLeg.class);
+    private final MetaProperty<ResolvedIborCapFloorLeg> capFloorLeg = DirectMetaProperty.ofImmutable(
+        this, "capFloorLeg", ResolvedIborCapFloor.class, ResolvedIborCapFloorLeg.class);
     /**
      * The meta-property for the {@code payLeg} property.
      */
     private final MetaProperty<ResolvedSwapLeg> payLeg = DirectMetaProperty.ofImmutable(
-        this, "payLeg", ExpandedCms.class, ResolvedSwapLeg.class);
+        this, "payLeg", ResolvedIborCapFloor.class, ResolvedSwapLeg.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "cmsLeg",
+        "capFloorLeg",
         "payLeg");
 
     /**
@@ -243,8 +233,8 @@ public final class ExpandedCms
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1356515323:  // cmsLeg
-          return cmsLeg;
+        case 2124672084:  // capFloorLeg
+          return capFloorLeg;
         case -995239866:  // payLeg
           return payLeg;
       }
@@ -252,13 +242,13 @@ public final class ExpandedCms
     }
 
     @Override
-    public BeanBuilder<? extends ExpandedCms> builder() {
-      return new ExpandedCms.Builder();
+    public BeanBuilder<? extends ResolvedIborCapFloor> builder() {
+      return new ResolvedIborCapFloor.Builder();
     }
 
     @Override
-    public Class<? extends ExpandedCms> beanType() {
-      return ExpandedCms.class;
+    public Class<? extends ResolvedIborCapFloor> beanType() {
+      return ResolvedIborCapFloor.class;
     }
 
     @Override
@@ -268,11 +258,11 @@ public final class ExpandedCms
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code cmsLeg} property.
+     * The meta-property for the {@code capFloorLeg} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ExpandedCmsLeg> cmsLeg() {
-      return cmsLeg;
+    public MetaProperty<ResolvedIborCapFloorLeg> capFloorLeg() {
+      return capFloorLeg;
     }
 
     /**
@@ -287,10 +277,10 @@ public final class ExpandedCms
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -1356515323:  // cmsLeg
-          return ((ExpandedCms) bean).getCmsLeg();
+        case 2124672084:  // capFloorLeg
+          return ((ResolvedIborCapFloor) bean).getCapFloorLeg();
         case -995239866:  // payLeg
-          return ((ExpandedCms) bean).payLeg;
+          return ((ResolvedIborCapFloor) bean).payLeg;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -308,11 +298,11 @@ public final class ExpandedCms
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code ExpandedCms}.
+   * The bean-builder for {@code ResolvedIborCapFloor}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<ExpandedCms> {
+  private static final class Builder extends DirectFieldsBeanBuilder<ResolvedIborCapFloor> {
 
-    private ExpandedCmsLeg cmsLeg;
+    private ResolvedIborCapFloorLeg capFloorLeg;
     private ResolvedSwapLeg payLeg;
 
     /**
@@ -325,8 +315,8 @@ public final class ExpandedCms
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1356515323:  // cmsLeg
-          return cmsLeg;
+        case 2124672084:  // capFloorLeg
+          return capFloorLeg;
         case -995239866:  // payLeg
           return payLeg;
         default:
@@ -337,8 +327,8 @@ public final class ExpandedCms
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -1356515323:  // cmsLeg
-          this.cmsLeg = (ExpandedCmsLeg) newValue;
+        case 2124672084:  // capFloorLeg
+          this.capFloorLeg = (ResolvedIborCapFloorLeg) newValue;
           break;
         case -995239866:  // payLeg
           this.payLeg = (ResolvedSwapLeg) newValue;
@@ -374,9 +364,9 @@ public final class ExpandedCms
     }
 
     @Override
-    public ExpandedCms build() {
-      return new ExpandedCms(
-          cmsLeg,
+    public ResolvedIborCapFloor build() {
+      return new ResolvedIborCapFloor(
+          capFloorLeg,
           payLeg);
     }
 
@@ -384,8 +374,8 @@ public final class ExpandedCms
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
-      buf.append("ExpandedCms.Builder{");
-      buf.append("cmsLeg").append('=').append(JodaBeanUtils.toString(cmsLeg)).append(',').append(' ');
+      buf.append("ResolvedIborCapFloor.Builder{");
+      buf.append("capFloorLeg").append('=').append(JodaBeanUtils.toString(capFloorLeg)).append(',').append(' ');
       buf.append("payLeg").append('=').append(JodaBeanUtils.toString(payLeg));
       buf.append('}');
       return buf.toString();

@@ -54,6 +54,10 @@ import com.opengamma.strata.product.rate.IborRateObservation;
  * <p>
  * If start date and end date of the period, and payment date are not specified, a standard caplet/floorlet is created 
  * based on the data and convention in {@code rateObservation},  i.e., the Ibor is fixed in advance and paid in arrears.
+ * <p>
+ * An {@code IborCapletFloorletPeriod} is bound to data that changes over time, such as holiday calendars.
+ * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
+ * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
 @BeanDefinition
 public final class IborCapletFloorletPeriod
