@@ -165,7 +165,7 @@ enum StandardDayCounts implements DayCount {
       }
       // calculation is based on the end of the schedule period (next coupon date) and annual/non-annual frequency
       LocalDate nextCouponDate = scheduleInfo.getPeriodEndDate(firstDate);
-      if (scheduleInfo.getFrequency().eventsPerYear() == 1) {
+      if (scheduleInfo.getFrequency().isAnnual()) {
         LocalDate nextLeap = DateAdjusters.nextLeapDay(firstDate);
         return actualDays / (nextLeap.isAfter(nextCouponDate) ? 365d : 366d);
       } else {

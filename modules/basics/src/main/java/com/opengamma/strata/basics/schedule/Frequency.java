@@ -5,7 +5,13 @@
  */
 package com.opengamma.strata.basics.schedule;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.MONTHS;
+import static java.time.temporal.ChronoUnit.YEARS;
+
 import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.Period;
@@ -15,6 +21,7 @@ import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
 import java.time.temporal.UnsupportedTemporalTypeException;
 import java.util.List;
+import java.util.Locale;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -79,69 +86,69 @@ public final class Frequency
    * Also known as weekly.
    * There are considered to be 52 events per year with this frequency.
    */
-  public static final Frequency P1W = ofWeeks(1);
+  public static final Frequency P1W = new Frequency(Period.ofWeeks(1), "P1W");
   /**
    * A periodic frequency of 2 weeks (14 days).
    * Also known as bi-weekly.
    * There are considered to be 26 events per year with this frequency.
    */
-  public static final Frequency P2W = ofWeeks(2);
+  public static final Frequency P2W = new Frequency(Period.ofWeeks(2), "P2W");
   /**
    * A periodic frequency of 4 weeks (28 days).
    * Also known as lunar.
    * There are considered to be 13 events per year with this frequency.
    */
-  public static final Frequency P4W = ofWeeks(4);
+  public static final Frequency P4W = new Frequency(Period.ofWeeks(4), "P4W");
   /**
    * A periodic frequency of 13 weeks (91 days).
    * There are considered to be 4 events per year with this frequency.
    */
-  public static final Frequency P13W = ofWeeks(13);
+  public static final Frequency P13W = new Frequency(Period.ofWeeks(13), "P13W");
   /**
    * A periodic frequency of 26 weeks (182 days).
    * There are considered to be 2 events per year with this frequency.
    */
-  public static final Frequency P26W = ofWeeks(26);
+  public static final Frequency P26W = new Frequency(Period.ofWeeks(26), "P26W");
   /**
    * A periodic frequency of 52 weeks (364 days).
    * There is considered to be 1 event per year with this frequency.
    */
-  public static final Frequency P52W = ofWeeks(52);
+  public static final Frequency P52W = new Frequency(Period.ofWeeks(52), "P52W");
   /**
    * A periodic frequency of 1 month.
    * Also known as monthly.
    * There are 12 events per year with this frequency.
    */
-  public static final Frequency P1M = ofMonths(1);
+  public static final Frequency P1M = new Frequency(Period.ofMonths(1));
   /**
    * A periodic frequency of 2 months.
    * Also known as bi-monthly.
    * There are 6 events per year with this frequency.
    */
-  public static final Frequency P2M = ofMonths(2);
+  public static final Frequency P2M = new Frequency(Period.ofMonths(2));
   /**
    * A periodic frequency of 3 months.
    * Also known as quarterly.
    * There are 4 events per year with this frequency.
    */
-  public static final Frequency P3M = ofMonths(3);
+  public static final Frequency P3M = new Frequency(Period.ofMonths(3));
   /**
    * A periodic frequency of 4 months.
    * There are 3 events per year with this frequency.
    */
-  public static final Frequency P4M = ofMonths(4);
+  public static final Frequency P4M = new Frequency(Period.ofMonths(4));
   /**
    * A periodic frequency of 6 months.
    * Also known as semi-annual.
    * There are 2 events per year with this frequency.
    */
-  public static final Frequency P6M = ofMonths(6);
+  public static final Frequency P6M = new Frequency(Period.ofMonths(6));
   /**
    * A periodic frequency of 12 months (1 year).
    * Also known as annual.
    * There is 1 event per year with this frequency.
    */
-  public static final Frequency P12M = ofMonths(12);
+  public static final Frequency P12M = new Frequency(Period.ofMonths(12));
   /**
    * A periodic frequency matching the term.
    * Also known as zero-coupon.
@@ -158,6 +165,14 @@ public final class Frequency
    * The name of the frequency.
    */
   private final String name;
+  /**
+   * The number of events per year.
+   */
+  private transient final int eventsPerYear;
+  /**
+   * The number of events per year.
+   */
+  private transient final double eventsPerYearEstimate;
 
   //-------------------------------------------------------------------------
   /**
@@ -212,7 +227,22 @@ public final class Frequency
    * @throws IllegalArgumentException if weeks is negative or zero
    */
   public static Frequency ofWeeks(int weeks) {
-    return new Frequency(Period.ofWeeks(weeks), "P" + weeks + "W");
+    switch (weeks) {
+      case 1:
+        return P1W;
+      case 2:
+        return P2W;
+      case 4:
+        return P4W;
+      case 13:
+        return P13W;
+      case 26:
+        return P26W;
+      case 52:
+        return P52W;
+      default:
+        return new Frequency(Period.ofWeeks(weeks), "P" + weeks + "W");
+    }
   }
 
   /**
@@ -225,10 +255,31 @@ public final class Frequency
    * @throws IllegalArgumentException if months is negative, zero or over 12,000
    */
   public static Frequency ofMonths(int months) {
-    if (months > MAX_MONTHS) {
-      throw new IllegalArgumentException("Months must not exceed 12,000");
+    switch (months) {
+      case 1:
+        return P1M;
+      case 2:
+        return P2M;
+      case 3:
+        return P3M;
+      case 4:
+        return P4M;
+      case 6:
+        return P6M;
+      case 12:
+        return P12M;
+      default:
+        if (months > MAX_MONTHS) {
+          throw new IllegalArgumentException(maxMonthMsg());
+        }
+        return new Frequency(Period.ofMonths(months));
     }
-    return new Frequency(Period.ofMonths(months));
+  }
+
+  // extracted to aid inlining
+  private static String maxMonthMsg() {
+    DecimalFormat formatter = new DecimalFormat("#,###", new DecimalFormatSymbols(Locale.ENGLISH));
+    return "Months must not exceed " + formatter.format(MAX_MONTHS);
   }
 
   /**
@@ -240,9 +291,15 @@ public final class Frequency
    */
   public static Frequency ofYears(int years) {
     if (years > MAX_YEARS) {
-      throw new IllegalArgumentException("Years must not exceed 1,000");
+      throw new IllegalArgumentException(maxYearMsg());
     }
     return new Frequency(Period.ofYears(years));
+  }
+
+  // extracted to aid inlining
+  private static String maxYearMsg() {
+    DecimalFormat formatter = new DecimalFormat("#,###", new DecimalFormatSymbols(Locale.ENGLISH));
+    return "Years must not exceed " + formatter.format(MAX_YEARS);
   }
 
   //-------------------------------------------------------------------------
@@ -294,6 +351,26 @@ public final class Frequency
     ArgChecker.isFalse(period.isNegative(), "Period must not be negative");
     this.period = period;
     this.name = name;
+    // calculate events per year
+    long monthsLong = period.toTotalMonths();
+    if (monthsLong > MAX_MONTHS) {
+      eventsPerYear = 0;
+      eventsPerYearEstimate = 0;
+    } else {
+      int months = (int) monthsLong;
+      int days = period.getDays();
+      if (months > 0 && days == 0) {
+        eventsPerYear = (12 % months == 0) ? 12 / months : -1;
+        eventsPerYearEstimate = 12d / months;
+      } else if (days > 0 && months == 0) {
+        eventsPerYear = (364 % days == 0) ? 364 / days : -1;
+        eventsPerYearEstimate = 364d / days;
+      } else {
+        eventsPerYear = -1;
+        double estimatedSecs = months * MONTHS.getDuration().getSeconds() + days * DAYS.getDuration().getSeconds();
+        eventsPerYearEstimate = YEARS.getDuration().getSeconds() / estimatedSecs;
+      }
+    }
   }
 
   // safe deserialization
@@ -365,6 +442,18 @@ public final class Frequency
     return period.toTotalMonths() > 0 && period.getDays() == 0 && isTerm() == false;
   }
 
+  /**
+   * Checks if the periodic frequency is annual.
+   * <p>
+   * An annual frequency consists of 12 months.
+   * There must be no day or week element.
+   *
+   * @return true if this is annual
+   */
+  public boolean isAnnual() {
+    return period.toTotalMonths() == 12 && period.getDays() == 0;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Calculates the number of events that occur in a year.
@@ -385,19 +474,28 @@ public final class Frequency
    * @throws IllegalArgumentException if unable to calculate the number of events per year
    */
   public int eventsPerYear() {
-    if (isTerm()) {
-      return 0;
+    if (eventsPerYear == -1) {
+      throw new IllegalArgumentException("Unable to calculate events per year: " + this);
     }
-    long months = period.toTotalMonths();
-    int days = period.getDays();
-    if (isMonthBased()) {
-      if (12 % months == 0) {
-        return (int) (12 / months);
-      }
-    } else if (months == 0 && 364 % days == 0) {
-      return (int) (364 / days);
-    }
-    throw new IllegalArgumentException("Unable to calculate events per year: " + this);
+    return eventsPerYear;
+  }
+
+  /**
+   * Estimates the number of events that occur in a year.
+   * <p>
+   * The number of events per year is the number of times that the period occurs per year.
+   * This method returns an estimate without throwing an exception.
+   * The exact number of events is returned by {@link #eventsPerYear()}.
+   * <p>
+   * The 'Term' periodic frequency returns zero.
+   * Month-based and year-based periodic frequencies return 12 divided by the number of months.
+   * Day-based and week-based periodic frequencies return 364 divided by the number of days.
+   * Other frequencies are calculated using estimated durations, dividing the year by the period.
+   *
+   * @return the estimated number of events per year
+   */
+  public double eventsPerYearEstimate() {
+    return eventsPerYearEstimate;
   }
 
   //-------------------------------------------------------------------------

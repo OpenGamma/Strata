@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.schedule;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -458,20 +459,12 @@ public final class PeriodicSchedule
     }
     // calculate base schedule excluding explicit stubs
     RollConvention rollConv = getEffectiveRollConvention();
-    StubConvention implicitStubConv = generateImplicitStubConvention(explicitInitialStub, explicitFinalStub);
-    List<LocalDate> unadj = (implicitStubConv.isCalculateBackwards() ?
-        generateBackwards(regStart, regEnd, rollConv, implicitStubConv) :
-        generateForwards(regStart, regEnd, rollConv, implicitStubConv));
-    // add explicit stubs
-    if (explicitInitialStub) {
-      unadj.add(0, startDate);
-    }
-    if (explicitFinalStub) {
-      unadj.add(endDate);
-    }
-    // handle override start date
-    unadj.set(0, effectiveStartDate);
-    return unadj;
+    StubConvention stubConv = generateImplicitStubConvention(explicitInitialStub, explicitFinalStub);
+    return (stubConv.isCalculateBackwards() ?
+        generateBackwards(
+            regStart, regEnd, rollConv, stubConv, explicitInitialStub, effectiveStartDate, explicitFinalStub, endDate) :
+        generateForwards(
+            regStart, regEnd, rollConv, stubConv, explicitInitialStub, effectiveStartDate, explicitFinalStub, endDate));
   }
 
   // using knowledge of the explicit stubs, generate the correct convention for implicit stubs
@@ -486,57 +479,127 @@ public final class PeriodicSchedule
   }
 
   // generate the schedule of dates backwards from the end
-  private List<LocalDate> generateBackwards(LocalDate start, LocalDate end, RollConvention rollConv, StubConvention stubConv) {
+  private List<LocalDate> generateBackwards(
+      LocalDate start,
+      LocalDate end,
+      RollConvention rollConv,
+      StubConvention stubConv,
+      boolean explicitInitialStub,
+      LocalDate explicitStartDate,
+      boolean explicitFinalStub,
+      LocalDate explicitEndDate) {
+
     // validate
     if (rollConv.matches(end) == false) {
       throw new ScheduleException(
           this, "Date '{}' does not match roll convention '{}' when starting to roll backwards", end, rollConv);
     }
     // generate
-    List<LocalDate> dates = new ArrayList<>();
-    dates.add(start);
-    dates.add(end);
+    BackwardsList dates = new BackwardsList(estimateNumberPeriods(start, end));
+    if (explicitFinalStub) {
+      dates.addFirst(explicitEndDate);
+    }
+    dates.addFirst(end);
     LocalDate temp = rollConv.previous(end, frequency);
     while (temp.isAfter(start)) {
-      dates.add(1, temp);
+      dates.addFirst(temp);
       temp = rollConv.previous(temp, frequency);
     }
     // convert short stub to long stub, but only if we actually have a stub
     boolean stub = temp.equals(start) == false;
-    if (stub && stubConv.isLong() && dates.size() > 2) {
-      dates.remove(1);
+    if (stub && stubConv.isLong() && dates.size() > 1) {
+      dates.removeFirst();
+    }
+    if (explicitInitialStub) {
+      dates.addFirst(start);
+      dates.addFirst(explicitStartDate);
+    } else {
+      dates.addFirst(explicitStartDate);
     }
     return dates;
   }
 
+  // dedicated list implementation for backwards looping for performance
+  // only implements those methods that are needed
+  private static class BackwardsList extends AbstractList<LocalDate> {
+    int first;
+    LocalDate[] array;
+
+    BackwardsList(int capacity) {
+      this.array = new LocalDate[capacity];
+      this.first = array.length;
+    }
+
+    @Override
+    public LocalDate get(int index) {
+      return array[first + index];
+    }
+
+    @Override
+    public int size() {
+      return array.length - first;
+    }
+
+    void addFirst(LocalDate date) {
+      array[--first] = date;
+    }
+
+    void removeFirst() {
+      first++;
+    }
+  }
+
   // generate the schedule of dates forwards from the start
-  private List<LocalDate> generateForwards(LocalDate start, LocalDate end, RollConvention rollConv, StubConvention stubConv) {
+  private List<LocalDate> generateForwards(
+      LocalDate start,
+      LocalDate end,
+      RollConvention rollConv,
+      StubConvention stubConv,
+      boolean explicitInitialStub,
+      LocalDate explicitStartDate,
+      boolean explicitFinalStub,
+      LocalDate explicitEndDate) {
+
     // validate
     if (rollConv.matches(start) == false) {
       throw new ScheduleException(
           this, "Date '{}' does not match roll convention '{}' when starting to roll forwards", start, rollConv);
     }
     // generate
-    List<LocalDate> dates = new ArrayList<>();
-    dates.add(start);
+    List<LocalDate> dates = new ArrayList<>(estimateNumberPeriods(start, end));
+    if (explicitInitialStub) {
+      dates.add(explicitStartDate);
+      dates.add(start);
+    } else {
+      dates.add(explicitStartDate);
+    }
     LocalDate temp = rollConv.next(start, frequency);
     while (temp.isBefore(end)) {
       dates.add(temp);
       temp = rollConv.next(temp, frequency);
     }
-    dates.add(end);
     // convert short stub to long stub, but only if we actually have a stub
     boolean stub = temp.equals(end) == false;
-    if (stub && dates.size() > 2) {
+    if (stub && dates.size() > 1) {
       if (stubConv == StubConvention.NONE) {
         throw new ScheduleException(
             this, "Period '{}' to '{}' resulted in a disallowed stub with frequency '{}'", start, end, frequency);
       }
       if (stubConv.isLong()) {
-        dates.remove(dates.size() - 2);
+        dates.remove(dates.size() - 1);
       }
     }
+    dates.add(end);
+    if (explicitFinalStub) {
+      dates.add(explicitEndDate);
+    }
     return dates;
+  }
+
+  // roughly estimate the number of periods (overestimating)
+  private int estimateNumberPeriods(LocalDate start, LocalDate end) {
+    int termInYearsEstimate = end.getYear() - start.getYear() + 2;
+    return (int) (frequency.eventsPerYearEstimate() * termInYearsEstimate);
   }
 
   //-------------------------------------------------------------------------
