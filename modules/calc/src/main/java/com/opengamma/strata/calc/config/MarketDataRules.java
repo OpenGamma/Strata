@@ -20,15 +20,18 @@ import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 public interface MarketDataRules {
 
   /**
-   * Returns a set of market data rules that delegates to multiple individual rules,
-   * returning the first valid mapping it finds.
+   * Returns set a of market data rules matching any target which is an instance of any of the target types.
    *
-   * @param rules  the delegate market data rules
-   * @return a set of market data rules that delegates to multiple underlying rules, returning the first
-   *   valid mapping it finds
+   * @param mappings  the market data mappings used for a target matching this set of rules
+   * @param targetTypes  types that targets must implement to in order to match this set of rules
+   * @return a market data rule that matches any target that is an instance of any of the target types
    */
-  public static MarketDataRules of(MarketDataRule... rules) {
-    return DefaultMarketDataRules.of(rules);
+  @SafeVarargs
+  public static MarketDataRules ofTargetTypes(
+      MarketDataMappings mappings,
+      Class<? extends CalculationTarget>... targetTypes) {
+
+    return TypedMarketDataRules.of(mappings, targetTypes);
   }
 
   /**
@@ -38,6 +41,16 @@ public interface MarketDataRules {
    */
   public static MarketDataRules empty() {
     return EmptyMarketDataRules.INSTANCE;
+  }
+
+  /**
+   * Returns a set of market data rules that match any target.
+   *
+   * @param mappings  the mappings used for any target passed to this set of rules
+   * @return a market data rule that matches any target
+   */
+  public static MarketDataRules anyTarget(MarketDataMappings mappings) {
+    return AllTargetsMarketDataRules.of(mappings);
   }
 
   //-------------------------------------------------------------------------
@@ -53,14 +66,16 @@ public interface MarketDataRules {
   /**
    * Combines these rules with the specified rules.
    * <p>
-   * The resulting rules will return mappings from this rule if available,
-   * otherwise mappings will be returned from the other rule.
+   * The resulting rules will return mappings from this set of rules if available,
+   * otherwise mappings will be returned from the other rules.
    *
    * @param otherRules  the other rules
    * @return the combined rules
    */
-  public default MarketDataRules composedWith(MarketDataRules otherRules) {
-    return CompositeMarketDataRules.of(this, otherRules);
+  public default MarketDataRules composedWith(MarketDataRules... otherRules) {
+    MarketDataRules[] rulesArray = new MarketDataRules[1 + otherRules.length];
+    rulesArray[0] = this;
+    System.arraycopy(otherRules, 0, rulesArray, 1, otherRules.length);
+    return CompositeMarketDataRules.of(rulesArray);
   }
-
 }

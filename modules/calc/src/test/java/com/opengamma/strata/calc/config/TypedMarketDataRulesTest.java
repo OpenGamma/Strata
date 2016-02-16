@@ -13,13 +13,13 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 
 @Test
-public class DefaultMarketDataRuleTest {
+public class TypedMarketDataRulesTest {
 
   /**
    * Tests matching a target whose exact type is included in the list of target types.
    */
   public void matchExactTargetType() {
-    MarketDataRule rule = MarketDataRule.of(MarketDataMappings.empty(), TargetClass1.class, TargetClass2.class);
+    MarketDataRules rule = MarketDataRules.ofTargetTypes(MarketDataMappings.empty(), TargetClass1.class, TargetClass2.class);
     assertThat(rule.mappings(new TargetClass1())).hasValue(MarketDataMappings.empty());
     assertThat(rule.mappings(new TargetClass2())).hasValue(MarketDataMappings.empty());
   }
@@ -28,7 +28,10 @@ public class DefaultMarketDataRuleTest {
    * Tests matching a target which implements an interface included in the list of target types.
    */
   public void matchSubtypeOfTargetType() {
-    MarketDataRule rule = MarketDataRule.of(MarketDataMappings.empty(), TargetInterface1.class, TargetInterface2.class);
+    MarketDataRules rule = MarketDataRules.ofTargetTypes(
+        MarketDataMappings.empty(),
+        TargetInterface1.class,
+        TargetInterface2.class);
     assertThat(rule.mappings(new TargetClass1())).hasValue(MarketDataMappings.empty());
     assertThat(rule.mappings(new TargetClass2())).hasValue(MarketDataMappings.empty());
   }
@@ -37,7 +40,7 @@ public class DefaultMarketDataRuleTest {
    * Tests that the rule doesn't match a target which has no supertype in the set of target types.
    */
   public void noMatch() {
-    MarketDataRule rule = MarketDataRule.of(MarketDataMappings.empty(), TargetClass1.class);
+    MarketDataRules rule = MarketDataRules.ofTargetTypes(MarketDataMappings.empty(), TargetClass1.class);
     assertThat(rule.mappings(new TargetClass2())).isEmpty();
   }
 

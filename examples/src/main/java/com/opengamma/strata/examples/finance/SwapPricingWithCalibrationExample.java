@@ -29,7 +29,6 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
@@ -161,10 +160,10 @@ public class SwapPricingWithCalibrationExample {
         .build();
 
     // the configuration defining the curve group to use when finding a curve
-    MarketDataRules marketDataRules = MarketDataRules.of(
-        MarketDataRule.anyTarget(MarketDataMappingsBuilder.create()
+    MarketDataRules marketDataRules = MarketDataRules.anyTarget(
+        MarketDataMappingsBuilder.create()
             .curveGroup(CURVE_GROUP_NAME)
-            .build()));
+            .build());
 
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()

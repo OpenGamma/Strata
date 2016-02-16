@@ -12,7 +12,6 @@ import static com.opengamma.strata.function.StandardComponents.marketDataFactory
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fixedIborSwapNode;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fraNode;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.id;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -42,7 +41,6 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.MarketDataRule;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -166,11 +164,10 @@ public class CurveEndToEndTest {
 
     // Rules for market data and calculations ---------------------------------
 
-    MarketDataRules marketDataRules = MarketDataRules.of(
-        MarketDataRule.anyTarget(
-            MarketDataMappingsBuilder.create()
-                .curveGroup(groupName)
-                .build()));
+    MarketDataRules marketDataRules = MarketDataRules.anyTarget(
+        MarketDataMappingsBuilder.create()
+            .curveGroup(groupName)
+            .build());
 
     CalculationRules calculationRules = CalculationRules.builder()
         .pricingRules(pricingRules())

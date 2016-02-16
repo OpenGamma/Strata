@@ -64,7 +64,7 @@ final class CompositeMarketDataRules implements MarketDataRules, ImmutableBean {
   }
 
   @Override
-  public MarketDataRules composedWith(MarketDataRules otherRules) {
+  public MarketDataRules composedWith(MarketDataRules... otherRules) {
     List<MarketDataRules> newRules = ImmutableList.<MarketDataRules>builder().addAll(rules).add(otherRules).build();
     return new CompositeMarketDataRules(newRules);
   }
