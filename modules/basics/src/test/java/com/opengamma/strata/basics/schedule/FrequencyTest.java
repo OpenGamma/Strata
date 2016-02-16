@@ -125,10 +125,10 @@ public class FrequencyTest {
     assertThrowsIllegalArg(() -> Frequency.of(Period.ofYears(1001)));
     assertThrowsIllegalArg(() -> Frequency.of(Period.ofYears(Integer.MAX_VALUE)));
 
-    assertThrowsIllegalArg(() -> Frequency.ofMonths(12001));
+    assertThrowsIllegalArg(() -> Frequency.ofMonths(12001), "Months must not exceed 12,000");
     assertThrowsIllegalArg(() -> Frequency.ofMonths(Integer.MAX_VALUE));
 
-    assertThrowsIllegalArg(() -> Frequency.ofYears(1001));
+    assertThrowsIllegalArg(() -> Frequency.ofYears(1001), "Years must not exceed 1,000");
     assertThrowsIllegalArg(() -> Frequency.ofYears(Integer.MAX_VALUE));
 
     assertThrowsIllegalArg(() -> Frequency.of(Period.of(10000, 0, 1)));

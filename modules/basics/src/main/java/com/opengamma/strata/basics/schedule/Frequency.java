@@ -10,6 +10,7 @@ import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.time.temporal.ChronoUnit.YEARS;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.Period;
@@ -267,10 +268,15 @@ public final class Frequency
         return P12M;
       default:
         if (months > MAX_MONTHS) {
-          throw new IllegalArgumentException("Months must not exceed 12,000");
+          throw new IllegalArgumentException(maxMonthMsg());
         }
         return new Frequency(Period.ofMonths(months));
     }
+  }
+
+  // extracted to aid inlining
+  private static String maxMonthMsg() {
+    return "Months must not exceed " + new DecimalFormat("#,###").format(MAX_MONTHS);
   }
 
   /**
@@ -282,9 +288,14 @@ public final class Frequency
    */
   public static Frequency ofYears(int years) {
     if (years > MAX_YEARS) {
-      throw new IllegalArgumentException("Years must not exceed 1,000");
+      throw new IllegalArgumentException(maxYearMsg());
     }
     return new Frequency(Period.ofYears(years));
+  }
+
+  // extracted to aid inlining
+  private static String maxYearMsg() {
+    return "Years must not exceed " + new DecimalFormat("#,###").format(MAX_YEARS);
   }
 
   //-------------------------------------------------------------------------
