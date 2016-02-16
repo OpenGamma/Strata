@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
@@ -30,8 +31,9 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swaption.CashSettlement;
 import com.opengamma.strata.product.swaption.CashSettlementMethod;
+import com.opengamma.strata.product.swaption.ResolvedSwaption;
+import com.opengamma.strata.product.swaption.ResolvedSwaptionTrade;
 import com.opengamma.strata.product.swaption.Swaption;
-import com.opengamma.strata.product.swaption.SwaptionTrade;
 
 /**
  * Test {@link SabrSwaptionCashParYieldTradePricer}.
@@ -39,6 +41,7 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
 @Test
 public class SabrSwaptionCashParYieldTradePricerTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 1, 22);
   // swaption trades
   private static final double NOTIONAL = 100000000; //100m
@@ -54,29 +57,30 @@ public class SabrSwaptionCashParYieldTradePricerTest {
       .cashSettlementMethod(CashSettlementMethod.PAR_YIELD)
       .settlementDate(SETTLE_DATE)
       .build();
-  private static final Swaption SWAPTION_LONG_REC = Swaption.builder()
+  private static final ResolvedSwaption SWAPTION_LONG_REC = Swaption.builder()
       .expiryDate(AdjustableDate.of(MATURITY_DATE.toLocalDate()))
       .expiryTime(MATURITY_DATE.toLocalTime())
       .expiryZone(MATURITY_DATE.getZone())
       .longShort(LongShort.LONG)
       .swaptionSettlement(PAR_YIELD)
       .underlying(SWAP_REC)
-      .build();
+      .build()
+      .resolve(REF_DATA);
   private static final double PREMIUM_AMOUNT = 100_000;
   private static final Payment PREMIUM_FWD_PAY = Payment.of(
       CurrencyAmount.of(USD, -PREMIUM_AMOUNT), MATURITY_DATE.toLocalDate());
-  private static final SwaptionTrade SWAPTION_PREFWD_LONG_REC = SwaptionTrade.builder()
+  private static final ResolvedSwaptionTrade SWAPTION_PREFWD_LONG_REC = ResolvedSwaptionTrade.builder()
       .product(SWAPTION_LONG_REC)
       .premium(PREMIUM_FWD_PAY)
       .build();
   private static final Payment PREMIUM_TRA_PAY = Payment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VAL_DATE);
-  private static final SwaptionTrade SWAPTION_PRETOD_LONG_REC = SwaptionTrade.builder()
+  private static final ResolvedSwaptionTrade SWAPTION_PRETOD_LONG_REC = ResolvedSwaptionTrade.builder()
       .product(SWAPTION_LONG_REC)
       .premium(PREMIUM_TRA_PAY)
       .build();
   private static final Payment PREMIUM_PAST_PAY =
       Payment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VAL_DATE.minusDays(1));
-  private static final SwaptionTrade SWAPTION_PREPAST_LONG_REC = SwaptionTrade.builder()
+  private static final ResolvedSwaptionTrade SWAPTION_PREPAST_LONG_REC = ResolvedSwaptionTrade.builder()
       .product(SWAPTION_LONG_REC)
       .premium(PREMIUM_PAST_PAY)
       .build();

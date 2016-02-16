@@ -15,9 +15,8 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.swaption.Swaption;
-import com.opengamma.strata.product.swaption.SwaptionProduct;
-import com.opengamma.strata.product.swaption.SwaptionTrade;
+import com.opengamma.strata.product.swaption.ResolvedSwaption;
+import com.opengamma.strata.product.swaption.ResolvedSwaptionTrade;
 
 /**
  * Pricer for swaption trade with par yield curve method of cash settlement in SABR model.
@@ -40,7 +39,7 @@ public class SabrSwaptionCashParYieldTradePricer {
       DiscountingPaymentPricer.DEFAULT);
 
   /**
-   * Pricer for {@link SwaptionProduct}.
+   * Pricer for {@link ResolvedSwaption}.
    */
   private final SabrSwaptionCashParYieldProductPricer productPricer;
   /**
@@ -51,7 +50,7 @@ public class SabrSwaptionCashParYieldTradePricer {
   /**
    * Creates an instance.
    * 
-   * @param productPricer  the pricer for {@link SwaptionProduct}
+   * @param productPricer  the pricer for {@link ResolvedSwaption}
    * @param paymentPricer  the pricer for {@link Payment}
    */
   public SabrSwaptionCashParYieldTradePricer(
@@ -68,17 +67,17 @@ public class SabrSwaptionCashParYieldTradePricer {
    * <p>
    * The result is expressed using the currency of the swaption.
    * 
-   * @param trade  the swaption trade to price
+   * @param trade  the swaption trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
    * @return the present value of the swap product
    */
   public CurrencyAmount presentValue(
-      SwaptionTrade trade,
+      ResolvedSwaptionTrade trade,
       RatesProvider ratesProvider,
       SabrSwaptionVolatilities swaptionVolatilities) {
 
-    Swaption product = trade.getProduct();
+    ResolvedSwaption product = trade.getProduct();
     CurrencyAmount pvProduct = productPricer.presentValue(product, ratesProvider, swaptionVolatilities);
     Payment premium = trade.getPremium();
     CurrencyAmount pvPremium = paymentPricer.presentValue(premium, ratesProvider);
@@ -89,13 +88,13 @@ public class SabrSwaptionCashParYieldTradePricer {
   /**
    * Computes the currency exposure of the swaption trade
    * 
-   * @param trade  the swaption trade to price
+   * @param trade  the swaption trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
    * @return the present value of the swaption product
    */
   public MultiCurrencyAmount currencyExposure(
-      SwaptionTrade trade,
+      ResolvedSwaptionTrade trade,
       RatesProvider ratesProvider,
       SabrSwaptionVolatilities swaptionVolatilities) {
 
@@ -105,11 +104,11 @@ public class SabrSwaptionCashParYieldTradePricer {
   /**
    * Calculates the current of the swaption trade.
    * 
-   * @param trade  the swaption trade to price
+   * @param trade  the swaption trade
    * @param valuationDate  the valuation date
    * @return the current cash amount
    */
-  public CurrencyAmount currentCash(SwaptionTrade trade, LocalDate valuationDate) {
+  public CurrencyAmount currentCash(ResolvedSwaptionTrade trade, LocalDate valuationDate) {
     Payment premium = trade.getPremium();
     if (premium.getDate().equals(valuationDate)) {
       return CurrencyAmount.of(premium.getCurrency(), premium.getAmount());
@@ -124,17 +123,17 @@ public class SabrSwaptionCashParYieldTradePricer {
    * The present value sensitivity of the product is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param trade  the swaption trade to price
+   * @param trade  the swaption trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
    * @return the present value curve sensitivity of the swap trade
    */
   public PointSensitivityBuilder presentValueSensitivity(
-      SwaptionTrade trade,
+      ResolvedSwaptionTrade trade,
       RatesProvider ratesProvider,
       SabrSwaptionVolatilities swaptionVolatilities) {
 
-    Swaption product = trade.getProduct();
+    ResolvedSwaption product = trade.getProduct();
     PointSensitivityBuilder pvcsProduct =
         productPricer.presentValueSensitivity(product, ratesProvider, swaptionVolatilities);
     Payment premium = trade.getPremium();
@@ -148,17 +147,17 @@ public class SabrSwaptionCashParYieldTradePricer {
    * <p>
    * The sensitivity of the present value to the SABR model parameters, alpha, beta, rho and nu.
    * 
-   * @param trade  the swaption trade to price
+   * @param trade  the swaption trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
    * @return the point sensitivity to the Black volatility
    */
   public SwaptionSabrSensitivity presentValueSensitivitySabrParameter(
-      SwaptionTrade trade,
+      ResolvedSwaptionTrade trade,
       RatesProvider ratesProvider,
       SabrSwaptionVolatilities swaptionVolatilities) {
 
-    Swaption product = trade.getProduct();
+    ResolvedSwaption product = trade.getProduct();
     return productPricer.presentValueSensitivitySabrParameter(product, ratesProvider, swaptionVolatilities);
   }
 

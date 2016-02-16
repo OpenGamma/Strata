@@ -32,6 +32,7 @@ import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -55,6 +56,7 @@ import com.opengamma.strata.pricer.swaption.VolatilitySwaptionPhysicalProductPri
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 import com.opengamma.strata.product.swaption.PhysicalSettlement;
+import com.opengamma.strata.product.swaption.ResolvedSwaption;
 import com.opengamma.strata.product.swaption.Swaption;
 import com.opengamma.strata.product.swaption.SwaptionSettlement;
 import com.opengamma.strata.product.swaption.SwaptionTrade;
@@ -68,6 +70,7 @@ public class SwaptionCalculationFunctionTest {
   private static final NormalSwaptionExpiryTenorVolatilities NORMAL_VOL_SWAPTION_PROVIDER_USD =
       SwaptionNormalVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_STD;
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double FIXED_RATE = 0.015;
   private static final double NOTIONAL = 100000000d;
   private static final Swap SWAP = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
@@ -122,7 +125,8 @@ public class SwaptionCalculationFunctionTest {
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     VolatilitySwaptionPhysicalProductPricer pricer = VolatilitySwaptionPhysicalProductPricer.DEFAULT;
-    CurrencyAmount expectedPv = pricer.presentValue(TRADE.getProduct(), provider, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    ResolvedSwaption resolved = TRADE.getProduct().resolve(REF_DATA);
+    CurrencyAmount expectedPv = pricer.presentValue(resolved, provider, NORMAL_VOL_SWAPTION_PROVIDER_USD);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY);
     assertThat(function.calculate(TRADE, measures, md))

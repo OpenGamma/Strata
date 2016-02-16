@@ -50,6 +50,7 @@ import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swaption.CashSettlement;
 import com.opengamma.strata.product.swaption.CashSettlementMethod;
 import com.opengamma.strata.product.swaption.PhysicalSettlement;
+import com.opengamma.strata.product.swaption.ResolvedSwaption;
 import com.opengamma.strata.product.swaption.Swaption;
 import com.opengamma.strata.product.swaption.SwaptionSettlement;
 
@@ -86,62 +87,69 @@ public class BlackSwaptionPhysicalProductPricerTest {
       .settlementDate(SWAP_REC.getStartDate())
       .build();
 
-  private static final Swaption SWAPTION_LONG_REC = Swaption.builder()
+  private static final ResolvedSwaption SWAPTION_LONG_REC = Swaption.builder()
       .swaptionSettlement(PHYSICAL_SETTLE)
       .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
       .expiryTime(SWAPTION_EXPIRY_TIME)
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG)
       .underlying(SWAP_REC)
-      .build();
-  private static final Swaption SWAPTION_SHORT_REC = Swaption.builder()
+      .build()
+      .resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_SHORT_REC = Swaption.builder()
       .swaptionSettlement(PHYSICAL_SETTLE)
       .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
       .expiryTime(SWAPTION_EXPIRY_TIME)
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.SHORT)
       .underlying(SWAP_REC)
-      .build();
-  private static final Swaption SWAPTION_LONG_PAY = Swaption.builder()
+      .build()
+      .resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_LONG_PAY = Swaption.builder()
       .swaptionSettlement(PHYSICAL_SETTLE)
       .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
       .expiryTime(SWAPTION_EXPIRY_TIME)
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG)
       .underlying(SWAP_PAY)
-      .build();
-  private static final Swaption SWAPTION_LONG_REC_CASH = Swaption.builder()
+      .build()
+      .resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_LONG_REC_CASH = Swaption.builder()
       .swaptionSettlement(CASH_SETTLE)
       .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
       .expiryTime(SWAPTION_EXPIRY_TIME)
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG)
       .underlying(SWAP_REC)
-      .build();
-  private static final Swaption SWAPTION_REC_AT_EXPIRY = Swaption.builder()
+      .build()
+      .resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_REC_AT_EXPIRY = Swaption.builder()
       .swaptionSettlement(PHYSICAL_SETTLE)
       .expiryDate(AdjustableDate.of(VAL_DATE))
       .expiryTime(SWAPTION_EXPIRY_TIME)
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG)
       .underlying(SWAP_REC)
-      .build();
-  private static final Swaption SWAPTION_PAY_AT_EXPIRY = Swaption.builder()
+      .build()
+      .resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_PAY_AT_EXPIRY = Swaption.builder()
       .swaptionSettlement(PHYSICAL_SETTLE)
       .expiryDate(AdjustableDate.of(VAL_DATE))
       .expiryTime(SWAPTION_EXPIRY_TIME)
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG)
       .underlying(SWAP_PAY)
-      .build();
-  private static final Swaption SWAPTION_PAST = Swaption.builder()
+      .build()
+      .resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_PAST = Swaption.builder()
       .swaptionSettlement(PHYSICAL_SETTLE)
       .expiryDate(AdjustableDate.of(SWAPTION_PAST_EXERCISE_DATE))
       .expiryTime(SWAPTION_EXPIRY_TIME)
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG)
       .underlying(SWAP_PAST)
-      .build();
+      .build()
+      .resolve(REF_DATA);
 
   private static final BlackPriceFunction BLACK = new BlackPriceFunction();
   private static final BlackSwaptionPhysicalProductPricer PRICER_SWAPTION_BLACK =
@@ -172,7 +180,7 @@ public class BlackSwaptionPhysicalProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_implied_volatility() {
     double forward = PRICER_SWAP.parRate(RSWAP_REC, MULTI_USD);
-    double volExpected = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.volatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+    double volExpected = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.volatility(SWAPTION_LONG_REC.getExpiry(),
         SWAP_TENOR_YEAR, STRIKE, forward);
     double volComputed = PRICER_SWAPTION_BLACK
         .impliedVolatility(SWAPTION_LONG_PAY, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
@@ -188,10 +196,10 @@ public class BlackSwaptionPhysicalProductPricerTest {
   public void present_value_formula() {
     double forward = PRICER_SWAP.parRate(RSWAP_REC, MULTI_USD);
     double pvbp = PRICER_SWAP.getLegPricer().pvbp(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
-    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.volatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.volatility(SWAPTION_LONG_REC.getExpiry(),
         SWAP_TENOR_YEAR, STRIKE, forward);
     BlackFunctionData blackData = BlackFunctionData.of(forward, Math.abs(pvbp), volatility);
-    double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
+    double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiry());
     EuropeanVanillaOption option = EuropeanVanillaOption.of(STRIKE, expiry, PutCall.PUT);
     double pvExpected = BLACK.getPriceFunction(option).apply(blackData);
     CurrencyAmount pvComputed =
@@ -236,9 +244,9 @@ public class BlackSwaptionPhysicalProductPricerTest {
   public void present_value_delta_formula() {
     double forward = PRICER_SWAP.parRate(RSWAP_REC, MULTI_USD);
     double pvbp = PRICER_SWAP.getLegPricer().pvbp(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
-    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.volatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.volatility(SWAPTION_LONG_REC.getExpiry(),
         SWAP_TENOR_YEAR, STRIKE, forward);
-    double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
+    double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiry());
     double pvDeltaExpected = BlackFormulaRepository.delta(forward, STRIKE, expiry, volatility, false) * Math.abs(pvbp);
     CurrencyAmount pvDeltaComputed =
         PRICER_SWAPTION_BLACK.presentValueDelta(SWAPTION_LONG_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
@@ -283,9 +291,9 @@ public class BlackSwaptionPhysicalProductPricerTest {
   public void present_value_gamma_formula() {
     double forward = PRICER_SWAP.parRate(RSWAP_REC, MULTI_USD);
     double pvbp = PRICER_SWAP.getLegPricer().pvbp(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
-    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.volatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.volatility(SWAPTION_LONG_REC.getExpiry(),
         SWAP_TENOR_YEAR, STRIKE, forward);
-    double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
+    double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiry());
     double pvGammaExpected = BlackFormulaRepository.gamma(forward, STRIKE, expiry, volatility) * Math.abs(pvbp);
     CurrencyAmount pvGammaComputed =
         PRICER_SWAPTION_BLACK.presentValueGamma(SWAPTION_LONG_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
@@ -328,9 +336,9 @@ public class BlackSwaptionPhysicalProductPricerTest {
   public void present_value_theta_formula() {
     double forward = PRICER_SWAP.parRate(RSWAP_REC, MULTI_USD);
     double pvbp = PRICER_SWAP.getLegPricer().pvbp(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
-    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.volatility(SWAPTION_LONG_REC.getExpiryDateTime(),
+    double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.volatility(SWAPTION_LONG_REC.getExpiry(),
         SWAP_TENOR_YEAR, STRIKE, forward);
-    double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
+    double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiry());
     double pvThetaExpected = BlackFormulaRepository.driftlessTheta(forward, STRIKE, expiry, volatility) * Math.abs(pvbp);
     CurrencyAmount pvThetaComputed =
         PRICER_SWAPTION_BLACK.presentValueTheta(SWAPTION_LONG_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
@@ -451,7 +459,7 @@ public class BlackSwaptionPhysicalProductPricerTest {
     assertEquals(pvnvsAd.getCurrency(), USD);
     assertEquals(pvnvsAd.getSensitivity(), pvnvsFd, TOLERANCE_PV_VEGA);
     assertEquals(pvnvsAd.getConvention(), USD_FIXED_6M_LIBOR_3M);
-    assertEquals(pvnvsAd.getExpiry(), SWAPTION_LONG_PAY.getExpiryDateTime());
+    assertEquals(pvnvsAd.getExpiry(), SWAPTION_LONG_PAY.getExpiry());
     assertEquals(pvnvsAd.getTenor(), SWAP_TENOR_YEAR, TOLERANCE_RATE);
     assertEquals(pvnvsAd.getStrike(), STRIKE, TOLERANCE_RATE);
     double forward = PRICER_SWAP.parRate(RSWAP_REC, MULTI_USD);

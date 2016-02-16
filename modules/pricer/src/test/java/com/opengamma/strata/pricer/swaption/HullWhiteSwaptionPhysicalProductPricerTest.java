@@ -67,6 +67,7 @@ import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swaption.CashSettlement;
 import com.opengamma.strata.product.swaption.CashSettlementMethod;
 import com.opengamma.strata.product.swaption.PhysicalSettlement;
+import com.opengamma.strata.product.swaption.ResolvedSwaption;
 import com.opengamma.strata.product.swaption.Swaption;
 
 /**
@@ -152,7 +153,7 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
       .cashSettlementMethod(CashSettlementMethod.PAR_YIELD)
       .settlementDate(SETTLE)
       .build();
-  private static final Swaption SWAPTION_REC_LONG = Swaption
+  private static final ResolvedSwaption SWAPTION_REC_LONG = Swaption
       .builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate(), BDA_MF))
       .expiryTime(MATURITY.toLocalTime())
@@ -160,8 +161,9 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
       .swaptionSettlement(PhysicalSettlement.DEFAULT)
       .longShort(LONG)
       .underlying(SWAP_REC)
-      .build();
-  private static final Swaption SWAPTION_REC_SHORT = Swaption
+      .build().
+      resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_REC_SHORT = Swaption
       .builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate(), BDA_MF))
       .expiryTime(MATURITY.toLocalTime())
@@ -169,8 +171,9 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
       .swaptionSettlement(PhysicalSettlement.DEFAULT)
       .longShort(SHORT)
       .underlying(SWAP_REC)
-      .build();
-  private static final Swaption SWAPTION_PAY_LONG = Swaption
+      .build().
+      resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_PAY_LONG = Swaption
       .builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate(), BDA_MF))
       .expiryTime(MATURITY.toLocalTime())
@@ -178,8 +181,9 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
       .swaptionSettlement(PhysicalSettlement.DEFAULT)
       .longShort(LONG)
       .underlying(SWAP_PAY)
-      .build();
-  private static final Swaption SWAPTION_PAY_SHORT = Swaption
+      .build().
+      resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_PAY_SHORT = Swaption
       .builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate(), BDA_MF))
       .expiryTime(MATURITY.toLocalTime())
@@ -187,15 +191,17 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
       .swaptionSettlement(PhysicalSettlement.DEFAULT)
       .longShort(SHORT)
       .underlying(SWAP_PAY)
-      .build();
-  private static final Swaption SWAPTION_CASH = Swaption.builder()
+      .build().
+      resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_CASH = Swaption.builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate()))
       .expiryTime(MATURITY.toLocalTime())
       .expiryZone(MATURITY.getZone())
       .longShort(LongShort.LONG)
       .swaptionSettlement(PAR_YIELD)
       .underlying(SWAP_REC)
-      .build();
+      .build().
+      resolve(REF_DATA);
 
   private static final LocalDate VALUATION = LocalDate.of(2011, 7, 7);
   private static final HullWhiteOneFactorPiecewiseConstantParametersProvider HW_PROVIDER =
@@ -468,8 +474,8 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
   public void regression_curveSensitivity() {
     PointSensitivities point = PRICER.presentValueSensitivity(SWAPTION_PAY_LONG, RATE_PROVIDER, HW_PROVIDER).build();
     CurveCurrencyParameterSensitivities computed = RATE_PROVIDER.curveParameterSensitivity(point);
-    double[] dscExp = new double[] {0.0, 0.0, 0.0, 0.0, -1.4127023229222856E7, -1.744958350376594E7 };
-    double[] fwdExp = new double[] {0.0, 0.0, 0.0, 0.0, -2.0295973516660026E8, 4.12336887967829E8 };
+    double[] dscExp = new double[] {0.0, 0.0, 0.0, 0.0, -1.4127023229222856E7, -1.744958350376594E7};
+    double[] fwdExp = new double[] {0.0, 0.0, 0.0, 0.0, -2.0295973516660026E8, 4.12336887967829E8};
     assertTrue(DoubleArrayMath.fuzzyEquals(computed.getSensitivity(HullWhiteIborFutureDataSet.DSC_NAME, EUR)
         .getSensitivity().toArray(), dscExp, NOTIONAL * TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(computed.getSensitivity(HullWhiteIborFutureDataSet.FWD6_NAME, EUR)
@@ -479,7 +485,7 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
   public void regression_hullWhiteSensitivity() {
     DoubleArray computed = PRICER.presentValueSensitivityHullWhiteParameter(SWAPTION_PAY_LONG, RATE_PROVIDER, HW_PROVIDER);
     double[] expected = new double[] {
-      2.9365484063149095E7, 3.262667329294093E7, 7.226220286364576E7, 2.4446925038968167E8, 120476.73820821749 };
+        2.9365484063149095E7, 3.262667329294093E7, 7.226220286364576E7, 2.4446925038968167E8, 120476.73820821749};
     assertTrue(DoubleArrayMath.fuzzyEquals(computed.toArray(), expected, NOTIONAL * TOL));
   }
 }

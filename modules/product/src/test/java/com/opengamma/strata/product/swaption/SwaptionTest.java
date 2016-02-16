@@ -67,18 +67,11 @@ public class SwaptionTest {
 
   //-------------------------------------------------------------------------
   public void test_builder() {
-    Swaption test = Swaption.builder()
-        .expiryDate(ADJUSTABLE_EXPIRY_DATE)
-        .expiryTime(EXPIRY_TIME)
-        .expiryZone(ZONE)
-        .longShort(LONG)
-        .swaptionSettlement(PHYSICAL_SETTLE)
-        .underlying(SWAP)
-        .build();
+    Swaption test = sut();
     assertEquals(test.getExpiryDate(), ADJUSTABLE_EXPIRY_DATE);
     assertEquals(test.getExpiryTime(), EXPIRY_TIME);
     assertEquals(test.getExpiryZone(), ZONE);
-    assertEquals(test.getExpiryDateTime(), EXPIRY_DATE.atTime(EXPIRY_TIME).atZone(ZONE));
+    assertEquals(test.getExpiry(), EXPIRY_DATE.atTime(EXPIRY_TIME).atZone(ZONE));
     assertEquals(test.getLongShort(), LONG);
     assertEquals(test.getSwaptionSettlement(), PHYSICAL_SETTLE);
     assertEquals(test.getUnderlying(), SWAP);
@@ -131,20 +124,10 @@ public class SwaptionTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_expand() {
-    Swaption base = Swaption.builder()
-        .expiryDate(ADJUSTABLE_EXPIRY_DATE)
-        .expiryTime(EXPIRY_TIME)
-        .expiryZone(ZONE)
-        .longShort(LONG)
-        .swaptionSettlement(PHYSICAL_SETTLE)
-        .underlying(SWAP)
-        .build();
-    ExpandedSwaption test = base.expand();
-    assertEquals(test.getExpiryDate(), ADJUSTMENT.adjust(EXPIRY_DATE));
-    assertEquals(test.getExpiryTime(), EXPIRY_TIME);
-    assertEquals(test.getExpiryZone(), ZONE);
-    assertEquals(test.getExpiryDateTime(), ADJUSTMENT.adjust(EXPIRY_DATE).atTime(EXPIRY_TIME).atZone(ZONE));
+  public void test_resolve() {
+    Swaption base = sut();
+    ResolvedSwaption test = base.resolve(REF_DATA);
+    assertEquals(test.getExpiry(), ADJUSTMENT.adjust(EXPIRY_DATE).atTime(EXPIRY_TIME).atZone(ZONE));
     assertEquals(test.getLongShort(), LONG);
     assertEquals(test.getSwaptionSettlement(), PHYSICAL_SETTLE);
     assertEquals(test.getUnderlying(), SWAP.resolve(REF_DATA));
@@ -152,7 +135,17 @@ public class SwaptionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    Swaption test1 = Swaption.builder()
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
+  }
+
+  public void test_serialization() {
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static Swaption sut() {
+    return Swaption.builder()
         .expiryDate(ADJUSTABLE_EXPIRY_DATE)
         .expiryTime(EXPIRY_TIME)
         .expiryZone(ZONE)
@@ -160,8 +153,10 @@ public class SwaptionTest {
         .swaptionSettlement(PHYSICAL_SETTLE)
         .underlying(SWAP)
         .build();
-    coverImmutableBean(test1);
-    Swaption test2 = Swaption.builder()
+  }
+
+  static Swaption sut2() {
+    return Swaption.builder()
         .expiryDate(AdjustableDate.of(LocalDate.of(2014, 6, 10), ADJUSTMENT))
         .expiryTime(LocalTime.of(14, 0))
         .expiryZone(ZoneId.of("GMT"))
@@ -170,19 +165,6 @@ public class SwaptionTest {
         .underlying(FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
             .createTrade(LocalDate.of(2014, 6, 10), Tenor.TENOR_10Y, BuySell.BUY, 1d, FIXED_RATE).getProduct())
         .build();
-    coverBeanEquals(test1, test2);
-  }
-
-  public void test_serialization() {
-    Swaption test = Swaption.builder()
-        .expiryDate(ADJUSTABLE_EXPIRY_DATE)
-        .expiryTime(EXPIRY_TIME)
-        .expiryZone(ZONE)
-        .longShort(LONG)
-        .swaptionSettlement(PHYSICAL_SETTLE)
-        .underlying(SWAP)
-        .build();
-    assertSerialization(test);
   }
 
 }

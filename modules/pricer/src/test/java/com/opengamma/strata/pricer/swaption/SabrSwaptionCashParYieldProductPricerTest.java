@@ -73,6 +73,7 @@ import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swaption.CashSettlement;
 import com.opengamma.strata.product.swaption.CashSettlementMethod;
 import com.opengamma.strata.product.swaption.PhysicalSettlement;
+import com.opengamma.strata.product.swaption.ResolvedSwaption;
 import com.opengamma.strata.product.swaption.Swaption;
 
 /**
@@ -160,7 +161,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       .cashSettlementMethod(CashSettlementMethod.PAR_YIELD)
       .settlementDate(SETTLE)
       .build();
-  private static final Swaption SWAPTION_REC_LONG = Swaption
+  private static final ResolvedSwaption SWAPTION_REC_LONG = Swaption
       .builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate(), BDA_MF))
       .expiryTime(MATURITY.toLocalTime())
@@ -168,8 +169,9 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       .swaptionSettlement(PAR_YIELD)
       .longShort(LONG)
       .underlying(SWAP_REC)
-      .build();
-  private static final Swaption SWAPTION_REC_SHORT = Swaption
+      .build().
+      resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_REC_SHORT = Swaption
       .builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate(), BDA_MF))
       .expiryTime(MATURITY.toLocalTime())
@@ -177,8 +179,9 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       .swaptionSettlement(PAR_YIELD)
       .longShort(SHORT)
       .underlying(SWAP_REC)
-      .build();
-  private static final Swaption SWAPTION_PAY_LONG = Swaption
+      .build().
+      resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_PAY_LONG = Swaption
       .builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate(), BDA_MF))
       .expiryTime(MATURITY.toLocalTime())
@@ -186,8 +189,9 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       .swaptionSettlement(PAR_YIELD)
       .longShort(LONG)
       .underlying(SWAP_PAY)
-      .build();
-  private static final Swaption SWAPTION_PAY_SHORT = Swaption
+      .build().
+      resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_PAY_SHORT = Swaption
       .builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate(), BDA_MF))
       .expiryTime(MATURITY.toLocalTime())
@@ -195,15 +199,17 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       .swaptionSettlement(PAR_YIELD)
       .longShort(SHORT)
       .underlying(SWAP_PAY)
-      .build();
-  private static final Swaption SWAPTION_PHYS = Swaption.builder()
+      .build().
+      resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_PHYS = Swaption.builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate()))
       .expiryTime(MATURITY.toLocalTime())
       .expiryZone(MATURITY.getZone())
       .longShort(LongShort.LONG)
       .swaptionSettlement(PhysicalSettlement.DEFAULT)
       .underlying(SWAP_REC)
-      .build();
+      .build().
+      resolve(REF_DATA);
 
   private static final SabrParametersSwaptionVolatilities VOL_PROVIDER_REG =
       SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(VAL_DATE_TIME.toLocalDate(), false);
@@ -250,7 +256,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
     double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(RFIXED_LEG_REC, forward);
     double expiry = VOL_PROVIDER.relativeTime(MATURITY);
-    double volatility = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiryDateTime(), TENOR_YEAR, RATE, forward);
+    double volatility = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiry(), TENOR_YEAR, RATE, forward);
     double df = RATE_PROVIDER.discountFactor(EUR, SETTLE);
     double expectedRec = df * annuityCash * BlackFormulaRepository.price(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
         RATE + SwaptionSabrRateVolatilityDataSet.SHIFT, expiry, volatility, false);
@@ -398,7 +404,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
     ResolvedSwapLeg fixedLeg = SWAPTION_REC_LONG.getUnderlying().getLegs(SwapLegType.FIXED).get(0).resolve(REF_DATA);
     double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(fixedLeg, forward);
-    CashSettlement cashSettlement = (CashSettlement) SWAPTION_REC_LONG.expand().getSwaptionSettlement();
+    CashSettlement cashSettlement = (CashSettlement) SWAPTION_REC_LONG.getSwaptionSettlement();
     double discountSettle = RATE_PROVIDER.discountFactor(fixedLeg.getCurrency(), cashSettlement.getSettlementDate());
     double pvbpCash = Math.abs(annuityCash * discountSettle);
     CurrencyAmount deltaRec = PRICER.presentValueDelta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
@@ -419,7 +425,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER_AT_MATURITY);
     ResolvedSwapLeg fixedLeg = SWAPTION_REC_LONG.getUnderlying().getLegs(SwapLegType.FIXED).get(0).resolve(REF_DATA);
     double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(fixedLeg, forward);
-    CashSettlement cashSettlement = (CashSettlement) SWAPTION_REC_LONG.expand().getSwaptionSettlement();
+    CashSettlement cashSettlement = (CashSettlement) SWAPTION_REC_LONG.getSwaptionSettlement();
     double discountSettle = RATE_PROVIDER_AT_MATURITY.discountFactor(fixedLeg.getCurrency(), cashSettlement.getSettlementDate());
     double pvbpCash = Math.abs(annuityCash * discountSettle);
     CurrencyAmount deltaRec =
@@ -567,7 +573,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
     double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(RFIXED_LEG_REC, forward);
     double expiry = VOL_PROVIDER.relativeTime(MATURITY);
-    double volatility = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiryDateTime(), TENOR_YEAR, RATE, forward);
+    double volatility = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiry(), TENOR_YEAR, RATE, forward);
     double df = RATE_PROVIDER.discountFactor(EUR, SETTLE);
     double[] volSensi =
         VOL_PROVIDER.getParameters().volatilityAdjoint(expiry, TENOR_YEAR, RATE, forward).getDerivatives().toArray();
@@ -581,7 +587,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     assertEquals(sensiRec.getRhoSensitivity(), vegaRec * volSensi[4], NOTIONAL * TOL);
     assertEquals(sensiRec.getNuSensitivity(), vegaRec * volSensi[5], NOTIONAL * TOL);
     assertEquals(sensiRec.getConvention(), SwaptionSabrRateVolatilityDataSet.SWAP_CONVENTION_EUR);
-    assertEquals(sensiRec.getExpiry(), SWAPTION_REC_LONG.getExpiryDateTime());
+    assertEquals(sensiRec.getExpiry(), SWAPTION_REC_LONG.getExpiry());
     assertEquals(sensiRec.getTenor(), (double) TENOR_YEAR);
     assertEquals(sensiPay.getCurrency(), EUR);
     assertEquals(sensiPay.getAlphaSensitivity(), vegaPay * volSensi[2], NOTIONAL * TOL);
@@ -589,7 +595,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     assertEquals(sensiPay.getRhoSensitivity(), vegaPay * volSensi[4], NOTIONAL * TOL);
     assertEquals(sensiPay.getNuSensitivity(), vegaPay * volSensi[5], NOTIONAL * TOL);
     assertEquals(sensiRec.getConvention(), SwaptionSabrRateVolatilityDataSet.SWAP_CONVENTION_EUR);
-    assertEquals(sensiPay.getExpiry(), SWAPTION_REC_LONG.getExpiryDateTime());
+    assertEquals(sensiPay.getExpiry(), SWAPTION_REC_LONG.getExpiry());
     assertEquals(sensiPay.getTenor(), (double) TENOR_YEAR);
   }
 

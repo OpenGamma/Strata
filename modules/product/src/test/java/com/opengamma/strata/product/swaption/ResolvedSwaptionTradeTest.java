@@ -11,48 +11,36 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
-import java.time.LocalDate;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
- * Test {@code SwaptionTrade}.
+ * Test {@link ResolvedSwaptionTrade}. 
  */
 @Test
-public class SwaptionTradeTest {
+public class ResolvedSwaptionTradeTest {
 
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final Swaption SWAPTION = SwaptionTest.sut();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 3, 14)).build();
+  private static final ResolvedSwaption SWAPTION = ResolvedSwaptionTest.sut();
+  private static final ResolvedSwaption SWAPTION2 = ResolvedSwaptionTest.sut2();
+  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
   private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(Currency.USD, -3150000d), date(2014, 3, 17));
+  private static final Payment PREMIUM2 = Payment.of(CurrencyAmount.of(Currency.USD, -3160000d), date(2014, 3, 17));
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    SwaptionTrade test = SwaptionTrade.of(TRADE_INFO, SWAPTION, PREMIUM);
-    assertEquals(test.getPremium(), PREMIUM);
+    ResolvedSwaptionTrade test = ResolvedSwaptionTrade.of(TRADE_INFO, SWAPTION, PREMIUM);
     assertEquals(test.getProduct(), SWAPTION);
     assertEquals(test.getTradeInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
-    SwaptionTrade test = sut();
-    assertEquals(test.getPremium(), PREMIUM);
+    ResolvedSwaptionTrade test = sut();
     assertEquals(test.getProduct(), SWAPTION);
     assertEquals(test.getTradeInfo(), TRADE_INFO);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_resolve() {
-    SwaptionTrade test = SwaptionTrade.of(TRADE_INFO, SWAPTION, PREMIUM);
-    assertEquals(test.resolve(REF_DATA).getPremium(), PREMIUM);
-    assertEquals(test.resolve(REF_DATA).getProduct(), SWAPTION.resolve(REF_DATA));
-    assertEquals(test.resolve(REF_DATA).getTradeInfo(), TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
@@ -66,18 +54,18 @@ public class SwaptionTradeTest {
   }
 
   //-------------------------------------------------------------------------
-  static SwaptionTrade sut() {
-    return SwaptionTrade.builder()
-        .premium(PREMIUM)
+  static ResolvedSwaptionTrade sut() {
+    return ResolvedSwaptionTrade.builder()
         .product(SWAPTION)
         .tradeInfo(TRADE_INFO)
+        .premium(PREMIUM)
         .build();
   }
 
-  static SwaptionTrade sut2() {
-    return SwaptionTrade.builder()
-        .premium(Payment.of(CurrencyAmount.of(Currency.USD, -3050000d), LocalDate.of(2014, 3, 17)))
-        .product(SwaptionTest.sut2())
+  static ResolvedSwaptionTrade sut2() {
+    return ResolvedSwaptionTrade.builder()
+        .product(SWAPTION2)
+        .premium(PREMIUM2)
         .build();
   }
 

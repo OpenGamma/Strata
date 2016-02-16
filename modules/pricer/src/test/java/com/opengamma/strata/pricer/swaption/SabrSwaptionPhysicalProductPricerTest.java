@@ -52,6 +52,7 @@ import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swaption.CashSettlement;
 import com.opengamma.strata.product.swaption.CashSettlementMethod;
 import com.opengamma.strata.product.swaption.PhysicalSettlement;
+import com.opengamma.strata.product.swaption.ResolvedSwaption;
 import com.opengamma.strata.product.swaption.Swaption;
 import com.opengamma.strata.product.swaption.SwaptionSettlement;
 
@@ -80,46 +81,51 @@ public class SabrSwaptionPhysicalProductPricerTest {
       .cashSettlementMethod(CashSettlementMethod.PAR_YIELD)
       .settlementDate(SWAP_REC.getStartDate())
       .build();
-  private static final Swaption SWAPTION_PAY_LONG = Swaption.builder()
+  private static final ResolvedSwaption SWAPTION_PAY_LONG = Swaption.builder()
       .expiryDate(AdjustableDate.of(MATURITY_DATE.toLocalDate()))
       .expiryTime(MATURITY_DATE.toLocalTime())
       .expiryZone(MATURITY_DATE.getZone())
       .longShort(LongShort.LONG)
       .swaptionSettlement(PHYSICAL_SETTLE)
       .underlying(SWAP_PAY)
-      .build();
-  private static final Swaption SWAPTION_PAY_SHORT = Swaption.builder()
+      .build().
+      resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_PAY_SHORT = Swaption.builder()
       .expiryDate(AdjustableDate.of(MATURITY_DATE.toLocalDate()))
       .expiryTime(MATURITY_DATE.toLocalTime())
       .expiryZone(MATURITY_DATE.getZone())
       .longShort(LongShort.SHORT)
       .swaptionSettlement(PHYSICAL_SETTLE)
       .underlying(SWAP_PAY)
-      .build();
-  private static final Swaption SWAPTION_REC_LONG = Swaption.builder()
+      .build().
+      resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_REC_LONG = Swaption.builder()
       .expiryDate(AdjustableDate.of(MATURITY_DATE.toLocalDate()))
       .expiryTime(MATURITY_DATE.toLocalTime())
       .expiryZone(MATURITY_DATE.getZone())
       .longShort(LongShort.LONG)
       .swaptionSettlement(PHYSICAL_SETTLE)
       .underlying(SWAP_REC)
-      .build();
-  private static final Swaption SWAPTION_REC_SHORT = Swaption.builder()
+      .build().
+      resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_REC_SHORT = Swaption.builder()
       .expiryDate(AdjustableDate.of(MATURITY_DATE.toLocalDate()))
       .expiryTime(MATURITY_DATE.toLocalTime())
       .expiryZone(MATURITY_DATE.getZone())
       .longShort(LongShort.SHORT)
       .swaptionSettlement(PHYSICAL_SETTLE)
       .underlying(SWAP_REC)
-      .build();
-  private static final Swaption SWAPTION_CASH = Swaption.builder()
+      .build().
+      resolve(REF_DATA);
+  private static final ResolvedSwaption SWAPTION_CASH = Swaption.builder()
       .expiryDate(AdjustableDate.of(MATURITY_DATE.toLocalDate()))
       .expiryTime(MATURITY_DATE.toLocalTime())
       .expiryZone(MATURITY_DATE.getZone())
       .longShort(LongShort.LONG)
       .swaptionSettlement(CASH_SETTLE)
       .underlying(SWAP_REC)
-      .build();
+      .build().
+      resolve(REF_DATA);
   // providers
   private static final ImmutableRatesProvider RATE_PROVIDER =
       SwaptionSabrRateVolatilityDataSet.getRatesProviderUsd(VAL_DATE);
@@ -166,9 +172,9 @@ public class SabrSwaptionPhysicalProductPricerTest {
     CurrencyAmount computedPay = SWAPTION_PRICER.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
     double forward = SWAP_PRICER.parRate(RSWAP_REC, RATE_PROVIDER);
     double pvbp = SWAP_PRICER.getLegPricer().pvbp(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), RATE_PROVIDER);
-    double volatility = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiryDateTime(),
+    double volatility = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiry(),
         TENOR_YEAR, RATE, forward);
-    double maturity = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiryDateTime());
+    double maturity = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiry());
     double expectedRec = pvbp * BlackFormulaRepository.price(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
         RATE + SwaptionSabrRateVolatilityDataSet.SHIFT, maturity, volatility, false);
     double expectedPay = -pvbp * BlackFormulaRepository.price(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
@@ -460,9 +466,9 @@ public class SabrSwaptionPhysicalProductPricerTest {
         SWAPTION_PRICER.presentValueSensitivitySabrParameter(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
     double forward = SWAP_PRICER.parRate(RSWAP_REC, RATE_PROVIDER);
     double pvbp = SWAP_PRICER.getLegPricer().pvbp(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), RATE_PROVIDER);
-    double volatility = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiryDateTime(),
+    double volatility = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiry(),
         TENOR_YEAR, RATE, forward);
-    double maturity = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiryDateTime());
+    double maturity = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiry());
     double[] volSensi = VOL_PROVIDER.getParameters()
         .volatilityAdjoint(maturity, TENOR_YEAR, RATE, forward).getDerivatives().toArray();
     double vegaRec = pvbp * BlackFormulaRepository.vega(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
@@ -475,7 +481,7 @@ public class SabrSwaptionPhysicalProductPricerTest {
     assertEquals(sensiRec.getRhoSensitivity(), vegaRec * volSensi[4], NOTIONAL * TOL);
     assertEquals(sensiRec.getNuSensitivity(), vegaRec * volSensi[5], NOTIONAL * TOL);
     assertEquals(sensiRec.getConvention(), SwaptionSabrRateVolatilityDataSet.SWAP_CONVENTION_USD);
-    assertEquals(sensiRec.getExpiry(), SWAPTION_REC_LONG.getExpiryDateTime());
+    assertEquals(sensiRec.getExpiry(), SWAPTION_REC_LONG.getExpiry());
     assertEquals(sensiRec.getTenor(), (double) TENOR_YEAR);
     assertEquals(sensiPay.getCurrency(), USD);
     assertEquals(sensiPay.getAlphaSensitivity(), vegaPay * volSensi[2], NOTIONAL * TOL);
@@ -483,7 +489,7 @@ public class SabrSwaptionPhysicalProductPricerTest {
     assertEquals(sensiPay.getRhoSensitivity(), vegaPay * volSensi[4], NOTIONAL * TOL);
     assertEquals(sensiPay.getNuSensitivity(), vegaPay * volSensi[5], NOTIONAL * TOL);
     assertEquals(sensiRec.getConvention(), SwaptionSabrRateVolatilityDataSet.SWAP_CONVENTION_USD);
-    assertEquals(sensiPay.getExpiry(), SWAPTION_REC_LONG.getExpiryDateTime());
+    assertEquals(sensiPay.getExpiry(), SWAPTION_REC_LONG.getExpiry());
     assertEquals(sensiPay.getTenor(), (double) TENOR_YEAR);
   }
 
