@@ -7,6 +7,7 @@ package com.opengamma.strata.calc.marketdata;
 
 import java.util.Objects;
 
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMapping;
 
@@ -16,19 +17,25 @@ import com.opengamma.strata.calc.marketdata.mapping.MarketDataMapping;
 public final class TestMapping implements MarketDataMapping<String, TestKey> {
 
   private final String str;
+  private final MarketDataFeed marketDataFeed;
+
+  public TestMapping(String str, MarketDataFeed marketDataFeed) {
+    this.str = str;
+    this.marketDataFeed = marketDataFeed;
+  }
 
   public TestMapping(String str) {
-    this.str = str;
+    this(str, MarketDataFeed.NONE);
   }
 
   @Override
   public Class<? extends TestKey> getMarketDataKeyType() {
-    throw new UnsupportedOperationException("getMarketDataKeyType not implemented");
+    return TestKey.class;
   }
 
   @Override
   public MarketDataId<String> getIdForKey(TestKey key) {
-    return TestId.of(key.getValue());
+    return new TestId(key.getId(), marketDataFeed);
   }
 
   @Override
@@ -40,16 +47,17 @@ public final class TestMapping implements MarketDataMapping<String, TestKey> {
       return false;
     }
     TestMapping that = (TestMapping) o;
-    return Objects.equals(str, that.str);
+    return Objects.equals(str, that.str) &&
+        Objects.equals(marketDataFeed, that.marketDataFeed);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(str);
+    return Objects.hash(str, marketDataFeed);
   }
 
   @Override
   public String toString() {
-    return "TestMapping [str='" + str + "']";
+    return "TestMapping [str='" + str + "', marketDataFeed=" + marketDataFeed + "]";
   }
 }

@@ -5,12 +5,15 @@
  */
 package com.opengamma.strata.calc.runner;
 
+import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
  * Market data mappings used when the market data rules don't match a calculation target.
@@ -46,5 +49,25 @@ class NoMatchingRuleMappings implements MarketDataMappings {
   @Override
   public ObservableId getIdForObservableKey(ObservableKey key) {
     return key.toMarketDataId(MarketDataFeed.NO_RULE);
+  }
+
+  @Override
+  public boolean containsValue(MarketDataKey<?> key, CalculationEnvironment marketData) {
+    return false;
+  }
+
+  @Override
+  public boolean containsTimeSeries(ObservableKey key, CalculationEnvironment marketData) {
+    return false;
+  }
+
+  @Override
+  public <T> MarketDataBox<T> getValue(MarketDataKey<T> key, CalculationEnvironment marketData) {
+    throw new IllegalArgumentException("No market data available for key " + key);
+  }
+
+  @Override
+  public LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key, CalculationEnvironment marketData) {
+    throw new IllegalArgumentException("No market data available for key " + key);
   }
 }

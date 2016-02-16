@@ -94,8 +94,7 @@ public final class DefaultCalculationMarketData implements CalculationMarketData
 
   @Override
   public <T> MarketDataBox<T> getValue(MarketDataKey<T> key) {
-    MarketDataId<T> id = marketDataMappings.getIdForKey(key);
-    return marketData.getValue(id);
+    return marketDataMappings.getValue(key, marketData);
   }
 
   @Override
@@ -106,7 +105,6 @@ public final class DefaultCalculationMarketData implements CalculationMarketData
 
   @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key) {
-    ObservableId id = marketDataMappings.getIdForObservableKey(key);
-    return marketData.getTimeSeries(id);
+    return marketDataMappings.getTimeSeries(key, marketData);
   }
 }
