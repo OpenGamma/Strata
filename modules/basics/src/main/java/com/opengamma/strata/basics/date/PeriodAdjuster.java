@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -26,38 +26,28 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.Resolvable;
 
 /**
- * An adjustment that alters a date by adding a period of calendar days, months and years.
+ * An adjuster that alters a date by adding a period of calendar days, months and years,
+ * resolved to specific holiday calendars.
  * <p>
- * This adjustment adds a {@link Period} to the input date using an addition convention,
- * followed by an adjustment to ensure the result is a valid business day.
+ * This is the resolved form of {@link PeriodAdjustment} which describes the adjustment in detail.
+ * Applications will typically create a {@code PeriodAdjuster} from a {@code PeriodAdjustment}
+ * using {@link PeriodAdjustment#resolve(ReferenceData)}.
  * <p>
- * Addition is performed using standard calendar addition.
- * It is not possible to add a number of business days using this class.
- * See {@link DaysAdjustment} for an alternative that can handle addition of business days.
- * <p>
- * There are two steps in the calculation:
- * <p>
- * In step one, the period is added using the specified {@link PeriodAdditionConvention}.
- * <p>
- * In step two, the result of step one is optionally adjusted to be a business day
- * using a {@code BusinessDayAdjustment}.
- * <p>
- * For example, a rule represented by this class might be: "the end date is 5 years after
- * the start date, with end-of-month rule based on the last business day of the month,
- * adjusted to be a valid London business day using the 'ModifiedFollowing' convention".
+ * A {@code PeriodAdjuster} is bound to data that changes over time, such as holiday calendars.
+ * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
+ * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
-@BeanDefinition
-public final class PeriodAdjustment
-    implements Resolvable<PeriodAdjuster>, ImmutableBean, Serializable {
+@BeanDefinition(constructorScope = "package")
+public final class PeriodAdjuster
+    implements ImmutableBean, DateAdjuster, Serializable {
 
   /**
    * An instance that performs no adjustment.
    */
-  public static final PeriodAdjustment NONE =
-      new PeriodAdjustment(Period.ZERO, PeriodAdditionConventions.NONE, BusinessDayAdjustment.NONE);
+  public static final PeriodAdjuster NONE =
+      new PeriodAdjuster(Period.ZERO, PeriodAdditionConventions.NONE, BusinessDayAdjuster.NONE);
 
   /**
    * The period to be added.
@@ -76,30 +66,30 @@ public final class PeriodAdjustment
   @PropertyDefinition(validate = "notNull")
   private final PeriodAdditionConvention additionConvention;
   /**
-   * The business day adjustment that is performed to the result of the addition.
+   * The business day adjuster that is applied to the result of the addition.
    * <p>
-   * This adjustment is applied to the result of the addition calculation.
+   * This adjuster is applied to the result of the period addition calculation.
    * <p>
-   * If no adjustment is required, use the 'None' business day adjustment.
+   * If no adjuster is required, use the 'None' business day adjuster.
    */
   @PropertyDefinition(validate = "notNull")
-  private final BusinessDayAdjustment adjustment;
+  private final BusinessDayAdjuster adjuster;
 
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance that can adjust a date by the specified period.
    * <p>
    * When adjusting a date, the specified period is added to the input date.
-   * The business day adjustment will then be used to ensure the result is a valid business day.
+   * The business day adjuster will then be used to ensure the result is a valid business day.
    * 
    * @param period  the period to add to the input date
    * @param additionConvention  the convention used to perform the addition
-   * @param adjustment  the business day adjustment to apply to the result of the addition
-   * @return the period adjustment
+   * @param adjuster  the business day adjuster to apply to the result of the addition
+   * @return the period adjuster
    */
-  public static PeriodAdjustment of(
-      Period period, PeriodAdditionConvention additionConvention, BusinessDayAdjustment adjustment) {
-    return new PeriodAdjustment(period, additionConvention, adjustment);
+  public static PeriodAdjuster of(
+      Period period, PeriodAdditionConvention additionConvention, BusinessDayAdjuster adjuster) {
+    return new PeriodAdjuster(period, additionConvention, adjuster);
   }
 
   /**
@@ -107,16 +97,16 @@ public final class PeriodAdjustment
    * last day of month convention.
    * <p>
    * When adjusting a date, the specified period is added to the input date.
-   * The business day adjustment will then be used to ensure the result is a valid business day.
+   * The business day adjuster will then be used to ensure the result is a valid business day.
    * <p>
    * The period must consist only of months and/or years.
    * 
    * @param period  the period to add to the input date
-   * @param adjustment  the business day adjustment to apply to the result of the addition
-   * @return the period adjustment
+   * @param adjuster  the business day adjuster to apply to the result of the addition
+   * @return the period adjuster
    */
-  public static PeriodAdjustment ofLastDay(Period period, BusinessDayAdjustment adjustment) {
-    return new PeriodAdjustment(period, PeriodAdditionConventions.LAST_DAY, adjustment);
+  public static PeriodAdjuster ofLastDay(Period period, BusinessDayAdjuster adjuster) {
+    return new PeriodAdjuster(period, PeriodAdditionConventions.LAST_DAY, adjuster);
   }
 
   /**
@@ -124,16 +114,16 @@ public final class PeriodAdjustment
    * last business day of month convention.
    * <p>
    * When adjusting a date, the specified period is added to the input date.
-   * The business day adjustment will then be used to ensure the result is a valid business day.
+   * The business day adjuster will then be used to ensure the result is a valid business day.
    * <p>
    * The period must consist only of months and/or years.
    * 
    * @param period  the period to add to the input date
-   * @param adjustment  the business day adjustment to apply to the result of the addition
-   * @return the period adjustment
+   * @param adjuster  the business day adjuster to apply to the result of the addition
+   * @return the period adjuster
    */
-  public static PeriodAdjustment ofLastBusinessDay(Period period, BusinessDayAdjustment adjustment) {
-    return new PeriodAdjustment(period, PeriodAdditionConventions.LAST_BUSINESS_DAY, adjustment);
+  public static PeriodAdjuster ofLastBusinessDay(Period period, BusinessDayAdjuster adjuster) {
+    return new PeriodAdjuster(period, PeriodAdditionConventions.LAST_BUSINESS_DAY, adjuster);
   }
 
   //-------------------------------------------------------------------------
@@ -146,7 +136,7 @@ public final class PeriodAdjustment
 
   //-------------------------------------------------------------------------
   /**
-   * Adjusts the date, adding the period and then applying the business day adjustment.
+   * Adjusts the date, adding the period and then applying the business day adjuster.
    * <p>
    * The calculation is performed in two steps.
    * <p>
@@ -157,45 +147,15 @@ public final class PeriodAdjustment
    * @param date  the date to adjust
    * @return the adjusted date
    */
-  public LocalDate adjust(LocalDate date) {
-    LocalDate unadjusted = additionConvention.adjust(date, period, adjustment.getCalendar());
-    return adjustment.adjust(unadjusted);
-  }
-
-  /**
-   * Resolves this adjustment using the specified reference data, returning an adjuster.
-   * <p>
-   * This returns a {@link PeriodAdjuster} that performs the same calculation as this adjustment.
-   * It binds the holiday calendar, looked up from the reference data, into the result.
-   * As such, there is no need to pass the reference data in again.
-   * 
-   * @param refData  the reference data, used to find the holiday calendar
-   * @return the adjuster, bound to a specific holiday calendar
-   */
   @Override
-  public PeriodAdjuster resolve(ReferenceData refData) {
-    return new PeriodAdjuster(period, additionConvention, adjustment.resolve(refData));
-  }
-
-  /**
-   * Resolves this adjustment using the specified reference data, returning a date adjuster.
-   * <p>
-   * This returns a {@link PeriodAdjuster} that performs the same calculation as this adjustment.
-   * It binds the holiday calendar, looked up from the reference data, into the result.
-   * As such, there is no need to pass the reference data in again.
-   * <p>
-   * See {@link #resolve(ReferenceData)} for an equivalent method that returns a bean.
-   * 
-   * @param refData  the reference data, used to find the holiday calendar
-   * @return the date adjuster, bound to a specific holiday calendar
-   */
-  public DateAdjuster toDateAdjuster(ReferenceData refData) {
-    return date -> adjust(date);
+  public LocalDate adjust(LocalDate date) {
+    LocalDate unadjusted = additionConvention.adjust(date, period, adjuster.getCalendar());
+    return adjuster.adjust(unadjusted);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a string describing the adjustment.
+   * Returns a string describing the adjuster.
    * 
    * @return the descriptive string
    */
@@ -206,8 +166,8 @@ public final class PeriodAdjustment
     if (additionConvention != PeriodAdditionConventions.NONE) {
       buf.append(" with ").append(additionConvention);
     }
-    if (adjustment.equals(BusinessDayAdjustment.NONE) == false) {
-      buf.append(" then apply ").append(adjustment);
+    if (adjuster.equals(BusinessDayAdjuster.NONE) == false) {
+      buf.append(" then apply ").append(adjuster);
     }
     return buf.toString();
   }
@@ -215,15 +175,15 @@ public final class PeriodAdjustment
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code PeriodAdjustment}.
+   * The meta-bean for {@code PeriodAdjuster}.
    * @return the meta-bean, not null
    */
-  public static PeriodAdjustment.Meta meta() {
-    return PeriodAdjustment.Meta.INSTANCE;
+  public static PeriodAdjuster.Meta meta() {
+    return PeriodAdjuster.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(PeriodAdjustment.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(PeriodAdjuster.Meta.INSTANCE);
   }
 
   /**
@@ -235,26 +195,32 @@ public final class PeriodAdjustment
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static PeriodAdjustment.Builder builder() {
-    return new PeriodAdjustment.Builder();
+  public static PeriodAdjuster.Builder builder() {
+    return new PeriodAdjuster.Builder();
   }
 
-  private PeriodAdjustment(
+  /**
+   * Creates an instance.
+   * @param period  the value of the property, not null
+   * @param additionConvention  the value of the property, not null
+   * @param adjuster  the value of the property, not null
+   */
+  PeriodAdjuster(
       Period period,
       PeriodAdditionConvention additionConvention,
-      BusinessDayAdjustment adjustment) {
+      BusinessDayAdjuster adjuster) {
     JodaBeanUtils.notNull(period, "period");
     JodaBeanUtils.notNull(additionConvention, "additionConvention");
-    JodaBeanUtils.notNull(adjustment, "adjustment");
+    JodaBeanUtils.notNull(adjuster, "adjuster");
     this.period = period;
     this.additionConvention = additionConvention;
-    this.adjustment = adjustment;
+    this.adjuster = adjuster;
     validate();
   }
 
   @Override
-  public PeriodAdjustment.Meta metaBean() {
-    return PeriodAdjustment.Meta.INSTANCE;
+  public PeriodAdjuster.Meta metaBean() {
+    return PeriodAdjuster.Meta.INSTANCE;
   }
 
   @Override
@@ -293,15 +259,15 @@ public final class PeriodAdjustment
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the business day adjustment that is performed to the result of the addition.
+   * Gets the business day adjuster that is applied to the result of the addition.
    * <p>
-   * This adjustment is applied to the result of the addition calculation.
+   * This adjuster is applied to the result of the period addition calculation.
    * <p>
-   * If no adjustment is required, use the 'None' business day adjustment.
+   * If no adjuster is required, use the 'None' business day adjuster.
    * @return the value of the property, not null
    */
-  public BusinessDayAdjustment getAdjustment() {
-    return adjustment;
+  public BusinessDayAdjuster getAdjuster() {
+    return adjuster;
   }
 
   //-----------------------------------------------------------------------
@@ -319,10 +285,10 @@ public final class PeriodAdjustment
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      PeriodAdjustment other = (PeriodAdjustment) obj;
+      PeriodAdjuster other = (PeriodAdjuster) obj;
       return JodaBeanUtils.equal(period, other.period) &&
           JodaBeanUtils.equal(additionConvention, other.additionConvention) &&
-          JodaBeanUtils.equal(adjustment, other.adjustment);
+          JodaBeanUtils.equal(adjuster, other.adjuster);
     }
     return false;
   }
@@ -332,13 +298,13 @@ public final class PeriodAdjustment
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(period);
     hash = hash * 31 + JodaBeanUtils.hashCode(additionConvention);
-    hash = hash * 31 + JodaBeanUtils.hashCode(adjustment);
+    hash = hash * 31 + JodaBeanUtils.hashCode(adjuster);
     return hash;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code PeriodAdjustment}.
+   * The meta-bean for {@code PeriodAdjuster}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -350,17 +316,17 @@ public final class PeriodAdjustment
      * The meta-property for the {@code period} property.
      */
     private final MetaProperty<Period> period = DirectMetaProperty.ofImmutable(
-        this, "period", PeriodAdjustment.class, Period.class);
+        this, "period", PeriodAdjuster.class, Period.class);
     /**
      * The meta-property for the {@code additionConvention} property.
      */
     private final MetaProperty<PeriodAdditionConvention> additionConvention = DirectMetaProperty.ofImmutable(
-        this, "additionConvention", PeriodAdjustment.class, PeriodAdditionConvention.class);
+        this, "additionConvention", PeriodAdjuster.class, PeriodAdditionConvention.class);
     /**
-     * The meta-property for the {@code adjustment} property.
+     * The meta-property for the {@code adjuster} property.
      */
-    private final MetaProperty<BusinessDayAdjustment> adjustment = DirectMetaProperty.ofImmutable(
-        this, "adjustment", PeriodAdjustment.class, BusinessDayAdjustment.class);
+    private final MetaProperty<BusinessDayAdjuster> adjuster = DirectMetaProperty.ofImmutable(
+        this, "adjuster", PeriodAdjuster.class, BusinessDayAdjuster.class);
     /**
      * The meta-properties.
      */
@@ -368,7 +334,7 @@ public final class PeriodAdjustment
         this, null,
         "period",
         "additionConvention",
-        "adjustment");
+        "adjuster");
 
     /**
      * Restricted constructor.
@@ -383,20 +349,20 @@ public final class PeriodAdjustment
           return period;
         case 1652975501:  // additionConvention
           return additionConvention;
-        case 1977085293:  // adjustment
-          return adjustment;
+        case -1043751812:  // adjuster
+          return adjuster;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public PeriodAdjustment.Builder builder() {
-      return new PeriodAdjustment.Builder();
+    public PeriodAdjuster.Builder builder() {
+      return new PeriodAdjuster.Builder();
     }
 
     @Override
-    public Class<? extends PeriodAdjustment> beanType() {
-      return PeriodAdjustment.class;
+    public Class<? extends PeriodAdjuster> beanType() {
+      return PeriodAdjuster.class;
     }
 
     @Override
@@ -422,11 +388,11 @@ public final class PeriodAdjustment
     }
 
     /**
-     * The meta-property for the {@code adjustment} property.
+     * The meta-property for the {@code adjuster} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<BusinessDayAdjustment> adjustment() {
-      return adjustment;
+    public MetaProperty<BusinessDayAdjuster> adjuster() {
+      return adjuster;
     }
 
     //-----------------------------------------------------------------------
@@ -434,11 +400,11 @@ public final class PeriodAdjustment
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -991726143:  // period
-          return ((PeriodAdjustment) bean).getPeriod();
+          return ((PeriodAdjuster) bean).getPeriod();
         case 1652975501:  // additionConvention
-          return ((PeriodAdjustment) bean).getAdditionConvention();
-        case 1977085293:  // adjustment
-          return ((PeriodAdjustment) bean).getAdjustment();
+          return ((PeriodAdjuster) bean).getAdditionConvention();
+        case -1043751812:  // adjuster
+          return ((PeriodAdjuster) bean).getAdjuster();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -456,13 +422,13 @@ public final class PeriodAdjustment
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code PeriodAdjustment}.
+   * The bean-builder for {@code PeriodAdjuster}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<PeriodAdjustment> {
+  public static final class Builder extends DirectFieldsBeanBuilder<PeriodAdjuster> {
 
     private Period period;
     private PeriodAdditionConvention additionConvention;
-    private BusinessDayAdjustment adjustment;
+    private BusinessDayAdjuster adjuster;
 
     /**
      * Restricted constructor.
@@ -474,10 +440,10 @@ public final class PeriodAdjustment
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(PeriodAdjustment beanToCopy) {
+    private Builder(PeriodAdjuster beanToCopy) {
       this.period = beanToCopy.getPeriod();
       this.additionConvention = beanToCopy.getAdditionConvention();
-      this.adjustment = beanToCopy.getAdjustment();
+      this.adjuster = beanToCopy.getAdjuster();
     }
 
     //-----------------------------------------------------------------------
@@ -488,8 +454,8 @@ public final class PeriodAdjustment
           return period;
         case 1652975501:  // additionConvention
           return additionConvention;
-        case 1977085293:  // adjustment
-          return adjustment;
+        case -1043751812:  // adjuster
+          return adjuster;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -504,8 +470,8 @@ public final class PeriodAdjustment
         case 1652975501:  // additionConvention
           this.additionConvention = (PeriodAdditionConvention) newValue;
           break;
-        case 1977085293:  // adjustment
-          this.adjustment = (BusinessDayAdjustment) newValue;
+        case -1043751812:  // adjuster
+          this.adjuster = (BusinessDayAdjuster) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -538,11 +504,11 @@ public final class PeriodAdjustment
     }
 
     @Override
-    public PeriodAdjustment build() {
-      return new PeriodAdjustment(
+    public PeriodAdjuster build() {
+      return new PeriodAdjuster(
           period,
           additionConvention,
-          adjustment);
+          adjuster);
     }
 
     //-----------------------------------------------------------------------
@@ -575,17 +541,17 @@ public final class PeriodAdjustment
     }
 
     /**
-     * Sets the business day adjustment that is performed to the result of the addition.
+     * Sets the business day adjuster that is applied to the result of the addition.
      * <p>
-     * This adjustment is applied to the result of the addition calculation.
+     * This adjuster is applied to the result of the period addition calculation.
      * <p>
-     * If no adjustment is required, use the 'None' business day adjustment.
-     * @param adjustment  the new value, not null
+     * If no adjuster is required, use the 'None' business day adjuster.
+     * @param adjuster  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder adjustment(BusinessDayAdjustment adjustment) {
-      JodaBeanUtils.notNull(adjustment, "adjustment");
-      this.adjustment = adjustment;
+    public Builder adjuster(BusinessDayAdjuster adjuster) {
+      JodaBeanUtils.notNull(adjuster, "adjuster");
+      this.adjuster = adjuster;
       return this;
     }
 
@@ -593,10 +559,10 @@ public final class PeriodAdjustment
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
-      buf.append("PeriodAdjustment.Builder{");
+      buf.append("PeriodAdjuster.Builder{");
       buf.append("period").append('=').append(JodaBeanUtils.toString(period)).append(',').append(' ');
       buf.append("additionConvention").append('=').append(JodaBeanUtils.toString(additionConvention)).append(',').append(' ');
-      buf.append("adjustment").append('=').append(JodaBeanUtils.toString(adjustment));
+      buf.append("adjuster").append('=').append(JodaBeanUtils.toString(adjuster));
       buf.append('}');
       return buf.toString();
     }

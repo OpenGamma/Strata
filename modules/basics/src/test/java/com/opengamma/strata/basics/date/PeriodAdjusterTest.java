@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -19,67 +19,64 @@ import java.time.Period;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.market.ReferenceData;
-
 /**
- * Test {@link PeriodAdjustment}.
+ * Test {@link PeriodAdjuster}.
  */
 @Test
-public class PeriodAdjustmentTest {
+public class PeriodAdjusterTest {
 
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final PeriodAdditionConvention PAC_NONE = PeriodAdditionConventions.NONE;
-  private static final BusinessDayAdjustment BDA_NONE = BusinessDayAdjustment.NONE;
-  private static final BusinessDayAdjustment BDA_FOLLOW_SAT_SUN =
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN);
+  private static final BusinessDayAdjuster BDA_NONE = BusinessDayAdjuster.NONE;
+  private static final BusinessDayAdjuster BDA_FOLLOW_SAT_SUN =
+      BusinessDayAdjuster.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN);
 
   //-------------------------------------------------------------------------
   public void test_NONE() {
-    PeriodAdjustment test = PeriodAdjustment.NONE;
+    PeriodAdjuster test = PeriodAdjuster.NONE;
     assertEquals(test.getPeriod(), Period.ZERO);
-    assertEquals(test.getAdjustment(), BDA_NONE);
+    assertEquals(test.getAdjuster(), BDA_NONE);
     assertEquals(test.toString(), "P0D");
   }
 
   //-------------------------------------------------------------------------
   public void test_of_additionConventionNone() {
-    PeriodAdjustment test = PeriodAdjustment.of(Period.of(1, 2, 3), PAC_NONE, BDA_NONE);
+    PeriodAdjuster test = PeriodAdjuster.of(Period.of(1, 2, 3), PAC_NONE, BDA_NONE);
     assertEquals(test.getPeriod(), Period.of(1, 2, 3));
     assertEquals(test.getAdditionConvention(), PAC_NONE);
-    assertEquals(test.getAdjustment(), BDA_NONE);
+    assertEquals(test.getAdjuster(), BDA_NONE);
     assertEquals(test.toString(), "P1Y2M3D");
   }
 
   public void test_of_additionConventionLastDay() {
-    PeriodAdjustment test = PeriodAdjustment.of(Period.ofMonths(3), LAST_DAY, BDA_FOLLOW_SAT_SUN);
+    PeriodAdjuster test = PeriodAdjuster.of(Period.ofMonths(3), LAST_DAY, BDA_FOLLOW_SAT_SUN);
     assertEquals(test.getPeriod(), Period.ofMonths(3));
     assertEquals(test.getAdditionConvention(), LAST_DAY);
-    assertEquals(test.getAdjustment(), BDA_FOLLOW_SAT_SUN);
+    assertEquals(test.getAdjuster(), BDA_FOLLOW_SAT_SUN);
     assertEquals(test.toString(), "P3M with LastDay then apply Following using calendar Sat/Sun");
   }
 
   public void test_ofLastDay() {
-    PeriodAdjustment test = PeriodAdjustment.ofLastDay(Period.ofMonths(3), BDA_FOLLOW_SAT_SUN);
+    PeriodAdjuster test = PeriodAdjuster.ofLastDay(Period.ofMonths(3), BDA_FOLLOW_SAT_SUN);
     assertEquals(test.getPeriod(), Period.ofMonths(3));
     assertEquals(test.getAdditionConvention(), LAST_DAY);
-    assertEquals(test.getAdjustment(), BDA_FOLLOW_SAT_SUN);
+    assertEquals(test.getAdjuster(), BDA_FOLLOW_SAT_SUN);
     assertEquals(test.toString(), "P3M with LastDay then apply Following using calendar Sat/Sun");
   }
 
   public void test_ofLastBusinessDay() {
-    PeriodAdjustment test = PeriodAdjustment.ofLastBusinessDay(Period.ofMonths(3), BDA_FOLLOW_SAT_SUN);
+    PeriodAdjuster test = PeriodAdjuster.ofLastBusinessDay(Period.ofMonths(3), BDA_FOLLOW_SAT_SUN);
     assertEquals(test.getPeriod(), Period.ofMonths(3));
     assertEquals(test.getAdditionConvention(), LAST_BUSINESS_DAY);
-    assertEquals(test.getAdjustment(), BDA_FOLLOW_SAT_SUN);
+    assertEquals(test.getAdjuster(), BDA_FOLLOW_SAT_SUN);
     assertEquals(test.toString(), "P3M with LastBusinessDay then apply Following using calendar Sat/Sun");
   }
 
   public void test_of_invalid_conventionForPeriod() {
     Period period = Period.of(1, 2, 3);
-    assertThrowsIllegalArg(() -> PeriodAdjustment.of(period, LAST_DAY, BDA_NONE));
-    assertThrowsIllegalArg(() -> PeriodAdjustment.of(period, LAST_BUSINESS_DAY, BDA_NONE));
-    assertThrowsIllegalArg(() -> PeriodAdjustment.ofLastDay(period, BDA_NONE));
-    assertThrowsIllegalArg(() -> PeriodAdjustment.ofLastBusinessDay(period, BDA_NONE));
+    assertThrowsIllegalArg(() -> PeriodAdjuster.of(period, LAST_DAY, BDA_NONE));
+    assertThrowsIllegalArg(() -> PeriodAdjuster.of(period, LAST_BUSINESS_DAY, BDA_NONE));
+    assertThrowsIllegalArg(() -> PeriodAdjuster.ofLastDay(period, BDA_NONE));
+    assertThrowsIllegalArg(() -> PeriodAdjuster.ofLastBusinessDay(period, BDA_NONE));
   }
 
   //-------------------------------------------------------------------------
@@ -101,18 +98,21 @@ public class PeriodAdjustmentTest {
 
   @Test(dataProvider = "adjust")
   public void test_adjust(int months, LocalDate date, LocalDate expected) {
-    PeriodAdjustment test = PeriodAdjustment.of(Period.ofMonths(months), LAST_DAY, BDA_FOLLOW_SAT_SUN);
+    PeriodAdjuster test = PeriodAdjuster.of(Period.ofMonths(months), LAST_DAY, BDA_FOLLOW_SAT_SUN);
     assertEquals(test.adjust(date), expected);
-    assertEquals(test.resolve(REF_DATA).adjust(date), expected);
-    assertEquals(test.toDateAdjuster(REF_DATA).adjust(date), expected);
+  }
+
+  public void test_adjust_null() {
+    PeriodAdjuster test = PeriodAdjuster.of(Period.ofMonths(3), LAST_DAY, BDA_FOLLOW_SAT_SUN);
+    assertThrowsIllegalArg(() -> test.adjust(null));
   }
 
   //-------------------------------------------------------------------------
   public void equals() {
-    PeriodAdjustment a = PeriodAdjustment.of(Period.ofMonths(3), LAST_DAY, BDA_FOLLOW_SAT_SUN);
-    PeriodAdjustment b = PeriodAdjustment.of(Period.ofMonths(1), LAST_DAY, BDA_FOLLOW_SAT_SUN);
-    PeriodAdjustment c = PeriodAdjustment.of(Period.ofMonths(3), PAC_NONE, BDA_FOLLOW_SAT_SUN);
-    PeriodAdjustment d = PeriodAdjustment.of(Period.ofMonths(3), LAST_DAY, BDA_NONE);
+    PeriodAdjuster a = PeriodAdjuster.of(Period.ofMonths(3), LAST_DAY, BDA_FOLLOW_SAT_SUN);
+    PeriodAdjuster b = PeriodAdjuster.of(Period.ofMonths(1), LAST_DAY, BDA_FOLLOW_SAT_SUN);
+    PeriodAdjuster c = PeriodAdjuster.of(Period.ofMonths(3), PAC_NONE, BDA_FOLLOW_SAT_SUN);
+    PeriodAdjuster d = PeriodAdjuster.of(Period.ofMonths(3), LAST_DAY, BDA_NONE);
     assertEquals(a.equals(b), false);
     assertEquals(a.equals(c), false);
     assertEquals(a.equals(d), false);
@@ -120,23 +120,23 @@ public class PeriodAdjustmentTest {
 
   //-------------------------------------------------------------------------
   public void test_beanBuilder() {
-    PeriodAdjustment test = PeriodAdjustment.builder()
+    PeriodAdjuster test = PeriodAdjuster.builder()
         .period(Period.ofMonths(3))
         .additionConvention(LAST_DAY)
-        .adjustment(BDA_FOLLOW_SAT_SUN)
+        .adjuster(BDA_FOLLOW_SAT_SUN)
         .build();
     assertEquals(test.getPeriod(), Period.ofMonths(3));
     assertEquals(test.getAdditionConvention(), LAST_DAY);
-    assertEquals(test.getAdjustment(), BDA_FOLLOW_SAT_SUN);
+    assertEquals(test.getAdjuster(), BDA_FOLLOW_SAT_SUN);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverImmutableBean(PeriodAdjustment.of(Period.ofMonths(3), LAST_DAY, BDA_FOLLOW_SAT_SUN));
+    coverImmutableBean(PeriodAdjuster.of(Period.ofMonths(3), LAST_DAY, BDA_FOLLOW_SAT_SUN));
   }
 
   public void test_serialization() {
-    assertSerialization(PeriodAdjustment.of(Period.ofMonths(3), LAST_DAY, BDA_FOLLOW_SAT_SUN));
+    assertSerialization(PeriodAdjuster.of(Period.ofMonths(3), LAST_DAY, BDA_FOLLOW_SAT_SUN));
   }
 
 }
