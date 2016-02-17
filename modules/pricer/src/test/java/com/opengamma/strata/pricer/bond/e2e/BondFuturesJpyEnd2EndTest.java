@@ -86,16 +86,16 @@ public class BondFuturesJpyEnd2EndTest {
   private static final int NB_UND_BONDS = 14;
   private static final double[] UND_RATES =
       new double[] {0.6, 0.8, 0.8, 0.6, 0.6, 0.6, 0.6, 0.5, 0.5, 0.3, 0.4, 0.4, 0.4, 0.3 };
-  private static final LocalDate[] START_DATE = new LocalDate[] {LocalDate.of(2015, 3, 20),
-    LocalDate.of(2015, 6, 20), LocalDate.of(2015, 9, 20), LocalDate.of(2015, 9, 20), LocalDate.of(2015, 12, 20),
-    LocalDate.of(2015, 3, 20), LocalDate.of(2015, 6, 20), LocalDate.of(2015, 9, 20), LocalDate.of(2015, 12, 20),
-    LocalDate.of(2015, 12, 20), LocalDate.of(2015, 3, 20), LocalDate.of(2015, 6, 20), LocalDate.of(2015, 9, 20),
-    LocalDate.of(2015, 12, 20) };
-  private static final LocalDate[] MATURITY_DATE = new LocalDate[] {LocalDate.of(2023, 3, 20),
-    LocalDate.of(2023, 6, 20), LocalDate.of(2023, 9, 20), LocalDate.of(2023, 9, 20), LocalDate.of(2023, 12, 20),
-    LocalDate.of(2024, 3, 20), LocalDate.of(2024, 6, 20), LocalDate.of(2024, 9, 20), LocalDate.of(2024, 12, 20),
-    LocalDate.of(2024, 12, 20), LocalDate.of(2025, 3, 20), LocalDate.of(2025, 6, 20), LocalDate.of(2025, 9, 20),
-    LocalDate.of(2025, 12, 20) };
+  private static final LocalDate[] START_DATE = new LocalDate[] {
+    LocalDate.of(2015, 3, 20), LocalDate.of(2015, 6, 20), LocalDate.of(2015, 9, 20), LocalDate.of(2015, 9, 20), 
+    LocalDate.of(2015, 12, 20), LocalDate.of(2015, 3, 20), LocalDate.of(2015, 6, 20), LocalDate.of(2015, 9, 20), 
+    LocalDate.of(2015, 12, 20), LocalDate.of(2015, 12, 20), LocalDate.of(2015, 3, 20), LocalDate.of(2015, 6, 20), 
+    LocalDate.of(2015, 9, 20), LocalDate.of(2015, 12, 20) };
+  private static final LocalDate[] MATURITY_DATE = new LocalDate[] {
+    LocalDate.of(2023, 3, 20), LocalDate.of(2023, 6, 20), LocalDate.of(2023, 9, 20), LocalDate.of(2023, 9, 20), 
+    LocalDate.of(2023, 12, 20), LocalDate.of(2024, 3, 20), LocalDate.of(2024, 6, 20), LocalDate.of(2024, 9, 20), 
+    LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 20), LocalDate.of(2025, 3, 20), LocalDate.of(2025, 6, 20), 
+    LocalDate.of(2025, 9, 20), LocalDate.of(2025, 12, 20) };
   private static final StandardId[] BOND_SECURITY_ID = new StandardId[] {StandardId.of("OG-Ticker", "GOVT-BOND0"),
     StandardId.of("OG-Ticker", "GOVT-BOND1"), StandardId.of("OG-Ticker", "GOVT-BOND2"),
     StandardId.of("OG-Ticker", "GOVT-BOND3"), StandardId.of("OG-Ticker", "GOVT-BOND4"),
@@ -127,8 +127,6 @@ public class BondFuturesJpyEnd2EndTest {
   }
   private static final DaysAdjustment LAST_TRADE_ADJUST = DaysAdjustment.ofBusinessDays(-5, CALENDAR);
   // Futures in September 2016
-  private static final Double[] CF_MAR = new Double[] {0.695006, 0.697881, 0.689613, 0.677675, 0.669189,
-    0.660850, 0.652611, 0.637931, 0.629786, 0.616327, 0.614901, 0.606851, 0.598933, 0.583818 };
   private static final SecurityLink<FixedCouponBond>[] UND_BOND_SECURITY_SEP;
   static {
     UND_BOND_SECURITY_SEP = new SecurityLink[NB_UND_BONDS - 2];
@@ -193,6 +191,8 @@ public class BondFuturesJpyEnd2EndTest {
       .build();
   private static final double REF_PRICE_JUN = 151.73;
   // Futures in March 2016
+  private static final Double[] CF_MAR = new Double[] {0.695006, 0.697881, 0.689613, 0.677675, 0.669189,
+    0.660850, 0.652611, 0.637931, 0.629786, 0.616327, 0.614901, 0.606851, 0.598933, 0.583818 };
   private static final LocalDate EFFECTIVE_DATE_MAR = LocalDate.of(2016, 3, 20);
   private static final LocalDate FIRST_DELIVERY_DATE_MAR = BUSINESS_ADJUST.adjust(EFFECTIVE_DATE_MAR);
   private static final LocalDate LAST_DELIVERY_DATE_MAR = BUSINESS_ADJUST.adjust(EFFECTIVE_DATE_MAR);
