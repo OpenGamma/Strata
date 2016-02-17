@@ -29,7 +29,9 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
@@ -142,6 +144,49 @@ public class ExpandedSwapLegTest {
         .paymentEvents(NOTIONAL_EXCHANGE)
         .build();
     assertSame(test.expand(), test);
+  }
+
+  public void test_findNotional() {
+    ExpandedSwapLeg test = ExpandedSwapLeg.builder()
+        .type(IBOR)
+        .payReceive(RECEIVE)
+        .paymentPeriods(RPP1, RPP2)
+        .build();
+    // Date is before the start date
+    assertEquals(test.findNotional(RPP1.getStartDate().minusMonths(1)), Optional.of(RPP1.getNotionalAmount()));
+    // Date is on the start date
+    assertEquals(test.findNotional(RPP1.getStartDate()), Optional.of(RPP1.getNotionalAmount()));
+    // Date is after the start date
+    assertEquals(test.findNotional(RPP1.getStartDate().plusDays(1)), Optional.of(RPP1.getNotionalAmount()));
+    // Date is before the end date
+    assertEquals(test.findNotional(RPP2.getEndDate().minusDays(1)), Optional.of(RPP2.getNotionalAmount()));
+    // Date is on the end date
+    assertEquals(test.findNotional(RPP2.getEndDate()), Optional.of(RPP2.getNotionalAmount()));
+    // Date is after the end date
+    assertEquals(test.findNotional(RPP2.getEndDate().plusMonths(1)), Optional.of(RPP2.getNotionalAmount()));
+  }
+
+  public void test_findNotionalKnownAmount() {
+    Payment payment = Payment.of(GBP, 1000, LocalDate.of(2011, 3, 8));
+    SchedulePeriod schedulePeriod = SchedulePeriod.of(LocalDate.of(2010, 3, 8), LocalDate.of(2011, 3, 8));
+    KnownAmountPaymentPeriod paymentPeriod = KnownAmountPaymentPeriod.of(payment, schedulePeriod);
+    ExpandedSwapLeg test = ExpandedSwapLeg.builder()
+        .type(IBOR)
+        .payReceive(RECEIVE)
+        .paymentPeriods(paymentPeriod)
+        .build();
+    // Date is before the start date
+    assertEquals(test.findNotional(RPP1.getStartDate().minusMonths(1)), Optional.empty());
+    // Date is on the start date
+    assertEquals(test.findNotional(RPP1.getStartDate()), Optional.empty());
+    // Date is after the start date
+    assertEquals(test.findNotional(RPP1.getStartDate().plusDays(1)), Optional.empty());
+    // Date is before the end date
+    assertEquals(test.findNotional(RPP2.getEndDate().minusDays(1)), Optional.empty());
+    // Date is on the end date
+    assertEquals(test.findNotional(RPP2.getEndDate()), Optional.empty());
+    // Date is after the end date
+    assertEquals(test.findNotional(RPP2.getEndDate().plusMonths(1)), Optional.empty());
   }
 
   //-------------------------------------------------------------------------
