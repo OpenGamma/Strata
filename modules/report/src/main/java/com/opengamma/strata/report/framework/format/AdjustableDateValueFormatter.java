@@ -8,7 +8,7 @@ package com.opengamma.strata.report.framework.format;
 import com.opengamma.strata.basics.date.AdjustableDate;
 
 /**
- * Formatter for currency amounts.
+ * Formatter for adjustable dates.
  */
 class AdjustableDateValueFormatter
     implements ValueFormatter<AdjustableDate> {
