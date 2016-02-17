@@ -9,6 +9,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 import com.opengamma.strata.product.index.IborFutureOption;
+import com.opengamma.strata.product.index.ResolvedIborFutureOption;
 
 /**
  * Pricer for Ibor future option products with daily margin.
@@ -32,13 +33,13 @@ public abstract class IborFutureOptionMarginedProductPricer {
    * <p>
    * The price of the option is the price on the valuation date.
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param futureProvider  the provider of future/option pricing data
    * @return the price of the product, in decimal form
    */
   abstract double price(
-      IborFutureOption option,
+      ResolvedIborFutureOption option,
       RatesProvider ratesProvider,
       IborFutureProvider futureProvider);
 
@@ -48,13 +49,13 @@ public abstract class IborFutureOptionMarginedProductPricer {
    * <p>
    * The price sensitivity of the product is the sensitivity of the price to the underlying curves.
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param futureProvider  the provider of future/option pricing data
    * @return the price curve sensitivity of the product
    */
   abstract PointSensitivities priceSensitivity(
-      IborFutureOption option,
+      ResolvedIborFutureOption option,
       RatesProvider ratesProvider,
       IborFutureProvider futureProvider);
 
@@ -65,11 +66,11 @@ public abstract class IborFutureOptionMarginedProductPricer {
    * For two consecutive closing prices C1 and C2, the daily margin is computed as 
    *    {@code marginIndex(future, C2) - marginIndex(future, C1)}.
    *    
-   * @param option  the option product to price
+   * @param option  the option product
    * @param price  the price of the product, in decimal form
    * @return the index
    */
-  public double marginIndex(IborFutureOption option, double price) {
+  public double marginIndex(ResolvedIborFutureOption option, double price) {
     double notional = option.getUnderlying().getNotional();
     double accrualFactor = option.getUnderlying().getAccrualFactor();
     return price * notional * accrualFactor;
@@ -82,11 +83,14 @@ public abstract class IborFutureOptionMarginedProductPricer {
    *    {@code marginIndex(future, C2) - marginIndex(future, C1)}.
    * The margin index sensitivity if the sensitivity of the margin index to the underlying curves.
    * 
-   * @param option  the option product to price
+   * @param option  the option product
    * @param priceSensitivity  the price sensitivity of the product
    * @return the index sensitivity
    */
-  public PointSensitivities marginIndexSensitivity(IborFutureOption option, PointSensitivities priceSensitivity) {
+  public PointSensitivities marginIndexSensitivity(
+      ResolvedIborFutureOption option,
+      PointSensitivities priceSensitivity) {
+
     double notional = option.getUnderlying().getNotional();
     double accrualFactor = option.getUnderlying().getAccrualFactor();
     return priceSensitivity.multipliedBy(notional * accrualFactor);

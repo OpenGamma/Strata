@@ -360,7 +360,7 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
     // Futures
     for (int i = 0; i < FWD3_NB_FUT_NODES; i++) {
       CurrencyAmount pvFut = FUT_PRICER.presentValue(
-          ((IborFutureTrade) fwd3Trades.get(i + 1)), result, 0.0);
+          ((IborFutureTrade) fwd3Trades.get(i + 1)).resolve(REF_DATA), result, 0.0);
       assertEquals(pvFut.getAmount(), 0.0, TOLERANCE_PV);
     }
     // IRS

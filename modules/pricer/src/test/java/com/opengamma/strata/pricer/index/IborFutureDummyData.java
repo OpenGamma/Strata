@@ -39,14 +39,14 @@ public class IborFutureDummyData {
   private static final LocalDate TRADE_DATE = date(2015, 2, 17);
   private static final long FUTURE_QUANTITY = 35;
   private static final double FUTURE_INITIAL_PRICE = 1.015;
-  private static final StandardId FUTURE_SECURITY_ID = StandardId.of("OG-Ticker", "Future");
+  private static final StandardId FUTURE_ID = StandardId.of("OG-Ticker", "Future");
 
   private static final LocalDate EXPIRY_DATE = date(2015, 5, 20);
   private static final double STRIKE_PRICE = 1.075;
   private static final double STRIKE_PRICE_2 = 0.99;
   private static final long OPTION_QUANTITY = 65L;
   private static final double OPTION_INITIAL_PRICE = 0.065;
-  private static final StandardId OPTION_SECURITY_ID = StandardId.of("OG-Ticker", "Option");
+  private static final StandardId OPTION_ID = StandardId.of("OG-Ticker", "Option");
 
   /**
    * An IborFuture.
@@ -65,7 +65,7 @@ public class IborFutureDummyData {
    */
   private static final Security<IborFuture> IBOR_FUTURE_SECURITY =
       UnitSecurity.builder(IBOR_FUTURE)
-          .standardId(FUTURE_SECURITY_ID)
+          .standardId(FUTURE_ID)
           .build();
 
   /**
@@ -109,7 +109,7 @@ public class IborFutureDummyData {
    */
   private static final Security<IborFutureOption> IBOR_FUTURE_OPTION_SECURITY =
       UnitSecurity.builder(IBOR_FUTURE_OPTION)
-          .standardId(OPTION_SECURITY_ID)
+          .standardId(OPTION_ID)
           .build();
 
   /**

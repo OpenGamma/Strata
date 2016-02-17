@@ -10,10 +10,11 @@ import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
-import com.opengamma.strata.product.index.IborFuture;
+import com.opengamma.strata.product.index.ResolvedIborFuture;
 
 /**
  * Tests {@link AbstractIborFutureTradePricer}.
@@ -21,9 +22,10 @@ import com.opengamma.strata.product.index.IborFuture;
 @Test
 public class AbstractIborFutureProductPricerTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final AbstractIborFutureProductPricer PRICER = DiscountingIborFutureProductPricer.DEFAULT;
   private static final DiscountingIborFutureProductPricer PRICER_PRODUCT = DiscountingIborFutureProductPricer.DEFAULT;
-  private static final IborFuture FUTURE = IborFutureDummyData.IBOR_FUTURE;
+  private static final ResolvedIborFuture FUTURE = IborFutureDummyData.IBOR_FUTURE.resolve(REF_DATA);
   private static final double TOLERANCE_DELTA = 1.0E-5;
 
   //------------------------------------------------------------------------- 

@@ -27,6 +27,7 @@ import java.time.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.google.common.reflect.TypeToken;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.id.IdentifiableBean;
 import com.opengamma.strata.collect.id.LinkResolver;
@@ -37,11 +38,12 @@ import com.opengamma.strata.product.UnitSecurity;
 import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 
 /**
- * Test IborFutureOption. 
+ * Test {@link IborFutureOption}. 
  */
 @Test
 public class IborFutureOptionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double NOTIONAL_1 = 1_000d;
   private static final LocalDate LAST_TRADE_DATE_1 = date(2015, 6, 15);
   private static final LocalDate LAST_TRADE_DATE_2 = date(2015, 9, 16);
@@ -88,15 +90,7 @@ public class IborFutureOptionTest {
   }
 
   public void test_builder_resolved() {
-    IborFutureOption test = IborFutureOption.builder()
-        .putCall(CALL)
-        .strikePrice(STRIKE_PRICE)
-        .expiryDate(EXPIRY_DATE)
-        .expiryTime(EXPIRY_TIME)
-        .expiryZone(EXPIRY_ZONE)
-        .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
-        .underlyingLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY_1))
-        .build();
+    IborFutureOption test = sut();
     assertEquals(test.getPutCall(), CALL);
     assertEquals(test.getStrikePrice(), STRIKE_PRICE);
     assertEquals(test.getExpiryDate(), EXPIRY_DATE);
@@ -131,15 +125,7 @@ public class IborFutureOptionTest {
         .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
         .underlyingLink(SecurityLink.resolvable(ID_1, IborFuture.class))
         .build();
-    IborFutureOption expected = IborFutureOption.builder()
-        .putCall(CALL)
-        .strikePrice(STRIKE_PRICE)
-        .expiryDate(EXPIRY_DATE)
-        .expiryTime(EXPIRY_TIME)
-        .expiryZone(EXPIRY_ZONE)
-        .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
-        .underlyingLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY_1))
-        .build();
+    IborFutureOption expected = sut();
     LinkResolver resolver = new LinkResolver() {
       @SuppressWarnings("unchecked")
       @Override
@@ -152,15 +138,7 @@ public class IborFutureOptionTest {
   }
 
   public void test_resolveLinks_resolved() {
-    IborFutureOption test = IborFutureOption.builder()
-        .putCall(CALL)
-        .strikePrice(STRIKE_PRICE)
-        .expiryDate(EXPIRY_DATE)
-        .expiryTime(EXPIRY_TIME)
-        .expiryZone(EXPIRY_ZONE)
-        .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
-        .underlyingLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY_1))
-        .build();
+    IborFutureOption test = sut();
     LinkResolver resolver = new LinkResolver() {
       @Override
       public <T extends IdentifiableBean> T resolve(StandardId identifier, TypeToken<T> targetType) {
@@ -172,8 +150,31 @@ public class IborFutureOptionTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_resolve() {
+    IborFutureOption test = sut();
+    ResolvedIborFutureOption expected = ResolvedIborFutureOption.builder()
+        .putCall(CALL)
+        .strikePrice(STRIKE_PRICE)
+        .expiry(EXPIRY_DATE.atTime(EXPIRY_TIME).atZone(EXPIRY_ZONE))
+        .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
+        .underlying(IBOR_FUTURE_1.resolve(REF_DATA))
+        .build();
+    assertEquals(test.resolve(REF_DATA), expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
-    IborFutureOption test = IborFutureOption.builder()
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
+  }
+
+  public void test_serialization() {
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static IborFutureOption sut() {
+    return IborFutureOption.builder()
         .putCall(CALL)
         .strikePrice(STRIKE_PRICE)
         .expiryDate(EXPIRY_DATE)
@@ -182,8 +183,10 @@ public class IborFutureOptionTest {
         .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
         .underlyingLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY_1))
         .build();
-    coverImmutableBean(test);
-    IborFutureOption test2 = IborFutureOption.builder()
+  }
+
+  static IborFutureOption sut2() {
+    return IborFutureOption.builder()
         .putCall(PUT)
         .strikePrice(STRIKE_PRICE + 1)
         .expiryDate(LAST_TRADE_DATE_1)
@@ -193,20 +196,6 @@ public class IborFutureOptionTest {
         .rounding(ROUNDING)
         .underlyingLink(SecurityLink.resolvable(ID_1, IborFuture.class))
         .build();
-    coverBeanEquals(test, test2);
-  }
-
-  public void test_serialization() {
-    IborFutureOption test = IborFutureOption.builder()
-        .putCall(CALL)
-        .strikePrice(STRIKE_PRICE)
-        .expiryDate(EXPIRY_DATE)
-        .expiryTime(EXPIRY_TIME)
-        .expiryZone(EXPIRY_ZONE)
-        .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
-        .underlyingLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY_1))
-        .build();
-    assertSerialization(test);
   }
 
 }

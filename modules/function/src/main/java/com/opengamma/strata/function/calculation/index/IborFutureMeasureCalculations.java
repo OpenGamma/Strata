@@ -19,7 +19,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
 import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.index.IborFutureTrade;
+import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 
 /**
  * Multi-scenario measure calculations for Ibor Future trades.
@@ -45,7 +45,7 @@ final class IborFutureMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates par spread for all scenarios
   static ValuesArray parSpread(
-      IborFutureTrade trade,
+      ResolvedIborFutureTrade trade,
       CalculationMarketData marketData) {
 
     return ValuesArray.of(
@@ -55,10 +55,10 @@ final class IborFutureMeasureCalculations {
 
   // par spread for one scenario
   private static double calculateParSpread(
-      IborFutureTrade trade,
+      ResolvedIborFutureTrade trade,
       MarketData marketData) {
 
-    QuoteKey key = QuoteKey.of(trade.getSecurity().getStandardId());
+    QuoteKey key = QuoteKey.of(trade.getSecurityStandardId());
     double price = marketData.getValue(key) / 100;  // convert market quote to value needed
     return PRICER.parSpread(trade, MarketDataRatesProvider.of(marketData), price);
   }
@@ -66,7 +66,7 @@ final class IborFutureMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
   static CurrencyValuesArray presentValue(
-      IborFutureTrade trade,
+      ResolvedIborFutureTrade trade,
       CalculationMarketData marketData) {
 
     return CurrencyValuesArray.of(
@@ -76,10 +76,10 @@ final class IborFutureMeasureCalculations {
 
   // present value for one scenario
   private static CurrencyAmount calculatePresentValue(
-      IborFutureTrade trade,
+      ResolvedIborFutureTrade trade,
       MarketData marketData) {
 
-    QuoteKey key = QuoteKey.of(trade.getSecurity().getStandardId());
+    QuoteKey key = QuoteKey.of(trade.getSecurityStandardId());
     double price = marketData.getValue(key) / 100;  // convert market quote to value needed
     return PRICER.presentValue(trade, MarketDataRatesProvider.of(marketData), price);
   }
@@ -87,7 +87,7 @@ final class IborFutureMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates PV01 for all scenarios
   static MultiCurrencyValuesArray pv01(
-      IborFutureTrade trade,
+      ResolvedIborFutureTrade trade,
       CalculationMarketData marketData) {
 
     return MultiCurrencyValuesArray.of(
@@ -97,7 +97,7 @@ final class IborFutureMeasureCalculations {
 
   // PV01 for one scenario
   private static MultiCurrencyAmount calculatePv01(
-      IborFutureTrade trade,
+      ResolvedIborFutureTrade trade,
       MarketData marketData) {
 
     RatesProvider provider = MarketDataRatesProvider.of(marketData);
@@ -108,7 +108,7 @@ final class IborFutureMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates bucketed PV01 for all scenarios
   static ScenarioResult<CurveCurrencyParameterSensitivities> bucketedPv01(
-      IborFutureTrade trade,
+      ResolvedIborFutureTrade trade,
       CalculationMarketData marketData) {
 
     return ScenarioResult.of(
@@ -118,7 +118,7 @@ final class IborFutureMeasureCalculations {
 
   // bucketed PV01 for one scenario
   private static CurveCurrencyParameterSensitivities calculateBucketedPv01(
-      IborFutureTrade trade,
+      ResolvedIborFutureTrade trade,
       MarketData marketData) {
 
     RatesProvider provider = MarketDataRatesProvider.of(marketData);

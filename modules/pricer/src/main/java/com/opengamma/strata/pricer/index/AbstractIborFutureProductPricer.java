@@ -6,12 +6,12 @@
 package com.opengamma.strata.pricer.index;
 
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.product.index.IborFuture;
+import com.opengamma.strata.product.index.ResolvedIborFuture;
 
 /**
  * Base pricer for Ibor futures.
  * <p>
- * This function provides common code used when pricing an {@link IborFuture}.
+ * This function provides common code used when pricing a {@link ResolvedIborFuture}.
  */
 public abstract class AbstractIborFutureProductPricer {
 
@@ -32,7 +32,7 @@ public abstract class AbstractIborFutureProductPricer {
    * @param price  the price of the product, in decimal form
    * @return the index
    */
-  protected double marginIndex(IborFuture future, double price) {
+  protected double marginIndex(ResolvedIborFuture future, double price) {
     return price * future.getNotional() * future.getAccrualFactor();
   }
 
@@ -47,7 +47,7 @@ public abstract class AbstractIborFutureProductPricer {
    * @param priceSensitivity  the price sensitivity of the product
    * @return the index sensitivity
    */
-  protected PointSensitivities marginIndexSensitivity(IborFuture future, PointSensitivities priceSensitivity) {
+  protected PointSensitivities marginIndexSensitivity(ResolvedIborFuture future, PointSensitivities priceSensitivity) {
     return priceSensitivity.multipliedBy(future.getNotional() * future.getAccrualFactor());
   }
 

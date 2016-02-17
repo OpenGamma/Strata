@@ -13,12 +13,13 @@ import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.index.IborFuture;
+import com.opengamma.strata.product.index.ResolvedIborFuture;
 
 /**
  * Pricer for for Ibor future products.
  * <p>
- * This function provides the ability to price a {@link IborFuture} based on Hull-White one-factor model with piecewise 
- * constant volatility.  
+ * This function provides the ability to price a {@link IborFuture} based on
+ * Hull-White one-factor model with piecewise constant volatility.  
  * <p> 
  * Reference: Henrard M., Eurodollar Futures and Options: Convexity Adjustment in HJM One-Factor Model. March 2005.
  * Available at <a href="http://ssrn.com/abstract=682343">http://ssrn.com/abstract=682343</a>
@@ -42,13 +43,13 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
   * <p>
   * The price of the product is the price on the valuation date.
   * 
-  * @param future  the future to price
+  * @param future  the future
   * @param ratesProvider  the rates provider
   * @param hwProvider  the Hull-White model parameter provider
   * @return the price of the product, in decimal form
   */
   public double price(
-      IborFuture future,
+      ResolvedIborFuture future,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
@@ -61,13 +62,13 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
   * <p>
   * The convexity adjustment of the product is the value on the valuation date.
   * 
-  * @param future  the future to price
+  * @param future  the future
   * @param ratesProvider  the rates provider
   * @param hwProvider  the Hull-White model parameter provider
   * @return the convexity adjustment, in decimal form
   */
   public double convexityAdjustment(
-      IborFuture future,
+      ResolvedIborFuture future,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
@@ -82,13 +83,13 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
   * The par rate is given by ({@code 1 - price}).
   * The par rate of the product is the value on the valuation date.
   * 
-  * @param future  the future to price
+  * @param future  the future
   * @param ratesProvider  the rates provider
   * @param hwProvider  the Hull-White model parameter provider
   * @return the par rate of the product, in decimal form
   */
   public double parRate(
-      IborFuture future,
+      ResolvedIborFuture future,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
@@ -106,13 +107,13 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
   * <p>
   * The price sensitivity of the product is the sensitivity of the price to the underlying curves.
   * 
-  * @param future  the future to price
+  * @param future  the future
   * @param ratesProvider  the rates provider
   * @param hwProvider  the Hull-White model parameter provider
   * @return the price curve sensitivity of the product
   */
   public PointSensitivities priceSensitivity(
-      IborFuture future,
+      ResolvedIborFuture future,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
@@ -129,13 +130,13 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
   /**
   * Calculates the price sensitivity to piecewise constant volatility parameters of the Hull-White model.
   * 
-  * @param future  the future to price
+  * @param future  the future
   * @param ratesProvider  the rates provider
   * @param hwProvider  the Hull-White model parameter provider
   * @return the price parameter sensitivity of the product
   */
   public DoubleArray priceSensitivityHullWhiteParameter(
-      IborFuture future,
+      ResolvedIborFuture future,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
