@@ -164,8 +164,7 @@ public final class FixedCouponBond
     ImmutableList.Builder<FixedCouponBondPaymentPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < adjustedSchedule.size(); i++) {
       SchedulePeriod period = adjustedSchedule.getPeriod(i);
-      SchedulePeriod unadjustedPeriod = SchedulePeriod.of(period.getUnadjustedStartDate(),
-          period.getUnadjustedEndDate());
+      SchedulePeriod unadjustedPeriod = unadjustedSchedule.getPeriod(i);
       accrualPeriods.add(FixedCouponBondPaymentPeriod.builder()
           .unadjustedStartDate(period.getUnadjustedStartDate())
           .unadjustedEndDate(period.getUnadjustedEndDate())
@@ -185,7 +184,8 @@ public final class FixedCouponBond
         .legalEntityId(legalEntityId)
         .nominalPayment(nominalPayment)
         .periodicPayments(ImmutableList.copyOf(periodicPayments))
-        .periodicSchedule(periodicSchedule)
+        .frequency(periodicSchedule.getFrequency())
+        .rollConvention(periodicSchedule.calculatedRollConvention())
         .fixedRate(fixedRate)
         .dayCount(dayCount)
         .yieldConvention(yieldConvention)

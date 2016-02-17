@@ -10,9 +10,16 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.schedule.RollConventions;
 
 /**
  * Test {@link ResolvedFixedCouponBond}.
@@ -25,8 +32,57 @@ public class ResolvedFixedCouponBondTest {
   //-------------------------------------------------------------------------
   public void test_getters() {
     ResolvedFixedCouponBond test = sut();
-    assertEquals(test.getStartDate(), test.getPeriodicPayments().get(0).getStartDate());
-    assertEquals(test.getEndDate(), test.getPeriodicPayments().get(test.getPeriodicPayments().size() - 1).getEndDate());
+    ImmutableList<FixedCouponBondPaymentPeriod> payments = test.getPeriodicPayments();
+    assertEquals(test.getStartDate(), payments.get(0).getStartDate());
+    assertEquals(test.getEndDate(), payments.get(payments.size() - 1).getEndDate());
+    assertEquals(test.getUnadjustedStartDate(), payments.get(0).getUnadjustedStartDate());
+    assertEquals(test.getUnadjustedEndDate(), payments.get(payments.size() - 1).getUnadjustedEndDate());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_yearFraction() {
+    ResolvedFixedCouponBond test = sut();
+    FixedCouponBondPaymentPeriod period = test.getPeriodicPayments().get(0);
+    assertEquals(test.yearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate()), period.getYearFraction());
+  }
+
+  public void test_yearFraction_scheduleInfo() {
+    ResolvedFixedCouponBond base = sut();
+    FixedCouponBondPaymentPeriod period = base.getPeriodicPayments().get(0);
+    AtomicBoolean eom = new AtomicBoolean(false);
+    DayCount dc = new DayCount() {
+      @Override
+      public double yearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        assertEquals(scheduleInfo.getStartDate(), base.getUnadjustedStartDate());
+        assertEquals(scheduleInfo.getEndDate(), base.getUnadjustedEndDate());
+        assertEquals(scheduleInfo.getPeriodEndDate(firstDate), period.getUnadjustedEndDate());
+        assertEquals(scheduleInfo.getFrequency(), base.getFrequency());
+        assertEquals(scheduleInfo.isEndOfMonthConvention(), eom.get());
+        return 0.5;
+      }
+
+      @Override
+      public String getName() {
+        return "";
+      }
+
+    };
+    ResolvedFixedCouponBond test = base.toBuilder().dayCount(dc).build();
+    assertEquals(test.yearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate()), 0.5);
+    // test with EOM=true
+    ResolvedFixedCouponBond test2 = test.toBuilder().rollConvention(RollConventions.EOM).build();
+    eom.set(true);
+    assertEquals(test2.yearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate()), 0.5);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_findPeriod() {
+    ResolvedFixedCouponBond test = sut();
+    ImmutableList<FixedCouponBondPaymentPeriod> payments = test.getPeriodicPayments();
+    assertEquals(test.findPeriod(test.getUnadjustedStartDate()), Optional.of(payments.get(0)));
+    assertEquals(test.findPeriod(test.getUnadjustedEndDate().minusDays(1)), Optional.of(payments.get(payments.size() - 1)));
+    assertEquals(test.findPeriod(LocalDate.MIN), Optional.empty());
+    assertEquals(test.findPeriod(LocalDate.MAX), Optional.empty());
   }
 
   //-------------------------------------------------------------------------

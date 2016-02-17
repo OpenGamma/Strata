@@ -112,6 +112,26 @@ public class FixedCouponBondPaymentPeriodTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_contains() {
+    FixedCouponBondPaymentPeriod test = FixedCouponBondPaymentPeriod.builder()
+        .currency(USD)
+        .startDate(START_ADJUSTED)
+        .unadjustedStartDate(START)
+        .endDate(END_ADJUSTED)
+        .unadjustedEndDate(END)
+        .detachmentDate(DETACHMENT_DATE)
+        .notional(NOTIONAL)
+        .fixedRate(FIXED_RATE)
+        .yearFraction(YEAR_FRACTION)
+        .build();
+    assertEquals(test.contains(START.minusDays(1)), false);
+    assertEquals(test.contains(START), true);
+    assertEquals(test.contains(START.plusDays(1)), true);
+    assertEquals(test.contains(END.minusDays(1)), true);
+    assertEquals(test.contains(END), false);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     FixedCouponBondPaymentPeriod test1 = FixedCouponBondPaymentPeriod.builder()
         .currency(USD)

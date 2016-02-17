@@ -12,8 +12,6 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.DaysAdjuster;
-import com.opengamma.strata.basics.schedule.Schedule;
-import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.sensitivity.IssuerCurveZeroRateSensitivity;
@@ -506,24 +504,20 @@ public class DiscountingFixedCouponBondProductPricer {
    * @return the accrued interest of the product 
    */
   public double accruedInterest(ResolvedFixedCouponBond bond, LocalDate settlementDate) {
-    Schedule scheduleAdjusted = bond.getPeriodicSchedule().createSchedule();
-    Schedule scheduleUnadjusted = scheduleAdjusted.toUnadjusted();
-    if (scheduleUnadjusted.getPeriods().get(0).getStartDate().isAfter(settlementDate)) {
+    if (bond.getUnadjustedStartDate().isAfter(settlementDate)) {
       return 0d;
     }
     double notional = bond.getNotional();
-    int couponIndex = couponIndex(scheduleUnadjusted, settlementDate);
-    SchedulePeriod schedulePeriod = scheduleUnadjusted.getPeriod(couponIndex);
-    LocalDate previousAccrualDate = schedulePeriod.getStartDate();
-    LocalDate paymentDate = scheduleAdjusted.getPeriod(couponIndex).getEndDate();
+    FixedCouponBondPaymentPeriod period = bond.findPeriod(settlementDate)
+        .orElseThrow(() -> new IllegalArgumentException("Date outside range of bond"));
+    LocalDate previousAccrualDate = period.getUnadjustedStartDate();
+    LocalDate paymentDate = period.getEndDate();
     double fixedRate = bond.getFixedRate();
-    double accruedInterest = bond.getDayCount()
-        .yearFraction(previousAccrualDate, settlementDate, scheduleUnadjusted) * fixedRate * notional;
+    double accruedInterest = bond.yearFraction(previousAccrualDate, settlementDate) * fixedRate * notional;
     DaysAdjuster exCouponDays = bond.getExCouponPeriod();
     double result = 0d;
     if (exCouponDays.getDays() != 0 && settlementDate.isAfter(exCouponDays.adjust(paymentDate))) {
-      result = accruedInterest - notional * fixedRate *
-          schedulePeriod.yearFraction(bond.getDayCount(), scheduleUnadjusted);
+      result = accruedInterest - notional * fixedRate * period.getYearFraction();
     } else {
       result = accruedInterest;
     }
@@ -551,7 +545,7 @@ public class DiscountingFixedCouponBondProductPricer {
         FixedCouponBondPaymentPeriod payment = payments.get(payments.size() - 1);
         return (1d + payment.getFixedRate() * payment.getYearFraction()) /
             (1d + factorToNextCoupon(bond, settlementDate) * yield /
-                ((double) bond.getPeriodicSchedule().getFrequency().eventsPerYear()));
+                ((double) bond.getFrequency().eventsPerYear()));
       }
     }
     if ((yieldConvention.equals(YieldConvention.US_STREET)) ||
@@ -560,7 +554,7 @@ public class DiscountingFixedCouponBondProductPricer {
       return dirtyPriceFromYieldStandard(bond, settlementDate, yield);
     }
     if (yieldConvention.equals(YieldConvention.JAPAN_SIMPLE)) {
-      LocalDate maturityDate = bond.getPeriodicSchedule().getEndDate();
+      LocalDate maturityDate = bond.getUnadjustedEndDate();
       if (settlementDate.isAfter(maturityDate)) {
         return 0d;
       }
@@ -577,7 +571,7 @@ public class DiscountingFixedCouponBondProductPricer {
       double yield) {
 
     int nbCoupon = bond.getPeriodicPayments().size();
-    double factorOnPeriod = 1 + yield / ((double) bond.getPeriodicSchedule().getFrequency().eventsPerYear());
+    double factorOnPeriod = 1 + yield / ((double) bond.getFrequency().eventsPerYear());
     double fixedRate = bond.getFixedRate();
     double pvAtFirstCoupon = 0;
     int pow = 0;
@@ -609,7 +603,7 @@ public class DiscountingFixedCouponBondProductPricer {
   public double yieldFromDirtyPrice(ResolvedFixedCouponBond bond, LocalDate settlementDate, double dirtyPrice) {
     if (bond.getYieldConvention().equals(YieldConvention.JAPAN_SIMPLE)) {
       double cleanPrice = cleanPriceFromDirtyPrice(bond, settlementDate, dirtyPrice);
-      LocalDate maturityDate = bond.getPeriodicSchedule().getEndDate();
+      LocalDate maturityDate = bond.getUnadjustedEndDate();
       double maturity = bond.getDayCount().relativeYearFraction(settlementDate, maturityDate);
       return (bond.getFixedRate() + (1d - cleanPrice) / maturity) / cleanPrice;
     }
@@ -646,7 +640,7 @@ public class DiscountingFixedCouponBondProductPricer {
     YieldConvention yieldConvention = bond.getYieldConvention();
     if (nCoupon == 1) {
       if (yieldConvention.equals(YieldConvention.US_STREET) || yieldConvention.equals(YieldConvention.GERMAN_BONDS)) {
-        double couponPerYear = bond.getPeriodicSchedule().getFrequency().eventsPerYear();
+        double couponPerYear = bond.getFrequency().eventsPerYear();
         double factor = factorToNextCoupon(bond, settlementDate);
         return factor / couponPerYear / (1d + factor * yield / couponPerYear);
       }
@@ -657,7 +651,7 @@ public class DiscountingFixedCouponBondProductPricer {
       return modifiedDurationFromYieldStandard(bond, settlementDate, yield);
     }
     if (yieldConvention.equals(YieldConvention.JAPAN_SIMPLE)) {
-      LocalDate maturityDate = bond.getPeriodicSchedule().getEndDate();
+      LocalDate maturityDate = bond.getUnadjustedEndDate();
       if (settlementDate.isAfter(maturityDate)) {
         return 0d;
       }
@@ -676,7 +670,7 @@ public class DiscountingFixedCouponBondProductPricer {
       double yield) {
 
     int nbCoupon = bond.getPeriodicPayments().size();
-    double couponPerYear = bond.getPeriodicSchedule().getFrequency().eventsPerYear();
+    double couponPerYear = bond.getFrequency().eventsPerYear();
     double factorToNextCoupon = factorToNextCoupon(bond, settlementDate);
     double factorOnPeriod = 1 + yield / couponPerYear;
     double nominal = bond.getNotional();
@@ -722,13 +716,13 @@ public class DiscountingFixedCouponBondProductPricer {
     YieldConvention yieldConvention = bond.getYieldConvention();
     if ((yieldConvention.equals(YieldConvention.US_STREET)) && (nCoupon == 1)) {
       return factorToNextCoupon(bond, settlementDate) /
-          bond.getPeriodicSchedule().getFrequency().eventsPerYear();
+          bond.getFrequency().eventsPerYear();
     }
     if ((yieldConvention.equals(YieldConvention.US_STREET)) ||
         (yieldConvention.equals(YieldConvention.UK_BUMP_DMO)) ||
         (yieldConvention.equals(YieldConvention.GERMAN_BONDS))) {
       return modifiedDurationFromYield(bond, settlementDate, yield) *
-          (1d + yield / bond.getPeriodicSchedule().getFrequency().eventsPerYear());
+          (1d + yield / bond.getFrequency().eventsPerYear());
     }
     throw new UnsupportedOperationException("The convention " + yieldConvention.name() + " is not supported.");
   }
@@ -753,7 +747,7 @@ public class DiscountingFixedCouponBondProductPricer {
     YieldConvention yieldConvention = bond.getYieldConvention();
     if (nCoupon == 1) {
       if (yieldConvention.equals(YieldConvention.US_STREET) || yieldConvention.equals(YieldConvention.GERMAN_BONDS)) {
-        double couponPerYear = bond.getPeriodicSchedule().getFrequency().eventsPerYear();
+        double couponPerYear = bond.getFrequency().eventsPerYear();
         double factorToNextCoupon = factorToNextCoupon(bond, settlementDate);
         double timeToPay = factorToNextCoupon / couponPerYear;
         double disc = (1d + factorToNextCoupon * yield / couponPerYear);
@@ -765,7 +759,7 @@ public class DiscountingFixedCouponBondProductPricer {
       return convexityFromYieldStandard(bond, settlementDate, yield);
     }
     if (yieldConvention.equals(YieldConvention.JAPAN_SIMPLE)) {
-      LocalDate maturityDate = bond.getPeriodicSchedule().getEndDate();
+      LocalDate maturityDate = bond.getUnadjustedEndDate();
       if (settlementDate.isAfter(maturityDate)) {
         return 0d;
       }
@@ -785,7 +779,7 @@ public class DiscountingFixedCouponBondProductPricer {
       double yield) {
 
     int nbCoupon = bond.getPeriodicPayments().size();
-    double couponPerYear = bond.getPeriodicSchedule().getFrequency().eventsPerYear();
+    double couponPerYear = bond.getFrequency().eventsPerYear();
     double factorToNextCoupon = factorToNextCoupon(bond, settlementDate);
     double factorOnPeriod = 1 + yield / couponPerYear;
     double nominal = bond.getNotional();
@@ -822,18 +816,6 @@ public class DiscountingFixedCouponBondProductPricer {
     double factorSpot = accruedInterest(bond, settlementDate) / bond.getFixedRate() / bond.getNotional();
     double factorPeriod = bond.getPeriodicPayments().get(couponIndex).getYearFraction();
     return (factorPeriod - factorSpot) / factorPeriod;
-  }
-
-  private int couponIndex(Schedule schedule, LocalDate date) {
-    int nbCoupon = schedule.getPeriods().size();
-    int couponIndex = 0;
-    for (int loopcpn = 0; loopcpn < nbCoupon; ++loopcpn) {
-      if (schedule.getPeriods().get(loopcpn).getEndDate().isAfter(date)) {
-        couponIndex = loopcpn;
-        break;
-      }
-    }
-    return couponIndex;
   }
 
   private int couponIndex(ImmutableList<FixedCouponBondPaymentPeriod> list, LocalDate date) {

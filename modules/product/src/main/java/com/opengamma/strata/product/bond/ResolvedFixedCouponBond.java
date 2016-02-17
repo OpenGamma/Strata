@@ -5,11 +5,14 @@
  */
 package com.opengamma.strata.product.bond;
 
+import static com.opengamma.strata.collect.Guavate.ensureOnlyOne;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -28,9 +31,13 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DayCount.ScheduleInfo;
 import com.opengamma.strata.basics.date.DaysAdjuster;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.RollConvention;
+import com.opengamma.strata.basics.schedule.RollConventions;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.product.ResolvedProduct;
 
@@ -54,7 +61,6 @@ import com.opengamma.strata.product.ResolvedProduct;
 @BeanDefinition
 public final class ResolvedFixedCouponBond
     implements ResolvedProduct, ImmutableBean, Serializable {
-  // TODO: periodicSchedule, fixedRate, dayCount, exCouponPeriod copied here from FixedCouponBond
 
   /**
    * The nominal payment of the product.
@@ -73,13 +79,19 @@ public final class ResolvedFixedCouponBond
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<FixedCouponBondPaymentPeriod> periodicPayments;
   /**
-   * The accrual schedule.
+   * The frequency of the bond payments.
    * <p>
-   * This is used to define the accrual periods.
-   * These are used directly or indirectly to determine other dates in the product.
+   * This must match the frequency used to generate the payment schedule.
    */
   @PropertyDefinition(validate = "notNull")
-  private final PeriodicSchedule periodicSchedule;
+  private final Frequency frequency;
+  /**
+   * The roll convention of the bond payments.
+   * <p>
+   * This must match the convention used to generate the payment schedule.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final RollConvention rollConvention;
   /**
    * The fixed coupon rate. 
    * <p>
@@ -161,6 +173,28 @@ public final class ResolvedFixedCouponBond
   }
 
   /**
+   * The unadjusted start date.
+   * <p>
+   * This is the unadjusted first coupon period date of the bond.
+   * 
+   * @return the unadjusted start date
+   */
+  public LocalDate getUnadjustedStartDate() {
+    return periodicPayments.get(0).getUnadjustedStartDate();
+  }
+
+  /**
+   * The unadjusted end date.
+   * <p>
+   * This is the unadjusted last coupon period date of the bond.
+   * 
+   * @return the unadjusted end date
+   */
+  public LocalDate getUnadjustedEndDate() {
+    return periodicPayments.get(periodicPayments.size() - 1).getUnadjustedEndDate();
+  }
+
+  /**
    * Gets the currency of the product.
    * <p>
    * All payments in the bond will have this currency.
@@ -181,6 +215,70 @@ public final class ResolvedFixedCouponBond
    */
   public double getNotional() {
     return nominalPayment.getAmount();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Finds the period that contains the specified date.
+   * <p>
+   * The search is performed using unadjusted dates.
+   * 
+   * @param date  the date to find the period for
+   * @return the period, empty if not found
+   * @throws IllegalArgumentException if more than one period matches
+   */
+  public Optional<FixedCouponBondPaymentPeriod> findPeriod(LocalDate date) {
+    return periodicPayments.stream()
+        .filter(p -> p.contains(date))
+        .reduce(ensureOnlyOne());
+  }
+
+  /**
+   * Calculates the year fraction within the specified period.
+   * <p>
+   * Year fractions on bonds are calculated on unadjusted dates.
+   * 
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @return the year fraction
+   * @throws IllegalArgumentException if the dates are outside the range of the bond or start is after end
+   */
+  public double yearFraction(LocalDate startDate, LocalDate endDate) {
+    ArgChecker.inOrderOrEqual(getUnadjustedStartDate(), startDate, "bond.unadjustedStartDate", "startDate");
+    ArgChecker.inOrderOrEqual(startDate, endDate, "startDate", "endDate");
+    ArgChecker.inOrderOrEqual(endDate, getUnadjustedEndDate(), "endDate", "bond.unadjustedEndDate");
+    // bond day counts often need ScheduleInfo
+    ScheduleInfo info = new ScheduleInfo() {
+      @Override
+      public LocalDate getStartDate() {
+        return getUnadjustedStartDate();
+      }
+
+      @Override
+      public LocalDate getEndDate() {
+        return getUnadjustedEndDate();
+      }
+
+      @Override
+      public Frequency getFrequency() {
+        return frequency;
+      }
+
+      @Override
+      public LocalDate getPeriodEndDate(LocalDate date) {
+        return periodicPayments.stream()
+            .filter(p -> p.contains(date))
+            .map(p -> p.getUnadjustedEndDate())
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Date is not contained in any period"));
+      }
+
+      @Override
+      public boolean isEndOfMonthConvention() {
+        return rollConvention == RollConventions.EOM;
+      }
+    };
+    return dayCount.yearFraction(startDate, endDate, info);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -213,7 +311,8 @@ public final class ResolvedFixedCouponBond
   private ResolvedFixedCouponBond(
       Payment nominalPayment,
       List<FixedCouponBondPaymentPeriod> periodicPayments,
-      PeriodicSchedule periodicSchedule,
+      Frequency frequency,
+      RollConvention rollConvention,
       double fixedRate,
       DayCount dayCount,
       YieldConvention yieldConvention,
@@ -222,7 +321,8 @@ public final class ResolvedFixedCouponBond
       DaysAdjuster exCouponPeriod) {
     JodaBeanUtils.notNull(nominalPayment, "nominalPayment");
     JodaBeanUtils.notNull(periodicPayments, "periodicPayments");
-    JodaBeanUtils.notNull(periodicSchedule, "periodicSchedule");
+    JodaBeanUtils.notNull(frequency, "frequency");
+    JodaBeanUtils.notNull(rollConvention, "rollConvention");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(yieldConvention, "yieldConvention");
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
@@ -230,7 +330,8 @@ public final class ResolvedFixedCouponBond
     JodaBeanUtils.notNull(exCouponPeriod, "exCouponPeriod");
     this.nominalPayment = nominalPayment;
     this.periodicPayments = ImmutableList.copyOf(periodicPayments);
-    this.periodicSchedule = periodicSchedule;
+    this.frequency = frequency;
+    this.rollConvention = rollConvention;
     this.fixedRate = fixedRate;
     this.dayCount = dayCount;
     this.yieldConvention = yieldConvention;
@@ -280,14 +381,24 @@ public final class ResolvedFixedCouponBond
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the accrual schedule.
+   * Gets the frequency of the bond payments.
    * <p>
-   * This is used to define the accrual periods.
-   * These are used directly or indirectly to determine other dates in the product.
+   * This must match the frequency used to generate the payment schedule.
    * @return the value of the property, not null
    */
-  public PeriodicSchedule getPeriodicSchedule() {
-    return periodicSchedule;
+  public Frequency getFrequency() {
+    return frequency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the roll convention of the bond payments.
+   * <p>
+   * This must match the convention used to generate the payment schedule.
+   * @return the value of the property, not null
+   */
+  public RollConvention getRollConvention() {
+    return rollConvention;
   }
 
   //-----------------------------------------------------------------------
@@ -386,7 +497,8 @@ public final class ResolvedFixedCouponBond
       ResolvedFixedCouponBond other = (ResolvedFixedCouponBond) obj;
       return JodaBeanUtils.equal(nominalPayment, other.nominalPayment) &&
           JodaBeanUtils.equal(periodicPayments, other.periodicPayments) &&
-          JodaBeanUtils.equal(periodicSchedule, other.periodicSchedule) &&
+          JodaBeanUtils.equal(frequency, other.frequency) &&
+          JodaBeanUtils.equal(rollConvention, other.rollConvention) &&
           JodaBeanUtils.equal(fixedRate, other.fixedRate) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(yieldConvention, other.yieldConvention) &&
@@ -402,7 +514,8 @@ public final class ResolvedFixedCouponBond
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(nominalPayment);
     hash = hash * 31 + JodaBeanUtils.hashCode(periodicPayments);
-    hash = hash * 31 + JodaBeanUtils.hashCode(periodicSchedule);
+    hash = hash * 31 + JodaBeanUtils.hashCode(frequency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rollConvention);
     hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(yieldConvention);
@@ -414,11 +527,12 @@ public final class ResolvedFixedCouponBond
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(320);
+    StringBuilder buf = new StringBuilder(352);
     buf.append("ResolvedFixedCouponBond{");
     buf.append("nominalPayment").append('=').append(nominalPayment).append(',').append(' ');
     buf.append("periodicPayments").append('=').append(periodicPayments).append(',').append(' ');
-    buf.append("periodicSchedule").append('=').append(periodicSchedule).append(',').append(' ');
+    buf.append("frequency").append('=').append(frequency).append(',').append(' ');
+    buf.append("rollConvention").append('=').append(rollConvention).append(',').append(' ');
     buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("yieldConvention").append('=').append(yieldConvention).append(',').append(' ');
@@ -451,10 +565,15 @@ public final class ResolvedFixedCouponBond
     private final MetaProperty<ImmutableList<FixedCouponBondPaymentPeriod>> periodicPayments = DirectMetaProperty.ofImmutable(
         this, "periodicPayments", ResolvedFixedCouponBond.class, (Class) ImmutableList.class);
     /**
-     * The meta-property for the {@code periodicSchedule} property.
+     * The meta-property for the {@code frequency} property.
      */
-    private final MetaProperty<PeriodicSchedule> periodicSchedule = DirectMetaProperty.ofImmutable(
-        this, "periodicSchedule", ResolvedFixedCouponBond.class, PeriodicSchedule.class);
+    private final MetaProperty<Frequency> frequency = DirectMetaProperty.ofImmutable(
+        this, "frequency", ResolvedFixedCouponBond.class, Frequency.class);
+    /**
+     * The meta-property for the {@code rollConvention} property.
+     */
+    private final MetaProperty<RollConvention> rollConvention = DirectMetaProperty.ofImmutable(
+        this, "rollConvention", ResolvedFixedCouponBond.class, RollConvention.class);
     /**
      * The meta-property for the {@code fixedRate} property.
      */
@@ -492,7 +611,8 @@ public final class ResolvedFixedCouponBond
         this, null,
         "nominalPayment",
         "periodicPayments",
-        "periodicSchedule",
+        "frequency",
+        "rollConvention",
         "fixedRate",
         "dayCount",
         "yieldConvention",
@@ -513,8 +633,10 @@ public final class ResolvedFixedCouponBond
           return nominalPayment;
         case -367345944:  // periodicPayments
           return periodicPayments;
-        case 1847018066:  // periodicSchedule
-          return periodicSchedule;
+        case -70023844:  // frequency
+          return frequency;
+        case -10223666:  // rollConvention
+          return rollConvention;
         case 747425396:  // fixedRate
           return fixedRate;
         case 1905311443:  // dayCount
@@ -564,11 +686,19 @@ public final class ResolvedFixedCouponBond
     }
 
     /**
-     * The meta-property for the {@code periodicSchedule} property.
+     * The meta-property for the {@code frequency} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<PeriodicSchedule> periodicSchedule() {
-      return periodicSchedule;
+    public MetaProperty<Frequency> frequency() {
+      return frequency;
+    }
+
+    /**
+     * The meta-property for the {@code rollConvention} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<RollConvention> rollConvention() {
+      return rollConvention;
     }
 
     /**
@@ -627,8 +757,10 @@ public final class ResolvedFixedCouponBond
           return ((ResolvedFixedCouponBond) bean).getNominalPayment();
         case -367345944:  // periodicPayments
           return ((ResolvedFixedCouponBond) bean).getPeriodicPayments();
-        case 1847018066:  // periodicSchedule
-          return ((ResolvedFixedCouponBond) bean).getPeriodicSchedule();
+        case -70023844:  // frequency
+          return ((ResolvedFixedCouponBond) bean).getFrequency();
+        case -10223666:  // rollConvention
+          return ((ResolvedFixedCouponBond) bean).getRollConvention();
         case 747425396:  // fixedRate
           return ((ResolvedFixedCouponBond) bean).getFixedRate();
         case 1905311443:  // dayCount
@@ -664,7 +796,8 @@ public final class ResolvedFixedCouponBond
 
     private Payment nominalPayment;
     private List<FixedCouponBondPaymentPeriod> periodicPayments = ImmutableList.of();
-    private PeriodicSchedule periodicSchedule;
+    private Frequency frequency;
+    private RollConvention rollConvention;
     private double fixedRate;
     private DayCount dayCount;
     private YieldConvention yieldConvention;
@@ -685,7 +818,8 @@ public final class ResolvedFixedCouponBond
     private Builder(ResolvedFixedCouponBond beanToCopy) {
       this.nominalPayment = beanToCopy.getNominalPayment();
       this.periodicPayments = beanToCopy.getPeriodicPayments();
-      this.periodicSchedule = beanToCopy.getPeriodicSchedule();
+      this.frequency = beanToCopy.getFrequency();
+      this.rollConvention = beanToCopy.getRollConvention();
       this.fixedRate = beanToCopy.getFixedRate();
       this.dayCount = beanToCopy.getDayCount();
       this.yieldConvention = beanToCopy.getYieldConvention();
@@ -702,8 +836,10 @@ public final class ResolvedFixedCouponBond
           return nominalPayment;
         case -367345944:  // periodicPayments
           return periodicPayments;
-        case 1847018066:  // periodicSchedule
-          return periodicSchedule;
+        case -70023844:  // frequency
+          return frequency;
+        case -10223666:  // rollConvention
+          return rollConvention;
         case 747425396:  // fixedRate
           return fixedRate;
         case 1905311443:  // dayCount
@@ -731,8 +867,11 @@ public final class ResolvedFixedCouponBond
         case -367345944:  // periodicPayments
           this.periodicPayments = (List<FixedCouponBondPaymentPeriod>) newValue;
           break;
-        case 1847018066:  // periodicSchedule
-          this.periodicSchedule = (PeriodicSchedule) newValue;
+        case -70023844:  // frequency
+          this.frequency = (Frequency) newValue;
+          break;
+        case -10223666:  // rollConvention
+          this.rollConvention = (RollConvention) newValue;
           break;
         case 747425396:  // fixedRate
           this.fixedRate = (Double) newValue;
@@ -787,7 +926,8 @@ public final class ResolvedFixedCouponBond
       return new ResolvedFixedCouponBond(
           nominalPayment,
           periodicPayments,
-          periodicSchedule,
+          frequency,
+          rollConvention,
           fixedRate,
           dayCount,
           yieldConvention,
@@ -836,16 +976,28 @@ public final class ResolvedFixedCouponBond
     }
 
     /**
-     * Sets the accrual schedule.
+     * Sets the frequency of the bond payments.
      * <p>
-     * This is used to define the accrual periods.
-     * These are used directly or indirectly to determine other dates in the product.
-     * @param periodicSchedule  the new value, not null
+     * This must match the frequency used to generate the payment schedule.
+     * @param frequency  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder periodicSchedule(PeriodicSchedule periodicSchedule) {
-      JodaBeanUtils.notNull(periodicSchedule, "periodicSchedule");
-      this.periodicSchedule = periodicSchedule;
+    public Builder frequency(Frequency frequency) {
+      JodaBeanUtils.notNull(frequency, "frequency");
+      this.frequency = frequency;
+      return this;
+    }
+
+    /**
+     * Sets the roll convention of the bond payments.
+     * <p>
+     * This must match the convention used to generate the payment schedule.
+     * @param rollConvention  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder rollConvention(RollConvention rollConvention) {
+      JodaBeanUtils.notNull(rollConvention, "rollConvention");
+      this.rollConvention = rollConvention;
       return this;
     }
 
@@ -941,11 +1093,12 @@ public final class ResolvedFixedCouponBond
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(320);
+      StringBuilder buf = new StringBuilder(352);
       buf.append("ResolvedFixedCouponBond.Builder{");
       buf.append("nominalPayment").append('=').append(JodaBeanUtils.toString(nominalPayment)).append(',').append(' ');
       buf.append("periodicPayments").append('=').append(JodaBeanUtils.toString(periodicPayments)).append(',').append(' ');
-      buf.append("periodicSchedule").append('=').append(JodaBeanUtils.toString(periodicSchedule)).append(',').append(' ');
+      buf.append("frequency").append('=').append(JodaBeanUtils.toString(frequency)).append(',').append(' ');
+      buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(rollConvention)).append(',').append(' ');
       buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("yieldConvention").append('=').append(JodaBeanUtils.toString(yieldConvention)).append(',').append(' ');
