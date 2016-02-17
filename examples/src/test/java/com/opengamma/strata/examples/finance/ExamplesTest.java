@@ -190,6 +190,7 @@ public class ExamplesTest {
     assertFalse(captured.contains("ERROR"), captured);
     assertFalse(captured.contains("FAIL"), captured);
     assertFalse(captured.contains("Exception"), captured);
+    assertFalse(captured.contains("drill down"), captured);
   }
 
 }

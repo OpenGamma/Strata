@@ -6,6 +6,7 @@
 package com.opengamma.strata.report.framework.format;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 
 /**
@@ -19,6 +20,10 @@ public final class ValueFormatters {
    * The default formatter that returns the value of the {@code toString()} method.
    */
   public static ValueFormatter<Object> TO_STRING = ToStringValueFormatter.INSTANCE;
+  /**
+   * The formatter to be used for {@code AdjustableDate}, printing the unadjusted date.
+   */
+  public static ValueFormatter<AdjustableDate> ADJUSTABLE_DATE = AdjustableDateValueFormatter.INSTANCE;
   /**
    * The formatter to be used for {@code CurrencyAmount}.
    */

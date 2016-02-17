@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 
@@ -36,6 +37,7 @@ public class FormatSettingsProvider {
           .put(Currency.class, FormatSettings.of(FormatCategory.TEXT, ValueFormatters.TO_STRING))
           .put(StandardId.class, FormatSettings.of(FormatCategory.TEXT, ValueFormatters.TO_STRING))
           .put(LocalDate.class, FormatSettings.of(FormatCategory.DATE, ValueFormatters.TO_STRING))
+          .put(AdjustableDate.class, FormatSettings.of(FormatCategory.DATE, ValueFormatters.ADJUSTABLE_DATE))
           .put(CurrencyAmount.class, FormatSettings.of(FormatCategory.NUMERIC, ValueFormatters.CURRENCY_AMOUNT))
           .put(CurveCurrencyParameterSensitivity.class,
               FormatSettings.of(FormatCategory.TEXT, ValueFormatters.CURVE_CURRENCY_PARAMETER_SENSITIVITY))
