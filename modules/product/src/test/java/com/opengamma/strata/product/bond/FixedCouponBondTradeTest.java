@@ -19,16 +19,7 @@ import org.testng.annotations.Test;
 import com.google.common.reflect.TypeToken;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.BusinessDayConventions;
-import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
-import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.basics.schedule.PeriodicSchedule;
-import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.id.IdentifiableBean;
 import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.id.StandardId;
@@ -43,6 +34,7 @@ import com.opengamma.strata.product.UnitSecurity;
 @Test
 public class FixedCouponBondTradeTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final StandardId SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BOND1");
   private static final LocalDate TRADE_DATE = LocalDate.of(2015, 3, 25);
   private static final LocalDate SETTLEMENT_DATE = LocalDate.of(2015, 3, 30);
@@ -51,30 +43,8 @@ public class FixedCouponBondTradeTest {
       .settlementDate(SETTLEMENT_DATE)
       .build();
   private static final long QUANTITY = 10;
-
-  private static final YieldConvention YIELD_CONVENTION = YieldConvention.GERMAN_BONDS;
-  private static final StandardId LEGAL_ENTITY = StandardId.of("OG-Ticker", "GOVT1");
   private static final double NOTIONAL = 1.0e7;
-  private static final double FIXED_RATE = 0.015;
-  private static final HolidayCalendar EUR_CALENDAR = HolidayCalendars.EUTA;
-  private static final DaysAdjustment DATE_OFFSET = DaysAdjustment.ofBusinessDays(3, EUR_CALENDAR);
-  private static final DayCount DAY_COUNT = DayCounts.ACT_365F;
-  private static final LocalDate START_DATE = LocalDate.of(2015, 4, 12);
-  private static final LocalDate END_DATE = LocalDate.of(2025, 4, 12);
-  private static final BusinessDayAdjustment BUSINESS_ADJUST =
-      BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, EUR_CALENDAR);
-  private static final PeriodicSchedule PERIOD_SCHEDULE = PeriodicSchedule.of(
-      START_DATE, END_DATE, Frequency.P6M, BUSINESS_ADJUST, StubConvention.SHORT_INITIAL, false);
-  private static final FixedCouponBond PRODUCT = FixedCouponBond.builder()
-      .dayCount(DAY_COUNT)
-      .fixedRate(FIXED_RATE)
-      .legalEntityId(LEGAL_ENTITY)
-      .currency(EUR)
-      .notional(NOTIONAL)
-      .periodicSchedule(PERIOD_SCHEDULE)
-      .settlementDateOffset(DATE_OFFSET)
-      .yieldConvention(YIELD_CONVENTION)
-      .build();
+  private static final FixedCouponBond PRODUCT = FixedCouponBondTest.sut();
   private static final Security<FixedCouponBond> BOND_SECURITY =
       UnitSecurity.builder(PRODUCT).standardId(SECURITY_ID).build();
   private static final Payment UPFRONT_PAYMENT = Payment.of(
@@ -95,12 +65,7 @@ public class FixedCouponBondTradeTest {
 
   //-------------------------------------------------------------------------
   public void test_builder_resolved() {
-    FixedCouponBondTrade test = FixedCouponBondTrade.builder()
-        .securityLink(SECURITY_LINK_RESOLVED)
-        .tradeInfo(TRADE_INFO)
-        .quantity(QUANTITY)
-        .payment(UPFRONT_PAYMENT)
-        .build();
+    FixedCouponBondTrade test = sut();
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getTradeInfo(), TRADE_INFO);
     assertEquals(test.getQuantity(), QUANTITY);
@@ -125,12 +90,7 @@ public class FixedCouponBondTradeTest {
 
   //-------------------------------------------------------------------------
   public void test_resolveLinks_resolved() {
-    FixedCouponBondTrade base = FixedCouponBondTrade.builder()
-        .securityLink(SECURITY_LINK_RESOLVED)
-        .tradeInfo(TRADE_INFO)
-        .quantity(QUANTITY)
-        .payment(UPFRONT_PAYMENT)
-        .build();
+    FixedCouponBondTrade base = sut();
     assertEquals(base.resolveLinks(RESOLVER), base);
   }
 
@@ -141,42 +101,51 @@ public class FixedCouponBondTradeTest {
         .quantity(QUANTITY)
         .payment(UPFRONT_PAYMENT)
         .build();
-    FixedCouponBondTrade expected = FixedCouponBondTrade.builder()
-        .securityLink(SECURITY_LINK_RESOLVED)
-        .tradeInfo(TRADE_INFO)
-        .quantity(QUANTITY)
-        .payment(UPFRONT_PAYMENT)
-        .build();
+    FixedCouponBondTrade expected = sut();
     assertEquals(base.resolveLinks(RESOLVER), expected);
   }
 
   //-------------------------------------------------------------------------
-  public void coverage() {
-    FixedCouponBondTrade test1 = FixedCouponBondTrade.builder()
-        .securityLink(SECURITY_LINK_RESOLVED)
+  public void test_resolve() {
+    ResolvedFixedCouponBondTrade expected = ResolvedFixedCouponBondTrade.builder()
         .tradeInfo(TRADE_INFO)
+        .product(PRODUCT.resolve(REF_DATA))
+        .securityStandardId(SECURITY_ID)
         .quantity(QUANTITY)
         .payment(UPFRONT_PAYMENT)
         .build();
-    coverImmutableBean(test1);
-    FixedCouponBondTrade test2 = FixedCouponBondTrade.builder()
+    assertEquals(sut().resolve(REF_DATA), expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    FixedCouponBondTrade test = sut();
+    coverImmutableBean(test);
+    coverBeanEquals(test, sut2());
+  }
+
+  public void test_serialization() {
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static FixedCouponBondTrade sut() {
+    return FixedCouponBondTrade.builder()
+        .tradeInfo(TRADE_INFO)
+        .securityLink(SECURITY_LINK_RESOLVED)
+        .quantity(QUANTITY)
+        .payment(UPFRONT_PAYMENT)
+        .build();
+  }
+
+  static FixedCouponBondTrade sut2() {
+    return FixedCouponBondTrade.builder()
         .securityLink(SecurityLink.resolved(UnitSecurity.builder(PRODUCT)
             .standardId(StandardId.of("Ticker", "GOV1-BND1"))
             .build()))
         .quantity(100L)
         .payment(Payment.of(CurrencyAmount.of(EUR, -NOTIONAL * QUANTITY * 0.99), SETTLEMENT_DATE))
         .build();
-    coverBeanEquals(test1, test2);
-  }
-
-  public void test_serialization() {
-    FixedCouponBondTrade test = FixedCouponBondTrade.builder()
-        .securityLink(SECURITY_LINK_RESOLVED)
-        .tradeInfo(TRADE_INFO)
-        .quantity(QUANTITY)
-        .payment(UPFRONT_PAYMENT)
-        .build();
-    assertSerialization(test);
   }
 
 }

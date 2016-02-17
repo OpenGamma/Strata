@@ -27,6 +27,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
@@ -39,6 +40,7 @@ import com.opengamma.strata.collect.id.StandardId;
 @Test
 public class FixedCouponBondTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final YieldConvention YIELD_CONVENTION = YieldConvention.GERMAN_BONDS;
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG-Ticker", "BUN EUR");
   private static final double NOTIONAL = 1.0e7;
@@ -56,18 +58,9 @@ public class FixedCouponBondTest {
   private static final DaysAdjustment EX_COUPON =
       DaysAdjustment.ofBusinessDays(-EX_COUPON_DAYS, EUR_CALENDAR, BUSINESS_ADJUST);
 
+  //-------------------------------------------------------------------------
   public void test_builder() {
-    FixedCouponBond test = FixedCouponBond.builder()
-        .dayCount(DAY_COUNT)
-        .fixedRate(FIXED_RATE)
-        .legalEntityId(LEGAL_ENTITY)
-        .currency(EUR)
-        .notional(NOTIONAL)
-        .periodicSchedule(PERIOD_SCHEDULE)
-        .settlementDateOffset(DATE_OFFSET)
-        .yieldConvention(YIELD_CONVENTION)
-        .exCouponPeriod(EX_COUPON)
-        .build();
+    FixedCouponBond test = sut();
     assertEquals(test.getDayCount(), DAY_COUNT);
     assertEquals(test.getFixedRate(), FIXED_RATE);
     assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
@@ -103,24 +96,13 @@ public class FixedCouponBondTest {
         .build());
   }
 
-  public void test_expand() {
-    FixedCouponBond base = FixedCouponBond.builder()
-        .dayCount(DAY_COUNT)
-        .fixedRate(FIXED_RATE)
-        .legalEntityId(LEGAL_ENTITY)
-        .currency(EUR)
-        .notional(NOTIONAL)
-        .periodicSchedule(PERIOD_SCHEDULE)
-        .settlementDateOffset(DATE_OFFSET)
-        .yieldConvention(YIELD_CONVENTION)
-        .exCouponPeriod(EX_COUPON)
-        .build();
-    ExpandedFixedCouponBond expanded = base.expand();
-    assertEquals(expanded.getDayCount(), DAY_COUNT);
-    assertEquals(expanded.getLegalEntityId(), LEGAL_ENTITY);
-    assertEquals(expanded.getSettlementDateOffset(), DATE_OFFSET);
-    assertEquals(expanded.getYieldConvention(), YIELD_CONVENTION);
-    ImmutableList<FixedCouponBondPaymentPeriod> periodicPayments = expanded.getPeriodicPayments();
+  public void test_resolve() {
+    FixedCouponBond base = sut();
+    ResolvedFixedCouponBond resolved = base.resolve(REF_DATA);
+    assertEquals(resolved.getLegalEntityId(), LEGAL_ENTITY);
+    assertEquals(resolved.getSettlementDateOffset(), DATE_OFFSET);
+    assertEquals(resolved.getYieldConvention(), YIELD_CONVENTION);
+    ImmutableList<FixedCouponBondPaymentPeriod> periodicPayments = resolved.getPeriodicPayments();
     int expNum = 20;
     assertEquals(periodicPayments.size(), expNum);
     LocalDate unadjustedEnd = END_DATE;
@@ -141,12 +123,22 @@ public class FixedCouponBondTest {
       unadjustedEnd = unadjustedStart;
     }
     Payment expectedPayment = Payment.of(CurrencyAmount.of(EUR, NOTIONAL), BUSINESS_ADJUST.adjust(END_DATE));
-    assertEquals(expanded.getNominalPayment(), expectedPayment);
+    assertEquals(resolved.getNominalPayment(), expectedPayment);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    FixedCouponBond test1 = FixedCouponBond.builder()
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
+  }
+
+  public void test_serialization() {
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static FixedCouponBond sut() {
+    return FixedCouponBond.builder()
         .dayCount(DAY_COUNT)
         .fixedRate(FIXED_RATE)
         .legalEntityId(LEGAL_ENTITY)
@@ -157,12 +149,14 @@ public class FixedCouponBondTest {
         .yieldConvention(YIELD_CONVENTION)
         .exCouponPeriod(EX_COUPON)
         .build();
-    coverImmutableBean(test1);
+  }
+
+  static FixedCouponBond sut2() {
     BusinessDayAdjustment adj = BusinessDayAdjustment.of(
         BusinessDayConventions.MODIFIED_FOLLOWING, HolidayCalendars.SAT_SUN);
     PeriodicSchedule sche = PeriodicSchedule.of(
         START_DATE, END_DATE, Frequency.P12M, adj, StubConvention.SHORT_INITIAL, true);
-    FixedCouponBond test2 = FixedCouponBond.builder()
+    return FixedCouponBond.builder()
         .dayCount(DayCounts.ACT_360)
         .fixedRate(0.005)
         .legalEntityId(StandardId.of("OG-Ticker", "BUN EUR 2"))
@@ -172,22 +166,6 @@ public class FixedCouponBondTest {
         .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.SAT_SUN))
         .yieldConvention(YieldConvention.UK_BUMP_DMO)
         .build();
-    coverBeanEquals(test1, test2);
-  }
-
-  public void test_serialization() {
-    FixedCouponBond test = FixedCouponBond.builder()
-        .dayCount(DAY_COUNT)
-        .fixedRate(FIXED_RATE)
-        .legalEntityId(LEGAL_ENTITY)
-        .currency(EUR)
-        .notional(NOTIONAL)
-        .periodicSchedule(PERIOD_SCHEDULE)
-        .settlementDateOffset(DATE_OFFSET)
-        .yieldConvention(YIELD_CONVENTION)
-        .exCouponPeriod(EX_COUPON)
-        .build();
-    assertSerialization(test);
   }
 
 }

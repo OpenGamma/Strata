@@ -30,11 +30,14 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.product.Product;
 
 /**
  * A fixed coupon bond.
@@ -54,7 +57,7 @@ import com.opengamma.strata.collect.id.StandardId;
  */
 @BeanDefinition
 public final class FixedCouponBond
-    implements FixedCouponBondProduct, ImmutableBean, Serializable {
+    implements Product, Resolvable<ResolvedFixedCouponBond>, ImmutableBean, Serializable {
 
   /**
    * The primary currency of the product.
@@ -152,7 +155,7 @@ public final class FixedCouponBond
 
   //-------------------------------------------------------------------------
   @Override
-  public ExpandedFixedCouponBond expand() {
+  public ResolvedFixedCouponBond resolve(ReferenceData refData) {
     Schedule adjustedSchedule = periodicSchedule.createSchedule();
     Schedule unadjustedSchedule = adjustedSchedule.toUnadjusted();
     ImmutableList.Builder<FixedCouponBondPaymentPeriod> accrualPeriods = ImmutableList.builder();
@@ -175,13 +178,16 @@ public final class FixedCouponBond
     ImmutableList<FixedCouponBondPaymentPeriod> periodicPayments = accrualPeriods.build();
     FixedCouponBondPaymentPeriod lastPeriod = periodicPayments.get(periodicPayments.size() - 1);
     Payment nominalPayment = Payment.of(CurrencyAmount.of(currency, notional), lastPeriod.getPaymentDate());
-    return ExpandedFixedCouponBond.builder()
+    return ResolvedFixedCouponBond.builder()
         .legalEntityId(legalEntityId)
         .nominalPayment(nominalPayment)
         .periodicPayments(ImmutableList.copyOf(periodicPayments))
+        .periodicSchedule(periodicSchedule)
+        .fixedRate(fixedRate)
         .dayCount(dayCount)
         .yieldConvention(yieldConvention)
         .settlementDateOffset(settlementDateOffset)
+        .exCouponPeriod(exCouponPeriod)
         .build();
   }
 

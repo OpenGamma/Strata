@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,7 +8,6 @@ package com.opengamma.strata.product.bond;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.OptionalDouble;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -24,24 +23,26 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.Resolvable;
-import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.product.SecurityLink;
-import com.opengamma.strata.product.SecurityTrade;
+import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
- * A trade representing an option on a futures contract based on bonds.
+ * A trade in a fixed coupon bond, resolved for pricing.
  * <p>
- * A trade in an underlying {@link BondFutureOption}.
- * The option is American, exercised at any point up to the exercise time.
- * Both daily margin and upfront premium styles are handled.
+ * This is the resolved form of {@link FixedCouponBondTrade} and is the primary input to the pricers.
+ * Applications will typically create a {@code ResolvedFixedCouponBondTrade} from a {@code FixedCouponBondTrade}
+ * using {@link FixedCouponBondTrade#resolve(ReferenceData)}.
+ * <p>
+ * A {@code ResolvedFixedCouponBondTrade} is bound to data that changes over time, such as holiday calendars.
+ * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
+ * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
 @BeanDefinition
-public final class BondFutureOptionTrade
-    implements SecurityTrade<BondFutureOption>, Resolvable<ResolvedBondFutureOptionTrade>, ImmutableBean, Serializable {
+public final class ResolvedFixedCouponBondTrade
+    implements ResolvedTrade<ResolvedFixedCouponBond>, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.
@@ -51,66 +52,53 @@ public final class BondFutureOptionTrade
   @PropertyDefinition(overrideGet = true)
   private final TradeInfo tradeInfo;
   /**
-   * The link to the option that was traded.
+   * The resolved fixed coupon bond product.
    * <p>
-   * This property returns a link to the security via a {@link StandardId}.
-   * See {@link #getSecurity()} and {@link SecurityLink} for more details.
+   * The product captures the contracted financial details of the trade.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final SecurityLink<BondFutureOption> securityLink;
+  private final ResolvedFixedCouponBond product;
   /**
-   * The quantity, indicating the number of option contracts in the trade.
+   * The identifier used to refer to the security.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final StandardId securityStandardId;
+  /**
+   * The quantity, indicating the number of bond contracts in the trade.
    * <p>
    * This will be positive if buying and negative if selling.
    */
   @PropertyDefinition
   private final long quantity;
   /**
-   * The initial price of the option, represented in decimal form.
+   * The upfront fee payment of the bond trade.
    * <p>
-   * This is the price agreed when the trade occurred.
+   * The payment sign should be compatible with the product quantity, 
+   * thus the payment is negative for positive quantity and positive for negative quantity.
    * <p>
-   * This property should be set if the option has daily margining.
+   * Typically the date of this payment is the same as the settlement date in {@code tradeInfo}.
    */
-  @PropertyDefinition(get = "optional")
-  private final Double initialPrice;
+  @PropertyDefinition(validate = "notNull")
+  private final Payment payment;
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings({"rawtypes", "unchecked"})
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.tradeInfo = TradeInfo.EMPTY;
   }
 
-  //-------------------------------------------------------------------------
-  @Override
-  public BondFutureOptionTrade resolveLinks(LinkResolver resolver) {
-    return resolver.resolveLinksIn(this, securityLink, resolved -> toBuilder().securityLink(resolved).build());
-  }
-
-  @Override
-  public ResolvedBondFutureOptionTrade resolve(ReferenceData refData) {
-    return ResolvedBondFutureOptionTrade.builder()
-        .tradeInfo(tradeInfo)
-        .product(getProduct().resolve(refData))
-        .securityStandardId(getSecurity().getStandardId())
-        .quantity(quantity)
-        .initialPrice(initialPrice)
-        .build();
-  }
-
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code BondFutureOptionTrade}.
+   * The meta-bean for {@code ResolvedFixedCouponBondTrade}.
    * @return the meta-bean, not null
    */
-  public static BondFutureOptionTrade.Meta meta() {
-    return BondFutureOptionTrade.Meta.INSTANCE;
+  public static ResolvedFixedCouponBondTrade.Meta meta() {
+    return ResolvedFixedCouponBondTrade.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(BondFutureOptionTrade.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ResolvedFixedCouponBondTrade.Meta.INSTANCE);
   }
 
   /**
@@ -122,25 +110,29 @@ public final class BondFutureOptionTrade
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static BondFutureOptionTrade.Builder builder() {
-    return new BondFutureOptionTrade.Builder();
+  public static ResolvedFixedCouponBondTrade.Builder builder() {
+    return new ResolvedFixedCouponBondTrade.Builder();
   }
 
-  private BondFutureOptionTrade(
+  private ResolvedFixedCouponBondTrade(
       TradeInfo tradeInfo,
-      SecurityLink<BondFutureOption> securityLink,
+      ResolvedFixedCouponBond product,
+      StandardId securityStandardId,
       long quantity,
-      Double initialPrice) {
-    JodaBeanUtils.notNull(securityLink, "securityLink");
+      Payment payment) {
+    JodaBeanUtils.notNull(product, "product");
+    JodaBeanUtils.notNull(securityStandardId, "securityStandardId");
+    JodaBeanUtils.notNull(payment, "payment");
     this.tradeInfo = tradeInfo;
-    this.securityLink = securityLink;
+    this.product = product;
+    this.securityStandardId = securityStandardId;
     this.quantity = quantity;
-    this.initialPrice = initialPrice;
+    this.payment = payment;
   }
 
   @Override
-  public BondFutureOptionTrade.Meta metaBean() {
-    return BondFutureOptionTrade.Meta.INSTANCE;
+  public ResolvedFixedCouponBondTrade.Meta metaBean() {
+    return ResolvedFixedCouponBondTrade.Meta.INSTANCE;
   }
 
   @Override
@@ -167,20 +159,28 @@ public final class BondFutureOptionTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the link to the option that was traded.
+   * Gets the resolved fixed coupon bond product.
    * <p>
-   * This property returns a link to the security via a {@link StandardId}.
-   * See {@link #getSecurity()} and {@link SecurityLink} for more details.
+   * The product captures the contracted financial details of the trade.
    * @return the value of the property, not null
    */
   @Override
-  public SecurityLink<BondFutureOption> getSecurityLink() {
-    return securityLink;
+  public ResolvedFixedCouponBond getProduct() {
+    return product;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the quantity, indicating the number of option contracts in the trade.
+   * Gets the identifier used to refer to the security.
+   * @return the value of the property, not null
+   */
+  public StandardId getSecurityStandardId() {
+    return securityStandardId;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the quantity, indicating the number of bond contracts in the trade.
    * <p>
    * This will be positive if buying and negative if selling.
    * @return the value of the property
@@ -191,15 +191,16 @@ public final class BondFutureOptionTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the initial price of the option, represented in decimal form.
+   * Gets the upfront fee payment of the bond trade.
    * <p>
-   * This is the price agreed when the trade occurred.
+   * The payment sign should be compatible with the product quantity,
+   * thus the payment is negative for positive quantity and positive for negative quantity.
    * <p>
-   * This property should be set if the option has daily margining.
-   * @return the optional value of the property, not null
+   * Typically the date of this payment is the same as the settlement date in {@code tradeInfo}.
+   * @return the value of the property, not null
    */
-  public OptionalDouble getInitialPrice() {
-    return initialPrice != null ? OptionalDouble.of(initialPrice) : OptionalDouble.empty();
+  public Payment getPayment() {
+    return payment;
   }
 
   //-----------------------------------------------------------------------
@@ -217,11 +218,12 @@ public final class BondFutureOptionTrade
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      BondFutureOptionTrade other = (BondFutureOptionTrade) obj;
+      ResolvedFixedCouponBondTrade other = (ResolvedFixedCouponBondTrade) obj;
       return JodaBeanUtils.equal(tradeInfo, other.tradeInfo) &&
-          JodaBeanUtils.equal(securityLink, other.securityLink) &&
+          JodaBeanUtils.equal(product, other.product) &&
+          JodaBeanUtils.equal(securityStandardId, other.securityStandardId) &&
           (quantity == other.quantity) &&
-          JodaBeanUtils.equal(initialPrice, other.initialPrice);
+          JodaBeanUtils.equal(payment, other.payment);
     }
     return false;
   }
@@ -230,27 +232,29 @@ public final class BondFutureOptionTrade
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(tradeInfo);
-    hash = hash * 31 + JodaBeanUtils.hashCode(securityLink);
+    hash = hash * 31 + JodaBeanUtils.hashCode(product);
+    hash = hash * 31 + JodaBeanUtils.hashCode(securityStandardId);
     hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
-    hash = hash * 31 + JodaBeanUtils.hashCode(initialPrice);
+    hash = hash * 31 + JodaBeanUtils.hashCode(payment);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
-    buf.append("BondFutureOptionTrade{");
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("ResolvedFixedCouponBondTrade{");
     buf.append("tradeInfo").append('=').append(tradeInfo).append(',').append(' ');
-    buf.append("securityLink").append('=').append(securityLink).append(',').append(' ');
+    buf.append("product").append('=').append(product).append(',').append(' ');
+    buf.append("securityStandardId").append('=').append(securityStandardId).append(',').append(' ');
     buf.append("quantity").append('=').append(quantity).append(',').append(' ');
-    buf.append("initialPrice").append('=').append(JodaBeanUtils.toString(initialPrice));
+    buf.append("payment").append('=').append(JodaBeanUtils.toString(payment));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code BondFutureOptionTrade}.
+   * The meta-bean for {@code ResolvedFixedCouponBondTrade}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -262,32 +266,37 @@ public final class BondFutureOptionTrade
      * The meta-property for the {@code tradeInfo} property.
      */
     private final MetaProperty<TradeInfo> tradeInfo = DirectMetaProperty.ofImmutable(
-        this, "tradeInfo", BondFutureOptionTrade.class, TradeInfo.class);
+        this, "tradeInfo", ResolvedFixedCouponBondTrade.class, TradeInfo.class);
     /**
-     * The meta-property for the {@code securityLink} property.
+     * The meta-property for the {@code product} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<SecurityLink<BondFutureOption>> securityLink = DirectMetaProperty.ofImmutable(
-        this, "securityLink", BondFutureOptionTrade.class, (Class) SecurityLink.class);
+    private final MetaProperty<ResolvedFixedCouponBond> product = DirectMetaProperty.ofImmutable(
+        this, "product", ResolvedFixedCouponBondTrade.class, ResolvedFixedCouponBond.class);
+    /**
+     * The meta-property for the {@code securityStandardId} property.
+     */
+    private final MetaProperty<StandardId> securityStandardId = DirectMetaProperty.ofImmutable(
+        this, "securityStandardId", ResolvedFixedCouponBondTrade.class, StandardId.class);
     /**
      * The meta-property for the {@code quantity} property.
      */
     private final MetaProperty<Long> quantity = DirectMetaProperty.ofImmutable(
-        this, "quantity", BondFutureOptionTrade.class, Long.TYPE);
+        this, "quantity", ResolvedFixedCouponBondTrade.class, Long.TYPE);
     /**
-     * The meta-property for the {@code initialPrice} property.
+     * The meta-property for the {@code payment} property.
      */
-    private final MetaProperty<Double> initialPrice = DirectMetaProperty.ofImmutable(
-        this, "initialPrice", BondFutureOptionTrade.class, Double.class);
+    private final MetaProperty<Payment> payment = DirectMetaProperty.ofImmutable(
+        this, "payment", ResolvedFixedCouponBondTrade.class, Payment.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "tradeInfo",
-        "securityLink",
+        "product",
+        "securityStandardId",
         "quantity",
-        "initialPrice");
+        "payment");
 
     /**
      * Restricted constructor.
@@ -300,24 +309,26 @@ public final class BondFutureOptionTrade
       switch (propertyName.hashCode()) {
         case 752580658:  // tradeInfo
           return tradeInfo;
-        case 807992154:  // securityLink
-          return securityLink;
+        case -309474065:  // product
+          return product;
+        case -593973224:  // securityStandardId
+          return securityStandardId;
         case -1285004149:  // quantity
           return quantity;
-        case -423406491:  // initialPrice
-          return initialPrice;
+        case -786681338:  // payment
+          return payment;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public BondFutureOptionTrade.Builder builder() {
-      return new BondFutureOptionTrade.Builder();
+    public ResolvedFixedCouponBondTrade.Builder builder() {
+      return new ResolvedFixedCouponBondTrade.Builder();
     }
 
     @Override
-    public Class<? extends BondFutureOptionTrade> beanType() {
-      return BondFutureOptionTrade.class;
+    public Class<? extends ResolvedFixedCouponBondTrade> beanType() {
+      return ResolvedFixedCouponBondTrade.class;
     }
 
     @Override
@@ -335,11 +346,19 @@ public final class BondFutureOptionTrade
     }
 
     /**
-     * The meta-property for the {@code securityLink} property.
+     * The meta-property for the {@code product} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SecurityLink<BondFutureOption>> securityLink() {
-      return securityLink;
+    public MetaProperty<ResolvedFixedCouponBond> product() {
+      return product;
+    }
+
+    /**
+     * The meta-property for the {@code securityStandardId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<StandardId> securityStandardId() {
+      return securityStandardId;
     }
 
     /**
@@ -351,11 +370,11 @@ public final class BondFutureOptionTrade
     }
 
     /**
-     * The meta-property for the {@code initialPrice} property.
+     * The meta-property for the {@code payment} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> initialPrice() {
-      return initialPrice;
+    public MetaProperty<Payment> payment() {
+      return payment;
     }
 
     //-----------------------------------------------------------------------
@@ -363,13 +382,15 @@ public final class BondFutureOptionTrade
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 752580658:  // tradeInfo
-          return ((BondFutureOptionTrade) bean).getTradeInfo();
-        case 807992154:  // securityLink
-          return ((BondFutureOptionTrade) bean).getSecurityLink();
+          return ((ResolvedFixedCouponBondTrade) bean).getTradeInfo();
+        case -309474065:  // product
+          return ((ResolvedFixedCouponBondTrade) bean).getProduct();
+        case -593973224:  // securityStandardId
+          return ((ResolvedFixedCouponBondTrade) bean).getSecurityStandardId();
         case -1285004149:  // quantity
-          return ((BondFutureOptionTrade) bean).getQuantity();
-        case -423406491:  // initialPrice
-          return ((BondFutureOptionTrade) bean).initialPrice;
+          return ((ResolvedFixedCouponBondTrade) bean).getQuantity();
+        case -786681338:  // payment
+          return ((ResolvedFixedCouponBondTrade) bean).getPayment();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -387,14 +408,15 @@ public final class BondFutureOptionTrade
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code BondFutureOptionTrade}.
+   * The bean-builder for {@code ResolvedFixedCouponBondTrade}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<BondFutureOptionTrade> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ResolvedFixedCouponBondTrade> {
 
     private TradeInfo tradeInfo;
-    private SecurityLink<BondFutureOption> securityLink;
+    private ResolvedFixedCouponBond product;
+    private StandardId securityStandardId;
     private long quantity;
-    private Double initialPrice;
+    private Payment payment;
 
     /**
      * Restricted constructor.
@@ -407,11 +429,12 @@ public final class BondFutureOptionTrade
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(BondFutureOptionTrade beanToCopy) {
+    private Builder(ResolvedFixedCouponBondTrade beanToCopy) {
       this.tradeInfo = beanToCopy.getTradeInfo();
-      this.securityLink = beanToCopy.getSecurityLink();
+      this.product = beanToCopy.getProduct();
+      this.securityStandardId = beanToCopy.getSecurityStandardId();
       this.quantity = beanToCopy.getQuantity();
-      this.initialPrice = beanToCopy.initialPrice;
+      this.payment = beanToCopy.getPayment();
     }
 
     //-----------------------------------------------------------------------
@@ -420,32 +443,36 @@ public final class BondFutureOptionTrade
       switch (propertyName.hashCode()) {
         case 752580658:  // tradeInfo
           return tradeInfo;
-        case 807992154:  // securityLink
-          return securityLink;
+        case -309474065:  // product
+          return product;
+        case -593973224:  // securityStandardId
+          return securityStandardId;
         case -1285004149:  // quantity
           return quantity;
-        case -423406491:  // initialPrice
-          return initialPrice;
+        case -786681338:  // payment
+          return payment;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 752580658:  // tradeInfo
           this.tradeInfo = (TradeInfo) newValue;
           break;
-        case 807992154:  // securityLink
-          this.securityLink = (SecurityLink<BondFutureOption>) newValue;
+        case -309474065:  // product
+          this.product = (ResolvedFixedCouponBond) newValue;
+          break;
+        case -593973224:  // securityStandardId
+          this.securityStandardId = (StandardId) newValue;
           break;
         case -1285004149:  // quantity
           this.quantity = (Long) newValue;
           break;
-        case -423406491:  // initialPrice
-          this.initialPrice = (Double) newValue;
+        case -786681338:  // payment
+          this.payment = (Payment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -478,12 +505,13 @@ public final class BondFutureOptionTrade
     }
 
     @Override
-    public BondFutureOptionTrade build() {
-      return new BondFutureOptionTrade(
+    public ResolvedFixedCouponBondTrade build() {
+      return new ResolvedFixedCouponBondTrade(
           tradeInfo,
-          securityLink,
+          product,
+          securityStandardId,
           quantity,
-          initialPrice);
+          payment);
     }
 
     //-----------------------------------------------------------------------
@@ -500,21 +528,31 @@ public final class BondFutureOptionTrade
     }
 
     /**
-     * Sets the link to the option that was traded.
+     * Sets the resolved fixed coupon bond product.
      * <p>
-     * This property returns a link to the security via a {@link StandardId}.
-     * See {@link #getSecurity()} and {@link SecurityLink} for more details.
-     * @param securityLink  the new value, not null
+     * The product captures the contracted financial details of the trade.
+     * @param product  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder securityLink(SecurityLink<BondFutureOption> securityLink) {
-      JodaBeanUtils.notNull(securityLink, "securityLink");
-      this.securityLink = securityLink;
+    public Builder product(ResolvedFixedCouponBond product) {
+      JodaBeanUtils.notNull(product, "product");
+      this.product = product;
       return this;
     }
 
     /**
-     * Sets the quantity, indicating the number of option contracts in the trade.
+     * Sets the identifier used to refer to the security.
+     * @param securityStandardId  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder securityStandardId(StandardId securityStandardId) {
+      JodaBeanUtils.notNull(securityStandardId, "securityStandardId");
+      this.securityStandardId = securityStandardId;
+      return this;
+    }
+
+    /**
+     * Sets the quantity, indicating the number of bond contracts in the trade.
      * <p>
      * This will be positive if buying and negative if selling.
      * @param quantity  the new value
@@ -526,28 +564,31 @@ public final class BondFutureOptionTrade
     }
 
     /**
-     * Sets the initial price of the option, represented in decimal form.
+     * Sets the upfront fee payment of the bond trade.
      * <p>
-     * This is the price agreed when the trade occurred.
+     * The payment sign should be compatible with the product quantity,
+     * thus the payment is negative for positive quantity and positive for negative quantity.
      * <p>
-     * This property should be set if the option has daily margining.
-     * @param initialPrice  the new value
+     * Typically the date of this payment is the same as the settlement date in {@code tradeInfo}.
+     * @param payment  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder initialPrice(Double initialPrice) {
-      this.initialPrice = initialPrice;
+    public Builder payment(Payment payment) {
+      JodaBeanUtils.notNull(payment, "payment");
+      this.payment = payment;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
-      buf.append("BondFutureOptionTrade.Builder{");
+      StringBuilder buf = new StringBuilder(192);
+      buf.append("ResolvedFixedCouponBondTrade.Builder{");
       buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
-      buf.append("securityLink").append('=').append(JodaBeanUtils.toString(securityLink)).append(',').append(' ');
+      buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
+      buf.append("securityStandardId").append('=').append(JodaBeanUtils.toString(securityStandardId)).append(',').append(' ');
       buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
-      buf.append("initialPrice").append('=').append(JodaBeanUtils.toString(initialPrice));
+      buf.append("payment").append('=').append(JodaBeanUtils.toString(payment));
       buf.append('}');
       return buf.toString();
     }

@@ -38,7 +38,7 @@ import com.opengamma.strata.product.swap.NotionalPaymentPeriod;
 /**
  * A period over which a fixed coupon is paid.
  * <p>
- * A single payment period within a fixed coupon bond, {@link ExpandedFixedCouponBond}.
+ * A single payment period within a fixed coupon bond, {@link ResolvedFixedCouponBond}.
  * The payments of the fixed coupon bond consist periodic coupon payments and nominal payment.
  * This class represents a single payment of the periodic payments. 
  */

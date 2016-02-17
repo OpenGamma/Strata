@@ -26,11 +26,13 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityLink;
 import com.opengamma.strata.product.UnitSecurity;
@@ -41,6 +43,8 @@ import com.opengamma.strata.product.UnitSecurity;
 @SuppressWarnings("unchecked")
 @Test
 public class BondFutureTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   // Underlying bonds
   private static final StandardId SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BONDS"); // same repo curve for all bonds
@@ -63,6 +67,7 @@ public class BondFutureTest {
   @SuppressWarnings("unchecked")
   private static final SecurityLink<FixedCouponBond>[] SECURITY_LINK = new SecurityLink[NB_BOND];
   private static final FixedCouponBond[] BOND_PRODUCT = new FixedCouponBond[NB_BOND];
+  private static final Pair<ResolvedFixedCouponBond, StandardId>[] RESOLVED_BASKET = new Pair[NB_BOND];
 
   static {
     for (int i = 0; i < NB_BOND; ++i) {
@@ -83,6 +88,7 @@ public class BondFutureTest {
       BOND_PRODUCT[i] = product;
       Security<FixedCouponBond> bondSecurity = UnitSecurity.builder(product).standardId(SECURITY_ID).build();
       SECURITY_LINK[i] = SecurityLink.resolved(bondSecurity);
+      RESOLVED_BASKET[i] = Pair.of(product.resolve(REF_DATA), SECURITY_ID);
     }
   }
 
@@ -95,10 +101,11 @@ public class BondFutureTest {
   private static final LocalDate LAST_DELIVERY_DATE = SETTLEMENT_DAYS.adjust(LAST_NOTICE_DATE);
   private static final Rounding ROUNDING = Rounding.ofDecimalPlaces(3);
 
+  //-------------------------------------------------------------------------
   public void test_builder_full() {
     BondFuture test = BondFuture.builder()
-        .conversionFactor(CONVERSION_FACTOR)
         .deliveryBasket(SECURITY_LINK)
+        .conversionFactor(CONVERSION_FACTOR)
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .firstDeliveryDate(FIRST_DELIVERY_DATE)
         .lastNoticeDate(LAST_NOTICE_DATE)
@@ -121,8 +128,8 @@ public class BondFutureTest {
 
   public void test_builder_noDeliveryDate() {
     BondFuture test = BondFuture.builder()
-        .conversionFactor(CONVERSION_FACTOR)
         .deliveryBasket(SECURITY_LINK)
+        .conversionFactor(CONVERSION_FACTOR)
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .lastNoticeDate(LAST_NOTICE_DATE)
         .lastTradeDate(LAST_TRADING_DATE)
@@ -145,8 +152,8 @@ public class BondFutureTest {
   public void test_builder_fail() {
     // wrong size
     assertThrowsIllegalArg(() -> BondFuture.builder()
-        .conversionFactor(CONVERSION_FACTOR)
         .deliveryBasket(SECURITY_LINK[0])
+        .conversionFactor(CONVERSION_FACTOR)
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .lastNoticeDate(LAST_NOTICE_DATE)
         .lastTradeDate(LAST_TRADING_DATE)
@@ -154,16 +161,16 @@ public class BondFutureTest {
         .build());
     // first notice date missing
     assertThrowsIllegalArg(() -> BondFuture.builder()
-        .conversionFactor(CONVERSION_FACTOR)
         .deliveryBasket(SECURITY_LINK)
+        .conversionFactor(CONVERSION_FACTOR)
         .lastNoticeDate(LAST_NOTICE_DATE)
         .lastTradeDate(LAST_TRADING_DATE)
         .rounding(ROUNDING)
         .build());
     // last notice date missing
     assertThrowsIllegalArg(() -> BondFuture.builder()
-        .conversionFactor(CONVERSION_FACTOR)
         .deliveryBasket(SECURITY_LINK)
+        .conversionFactor(CONVERSION_FACTOR)
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .lastTradeDate(LAST_TRADING_DATE)
         .rounding(ROUNDING)
@@ -194,8 +201,8 @@ public class BondFutureTest {
     Security<FixedCouponBond> securityNotional = UnitSecurity.builder(productNotional).standardId(SECURITY_ID).build();
     SecurityLink<FixedCouponBond> securityLinkNotional = SecurityLink.resolved(securityNotional);
     assertThrowsIllegalArg(() -> BondFuture.builder()
-        .conversionFactor(CONVERSION_FACTOR[0], CONVERSION_FACTOR[1])
         .deliveryBasket(SECURITY_LINK[0], securityLinkNotional)
+        .conversionFactor(CONVERSION_FACTOR[0], CONVERSION_FACTOR[1])
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .lastNoticeDate(LAST_NOTICE_DATE)
         .lastTradeDate(LAST_TRADING_DATE)
@@ -216,8 +223,8 @@ public class BondFutureTest {
     Security<FixedCouponBond> securityCurrency = UnitSecurity.builder(productCurrency).standardId(SECURITY_ID).build();
     SecurityLink<FixedCouponBond> securityLinkCurrency = SecurityLink.resolved(securityCurrency);
     assertThrowsIllegalArg(() -> BondFuture.builder()
-        .conversionFactor(CONVERSION_FACTOR[0], CONVERSION_FACTOR[1])
         .deliveryBasket(SECURITY_LINK[0], securityLinkCurrency)
+        .conversionFactor(CONVERSION_FACTOR[0], CONVERSION_FACTOR[1])
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .lastNoticeDate(LAST_NOTICE_DATE)
         .lastTradeDate(LAST_TRADING_DATE)
@@ -227,8 +234,8 @@ public class BondFutureTest {
 
   public void test_getBondSecurityBasket() {
     BondFuture test = BondFuture.builder()
-        .conversionFactor(ImmutableList.copyOf(CONVERSION_FACTOR))
         .deliveryBasket(SECURITY_LINK)
+        .conversionFactor(ImmutableList.copyOf(CONVERSION_FACTOR))
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .lastNoticeDate(LAST_NOTICE_DATE)
         .lastTradeDate(LAST_TRADING_DATE)
@@ -242,10 +249,35 @@ public class BondFutureTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_resolve() {
+    ResolvedBondFuture expected = ResolvedBondFuture.builder()
+        .deliveryBasket(RESOLVED_BASKET)
+        .conversionFactor(CONVERSION_FACTOR)
+        .lastTradeDate(LAST_TRADING_DATE)
+        .firstNoticeDate(FIRST_NOTICE_DATE)
+        .lastNoticeDate(LAST_NOTICE_DATE)
+        .firstDeliveryDate(FIRST_DELIVERY_DATE)
+        .lastDeliveryDate(LAST_DELIVERY_DATE)
+        .rounding(ROUNDING)
+        .build();
+    assertEquals(sut().resolve(REF_DATA), expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
-    BondFuture test1 = BondFuture.builder()
-        .conversionFactor(ImmutableList.copyOf(CONVERSION_FACTOR))
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
+  }
+
+  public void serialization() {
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static BondFuture sut() {
+    return BondFuture.builder()
         .deliveryBasket(SECURITY_LINK)
+        .conversionFactor(ImmutableList.copyOf(CONVERSION_FACTOR))
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .firstDeliveryDate(FIRST_DELIVERY_DATE)
         .lastNoticeDate(LAST_NOTICE_DATE)
@@ -253,29 +285,16 @@ public class BondFutureTest {
         .lastTradeDate(LAST_TRADING_DATE)
         .rounding(ROUNDING)
         .build();
-    coverImmutableBean(test1);
-    BondFuture test2 = BondFuture.builder()
+  }
+
+  static BondFuture sut2() {
+    return BondFuture.builder()
         .conversionFactor(0.9187)
         .deliveryBasket(SECURITY_LINK[3])
         .firstNoticeDate(FIRST_NOTICE_DATE.plusDays(7))
         .lastNoticeDate(LAST_NOTICE_DATE.plusDays(7))
         .lastTradeDate(LAST_TRADING_DATE.plusDays(7))
         .build();
-    coverBeanEquals(test1, test2);
-  }
-
-  public void serialization() {
-    BondFuture test = BondFuture.builder()
-        .conversionFactor(ImmutableList.copyOf(CONVERSION_FACTOR))
-        .deliveryBasket(SECURITY_LINK)
-        .firstNoticeDate(FIRST_NOTICE_DATE)
-        .firstDeliveryDate(FIRST_DELIVERY_DATE)
-        .lastNoticeDate(LAST_NOTICE_DATE)
-        .lastDeliveryDate(LAST_DELIVERY_DATE)
-        .lastTradeDate(LAST_TRADING_DATE)
-        .rounding(ROUNDING)
-        .build();
-    assertSerialization(test);
   }
 
 }
