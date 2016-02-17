@@ -39,6 +39,7 @@ import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.MarketDataRules;
@@ -80,7 +81,7 @@ import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
-import com.opengamma.strata.product.fra.ExpandedFra;
+import com.opengamma.strata.product.fra.ResolvedFra;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -93,6 +94,8 @@ public class CurveEndToEndTest {
 
   /** The maximum allowable PV when round-tripping an instrument used to calibrate a curve. */
   private static final double PV_TOLERANCE = 5e-10;
+  /** The reference data. */
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /**
    * End-to-end test for curve calibration and round-tripping that uses the {@link MarketDataFactory}
@@ -266,7 +269,7 @@ public class CurveEndToEndTest {
         Set<Measure> measures,
         CalculationMarketData marketData) {
 
-      ExpandedFra product = trade.getProduct().expand();
+      ResolvedFra product = trade.getProduct().resolve(REF_DATA);
       CurrencyValuesArray pv = marketData.scenarios()
           .map(MarketDataRatesProvider::of)
           .map(provider -> DiscountingFraProductPricer.DEFAULT.presentValue(product, provider))

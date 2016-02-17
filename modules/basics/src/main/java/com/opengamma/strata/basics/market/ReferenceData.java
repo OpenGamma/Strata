@@ -40,6 +40,18 @@ public interface ReferenceData {
   }
 
   /**
+   * Obtains an instance of standard reference data.
+   * <p>
+   * Standard reference data is built into Strata and provides common holiday calendars and indices.
+   * In most cases, production usage of Strata will not rely on this source of reference data.
+   *
+   * @return standard reference data
+   */
+  public static ReferenceData standard() {
+    return StandardReferenceData.INSTANCE;
+  }
+
+  /**
    * Obtains an instance containing no reference data.
    *
    * @return empty reference data

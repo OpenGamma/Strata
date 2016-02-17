@@ -9,21 +9,21 @@ import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
 
 import com.opengamma.strata.basics.Trade;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
+import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
+import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
+import com.opengamma.strata.pricer.index.DiscountingIborFutureProductPricer;
+import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.pricer.calibration.CalibrationMeasure;
-import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
-import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
-import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
-import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.pricer.index.DiscountingIborFutureProductPricer;
 
 /**
  * Provides market quote measures for a single type of trade based on functions.
@@ -35,6 +35,9 @@ import com.opengamma.strata.pricer.index.DiscountingIborFutureProductPricer;
 public class MarketQuoteMeasure<T extends Trade>
     implements CalibrationMeasure<T> {
 
+  // hard-coded reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   /**
    * The measure for {@link FraTrade} using par rate discounting.
    */
@@ -42,8 +45,8 @@ public class MarketQuoteMeasure<T extends Trade>
       MarketQuoteMeasure.of(
           "FraParRateDiscounting",
           FraTrade.class,
-          (trade, p) -> DiscountingFraProductPricer.DEFAULT.parRate(trade.getProduct(), p),
-          (trade, p) -> DiscountingFraProductPricer.DEFAULT.parRateSensitivity(trade.getProduct(), p));
+          (trade, p) -> DiscountingFraProductPricer.DEFAULT.parRate(trade.getProduct().resolve(REF_DATA), p),
+          (trade, p) -> DiscountingFraProductPricer.DEFAULT.parRateSensitivity(trade.getProduct().resolve(REF_DATA), p));
 
   /**
    * The measure for {@link IborFutureTrade} using price discounting.

@@ -43,6 +43,7 @@ import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.ImmutableMarketDataBuilder;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.ValueType;
@@ -97,6 +98,9 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
   private static final CurveInterpolator INTERPOLATOR_LINEAR = CurveInterpolators.LINEAR;
   private static final CurveExtrapolator EXTRAPOLATOR_FLAT = CurveExtrapolators.FLAT;
   private static final DayCount CURVE_DC = ACT_365F;
+
+  // reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   private static final String SCHEME = "CALIBRATION";
 
@@ -410,7 +414,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     // FRA
     for (int i = 0; i < USD_FWD3_NB_FRA_NODES; i++) {
       CurrencyAmount pvFra =
-          FRA_PRICER.presentValue(((FraTrade) fwd3Trades.get(i + 1)), result);
+          FRA_PRICER.presentValue(((FraTrade) fwd3Trades.get(i + 1)).resolve(REF_DATA), result);
       assertEquals(pvFra.getAmount(), 0.0, TOLERANCE_PV);
     }
     // IRS
@@ -448,7 +452,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     // FRA
     for (int i = 0; i < EUR_FWD3_NB_FRA_NODES; i++) {
       CurrencyAmount pvFra =
-          FRA_PRICER.presentValue(((FraTrade) eurFwd3Trades.get(i + 1)), result);
+          FRA_PRICER.presentValue(((FraTrade) eurFwd3Trades.get(i + 1)).resolve(REF_DATA), result);
       assertEquals(pvFra.getAmount(), 0.0, TOLERANCE_PV);
     }
     // IRS

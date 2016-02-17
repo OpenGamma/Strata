@@ -21,6 +21,7 @@ import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
@@ -83,9 +84,13 @@ public class CalibrationDiscountingSimpleEur3Test {
       DiscountingSwapProductPricer.DEFAULT;
   private static final MarketQuoteSensitivityCalculator MQC = MarketQuoteSensitivityCalculator.DEFAULT;
 
+  // reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   // Constants
   private static final double TOLERANCE_PV = 1.0E-6;
   private static final double TOLERANCE_DELTA = 1.0E-10;
+
 
   //-------------------------------------------------------------------------
   public void calibration_present_value() {
@@ -137,7 +142,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     // FRA
     for (int i = 0; i < FWD3_FRA_QUOTES.length; i++) {
       CurrencyAmount pvFra = PRICER_FRA
-          .presentValue(((FraTrade) fwd3Trades.get(i + 1)).getProduct(), result);
+          .presentValue(((FraTrade) fwd3Trades.get(i + 1)).getProduct().resolve(REF_DATA), result);
       assertEquals(pvFra.getAmount(), 0.0, TOLERANCE_PV);
     }
     // IRS
@@ -228,7 +233,7 @@ public class CalibrationDiscountingSimpleEur3Test {
       }
       if (fwd3Trades.get(loopnode) instanceof FraTrade) {
         pts = PRICER_FRA
-            .parSpreadSensitivity(((FraTrade) fwd3Trades.get(loopnode)).getProduct(), provider);
+            .parSpreadSensitivity(((FraTrade) fwd3Trades.get(loopnode)).getProduct().resolve(REF_DATA), provider);
       }
       if (fwd3Trades.get(loopnode) instanceof SwapTrade) {
         pts = SWAP_PRICER
@@ -264,7 +269,7 @@ public class CalibrationDiscountingSimpleEur3Test {
       }
       if (fwd6Trades.get(loopnode) instanceof FraTrade) {
         pts = PRICER_FRA
-            .parSpreadSensitivity(((FraTrade) fwd6Trades.get(loopnode)).getProduct(), provider);
+            .parSpreadSensitivity(((FraTrade) fwd6Trades.get(loopnode)).getProduct().resolve(REF_DATA), provider);
       }
       if (fwd6Trades.get(loopnode) instanceof SwapTrade) {
         pts = SWAP_PRICER

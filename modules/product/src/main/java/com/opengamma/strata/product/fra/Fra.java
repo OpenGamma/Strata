@@ -38,7 +38,10 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
 import com.opengamma.strata.product.rate.IborRateObservation;
 import com.opengamma.strata.product.rate.RateObservation;
@@ -62,7 +65,7 @@ import com.opengamma.strata.product.rate.RateObservation;
  */
 @BeanDefinition
 public final class Fra
-    implements FraProduct, ImmutableBean, Serializable {
+    implements Product, Resolvable<ResolvedFra>, ImmutableBean, Serializable {
 
   /**
    * Whether the FRA is buy or sell.
@@ -226,26 +229,18 @@ public final class Fra
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Expands this FRA.
-   * <p>
-   * Expanding a FRA causes the dates to be adjusted according to the relevant
-   * holiday calendar. Other one-off calculations may also be performed.
-   * 
-   * @return the equivalent expanded FRA
-   * @throws RuntimeException if unable to expand due to an invalid definition
-   */
   @Override
-  public ExpandedFra expand() {
-    LocalDate start = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(startDate);
-    LocalDate end = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(endDate);
-    return ExpandedFra.builder()
+  public ResolvedFra resolve(ReferenceData refData) {
+    BusinessDayAdjustment bda = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE);
+    LocalDate start = bda.adjust(startDate);
+    LocalDate end = bda.adjust(endDate);
+    return ResolvedFra.builder()
         .paymentDate(getPaymentDate().adjusted())
         .startDate(start)
         .endDate(end)
         .yearFraction(dayCount.yearFraction(start, end))
         .fixedRate(fixedRate)
-        .floatingRate(createRateObservation())
+        .floatingRate(createRateObservation(refData))
         .currency(currency)
         .notional(buySell.normalize(notional))
         .discounting(discounting)
@@ -253,7 +248,7 @@ public final class Fra
   }
 
   // creates an Ibor or IborInterpolated observation
-  private RateObservation createRateObservation() {
+  private RateObservation createRateObservation(ReferenceData refData) {
     LocalDate fixingDate = fixingDateOffset.adjust(startDate);
     if (indexInterpolated != null) {
       return IborInterpolatedRateObservation.of(index, indexInterpolated, fixingDate);

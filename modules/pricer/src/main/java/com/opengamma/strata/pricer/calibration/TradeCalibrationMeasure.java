@@ -9,6 +9,7 @@ import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
 
 import com.opengamma.strata.basics.Trade;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -36,6 +37,9 @@ import com.opengamma.strata.product.swap.SwapTrade;
 public class TradeCalibrationMeasure<T extends Trade>
     implements CalibrationMeasure<T> {
 
+  // hard-coded reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   /**
    * The calibrator for {@link FraTrade} using par spread discounting.
    */
@@ -43,8 +47,8 @@ public class TradeCalibrationMeasure<T extends Trade>
       TradeCalibrationMeasure.of(
           "FraParSpreadDiscounting",
           FraTrade.class,
-          (trade, p) -> DiscountingFraProductPricer.DEFAULT.parSpread(trade.getProduct(), p),
-          (trade, p) -> DiscountingFraProductPricer.DEFAULT.parSpreadSensitivity(trade.getProduct(), p));
+          (trade, p) -> DiscountingFraProductPricer.DEFAULT.parSpread(trade.getProduct().resolve(REF_DATA), p),
+          (trade, p) -> DiscountingFraProductPricer.DEFAULT.parSpreadSensitivity(trade.getProduct().resolve(REF_DATA), p));
 
   /**
    * The calibrator for {@link IborFutureTrade} using par spread discounting.

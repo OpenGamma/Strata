@@ -34,6 +34,7 @@ import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -65,6 +66,7 @@ import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapTradePricer;
 import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.fra.ResolvedFraTrade;
 import com.opengamma.strata.product.fx.type.FxSwapConventions;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -79,6 +81,8 @@ public class CurveGroupMarketDataFunctionTest {
   private static final CurveCalibrator CALIBRATOR = CurveCalibrator.standard();
   /** The maximum allowable PV when round-tripping an instrument used to calibrate a curve. */
   private static final double PV_TOLERANCE = 5e-10;
+  /** The reference data. */
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /**
    * Tests calibration a curve containing FRAs and pricing the curve instruments using the curve.
@@ -358,8 +362,9 @@ public class CurveGroupMarketDataFunctionTest {
       RatesProvider ratesProvider,
       MarketData marketDataMap) {
 
-    Trade trade = node.trade(valuationDate, marketDataMap);
-    CurrencyAmount currencyAmount = DiscountingFraTradePricer.DEFAULT.presentValue((FraTrade) trade, ratesProvider);
+    FraTrade trade = (FraTrade) node.trade(valuationDate, marketDataMap);
+    ResolvedFraTrade resolved = trade.resolve(REF_DATA);
+    CurrencyAmount currencyAmount = DiscountingFraTradePricer.DEFAULT.presentValue(resolved, ratesProvider);
     double pv = currencyAmount.getAmount();
     assertThat(pv).isCloseTo(0, offset(PV_TOLERANCE));
   }

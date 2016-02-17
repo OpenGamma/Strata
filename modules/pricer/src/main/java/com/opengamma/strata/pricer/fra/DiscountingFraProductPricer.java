@@ -22,14 +22,13 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.fra.ExpandedFra;
-import com.opengamma.strata.product.fra.FraProduct;
+import com.opengamma.strata.product.fra.ResolvedFra;
 import com.opengamma.strata.product.rate.RateObservation;
 
 /**
  * Pricer for for forward rate agreement (FRA) products.
  * <p>
- * This function provides the ability to price a {@link FraProduct}.
+ * This function provides the ability to price {@link ResolvedFra}.
  * The product is priced using a forward curve for the index.
  */
 public class DiscountingFraProductPricer {
@@ -62,13 +61,12 @@ public class DiscountingFraProductPricer {
    * The present value of the product is the value on the valuation date.
    * This is the discounted forecast value.
    * 
-   * @param product  the product to price
+   * @param fra  the product
    * @param provider  the rates provider
    * @return the present value of the product
    */
-  public CurrencyAmount presentValue(FraProduct product, RatesProvider provider) {
+  public CurrencyAmount presentValue(ResolvedFra fra, RatesProvider provider) {
     // forecastValue * discountFactor
-    ExpandedFra fra = product.expand();
     double df = provider.discountFactor(fra.getCurrency(), fra.getPaymentDate());
     double pv = forecastValue0(fra, provider) * df;
     return CurrencyAmount.of(fra.getCurrency(), pv);
@@ -80,12 +78,11 @@ public class DiscountingFraProductPricer {
    * The present value sensitivity of the product is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param product  the product to price
+   * @param fra  the product
    * @param provider  the rates provider
    * @return the point sensitivity of the present value
    */
-  public PointSensitivities presentValueSensitivity(FraProduct product, RatesProvider provider) {
-    ExpandedFra fra = product.expand();
+  public PointSensitivities presentValueSensitivity(ResolvedFra fra, RatesProvider provider) {
     DiscountFactors discountFactors = provider.discountFactors(fra.getCurrency());
     double df = discountFactors.discountFactor(fra.getPaymentDate());
     double notional = fra.getNotional();
@@ -104,12 +101,11 @@ public class DiscountingFraProductPricer {
    * <p>
    * The forecast value of the product is the value on the valuation date without present value discounting.
    * 
-   * @param product  the product to price
+   * @param fra  the product
    * @param provider  the rates provider
    * @return the forecast value of the product
    */
-  public CurrencyAmount forecastValue(FraProduct product, RatesProvider provider) {
-    ExpandedFra fra = product.expand();
+  public CurrencyAmount forecastValue(ResolvedFra fra, RatesProvider provider) {
     double fv = forecastValue0(fra, provider);
     return CurrencyAmount.of(fra.getCurrency(), fv);
   }
@@ -120,12 +116,11 @@ public class DiscountingFraProductPricer {
    * The forecast value sensitivity of the product is the sensitivity of the forecast value to
    * the underlying curves.
    * 
-   * @param product  the product to price
+   * @param fra  the product
    * @param provider  the rates provider
    * @return the point sensitivity of the forecast value
    */
-  public PointSensitivities forecastValueSensitivity(FraProduct product, RatesProvider provider) {
-    ExpandedFra fra = product.expand();
+  public PointSensitivities forecastValueSensitivity(ResolvedFra fra, RatesProvider provider) {
     double notional = fra.getNotional();
     double derivative = derivative(fra, provider);
     PointSensitivityBuilder iborSens = forwardRateSensitivity(fra, provider)
@@ -139,12 +134,12 @@ public class DiscountingFraProductPricer {
    * <p>
    * The par rate is the rate for which the FRA present value is 0.
    * 
-   * @param product  the FRA product for which the par rate should be computed
+   * @param fra  the product
    * @param provider  the rates provider
    * @return the par rate
    */
-  public double parRate(FraProduct product, RatesProvider provider) {
-    return forwardRate(product.expand(), provider);
+  public double parRate(ResolvedFra fra, RatesProvider provider) {
+    return forwardRate(fra, provider);
   }
 
   /**
@@ -153,12 +148,12 @@ public class DiscountingFraProductPricer {
    * The par rate curve sensitivity of the product is the sensitivity of the par rate to
    * the underlying curves.
    * 
-   * @param product  the FRA product for which the curve sensitivity of the par rate should be computed
+   * @param fra  the product
    * @param provider  the rates provider
    * @return the par rate sensitivity
    */
-  public PointSensitivities parRateSensitivity(FraProduct product, RatesProvider provider) {
-    return forwardRateSensitivity(product.expand(), provider).build();
+  public PointSensitivities parRateSensitivity(ResolvedFra fra, RatesProvider provider) {
+    return forwardRateSensitivity(fra, provider).build();
   }
 
   /**
@@ -166,12 +161,11 @@ public class DiscountingFraProductPricer {
    * <p>
    * This is spread to be added to the fixed rate to have a present value of 0.
    * 
-   * @param product  the FRA product for which the par spread should be computed
+   * @param fra  the product
    * @param provider  the rates provider
    * @return the par spread
    */
-  public double parSpread(FraProduct product, RatesProvider provider) {
-    ExpandedFra fra = product.expand();
+  public double parSpread(ResolvedFra fra, RatesProvider provider) {
     double forward = forwardRate(fra, provider);
     return forward - fra.getFixedRate();
   }
@@ -182,12 +176,12 @@ public class DiscountingFraProductPricer {
    * The par spread curve sensitivity of the product is the sensitivity of the par spread to
    * the underlying curves.
    * 
-   * @param product  the FRA product for which the curve sensitivity of the par spread should be computed
+   * @param fra  the product
    * @param provider  the rates provider
    * @return the par spread sensitivity
    */
-  public PointSensitivities parSpreadSensitivity(FraProduct product, RatesProvider provider) {
-    return forwardRateSensitivity(product.expand(), provider).build();
+  public PointSensitivities parSpreadSensitivity(ResolvedFra fra, RatesProvider provider) {
+    return forwardRateSensitivity(fra, provider).build();
   }
 
   //-------------------------------------------------------------------------
@@ -195,14 +189,13 @@ public class DiscountingFraProductPricer {
    * Calculates the future cash flow of the FRA product.
    * <p>
    * There is only one cash flow on the payment date for the FRA product.
-   * The expected currency amount of the cash flow is the same as {@link #forecastValue(FraProduct, RatesProvider)}.
+   * The expected currency amount of the cash flow is the same as {@link #forecastValue(ResolvedFra, RatesProvider)}.
    * 
-   * @param product  the FRA product for which the cash flow should be computed
+   * @param fra  the product
    * @param provider  the rates provider
    * @return the cash flows
    */
-  public CashFlows cashFlows(FraProduct product, RatesProvider provider) {
-    ExpandedFra fra = product.expand();
+  public CashFlows cashFlows(ResolvedFra fra, RatesProvider provider) {
     LocalDate paymentDate = fra.getPaymentDate();
     double forecastValue = forecastValue0(fra, provider);
     double df = provider.discountFactor(fra.getCurrency(), paymentDate);
@@ -216,13 +209,11 @@ public class DiscountingFraProductPricer {
    * <p>
    * This returns explanatory information about the calculation.
    * 
-   * @param product  the FRA product for which present value should be computed
+   * @param fra  the FRA product for which present value should be computed
    * @param provider  the rates provider
    * @return the explanatory information
    */
-  public ExplainMap explainPresentValue(FraProduct product, RatesProvider provider) {
-    ExpandedFra fra = product.expand();
-
+  public ExplainMap explainPresentValue(ResolvedFra fra, RatesProvider provider) {
     ExplainMapBuilder builder = ExplainMap.builder();
     Currency currency = fra.getCurrency();
     builder.put(ExplainKey.ENTRY_TYPE, "FRA");
@@ -252,7 +243,7 @@ public class DiscountingFraProductPricer {
 
   //-------------------------------------------------------------------------
   // calculates the forecast value
-  private double forecastValue0(ExpandedFra fra, RatesProvider provider) {
+  private double forecastValue0(ResolvedFra fra, RatesProvider provider) {
     if (fra.getPaymentDate().isBefore(provider.getValuationDate())) {
       return 0d;
     }
@@ -261,7 +252,7 @@ public class DiscountingFraProductPricer {
   }
 
   // unit amount in various discounting methods
-  private double unitAmount(ExpandedFra fra, RatesProvider provider) {
+  private double unitAmount(ResolvedFra fra, RatesProvider provider) {
     switch (fra.getDiscounting()) {
       case NONE:
         return unitAmountNone(fra, provider);
@@ -275,7 +266,7 @@ public class DiscountingFraProductPricer {
   }
 
   // NONE discounting method
-  private double unitAmountNone(ExpandedFra fra, RatesProvider provider) {
+  private double unitAmountNone(ResolvedFra fra, RatesProvider provider) {
     double fixedRate = fra.getFixedRate();
     double forwardRate = forwardRate(fra, provider);
     double yearFraction = fra.getYearFraction();
@@ -283,7 +274,7 @@ public class DiscountingFraProductPricer {
   }
 
   // ISDA discounting method
-  private double unitAmountIsda(ExpandedFra fra, RatesProvider provider) {
+  private double unitAmountIsda(ResolvedFra fra, RatesProvider provider) {
     double fixedRate = fra.getFixedRate();
     double forwardRate = forwardRate(fra, provider);
     double yearFraction = fra.getYearFraction();
@@ -291,7 +282,7 @@ public class DiscountingFraProductPricer {
   }
 
   // AFMA discounting method
-  private double unitAmountAfma(ExpandedFra fra, RatesProvider provider) {
+  private double unitAmountAfma(ResolvedFra fra, RatesProvider provider) {
     double fixedRate = fra.getFixedRate();
     double forwardRate = forwardRate(fra, provider);
     double yearFraction = fra.getYearFraction();
@@ -300,7 +291,7 @@ public class DiscountingFraProductPricer {
 
   //-------------------------------------------------------------------------
   // determine the derivative
-  private double derivative(ExpandedFra fra, RatesProvider provider) {
+  private double derivative(ResolvedFra fra, RatesProvider provider) {
     switch (fra.getDiscounting()) {
       case NONE:
         return derivativeNone(fra, provider);
@@ -314,12 +305,12 @@ public class DiscountingFraProductPricer {
   }
 
   // NONE discounting method
-  private double derivativeNone(ExpandedFra fra, RatesProvider provider) {
+  private double derivativeNone(ResolvedFra fra, RatesProvider provider) {
     return fra.getYearFraction();
   }
 
   // ISDA discounting method
-  private double derivativeIsda(ExpandedFra fra, RatesProvider provider) {
+  private double derivativeIsda(ResolvedFra fra, RatesProvider provider) {
     double fixedRate = fra.getFixedRate();
     double forwardRate = forwardRate(fra, provider);
     double yearFraction = fra.getYearFraction();
@@ -328,7 +319,7 @@ public class DiscountingFraProductPricer {
   }
 
   // AFMA discounting method
-  private double derivativeAfma(ExpandedFra fra, RatesProvider provider) {
+  private double derivativeAfma(ResolvedFra fra, RatesProvider provider) {
     double forwardRate = forwardRate(fra, provider);
     double yearFraction = fra.getYearFraction();
     double dsc = 1.0 / (1.0 + forwardRate * yearFraction);
@@ -337,12 +328,12 @@ public class DiscountingFraProductPricer {
 
   //-------------------------------------------------------------------------
   // query the forward rate
-  private double forwardRate(ExpandedFra fra, RatesProvider provider) {
+  private double forwardRate(ResolvedFra fra, RatesProvider provider) {
     return rateObservationFn.rate(fra.getFloatingRate(), fra.getStartDate(), fra.getEndDate(), provider);
   }
 
   // query the sensitivity
-  private PointSensitivityBuilder forwardRateSensitivity(ExpandedFra fra, RatesProvider provider) {
+  private PointSensitivityBuilder forwardRateSensitivity(ResolvedFra fra, RatesProvider provider) {
     return rateObservationFn.rateSensitivity(fra.getFloatingRate(), fra.getStartDate(), fra.getEndDate(), provider);
   }
 

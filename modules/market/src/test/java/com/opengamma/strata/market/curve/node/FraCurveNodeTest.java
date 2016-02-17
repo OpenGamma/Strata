@@ -33,6 +33,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
@@ -42,6 +43,7 @@ import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.fra.ResolvedFra;
 import com.opengamma.strata.product.fra.type.FraTemplate;
 import com.opengamma.strata.product.rate.IborRateObservation;
 
@@ -60,6 +62,7 @@ public class FraCurveNodeTest {
   private static final double SPREAD = 0.0015;
   private static final String LABEL = "Label";
   private static final String LABEL_AUTO = "5M";
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   public void test_builder() {
     FraCurveNode test = FraCurveNode.builder()
@@ -190,7 +193,8 @@ public class FraCurveNodeTest {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD).withDate(CurveNodeDate.LAST_FIXING);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     FraTrade trade = node.trade(valuationDate, ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, 0.0d).build());
-    LocalDate fixingDate = ((IborRateObservation) (trade.getProduct().expand().getFloatingRate())).getFixingDate();
+    ResolvedFra resolved = trade.getProduct().resolve(REF_DATA);
+    LocalDate fixingDate = ((IborRateObservation) (resolved.getFloatingRate())).getFixingDate();
     DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
     assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), fixingDate);
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), TENOR_5M);

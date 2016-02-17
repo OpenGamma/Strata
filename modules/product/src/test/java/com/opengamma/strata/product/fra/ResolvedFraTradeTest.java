@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -13,40 +13,31 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
- * Test {@link FraTrade}.
+ * Test {@link ResolvedFraTrade}.
  */
 @Test
-public class FraTradeTest {
+public class ResolvedFraTradeTest {
 
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final Fra PRODUCT = FraTest.sut();
-  private static final Fra PRODUCT2 = FraTest.sut2();
+  private static final ResolvedFra PRODUCT = ResolvedFraTest.sut();
+  private static final ResolvedFra PRODUCT2 = ResolvedFraTest.sut2();
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    FraTrade test = FraTrade.of(TRADE_INFO, PRODUCT);
+    ResolvedFraTrade test = ResolvedFraTrade.of(TRADE_INFO, PRODUCT);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getTradeInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
-    FraTrade test = FraTrade.builder()
+    ResolvedFraTrade test = ResolvedFraTrade.builder()
         .product(PRODUCT)
         .build();
     assertEquals(test.getTradeInfo(), TradeInfo.EMPTY);
     assertEquals(test.getProduct(), PRODUCT);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_resolve() {
-    FraTrade test = FraTrade.of(TRADE_INFO, PRODUCT);
-    assertEquals(test.resolve(REF_DATA).getTradeInfo(), TRADE_INFO);
-    assertEquals(test.resolve(REF_DATA).getProduct(), PRODUCT.resolve(REF_DATA));
   }
 
   //-------------------------------------------------------------------------
@@ -60,15 +51,15 @@ public class FraTradeTest {
   }
 
   //-------------------------------------------------------------------------
-  static FraTrade sut() {
-    return FraTrade.builder()
+  static ResolvedFraTrade sut() {
+    return ResolvedFraTrade.builder()
         .tradeInfo(TRADE_INFO)
         .product(PRODUCT)
         .build();
   }
 
-  static FraTrade sut2() {
-    return FraTrade.builder()
+  static ResolvedFraTrade sut2() {
+    return ResolvedFraTrade.builder()
         .product(PRODUCT2)
         .build();
   }
