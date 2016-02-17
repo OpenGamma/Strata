@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.product.fx.FxSwap;
@@ -77,10 +78,11 @@ public class FxSwapTemplateTest {
     LocalDate tradeDate = LocalDate.of(2015, 10, 29);
     FxSwapTrade test = base.createTrade(tradeDate, BUY, NOTIONAL_EUR, FX_RATE_NEAR, FX_RATE_PTS);
     LocalDate spotDate = PLUS_TWO_DAYS.adjust(tradeDate);
-    LocalDate nearDate = CONVENTION.getBusinessDayAdjustment().adjust(spotDate.plus(NEAR_PERIOD));
-    LocalDate farDate = CONVENTION.getBusinessDayAdjustment().adjust(spotDate.plus(FAR_PERIOD));
-    FxSwap expected = FxSwap
-        .ofForwardPoints(CurrencyAmount.of(EUR, NOTIONAL_EUR), USD, FX_RATE_NEAR, FX_RATE_PTS, nearDate, farDate);
+    LocalDate nearDate = spotDate.plus(NEAR_PERIOD);
+    LocalDate farDate = spotDate.plus(FAR_PERIOD);
+    BusinessDayAdjustment bda = CONVENTION.getBusinessDayAdjustment();
+    FxSwap expected = FxSwap.ofForwardPoints(
+        CurrencyAmount.of(EUR, NOTIONAL_EUR), USD, FX_RATE_NEAR, FX_RATE_PTS, nearDate, farDate, bda);
     assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }

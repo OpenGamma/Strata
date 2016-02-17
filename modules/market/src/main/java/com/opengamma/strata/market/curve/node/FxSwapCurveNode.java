@@ -128,8 +128,8 @@ public final class FxSwapCurveNode
   @Override
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date.calculate(
-        () -> calculateEnd(valuationDate),
-        () -> calculateLastFixingDate(valuationDate));
+        () -> calculateEnd(valuationDate, refData),
+        () -> calculateLastFixingDate(valuationDate, refData));
     if (date.isFixed()) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
     }
@@ -138,13 +138,13 @@ public final class FxSwapCurveNode
   }
 
   // calculate the end date
-  private LocalDate calculateEnd(LocalDate valuationDate) {
+  private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
     FxSwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, 0);
-    return trade.getProduct().getFarLeg().getPaymentDate();
+    return trade.getProduct().getFarLeg().resolve(refData).getPaymentDate();
   }
 
   // calculate the last fixing date
-  private LocalDate calculateLastFixingDate(LocalDate valuationDate) {
+  private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
     throw new UnsupportedOperationException("Node date of 'LastFixing' is not supported for FxSwap");
   }
 

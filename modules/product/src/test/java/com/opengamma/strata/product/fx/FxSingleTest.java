@@ -8,6 +8,8 @@ package com.opengamma.strata.product.fx;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
+import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -16,6 +18,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -23,6 +26,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
@@ -39,6 +43,7 @@ public class FxSingleTest {
   private static final CurrencyAmount EUR_P1600 = CurrencyAmount.of(EUR, 1_800);
   private static final LocalDate DATE_2015_06_29 = date(2015, 6, 29);
   private static final LocalDate DATE_2015_06_30 = date(2015, 6, 30);
+  private static final BusinessDayAdjustment BDA = BusinessDayAdjustment.of(FOLLOWING, GBLO);
 
   //-------------------------------------------------------------------------
   public void test_of_rightOrder() {
@@ -46,6 +51,7 @@ public class FxSingleTest {
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDateAdjustment(), Optional.empty());
     assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
     assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
   }
@@ -79,12 +85,23 @@ public class FxSingleTest {
     assertThrowsIllegalArg(() -> FxSingle.of(GBP_P1000, GBP_M1000, DATE_2015_06_30));
   }
 
+  public void test_of_withAdjustment() {
+    FxSingle test = FxSingle.of(GBP_P1000, USD_M1600, DATE_2015_06_30, BDA);
+    assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
+    assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDateAdjustment(), Optional.of(BDA));
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
+  }
+
   //-------------------------------------------------------------------------
   public void test_of_rate_rightOrder() {
     FxSingle test = FxSingle.of(GBP_P1000, FxRate.of(GBP, USD, 1.6d), DATE_2015_06_30);
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDateAdjustment(), Optional.empty());
     assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
     assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
   }
@@ -109,6 +126,16 @@ public class FxSingleTest {
 
   public void test_of_rate_wrongCurrency() {
     assertThrowsIllegalArg(() -> FxSingle.of(GBP_P1000, FxRate.of(USD, EUR, 1.45d), DATE_2015_06_30));
+  }
+
+  public void test_of_rate_withAdjustment() {
+    FxSingle test = FxSingle.of(GBP_P1000, FxRate.of(GBP, USD, 1.6d), DATE_2015_06_30, BDA);
+    assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
+    assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDateAdjustment(), Optional.of(BDA));
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
   }
 
   //-------------------------------------------------------------------------
